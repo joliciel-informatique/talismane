@@ -1,0 +1,146 @@
+///////////////////////////////////////////////////////////////////////////////
+//Copyright (C) 2012 Assaf Urieli
+//
+//This file is part of Talismane.
+//
+//Talismane is free software: you can redistribute it and/or modify
+//it under the terms of the GNU Affero General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//Talismane is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU Affero General Public License for more details.
+//
+//You should have received a copy of the GNU Affero General Public License
+//along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
+//////////////////////////////////////////////////////////////////////////////
+package com.joliciel.talismane.parser;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
+import com.joliciel.talismane.utils.CorpusEvent;
+import com.joliciel.talismane.utils.CorpusEventStream;
+import com.joliciel.talismane.utils.features.FeatureResult;
+import com.joliciel.talismane.utils.util.PerformanceMonitor;
+
+/**
+ * An event stream for parse configurations.
+ * @author Assaf Urieli
+ *
+ */
+class ParseEventStream implements CorpusEventStream {
+    private static final Log LOG = LogFactory.getLog(ParseEventStream.class);
+
+    ParseAnnotatedCorpusReader corpusReader;
+    Set<ParseConfigurationFeature<?>> parseFeatures;
+    
+	ParseConfiguration targetConfiguration;
+	ParseConfiguration currentConfiguration;
+	
+	ParserService parseService;
+
+	int currentIndex;
+	
+	ParseEventStream(ParseAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
+		this.corpusReader = corpusReader;
+		this.parseFeatures = parseFeatures;
+	}
+
+	@Override
+	public boolean hasNext() {
+		PerformanceMonitor.startTask("ParseEventStream.hasNext");
+		try {
+			while (targetConfiguration==null) {
+				if (this.corpusReader.hasNextSentence()) {
+					
+					targetConfiguration = this.corpusReader.nextSentence();
+					currentConfiguration = parseService.getInitialConfiguration(targetConfiguration.getPosTagSequence());
+					currentIndex = 0;
+					if (currentIndex == targetConfiguration.getTransitions().size()) {
+						targetConfiguration = null;
+					}
+				} else {
+					break;
+				}
+			}
+			
+			if (targetConfiguration==null) {
+				LOG.debug("Event stream reading complete");
+			}
+			return targetConfiguration!=null;
+		} finally {
+			PerformanceMonitor.endTask("ParseEventStream.hasNext");
+		}
+	}
+
+	@Override
+	public CorpusEvent next() {
+		PerformanceMonitor.startTask("ParseEventStream.next");
+		try {
+			CorpusEvent event = null;
+			if (this.hasNext()) {
+				LOG.debug("next event, configuration: " + currentConfiguration.toString());
+		
+				List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
+				for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
+					PerformanceMonitor.startTask(parseFeature.getName());
+					try {
+						FeatureResult<?> featureResult = parseFeature.check(currentConfiguration);
+						if (featureResult!=null) {
+							parseFeatureResults.add(featureResult);
+							if (LOG.isTraceEnabled()) {
+								LOG.trace(featureResult.toString());
+							}
+						}	
+					} finally {
+						PerformanceMonitor.endTask(parseFeature.getName());
+					}
+				}
+				
+				Transition transition = targetConfiguration.getTransitions().get(currentIndex);
+				String classification = transition.getName();
+				event = new CorpusEvent(parseFeatureResults, classification);
+				
+				// apply the transition and up the index
+				transition.apply(currentConfiguration);
+				currentIndex++;
+	
+				if (currentIndex==targetConfiguration.getTransitions().size()) {
+					targetConfiguration = null;
+				}
+			}
+			return event;
+		} finally {
+			PerformanceMonitor.endTask("ParseEventStream.next");
+		}
+	}
+
+	public ParserService getParseService() {
+		return parseService;
+	}
+
+	public void setParseService(ParserService parseService) {
+		this.parseService = parseService;
+	}
+
+	@Override
+	public Map<String, Object> getAttributes() {
+		Map<String,Object> attributes = new TreeMap<String, Object>();
+		attributes.put("eventStream", this.getClass().getSimpleName());		
+		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
+		
+		attributes.putAll(corpusReader.getAttributes());
+		return attributes;
+	}
+
+}

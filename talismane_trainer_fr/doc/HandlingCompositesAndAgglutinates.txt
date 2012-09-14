@@ -1,0 +1,18 @@
+Treat "des", "du", "aux", "au" as two new tags, P+D_p, P+D_s, with special handling.
+Basically, for P(t|t-1) they're treated as P. For (t+1|t) they're treated as D_s/D_p.
+For P(w|t) they're treated exactly as they are - meaning a certain probability for P+D_p, and a certain probability for D_p (partitive).
+
+Treat "avant que" and other composite word as separate words with new tags.
+For example, in "avant que", "avant" is CS+... and "que" is "..." if it's at the end of the composite word,
+or "...+" if it's in the middle of the composite word.
+For P(t|t-1) we treat "avant" as CS, and we give "que" 100% if avant is CS+... and "que" is a possible continuation of a known composite word.
+For P(t+1|t) for the word following the composite word, we treat the entire composite word as CS (skipping the additional words).
+For P(w|t) we give "avant" the options CS+..., ADV, etc. with exact probability found in the corpus, and give "que" the options "...", ADV-neg, CS, etc.
+with the exact probability found in the corpus. If only found in the lexicon, we give it a smoothed probability (e.g. 0.5).
+One issue is: giving the "..." a probability of 100% could falsify results, as it will make the composite word provide a much likelier sentence
+than any other possibility. Is this valid? It should be, but needs consideration.
+
+
+posCible
+talisman
+traitement automatique des langues par information statistique modelisée au numérique

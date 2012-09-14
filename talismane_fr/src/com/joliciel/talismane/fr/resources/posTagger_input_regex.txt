@@ -1,0 +1,1 @@
+.*\tTOKEN\t.*\tPOSTAG\t.*\t.*\t

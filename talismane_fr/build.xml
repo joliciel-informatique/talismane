@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="jar" name="talismane-fr">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required -->
+    <import file="../ant/global.xml"/>
+    <import file="../ant/one-jar-ant-task.xml"/>
+
+	<target name="about">
+		<echo message="try targets jar, etc." />
+	</target>
+	
+	<target name="init" description="Initializes properties that are used by other targets.">
+		<property name="project" value="${ant.project.name}" />
+		<property name="prettyName" value="Talismane for French" />
+		<property name="sharedLib" value="../lib"/>
+		<property name="dist" value="../dist"/>
+		<property name="lib" value="lib"/>
+		<property name="src" value="src"/>
+		<property name="build" value="build"/>
+		<property name="classes" location="${build}/classes" />
+		<property name="doc" location="${build}/doc" />
+		<path id="classpath">
+			<fileset dir="${sharedLib}">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${dist}">
+				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-core-${talismane.version}.jar" />
+				<include name="talismane-lefff-${talismane.version}.jar" />
+			</fileset>
+			<!-- build output path -->
+			<pathelement location="${classes}"/>
+		</path>
+		<mkdir dir="${build}" />
+		<mkdir dir="${classes}" />
+		<mkdir dir="${doc}" />
+		<mkdir dir="${dist}" />
+	</target>
+		
+	<target name="compile" depends="init">
+		<javac srcdir="${src}" destdir="${classes}" deprecation="on" debug="on" encoding="utf-8">
+			<classpath><path refid="classpath" /></classpath>
+		</javac>
+		<copy todir="${classes}">
+			<fileset dir="${src}">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="javadoc" depends="compile">
+	  <javadoc packagenames="com.joliciel.*"
+	           sourcepath="${src}"
+	           defaultexcludes="yes"
+	           destdir="${doc}"
+	           author="true"
+	           version="true"
+	  			encoding="UTF-8"
+	           use="true"
+	           windowtitle="${prettyName} API">
+	    <doctitle><![CDATA[<h1>Talismane for French API</h1>]]></doctitle>
+	    <bottom><![CDATA[<i>Copyright &#169; 2012 Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
+	    <tag name="todo" scope="all" description="To do:"/>
+	  </javadoc>
+	</target>
+		
+	<target name="jar" depends="compile">
+        <!-- Construct the One-JAR file -->   
+        <one-jar destfile="${dist}/${project}-${talismane.version}.jar">
+        	<manifest>
+        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.fr.TalismaneFrench" />
+        	</manifest>
+            <main>
+                <!-- Construct main.jar from classes and source code -->
+                <fileset dir="${classes}"/>
+            </main>
+            <lib>
+				<fileset dir="${sharedLib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dist}">
+					<include name="talismane-utils-${talismane.version}.jar" />
+					<include name="talismane-core-${talismane.version}.jar" />
+					<include name="talismane-lefff-${talismane.version}.jar" />
+				</fileset>
+            </lib>
+        </one-jar>
+    </target>
+</project>

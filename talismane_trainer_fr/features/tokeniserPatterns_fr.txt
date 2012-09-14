@@ -1,0 +1,114 @@
+# tokeniser decision regular expressions
+# default tokeniser decisions for various separators:
+# All other separators are assumed to separate tokens on both sides (IS_SEPARATOR), unless proven otherwise
+IS_NOT_SEPARATOR -
+IS_SEPARATOR_AFTER '
+IS_SEPARATOR_BEFORE
+# For each pattern below, check if any set of n tokens matches it. If so, all of the separators inside the set are tested further.
+# For more information, see TokeniserPattern
+ellipses	\.\.\.
+dash	 - 
+Mr.	\D+\.[ ,\)/\\]
+S.A.	.+\..+
+Quat'z'Arts	(?![cdjlmnstCDJLMNST]\z|qu\z|jusqu\z|puisqu\z|lorsqu\z|aujourd\z|prud\z|quelqu\z).+'.+
+-t-elle	.+-t-(elle|elles|en|il|ils|on|y)
+-elle	(?!t\z).+-(ce|elle|elles|en|il|ils|je|la|le|les|leur|lui|moi|nous|on|toi|tu|vous|y)
+-t'	.+-[mt]'
+celui-ci	(celui|celle|ceux|celles)-(ci|là)
+^celui-ci	(?!celui\z|celle\z|ceux\z|celles\z).+-(ci|là)
+1 000	\d+ \d+
+1,000	\d+,\d+
+1.000	\d+\.\d+
+Canal+	.+\+
+à la fois
+à nouveau
+à partir de	à partir (de|du|des|d)
+à peine
+à peu près
+à savoir
+à travers
+a posteriori
+a priori
+afin de	(afin|avant|faute) (de|d)
+alors même que	(alors|avant|de) même (que|qu)
+au delà de	au delà (de|du|des|d)
+au-delà de	au-delà (de|du|des|d)
+au fur et à mesure que	au fur et à mesure (de|du|des|d|que|qu)
+au moins
+aussi bien que	aussi bien (que|qu)
+autour de	(autour|auprès|hors|lors|loin|près) (de|du|des|d)
+aujourd'hui
+bel et bien
+bien que	(ainsi|après|attendu|aussitôt|autant|alors|avant|bien|cependant|depuis|encore|maintenant|non|outre|quoi|sans|sinon|suivant|tant) (que|qu)
+bien sûr
+c'est à dire
+c'est-à-dire
+c'est à dire que	c'est à dire (que|qu)
+c'est-à-dire que	c'est-à-dire (que|qu)
+chef-d'oeuvre	(chef|chefs)-d'(oeuvre|oeuvres)
+comme si	comme (si|s)
+d'abord
+d'accord
+d'ailleurs
+d'après
+d'autant
+d'autant plus
+d'autant plus que	d'autant plus (que|qu)
+d'autant que	d'autant (que|qu)
+d'autre part
+d'emblée
+d'entre
+d'ici
+d'ici à	d'ici (à|au|aux)
+d'où
+d'ores et déjà
+d'une part
+de facto
+de la	de (la|l)
+de manière que	de manière (que|qu)
+de même
+de nouveau
+de plus
+de plus en plus
+de sorte que	de sorte (que|qu)
+de telle sorte que	de telle sorte (que|qu)
+dès lors
+dès lors que	dès lors (que|qu)
+dès que	dès (que|qu)
+du moins
+en fait	en (fait|général|moyenne|outre|particulier|partie)
+en tant que	en tant (que|qu)
+en tout cas
+grâce à	(face|grâce|quant) (à|au|aux)
+il y a
+jusqu'à	jusqu'(à|au|aux)
+jusqu'alors	jusqu'(alors|en|ici|là|où)
+jusqu'à ce que	jusqu'à ce (que|qu)
+jusqu'à présent
+jusque-là
+le plus
+l'on
+même si	même (si|s)
+n'importe où	n'importe (où|quand|quel|quelle|quelles|quels)
+ou bien
+par ailleurs
+parce que	(afin|malgré|parce|pendant|plutôt|pour|pourvu|sauf|selon|sitôt|tandis) (que|qu)
+plus de	(plus|moins) (de|d)
+plus ou moins
+plutôt que de	plutôt que (de|d)
+pour autant	pour autant
+pour autant que	pour (autant|peu) (que|qu)
+prud'homme	prud'(homme|hommes|homal|homaux|homale|homales)
+quand même
+quelqu'un
+quelque chose	quelque (chose|part|peu)
+quitte à
+tel que	(tel|telle|telles|tels) (que|qu)
+tels quels
+tout à fait
+tout de même
+un peu
+vis-à-vis de	vis-à-vis (de|du|des|d)
+y compris
+
+
