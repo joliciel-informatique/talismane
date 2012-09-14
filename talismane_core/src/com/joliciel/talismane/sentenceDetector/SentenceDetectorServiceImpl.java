@@ -1,0 +1,72 @@
+package com.joliciel.talismane.sentenceDetector;
+
+import java.util.List;
+import java.util.Set;
+
+import com.joliciel.talismane.filters.TextFilter;
+import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
+import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
+import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.utils.CorpusEventStream;
+import com.joliciel.talismane.utils.DecisionMaker;
+
+public class SentenceDetectorServiceImpl implements SentenceDetectorService {
+	SentenceDetectorFeatureService sentenceDetectorFeatureService;
+	TokeniserService tokeniserService;
+	
+	@Override
+	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text,
+			int index) {
+		PossibleSentenceBoundaryImpl boundary = new PossibleSentenceBoundaryImpl(text, index);
+		boundary.setTokeniserService(tokeniserService);
+		return boundary;
+	}
+
+	@Override
+	public SentenceDetector getSentenceDetector(
+			DecisionMaker decisionMaker,
+			Set<SentenceDetectorFeature<?>> features) {
+		SentenceDetectorImpl sentenceDetector = new SentenceDetectorImpl(decisionMaker, features);
+		sentenceDetector.setSentenceDetectorService(this);
+		sentenceDetector.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
+		return sentenceDetector;
+	}
+
+	@Override
+	public SentenceDetectorEvaluator getEvaluator(
+			SentenceDetector sentenceDetector) {
+		SentenceDetectorEvaluatorImpl evaluator = new SentenceDetectorEvaluatorImpl(sentenceDetector);
+		return evaluator;
+	}
+
+	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
+		return sentenceDetectorFeatureService;
+	}
+
+	public void setSentenceDetectorFeatureService(
+			SentenceDetectorFeatureService sentenceDetectorFeatureService) {
+		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
+	}
+
+	public TokeniserService getTokeniserService() {
+		return tokeniserService;
+	}
+
+	public void setTokeniserService(TokeniserService tokeniserService) {
+		this.tokeniserService = tokeniserService;
+	}
+
+
+	@Override
+	public CorpusEventStream getSentenceDetectorEventStream(
+			SentenceDetectorAnnotatedCorpusReader corpusReader,
+			Set<SentenceDetectorFeature<?>> features,
+			List<TextFilter> filters) {
+		SentenceDetectorEventStream eventStream = new SentenceDetectorEventStream(corpusReader, features);
+		eventStream.setSentenceDetectorService(this);
+		eventStream.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
+		eventStream.setFilters(filters);
+		return eventStream;
+	}
+
+}
