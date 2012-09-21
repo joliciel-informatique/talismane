@@ -26,13 +26,14 @@ import java.util.Scanner;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.DecisionMaker;
 
 class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerFeatureService posTaggerFeatureService;
@@ -43,7 +44,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	public PosTagger getPosTagger(
 			Set<PosTaggerFeature<?>> posTaggerFeatures,
 			PosTagSet posTagSet,
-			DecisionMaker decisionMaker,
+			DecisionMaker<PosTag> decisionMaker,
 			int beamWidth) {
 		PosTaggerImpl posTagger = new PosTaggerImpl(posTaggerFeatures, posTagSet, decisionMaker, beamWidth);
 		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
@@ -77,9 +78,8 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	}
 
 	@Override
-	public PosTaggedToken getPosTaggedToken(Token token, PosTag posTag,
-			double probability) {
-		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, posTag, probability);
+	public PosTaggedToken getPosTaggedToken(Token token, Decision<PosTag> decision) {
+		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, decision);
 		posTaggedToken.setLexiconService(TalismaneSession.getLexiconService());
 		return posTaggedToken;
 	}

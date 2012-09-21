@@ -18,9 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.Feature;
 
 /**
  * A function that, given a parse configuration, can return a given pos-tagged token.

@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
-import com.joliciel.talismane.utils.features.Feature;
+import com.joliciel.talismane.machineLearning.features.Feature;
 
 /**
  * A feature acting on a ParseConfigurationAddress, meaning a parse-configuration + an address function

@@ -21,11 +21,11 @@ package com.joliciel.talismane.posTagger;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.utils.AnalysisObserver;
 
 /**
  * The PosTagger's task is to apply PosTags to Words within a sentence.

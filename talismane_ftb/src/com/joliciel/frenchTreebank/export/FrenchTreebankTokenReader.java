@@ -35,9 +35,12 @@ import com.joliciel.frenchTreebank.Sentence;
 import com.joliciel.frenchTreebank.TreebankReader;
 import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.util.CSVFormatter;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
+import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.Token;
@@ -46,7 +49,7 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A token reader for the French Treebank corpus.
@@ -95,6 +98,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 		try {
 			Sentence sentence = treebankReader.nextSentence();
 			LOG.debug("Sentence " + sentence.getSentenceNumber());
+			PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+			
 			String text = sentence.getText();
 			// get rid of duplicate white space
 			Pattern duplicateWhiteSpace = Pattern.compile("\\s[\\s]+");
@@ -142,7 +147,9 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 				tokenSplits.add(currentPos);
 				Token aToken = tokenSequence.addEmptyToken(currentPos);
 				PosTag posTag = phraseUnitReader.getPosTag();
-				PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(aToken, posTag, 1.0);
+				Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
+				
+				PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(aToken, corpusDecision);
 				posTaggedTokens.add(posTaggedToken);
 				phraseUnitText = phraseUnitReader.nextString();
 			}
@@ -162,7 +169,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 							LOG.trace("Adding empty token at " + (currentPos - token.length()));
 						tokenSplits.add((currentPos - token.length()));
 						Token emptyToken = tokenSequence.addEmptyToken((currentPos - token.length()));
-						PosTaggedToken posTaggedToken2 = posTaggerService.getPosTaggedToken(emptyToken, emptyTokenPosTag, 1.0);
+						Decision<PosTag> emptyTokenDecision = posTagSet.createDefaultDecision(emptyTokenPosTag);
+						PosTaggedToken posTaggedToken2 = posTaggerService.getPosTaggedToken(emptyToken, emptyTokenDecision);
 						posTaggedTokens.add(posTaggedToken2);
 						addEmptyTokenBeforeNextToken = false;
 					}
@@ -173,7 +181,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	
 					Token aToken = tokenSequence.addToken(lastSplit, currentPos);
 					PosTag posTag = phraseUnitReader.getPosTag();
-					PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(aToken, posTag, 1.0);
+					Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
+					PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(aToken, corpusDecision);
 					posTaggedTokens.add(posTaggedToken);
 	
 					lastSplit = currentPos;
@@ -202,7 +211,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 								LOG.trace("Adding empty token at " + currentPos);
 							tokenSplits.add(currentPos);
 							emptyToken = tokenSequence.addEmptyToken(currentPos);
-							PosTaggedToken posTaggedToken2 = posTaggerService.getPosTaggedToken(emptyToken, emptyTokenPosTag, 1.0);
+							Decision<PosTag> emptyTokenDecision = posTagSet.createDefaultDecision(emptyTokenPosTag);
+							PosTaggedToken posTaggedToken2 = posTaggerService.getPosTaggedToken(emptyToken, emptyTokenDecision);
 							posTaggedTokens.add(posTaggedToken2);
 						}
 					}
@@ -295,7 +305,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 					i++;
 				} else if (token.getStartIndex()==token.getEndIndex()) {
 					LOG.debug("Adding null pos tag at position " + token.getStartIndex());
-					PosTaggedToken emptyTagToken = posTaggerService.getPosTaggedToken(token, PosTag.NULL_POS_TAG, 1.0);
+					Decision<PosTag> nullPosTagDecision = posTagSet.createDefaultDecision(PosTag.NULL_POS_TAG);
+					PosTaggedToken emptyTagToken = posTaggerService.getPosTaggedToken(token, nullPosTagDecision);
 					posTagSequence.add(emptyTagToken);
 				} else {
 					throw new RuntimeException("Expected only empty tokens added. Postag Token = " + posTaggedToken.getToken().getText() + ", start: " + token.getStartIndex() + ", end:" + token.getEndIndex());

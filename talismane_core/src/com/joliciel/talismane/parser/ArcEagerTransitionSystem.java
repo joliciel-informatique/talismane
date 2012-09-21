@@ -33,9 +33,9 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-class ArcEagerTransitionSystem implements TransitionSystem {
-    private static final Log LOG = LogFactory.getLog(ArcEagerTransitionSystem.class);
-	private ParserServiceInternal parserServiceInternal;
+class ArcEagerTransitionSystem extends AbstractTransitionSystem implements TransitionSystem {
+	private static final long serialVersionUID = -7344308319170439498L;
+	private static final Log LOG = LogFactory.getLog(ArcEagerTransitionSystem.class);
 
 	@Override
 	public void predictTransitions(ParseConfiguration configuration,
@@ -51,13 +51,13 @@ class ArcEagerTransitionSystem implements TransitionSystem {
 			DependencyArc currentDep = null;
 			for (DependencyArc arc : targetDependencies) {
 				if (arc.getHead().equals(bufferHead)&&arc.getDependent().equals(stackHead)) {
-					transition = this.getTransitionForName("LeftArc[" + arc.getLabel() + "]", 1.0);
+					transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
 					currentDep = arc;
 					break;
 				}
 				
 				if (arc.getHead().equals(stackHead)&&arc.getDependent().equals(bufferHead)) {
-					transition = this.getTransitionForName("RightArc[" + arc.getLabel() + "]", 1.0);
+					transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
 					currentDep = arc;
 					break;
 				}
@@ -76,12 +76,12 @@ class ArcEagerTransitionSystem implements TransitionSystem {
 				}
 	
 				if (stackHeadHasGovernor && !stackHeadHasDependents) {
-					transition = this.getTransitionForName("Reduce", 1.0);
+					transition = this.getTransitionForCode("Reduce");
 				}
 			}
 			
 			if (transition==null) {
-				transition =  this.getTransitionForName("Shift", 1.0);
+				transition =  this.getTransitionForCode("Shift");
 			}
 			if (currentDep!=null)
 				targetDependencies.remove(currentDep);
@@ -98,36 +98,26 @@ class ArcEagerTransitionSystem implements TransitionSystem {
 	}
 
 	@Override
-	public Transition getTransitionForName(String name, double probability) {
+	public Transition getTransitionForCode(String code) {
 		AbstractTransition transition = null;
 		String label = null;
-		if (name.indexOf('[')>=0) {
-			label = name.substring(name.indexOf('[')+1, (name.indexOf(']')));
+		if (code.indexOf('[')>=0) {
+			label = code.substring(code.indexOf('[')+1, (code.indexOf(']')));
 		}
-		if (name.startsWith("LeftArc")) {
+		if (code.startsWith("LeftArc")) {
 			transition = new LeftArcEagerTransition(label);
-		} else if (name.startsWith("RightArc")) {
+		} else if (code.startsWith("RightArc")) {
 			transition = new RightArcEagerTransition(label);
-		} else if (name.startsWith("Shift")) {
+		} else if (code.startsWith("Shift")) {
 			transition = new ShiftTransition();
-		} else if (name.startsWith("Reduce")) {
+		} else if (code.startsWith("Reduce")) {
 			transition = new ReduceTransition();
 		} else {
-			throw new TalismaneException("Unknown transition name: " + name);
+			throw new TalismaneException("Unknown transition name: " + code);
 		}
-		
-		transition.setParserServiceInternal(this.parserServiceInternal);
-		transition.setProbability(probability);
 		
 		return transition;
 	}
 
-	public ParserServiceInternal getParserServiceInternal() {
-		return parserServiceInternal;
-	}
-
-	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
-		this.parserServiceInternal = parserServiceInternal;
-	}
 
 }

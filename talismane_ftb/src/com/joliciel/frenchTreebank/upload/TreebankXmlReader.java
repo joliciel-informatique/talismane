@@ -48,7 +48,7 @@ import com.joliciel.frenchTreebank.TreebankFile;
 import com.joliciel.frenchTreebank.TreebankReader;
 import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.util.LogUtils;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class TreebankXmlReader implements TreebankReader {
 	private static final Log LOG = LogFactory.getLog(TreebankXmlReader.class);

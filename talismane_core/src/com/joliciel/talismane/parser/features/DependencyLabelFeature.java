@@ -18,11 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 /**
  * The dependency label of a given token's governing dependency,

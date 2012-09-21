@@ -20,12 +20,12 @@ package com.joliciel.talismane.parser;
 
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.DecisionMaker;
-import com.joliciel.talismane.utils.maxent.JolicielMaxentModel;
 
 public interface ParserService {
 	/**
@@ -43,8 +43,8 @@ public interface ParserService {
 
 	public CorpusEventStream getParseEventStream(ParseAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures);
 	
-	public NonDeterministicParser getTransitionBasedParser(JolicielMaxentModel jolicielMaxentModel, int beamWidth);
-	public NonDeterministicParser getTransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
+	public NonDeterministicParser getTransitionBasedParser(JolicielMaxentModel<Transition> jolicielMaxentModel, int beamWidth);
+	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 
 	public ParserEvaluator getParserEvaluator();
 }

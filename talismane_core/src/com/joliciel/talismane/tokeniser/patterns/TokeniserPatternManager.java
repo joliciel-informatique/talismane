@@ -21,7 +21,7 @@ package com.joliciel.talismane.tokeniser.patterns;
 import java.util.List;
 import java.util.Map;
 
-import com.joliciel.talismane.tokeniser.TokeniserDecision;
+import com.joliciel.talismane.tokeniser.SeparatorDecision;
 
 /**
  * The TokeniserPatternManager will read patterns from a list of strings,
@@ -43,11 +43,11 @@ import com.joliciel.talismane.tokeniser.TokeniserDecision;
  */
 public interface TokeniserPatternManager {
 	/**
-	 * For each type of tokeniser decision, a list of separators (e.g. punctuation marks) which will receive
+	 * For each type of separator decision, a list of separators (e.g. punctuation marks) which will receive
 	 * this decision by default.
 	 * @return
 	 */
-	public abstract Map<TokeniserDecision, String> getSeparatorDefaults();
+	public abstract Map<SeparatorDecision, String> getSeparatorDefaults();
 	
 	/**
 	 * The test patterns - only token sequences matching these patterns will

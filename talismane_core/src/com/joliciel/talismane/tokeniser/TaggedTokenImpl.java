@@ -18,21 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.util.List;
-import java.util.ArrayList;
+import com.joliciel.talismane.machineLearning.Decision;
 
 public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 	private Token token = null;
 	private T tag = null;
-	private double probLog = 0;
-	private boolean probLogCalculated = false;
-	private double probability = 0;
-	private List<String> taggers = new ArrayList<String>();
+	private Decision<T> decision = null;
 	
-	public TaggedTokenImpl(Token token, T tag, double probability) {
+	public TaggedTokenImpl(Token token, Decision<T> decision) {
 		this.token = token;
-		this.tag = tag;
-		this.setProbability(probability);
+		this.decision = decision;
+		this.tag = decision.getOutcome();
 	}
 	
 	public Token getToken() {
@@ -47,24 +43,6 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 		this.tag = tag;
 	}
 
-	public double getProbability() {
-		return probability;
-	}
-
-	public void setProbability(double probability) {
-		this.probability = probability;
-		this.probLogCalculated = false;
-	}
-
-	@Override
-	public double getProbLog() {
-		if (!this.probLogCalculated) {
-			this.probLog = Math.log(this.getProbability());
-			this.probLogCalculated = true;
-		}
-		return this.probLog;
-	}
-
 	@Override
 	public int compareTo(TaggedToken<T> o) {
 		if (this.equals(o))
@@ -74,17 +52,9 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 		}
 		if (this.getTag().equals(o.getTag()))
 			return 0;
-		if (this.getProbability()>=o.getProbability())
+		if (this.getDecision().getProbability()>=o.getDecision().getProbability())
 			return -1;
 		return 1;
-	}
-
-	public void addTagger(String tagger) {
-		this.taggers.add(tagger);
-	}
-
-	public List<String> getTaggers() {
-		return taggers;
 	}
 
 	@Override
@@ -117,6 +87,10 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 		} else if (!token.equals(other.token))
 			return false;
 		return true;
+	}
+
+	public Decision<T> getDecision() {
+		return decision;
 	}
 	
 	

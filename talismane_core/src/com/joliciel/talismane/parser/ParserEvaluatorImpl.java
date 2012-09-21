@@ -29,9 +29,9 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.CSVFormatter;
-import com.joliciel.talismane.utils.util.LogUtils;
+import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.utils.CSVFormatter;
+import com.joliciel.talismane.utils.LogUtils;
 
 public class ParserEvaluatorImpl implements ParserEvaluator {
 	private static final Log LOG = LogFactory.getLog(ParserEvaluatorImpl.class);
@@ -151,7 +151,7 @@ public class ParserEvaluatorImpl implements ParserEvaluator {
 									if (guessedArc!=null) {
 										Transition transition = guessedConfiguration.getTransition(guessedArc);
 										if (transition!=null)
-											prob = transition.getProbability();
+											prob = transition.getDecision().getProbability();
 									}
 									csvFileWriter.write(CSVFormatter.format(prob) + ",");
 								}					

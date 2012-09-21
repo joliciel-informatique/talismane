@@ -22,9 +22,9 @@ package com.joliciel.talismane.tokeniser.features;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.utils.features.AbstractCachableFeature;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 /**
  * An Abstract base class for intrinsic features.

@@ -31,8 +31,8 @@ import com.joliciel.frenchTreebank.search.SearchServiceImpl;
 import com.joliciel.frenchTreebank.upload.TreebankUploadServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.utils.util.ObjectCache;
-import com.joliciel.talismane.utils.util.SimpleObjectCache;
+import com.joliciel.talismane.utils.ObjectCache;
+import com.joliciel.talismane.utils.SimpleObjectCache;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class TreebankServiceLocator {

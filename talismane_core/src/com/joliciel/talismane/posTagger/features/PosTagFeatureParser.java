@@ -21,19 +21,19 @@ package com.joliciel.talismane.posTagger.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.AbstractFeature;
+import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.DoubleFeature;
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureParser;
-import com.joliciel.talismane.utils.features.AbstractFeature;
-import com.joliciel.talismane.utils.features.AbstractFeatureParser;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.DoubleFeature;
-import com.joliciel.talismane.utils.features.Feature;
-import com.joliciel.talismane.utils.features.FeatureClassContainer;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.FeatureService;
-import com.joliciel.talismane.utils.features.FeatureWrapper;
-import com.joliciel.talismane.utils.features.FunctionDescriptor;
-import com.joliciel.talismane.utils.features.IntegerFeature;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
 	TokenFeatureParser tokenFeatureParser;

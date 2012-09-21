@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.utils.AnalysisObserver;
 
 
 /**
@@ -38,42 +39,44 @@ class SimpleTokeniser implements Tokeniser {
 	private static final Log LOG = LogFactory.getLog(SimpleTokeniser.class);
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
-	private List<TokenFilter> preprocessingFilters;
+	private List<TokenFilter> preprocessingFilters = new ArrayList<TokenFilter>();
+	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 	
 	@Override
 	public List<TokenSequence> tokenise(String sentence) {
-		List<TokeniserDecisionTagSequence> decisionSequences = this.tokeniseWithDecisions(sentence);
+		List<TokenisedAtomicTokenSequence> decisionSequences = this.tokeniseWithDecisions(sentence);
 		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
-		for (TokeniserDecisionTagSequence decisionSequence : decisionSequences) {
-			tokenSequences.add(decisionSequence.getTokenSequence());
+		for (TokenisedAtomicTokenSequence decisionSequence : decisionSequences) {
+			tokenSequences.add(decisionSequence.inferTokenSequence());
 		}
 		return tokenSequences;
 	}
 	
 	@Override
-	public List<TokeniserDecisionTagSequence> tokeniseWithDecisions(String sentence) {
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String sentence) {
 		// Initially, separate the sentence into tokens using the separators provided
 		TokenSequence tokenSequence = this.tokeniserServiceInternal.getTokenSequence(sentence, Tokeniser.SEPARATORS);
-		TokeniserDecisionTagSequence taggedTokenSequence = this.tokeniserServiceInternal.getTokeniserDecisionTagSequence(sentence, tokenSequence.size());
+		TokenisedAtomicTokenSequence taggedTokenSequence = this.tokeniserServiceInternal.getTokenisedSentence(sentence, tokenSequence.size());
 
 		for (TokenFilter filter : preprocessingFilters)
 			filter.apply(tokenSequence);
 		
 		for (Token token : tokenSequence) {
-			TaggedToken<TokeniserDecision> taggedToken;
+			Decision<TokeniserOutcome> decision;
 			if (token.getText().equals("'")) {
-				taggedToken = this.tokeniserServiceInternal.getTaggedToken(token, TokeniserDecision.DOES_NOT_SEPARATE, 1.0);
+				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.DOES_NOT_SEPARATE);
 			} else {
-				taggedToken = this.tokeniserServiceInternal.getTaggedToken(token, TokeniserDecision.DOES_SEPARATE, 1.0);
+				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.DOES_SEPARATE);
 			}
+			TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserServiceInternal.getTaggedToken(token, decision);
 			taggedTokenSequence.add(taggedToken);
 		}
 		
-		List<TokeniserDecisionTagSequence> sequences = new ArrayList<TokeniserDecisionTagSequence>();
+		List<TokenisedAtomicTokenSequence> sequences = new ArrayList<TokenisedAtomicTokenSequence>();
 		sequences.add(taggedTokenSequence);
 		
-		for (TokeniserDecisionTagSequence sequence : sequences) {
-			TokenSequence newTokenSequence = sequence.getTokenSequence();
+		for (TokenisedAtomicTokenSequence sequence : sequences) {
+			TokenSequence newTokenSequence = sequence.inferTokenSequence();
 			for (TokenFilter tokenFilter : this.preprocessingFilters) {
 				tokenFilter.apply(newTokenSequence);
 			}

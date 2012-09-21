@@ -28,14 +28,14 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.FeatureService;
-import com.joliciel.talismane.utils.features.FunctionDescriptor;
-import com.joliciel.talismane.utils.features.FunctionDescriptorParser;
 
 public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
     private static final Log LOG = LogFactory.getLog(PosTaggerFeatureServiceImpl.class);

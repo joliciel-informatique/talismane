@@ -18,9 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.utils.features.Feature;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 /**
  * Passes an explicit address to a ParseConfigurationAddressFeature.
@@ -28,8 +28,13 @@ import com.joliciel.talismane.utils.features.FeatureResult;
  *
  */
 public class ExplicitAddressFeature<T> extends AbstractParseConfigurationFeature<T> {
+	@SuppressWarnings("unused")
 	private AddressFunction addressFunction;
 	private ParseConfigurationAddressFeature<T> parseConfigurationAddressFeature = null;
+	
+	// keeping this at instance level is for performance reasons only
+	// it is safe, as only one configuration is tested at a time
+	private ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress();
 	
 	public ExplicitAddressFeature(ParseConfigurationAddressFeature<T> parseConfigurationAddressFeature, AddressFunction addressFunction) {
 		super();
@@ -48,11 +53,14 @@ public class ExplicitAddressFeature<T> extends AbstractParseConfigurationFeature
 			newName = originalName + "(" + addressFunction.getName() + ")";
 		}
 		this.setName(newName);
+		parseConfigurationAddress.setAddressFunction(addressFunction);
 	}
 
+	
 	@Override
 	public FeatureResult<T> checkInternal(ParseConfiguration configuration) {
-		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, addressFunction);
+		parseConfigurationAddress.setParseConfiguration(configuration);
+		
 		FeatureResult<T> internalResult = this.parseConfigurationAddressFeature.check(parseConfigurationAddress);
 		FeatureResult<T> result = null;
 		if (internalResult!=null) {

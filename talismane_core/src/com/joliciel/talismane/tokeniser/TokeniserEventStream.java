@@ -18,15 +18,19 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.CorpusEvent;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -35,10 +39,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
-import com.joliciel.talismane.utils.CorpusEvent;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A MaxEnt event stream for tokenising, using patterns to identify intervals that need to be examined.
@@ -56,12 +57,13 @@ class TokeniserEventStream implements CorpusEventStream {
 
     TokeniserAnnotatedCorpusReader corpusReader;
     Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
-	List<TaggedToken<TokeniserDecision>> tokensToCheck;
+	List<TaggedToken<TokeniserOutcome>> tokensToCheck;
 	int currentIndex;
-	TokeniserDecisionTagSequence currentHistory = null;
+	TokenisedAtomicTokenSequence currentHistory = null;
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 
 	TokeniserPatternManager tokeniserPatternManager = null;
+	TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 
 	public TokeniserEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures) {
@@ -88,8 +90,8 @@ class TokeniserEventStream implements CorpusEventStream {
 						tokenFilter.apply(tokenSequence);
 					}
 					
-					List<TaggedToken<TokeniserDecision>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
-					currentHistory = this.tokeniserService.getTokeniserDecisionTagSequence(sentence, tokenSequence.size());
+					List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
+					currentHistory = this.tokeniserService.getTokenisedSentence(sentence, tokenSequence.size());
 					
 					// check if anything matches each pattern
 					Set<Token> patternMatchingTokens = new TreeSet<Token>();
@@ -103,9 +105,9 @@ class TokeniserEventStream implements CorpusEventStream {
 					} // next pattern
 					
 					if (patternMatchingTokens.size()>0) {
-						tokensToCheck = new ArrayList<TaggedToken<TokeniserDecision>>();
+						tokensToCheck = new ArrayList<TaggedToken<TokeniserOutcome>>();
 						for (Token token : patternMatchingTokens) {
-							for (TaggedToken<TokeniserDecision> taggedToken : currentSentence) {
+							for (TaggedToken<TokeniserOutcome> taggedToken : currentSentence) {
 								if (taggedToken.getToken().equals(token))
 									tokensToCheck.add(taggedToken);
 							}
@@ -131,7 +133,7 @@ class TokeniserEventStream implements CorpusEventStream {
 
 	@Override
 	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new TreeMap<String, Object>();
+		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
 				
@@ -151,7 +153,7 @@ class TokeniserEventStream implements CorpusEventStream {
 		try {
 			CorpusEvent event = null;
 			if (this.hasNext()) {
-				TaggedToken<TokeniserDecision> taggedToken = tokensToCheck.get(currentIndex++);
+				TaggedToken<TokeniserOutcome> taggedToken = tokensToCheck.get(currentIndex++);
 				TokeniserContext context = new TokeniserContext(taggedToken.getToken(), currentHistory);
 				
 				LOG.debug("next event, token: " + taggedToken.getToken().getText());
@@ -201,13 +203,14 @@ class TokeniserEventStream implements CorpusEventStream {
 		this.tokeniserService = tokeniserService;
 	}
 
-	public List<TaggedToken<TokeniserDecision>> getTaggedTokens(TokenSequence tokenSequence, List<Integer> tokenSplits) {
-		List<TaggedToken<TokeniserDecision>> taggedTokens = new ArrayList<TaggedToken<TokeniserDecision>>();
+	public List<TaggedToken<TokeniserOutcome>> getTaggedTokens(TokenSequence tokenSequence, List<Integer> tokenSplits) {
+		List<TaggedToken<TokeniserOutcome>> taggedTokens = new ArrayList<TaggedToken<TokeniserOutcome>>();
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
-			TokeniserDecision decision = TokeniserDecision.DOES_NOT_SEPARATE;
+			TokeniserOutcome outcome = TokeniserOutcome.DOES_NOT_SEPARATE;
 			if (tokenSplits.contains(token.getStartIndex()))
-				decision = TokeniserDecision.DOES_SEPARATE;
-			TaggedToken<TokeniserDecision> taggedToken = this.getTokeniserService().getTaggedToken(token, decision, 1.0);
+				outcome = TokeniserOutcome.DOES_SEPARATE;
+			Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
+			TaggedToken<TokeniserOutcome> taggedToken = this.getTokeniserService().getTaggedToken(token, decision);
 			taggedTokens.add(taggedToken);
 		}
 		return taggedTokens;

@@ -18,12 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import com.joliciel.talismane.machineLearning.Outcome;
+
 /**
  * A marker interface for various tags that can be added on to a token
  * by various learners (tokeniser, pos tagger, etc.)
  * @author Assaf Urieli
  *
  */
-public interface TokenTag {
+public interface TokenTag extends Outcome {
 
 }

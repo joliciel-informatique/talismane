@@ -21,7 +21,7 @@ package com.joliciel.talismane.sentenceDetector;
 import java.io.Writer;
 
 import com.joliciel.talismane.filters.TextFilter;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
+import com.joliciel.talismane.stats.FScoreCalculator;
 
 /**
  * An interface for evaluating a given sentence detector.
@@ -35,7 +35,7 @@ public interface SentenceDetectorEvaluator {
 	 * @param reader for reading manually separated sentences from a corpus
 	 * @return an f-score calculator for this sentence detector
 	 */
-	public FScoreCalculator<SentenceDetectorDecision> evaluate(SentenceDetectorAnnotatedCorpusReader reader,
+	public FScoreCalculator<SentenceDetectorOutcome> evaluate(SentenceDetectorAnnotatedCorpusReader reader,
 			Writer errorWriter);
 	
 

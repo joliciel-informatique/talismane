@@ -22,11 +22,16 @@ import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
+import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
+import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserDecision;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
@@ -41,11 +46,7 @@ import com.joliciel.talismane.tokeniser.filters.french.UpperCaseSeriesFilter;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternServiceLocator;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.maxent.JolicielMaxentModel;
-import com.joliciel.talismane.utils.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class TokeniserMaxentRunner {
     private static final Log LOG = LogFactory.getLog(TokeniserMaxentRunner.class);
@@ -62,7 +63,7 @@ public class TokeniserMaxentRunner {
 		String lefffPath = "";
 		String treebankPath = "";
 		String outDirPath = "";
-		String tokeniserType = "simple";
+		String tokeniserType = "maxent";
 		int iterations = 0;
 		int cutoff = 0;
 		int sentenceCount = 0;
@@ -213,7 +214,8 @@ public class TokeniserMaxentRunner {
 				modelTrainer.setCutoff(cutoff);
 				modelTrainer.setIterations(iterations);
 	
-				JolicielMaxentModel jolicielMaxentModel = new JolicielMaxentModel(modelTrainer, featureDescriptors);
+				DecisionFactory<TokeniserOutcome> decisionFactory = tokeniserService.getDecisionFactory();
+				JolicielMaxentModel<TokeniserOutcome> jolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(modelTrainer, featureDescriptors, decisionFactory);
 				jolicielMaxentModel.setPatternDescriptors(patternDescriptors);
 				jolicielMaxentModel.persist(tokeniserModelFile);
 	
@@ -247,7 +249,7 @@ public class TokeniserMaxentRunner {
 				errorFile.createNewFile();
 				errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false),"UTF8"));
 				
-				FScoreCalculator<TokeniserDecision> fScoreCalculator = null;
+				FScoreCalculator<TokeniserOutcome> fScoreCalculator = null;
 				try {
 					Tokeniser tokeniser = null;
 					if (tokeniserType.equalsIgnoreCase("simple")) {
@@ -256,7 +258,7 @@ public class TokeniserMaxentRunner {
 						if (tokeniserModelFilePath.length()==0)
 							throw new RuntimeException("Missing argument: tokeniserModel");
 						File tokeniserModelFile = new File(tokeniserModelFilePath);
-						JolicielMaxentModel tokeniserJolicielMaxentModel = new JolicielMaxentModel(tokeniserModelFile);
+						JolicielMaxentModel<TokeniserOutcome> tokeniserJolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(tokeniserModelFile);
 						TokeniserPatternManager tokeniserPatternManager =
 							tokeniserPatternService.getPatternManager(tokeniserJolicielMaxentModel.getPatternDescriptors());
 						Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserJolicielMaxentModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());

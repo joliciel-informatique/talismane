@@ -28,11 +28,11 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.CSVFormatter;
+import com.joliciel.talismane.utils.CSVFormatter;
 
 class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 	private static final Log LOG = LogFactory.getLog(PosTaggerEvaluatorImpl.class);
@@ -142,7 +142,7 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 				}
 
 				if (LOG.isTraceEnabled()) {
-					LOG.trace("Token " + testToken.getToken().getText() + ", guessed: " + testToken.getTag().getCode() + " (" + testToken.getProbability() + "), actual: " + realToken.getTag().getCode());
+					LOG.trace("Token " + testToken.getToken().getText() + ", guessed: " + testToken.getTag().getCode() + " (" + testToken.getDecision().getProbability() + "), actual: " + realToken.getTag().getCode());
 				}
 				
 				String result = testToken.getTag().getCode();
@@ -209,7 +209,7 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 							} else {
 								csvFileWriter.write(CSVFormatter.format(testToken.getTag().getCode()) + ",");
 							}
-							probs += CSVFormatter.format(testToken.getProbability()) + ",";
+							probs += CSVFormatter.format(testToken.getDecision().getProbability()) + ",";
 						}
 						csvFileWriter.write("\n");
 						csvFileWriter.write(probs + "\n");

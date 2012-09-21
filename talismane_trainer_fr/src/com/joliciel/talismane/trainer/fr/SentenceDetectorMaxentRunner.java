@@ -21,19 +21,20 @@ import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
 import com.joliciel.talismane.filters.TextFilter;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
+import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorDecision;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.maxent.JolicielMaxentModel;
-import com.joliciel.talismane.utils.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.LogUtils;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class SentenceDetectorMaxentRunner {
     private static final Log LOG = LogFactory.getLog(SentenceDetectorMaxentRunner.class);
@@ -72,7 +73,7 @@ public class SentenceDetectorMaxentRunner {
 					iterations = Integer.parseInt(argValue);
 				else if (argName.equals("cutoff"))
 					cutoff = Integer.parseInt(argValue);
-				else if (argName.equals("outdir")) 
+				else if (argName.equals("outDir")) 
 					outDirPath = argValue;
 				else if (argName.equals("sentenceCount"))
 					sentenceCount = Integer.parseInt(argValue);
@@ -138,7 +139,8 @@ public class SentenceDetectorMaxentRunner {
 				modelTrainer.setCutoff(cutoff);
 				modelTrainer.setIterations(iterations);
 				
-				JolicielMaxentModel jolicielMaxentModel = new JolicielMaxentModel(modelTrainer, featureDescriptors);
+				DecisionFactory<SentenceDetectorOutcome> decisionFactory = sentenceDetectorService.getDecisionFactory();
+				JolicielMaxentModel<SentenceDetectorOutcome> jolicielMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(modelTrainer, featureDescriptors, decisionFactory);
 				jolicielMaxentModel.persist(sentenceModelFile);
 
 			} else if (command.equals("evaluate")) {
@@ -168,11 +170,11 @@ public class SentenceDetectorMaxentRunner {
 					errorFile.createNewFile();
 					errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false),"UTF8"));
 				}
-				FScoreCalculator<SentenceDetectorDecision> fScoreCalculator = null;
+				FScoreCalculator<SentenceDetectorOutcome> fScoreCalculator = null;
 				
 				try {
 					File sentenceModelFile = new File(sentenceModelFilePath);
-					JolicielMaxentModel sentenceModelFileMaxentModel = new JolicielMaxentModel(sentenceModelFile);
+					JolicielMaxentModel<SentenceDetectorOutcome> sentenceModelFileMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(sentenceModelFile);
 					Set<SentenceDetectorFeature<?>> features = sentenceDetectorFeatureService.getFeatureSet(sentenceModelFileMaxentModel.getFeatureDescriptors());
 
 					SentenceDetector sentenceDetector = sentenceDetectorService.getSentenceDetector(sentenceModelFileMaxentModel.getDecisionMaker(), features);

@@ -19,7 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 interface TokeniserServiceInternal extends TokeniserService {
-	public TokenSequence getTokenSequence(String sentence, TokeniserDecisionTagSequence tokeniserDecisionTagSequence);
+	public TokenSequence getTokenSequence(String sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence);
 	
 	public TokenInternal getTokenInternal(String string, TokenSequence tokenSequence, int index);
 

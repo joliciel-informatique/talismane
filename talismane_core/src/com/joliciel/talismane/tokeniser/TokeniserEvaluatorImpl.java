@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.StringUtils;
+import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.utils.StringUtils;
 
 class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 	private static final Log LOG = LogFactory.getLog(TokeniserEvaluatorImpl.class);
@@ -41,22 +41,22 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 	private Pattern separatorPattern = null;
 	
 	@Override
-	public FScoreCalculator<TokeniserDecision> evaluate(
+	public FScoreCalculator<TokeniserOutcome> evaluate(
 			TokeniserAnnotatedCorpusReader corpusReader,
 			Writer errorWriter) {
-		FScoreCalculator<TokeniserDecision> fScoreCalculator = new FScoreCalculator<TokeniserDecision>();
+		FScoreCalculator<TokeniserOutcome> fScoreCalculator = new FScoreCalculator<TokeniserOutcome>();
 		
 		//add f-score per tagger module, needs to somehow tie back to decisions the actual tags, rather than the splits
-		Map<String, FScoreCalculator<TokeniserDecision>> taggerFScoreCalculators = new TreeMap<String, FScoreCalculator<TokeniserDecision>>();
+		Map<String, FScoreCalculator<TokeniserOutcome>> taggerFScoreCalculators = new TreeMap<String, FScoreCalculator<TokeniserOutcome>>();
 		Map<String, List<String>> errorMap = new TreeMap<String, List<String>>();
 		
 		while (corpusReader.hasNextSentence()) {
 			List<Integer> realSplits = new ArrayList<Integer>();
 			String sentence = corpusReader.nextSentence(realSplits);
 			
-			List<TokeniserDecisionTagSequence> tokeniserDecisionTagSequences = tokeniser.tokeniseWithDecisions(sentence);
-			TokeniserDecisionTagSequence tokeniserDecisionTagSequence = tokeniserDecisionTagSequences.get(0);
-			TokenSequence tokenSequence = tokeniserDecisionTagSequence.getTokenSequence();
+			List<TokenisedAtomicTokenSequence> tokeniserDecisionTagSequences = tokeniser.tokeniseWithDecisions(sentence);
+			TokenisedAtomicTokenSequence tokeniserDecisionTagSequence = tokeniserDecisionTagSequences.get(0);
+			TokenSequence tokenSequence = tokeniserDecisionTagSequence.inferTokenSequence();
 			List<Integer> guessedSplits = tokenSequence.getTokenSplits();
 			
 			if (LOG.isDebugEnabled()) {
@@ -88,11 +88,11 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 				possibleSplits.add(matcher.end());
 			}
 			
-			for (TaggedToken<TokeniserDecision> guessTag : tokeniserDecisionTagSequence) {
-				TokeniserDecision guessDecision = guessTag.getTag();
+			for (TaggedToken<TokeniserOutcome> guessTag : tokeniserDecisionTagSequence) {
+				TokeniserOutcome guessDecision = guessTag.getTag();
 				boolean realSplit = realSplits.contains(guessTag.getToken().getStartIndex());
 				
-				TokeniserDecision realDecision = realSplit ? TokeniserDecision.DOES_SEPARATE : TokeniserDecision.DOES_NOT_SEPARATE;
+				TokeniserOutcome realDecision = realSplit ? TokeniserOutcome.DOES_SEPARATE : TokeniserOutcome.DOES_NOT_SEPARATE;
 				
 				if (!realDecision.equals(guessDecision)) {
 					int start1 = guessTag.getToken().getStartIndex() - NUM_CHARS;
@@ -107,21 +107,21 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 					
 					String error = "Guessed " + guessDecision + ", Expected " + realDecision + ". Tokens: " + startString + "[]" + sentence.substring(guessTag.getToken().getStartIndex(), end1);
 					LOG.debug(error);
-					for (String tagger : guessTag.getTaggers()) {
-						List<String> errors = errorMap.get(tagger);
+					for (String authority : guessTag.getDecision().getAuthorities()) {
+						List<String> errors = errorMap.get(authority);
 						if (errors==null) {
 							errors = new ArrayList<String>();
-							errorMap.put(tagger, errors);
+							errorMap.put(authority, errors);
 						}
 						errors.add(error);
 					}
 				}
 				fScoreCalculator.increment(realDecision, guessDecision);
-				for (String tagger : guessTag.getTaggers()) {
-					FScoreCalculator<TokeniserDecision> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
+				for (String authority : guessTag.getDecision().getAuthorities()) {
+					FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(authority);
 					if (taggerFScoreCalculator==null) {
-						taggerFScoreCalculator = new FScoreCalculator<TokeniserDecision>();
-						taggerFScoreCalculators.put(tagger, taggerFScoreCalculator);
+						taggerFScoreCalculator = new FScoreCalculator<TokeniserOutcome>();
+						taggerFScoreCalculators.put(authority, taggerFScoreCalculator);
 					}
 					taggerFScoreCalculator.increment(realDecision, guessDecision);
 				}
@@ -130,20 +130,20 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 		
 		for (String tagger : taggerFScoreCalculators.keySet()) {
 			LOG.debug("###### Tagger " + tagger);
-			FScoreCalculator<TokeniserDecision> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
+			FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
 			LOG.debug("###### Tagger " + tagger + ": f-score = " + taggerFScoreCalculator.getTotalFScore());
 		}
 		
 		if (errorWriter!=null) {
 			try {
 				for (String tagger : taggerFScoreCalculators.keySet()) {
-					FScoreCalculator<TokeniserDecision> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
+					FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
 					errorWriter.write("###### Tagger " + tagger + ": f-score = " + taggerFScoreCalculator.getTotalFScore() + "\n");
 					errorWriter.write("Total " + (taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()) + "\n");
 					errorWriter.write("True + " + taggerFScoreCalculator.getTotalTruePositiveCount() + "\n");
 					errorWriter.write("False- " + taggerFScoreCalculator.getTotalFalseNegativeCount() + "\n");
 					errorWriter.write("False+ " + taggerFScoreCalculator.getTotalFalsePositiveCount() + "\n");
-					for (TokeniserDecision outcome : taggerFScoreCalculator.getOutcomeSet()) {
+					for (TokeniserOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
 						errorWriter.write(outcome + " total  " + (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
 						errorWriter.write(outcome + " true + " + (taggerFScoreCalculator.getTruePositiveCount(outcome)) + "\n");
 						errorWriter.write(outcome + " false- " + (taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");

@@ -19,10 +19,10 @@
 package com.joliciel.talismane.tokeniser.features;
 
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 /**
  * Simply returns the current token's text.

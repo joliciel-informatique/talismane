@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.utils.features.Feature;
+import com.joliciel.talismane.machineLearning.features.Feature;
 
 /**
  * An interface for features which depend on the current PosTaggerContext,

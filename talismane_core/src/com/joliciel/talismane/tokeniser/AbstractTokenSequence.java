@@ -19,7 +19,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	private List<Token> tokensAdded = null;
 	private double score = 0;
 	private boolean scoreCalculated = false;
-	TokeniserDecisionTagSequence tokeniserDecisionTagSequence;
+	TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
 	private Integer unitTokenCount = null;
 	private boolean finalised = false;
 	
@@ -108,42 +108,24 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		this.finalised = false;
 		this.tokenSplits = null;
 	}
-
+	
 	public double getScore() {
 		if (!this.scoreCalculated) {
 			this.finalise();
-			score = 0;
-			if (tokeniserDecisionTagSequence!=null && tokeniserDecisionTagSequence.getDecisionProbabilityLogs().size()>0) {
-				for (double decisionProbLog : tokeniserDecisionTagSequence.getDecisionProbabilityLogs())
-					score += decisionProbLog;
-
-				score = score / tokeniserDecisionTagSequence.getDecisionProbabilityLogs().size();
-			}
-			score = Math.exp(score);
-			this.scoreCalculated = true;
-			
-			if (LOG.isTraceEnabled()) {
+			if (LOG.isTraceEnabled())
 				LOG.trace(this);
-				if (tokeniserDecisionTagSequence!=null) {
-					StringBuilder sb = new StringBuilder();
-					sb.append(" * ");
-					for (double decisionProbLog : tokeniserDecisionTagSequence.getDecisionProbabilityLogs()) {
-						sb.append(" * ");
-						sb.append(Math.exp(decisionProbLog));
-					}
-					sb.append(" root ");
-					sb.append(tokeniserDecisionTagSequence.getDecisionProbabilityLogs().size());
-					sb.append(" = ");
-					sb.append(score);
-					LOG.trace(sb.toString());
-				}
+			score = 1.0;
+			if (this.underlyingAtomicTokenSequence!=null) {
+				score = this.underlyingAtomicTokenSequence.getScore();
 			}
+			
+			this.scoreCalculated = true;
 		}
 		return score;
 	}
 
-	public TokeniserDecisionTagSequence getTokeniserDecisionTagSequence() {
-		return tokeniserDecisionTagSequence;
+	public TokenisedAtomicTokenSequence getUnderlyingAtomicTokenSequence() {
+		return underlyingAtomicTokenSequence;
 	}
 
 	@Override

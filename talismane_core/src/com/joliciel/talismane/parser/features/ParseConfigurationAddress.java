@@ -25,9 +25,13 @@ import com.joliciel.talismane.parser.ParseConfiguration;
  * @author Assaf Urieli
  *
  */
-public class ParseConfigurationAddress {
+public final class ParseConfigurationAddress {
 	private ParseConfiguration parseConfiguration;
 	private AddressFunction addressFunction;
+	public ParseConfigurationAddress() {
+		
+	}
+	
 	public ParseConfigurationAddress(ParseConfiguration parseConfiguration,
 			AddressFunction addressFunction) {
 		super();
@@ -39,6 +43,14 @@ public class ParseConfigurationAddress {
 	}
 	public AddressFunction getAddressFunction() {
 		return addressFunction;
+	}
+
+	public void setParseConfiguration(ParseConfiguration parseConfiguration) {
+		this.parseConfiguration = parseConfiguration;
+	}
+
+	public void setAddressFunction(AddressFunction addressFunction) {
+		this.addressFunction = addressFunction;
 	}
 	
 	

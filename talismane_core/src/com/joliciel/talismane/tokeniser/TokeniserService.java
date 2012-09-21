@@ -21,6 +21,8 @@ package com.joliciel.talismane.tokeniser;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
@@ -50,21 +52,21 @@ public interface TokeniserService {
 	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser, String separators);
 	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser, Pattern separatorPattern);
 	
-	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, T tag, double probability);
+	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision<T> decision);
 	
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(int initialCapacity);
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(TaggedTokenSequence<T> history);
 	
-	public TokeniserDecisionTagSequence getTokeniserDecisionTagSequence(
-			TokeniserDecisionTagSequence history);
+	public TokenisedAtomicTokenSequence getTokenisedSentence(
+			TokenisedAtomicTokenSequence history);
 
-	public TokeniserDecisionTagSequence getTokeniserDecisionTagSequence(
+	public TokenisedAtomicTokenSequence getTokenisedSentence(
 			String sentence,
 			int initialCapacity);
 
 
 	public TokeniserEventStream getTokeniserEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, TokeniserPatternManager patternManager);
-
 	
+	public DecisionFactory<TokeniserOutcome> getDecisionFactory();
 }

@@ -20,10 +20,10 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.Iterator;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
 
 /**
  * Retrieves the nth item from the stack.
@@ -41,7 +41,7 @@ public class AddressFunctionStack extends AbstractAddressFunction {
 
 
 	@Override
-	public FeatureResult<PosTaggedToken> check(ParseConfiguration configuration) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfiguration configuration) {
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration);
 		if (indexResult!=null) {

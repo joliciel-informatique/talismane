@@ -20,10 +20,10 @@ package com.joliciel.talismane.tokeniser;
 
 import java.util.ArrayList;
 
-public class TaggedTokenSequenceImpl<T extends TokenTag> extends ArrayList<TaggedToken<T>> implements TaggedTokenSequence<T>, Comparable<TaggedTokenSequenceImpl<T>> {
+import com.joliciel.talismane.machineLearning.Decision;
+
+public class TaggedTokenSequenceImpl<T extends TokenTag> extends ArrayList<TaggedToken<T>> implements TaggedTokenSequence<T> {
 	private static final long serialVersionUID = -8634022202538586472L;
-	private double score = 0;
-	private boolean scoreCalculated = false;
 	private String string = null;
 	
 	public TaggedTokenSequenceImpl() {
@@ -44,53 +44,11 @@ public class TaggedTokenSequenceImpl<T extends TokenTag> extends ArrayList<Tagge
 		this.addAll(history);
 	}
 	
-	/**
-	 * Combine two sequences into one.
-	 * @param sequence1
-	 * @param sequence2
-	 */
-	public TaggedTokenSequenceImpl(TaggedTokenSequence<T> sequence1, TaggedTokenSequence<T> sequence2) {
-		super(sequence1.size() + sequence2.size());
-		this.addAll(sequence1);
-		this.addAll(sequence2);
-		this.setScore(sequence1.getScore() + sequence2.getScore());
-	}
-	
 	@Override
-	public TaggedToken<T> addTaggedToken(Token token, T tag, double probability) {
-		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, tag, probability);
+	public TaggedToken<T> addTaggedToken(Token token, Decision<T> decision) {
+		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision);
 		this.add(taggedToken);
 		return taggedToken;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.joliciel.Talismane.training.LetterSequence#getScore()
-	 */
-	@Override
-	public double getScore() {
-		if (!scoreCalculated) {
-			for (TaggedToken<T> token : this) {
-				score = score + token.getProbLog();
-			}
-			scoreCalculated = true;
-		}
-		return score;
-	}
-	
-	public void setScore(double score) {
-		this.score = score;
-		scoreCalculated = true;
-	}
-
-	@Override
-	public int compareTo(TaggedTokenSequenceImpl<T> o) {
-		if (this.getScore()<o.getScore()) {
-			return 1;
-		} else if (this.getScore()>o.getScore()) {
-			return -1;
-		} else {
-			return 0;
-		}
 	}
 
 	@Override

@@ -21,19 +21,17 @@ package com.joliciel.talismane.parser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.Decision;
+
 public abstract class AbstractTransition implements Transition {
 	private static final Log LOG = LogFactory.getLog(AbstractTransition.class);
-	private ParserServiceInternal parserServiceInternal;
-	
-	private double probLog = 0;
-	private boolean probLogCalculated = false;
-	private double probability = 0;
+	private Decision<Transition> decision;
 
 	@Override
 	public void apply(ParseConfiguration configuration) {
 		if (this.checkPreconditions(configuration)) {
 			if (LOG.isTraceEnabled())
-				LOG.trace("Applying " + this.getName());
+				LOG.trace("Applying " + this.getCode());
 			this.applyInternal(configuration);
 			configuration.getTransitions().add(this);
 		}
@@ -43,33 +41,13 @@ public abstract class AbstractTransition implements Transition {
 
 	protected abstract void applyInternal(ParseConfiguration configuration);
 
-
-	@Override
-	public double getProbability() {
-		return this.probability;
+	public Decision<Transition> getDecision() {
+		return decision;
 	}
 
-	@Override
-	public void setProbability(double probability) {
-		this.probability = probability;
-		this.probLogCalculated = false;
+	public void setDecision(Decision<Transition> decision) {
+		this.decision = decision;
 	}
-
-	@Override
-	public double getProbLog() {
-		if (!this.probLogCalculated) {
-			this.probLog = Math.log(this.getProbability());
-			this.probLogCalculated = true;
-		}
-		return this.probLog;
-	}
-
-
-	public ParserServiceInternal getParserServiceInternal() {
-		return parserServiceInternal;
-	}
-
-	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
-		this.parserServiceInternal = parserServiceInternal;
-	}
+	
+	
 }

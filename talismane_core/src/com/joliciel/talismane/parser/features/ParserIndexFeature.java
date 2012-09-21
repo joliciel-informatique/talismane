@@ -18,11 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
 
 /**
  * The index of a given token in the token sequence, referenced by address.

@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import com.joliciel.talismane.utils.features.AbstractCachableFeature;
+import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 
 public abstract class AbstractTokeniserContextFeature<Y> extends AbstractCachableFeature<TokeniserContext,Y>
 		implements TokeniserContextFeature<Y> {

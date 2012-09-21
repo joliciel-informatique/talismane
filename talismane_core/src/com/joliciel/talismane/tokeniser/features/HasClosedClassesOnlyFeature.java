@@ -19,12 +19,12 @@
 package com.joliciel.talismane.tokeniser.features;
 
 
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 /**
  * Returns true if all of this tokens classes in the lexicon are closed, false otherwise.

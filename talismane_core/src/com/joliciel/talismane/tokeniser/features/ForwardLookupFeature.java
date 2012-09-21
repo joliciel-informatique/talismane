@@ -20,12 +20,12 @@ package com.joliciel.talismane.tokeniser.features;
 
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
-import com.joliciel.talismane.utils.features.IntegerLiteralFeature;
 
 /**
  * Returns the offset of the first feature to the right of this one

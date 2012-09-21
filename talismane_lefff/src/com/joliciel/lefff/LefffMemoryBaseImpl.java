@@ -19,10 +19,10 @@
 package com.joliciel.lefff;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
@@ -35,7 +35,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 public class LefffMemoryBaseImpl implements LefffMemoryBase {
     private static final Log LOG = LogFactory.getLog(LefffMemoryBaseImpl.class);
 
-	private static final long serialVersionUID = -6687868826900071370L;
+	private static final long serialVersionUID = -6687868826900071371L;
 	Map<String,List<LefffEntry>> entryMap = null;
 	Map<PosTagSet,LefffPosTagMapper> posTagMappers = null;
 	Map<String,List<LefffEntry>> lemmaEntryMap = null;
@@ -46,7 +46,8 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 		this.entryMap = entryMap;
 		this.posTagMappers = posTagMappers;
 		
-		this.lemmaEntryMap = new TreeMap<String, List<LefffEntry>>();
+        double requiredCapacity = 300000;
+ 		this.lemmaEntryMap = new HashMap<String, List<LefffEntry>>(((int) Math.ceil(requiredCapacity / 0.75)));
 		LOG.debug("Constructing lemma entry map");
 		for (List<LefffEntry> entries : entryMap.values()) {
 			for (LefffEntry entry : entries) {

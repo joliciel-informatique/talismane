@@ -31,9 +31,9 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-class ShiftReduceTransitionSystem implements TransitionSystem {
-    private static final Log LOG = LogFactory.getLog(ShiftReduceTransitionSystem.class);
-	private ParserServiceInternal parserServiceInternal;
+class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
+	private static final long serialVersionUID = -6536246443810297657L;
+	private static final Log LOG = LogFactory.getLog(ShiftReduceTransitionSystem.class);
 
 	@Override
 	public void predictTransitions(ParseConfiguration configuration,
@@ -49,7 +49,7 @@ class ShiftReduceTransitionSystem implements TransitionSystem {
 			DependencyArc currentDep = null;
 			for (DependencyArc arc : targetDependencies) {
 				if (arc.getHead().equals(bufferHead)&&arc.getDependent().equals(stackHead)) {
-					transition = this.getTransitionForName("LeftArc[" + arc.getLabel() + "]", 1.0);
+					transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
 					currentDep = arc;
 					break;
 				}
@@ -63,7 +63,7 @@ class ShiftReduceTransitionSystem implements TransitionSystem {
 						}
 					}
 					if (!dependentHasDependents) {
-						transition = this.getTransitionForName("RightArc[" + arc.getLabel() + "]", 1.0);
+						transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
 						currentDep = arc;
 						break;
 					}
@@ -71,7 +71,7 @@ class ShiftReduceTransitionSystem implements TransitionSystem {
 
 			}
 			if (transition==null) {
-				transition =  this.getTransitionForName("Shift", 1.0);
+				transition =  this.getTransitionForCode("Shift");
 			}
 			if (currentDep!=null)
 				targetDependencies.remove(currentDep);
@@ -88,34 +88,23 @@ class ShiftReduceTransitionSystem implements TransitionSystem {
 	}
 
 	@Override
-	public Transition getTransitionForName(String name, double probability) {
+	public Transition getTransitionForCode(String code) {
 		AbstractTransition transition = null;
 		String label = null;
-		if (name.indexOf('[')>=0) {
-			label = name.substring(name.indexOf('[')+1, (name.indexOf(']')));
+		if (code.indexOf('[')>=0) {
+			label = code.substring(code.indexOf('[')+1, (code.indexOf(']')));
 		}
-		if (name.startsWith("LeftArc")) {
+		if (code.startsWith("LeftArc")) {
 			transition = new LeftArcTransition(label);
-		} else if (name.startsWith("RightArc")) {
+		} else if (code.startsWith("RightArc")) {
 			transition = new RightArcTransition(label);
-		} else if (name.startsWith("Shift")) {
+		} else if (code.startsWith("Shift")) {
 			transition = new ShiftTransition();
 		} else {
-			throw new TalismaneException("Unknown transition name: " + name);
+			throw new TalismaneException("Unknown transition name: " + code);
 		}
 		
-		transition.setParserServiceInternal(this.parserServiceInternal);
-		transition.setProbability(probability);
-		
 		return transition;
-	}
-
-	public ParserServiceInternal getParserServiceInternal() {
-		return parserServiceInternal;
-	}
-
-	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
-		this.parserServiceInternal = parserServiceInternal;
 	}
 
 }

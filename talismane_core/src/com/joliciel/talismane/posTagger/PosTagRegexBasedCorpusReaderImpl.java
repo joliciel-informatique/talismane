@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTagSetImpl.UnknownPosTagException;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
@@ -75,14 +76,17 @@ class PosTagRegexBasedCorpusReaderImpl implements
 					
 					sentence = posTaggerServiceInternal.getPosTagSequence(tokenSequence, tokenSequence.size());
 					int i = 0;
+					PosTagSet posTagSet = TalismaneSession.getPosTagSet();
     				for (PosTag posTag : posTags) {
     					Token token = tokenSequence.get(i++);
     					if (tokenSequence.getTokensAdded().contains(token)) {
-    						PosTaggedToken emptyToken = posTaggerServiceInternal.getPosTaggedToken(token, PosTag.NULL_POS_TAG, 1.0);
+    						Decision<PosTag> nullDecision = posTagSet.createDefaultDecision(PosTag.NULL_POS_TAG);
+    						PosTaggedToken emptyToken = posTaggerServiceInternal.getPosTaggedToken(token, nullDecision);
     						sentence.add(emptyToken);
     						token = tokenSequence.get(i++);
     					}
-    					PosTaggedToken posTaggedToken = posTaggerServiceInternal.getPosTaggedToken(token, posTag, 1.0);
+    					Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
+    					PosTaggedToken posTaggedToken = posTaggerServiceInternal.getPosTaggedToken(token, corpusDecision);
     					sentence.add(posTaggedToken);
     				}
 				} else {

@@ -24,6 +24,11 @@ import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
+import com.joliciel.talismane.machineLearning.maxent.MaxentDetailedAnalysisWriter;
+import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagger;
@@ -33,7 +38,9 @@ import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
+import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -45,13 +52,8 @@ import com.joliciel.talismane.tokeniser.filters.french.LowercaseFirstWordFrenchF
 import com.joliciel.talismane.tokeniser.filters.french.UpperCaseSeriesFilter;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.maxent.JolicielMaxentModel;
-import com.joliciel.talismane.utils.maxent.MaxentDetailedAnalysisWriter;
-import com.joliciel.talismane.utils.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.LogUtils;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class PosTaggerMaxentRunner {
     private static final Log LOG = LogFactory.getLog(PosTaggerMaxentRunner.class);
@@ -227,7 +229,7 @@ public class PosTaggerMaxentRunner {
 				modelTrainer.setCutoff(cutoff);
 				modelTrainer.setIterations(iterations);
 
-				JolicielMaxentModel jolicielMaxentModel = new JolicielMaxentModel(modelTrainer, descriptors);
+				JolicielMaxentModel<PosTag> jolicielMaxentModel = new JolicielMaxentModel<PosTag>(modelTrainer, descriptors, posTagSet);
 				jolicielMaxentModel.persist(modelFile);
 
 			} else if (command.equals("evaluate")) {
@@ -237,12 +239,12 @@ public class PosTaggerMaxentRunner {
 					throw new RuntimeException("Missing argument: outdir");
 				
 				File posTaggerModelFile = new File(posTaggerModelFilePath);
-				JolicielMaxentModel posTaggerJolicielMaxentModel = new JolicielMaxentModel(posTaggerModelFile);
+				JolicielMaxentModel<PosTag> posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(posTaggerModelFile);
 				
 				Tokeniser tokeniser = null;
 				if (tokeniserModelFilePath.length()>0) {
 					File tokeniserModelFile = new File(tokeniserModelFilePath);
-					JolicielMaxentModel tokeniserJolicielMaxentModel = new JolicielMaxentModel(tokeniserModelFile);
+					JolicielMaxentModel<TokeniserOutcome> tokeniserJolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(tokeniserModelFile);
 					TokeniserPatternManager tokeniserPatternManager =
 						tokeniserPatternService.getPatternManager(tokeniserJolicielMaxentModel.getPatternDescriptors());
 					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserJolicielMaxentModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());

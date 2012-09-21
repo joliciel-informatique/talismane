@@ -18,9 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector.features;
 
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 /**
  * Returns true if the current boundar is ".", "?" or "!". Returns false otherwise.

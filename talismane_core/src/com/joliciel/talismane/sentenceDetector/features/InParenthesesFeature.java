@@ -18,9 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector.features;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 /**
  * Returns "YES" if the current sentence break is between a "(" and ")" character without any intervening characters ".", "?" or "!".

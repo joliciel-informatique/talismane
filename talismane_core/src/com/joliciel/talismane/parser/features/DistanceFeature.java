@@ -18,10 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
 
 /**
  * Returns the distance between the token referred to by addressFunction1 and the token

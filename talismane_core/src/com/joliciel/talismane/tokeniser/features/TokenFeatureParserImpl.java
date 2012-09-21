@@ -23,14 +23,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
-import com.joliciel.talismane.utils.features.Feature;
-import com.joliciel.talismane.utils.features.FeatureClassContainer;
-import com.joliciel.talismane.utils.features.FeatureService;
-import com.joliciel.talismane.utils.features.FunctionDescriptor;
 
 class TokenFeatureParserImpl implements TokenFeatureParser {
 	private FeatureService featureService;

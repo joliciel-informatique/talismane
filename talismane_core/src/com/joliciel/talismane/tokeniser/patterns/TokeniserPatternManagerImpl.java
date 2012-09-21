@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserDecision;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 class TokeniserPatternManagerImpl implements TokeniserPatternManager {
@@ -38,7 +38,7 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
 	
-	private Map<TokeniserDecision, String> separatorDefaults;
+	private Map<SeparatorDecision, String> separatorDefaults;
 	private List<String> testPatterns;
 	
 	private List<TokenPattern> parsedTestPatterns;
@@ -68,24 +68,24 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	}
 
 	private void configure(List<String> patternDescriptors) {
-    	String[] tokeniserDecisions = new String[] {
-    			TokeniserDecision.IS_NOT_SEPARATOR.toString(),
-    			TokeniserDecision.IS_SEPARATOR_AFTER.toString(),
-    			TokeniserDecision.IS_SEPARATOR_BEFORE.toString() };
+    	String[] separatorDecisions = new String[] {
+    			SeparatorDecision.IS_NOT_SEPARATOR.toString(),
+    			SeparatorDecision.IS_SEPARATOR_AFTER.toString(),
+    			SeparatorDecision.IS_SEPARATOR_BEFORE.toString() };
     	List<String> testPatterns = new ArrayList<String>();
-        Map<TokeniserDecision, String> separatorDefaults = new HashMap<TokeniserDecision, String>();
+        Map<SeparatorDecision, String> separatorDefaults = new HashMap<SeparatorDecision, String>();
         for (String line : patternDescriptors) {
         	if (line.startsWith("#"))
         		continue;
         	boolean lineProcessed = false;
-        	for (String tokeniserDecision : tokeniserDecisions) {
-	        	if (line.startsWith(tokeniserDecision)) {
-	        		if (line.length() > tokeniserDecision.length()+1) {
-		        		String separatorsForDefault = line.substring(tokeniserDecision.length()+1);
+        	for (String separatorDecision : separatorDecisions) {
+	        	if (line.startsWith(separatorDecision)) {
+	        		if (line.length() > separatorDecision.length()+1) {
+		        		String separatorsForDefault = line.substring(separatorDecision.length()+1);
 		        		if (LOG.isTraceEnabled())
-		        			LOG.trace(tokeniserDecision + ": '" + separatorsForDefault + "'");
+		        			LOG.trace(separatorDecision + ": '" + separatorsForDefault + "'");
 		        		if (separatorsForDefault.length()>0)
-		        			separatorDefaults.put(Enum.valueOf(TokeniserDecision.class, tokeniserDecision), separatorsForDefault);
+		        			separatorDefaults.put(Enum.valueOf(SeparatorDecision.class, separatorDecision), separatorsForDefault);
 	        		}
 	        		lineProcessed = true;
 	        		break;
@@ -104,7 +104,7 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	 * @see com.joliciel.talismane.tokeniser.TokeniserPatternFileProcessor#getSeparatorDefaults()
 	 */
 	@Override
-	public Map<TokeniserDecision, String> getSeparatorDefaults() {
+	public Map<SeparatorDecision, String> getSeparatorDefaults() {
 		return separatorDefaults;
 	}
 

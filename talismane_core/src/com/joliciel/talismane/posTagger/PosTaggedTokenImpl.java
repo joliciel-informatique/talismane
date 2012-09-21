@@ -20,14 +20,15 @@ package com.joliciel.talismane.posTagger;
 
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.tokeniser.TaggedTokenImpl;
 import com.joliciel.talismane.tokeniser.Token;
 
 class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
 	private  PosTaggerLexiconService lexiconService;
 	Set<LexicalEntry> entries = null;
-	public PosTaggedTokenImpl(Token token, PosTag tag, double probability) {
-		super(token, tag, probability);
+	public PosTaggedTokenImpl(Token token, Decision<PosTag> decision) {
+		super(token, decision);
 	}
 
 	@Override
@@ -48,7 +49,7 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 
 	@Override
 	public String toString() {
-		return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex() + "| prob=" + this.getProbability();
+		return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex() + "| prob=" + this.getDecision().getProbability();
 	}
 
 	@Override

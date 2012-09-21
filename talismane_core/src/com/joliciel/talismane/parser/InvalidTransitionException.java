@@ -30,7 +30,7 @@ public class InvalidTransitionException extends TalismaneException {
 	
 	public InvalidTransitionException(Transition transition,
 			ParseConfiguration configuration) {
-		super(transition.getName() + ": " + configuration.toString());
+		super(transition.getCode() + ": " + configuration.toString());
 		this.transition = transition;
 		this.configuration = configuration;
 	}

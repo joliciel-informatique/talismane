@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 import java.util.Collection;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,9 +51,9 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 		this.finalise();
 	}
 
-	public TokenSequenceImpl(String sentence, TokeniserDecisionTagSequence tokeniserDecisionTagSequence) {
+	public TokenSequenceImpl(String sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence) {
 		this(sentence);
-		this.tokeniserDecisionTagSequence = tokeniserDecisionTagSequence;
+		this.underlyingAtomicTokenSequence = tokenisedAtomicTokenSequence;
 	}
 	
 	public TokenSequenceImpl(String sentence) {
@@ -78,5 +79,4 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 	public boolean add(Token token) {
 		throw new TalismaneException("Cannot add tokens directly, only by index");
 	}
-	
 }

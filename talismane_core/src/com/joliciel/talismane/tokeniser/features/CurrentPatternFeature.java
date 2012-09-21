@@ -18,12 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 /**
  * Returns true if current token is the FIRST TOKEN in a sequence of tokens matching a given pattern.<br/>

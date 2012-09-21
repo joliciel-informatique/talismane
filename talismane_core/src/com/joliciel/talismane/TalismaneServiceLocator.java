@@ -21,6 +21,7 @@ package com.joliciel.talismane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -30,7 +31,6 @@ import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureS
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
 import com.joliciel.talismane.tokeniser.features.TokeniserFeatureServiceLocator;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternServiceLocator;
-import com.joliciel.talismane.utils.features.FeatureServiceLocator;
 
 /**
  * Top-level locator for implementations of Talismane interfaces.

@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.utils.features.Feature;
 
 /**
  * A feature which tests a Token, ignoring any context (e.g. the history of current tagging decisions by a learner).

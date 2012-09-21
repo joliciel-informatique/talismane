@@ -52,7 +52,7 @@ public class ReduceTransition extends AbstractTransition implements Transition {
 		return true;
 	}
 
-	public String getName() {
+	public String getCode() {
 		return name;
 	}
 

@@ -20,9 +20,9 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 /**
  * Retrieves the left-most left-hand dependent of the reference token.
@@ -39,7 +39,7 @@ public class AddressFunctionLDep extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> check(ParseConfiguration configuration) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfiguration configuration) {
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration);
 		if (addressResult!=null) {
