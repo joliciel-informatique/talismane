@@ -18,13 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.TaggedToken;
-import com.joliciel.talismane.tokeniser.TokeniserDecision;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 /**
  * Gives the previous tokeniser decision for the atomic token just preceding the one indicated by a given index in the given pattern.<br/>
@@ -59,13 +59,10 @@ public class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<S
 				}
 			}
 			if (foundMatch) {
-				TaggedToken<TokeniserDecision> lastDecision = null;
-				for (int i=tokeniserContext.getHistory().size()-1; i>=0; i--) {
-					TaggedToken<TokeniserDecision> decision = tokeniserContext.getHistory().get(i);
-					if (!decision.getTag().equals(TokeniserDecision.NOT_APPLICABLE)) {
-						lastDecision = decision;
-						break;
-					}
+				TaggedToken<TokeniserOutcome> lastDecision = null;
+				if (tokeniserContext.getHistory().size()>0) {
+					TaggedToken<TokeniserOutcome> decision = tokeniserContext.getHistory().get(tokeniserContext.getHistory().size()-1);
+					lastDecision = decision;
 				}
 				if (lastDecision!=null)
 					result = this.generateResult(lastDecision.getTag().toString());

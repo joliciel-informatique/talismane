@@ -21,21 +21,22 @@ package com.joliciel.talismane.posTagger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.utils.util.LogUtils;
+import com.joliciel.talismane.machineLearning.AbstractDecisionFactory;
+import com.joliciel.talismane.utils.LogUtils;
 
-class PosTagSetImpl implements PosTagSet {
+class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements PosTagSet {
 	private static final long serialVersionUID = 4894889727388356815L;
 	private static final Log LOG = LogFactory.getLog(PosTagSetImpl.class);
 	
@@ -116,7 +117,7 @@ class PosTagSetImpl implements PosTagSet {
 	@Override
 	public PosTag getPosTag(String code) {
 		if (tagMap==null) {
-			tagMap = new TreeMap<String, PosTag>();
+			tagMap = new HashMap<String, PosTag>();
 			for (PosTag posTag : this.getTags()) {
 				tagMap.put(posTag.getCode(), posTag);
 			}
@@ -161,5 +162,10 @@ class PosTagSetImpl implements PosTagSet {
 		public UnknownPosTagException(String message) {
 			super(message);
 		}
+	}
+
+	@Override
+	public PosTag createOutcome(String name) {
+		return this.getPosTag(name);
 	}
 }

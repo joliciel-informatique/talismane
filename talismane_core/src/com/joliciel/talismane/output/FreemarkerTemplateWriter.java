@@ -40,7 +40,7 @@ import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
-import com.joliciel.talismane.utils.util.LogUtils;
+import com.joliciel.talismane.utils.LogUtils;
 
 import freemarker.cache.NullCacheStorage;
 import freemarker.template.Configuration;

@@ -18,23 +18,23 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.TextFilter;
+import com.joliciel.talismane.machineLearning.CorpusEvent;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
-import com.joliciel.talismane.utils.CorpusEvent;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 class SentenceDetectorEventStream implements CorpusEventStream {
     private static final Log LOG = LogFactory.getLog(SentenceDetectorEventStream.class);
@@ -108,9 +108,9 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 					LOG.trace(result.getName() + ": " + result.getOutcome());
 				}
 			}			
-			String classification = SentenceDetectorDecision.IS_NOT_BOUNDARY.name();
+			String classification = SentenceDetectorOutcome.IS_NOT_BOUNDARY.name();
 			if (possibleBoundary==realBoundary)
-				classification = SentenceDetectorDecision.IS_BOUNDARY.name();
+				classification = SentenceDetectorOutcome.IS_BOUNDARY.name();
 			
 			event = new CorpusEvent(featureResults, classification);
 			
@@ -192,7 +192,7 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 
 	@Override
 	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new TreeMap<String, Object>();
+		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
 		

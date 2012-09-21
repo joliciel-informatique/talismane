@@ -20,7 +20,7 @@ package com.joliciel.frenchTreebank;
 
 import java.util.List;
 
-import com.joliciel.talismane.utils.util.ObjectCache;
+import com.joliciel.talismane.utils.ObjectCache;
 
 interface TreebankServiceInternal extends TreebankService {
     public SentenceInternal newSentenceInternal(PhraseInternal phrase);

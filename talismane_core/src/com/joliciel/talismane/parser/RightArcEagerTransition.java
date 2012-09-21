@@ -58,7 +58,7 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
 	}
 
 	@Override
-	public String getName() {
+	public String getCode() {
 		if (this.name==null) {
 			this.name = "RightArc";
 			if (this.label!=null && this.label.length()>0)

@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.utils.features.BooleanFeature;
 
 class PosTaggerRuleImpl implements PosTaggerRule {
 	private BooleanFeature<PosTaggerContext> condition;

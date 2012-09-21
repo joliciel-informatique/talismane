@@ -20,12 +20,12 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
-import com.joliciel.talismane.utils.features.IntegerLiteralFeature;
 
 /**
  * Returns the number of dependents already matching a certain criterion.

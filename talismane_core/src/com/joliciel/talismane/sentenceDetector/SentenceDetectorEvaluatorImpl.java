@@ -31,8 +31,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.TextFilter;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.StringUtils;
+import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.utils.StringUtils;
 
 class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 	private static final Log LOG = LogFactory.getLog(SentenceDetectorEvaluatorImpl.class);
@@ -46,12 +46,12 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 	}
 	
 	@Override
-	public FScoreCalculator<SentenceDetectorDecision> evaluate(
+	public FScoreCalculator<SentenceDetectorOutcome> evaluate(
 			SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter) {
-		FScoreCalculator<SentenceDetectorDecision> fScoreCalculator = new FScoreCalculator<SentenceDetectorDecision>();
+		FScoreCalculator<SentenceDetectorOutcome> fScoreCalculator = new FScoreCalculator<SentenceDetectorOutcome>();
 		
 		//add f-score per tagger module, to see how we do for each boundary character
-		Map<String, FScoreCalculator<SentenceDetectorDecision>> taggerFScoreCalculators = new TreeMap<String, FScoreCalculator<SentenceDetectorDecision>>();
+		Map<String, FScoreCalculator<SentenceDetectorOutcome>> taggerFScoreCalculators = new TreeMap<String, FScoreCalculator<SentenceDetectorOutcome>>();
 		Map<String, List<String>> errorMap = new TreeMap<String, List<String>>();
 		
 		LinkedList<String> sentences = new LinkedList<String>();
@@ -109,21 +109,21 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 			
 			List<Integer> guessedBoundaries = this.sentenceDetector.detectSentences(previousSentence, sentence, moreText);
 			for (int possibleBoundary : possibleBoundaries) {
-				SentenceDetectorDecision expected = SentenceDetectorDecision.IS_NOT_BOUNDARY;
-				SentenceDetectorDecision guessed = SentenceDetectorDecision.IS_NOT_BOUNDARY;
+				SentenceDetectorOutcome expected = SentenceDetectorOutcome.IS_NOT_BOUNDARY;
+				SentenceDetectorOutcome guessed = SentenceDetectorOutcome.IS_NOT_BOUNDARY;
 				if (possibleBoundary==realBoundary)
-					expected = SentenceDetectorDecision.IS_BOUNDARY;
+					expected = SentenceDetectorOutcome.IS_BOUNDARY;
 				if (guessedBoundaries.contains(possibleBoundary))
-					guessed = SentenceDetectorDecision.IS_BOUNDARY;
+					guessed = SentenceDetectorOutcome.IS_BOUNDARY;
 				fScoreCalculator.increment(expected, guessed);
 
 				String boundaryCharacter = "" + text.charAt(possibleBoundary);
 				Matcher boundaryMatcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(boundaryCharacter);
 				if (!boundaryMatcher.matches())
 					boundaryCharacter = "OTHER";
-				FScoreCalculator<SentenceDetectorDecision> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
+				FScoreCalculator<SentenceDetectorOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
 				if (taggerFScoreCalculator==null) {
-					taggerFScoreCalculator = new FScoreCalculator<SentenceDetectorDecision>();
+					taggerFScoreCalculator = new FScoreCalculator<SentenceDetectorOutcome>();
 					taggerFScoreCalculators.put(boundaryCharacter, taggerFScoreCalculator);
 				}
 				taggerFScoreCalculator.increment(expected, guessed);
@@ -164,20 +164,20 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 		
 		for (String boundaryCharacter : taggerFScoreCalculators.keySet()) {
 			LOG.debug("###### Boundary " + boundaryCharacter);
-			FScoreCalculator<SentenceDetectorDecision> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
+			FScoreCalculator<SentenceDetectorOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
 			LOG.debug("###### Boundary " + boundaryCharacter + ": f-score = " + taggerFScoreCalculator.getTotalFScore());
 		} // f-scores
 		
 		if (errorWriter!=null) {
 			try {
 				for (String boundaryCharacter : taggerFScoreCalculators.keySet()) {
-					FScoreCalculator<SentenceDetectorDecision> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
+					FScoreCalculator<SentenceDetectorOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
 					errorWriter.write("###### Tagger " + boundaryCharacter + ": f-score = " + taggerFScoreCalculator.getTotalFScore() + "\n");
 					errorWriter.write("Total " + (taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()) + "\n");
 					errorWriter.write("True + " + taggerFScoreCalculator.getTotalTruePositiveCount() + "\n");
 					errorWriter.write("False- " + taggerFScoreCalculator.getTotalFalseNegativeCount() + "\n");
 					errorWriter.write("False+ " + taggerFScoreCalculator.getTotalFalsePositiveCount() + "\n");
-					for (SentenceDetectorDecision outcome : taggerFScoreCalculator.getOutcomeSet()) {
+					for (SentenceDetectorOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
 						errorWriter.write(outcome + " total  " + (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
 						errorWriter.write(outcome + " true + " + (taggerFScoreCalculator.getTruePositiveCount(outcome)) + "\n");
 						errorWriter.write(outcome + " false- " + (taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");

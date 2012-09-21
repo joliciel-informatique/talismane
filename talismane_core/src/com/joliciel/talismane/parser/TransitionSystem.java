@@ -20,12 +20,14 @@ package com.joliciel.talismane.parser;
 
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.DecisionFactory;
+
 /**
  * A set of transitions that can be applied to a configuration to give a particular set of target dependencies.
  * @author Assaf
  *
  */
-public interface TransitionSystem {
+public interface TransitionSystem extends DecisionFactory<Transition> {
 	/**
 	 * Predict the transitions required to generate the set of targe dependencies for a given initial configuration,
 	 * also transforms the configuration so that it becomes a terminal configuration.
@@ -34,5 +36,10 @@ public interface TransitionSystem {
 	 */
 	void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies);
 	
-	public Transition getTransitionForName(String name, double probability);
+	/**
+	 * Get the transition corresponding to a particular code.
+	 * @param code
+	 * @return
+	 */
+	public Transition getTransitionForCode(String code);
 }

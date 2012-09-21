@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -49,7 +51,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 
 	@Override
-	public TokenSequence getTokenSequence(String sentence, TokeniserDecisionTagSequence tokeniserDecisionTagSequence) {
+	public TokenSequence getTokenSequence(String sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence) {
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, tokeniserDecisionTagSequence);
 		tokenSequence.setTokeniserServiceInternal(this);
 		return tokenSequence;
@@ -79,6 +81,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	@Override
 	public Tokeniser getSimpleTokeniser() {
 		SimpleTokeniser tokeniser = new SimpleTokeniser();
+		tokeniser.setTokeniserServiceInternal(this);
 		return tokeniser;
 	}
 	
@@ -100,8 +103,8 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	}
 
 	@Override
-	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, T tag, double probability) {
-		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, tag, probability);
+	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision<T> decision) {
+		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision);
 		return taggedToken;
 	}
 
@@ -119,16 +122,16 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	}
 	
 	@Override
-	public TokeniserDecisionTagSequence getTokeniserDecisionTagSequence(String sentence,  int initialCapacity) {
-		TokeniserDecisionTagSequenceImpl sequence = new TokeniserDecisionTagSequenceImpl(sentence, initialCapacity);
+	public TokenisedAtomicTokenSequence getTokenisedSentence(String sentence,  int initialCapacity) {
+		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(sentence, initialCapacity);
 		sequence.setTokeniserServiceInternal(this);
 		return sequence;
 	}
 
 	@Override
-	public TokeniserDecisionTagSequence getTokeniserDecisionTagSequence(
-			TokeniserDecisionTagSequence history) {
-		TokeniserDecisionTagSequenceImpl sequence = new TokeniserDecisionTagSequenceImpl(history);
+	public TokenisedAtomicTokenSequence getTokenisedSentence(
+			TokenisedAtomicTokenSequence history) {
+		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(history);
 		sequence.setTokeniserServiceInternal(this);
 		return sequence;
 	}
@@ -168,5 +171,12 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 			lexiconService = TalismaneSession.getLexiconService();
 		}
 		return lexiconService;
+	}
+
+
+	@Override
+	public DecisionFactory<TokeniserOutcome> getDecisionFactory() {
+		TokeniserDecisionFactory factory = new TokeniserDecisionFactory();
+		return factory;
 	}
 }

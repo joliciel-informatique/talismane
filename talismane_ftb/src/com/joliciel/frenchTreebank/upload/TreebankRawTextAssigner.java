@@ -35,7 +35,7 @@ import com.joliciel.frenchTreebank.Sentence;
 import com.joliciel.frenchTreebank.TextItem;
 import com.joliciel.frenchTreebank.TreebankFile;
 import com.joliciel.frenchTreebank.TreebankService;
-import com.joliciel.talismane.utils.util.LogUtils;
+import com.joliciel.talismane.utils.LogUtils;
 
 public class TreebankRawTextAssigner {
     private static final Log LOG = LogFactory.getLog(TreebankRawTextAssigner.class);

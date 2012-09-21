@@ -39,7 +39,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.ResultSetWrappingSqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import com.joliciel.talismane.utils.util.DaoUtils;
+import com.joliciel.talismane.utils.DaoUtils;
 
 class TreebankDaoImpl implements TreebankDao {
 	static final Log LOG = LogFactory.getLog(TreebankDaoImpl.class);

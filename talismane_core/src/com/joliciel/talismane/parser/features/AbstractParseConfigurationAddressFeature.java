@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
-import com.joliciel.talismane.utils.features.AbstractCachableFeature;
+import com.joliciel.talismane.machineLearning.features.AbstractMonitorableFeature;
 
-abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractCachableFeature<ParseConfigurationAddress,T>
+abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractMonitorableFeature<ParseConfigurationAddress,T>
 		implements ParseConfigurationAddressFeature<T> {
 }

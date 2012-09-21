@@ -48,7 +48,7 @@ import com.joliciel.frenchTreebank.TreebankException;
 import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.Word;
 import com.joliciel.frenchTreebank.util.UnicodeReader;
-import com.joliciel.talismane.utils.util.LogUtils;
+import com.joliciel.talismane.utils.LogUtils;
 
 public class XmlPatternSearchImpl implements XmlPatternSearch {
     private static final Log LOG = LogFactory.getLog(XmlPatternSearchImpl.class);

@@ -18,13 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.Outcome;
+
 /**
  * A single transition in a transition-based parsing system.
  * @author Assaf Urieli
  *
  */
-public interface Transition {
-	
+public interface Transition extends Outcome {
 	/**
 	 * Check whether this transition is valid for the configuration provided.
 	 * @param configuration
@@ -40,23 +42,10 @@ public interface Transition {
 	public void apply(ParseConfiguration configuration);
 	
 	/**
-	 * The name of this transition.
+	 * The unique code for this transition.
 	 * @return
 	 */
-	public String getName();
-	
-	/**
-	 * The probability assigned to this transition.
-	 * @return
-	 */
-	public double getProbability();
-	public void setProbability(double probability);
-	
-	/**
-	 * The log of the probability assigned to this transition.
-	 * @return
-	 */
-	public double getProbLog();
+	public String getCode();
 	
 	/**
 	 * Returns true if this transition reduces the elements left to process,
@@ -64,4 +53,11 @@ public interface Transition {
 	 * @return
 	 */
 	public boolean doesReduce();
+	
+	/**
+	 * The decision which generated this transition.
+	 * @return
+	 */
+	public Decision<Transition> getDecision();
+	public void setDecision(Decision<Transition> decision);
 }

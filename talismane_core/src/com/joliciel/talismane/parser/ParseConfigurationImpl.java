@@ -31,6 +31,10 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.HarmonicMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.ScoringStrategy;
+import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -62,11 +66,16 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private int configurationComparisonIndex = 0;
 	
 	private DependencyNode parseTree = null;
+	
+	private List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
+	private List<Solution<?>> underlyingSolutions = new ArrayList<Solution<?>>();
+	private ScoringStrategy scoringStrategy = new HarmonicMeanScoringStrategy();
 
 	public ParseConfigurationImpl(PosTagSequence posTagSequence) {
 		super();
 		this.posTagSequence = posTagSequence;
 		PosTaggedToken rootToken = posTagSequence.prependRoot();
+		this.underlyingSolutions.add(this.posTagSequence);
 
 		this.buffer = new ArrayDeque<PosTaggedToken>(posTagSequence);
 		this.buffer.remove(rootToken);
@@ -84,9 +93,12 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.dependencies = new TreeSet<DependencyArc>(history.getDependencies());
 		this.posTagSequence = history.getPosTagSequence();
 		posTagSequence.prependRoot();
+		this.underlyingSolutions.add(this.posTagSequence);
 		this.buffer = new ArrayDeque<PosTaggedToken>(history.getBuffer());
 		this.stack = new ArrayDeque<PosTaggedToken>(history.getStack());
 		this.dependentTransitionMap = new HashMap<PosTaggedToken, Transition>(((ParseConfigurationInternal)history).getDependentTransitionMap());
+		
+		this.decisions = new ArrayList<Decision<Transition>>(history.getDecisions());
 	}
 		
 	@Override
@@ -97,19 +109,7 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 	@Override
 	public double getScore() {
 		if (!scoreCalculated) {
-			score = 0;
-			if (this.getTransitions().size()>0) {
-				for (Transition transition : this.getTransitions()) {
-					score += transition.getProbLog();
-				}
-	
-				score = score / this.getTransitions().size();
-			}
-						
-			score = Math.exp(score);
-
-			score *= this.getPosTagSequence().getScore();
-
+			score = this.scoringStrategy.calculateScore(this);
 			scoreCalculated = true;
 		}
 		return score;
@@ -374,5 +374,29 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 		DependencyNode node = this.parserServiceInternal.getDependencyNode(posTaggedToken, "", null, this);
 		return node;
 	}
+
+	@Override
+	public List<Decision<Transition>> getDecisions() {
+		return decisions;
+	}
+
+	@Override
+	public List<Solution<?>> getUnderlyingSolutions() {
+		return underlyingSolutions;
+	}
+
+	@Override
+	public void addDecision(Decision<Transition> decision) {
+		this.decisions.add(decision);
+	}
+
+	public ScoringStrategy getScoringStrategy() {
+		return scoringStrategy;
+	}
+
+	public void setScoringStrategy(ScoringStrategy scoringStrategy) {
+		this.scoringStrategy = scoringStrategy;
+	}
+
 
 }

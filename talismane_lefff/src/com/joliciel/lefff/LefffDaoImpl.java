@@ -21,9 +21,9 @@ package com.joliciel.lefff;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.sql.DataSource;
 
@@ -38,7 +38,7 @@ import org.springframework.jdbc.support.rowset.ResultSetWrappingSqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.joliciel.talismane.posTagger.LexicalEntryStatus;
-import com.joliciel.talismane.utils.util.DaoUtils;
+import com.joliciel.talismane.utils.DaoUtils;
 
 class LefffDaoImpl implements LefffDao {
     private static final Log LOG = LogFactory.getLog(LefffDaoImpl.class);
@@ -706,7 +706,8 @@ class LefffDaoImpl implements LefffDao {
        
         LOG.info(sql);
         LefffDaoImpl.LogParameters(paramSource);
-        Map<String, List<LefffEntry>> entryMap = new TreeMap<String, List<LefffEntry>>();
+        double requiredCapacity = 500000;
+        Map<String, List<LefffEntry>> entryMap = new HashMap<String, List<LefffEntry>>(((int) Math.ceil(requiredCapacity / 0.75)));
         EntryMapper entryMapper = new EntryMapper( this.lefffServiceInternal);
         WordMapper wordMapper = new WordMapper(this.lefffServiceInternal);
         CategoryMapper categoryMapper = new CategoryMapper(this.lefffServiceInternal);
@@ -715,10 +716,10 @@ class LefffDaoImpl implements LefffDao {
         AttributeMapper attributeMapper = new AttributeMapper(this.lefffServiceInternal);
         SqlRowSet rowSet = jt.queryForRowSet(sql, paramSource);
        
-        Map<Integer,Category> categoryMap = new TreeMap<Integer, Category>();
-        Map<Integer,Predicate> predicateMap = new TreeMap<Integer, Predicate>();
-        Map<Integer,Attribute> attributeMap = new TreeMap<Integer, Attribute>();
-        Map<Integer,Lemma> lemmaMap = new TreeMap<Integer, Lemma>();
+        Map<Integer,Category> categoryMap = new HashMap<Integer, Category>();
+        Map<Integer,Predicate> predicateMap = new HashMap<Integer, Predicate>();
+        Map<Integer,Attribute> attributeMap = new HashMap<Integer, Attribute>();
+        Map<Integer,Lemma> lemmaMap = new HashMap<Integer, Lemma>();
        
         while (rowSet.next()) {
         	LefffEntryInternal entry =  entryMapper.mapRow(rowSet);

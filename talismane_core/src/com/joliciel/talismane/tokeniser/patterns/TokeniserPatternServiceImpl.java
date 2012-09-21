@@ -23,11 +23,12 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
-import com.joliciel.talismane.utils.DecisionMaker;
 
 class TokeniserPatternServiceImpl implements TokeniserPatternService {
 	TokeniserService tokeniserService;
@@ -51,7 +52,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 	}	
 	public Tokeniser getPatternTokeniser(TokeniserPatternManager patternManager,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, 
-			DecisionMaker decisionMaker, int beamWidth) {
+			DecisionMaker<TokeniserOutcome> decisionMaker, int beamWidth) {
 		PatternTokeniserImpl tokeniser = new PatternTokeniserImpl(patternManager, tokeniserContextFeatures, beamWidth);
 		tokeniser.setTokeniserPatternService(this);
 		tokeniser.setTokeniserService(this.getTokeniserService());

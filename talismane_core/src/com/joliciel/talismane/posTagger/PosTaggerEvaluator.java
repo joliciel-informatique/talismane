@@ -21,8 +21,8 @@ package com.joliciel.talismane.posTagger;
 import java.io.Writer;
 import java.util.Set;
 
+import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
 
 /**
  * An interface for evaluating a given pos tagger.

@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.util.List;
+import com.joliciel.talismane.machineLearning.Decision;
 
 /**
  * A token together with a piece of information that is tagged onto it.
@@ -43,25 +43,8 @@ public interface TaggedToken<T extends TokenTag> extends Comparable<TaggedToken<
 	public void setTag(T tag);
 	
 	/**
-	 * The probability of the Tag for this token.
+	 * The decision which was used to tag this token.
 	 * @return
 	 */
-	public double getProbability();
-	public void setProbability(double probability);
-	
-	/**
-	 * The log of the probability for this token's tag.
-	 * @return
-	 */
-	public double getProbLog();
-	
-	/**
-	 * A list of modules which helped to tag this token.
-	 * Useful when tokens are tagged by different modules based on certain criteria -
-	 * allows us to establish an f-score by module, as well as analysing errors by module. 
-	 * @return
-	 */
-	public void addTagger(String tagger);
-
-	public List<String> getTaggers();
+	public Decision<T> getDecision();
 }

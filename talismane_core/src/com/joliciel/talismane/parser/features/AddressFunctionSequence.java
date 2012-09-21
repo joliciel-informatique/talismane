@@ -18,10 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
 
 /**
  * Retrieves the nth pos-tagged token in the sequence of tokens.
@@ -38,7 +38,7 @@ public class AddressFunctionSequence extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> check(ParseConfiguration configuration) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfiguration configuration) {
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration);
 		if (indexResult!=null) {

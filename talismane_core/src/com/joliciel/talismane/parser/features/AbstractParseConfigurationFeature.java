@@ -18,9 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.AbstractMonitorableFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.utils.features.AbstractCachableFeature;
 
-abstract class AbstractParseConfigurationFeature<T> extends AbstractCachableFeature<ParseConfiguration,T>
+abstract class AbstractParseConfigurationFeature<T> extends AbstractMonitorableFeature<ParseConfiguration,T>
 		implements ParseConfigurationFeature<T> {
 }

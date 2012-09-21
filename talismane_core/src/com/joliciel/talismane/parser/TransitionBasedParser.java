@@ -28,15 +28,15 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.utils.AnalysisObserver;
-import com.joliciel.talismane.utils.DecisionMaker;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
-import com.joliciel.talismane.utils.util.WeightedOutcome;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A non-deterministic parser implementing transition based parsing,
@@ -53,12 +53,12 @@ class TransitionBasedParser implements NonDeterministicParser {
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
 	
 	private ParserServiceInternal parserServiceInternal;
-	private DecisionMaker decisionMaker;
+	private DecisionMaker<Transition> decisionMaker;
 	private TransitionSystem transitionSystem;
 
 	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
 	
-	public TransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+	public TransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		super();
 		this.decisionMaker = decisionMaker;
 		this.transitionSystem = transitionSystem;
@@ -140,20 +140,22 @@ class TransitionBasedParser implements NonDeterministicParser {
 					}
 					
 					// evaluate the feature results using the decision maker
-					List<Transition> transitions =  null;
+					List<Decision<Transition>> decisions = null;
 					PerformanceMonitor.startTask("make decision");
 					try {
-						List<WeightedOutcome<String>> decisions = this.decisionMaker.decide(parseFeatureResults);
+						decisions = this.decisionMaker.decide(parseFeatureResults);
 						
 						for (AnalysisObserver observer : this.observers) {
 							observer.onAnalyse(history, parseFeatureResults, decisions);
 						}
 
-						transitions = new ArrayList<Transition>(decisions.size());
-						for (WeightedOutcome<String> decision : decisions) {
-							if (decision.getWeight() > MIN_PROB_TO_STORE)
-								transitions.add(this.transitionSystem.getTransitionForName(decision.getOutcome(), decision.getWeight()));
+						
+						List<Decision<Transition>> decisionShortList = new ArrayList<Decision<Transition>>(decisions.size());
+						for (Decision<Transition> decision : decisions) {
+							if (decision.getProbability() > MIN_PROB_TO_STORE)
+								decisionShortList.add(decision);
 						}
+						decisions = decisionShortList;
 					} finally {
 						PerformanceMonitor.endTask("make decision");
 					}
@@ -161,13 +163,16 @@ class TransitionBasedParser implements NonDeterministicParser {
 					// add new TaggedTokenSequences to the heap, one for each outcome provided by MaxEnt
 					PerformanceMonitor.startTask("heap sort");
 					try {
-						for (Transition transition : transitions) {
+						for (Decision<Transition> decision : decisions) {
+							Transition transition = decision.getOutcome();
 							if (LOG.isTraceEnabled())
-								LOG.trace("Outcome: " + transition.getName() + ", " + transition.getProbability());
+								LOG.trace("Outcome: " + transition.getCode() + ", " + decision.getProbability());
 							
 							if (transition.checkPreconditions(history)) {
 								ParseConfiguration configuration = this.parserServiceInternal.getConfiguration(history);
 								transition.apply(configuration);
+								if (decision.isStatistical())
+									configuration.addDecision(decision);
 								
 								int heapIndex = configuration.getConfigurationComparisonIndex();
 			
@@ -206,9 +211,9 @@ class TransitionBasedParser implements NonDeterministicParser {
 					LOG.debug(finalConfiguration.getScore() + ": " + finalConfiguration.toString());
 					if (LOG.isTraceEnabled()) {
 						StringBuilder sb = new StringBuilder();
-						for (Transition transition : finalConfiguration.getTransitions()) {
+						for (Decision<Transition> decision : finalConfiguration.getDecisions()) {
 							sb.append(" * ");
-							sb.append(transition.getProbability());
+							sb.append(decision.getProbability());
 						}
 						sb.append(" root ");
 						sb.append(finalConfiguration.getTransitions().size());
@@ -220,7 +225,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 						sb.append(" = ");
 						for (PosTaggedToken posTaggedToken : finalConfiguration.getPosTagSequence()) {
 							sb.append(" * ");
-							sb.append(posTaggedToken.getProbability());
+							sb.append(posTaggedToken.getDecision().getProbability());
 						}
 						sb.append(" root ");
 						sb.append(finalConfiguration.getPosTagSequence().size());

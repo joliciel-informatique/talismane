@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.features.TokenFeature;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 
 /**
@@ -137,9 +137,9 @@ public interface Token extends Comparable<Token>, TokenWrapper {
 	 * A list of atomic decisions which make up this token.
 	 * @return
 	 */
-	public List<TaggedToken<TokeniserDecision>> getAtomicParts();
+	public List<TaggedToken<TokeniserOutcome>> getAtomicParts();
 	public void setAtomicParts(
-			List<TaggedToken<TokeniserDecision>> atomicParts);
+			List<TaggedToken<TokeniserOutcome>> atomicParts);
 	
 	/**
 	 * Have this token's features already been logged once?

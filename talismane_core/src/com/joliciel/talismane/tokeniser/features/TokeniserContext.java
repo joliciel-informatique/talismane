@@ -20,13 +20,13 @@ package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.tokeniser.TokeniserDecisionTagSequence;
+import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 
 public class TokeniserContext implements TokenWrapper {
 	private Token token;
-	private TokeniserDecisionTagSequence history;
+	private TokenisedAtomicTokenSequence history;
 	public TokeniserContext(Token token,
-			TokeniserDecisionTagSequence history) {
+			TokenisedAtomicTokenSequence history) {
 		super();
 		this.token = token;
 		this.history = history;
@@ -34,7 +34,7 @@ public class TokeniserContext implements TokenWrapper {
 	public Token getToken() {
 		return token;
 	}
-	public TokeniserDecisionTagSequence getHistory() {
+	public TokenisedAtomicTokenSequence getHistory() {
 		return history;
 	}
 	

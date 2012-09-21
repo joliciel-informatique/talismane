@@ -20,7 +20,7 @@ package com.joliciel.talismane.tokeniser;
 
 import java.io.Writer;
 
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
+import com.joliciel.talismane.stats.FScoreCalculator;
 
 /**
  * An interface for evaluating a given tokeniser.
@@ -34,6 +34,6 @@ public interface TokeniserEvaluator {
 	 * @param reader for reading manually separated tokens from a corpus
 	 * @return an f-score calculator for this tokeniser
 	 */
-	public FScoreCalculator<TokeniserDecision> evaluate(TokeniserAnnotatedCorpusReader reader,
+	public FScoreCalculator<TokeniserOutcome> evaluate(TokeniserAnnotatedCorpusReader reader,
 			Writer errorWriter);
 }

@@ -21,8 +21,8 @@ package com.joliciel.talismane.tokeniser;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.utils.AnalysisObserver;
 
 
 /**
@@ -44,7 +44,7 @@ public interface Tokeniser {
 	 * @param sentence the sentence to be tokenised
 	 * @return a List of up to <i>n</i> TokeniserDecisionTagSequence, ordered from most probable to least probable
 	 */
-	public List<TokeniserDecisionTagSequence> tokeniseWithDecisions(String sentence);
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String sentence);
 	
 	public List<TokenSequence> tokenise(String sentence);
 	

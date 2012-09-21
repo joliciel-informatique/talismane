@@ -19,11 +19,11 @@
 package com.joliciel.talismane.tokeniser.features;
 
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 /**
  * Retrieves the first N letters of the first entire word in the present token, as long as N &lt; the length of the first entire word.

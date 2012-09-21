@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.utils.features.Feature;
 
 public interface ParseConfigurationFeature<T> extends Feature<ParseConfiguration,T> {
 

@@ -21,26 +21,26 @@ package com.joliciel.lefff;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.utils.util.LogUtils;
+import com.joliciel.talismane.utils.LogUtils;
 
 public class LefffPosTagMapperImpl implements LefffPosTagMapper {
 	private static final long serialVersionUID = 4354513469099747673L;
 
 	private static final Log LOG = LogFactory.getLog(LefffPosTagMapperImpl.class);
 	
-	private Map<String,Set<PosTag>> posTagMap = new TreeMap<String, Set<PosTag>>();
+	private Map<String,Set<PosTag>> posTagMap = new HashMap<String, Set<PosTag>>();
 	PosTagSet posTagSet;
 
 	public LefffPosTagMapperImpl(File file, PosTagSet posTagSet) {

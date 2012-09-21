@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector.features;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
-import com.joliciel.talismane.utils.features.Feature;
 
 public interface SentenceDetectorFeature<T> extends Feature<PossibleSentenceBoundary,T> {
 

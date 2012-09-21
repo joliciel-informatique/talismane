@@ -18,10 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
 
 /**
  * Retrieves the token offset from the current token by <i>n</i> (in the linear sentence),
@@ -42,7 +42,7 @@ public class AddressFunctionOffset extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> check(ParseConfiguration configuration) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfiguration configuration) {
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration);
 		FeatureResult<Integer> offsetResult = offsetFeature.check(configuration);

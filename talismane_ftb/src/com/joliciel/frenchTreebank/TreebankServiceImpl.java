@@ -21,7 +21,7 @@ package com.joliciel.frenchTreebank;
 import java.util.List;
 import java.util.Set;
 
-import com.joliciel.talismane.utils.util.ObjectCache;
+import com.joliciel.talismane.utils.ObjectCache;
 
 class TreebankServiceImpl implements TreebankServiceInternal {
     private TreebankDao treebankDao;

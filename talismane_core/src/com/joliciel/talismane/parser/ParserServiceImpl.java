@@ -4,13 +4,13 @@ import java.util.Set;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.DecisionMaker;
-import com.joliciel.talismane.utils.maxent.JolicielMaxentModel;
 
 public class ParserServiceImpl implements ParserServiceInternal {
 	ParserFeatureService parseFeatureService;
@@ -38,7 +38,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public NonDeterministicParser getTransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		TransitionBasedParser parser = new TransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
 		return parser;
@@ -63,21 +63,19 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	@Override
 	public TransitionSystem getShiftReduceTransitionSystem() {
 		ShiftReduceTransitionSystem transitionSystem = new ShiftReduceTransitionSystem();
-		transitionSystem.setParserServiceInternal(this);
 		return transitionSystem;
 	}
 
 	@Override
 	public TransitionSystem getArcEagerTransitionSystem() {
 		ArcEagerTransitionSystem transitionSystem = new ArcEagerTransitionSystem();
-		transitionSystem.setParserServiceInternal(this);
 		return transitionSystem;
 	}
 
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(
-			JolicielMaxentModel jolicielMaxentModel, int beamWidth) {
-		DecisionMaker decisionMaker = jolicielMaxentModel.getDecisionMaker();
+			JolicielMaxentModel<Transition> jolicielMaxentModel, int beamWidth) {
+		DecisionMaker<Transition> decisionMaker = jolicielMaxentModel.getDecisionMaker();
 		TransitionSystem transitionSystem = null;
 		String transitionSystemClassName = (String) jolicielMaxentModel.getModelAttributes().get("transitionSystem");
 		if (transitionSystemClassName.equalsIgnoreCase("ShiftReduceTransitionSystem")) {

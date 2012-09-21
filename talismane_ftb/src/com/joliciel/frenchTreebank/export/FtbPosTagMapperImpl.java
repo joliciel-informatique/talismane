@@ -34,7 +34,7 @@ import com.joliciel.frenchTreebank.Morphology;
 import com.joliciel.frenchTreebank.SubCategory;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.utils.util.LogUtils;
+import com.joliciel.talismane.utils.LogUtils;
 
 class FtbPosTagMapperImpl implements FtbPosTagMapper {
 	private static final Log LOG = LogFactory.getLog(FtbPosTagMapperImpl.class);

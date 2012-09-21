@@ -27,18 +27,18 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.machineLearning.features.AndFeature;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.ConcatenateFeature;
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
+import com.joliciel.talismane.machineLearning.features.NullToFalseFeature;
+import com.joliciel.talismane.machineLearning.features.OrFeature;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.TokenWrapper;
-import com.joliciel.talismane.utils.features.AndFeature;
-import com.joliciel.talismane.utils.features.BooleanFeature;
-import com.joliciel.talismane.utils.features.ConcatenateFeature;
-import com.joliciel.talismane.utils.features.Feature;
-import com.joliciel.talismane.utils.features.FeatureService;
-import com.joliciel.talismane.utils.features.FeatureWrapper;
-import com.joliciel.talismane.utils.features.FunctionDescriptor;
-import com.joliciel.talismane.utils.features.FunctionDescriptorParser;
-import com.joliciel.talismane.utils.features.NullToFalseFeature;
-import com.joliciel.talismane.utils.features.OrFeature;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 public class TokeniserContextFeatureParserTest {
 	private static final Log LOG = LogFactory.getLog(TokeniserContextFeatureParserTest.class);

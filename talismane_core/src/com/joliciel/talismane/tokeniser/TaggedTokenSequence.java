@@ -20,24 +20,19 @@ package com.joliciel.talismane.tokeniser;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.Decision;
+
 /**
  * A sequence of tagged tokens with a score.
  * @author Assaf Urieli
  *
  */
 public interface TaggedTokenSequence<T extends TokenTag> extends List<TaggedToken<T>> {
-
-	/**
-	 * Get the sum of logs of the weights.
-	 * @return
-	 */
-	public double getScore();
-	
 	/**
 	 * Add a tagged token to the end of the current tagged token list.
-	 * @param string
-	 * @param posTag
+	 * @param token the token to be added
+	 * @param decision the decision attached to this token
 	 * @return
 	 */
-	public TaggedToken<T> addTaggedToken(Token token, T tag, double probability);
+	public TaggedToken<T> addTaggedToken(Token token, Decision<T> decision);
 }

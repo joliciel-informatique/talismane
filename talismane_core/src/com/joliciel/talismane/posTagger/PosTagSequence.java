@@ -20,6 +20,7 @@ package com.joliciel.talismane.posTagger;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
@@ -28,7 +29,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public interface PosTagSequence extends List<PosTaggedToken>, Comparable<PosTagSequence> {
+public interface PosTagSequence extends List<PosTaggedToken>, Comparable<PosTagSequence>, Solution<PosTag> {
 	/**
 	 * Get the Token Sequence on which this PosTagSequence is based.
 	 * @return

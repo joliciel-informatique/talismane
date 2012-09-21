@@ -17,7 +17,7 @@ import com.joliciel.frenchTreebank.search.SearchService;
 import com.joliciel.frenchTreebank.search.XmlPatternSearch;
 import com.joliciel.frenchTreebank.test.DaoTestUtils;
 import com.joliciel.frenchTreebank.upload.TreebankSAXParser;
-import com.joliciel.talismane.utils.util.SimpleObjectCache;
+import com.joliciel.talismane.utils.SimpleObjectCache;
 
 import junit.framework.TestCase;
 

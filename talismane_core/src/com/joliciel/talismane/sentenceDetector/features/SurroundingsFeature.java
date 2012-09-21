@@ -20,11 +20,11 @@ package com.joliciel.talismane.sentenceDetector.features;
 
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.IntegerFeature;
-import com.joliciel.talismane.utils.features.StringFeature;
 
 /**
  * Examines the atomic tokens from <i>n</i> before the boundary to <i>n</i> after the boundary.<br/>

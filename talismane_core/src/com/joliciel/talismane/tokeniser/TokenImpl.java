@@ -18,21 +18,21 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 import com.joliciel.talismane.tokeniser.features.TokenFeature;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
-import com.joliciel.talismane.utils.features.FeatureResult;
 
 class TokenImpl implements TokenInternal {
 	@SuppressWarnings("unused")
@@ -46,11 +46,11 @@ class TokenImpl implements TokenInternal {
 	private TokenSequence tokenSequence;
 	private Set<PosTag> possiblePosTags;
 	private Map<PosTag, Integer> frequencies;
-	private Map<String,FeatureResult<?>> staticFeatureResults = new TreeMap<String, FeatureResult<?>>();
+	private Map<String,FeatureResult<?>> staticFeatureResults = new HashMap<String, FeatureResult<?>>();
 	private boolean separator = false;
 	private boolean whiteSpace = false;
 	private List<TokenMatch> matches = null;
-	List<TaggedToken<TokeniserDecision>> atomicDecisions = new ArrayList<TaggedToken<TokeniserDecision>>();
+	List<TaggedToken<TokeniserOutcome>> atomicDecisions = new ArrayList<TaggedToken<TokeniserOutcome>>();
 	private boolean logged = false;
 	
 	private int startIndex = 0;
@@ -185,12 +185,12 @@ class TokenImpl implements TokenInternal {
 	}
 
 	@Override
-	public List<TaggedToken<TokeniserDecision>> getAtomicParts() {
+	public List<TaggedToken<TokeniserOutcome>> getAtomicParts() {
 		return atomicDecisions;
 	}
 
 	public void setAtomicParts(
-			List<TaggedToken<TokeniserDecision>> atomicDecisions) {
+			List<TaggedToken<TokeniserOutcome>> atomicDecisions) {
 		this.atomicDecisions = atomicDecisions;
 	}
 

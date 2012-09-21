@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseAnnotatedCorpusReader;
@@ -28,7 +29,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class FtbDepReader implements ParseAnnotatedCorpusReader {
     private static final Log LOG = LogFactory.getLog(FtbDepReader.class);
@@ -159,7 +160,8 @@ public class FtbDepReader implements ParseAnnotatedCorpusReader {
 						for (ConnlDataLine dataLine : dataLines) {
 							Token token = tokenSequence.get(i);
 							PosTag posTag = this.getPosTag(dataLine);
-							PosTaggedToken posTaggedToken = this.posTaggerService.getPosTaggedToken(token, posTag, 1.0);
+							Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(posTag);
+							PosTaggedToken posTaggedToken = this.posTaggerService.getPosTaggedToken(token, posTagDecision);
 							posTagSequence.add(posTaggedToken);
 							idTokenMap.put(dataLine.id, posTaggedToken);
 							i++;

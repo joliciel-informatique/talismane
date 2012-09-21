@@ -44,7 +44,7 @@ public class ShiftTransition extends AbstractTransition implements Transition {
 		return !configuration.getBuffer().isEmpty();
 	}
 
-	public String getName() {
+	public String getCode() {
 		return name;
 	}
 

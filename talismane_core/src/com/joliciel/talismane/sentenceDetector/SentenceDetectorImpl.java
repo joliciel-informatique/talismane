@@ -27,16 +27,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.TextFilter;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
-import com.joliciel.talismane.utils.DecisionMaker;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
-import com.joliciel.talismane.utils.util.WeightedOutcome;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class SentenceDetectorImpl implements SentenceDetector {
 	private static final Log LOG = LogFactory.getLog(SentenceDetectorImpl.class);
-	private DecisionMaker decisionMaker;
+	private DecisionMaker<SentenceDetectorOutcome> decisionMaker;
 	private Set<SentenceDetectorFeature<?>> features;
 	private List<TextFilter> textFilters = new ArrayList<TextFilter>();
 	private String hardStop = "\n";
@@ -44,7 +44,7 @@ public class SentenceDetectorImpl implements SentenceDetector {
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	
-	public SentenceDetectorImpl(DecisionMaker decisionMaker,
+	public SentenceDetectorImpl(DecisionMaker<SentenceDetectorOutcome> decisionMaker,
 			Set<SentenceDetectorFeature<?>> features) {
 		super();
 		this.decisionMaker = decisionMaker;
@@ -87,17 +87,14 @@ public class SentenceDetectorImpl implements SentenceDetector {
 						}
 					}
 					
-					List<WeightedOutcome<String>> weightedOutcomes = this.decisionMaker.decide(featureResults);
-					List<WeightedOutcome<SentenceDetectorDecision>> decisions = new ArrayList<WeightedOutcome<SentenceDetectorDecision>>();
-					for (WeightedOutcome<String> weightedOutcome : weightedOutcomes) {
-						SentenceDetectorDecision decision = SentenceDetectorDecision.valueOf(weightedOutcome.getOutcome());
-						WeightedOutcome<SentenceDetectorDecision> weightedDecision = new WeightedOutcome<SentenceDetectorDecision>(decision, weightedOutcome.getWeight());
-						decisions.add(weightedDecision);
-						if (LOG.isTraceEnabled()) {
-							LOG.trace(weightedDecision.getOutcome() + ": " + weightedDecision.getWeight());
+					List<Decision<SentenceDetectorOutcome>> decisions = this.decisionMaker.decide(featureResults);
+					if (LOG.isTraceEnabled()) {
+						for (Decision<SentenceDetectorOutcome> decision : decisions) {
+							LOG.trace(decision.getCode() + ": " + decision.getProbability());
 						}
 					}
-					if (decisions.get(0).getOutcome().equals(SentenceDetectorDecision.IS_BOUNDARY)) {
+					
+					if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY)) {
 						guessedBoundaries.add(possibleBoundary);
 						if (LOG.isTraceEnabled()) {
 							LOG.trace("Adding boundary: " + possibleBoundary);
@@ -111,7 +108,7 @@ public class SentenceDetectorImpl implements SentenceDetector {
 		}
 	}
 	
-	public DecisionMaker getDecisionMaker() {
+	public DecisionMaker<SentenceDetectorOutcome> getDecisionMaker() {
 		return decisionMaker;
 	}
 

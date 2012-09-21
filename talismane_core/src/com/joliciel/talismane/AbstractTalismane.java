@@ -32,6 +32,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
@@ -47,12 +48,16 @@ import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
 import com.joliciel.talismane.filters.NewlineNormaliser;
 import com.joliciel.talismane.filters.RegexFindReplaceFilter;
 import com.joliciel.talismane.filters.TextStreamFilter;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
+import com.joliciel.talismane.machineLearning.maxent.MaxentDetailedAnalysisWriter;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.ParserService;
+import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader;
@@ -68,15 +73,18 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
+import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -88,11 +96,8 @@ import com.joliciel.talismane.tokeniser.filters.french.LowercaseFirstWordFrenchF
 import com.joliciel.talismane.tokeniser.filters.french.UpperCaseSeriesFilter;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
-import com.joliciel.talismane.utils.maxent.JolicielMaxentModel;
-import com.joliciel.talismane.utils.maxent.MaxentDetailedAnalysisWriter;
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.util.LogUtils;
-import com.joliciel.talismane.utils.util.PerformanceMonitor;
+import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public abstract class AbstractTalismane implements Talismane {
 	private static final Log LOG = LogFactory.getLog(AbstractTalismane.class);
@@ -135,115 +140,122 @@ public abstract class AbstractTalismane implements Talismane {
 			System.out.println(" *encoding=[UTF-8+ or other] *includeDetails=[true|false+] posTaggerRules*=[posTaggerRuleFilePath] regexFilters*=[regexFilterFilePath] *sentenceModel=[path] *tokeniserModel=[path] *posTaggerModel=[path] *parserModel=[path] *inputPatternFile=[inputPatternFilePath] *posTagSet=[posTagSetPath]");
 			return;
 		}
+		
+		Command command = Command.analyse;
+		String inFilePath = null;
+		String outFilePath = null;
+		String outDirPath = null;
+		String encoding = "UTF-8";
+		String templatePath = null;
+		int beamWidth = 10;
+		boolean propagateBeam = true;
+		boolean includeDetails = false;
+		String parserModelFilePath = null;
+		String posTaggerModelFilePath = null;
+		String tokeniserModelFilePath = null;
+		String sentenceModelFilePath = null;
+		Talismane.Module module = Talismane.Module.PosTagger;
+		Talismane.Module startModule = Talismane.Module.SentenceDetector;
+		Talismane.Module endModule = Talismane.Module.Parser;
+		
+		String inputPatternFilePath = null;
+		String posTaggerRuleFilePath = null;
+		String posTagSetPath = null;
+		String regexFiltersPath = null;
+		
+		boolean logPerformance = false;
+		
+		for (String arg : args) {
+			int equalsPos = arg.indexOf('=');
+			String argName = arg.substring(0, equalsPos);
+			String argValue = arg.substring(equalsPos+1);
+			if (argName.equals("command")) {
+				if (argValue.equalsIgnoreCase("analyse")||argValue.equalsIgnoreCase("analyze"))
+					command = Command.analyse;
+				else if (argValue.equalsIgnoreCase("evaluate"))
+					command = Command.evaluate;
+				else
+					throw new TalismaneException("Unknown command: " + argValue);
+			} else if (argName.equals("module")) {
+				if (argValue.equalsIgnoreCase("sentence"))
+					module = Talismane.Module.SentenceDetector;
+				else if (argValue.equalsIgnoreCase("tokenise"))
+					module = Talismane.Module.Tokeniser;
+				else if (argValue.equalsIgnoreCase("postag"))
+					module = Talismane.Module.PosTagger;
+				else if (argValue.equalsIgnoreCase("parse"))
+					module = Talismane.Module.Parser;
+				else
+					throw new TalismaneException("Unknown module: " + argValue);
+			} else if (argName.equals("startModule")) {
+				if (argValue.equalsIgnoreCase("sentence"))
+					startModule = Talismane.Module.SentenceDetector;
+				else if (argValue.equalsIgnoreCase("tokenise"))
+					startModule = Talismane.Module.Tokeniser;
+				else if (argValue.equalsIgnoreCase("postag"))
+					startModule = Talismane.Module.PosTagger;
+				else if (argValue.equalsIgnoreCase("parse"))
+					startModule = Talismane.Module.Parser;
+				else
+					throw new TalismaneException("Unknown startModule: " + argValue);
+			} else if (argName.equals("endModule")) {
+				if (argValue.equalsIgnoreCase("sentence"))
+					endModule = Talismane.Module.SentenceDetector;
+				else if (argValue.equalsIgnoreCase("tokenise"))
+					endModule = Talismane.Module.Tokeniser;
+				else if (argValue.equalsIgnoreCase("postag"))
+					endModule = Talismane.Module.PosTagger;
+				else if (argValue.equalsIgnoreCase("parse"))
+					endModule = Talismane.Module.Parser;
+				else
+					throw new TalismaneException("Unknown endModule: " + argValue);
+			} else if (argName.equals("inFile"))
+				inFilePath = argValue;
+			else if (argName.equals("outFile")) 
+				outFilePath = argValue;
+			else if (argName.equals("outDir")) 
+				outDirPath = argValue;
+			else if (argName.equals("template")) 
+				templatePath = argValue;
+			else if (argName.equals("encoding")) 
+				encoding = argValue;
+			else if (argName.equals("includeDetails"))
+				includeDetails = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("propagateBeam"))
+				propagateBeam = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("beamWidth"))
+				beamWidth = Integer.parseInt(argValue);
+			else if (argName.equals("sentenceModel"))
+				sentenceModelFilePath = argValue;
+			else if (argName.equals("tokeniserModel"))
+				tokeniserModelFilePath = argValue;
+			else if (argName.equals("posTaggerModel"))
+				posTaggerModelFilePath = argValue;
+			else if (argName.equals("parserModel"))
+				parserModelFilePath = argValue;
+			else if (argName.equals("inputPatternFile"))
+				inputPatternFilePath = argValue;
+			else if (argName.equals("posTaggerRules"))
+				posTaggerRuleFilePath = argValue;
+			else if (argName.equals("posTagSet"))
+				posTagSetPath = argValue;
+			else if (argName.equals("regexFilters"))
+				regexFiltersPath = argValue;
+			else if (argName.equals("logPerformance"))
+				logPerformance = argValue.equalsIgnoreCase("true");
+			else {
+				System.out.println("Unknown argument: " + argName);
+				throw new RuntimeException("Unknown argument: " + argName);
+			}
+		}
+		
+		if (command==null)
+			throw new TalismaneException("No command provided.");
+
+		long startTime = new Date().getTime();
+		PerformanceMonitor.setActive(logPerformance);
 		PerformanceMonitor.start();
 		try {
-			Command command = Command.analyse;
-			String inFilePath = null;
-			String outFilePath = null;
-			String outDirPath = null;
-			String encoding = "UTF-8";
-			String templatePath = null;
-			int beamWidth = 10;
-			boolean propagateBeam = true;
-			boolean includeDetails = false;
-			String parserModelFilePath = null;
-			String posTaggerModelFilePath = null;
-			String tokeniserModelFilePath = null;
-			String sentenceModelFilePath = null;
-			Talismane.Module module = Talismane.Module.PosTagger;
-			Talismane.Module startModule = Talismane.Module.SentenceDetector;
-			Talismane.Module endModule = Talismane.Module.Parser;
-			
-			String inputPatternFilePath = null;
-			String posTaggerRuleFilePath = null;
-			String posTagSetPath = null;
-			String regexFiltersPath = null;
-			
-			for (String arg : args) {
-				int equalsPos = arg.indexOf('=');
-				String argName = arg.substring(0, equalsPos);
-				String argValue = arg.substring(equalsPos+1);
-				if (argName.equals("command")) {
-					if (argValue.equalsIgnoreCase("analyse")||argValue.equalsIgnoreCase("analyze"))
-						command = Command.analyse;
-					else if (argValue.equalsIgnoreCase("evaluate"))
-						command = Command.evaluate;
-					else
-						throw new TalismaneException("Unknown command: " + argValue);
-				} else if (argName.equals("module")) {
-					if (argValue.equalsIgnoreCase("sentence"))
-						module = Talismane.Module.SentenceDetector;
-					else if (argValue.equalsIgnoreCase("tokenise"))
-						module = Talismane.Module.Tokeniser;
-					else if (argValue.equalsIgnoreCase("postag"))
-						module = Talismane.Module.PosTagger;
-					else if (argValue.equalsIgnoreCase("parse"))
-						module = Talismane.Module.Parser;
-					else
-						throw new TalismaneException("Unknown module: " + argValue);
-				} else if (argName.equals("startModule")) {
-					if (argValue.equalsIgnoreCase("sentence"))
-						startModule = Talismane.Module.SentenceDetector;
-					else if (argValue.equalsIgnoreCase("tokenise"))
-						startModule = Talismane.Module.Tokeniser;
-					else if (argValue.equalsIgnoreCase("postag"))
-						startModule = Talismane.Module.PosTagger;
-					else if (argValue.equalsIgnoreCase("parse"))
-						startModule = Talismane.Module.Parser;
-					else
-						throw new TalismaneException("Unknown startModule: " + argValue);
-				} else if (argName.equals("endModule")) {
-					if (argValue.equalsIgnoreCase("sentence"))
-						endModule = Talismane.Module.SentenceDetector;
-					else if (argValue.equalsIgnoreCase("tokenise"))
-						endModule = Talismane.Module.Tokeniser;
-					else if (argValue.equalsIgnoreCase("postag"))
-						endModule = Talismane.Module.PosTagger;
-					else if (argValue.equalsIgnoreCase("parse"))
-						endModule = Talismane.Module.Parser;
-					else
-						throw new TalismaneException("Unknown endModule: " + argValue);
-				} else if (argName.equals("inFile"))
-					inFilePath = argValue;
-				else if (argName.equals("outFile")) 
-					outFilePath = argValue;
-				else if (argName.equals("outDir")) 
-					outDirPath = argValue;
-				else if (argName.equals("template")) 
-					templatePath = argValue;
-				else if (argName.equals("encoding")) 
-					encoding = argValue;
-				else if (argName.equals("includeDetails"))
-					includeDetails = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("propagateBeam"))
-					propagateBeam = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("beamWidth"))
-					beamWidth = Integer.parseInt(argValue);
-				else if (argName.equals("sentenceModel"))
-					sentenceModelFilePath = argValue;
-				else if (argName.equals("tokeniserModel"))
-					tokeniserModelFilePath = argValue;
-				else if (argName.equals("posTaggerModel"))
-					posTaggerModelFilePath = argValue;
-				else if (argName.equals("parserModel"))
-					parserModelFilePath = argValue;
-				else if (argName.equals("inputPatternFile"))
-					inputPatternFilePath = argValue;
-				else if (argName.equals("posTaggerRules"))
-					posTaggerRuleFilePath = argValue;
-				else if (argName.equals("posTagSet"))
-					posTagSetPath = argValue;
-				else if (argName.equals("regexFilters"))
-					regexFiltersPath = argValue;
-				else {
-					System.out.println("Unknown argument: " + argName);
-					throw new RuntimeException("Unknown argument: " + argName);
-				}
-			}
-			
-			if (command==null)
-				throw new TalismaneException("No command provided.");
-
 			String sentenceTemplateName = "sentence_template.ftl";
 			String tokeniserTemplateName = "tokeniser_template.ftl";
 			String posTaggerTemplateName = "posTagger_template.ftl";
@@ -316,11 +328,11 @@ public abstract class AbstractTalismane implements Talismane {
 				this.addTextStreamFilter(new NewlineNormaliser());
 
 				if (this.needsSentenceDetector()) {
-					JolicielMaxentModel sentenceModelFileMaxentModel = null;
+					JolicielMaxentModel<SentenceDetectorOutcome> sentenceModelFileMaxentModel = null;
 					if (sentenceModelFilePath!=null) {
-						sentenceModelFileMaxentModel = new JolicielMaxentModel(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
+						sentenceModelFileMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
 					} else {
-						sentenceModelFileMaxentModel = new JolicielMaxentModel(this.getDefaultSentenceModelStream());
+						sentenceModelFileMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(this.getDefaultSentenceModelStream());
 					}
 					Set<SentenceDetectorFeature<?>> sentenceDetectorFeatures =
 						sentenceDetectorFeatureService.getFeatureSet(sentenceModelFileMaxentModel.getFeatureDescriptors());
@@ -350,11 +362,11 @@ public abstract class AbstractTalismane implements Talismane {
 				}
 				
 				if (this.needsTokeniser()) {
-					JolicielMaxentModel tokeniserJolicielMaxentModel = null;
+					JolicielMaxentModel<TokeniserOutcome> tokeniserJolicielMaxentModel = null;
 					if (tokeniserModelFilePath!=null) {
-						tokeniserJolicielMaxentModel = new JolicielMaxentModel(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
+						tokeniserJolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
 					} else {
-						tokeniserJolicielMaxentModel = new JolicielMaxentModel(this.getDefaultTokeniserModelStream());
+						tokeniserJolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(this.getDefaultTokeniserModelStream());
 					}
 	
 					TokeniserPatternManager tokeniserPatternManager = tokeniserPatternService.getPatternManager(tokeniserJolicielMaxentModel.getPatternDescriptors());
@@ -378,11 +390,11 @@ public abstract class AbstractTalismane implements Talismane {
 				}
 				
 				if (this.needsPosTagger()) {				
-					JolicielMaxentModel posTaggerJolicielMaxentModel = null;
+					JolicielMaxentModel<PosTag> posTaggerJolicielMaxentModel = null;
 					if (posTaggerModelFilePath!=null) {
-						posTaggerJolicielMaxentModel = new JolicielMaxentModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
+						posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
 					} else {
-						posTaggerJolicielMaxentModel = new JolicielMaxentModel(this.getDefaultPosTaggerModelStream());
+						posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(this.getDefaultPosTaggerModelStream());
 					}
 					Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerJolicielMaxentModel.getFeatureDescriptors());
 					PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerJolicielMaxentModel.getDecisionMaker(), beamWidth);
@@ -408,11 +420,11 @@ public abstract class AbstractTalismane implements Talismane {
 				}
 				
 				if (this.needsParser()) {
-					JolicielMaxentModel parserJolicielMaxentModel = null;
+					JolicielMaxentModel<Transition> parserJolicielMaxentModel = null;
 					if (parserModelFilePath!=null) {
-						parserJolicielMaxentModel = new JolicielMaxentModel(new ZipInputStream(new FileInputStream(parserModelFilePath)));
+						parserJolicielMaxentModel = new JolicielMaxentModel<Transition>(new ZipInputStream(new FileInputStream(parserModelFilePath)));
 					} else {
-						parserJolicielMaxentModel = new JolicielMaxentModel(this.getDefaultParserModelStream());
+						parserJolicielMaxentModel = new JolicielMaxentModel<Transition>(this.getDefaultParserModelStream());
 					}
 					NonDeterministicParser parser = parserService.getTransitionBasedParser(parserJolicielMaxentModel, beamWidth);
 	
@@ -535,11 +547,11 @@ public abstract class AbstractTalismane implements Talismane {
 					FScoreCalculator<String> fScoreCalculator = null;
 					
 					try {
-						JolicielMaxentModel posTaggerJolicielMaxentModel = null;
+						JolicielMaxentModel<PosTag> posTaggerJolicielMaxentModel = null;
 						if (posTaggerModelFilePath!=null) {
-							posTaggerJolicielMaxentModel = new JolicielMaxentModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
+							posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
 						} else {
-							posTaggerJolicielMaxentModel = new JolicielMaxentModel(this.getDefaultPosTaggerModelStream());
+							posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(this.getDefaultPosTaggerModelStream());
 						}
 						Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerJolicielMaxentModel.getFeatureDescriptors());
 						PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerJolicielMaxentModel.getDecisionMaker(), beamWidth);
@@ -606,6 +618,31 @@ public abstract class AbstractTalismane implements Talismane {
 			throw e;
 		} finally {
 			PerformanceMonitor.end();
+			
+			if (logPerformance) {
+				try {
+					Writer csvFileWriter = null;
+					File csvFile = null;
+					if (outDirPath!=null) {
+						File outDir = new File(outDirPath);
+			
+						csvFile = new File(outDir, "performance.csv");
+					} else {
+						csvFile = new File("performance.csv");
+					}
+					csvFile.delete();
+					csvFile.createNewFile();
+					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					PerformanceMonitor.writePerformanceCSV(csvFileWriter);
+					csvFileWriter.flush();
+					csvFileWriter.close();
+				} catch (Exception e) {
+					LogUtils.logError(LOG, e);
+				}
+			}
+			long endTime = new Date().getTime();
+			long totalTime = endTime - startTime;
+			LOG.info("Total time: " + totalTime);
 		}
 	}
 	
@@ -839,7 +876,9 @@ public abstract class AbstractTalismane implements Talismane {
 		    				int i = 0;
 		    				for (PosTag posTag : posTags) {
 		    					Token token = unfinishedTokenSequence.get(i++);
-		    					PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(token, posTag, 1.0);
+		    					PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+		    					Decision<PosTag> decision = posTagSet.createDefaultDecision(posTag);
+		    					PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(token, decision);
 		    					posTagSequence.add(posTaggedToken);
 		    				}
 		    				unfinishedTokenSequence = null;

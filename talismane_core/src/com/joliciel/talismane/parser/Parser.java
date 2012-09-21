@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.utils.AnalysisObserver;
 
 /**
  * A syntax parser which takes a pos tag sequence and provides a parse configuration.

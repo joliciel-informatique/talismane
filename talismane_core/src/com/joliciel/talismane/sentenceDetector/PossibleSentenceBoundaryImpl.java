@@ -22,7 +22,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.utils.util.StringUtils;
+import com.joliciel.talismane.utils.StringUtils;
 
 class PossibleSentenceBoundaryImpl implements PossibleSentenceBoundary {
 	private static final int NUM_CHARS = 30;

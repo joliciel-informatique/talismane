@@ -21,18 +21,18 @@ package com.joliciel.talismane.sentenceDetector.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.AbstractFeature;
+import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
-import com.joliciel.talismane.utils.features.AbstractFeature;
-import com.joliciel.talismane.utils.features.AbstractFeatureParser;
-import com.joliciel.talismane.utils.features.Feature;
-import com.joliciel.talismane.utils.features.FeatureClassContainer;
-import com.joliciel.talismane.utils.features.FeatureResult;
-import com.joliciel.talismane.utils.features.FeatureService;
-import com.joliciel.talismane.utils.features.FeatureWrapper;
-import com.joliciel.talismane.utils.features.FunctionDescriptor;
 
 class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
 	private PosTaggerLexiconService lexiconService;	

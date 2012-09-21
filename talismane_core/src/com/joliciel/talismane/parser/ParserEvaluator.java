@@ -20,7 +20,7 @@ package com.joliciel.talismane.parser;
 
 import java.io.Writer;
 
-import com.joliciel.talismane.utils.stats.FScoreCalculator;
+import com.joliciel.talismane.stats.FScoreCalculator;
 
 /**
  * Evaluate a parser.

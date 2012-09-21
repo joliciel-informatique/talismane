@@ -22,12 +22,14 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.DecisionFactory;
+
 /**
  * A tag set to be used for pos tagging.
  * @author Assaf Urieli
  *
  */
-public interface PosTagSet extends Serializable {
+public interface PosTagSet extends Serializable, DecisionFactory<PosTag> {
 	/**
 	 * Name of this posTagSet.
 	 * @return

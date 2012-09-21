@@ -22,13 +22,14 @@ import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.filters.TextFilter;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
-import com.joliciel.talismane.utils.CorpusEventStream;
-import com.joliciel.talismane.utils.DecisionMaker;
 
 public interface SentenceDetectorService {
 	
-	public SentenceDetector getSentenceDetector(DecisionMaker decisionMaker,
+	public SentenceDetector getSentenceDetector(DecisionMaker<SentenceDetectorOutcome> decisionMaker,
 			Set<SentenceDetectorFeature<?>> features);
 	
 	public SentenceDetectorEvaluator getEvaluator(SentenceDetector sentenceDetector);
@@ -38,4 +39,5 @@ public interface SentenceDetectorService {
 	public CorpusEventStream getSentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader,
 			Set<SentenceDetectorFeature<?>> features, List<TextFilter> filters);
 
+	public DecisionFactory<SentenceDetectorOutcome> getDecisionFactory();
 }

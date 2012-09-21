@@ -22,6 +22,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -30,7 +31,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * as well as the stack and buffer indicating the pos-tagged tokens already visited and not yet visited.
  * @author Assaf Urieli
  */
-public interface ParseConfiguration extends Comparable<ParseConfiguration> {
+public interface ParseConfiguration extends Comparable<ParseConfiguration>, Solution<Transition> {
 	/**
 	 * Get the PosTag Sequence on which this ParseSequence is based.
 	 * @return
