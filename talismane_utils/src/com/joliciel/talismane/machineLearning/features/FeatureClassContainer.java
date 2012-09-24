@@ -44,4 +44,11 @@ public interface FeatureClassContainer {
 	 */
 	@SuppressWarnings("rawtypes")
 	public List<Class<? extends Feature>> getFeatureClasses(String name);
+	
+	/**
+	 * Return the descriptors corresponding to a particular feature class.
+	 * @param featureClass
+	 * @return
+	 */
+	public List<String> getFeatureClassDescriptors(@SuppressWarnings("rawtypes") Class<? extends Feature> featureClass);
 }

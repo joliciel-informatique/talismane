@@ -243,6 +243,11 @@ class TokenImpl implements TokenInternal {
 	public void setLexiconService(PosTaggerLexiconService lexiconService) {
 		this.lexiconService = lexiconService;
 	}
+
+	@Override
+	public boolean isEmpty() {
+		return this.getStartIndex()==this.getEndIndex();
+	}
 	
 	
 }

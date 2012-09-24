@@ -46,6 +46,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	private Map<String,List<Feature<T, ?>>> namedFeatures = new HashMap<String, List<Feature<T,?>>>();
 	@SuppressWarnings("rawtypes")
 	private Map<String,List<Class<? extends Feature>>> featureClasses = null;
+	@SuppressWarnings("rawtypes")
+	private Map<Class<? extends Feature>,List<String>> featureClassDescriptors = null;
 	
 	public AbstractFeatureParser(FeatureService featureService) {
 		super();
@@ -58,6 +60,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			// note: for a given classname with both IntegerFeature and DoubleFeature arguments,
 			// the version with the IntegerFeature arguments should always be added first.
 			featureClasses = new HashMap<String, List<Class<? extends Feature>>>();
+			featureClassDescriptors = new HashMap<Class<? extends Feature>, List<String>>();
 			this.addFeatureClass("RootWrapper", RootWrapper.class);
 			this.addFeatureClass("-", MinusIntegerOperator.class);
 			this.addFeatureClass("-", MinusOperator.class);
@@ -467,6 +470,13 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			this.featureClasses.put(name, featureClasses);
 		}
 		featureClasses.add(featureClass);
+		
+		List<String> descriptors = this.featureClassDescriptors.get(featureClass);
+		if (descriptors==null) {
+			descriptors = new ArrayList<String>();
+			this.featureClassDescriptors.put(featureClass, descriptors);
+		}
+		descriptors.add(name);
 	}
 	
 	/**
@@ -475,6 +485,14 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	@SuppressWarnings("rawtypes")
 	final public List<Class<? extends Feature>> getFeatureClasses(String name) {
 		return this.featureClasses.get(name);
+	}
+	
+	
+
+	@Override
+	public List<String> getFeatureClassDescriptors(
+			@SuppressWarnings("rawtypes") Class<? extends Feature> featureClass) {
+		return this.featureClassDescriptors.get(featureClass);
 	}
 
 	/**

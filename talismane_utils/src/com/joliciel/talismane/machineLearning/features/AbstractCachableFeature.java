@@ -35,17 +35,17 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 
 	@Override
 	public final FeatureResult<Y> check(T context) {
-		PerformanceMonitor.startTask(logName);
-		try {
-			FeatureResult<Y> featureResult = this.checkInCache(context);
-			if (featureResult==null) {
+		FeatureResult<Y> featureResult = this.checkInCache(context);
+		if (featureResult==null) {
+			PerformanceMonitor.startTask(logName);
+			try {
 				featureResult = this.checkInternal(context);
-				this.putInCache(context, featureResult);
+			} finally {
+				PerformanceMonitor.endTask(logName);
 			}
-			return featureResult;		
-		} finally {
-			PerformanceMonitor.endTask(logName);
+			this.putInCache(context, featureResult);
 		}
+		return featureResult;		
 	}
 
 

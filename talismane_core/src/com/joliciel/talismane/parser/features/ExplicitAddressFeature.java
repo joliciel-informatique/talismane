@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -27,7 +28,8 @@ import com.joliciel.talismane.parser.ParseConfiguration;
  * @author Assaf Urieli
  *
  */
-public class ExplicitAddressFeature<T> extends AbstractParseConfigurationFeature<T> {
+public class ExplicitAddressFeature<T> extends AbstractCachableFeature<ParseConfiguration,T>
+	implements ParseConfigurationFeature<T> {
 	@SuppressWarnings("unused")
 	private AddressFunction addressFunction;
 	private ParseConfigurationAddressFeature<T> parseConfigurationAddressFeature = null;
@@ -73,6 +75,19 @@ public class ExplicitAddressFeature<T> extends AbstractParseConfigurationFeature
 	@Override
 	public Class<? extends Feature> getFeatureType() {
 		return parseConfigurationAddressFeature.getFeatureType();
+	}
+
+
+	@Override
+	protected FeatureResult<T> checkInCache(ParseConfiguration context) {
+		return context.getResultFromCache(this);
+	}
+
+
+	@Override
+	protected void putInCache(ParseConfiguration context,
+			FeatureResult<T> featureResult) {
+		context.putResultInCache(this, featureResult);
 	}	
 	
 	

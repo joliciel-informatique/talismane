@@ -148,4 +148,10 @@ public interface Token extends Comparable<Token>, TokenWrapper {
 	 */
 	public boolean isLogged();
 	public void setLogged(boolean logged);
+	
+	/**
+	 * Is this an empty token (without any textual content?)
+	 * @return
+	 */
+	public boolean isEmpty();
 }
