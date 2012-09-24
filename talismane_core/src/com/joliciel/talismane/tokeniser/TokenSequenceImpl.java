@@ -79,4 +79,5 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 	public boolean add(Token token) {
 		throw new TalismaneException("Cannot add tokens directly, only by index");
 	}
+
 }

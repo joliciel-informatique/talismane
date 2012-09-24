@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.Solution;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -139,4 +141,18 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Solu
 	 * @return
 	 */
 	public DependencyNode getDetachedDependencyNode(PosTaggedToken posTaggedToken);
+	
+	
+	/**
+	 * Get a feature result from the cache.
+	 * @return
+	 */
+	public <T> FeatureResult<T> getResultFromCache(ParseConfigurationFeature<T> feature);
+
+	/**
+	 * Get a feature result from the cache.
+	 * @return
+	 */
+	public <T> void putResultInCache(ParseConfigurationFeature<T> feature, FeatureResult<T> featureResult);
+
 }

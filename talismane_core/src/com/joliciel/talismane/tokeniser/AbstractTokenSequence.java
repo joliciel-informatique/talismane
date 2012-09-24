@@ -235,6 +235,18 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	public Token addEmptyToken(int position) {
 		return this.addToken(position, position, true);
 	}
+	
+
+	@Override
+	public void removeEmptyToken(Token emptyToken) {
+		if (!emptyToken.isEmpty()) {
+			throw new TalismaneException("Can only remove empty tokens from token sequence.");
+		}
+		this.remove(emptyToken);
+		this.finalised = false;
+		this.finalise();
+	}
+	
 	@Override
 	public void cleanSlate() {
 		this.tokensAdded = new ArrayList<Token>();

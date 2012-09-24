@@ -112,7 +112,8 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguration> {
 
 		if (featureClass!=null && ParseConfigurationAddressFeature.class.isAssignableFrom(featureClass)) {
 			if (functionDescriptor.getArguments().size()>0) {
-				FunctionDescriptor explicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor("ExplicitAddress");
+				String descriptor = this.getFeatureClassDescriptors(ExplicitAddressFeature.class).get(0);
+				FunctionDescriptor explicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor(descriptor);
 				FunctionDescriptor internalDescriptor = this.getFeatureService().getFunctionDescriptor(functionDescriptor.getFunctionName());
 				explicitAddressDescriptor.addArgument(internalDescriptor);
 				explicitAddressDescriptor.addArgument(functionDescriptor.getArguments().get(0));

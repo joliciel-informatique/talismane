@@ -304,6 +304,23 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 				if (i>=this.getBeamWidth())
 					break;
 			}
+			
+			// remove null empty tokens from the final sequences
+			for (PosTagSequence sequence : sequences) {
+				List<PosTaggedToken> nullTokensToRemove = new ArrayList<PosTaggedToken>();
+				List<Token> emptyTokensToRemove = new ArrayList<Token>();
+				for (PosTaggedToken posTaggedToken : sequence) {
+					if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
+						nullTokensToRemove.add(posTaggedToken);
+						emptyTokensToRemove.add(posTaggedToken.getToken());
+						if (LOG.isDebugEnabled())
+							LOG.debug("Removing null empty token at position " + posTaggedToken.getToken().getStartIndex() + ": " + posTaggedToken);
+					}
+				}
+				sequence.removeAll(nullTokensToRemove);
+				for (Token emptyToken : emptyTokensToRemove)
+					sequence.getTokenSequence().removeEmptyToken(emptyToken);
+			}
 			return sequences;
 		} finally {
 			PerformanceMonitor.endTask("PosTaggerImpl.tagSentence");
