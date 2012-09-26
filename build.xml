@@ -26,4 +26,30 @@
 			</fileset>
 		</subant>
 	</target>
+	
+	<target name="clean">
+		<subant target="clean">
+			<fileset dir=".">
+				<include name="talismane_utils/build.xml"/>
+			</fileset>
+		</subant>
+		<subant target="clean">
+			<fileset dir=".">
+				<include name="talismane_core/build.xml"/>
+			</fileset>
+		</subant>
+		<subant target="clean">
+			<fileset dir=".">
+				<include name="talismane_lefff/build.xml"/>
+				<include name="talismane_ftb/build.xml"/>
+				<include name="talismane_ftbDep/build.xml"/>
+			</fileset>
+		</subant>
+		<subant target="clean">
+			<fileset dir=".">
+				<include name="talismane_fr/build.xml"/>
+				<include name="talismane_trainer_fr/build.xml"/>
+			</fileset>
+		</subant>
+	</target>
 </project>

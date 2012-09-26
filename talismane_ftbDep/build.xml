@@ -45,7 +45,11 @@
 			</fileset>
 		</copy>
 	</target>
-
+				
+	<target name="clean" depends="init" description="removes all directories related to this build">
+		<delete dir="${build}"/>
+	</target>
+	
 	<target name="jar" depends="compile">
 		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}" />
 	</target>
