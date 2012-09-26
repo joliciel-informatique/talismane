@@ -27,18 +27,18 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
  * @author Assaf Urieli
  *
  */
-public interface ParseAnnotatedCorpusReader {
+public interface ParserAnnotatedCorpusReader {
 	/**
 	 * Is there another sentence to be read?
 	 * @return
 	 */
-	public boolean hasNextSentence();
+	public boolean hasNextConfiguration();
 	
 	/**
 	 * Read the ParseConfiguration from the next sentence in the training corpus.
 	 * @return
 	 */
-	public ParseConfiguration nextSentence();
+	public ParseConfiguration nextConfiguration();
 	
 	public void addTokenFilter(TokenFilter tokenFilter);
 	

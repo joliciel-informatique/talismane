@@ -73,12 +73,17 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	}
 
 	@Override
-	public boolean hasNextSentence() {
+	public boolean hasNextPosTagSequence() {
+		return treebankReader.hasNextSentence();
+	}
+	
+	@Override
+	public boolean hasNextTokenSequence() {
 		return treebankReader.hasNextSentence();
 	}
 
 	@Override
-	public PosTagSequence nextSentence() {
+	public PosTagSequence nextPosTagSequence() {
 		if (this.ftbPosTagMapper==null) {
 			throw new RuntimeException("Cannot get next PosTagSequence without PosTagMapper");
 		}
@@ -88,9 +93,10 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	}
 
 	@Override
-	public String nextSentence(List<Integer> tokenSplits) {
+	public TokenSequence nextTokenSequence() {
+		List<Integer> tokenSplits = new ArrayList<Integer>();
 		PosTagSequence posTagSequence = this.nextSentenceInternal(tokenSplits);
-		return posTagSequence.getTokenSequence().getSentence();
+		return posTagSequence.getTokenSequence();
 	}
 	
 	PosTagSequence nextSentenceInternal(List<Integer> tokenSplits) {
@@ -301,13 +307,13 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 				LOG.debug("Token : \"" + token.getText() + "\" (was \"" + token.getOriginalText() + "\")");
 				PosTaggedToken posTaggedToken = posTaggedTokens.get(i);
 				if (token.equals(posTaggedToken.getToken())) {
-					posTagSequence.add(posTaggedToken);
+					posTagSequence.addPosTaggedToken(posTaggedToken);
 					i++;
 				} else if (token.getStartIndex()==token.getEndIndex()) {
 					LOG.debug("Adding null pos tag at position " + token.getStartIndex());
 					Decision<PosTag> nullPosTagDecision = posTagSet.createDefaultDecision(PosTag.NULL_POS_TAG);
 					PosTaggedToken emptyTagToken = posTaggerService.getPosTaggedToken(token, nullPosTagDecision);
-					posTagSequence.add(emptyTagToken);
+					posTagSequence.addPosTaggedToken(emptyTagToken);
 				} else {
 					throw new RuntimeException("Expected only empty tokens added. Postag Token = " + posTaggedToken.getToken().getText() + ", start: " + token.getStartIndex() + ", end:" + token.getEndIndex());
 				}

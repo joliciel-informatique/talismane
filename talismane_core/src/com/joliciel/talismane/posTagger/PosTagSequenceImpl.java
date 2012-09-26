@@ -15,7 +15,6 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequence {
-	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(PosTagSequenceImpl.class);
 	private static final long serialVersionUID = 5038343676751568000L;
 	private TokenSequence tokenSequence;
@@ -40,7 +39,8 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 
 	PosTagSequenceImpl(PosTagSequence history) {
 		super(history.size()+1);
-		this.addAll(history);
+		for (PosTaggedToken posTaggedToken : history)
+			this.addPosTaggedToken(posTaggedToken);
 		this.decisions = new ArrayList<Decision<PosTag>>(history.getDecisions());
 		this.setTokenSequence(history.getTokenSequence());
 	}
@@ -145,6 +145,35 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 		this.tokenSequence = tokenSequence;
 		if (tokenSequence.getUnderlyingAtomicTokenSequence()!=null) {
 			this.underlyingSolutions.add(tokenSequence.getUnderlyingAtomicTokenSequence());
+		}
+	}
+
+	@Override
+	public void addPosTaggedToken(PosTaggedToken posTaggedToken) {
+		this.add(posTaggedToken);
+	}
+
+	@Override
+	public void removeEmptyPosTaggedTokens() {
+		List<PosTaggedToken> nullTokensToRemove = new ArrayList<PosTaggedToken>();
+		List<Token> emptyTokensToRemove = new ArrayList<Token>();
+		for (PosTaggedToken posTaggedToken : this) {
+			if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
+				nullTokensToRemove.add(posTaggedToken);
+				emptyTokensToRemove.add(posTaggedToken.getToken());
+				if (LOG.isDebugEnabled())
+					LOG.debug("Removing null empty token at position " + posTaggedToken.getToken().getStartIndex() + ": " + posTaggedToken);
+			}
+		}
+		this.removeAll(nullTokensToRemove);
+		
+		if (emptyTokensToRemove.size()>0) {
+			// first clone the token sequence, so we don't mess with token sequences shared with other pos-tag sequences
+			this.tokenSequence = this.tokenSequence.cloneTokenSequence();
+			for (Token emptyToken : emptyTokensToRemove)
+				this.tokenSequence.removeEmptyToken(emptyToken);
+			
+			this.tokenSequence.finalise();
 		}
 	}
 	

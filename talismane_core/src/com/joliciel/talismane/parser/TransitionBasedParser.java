@@ -81,7 +81,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 		PerformanceMonitor.startTask("TransitionBasedParser.parseSentence");
 		try {
 			TokenSequence tokenSequence = posTagSequences.get(0).getTokenSequence();
-			int terminalConfigurationIndex = tokenSequence.getUnitTokenCount() * 1000;
+			int terminalConfigurationIndex = tokenSequence.getAtomicTokenCount() * 1000;
 				
 			TreeMap<Integer, PriorityQueue<ParseConfiguration>> heaps = new TreeMap<Integer, PriorityQueue<ParseConfiguration>>();
 			

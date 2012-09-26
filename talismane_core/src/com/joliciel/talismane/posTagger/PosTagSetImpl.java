@@ -32,7 +32,6 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.AbstractDecisionFactory;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -149,19 +148,6 @@ class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements PosTagSet
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
-	}
-
-	/**
-	 * Thrown when the posTag requested does not exist in this pos tag set.
-	 * @author Assaf Urieli
-	 *
-	 */
-	public class UnknownPosTagException extends TalismaneException {
-		private static final long serialVersionUID = -4972169755437613412L;
-
-		public UnknownPosTagException(String message) {
-			super(message);
-		}
 	}
 
 	@Override

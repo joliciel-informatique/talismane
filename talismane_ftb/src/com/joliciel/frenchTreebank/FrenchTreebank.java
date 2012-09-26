@@ -25,7 +25,6 @@ import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +39,7 @@ import com.joliciel.frenchTreebank.upload.TreebankSAXParser;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 
@@ -190,9 +190,10 @@ public class FrenchTreebank {
 		        
 		        TokeniserAnnotatedCorpusReader reader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader, csvFileWriter);
 
-		    	while (reader.hasNextSentence()) {
-		    		List<Integer> tokenSplits = new ArrayList<Integer>();
-		    		String sentence = reader.nextSentence(tokenSplits);
+		    	while (reader.hasNextTokenSequence()) {
+		    		TokenSequence tokenSequence = reader.nextTokenSequence();
+		    		List<Integer> tokenSplits = tokenSequence.getTokenSplits();
+		    		String sentence = tokenSequence.getSentence();
 		    		LOG.debug(sentence);
 		    		int currentPos = 0;
 		    		StringBuilder sb = new StringBuilder();

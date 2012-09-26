@@ -16,23 +16,27 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.posTagger;
+package com.joliciel.talismane.parser;
 
 /**
- * A corpus reader that expects one pos-tagged token per line,
- * and analyses the line content based on a regex supplied during construction.<br/>
- * The regex needs to contain two capturing groups: one for the token and one for the postag code.<br/>
- * These groups need to be indicated in the regex expression by the strings "TOKEN" and "POSTAG". These values will be replaced
- * by (.*) for the token, and (.+) for the postag.<br/>
+ * A corpus reader that expects one pos-tagged token with dependency info per line,
+ * and analyses the line content based on a regex supplied during construction.
+ * The regex needs to contain exactly five capturing groups, indicated by the following strings:<br/>
+ * <li>INDEX: a unique index for a given token (typically just a sequential index)</li>
+ * <li>TOKEN: the token</li>
+ * <li>POSTAG: the token's pos-tag</li>
+ * <li>LABEL: the dependency label governing this token</li>
+ * <li>GOVERNOR: the index of the token governing this token - a value of 0 indicates an invisible "root" token as a governor</li>
+ * The strings will (.*) for the token, and (.+) for all others.
  * @author Assaf Urieli
  *
  */
-public interface PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
+public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader {
 	/**
-	 * The default regex (if none is set).
+	 * The default regex (if none is set) - corresponds to the CONLL format.
 	 */
-	public static final String DEFAULT_REGEX = ".*\\tTOKEN\\t.*\\tPOSTAG\\t.*\\t.*\\t";
-
+	public static final String DEFAULT_REGEX = "INDEX\\tTOKEN\\t.*\\tPOSTAG\\t.*\\t.*\\tGOVERNOR\\tLABEL\\t_\\t_";
+	
 	/**
 	 * The regex used to find the various data items.
 	 * @return

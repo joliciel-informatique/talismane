@@ -60,8 +60,8 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 			fscoreUnknownInCorpus = new FScoreCalculator<String>();
 		fscoreUnknownInLexicon = new FScoreCalculator<String>();
 		
-		while (corpusReader.hasNextSentence()) {
-			PosTagSequence realPosTagSequence = corpusReader.nextSentence();
+		while (corpusReader.hasNextPosTagSequence()) {
+			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
 			
 			List<TokenSequence> tokenSequences = null;
 			List<PosTagSequence> posTagSequences = null;

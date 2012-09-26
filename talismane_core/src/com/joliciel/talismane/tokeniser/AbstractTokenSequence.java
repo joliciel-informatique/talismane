@@ -129,7 +129,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 
 	@Override
-	public int getUnitTokenCount() {
+	public int getAtomicTokenCount() {
 		if (unitTokenCount==null) {
 			unitTokenCount = 0;
 			for (Token token : this) {
@@ -206,6 +206,9 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 
 	@Override
 	public Token addToken(String string) {
+		if (this.sentence==null)
+			this.sentence = "";
+		
 		TokenInternal token = this.getTokeniserServiceInternal().getTokenInternal(string, this, this.size());
 		token.setStartIndex(this.getSentence().length());
 		token.setEndIndex(this.getSentence().length() + string.length());
@@ -243,8 +246,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			throw new TalismaneException("Can only remove empty tokens from token sequence.");
 		}
 		this.remove(emptyToken);
-		this.finalised = false;
-		this.finalise();
+		this.markModified();
 	}
 	
 	@Override
@@ -255,6 +257,36 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	public List<Token> getTokensAdded() {
 		return this.tokensAdded;
 	}
+	private List<Token> getListWithWhiteSpace() {
+		return listWithWhiteSpace;
+	}
+	private void setListWithWhiteSpace(List<Token> listWithWhiteSpace) {
+		this.listWithWhiteSpace = listWithWhiteSpace;
+	}
+	private void setScore(double score) {
+		this.score = score;
+	}
+	private void setScoreCalculated(boolean scoreCalculated) {
+		this.scoreCalculated = scoreCalculated;
+	}
+	private void setUnderlyingAtomicTokenSequence(
+			TokenisedAtomicTokenSequence underlyingAtomicTokenSequence) {
+		this.underlyingAtomicTokenSequence = underlyingAtomicTokenSequence;
+	}
+	private void setAtomicTokenCount(Integer unitTokenCount) {
+		this.unitTokenCount = unitTokenCount;
+	}
 	
+	public void cloneTokenSequence(AbstractTokenSequence tokenSequence) {
+		tokenSequence.setSentence(this.getSentence());
+		tokenSequence.setTokeniserServiceInternal(this.getTokeniserServiceInternal());
+		tokenSequence.setListWithWhiteSpace(this.getListWithWhiteSpace());
+		tokenSequence.setScore(this.getScore());
+		tokenSequence.setScoreCalculated(true);
+		tokenSequence.setUnderlyingAtomicTokenSequence(this.getUnderlyingAtomicTokenSequence());
+		tokenSequence.setAtomicTokenCount(this.getAtomicTokenCount());
+		
+		tokenSequence.addAll(this);
+	}
 	
 }

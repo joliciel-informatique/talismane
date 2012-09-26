@@ -1,5 +1,6 @@
 package com.joliciel.talismane.parser;
 
+import java.io.Reader;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneException;
@@ -11,9 +12,13 @@ import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.tokeniser.TokeniserService;
 
 public class ParserServiceImpl implements ParserServiceInternal {
 	ParserFeatureService parseFeatureService;
+	PosTaggerService posTaggerService;
+	TokeniserService tokeniserService;
 	
 	@Override
 	public DependencyArc getDependencyArc(PosTaggedToken head,
@@ -46,7 +51,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	@Override
 	public CorpusEventStream getParseEventStream(
-			ParseAnnotatedCorpusReader corpusReader,
+			ParserAnnotatedCorpusReader corpusReader,
 			Set<ParseConfigurationFeature<?>> parseFeatures) {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
 		eventStream.setParseService(this);
@@ -106,6 +111,31 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		dependencyNode.setParserServiceInternal(this);
 		dependencyNode.setLexiconService(TalismaneSession.getLexiconService());
 		return dependencyNode;
+	}
+
+	@Override
+	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
+		ParserRegexBasedCorpusReaderImpl corpusReader = new ParserRegexBasedCorpusReaderImpl(reader);
+		corpusReader.setParserService(this);
+		corpusReader.setPosTaggerService(this.getPosTaggerService());
+		corpusReader.setTokeniserService(this.getTokeniserService());
+		return corpusReader;
+	}
+
+	public PosTaggerService getPosTaggerService() {
+		return posTaggerService;
+	}
+
+	public void setPosTaggerService(PosTaggerService posTaggerService) {
+		this.posTaggerService = posTaggerService;
+	}
+
+	public TokeniserService getTokeniserService() {
+		return tokeniserService;
+	}
+
+	public void setTokeniserService(TokeniserService tokeniserService) {
+		this.tokeniserService = tokeniserService;
 	}
 	
 	

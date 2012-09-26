@@ -18,6 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+/**
+ * A pos-tag indicating the artificial root token added at the start of a sentence.
+ * @author Assaf
+ *
+ */
 class RootPosTag extends PosTagImpl {
 	private static final long serialVersionUID = -7840729679084862028L;
 

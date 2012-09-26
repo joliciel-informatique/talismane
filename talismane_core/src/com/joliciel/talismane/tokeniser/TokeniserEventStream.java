@@ -81,9 +81,12 @@ class TokeniserEventStream implements CorpusEventStream {
 				}
 			}
 			while (tokensToCheck==null) {
-				if (this.corpusReader.hasNextSentence()) {
-					List<Integer> tokenSplits = new ArrayList<Integer>();
-					String sentence = this.corpusReader.nextSentence(tokenSplits);
+				if (this.corpusReader.hasNextTokenSequence()) {
+					TokenSequence realSequence = corpusReader.nextTokenSequence();
+					
+					List<Integer> tokenSplits = realSequence.getTokenSplits();
+					String sentence = realSequence.getSentence();
+
 					LOG.debug("Sentence: " + sentence);
 					TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
 					for (TokenFilter tokenFilter : this.tokenFilters) {

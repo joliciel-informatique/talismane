@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.Reader;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
@@ -41,10 +42,12 @@ public interface ParserService {
 	public DependencyArc getDependencyArc(PosTaggedToken head, PosTaggedToken dependent,
 			String label);
 
-	public CorpusEventStream getParseEventStream(ParseAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures);
+	public CorpusEventStream getParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures);
 	
 	public NonDeterministicParser getTransitionBasedParser(JolicielMaxentModel<Transition> jolicielMaxentModel, int beamWidth);
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 
 	public ParserEvaluator getParserEvaluator();
+
+	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 }
