@@ -63,8 +63,8 @@ class PosTagEventStream implements CorpusEventStream {
 		PerformanceMonitor.startTask("PosTagEventStream.hasNext");
 		try {
 			while (currentSentence==null) {
-				if (this.corpusReader.hasNextSentence()) {
-					currentSentence = this.corpusReader.nextSentence();
+				if (this.corpusReader.hasNextPosTagSequence()) {
+					currentSentence = this.corpusReader.nextPosTagSequence();
 					currentIndex = 0;
 					currentHistory = posTaggerService.getPosTagSequence(currentSentence.getTokenSequence(), currentSentence.size());
 					if (currentIndex == currentSentence.size()) {
@@ -118,7 +118,7 @@ class PosTagEventStream implements CorpusEventStream {
 				}			
 				event = new CorpusEvent(posTagFeatureResults, classification);
 				
-				currentHistory.add(taggedToken);
+				currentHistory.addPosTaggedToken(taggedToken);
 				if (currentIndex==currentSentence.size()) {
 					currentSentence = null;
 				}

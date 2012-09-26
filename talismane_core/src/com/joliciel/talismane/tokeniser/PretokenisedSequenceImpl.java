@@ -18,13 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 
-public class PretokenisedSequenceImpl extends AbstractTokenSequence implements PretokenisedSequence {
+class PretokenisedSequenceImpl extends AbstractTokenSequence implements PretokenisedSequence {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(PretokenisedSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
@@ -34,27 +33,15 @@ public class PretokenisedSequenceImpl extends AbstractTokenSequence implements P
 	}
 
 	@Override
-	public void add(int index, Token element) {
-		throw new TalismaneException("Cannot add tokens directly");
-	}
-
-	@Override
-	public synchronized boolean addAll(Collection<? extends Token> c) {
-		throw new TalismaneException("Cannot add tokens directly");
-	}
-
-	@Override
-	public synchronized boolean addAll(int index, Collection<? extends Token> c) {
-		throw new TalismaneException("Cannot add tokens directly");
-	}
-
-	public boolean add(Token token) {
-		throw new TalismaneException("Cannot add tokens directly");
-	}
-
-	@Override
 	public Token addToken(int start, int end) {
 		throw new TalismaneException("Cannot add tokens by index");
 
+	}
+	
+	@Override
+	public TokenSequence cloneTokenSequence() {
+		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl();
+		this.cloneTokenSequence(tokenSequence);
+		return tokenSequence;
 	}
 }

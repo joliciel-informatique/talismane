@@ -16,31 +16,19 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser;
+package com.joliciel.talismane.posTagger;
 
-import java.io.Writer;
-
-import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.TalismaneException;
 
 /**
- * Evaluate a parser.
+ * Thrown when the posTag requested does not exist in this pos tag set.
  * @author Assaf Urieli
  *
  */
-public interface ParserEvaluator {
-	public FScoreCalculator<String> evaluate(ParserAnnotatedCorpusReader corpusReader);
-	
-	public Parser getParser();
-	public void setParser(Parser parser);
+public class UnknownPosTagException extends TalismaneException {
+	private static final long serialVersionUID = -4972169755437613412L;
 
-	public abstract void setLabeledEvaluation(boolean labeledEvaluation);
-
-	public abstract boolean isLabeledEvaluation();
-	
-	/**
-	 * If provided, will write the evaluation of each sentence
-	 * to a csv file.
-	 * @param csvFileWriter
-	 */
-	public void setCsvFileWriter(Writer csvFileWriter);
+	public UnknownPosTagException(String message) {
+		super(message);
+	}
 }

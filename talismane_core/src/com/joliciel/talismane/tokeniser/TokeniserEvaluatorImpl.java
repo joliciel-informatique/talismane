@@ -50,14 +50,16 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 		Map<String, FScoreCalculator<TokeniserOutcome>> taggerFScoreCalculators = new TreeMap<String, FScoreCalculator<TokeniserOutcome>>();
 		Map<String, List<String>> errorMap = new TreeMap<String, List<String>>();
 		
-		while (corpusReader.hasNextSentence()) {
-			List<Integer> realSplits = new ArrayList<Integer>();
-			String sentence = corpusReader.nextSentence(realSplits);
+		while (corpusReader.hasNextTokenSequence()) {
+			TokenSequence realSequence = corpusReader.nextTokenSequence();
+			
+			List<Integer> realSplits = realSequence.getTokenSplits();
+			String sentence = realSequence.getSentence();
 			
 			List<TokenisedAtomicTokenSequence> tokeniserDecisionTagSequences = tokeniser.tokeniseWithDecisions(sentence);
 			TokenisedAtomicTokenSequence tokeniserDecisionTagSequence = tokeniserDecisionTagSequences.get(0);
-			TokenSequence tokenSequence = tokeniserDecisionTagSequence.inferTokenSequence();
-			List<Integer> guessedSplits = tokenSequence.getTokenSplits();
+			TokenSequence guessedSequence = tokeniserDecisionTagSequence.inferTokenSequence();
+			List<Integer> guessedSplits = guessedSequence.getTokenSplits();
 			
 			if (LOG.isDebugEnabled()) {
 	    		int pos = 0;

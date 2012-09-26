@@ -17,20 +17,20 @@
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
-import java.util.Collection;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneException;
-
 class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TokenSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
+	
+	private TokenSequenceImpl() {
+		
+	}
 	
 	public TokenSequenceImpl(String sentence, Pattern separatorPattern, TokeniserServiceInternal tokeniserServiceInternal) {
 		this(sentence);
@@ -60,24 +60,11 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 		super(sentence);
 	}
 
-
 	@Override
-	public void add(int index, Token element) {
-		throw new TalismaneException("Cannot add tokens directly, only by index");
-	}
-
-	@Override
-	public synchronized boolean addAll(Collection<? extends Token> c) {
-		throw new TalismaneException("Cannot add tokens directly, only by index");
-	}
-
-	@Override
-	public synchronized boolean addAll(int index, Collection<? extends Token> c) {
-		throw new TalismaneException("Cannot add tokens directly, only by index");
-	}
-
-	public boolean add(Token token) {
-		throw new TalismaneException("Cannot add tokens directly, only by index");
+	public TokenSequence cloneTokenSequence() {
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl();
+		this.cloneTokenSequence(tokenSequence);
+		return tokenSequence;
 	}
 
 }

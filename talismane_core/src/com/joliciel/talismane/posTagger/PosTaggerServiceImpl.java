@@ -149,9 +149,8 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	}
 
 	@Override
-	public PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(String regex,
-			Reader reader) {
-		PosTagRegexBasedCorpusReaderImpl corpusReader = new PosTagRegexBasedCorpusReaderImpl(reader, regex);
+	public PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
+		PosTagRegexBasedCorpusReaderImpl corpusReader = new PosTagRegexBasedCorpusReaderImpl(reader);
 		corpusReader.setPosTaggerServiceInternal(this);
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		return corpusReader;

@@ -35,24 +35,33 @@ import com.joliciel.talismane.utils.LogUtils;
 
 public class ParserEvaluatorImpl implements ParserEvaluator {
 	private static final Log LOG = LogFactory.getLog(ParserEvaluatorImpl.class);
-	private NonDeterministicParser parser;
+	private Parser parser;
 	private ParserServiceInternal parserServiceInternal;
-	private boolean labeledEvaluation;
+	private boolean labeledEvaluation = true;
 	private Writer csvFileWriter;
 	
 	@Override
 	public FScoreCalculator<String> evaluate(
-			ParseAnnotatedCorpusReader corpusReader) {
+			ParserAnnotatedCorpusReader corpusReader) {
 		FScoreCalculator<String> fscoreCalculator = new FScoreCalculator<String>();
 		
-		while (corpusReader.hasNextSentence()) {
-			ParseConfiguration realConfiguration = corpusReader.nextSentence();
+		while (corpusReader.hasNextConfiguration()) {
+			ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
 			PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();
 			List<PosTagSequence> posTagSequences = new ArrayList<PosTagSequence>();
 			posTagSequences.add(posTagSequence);
 			
-			List<ParseConfiguration> guessedConfigurations = parser.parseSentence(posTagSequences);
-			ParseConfiguration bestGuess = guessedConfigurations.get(0);
+			List<ParseConfiguration> guessedConfigurations = null;
+			ParseConfiguration bestGuess = null;
+			if (parser instanceof NonDeterministicParser) {
+				NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
+				guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
+				bestGuess = guessedConfigurations.get(0);
+			} else {
+				bestGuess = parser.parseSentence(posTagSequences.get(0));
+				guessedConfigurations = new ArrayList<ParseConfiguration>();
+				guessedConfigurations.add(bestGuess);
+			}			
 			
 			for (PosTaggedToken posTaggedToken : posTagSequence) {
 				if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
@@ -173,11 +182,11 @@ public class ParserEvaluatorImpl implements ParserEvaluator {
 		return fscoreCalculator;
 	}
 
-	public NonDeterministicParser getParser() {
+	public Parser getParser() {
 		return parser;
 	}
 
-	public void setParser(NonDeterministicParser parser) {
+	public void setParser(Parser parser) {
 		this.parser = parser;
 	}
 

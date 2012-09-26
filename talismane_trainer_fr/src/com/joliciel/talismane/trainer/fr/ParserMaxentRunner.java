@@ -41,6 +41,8 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
 import com.joliciel.talismane.tokeniser.filters.NumberFilter;
 import com.joliciel.talismane.tokeniser.filters.PrettyQuotesFilter;
+import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenAfterDuFilter;
+import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenBeforeDuquelFilter;
 import com.joliciel.talismane.tokeniser.filters.french.LowercaseFirstWordFrenchFilter;
 import com.joliciel.talismane.tokeniser.filters.french.UpperCaseSeriesFilter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -172,12 +174,15 @@ public class ParserMaxentRunner {
 			corpusReader.setParserService(parserService);
 			corpusReader.setPosTaggerService(posTaggerService);
 			corpusReader.setTokeniserService(tokeniserService);
-			corpusReader.setPosTagSet(posTagSet);
 			
 			corpusReader.addTokenFilter(new NumberFilter());
 			corpusReader.addTokenFilter(new PrettyQuotesFilter());
 			corpusReader.addTokenFilter(new UpperCaseSeriesFilter());
 			corpusReader.addTokenFilter(new LowercaseFirstWordFrenchFilter());
+			
+			corpusReader.addTokenFilter(new EmptyTokenAfterDuFilter());
+			corpusReader.addTokenFilter(new EmptyTokenBeforeDuquelFilter());
+
 			
 			if (command.equals("train")) {
 				if (parserFeatureFilePath.length()==0)
@@ -203,7 +208,7 @@ public class ParserMaxentRunner {
 				} else {
 					throw new TalismaneException("Unknown transition system: " + transitionSystemStr);
 				}
-				corpusReader.setTransitionSystem(transitionSystem);
+				TalismaneSession.setTransitionSystem(transitionSystem);
 
 				CorpusEventStream parseEventStream = parserService.getParseEventStream(corpusReader, parseFeatures);
 				
@@ -233,13 +238,12 @@ public class ParserMaxentRunner {
 
 
 				NonDeterministicParser parser = parserService.getTransitionBasedParser(jolicielMaxentModel, beamWidth);
+				TalismaneSession.setTransitionSystem(parser.getTransitionSystem());
 				
 				ParserEvaluator evaluator = parserService.getParserEvaluator();
 				evaluator.setParser(parser);
 				evaluator.setLabeledEvaluation(true);
 				evaluator.setCsvFileWriter(csvFileWriter);
-				
-				corpusReader.setTransitionSystem(parser.getTransitionSystem());
 
 				FScoreCalculator<String> fscoreCalculator = evaluator.evaluate(corpusReader);
 				LOG.debug(fscoreCalculator.getTotalFScore());

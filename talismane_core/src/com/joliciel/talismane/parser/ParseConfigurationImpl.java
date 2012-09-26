@@ -81,7 +81,9 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 		PosTaggedToken rootToken = posTagSequence.prependRoot();
 		this.underlyingSolutions.add(this.posTagSequence);
 
-		this.buffer = new ArrayDeque<PosTaggedToken>(posTagSequence);
+		this.buffer = new ArrayDeque<PosTaggedToken>(posTagSequence.size());
+		for (PosTaggedToken posTaggedToken : posTagSequence)
+			this.buffer.add(posTaggedToken);
 		this.buffer.remove(rootToken);
 		
 		this.stack = new ArrayDeque<PosTaggedToken>();
@@ -157,7 +159,7 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 	@Override
 	public int getConfigurationComparisonIndex() {
 		if (!comparisonIndexCalculated) {
-			configurationComparisonIndex = this.getPosTagSequence().getTokenSequence().getUnitTokenCount() * 1000;
+			configurationComparisonIndex = this.getPosTagSequence().getTokenSequence().getAtomicTokenCount() * 1000;
 			// if the buffer's empty, this is a terminal configuration, and needs to be given the full token count
 			if (this.buffer.size()>0) {
 				// remove the atomic tokens of each element still to be processed in the buffer

@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.util.List;
 import java.util.Map;
 
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
@@ -33,7 +32,7 @@ public interface TokeniserAnnotatedCorpusReader {
 	 * Is there another sentence to be read?
 	 * @return
 	 */
-	public boolean hasNextSentence();
+	public boolean hasNextTokenSequence();
 	
 	/**
 	 * Read the next sentence from the training corpus, along with its token splits.
@@ -43,7 +42,13 @@ public interface TokeniserAnnotatedCorpusReader {
 	 * with splits occurring on both sides of any white space if it is not part of a compound word.
 	 * @return
 	 */
-	public String nextSentence(List<Integer> tokenSplits);
+//	public String nextSentence(List<Integer> tokenSplits);
+	
+	/***
+	 * Reads the next token sequence from the corpus.
+	 * @return
+	 */
+	public TokenSequence nextTokenSequence();
 	
 	/**
 	 * Characteristics describing this corpus reader.

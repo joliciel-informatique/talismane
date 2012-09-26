@@ -18,8 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import java.util.List;
-
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -29,7 +27,26 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public interface PosTagSequence extends List<PosTaggedToken>, Comparable<PosTagSequence>, Solution<PosTag> {
+public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<PosTagSequence>, Solution<PosTag> {
+	/**
+	 * Get the PosTaggedToken at position n.
+	 * @param index
+	 * @return
+	 */
+	public PosTaggedToken get(int index);
+	
+	/**
+	 * Returns the size of the current PosTagSequence.
+	 * @return
+	 */
+	public int size();
+	
+	/**
+	 * Add a PosTaggedToken to the end of the current sequence.
+	 * @param posTaggedToken
+	 */
+	public void addPosTaggedToken(PosTaggedToken posTaggedToken);
+	
 	/**
 	 * Get the Token Sequence on which this PosTagSequence is based.
 	 * @return
@@ -53,4 +70,10 @@ public interface PosTagSequence extends List<PosTaggedToken>, Comparable<PosTagS
 	 * and return the prepended root.
 	 */
 	public PosTaggedToken prependRoot();
+	
+	/**
+	 * Remove all pos-tagged tokens that are empty and whose tag is null.
+	 * @param emptyPosTaggedToken
+	 */
+	public void removeEmptyPosTaggedTokens();
 }

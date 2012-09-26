@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Reader;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -178,5 +179,13 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	public DecisionFactory<TokeniserOutcome> getDecisionFactory() {
 		TokeniserDecisionFactory factory = new TokeniserDecisionFactory();
 		return factory;
+	}
+
+
+	@Override
+	public TokenRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
+		TokenRegexBasedCorpusReaderImpl corpusReader = new TokenRegexBasedCorpusReaderImpl(reader);
+		corpusReader.setTokeniserService(this);
+		return corpusReader;
 	}
 }

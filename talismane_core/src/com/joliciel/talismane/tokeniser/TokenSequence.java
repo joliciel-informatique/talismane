@@ -98,10 +98,10 @@ public interface TokenSequence extends Iterable<Token> {
 	public double getScore();
 	
 	/**
-	 * The number of unit tokens making up this token sequence (+1 for each empty token).
+	 * The number of atomic tokens making up this token sequence (+1 for each empty token).
 	 * @return
 	 */
-	public int getUnitTokenCount();
+	public int getAtomicTokenCount();
 	
 	/**
 	 * Cleans out any collections of modifications, so that any modifications after this
@@ -120,4 +120,10 @@ public interface TokenSequence extends Iterable<Token> {
 	 * @return
 	 */
 	public TokenisedAtomicTokenSequence getUnderlyingAtomicTokenSequence();
+	
+	/**
+	 * Returns an exact copy of the current token sequence.
+	 * @return
+	 */
+	public TokenSequence cloneTokenSequence();
 }

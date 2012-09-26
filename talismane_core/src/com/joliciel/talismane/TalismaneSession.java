@@ -20,6 +20,7 @@ package com.joliciel.talismane;
 
 import java.util.Locale;
 
+import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 
@@ -32,6 +33,7 @@ public class TalismaneSession {
 	private static ThreadLocal<Locale> localeHolder = new ThreadLocal<Locale>();
 	private static ThreadLocal<PosTagSet> posTagSetHolder = new ThreadLocal<PosTagSet>();
 	private static ThreadLocal<PosTaggerLexiconService> lexiconServiceHolder = new ThreadLocal<PosTaggerLexiconService>();
+	private static ThreadLocal<TransitionSystem> transitionSystemHolder = new ThreadLocal<TransitionSystem>();
 	
 	public static void setPosTagSet(PosTagSet posTagSet) {
 		posTagSetHolder.set(posTagSet);
@@ -39,6 +41,14 @@ public class TalismaneSession {
 	
 	public static PosTagSet getPosTagSet() {
 		return posTagSetHolder.get();
+	}
+	
+	public static void setTransitionSystem(TransitionSystem transitionSystem) {
+		transitionSystemHolder.set(transitionSystem);
+	}
+	
+	public static TransitionSystem getTransitionSystem() {
+		return transitionSystemHolder.get();
 	}
 	
 	public static void setLexiconService(PosTaggerLexiconService lexiconService) {

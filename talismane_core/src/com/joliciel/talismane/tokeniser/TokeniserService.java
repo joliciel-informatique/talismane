@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Reader;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -69,4 +70,12 @@ public interface TokeniserService {
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, TokeniserPatternManager patternManager);
 	
 	public DecisionFactory<TokeniserOutcome> getDecisionFactory();
+	
+	/**
+	 * Returns a corpus reader based on the use of Regex.
+	 * See class description for details.
+	 * @param reader
+	 * @return
+	 */
+	TokenRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 }

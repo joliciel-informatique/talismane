@@ -94,9 +94,8 @@ public interface PosTaggerService {
 	/**
 	 * Returns a corpus reader based on the use of Regex.
 	 * See class description for details.
-	 * @param regex
 	 * @param reader
 	 * @return
 	 */
-	PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(String regex, Reader reader);
+	PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 }

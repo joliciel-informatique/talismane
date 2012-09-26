@@ -30,13 +30,13 @@ public interface PosTagAnnotatedCorpusReader {
 	 * Is there another sentence to be read?
 	 * @return
 	 */
-	public boolean hasNextSentence();
+	public boolean hasNextPosTagSequence();
 	
 	/**
 	 * Read the list of tagged tokens from next sentence from the training corpus.
 	 * @return
 	 */
-	public PosTagSequence nextSentence();
+	public PosTagSequence nextPosTagSequence();
 	
 	public void addTokenFilter(TokenFilter tokenFilter);
 }

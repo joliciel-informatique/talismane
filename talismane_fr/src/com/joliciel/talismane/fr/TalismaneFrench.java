@@ -64,6 +64,14 @@ public class TalismaneFrench extends AbstractTalismane {
 		InputStream posTagInputStream = getInputStreamFromResource("CrabbeCanditoTagset.txt");
 		return posTagInputStream;
 	}
+	
+
+	@Override
+	protected InputStream getDefaultPosTaggerRulesFromStream() {
+		InputStream inputStream = getInputStreamFromResource("posTaggerConstraints_fr.txt");
+		return inputStream;
+	}
+	
 
 	@Override
 	protected PosTaggerLexiconService getDefaultLexiconService() {
@@ -98,6 +106,6 @@ public class TalismaneFrench extends AbstractTalismane {
 		String parserModelName = "ftbDepParser_fr10_ArcEager_cutoff5.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
-	
+
 	
 }

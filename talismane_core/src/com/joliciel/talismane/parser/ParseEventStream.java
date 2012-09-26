@@ -41,7 +41,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 class ParseEventStream implements CorpusEventStream {
     private static final Log LOG = LogFactory.getLog(ParseEventStream.class);
 
-    ParseAnnotatedCorpusReader corpusReader;
+    ParserAnnotatedCorpusReader corpusReader;
     Set<ParseConfigurationFeature<?>> parseFeatures;
     
 	ParseConfiguration targetConfiguration;
@@ -51,7 +51,7 @@ class ParseEventStream implements CorpusEventStream {
 
 	int currentIndex;
 	
-	ParseEventStream(ParseAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
+	ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
 		this.corpusReader = corpusReader;
 		this.parseFeatures = parseFeatures;
 	}
@@ -61,9 +61,9 @@ class ParseEventStream implements CorpusEventStream {
 		PerformanceMonitor.startTask("ParseEventStream.hasNext");
 		try {
 			while (targetConfiguration==null) {
-				if (this.corpusReader.hasNextSentence()) {
+				if (this.corpusReader.hasNextConfiguration()) {
 					
-					targetConfiguration = this.corpusReader.nextSentence();
+					targetConfiguration = this.corpusReader.nextConfiguration();
 					currentConfiguration = parseService.getInitialConfiguration(targetConfiguration.getPosTagSequence());
 					currentIndex = 0;
 					if (currentIndex == targetConfiguration.getTransitions().size()) {
