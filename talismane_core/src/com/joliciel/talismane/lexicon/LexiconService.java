@@ -1,8 +1,12 @@
-package com.joliciel.talismane.posTagger;
+package com.joliciel.talismane.lexicon;
 
 import java.util.List;
 
-public interface LexiconService {
+/**
+ * An interface for retrieving lexical information from a lexicon.
+ * @author Assaf Urieli
+ *
+ */public interface LexiconService {
 	/**
 	 * Return all lexical entries for a given word.
 	 * @param name

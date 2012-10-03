@@ -47,8 +47,9 @@ public class EmptyTokenAfterDuFilter implements TokenFilter {
 	public void apply(TokenSequence tokenSequence) {
 		List<Token> tokensToAddEmpties = new ArrayList<Token>();
 		for (Token token : tokenSequence) {
-			if (token.getText().equals("du")||token.getText().equals("des")||token.getText().equals("au")||token.getText().equals("aux")
-					||token.getText().endsWith(" du")||token.getText().endsWith(" des")||token.getText().endsWith(" au")||token.getText().endsWith(" aux")) {
+			String text = token.getText().toLowerCase();
+			if (text.equals("du")||text.equals("des")||text.equals("au")||text.equals("aux")
+					||text.endsWith(" du")||text.endsWith(" des")||text.endsWith(" au")||text.endsWith(" aux")) {
 				tokensToAddEmpties.add(token);
 			}
 		}
@@ -66,17 +67,18 @@ public class EmptyTokenAfterDuFilter implements TokenFilter {
 				emptyToken = tokenSequence.addEmptyToken(token.getEndIndex());
 			
 			if (emptyToken!=null) {
-				String text = "";
-				if (token.getText().endsWith("du"))
-					text = "du";
-				else if (token.getText().endsWith("des"))
-					text = "des";
-				else if (token.getText().endsWith("au"))
-					text = "au";
-				else if (token.getText().endsWith("aux"))
-					text = "aux";
+				String text = token.getText().toLowerCase();
+				String newText = "";
+				if (text.endsWith("du"))
+					newText = "du";
+				else if (text.endsWith("des"))
+					newText = "des";
+				else if (text.endsWith("au"))
+					newText = "au";
+				else if (text.endsWith("aux"))
+					newText = "aux";
 				
-				emptyToken.setText("[[" + text+ "]]");
+				emptyToken.setText("[[" + newText+ "]]");
 			}
 		}
 		

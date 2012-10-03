@@ -38,7 +38,6 @@ import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.NullToFalseFeature;
 import com.joliciel.talismane.machineLearning.features.OrFeature;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 
 public class TokeniserContextFeatureParserTest {
 	private static final Log LOG = LogFactory.getLog(TokeniserContextFeatureParserTest.class);

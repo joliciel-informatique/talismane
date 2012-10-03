@@ -19,49 +19,54 @@
 package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
-import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
-
 /**
- * Retrieves the pos-tag assigned at position n with respect to the current token,
- * where n is a negative integer, and checks if it's equal to a certain PosTag code.
+ * Applies a posTaggerFeature to a particular pos-tagged token in the current history.
  * @author Assaf Urieli
  *
+ * @param <T>
  */
-public class PrevPosTagIsFeature extends AbstractPosTaggerFeature<Boolean> implements BooleanFeature<PosTaggerContext> {
-	private IntegerFeature<PosTaggerContext> nFeature;
-	private StringFeature<PosTaggerContext> posTagCodeFeature;
+public class PosTaggerHistoryFeature<T> extends AbstractPosTaggerFeature<T> {
+	private IntegerFeature<PosTaggerContext> offsetFeature = null;
+	private Feature<PosTaggedTokenWrapper,T> posTaggerFeature = null;
 	
-	public PrevPosTagIsFeature(IntegerFeature<PosTaggerContext> nFeature, StringFeature<PosTaggerContext> posTagCodeFeature) {
-		this.nFeature = nFeature;
-		this.posTagCodeFeature = posTagCodeFeature;
-		this.setName(super.getName() + "(" + nFeature.getName() + "," + posTagCodeFeature.getName() + ")");
+	public PosTaggerHistoryFeature(IntegerFeature<PosTaggerContext> offset, Feature<PosTaggedTokenWrapper,T> posTaggerFeature) {
+		this.posTaggerFeature = posTaggerFeature;
+		this.offsetFeature = offset;
+		this.setName(posTaggerFeature.getName() + "[offset<" + this.offsetFeature.getName() + ">]");
 	}
 	
 	@Override
-	public FeatureResult<Boolean> checkInternal(PosTaggerContext context) {
-		FeatureResult<Boolean> result = null;
+	protected FeatureResult<T> checkInternal(PosTaggerContext context) {
+		FeatureResult<T> result = null;
 		
-		FeatureResult<Integer> nResult = nFeature.check(context);
-		FeatureResult<String> posTagCodeResult = posTagCodeFeature.check(context);
-		if (nResult!=null && posTagCodeResult!=null) {
-			int n = nResult.getOutcome();
+		FeatureResult<Integer> offsetResult = offsetFeature.check(context);
+		if (offsetResult!=null) {
+			int n = offsetResult.getOutcome();
 			if (n>=0) {
-				throw new TalismaneException("Cannot call PrevPosTagIs with an offset >= 0");
+				throw new TalismaneException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
 			}
 			n = 0-n;
 			int i = context.getToken().getIndex();
 			if (i >= n) {
 				PosTaggedToken prevToken = context.getHistory().get(i-n);
-				String posTag = prevToken.getTag().getCode();
-				boolean matches = posTag.equals(posTagCodeResult.getOutcome());
-				result = this.generateResult(matches);		
+				FeatureResult<T> wrappedFeatureResult = this.posTaggerFeature.check(prevToken);
+				if (wrappedFeatureResult!=null)
+					result = this.generateResult(wrappedFeatureResult.getOutcome());		
 			}
 		} // have n
 		return result;
 	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<? extends Feature> getFeatureType() {
+		return this.posTaggerFeature.getFeatureType();
+	}
+
+	
 }

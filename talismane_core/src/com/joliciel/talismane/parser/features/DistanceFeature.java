@@ -30,7 +30,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class DistanceFeature extends AbstractParseConfigurationFeature<Integer>
-		implements IntegerFeature<ParseConfiguration> {
+		implements IntegerFeature<ParseConfigurationWrapper> {
 	private AddressFunction addressFunction1;
 	private AddressFunction addressFunction2;
 	
@@ -45,7 +45,8 @@ public class DistanceFeature extends AbstractParseConfigurationFeature<Integer>
 
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(ParseConfiguration configuration) {
+	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		FeatureResult<PosTaggedToken> tokenResult1 = addressFunction1.check(configuration);
 		FeatureResult<PosTaggedToken> tokenResult2 = addressFunction2.check(configuration);
 		FeatureResult<Integer> featureResult = null;

@@ -47,7 +47,7 @@ class ParseEventStream implements CorpusEventStream {
 	ParseConfiguration targetConfiguration;
 	ParseConfiguration currentConfiguration;
 	
-	ParserService parseService;
+	ParserServiceInternal parserServiceInternal;
 
 	int currentIndex;
 	
@@ -64,7 +64,7 @@ class ParseEventStream implements CorpusEventStream {
 				if (this.corpusReader.hasNextConfiguration()) {
 					
 					targetConfiguration = this.corpusReader.nextConfiguration();
-					currentConfiguration = parseService.getInitialConfiguration(targetConfiguration.getPosTagSequence());
+					currentConfiguration = parserServiceInternal.getInitialConfiguration(targetConfiguration.getPosTagSequence());
 					currentIndex = 0;
 					if (currentIndex == targetConfiguration.getTransitions().size()) {
 						targetConfiguration = null;
@@ -112,6 +112,7 @@ class ParseEventStream implements CorpusEventStream {
 				event = new CorpusEvent(parseFeatureResults, classification);
 				
 				// apply the transition and up the index
+				currentConfiguration = parserServiceInternal.getConfiguration(currentConfiguration);
 				transition.apply(currentConfiguration);
 				currentIndex++;
 	
@@ -125,14 +126,6 @@ class ParseEventStream implements CorpusEventStream {
 		}
 	}
 
-	public ParserService getParseService() {
-		return parseService;
-	}
-
-	public void setParseService(ParserService parseService) {
-		this.parseService = parseService;
-	}
-
 	@Override
 	public Map<String, Object> getAttributes() {
 		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
@@ -143,4 +136,13 @@ class ParseEventStream implements CorpusEventStream {
 		return attributes;
 	}
 
+	public ParserServiceInternal getParserServiceInternal() {
+		return parserServiceInternal;
+	}
+
+	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
+		this.parserServiceInternal = parserServiceInternal;
+	}
+
+	
 }

@@ -60,11 +60,6 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 	}
 	
 	@Override
-	protected Object parseArgument(FunctionDescriptor argumentDescriptor) {
-		return null;
-	}
-
-	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("Initials", InitialsFeature.class);
 		container.addFeatureClass("InParentheses", InParenthesesFeature.class);

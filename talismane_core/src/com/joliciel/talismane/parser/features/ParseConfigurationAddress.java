@@ -18,16 +18,23 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.parser.ParseConfiguration;
+import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * A simple container for a ParseConfiguration + an address function.
  * @author Assaf Urieli
  *
  */
-public final class ParseConfigurationAddress {
+public final class ParseConfigurationAddress implements ParseConfigurationWrapper, PosTaggedTokenWrapper, HasFeatureCache {
 	private ParseConfiguration parseConfiguration;
 	private AddressFunction addressFunction;
+	private PosTaggedToken posTaggedToken = null;
+	private boolean posTaggedTokenRetrieved = false;
 	public ParseConfigurationAddress() {
 		
 	}
@@ -51,6 +58,40 @@ public final class ParseConfigurationAddress {
 
 	public void setAddressFunction(AddressFunction addressFunction) {
 		this.addressFunction = addressFunction;
+	}
+
+	@Override
+	public PosTaggedToken getPosTaggedToken() {
+		if (!posTaggedTokenRetrieved) {
+			FeatureResult<PosTaggedToken> featureResult = this.addressFunction.check(this.parseConfiguration);
+			if (featureResult!=null)
+				posTaggedToken = featureResult.getOutcome();
+			posTaggedTokenRetrieved = true;
+		}
+		return posTaggedToken;
+	}
+
+	public void setPosTaggedToken(PosTaggedToken posTaggedToken) {
+		this.posTaggedToken = posTaggedToken;
+		this.posTaggedTokenRetrieved = true;
+	}
+
+	@Override
+	public <T,Y> FeatureResult<Y> getResultFromCache(
+			Feature<T, Y> feature) {
+		PosTaggedToken posTaggedToken = this.getPosTaggedToken();
+		if (posTaggedToken!=null)
+			return posTaggedToken.getResultFromCache(feature);
+		return null;
+	}
+
+	@Override
+	public <T,Y> void putResultInCache(
+			Feature<T, Y> feature,
+			FeatureResult<Y> featureResult) {
+		PosTaggedToken posTaggedToken = this.getPosTaggedToken();
+		if (posTaggedToken!=null)
+			posTaggedToken.putResultInCache(feature, featureResult);
 	}
 	
 	

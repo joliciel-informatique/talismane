@@ -16,35 +16,37 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The pos-tag of a given token, referenced by address.
+ * The main grammatical category of a given token as supplied by the lexicon.
  * @author Assaf Urieli
  *
  */
-public class ParserPosTagFeature extends AbstractParseConfigurationAddressFeature<String> implements StringFeature<ParseConfigurationAddress> {
-	public ParserPosTagFeature() {
+public class LexicalCategoryFeature extends AbstractPosTaggedTokenFeature<String> implements StringFeature<PosTaggedTokenWrapper> {
+	public LexicalCategoryFeature() {
 		super();
 		this.setName(super.getName());
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress) {
-		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
-		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
+	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper) {
+		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+		if (posTaggedToken==null)
+			return null;
 		FeatureResult<String> featureResult = null;
-		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
-			featureResult = this.generateResult(posTaggedToken.getTag().getCode());
+		LexicalEntry lexicalEntry = null;
+		if (posTaggedToken.getLexicalEntries().size()>0)
+			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
+		if (lexicalEntry!=null) {
+				featureResult = this.generateResult(lexicalEntry.getCategory());
 		}
 		return featureResult;
 	}
-
+	
 }

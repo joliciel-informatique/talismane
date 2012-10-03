@@ -29,7 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.posTagger.LexicalEntry;
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.lexicon.PredicateArgument;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
@@ -154,6 +155,12 @@ public class Lefff {
         		LOG.debug("Predicate " + entry.getPredicate());
         		LOG.debug("Lemma " + entry.getLemma());
         		LOG.debug("Morphology " + entry.getMorphology());
+        		for (PredicateArgument argument : entry.getPredicateArguments()) {
+        			LOG.debug("Argument: " + argument.getFunction() + ",Optional? " + argument.isOptional());
+        			for (String realisation : argument.getRealisations()) {
+        				LOG.debug("Realisation: " + realisation);
+        			}
+        		}
         	}
 
         	Set<PosTag> posTagsBase = memoryBase.findPossiblePosTags("base");

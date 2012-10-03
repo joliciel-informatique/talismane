@@ -22,7 +22,6 @@ import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 
 /**
  * Allows to apply any other TokenFeature to a token
@@ -87,11 +86,6 @@ public class TokenOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 		}
 		
 		return result;
-	}
-
-	@Override
-	public boolean isDynamic() {
-		return true;
 	}
 
 	@SuppressWarnings("rawtypes")

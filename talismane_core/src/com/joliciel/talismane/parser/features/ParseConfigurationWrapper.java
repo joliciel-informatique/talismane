@@ -16,35 +16,16 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.posTagger;
+package com.joliciel.talismane.parser.features;
+
+import com.joliciel.talismane.parser.ParseConfiguration;
 
 /**
- * A status, used only to select a single entry in the case of homographs,
- * to indicate which lemma should be given preference.
- * 
+ * A simple wrapper for a parse configuration, useful to allow multiple feature contexts to act all as a ParseConfigurationWrapper
+ * for ParseConfiguration features.
  * @author Assaf Urieli
  *
  */
-public enum LexicalEntryStatus {
-	/**
-	 * Used when no homograph exists, or when this is the most likely homograph.
-	 */
-	NEUTRAL,
-	
-	/**
-	 * This is a somewhat arbitrary decision, as between "fils" (for fil) and "fils" for (for fils) in French.
-	 */
-	SOMEWHAT_UNLIKELY,
-	
-	/**
-	 * Gives a definite preference to another homograph.
-	 */
-	UNLIKELY,
-	
-	/**
-	 * This entry should be ignored - it is not a true homograph.
-	 */
-	WRONG;
-	
-	
+public interface ParseConfigurationWrapper {
+	public ParseConfiguration getParseConfiguration();
 }

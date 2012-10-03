@@ -22,27 +22,46 @@ import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.parser.ParseConfiguration;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
 
 /**
- * Passes an explicit address to a ParseConfigurationAddressFeature.
+ * Used when the address of the pos-tagged token for a given ParseConfigurationAddressFeature
+ * or PosTaggedTokenFeature is provided explicitly in the feature descriptor
+ * (as opposed to being provided implicitly via the wrapping function).
  * @author Assaf Urieli
  *
  */
-public class ExplicitAddressFeature<T> extends AbstractCachableFeature<ParseConfiguration,T>
+public class ExplicitAddressFeature<T> extends AbstractCachableFeature<ParseConfigurationWrapper,T>
 	implements ParseConfigurationFeature<T> {
-	@SuppressWarnings("unused")
+
 	private AddressFunction addressFunction;
 	private ParseConfigurationAddressFeature<T> parseConfigurationAddressFeature = null;
+	private PosTaggedTokenFeature<T> posTaggedTokenFeature = null;
+	private boolean isParseConfigurationAddress = false;
 	
 	// keeping this at instance level is for performance reasons only
 	// it is safe, as only one configuration is tested at a time
-	private ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress();
+//	private ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress();
+	
+	public ExplicitAddressFeature(PosTaggedTokenFeature<T> posTaggedTokenFeature, AddressFunction addressFunction) {
+		super();
+		this.addressFunction = addressFunction;
+//		parseConfigurationAddress.setAddressFunction(addressFunction);
+		this.posTaggedTokenFeature = posTaggedTokenFeature;
+		this.setNameFromWrappedFeature(this.posTaggedTokenFeature.getName());
+		isParseConfigurationAddress = false;
+	}
 	
 	public ExplicitAddressFeature(ParseConfigurationAddressFeature<T> parseConfigurationAddressFeature, AddressFunction addressFunction) {
 		super();
 		this.addressFunction = addressFunction;
+//		parseConfigurationAddress.setAddressFunction(addressFunction);
 		this.parseConfigurationAddressFeature = parseConfigurationAddressFeature;
-		String originalName = parseConfigurationAddressFeature.getName();
+		this.setNameFromWrappedFeature(this.parseConfigurationAddressFeature.getName());
+		isParseConfigurationAddress = true;
+	}
+	
+	private void setNameFromWrappedFeature(String originalName) {
 		int openParenIndex = originalName.indexOf('(');
 		int closeParenIndex = originalName.indexOf(')');
 		String newName = "";
@@ -54,17 +73,24 @@ public class ExplicitAddressFeature<T> extends AbstractCachableFeature<ParseConf
 		} else {
 			newName = originalName + "(" + addressFunction.getName() + ")";
 		}
-		this.setName(newName);
-		parseConfigurationAddress.setAddressFunction(addressFunction);
+		this.setName(newName);		
 	}
-
 	
 	@Override
-	public FeatureResult<T> checkInternal(ParseConfiguration configuration) {
+	public FeatureResult<T> checkInternal(ParseConfigurationWrapper wrapper) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
+		
+		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress();
+		parseConfigurationAddress.setAddressFunction(addressFunction);
 		parseConfigurationAddress.setParseConfiguration(configuration);
 		
-		FeatureResult<T> internalResult = this.parseConfigurationAddressFeature.check(parseConfigurationAddress);
 		FeatureResult<T> result = null;
+		FeatureResult<T> internalResult = null;
+		if (isParseConfigurationAddress)
+			internalResult = this.parseConfigurationAddressFeature.check(parseConfigurationAddress);
+		else
+			internalResult = this.posTaggedTokenFeature.check(parseConfigurationAddress);
+		
 		if (internalResult!=null) {
 			result = this.generateResult(internalResult.getOutcome());
 		}
@@ -74,20 +100,23 @@ public class ExplicitAddressFeature<T> extends AbstractCachableFeature<ParseConf
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Class<? extends Feature> getFeatureType() {
-		return parseConfigurationAddressFeature.getFeatureType();
+		if (isParseConfigurationAddress)
+			return parseConfigurationAddressFeature.getFeatureType();
+		else
+			return posTaggedTokenFeature.getFeatureType();
 	}
 
 
 	@Override
-	protected FeatureResult<T> checkInCache(ParseConfiguration context) {
-		return context.getResultFromCache(this);
+	protected FeatureResult<T> checkInCache(ParseConfigurationWrapper context) {
+		return context.getParseConfiguration().getResultFromCache(this);
 	}
 
 
 	@Override
-	protected void putInCache(ParseConfiguration context,
+	protected void putInCache(ParseConfigurationWrapper context,
 			FeatureResult<T> featureResult) {
-		context.putResultInCache(this, featureResult);
+		context.getParseConfiguration().putResultInCache(this, featureResult);
 	}	
 	
 	

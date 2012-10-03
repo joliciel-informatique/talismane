@@ -21,7 +21,6 @@ package com.joliciel.talismane.tokeniser.features;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
@@ -60,10 +59,5 @@ public class CurrentPatternWordForm extends AbstractTokenFeature<String> impleme
 		} // the current token matches the tokeniserPattern at it's first test index
 		
 		return result;
-	}
-
-	@Override
-	public boolean isDynamic() {
-		return true;
 	}
 }

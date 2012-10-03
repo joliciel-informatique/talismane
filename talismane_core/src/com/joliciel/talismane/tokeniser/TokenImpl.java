@@ -28,10 +28,10 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
-import com.joliciel.talismane.tokeniser.features.TokenFeature;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 
 class TokenImpl implements TokenInternal {
@@ -46,7 +46,7 @@ class TokenImpl implements TokenInternal {
 	private TokenSequence tokenSequence;
 	private Set<PosTag> possiblePosTags;
 	private Map<PosTag, Integer> frequencies;
-	private Map<String,FeatureResult<?>> staticFeatureResults = new HashMap<String, FeatureResult<?>>();
+	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 	private boolean separator = false;
 	private boolean whiteSpace = false;
 	private List<TokenMatch> matches = null;
@@ -127,25 +127,22 @@ class TokenImpl implements TokenInternal {
 		this.frequencies = frequencies;
 	}
 	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> FeatureResult<T> getResultFromCache(TokenFeature<T> tokenFeature) {
-		FeatureResult<T> result = null;
-	
-		if (!tokenFeature.isDynamic()) {
-			if (this.staticFeatureResults.containsKey(tokenFeature.getName())) {
-				result = (FeatureResult<T>) this.staticFeatureResults.get(tokenFeature.getName());
-			}
+	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature) {
+		FeatureResult<Y> result = null;
+		
+		if (this.featureResults.containsKey(feature.getName())) {
+			result = (FeatureResult<Y>) this.featureResults.get(feature.getName());
 		}
 		return result;
 	}
 
-	
 	@Override
-	public <T> void putResultInCache(TokenFeature<T> tokenFeature, FeatureResult<T> featureResult) {
-		if (!tokenFeature.isDynamic()) {
-			this.staticFeatureResults.put(tokenFeature.getName(), featureResult);
-		}		
+	public <T, Y> void putResultInCache(Feature<T, Y> feature,
+			FeatureResult<Y> featureResult) {
+		this.featureResults.put(feature.getName(), featureResult);	
 	}
 
 	@Override

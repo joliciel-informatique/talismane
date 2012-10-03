@@ -35,8 +35,8 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.HarmonicMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -406,19 +406,27 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> FeatureResult<T> getResultFromCache(ParseConfigurationFeature<T> feature) {
-		FeatureResult<T> result = null;
+	public <T,Y> FeatureResult<Y> getResultFromCache(
+			Feature<T, Y> feature) {
+		FeatureResult<Y> result = null;
 	
 		if (this.featureResults.containsKey(feature.getName())) {
-			result = (FeatureResult<T>) this.featureResults.get(feature.getName());
+			result = (FeatureResult<Y>) this.featureResults.get(feature.getName());
 		}
 		return result;
 	}
 
 	
 	@Override
-	public <T> void putResultInCache(ParseConfigurationFeature<T> feature, FeatureResult<T> featureResult) {
+	public <T,Y> void putResultInCache(
+			Feature<T, Y> feature,
+			FeatureResult<Y> featureResult) {
 		this.featureResults.put(feature.getName(), featureResult);	
+	}
+
+	@Override
+	public ParseConfiguration getParseConfiguration() {
+		return this;
 	}
 
 

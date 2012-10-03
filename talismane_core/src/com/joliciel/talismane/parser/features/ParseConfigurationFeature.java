@@ -19,8 +19,7 @@
 package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.parser.ParseConfiguration;
 
-public interface ParseConfigurationFeature<T> extends Feature<ParseConfiguration,T> {
+public interface ParseConfigurationFeature<T> extends Feature<ParseConfigurationWrapper,T> {
 
 }

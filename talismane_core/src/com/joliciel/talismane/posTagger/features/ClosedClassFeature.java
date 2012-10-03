@@ -16,36 +16,34 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.parser.ParseConfiguration;
+import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The actual text of a given token, referenced by address.
+ * Is this token's pos-tag closed class or open class.
  * @author Assaf Urieli
  *
  */
-public class ParserLexicalFormFeature extends AbstractParseConfigurationAddressFeature<String> implements StringFeature<ParseConfigurationAddress> {
-	public ParserLexicalFormFeature() {
+public class ClosedClassFeature extends AbstractPosTaggedTokenFeature<Boolean> implements BooleanFeature<PosTaggedTokenWrapper> {
+	public ClosedClassFeature() {
 		super();
 		this.setName(super.getName());
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress) {
-		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
-		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
-		FeatureResult<String> featureResult = null;
-		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
-			featureResult = this.generateResult(posTaggedToken.getToken().getText());
-		}
+	public FeatureResult<Boolean> checkInternal(PosTaggedTokenWrapper wrapper) {
+		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+		if (posTaggedToken==null)
+			return null;
+		FeatureResult<Boolean> featureResult = null;
+		boolean isClosedClass = posTaggedToken.getTag().getOpenClassIndicator().equals(PosTagOpenClassIndicator.CLOSED);
+		featureResult = this.generateResult(isClosedClass);
+		
 		return featureResult;
 	}
-	
-	
+
 }

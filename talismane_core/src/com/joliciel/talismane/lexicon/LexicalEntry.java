@@ -16,9 +16,10 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.posTagger;
+package com.joliciel.talismane.lexicon;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * A single lexical entry for a given string.
@@ -62,6 +63,28 @@ public interface LexicalEntry {
 	 * @return
 	 */
 	public String getPredicate();
+	
+	/**
+	 * A list of predicate arguments (where the order is typically significant)
+	 * forming this lexical entry's predicate-argument structure.
+	 * @return
+	 */
+	public List<PredicateArgument> getPredicateArguments();
+	
+	/**
+	 * Returns the predicate argument corresponding to a particular function name,
+	 * or null if not found.
+	 * @param name
+	 * @return
+	 */
+	public PredicateArgument getPredicateArgument(String functionName);
+	
+	/**
+	 * A set of so-called "macros" describing more abstract aspects of the predicate, 
+	 * e.g. impersonal construction, passive construction, etc.
+	 * @return
+	 */
+	public Set<String> getPredicateMacros();
 	
 	/**
 	 * A list of possible (language-specific) genders for this entry.

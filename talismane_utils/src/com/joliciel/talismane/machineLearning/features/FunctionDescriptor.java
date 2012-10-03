@@ -86,4 +86,18 @@ public interface FunctionDescriptor {
 	 * @return
 	 */
 	public FunctionDescriptor getParent();
+	
+	/**
+	 * Deep clone this function descriptor.
+	 * @return
+	 */
+	public FunctionDescriptor cloneDescriptor();
+	
+	/**
+	 * Replace a given named parameter (basically a placeholder) within this function descriptor
+	 * by an actual argument value (a function descriptor to put instead of the placeholder).
+	 * @param parameterName
+	 * @param argument
+	 */
+	public void replaceParameter(String parameterName, FunctionDescriptor argument);
 }

@@ -37,7 +37,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.ResultSetWrappingSqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import com.joliciel.talismane.posTagger.LexicalEntryStatus;
+import com.joliciel.talismane.lexicon.LexicalEntryStatus;
 import com.joliciel.talismane.utils.DaoUtils;
 
 class LefffDaoImpl implements LefffDao {

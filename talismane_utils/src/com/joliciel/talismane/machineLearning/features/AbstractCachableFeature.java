@@ -28,7 +28,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @param <T>
  * @param <Y>
  */
-public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<Feature<T,?>> {
+public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y> {
 	public AbstractCachableFeature() {
 		super();
 	}
@@ -56,6 +56,9 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	 * @return
 	 */
 	protected FeatureResult<Y> checkInCache(T context) {
+		if (context instanceof HasFeatureCache) {
+			return ((HasFeatureCache) context).getResultFromCache(this);
+		}
 		return null;
 	}
 	
@@ -66,9 +69,10 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	 * @return
 	 */	
 	protected void putInCache(T context, FeatureResult<Y> featureResult) {
+		if (context instanceof HasFeatureCache) {
+			((HasFeatureCache) context).putResultInCache(this, featureResult);
+		}
 	}
 
 	protected abstract FeatureResult<Y> checkInternal(T context);
-	
-	
 }

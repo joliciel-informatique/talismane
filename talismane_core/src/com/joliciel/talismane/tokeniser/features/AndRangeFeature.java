@@ -23,7 +23,6 @@ import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 
 /**
  * Tests all tokens within a certain range for a certain criterion,

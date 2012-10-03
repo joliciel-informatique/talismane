@@ -29,12 +29,13 @@ public class EmptyTokenBeforeDuquelFilter implements TokenFilter {
 	public void apply(TokenSequence tokenSequence) {
 		List<Token> tokensToAddEmpties = new ArrayList<Token>();
 		for (Token token : tokenSequence) {
-			if (token.getText().equals("duquel")
-					||token.getText().equals("auquel")
-					||token.getText().equals("desquels")
-					||token.getText().equals("auxquels")
-					||token.getText().equals("desquelles")
-					||token.getText().equals("auxquelles")
+			String text = token.getText().toLowerCase();
+			if (text.equals("duquel")
+					||text.equals("auquel")
+					||text.equals("desquels")
+					||text.equals("auxquels")
+					||text.equals("desquelles")
+					||text.equals("auxquelles")
 				) {
 				tokensToAddEmpties.add(token);
 			}
@@ -55,22 +56,23 @@ public class EmptyTokenBeforeDuquelFilter implements TokenFilter {
 				emptyToken = tokenSequence.addEmptyToken(token.getStartIndex());
 			
 			if (emptyToken!=null) {
-				if (token.getText().equals("duquel")) {
+				String text = token.getText().toLowerCase();
+				if (text.equals("duquel")) {
 					token.setText("lequel");
 					emptyToken.setText("de");
-				} else if (token.getText().equals("auquel")) {
+				} else if (text.equals("auquel")) {
 					token.setText("lequel");
 					emptyToken.setText("à");
-				} else if (token.getText().equals("desquels")) {
+				} else if (text.equals("desquels")) {
 					token.setText("lesquels");
 					emptyToken.setText("de");
-				} else if (token.getText().equals("auxquels")) {
+				} else if (text.equals("auxquels")) {
 					token.setText("lesquels");
 					emptyToken.setText("à");
-				} else if (token.getText().equals("desquelles")) {
+				} else if (text.equals("desquelles")) {
 					token.setText("lesquelles");
 					emptyToken.setText("de");
-				} else if (token.getText().equals("auxquelles")) {
+				} else if (text.equals("auxquelles")) {
 					token.setText("lesquelles");
 					emptyToken.setText("à");
 				}

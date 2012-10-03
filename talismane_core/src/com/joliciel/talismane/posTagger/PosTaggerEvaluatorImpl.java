@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.TokenSequence;

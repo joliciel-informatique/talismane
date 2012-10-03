@@ -40,17 +40,20 @@ public class AddressFunctionBuffer extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfiguration configuration) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration);
 		if (indexResult!=null) {
 			int index = indexResult.getOutcome();
-
+			
 			Iterator<PosTaggedToken> bufferIterator = configuration.getBuffer().iterator();
-			int i = 0;
-			while (i<=index && bufferIterator.hasNext()) {
+			for (int i=0; i<=index; i++) {
+				if (!bufferIterator.hasNext()) {
+					resultToken = null;
+					break;
+				}
 				resultToken = bufferIterator.next();
-				i++;
 			}
 		}
 		FeatureResult<PosTaggedToken> featureResult = null;

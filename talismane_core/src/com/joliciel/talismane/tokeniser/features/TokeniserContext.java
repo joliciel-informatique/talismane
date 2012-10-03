@@ -19,7 +19,6 @@
 package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 
 public class TokeniserContext implements TokenWrapper {

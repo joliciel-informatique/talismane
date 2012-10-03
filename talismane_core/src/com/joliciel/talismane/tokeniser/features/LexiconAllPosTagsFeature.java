@@ -23,7 +23,6 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 
 /**
  * Returns a comma-separated concatenated string of all lexicon pos-tags for this token.

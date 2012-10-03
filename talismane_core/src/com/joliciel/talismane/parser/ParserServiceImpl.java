@@ -54,7 +54,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			ParserAnnotatedCorpusReader corpusReader,
 			Set<ParseConfigurationFeature<?>> parseFeatures) {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
-		eventStream.setParseService(this);
+		eventStream.setParserServiceInternal(this);
 		return eventStream;
 	}
 

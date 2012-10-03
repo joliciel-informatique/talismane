@@ -28,14 +28,14 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.posTagger.LexicalEntry;
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 
 public class LefffMemoryBaseImpl implements LefffMemoryBase {
     private static final Log LOG = LogFactory.getLog(LefffMemoryBaseImpl.class);
 
-	private static final long serialVersionUID = -6687868826900071371L;
+	private static final long serialVersionUID = -6687868826900071372L;
 	Map<String,List<LefffEntry>> entryMap = null;
 	Map<PosTagSet,LefffPosTagMapper> posTagMappers = null;
 	Map<String,List<LefffEntry>> lemmaEntryMap = null;

@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 
 /**
  * An Abstract base class for intrinsic features.
@@ -36,18 +35,13 @@ public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<To
 	private static final Log LOG = LogFactory.getLog(AbstractTokenFeature.class);
 
 	@Override
-	protected FeatureResult<Y> checkInCache(TokenWrapper context) {
+	protected final FeatureResult<Y> checkInCache(TokenWrapper context) {
 		return context.getToken().getResultFromCache(this);
 	}
 
 	@Override
-	protected void putInCache(TokenWrapper context, FeatureResult<Y> result) {
+	protected final void putInCache(TokenWrapper context, FeatureResult<Y> result) {
 		context.getToken().putResultInCache(this, result);
-	}
-
-	@Override
-	public boolean isDynamic() {
-		return false;
 	}
 
 }

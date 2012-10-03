@@ -16,42 +16,45 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.posTagger.LexicalEntry;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The grammatical gender of a given token as supplied by the lexicon, referenced by address.
+ * For this pos-tagged token's main lexical entry, does the predicate have the macro provided?
  * @author Assaf Urieli
  *
  */
-public class ParserGenderFeature extends AbstractParseConfigurationAddressFeature<String> implements StringFeature<ParseConfigurationAddress> {
-	public ParserGenderFeature() {
+public class PredicateHasMacroFeature extends AbstractPosTaggedTokenFeature<Boolean> implements BooleanFeature<PosTaggedTokenWrapper> {
+	public StringFeature<PosTaggedTokenWrapper> macroNameFeature;
+	
+	public PredicateHasMacroFeature(StringFeature<PosTaggedTokenWrapper> macroNameFeature) {
 		super();
-		this.setName(super.getName());
+		this.macroNameFeature = macroNameFeature;
+		this.setName(super.getName() + "(" + macroNameFeature.getName() + ")");
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress) {
-		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
-		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
-		FeatureResult<String> featureResult = null;
-		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
+	public FeatureResult<Boolean> checkInternal(PosTaggedTokenWrapper wrapper) {
+		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+		if (posTaggedToken==null)
+			return null;
+		
+		FeatureResult<Boolean> featureResult = null;
+		
+		FeatureResult<String> macroNameResult = this.macroNameFeature.check(wrapper);
+		if (macroNameResult!=null) {
+			String macroName = macroNameResult.getOutcome();
 			LexicalEntry lexicalEntry = null;
 			if (posTaggedToken.getLexicalEntries().size()>0)
 				lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
 			if (lexicalEntry!=null) {
-				String gender = "";
-				for (String oneGender : lexicalEntry.getGender()) {
-					gender += oneGender;
-				}
-				featureResult = this.generateResult(gender);
+				boolean hasMacro = lexicalEntry.getPredicateMacros().contains(macroName);	
+				featureResult = this.generateResult(hasMacro);
 			}
 		}
 		return featureResult;

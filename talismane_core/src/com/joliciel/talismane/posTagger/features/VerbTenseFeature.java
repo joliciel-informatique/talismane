@@ -16,43 +16,40 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.posTagger.LexicalEntry;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The grammatical number of a given token as supplied by the lexicon, referenced by address.
+ * The tense of a given token as supplied by the lexicon.
  * @author Assaf Urieli
  *
  */
-public class ParserNumberFeature extends AbstractParseConfigurationAddressFeature<String> implements StringFeature<ParseConfigurationAddress> {
-	public ParserNumberFeature() {
+public class VerbTenseFeature extends AbstractPosTaggedTokenFeature<String> implements StringFeature<PosTaggedTokenWrapper> {
+	public VerbTenseFeature() {
 		super();
 		this.setName(super.getName());
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress) {
-		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
-		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
+	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper) {
+		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+		if (posTaggedToken==null)
+			return null;
 		FeatureResult<String> featureResult = null;
-		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
-			LexicalEntry lexicalEntry = null;
-			if (posTaggedToken.getLexicalEntries().size()>0)
-				lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
-			if (lexicalEntry!=null) {
-				String number = "";
-				for (String oneNumber : lexicalEntry.getNumber()) {
-					number += oneNumber;
-				}
-				featureResult = this.generateResult(number);
+		LexicalEntry lexicalEntry = null;
+		if (posTaggedToken.getLexicalEntries().size()>0)
+			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
+		if (lexicalEntry!=null) {
+			String tense = "";
+			for (String oneTense : lexicalEntry.getTense()) {
+				tense += oneTense;
 			}
+			if (tense.length()>0)
+				featureResult = this.generateResult(tense);
 		}
 		return featureResult;
 	}

@@ -21,9 +21,12 @@ package com.joliciel.talismane.posTagger;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.lexicon.LexiconService;
+
 
 /**
- * An interface for retrieving lexical information from a lexicon.
+ * An interface for retrieving lexical information from a lexicon, including pos-tag specific information.
  * @author Assaf Urieli
  *
  */

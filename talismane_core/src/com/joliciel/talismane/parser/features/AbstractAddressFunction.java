@@ -20,10 +20,9 @@ package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.AbstractMonitorableFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
-abstract class AbstractAddressFunction extends AbstractMonitorableFeature<ParseConfiguration, PosTaggedToken> implements AddressFunction
+abstract class AbstractAddressFunction extends AbstractMonitorableFeature<ParseConfigurationWrapper, PosTaggedToken> implements AddressFunction
 {
 
 	@Override

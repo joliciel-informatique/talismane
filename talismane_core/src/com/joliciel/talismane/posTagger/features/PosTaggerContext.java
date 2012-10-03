@@ -20,7 +20,7 @@ package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
+import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
  * The PosTagger's current context, including the history of decisions

@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.lefff;
 
-import com.joliciel.talismane.posTagger.LexicalEntryStatus;
+import com.joliciel.talismane.lexicon.LexicalEntryStatus;
 
 public interface LefffEntryInternal extends EntityInternal, LefffEntry {
 	public void setWord(Word word);

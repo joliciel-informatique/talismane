@@ -16,45 +16,50 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.lexicon.PredicateArgument;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.posTagger.LexicalEntry;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The grammatical number of the possessor of a given token as supplied by the lexicon, referenced by address.
+ * For this pos-tagged token's main lexical entry, does the predicate have the function provided?
  * @author Assaf Urieli
  *
  */
-public class ParserPossessorNumberFeature extends AbstractParseConfigurationAddressFeature<String> implements StringFeature<ParseConfigurationAddress> {
-	public ParserPossessorNumberFeature() {
+public class PredicateHasFunctionFeature extends AbstractPosTaggedTokenFeature<Boolean> implements BooleanFeature<PosTaggedTokenWrapper> {
+	public StringFeature<PosTaggedTokenWrapper> functionNameFeature;
+	
+	public PredicateHasFunctionFeature(StringFeature<PosTaggedTokenWrapper> functionNameFeature) {
 		super();
-		this.setName(super.getName());
+		this.functionNameFeature = functionNameFeature;
+		this.setName(super.getName() + "(" + functionNameFeature.getName() + ")");
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress) {
-		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
-		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
-		FeatureResult<String> featureResult = null;
-		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
+	public FeatureResult<Boolean> checkInternal(PosTaggedTokenWrapper wrapper) {
+		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+		if (posTaggedToken==null)
+			return null;
+		
+		FeatureResult<Boolean> featureResult = null;
+		
+		FeatureResult<String> functionNameResult = this.functionNameFeature.check(wrapper);
+		if (functionNameResult!=null) {
+			String functionName = functionNameResult.getOutcome();
 			LexicalEntry lexicalEntry = null;
 			if (posTaggedToken.getLexicalEntries().size()>0)
 				lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
 			if (lexicalEntry!=null) {
-				String possessorNumber = "";
-				for (String onePossessorNumber : lexicalEntry.getPossessorNumber()) {
-					possessorNumber += onePossessorNumber;
-				}
-				featureResult = this.generateResult(possessorNumber);
+				PredicateArgument argument = lexicalEntry.getPredicateArgument(functionName);			
+				featureResult = this.generateResult(argument !=null);
 			}
 		}
 		return featureResult;
 	}
+	
 	
 }

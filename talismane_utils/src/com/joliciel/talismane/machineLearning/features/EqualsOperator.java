@@ -22,6 +22,8 @@ package com.joliciel.talismane.machineLearning.features;
  * Returns operand1 == operand2.
  * For double values, an error margin of 0.0001 is allowed.
  * 
+ * Note: because of enormous usage of this features, it has been split into four separate features,
+ * to gain an infinitesimal amount of performance.
  * @author Assaf Urieli
  *
  * @param <T>

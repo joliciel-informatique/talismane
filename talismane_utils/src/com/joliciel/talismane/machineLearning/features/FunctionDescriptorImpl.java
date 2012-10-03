@@ -185,4 +185,45 @@ class FunctionDescriptorImpl implements FunctionDescriptor {
 		this.parent = parent;
 	}
 
+	@Override
+	public FunctionDescriptor cloneDescriptor() {
+		FunctionDescriptorImpl descriptor = new FunctionDescriptorImpl();
+		if (this.isFunction()) {
+			descriptor.setFunctionName(this.getFunctionName());
+			if (this.isBinaryOperator())
+				descriptor.setBinaryOperator(true);
+			for (FunctionDescriptor argument : this.getArguments()) {
+				descriptor.addArgument(argument.cloneDescriptor());
+			}
+		} else {
+			descriptor.setObject(this.getObject());
+		}
+		return descriptor;
+	}
+
+	@Override
+	public void replaceParameter(String parameterName,
+			FunctionDescriptor argument) {
+		List<Integer> replaceIndexes = new ArrayList<Integer>();
+		
+		int i = 0;
+		for (FunctionDescriptor descriptor : this.getArguments()) {
+			if (descriptor.isFunction() && descriptor.getFunctionName().equals(parameterName)) {
+				replaceIndexes.add(i);
+			}
+			i++;
+		}
+		for (int index : replaceIndexes) {
+			this.getArguments().remove(index);
+			this.getArguments().add(index, argument);
+		}
+		i = 0;
+		for (FunctionDescriptor descriptor : this.getArguments()) {
+			if (replaceIndexes.contains(i))
+				continue;
+			descriptor.replaceParameter(parameterName, argument);
+			i++;
+		}
+	}
+
 }

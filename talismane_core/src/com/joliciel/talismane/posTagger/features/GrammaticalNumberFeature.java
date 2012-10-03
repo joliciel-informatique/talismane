@@ -16,39 +16,42 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.IntegerFeature;
-import com.joliciel.talismane.parser.ParseConfiguration;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * The index of a given token in the token sequence, referenced by address.
+ * The grammatical number of a given token as supplied by the lexicon.
  * @author Assaf Urieli
  *
  */
-public class ParserIndexFeature extends AbstractParseConfigurationAddressFeature<Integer> implements IntegerFeature<ParseConfigurationAddress> {
-	public ParserIndexFeature() {
+public class GrammaticalNumberFeature extends AbstractPosTaggedTokenFeature<String> implements StringFeature<PosTaggedTokenWrapper> {
+	public GrammaticalNumberFeature() {
 		super();
 		this.setName(super.getName());
 	}
 
 	@Override
-	public FeatureResult<Integer> checkInternal(ParseConfigurationAddress parseConfigurationAddress) {
-		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
-		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
-		FeatureResult<Integer> featureResult = null;
-		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
-			Token token = posTaggedToken.getToken();
-			int index = token.getIndex();
-			featureResult = this.generateResult(index);
+	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper) {
+		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+		if (posTaggedToken==null)
+			return null;
+		FeatureResult<String> featureResult = null;
+		LexicalEntry lexicalEntry = null;
+		if (posTaggedToken.getLexicalEntries().size()>0)
+			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
+		if (lexicalEntry!=null) {
+			String number = "";
+			for (String oneNumber : lexicalEntry.getNumber()) {
+				number += oneNumber;
+			}
+			if (number.length()>0)
+				featureResult = this.generateResult(number);
 		}
 		return featureResult;
 	}
-	
-	
+
 }
