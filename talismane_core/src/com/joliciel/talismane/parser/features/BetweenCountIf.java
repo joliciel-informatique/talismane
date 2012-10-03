@@ -30,7 +30,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfiguration> {
+public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
 	private AddressFunction addressFunction1;
 	private AddressFunction addressFunction2;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
@@ -45,7 +45,8 @@ public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> i
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(ParseConfiguration configuration) {
+	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		FeatureResult<PosTaggedToken> tokenResult1 = addressFunction1.check(configuration);
 		FeatureResult<PosTaggedToken> tokenResult2 = addressFunction2.check(configuration);
 		FeatureResult<Integer> featureResult = null;

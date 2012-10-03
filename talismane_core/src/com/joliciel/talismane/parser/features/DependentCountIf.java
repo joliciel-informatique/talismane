@@ -32,7 +32,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class DependentCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfiguration> {
+public class DependentCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
 	private AddressFunction addressFunction;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
 	
@@ -45,7 +45,8 @@ public class DependentCountIf extends AbstractParseConfigurationFeature<Integer>
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(ParseConfiguration configuration) {
+	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();		
 		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult!=null) {

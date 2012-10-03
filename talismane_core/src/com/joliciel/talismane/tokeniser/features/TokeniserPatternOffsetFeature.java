@@ -22,7 +22,6 @@ import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
@@ -99,11 +98,6 @@ public class TokeniserPatternOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 		} // the current token matches the tokeniserPattern at the testIndex
 		
 		return result;
-	}
-
-	@Override
-	public boolean isDynamic() {
-		return true;
 	}
 
 	@SuppressWarnings("rawtypes")

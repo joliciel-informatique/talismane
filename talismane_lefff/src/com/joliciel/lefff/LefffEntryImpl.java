@@ -19,10 +19,15 @@
 package com.joliciel.lefff;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.joliciel.talismane.posTagger.LexicalEntry;
-import com.joliciel.talismane.posTagger.LexicalEntryStatus;
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.lexicon.LexicalEntryStatus;
+import com.joliciel.talismane.lexicon.PredicateArgument;
 
 class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparable<LexicalEntry> {
 	/**
@@ -58,6 +63,9 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 	transient private List<String> person = new ArrayList<String>();
 	transient private List<String> tense = new ArrayList<String>();
 	transient private List<String> possessorNumber = new ArrayList<String>();
+	transient private List<PredicateArgument> predicateArguments;
+	transient private Map<String,PredicateArgument> predicateArgumentMap;
+	transient private Set<String> predicateMacros;
 	
 	transient boolean lexicalEntryLoaded = false;
 
@@ -355,6 +363,98 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 		if (!this.equals(o))
 			return -1;
 		return 0;
+	}
+
+	@Override
+	public List<PredicateArgument> getPredicateArguments() {
+		if (this.predicateArguments==null) {
+			this.predicateArguments = new ArrayList<PredicateArgument>();
+			this.predicateArgumentMap = new HashMap<String, PredicateArgument>();
+			if (this.predicate.length()>0) {
+				String[] arguments = this.predicate.split(",");
+				int i = 0;
+				for (String argument : arguments) {
+					int colonIndex = argument.indexOf(':');
+					LefffPredicateArgument predicateArgument = new LefffPredicateArgument();
+					if (colonIndex>0) {
+						String function = argument.substring(0, colonIndex);
+						String realisationString = argument.substring(colonIndex+1);
+						boolean optional = false;
+						if (realisationString.charAt(0)=='(') {
+							optional = true;
+							realisationString = realisationString.substring(1,realisationString.length()-1);
+						}
+						String[] realisations = realisationString.split("[|]");
+						predicateArgument.setFunction(function);
+						predicateArgument.setOptional(optional);
+						for (String realisation : realisations) {
+							predicateArgument.getRealisations().add(realisation);
+						}
+					} else {
+						predicateArgument.setFunction(argument);
+					}
+					predicateArgument.setIndex(i);
+					this.predicateArguments.add(predicateArgument);
+					this.predicateArgumentMap.put(predicateArgument.getFunction(), predicateArgument);
+					i++;
+				} // next argument
+			} // has predicate?
+		} // is null?
+		return this.predicateArguments;
+	}
+
+	@Override
+	public PredicateArgument getPredicateArgument(String functionName) {
+		this.getPredicateArguments();
+		return this.predicateArgumentMap.get(functionName);
+	}
+
+	private static final class LefffPredicateArgument implements PredicateArgument {
+		private String function = "";
+		private boolean optional = false;
+		private Set<String> realisations = new HashSet<String>();
+		private int index;
+		
+		public String getFunction() {
+			return function;
+		}
+		public void setFunction(String function) {
+			this.function = function;
+		}
+		public boolean isOptional() {
+			return optional;
+		}
+		public void setOptional(boolean optional) {
+			this.optional = optional;
+		}
+		public Set<String> getRealisations() {
+			return realisations;
+		}
+		public int getIndex() {
+			return index;
+		}
+		public void setIndex(int index) {
+			this.index = index;
+		}
+		
+		
+	}
+	
+	@Override
+	public Set<String> getPredicateMacros() {
+		if (this.predicateMacros==null) {
+			this.predicateMacros = new HashSet<String>();
+			for (Attribute attribute : this.attributes) {
+				String macro = null;
+				if (attribute.getValue()==null || attribute.getValue().length()==0) {
+					macro = attribute.getCode();
+				} else {
+					macro = attribute.getCode() + "=" + attribute.getValue();
+				}
+				this.predicateMacros.add(macro);
+			}
+		}
+		return this.predicateMacros;
 	}
 	
 }

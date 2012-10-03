@@ -22,11 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.tokeniser.features.TokenFeature;
+import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
-
 
 /**
  * A token is more-or-less equivalent to a word, although punctuation (and in some case white space) count as tokens as well.
@@ -37,7 +36,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
  * @author Assaf Urieli
  *
  */
-public interface Token extends Comparable<Token>, TokenWrapper {
+public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache {
     /**
      * An imaginary word that can be placed at the start of the sentence to simplify algorithms.
      */
@@ -89,18 +88,6 @@ public interface Token extends Comparable<Token>, TokenWrapper {
 	 */
 	public abstract Map<PosTag, Integer> getFrequencies();
 	public abstract void setFrequencies(Map<PosTag, Integer> frequencies);
-	
-	/**
-	 * Get a feature result from the cache.
-	 * @return
-	 */
-	public <T> FeatureResult<T> getResultFromCache(TokenFeature<T> tokenFeature);
-
-	/**
-	 * Get a feature result from the cache.
-	 * @return
-	 */
-	public <T> void putResultInCache(TokenFeature<T> tokenFeature, FeatureResult<T> featureResult);
 
 	/**
 	 * The start index of this token within the enclosing sentence.

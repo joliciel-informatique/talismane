@@ -89,4 +89,80 @@ public class TestParserTest {
 		assertEquals(12, intOperand2.getLiteral());
 		
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testNamedFeatures() {
+		FeatureServiceLocator featureServiceLocator = FeatureServiceLocator.getInstance();
+		FeatureService featureService = featureServiceLocator.getFeatureService();
+		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
+		
+		TestParser parser = new TestParser(featureService);
+		
+		FunctionDescriptor descriptor1 = functionDescriptorParser.parseDescriptor("TestArgs(X,Y)\tX+Y");
+		FunctionDescriptor descriptor2 = functionDescriptorParser.parseDescriptor("TestNoArgs\t1+2");
+		FunctionDescriptor descriptor3 = functionDescriptorParser.parseDescriptor("TestArgs(2-1,TestNoArgs())==4");
+		FunctionDescriptor descriptor4 = functionDescriptorParser.parseDescriptor("TestArgs(1,2+3,3+5)==4");
+		FunctionDescriptor descriptor5 = functionDescriptorParser.parseDescriptor("TestArgs\t3+4");
+		FunctionDescriptor descriptor6 = functionDescriptorParser.parseDescriptor("TestZeroArgs()\t3+4");
+		FunctionDescriptor descriptor7 = functionDescriptorParser.parseDescriptor("TestZeroArgs()-2");
+		
+		
+		List<Feature<TestContext, ?>> features = parser.parse(descriptor1);
+		// assuming no features for named feature with arguments
+		assertEquals(0, features.size());
+		
+		features = parser.parse(descriptor2);
+		assertEquals(1, features.size());
+		Feature<TestContext,?> feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof PlusIntegerOperator);
+		
+		features = parser.parse(descriptor3);
+		assertEquals(1, features.size());
+		feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof EqualsOperator);
+		EqualsOperator<TestContext> equalsOperator = (EqualsOperator<TestContext>) feature;
+		feature = equalsOperator.getOperand1();
+		assertTrue(feature instanceof PlusIntegerOperator);
+		
+		PlusIntegerOperator<TestContext> plusOperator = (PlusIntegerOperator<TestContext>) feature;
+		
+		feature = plusOperator.getOperand1();
+		assertTrue(feature instanceof MinusIntegerOperator);
+		feature = plusOperator.getOperand2();
+		assertTrue(feature instanceof PlusIntegerOperator);
+		
+		feature = equalsOperator.getOperand2();
+		assertTrue(feature instanceof IntegerLiteralFeature);
+		
+		try {
+			features = parser.parse(descriptor4);
+		} catch (FeatureSyntaxException je) {
+			LOG.debug(je.getMessage());
+		}
+		
+		try {
+			features = parser.parse(descriptor5);
+		} catch (FeatureSyntaxException je) {
+			LOG.debug(je.getMessage());
+		}
+		
+		features = parser.parse(descriptor6);
+		// assuming no features for named feature with zero arguments
+		assertEquals(0, features.size());
+		
+		features = parser.parse(descriptor7);
+		assertEquals(1, features.size());
+		feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof MinusIntegerOperator);
+	}
 }

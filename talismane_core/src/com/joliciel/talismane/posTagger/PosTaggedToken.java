@@ -20,6 +20,9 @@ package com.joliciel.talismane.posTagger;
 
 import java.util.Set;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 
 /**
@@ -27,7 +30,7 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
  * @author Assaf Urieli
  *
  */
-public interface PosTaggedToken extends TaggedToken<PosTag> {
+public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapper, HasFeatureCache {
 	/**
 	 * The "best" lexical entry if one exists, or null otherwise.
 	 */

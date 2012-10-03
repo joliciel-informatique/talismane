@@ -19,7 +19,6 @@
 package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
@@ -27,5 +26,5 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public interface AddressFunction extends Feature<ParseConfiguration, PosTaggedToken>{
+public interface AddressFunction extends Feature<ParseConfigurationWrapper, PosTaggedToken>{
 }

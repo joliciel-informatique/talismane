@@ -38,20 +38,22 @@ public class AddressFunctionStack extends AbstractAddressFunction {
 		this.indexFeature = indexFeature;
 		this.setName("Stack[" + indexFeature.getName() + "]");
 	}
-
-
+	
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfiguration configuration) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration);
 		if (indexResult!=null) {
 			int index = indexResult.getOutcome();
 			Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
-			int i = 0;
 			
-			while (i<=index && stackIterator.hasNext()) {
+			for (int i=0; i<=index; i++) {
+				if (!stackIterator.hasNext()) {
+					resultToken = null;
+					break;
+				}
 				resultToken = stackIterator.next();
-				i++;
 			}
 		}
 		FeatureResult<PosTaggedToken> featureResult = null;

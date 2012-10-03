@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.io.File;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
     private static final Log LOG = LogFactory.getLog(ParserRegexBasedCorpusReaderImpl.class);
 	private String regex = ParserRegexBasedCorpusReader.DEFAULT_REGEX;
 	private Pattern pattern;
-	private File ftbDepFile = null;
 	private ParseConfiguration configuration = null;
 	private Scanner scanner;
 	
@@ -87,9 +85,15 @@ public class ParserRegexBasedCorpusReaderImpl implements
 						break;
 					
 					int sentenceStartLineNumber = lineNumber;
-					while (scanner.hasNextLine()&&configuration==null) {
-						String line = scanner.nextLine().replace("\r", "");
-
+					while (configuration==null) {
+						// break out when there's no next line & nothing in the buffer to process
+						if (!scanner.hasNextLine() && !hasLine)
+							break;
+						
+						String line = "";
+						if (scanner.hasNextLine())
+							line = scanner.nextLine().replace("\r", "");
+						
 						lineNumber++;
 						if (line.length()==0) {
 							if (!hasLine)
@@ -100,8 +104,11 @@ public class ParserRegexBasedCorpusReaderImpl implements
 								boolean badConfig = false;
 								for (ParseDataLine dataLine : dataLines) {
 									badConfig = !this.checkDataLine(dataLine);
-									if (badConfig)
+									if (badConfig) {
+										dataLines = new ArrayList<ParseDataLine>();
+										hasLine = false;
 										break;
+									}
 								}
 								
 								if (!badConfig) {
@@ -167,6 +174,13 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										dataLines = newDataLines;
 									}
 									
+									if (LOG.isTraceEnabled()) {
+										LOG.trace("Data lines after update:");
+										for (ParseDataLine dataLine : dataLines) {
+											LOG.trace(dataLine.toString());
+										}
+									}
+									
 									PosTagSequence posTagSequence = this.posTaggerService.getPosTagSequence(tokenSequence, tokenSequence.size());
 									Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
 									int i = 0;
@@ -183,7 +197,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(posTag);
 										PosTaggedToken posTaggedToken = this.posTaggerService.getPosTaggedToken(token, posTagDecision);
 										if (LOG.isTraceEnabled()) {
-											LOG.trace(dataLine.toString());
 											LOG.trace(posTaggedToken.toString());
 										}
 										posTagSequence.addPosTaggedToken(posTaggedToken);
@@ -429,8 +442,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	public Map<String, Object> getAttributes() {
 		Map<String,Object> attributes = new HashMap<String, Object>();
 
-		attributes.put("ftpDebFile", this.ftbDepFile.getName());
 		attributes.put("maxSentenceCount", this.maxSentenceCount);
+		attributes.put("transitionSystem", TalismaneSession.getTransitionSystem().getClass().getSimpleName());
 		
 		int i = 0;
 		for (TokenFilter tokenFilter : this.tokenFilters) {

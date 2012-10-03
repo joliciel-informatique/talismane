@@ -21,7 +21,7 @@ package com.joliciel.lefff;
 import java.io.Serializable;
 import java.util.List;
 
-import com.joliciel.talismane.posTagger.LexicalEntry;
+import com.joliciel.talismane.lexicon.LexicalEntry;
 
 interface LefffEntry extends Entity, Serializable, LexicalEntry {
 	public Word getLefffWord();

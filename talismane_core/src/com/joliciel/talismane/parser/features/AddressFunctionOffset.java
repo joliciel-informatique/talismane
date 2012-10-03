@@ -42,7 +42,8 @@ public class AddressFunctionOffset extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfiguration configuration) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration);
 		FeatureResult<Integer> offsetResult = offsetFeature.check(configuration);

@@ -22,7 +22,6 @@ package com.joliciel.talismane.tokeniser.features;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 
 /**
  * Returns true if this is the last word in the sentence (including punctuation).

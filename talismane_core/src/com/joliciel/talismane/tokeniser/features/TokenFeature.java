@@ -19,23 +19,11 @@
 package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.tokeniser.TokenWrapper;
 
 /**
  * A feature which tests a Token, ignoring any context (e.g. the history of current tagging decisions by a learner).
- * Because token features may be re-used during tokenising and later steps,
- * they should make sure to continue to function if the token sequence has been altered by the tokeniser.
- * This implies, if the feature refers to a token other than the current token, that we get the result directly
- * from that token rather than storing it against the current token.
  * @author Assaf Urieli
  *
  */
 public interface TokenFeature<Y> extends Feature<TokenWrapper,Y> {
-	/**
-	 * Returns true if the feature in question needs to be rechecked each time
-	 * in case the other tokens in the sequence have potentially changed.
-	 * Returns false if the feature in question only depends on the current token.
-	 * @return
-	 */
-	public boolean isDynamic();
 }

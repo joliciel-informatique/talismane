@@ -60,12 +60,7 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 			PerformanceMonitor.endTask("TokeniserContextFeatureParser.parseDescriptor");
 		}
 	}
-	
-	
-	@Override
-	protected Object parseArgument(FunctionDescriptor argumentDescriptor) {
-		return null;
-	}
+
 
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {

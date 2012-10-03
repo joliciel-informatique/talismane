@@ -32,11 +32,6 @@ final class TestParser extends AbstractFeatureParser<TestContext> {
 	}
 
 	@Override
-	protected Object parseArgument(FunctionDescriptor argumentDescriptor) {
-		return null;
-	}
-
-	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {		
 	}
 

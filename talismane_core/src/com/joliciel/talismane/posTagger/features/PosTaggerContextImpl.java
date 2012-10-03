@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -26,7 +29,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-class PosTaggerContextImpl implements PosTaggerContext {
+class PosTaggerContextImpl implements PosTaggerContext, HasFeatureCache {
 	private Token token;
 	private PosTagSequence history;
 	
@@ -42,6 +45,17 @@ class PosTaggerContextImpl implements PosTaggerContext {
 	@Override
 	public PosTagSequence getHistory() {
 		return this.history;
+	}
+
+	@Override
+	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature) {
+		return this.getToken().getResultFromCache(feature);
+	}
+
+	@Override
+	public <T, Y> void putResultInCache(Feature<T, Y> feature,
+			FeatureResult<Y> featureResult) {
+		this.getToken().putResultInCache(feature, featureResult);
 	}
 
 }

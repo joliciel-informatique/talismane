@@ -35,7 +35,12 @@ import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureParser;
 
-class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
+/**
+ * A feature parser for PosTaggerContext features.
+ * @author Assaf Urieli
+ *
+ */
+public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
 	TokenFeatureParser tokenFeatureParser;
 
 	public PosTagFeatureParser(FeatureService featureService) {
@@ -45,9 +50,34 @@ class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("Ngram", NgramFeature.class);
-		container.addFeatureClass("PrevPosTag", PrevPosTagFeature.class);
-		container.addFeatureClass("PrevPosTagIs", PrevPosTagIsFeature.class);
+		container.addFeatureClass("History", PosTaggerHistoryFeature.class);
+		PosTagFeatureParser.addPosTaggedTokenFeatureClasses(container);
 		this.tokenFeatureParser.addFeatureClasses(container);
+	}
+	
+	/**
+	 * Add pos-tagged token feature classes to the container provided.
+	 * @param container
+	 */
+	public static void addPosTaggedTokenFeatureClasses(FeatureClassContainer container) {
+		container.addFeatureClass("PosTag", AssignedPosTagFeature.class);
+		container.addFeatureClass("LexicalForm", WordFormFeature.class);
+		container.addFeatureClass("Lemma", LemmaFeature.class);
+		container.addFeatureClass("Morphology", MorphologyFeature.class);
+		container.addFeatureClass("Gender", GrammaticalGenderFeature.class);
+		container.addFeatureClass("Number", GrammaticalNumberFeature.class);
+		container.addFeatureClass("Person", GrammaticalPersonFeature.class);
+		container.addFeatureClass("Tense", VerbTenseFeature.class);
+		container.addFeatureClass("Category", LexicalCategoryFeature.class);
+		container.addFeatureClass("SubCategory", LexicalSubCategoryFeature.class);
+		container.addFeatureClass("PossessorNumber", PossessorNumberFeature.class);
+		container.addFeatureClass("Index", TokenIndexFeature.class);
+		container.addFeatureClass("PredicateHasFunction", PredicateHasFunctionFeature.class);
+		container.addFeatureClass("PredicateFunctionHasRealisation", PredicateFunctionHasRealisationFeature.class);
+		container.addFeatureClass("PredicateFunctionIsOptional", PredicateFunctionIsOptionalFeature.class);
+		container.addFeatureClass("PredicateFunctionPosition", PredicateFunctionPositionFeature.class);
+		container.addFeatureClass("PredicateHasMacro", PredicateHasMacroFeature.class);		
+		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);		
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -72,12 +102,6 @@ class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
 			wrappedFeatures.add(wrappedFeature);
 		}
 		return wrappedFeatures;
-	}
-	
-	
-	@Override
-	protected Object parseArgument(FunctionDescriptor argumentDescriptor) {
-		return null;
 	}
 
 	@Override
