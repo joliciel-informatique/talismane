@@ -152,7 +152,7 @@ public abstract class AbstractTalismane implements Talismane {
 		String outDirPath = null;
 		String encoding = "UTF-8";
 		String templatePath = null;
-		int beamWidth = 10;
+		int beamWidth = 1;
 		boolean propagateBeam = true;
 		boolean includeDetails = false;
 		String parserModelFilePath = null;

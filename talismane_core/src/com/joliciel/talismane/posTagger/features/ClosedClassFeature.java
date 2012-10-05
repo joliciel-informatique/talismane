@@ -24,7 +24,7 @@ import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * Is this token's pos-tag closed class or open class.
+ * Whether or not the pos-tag assigned to this token is a closed-class category.
  * @author Assaf Urieli
  *
  */
