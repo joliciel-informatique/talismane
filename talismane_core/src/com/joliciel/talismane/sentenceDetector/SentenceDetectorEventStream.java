@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
@@ -52,6 +53,7 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 	
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
+	private MachineLearningService machineLearningService;
 	
 	public SentenceDetectorEventStream(
 			SentenceDetectorAnnotatedCorpusReader corpusReader,
@@ -112,7 +114,7 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 			if (possibleBoundary==realBoundary)
 				classification = SentenceDetectorOutcome.IS_BOUNDARY.name();
 			
-			event = new CorpusEvent(featureResults, classification);
+			event = this.machineLearningService.getCorpusEvent(featureResults, classification);
 			
 			if (currentIndex==possibleBoundaries.size()) {
 				if (currentSentence.endsWith(" "))
@@ -197,6 +199,15 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
 		
 		return attributes;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 
 }

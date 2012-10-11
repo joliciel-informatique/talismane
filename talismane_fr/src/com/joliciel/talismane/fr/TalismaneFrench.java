@@ -30,9 +30,7 @@ import com.joliciel.talismane.AbstractTalismane;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 
 public class TalismaneFrench extends AbstractTalismane {
-	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TalismaneFrench.class);
-	
 
 	/**
 	 * @param args
@@ -54,6 +52,7 @@ public class TalismaneFrench extends AbstractTalismane {
 
 	private static InputStream getInputStreamFromResource(String resource) {
 		String path = "/com/joliciel/talismane/fr/resources/" + resource;
+		LOG.debug("Getting " + path);
 		InputStream inputStream = TalismaneFrench.class.getResourceAsStream(path); 
 		
 		return inputStream;

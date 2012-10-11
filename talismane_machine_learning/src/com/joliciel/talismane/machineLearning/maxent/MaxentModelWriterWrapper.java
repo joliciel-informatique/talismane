@@ -31,11 +31,11 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-public class MaxentModelWriter extends GISModelWriter {
+class MaxentModelWriterWrapper extends GISModelWriter {
 	private final GISModelWriter writer;
 	private OutputStream outputStream;
 	
-	public MaxentModelWriter(MaxentModel model, OutputStream outputStream) {
+	public MaxentModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
 		super(model);
 		writer = new BinaryGISModelWriter(model,
 	            new DataOutputStream(outputStream));

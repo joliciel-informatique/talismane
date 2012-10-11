@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -35,6 +36,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	TokenFeatureService tokenFeatureService;
 	TokeniserPatternService tokeniserPatternService;
 	PosTaggerLexiconService lexiconService;
+	private MachineLearningService machineLearningService;
 
 	@Override
 	public Token getToken(String string, TokenSequence tokenSequence, int index) {
@@ -145,6 +147,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	
 		eventStream.setTokenFeatureService(this.getTokenFeatureService());
 		eventStream.setTokeniserPatternService(this.getTokeniserPatternService());
+		eventStream.setMachineLearningService(this.getMachineLearningService());
 		eventStream.setTokeniserService(this);
 		eventStream.setTokeniserPatternManager(patternManager);
 		return eventStream;
@@ -188,4 +191,17 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		corpusReader.setTokeniserService(this);
 		return corpusReader;
 	}
+
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

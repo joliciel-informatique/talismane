@@ -50,7 +50,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-public class MaxentDetailedAnalysisWriter implements AnalysisObserver {
+class MaxentDetailedAnalysisWriter implements AnalysisObserver {
     private static DecimalFormat decFormat;
 
     private Writer writer;

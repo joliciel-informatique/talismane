@@ -33,10 +33,10 @@ import opennlp.model.EventStream;
  * @author Assaf Urieli
  *
  */
-public class MaxentEventStream implements EventStream {
+class OpenNLPEventStream implements EventStream {
 	private CorpusEventStream corpusEventStream;
 	
-	public MaxentEventStream(CorpusEventStream corpusEventStream) {
+	public OpenNLPEventStream(CorpusEventStream corpusEventStream) {
 		super();
 		this.corpusEventStream = corpusEventStream;
 	}

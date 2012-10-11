@@ -19,39 +19,41 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipInputStream;
 
+import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 
 /**
- * A single classification event in a training or test corpus, combining the results of feature
- * tests and the correct classification.
+ * A service for retrieving implementations of the machineLearning package.
  * @author Assaf Urieli
  *
  */
-public class CorpusEvent {
-	private String classification;
-	private List<FeatureResult<?>> featureResults;
-
-	public CorpusEvent(List<FeatureResult<?>> featureResults,
-			String classification) {
-		super();
-		this.classification = classification;
-		this.featureResults = featureResults;
-	}
-	
+public interface MachineLearningService {
 	/**
-	 * The result of testing the various features on this event.
+	 * Get a CorpusEvent corresponding to the featureResults and classification provided.
+	 * @param featureResults
+	 * @param classification
 	 * @return
 	 */
-	public List<FeatureResult<?>> getFeatureResults() {
-		return featureResults;
-	}
+	public CorpusEvent getCorpusEvent(List<FeatureResult<?>> featureResults,
+			String classification);
 	
 	/**
-	 * The correct classification of this event.
+	 * Get the machine learning model stored in a given ZipInputStream.
+	 * @param <T> the outcome type for this model
+	 * @param zis the zip input stream
 	 * @return
 	 */
-	public String getClassification() {
-		return classification;
-	}
+	public<T extends Outcome> MachineLearningModel<T> getModel(ZipInputStream zis);
+	
+	/**
+	 * Get a model trainer corresponding to a given outcome type and a given algorithm.
+	 * @param <T>
+	 * @param algorithm
+	 * @return
+	 */
+	public<T extends Outcome> ModelTrainer<T> getModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
+	
 }

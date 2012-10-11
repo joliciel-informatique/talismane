@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
@@ -54,6 +55,7 @@ class TokeniserEventStream implements CorpusEventStream {
 	TokenFeatureService tokenFeatureService;
 	TokeniserService tokeniserService;
 	TokeniserPatternService tokeniserPatternService;
+	private MachineLearningService machineLearningService;
 
     TokeniserAnnotatedCorpusReader corpusReader;
     Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
@@ -177,7 +179,7 @@ class TokeniserEventStream implements CorpusEventStream {
 				}
 				
 				String classification = taggedToken.getTag().name();
-				event = new CorpusEvent(tokenFeatureResults, classification);
+				event = this.machineLearningService.getCorpusEvent(tokenFeatureResults, classification);
 				
 				currentHistory.add(taggedToken);
 				if (currentIndex==tokensToCheck.size()) {
@@ -244,4 +246,15 @@ class TokeniserEventStream implements CorpusEventStream {
 	public void setTokenFilters(List<TokenFilter> tokenFilters) {
 		this.tokenFilters = tokenFilters;
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

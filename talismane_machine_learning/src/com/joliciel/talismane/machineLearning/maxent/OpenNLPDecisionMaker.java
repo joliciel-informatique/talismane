@@ -30,11 +30,11 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 
 import opennlp.model.MaxentModel;
 
-public class MaxentDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
+class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	private MaxentModel model;
 	private DecisionFactory<T> decisionFactory;
 	
-	public MaxentDecisionMaker(MaxentModel model) {
+	public OpenNLPDecisionMaker(MaxentModel model) {
 		super();
 		this.model = model;
 	}

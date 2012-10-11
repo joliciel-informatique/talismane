@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
@@ -47,6 +48,7 @@ class PosTagEventStream implements CorpusEventStream {
 	Set<PosTaggerFeature<?>> posTaggerFeatures;
 	PosTaggerFeatureService posTaggerFeatureService;
 	PosTaggerService posTaggerService;
+	MachineLearningService machineLearningService;
 	
 	PosTagSequence currentSentence;
 	PosTagSequence currentHistory;
@@ -116,7 +118,7 @@ class PosTagEventStream implements CorpusEventStream {
 						LOG.trace(result.toString());
 					}
 				}			
-				event = new CorpusEvent(posTagFeatureResults, classification);
+				event = machineLearningService.getCorpusEvent(posTagFeatureResults, classification);
 				
 				currentHistory.addPosTaggedToken(taggedToken);
 				if (currentIndex==currentSentence.size()) {
@@ -154,6 +156,15 @@ class PosTagEventStream implements CorpusEventStream {
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
 		
 		return attributes;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 
 }

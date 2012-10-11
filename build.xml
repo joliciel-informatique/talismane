@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="build" name="talismane-all">
+<project default="jar" name="talismane-all">
     <import file="ant/global.xml"/>
-	<target name="build">
+	<target name="jar">
 		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_utils/build.xml"/>
+			</fileset>
+		</subant>
+		<subant target="jar">
+			<fileset dir=".">
+				<include name="talismane_machine_learning/build.xml"/>
 			</fileset>
 		</subant>
 		<subant target="jar">
@@ -31,6 +36,11 @@
 		<subant target="clean">
 			<fileset dir=".">
 				<include name="talismane_utils/build.xml"/>
+			</fileset>
+		</subant>
+		<subant target="clean">
+			<fileset dir=".">
+				<include name="talismane_machine_learning/build.xml"/>
 			</fileset>
 		</subant>
 		<subant target="clean">

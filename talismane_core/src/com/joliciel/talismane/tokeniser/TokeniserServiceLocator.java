@@ -33,6 +33,7 @@ public class TokeniserServiceLocator {
 			tokeniserService = new TokeniserServiceImpl();
 			tokeniserService.setTokenFeatureService(this.talismaneServiceLocator.getTokeniserFeatureServiceLocator().getTokenFeatureService());
 			tokeniserService.setTokeniserPatternService(this.talismaneServiceLocator.getTokenPatternServiceLocator().getTokeniserPatternService());
+			tokeniserService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return tokeniserService;
 	}

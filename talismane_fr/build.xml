@@ -14,7 +14,6 @@
 		<property name="prettyName" value="Talismane for French" />
 		<property name="sharedLib" value="../lib"/>
 		<property name="dist" value="../dist"/>
-		<property name="lib" value="lib"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
 		<property name="classes" location="${build}/classes" />
@@ -23,11 +22,9 @@
 			<fileset dir="${sharedLib}">
 				<include name="**/*.jar" />
 			</fileset>
-			<fileset dir="${lib}">
-				<include name="**/*.jar" />
-			</fileset>
 			<fileset dir="${dist}">
 				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
 			</fileset>
@@ -85,11 +82,9 @@
 				<fileset dir="${sharedLib}">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
 				<fileset dir="${dist}">
 					<include name="talismane-utils-${talismane.version}.jar" />
+					<include name="talismane-machineLearning-${talismane.version}.jar" />
 					<include name="talismane-core-${talismane.version}.jar" />
 					<include name="talismane-lefff-${talismane.version}.jar" />
 				</fileset>

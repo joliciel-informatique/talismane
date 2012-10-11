@@ -29,6 +29,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.tokeniser.Token;
@@ -39,6 +40,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerFeatureService posTaggerFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
+	MachineLearningService machineLearningService;
 
 	@Override
 	public PosTagger getPosTagger(
@@ -126,6 +128,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagEventStream eventStream = new PosTagEventStream(corpusReader, posTaggerFeatures);
 		eventStream.setPosTaggerFeatureService(posTaggerFeatureService);
 		eventStream.setPosTaggerService(posTaggerService);
+		eventStream.setMachineLearningService(machineLearningService);
 		return eventStream;
 	}
 
@@ -154,6 +157,15 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		corpusReader.setPosTaggerServiceInternal(this);
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		return corpusReader;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 }
