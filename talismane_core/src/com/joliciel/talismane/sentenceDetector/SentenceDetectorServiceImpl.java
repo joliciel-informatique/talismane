@@ -7,6 +7,7 @@ import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -14,6 +15,7 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	TokeniserService tokeniserService;
+	private MachineLearningService machineLearningService;
 	
 	@Override
 	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text,
@@ -66,6 +68,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		SentenceDetectorEventStream eventStream = new SentenceDetectorEventStream(corpusReader, features);
 		eventStream.setSentenceDetectorService(this);
 		eventStream.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
+		eventStream.setMachineLearningService(machineLearningService);
 		eventStream.setFilters(filters);
 		return eventStream;
 	}
@@ -74,6 +77,15 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	public DecisionFactory<SentenceDetectorOutcome> getDecisionFactory() {
 		SentenceDetectorDecisionFactory factory = new SentenceDetectorDecisionFactory();
 		return factory;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 
 }

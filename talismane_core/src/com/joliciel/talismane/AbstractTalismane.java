@@ -48,8 +48,9 @@ import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
 import com.joliciel.talismane.filters.NewlineNormaliser;
 import com.joliciel.talismane.filters.RegexFindReplaceFilter;
 import com.joliciel.talismane.filters.TextStreamFilter;
-import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
-import com.joliciel.talismane.machineLearning.maxent.MaxentDetailedAnalysisWriter;
+import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -287,6 +288,8 @@ public abstract class AbstractTalismane implements Talismane {
 			ParserService parserService = talismaneServiceLocator.getParserServiceLocator().getParserService();
 			ParserFeatureService parserFeatureService = talismaneServiceLocator.getParserFeatureServiceLocator().getParserFeatureService();
 
+			MachineLearningService machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
+			
 			Scanner posTagSetScanner = null;
 			if (posTagSetPath==null||posTagSetPath.length()==0) {
 				posTagSetScanner = new Scanner(this.getDefaultPosTagSetFromStream());
@@ -369,15 +372,16 @@ public abstract class AbstractTalismane implements Talismane {
 				this.addTextStreamFilter(new NewlineNormaliser());
 
 				if (this.needsSentenceDetector()) {
-					JolicielMaxentModel<SentenceDetectorOutcome> sentenceModelFileMaxentModel = null;
+					LOG.debug("Getting sentence detector model");
+					MachineLearningModel<SentenceDetectorOutcome> sentenceModel = null;
 					if (sentenceModelFilePath!=null) {
-						sentenceModelFileMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
+						sentenceModel = machineLearningService.getModel(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
 					} else {
-						sentenceModelFileMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(this.getDefaultSentenceModelStream());
+						sentenceModel = machineLearningService.getModel(this.getDefaultSentenceModelStream());
 					}
 					Set<SentenceDetectorFeature<?>> sentenceDetectorFeatures =
-						sentenceDetectorFeatureService.getFeatureSet(sentenceModelFileMaxentModel.getFeatureDescriptors());
-					SentenceDetector sentenceDetector = sentenceDetectorService.getSentenceDetector(sentenceModelFileMaxentModel.getDecisionMaker(), sentenceDetectorFeatures);
+						sentenceDetectorFeatureService.getFeatureSet(sentenceModel.getFeatureDescriptors());
+					SentenceDetector sentenceDetector = sentenceDetectorService.getSentenceDetector(sentenceModel.getDecisionMaker(), sentenceDetectorFeatures);
 			
 					this.setSentenceDetector(sentenceDetector);
 					
@@ -403,22 +407,23 @@ public abstract class AbstractTalismane implements Talismane {
 				}
 				
 				if (this.needsTokeniser()) {
-					JolicielMaxentModel<TokeniserOutcome> tokeniserJolicielMaxentModel = null;
+					LOG.debug("Getting tokeniser model");
+					MachineLearningModel<TokeniserOutcome> tokeniserModel = null;
 					if (tokeniserModelFilePath!=null) {
-						tokeniserJolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
+						tokeniserModel = machineLearningService.getModel(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
 					} else {
-						tokeniserJolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(this.getDefaultTokeniserModelStream());
+						tokeniserModel = machineLearningService.getModel(this.getDefaultTokeniserModelStream());
 					}
 	
-					TokeniserPatternManager tokeniserPatternManager = tokeniserPatternService.getPatternManager(tokeniserJolicielMaxentModel.getPatternDescriptors());
-					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserJolicielMaxentModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
-					Tokeniser tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserJolicielMaxentModel.getDecisionMaker(), beamWidth);
+					TokeniserPatternManager tokeniserPatternManager = tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
+					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
+					Tokeniser tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
 	
 					if (includeDetails) {
 						String detailsFilePath = outFilePath.substring(0, outFilePath.lastIndexOf(".")) + "_tokeniser_details.txt";
 						File detailsFile = new File(detailsFilePath);
 						detailsFile.delete();
-						MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(tokeniserJolicielMaxentModel.getModel(), detailsFile);
+						AnalysisObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
 						tokeniser.addObserver(observer);
 					}
 					
@@ -431,14 +436,15 @@ public abstract class AbstractTalismane implements Talismane {
 				}
 				
 				if (this.needsPosTagger()) {				
-					JolicielMaxentModel<PosTag> posTaggerJolicielMaxentModel = null;
+					LOG.debug("Getting pos-tagger model");
+					MachineLearningModel<PosTag> posTaggerModel = null;
 					if (posTaggerModelFilePath!=null) {
-						posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
+						posTaggerModel = machineLearningService.getModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
 					} else {
-						posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(this.getDefaultPosTaggerModelStream());
+						posTaggerModel = machineLearningService.getModel(this.getDefaultPosTaggerModelStream());
 					}
-					Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerJolicielMaxentModel.getFeatureDescriptors());
-					PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerJolicielMaxentModel.getDecisionMaker(), beamWidth);
+					Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerModel.getFeatureDescriptors());
+					PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerModel.getDecisionMaker(), beamWidth);
 					
 					if (!this.needsTokeniser()) {
 						posTagger.addPreprocessingFilter(new NumberFilter());
@@ -454,7 +460,7 @@ public abstract class AbstractTalismane implements Talismane {
 						String detailsFilePath = outFilePath.substring(0, outFilePath.lastIndexOf(".")) + "_posTagger_details.txt";
 						File detailsFile = new File(detailsFilePath);
 						detailsFile.delete();
-						MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(posTaggerJolicielMaxentModel.getModel(), detailsFile);
+						AnalysisObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 						posTagger.addObserver(observer);
 					}
 					
@@ -462,19 +468,20 @@ public abstract class AbstractTalismane implements Talismane {
 				}
 				
 				if (this.needsParser()) {
-					JolicielMaxentModel<Transition> parserJolicielMaxentModel = null;
+					LOG.debug("Getting parser model");
+					MachineLearningModel<Transition> parserModel = null;
 					if (parserModelFilePath!=null) {
-						parserJolicielMaxentModel = new JolicielMaxentModel<Transition>(new ZipInputStream(new FileInputStream(parserModelFilePath)));
+						parserModel = machineLearningService.getModel(new ZipInputStream(new FileInputStream(parserModelFilePath)));
 					} else {
-						parserJolicielMaxentModel = new JolicielMaxentModel<Transition>(this.getDefaultParserModelStream());
+						parserModel = machineLearningService.getModel(this.getDefaultParserModelStream());
 					}
-					NonDeterministicParser parser = parserService.getTransitionBasedParser(parserJolicielMaxentModel, beamWidth);
+					NonDeterministicParser parser = parserService.getTransitionBasedParser(parserModel, beamWidth);
 	
 					if (includeDetails) {
 						String detailsFilePath = outFilePath.substring(0, outFilePath.lastIndexOf(".")) + "_parser_details.txt";
 						File detailsFile = new File(detailsFilePath);
 						detailsFile.delete();
-						MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(parserJolicielMaxentModel.getModel(), detailsFile);
+						AnalysisObserver observer = parserModel.getDetailedAnalysisObserver(detailsFile);
 						parser.addObserver(observer);
 					}
 					TalismaneSession.setTransitionSystem(parser.getTransitionSystem());
@@ -579,14 +586,14 @@ public abstract class AbstractTalismane implements Talismane {
 					FScoreCalculator<String> fScoreCalculator = null;
 					
 					try {
-						JolicielMaxentModel<PosTag> posTaggerJolicielMaxentModel = null;
+						MachineLearningModel<PosTag> posTaggerModel = null;
 						if (posTaggerModelFilePath!=null) {
-							posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
+							posTaggerModel = machineLearningService.getModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
 						} else {
-							posTaggerJolicielMaxentModel = new JolicielMaxentModel<PosTag>(this.getDefaultPosTaggerModelStream());
+							posTaggerModel = machineLearningService.getModel(this.getDefaultPosTaggerModelStream());
 						}
-						Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerJolicielMaxentModel.getFeatureDescriptors());
-						PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerJolicielMaxentModel.getDecisionMaker(), beamWidth);
+						Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerModel.getFeatureDescriptors());
+						PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerModel.getDecisionMaker(), beamWidth);
 
 						posTagger.setPosTaggerRules(this.getPosTaggerRules());
 
@@ -594,7 +601,7 @@ public abstract class AbstractTalismane implements Talismane {
 							String detailsFilePath = baseName + "_posTagger_details.txt";
 							File detailsFile = new File(outDir, detailsFilePath);
 							detailsFile.delete();
-							MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(posTaggerJolicielMaxentModel.getModel(), detailsFile);
+							AnalysisObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 							posTagger.addObserver(observer);
 						}
 						
@@ -658,21 +665,21 @@ public abstract class AbstractTalismane implements Talismane {
 					FScoreCalculator<String> fScoreCalculator = null;
 					
 					try {
-						JolicielMaxentModel<Transition> parserJolicielMaxentModel = null;
+						MachineLearningModel<Transition> parserModel = null;
 						if (posTaggerModelFilePath!=null) {
-							parserJolicielMaxentModel = new JolicielMaxentModel<Transition>(new ZipInputStream(new FileInputStream(parserModelFilePath)));
+							parserModel = machineLearningService.getModel(new ZipInputStream(new FileInputStream(parserModelFilePath)));
 						} else {
-							parserJolicielMaxentModel = new JolicielMaxentModel<Transition>(this.getDefaultParserModelStream());
+							parserModel = machineLearningService.getModel(this.getDefaultParserModelStream());
 						}
-						TalismaneSession.setTransitionSystem((TransitionSystem) parserJolicielMaxentModel.getDecisionMaker().getDecisionFactory());
-						Set<ParseConfigurationFeature<?>> parserFeatures = parserFeatureService.getFeatures(parserJolicielMaxentModel.getFeatureDescriptors());
-						Parser parser = parserService.getTransitionBasedParser(parserJolicielMaxentModel.getDecisionMaker(), TalismaneSession.getTransitionSystem(), parserFeatures, beamWidth);
+						TalismaneSession.setTransitionSystem((TransitionSystem) parserModel.getDecisionMaker().getDecisionFactory());
+						Set<ParseConfigurationFeature<?>> parserFeatures = parserFeatureService.getFeatures(parserModel.getFeatureDescriptors());
+						Parser parser = parserService.getTransitionBasedParser(parserModel.getDecisionMaker(), TalismaneSession.getTransitionSystem(), parserFeatures, beamWidth);
 						
 						if (includeDetails) {
 							String detailsFilePath = baseName + "_posTagger_details.txt";
 							File detailsFile = new File(outDir, detailsFilePath);
 							detailsFile.delete();
-							MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(parserJolicielMaxentModel.getModel(), detailsFile);
+							AnalysisObserver observer = parserModel.getDetailedAnalysisObserver(detailsFile);
 							parser.addObserver(observer);
 						}
 						

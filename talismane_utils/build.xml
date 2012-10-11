@@ -10,16 +10,12 @@
 		<property name="prettyName" value="Talismane Utililities" />
 		<property name="sharedLib" value="../lib"/>
 		<property name="dist" value="../dist"/>
-		<property name="lib" value="lib"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
 		<property name="classes" location="${build}/classes" />
 		<property name="doc" location="${build}/doc" />
 		<path id="classpath">
 			<fileset dir="${sharedLib}">
-				<include name="**/*.jar" />
-			</fileset>
-			<fileset dir="${lib}">
 				<include name="**/*.jar" />
 			</fileset>
 			<!-- build output path -->

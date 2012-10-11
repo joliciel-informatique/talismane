@@ -7,7 +7,8 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -19,6 +20,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	ParserFeatureService parseFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
+	MachineLearningService macheLearningService;
 	
 	@Override
 	public DependencyArc getDependencyArc(PosTaggedToken head,
@@ -55,6 +57,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			Set<ParseConfigurationFeature<?>> parseFeatures) {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
 		eventStream.setParserServiceInternal(this);
+		eventStream.setMachineLearningService(this.getMacheLearningService());
 		return eventStream;
 	}
 
@@ -79,7 +82,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(
-			JolicielMaxentModel<Transition> jolicielMaxentModel, int beamWidth) {
+			MachineLearningModel<Transition> jolicielMaxentModel, int beamWidth) {
 		DecisionMaker<Transition> decisionMaker = jolicielMaxentModel.getDecisionMaker();
 		TransitionSystem transitionSystem = null;
 		String transitionSystemClassName = (String) jolicielMaxentModel.getModelAttributes().get("transitionSystem");
@@ -136,6 +139,14 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	public void setTokeniserService(TokeniserService tokeniserService) {
 		this.tokeniserService = tokeniserService;
+	}
+
+	public MachineLearningService getMacheLearningService() {
+		return macheLearningService;
+	}
+
+	public void setMacheLearningService(MachineLearningService macheLearningService) {
+		this.macheLearningService = macheLearningService;
 	}
 	
 	

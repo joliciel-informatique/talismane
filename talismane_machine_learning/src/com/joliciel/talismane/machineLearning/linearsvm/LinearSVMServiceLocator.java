@@ -16,31 +16,26 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning;
+package com.joliciel.talismane.machineLearning.linearsvm;
 
-import java.util.Map;
-
-/**
- * An interface for reading corpus events from a training or test corpus.
- * @author Assaf
- *
- */
-public interface CorpusEventStream {
-	/**
-	 * Does this event reader have any more events to read?
-	 * @return
-	 */
-	public boolean hasNext();
+public class LinearSVMServiceLocator {
+	private static LinearSVMServiceLocator instance;
 	
-	/**
-	 * The next event to read.
-	 * @return
-	 */
-	public CorpusEvent next();
+	private LinearSVMServiceImpl linearSVMService;
 	
-	/**
-	 * Get the attributes defining this event stream.
-	 * @return
-	 */
-	public Map<String,Object> getAttributes();
+	private LinearSVMServiceLocator() { }
+	
+	public static LinearSVMServiceLocator getInstance() {
+		if (instance==null) {
+			instance = new LinearSVMServiceLocator();
+		}
+		return instance;
+	}
+	
+	public LinearSVMService getLinearSVMService() {
+		if (linearSVMService == null) {
+			linearSVMService = new LinearSVMServiceImpl();
+		}
+		return linearSVMService;
+	}
 }

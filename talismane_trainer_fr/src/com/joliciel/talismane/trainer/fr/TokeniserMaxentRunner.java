@@ -2,13 +2,18 @@ package com.joliciel.talismane.trainer.fr;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,8 +29,14 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
-import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
+import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
+import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
+import com.joliciel.talismane.machineLearning.maxent.PerceptronModelTrainer;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -71,6 +82,14 @@ public class TokeniserMaxentRunner {
 		int startSentence = 0;
 		String posTagSetPath = "";
 		String sentenceNumber = "";
+		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+		
+		double constraintViolationCost = -1;
+		double epsilon = -1;
+		LinearSVMSolverType solverType = null;
+		boolean perceptronAveraging = false;
+		boolean perceptronSkippedAveraging = false;
+		double perceptronTolerance = -1;
 
 		boolean firstArg = true;
 		for (String arg : args) {
@@ -109,6 +128,20 @@ public class TokeniserMaxentRunner {
 				sentenceNumber = argValue;
 			else if (argName.equals("beamWidth"))
 				beamWidth = Integer.parseInt(argValue);
+			else if (argName.equals("algorithm"))
+				algorithm = MachineLearningAlgorithm.valueOf(argValue);
+			else if (argName.equals("linearSVMSolver"))
+				solverType = LinearSVMSolverType.valueOf(argValue);
+			else if (argName.equals("linearSVMCost"))
+				constraintViolationCost = Double.parseDouble(argValue);
+			else if (argName.equals("linearSVMEpsilon"))
+				epsilon = Double.parseDouble(argValue);
+			else if (argName.equals("perceptronAveraging"))
+				perceptronAveraging = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronSkippedAveraging"))
+				perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronTolerance"))
+				perceptronTolerance = Double.parseDouble(argValue);
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -153,6 +186,8 @@ public class TokeniserMaxentRunner {
 			TreebankService treebankService = treebankServiceLocator.getTreebankService();
 	        TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
 	        TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
+
+			MachineLearningService machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
 
 			if (command.equals("train")) {
 				if (tokeniserModelFilePath.length()==0)
@@ -210,14 +245,37 @@ public class TokeniserMaxentRunner {
 				Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(featureDescriptors, tokeniserPatternManager.getParsedTestPatterns());
 	
 				CorpusEventStream tokeniserEventStream = tokeniserService.getTokeniserEventStream(reader, tokeniserContextFeatures, tokeniserPatternManager);
-				MaxentModelTrainer modelTrainer = new MaxentModelTrainer(tokeniserEventStream);
-				modelTrainer.setCutoff(cutoff);
-				modelTrainer.setIterations(iterations);
-	
+				
+				Map<String,Object> trainParameters = new HashMap<String, Object>();
+				if (algorithm.equals(MachineLearningAlgorithm.MaxEnt)) {
+					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Iterations.name(), iterations);
+					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Cutoff.name(), cutoff);
+				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.UseAverage.name(), perceptronAveraging);
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.UseSkippedAverage.name(), perceptronSkippedAveraging);					
+					if (perceptronTolerance>=0)
+						trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
+				} else if (algorithm.equals(MachineLearningAlgorithm.LinearSVM)) {
+					trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Cutoff.name(), cutoff);
+					if (solverType!=null)
+						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.SolverType.name(), solverType);
+					if (constraintViolationCost>=0)
+						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.ConstraintViolationCost.name(), constraintViolationCost);
+					if (epsilon>=0)
+						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Epsilon.name(), epsilon);
+				}
+
+				ModelTrainer<TokeniserOutcome> trainer = machineLearningService.getModelTrainer(algorithm, trainParameters);
+				
 				DecisionFactory<TokeniserOutcome> decisionFactory = tokeniserService.getDecisionFactory();
-				JolicielMaxentModel<TokeniserOutcome> jolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(modelTrainer, featureDescriptors, decisionFactory);
-				jolicielMaxentModel.setPatternDescriptors(patternDescriptors);
-				jolicielMaxentModel.persist(tokeniserModelFile);
+				Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
+				descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+				descriptors.put(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
+				MachineLearningModel<TokeniserOutcome> tokeniserModel = trainer.trainModel(tokeniserEventStream, decisionFactory, descriptors);
+	
+				tokeniserModel.persist(tokeniserModelFile);
 	
 			} else if (command.equals("evaluate")) {
 				TreebankReader treebankReader = null;
@@ -257,16 +315,17 @@ public class TokeniserMaxentRunner {
 					} else {
 						if (tokeniserModelFilePath.length()==0)
 							throw new RuntimeException("Missing argument: tokeniserModel");
-						File tokeniserModelFile = new File(tokeniserModelFilePath);
-						JolicielMaxentModel<TokeniserOutcome> tokeniserJolicielMaxentModel = new JolicielMaxentModel<TokeniserOutcome>(tokeniserModelFile);
+						ZipInputStream zis = new ZipInputStream(new FileInputStream(tokeniserModelFilePath));
+						MachineLearningModel<TokeniserOutcome> tokeniserModel = machineLearningService.getModel(zis);
+
 						TokeniserPatternManager tokeniserPatternManager =
-							tokeniserPatternService.getPatternManager(tokeniserJolicielMaxentModel.getPatternDescriptors());
-						Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserJolicielMaxentModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
+							tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
+						Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
 	
 						if (tokeniserType.equalsIgnoreCase("pattern")) {
 							tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, null, beamWidth);
 						} else if (tokeniserType.equalsIgnoreCase("maxent")) {
-							tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserJolicielMaxentModel.getDecisionMaker(), beamWidth);
+							tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
 							
 						} else {
 							throw new RuntimeException("Unknown tokeniser type: " + tokeniserType);

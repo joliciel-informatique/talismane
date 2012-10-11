@@ -126,8 +126,8 @@ public class TestParserTest {
 		if (feature instanceof FeatureWrapper)
 			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
 		LOG.debug(feature.getClass());
-		assertTrue(feature instanceof EqualsOperator);
-		EqualsOperator<TestContext> equalsOperator = (EqualsOperator<TestContext>) feature;
+		assertTrue(feature instanceof EqualsOperatorForInteger);
+		EqualsOperatorForInteger<TestContext> equalsOperator = (EqualsOperatorForInteger<TestContext>) feature;
 		feature = equalsOperator.getOperand1();
 		assertTrue(feature instanceof PlusIntegerOperator);
 		

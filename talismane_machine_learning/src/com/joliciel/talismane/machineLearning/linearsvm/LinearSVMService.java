@@ -16,32 +16,28 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.machineLearning.linearsvm;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.Outcome;
 
-import opennlp.maxent.io.GISModelReader;
-import opennlp.model.AbstractModel;
-import opennlp.model.AbstractModelReader;
-import opennlp.model.BinaryFileDataReader;
-
-public class MaxentModelReader extends AbstractModelReader {
-	AbstractModelReader reader = null;
+/**
+ * A service for retrieving implementations of the linear SVM package.
+ * @author Assaf Urieli
+ *
+ */
+public interface LinearSVMService {
+	/**
+	 * Returns a linear SVM model trainer.
+	 * @param <T>
+	 * @return
+	 */
+	public<T extends Outcome> LinearSVMModelTrainer<T> getLinearSVMModelTrainer();
 	
-	public MaxentModelReader(InputStream inputStream) {
-		super(new BinaryFileDataReader(inputStream));
-		reader = new GISModelReader(super.dataReader);
-	}
-
-	@Override
-	public void checkModelType() throws IOException {
-		reader.checkModelType();
-	}
-
-	@Override
-	public AbstractModel constructModel() throws IOException {
-		return reader.constructModel();
-	}
-
+	/**
+	 * Get an "empty" linear SVM model.
+	 * @param <T>
+	 * @return
+	 */
+	public<T extends Outcome> MachineLearningModel<T> getLinearSVMModel();
 }

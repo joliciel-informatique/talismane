@@ -16,9 +16,8 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Jochre.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.machineLearning;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,51 +27,48 @@ import java.util.Random;
 import java.util.TreeSet;
 import java.util.Set;
 
-import opennlp.model.Event;
-import opennlp.model.EventStream;
-
 /**
  * An event stream that guarantees that no outcome will appear more than 
  * n times more than the minimum outcome.
  * @author Assaf Urieli
  *
  */
-public class OutcomeEqualiserEventStream implements EventStream {
+public class OutcomeEqualiserEventStream implements CorpusEventStream {
 	
-	EventStream originalEventStream = null;
-	List<Event> eventList = null;
+	CorpusEventStream originalEventStream = null;
+	List<CorpusEvent> eventList = null;
 	int eventIndex = 0;
 	double multiple = 1;
 	
-	public OutcomeEqualiserEventStream(EventStream originalEventStream, double multiple) {
+	public OutcomeEqualiserEventStream(CorpusEventStream originalEventStream, double multiple) {
 		super();
 		this.originalEventStream = originalEventStream;
 		this.multiple = multiple;
 	}
 
 	@Override
-	public Event next() throws IOException {
-		Event event = eventList.get(eventIndex);
+	public CorpusEvent next() {
+		CorpusEvent event = eventList.get(eventIndex);
 		eventIndex++;
 		return event;
 	}
 
 	@Override
-	public boolean hasNext() throws IOException {
+	public boolean hasNext() {
 		this.initialiseStream();
 		return (eventIndex<eventList.size());
 	}
 
-	void initialiseStream() throws IOException {
+	void initialiseStream() {
 		if (eventList==null) {
-			Map<String,List<Event>> eventOutcomeMap = new HashMap<String, List<Event>>();
+			Map<String,List<CorpusEvent>> eventOutcomeMap = new HashMap<String, List<CorpusEvent>>();
 			while (originalEventStream.hasNext())
 			{
-				Event event = originalEventStream.next();
-				List<Event> eventsPerOutcome = eventOutcomeMap.get(event.getOutcome());
+				CorpusEvent event = originalEventStream.next();
+				List<CorpusEvent> eventsPerOutcome = eventOutcomeMap.get(event.getClassification());
 				if (eventsPerOutcome==null) {
-					eventsPerOutcome = new ArrayList<Event>();
-					eventOutcomeMap.put(event.getOutcome(), eventsPerOutcome);
+					eventsPerOutcome = new ArrayList<CorpusEvent>();
+					eventOutcomeMap.put(event.getClassification(), eventsPerOutcome);
 				}
 				eventsPerOutcome.add(event);
 			}
@@ -89,14 +85,14 @@ public class OutcomeEqualiserEventStream implements EventStream {
 			
 			Random random = new Random(new Date().getTime());
 
-			eventList = new ArrayList<Event>();
+			eventList = new ArrayList<CorpusEvent>();
 			eventList.addAll(eventOutcomeMap.get(minOutcome));
 			
 			int maxSize = (int) ((double)minSize * multiple);
 			for (String outcome : eventOutcomeMap.keySet()) {
 				if (outcome.equals(minOutcome))
 					continue;
-				List<Event> eventsPerOutcome = eventOutcomeMap.get(outcome);
+				List<CorpusEvent> eventsPerOutcome = eventOutcomeMap.get(outcome);
 				if (eventsPerOutcome.size()<=maxSize)
 					eventList.addAll(eventsPerOutcome);
 				else {
@@ -109,11 +105,16 @@ public class OutcomeEqualiserEventStream implements EventStream {
 							index = random.nextInt(eventsPerOutcome.size());
 						usedUp.add(index);
 						
-						Event event = eventsPerOutcome.get(index);
+						CorpusEvent event = eventsPerOutcome.get(index);
 						eventList.add(event);
 					} // next randomly selected event
 				}
 			}
 		}
+	}
+
+	@Override
+	public Map<String, Object> getAttributes() {
+		return originalEventStream.getAttributes();
 	}
 }

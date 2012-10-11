@@ -24,6 +24,7 @@
 			</fileset>
 			<fileset dir="${dist}">
 				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 			</fileset>
 			<!-- build output path -->

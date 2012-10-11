@@ -18,17 +18,22 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 import opennlp.maxent.GISTrainer;
-import opennlp.maxent.io.SuffixSensitiveGISModelWriter;
 import opennlp.model.DataIndexer;
 import opennlp.model.EventStream;
 import opennlp.model.MaxentModel;
@@ -39,75 +44,56 @@ import opennlp.model.TwoPassRealValueDataIndexer;
  * @author Assaf Urieli
  *
  */
-public class MaxentModelTrainer {
+class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T> {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(MaxentModelTrainer.class);
+	private static final Log LOG = LogFactory.getLog(MaxentModelTrainerImpl.class);
 	
 	private int iterations = 100;
 	private int cutoff = 5;
 	private double sigma = 0;
 	private double smoothing = 0;
-	private MaxentModel model = null;
-	private CorpusEventStream corpusEventStream;
-	private EventStream eventStream;
+
 	
-	public MaxentModelTrainer(CorpusEventStream corpusEventStream) {
-		super();
-		this.corpusEventStream = corpusEventStream;
-		this.eventStream = new MaxentEventStream(corpusEventStream);
+	@Override
+	public MachineLearningModel<T> trainModel(
+			CorpusEventStream corpusEventStream,
+			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
+		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
+		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+		return this.trainModel(corpusEventStream, decisionFactory, descriptors);
 	}
 
-	public MaxentModelTrainer(EventStream eventStream) {
-		super();
-		this.eventStream = eventStream;
-	}
-
-	public MaxentModel trainModel() {
+	@Override
+	public MachineLearningModel<T> trainModel(
+			CorpusEventStream corpusEventStream,
+			DecisionFactory<T> decisionFactory,
+			Map<String,List<String>> descriptors) {
+		MaxentModel maxentModel = null;
+		EventStream eventStream = new OpenNLPEventStream(corpusEventStream);
 		try {
 	    	DataIndexer dataIndexer = new TwoPassRealValueDataIndexer(eventStream, cutoff);
 			GISTrainer trainer = new GISTrainer(true);
 
 			PerformanceMonitor.startTask("MaxentModelTrainer.trainModel");
 			try {
-				model =  trainer.trainModel(iterations, dataIndexer, cutoff);
+				maxentModel =  trainer.trainModel(iterations, dataIndexer, cutoff);
 			} finally {
 				PerformanceMonitor.endTask("MaxentModelTrainer.trainModel");
 			}
-			
-			return model;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-    }
-	
-	/**
-	 * Persist the model to a file.
-	 * @param outputFile
-	 */
-	public void persistModel(File outputFile) {
-		try {
-			new SuffixSensitiveGISModelWriter(model, outputFile).persist();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	/**
-	 * Persist the model to an ouput stream.
-	 * @param outputStream
-	 */
-	public void persistModel(OutputStream outputStream) {
-		try {
-			new MaxentModelWriter(model, outputStream).persist();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		MaximumEntropyModel<T> model = new MaximumEntropyModel<T>(maxentModel, descriptors, decisionFactory);
+		model.addModelAttribute("cutoff", this.getCutoff());
+		model.addModelAttribute("iterations", this.getIterations());
+		model.addModelAttribute("sigma", this.getSigma());
+		model.addModelAttribute("smoothing", this.getSmoothing());
+		
+		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
+
+		return model;
 	}
 
-	/**
-	 * The number of iterations for Maxent training.
-	 * @return
-	 */
 	public int getIterations() {
 		return iterations;
 	}
@@ -117,11 +103,6 @@ public class MaxentModelTrainer {
 		this.iterations = iterations;
 	}
 
-	/**
-	 * Cutoff for maxent training - features must appear at least this many times to be included in the model.
-	 * Note that for numeric features, any value > 0 counts as 1 time for cutoff purposes.
-	 * @return
-	 */
 	public int getCutoff() {
 		return cutoff;
 	}
@@ -154,11 +135,32 @@ public class MaxentModelTrainer {
 		this.smoothing = smoothing;
 	}
 
-	/**
-	 * The corpus event stream which will be used to build the model.
-	 */
-	public CorpusEventStream getCorpusEventStream() {
-		return corpusEventStream;
+	@Override
+	public void setParameters(Map<String, Object> parameters) {
+		if (parameters!=null) {
+			for (String parameter : parameters.keySet()) {
+				MaxentModelParameter modelParameter = MaxentModelParameter.valueOf(parameter);
+				Object value = parameters.get(parameter);
+				if (!modelParameter.getParameterType().isAssignableFrom(value.getClass())) {
+					throw new JolicielException("Parameter of wrong type: " + parameter + ". Expected: " + modelParameter.getParameterType().getSimpleName());
+				}
+				switch (modelParameter) {
+				case Iterations:
+					this.setIterations((Integer)value);
+					break;
+				case Cutoff:
+					this.setCutoff((Integer)value);
+					break;
+				case Sigma:
+					this.setSigma((Double)value);
+					break;
+				case Smoothing:
+					this.setSmoothing((Double)value);
+					break;
+				default:
+					throw new JolicielException("Unknown parameter type: " + modelParameter);
+				}
+			}
+		}
 	}
-	
 }

@@ -29,6 +29,8 @@ import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 
 public interface TokeniserPatternService {
+	public static final String PATTERN_DESCRIPTOR_KEY = "pattern";
+	
 	public TokeniserPatternManager getPatternManager(List<String> patternDescriptors);
 	
 	public TokeniserPatternManager getDefaultPatternManager(Locale locale);

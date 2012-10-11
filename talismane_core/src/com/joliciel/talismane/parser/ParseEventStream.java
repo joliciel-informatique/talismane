@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.utils.PerformanceMonitor;
@@ -48,6 +49,7 @@ class ParseEventStream implements CorpusEventStream {
 	ParseConfiguration currentConfiguration;
 	
 	ParserServiceInternal parserServiceInternal;
+	MachineLearningService machineLearningService;
 
 	int currentIndex;
 	
@@ -109,7 +111,7 @@ class ParseEventStream implements CorpusEventStream {
 				
 				Transition transition = targetConfiguration.getTransitions().get(currentIndex);
 				String classification = transition.getCode();
-				event = new CorpusEvent(parseFeatureResults, classification);
+				event = this.machineLearningService.getCorpusEvent(parseFeatureResults, classification);
 				
 				// apply the transition and up the index
 				currentConfiguration = parserServiceInternal.getConfiguration(currentConfiguration);
@@ -142,6 +144,15 @@ class ParseEventStream implements CorpusEventStream {
 
 	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
 		this.parserServiceInternal = parserServiceInternal;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 
 	

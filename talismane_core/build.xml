@@ -10,7 +10,6 @@
 		<property name="prettyName" value="Talismane Core" />
 		<property name="sharedLib" value="../lib"/>
 		<property name="dist" value="../dist"/>
-		<property name="lib" value="lib"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
 		<property name="classes" location="${build}/classes" />
@@ -19,10 +18,10 @@
 			<fileset dir="${sharedLib}">
 				<include name="**/*.jar" />
 			</fileset>
-			<fileset dir="${lib}">
-				<include name="**/*.jar" />
+			<fileset dir="${dist}">
+				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
 			</fileset>
-			<fileset file="${dist}/talismane-utils-${talismane.version}.jar" />
 			<!-- build output path -->
 			<pathelement location="${classes}"/>
 		</path>

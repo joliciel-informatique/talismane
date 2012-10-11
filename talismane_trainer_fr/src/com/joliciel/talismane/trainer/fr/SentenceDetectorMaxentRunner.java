@@ -2,13 +2,18 @@ package com.joliciel.talismane.trainer.fr;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,8 +28,14 @@ import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
 import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
-import com.joliciel.talismane.machineLearning.maxent.JolicielMaxentModel;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
+import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
+import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
+import com.joliciel.talismane.machineLearning.maxent.PerceptronModelTrainer;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
@@ -55,7 +66,15 @@ public class SentenceDetectorMaxentRunner {
 			int cutoff = 0;
 			int sentenceCount = 0;
 			int startSentence = 0;
-	
+			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+			
+			double constraintViolationCost = -1;
+			double epsilon = -1;
+			LinearSVMSolverType solverType = null;
+			boolean perceptronAveraging = false;
+			boolean perceptronSkippedAveraging = false;
+			double perceptronTolerance = -1;
+			
 			boolean firstArg = true;
 			for (String arg : args) {
 				if (firstArg) {
@@ -81,6 +100,20 @@ public class SentenceDetectorMaxentRunner {
 					startSentence = Integer.parseInt(argValue);
 				else if (argName.equals("treebank"))
 					treebankPath = argValue;
+				else if (argName.equals("algorithm"))
+					algorithm = MachineLearningAlgorithm.valueOf(argValue);
+				else if (argName.equals("linearSVMSolver"))
+					solverType = LinearSVMSolverType.valueOf(argValue);
+				else if (argName.equals("linearSVMCost"))
+					constraintViolationCost = Double.parseDouble(argValue);
+				else if (argName.equals("linearSVMEpsilon"))
+					epsilon = Double.parseDouble(argValue);
+				else if (argName.equals("perceptronAveraging"))
+					perceptronAveraging = argValue.equalsIgnoreCase("true");
+				else if (argName.equals("perceptronSkippedAveraging"))
+					perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
+				else if (argName.equals("perceptronTolerance"))
+					perceptronTolerance = Double.parseDouble(argValue);
 				else
 					throw new RuntimeException("Unknown argument: " + argName);
 			}
@@ -97,6 +130,8 @@ public class SentenceDetectorMaxentRunner {
 	        
 	        SentenceDetectorService sentenceDetectorService = talismaneServiceLocator.getSentenceDetectorServiceLocator().getSentenceDetectorService();
 	        SentenceDetectorFeatureService sentenceDetectorFeatureService = talismaneServiceLocator.getSentenceDetectorFeatureServiceLocator().getSentenceDetectorFeatureService();
+
+			MachineLearningService machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
 
 			if (command.equals("train")) {
 				if (sentenceModelFilePath.length()==0)
@@ -135,13 +170,34 @@ public class SentenceDetectorMaxentRunner {
 				List<TextFilter> textFilters = new ArrayList<TextFilter>();
 				textFilters.add(new DuplicateWhiteSpaceFilter());
 				CorpusEventStream tokeniserEventStream = sentenceDetectorService.getSentenceDetectorEventStream(reader, features, textFilters);
-				MaxentModelTrainer modelTrainer = new MaxentModelTrainer(tokeniserEventStream);
-				modelTrainer.setCutoff(cutoff);
-				modelTrainer.setIterations(iterations);
+
+				Map<String,Object> trainParameters = new HashMap<String, Object>();
+				if (algorithm.equals(MachineLearningAlgorithm.MaxEnt)) {
+					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Iterations.name(), iterations);
+					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Cutoff.name(), cutoff);
+				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.UseAverage.name(), perceptronAveraging);
+					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.UseSkippedAverage.name(), perceptronSkippedAveraging);					
+					if (perceptronTolerance>=0)
+						trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
+				} else if (algorithm.equals(MachineLearningAlgorithm.LinearSVM)) {
+					trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Cutoff.name(), cutoff);
+					if (solverType!=null)
+						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.SolverType.name(), solverType);
+					if (constraintViolationCost>=0)
+						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.ConstraintViolationCost.name(), constraintViolationCost);
+					if (epsilon>=0)
+						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Epsilon.name(), epsilon);
+				}
+				
+
+				ModelTrainer<SentenceDetectorOutcome> trainer = machineLearningService.getModelTrainer(algorithm, trainParameters);
 				
 				DecisionFactory<SentenceDetectorOutcome> decisionFactory = sentenceDetectorService.getDecisionFactory();
-				JolicielMaxentModel<SentenceDetectorOutcome> jolicielMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(modelTrainer, featureDescriptors, decisionFactory);
-				jolicielMaxentModel.persist(sentenceModelFile);
+				MachineLearningModel<SentenceDetectorOutcome> sentenceModel = trainer.trainModel(tokeniserEventStream, decisionFactory, featureDescriptors);
+				sentenceModel.persist(sentenceModelFile);
 
 			} else if (command.equals("evaluate")) {
 				if (sentenceModelFilePath.length()==0)
@@ -173,11 +229,12 @@ public class SentenceDetectorMaxentRunner {
 				FScoreCalculator<SentenceDetectorOutcome> fScoreCalculator = null;
 				
 				try {
-					File sentenceModelFile = new File(sentenceModelFilePath);
-					JolicielMaxentModel<SentenceDetectorOutcome> sentenceModelFileMaxentModel = new JolicielMaxentModel<SentenceDetectorOutcome>(sentenceModelFile);
-					Set<SentenceDetectorFeature<?>> features = sentenceDetectorFeatureService.getFeatureSet(sentenceModelFileMaxentModel.getFeatureDescriptors());
+					ZipInputStream zis = new ZipInputStream(new FileInputStream(sentenceModelFilePath));
+					MachineLearningModel<SentenceDetectorOutcome> sentenceModel = machineLearningService.getModel(zis);
 
-					SentenceDetector sentenceDetector = sentenceDetectorService.getSentenceDetector(sentenceModelFileMaxentModel.getDecisionMaker(), features);
+					Set<SentenceDetectorFeature<?>> features = sentenceDetectorFeatureService.getFeatureSet(sentenceModel.getFeatureDescriptors());
+
+					SentenceDetector sentenceDetector = sentenceDetectorService.getSentenceDetector(sentenceModel.getDecisionMaker(), features);
 					SentenceDetectorEvaluator evaluator = sentenceDetectorService.getEvaluator(sentenceDetector);
 					evaluator.addTextFilter(new DuplicateWhiteSpaceFilter());
 					

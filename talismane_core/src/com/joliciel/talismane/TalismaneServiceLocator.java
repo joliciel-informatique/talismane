@@ -21,7 +21,9 @@ package com.joliciel.talismane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
+import com.joliciel.talismane.machineLearning.maxent.MaxentServiceLocator;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -50,6 +52,8 @@ public class TalismaneServiceLocator {
 	private ParserServiceLocator parserServiceLocator;
 	private ParserFeatureServiceLocator parserFeatureServiceLocator;
 	private FeatureServiceLocator featureServiceLocator;
+	private MachineLearningServiceLocator machineLearningServiceLocator;
+	private MaxentServiceLocator maxentServiceLocator;
 	
     private static TalismaneServiceLocator instance = null;
 
@@ -141,4 +145,18 @@ public class TalismaneServiceLocator {
 		return tokeniserPatternServiceLocator;
 
 	}
+
+	public MachineLearningServiceLocator getMachineLearningServiceLocator() {
+		if (this.machineLearningServiceLocator==null)
+			this.machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
+		return machineLearningServiceLocator;
+	}
+
+	public MaxentServiceLocator getMaxentServiceLocator() {
+		if (this.maxentServiceLocator==null)
+			this.maxentServiceLocator = MaxentServiceLocator.getInstance();
+		return maxentServiceLocator;
+	}
+	
+	
 }
