@@ -22,14 +22,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.filters.FilterService;
 
 class PretokenisedSequenceImpl extends AbstractTokenSequence implements PretokenisedSequence {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(PretokenisedSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
 	
-	public PretokenisedSequenceImpl() {
-		super("");
+	private FilterService filterService;
+	
+	public PretokenisedSequenceImpl(FilterService filterService) {
+		super(filterService.getSentence(""));
+		this.filterService = filterService;
 	}
 
 	@Override
@@ -40,7 +44,7 @@ class PretokenisedSequenceImpl extends AbstractTokenSequence implements Pretoken
 	
 	@Override
 	public TokenSequence cloneTokenSequence() {
-		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl();
+		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService);
 		this.cloneTokenSequence(tokenSequence);
 		return tokenSequence;
 	}

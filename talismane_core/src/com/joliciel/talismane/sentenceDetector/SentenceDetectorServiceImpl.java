@@ -1,9 +1,26 @@
+///////////////////////////////////////////////////////////////////////////////
+//Copyright (C) 2012 Assaf Urieli
+//
+//This file is part of Talismane.
+//
+//Talismane is free software: you can redistribute it and/or modify
+//it under the terms of the GNU Affero General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//Talismane is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU Affero General Public License for more details.
+//
+//You should have received a copy of the GNU Affero General Public License
+//along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
+//////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import java.util.List;
 import java.util.Set;
 
-import com.joliciel.talismane.filters.TextFilter;
+import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -15,13 +32,15 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	TokeniserService tokeniserService;
-	private MachineLearningService machineLearningService;
+	MachineLearningService machineLearningService;
+	FilterService filterService;
 	
 	@Override
 	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text,
 			int index) {
 		PossibleSentenceBoundaryImpl boundary = new PossibleSentenceBoundaryImpl(text, index);
 		boundary.setTokeniserService(tokeniserService);
+		boundary.setFilterService(filterService);
 		return boundary;
 	}
 
@@ -63,13 +82,11 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	@Override
 	public CorpusEventStream getSentenceDetectorEventStream(
 			SentenceDetectorAnnotatedCorpusReader corpusReader,
-			Set<SentenceDetectorFeature<?>> features,
-			List<TextFilter> filters) {
+			Set<SentenceDetectorFeature<?>> features) {
 		SentenceDetectorEventStream eventStream = new SentenceDetectorEventStream(corpusReader, features);
 		eventStream.setSentenceDetectorService(this);
 		eventStream.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
 		eventStream.setMachineLearningService(machineLearningService);
-		eventStream.setFilters(filters);
 		return eventStream;
 	}
 
@@ -87,5 +104,14 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
+	}
+
 
 }

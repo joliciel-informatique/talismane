@@ -18,7 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -26,20 +29,20 @@ import java.util.regex.Matcher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-public class SentenceDetectorImpl implements SentenceDetector {
+class SentenceDetectorImpl implements SentenceDetector {
 	private static final Log LOG = LogFactory.getLog(SentenceDetectorImpl.class);
 	private DecisionMaker<SentenceDetectorOutcome> decisionMaker;
 	private Set<SentenceDetectorFeature<?>> features;
-	private List<TextFilter> textFilters = new ArrayList<TextFilter>();
-	private String hardStop = "\n";
+	private List<TokenFilter> preTokeniserFilters = new ArrayList<TokenFilter>();
 	
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
@@ -57,51 +60,69 @@ public class SentenceDetectorImpl implements SentenceDetector {
 		try {
 			String context = prevText + text + moreText;
 
+			// we only want one placeholder per start index - the first one that gets added
+			Map<Integer,TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
+			for (TokenFilter filter : this.preTokeniserFilters) {
+				Set<TokenPlaceholder> myPlaceholders = filter.apply(context);
+				for (TokenPlaceholder placeholder : myPlaceholders) {
+					if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
+						placeholderMap.put(placeholder.getStartIndex(), placeholder);
+					}
+				}
+			}
+			
 			Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text);
-			List<Integer> possibleBoundaries = new ArrayList<Integer>();
+			Set<Integer> possibleBoundaries = new HashSet<Integer>();
 			List<Integer> guessedBoundaries = new ArrayList<Integer>();
 			
 			while (matcher.find()) {
-				possibleBoundaries.add(prevText.length() + matcher.start());
+				// only add possible boundaries if they're not inside a placeholder
+				boolean inPlaceholder = false;
+				int position = prevText.length() + matcher.start();
+				for (TokenPlaceholder placeholder : placeholderMap.values()) {
+					if (placeholder.getStartIndex()<=position && position<placeholder.getEndIndex()) {
+						inPlaceholder = true;
+						break;
+					}
+				}
+				if (!inPlaceholder)
+					possibleBoundaries.add(position);
 			}
-	
+				
 			for (int possibleBoundary : possibleBoundaries) {
 				PossibleSentenceBoundary boundary = this.sentenceDetectorService.getPossibleSentenceBoundary(context, possibleBoundary);
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Testing boundary: " + boundary);
 					LOG.trace(" at position: " + possibleBoundary);
 				}
-				if (boundary.getBoundaryString().equals(hardStop)) {
-					LOG.trace("Is hard stop");
-					guessedBoundaries.add(possibleBoundary);
-				} else {
-					List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
-					for (SentenceDetectorFeature<?> feature : features) {
-						FeatureResult<?> featureResult = feature.check(boundary);
-						if (featureResult!=null)
-							featureResults.add(featureResult);
-					}
-					if (LOG.isTraceEnabled()) {
-						for (FeatureResult<?> result : featureResults) {
-							LOG.trace(result.getName() + ": " + result.getOutcome());
-						}
-					}
-					
-					List<Decision<SentenceDetectorOutcome>> decisions = this.decisionMaker.decide(featureResults);
-					if (LOG.isTraceEnabled()) {
-						for (Decision<SentenceDetectorOutcome> decision : decisions) {
-							LOG.trace(decision.getCode() + ": " + decision.getProbability());
-						}
-					}
-					
-					if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY)) {
-						guessedBoundaries.add(possibleBoundary);
-						if (LOG.isTraceEnabled()) {
-							LOG.trace("Adding boundary: " + possibleBoundary);
-						}
+				
+				List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
+				for (SentenceDetectorFeature<?> feature : features) {
+					FeatureResult<?> featureResult = feature.check(boundary);
+					if (featureResult!=null)
+						featureResults.add(featureResult);
+				}
+				if (LOG.isTraceEnabled()) {
+					for (FeatureResult<?> result : featureResults) {
+						LOG.trace(result.getName() + ": " + result.getOutcome());
 					}
 				}
-			}
+				
+				List<Decision<SentenceDetectorOutcome>> decisions = this.decisionMaker.decide(featureResults);
+				if (LOG.isTraceEnabled()) {
+					for (Decision<SentenceDetectorOutcome> decision : decisions) {
+						LOG.trace(decision.getCode() + ": " + decision.getProbability());
+					}
+				}
+				
+				if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY)) {
+					guessedBoundaries.add(possibleBoundary - prevText.length());
+					if (LOG.isTraceEnabled()) {
+						LOG.trace("Adding boundary: " + possibleBoundary);
+					}
+				}
+			} // have we a possible boundary at this position?
+			
 			return guessedBoundaries;
 		} finally {
 			PerformanceMonitor.endTask("SentenceDetectorImpl.detectSentences");
@@ -134,19 +155,11 @@ public class SentenceDetectorImpl implements SentenceDetector {
 		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
 	}
 
-	@Override
-	public List<TextFilter> getTextFilters() {
-		return textFilters;
+	public List<TokenFilter> getTokenFilters() {
+		return preTokeniserFilters;
 	}
 
-	@Override
-	public void setTextFilters(List<TextFilter> textFilters) {
-		this.textFilters = textFilters;
+	public void addTokenFilter(TokenFilter filter) {
+		this.preTokeniserFilters.add(filter);
 	}
-
-	@Override
-	public void addTextFilter(TextFilter textFilter) {
-		this.textFilters.add(textFilter);
-	}
-
 }

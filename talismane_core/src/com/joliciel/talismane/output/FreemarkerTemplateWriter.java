@@ -195,10 +195,6 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 			this.label = label;
 		}
 	}
-	@Override
-	public void setParameters(String... args) {
-		// nothing to do here
-	}
 
 	@Override
 	public void onCompleteParse() {

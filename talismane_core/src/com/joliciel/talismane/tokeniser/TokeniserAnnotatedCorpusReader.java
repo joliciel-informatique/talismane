@@ -18,9 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.util.List;
 import java.util.Map;
 
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * An interface for reading tokenized sentences from a corpus.
@@ -34,16 +36,6 @@ public interface TokeniserAnnotatedCorpusReader {
 	 */
 	public boolean hasNextTokenSequence();
 	
-	/**
-	 * Read the next sentence from the training corpus, along with its token splits.
-	 * Any whitespace (including several whitespaces in a row) should be reduced to a single space
-	 * in the sentence that's returned.
-	 * The token splits returned indicate the position of the first symbol following any token split,
-	 * with splits occurring on both sides of any white space if it is not part of a compound word.
-	 * @return
-	 */
-//	public String nextSentence(List<Integer> tokenSplits);
-	
 	/***
 	 * Reads the next token sequence from the corpus.
 	 * @return
@@ -56,7 +48,28 @@ public interface TokeniserAnnotatedCorpusReader {
 	 */
 	public Map<String,String> getCharacteristics();
 	
+	/**
+	 * These filters will be applied to each token sequence returned by the corpus prior to being returned.
+	 * @param tokenFilter
+	 */
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
+
+	/**
+	 * These filters will not be used to detect tokens, as token boundaries are provided by the corpus.
+	 * They will, on the other hand, be used to replace token text.
+	 * @param tokenFilter
+	 */
 	public void addTokenFilter(TokenFilter tokenFilter);
-
-
+	
+	/**
+	 * @see #addTokenSequenceFilter(TokenSequenceFilter)
+	 * @return
+	 */
+	public List<TokenSequenceFilter> getTokenSequenceFilters();
+	
+	/**
+	 * #see {@link #addTokenFilter(TokenFilter)}
+	 * @return
+	 */
+	public List<TokenFilter> getTokenFilters();
 }

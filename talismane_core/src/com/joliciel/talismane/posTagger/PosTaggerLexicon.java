@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.lexicon.LexiconService;
+import com.joliciel.talismane.lexicon.Lexicon;
 
 
 /**
@@ -30,7 +30,7 @@ import com.joliciel.talismane.lexicon.LexiconService;
  * @author Assaf Urieli
  *
  */
-public interface PosTaggerLexiconService extends LexiconService {
+public interface PosTaggerLexicon extends Lexicon {
 	/**
 	 * For a given word, a set of all postags to be considered in tagging.
 	 * @param word the word being considered

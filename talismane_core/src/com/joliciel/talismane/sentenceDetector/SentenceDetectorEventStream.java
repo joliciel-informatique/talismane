@@ -29,7 +29,6 @@ import java.util.regex.Matcher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -49,7 +48,6 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 	private int realBoundary = -1;
 	private LinkedList<String> sentences = new LinkedList<String>();
 	int minCharactersAfterBoundary = 50;
-	private List<TextFilter> filters = new ArrayList<TextFilter>();
 	
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
@@ -77,12 +75,6 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 					nextSentence = sentences.get(sentenceIndex);
 				} else if (corpusReader.hasNextSentence()) {
 					nextSentence = corpusReader.nextSentence();
-//					if (corpusReader.isNewParagraph())
-//						nextSentence = "\n" + nextSentence;
-					
-					for (TextFilter textFilter : filters) {
-						nextSentence = textFilter.apply(nextSentence);
-					}
 					sentences.add(nextSentence);
 				} else {
 					break;
@@ -136,13 +128,6 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 				currentSentence = sentences.poll();
 			} else if (corpusReader.hasNextSentence()) {
 				currentSentence = corpusReader.nextSentence();
-				
-//				if (corpusReader.isNewParagraph())
-//					currentSentence = "\n" + currentSentence;
-					
-				for (TextFilter textFilter : filters) {
-					currentSentence = textFilter.apply(currentSentence);
-				}
 			} else {
 				break;
 			}
@@ -182,14 +167,6 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 	public void setSentenceDetectorFeatureService(
 			SentenceDetectorFeatureService sentenceDetectorFeatureService) {
 		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
-	}
-
-	public List<TextFilter> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(List<TextFilter> filters) {
-		this.filters = filters;
 	}
 
 	@Override

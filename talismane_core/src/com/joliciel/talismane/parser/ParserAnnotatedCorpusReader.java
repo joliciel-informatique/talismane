@@ -20,7 +20,8 @@ package com.joliciel.talismane.parser;
 
 import java.util.Map;
 
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * An interface for reading ParseConfigurations from sentences in a corpus.
@@ -40,11 +41,19 @@ public interface ParserAnnotatedCorpusReader {
 	 */
 	public ParseConfiguration nextConfiguration();
 	
-	public void addTokenFilter(TokenFilter tokenFilter);
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
 	
 	/**
 	 * 
 	 * @return
 	 */
 	public Map<String, Object> getAttributes();
+	
+	/**
+	 * If provided, will read a lexical entry for each pos-tagged token.
+	 * @return
+	 */
+	public LexicalEntryReader getLexicalEntryReader();
+	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
+	
 }

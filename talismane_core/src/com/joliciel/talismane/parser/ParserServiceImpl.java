@@ -109,10 +109,10 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	@Override
 	public DependencyNode getDependencyNode(PosTaggedToken token, String label,
-			DependencyNode parent, ParseConfiguration parseConfiguration) {
-		DependencyNodeImpl dependencyNode = new DependencyNodeImpl(token, label, parent, parseConfiguration);
+			ParseConfiguration parseConfiguration) {
+		DependencyNodeImpl dependencyNode = new DependencyNodeImpl(token, label, parseConfiguration);
 		dependencyNode.setParserServiceInternal(this);
-		dependencyNode.setLexiconService(TalismaneSession.getLexiconService());
+		dependencyNode.setLexiconService(TalismaneSession.getLexicon());
 		return dependencyNode;
 	}
 

@@ -18,11 +18,21 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-/**
- * A filter applied to a block of raw text (typically a sentence that has been previously sourced).
- * @author Assaf Urieli
- *
- */
-public interface TextFilter {
-	public String apply(String rawText);
+import com.joliciel.talismane.TalismaneServiceLocator;
+
+public class FilterServiceLocator {
+	FilterServiceImpl filterService = null;
+	@SuppressWarnings("unused")
+	private TalismaneServiceLocator talismaneServiceLocator;
+	
+	public FilterServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
+		this.talismaneServiceLocator = talismaneServiceLocator;
+	}
+	
+	public FilterService getFilterService() {
+		if (filterService==null) {
+			filterService = new FilterServiceImpl();
+		}
+		return filterService;
+	}
 }

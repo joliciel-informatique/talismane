@@ -24,7 +24,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * Transforms a word into lower-case if it is a known word in the lexicon,
@@ -32,7 +32,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
  * @author Assaf Urieli
  *
  */
-public class LowercaseFirstWordFrenchFilter implements TokenFilter {
+public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
 	public LowercaseFirstWordFrenchFilter() {
 		super();
 	}
@@ -111,7 +111,7 @@ public class LowercaseFirstWordFrenchFilter implements TokenFilter {
 					boolean foundWord = false;
 					for (char c : firstChars) {
 						String newWord = c + token.getText().substring(1);
-						Set<PosTag> posTags = TalismaneSession.getLexiconService().findPossiblePosTags(newWord);
+						Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(newWord);
 						if (posTags.size()>0) {
 							token.setText(newWord);
 							foundWord = true;

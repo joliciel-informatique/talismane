@@ -13,6 +13,8 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 class TokenRegexBasedCorpusReaderImpl implements
 		TokenRegexBasedCorpusReader {
@@ -21,10 +23,14 @@ class TokenRegexBasedCorpusReaderImpl implements
 	private Scanner scanner;
 	private PretokenisedSequence tokenSequence = null;
 	
+	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+	private TokenSequenceFilter tokenFilterWrapper = null;
+	
 	private int lineNumber = 0;
 	
 	private TokeniserService tokeniserService;
+	private TokenFilterService tokenFilterService;
 	
 	public TokenRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
@@ -44,9 +50,14 @@ class TokenRegexBasedCorpusReaderImpl implements
 						continue;
 					
 					tokenSequence.cleanSlate();
-					for (TokenFilter tokenFilter : this.tokenFilters) {
+					for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 						tokenFilter.apply(tokenSequence);
 					}
+					if (tokenFilterWrapper==null) {
+						tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.tokenFilters);
+					}
+					tokenFilterWrapper.apply(tokenSequence);
+					
 					break;
 				} else {
 					hasLine = true;
@@ -61,6 +72,7 @@ class TokenRegexBasedCorpusReaderImpl implements
 					if (tokenSequence==null) {
 						tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
 					}
+					
 					String token = matcher.group(1);
 					this.addToken(tokenSequence, token);
 				}
@@ -69,21 +81,21 @@ class TokenRegexBasedCorpusReaderImpl implements
 		return (tokenSequence!=null);
 	}
 
-	void addToken(PretokenisedSequence pretokenisedSequence, String token) {
-		if (token.equals("_")) {
+	void addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
+		if (tokenText.equals("_")) {
 			pretokenisedSequence.addToken("");
 		} else {
 			if (pretokenisedSequence.size()==0) {
 				// do nothing
 			} else if (pretokenisedSequence.get(pretokenisedSequence.size()-1).getText().endsWith("'")) {
 				// do nothing
-			} else if (token.equals(".")||token.equals(",")||token.equals(")")||token.equals("]")) {
+			} else if (tokenText.equals(".")||tokenText.equals(",")||tokenText.equals(")")||tokenText.equals("]")) {
 				// do nothing
 			} else {
 				// add a space
 				pretokenisedSequence.addToken(" ");
 			}
-			pretokenisedSequence.addToken(token.replace("_", " "));
+			pretokenisedSequence.addToken(tokenText.replace("_", " "));
 		}
 	}
 	
@@ -96,10 +108,26 @@ class TokenRegexBasedCorpusReaderImpl implements
 	}
 
 	@Override
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
+		this.tokenSequenceFilters.add(tokenFilter);
+	}
+	
+	
+	@Override
 	public void addTokenFilter(TokenFilter tokenFilter) {
 		this.tokenFilters.add(tokenFilter);
 	}
-	
+
+	@Override
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
+		return this.tokenSequenceFilters;
+	}
+
+	@Override
+	public List<TokenFilter> getTokenFilters() {
+		return this.tokenFilters;
+	}
+
 	@Override
 	public String getRegex() {
 		return regex;
@@ -123,6 +151,14 @@ class TokenRegexBasedCorpusReaderImpl implements
 
 	public void setTokeniserService(TokeniserService tokeniserService) {
 		this.tokeniserService = tokeniserService;
+	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
 	}
 
 	@Override

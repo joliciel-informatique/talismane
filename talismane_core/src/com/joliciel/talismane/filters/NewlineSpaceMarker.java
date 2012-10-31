@@ -18,17 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-public class DuplicateWhiteSpaceFilterTest {
-	
-	@Test
-	public void testApply() {
-		DuplicateWhiteSpaceFilter filter = new DuplicateWhiteSpaceFilter();
-		String text = "Hello  World.\n\n  How are you     today?\tFine,\f\f  thanks.  \n";
-		String newText = filter.apply(text);
-		assertEquals("Hello World.\n\n How are you today? Fine, thanks. \n", newText);
+/**
+ * Replace any newline with a space.
+ * @author Assaf Urieli
+ *
+ */
+class NewlineSpaceMarker extends RegexMarkerFilter {
+	public NewlineSpaceMarker() {
+		super(new MarkerFilterType[] {MarkerFilterType.SKIP, MarkerFilterType.SPACE},
+				"\r\n|[\r\n]");
 	}
 }

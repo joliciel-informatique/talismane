@@ -22,7 +22,7 @@ import java.util.Locale;
 
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
+import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 
 /**
  * A class storing session-wide reference data.
@@ -32,7 +32,7 @@ import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 public class TalismaneSession {
 	private static ThreadLocal<Locale> localeHolder = new ThreadLocal<Locale>();
 	private static ThreadLocal<PosTagSet> posTagSetHolder = new ThreadLocal<PosTagSet>();
-	private static ThreadLocal<PosTaggerLexiconService> lexiconServiceHolder = new ThreadLocal<PosTaggerLexiconService>();
+	private static ThreadLocal<PosTaggerLexicon> lexiconHolder = new ThreadLocal<PosTaggerLexicon>();
 	private static ThreadLocal<TransitionSystem> transitionSystemHolder = new ThreadLocal<TransitionSystem>();
 	
 	public static void setPosTagSet(PosTagSet posTagSet) {
@@ -51,12 +51,12 @@ public class TalismaneSession {
 		return transitionSystemHolder.get();
 	}
 	
-	public static void setLexiconService(PosTaggerLexiconService lexiconService) {
-		lexiconServiceHolder.set(lexiconService);
+	public static void setLexicon(PosTaggerLexicon lexicon) {
+		lexiconHolder.set(lexicon);
 	}
 	
-	public static PosTaggerLexiconService getLexiconService() {
-		return lexiconServiceHolder.get();
+	public static PosTaggerLexicon getLexicon() {
+		return lexiconHolder.get();
 	}
 	
 	public static Locale getLocale() {

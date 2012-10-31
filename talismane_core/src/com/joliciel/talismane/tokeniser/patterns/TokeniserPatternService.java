@@ -19,7 +19,6 @@
 package com.joliciel.talismane.tokeniser.patterns;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -32,8 +31,6 @@ public interface TokeniserPatternService {
 	public static final String PATTERN_DESCRIPTOR_KEY = "pattern";
 	
 	public TokeniserPatternManager getPatternManager(List<String> patternDescriptors);
-	
-	public TokeniserPatternManager getDefaultPatternManager(Locale locale);
 
 	public Tokeniser getPatternTokeniser(TokeniserPatternManager patternManager,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures,

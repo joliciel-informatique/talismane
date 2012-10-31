@@ -24,9 +24,12 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 
 /**
@@ -39,11 +42,21 @@ class SimpleTokeniser implements Tokeniser {
 	private static final Log LOG = LogFactory.getLog(SimpleTokeniser.class);
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
-	private List<TokenFilter> preprocessingFilters = new ArrayList<TokenFilter>();
+	private FilterService filterService;
+	private List<TokenSequenceFilter> preprocessingFilters = new ArrayList<TokenSequenceFilter>();
 	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
+
+	private List<TokenFilter> preTokeniserFilters = new ArrayList<TokenFilter>();
 	
 	@Override
-	public List<TokenSequence> tokenise(String sentence) {
+	public List<TokenSequence> tokenise(String text) {
+		Sentence sentence = filterService.getSentence();
+		sentence.setText(text);
+		return this.tokenise(sentence);
+	}
+	
+	@Override
+	public List<TokenSequence> tokenise(Sentence sentence) {
 		List<TokenisedAtomicTokenSequence> decisionSequences = this.tokeniseWithDecisions(sentence);
 		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
 		for (TokenisedAtomicTokenSequence decisionSequence : decisionSequences) {
@@ -53,12 +66,19 @@ class SimpleTokeniser implements Tokeniser {
 	}
 	
 	@Override
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String sentence) {
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text) {
+		Sentence sentence = filterService.getSentence();
+		sentence.setText(text);
+		return this.tokeniseWithDecisions(sentence);
+	}
+	
+	@Override
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
 		// Initially, separate the sentence into tokens using the separators provided
 		TokenSequence tokenSequence = this.tokeniserServiceInternal.getTokenSequence(sentence, Tokeniser.SEPARATORS);
-		TokenisedAtomicTokenSequence taggedTokenSequence = this.tokeniserServiceInternal.getTokenisedSentence(sentence, tokenSequence.size());
+		TokenisedAtomicTokenSequence taggedTokenSequence = this.tokeniserServiceInternal.getTokenisedAtomicTokenSequence(sentence, tokenSequence.size());
 
-		for (TokenFilter filter : preprocessingFilters)
+		for (TokenSequenceFilter filter : preprocessingFilters)
 			filter.apply(tokenSequence);
 		
 		for (Token token : tokenSequence) {
@@ -77,7 +97,7 @@ class SimpleTokeniser implements Tokeniser {
 		
 		for (TokenisedAtomicTokenSequence sequence : sequences) {
 			TokenSequence newTokenSequence = sequence.inferTokenSequence();
-			for (TokenFilter tokenFilter : this.preprocessingFilters) {
+			for (TokenSequenceFilter tokenFilter : this.preprocessingFilters) {
 				tokenFilter.apply(newTokenSequence);
 			}
 		}
@@ -96,19 +116,37 @@ class SimpleTokeniser implements Tokeniser {
 	 * Filters to be applied to the atoms, prior to tokenising.
 	 * @return
 	 */
-	public List<TokenFilter> getTokenFilters() {
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
 		return preprocessingFilters;
 	}
 
-	public void setTokenFilters(List<TokenFilter> tokenFilters) {
+	public void setTokenSequenceFilters(List<TokenSequenceFilter> tokenFilters) {
 		this.preprocessingFilters = tokenFilters;
 	}
 	
-	public void addTokenFilter(TokenFilter tokenFilter) {
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
 		this.preprocessingFilters.add(tokenFilter);
 	}
 	
 	public void addObserver(AnalysisObserver observer) {
 		// nothing to do here
 	}
+	
+	public List<TokenFilter> getTokenFilters() {
+		return preTokeniserFilters;
+	}
+
+	public void addTokenFilter(TokenFilter filter) {
+		this.preTokeniserFilters.add(filter);
+	}
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
+	}
+	
+	
 }

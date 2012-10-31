@@ -22,13 +22,13 @@ import java.io.Serializable;
 import java.util.Map;
 
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
+import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 
 /**
  * An in-memory representation of the lefff lexicon.
  * @author Assaf Urieli
  *
  */
-public interface LefffMemoryBase extends Serializable, PosTaggerLexiconService {
+public interface LefffMemoryBase extends Serializable, PosTaggerLexicon {
 	public Map<PosTagSet, LefffPosTagMapper> getPosTagMappers();
 }

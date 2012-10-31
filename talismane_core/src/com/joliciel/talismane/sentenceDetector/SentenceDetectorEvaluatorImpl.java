@@ -30,7 +30,6 @@ import java.util.regex.Matcher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.StringUtils;
 
@@ -39,7 +38,6 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 	private SentenceDetector sentenceDetector;
 	int minCharactersAfterBoundary = 50;
 	private static final int NUM_CHARS = 30;
-	private List<TextFilter> filters = new ArrayList<TextFilter>();
 	
 	public SentenceDetectorEvaluatorImpl(SentenceDetector sentenceDetector) {
 		this.sentenceDetector = sentenceDetector;
@@ -59,9 +57,6 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 		String previousSentence = ". ";
 		if (corpusReader.hasNextSentence())
 			sentence = corpusReader.nextSentence();
-		for (TextFilter textFilter : filters) {
-			sentence = textFilter.apply(sentence);
-		}
 		
 		sentences.add(sentence);
 		while (!sentences.isEmpty()) {
@@ -72,10 +67,10 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 			List<Integer> possibleBoundaries = new ArrayList<Integer>();
 			
 			while (matcher.find()) {
-				possibleBoundaries.add(previousSentence.length() + matcher.start());
+				possibleBoundaries.add(matcher.start());
 			}
 			
-			int realBoundary = previousSentence.length() + sentence.length() - 1;
+			int realBoundary = sentence.length() - 1;
 			if (!possibleBoundaries.contains(realBoundary))
 				possibleBoundaries.add(realBoundary);
 			
@@ -87,12 +82,6 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 					nextSentence = sentences.get(sentenceIndex);
 				} else if (corpusReader.hasNextSentence()) {
 					nextSentence = corpusReader.nextSentence();
-//					if (corpusReader.isNewParagraph())
-//						nextSentence = "\n" + nextSentence;
-					
-					for (TextFilter textFilter : filters) {
-						nextSentence = textFilter.apply(nextSentence);
-					}
 					
 					sentences.add(nextSentence);
 				} else {
@@ -129,19 +118,20 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 				taggerFScoreCalculator.increment(expected, guessed);
 				
 				if (!expected.equals(guessed)) {
+					int relativeBoundary = previousSentence.length() + possibleBoundary;
 					
-					int start1 = possibleBoundary - NUM_CHARS;
-					int end1 = possibleBoundary + NUM_CHARS;
+					int start1 = relativeBoundary - NUM_CHARS;
+					int end1 = relativeBoundary + NUM_CHARS;
 					
 					if (start1<0) start1=0;
-					String startString = text.substring(start1, possibleBoundary);
+					String startString = text.substring(start1, relativeBoundary);
 					startString = StringUtils.padLeft(startString, NUM_CHARS);
 					
-					String middleString = "" + text.charAt(possibleBoundary);
+					String middleString = "" + text.charAt(relativeBoundary);
 					if (end1>=text.length()) end1 = text.length()-1;
 					String endString = "";
-					if (end1>=0 && possibleBoundary+1<text.length())
-						endString = text.substring(possibleBoundary+1, end1);
+					if (end1>=0 && relativeBoundary+1<text.length())
+						endString = text.substring(relativeBoundary+1, end1);
 					
 					String testText = startString + "[" + middleString + "]" + endString;
 					testText = testText.replace('\n', '¶');
@@ -199,13 +189,5 @@ class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
 			}
 		} // have error writer
 		return fScoreCalculator;
-	}
-
-	public List<TextFilter> getFilters() {
-		return filters;
-	}
-	
-	public void addTextFilter(TextFilter textFilter) {
-		this.filters.add(textFilter);
 	}
 }

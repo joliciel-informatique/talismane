@@ -203,6 +203,7 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 
 	void loadLexicalEntry() {
 		if (!lexicalEntryLoaded) {
+			lexicalEntryLoaded = true;
 			this.word = this.getLefffWord().getText();
 			this.lemma = this.getLefffLemma().getText();
 			this.lemmaComplement = this.getLefffLemma().getComplement();
@@ -217,65 +218,7 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 			
 			String morph = this.getLefffMorphology().getValue();
 			this.morphology = morph;
-			
-			if (morph.contains("m"))
-				this.gender.add("m");
-			if (morph.contains("f"))
-				this.gender.add("f");
-			if (this.gender.size()==0) {
-				this.gender.add("m");
-				this.gender.add("f");
-			}
-			
-			if (morph.contains("1"))
-				this.person.add("1");
-			if (morph.contains("2"))
-				this.person.add("2");
-			if (morph.contains("3"))
-				this.person.add("3");
-		
-			String morphNoPossessor = morph;
-			if (morph.endsWith("_P1p")||morph.endsWith("_P2p")||morph.endsWith("_P3p")) {
-				this.possessorNumber.add("p");
-				morphNoPossessor = morph.substring(0,morph.length()-4);
-			} else if (morph.endsWith("_P1s")||morph.endsWith("_P2s")||morph.endsWith("_P3s")) {
-				this.possessorNumber.add("s");
-				morphNoPossessor = morph.substring(0,morph.length()-4);
-			}
-			
-			if (morphNoPossessor.contains("p"))
-				this.number.add("p");
-			if (morphNoPossessor.contains("s"))
-				this.number.add("s");
-			if (this.number.size()==0) {
-				this.number.add("p");
-				this.number.add("s");
-			}
-			
-			if (morphNoPossessor.contains("P"))
-				this.tense.add("P"); // present
-			if (morphNoPossessor.contains("F"))
-				this.tense.add("F"); // future
-			if (morphNoPossessor.contains("I"))
-				this.tense.add("I"); // imperfect
-			if (morphNoPossessor.contains("J"))
-				this.tense.add("J"); // simple past
-			if (morphNoPossessor.contains("T"))
-				this.tense.add("T"); // past subjunctive
-			if (morphNoPossessor.contains("S"))
-				this.tense.add("S"); // present subjunctive
-			if (morphNoPossessor.contains("C"))
-				this.tense.add("C"); // conditional
-			if (morphNoPossessor.contains("K"))
-				this.tense.add("K"); // past participle
-			if (morphNoPossessor.contains("G"))
-				this.tense.add("G"); // present participle
-			if (morphNoPossessor.contains("W"))
-				this.tense.add("W"); // infinitive
-			if (morphNoPossessor.contains("Y"))
-				this.tense.add("Y"); // imperative
-			
-			lexicalEntryLoaded = true;
+			LefffEntryMorphologyReader.readMorphology(this, morph);
 		}
 	}
 

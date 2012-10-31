@@ -32,8 +32,14 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
  */
 public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapper, HasFeatureCache {
 	/**
-	 * The "best" lexical entry if one exists, or null otherwise.
+	 * The "best" lexical entry for this token/postag combination if one exists, or null otherwise.
 	 */
 	public LexicalEntry getLexicalEntry();
+	
+	/**
+	 * All lexical entries for this token/postag combination.
+	 * @return
+	 */
 	public Set<LexicalEntry> getLexicalEntries();
+	public void setLexicalEntries(Set<LexicalEntry> lexicalEntries);
 }

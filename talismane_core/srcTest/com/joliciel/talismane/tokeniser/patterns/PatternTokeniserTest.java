@@ -20,15 +20,16 @@ package com.joliciel.talismane.tokeniser.patterns;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -44,15 +45,18 @@ public class PatternTokeniserTest {
 		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 		TokeniserServiceLocator tokeniserServiceLocator = talismaneServiceLocator.getTokeniserServiceLocator();
 		TokeniserService tokeniserService = tokeniserServiceLocator.getTokeniserService();
+		FilterService filterService = talismaneServiceLocator.getFilterServiceLocator().getFilterService();
 		
 		final String sentence = "Je n'ai pas l'ourang-outan.";
 		final Map<SeparatorDecision, String> separatorDefaults = new HashMap<SeparatorDecision, String>();
 		separatorDefaults.put(SeparatorDecision.IS_NOT_SEPARATOR, "-");
 		separatorDefaults.put(SeparatorDecision.IS_SEPARATOR_AFTER, "'");
 		
-		TokeniserPatternManagerImpl patternManager = new TokeniserPatternManagerImpl(Locale.FRENCH);
+		List<String> tokeniserPatterns = new ArrayList<String>();
+		TokeniserPatternManagerImpl patternManager = new TokeniserPatternManagerImpl(tokeniserPatterns);
 		PatternTokeniserImpl tokeniserImpl = new PatternTokeniserImpl(patternManager, null, 1);
 		tokeniserImpl.setTokeniserService(tokeniserService);
+		tokeniserImpl.setFilterService(filterService);
 		tokeniserImpl.setSeparatorDefaults(separatorDefaults);
 		List<TokenSequence> tokenSequences = tokeniserImpl.tokenise(sentence);
 		TokenSequence tokenSequence = tokenSequences.get(0);

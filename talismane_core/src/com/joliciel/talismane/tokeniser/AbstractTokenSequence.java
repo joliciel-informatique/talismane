@@ -9,12 +9,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.filters.Sentence;
 
 abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenSequence, PretokenisedSequence {
 	private static final Log LOG = LogFactory.getLog(AbstractTokenSequence.class);
 	private static final long serialVersionUID = 2675309892340757939L;
 	private List<Integer> tokenSplits;
-	private String sentence;
+	private String text;
+	private Sentence sentence;
 	private List<Token> listWithWhiteSpace = new ArrayList<Token>();
 	private List<Token> tokensAdded = null;
 	private double score = 0;
@@ -26,8 +28,9 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	private TokeniserServiceInternal tokeniserServiceInternal;
 
 	public AbstractTokenSequence() {}
-	public AbstractTokenSequence(String sentence) {
+	public AbstractTokenSequence(Sentence sentence) {
 		this.sentence = sentence;
+		this.text = sentence.getText();
 	}
 	
 	@Override
@@ -62,7 +65,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 
 	@Override
 	public List<Integer> getTokenSplits() {
-		if (this.sentence==null) {
+		if (this.text==null) {
 			throw new TalismaneException("Cannot get token splits if no sentence has been set.");
 		}
 		if (this.tokenSplits==null) {
@@ -77,12 +80,12 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		return tokenSplits;
 	}
 
-	public String getSentence() {
-		return sentence;
+	public String getText() {
+		return text;
 	}
 
-	public void setSentence(String sentence) {
-		this.sentence = sentence;
+	public void setText(String text) {
+		this.text = text;
 	}
 	@Override
 	public List<Token> listWithWhiteSpace() {
@@ -148,13 +151,13 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 
 	Token addToken(int start, int end, boolean allowEmpty) {
-		if (this.sentence==null) {
+		if (this.text==null) {
 			throw new RuntimeException("Cannot add a token by index if no sentence has been set.");
 		}
 		if (!allowEmpty && start==end)
 			return null;
 		
-		String string = this.sentence.substring(start, end);
+		String string = this.text.substring(start, end);
 		
 		List<Token> tokensToRemove = new ArrayList<Token>();
 		
@@ -206,13 +209,13 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 
 	@Override
 	public Token addToken(String string) {
-		if (this.sentence==null)
-			this.sentence = "";
+		if (this.text==null)
+			this.text = "";
 		
 		TokenInternal token = this.getTokeniserServiceInternal().getTokenInternal(string, this, this.size());
-		token.setStartIndex(this.getSentence().length());
-		token.setEndIndex(this.getSentence().length() + string.length());
-		this.setSentence(this.getSentence() + string);
+		token.setStartIndex(this.getText().length());
+		token.setEndIndex(this.getText().length() + string.length());
+		this.setText(this.getText() + string);
 
 		this.listWithWhiteSpace().add(token);
 		
@@ -278,6 +281,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 	
 	public void cloneTokenSequence(AbstractTokenSequence tokenSequence) {
+		tokenSequence.setText(this.getText());
 		tokenSequence.setSentence(this.getSentence());
 		tokenSequence.setTokeniserServiceInternal(this.getTokeniserServiceInternal());
 		tokenSequence.setListWithWhiteSpace(this.getListWithWhiteSpace());
@@ -287,6 +291,13 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		tokenSequence.setAtomicTokenCount(this.getAtomicTokenCount());
 		
 		tokenSequence.addAll(this);
+	}
+	
+	public Sentence getSentence() {
+		return sentence;
+	}
+	public void setSentence(Sentence sentence) {
+		this.sentence = sentence;
 	}
 	
 }

@@ -25,7 +25,7 @@ import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * The PosTagger's task is to apply PosTags to Words within a sentence.
@@ -33,6 +33,8 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
  *
  */
 public interface PosTagger {
+	public static final String POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY = "postag_preprocessing_filter";
+	
 	/**
 	 * Apply PosTags to the tokens in a given sentence.
 	 * @param tokens the List of tokens comprising the sentence.
@@ -56,11 +58,11 @@ public interface PosTagger {
 	 * Filters to be applied to the token sequences prior to pos-tagging.
 	 * @return
 	 */
-	public List<TokenFilter> getPreprocessingFilters();
+	public List<TokenSequenceFilter> getPreprocessingFilters();
 
-	public void setPreprocessingFilters(List<TokenFilter> tokenFilters);
+	public void setPreprocessingFilters(List<TokenSequenceFilter> tokenFilters);
 	
-	public void addPreprocessingFilter(TokenFilter tokenFilter);
+	public void addPreprocessingFilter(TokenSequenceFilter tokenFilter);
 
 
 }

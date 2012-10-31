@@ -38,9 +38,7 @@ import com.joliciel.frenchTreebank.upload.TreebankRawTextAssigner;
 import com.joliciel.frenchTreebank.upload.TreebankSAXParser;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 
 public class FrenchTreebank {
@@ -87,12 +85,9 @@ public class FrenchTreebank {
 		}
 		
 		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
-		TokeniserService tokeniserService = talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService();
-		PosTaggerService posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
 		
-		TreebankServiceLocator locator = TreebankServiceLocator.getInstance();
-		locator.setTokeniserService(tokeniserService);
-		locator.setPosTaggerService(posTaggerService);
+		TreebankServiceLocator locator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
+		
 		if (treebankPath.length()==0)
 			locator.setDataSourcePropertiesFile("jdbc-live.properties");
 
@@ -193,7 +188,7 @@ public class FrenchTreebank {
 		    	while (reader.hasNextTokenSequence()) {
 		    		TokenSequence tokenSequence = reader.nextTokenSequence();
 		    		List<Integer> tokenSplits = tokenSequence.getTokenSplits();
-		    		String sentence = tokenSequence.getSentence();
+		    		String sentence = tokenSequence.getText();
 		    		LOG.debug(sentence);
 		    		int currentPos = 0;
 		    		StringBuilder sb = new StringBuilder();

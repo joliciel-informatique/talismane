@@ -21,12 +21,14 @@ package com.joliciel.talismane.tokeniser;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 
 /**
- * A Tokenizer's task is to split a sentence up into tokens.
+ * A Tokeniser splits a sentence up into tokens (parsing units).
  * @author Assaf Urieli
  *
  */
@@ -41,23 +43,62 @@ public interface Tokeniser {
 	 * each of which breaks up the sentence into a different a list of tokens.
 	 * Note: we assume duplicate white-space has already been removed from the sentence prior to calling the tokenise method,
 	 * e.g. multiple spaces have been replaced by a single space.
-	 * @param sentence the sentence to be tokenised
+	 * @param text the sentence to be tokenised
 	 * @return a List of up to <i>n</i> TokeniserDecisionTagSequence, ordered from most probable to least probable
 	 */
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String sentence);
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text);
 	
-	public List<TokenSequence> tokenise(String sentence);
+	/**
+	 * Similar to tokeniseWithDecisions(String), but returns the token sequences inferred from
+	 * the decisions, rather than the list of decisions themselves.
+	 * @param text
+	 * @return
+	 */
+	public List<TokenSequence> tokenise(String text);
+	
+	/**
+	 * Similar to tokeniseWithDecisions(String), but the text to be tokenised is contained
+	 * within a Sentence object.
+	 * @param sentence
+	 * @return
+	 */
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence);
+	
+	/**
+	 * Similar to tokeniseWithDecisions(Sentence), but returns the token sequences inferred from
+	 * the decisions, rather than the list of decisions themselves.
+	 * @return
+	 */
+	public List<TokenSequence> tokenise(Sentence sentence);
 	
 	/**
 	 * Filters to be applied to the atomic token sequences, prior to tokenising.
+	 * These filters will either add empty tokens at given places, or change the token text.
 	 * Note that these filters will be applied to the token sequences produced by the tokeniser as well.
+	 * @return
+	 */
+	public List<TokenSequenceFilter> getTokenSequenceFilters();
+	
+	/**
+	 * See getTokenSequenceFilters().
+	 * @param tokenSequenceFilter
+	 */
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
+	
+	/**
+	 * Filters to be applied prior to breaking the sentence up into atomic token sequences -
+	 * these filters will mark certain portions of the sentence as entire tokens, and the tokeniser
+	 * will not take any decisions on these.
 	 * @return
 	 */
 	public List<TokenFilter> getTokenFilters();
 
-	public void setTokenFilters(List<TokenFilter> tokenFilters);
-	
-	public void addTokenFilter(TokenFilter tokenFilter);
-	
+	/**
+	 * See getTokenFilters().
+	 * @param filter
+	 */
+	public void addTokenFilter(TokenFilter filter);
+
 	public void addObserver(AnalysisObserver observer);
+
 }

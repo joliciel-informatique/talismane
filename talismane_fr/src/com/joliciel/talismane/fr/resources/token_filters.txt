@@ -1,0 +1,5 @@
+###################################
+#### URLs and e-mail addresses ####
+###################################
+TokenRegexFilter	\b([\w.%-]+@[-.\w]+\.[A-Za-z]{2,4})\b	EntitéNomméeAdresseMail
+TokenRegexFilter	\b((https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?)\b	EntitéNomméeURL

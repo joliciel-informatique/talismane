@@ -16,28 +16,23 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser.filters;
+package com.joliciel.talismane.lexicon;
 
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-
-public class PrettyQuotesFilter implements TokenFilter {
-
-	@Override
-	public void apply(TokenSequence tokenSequence) {
-		for (Token token : tokenSequence) {
-			String text = token.getText();
-			if (text.equals("’"))
-				token.setText("'");
-			else if (text.equals("“")||text.equals("”")||text.equals("„")||text.equals("‟")||text.equals("″")||text.equals("‴"))
-				token.setText("\"");
-			else if (text.equals("«")||text.equals("»")) {
-				token.setText("\"");
-				//TODO: remove space after/before this guillemet
-			} else if (text.equals("•")) {
-				token.setText("*");
-			}
-		}
-	}
-
+/**
+ * Reads lexical entries from a set of string representing various bits of data
+ *  - useful to extract lexical entries from an annotated corpus without
+ *  relying on an external lexicon.
+ *  Notably, defines internally how to interpret a string containing morphological information
+ *  (as per the CONLL data format).
+ * @author Assaf Urieli
+ *
+ */
+public interface LexicalEntryMorphologyReader {
+	/**
+	 * Construct a lexical entry given the component information.
+	 * Notably, extract morphological information out of a morphology string.
+	 * @param line
+	 * @return
+	 */
+	public LexicalEntry readEntry(String token, String lemma, String category, String morphology);
 }

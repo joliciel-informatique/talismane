@@ -1,0 +1,22 @@
+#################
+#### Numbers ####
+#################
+TokenRegexFilter	\b([-+])?[1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+([eE][-+]?[0-9]+)?\b	9,99
+TokenRegexFilter	\b([-+])?[1-9][0-9]*,[0-9]+([eE][-+]?[0-9]+)?\b	9,99
+TokenRegexFilter	\b([-+])?0,[0-9]+([eE][-+]?[0-9]+)?\b	9,99
+TokenRegexFilter	\b([-+])?,[0-9]+([eE][-+]?[0-9]+)?\b	9,99
+TokenRegexFilter	\b([-+])?([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	999
+TokenRegexFilter	\b(([1-9])|([12][0-9])|(3[01]))\b	31
+TokenRegexFilter	\b([12][0-9][0-9][0-9])\b	1999
+TokenRegexFilter	\b([-+])?([1-9][0-9]*)\b	999
+########################
+#### various quotes ####
+########################
+TokenRegexFilter	’	'
+TokenRegexFilter	[“”„‟″‴]	"
+TokenRegexFilter	(« )|«	"
+TokenRegexFilter	( »)|»	"
+#########################
+#### various bullets ####
+#########################
+TokenRegexFilter	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	*

@@ -1,0 +1,9 @@
+#### bullets at start of line or input ####
+RegexMarkerFilter	SKIP	\n( *[*•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•])	1
+RegexMarkerFilter	SKIP	\A( *[*•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•])	1
+RegexMarkerFilter	SKIP	\n( *-)	1
+RegexMarkerFilter	SKIP	\A( *-)	1
+RegexMarkerFilter	SKIP	\n( *\(?\d+(\.\d+)*\))	1
+RegexMarkerFilter	SKIP	\A( *\(?\d+(\.\d+)*\))	1
+RegexMarkerFilter	SKIP	\n( *\d+(\.\d+)*\.)	1
+RegexMarkerFilter	SKIP	\A( *\d+(\.\d+)*\.)	1

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -35,7 +37,8 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
@@ -43,7 +46,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
- * A MaxEnt event stream for tokenising, using patterns to identify intervals that need to be examined.
+ * An event stream for tokenising, using patterns to identify intervals that need to be examined.
  * An interval is simply the space between two tokens.
  * This reduces the tokeniser decision to binary decision: separate or join.
  * By convention, a feature being tested on a token is assumed to test the interval between the token and the one preceding it.
@@ -52,20 +55,24 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class TokeniserEventStream implements CorpusEventStream {
     private static final Log LOG = LogFactory.getLog(TokeniserEventStream.class);
-	TokenFeatureService tokenFeatureService;
-	TokeniserService tokeniserService;
-	TokeniserPatternService tokeniserPatternService;
+    
+    private TokenFeatureService tokenFeatureService;
+	private TokenFilterService tokenFilterService;
+	private TokeniserService tokeniserService;
+	private TokeniserPatternService tokeniserPatternService;
+	private FilterService filterService;
+	
 	private MachineLearningService machineLearningService;
 
-    TokeniserAnnotatedCorpusReader corpusReader;
-    Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
-	List<TaggedToken<TokeniserOutcome>> tokensToCheck;
-	int currentIndex;
-	TokenisedAtomicTokenSequence currentHistory = null;
-	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+	private TokeniserAnnotatedCorpusReader corpusReader;
+    private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
+    private List<TaggedToken<TokeniserOutcome>> tokensToCheck;
+	private int currentIndex;
+	private TokenisedAtomicTokenSequence currentHistory = null;
 
-	TokeniserPatternManager tokeniserPatternManager = null;
-	TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
+	private TokeniserPatternManager tokeniserPatternManager = null;
+	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
+	private TokenSequenceFilter tokenFilterWrapper = null;
 
 	public TokeniserEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures) {
@@ -87,16 +94,21 @@ class TokeniserEventStream implements CorpusEventStream {
 					TokenSequence realSequence = corpusReader.nextTokenSequence();
 					
 					List<Integer> tokenSplits = realSequence.getTokenSplits();
-					String sentence = realSequence.getSentence();
-
-					LOG.debug("Sentence: " + sentence);
+					String text = realSequence.getText();
+					LOG.debug("Sentence: " + text);
+					Sentence sentence = filterService.getSentence(text);
+					
 					TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
-					for (TokenFilter tokenFilter : this.tokenFilters) {
-						tokenFilter.apply(tokenSequence);
+					for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
+						tokenSequenceFilter.apply(tokenSequence);
 					}
+					if (tokenFilterWrapper==null) {
+						tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.corpusReader.getTokenFilters());
+					}
+					tokenFilterWrapper.apply(tokenSequence);
 					
 					List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
-					currentHistory = this.tokeniserService.getTokenisedSentence(sentence, tokenSequence.size());
+					currentHistory = this.tokeniserService.getTokenisedAtomicTokenSequence(sentence, tokenSequence.size());
 					
 					// check if anything matches each pattern
 					Set<Token> patternMatchingTokens = new TreeSet<Token>();
@@ -142,11 +154,6 @@ class TokeniserEventStream implements CorpusEventStream {
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
 				
-		List<String> tokenFilterNames = new ArrayList<String>();
-		for (TokenFilter tokenFilter : tokenFilters) {
-			tokenFilterNames.add(tokenFilter.getClass().getSimpleName());
-		}
-		attributes.put("Token filters", tokenFilterNames);
 		attributes.putAll(corpusReader.getCharacteristics());
 		
 		return attributes;
@@ -239,14 +246,6 @@ class TokeniserEventStream implements CorpusEventStream {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
 
-	public List<TokenFilter> getTokenFilters() {
-		return tokenFilters;
-	}
-
-	public void setTokenFilters(List<TokenFilter> tokenFilters) {
-		this.tokenFilters = tokenFilters;
-	}
-
 	public MachineLearningService getMachineLearningService() {
 		return machineLearningService;
 	}
@@ -254,6 +253,22 @@ class TokeniserEventStream implements CorpusEventStream {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
+	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
 	}
 	
 	

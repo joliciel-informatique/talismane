@@ -20,21 +20,34 @@ package com.joliciel.talismane.tokeniser;
 
 import static org.junit.Assert.*;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
+
+import mockit.NonStrict;
+import mockit.NonStrictExpectations;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
+import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+
 public class TokenSequenceImplTest {
 	private static final Log LOG = LogFactory.getLog(TokenSequenceImplTest.class);
 
 	@Test
-	public void testTokeniseSentence() {
+	public void testTokeniseSentence(@NonStrict final Sentence sentence) {
 		TokeniserServiceInternal tokeniserServiceInternal = new TokeniserServiceImpl();
-		final String sentence = "Je n'ai pas l'ourang-outan.";
 		final String separators="[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
+		
+		new NonStrictExpectations() {
+			{
+				sentence.getText(); returns("Je n'ai pas l'ourang-outan.");
+			}
+		};
 		
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, tokeniserServiceInternal);
 		
@@ -130,11 +143,14 @@ public class TokenSequenceImplTest {
 	}
 	
 	@Test
-	public void testSimpleAddByIndex() {
+	public void testSimpleAddByIndex(@NonStrict final Sentence sentence) {
 		TokeniserServiceInternal tokeniserServiceInternal = new TokeniserServiceImpl();
-		String sentence = "The quick brown fox.";
-		LOG.debug("Sentence length: " + sentence.length());
 		
+		new NonStrictExpectations() {
+			{
+				sentence.getText(); returns("The quick brown fox.");
+			}
+		};
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence);
 		tokenSequence.setTokeniserServiceInternal(tokeniserServiceInternal);
 		tokenSequence.addToken(16,19); // fox
@@ -166,5 +182,211 @@ public class TokenSequenceImplTest {
 		assertEquals(9, tokenSequence.getTokenSplits().size());
 	}
 
+	@Test
+	public void testTokeniseSentenceWithPlaceholders(@NonStrict final Sentence sentence) {
+		TokeniserServiceInternal tokeniserServiceInternal = new TokeniserServiceImpl();
+		
+		final String separators="[\\s\\p{Punct}]";
+		Pattern separatorPattern = Pattern.compile(separators);
+		
+		final Set<TokenPlaceholder> placeholders = new LinkedHashSet<TokenPlaceholder>();
+		
+		new NonStrictExpectations() {
+			TokenPlaceholder placeholder0, placeholder1;
+			{
+				sentence.getText(); returns("Write to me at joe.schome@test.com, otherwise go to http://test.com.");
+				
+				placeholder0.getStartIndex(); returns(15);
+				placeholder0.getEndIndex(); returns(34);
+				placeholder0.getReplacement(); returns("Email");
+				placeholders.add(placeholder0);
+				
+				placeholder1.getStartIndex(); returns(52);
+				placeholder1.getEndIndex(); returns(67);
+				placeholder1.getReplacement(); returns("URL");
+				placeholders.add(placeholder1);
+				
+			}
+		};
+
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, tokeniserServiceInternal);
+		
+		assertEquals(19, tokenSequence.listWithWhiteSpace().size());
+		assertEquals(11, tokenSequence.size());
+		
+		int i = 0;
+		for (Token token : tokenSequence.listWithWhiteSpace()) {
+			if (i==0) {
+				assertEquals("Write", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==1) {
+				assertEquals(" ", token.getText());
+				assertEquals(true, token.isSeparator());
+			} else if (i==2) {
+				assertEquals("to", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==3) {
+				assertEquals(" ", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==4) {
+				assertEquals("me", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==5) {
+				assertEquals(" ", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==6) {
+				assertEquals("at", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==7) {
+				assertEquals(" ", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==8) {
+				assertEquals("Email", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==9) {
+				assertEquals(",", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==10) {
+				assertEquals(" ", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==11) {
+				assertEquals("otherwise", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==12) {
+				assertEquals(" ", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==13) {
+				assertEquals("go", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==14) {
+				assertEquals(" ", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==15) {
+				assertEquals("to", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==16) {
+				assertEquals(" ", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==17) {
+				assertEquals("URL", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==18) {
+				assertEquals(".", token.getText());	
+				assertEquals(true, token.isSeparator());
+			}
+			i++;
+		}
+		
+		i = 0;
+		for (Token token : tokenSequence) {
+			if (i==0) {
+				assertEquals("Write", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==1) {
+				assertEquals("to", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==2) {
+				assertEquals("me", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==3) {
+				assertEquals("at", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==4) {
+				assertEquals("Email", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==5) {
+				assertEquals(",", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==6) {
+				assertEquals("otherwise", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==7) {
+				assertEquals("go", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==8) {
+				assertEquals("to", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==9) {
+				assertEquals("URL", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==10) {
+				assertEquals(".", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} 
+			i++;
+		}
+	}
 	
+	@Test
+	public void testTokeniseSentenceWithPlaceholdersNoSeparators(@NonStrict final Sentence sentence) {
+		TokeniserServiceInternal tokeniserServiceInternal = new TokeniserServiceImpl();
+		
+		final String separators="[\\s\\p{Punct}]";
+		Pattern separatorPattern = Pattern.compile(separators);
+		
+		final Set<TokenPlaceholder> placeholders = new LinkedHashSet<TokenPlaceholder>();
+		
+		new NonStrictExpectations() {
+			TokenPlaceholder placeholder0;
+			{
+				sentence.getText(); returns("Il t’aime.");
+				
+				placeholder0.getStartIndex(); returns("Il t".length());
+				placeholder0.getEndIndex(); returns("Il t’".length());
+				placeholder0.getReplacement(); returns("'");
+				placeholders.add(placeholder0);
+			}
+		};
+
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, tokeniserServiceInternal);
+		LOG.debug(tokenSequence.listWithWhiteSpace());
+		LOG.debug(tokenSequence);
+		assertEquals(6, tokenSequence.listWithWhiteSpace().size());
+		assertEquals(5, tokenSequence.size());
+		
+		int i = 0;
+		for (Token token : tokenSequence.listWithWhiteSpace()) {
+			if (i==0) {
+				assertEquals("Il", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==1) {
+				assertEquals(" ", token.getText());
+				assertEquals(true, token.isSeparator());
+			} else if (i==2) {
+				assertEquals("t", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==3) {
+				assertEquals("'", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==4) {
+				assertEquals("aime", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==5) {
+				assertEquals(".", token.getText());	
+				assertEquals(true, token.isSeparator());
+			}
+			i++;
+		}
+		
+		i = 0;
+		for (Token token : tokenSequence) {
+			if (i==0) {
+				assertEquals("Il", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==1) {
+				assertEquals("t", token.getText());
+				assertEquals(false, token.isSeparator());
+			} else if (i==2) {
+				assertEquals("'", token.getText());	
+				assertEquals(true, token.isSeparator());
+			} else if (i==3) {
+				assertEquals("aime", token.getText());	
+				assertEquals(false, token.isSeparator());
+			} else if (i==4) {
+				assertEquals(".", token.getText());	
+				assertEquals(true, token.isSeparator());
+			}
+			i++;
+		}
+	}
 }

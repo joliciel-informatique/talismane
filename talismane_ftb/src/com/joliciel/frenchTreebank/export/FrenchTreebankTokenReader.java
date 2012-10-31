@@ -36,6 +36,7 @@ import com.joliciel.frenchTreebank.TreebankReader;
 import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.util.CSVFormatter;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -49,6 +50,8 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
@@ -58,15 +61,20 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTagAnnotatedCorpusReader {
     private static final Log LOG = LogFactory.getLog(FrenchTreebankTokenReader.class);
-	TreebankService treebankService;
-	TokeniserService tokeniserService;
-	PosTaggerService posTaggerService;
+    
+    private TreebankService treebankService;
+	private TokeniserService tokeniserService;
+	private PosTaggerService posTaggerService;
+	private FilterService filterService;
+	private TokenFilterService tokenFilterService;
 	
-	FtbPosTagMapper ftbPosTagMapper;
-	Writer csvFileErrorWriter = null;
+	private FtbPosTagMapper ftbPosTagMapper;
+	private Writer csvFileErrorWriter = null;
 	private boolean ignoreCase = true;
+	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-	TreebankReader treebankReader;
+	private TreebankReader treebankReader;
+	private TokenSequenceFilter tokenFilterWrapper = null;
 	
 	public FrenchTreebankTokenReader(TreebankReader treebankReader) {
 		this.treebankReader = treebankReader;
@@ -133,7 +141,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			if (currentPos<text.length())
 				allTokens.add(text.substring(currentPos));
 			
-			TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(text);
+			com.joliciel.talismane.filters.Sentence oneSentence = this.filterService.getSentence(text);
+			TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(oneSentence);
 			List<PosTaggedToken> posTaggedTokens = new ArrayList<PosTaggedToken>();
 			
 			PhraseUnitReader phraseUnitReader = new ComplexPhraseUnitReaderWithEmptyTokens(phraseUnits);
@@ -295,10 +304,16 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	    		LOG.debug(sb.toString());
 			}
 	
-			for (TokenFilter tokenFilter : this.tokenFilters) {
-				LOG.debug("Applying filter: " + tokenFilter.getClass().getSimpleName());
-				tokenFilter.apply(tokenSequence);
+			for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+				LOG.debug("Applying filter: " + tokenSequenceFilter.getClass().getSimpleName());
+				tokenSequenceFilter.apply(tokenSequence);
 			}
+			
+			if (tokenFilterWrapper==null) {
+				tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.tokenFilters);
+			}
+			tokenFilterWrapper.apply(tokenSequence);
+
 			tokenSequence.finalise();
 			
 			PosTagSequence posTagSequence = this.posTaggerService.getPosTagSequence(tokenSequence, allTokens.size() / 2);
@@ -365,8 +380,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 		this.posTaggerService = posTaggerService;
 	}
 	
-	public void addTokenFilter(TokenFilter tokenFilter) {
-		this.tokenFilters.add(tokenFilter);
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
+		this.tokenSequenceFilters.add(tokenFilter);
 	}
 
 	@Override
@@ -380,8 +395,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 		characteristics.put("ignoreCase", "" + ignoreCase);
 		
 		int i = 0;
-		for (TokenFilter tokenFilter : this.tokenFilters) {
-			characteristics.put("filter" + i, "" + tokenFilter.getClass().getSimpleName());
+		for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+			characteristics.put("filter" + i, "" + tokenSequenceFilter.getClass().getSimpleName());
 			
 			i++;
 		}
@@ -395,6 +410,36 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	public void setFtbPosTagMapper(FtbPosTagMapper ftbPosTagMapper) {
 		this.ftbPosTagMapper = ftbPosTagMapper;
 	}
-	
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
+	}
+
+	@Override
+	public void addTokenFilter(TokenFilter tokenFilter) {
+		this.tokenFilters.add(tokenFilter);
+	}
+
+	@Override
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
+		return this.tokenSequenceFilters;
+	}
+
+	@Override
+	public List<TokenFilter> getTokenFilters() {
+		return this.tokenFilters;
+	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
+	}
 	
 }

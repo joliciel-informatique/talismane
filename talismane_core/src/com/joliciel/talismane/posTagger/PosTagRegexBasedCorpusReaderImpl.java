@@ -31,7 +31,7 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 class PosTagRegexBasedCorpusReaderImpl implements
 		PosTagRegexBasedCorpusReader {
@@ -39,7 +39,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	private Pattern pattern;
 	private Scanner scanner;
 	private PosTagSequence sentence = null;
-	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+	private List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
 	private int tokenGroupIndex = 0;
 	private int posTagGroupIndex = 0;
 	private int lineNumber = 0;
@@ -67,7 +67,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						continue;
 					
 					tokenSequence.cleanSlate();
-					for (TokenFilter tokenFilter : this.tokenFilters) {
+					for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
 						tokenFilter.apply(tokenSequence);
 					}
 					
@@ -140,7 +140,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	}
 
 	@Override
-	public void addTokenFilter(TokenFilter tokenFilter) {
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
 		this.tokenFilters.add(tokenFilter);
 	}
 	

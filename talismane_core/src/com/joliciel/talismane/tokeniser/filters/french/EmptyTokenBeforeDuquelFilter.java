@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * Always insert an empty token before "auquel", "duquel", "auxquels", "desquels", "auxquelles", "desquelles".
@@ -13,7 +13,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
  * @author Assaf Urieli
  *
  */
-public class EmptyTokenBeforeDuquelFilter implements TokenFilter {
+public class EmptyTokenBeforeDuquelFilter implements TokenSequenceFilter {
 	private boolean createIfMissing = true;
 
 	public EmptyTokenBeforeDuquelFilter() {

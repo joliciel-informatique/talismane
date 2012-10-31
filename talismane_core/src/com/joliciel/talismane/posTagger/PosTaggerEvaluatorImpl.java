@@ -71,7 +71,7 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 			PosTagSequence guessedSequence = null;
 			
 			if (this.tokeniser!=null) {
-				tokenSequences = tokeniser.tokenise(tokenSequence.getSentence());
+				tokenSequences = tokeniser.tokenise(tokenSequence.getText());
 				tokenSequence = tokenSequences.get(0);
 				if (!propagateBeam) {
 					tokenSequences = new ArrayList<TokenSequence>();

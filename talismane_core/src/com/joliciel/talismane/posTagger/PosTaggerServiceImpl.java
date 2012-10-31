@@ -52,7 +52,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
 		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);
-		posTagger.setLexiconService(TalismaneSession.getLexiconService());
+		posTagger.setLexiconService(TalismaneSession.getLexicon());
 		
 		return posTagger;
 	}
@@ -82,7 +82,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTaggedToken getPosTaggedToken(Token token, Decision<PosTag> decision) {
 		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, decision);
-		posTaggedToken.setLexiconService(TalismaneSession.getLexiconService());
+		posTaggedToken.setLexiconService(TalismaneSession.getLexicon());
 		return posTaggedToken;
 	}
 	

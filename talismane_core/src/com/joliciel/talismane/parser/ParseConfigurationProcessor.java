@@ -27,12 +27,6 @@ package com.joliciel.talismane.parser;
 */
 public interface ParseConfigurationProcessor {
 	/**
-	 * Set an undetermined list of parameters.
-	 * @param args
-	 */
-	public void setParameters(String... args);
-	
-	/**
 	 * Called when the next parse configuration is available for processing.
 	 * @param parseConfiguration
 	 */

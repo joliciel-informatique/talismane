@@ -21,6 +21,7 @@ package com.joliciel.talismane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.FilterServiceLocator;
 import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
 import com.joliciel.talismane.machineLearning.maxent.MaxentServiceLocator;
@@ -32,6 +33,7 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorServiceLocator;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureServiceLocator;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
 import com.joliciel.talismane.tokeniser.features.TokeniserFeatureServiceLocator;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterServiceLocator;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternServiceLocator;
 
 /**
@@ -46,6 +48,7 @@ public class TalismaneServiceLocator {
 	private PosTaggerServiceLocator posTaggerServiceLocator;
 	private TokeniserServiceLocator tokeniserServiceLocator;
 	private TokeniserFeatureServiceLocator tokeniserFeatureServiceLocator;
+	private TokenFilterServiceLocator tokenFilterServiceLocator;
 	private TokeniserPatternServiceLocator tokeniserPatternServiceLocator;
 	private SentenceDetectorServiceLocator sentenceDetectorServiceLocator;
 	private SentenceDetectorFeatureServiceLocator sentenceDetectorFeatureServiceLocator;
@@ -54,6 +57,7 @@ public class TalismaneServiceLocator {
 	private FeatureServiceLocator featureServiceLocator;
 	private MachineLearningServiceLocator machineLearningServiceLocator;
 	private MaxentServiceLocator maxentServiceLocator;
+	private FilterServiceLocator filterServiceLocator;
 	
     private static TalismaneServiceLocator instance = null;
 
@@ -129,14 +133,20 @@ public class TalismaneServiceLocator {
 		return featureServiceLocator;
 	}
 
-	public TokeniserFeatureServiceLocator getTokeniserFeatureServiceLocator() {
+	public TokeniserFeatureServiceLocator getTokenFeatureServiceLocator() {
 		if (this.tokeniserFeatureServiceLocator==null) {
 			this.tokeniserFeatureServiceLocator = new TokeniserFeatureServiceLocator(this);
 		}
 		return tokeniserFeatureServiceLocator;
 
 	}
-	
+
+	public TokenFilterServiceLocator getTokenFilterServiceLocator() {
+		if (this.tokenFilterServiceLocator==null) {
+			this.tokenFilterServiceLocator = new TokenFilterServiceLocator(this);
+		}
+		return tokenFilterServiceLocator;
+	}
 
 	public TokeniserPatternServiceLocator getTokenPatternServiceLocator() {
 		if (this.tokeniserPatternServiceLocator==null) {
@@ -156,6 +166,12 @@ public class TalismaneServiceLocator {
 		if (this.maxentServiceLocator==null)
 			this.maxentServiceLocator = MaxentServiceLocator.getInstance();
 		return maxentServiceLocator;
+	}
+
+	public FilterServiceLocator getFilterServiceLocator() {
+		if (this.filterServiceLocator==null)
+			this.filterServiceLocator = new FilterServiceLocator(this);
+		return filterServiceLocator;
 	}
 	
 	

@@ -19,6 +19,8 @@
 package com.joliciel.talismane.fr;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
@@ -27,7 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
 import com.joliciel.talismane.AbstractTalismane;
-import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
+import com.joliciel.talismane.posTagger.PosTaggerLexicon;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 public class TalismaneFrench extends AbstractTalismane {
 	private static final Log LOG = LogFactory.getLog(TalismaneFrench.class);
@@ -39,7 +42,6 @@ public class TalismaneFrench extends AbstractTalismane {
 	public static void main(String[] args) throws Exception {
     	TalismaneFrench instance = new TalismaneFrench();
     	instance.runCommand(args);
-    	
 	}
 
 	private static ZipInputStream getZipInputStreamFromResource(String resource) {
@@ -73,7 +75,7 @@ public class TalismaneFrench extends AbstractTalismane {
 	
 
 	@Override
-	protected PosTaggerLexiconService getDefaultLexiconService() {
+	protected PosTaggerLexicon getDefaultLexiconService() {
       	LefffMemoryLoader loader = new LefffMemoryLoader();
 		String lefffPath = "/com/joliciel/talismane/fr/resources/lefff.zip";
 		ZipInputStream lefffInputStream = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lefffPath)); 
@@ -104,6 +106,30 @@ public class TalismaneFrench extends AbstractTalismane {
 	protected ZipInputStream getDefaultParserModelStream() {
 		String parserModelName = "ftbDepParser_fr12_ArcEager_cutoff5.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
+	}
+
+	@Override
+	protected List<TokenSequenceFilter> getTokenSequenceFilters() {
+		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
+		return tokenFilters;
+	}
+
+	@Override
+	protected List<TokenSequenceFilter> getPosTaggerPreprocessingFilters() {
+		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
+		return tokenFilters;
+	}
+
+	@Override
+	protected InputStream getDefaultRegexTextMarkerFiltersFromStream() {
+		InputStream inputStream = getInputStreamFromResource("text_marker_filters.txt");
+		return inputStream;
+	}
+
+	@Override
+	protected InputStream getDefaultTokenRegexFiltersFromStream() {
+		InputStream inputStream = getInputStreamFromResource("token_filters.txt");
+		return inputStream;
 	}
 
 	

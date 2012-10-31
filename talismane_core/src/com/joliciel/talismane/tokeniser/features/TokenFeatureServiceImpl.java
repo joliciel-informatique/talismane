@@ -51,7 +51,7 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	
 	public TokenFeatureParser getTokenFeatureParser(List<TokenPattern> patternList) {
 		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl(this.getFeatureService());
-		tokenFeatureParser.setLexiconService(TalismaneSession.getLexiconService());
+		tokenFeatureParser.setLexiconService(TalismaneSession.getLexicon());
 		tokenFeatureParser.setPosTagSet(TalismaneSession.getPosTagSet());
 		tokenFeatureParser.setPatternList(patternList);
 		return tokenFeatureParser;
