@@ -9,6 +9,7 @@ import com.joliciel.frenchTreebank.PhraseUnit;
 import com.joliciel.frenchTreebank.Sentence;
 import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.TreebankServiceLocator;
+import com.joliciel.talismane.TalismaneServiceLocator;
 
 import junit.framework.TestCase;
 
@@ -16,7 +17,8 @@ public class LoadSentenceTest extends TestCase {
 	private static final Log LOG = LogFactory.getLog(LoadSentenceTest.class);
 
 	public void testLoadFullSentence() {
-		TreebankServiceLocator locator = TreebankServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TreebankServiceLocator locator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
 		locator.setDataSourcePropertiesFile("jdbc-live.properties");
 		
 		TreebankService treebankService = locator.getTreebankService();

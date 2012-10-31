@@ -13,21 +13,24 @@ import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
+import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 public class LowercaseFirstWordFrenchFilterTest {
 
 	@Test
-	public void testApply(@NonStrict final PosTaggerLexiconService lexiconService) {
+	public void testApply(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexiconService(lexiconService);
+		TalismaneSession.setLexicon(lexiconService);
 		new NonStrictExpectations() {
 			PosTag posTagCLS;
 			{
+				sentence.getText(); returns("Je ne sais pas");
+
 				Set<PosTag> posTags = new TreeSet<PosTag>();
 				posTags.add(posTagCLS);
 				posTagCLS.getCode(); returns("CLS");
@@ -36,7 +39,7 @@ public class LowercaseFirstWordFrenchFilterTest {
 		};
 		
 		LowercaseFirstWordFrenchFilter filter = new LowercaseFirstWordFrenchFilter();
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence("Je ne sais pas", Pattern.compile(" "));
+		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile(" "));
 		filter.apply(tokenSequence);
 		
 		assertEquals("Je", tokenSequence.get(0).getOriginalText());
@@ -45,20 +48,22 @@ public class LowercaseFirstWordFrenchFilterTest {
 
 
 	@Test
-	public void testApplyNotInLexicon(@NonStrict final PosTaggerLexiconService lexiconService) {
+	public void testApplyNotInLexicon(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexiconService(lexiconService);
+		TalismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			{
+				sentence.getText(); returns("TF 1 va");
+				
 				Set<PosTag> posTags = new TreeSet<PosTag>();
 				lexiconService.findPossiblePosTags("tF"); returns(posTags);
 			}
 		};
 		
 		LowercaseFirstWordFrenchFilter filter = new LowercaseFirstWordFrenchFilter();
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence("TF 1 va", Pattern.compile(" "));
+		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile(" "));
 		filter.apply(tokenSequence);
 		
 		assertEquals("TF", tokenSequence.get(0).getOriginalText());

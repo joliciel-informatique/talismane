@@ -42,7 +42,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
@@ -58,7 +58,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private PosTaggerService posTaggerService;
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
-	private PosTaggerLexiconService lexiconService;
+	private PosTaggerLexicon lexiconService;
 	private DecisionMaker<PosTag> decisionMaker;
 	
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
@@ -66,7 +66,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private List<PosTaggerRule> posTaggerPositiveRules;
 	private List<PosTaggerRule> posTaggerNegativeRules;
 	
-	private List<TokenFilter> preprocessingFilters = new ArrayList<TokenFilter>();
+	private List<TokenSequenceFilter> preprocessingFilters = new ArrayList<TokenSequenceFilter>();
 
 	private int beamWidth;
 	private PosTagSet posTagSet;
@@ -98,14 +98,14 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			PerformanceMonitor.startTask("PosTaggerImpl.apply filters");
 			try {
 				for (TokenSequence tokenSequence : tokenSequences) {
-					for (TokenFilter tokenFilter : this.preprocessingFilters) {
+					for (TokenSequenceFilter tokenFilter : this.preprocessingFilters) {
 						tokenFilter.apply(tokenSequence);
 					}
 				}
 			} finally {
 				PerformanceMonitor.endTask("PosTaggerImpl.apply filters");
 			}
-			int sentenceLength = tokenSequences.get(0).getSentence().length();
+			int sentenceLength = tokenSequences.get(0).getText().length();
 			
 			TreeMap<Double, PriorityQueue<PosTagSequence>> heaps = new TreeMap<Double, PriorityQueue<PosTagSequence>>();
 			
@@ -340,11 +340,11 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		this.posTaggerFeatureService = posTaggerFeatureService;
 	}
 
-	public PosTaggerLexiconService getLexiconService() {
+	public PosTaggerLexicon getLexiconService() {
 		return lexiconService;
 	}
 
-	public void setLexiconService(PosTaggerLexiconService lexiconService) {
+	public void setLexiconService(PosTaggerLexicon lexiconService) {
 		this.lexiconService = lexiconService;
 	}
 
@@ -409,15 +409,15 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		return posTaggerFeatures;
 	}
 	
-	public List<TokenFilter> getPreprocessingFilters() {
+	public List<TokenSequenceFilter> getPreprocessingFilters() {
 		return preprocessingFilters;
 	}
 
-	public void setPreprocessingFilters(List<TokenFilter> tokenFilters) {
+	public void setPreprocessingFilters(List<TokenSequenceFilter> tokenFilters) {
 		this.preprocessingFilters = tokenFilters;
 	}
 	
-	public void addPreprocessingFilter(TokenFilter tokenFilter) {
+	public void addPreprocessingFilter(TokenSequenceFilter tokenFilter) {
 		this.preprocessingFilters.add(tokenFilter);
 	}
 	

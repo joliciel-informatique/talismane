@@ -54,7 +54,7 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
 			
 			List<Integer> realSplits = realSequence.getTokenSplits();
-			String sentence = realSequence.getSentence();
+			String sentence = realSequence.getText();
 			
 			List<TokenisedAtomicTokenSequence> tokeniserDecisionTagSequences = tokeniser.tokeniseWithDecisions(sentence);
 			TokenisedAtomicTokenSequence tokeniserDecisionTagSequence = tokeniserDecisionTagSequences.get(0);

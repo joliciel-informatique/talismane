@@ -1,5 +1,6 @@
 package com.joliciel.talismane.tokeniser;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Solution;
 
 /**
@@ -15,8 +16,8 @@ public interface TokenisedAtomicTokenSequence extends TaggedTokenSequence<Tokeni
 	public TokenSequence inferTokenSequence();
 
 	/**
-	 * The original sentence, as a string.
+	 * The original sentence.
 	 * @return
 	 */
-	public String getSentence();
+	public Sentence getSentence();
 }

@@ -21,7 +21,7 @@ package com.joliciel.talismane;
 import java.io.Reader;
 import java.util.List;
 
-import com.joliciel.talismane.filters.TextStreamFilter;
+import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
@@ -35,12 +35,13 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
  * A class for processing an input stream and writing the analysis result to an output stream.<br/>
  * The processing must go from a given start module to a given end module in sequence, where the modules available are:
  * Sentence detector, Tokeniser, Pos tagger, Parser.<br/>
- * A fixed input format is expected depending on the start module:<br/>
- * <li>Sentence detector: newlines indicate sentence breaks, but can have multiple sentences per paragraph.</li>
+ * There is a default input format for each start module,
+ * which can be over-ridden by providing a regex for processing lines of input. The default format is:
+ * <li>Sentence detector: newlines indicate sentence breaks.</li>
  * <li>Tokeniser: expect exactly one sentence per newline.</li>
- * <li>Pos tagger: expect one token per line and empty line to indicate sentence breaks. Empty tokens are indicated by an underscore.</li>
- * <li>Parser: each line should start with token-tab-postag and end with a newline.</li>
- * The output format is determined by the processor corresponding to the end-module.<br/>
+ * <li>Pos tagger: {@link  com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader#DEFAULT_REGEX default regex} </li>
+ * <li>Parser: {@link  com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader#DEFAULT_REGEX default regex} </li>
+ * <br/>The output format is determined by the processor corresponding to the end-module.<br/>
  * @author Assaf Urieli
  *
  */
@@ -96,13 +97,13 @@ public interface Talismane {
 	public void setParser(Parser parser);
 	
 	/**
-	 * Text stream filters are applied to raw text segments extracted from the stream, 3 segments at a time.
-	 * This means that if the text to be updated crosses segment borders, it is handled correctly.
+	 * Text marker filters are applied to raw text segments extracted from the stream, 3 segments at a time.
+	 * This means that if a particular marker crosses segment borders, it is handled correctly.
 	 * @return
 	 */
-	public List<TextStreamFilter> getTextStreamFilters();
-	public void setTextStreamFilters(List<TextStreamFilter> textStreamFilters);
-	public void addTextStreamFilter(TextStreamFilter textStreamFilter);
+	public List<TextMarkerFilter> getTextMarkerFilters();
+	public void setTextMarkerFilters(List<TextMarkerFilter> textMarkerFilters);
+	public void addTextMarkerFilter(TextMarkerFilter textMarkerFilter);
 
 	/**
 	 * Should the beam get propagated between various levels of analysis, e.g. should multiple analyses

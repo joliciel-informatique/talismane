@@ -24,8 +24,6 @@ import com.joliciel.frenchTreebank.TreebankSubSet;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
-import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
@@ -120,7 +118,7 @@ public class SentenceDetectorMaxentRunner {
 			
 			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 
-			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance();
+			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
 			if (treebankPath.length()==0)
 				treebankServiceLocator.setDataSourcePropertiesFile("jdbc-ftb.properties");
 	
@@ -167,9 +165,7 @@ public class SentenceDetectorMaxentRunner {
 
 				Set<SentenceDetectorFeature<?>> features = sentenceDetectorFeatureService.getFeatureSet(featureDescriptors);
 
-				List<TextFilter> textFilters = new ArrayList<TextFilter>();
-				textFilters.add(new DuplicateWhiteSpaceFilter());
-				CorpusEventStream tokeniserEventStream = sentenceDetectorService.getSentenceDetectorEventStream(reader, features, textFilters);
+				CorpusEventStream tokeniserEventStream = sentenceDetectorService.getSentenceDetectorEventStream(reader, features);
 
 				Map<String,Object> trainParameters = new HashMap<String, Object>();
 				if (algorithm.equals(MachineLearningAlgorithm.MaxEnt)) {
@@ -236,7 +232,6 @@ public class SentenceDetectorMaxentRunner {
 
 					SentenceDetector sentenceDetector = sentenceDetectorService.getSentenceDetector(sentenceModel.getDecisionMaker(), features);
 					SentenceDetectorEvaluator evaluator = sentenceDetectorService.getEvaluator(sentenceDetector);
-					evaluator.addTextFilter(new DuplicateWhiteSpaceFilter());
 					
 					fScoreCalculator = evaluator.evaluate(reader, errorFileWriter);
 					

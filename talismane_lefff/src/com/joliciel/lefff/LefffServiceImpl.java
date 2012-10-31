@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.ObjectCache;
 
@@ -380,6 +381,12 @@ class LefffServiceImpl implements LefffServiceInternal {
 			PosTagSet posTagSet) {
 		LefffPosTagMapperImpl posTagMapper = new LefffPosTagMapperImpl(descriptors, posTagSet);
 		return posTagMapper;
+	}
+
+	@Override
+	public LexicalEntryMorphologyReader getLexicalEntryMorphologyReader() {
+		LefffEntryMorphologyReader reader = new LefffEntryMorphologyReader();
+		return reader;
 	}
     
     

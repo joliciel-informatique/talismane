@@ -28,3 +28,6 @@
 !VS	HasClosedClassesOnly()
 !ET	HasClosedClassesOnly()
 !I	HasClosedClassesOnly()
+###### Token patterns ######
+NPP	Word("EntitéNomméeURL")
+NPP	Word("EntitéNomméeAdresseMail")

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * Always insert an empty token after "du", "des", "au" or "aux".
@@ -31,7 +31,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
  * @author Assaf Urieli
  *
  */
-public class EmptyTokenAfterDuFilter implements TokenFilter {
+public class EmptyTokenAfterDuFilter implements TokenSequenceFilter {
 	private boolean createIfMissing = true;
 	
 	public EmptyTokenAfterDuFilter() {

@@ -18,13 +18,20 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import com.joliciel.talismane.tokeniser.TokenSequence;
+import java.util.Set;
 
 /**
- * A filter for applying a given transformation to a TokenSequence.
+ * A filter that takes raw text, and finds tokens in the text (which are indicated by placeholders).
+ * Note that, in addition to indicating tokens,
+ * a sentence boundary will never be detected inside a placeholder.
  * @author Assaf Urieli
  *
  */
 public interface TokenFilter {
-	public void apply(TokenSequence tokenSequence);
+	/**
+	 * Analyse the sentence, and provide placeholders for any tokens that will have to be formed.
+	 * @param sentence
+	 * @return
+	 */
+	Set<TokenPlaceholder> apply (String text);
 }

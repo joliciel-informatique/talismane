@@ -368,7 +368,7 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 					break;
 				}
 			}
-			parseTree = this.parserServiceInternal.getDependencyNode(root, "", null, this);
+			parseTree = this.parserServiceInternal.getDependencyNode(root, "", this);
 			parseTree.autoPopulate();
 		}
 		return parseTree;
@@ -377,7 +377,7 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 	@Override
 	public DependencyNode getDetachedDependencyNode(
 			PosTaggedToken posTaggedToken) {
-		DependencyNode node = this.parserServiceInternal.getDependencyNode(posTaggedToken, "", null, this);
+		DependencyNode node = this.parserServiceInternal.getDependencyNode(posTaggedToken, "", this);
 		return node;
 	}
 

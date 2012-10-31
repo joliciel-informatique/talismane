@@ -16,21 +16,36 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.filters;
+package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.List;
+import java.util.Set;
 
-public abstract class AbstractTextFilter implements TextFilter,
-		TextStreamFilter {
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 
-	@Override
-	public abstract List<String> apply(String prevText, String text, String nextText);
+class TokenFilterWrapper implements TokenSequenceFilter {
+	List<TokenFilter> tokenFilters;
+	
+	public TokenFilterWrapper(List<TokenFilter> tokenFilters) {
+		this.tokenFilters = tokenFilters;
+	}
 	
 	@Override
-	public final String apply(String rawText) {
-		List<String> results = this.apply("", rawText, "");
-		String result = results.get(0) + results.get(1) + results.get(2);
-		return result;
+	public void apply(TokenSequence tokenSequence) {
+		for (Token token : tokenSequence) {
+			for (TokenFilter tokenFilter : this.tokenFilters) {
+				Set<TokenPlaceholder> placeholders = tokenFilter.apply(token.getOriginalText());
+				if (placeholders.size()>0) {
+					TokenPlaceholder placeholder = placeholders.iterator().next();
+					if (placeholder.getStartIndex()==0 && placeholder.getEndIndex()==token.getText().length())
+					if (placeholder.getReplacement()!=null) {
+						token.setText(placeholder.getReplacement());
+					}
+					break;
+				}
+			}
+		}
 	}
 
 }

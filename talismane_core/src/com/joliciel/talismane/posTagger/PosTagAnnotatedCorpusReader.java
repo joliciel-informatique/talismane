@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * An interface for reading tokenized and tagged sentences from a corpus.
@@ -38,5 +38,5 @@ public interface PosTagAnnotatedCorpusReader {
 	 */
 	public PosTagSequence nextPosTagSequence();
 	
-	public void addTokenFilter(TokenFilter tokenFilter);
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
 }

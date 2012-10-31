@@ -18,13 +18,21 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import java.util.List;
+import java.util.Set;
 
 /**
- * A filter applied to a block of raw text (typically a block from a stream of input text, or else a sentence).
+ * A raw text processor which processes text block by block, applies text markers,
+ * and returns SentenceHolders. These sentence holders will then be used
+ * to detect the actual sentences.
  * @author Assaf Urieli
- *
  */
-public interface TextStreamFilter extends TextFilter {
-	public List<String> apply(String prevText, String text, String nextText);
+public interface RollingSentenceProcessor {
+	/**
+	 * Adds a segment of original text, and the textMarkers corresponding it.
+	 * @param segment the next segment of original text
+	 * @param textMarkers the text markers corresponding this segment
+	 * @return a SentenceHolder corresponding to this segment of original text
+	 */
+	public SentenceHolder addNextSegment(String segment, Set<TextMarker> textMarkers);
+
 }

@@ -20,8 +20,8 @@ package com.joliciel.talismane.tokeniser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.HarmonicMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
@@ -29,8 +29,7 @@ import com.joliciel.talismane.machineLearning.Solution;
 
 class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<TokeniserOutcome> implements TokenisedAtomicTokenSequence {
 	private static final long serialVersionUID = -5837144642078063115L;
-	private Pattern whitespace = Pattern.compile("\\s+");
-	private String sentence;
+	private Sentence sentence;
 	private TokeniserServiceInternal tokeniserServiceInternal;
 	private TokenSequence tokenSequence = null;
 	private List<Decision<TokeniserOutcome>> decisions = new ArrayList<Decision<TokeniserOutcome>>();
@@ -39,11 +38,11 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	double score = 1.0;
 	boolean scoreCalculated = false;
 	
-	TokenisedAtomicTokenSequenceImpl(String sentence) {
+	TokenisedAtomicTokenSequenceImpl(Sentence sentence) {
 		this.sentence = sentence;
 	}
 	
-	TokenisedAtomicTokenSequenceImpl(String sentence, int initialCapacity) {
+	TokenisedAtomicTokenSequenceImpl(Sentence sentence, int initialCapacity) {
 		super(initialCapacity);
 		this.sentence = sentence;
 	}
@@ -65,62 +64,47 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	
 			int currentStart = 0;
 			int currentEnd = 0;
-			Token lastToken = null;
+			StringBuilder currentText = new StringBuilder();
 			List<TaggedToken<TokeniserOutcome>> currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
-			Token lastNewToken = null;
-			
+			boolean isWhiteSpace = true;
 			for (TaggedToken<TokeniserOutcome> decisionTag : this) {
 				currentAtomicParts.add(decisionTag);
 				Token token = decisionTag.getToken();
-				switch (decisionTag.getTag()) {
-				case DOES_NOT_SEPARATE:
-					// combine two tokens
-					currentEnd = token.getEndIndex();
-					break;
-				case DOES_SEPARATE:
+				
+				if (decisionTag.getTag().equals(TokeniserOutcome.DOES_SEPARATE)) {
 					// make separation (add token)
-					String text = sentence.substring(currentStart, currentEnd);
-					if (!whitespace.matcher(text).matches()) {
-						lastNewToken = this.addToken(tokenSequence, lastToken, currentStart, currentEnd);
-						if (lastNewToken!=null) {
-							lastNewToken.setAtomicParts(currentAtomicParts);
-							currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
-						}
+					if (!isWhiteSpace) {
+						this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);						
+						currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
 					}
-					
+					currentText = new StringBuilder();
+					currentText.append(token.getText());
 					currentStart = token.getStartIndex();
-					currentEnd = token.getEndIndex();
-					break;
-				default:
-					throw new RuntimeException("Unexpected tokeniser decision: " + decisionTag.getTag());
+					isWhiteSpace = true;
+				} else {
+					currentText.append(token.getText());			
 				}
-				lastToken = token;
+				isWhiteSpace = isWhiteSpace && token.isWhiteSpace();
+				currentEnd = token.getEndIndex();
 			}
-			lastNewToken = this.addToken(tokenSequence, lastToken, currentStart, currentEnd);
-			if (lastNewToken!=null) {
-				lastNewToken.setAtomicParts(currentAtomicParts);
-			}
-
-
+			if (!isWhiteSpace)
+				this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
+			
 			tokenSequence.finalise();
 		}
 		return tokenSequence;
 	}
 	
-	private Token addToken(TokenSequence tokenSequence, Token lastToken, int start, int end) {
+	private Token addToken(TokenSequence tokenSequence, int start, int end, StringBuilder currentText, List<TaggedToken<TokeniserOutcome>> currentAtomicParts) {
 		Token token = null;
 		if (start==end) {
 			// do nothing
-		} else if (lastToken!=null && lastToken.getStartIndex()==start && lastToken.getEndIndex()==end) {
-//			tokenSequence.add(lastToken);
-//			token = lastToken;
-			// Not keeping tokens after all, because tokens refer to their token sequence
-			// via token.getTokenSequence(), token.getIndex(), and token.getIndexWithWhiteSpace()
-			//TODO: The downside is that tokens can no longer share features across sequences.
-			token = tokenSequence.addToken(start, end);
 		} else {
 			token = tokenSequence.addToken(start, end);
+			token.setText(currentText.toString());
+			token.setAtomicParts(currentAtomicParts);
 		}
+		
 		return token;
 	}
 
@@ -133,13 +117,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 		this.tokeniserServiceInternal = tokeniserServiceInternal;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.TokeniserDecisionTagSequence#getSentence()
-	 */
-	@Override
-	public String getSentence() {
-		return sentence;
-	}
+
 
 	@Override
 	public List<Decision<TokeniserOutcome>> getDecisions() {
@@ -184,4 +162,10 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 			return 0;
 		}
 	}
+
+	public Sentence getSentence() {
+		return sentence;
+	}
+	
+	
 }

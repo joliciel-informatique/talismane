@@ -17,6 +17,7 @@ import com.joliciel.frenchTreebank.search.SearchService;
 import com.joliciel.frenchTreebank.search.XmlPatternSearch;
 import com.joliciel.frenchTreebank.test.DaoTestUtils;
 import com.joliciel.frenchTreebank.upload.TreebankSAXParser;
+import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.utils.SimpleObjectCache;
 
 import junit.framework.TestCase;
@@ -32,8 +33,9 @@ public class UploadIntegrationTest extends TestCase {
    }
 
     public final void testParseDocument() throws Exception {
-         
-        TreebankServiceLocator locator = TreebankServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+        
+        TreebankServiceLocator locator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
         locator.setDataSourcePropertiesFile("jdbc-test.properties");
         
         final TreebankService treebankService = locator.getTreebankService();
@@ -43,8 +45,9 @@ public class UploadIntegrationTest extends TestCase {
     }
     
     public final void testSearch() throws Exception {
-        
-        TreebankServiceLocator locator = TreebankServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+       
+        TreebankServiceLocator locator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
         locator.setDataSourcePropertiesFile("jdbc-test.properties");
         
         final TreebankService treebankService = locator.getTreebankService();

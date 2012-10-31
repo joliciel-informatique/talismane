@@ -20,6 +20,8 @@ package com.joliciel.talismane.tokeniser;
 
 import java.util.List;
 
+import com.joliciel.talismane.filters.Sentence;
+
 /**
  * A sequence of tokens.
  * Note: by default, List iteration and associated methods will only return non-whitespace tokens.
@@ -40,10 +42,17 @@ public interface TokenSequence extends Iterable<Token> {
 	public int size();
 	
 	/**
-	 * The sentence on which this token sequence was built.
+	 * The sentence text on which this token sequence was built.
 	 * @return
 	 */
-	public String getSentence();
+	public String getText();
+	
+	/**
+	 * The sentence object on which this token sequence was built,
+	 * allowing us to identify its location in the source text.
+	 * @return
+	 */
+	public Sentence getSentence();
 	
 	/**
 	 * Adds a token to the current sequence, using substring coordinates

@@ -59,7 +59,7 @@ public class LefffServiceLocator {
     }
     
     private Properties getDataSourceProperties() {
-        if (dataSourceProperties==null) {
+        if (dataSourceProperties==null && this.getDataSourcePropertiesFile()!=null) {
             dataSourceProperties = new Properties();
             try {
                 URL url =  ClassLoader.getSystemResource(this.getDataSourcePropertiesFile());
@@ -76,18 +76,20 @@ public class LefffServiceLocator {
     
     private DataSource getDataSource() {
         if (dataSource==null) {
-            ComboPooledDataSource ds = new ComboPooledDataSource();
             Properties props = this.getDataSourceProperties();
-            try {
-                ds.setDriverClass(props.getProperty("jdbc.driverClassName"));
-            } catch (PropertyVetoException e) {
-                 e.printStackTrace();
-                 throw new RuntimeException(e);
+            if (props!=null) {
+                ComboPooledDataSource ds = new ComboPooledDataSource();
+	            try {
+	                ds.setDriverClass(props.getProperty("jdbc.driverClassName"));
+	            } catch (PropertyVetoException e) {
+	                 e.printStackTrace();
+	                 throw new RuntimeException(e);
+	            }
+	            ds.setJdbcUrl(props.getProperty("jdbc.url"));
+	            ds.setUser(props.getProperty("jdbc.username"));
+	            ds.setPassword(props.getProperty("jdbc.password"));
+	            dataSource = ds;
             }
-            ds.setJdbcUrl(props.getProperty("jdbc.url"));
-            ds.setUser(props.getProperty("jdbc.username"));
-            ds.setPassword(props.getProperty("jdbc.password"));
-            dataSource = ds;
         }
         return dataSource;
     }

@@ -19,10 +19,10 @@
 package com.joliciel.talismane.tokeniser.patterns;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
@@ -33,6 +33,7 @@ import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 class TokeniserPatternServiceImpl implements TokeniserPatternService {
 	TokeniserService tokeniserService;
 	TokenFeatureService tokenFeatureService;
+	FilterService filterService;
 
 	@Override
 	public TokeniserPatternManager getPatternManager(List<String> patternDescriptors) {
@@ -41,15 +42,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 		patternManager.setTokeniserService(this.getTokeniserService());
 		return patternManager;
 	}
-	
-	@Override
-	public TokeniserPatternManager getDefaultPatternManager(
-			Locale locale) {
-		TokeniserPatternManagerImpl processor = new TokeniserPatternManagerImpl(locale);
-		processor.setTokeniserPatternService(this);
-		processor.setTokeniserService(this.getTokeniserService());
-		return processor;
-	}	
+
 	public Tokeniser getPatternTokeniser(TokeniserPatternManager patternManager,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, 
 			DecisionMaker<TokeniserOutcome> decisionMaker, int beamWidth) {
@@ -57,6 +50,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 		tokeniser.setTokeniserPatternService(this);
 		tokeniser.setTokeniserService(this.getTokeniserService());
 		tokeniser.setTokenFeatureService(this.getTokenFeatureService());
+		tokeniser.setFilterService(this.getFilterService());
 		tokeniser.setDecisionMaker(decisionMaker);
 		return tokeniser;
 	}
@@ -81,6 +75,14 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 
 	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
 		this.tokenFeatureService = tokenFeatureService;
+	}
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
 	}
 
 

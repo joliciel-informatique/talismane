@@ -45,22 +45,17 @@ import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
-import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
-import com.joliciel.talismane.tokeniser.filters.NumberFilter;
-import com.joliciel.talismane.tokeniser.filters.PrettyQuotesFilter;
-import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenAfterDuFilter;
-import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenBeforeDuquelFilter;
-import com.joliciel.talismane.tokeniser.filters.french.LowercaseFirstWordFrenchFilter;
-import com.joliciel.talismane.tokeniser.filters.french.UpperCaseSeriesFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.utils.LogUtils;
@@ -85,6 +80,9 @@ public class PosTaggerMaxentRunner {
 			String tokeniserModelFilePath = "";
 			String posTaggerFeatureFilePath = "";
 			String posTaggerRuleFilePath = "";
+			String tokenFilterPath = "";
+			String tokenSequenceFilterPath = "";
+			String posTaggerPreprocessingFilterPath = "";
 			String outDirPath = "";
 			int iterations = 0;
 			int cutoff = 0;
@@ -123,6 +121,12 @@ public class PosTaggerMaxentRunner {
 					posTaggerFeatureFilePath = argValue;
 				else if (argName.equals("posTaggerRules")) 
 					posTaggerRuleFilePath = argValue;
+				else if (argName.equals("tokenFilters"))
+					tokenFilterPath = argValue;
+				else if (argName.equals("tokenSequenceFilters"))
+					tokenSequenceFilterPath = argValue;
+				else if (argName.equals("posTaggerPreprocessingFilters"))
+					posTaggerPreprocessingFilterPath = argValue;
 				else if (argName.equals("posTagSet"))
 					posTagSetPath = argValue;
 				else if (argName.equals("posTagMap"))
@@ -180,8 +184,7 @@ public class PosTaggerMaxentRunner {
 			
 			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 			
-	        PosTaggerServiceLocator posTaggerServiceLocator = talismaneServiceLocator.getPosTaggerServiceLocator();
-	        PosTaggerService posTaggerService = posTaggerServiceLocator.getPosTaggerService();
+	        PosTaggerService posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
 	        File posTagSetFile = new File(posTagSetPath);
 			PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetFile);
 			
@@ -193,17 +196,15 @@ public class PosTaggerMaxentRunner {
         	lefffMemoryBase = loader.deserializeMemoryBase(memoryBaseFile);
 	       	lefffMemoryBase.setPosTagSet(posTagSet);
 	        
-        	TalismaneSession.setLexiconService(lefffMemoryBase);
+        	TalismaneSession.setLexicon(lefffMemoryBase);
 	 
-	        TokeniserService tokeniserService = talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService();
-	        TokenFeatureService tokenFeatureService = talismaneServiceLocator.getTokeniserFeatureServiceLocator().getTokenFeatureService();
+	        TokenFeatureService tokenFeatureService = talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService();
 	        TokeniserPatternService tokeniserPatternService = talismaneServiceLocator.getTokenPatternServiceLocator().getTokeniserPatternService();
+	        TokenFilterService tokenFilterService = talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService();
 
 			PosTaggerFeatureService posTaggerFeatureService = talismaneServiceLocator.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService();
 
-			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance();
-	        treebankServiceLocator.setTokeniserService(tokeniserService);
-	        treebankServiceLocator.setPosTaggerService(posTaggerService);
+			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
 			if (treebankPath.length()==0)
 				treebankServiceLocator.setDataSourcePropertiesFile("jdbc-ftb.properties");
 	        
@@ -228,13 +229,13 @@ public class PosTaggerMaxentRunner {
 				
 				File posTaggerTokenFeatureFile = new File(posTaggerFeatureFilePath);
 				Scanner scanner = new Scanner(posTaggerTokenFeatureFile);
-				List<String> descriptors = new ArrayList<String>();
+				List<String> featureDescriptors = new ArrayList<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
-					descriptors.add(descriptor);
+					featureDescriptors.add(descriptor);
 					LOG.debug(descriptor);
 				}
-				Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(descriptors);
+				Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(featureDescriptors);
 			
 				TreebankReader treebankReader = null;
 				
@@ -251,12 +252,67 @@ public class PosTaggerMaxentRunner {
 				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(posTagMapFile, posTagSet);
 				PosTagAnnotatedCorpusReader reader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper);
 				
-				reader.addTokenFilter(new NumberFilter());
-				reader.addTokenFilter(new PrettyQuotesFilter());
-				reader.addTokenFilter(new UpperCaseSeriesFilter());
-				reader.addTokenFilter(new LowercaseFirstWordFrenchFilter());
-				reader.addTokenFilter(new EmptyTokenAfterDuFilter());
-				reader.addTokenFilter(new EmptyTokenBeforeDuquelFilter());
+				List<String> tokenFilterDescriptors = new ArrayList<String>();
+				if (tokenFilterPath!=null && tokenFilterPath.length()>0) {
+					LOG.debug("From: " + tokenFilterPath);
+					File tokenFilterFile = new File(tokenFilterPath);
+					Scanner tokenFilterScanner = new Scanner(tokenFilterFile);
+					while (tokenFilterScanner.hasNextLine()) {
+						String descriptor = tokenFilterScanner.nextLine();
+						tokenFilterDescriptors.add(descriptor);
+					}
+				}
+				
+				List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+				for (String descriptor : tokenFilterDescriptors) {
+					LOG.debug(descriptor);
+					if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+						TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
+						tokenFilters.add(tokenFilter);
+					}
+				}
+				if (tokenFilters.size()>0) {
+					TokenSequenceFilter tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(tokenFilters);
+					reader.addTokenSequenceFilter(tokenFilterWrapper);
+				}
+				
+				List<String> tokenSequenceFilterDescriptors = new ArrayList<String>();
+				if (tokenSequenceFilterPath!=null && tokenSequenceFilterPath.length()>0) {
+					LOG.debug("From: " + tokenSequenceFilterPath);
+					File tokenSequenceFilterFile = new File(tokenSequenceFilterPath);
+					Scanner tokenSequenceFilterScanner = new Scanner(tokenSequenceFilterFile);
+					while (tokenSequenceFilterScanner.hasNextLine()) {
+						String descriptor = tokenSequenceFilterScanner.nextLine();
+						tokenSequenceFilterDescriptors.add(descriptor);
+					}
+				}
+				
+				for (String descriptor : tokenSequenceFilterDescriptors) {
+					LOG.debug(descriptor);
+					if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+						TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+						reader.addTokenSequenceFilter(tokenSequenceFilter);
+					}
+				}
+				
+				List<String> posTaggerPreprocessingFilterDescriptors = new ArrayList<String>();
+				if (posTaggerPreprocessingFilterPath!=null && posTaggerPreprocessingFilterPath.length()>0) {
+					LOG.debug("From: " + tokenSequenceFilterPath);
+					File posTaggerPreprocessingFilterFile = new File(posTaggerPreprocessingFilterPath);
+					Scanner posTaggerPreprocessingFilterScanner = new Scanner(posTaggerPreprocessingFilterFile);
+					while (posTaggerPreprocessingFilterScanner.hasNextLine()) {
+						String descriptor = posTaggerPreprocessingFilterScanner.nextLine();
+						posTaggerPreprocessingFilterDescriptors.add(descriptor);
+					}
+				}
+				
+				for (String descriptor : posTaggerPreprocessingFilterDescriptors) {
+					LOG.debug(descriptor);
+					if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+						TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+						reader.addTokenSequenceFilter(tokenSequenceFilter);
+					}
+				}
 				
 				CorpusEventStream posTagEventStream = posTaggerService.getPosTagEventStream(reader, posTaggerFeatures);
 				
@@ -283,6 +339,11 @@ public class PosTaggerMaxentRunner {
 				
 				ModelTrainer<PosTag> trainer = machineLearningService.getModelTrainer(algorithm, trainParameters);
 
+				Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
+				descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+				descriptors.put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
+				descriptors.put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
+				descriptors.put(PosTagger.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPreprocessingFilterDescriptors);
 				MachineLearningModel<PosTag> posTaggerModel = trainer.trainModel(posTagEventStream, posTagSet, descriptors);			
 				posTaggerModel.persist(modelFile);
 
@@ -303,6 +364,26 @@ public class PosTaggerMaxentRunner {
 						tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get("patterns"));
 					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
 					tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
+				
+					List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
+					if (tokenFilterDescriptors!=null) {
+						for (String descriptor : tokenFilterDescriptors) {
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
+								tokeniser.addTokenFilter(tokenFilter);
+							}
+						}
+					}
+
+					List<String> tokenSequenceFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
+					if (tokenSequenceFilterDescriptors!=null) {
+						for (String descriptor : tokenSequenceFilterDescriptors) {
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+								tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
+							}
+						}
+					}
 				}
 				
 				TreebankReader treebankReader = null;
@@ -320,21 +401,6 @@ public class PosTaggerMaxentRunner {
 				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(posTagMapFile, posTagSet);
 				PosTagAnnotatedCorpusReader reader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper);
 				
-				if (tokeniser!=null) {
-					tokeniser.addTokenFilter(new NumberFilter());
-					tokeniser.addTokenFilter(new PrettyQuotesFilter());
-					tokeniser.addTokenFilter(new UpperCaseSeriesFilter());
-					tokeniser.addTokenFilter(new LowercaseFirstWordFrenchFilter());
-
-				} else {
-					reader.addTokenFilter(new NumberFilter());
-					reader.addTokenFilter(new PrettyQuotesFilter());
-					reader.addTokenFilter(new UpperCaseSeriesFilter());
-					reader.addTokenFilter(new LowercaseFirstWordFrenchFilter());
-					reader.addTokenFilter(new EmptyTokenAfterDuFilter());
-					reader.addTokenFilter(new EmptyTokenBeforeDuquelFilter());
-				}
-
 //				Set<String> unknownWords = treebankService.findUnknownWords(trainingSection, testSection);
 				Set<String> unknownWords = new TreeSet<String>();
 				String modelName = posTaggerModelFilePath.substring(posTaggerModelFilePath.lastIndexOf('/')+1, posTaggerModelFilePath.indexOf('.'));
@@ -354,9 +420,42 @@ public class PosTaggerMaxentRunner {
 					Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerModel.getFeatureDescriptors());
 					
 					PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerModel.getDecisionMaker(), beamWidth);
-					if (tokeniser!=null) {
-						posTagger.addPreprocessingFilter(new EmptyTokenAfterDuFilter());
-						posTagger.addPreprocessingFilter(new EmptyTokenBeforeDuquelFilter());
+					
+					if (tokeniser==null) {
+						// add these filters to the reader as if the tokeniser applied them
+						List<String> tokenFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
+						if (tokenFilterDescriptors!=null) {
+							List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+							for (String descriptor : tokenFilterDescriptors) {
+								if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+									TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
+									tokenFilters.add(tokenFilter);
+								}
+							}
+							TokenSequenceFilter tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(tokenFilters);
+							reader.addTokenSequenceFilter(tokenFilterWrapper);
+						}
+						
+						List<String> tokenSequenceFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
+						if (tokenSequenceFilterDescriptors!=null) {
+							for (String descriptor : tokenSequenceFilterDescriptors) {
+								if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+									TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+									reader.addTokenSequenceFilter(tokenSequenceFilter);
+								}
+							}
+						}
+					}
+					
+					List<String> posTaggerPreprocessingFilters = posTaggerModel.getDescriptors().get(PosTagger.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
+					if (posTaggerPreprocessingFilters!=null) {
+						for (String descriptor : posTaggerPreprocessingFilters) {
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+								reader.addTokenSequenceFilter(tokenSequenceFilter);
+								posTagger.addPreprocessingFilter(tokenSequenceFilter);
+							}
+						}
 					}
 
 					if (posTaggerRuleFilePath.length()>0) {

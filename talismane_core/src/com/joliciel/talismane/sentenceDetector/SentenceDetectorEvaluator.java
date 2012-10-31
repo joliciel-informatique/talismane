@@ -20,7 +20,6 @@ package com.joliciel.talismane.sentenceDetector;
 
 import java.io.Writer;
 
-import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.stats.FScoreCalculator;
 
 /**
@@ -38,10 +37,4 @@ public interface SentenceDetectorEvaluator {
 	public FScoreCalculator<SentenceDetectorOutcome> evaluate(SentenceDetectorAnnotatedCorpusReader reader,
 			Writer errorWriter);
 	
-
-	/**
-	 * Add a text filter to be applied prior to analysis.
-	 * @param textFilter
-	 */
-	public void addTextFilter(TextFilter textFilter);
 }

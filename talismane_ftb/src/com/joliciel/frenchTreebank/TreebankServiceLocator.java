@@ -29,8 +29,11 @@ import com.joliciel.frenchTreebank.export.TreebankExportServiceLocator;
 import com.joliciel.frenchTreebank.search.SearchService;
 import com.joliciel.frenchTreebank.search.SearchServiceImpl;
 import com.joliciel.frenchTreebank.upload.TreebankUploadServiceLocator;
+import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.utils.ObjectCache;
 import com.joliciel.talismane.utils.SimpleObjectCache;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -47,14 +50,21 @@ public class TreebankServiceLocator {
     
     private TokeniserService tokeniserService;
     private PosTaggerService posTaggerService;
+    private FilterService filterService;
+    private TokenFilterService tokenFilterService;
     
     private static TreebankServiceLocator instance = null;
     
-    private TreebankServiceLocator() {}
+    private TreebankServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
+     	this.tokeniserService = talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService();
+    	this.posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
+    	this.filterService = talismaneServiceLocator.getFilterServiceLocator().getFilterService();
+    	this.tokenFilterService = talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService();
+    }
     
-    public static TreebankServiceLocator getInstance() {
+    public static TreebankServiceLocator getInstance(TalismaneServiceLocator talismaneServiceLocator) {
     	if (instance==null)
-    		instance = new TreebankServiceLocator();
+    		instance = new TreebankServiceLocator(talismaneServiceLocator);
     	return instance;
     }
     public String getDataSourcePropertiesFile() {
@@ -144,16 +154,17 @@ public class TreebankServiceLocator {
 		return tokeniserService;
 	}
 
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
-	}
-
 	public PosTaggerService getPosTaggerService() {
 		return posTaggerService;
 	}
 
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
+	public FilterService getFilterService() {
+		return filterService;
 	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
 
 }

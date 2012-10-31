@@ -30,10 +30,10 @@ import com.joliciel.talismane.tokeniser.TaggedTokenImpl;
 import com.joliciel.talismane.tokeniser.Token;
 
 class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
-	private  PosTaggerLexiconService lexiconService;
+	private  PosTaggerLexicon lexiconService;
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
-	private Set<LexicalEntry> entries = null;
+	private Set<LexicalEntry> lexicalEntries = null;
 	
 	public PosTaggedTokenImpl(Token token, Decision<PosTag> decision) {
 		super(token, decision);
@@ -41,17 +41,21 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 
 	@Override
 	public Set<LexicalEntry> getLexicalEntries() {
-		if (entries==null) {
-			entries = this.lexiconService.findLexicalEntries(this.getToken().getText(), this.getTag());
+		if (lexicalEntries==null) {
+			lexicalEntries = this.lexiconService.findLexicalEntries(this.getToken().getText(), this.getTag());
 		}
-		return entries;
+		return lexicalEntries;
 	}
 
-	public PosTaggerLexiconService getLexiconService() {
+	public void setLexicalEntries(Set<LexicalEntry> lexicalEntries) {
+		this.lexicalEntries = lexicalEntries;
+	}
+
+	public PosTaggerLexicon getLexiconService() {
 		return lexiconService;
 	}
 
-	public void setLexiconService(PosTaggerLexiconService lexiconService) {
+	public void setLexiconService(PosTaggerLexicon lexiconService) {
 		this.lexiconService = lexiconService;
 	}
 

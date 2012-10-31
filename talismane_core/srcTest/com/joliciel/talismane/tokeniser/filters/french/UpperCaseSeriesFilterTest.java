@@ -13,22 +13,25 @@ import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
+import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 public class UpperCaseSeriesFilterTest {
 
 	@Test
-	public void testApply(@NonStrict final PosTaggerLexiconService lexiconService) {
+	public void testApply(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexiconService(lexiconService);
+		TalismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
 			{
+				sentence.getText(); returns("Le PERE NOEL ne viendra pas.");
+
 				Set<PosTag> posTags = new TreeSet<PosTag>();
 				posTags.add(posTagNC);
 				posTagNC.getCode(); returns("NC");
@@ -37,8 +40,8 @@ public class UpperCaseSeriesFilterTest {
 			}
 		};
 		
-		UpperCaseSeriesFilter filter = new UpperCaseSeriesFilter();
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence("Le PERE NOEL ne viendra pas.", Pattern.compile("[ .]"));
+		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
 		assertEquals("PERE", tokenSequence.get(1).getOriginalText());
@@ -49,14 +52,16 @@ public class UpperCaseSeriesFilterTest {
 	
 
 	@Test
-	public void testApplyWordNotInLexicon(@NonStrict final PosTaggerLexiconService lexiconService) {
+	public void testApplyWordNotInLexicon(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexiconService(lexiconService);
+		TalismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
 			{
+				sentence.getText(); returns("Le PERE NOEL ne viendra pas.");
+
 				Set<PosTag> posTags = new TreeSet<PosTag>();
 				posTags.add(posTagNC);
 				posTagNC.getCode(); returns("NC");
@@ -64,8 +69,8 @@ public class UpperCaseSeriesFilterTest {
 			}
 		};
 		
-		UpperCaseSeriesFilter filter = new UpperCaseSeriesFilter();
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence("Le PERE NOEL ne viendra pas.", Pattern.compile("[ .]"));
+		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
 		assertEquals("PERE", tokenSequence.get(1).getOriginalText());
@@ -76,14 +81,16 @@ public class UpperCaseSeriesFilterTest {
 	
 
 	@Test
-	public void testApplyNumberInMiddle(@NonStrict final PosTaggerLexiconService lexiconService) {
+	public void testApplyNumberInMiddle(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexiconService(lexiconService);
+		TalismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
 			{
+				sentence.getText(); returns("Le PERE 2 NOEL ne viendra pas.");
+
 				Set<PosTag> posTags = new TreeSet<PosTag>();
 				posTags.add(posTagNC);
 				posTagNC.getCode(); returns("NC");
@@ -92,8 +99,8 @@ public class UpperCaseSeriesFilterTest {
 			}
 		};
 		
-		UpperCaseSeriesFilter filter = new UpperCaseSeriesFilter();
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence("Le PERE 2 NOEL ne viendra pas.", Pattern.compile("[ .]"));
+		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
 		assertEquals("PERE", tokenSequence.get(1).getOriginalText());
@@ -104,14 +111,16 @@ public class UpperCaseSeriesFilterTest {
 	
 
 	@Test
-	public void testApplyLowercaseInMiddle(@NonStrict final PosTaggerLexiconService lexiconService) {
+	public void testApplyLowercaseInMiddle(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexiconService(lexiconService);
+		TalismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
 			{
+				sentence.getText(); returns("Le PERE de NOEL ne viendra pas.");
+
 				Set<PosTag> posTags = new TreeSet<PosTag>();
 				posTags.add(posTagNC);
 				posTagNC.getCode(); returns("NC");
@@ -120,8 +129,8 @@ public class UpperCaseSeriesFilterTest {
 			}
 		};
 		
-		UpperCaseSeriesFilter filter = new UpperCaseSeriesFilter();
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence("Le PERE de NOEL ne viendra pas.", Pattern.compile("[ .]"));
+		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
 		assertEquals("PERE", tokenSequence.get(1).getOriginalText());
@@ -131,14 +140,16 @@ public class UpperCaseSeriesFilterTest {
 	}
 	
 	@Test
-	public void testApplyWithSARL(@NonStrict final PosTaggerLexiconService lexiconService) {
+	public void testApplyWithSARL(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexiconService(lexiconService);
+		TalismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
 			{
+				sentence.getText(); returns("L'entreprise CPE SARL ne viendra pas.");
+
 				Set<PosTag> posTags = new TreeSet<PosTag>();
 				posTags.add(posTagNC);
 				posTagNC.getCode(); returns("NC");
@@ -147,8 +158,8 @@ public class UpperCaseSeriesFilterTest {
 			}
 		};
 		
-		UpperCaseSeriesFilter filter = new UpperCaseSeriesFilter();
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence("L'entreprise CPE SARL ne viendra pas.", Pattern.compile("[ .]"));
+		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
 		assertEquals("CPE", tokenSequence.get(1).getOriginalText());

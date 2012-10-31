@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
@@ -28,10 +30,12 @@ class PossibleSentenceBoundaryImpl implements PossibleSentenceBoundary {
 	private static final int NUM_CHARS = 30;
 	private String text;
 	private int index;
-	private TokeniserService tokeniserService;
 	private TokenSequence tokenSequence;
 	private String string;
 	private int tokenIndex = -1;
+	
+	private TokeniserService tokeniserService;
+	private FilterService filterService;
 	
 	public PossibleSentenceBoundaryImpl(String text, int index) {
 		super();
@@ -49,7 +53,8 @@ class PossibleSentenceBoundaryImpl implements PossibleSentenceBoundary {
 	@Override
 	public TokenSequence getTokenSequence() {
 		if (tokenSequence==null) {
-			tokenSequence = tokeniserService.getTokenSequence(text, Tokeniser.SEPARATORS);
+			Sentence sentence = filterService.getSentence(text);
+			tokenSequence = tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
 		}
 		return tokenSequence;
 	}
@@ -100,6 +105,12 @@ class PossibleSentenceBoundaryImpl implements PossibleSentenceBoundary {
 			string = string.replace('\n', '¶');
 		}
 		return string;
+	}
+	public FilterService getFilterService() {
+		return filterService;
+	}
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
 	}
 	
 

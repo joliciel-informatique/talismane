@@ -22,6 +22,8 @@ package com.joliciel.lefff;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
 import com.joliciel.talismane.posTagger.PosTagSet;
 
 public interface LefffService {
@@ -48,4 +50,6 @@ public interface LefffService {
 	public LefffLoader getLefffLoader();
 
 	public Map<String, List<LefffEntry>> findEntryMap();
+	
+	public LexicalEntryMorphologyReader getLexicalEntryMorphologyReader();
 }

@@ -29,5 +29,5 @@ interface ParserServiceInternal extends ParserService {
 	public ParseConfiguration getConfiguration(ParseConfiguration history);
 	
 	public DependencyNode getDependencyNode(PosTaggedToken token, String label,
-			DependencyNode parent, ParseConfiguration parseConfiguration);
+			ParseConfiguration parseConfiguration);
 }

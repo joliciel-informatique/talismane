@@ -18,12 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,22 +39,6 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	private List<String> testPatterns;
 	
 	private List<TokenPattern> parsedTestPatterns;
-	
-	/**
-	 * Reads separator defaults and test patterns from the default file for this locale.
-	 * @param locale
-	 */
-	public TokeniserPatternManagerImpl(Locale locale) {
-        InputStream patternFileStream = this.getClass().getResourceAsStream("/com/joliciel/talismane/tokeniser/patterns/tokeniserTestPatterns_" + locale.getLanguage() + ".txt"); 
-        Scanner scanner = new Scanner(patternFileStream);
-        
-        List<String> patternDescriptors = new ArrayList<String>();
-        while (scanner.hasNextLine()) {
-        	String line = scanner.nextLine();
-        	patternDescriptors.add(line);
-        }
-		this.configure(patternDescriptors);
-	}
 	
 	/**
 	 * Reads separator defaults and test patterns from a list of strings.

@@ -18,48 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
 /**
- * Replaces all white space (except for newlines) by spaces, and then gets rid of duplicate whitespace.
+ * Gets rid of duplicate whitespace.
  * @author Assaf Urieli
  *
  */
-public class DuplicateWhiteSpaceFilter extends RegexFindReplaceFilter implements TextFilter, TextStreamFilter {
-	private String[][] patternStrings = new String[][] {
-			{"[\t\\x0B\f]", " "},
-			{"  +", " "},
-	};
-	
-	private List<Pattern> findPatterns = new ArrayList<Pattern>();
-	private List<String> replaceStrings = new ArrayList<String>();
-	
+class DuplicateWhiteSpaceFilter extends RegexMarkerFilter {
 	public DuplicateWhiteSpaceFilter() {
-		super();
-		for (String[] findReplace : patternStrings) {
-			Pattern findPattern = Pattern.compile(findReplace[0]);
-			String replaceString = findReplace[1];
-			findPatterns.add(findPattern);
-			replaceStrings.add(replaceString);
-		}
+		super(MarkerFilterType.SKIP, "[ \t\\x0B\f]([ \t\\x0B\f]+)");
 	}
-
-	@Override
-	public List<String> apply(String prevText, String text, String nextText) {
-		List<String> result = new ArrayList<String>();
-		for (int i=0;i<findPatterns.size();i++) {
-			Pattern findPattern = findPatterns.get(i);
-			String replaceString = replaceStrings.get(i);
-			result = this.apply(prevText, text, nextText, findPattern, replaceString);
-			prevText = result.get(0);
-			text = result.get(1);
-			nextText = result.get(2);
-		}
-		return result;
-	}
-	
-	
-
 }

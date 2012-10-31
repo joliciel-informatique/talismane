@@ -6,7 +6,8 @@ import java.util.List;
  * An interface for retrieving lexical information from a lexicon.
  * @author Assaf Urieli
  *
- */public interface LexiconService {
+ */
+public interface Lexicon {
 	/**
 	 * Return all lexical entries for a given word.
 	 * @param name

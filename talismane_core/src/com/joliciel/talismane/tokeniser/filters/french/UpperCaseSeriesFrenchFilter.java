@@ -28,20 +28,20 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * Looks for a series of 2+ words in all upper-case, and transforms them into lower-case.
  * @author Assaf Urieli
  *
  */
-public class UpperCaseSeriesFilter implements TokenFilter {
+public class UpperCaseSeriesFrenchFilter implements TokenSequenceFilter {
 
 	private static final String[] upperCaseEndWordArray = new String[] { "SARL", "SA", "EURL" };
 	
 	private Set<String> upperCaseEndWords;
 	
-	public UpperCaseSeriesFilter() {
+	public UpperCaseSeriesFrenchFilter() {
 		super();
 	}
 
@@ -92,7 +92,7 @@ public class UpperCaseSeriesFilter implements TokenFilter {
 			boolean foundWord = false;
 			List<String> possibleWords = this.getPossibleWords(token.getText());
 			for (String possibleWord : possibleWords) {
-				Set<PosTag> posTags = TalismaneSession.getLexiconService().findPossiblePosTags(possibleWord);
+				Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(possibleWord);
 				if (posTags.size()>0) {
 					token.setText(possibleWord);
 					foundWord = true;

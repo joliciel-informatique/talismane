@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import java.util.List;
 import java.util.Set;
 
-import com.joliciel.talismane.filters.TextFilter;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -37,7 +35,7 @@ public interface SentenceDetectorService {
 	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text, int index);
 	
 	public CorpusEventStream getSentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader,
-			Set<SentenceDetectorFeature<?>> features, List<TextFilter> filters);
+			Set<SentenceDetectorFeature<?>> features);
 
 	public DecisionFactory<SentenceDetectorOutcome> getDecisionFactory();
 }

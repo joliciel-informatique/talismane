@@ -21,7 +21,7 @@ package com.joliciel.talismane.sentenceDetector;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.joliciel.talismane.filters.TextFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 
 /**
  * Detect sentence boundaries within a textual block.
@@ -42,18 +42,16 @@ public interface SentenceDetector {
 	 * @param prevText the previous textual block
 	 * @param text the current textual block
 	 * @param moreText the following textual block
-	 * @return a List of integers marking the index of the last character in each sentence within the current textual block. The index is relative to the entire texual block (prevText + text + moreText), but will only concern boundaries within text.
+	 * @return a List of integers marking the index of the last character in each sentence within the current textual block. The index is relative to the current block only (text), not the full context (prevText + text + nextText).
 	 */
 	public List<Integer> detectSentences(String prevText, String text, String moreText);
 	
-	
 	/**
-	 * Filters to be applied to the raw text, prior to breaking up into atomic tokens.
+	 * Token filters mark certain portions of the raw text as entire tokens -
+	 * a sentence break will never be detected inside such a token.
 	 * @return
 	 */
-	public List<TextFilter> getTextFilters();
+	public List<TokenFilter> getTokenFilters();
 
-	public void setTextFilters(List<TextFilter> textFilters);
-	
-	public void addTextFilter(TextFilter textFilter);
+	public void addTokenFilter(TokenFilter filter);
 }

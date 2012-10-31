@@ -31,6 +31,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -48,6 +50,8 @@ import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
@@ -75,14 +79,17 @@ class PatternTokeniserImpl implements Tokeniser {
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFeatureService tokenFeatureService;
+	private FilterService filterService;
 	
 	private TokeniserPatternManager tokeniserPatternManager;
 	private int beamWidth;
 	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
-	private List<TokenFilter> preprocessingFilters = new ArrayList<TokenFilter>();
+	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	
 	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
 	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
+	
+	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 
 	/**
 	 * Reads separator defaults and test patterns from the default file for this locale.
@@ -96,7 +103,14 @@ class PatternTokeniserImpl implements Tokeniser {
 	}
 	
 	@Override
-	public List<TokenSequence> tokenise(String sentence) {
+	public List<TokenSequence> tokenise(String text) {
+		Sentence sentence = filterService.getSentence();
+		sentence.setText(text);
+		return this.tokenise(sentence);
+	}
+	
+	@Override
+	public List<TokenSequence> tokenise(Sentence sentence) {
 		List<TokenisedAtomicTokenSequence> decisionSequences = this.tokeniseWithDecisions(sentence);
 		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
 		for (TokenisedAtomicTokenSequence decisionSequence : decisionSequences) {
@@ -104,17 +118,38 @@ class PatternTokeniserImpl implements Tokeniser {
 		}
 		return tokenSequences;
 	}
+	
+	@Override
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text) {
+		Sentence sentence = filterService.getSentence();
+		sentence.setText(text);
+		return this.tokeniseWithDecisions(sentence);
+	}
 
 	@Override
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String sentence) {
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
 		PerformanceMonitor.startTask("PatternTokeniserImpl.tokeniseWithDecisions");
 		try {
+			// apply any pre-tokenisation decisions via filters
+			// we only want one placeholder per start index - the first one that gets added
+			Map<Integer,TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
+			for (TokenFilter tokenFilter : this.tokenFilters) {
+				Set<TokenPlaceholder> myPlaceholders = tokenFilter.apply(sentence.getText());
+				for (TokenPlaceholder placeholder : myPlaceholders) {
+					if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
+						placeholderMap.put(placeholder.getStartIndex(), placeholder);
+					}
+				}
+			}
+			
+			Set<TokenPlaceholder> placeholders = new HashSet<TokenPlaceholder>(placeholderMap.values());
+			
 			// Initially, separate the sentence into tokens using the separators provided
-			TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+			TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS, placeholders);
 			
 			// apply any pre-processing filters that have been added
-			for (TokenFilter tokenFilter : this.preprocessingFilters) {
-				tokenFilter.apply(tokenSequence);
+			for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+				tokenSequenceFilter.apply(tokenSequence);
 			}
 			
 			// Assign each separator its default value
@@ -145,7 +180,7 @@ class PatternTokeniserImpl implements Tokeniser {
 	
 				// initially create a heap with a single, empty sequence
 				PriorityQueue<TokenisedAtomicTokenSequence> heap = new PriorityQueue<TokenisedAtomicTokenSequence>();
-				TokenisedAtomicTokenSequence emptySequence = this.getTokeniserService().getTokenisedSentence(sentence, 0);
+				TokenisedAtomicTokenSequence emptySequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(sentence, 0);
 				heap.add(emptySequence);
 				int i = 0;
 				for (Token token : tokenSequence.listWithWhiteSpace()) {
@@ -204,7 +239,7 @@ class PatternTokeniserImpl implements Tokeniser {
 							for (Decision<TokeniserOutcome> decision : decisions) {
 								TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
 
-								TokenisedAtomicTokenSequence tokenisedSequence = this.getTokeniserService().getTokenisedSentence(history);
+								TokenisedAtomicTokenSequence tokenisedSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(history);
 								tokenisedSequence.add(taggedToken);
 								if (decision.isStatistical())
 									tokenisedSequence.addDecision(decision);
@@ -226,18 +261,16 @@ class PatternTokeniserImpl implements Tokeniser {
 					if (i>=this.getBeamWidth())
 						break;
 				}
-	
-				
 			} else {
 				sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-				TokenisedAtomicTokenSequence defaultSequence = this.getTokeniserService().getTokenisedSentence(sentence, 0);
+				TokenisedAtomicTokenSequence defaultSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(sentence, 0);
 				int i = 0;
 				for (Token token : tokenSequence.listWithWhiteSpace()) {
 					TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, defaultDecisions.get(i++));
 					defaultSequence.add(taggedToken);
 				}
 				sequences.add(defaultSequence);
-			}
+			} // have decision maker?
 			
 			for (TokenisedAtomicTokenSequence sequence : sequences) {
 				TokenSequence newTokenSequence = sequence.inferTokenSequence();
@@ -246,8 +279,8 @@ class PatternTokeniserImpl implements Tokeniser {
 				// Answer: because the tokenSequence and index in the sequence is referenced by the token.
 				// Question: should we create a separate class, Token and TokenInSequence,
 				// one with index & sequence access & one without?
-				for (TokenFilter tokenFilter : this.preprocessingFilters) {
-					tokenFilter.apply(newTokenSequence);
+				for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+					tokenSequenceFilter.apply(newTokenSequence);
 				}
 			}
 	
@@ -399,20 +432,35 @@ class PatternTokeniserImpl implements Tokeniser {
 	 * Filters to be applied to the atoms, prior to tokenising.
 	 * @return
 	 */
-	public List<TokenFilter> getTokenFilters() {
-		return preprocessingFilters;
-	}
-
-	public void setTokenFilters(List<TokenFilter> tokenFilters) {
-		this.preprocessingFilters = tokenFilters;
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
+		return tokenSequenceFilters;
 	}
 	
-	public void addTokenFilter(TokenFilter tokenFilter) {
-		this.preprocessingFilters.add(tokenFilter);
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter) {
+		this.tokenSequenceFilters.add(tokenSequenceFilter);
 	}
 
 	@Override
 	public void addObserver(AnalysisObserver observer) {
 		this.observers.add(observer);
 	}
+	
+
+	public List<TokenFilter> getTokenFilters() {
+		return tokenFilters;
+	}
+
+	public void addTokenFilter(TokenFilter tokenFilter) {
+		this.tokenFilters.add(tokenFilter);
+	}
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
+	}
+	
+	
 }

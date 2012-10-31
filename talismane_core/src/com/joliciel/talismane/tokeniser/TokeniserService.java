@@ -22,9 +22,11 @@ import java.io.Reader;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 public interface TokeniserService {
@@ -35,7 +37,7 @@ public interface TokeniserService {
 	 * @param sentence
 	 * @return
 	 */
-	public TokenSequence getTokenSequence(String sentence);
+	public TokenSequence getTokenSequence(Sentence sentence);
 	
 	/**
 	 * Create a token sequence from a given sentence,
@@ -44,8 +46,19 @@ public interface TokeniserService {
 	 * @param separatorPattern
 	 * @return
 	 */
-	public TokenSequence getTokenSequence(String sentence, Pattern separatorPattern);
+	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern);
 	
+	
+	/**
+	 * Create a token sequence from a given sentence,
+	 * pre-separated into tokens matching the separatorPattern,
+	 * except for the placeholders provided.
+	 * @param sentence
+	 * @param separatorPattern
+	 * @return
+	 */
+	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, Set<TokenPlaceholder> placeholders);
+
 	public PretokenisedSequence getEmptyPretokenisedSequence();
 	
 	public Tokeniser getSimpleTokeniser();
@@ -58,13 +71,12 @@ public interface TokeniserService {
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(int initialCapacity);
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(TaggedTokenSequence<T> history);
 	
-	public TokenisedAtomicTokenSequence getTokenisedSentence(
+	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
 			TokenisedAtomicTokenSequence history);
-
-	public TokenisedAtomicTokenSequence getTokenisedSentence(
-			String sentence,
+	
+	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
+			Sentence sentence,
 			int initialCapacity);
-
 
 	public TokeniserEventStream getTokeniserEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, TokeniserPatternManager patternManager);

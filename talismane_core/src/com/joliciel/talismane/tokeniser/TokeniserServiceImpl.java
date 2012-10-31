@@ -23,19 +23,23 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 
 class TokeniserServiceImpl implements TokeniserServiceInternal {
-	TokenFeatureService tokenFeatureService;
-	TokeniserPatternService tokeniserPatternService;
-	PosTaggerLexiconService lexiconService;
+	private TokenFeatureService tokenFeatureService;
+	private TokeniserPatternService tokeniserPatternService;
+	private TokenFilterService tokenFilterService;
+	private FilterService filterService;
 	private MachineLearningService machineLearningService;
 
 	@Override
@@ -43,40 +47,44 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		return this.getTokenInternal(string, tokenSequence, index);
 	}
 	
-
 	@Override
 	public TokenInternal getTokenInternal(String string,
 			TokenSequence tokenSequence, int index) {
 		TokenImpl token = new TokenImpl(string, tokenSequence, index);
-		token.setLexiconService(this.getLexiconService());
+		token.setLexicon(TalismaneSession.getLexicon());
 		return token;
 	}
 
-
 	@Override
-	public TokenSequence getTokenSequence(String sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence) {
+	public TokenSequence getTokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence) {
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, tokeniserDecisionTagSequence);
 		tokenSequence.setTokeniserServiceInternal(this);
 		return tokenSequence;
 	}
 	
 	@Override
-	public TokenSequence getTokenSequence(String sentence) {
+	public TokenSequence getTokenSequence(Sentence sentence) {
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence);
 		tokenSequence.setTokeniserServiceInternal(this);
 		return tokenSequence;
 	}
 	
 	@Override
-	public TokenSequence getTokenSequence(String sentence, Pattern separatorPattern) {
+	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern) {
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, this);
+		return tokenSequence;
+	}
 
+	@Override
+	public TokenSequence getTokenSequence(Sentence sentence,
+			Pattern separatorPattern, Set<TokenPlaceholder> placeholders) {
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, this);
 		return tokenSequence;
 	}
 
 	@Override
 	public PretokenisedSequence getEmptyPretokenisedSequence() {
-		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl();
+		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService);
 		tokenSequence.setTokeniserServiceInternal(this);
 		return tokenSequence;
 	}
@@ -85,6 +93,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	public Tokeniser getSimpleTokeniser() {
 		SimpleTokeniser tokeniser = new SimpleTokeniser();
 		tokeniser.setTokeniserServiceInternal(this);
+		tokeniser.setFilterService(this.getFilterService());
 		return tokeniser;
 	}
 	
@@ -123,16 +132,17 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		TaggedTokenSequence<T> sequence = new TaggedTokenSequenceImpl<T>(history);
 		return sequence;
 	}
-	
+
 	@Override
-	public TokenisedAtomicTokenSequence getTokenisedSentence(String sentence,  int initialCapacity) {
+	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
+			Sentence sentence, int initialCapacity) {
 		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(sentence, initialCapacity);
 		sequence.setTokeniserServiceInternal(this);
 		return sequence;
 	}
 
 	@Override
-	public TokenisedAtomicTokenSequence getTokenisedSentence(
+	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
 			TokenisedAtomicTokenSequence history) {
 		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(history);
 		sequence.setTokeniserServiceInternal(this);
@@ -150,6 +160,8 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		eventStream.setMachineLearningService(this.getMachineLearningService());
 		eventStream.setTokeniserService(this);
 		eventStream.setTokeniserPatternManager(patternManager);
+		eventStream.setFilterService(this.getFilterService());
+		eventStream.setTokenFilterService(this.getTokenFilterService());
 		return eventStream;
 	}
 
@@ -170,14 +182,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
 
-	public PosTaggerLexiconService getLexiconService() {
-		if (lexiconService==null) {
-			lexiconService = TalismaneSession.getLexiconService();
-		}
-		return lexiconService;
-	}
-
-
 	@Override
 	public DecisionFactory<TokeniserOutcome> getDecisionFactory() {
 		TokeniserDecisionFactory factory = new TokeniserDecisionFactory();
@@ -189,6 +193,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	public TokenRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
 		TokenRegexBasedCorpusReaderImpl corpusReader = new TokenRegexBasedCorpusReaderImpl(reader);
 		corpusReader.setTokeniserService(this);
+		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
 	}
 
@@ -202,6 +207,27 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
-	
+
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
+	}
+
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
+	}
+
+
 	
 }

@@ -28,11 +28,12 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 
 /**
- * A token is more-or-less equivalent to a word, although punctuation (and in some case white space) count as tokens as well.
- * Some implementations may consider compound words (e.g. "of course") as a single token, and some may
- * insert empty tokens into sentences (e.g. when a single token represents two POS tags downstream, such as "auquel" in French).
+ * A token is a single parsing unit, which can have dependents and a governor.<br/>
+ * A token is more-or-less equivalent to a word, although punctuation (and in some case white space) count as tokens as well.<br/>
+ * Some languages may consider compound words (e.g. "of course") as a single token, and some may
+ * insert empty tokens into sentences (e.g. when a single token represents two POS tags downstream, such as "auquel" in French).<br/>
  * Some languages may break a single word up into multiple tokens
- * (e.g. biblical or modern Hebrew for the coordinating conjunction "ve").
+ * (e.g. biblical or modern Hebrew for the coordinating conjunction "ve").<br/>
  * @author Assaf Urieli
  *
  */
@@ -141,4 +142,35 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	public boolean isEmpty();
+	
+	/**
+	 * Returns the file name of the sentence containing this token.
+	 * @return
+	 */
+	String getFileName();
+	
+	/**
+	 * Returns the original index in the original text at the beginning of this token.
+	 * @return
+	 */
+	int getOriginalIndex();
+	
+	/**
+	 * Returns the original text line number at the beginning of this token.
+	 * @return
+	 */
+	int getLineNumber();
+	
+	/**
+	 * Returns the original text column number (inside a line) at the beginning of this token.
+	 * @return
+	 */
+	int getColumnNumber();
+	
+	/**
+	 * Any text that should be output as "raw" prior to outputting this token,
+	 * or null if none available.
+	 * @return
+	 */
+	String getPrecedingRawOutput();
 }

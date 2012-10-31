@@ -24,17 +24,21 @@ import java.util.List;
 
 import com.joliciel.frenchTreebank.TreebankReader;
 import com.joliciel.frenchTreebank.TreebankService;
+import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 class TreebankExportServiceImpl implements TreebankExportService {
 	private TreebankService treebankService;
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
+	private FilterService filterService;
+	private TokenFilterService tokenFilterService;
 
 	public TreebankService getTreebankService() {
 		return treebankService;
@@ -71,6 +75,8 @@ class TreebankExportServiceImpl implements TreebankExportService {
 		reader.setTreebankService(this.getTreebankService());
 		reader.setTokeniserService(tokeniserService);
 		reader.setPosTaggerService(posTaggerService);
+		reader.setFilterService(filterService);
+		reader.setTokenFilterService(tokenFilterService);
     	reader.setIgnoreCase(false);
 		return reader;
 	}
@@ -106,6 +112,22 @@ class TreebankExportServiceImpl implements TreebankExportService {
 
 	public void setPosTaggerService(PosTaggerService posTaggerService) {
 		this.posTaggerService = posTaggerService;
+	}
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
+	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
 	}
 
 

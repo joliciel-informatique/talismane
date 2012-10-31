@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -28,10 +29,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTaggerLexiconService;
+import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 
 class TokenImpl implements TokenInternal {
@@ -50,13 +52,13 @@ class TokenImpl implements TokenInternal {
 	private boolean separator = false;
 	private boolean whiteSpace = false;
 	private List<TokenMatch> matches = null;
-	List<TaggedToken<TokeniserOutcome>> atomicDecisions = new ArrayList<TaggedToken<TokeniserOutcome>>();
+	private List<TaggedToken<TokeniserOutcome>> atomicDecisions = new ArrayList<TaggedToken<TokeniserOutcome>>();
 	private boolean logged = false;
 	
 	private int startIndex = 0;
 	private int endIndex = 0;
 	
-	private PosTaggerLexiconService lexiconService;
+	private PosTaggerLexicon lexicon;
 	
 	TokenImpl(String text, TokenSequence tokenSequence) {
 		this(text, tokenSequence, 0);
@@ -112,7 +114,7 @@ class TokenImpl implements TokenInternal {
 	@Override
 	public Set<PosTag> getPossiblePosTags() {
 		if (possiblePosTags==null) {
-			possiblePosTags = this.lexiconService.findPossiblePosTags(this.getText());
+			possiblePosTags = this.lexicon.findPossiblePosTags(this.getText());
 		}
 		
 		return possiblePosTags;
@@ -233,17 +235,51 @@ class TokenImpl implements TokenInternal {
 		return true;
 	}
 
-	public PosTaggerLexiconService getLexiconService() {
-		return lexiconService;
+	public PosTaggerLexicon getLexicon() {
+		return lexicon;
 	}
 
-	public void setLexiconService(PosTaggerLexiconService lexiconService) {
-		this.lexiconService = lexiconService;
+	public void setLexicon(PosTaggerLexicon lexiconService) {
+		this.lexicon = lexiconService;
 	}
 
 	@Override
 	public boolean isEmpty() {
 		return this.getStartIndex()==this.getEndIndex();
+	}
+
+	@Override
+	public int getOriginalIndex() {
+		return this.getTokenSequence().getSentence().getOriginalIndex(this.startIndex);
+	}
+
+	@Override
+	public int getLineNumber() {
+		return this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndex());
+	}
+
+	@Override
+	public int getColumnNumber() {
+		return this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndex());
+	}
+
+	@Override
+	public String getFileName() {
+		return this.getTokenSequence().getSentence().getFileName();
+	}
+
+	@Override
+	public String getPrecedingRawOutput() {
+		Sentence sentence = this.getTokenSequence().getSentence();
+		Entry<Integer, String> textSegment = sentence.getPrecedingOriginalTextSegment(startIndex);
+		if (textSegment==null)
+			return null;
+		if (this.index==0)
+			return textSegment.getValue();
+		Token previousToken = this.getTokenSequence().get(index-1);
+		if (previousToken.getStartIndex()>=textSegment.getKey())
+			return null;
+		return textSegment.getValue();
 	}
 	
 	

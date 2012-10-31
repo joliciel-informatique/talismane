@@ -20,18 +20,26 @@ package com.joliciel.talismane.tokeniser;
 
 import static org.junit.Assert.*;
 
+import mockit.NonStrict;
+import mockit.NonStrictExpectations;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 
 public class TokenisedAtomicTokenSequenceImplTest {
 	private static final Log LOG = LogFactory.getLog(TokenisedAtomicTokenSequenceImplTest.class);
 
 	@Test
-	public void testGetTokenSequence() {
-		final String sentence = "Je n'ai pas encore l'ourang-outan.";
+	public void testGetTokenSequence(@NonStrict final Sentence sentence) {
+		new NonStrictExpectations() {
+			{
+				sentence.getText(); returns("Je n'ai pas encore l'ourang-outan.");
+			}
+		};
 		
 		TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] {
 				TokeniserOutcome.DOES_SEPARATE, // Je
