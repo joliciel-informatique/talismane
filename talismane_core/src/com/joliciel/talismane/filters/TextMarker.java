@@ -24,7 +24,22 @@ package com.joliciel.talismane.filters;
  *
  */
 public interface TextMarker extends Comparable<TextMarker> {
+	/**
+	 * The marker type.
+	 * @return
+	 */
 	public TextMarkerType getType();
+	/**
+	 * The marker position in the original text.
+	 * @return
+	 */
 	public int getPosition();
 	public void setPosition(int position);
+	
+	/**
+	 * The text that should be inserted at this marker position.
+	 * @return
+	 */
+	public String getInsertionText();
+	public void setInsertionText(String insertionText);
 }

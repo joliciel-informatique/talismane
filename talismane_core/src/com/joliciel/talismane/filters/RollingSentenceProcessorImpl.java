@@ -42,10 +42,14 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	
 	private FilterService filterService;
 	
-	public RollingSentenceProcessorImpl(String fileName) {
-		shouldProcessStack.push(true);
+	public RollingSentenceProcessorImpl(String fileName, boolean processByDefault) {
+		shouldProcessStack.push(processByDefault);
 		shouldOutputStack.push(false);
 		this.fileName = fileName;
+	}
+
+	public RollingSentenceProcessorImpl(String fileName) {
+		this(fileName, true);
 	}
 	
 	@Override
@@ -63,50 +67,60 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 			boolean shouldOutput = shouldOutputStack.peek();
 			
 			switch (textMarker.getType()) {
-			case STOP:
+			case PUSH_SKIP:
 				if (shouldProcess) {
-					insertionPoints.put(currentPos, processedText.length());
+					insertionPoints.put(processedText.length(), currentPos);
 					processedText.append(originalText.substring(currentPos, textMarker.getPosition()));
 					if (shouldOutput) {
 						outputPos = textMarker.getPosition();
 					}
 				}
 				shouldProcessStack.push(false);
-				shouldOutputStack.push(shouldOutputStack.peek());
 				break;
-			case OUTPUT:
+			case PUSH_OUTPUT:
 				if (!shouldOutput && !shouldProcess) {
 					outputPos = textMarker.getPosition();
 				}
-				shouldProcessStack.push(shouldProcessStack.peek());
 				shouldOutputStack.push(true);
 				break;
-			case START:
+			case PUSH_INCLUDE:
 				if (!shouldProcess) {
 					currentPos = textMarker.getPosition();
 					if (shouldOutput) {
 						String outputText = originalText.substring(outputPos, textMarker.getPosition());
 						this.addOutputText(sentenceHolder, processedText.length(), outputText);
+						outputPos = textMarker.getPosition();
 					}
 				}				
 				shouldProcessStack.push(true);
-				shouldOutputStack.push(shouldOutputStack.peek());
 				break;
 			case SPACE:
 				if (shouldProcess) {
-					insertionPoints.put(currentPos, processedText.length());
-					String textToInsert = originalText.substring(currentPos, textMarker.getPosition());
-					processedText.append(textToInsert);
+					insertionPoints.put(processedText.length(), currentPos);
+					String leftoverText = originalText.substring(currentPos, textMarker.getPosition());
+					processedText.append(leftoverText);
 					currentPos = textMarker.getPosition();
-					if (!textToInsert.endsWith(" ")) {
-						insertionPoints.put(currentPos, processedText.length());
+					if (!leftoverText.endsWith(" ")) {
+						insertionPoints.put(processedText.length(), currentPos);
 						processedText.append(" ");
 					}
 				}
 				break;
+			case INSERT:
+				if (shouldProcess) {
+					insertionPoints.put(processedText.length(), currentPos);
+					String leftoverText = originalText.substring(currentPos, textMarker.getPosition());
+					processedText.append(leftoverText);
+					currentPos = textMarker.getPosition();
+					for (int i=0; i<textMarker.getInsertionText().length(); i++) {
+						insertionPoints.put(processedText.length() + i, currentPos);
+					}
+					processedText.append(textMarker.getInsertionText());
+				}
+				break;
 			case SENTENCE_BREAK:
 				if (shouldProcess) {
-					insertionPoints.put(currentPos, processedText.length());
+					insertionPoints.put(processedText.length(), currentPos);
 					processedText.append(originalText.substring(currentPos, textMarker.getPosition()));
 					currentPos = textMarker.getPosition();
 				}
@@ -114,16 +128,24 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				// add the sentence boundary on the last character that was actually added.
 				sentenceHolder.addSentenceBoundary(processedText.length()-1);
 				break;
-			case END_MARKER:
+			case POP_SKIP: case POP_INCLUDE: case STOP: case START:
+			{
 				boolean wasProcessing = shouldProcess;
 				boolean wasOutputting = shouldOutput && !shouldProcess;
-				shouldProcessStack.pop();
-				shouldOutputStack.pop();
+				if (textMarker.getType().equals(TextMarkerType.POP_SKIP)||textMarker.getType().equals(TextMarkerType.POP_INCLUDE)) {
+					shouldProcessStack.pop();
+				} else if (textMarker.getType().equals(TextMarkerType.STOP)) {
+					shouldProcessStack.pop();
+					shouldProcessStack.push(false);
+				} else if (textMarker.getType().equals(TextMarkerType.START)) {
+					shouldProcessStack.pop();
+					shouldProcessStack.push(true);
+				}
 				shouldProcess = shouldProcessStack.peek();
-				shouldOutput = shouldOutputStack.peek();
+				shouldOutput = shouldOutput && !shouldProcess;
 					
 				if (wasProcessing && !shouldProcess) {
-					insertionPoints.put(currentPos, processedText.length());
+					insertionPoints.put(processedText.length(), currentPos);
 					processedText.append(originalText.substring(currentPos, textMarker.getPosition()));
 				} else if (!wasProcessing && shouldProcess){
 					currentPos = textMarker.getPosition();
@@ -132,17 +154,42 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				if (wasOutputting  && (!shouldOutput || !shouldProcess)) {
 					String outputText = originalText.substring(outputPos, textMarker.getPosition());
 					this.addOutputText(sentenceHolder, processedText.length(), outputText);
+					outputPos = textMarker.getPosition();
 				} else if (!wasOutputting && (shouldOutput && !shouldProcess)) {
 					outputPos = textMarker.getPosition();
 				} // shouldOutput?
 				break;
+			}
+			case POP_OUTPUT: case STOP_OUTPUT: case START_OUTPUT:
+			{
+				boolean wasOutputting = shouldOutput && !shouldProcess;
+				if (textMarker.getType().equals(TextMarkerType.POP_OUTPUT)) {
+					shouldOutputStack.pop();
+				} else if (textMarker.getType().equals(TextMarkerType.STOP_OUTPUT)) {
+					shouldOutputStack.pop();
+					shouldOutputStack.push(false);
+				} else if (textMarker.getType().equals(TextMarkerType.START_OUTPUT)) {
+					shouldOutputStack.pop();
+					shouldOutputStack.push(true);
+				}
+				shouldOutput = shouldOutputStack.peek();
+
+				if (wasOutputting  && (!shouldOutput || !shouldProcess)) {
+					String outputText = originalText.substring(outputPos, textMarker.getPosition());
+					this.addOutputText(sentenceHolder, processedText.length(), outputText);
+					outputPos = textMarker.getPosition();
+				} else if (!wasOutputting && (shouldOutput && !shouldProcess)) {
+					outputPos = textMarker.getPosition();
+				} // shouldOutput?
+				break;
+			}
 			} // marker type
 		} // next text marker
 		boolean shouldProcess = shouldProcessStack.peek();
 		boolean shouldOutput = shouldOutputStack.peek();
 
 		if (shouldProcess) {
-			insertionPoints.put(currentPos, processedText.length());
+			insertionPoints.put(processedText.length(), currentPos);
 			processedText.append(originalText.substring(currentPos));
 		}
 		if (shouldOutput && !shouldProcess) {
@@ -151,21 +198,21 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 		
 		sentenceHolder.setText(processedText.toString());
 
-		int lastValue = 0;
-		int lastKey = 0;
+		int lastIndex = 0;
+		int lastOriginalIndex = 0;
 		for (Entry<Integer,Integer> insertionPoint : insertionPoints.entrySet()) {
 			int j=0;
-			for (int i=lastValue; i<insertionPoint.getValue(); i++) {
-				sentenceHolder.addOriginalIndex(originalTextIndex + lastKey + j);
+			for (int i=lastIndex; i<insertionPoint.getKey(); i++) {
+				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
 				j++;
 			}
-			lastValue = insertionPoint.getValue();
-			lastKey = insertionPoint.getKey();
+			lastIndex = insertionPoint.getKey();
+			lastOriginalIndex = insertionPoint.getValue();
 		}
-		if (lastValue<sentenceHolder.getText().length()) {
+		if (lastIndex<sentenceHolder.getText().length()) {
 			int j=0;
-			for (int i=lastValue; i<sentenceHolder.getText().length(); i++) {
-				sentenceHolder.addOriginalIndex(originalTextIndex + lastKey + j);
+			for (int i=lastIndex; i<sentenceHolder.getText().length(); i++) {
+				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
 				j++;
 			}
 		}

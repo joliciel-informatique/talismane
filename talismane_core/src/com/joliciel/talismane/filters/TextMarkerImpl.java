@@ -21,6 +21,7 @@ package com.joliciel.talismane.filters;
 class TextMarkerImpl implements TextMarker {
 	private TextMarkerType type;
 	private int position;
+	private String insertionText;
 	
 	public TextMarkerImpl(TextMarkerType type, int position) {
 		super();
@@ -53,6 +54,14 @@ class TextMarkerImpl implements TextMarker {
 	@Override
 	public String toString() {
 		return "TextMarkerImpl [type=" + type + ", position=" + position + "]";
+	}
+
+	public String getInsertionText() {
+		return insertionText;
+	}
+
+	public void setInsertionText(String insertionText) {
+		this.insertionText = insertionText;
 	}
 	
 

@@ -36,22 +36,59 @@ public enum TextMarkerType {
 	 */
 	SPACE,
 	/**
-	 * Stop processing when you hit this marker.
+	 * Insert text when you hit this marker.
+	 */
+	INSERT,
+	/**
+	 * Remove the effect of the last skip marker.
+	 * If two skip markers are nested, this has no effect.
+	 * If a skip is nested in an include, this will start processing.
+	 * Always matched to a PUSH_SKIP.
+	 */
+	POP_SKIP,
+	/**
+	 * Remove the effect of the last output marker.
+	 * Always matched to a PUSH_OUTPUT.
+	 */
+	POP_OUTPUT,
+	/**
+	 * Remove the effect of the last include marker.
+	 * If two include markers are nested, this has no effect.
+	 * If an include is nested in an skip, this will stop processing.
+	 * Always matched to a PUSH_INCLUDE.
+	 */
+	POP_INCLUDE,
+	/**
+	 * Regardless of the current top-of-stack for processing, stops processing until either
+	 * pop or end is reached.
 	 */
 	STOP,
+	/**
+	 * Regardless of the current top-of-stack for processing, starts processing until either
+	 * pop or end is reached.
+	 */
+	START,
+	/**
+	 * Regardless of the current top-of-stack for output, starts output until either
+	 * pop or end is reached (but only if not processing - will never output AND process).
+	 */
+	START_OUTPUT,
+	/**
+	 * Regardless of the current top-of-stack for output, stops processing until either
+	 * pop or end is reached.
+	 */
+	STOP_OUTPUT,
+	/**
+	 * Start processing again when you hit this marker (unless already started).
+	 */
+	PUSH_INCLUDE,
 	/**
 	 * Output the raw contents in any output files produced by Talismane,
 	 * assuming we're not processing.
 	 */
-	OUTPUT,
+	PUSH_OUTPUT,
 	/**
-	 * Start processing again when you hit this marker.
+	 * Stop processing when you hit this marker (unless already stopped).
 	 */
-	START,
-	/**
-	 * Remove the effect of the last start/stop marker.
-	 * If two stop markers or two start markers are imbricated, this has no effect.
-	 * If a stop is imbricated in a start or vice versa, this will begin/stop processing.
-	 */
-	END_MARKER
+	PUSH_SKIP,
 }

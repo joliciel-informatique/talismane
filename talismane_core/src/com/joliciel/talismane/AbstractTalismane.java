@@ -157,6 +157,7 @@ public abstract class AbstractTalismane implements Talismane {
 	private File outDir;
 	private String baseName;
 	private long startTime;
+	private boolean processByDefault = true;
 	
 	protected AbstractTalismane() {
 		
@@ -355,6 +356,8 @@ public abstract class AbstractTalismane implements Talismane {
 				newlineMarker = MarkerFilterType.valueOf(argValue);
 			else if (argName.equals("fileName"))
 				fileName = argValue;
+			else if (argName.equals("processByDefault"))
+				processByDefault = argValue.equalsIgnoreCase("true");
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -1068,7 +1071,7 @@ public abstract class AbstractTalismane implements Talismane {
 			TokenSequence tokenSequence = null;
 			PosTagSequence posTagSequence = null;
 			
-			RollingSentenceProcessor rollingSentenceProcessor = this.filterService.getRollingSentenceProcessor(fileName);
+			RollingSentenceProcessor rollingSentenceProcessor = this.filterService.getRollingSentenceProcessor(fileName, processByDefault);
 			Sentence leftover = null;
 			if (this.needsSentenceDetector()) {
 				// prime the sentence detector with two text segments, to ensure everything gets processed
