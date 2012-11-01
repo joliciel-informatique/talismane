@@ -36,4 +36,10 @@ public interface TextMarkerFilter {
 	 * @return
 	 */
 	public Set<TextMarker> apply(String prevText, String text, String nextText);
+	
+	/**
+	 * If the filter includes text replacement, the replacement string.
+	 */
+	public String getReplacement();
+	public void setReplacement(String replacement);
 }

@@ -125,12 +125,22 @@ public class FilterServiceImpl implements FilterService {
 			for (String filterTypeString : filterTypeStrings) {
 				filterTypes.add(MarkerFilterType.valueOf(filterTypeString));
 			}
-			if (parts.length==4) {
+			boolean needsReplacement = false;
+			int minParams = 3;
+			if (filterTypes.contains(MarkerFilterType.REPLACE)) {
+				needsReplacement = true;
+				minParams = 4;
+			}
+			if (parts.length==minParams+1){
 				filter = this.getRegexMarkerFilter(filterTypes, parts[2], Integer.parseInt(parts[3]));
-			} else if (parts.length==3) {
+				if (needsReplacement)
+					filter.setReplacement(parts[4]);
+			} else if (parts.length==minParams) {
 				filter = this.getRegexMarkerFilter(filterTypes, parts[2]);
+				if (needsReplacement)
+					filter.setReplacement(parts[3]);
 			} else {
-				throw new TalismaneException("Wrong number of arguments for " + RegexMarkerFilter.class.getSimpleName() + ". Expected 2 or 3, but was " + parts.length);
+				throw new TalismaneException("Wrong number of arguments for " + RegexMarkerFilter.class.getSimpleName() + ". Expected " + minParams + " or " + (minParams+1) + ", but was " + parts.length);
 			}
 		} else {
 			for (Class<? extends TextMarkerFilter> clazz : classes) {
