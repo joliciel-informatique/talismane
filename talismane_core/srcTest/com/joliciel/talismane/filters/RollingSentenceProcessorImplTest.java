@@ -44,10 +44,10 @@ public class RollingSentenceProcessorImplTest {
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2;
 			{
-				textMarker1.getType(); returns(TextMarkerType.STOP);
+				textMarker1.getType(); returns(TextMarkerType.PUSH_SKIP);
 				textMarker1.getPosition(); returns(6);
 				
-				textMarker2.getType(); returns(TextMarkerType.END_MARKER);
+				textMarker2.getType(); returns(TextMarkerType.POP_SKIP);
 				textMarker2.getPosition(); returns(9);
 				
 				textMarkers.add(textMarker1);
@@ -82,11 +82,11 @@ public class RollingSentenceProcessorImplTest {
 				textMarker0.getPosition(); returns(5);
 				textMarkers.add(textMarker0);
 
-				textMarker1.getType(); returns(TextMarkerType.STOP);
+				textMarker1.getType(); returns(TextMarkerType.PUSH_SKIP);
 				textMarker1.getPosition(); returns(5);
 				textMarkers.add(textMarker1);
 				
-				textMarker2.getType(); returns(TextMarkerType.END_MARKER);
+				textMarker2.getType(); returns(TextMarkerType.POP_SKIP);
 				textMarker2.getPosition(); returns(8);
 				textMarkers.add(textMarker2);
 				
@@ -117,12 +117,12 @@ public class RollingSentenceProcessorImplTest {
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3;
 			{
-				textMarker1.getType(); returns(TextMarkerType.STOP);
+				textMarker1.getType(); returns(TextMarkerType.PUSH_SKIP);
 				textMarker1.getPosition(); returns("Hello ".length());
 								
 				textMarkers1.add(textMarker1);
 				
-				textMarker2.getType(); returns(TextMarkerType.END_MARKER);
+				textMarker2.getType(); returns(TextMarkerType.POP_SKIP);
 				textMarker2.getPosition(); returns("</b>".length());
 				textMarkers2.add(textMarker2);
 				
@@ -158,19 +158,19 @@ public class RollingSentenceProcessorImplTest {
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4;
 			{
-				textMarker1.getType(); returns(TextMarkerType.STOP);
+				textMarker1.getType(); returns(TextMarkerType.PUSH_SKIP);
 				textMarker1.getPosition(); returns(6);								
 				textMarkers1.add(textMarker1);
 
-				textMarker2.getType(); returns(TextMarkerType.OUTPUT);
+				textMarker2.getType(); returns(TextMarkerType.PUSH_OUTPUT);
 				textMarker2.getPosition(); returns(6);								
 				textMarkers1.add(textMarker2);
 				
-				textMarker3.getType(); returns(TextMarkerType.END_MARKER);
+				textMarker3.getType(); returns(TextMarkerType.POP_OUTPUT);
 				textMarker3.getPosition(); returns(4);
 				textMarkers2.add(textMarker3);
 				
-				textMarker4.getType(); returns(TextMarkerType.END_MARKER);
+				textMarker4.getType(); returns(TextMarkerType.POP_SKIP);
 				textMarker4.getPosition(); returns(4);
 				textMarkers2.add(textMarker4);
 			}
@@ -205,16 +205,16 @@ public class RollingSentenceProcessorImplTest {
 				};
 				
 				TextMarkerType[] textMarkerTypes = new TextMarkerType[] {
-					TextMarkerType.STOP,
-					TextMarkerType.OUTPUT,
-					TextMarkerType.START,
-					TextMarkerType.STOP,
-					TextMarkerType.OUTPUT,
-					TextMarkerType.END_MARKER,
-					TextMarkerType.END_MARKER,
-					TextMarkerType.END_MARKER,
-					TextMarkerType.END_MARKER,
-					TextMarkerType.END_MARKER,					
+					TextMarkerType.PUSH_SKIP,
+					TextMarkerType.PUSH_OUTPUT,
+					TextMarkerType.PUSH_INCLUDE,
+					TextMarkerType.PUSH_SKIP,
+					TextMarkerType.PUSH_OUTPUT,
+					TextMarkerType.POP_OUTPUT,
+					TextMarkerType.POP_SKIP,
+					TextMarkerType.POP_INCLUDE,
+					TextMarkerType.POP_OUTPUT,
+					TextMarkerType.POP_SKIP,					
 				};
 				
 				int[] positions = new int[] { 7, 13, 21, 3, 3, 11, 11, 20, 28, 37 };
@@ -316,6 +316,177 @@ public class RollingSentenceProcessorImplTest {
 		
 		assertEquals(4, holder.getLineNumber("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\nGrand, and".length()-1));
 		assertEquals(9, holder.getColumnNumber("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\nGrand, and".length()-1));
+	}
+	
+	@Test
+	public void testUnaryMarkers() {
+		FilterService filterService = new FilterServiceImpl();
+		RollingSentenceProcessorImpl processor = new RollingSentenceProcessorImpl("");
+		processor.setFilterService(filterService);
+		
+		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
+		final Set<TextMarker> textMarkers2 = new LinkedHashSet<TextMarker>();
+		
+		new NonStrictExpectations() {
+			TextMarker textMarker1, textMarker2, textMarker3, textMarker4;
+			{
+				TextMarker[] textMarkers = new TextMarker[] {
+					textMarker1, textMarker2, textMarker3, textMarker4
+				};
+				
+				TextMarkerType[] textMarkerTypes = new TextMarkerType[] {
+					TextMarkerType.STOP,
+					TextMarkerType.START,
+					TextMarkerType.STOP,
+					TextMarkerType.START					
+				};
+				
+				int[] positions = new int[] { "Hello ".length(),
+						"Hello <b>".length(),
+						"ld".length(),
+						"ld</b>".length()};
+
+				for (int i=0; i<4; i++) {
+					textMarkers[i].getType(); returns(textMarkerTypes[i]);
+					textMarkers[i].getPosition(); returns(positions[i]);
+				}
+				textMarkers1.add(textMarkers[0]);
+				textMarkers1.add(textMarkers[1]);
+				textMarkers2.add(textMarkers[2]);
+				textMarkers2.add(textMarkers[3]);
+			}
+		};
+
+		SentenceHolder holder = processor.addNextSegment("Hello <b>Wor", textMarkers1);
+		assertEquals("Hello Wor", holder.getText());
+		
+		holder = processor.addNextSegment("ld</b>.", textMarkers2);
+		assertEquals("ld.", holder.getText());
+	}
+	
+	@Test
+	public void testReplace() {
+		FilterService filterService = new FilterServiceImpl();
+		RollingSentenceProcessorImpl processor = new RollingSentenceProcessorImpl("");
+		processor.setFilterService(filterService);
+		
+		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
+		final Set<TextMarker> textMarkers2 = new LinkedHashSet<TextMarker>();
+		
+		new NonStrictExpectations() {
+			TextMarker textMarker1, textMarker2, textMarker3;
+			{
+				TextMarker[] textMarkers = new TextMarker[] {
+					textMarker1, textMarker2, textMarker3
+				};
+				
+				TextMarkerType[] textMarkerTypes = new TextMarkerType[] {
+					TextMarkerType.INSERT,
+					TextMarkerType.PUSH_SKIP,
+					TextMarkerType.POP_SKIP				
+				};
+				
+				int[] positions = new int[] { "Hello ".length(),
+						"Hello ".length(),
+						"ld</b>".length()};
+
+				for (int i=0; i<3; i++) {
+					textMarkers[i].getType(); returns(textMarkerTypes[i]);
+					textMarkers[i].getPosition(); returns(positions[i]);
+				}
+				
+				textMarkers1.add(textMarkers[0]);
+				textMarkers1.add(textMarkers[1]);
+				textMarkers2.add(textMarkers[2]);
+				
+				textMarker1.getInsertionText(); returns("Jim");
+			}
+		};
+
+		SentenceHolder holder = processor.addNextSegment("Hello <b>Wor", textMarkers1);
+		assertEquals("Hello Jim", holder.getText());
+		assertEquals("Hello ".length(), holder.getOriginalIndex("Hello J".length()-1));
+		assertEquals("Hello ".length(), holder.getOriginalIndex("Hello Ji".length()-1));
+		assertEquals("Hello ".length(), holder.getOriginalIndex("Hello Jim".length()-1));
+		
+		holder = processor.addNextSegment("ld</b>.", textMarkers2);
+		assertEquals(".", holder.getText());
+		assertEquals("Hello <b>World</b>".length(), holder.getOriginalIndex(".".length()-1));
+	}
+	
+	@Test
+	public void testNestedStackAndUnary() {
+		FilterService filterService = new FilterServiceImpl();
+		RollingSentenceProcessorImpl processor = new RollingSentenceProcessorImpl("");
+		processor.setFilterService(filterService);
+		
+		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
+		final Set<TextMarker> textMarkers2 = new LinkedHashSet<TextMarker>();
+		
+		new NonStrictExpectations() {
+			TextMarker textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7, textMarker8, textMarker9, textMarker10;
+			{
+				TextMarker[] textMarkers = new TextMarker[] {
+					textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7, textMarker8, textMarker9, textMarker10
+				};
+				
+				TextMarkerType[] textMarkerTypes = new TextMarkerType[] {
+					TextMarkerType.PUSH_OUTPUT,
+					TextMarkerType.PUSH_SKIP,
+					TextMarkerType.PUSH_INCLUDE,
+					TextMarkerType.STOP,
+					TextMarkerType.STOP_OUTPUT,
+					TextMarkerType.POP_INCLUDE,
+					TextMarkerType.START_OUTPUT,
+					TextMarkerType.START,
+					TextMarkerType.POP_SKIP,
+					TextMarkerType.POP_OUTPUT,
+				};
+				
+				int[] positions = new int[] { "A".length(),
+						"A[>O]".length(),
+						"A[>O][>S]".length(),
+						"A[>O][>S][>I]".length(),
+						"".length(),
+						"[O-]".length(),
+						"[O-][I<]".length(),
+						"[O-][I<][O+]".length(),
+						"[O-][I<][O+][+]".length(),
+						"[O-][I<][O+][+][S<]".length(),
+				};
+
+				for (int i=0; i<10; i++) {
+					textMarkers[i].getType(); returns(textMarkerTypes[i]);
+					textMarkers[i].getPosition(); returns(positions[i]);
+				}
+				textMarkers1.add(textMarkers[0]);
+				textMarkers1.add(textMarkers[1]);
+				textMarkers1.add(textMarkers[2]);
+				textMarkers1.add(textMarkers[3]);
+				
+				textMarkers2.add(textMarkers[4]);
+				textMarkers2.add(textMarkers[5]);
+				textMarkers2.add(textMarkers[6]);
+				textMarkers2.add(textMarkers[7]);
+				textMarkers2.add(textMarkers[8]);
+				textMarkers2.add(textMarkers[9]);
+
+			}
+		};
+
+		SentenceHolder holder = processor.addNextSegment("A[>O][>S][>I][-]", textMarkers1);
+		assertEquals("A[>O][>I]", holder.getText());
+		for (Entry<Integer,String> originalSegment : holder.getOriginalTextSegments().entrySet()) {
+			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
+		}
+		assertEquals("[>S]", holder.getOriginalTextSegments().get(5));
+		
+		holder = processor.addNextSegment("[O-][I<][O+][+][S<][O<]Z", textMarkers2);
+		assertEquals("[+][S<][O<]Z", holder.getText());
+		for (Entry<Integer,String> originalSegment : holder.getOriginalTextSegments().entrySet()) {
+			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
+		}
+		assertEquals("[-][O+]", holder.getOriginalTextSegments().get(0));
 
 	}
 }

@@ -39,7 +39,7 @@ public interface FilterService {
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int groupIndex);
 
-	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName);
+	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault);
 	
 	public TextMarker getTextMarker(TextMarkerType type, int position);
 

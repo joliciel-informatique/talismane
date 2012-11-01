@@ -25,6 +25,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.utils.RegexUtils;
+
 /**
  * For a given regex, finds any matches within the text, and adds the appropriate marker to these matches.
  * @author Assaf Urieli
@@ -35,6 +37,7 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	private Pattern pattern;
 	private String regex;
 	private int groupIndex = -1;
+	private String replacement;
 	
 	private FilterService filterService;
 	
@@ -100,7 +103,7 @@ class RegexMarkerFilter implements TextMarkerFilter {
 					switch (filterType) {
 					case SKIP:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
 						textMarkers.add(textMarker);
 						break;
 					}
@@ -113,18 +116,43 @@ class RegexMarkerFilter implements TextMarkerFilter {
 					case SPACE:
 					{
 						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.SPACE, matcherStart - prevText.length());
+						textMarker.setInsertionText(" ");
 						textMarkers.add(textMarker);
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
+						textMarkers.add(textMarker2);
+						break;
+					}
+					case REPLACE:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.INSERT, matcherStart - prevText.length());
+						String newText = RegexUtils.getReplacement(replacement, context, matcher);
+						textMarker.setInsertionText(newText);
+						textMarkers.add(textMarker);
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
+						textMarkers.add(textMarker2);
 						break;
 					}
 					case OUTPUT:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.OUTPUT, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_OUTPUT, matcherStart - prevText.length());
 						textMarkers.add(textMarker);
 						break;
 					}
 					case INCLUDE:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_INCLUDE, matcherStart - prevText.length());
+						textMarkers.add(textMarker);
+						break;
+					}
+					case STOP:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP, matcherStart - prevText.length());
+						textMarkers.add(textMarker);
+						break;
+					}
+					case OUTPUT_STOP:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP_OUTPUT, matcherStart - prevText.length());
 						textMarkers.add(textMarker);
 						break;
 					}
@@ -134,10 +162,36 @@ class RegexMarkerFilter implements TextMarkerFilter {
 			if (matcherEnd>=textStartPos && matcherEnd<textEndPos) {
 				for (MarkerFilterType filterType : filterTypes) {
 					switch (filterType) {
-					case SKIP: case OUTPUT: case INCLUDE:
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.END_MARKER, matcherEnd - prevText.length());
+					case SKIP: case SPACE: case REPLACE:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherEnd - prevText.length());
 						textMarkers.add(textMarker);
 						break;
+					}
+					case OUTPUT:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_OUTPUT, matcherEnd - prevText.length());
+						textMarkers.add(textMarker);
+						break;
+					}
+					case INCLUDE:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_INCLUDE, matcherEnd - prevText.length());
+						textMarkers.add(textMarker);
+						break;
+					}
+					case START:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START, matcherEnd - prevText.length());
+						textMarkers.add(textMarker);
+						break;
+					}
+					case OUTPUT_START:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START_OUTPUT, matcherEnd - prevText.length());
+						textMarkers.add(textMarker);
+						break;
+					}
 					}
 				}
 			}
@@ -155,6 +209,14 @@ class RegexMarkerFilter implements TextMarkerFilter {
 
 	public void setFilterService(FilterService filterService) {
 		this.filterService = filterService;
+	}
+
+	public String getReplacement() {
+		return replacement;
+	}
+
+	public void setReplacement(String replacement) {
+		this.replacement = replacement;
 	}
 
 

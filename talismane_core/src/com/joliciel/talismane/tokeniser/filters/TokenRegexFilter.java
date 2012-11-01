@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.utils.RegexUtils;
 
 class TokenRegexFilter implements TokenFilter {
 	private String regex;
@@ -57,41 +58,7 @@ class TokenRegexFilter implements TokenFilter {
 			int start = matcher.start(groupIndex);
 			if (start>lastStart) {
 				int end = matcher.end(groupIndex);
-
-				String newText = replacement;
-				if (replacement!=null) {
-					if (replacement.indexOf('$')>=0) {
-						StringBuilder sb = new StringBuilder();
-						boolean backslash = false;
-						boolean dollar = false;
-						String group = "";
-						for (int i=0; i<replacement.length(); i++) {
-							char c = replacement.charAt(i);
-							if (c=='\\') {
-								backslash = true;
-							} else if (c=='$' && !backslash) {
-								dollar = true;
-							} else if (Character.isDigit(c) && dollar) {
-								group += c;
-							} else {
-								if (dollar) {
-									int groupNumber = Integer.parseInt(group);
-									sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
-									group = "";
-								}
-								sb.append(c);
-								backslash = false;
-								dollar = false;
-							} // character type
-						} // next character
-						if (dollar) {
-							int groupNumber = Integer.parseInt(group);
-							sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
-						}
-
-						newText = sb.toString();
-					} // has dollars
-				} // has replacement
+				String newText = RegexUtils.getReplacement(replacement, text, matcher);
 				TokenPlaceholder placeholder = this.tokeniserFilterService.getTokenPlaceholder(start, end, newText, regex);
 				placeholders.add(placeholder);
 			}

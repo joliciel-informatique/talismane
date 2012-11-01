@@ -60,8 +60,8 @@ public class FilterServiceImpl implements FilterService {
 
 
 	@Override
-	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName) {
-		RollingSentenceProcessorImpl processor = new RollingSentenceProcessorImpl(fileName);
+	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault) {
+		RollingSentenceProcessorImpl processor = new RollingSentenceProcessorImpl(fileName, processByDefault);
 		processor.setFilterService(this);
 		return processor;
 	}
