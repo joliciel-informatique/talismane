@@ -156,17 +156,35 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	int getOriginalIndex();
 	
 	/**
+	 * Returns the original index in the original text at the end of this token.
+	 * @return
+	 */
+	int getOriginalIndexEnd();
+	
+	/**
 	 * Returns the original text line number at the beginning of this token.
 	 * @return
 	 */
 	int getLineNumber();
 	
 	/**
+	 * Returns the original text line number at the end of this token.
+	 * @return
+	 */
+	int getLineNumberEnd();
+	
+	/**
 	 * Returns the original text column number (inside a line) at the beginning of this token.
 	 * @return
 	 */
 	int getColumnNumber();
-	
+
+	/**
+	 * Returns the original text column number (inside a line) at the end of this token.
+	 * @return
+	 */
+	int getColumnNumberEnd();
+
 	/**
 	 * Any text that should be output as "raw" prior to outputting this token,
 	 * or null if none available.

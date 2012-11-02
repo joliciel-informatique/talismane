@@ -35,7 +35,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	private Stack<Boolean> shouldOutputStack = new Stack<Boolean>();
 	private int originalTextIndex = 0;
 	private String leftoverOutput = "";
-	private int lineNumber = 1;
+	private int lineNumber = 2; // this is so that the line following the first newline character will be given 2 (and the initial line 1)
 	private Pattern newlinePattern = Pattern.compile("\r\n|[\r\n]");
 	private int leftoverNewline = 0;
 	private String fileName = "";

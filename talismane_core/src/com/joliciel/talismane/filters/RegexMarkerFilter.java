@@ -136,6 +136,8 @@ class RegexMarkerFilter implements TextMarkerFilter {
 					{
 						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_OUTPUT, matcherStart - prevText.length());
 						textMarkers.add(textMarker);
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
+						textMarkers.add(textMarker2);
 						break;
 					}
 					case INCLUDE:
@@ -144,15 +146,15 @@ class RegexMarkerFilter implements TextMarkerFilter {
 						textMarkers.add(textMarker);
 						break;
 					}
-					case STOP:
+					case OUTPUT_START:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START_OUTPUT, matcherStart - prevText.length());
 						textMarkers.add(textMarker);
 						break;
 					}
-					case OUTPUT_STOP:
+					case STOP:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP_OUTPUT, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP, matcherStart - prevText.length());
 						textMarkers.add(textMarker);
 						break;
 					}
@@ -172,6 +174,8 @@ class RegexMarkerFilter implements TextMarkerFilter {
 					{
 						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_OUTPUT, matcherEnd - prevText.length());
 						textMarkers.add(textMarker);
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherStart - prevText.length());
+						textMarkers.add(textMarker2);
 						break;
 					}
 					case INCLUDE:
@@ -186,9 +190,9 @@ class RegexMarkerFilter implements TextMarkerFilter {
 						textMarkers.add(textMarker);
 						break;
 					}
-					case OUTPUT_START:
+					case OUTPUT_STOP:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START_OUTPUT, matcherEnd - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP_OUTPUT, matcherEnd - prevText.length());
 						textMarkers.add(textMarker);
 						break;
 					}

@@ -97,7 +97,7 @@ class SentenceImpl implements Sentence {
 	public int getColumnNumber(int originalIndex) {
 		Integer lastLineObj = this.newlines.floorKey(originalIndex);
 		if (lastLineObj!=null)
-			return originalIndex - lastLineObj.intValue();
+			return (originalIndex - lastLineObj.intValue()) + 1;
 		return -1;
 	}
 

@@ -88,7 +88,8 @@ public interface Tokeniser {
 	/**
 	 * Filters to be applied prior to breaking the sentence up into atomic token sequences -
 	 * these filters will mark certain portions of the sentence as entire tokens, and the tokeniser
-	 * will not take any decisions on these.
+	 * will not take any decisions inside these. It still may join them to other atomic tokens,
+	 * to create larger tokens.
 	 * @return
 	 */
 	public List<TokenFilter> getTokenFilters();

@@ -81,14 +81,16 @@ public interface Sentence {
 	void setComplete(boolean complete);
 
 	/**
-	 * Returns the line number corresponding to a particular original index inside this sentence.
+	 * Returns the line number corresponding to a particular original index inside this sentence,
+	 * starting at 1.
 	 * @param originalIndex
 	 * @return
 	 */
 	int getLineNumber(int originalIndex);
 	
 	/**
-	 * Returns the column number corresponding to a particular original index inside this sentence;
+	 * Returns the column number corresponding to a particular original index inside this sentence,
+	 * starting at 1.
 	 * @param originalIndex
 	 * @return
 	 */

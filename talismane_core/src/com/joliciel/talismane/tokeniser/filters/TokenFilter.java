@@ -21,9 +21,11 @@ package com.joliciel.talismane.tokeniser.filters;
 import java.util.Set;
 
 /**
- * A filter that takes raw text, and finds tokens in the text (which are indicated by placeholders).
+ * A filter that takes raw text, and finds tokens in the text (which are indicated by placeholders).<br/>
  * Note that, in addition to indicating tokens,
- * a sentence boundary will never be detected inside a placeholder.
+ * a sentence boundary will never be detected inside a placeholder.<br/>
+ * Note that the tokeniser might still join the "atomic tokens" defined by the token filter
+ * into larger tokens.
  * @author Assaf Urieli
  *
  */
