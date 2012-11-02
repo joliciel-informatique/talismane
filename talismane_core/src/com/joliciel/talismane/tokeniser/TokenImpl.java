@@ -264,6 +264,21 @@ class TokenImpl implements TokenInternal {
 	}
 
 	@Override
+	public int getOriginalIndexEnd() {
+		return this.getTokenSequence().getSentence().getOriginalIndex(this.endIndex);
+	}
+
+	@Override
+	public int getLineNumberEnd() {
+		return this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndexEnd());
+	}
+	
+	@Override
+	public int getColumnNumberEnd() {
+		return this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndexEnd());
+	}
+	
+	@Override
 	public String getFileName() {
 		return this.getTokenSequence().getSentence().getFileName();
 	}
