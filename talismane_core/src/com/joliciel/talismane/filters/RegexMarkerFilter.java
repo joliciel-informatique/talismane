@@ -25,6 +25,9 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.utils.RegexUtils;
 
 /**
@@ -33,6 +36,7 @@ import com.joliciel.talismane.utils.RegexUtils;
  *
  */
 class RegexMarkerFilter implements TextMarkerFilter {
+	private static final Log LOG = LogFactory.getLog(RegexMarkerFilter.class);
 	private List<MarkerFilterType> filterTypes;
 	private Pattern pattern;
 	private String regex;
@@ -174,7 +178,7 @@ class RegexMarkerFilter implements TextMarkerFilter {
 					{
 						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_OUTPUT, matcherEnd - prevText.length());
 						textMarkers.add(textMarker);
-						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherStart - prevText.length());
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherEnd - prevText.length());
 						textMarkers.add(textMarker2);
 						break;
 					}
@@ -200,6 +204,8 @@ class RegexMarkerFilter implements TextMarkerFilter {
 				}
 			}
 		} // next match
+		
+		LOG.debug("Added markers: " + textMarkers);
 		return textMarkers;
 	}
 	

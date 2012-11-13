@@ -190,9 +190,9 @@ public class SentenceHolderImplTest {
 			} else if (i==1) {
 				assertEquals("How are you?", sentence.getText());				
 				assertEquals(1, sentence.getLineNumber(sentence.getOriginalIndex("How".length()-1)));
-				assertEquals(2, sentence.getColumnNumber(sentence.getOriginalIndex("How".length()-1)));
+				assertEquals(3, sentence.getColumnNumber(sentence.getOriginalIndex("How".length()-1)));
 				assertEquals(2, sentence.getLineNumber(sentence.getOriginalIndex("How a".length()-1)));
-				assertEquals(2, sentence.getColumnNumber(sentence.getOriginalIndex("How are".length()-1)));
+				assertEquals(3, sentence.getColumnNumber(sentence.getOriginalIndex("How are".length()-1)));
 			}
 		}
 
