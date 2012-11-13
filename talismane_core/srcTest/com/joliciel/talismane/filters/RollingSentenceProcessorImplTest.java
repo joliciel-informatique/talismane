@@ -264,37 +264,37 @@ public class RollingSentenceProcessorImplTest {
 		LOG.debug(holder.getNewlines());
 		assertEquals(4, holder.getNewlines().size());
 		
-		int i=0;
+		int i=1;
 		for (Entry<Integer, Integer> newlineLocation : holder.getNewlines().entrySet()) {
-			if (i==0) {
+			if (i==1) {
 				assertEquals(0, newlineLocation.getKey().intValue());
 				assertEquals(i, newlineLocation.getValue().intValue());
-			} else if (i==1) {
+			} else if (i==2) {
 				assertEquals("Hello World.\r\n".length(), newlineLocation.getKey().intValue());
 				assertEquals(i, newlineLocation.getValue().intValue());
-			} else if (i==2) {
+			} else if (i==3) {
 				assertEquals("Hello World.\r\nHow are you?\r\n".length(), newlineLocation.getKey().intValue());
 				assertEquals(i, newlineLocation.getValue().intValue());
-			} else if (i==3) {
+			} else if (i==4) {
 				assertEquals("Hello World.\r\nHow are you?\r\nFine thanks.\r\n".length(), newlineLocation.getKey().intValue());
 				assertEquals(i, newlineLocation.getValue().intValue());
 			} 
 			i++;
 		}
 		
-		assertEquals(1, holder.getLineNumber("Hello World.\r\nHow".length()-1));
-		assertEquals(2, holder.getColumnNumber("Hello World.\r\nHow".length()-1));
+		assertEquals(2, holder.getLineNumber("Hello World.\r\nHow".length()-1));
+		assertEquals(3, holder.getColumnNumber("Hello World.\r\nHow".length()-1));
 		
 		holder = processor.addNextSegment("And you?\r\nGrand,", textMarkers1);
 		LOG.debug(holder.getNewlines());
 		assertEquals(2, holder.getNewlines().size());
 		
-		i=0;
+		i=1;
 		for (Entry<Integer, Integer> newlineLocation : holder.getNewlines().entrySet()) {
-			if (i==0) {
+			if (i==1) {
 				assertEquals("Hello World.\r\nHow are you?\r\nFine thanks.\r\n".length(), newlineLocation.getKey().intValue());
 				assertEquals(i+3, newlineLocation.getValue().intValue());
-			} else if (i==1) {
+			} else if (i==2) {
 				assertEquals("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\n".length(), newlineLocation.getKey().intValue());
 				assertEquals(i+3, newlineLocation.getValue().intValue());
 			} 
@@ -305,17 +305,17 @@ public class RollingSentenceProcessorImplTest {
 		LOG.debug(holder.getNewlines());
 		assertEquals(1, holder.getNewlines().size());
 		
-		i=0;
+		i=1;
 		for (Entry<Integer, Integer> newlineLocation : holder.getNewlines().entrySet()) {
-			if (i==0) {
+			if (i==1) {
 				assertEquals("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\n".length(), newlineLocation.getKey().intValue());
 				assertEquals(i+4, newlineLocation.getValue().intValue());
 			} 
 			i++;
 		}
 		
-		assertEquals(4, holder.getLineNumber("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\nGrand, and".length()-1));
-		assertEquals(9, holder.getColumnNumber("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\nGrand, and".length()-1));
+		assertEquals(5, holder.getLineNumber("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\nGrand, and".length()-1));
+		assertEquals(10, holder.getColumnNumber("Hello World.\r\nHow are you?\r\nFine thanks.\r\nAnd you?\r\nGrand, and".length()-1));
 	}
 	
 	@Test
