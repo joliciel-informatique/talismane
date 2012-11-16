@@ -141,4 +141,9 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Solu
 	 * @return
 	 */
 	public DependencyNode getDetachedDependencyNode(PosTaggedToken posTaggedToken);
+	
+	/**
+	 * Clear out any transitory dependents that can be recalculated if required.
+	 */
+	public void clearMemory();
 }

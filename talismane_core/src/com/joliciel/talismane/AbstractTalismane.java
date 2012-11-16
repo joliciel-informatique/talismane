@@ -268,6 +268,7 @@ public abstract class AbstractTalismane implements Talismane {
 		String textFiltersPath = null;
 		String tokenFiltersPath = null;
 		String fileName = null;
+		int maxParseAnalysisTime = 60;
 		
 		MarkerFilterType newlineMarker = MarkerFilterType.SENTENCE_BREAK;
 		
@@ -358,6 +359,8 @@ public abstract class AbstractTalismane implements Talismane {
 				fileName = argValue;
 			else if (argName.equals("processByDefault"))
 				processByDefault = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("maxParseAnalysisTime"))
+				maxParseAnalysisTime = Integer.parseInt(argValue);
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -703,7 +706,8 @@ public abstract class AbstractTalismane implements Talismane {
 						parserModel = machineLearningService.getModel(this.getDefaultParserModelStream());
 					}
 					NonDeterministicParser parser = parserService.getTransitionBasedParser(parserModel, beamWidth);
-	
+					parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
+					
 					if (includeDetails) {
 						String detailsFilePath = outFilePath.substring(0, outFilePath.lastIndexOf(".")) + "_parser_details.txt";
 						File detailsFile = new File(detailsFilePath);
