@@ -205,7 +205,8 @@ class RegexMarkerFilter implements TextMarkerFilter {
 			}
 		} // next match
 		
-		LOG.debug("Added markers: " + textMarkers);
+		if (textMarkers.size()>0)
+			LOG.debug("Added markers: " + textMarkers);
 		return textMarkers;
 	}
 	

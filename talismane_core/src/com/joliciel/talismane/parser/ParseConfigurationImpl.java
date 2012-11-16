@@ -186,11 +186,10 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 				// and not the same set
 				for (int i = this.transitions.size()-1; i>=0; i--) {
 					Transition transition = this.transitions.get(i);
-					if (!transition.doesReduce()) {
-						configurationComparisonIndex += 1;
-					} else {
+					if (transition.doesReduce())
 						break;
-					}
+					else
+						configurationComparisonIndex += 1;
 				}
 			} // is the buffer empty?
 			comparisonIndexCalculated = true;
@@ -429,5 +428,9 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 		return this;
 	}
 
-
+	public void clearMemory() {
+		this.governingDependencyMap = null;
+		this.rightDependentMap = null;
+		this.leftDependentMap = null;
+	}
 }

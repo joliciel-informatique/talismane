@@ -19,6 +19,7 @@
 package com.joliciel.talismane.parser;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -57,6 +58,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 	private TransitionSystem transitionSystem;
 
 	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
+	private int maxAnalysisTimePerSentence = 60;
 	
 	public TransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		super();
@@ -80,6 +82,9 @@ class TransitionBasedParser implements NonDeterministicParser {
 	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) {
 		PerformanceMonitor.startTask("TransitionBasedParser.parseSentence");
 		try {
+			long startTime = (new Date()).getTime();
+			int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
+			
 			TokenSequence tokenSequence = posTagSequences.get(0).getTokenSequence();
 			int terminalConfigurationIndex = tokenSequence.getAtomicTokenCount() * 1000;
 				
@@ -96,13 +101,26 @@ class TransitionBasedParser implements NonDeterministicParser {
 			PriorityQueue<ParseConfiguration> finalHeap = null;
 			while (heaps.size()>0) {
 				Entry<Integer, PriorityQueue<ParseConfiguration>> heapEntry = heaps.pollFirstEntry();
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("##### Polling next heap: " + heapEntry.getKey());
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("##### Polling next heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 				}
-				if (heapEntry.getKey()==terminalConfigurationIndex) {
+				boolean finished = false;
+				
+				// we jump out when either (a) all tokens have been attached or (b) we go over the max allowed time
+				if (heapEntry.getKey()==terminalConfigurationIndex)
+					finished = true;
+				
+				long analysisTime = (new Date()).getTime() - startTime;
+				if (maxAnalysisTimePerSentence > 0 && analysisTime > maxAnalysisTimeMilliseconds) {
+					LOG.info("Parse tree analysis took too long for sentence: " + tokenSequence.getText());
+					LOG.info("Breaking out after " +  maxAnalysisTimePerSentence + " seconds.");
+					finished = true;
+				}
+				if (finished) {
 					finalHeap = heapEntry.getValue();
 					break;
 				}
+				
 				PriorityQueue<ParseConfiguration> previousHeap = heapEntry.getValue();
 				
 				// limit the breadth to K
@@ -176,16 +194,19 @@ class TransitionBasedParser implements NonDeterministicParser {
 								
 								int heapIndex = configuration.getConfigurationComparisonIndex();
 			
-								if (LOG.isTraceEnabled()) {
-									LOG.trace("Adding result with score " + configuration.getScore() + " to heap: " + heapIndex);
-								}
-
 								PriorityQueue<ParseConfiguration> heap = heaps.get(heapIndex);
 								if (heap==null) {
 									heap = new PriorityQueue<ParseConfiguration>();
 									heaps.put(heapIndex, heap);
+									if (LOG.isTraceEnabled())
+										LOG.trace("Created heap with index: " + heapIndex);
 								}
 								heap.add(configuration);
+								if (LOG.isTraceEnabled()) {
+									LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + heapIndex + ", total size: " + heap.size());
+								}
+								
+								configuration.clearMemory();
 							} else {
 								if (LOG.isTraceEnabled())
 									LOG.trace("Cannot apply transition: doesn't meet pre-conditions");
@@ -198,16 +219,16 @@ class TransitionBasedParser implements NonDeterministicParser {
 			} // next atomic index
 			
 			// return the best sequences on the heap
-			List<ParseConfiguration> sequences = new ArrayList<ParseConfiguration>();
+			List<ParseConfiguration> bestConfigurations = new ArrayList<ParseConfiguration>();
 			int i = 0;
 			while (!finalHeap.isEmpty()) {
-				sequences.add(finalHeap.poll());
+				bestConfigurations.add(finalHeap.poll());
 				i++;
 				if (i>=this.getBeamWidth())
 					break;
 			}
 			if (LOG.isDebugEnabled()) {
-				for (ParseConfiguration finalConfiguration : sequences) {
+				for (ParseConfiguration finalConfiguration : bestConfigurations) {
 					LOG.debug(finalConfiguration.getScore() + ": " + finalConfiguration.toString());
 					if (LOG.isTraceEnabled()) {
 						StringBuilder sb = new StringBuilder();
@@ -239,7 +260,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 					}
 				}
 			}
-			return sequences;
+			return bestConfigurations;
 		} finally {
 			PerformanceMonitor.endTask("TransitionBasedParser.parseSentence");
 		}
@@ -269,6 +290,16 @@ class TransitionBasedParser implements NonDeterministicParser {
 
 	public void setTransitionSystem(TransitionSystem transitionSystem) {
 		this.transitionSystem = transitionSystem;
+	}
+
+
+	public int getMaxAnalysisTimePerSentence() {
+		return maxAnalysisTimePerSentence;
+	}
+
+
+	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence) {
+		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
 	}
 	
 }

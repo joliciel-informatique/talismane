@@ -49,4 +49,14 @@ public interface Parser {
 	 * @return
 	 */
 	public TransitionSystem getTransitionSystem();
+	
+	/**
+	 * The maximum time alloted per sentence for parse tree analysis, in seconds.
+	 * Will be ignored if set to 0.
+	 * If analysis jumps out because of time-out, there will be a parse-forest instead of a parse-tree,
+	 * with several nodes left unattached.
+	 * @return
+	 */
+	public int getMaxAnalysisTimePerSentence();
+	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence);
 }
