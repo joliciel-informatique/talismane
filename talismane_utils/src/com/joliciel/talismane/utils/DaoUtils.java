@@ -27,6 +27,11 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Various generic data access utilities.
+ * @author Assaf Urieli
+ *
+ */
 public class DaoUtils {
     private static final Log LOG = LogFactory.getLog(DaoUtils.class);
 

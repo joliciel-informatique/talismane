@@ -199,4 +199,28 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 		}
 		return false;
 	}
+
+	@Override
+	public PosTaggedToken getFirstToken() {
+		PosTaggedToken firstToken = this.getToken();
+		for (DependencyNode dependent : this.getDependents()) {
+			PosTaggedToken firstDepToken = dependent.getFirstToken();
+			if (firstDepToken.getToken().getStartIndex() < firstToken.getToken().getStartIndex()) {
+				firstToken = firstDepToken;
+			}
+		}
+		return firstToken;
+	}
+
+	@Override
+	public PosTaggedToken getLastToken() {
+		PosTaggedToken lastToken = this.getToken();
+		for (DependencyNode dependent : this.getDependents()) {
+			PosTaggedToken lastDepToken = dependent.getLastToken();
+			if (lastDepToken.getToken().getEndIndex() > lastToken.getToken().getEndIndex()) {
+				lastToken = lastDepToken;
+			}
+		}
+		return lastToken;
+	}
 }

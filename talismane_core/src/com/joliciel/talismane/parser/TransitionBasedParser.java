@@ -41,8 +41,8 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A non-deterministic parser implementing transition based parsing,
- * using a Shift-Reduce algorithm.
- * See Nivre 2008 for details.
+ * using a Shift-Reduce algorithm.<br/>
+ * See Nivre 2008 for details on the algorithm for the deterministic case.</br>
  * @author Assaf Urieli
  *
  */
@@ -86,7 +86,6 @@ class TransitionBasedParser implements NonDeterministicParser {
 			int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
 			
 			TokenSequence tokenSequence = posTagSequences.get(0).getTokenSequence();
-			int terminalConfigurationIndex = tokenSequence.getAtomicTokenCount() * 1000;
 				
 			TreeMap<Integer, PriorityQueue<ParseConfiguration>> heaps = new TreeMap<Integer, PriorityQueue<ParseConfiguration>>();
 			
@@ -101,13 +100,16 @@ class TransitionBasedParser implements NonDeterministicParser {
 			PriorityQueue<ParseConfiguration> finalHeap = null;
 			while (heaps.size()>0) {
 				Entry<Integer, PriorityQueue<ParseConfiguration>> heapEntry = heaps.pollFirstEntry();
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("##### Polling next heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
+				PriorityQueue<ParseConfiguration> previousHeap = heapEntry.getValue();
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("##### Polling next heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 				}
+				
 				boolean finished = false;
 				
-				// we jump out when either (a) all tokens have been attached or (b) we go over the max allowed time
-				if (heapEntry.getKey()==terminalConfigurationIndex)
+				// we jump out when either (a) all tokens have been attached or (b) we go over the max alloted time
+				ParseConfiguration topConf = previousHeap.peek();
+				if (topConf.isTerminal())
 					finished = true;
 				
 				long analysisTime = (new Date()).getTime() - startTime;
@@ -116,12 +118,11 @@ class TransitionBasedParser implements NonDeterministicParser {
 					LOG.info("Breaking out after " +  maxAnalysisTimePerSentence + " seconds.");
 					finished = true;
 				}
+				
 				if (finished) {
 					finalHeap = heapEntry.getValue();
 					break;
 				}
-				
-				PriorityQueue<ParseConfiguration> previousHeap = heapEntry.getValue();
 				
 				// limit the breadth to K
 				int maxSequences = previousHeap.size() > this.beamWidth ? this.beamWidth : previousHeap.size();

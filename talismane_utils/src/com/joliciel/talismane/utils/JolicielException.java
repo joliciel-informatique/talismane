@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
+/**
+ * An exception specific to generic Joliciel functionality.
+ */
 public class JolicielException extends RuntimeException {
 
 	/**

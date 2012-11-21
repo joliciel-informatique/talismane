@@ -16,10 +16,11 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.trainer.fr;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -29,9 +30,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.zip.ZipInputStream;
+
+import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
+import com.joliciel.talismane.machineLearning.maxent.OpenNLPModel;
 
 import opennlp.model.Context;
-import opennlp.model.GenericModelReader;
 import opennlp.model.IndexHashTable;
 import opennlp.model.MaxentModel;
 
@@ -60,7 +65,12 @@ public class MaxEntModelCSVWriter {
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
 
-		MaxentModel model = new GenericModelReader(new File(maxentModelFile)).getModel();
+		MachineLearningServiceLocator locator = MachineLearningServiceLocator.getInstance();
+		MachineLearningService machineLearningService = locator.getMachineLearningService();
+		ZipInputStream zis = new ZipInputStream(new FileInputStream(maxentModelFile));
+		OpenNLPModel<?> machineLearningModel = (OpenNLPModel<?>) machineLearningService.getModel(zis);
+		
+		MaxentModel model = machineLearningModel.getModel();
 		Object[] dataStructures = model.getDataStructures();
 		Context[] modelParameters = (Context[]) dataStructures[0];
 		@SuppressWarnings("unchecked")

@@ -127,4 +127,16 @@ public interface DependencyNode {
 	 * @return
 	 */
 	public List<DependencyNode> getDetachableLeaves(Set<PosTag> includeChildren, Set<PosTag> includeWithParent);
+	
+	/**
+	 * The first token comprising this dependency node, if viewed in linear order within a sentence.
+	 * @return
+	 */
+	public PosTaggedToken getFirstToken();
+	
+	/**
+	 * The last token comprising this dependency node, if viewed in linear order within a sentence.
+	 * @return
+	 */
+	public PosTaggedToken getLastToken();
 }

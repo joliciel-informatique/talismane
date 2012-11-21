@@ -91,7 +91,7 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), lexicalEntry.getLemmaComplement(), posTag);
 		else
 			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), lexicalEntry.getLemmaComplement());
-		List<LexicalEntry> entriesToReturn = new ArrayList<LexicalEntry>();
+		Set<LexicalEntry> entriesToReturn = new TreeSet<LexicalEntry>();
 		for (LexicalEntry lemmaEntry : lemmaEntries) {
 			if ((number==null || number.length()==0 || lemmaEntry.getNumber().contains(number))
 					&& (gender==null || gender.length()==0 || lemmaEntry.getGender().contains(gender))) {
@@ -99,7 +99,8 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 			}
 		}
 		
-		return entriesToReturn;
+		List<LexicalEntry> entryList = new ArrayList<LexicalEntry>(entriesToReturn);
+		return entryList;
 	}
 	
 
@@ -151,7 +152,7 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 	public List<? extends LexicalEntry> getEntriesForLemma(String lemma, String complement, PosTag posTag) {
 		LefffPosTagMapper posTagMapper = this.posTagMappers.get(this.posTagSet);
 		List<? extends LexicalEntry> entries = this.getEntriesForLemma(lemma, complement);
-		List<LexicalEntry> entriesToReturn = new ArrayList<LexicalEntry>();
+		Set<LexicalEntry> entriesToReturn = new TreeSet<LexicalEntry>();
 
 		for (LexicalEntry entry : entries) {
 			if (!entry.getCategory().equals("auxEtre")&&!entry.getCategory().equals("auxAvoir")) {
@@ -162,7 +163,9 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 				}
 			}
 		}
-		return entriesToReturn;
+		
+		List<LexicalEntry> entryList = new ArrayList<LexicalEntry>(entriesToReturn);
+		return entryList;
 
 	}
 

@@ -18,78 +18,19 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
-import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.Outcome;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import opennlp.model.MaxentModel;
 
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.Outcome;
+
 /**
- * A wrapper for a OpenNLP model and the features used to train it -
- * useful since the same features need to be used when evaluating on the basis on this model.
- * Also contains the attributes describing how the model was trained, for reference purposes.
- * 
- * @param T the decision type to be made by this model
- * @author Assaf Urieli
+ * An Apache OpenNLP model wrapper interface
+ * @author Assaf
  *
+ * @param <T>
  */
-abstract class OpenNLPModel<T extends Outcome> extends AbstractMachineLearningModel<T> implements MachineLearningModel<T> {
-	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(OpenNLPModel.class);
-	private MaxentModel model;
-	
-	/**
-	 * Default constructor for factory.
-	 */
-	OpenNLPModel() {}
-	
-	/**
-	 * Construct from a newly trained model including the feature descriptors.
-	 * @param model
-	 * @param featureDescriptors
-	 */
-	OpenNLPModel(MaxentModel model,
-			Map<String,List<String>> descriptors,
-			DecisionFactory<T> decisionFactory) {
-		super();
-		this.model = model;
-		this.setDescriptors(descriptors);
-		this.setDecisionFactory(decisionFactory);
-	}
+public interface OpenNLPModel<T extends Outcome> extends MachineLearningModel<T> {
 
-	@Override
-	public DecisionMaker<T> getDecisionMaker() {
-		OpenNLPDecisionMaker<T> decisionMaker = new OpenNLPDecisionMaker<T>(this.getModel());
-		decisionMaker.setDecisionFactory(this.getDecisionFactory());
-		return decisionMaker;
-	}
-	
-	public MaxentModel getModel() {
-		return model;
-	}
-	public void setModel(MaxentModel model) {
-		this.model = model;
-	}
+	public MaxentModel getModel();
 
-	@Override
-	public void loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
-		// no model-specific data
-	}
-
-	@Override
-	public void writeDataToStream(ZipOutputStream zos) {
-		// no model-specific data
-	}
-
-	
 }

@@ -28,7 +28,7 @@ import com.joliciel.talismane.TalismaneException;
 
 import com.joliciel.talismane.utils.LogUtils;
 
-public class FilterServiceImpl implements FilterService {
+class FilterServiceImpl implements FilterService {
 	private static final Log LOG = LogFactory.getLog(FilterServiceImpl.class);
 
 	@Override

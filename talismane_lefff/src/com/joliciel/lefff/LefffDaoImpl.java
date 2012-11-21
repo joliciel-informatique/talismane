@@ -701,7 +701,7 @@ class LefffDaoImpl implements LefffDao {
         	" INNER JOIN lef_predicate ON entry_predicate_id = predicate_id" +
         	" INNER JOIN lef_attribute ON entry_morph_id = attribute_id" +
         	" WHERE entry_status < 3" +
-        	" ORDER BY entry_id";
+        	" ORDER BY entry_id, entry_status";
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
        
         LOG.info(sql);

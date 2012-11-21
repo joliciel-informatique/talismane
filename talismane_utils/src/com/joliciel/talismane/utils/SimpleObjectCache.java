@@ -21,6 +21,11 @@ package com.joliciel.talismane.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A default implementation for ObjectCache.
+ * @author Assaf Urieli
+ *
+ */
 public class SimpleObjectCache implements ObjectCache {
 
     private static ThreadLocal<Map<Class<? extends Object>,Map<Object,Object>>> cacheHolder = new ThreadLocal<Map<Class<? extends Object>,Map<Object,Object>>>();

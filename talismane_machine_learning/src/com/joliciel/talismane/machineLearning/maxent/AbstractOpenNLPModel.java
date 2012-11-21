@@ -18,25 +18,24 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.utils.LogUtils;
-
 import opennlp.model.MaxentModel;
 
 /**
- * A wrapper for a maxent model and the features used to train it -
+ * A wrapper for a OpenNLP model and the features used to train it -
  * useful since the same features need to be used when evaluating on the basis on this model.
  * Also contains the attributes describing how the model was trained, for reference purposes.
  * 
@@ -44,54 +43,54 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-class MaximumEntropyModel<T extends Outcome> extends AbstractOpenNLPModel<T> implements MachineLearningModel<T> {
-	private static final Log LOG = LogFactory.getLog(MaximumEntropyModel.class);
+abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractMachineLearningModel<T> implements MachineLearningModel<T>, OpenNLPModel<T> {
+	@SuppressWarnings("unused")
+	private static final Log LOG = LogFactory.getLog(AbstractOpenNLPModel.class);
+	private MaxentModel model;
 	
 	/**
 	 * Default constructor for factory.
 	 */
-	MaximumEntropyModel() {}
+	AbstractOpenNLPModel() {}
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 * @param model
 	 * @param featureDescriptors
 	 */
-	MaximumEntropyModel(MaxentModel model,
+	AbstractOpenNLPModel(MaxentModel model,
 			Map<String,List<String>> descriptors,
 			DecisionFactory<T> decisionFactory) {
-		super(model, descriptors, decisionFactory);
-	}
-	
-	@Override
-	public MachineLearningAlgorithm getAlgorithm() {
-		return MachineLearningAlgorithm.MaxEnt;
+		super();
+		this.model = model;
+		this.setDescriptors(descriptors);
+		this.setDecisionFactory(decisionFactory);
 	}
 
 	@Override
-	public AnalysisObserver getDetailedAnalysisObserver(File file) {
-		MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
-		return observer;
+	public DecisionMaker<T> getDecisionMaker() {
+		OpenNLPDecisionMaker<T> decisionMaker = new OpenNLPDecisionMaker<T>(this.getModel());
+		decisionMaker.setDecisionFactory(this.getDecisionFactory());
+		return decisionMaker;
 	}
 	
 	@Override
-	public void writeModelToStream(OutputStream outputStream) {
-		try {
-			new MaxentModelWriterWrapper(this.getModel(), outputStream).persist();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+	public MaxentModel getModel() {
+		return model;
+	}
+	public void setModel(MaxentModel model) {
+		this.model = model;
 	}
 
 	@Override
-	public void loadModelFromStream(InputStream inputStream) {
-		MaxentModelReaderWrapper maxentModelReader = new MaxentModelReaderWrapper(inputStream);
-		try {
-			this.setModel(maxentModelReader.getModel());
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+	public void loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
+		// no model-specific data
 	}
+
+	@Override
+	public void writeDataToStream(ZipOutputStream zos) {
+		// no model-specific data
+	}
+
+	
 }

@@ -45,7 +45,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-class PerceptronModel<T extends Outcome> extends OpenNLPModel<T> implements MachineLearningModel<T> {
+class PerceptronModel<T extends Outcome> extends AbstractOpenNLPModel<T> implements MachineLearningModel<T> {
 	private static final Log LOG = LogFactory.getLog(PerceptronModel.class);
 	
 	/**

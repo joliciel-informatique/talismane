@@ -104,7 +104,7 @@ public class TalismaneFrench extends AbstractTalismane {
 
 	@Override
 	protected ZipInputStream getDefaultParserModelStream() {
-		String parserModelName = "ftbDepParser_fr12_ArcEager_cutoff5.zip";
+		String parserModelName = "ftbDep_parser_arcEager_13.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 

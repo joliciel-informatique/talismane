@@ -33,7 +33,11 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
+/**
+ * Monitors the performance of various sub-tasks within an application run.
+ * @author Assaf Urieli
+ *
+ */
 public class PerformanceMonitor {
 	private static final Log LOG = LogFactory.getLog(PerformanceMonitor.class);
 	private static Deque<Task> tasks = new ArrayDeque<Task>();
@@ -42,6 +46,9 @@ public class PerformanceMonitor {
 	private static Task root = null;
 	private static boolean active = false;
 	
+	/**
+	 * Must be called at the very start of the application run.
+	 */
 	public static void start() {
 		if (!active)
 			return;
@@ -49,6 +56,12 @@ public class PerformanceMonitor {
 	    decFormat.applyPattern("##0.00");
 	}
 	
+	/**
+	 * Indicates that a particular task is starting.
+	 * It's safest to place a try block immediately after the startTask, and place the corresponding endTask
+	 * in the finally block.
+	 * @param name
+	 */
 	public static void startTask(String name) {
 		if (!active)
 			return;
@@ -72,6 +85,12 @@ public class PerformanceMonitor {
 		tasks.push(task);
 	}
 	
+	/**
+	 * Indicates that a particular task is ending.
+	 * Must correspond to a startTask for the same task.
+	 * It's safest to place this in the finally block of a try block starting immediately after the corresponding startTask.
+	 * @param name
+	 */
 	public static void endTask(String name) {
 		if (!active)
 			return;
@@ -101,6 +120,9 @@ public class PerformanceMonitor {
 		}
 	}
 	
+	/**
+	 * Must be called at the end of the application run, preferably in a finally block.
+	 */
 	public static void end() {
 		if (!active)
 			return;
@@ -192,6 +214,10 @@ public class PerformanceMonitor {
 		}
 	}
 	
+	/**
+	 * Write the performance measurements to a CSV file.
+	 * @param csvWriter
+	 */
 	public static void writePerformanceCSV(Writer csvWriter) {
 		if (!active)
 			return;
