@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Performs clustering on a dataset using the DBSCAN algorithm.
+ * Performs clustering on a dataset using the DBSCAN algorithm and Euclidean distance for similarity.
  * 
  * @author Assaf Urieli
  *
@@ -41,6 +41,11 @@ public class DBSCANClusterer<T> {
 	boolean[] visited;
 	List<Set<T>> clusterList;
 	
+	/**
+	 * Constructor
+	 * @param objectSet the objects to be clustered
+	 * @param dataSet the data vectors describing the objects to be clustered - clustering will be performed using the Euclidean distance data vectors
+	 */
 	public DBSCANClusterer(List<T> objectSet, List<double[]> dataSet) {
 		if (objectSet.size()!=dataSet.size())
 			throw new RuntimeException("Object Set size has to be the same as Data Set size");
@@ -48,6 +53,13 @@ public class DBSCANClusterer<T> {
 		this.dataSet = dataSet;
 	}
 	
+	/**
+	 * Performs a cluster
+	 * @param epsilon the maximum distance for including two points in the same cluster
+	 * @param minPoints the minimum points required to form a cluster
+	 * @param includeNoise whether or not noise should be included when returning the clusters
+	 * @return
+	 */
 	public Set<Set<T>> cluster(double epsilon, int minPoints, boolean includeNoise) {
 		LOG.debug("cluster: epsilon=" + epsilon + ", minPoints=" + minPoints + ", includeNoise=" + includeNoise);
 		/*

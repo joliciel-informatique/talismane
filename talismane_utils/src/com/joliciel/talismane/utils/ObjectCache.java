@@ -18,12 +18,53 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
-
+/**
+ * A cache for storing objects so they don't have to be reloaded multiple times from a datastore.
+ * @author Assaf Urieli
+ *
+ */
 public interface ObjectCache {
+	/**
+	 * Retrieve from the cache the entity corresponding to a given Class and id.
+	 * @param clazz
+	 * @param id
+	 * @return the entity if in the cache, or null otherwise.
+	 */
     public Object getEntity(Class<? extends Object> clazz, Object id);
+    
+    /**
+     * Put the entity in the cache corresponding to a given Class and id.
+     * @param clazz
+     * @param id
+     * @param entity
+     */
     public void putEntity(Class<? extends Object> clazz, Object id, Object entity);
+    
+    /**
+     * Remove the entity from the cache corresponding to a given Class and id.
+     * @param clazz
+     * @param id
+     */
     public void removeEntity(Class<? extends Object> clazz, Object id);
+    
+    /**
+     * If the Class and id provided already have an entity in the cache, return it,
+     * otherwise put the entity provided in the cache and return it.
+     * @param clazz
+     * @param id
+     * @param entity
+     * @return
+     */
     public Object getOrPutEntity(Class<? extends Object> clazz, Object id, Object entity);
+    
+    /**
+     * Clear all entities out of the cache.
+     */
     public void clearCache();
+    
+    /**
+     * Clear all entities out of the cache corresponding to a particular Class only.
+     * @param clazz
+     */
     public void clearCache(Class<? extends Object> clazz);
 }

@@ -20,6 +20,11 @@ package com.joliciel.talismane.utils;
 
 import java.util.regex.Matcher;
 
+/**
+ * Various generic utilities for use with patterns and regexes.
+ * @author Assaf Urieli
+ *
+ */
 public class RegexUtils {
 	/**
 	 * For a given replacement string which can include $1, $2, etc. placeholders,

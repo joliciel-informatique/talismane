@@ -184,7 +184,20 @@ public class Lefff {
 	        		LOG.debug("Status " + entry.getStatus());
 	        	}
 	       	}
-
+	       	
+	       	List<? extends LexicalEntry> entriesForPetites = memoryBase.getEntries("petites");
+	       	LexicalEntry entryForPetite = entriesForPetites.get(0);
+	       	
+	       	List<? extends LexicalEntry> testWordEntries = memoryBase.getEntriesMatchingCriteria(entryForPetite, memoryBase.getPosTagSet().getPosTag("ADJ"), "f", "s");
+        	LOG.debug("##### Entries for 'petites', fs: " + testWordEntries.size());
+        	for (LexicalEntry entry : testWordEntries) {
+        		LOG.debug("### Entry " + entry.getWord());
+        		LOG.debug("Category " + entry.getCategory());
+        		LOG.debug("Predicate " + entry.getPredicate());
+        		LOG.debug("Lemma " + entry.getLemma());
+        		LOG.debug("Morphology " + entry.getMorphology());
+        		LOG.debug("Status " + entry.getStatus());
+        	}
         	
         } else {
             System.out.println("Usage : Lefff load filepath");

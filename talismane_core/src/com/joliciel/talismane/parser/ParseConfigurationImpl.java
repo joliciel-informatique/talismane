@@ -159,7 +159,7 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 	@Override
 	public int getConfigurationComparisonIndex() {
 		if (!comparisonIndexCalculated) {
-			configurationComparisonIndex = this.getPosTagSequence().getTokenSequence().getAtomicTokenCount() * 1000;
+			configurationComparisonIndex = (this.getPosTagSequence().getTokenSequence().getAtomicTokenCount() + 1) * 1000;
 			// if the buffer's empty, this is a terminal configuration, and needs to be given the full token count
 			if (this.buffer.size()>0) {
 				// remove the atomic tokens of each element still to be processed in the buffer

@@ -30,8 +30,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -159,6 +159,9 @@ public abstract class AbstractTalismane implements Talismane {
 	private long startTime;
 	private boolean processByDefault = true;
 	
+	private Charset inputCharset = null;
+	private Charset outputCharset = null;
+
 	protected AbstractTalismane() {
 		
 	}
@@ -249,7 +252,9 @@ public abstract class AbstractTalismane implements Talismane {
 		String inFilePath = null;
 		String outFilePath = null;
 		String outDirPath = null;
-		String encoding = "UTF-8";
+		String encoding = null;
+		String inputEncoding = null;
+		String outputEncoding = null;
 		String templatePath = null;
 		int beamWidth = 1;
 		boolean propagateBeam = true;
@@ -323,9 +328,19 @@ public abstract class AbstractTalismane implements Talismane {
 				outDirPath = argValue;
 			else if (argName.equals("template")) 
 				templatePath = argValue;
-			else if (argName.equals("encoding")) 
+			else if (argName.equals("encoding")) {
+				if (inputEncoding!=null || outputEncoding !=null)
+					throw new TalismaneException("The parameter 'encoding' cannot be used with 'inputEncoding' or 'outputEncoding'");
 				encoding = argValue;
-			else if (argName.equals("includeDetails"))
+			} else if (argName.equals("inputEncoding")) {
+				if (encoding !=null)
+					throw new TalismaneException("The parameter 'encoding' cannot be used with 'inputEncoding' or 'outputEncoding'");
+				inputEncoding = argValue;
+			} else if (argName.equals("outputEncoding")) {
+				if (encoding !=null)
+					throw new TalismaneException("The parameter 'encoding' cannot be used with 'inputEncoding' or 'outputEncoding'");
+				outputEncoding = argValue;
+			} else if (argName.equals("includeDetails"))
 				includeDetails = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("propagateBeam"))
 				propagateBeam = argValue.equalsIgnoreCase("true");
@@ -370,7 +385,6 @@ public abstract class AbstractTalismane implements Talismane {
 		if (command==null)
 			throw new TalismaneException("No command provided.");
 
-
 			String sentenceTemplateName = "sentence_template.ftl";
 			String tokeniserTemplateName = "tokeniser_template.ftl";
 			String posTaggerTemplateName = "posTagger_template.ftl";
@@ -410,19 +424,29 @@ public abstract class AbstractTalismane implements Talismane {
 			PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetScanner);
 			TalismaneSession.setPosTagSet(posTagSet);
 			
+			inputCharset = Charset.defaultCharset();
+			outputCharset = Charset.defaultCharset();
+			if (encoding!=null) {
+				inputCharset = Charset.forName(encoding);
+				outputCharset = Charset.forName(encoding);
+			} else {
+				if (inputEncoding!=null)
+					inputCharset = Charset.forName(inputEncoding);
+				if (outputEncoding!=null)
+					outputCharset = Charset.forName(outputEncoding);
+			}
+
+			
 			if (inFilePath!=null) {
 				try {
 					File inFile = new File(inFilePath);
-					reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile), encoding));
+					reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile), inputCharset));
 				} catch (FileNotFoundException fnfe) {
 					LogUtils.logError(LOG, fnfe);
 					throw new RuntimeException(fnfe);
-				} catch (UnsupportedEncodingException uee) {
-					LogUtils.logError(LOG, uee);
-					throw new RuntimeException(uee);
 				}
 			} else {
-				reader = new BufferedReader(new InputStreamReader(System.in));
+				reader = new BufferedReader(new InputStreamReader(System.in, inputCharset));
 			}
 			if (fileName!=null) {
 				this.setFileName(fileName);
@@ -487,9 +511,9 @@ public abstract class AbstractTalismane implements Talismane {
 					outFile.delete();
 					outFile.createNewFile();
 				
-					writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), encoding));
+					writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), outputCharset));
 				} else {
-					writer = new BufferedWriter(new OutputStreamWriter(System.out));
+					writer = new BufferedWriter(new OutputStreamWriter(System.out, outputCharset));
 				}
 
 				if (newlineMarker.equals(MarkerFilterType.SENTENCE_BREAK))
@@ -1513,6 +1537,13 @@ public abstract class AbstractTalismane implements Talismane {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-	
+
+	public Charset getInputCharset() {
+		return inputCharset;
+	}
+
+	public Charset getOutputCharset() {
+		return outputCharset;
+	}
 	
 }

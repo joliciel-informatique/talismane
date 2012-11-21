@@ -28,6 +28,10 @@ import java.util.List;
  */
 public interface ProgressMonitor {
 
+	/**
+	 * The percent of the task completed.
+	 * @return
+	 */
 	public abstract double getPercentComplete();
 
 	/**
@@ -36,12 +40,28 @@ public interface ProgressMonitor {
 	 */
 	public abstract List<MessageResource> getCurrentActions();
 	
+	/**
+	 * The current action being performed.
+	 * @return
+	 */
 	public abstract String getCurrentAction();
 	
+	/**
+	 * The arguments of the current action being performed.
+	 * @return
+	 */
 	public abstract Object[] getCurrentArguments();
 	
+	/**
+	 * The unhandled exception that was thrown, if any, during the task being monitored.
+	 * @return
+	 */
 	public abstract Exception getException();
 	
+	/**
+	 * Is the task finished?
+	 * @return
+	 */
 	public boolean isFinished();
 
 }

@@ -25,11 +25,16 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 
+/**
+ * Various generic logging utilities.
+ * @author Assaf Urieli
+ *
+ */
 public class LogUtils {
 	private static final int MEGABYTE = 1024*1024;
 	
     /**
-    Return the current exception & stack trace as a String.
+    * Return the current exception & stack trace as a String.
     */
     public static String getErrorString(Throwable e)
     {
@@ -48,7 +53,7 @@ public class LogUtils {
     }
 
     /**
-    Log the exception passed.
+    * Log the exception passed.
     */
     public static void logError(Log logger, Throwable e) {
         logger.error(e);

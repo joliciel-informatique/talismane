@@ -291,21 +291,21 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 
 	@Override
 	public int compareTo(LexicalEntry o) {
+		if (this==o)
+			return 0;
+		if (!this.status.equals(o.getStatus()))
+			return (this.status.compareTo(o.getStatus()));
 		if (!this.word.equals(o.getWord()))
 			return (this.word.compareTo(o.getWord()));
 		if (!this.category.equals(o.getCategory()))
 			return (this.category.compareTo(o.getCategory()));
-		if (!this.status.equals(o.getStatus()))
-			return (this.status.compareTo(o.getStatus()));
 		if (!this.lemma.equals(o.getLemma()))
 			return (this.lemma.compareTo(o.getLemma()));
 		if (!this.subCategory.equals(o.getSubCategory()))
 			return (this.subCategory.compareTo(o.getSubCategory()));
 		if (!this.morphology.equals(o.getMorphology()))
 			return (this.morphology.compareTo(o.getMorphology()));
-		if (!this.equals(o))
-			return -1;
-		return 0;
+		return -1;
 	}
 
 	@Override

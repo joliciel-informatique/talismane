@@ -44,7 +44,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-class MaximumEntropyModel<T extends Outcome> extends OpenNLPModel<T> implements MachineLearningModel<T> {
+class MaximumEntropyModel<T extends Outcome> extends AbstractOpenNLPModel<T> implements MachineLearningModel<T> {
 	private static final Log LOG = LogFactory.getLog(MaximumEntropyModel.class);
 	
 	/**

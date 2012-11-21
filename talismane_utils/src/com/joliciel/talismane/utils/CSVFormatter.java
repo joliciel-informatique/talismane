@@ -25,6 +25,11 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Various utilities for formatting text to CSV and reading out of a CSV file.
+ * @author Assaf Urieli
+ *
+ */
 public class CSVFormatter {
     private static DecimalFormat decFormat;
     private static DecimalFormat intFormat;
@@ -43,22 +48,45 @@ public class CSVFormatter {
 	    intFormat.applyPattern("##0");
 	    
     }
+    
+    /**
+     * Format a double for inclusion in a CSV.
+     * @param number
+     * @return
+     */
     public static String format(double number) {
     	if (addQuotesAlwaysLocal)
     		return "\"" + decFormat.format(number) + "\"";
 		return decFormat.format(number);
 	}
+    
+    /**
+     * Format a float for inclusion in a CSV.
+     * @param number
+     * @return
+     */
     public static String format(float number) {
     	if (addQuotesAlwaysLocal)
     		return "\"" + decFormat.format(number) + "\"";
 		return decFormat.format(number);
 	}
+    
+    /**
+     * Format an int for inclusion in a CSV.
+     * @param number
+     * @return
+     */
     public static String format(int number) {
     	if (addQuotesAlwaysLocal)
     		return "\"" + intFormat.format(number) + "\"";
 		return intFormat.format(number);
 	}
     
+    /**
+     * Format a String for inclusion in a CSV.
+     * @param number
+     * @return
+     */
     public static String format(String string) {
     	int quotePos = string.indexOf('"');
     	int commaPos = string.indexOf(',');
@@ -140,6 +168,10 @@ public class CSVFormatter {
 		return columnLabel;
 	}
 	
+	/**
+	 * Whether or not to systematically add quotes around all cell contents.
+	 * @param addQuotesAlways
+	 */
 	public static void setAddQuotesAlways(boolean addQuotesAlways) {
 		addQuotesAlwaysLocal = addQuotesAlways;
 	}
