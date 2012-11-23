@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
 import com.joliciel.talismane.AbstractTalismane;
+import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
@@ -92,7 +93,7 @@ public class TalismaneFrench extends AbstractTalismane {
 
 	@Override
 	protected ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_fr7.zip";
+		String tokeniserModelName = "ftbTokeniser_fr9.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 
@@ -130,6 +131,11 @@ public class TalismaneFrench extends AbstractTalismane {
 	protected InputStream getDefaultTokenRegexFiltersFromStream() {
 		InputStream inputStream = getInputStreamFromResource("token_filters.txt");
 		return inputStream;
+	}
+
+	@Override
+	protected TransitionSystem getDefaultTransitionSystem() {
+		return this.getParserService().getArcEagerTransitionSystem();
 	}
 
 	

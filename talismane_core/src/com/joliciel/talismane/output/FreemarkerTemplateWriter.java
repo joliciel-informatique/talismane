@@ -97,7 +97,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 	
 	@Override
-	public void process(PosTagSequence posTagSequence) {
+	public void onNextPosTagSequence(PosTagSequence posTagSequence) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", posTagSequence);
 		model.put("LOG", LOG);
@@ -105,7 +105,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 
 	@Override
-	public void process(TokenSequence tokenSequence) {
+	public void onNextTokenSequence(TokenSequence tokenSequence) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", tokenSequence);
 		model.put("LOG", LOG);

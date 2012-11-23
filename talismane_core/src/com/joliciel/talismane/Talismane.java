@@ -46,6 +46,11 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
  *
  */
 public interface Talismane {
+	/**
+	 * A module within the Talismane Suite.
+	 * @author Assaf Urieli
+	 *
+	 */
 	public enum Module {
 		SentenceDetector,
 		Tokeniser,
@@ -53,9 +58,25 @@ public interface Talismane {
 		Parser
 	}
 	
+	/**
+	 * The command which Talismane is asked to perform.
+	 * @author Assaf Urieli
+	 *
+	 */
 	public enum Command {
+		/**
+		 * Analyse a corpus and add annotations.
+		 */
 		analyse,
-		evaluate
+		/**
+		 * Evaluate an annotated corpus, by re-analysing the corpus and comparing the new annotations to the existing ones.
+		 */
+		evaluate,
+		/**
+		 * Process an annotated corpus - Talismane simply reads the corpus using the appropriate corpus reader
+		 * and passes the results to the appropriate processors.
+		 */
+		process
 	}
 
 	/**
@@ -84,17 +105,25 @@ public interface Talismane {
 	 */
 	public void process(Reader reader);
 
+	/**
+	 * The sentence detector constructed using the parameters provided.
+	 */
 	public SentenceDetector getSentenceDetector();
-	public void setSentenceDetector(SentenceDetector sentenceDetector);
 
+	/**
+	 * The tokeniser constructed using the parameters provided.
+	 */
 	public Tokeniser getTokeniser();
-	public void setTokeniser(Tokeniser tokeniser);
 
+	/**
+	 * The pos-tagger constructed using the parameters provided.
+	 */
 	public PosTagger getPosTagger();
-	public void setPosTagger(PosTagger posTagger);
 
+	/**
+	 * The parser constructed using the parameters provided.
+	 */
 	public Parser getParser();
-	public void setParser(Parser parser);
 	
 	/**
 	 * Text marker filters are applied to raw text segments extracted from the stream, 3 segments at a time.

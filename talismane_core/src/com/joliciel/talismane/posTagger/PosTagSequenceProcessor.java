@@ -24,5 +24,5 @@ package com.joliciel.talismane.posTagger;
  *
  */
 public interface PosTagSequenceProcessor {
-	public void process(PosTagSequence posTagSequence);
+	public void onNextPosTagSequence(PosTagSequence posTagSequence);
 }

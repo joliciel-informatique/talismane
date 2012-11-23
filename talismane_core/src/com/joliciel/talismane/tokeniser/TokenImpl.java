@@ -59,6 +59,9 @@ class TokenImpl implements TokenInternal {
 	private int endIndex = 0;
 	
 	private PosTaggerLexicon lexicon;
+	private String fileName = null;
+	private Integer lineNumber = null;
+	private Integer columnNumber = null;
 	
 	TokenImpl(String text, TokenSequence tokenSequence) {
 		this(text, tokenSequence, 0);
@@ -255,12 +258,27 @@ class TokenImpl implements TokenInternal {
 
 	@Override
 	public int getLineNumber() {
-		return this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndex());
+		if (this.lineNumber==null) {
+			this.lineNumber = this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndex());
+		}
+		return this.lineNumber;
 	}
+	@Override
+	public void setLineNumber(int lineNumber) {
+		this.lineNumber = lineNumber;
+	}
+
 
 	@Override
 	public int getColumnNumber() {
-		return this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndex());
+		if (this.columnNumber==null) {
+			this.columnNumber = this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndex());
+		}
+		return this.columnNumber;
+	}
+	@Override
+	public void setColumnNumber(int columnNumber) {
+		this.columnNumber = columnNumber;
 	}
 
 	@Override
@@ -280,7 +298,14 @@ class TokenImpl implements TokenInternal {
 	
 	@Override
 	public String getFileName() {
-		return this.getTokenSequence().getSentence().getFileName();
+		if (this.fileName==null) {
+			this.fileName = this.getTokenSequence().getSentence().getFileName();
+		}
+		return this.fileName;
+	}
+	@Override
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 	@Override

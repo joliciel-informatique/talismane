@@ -20,8 +20,11 @@ package com.joliciel.talismane.posTagger;
 
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,13 +39,18 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 class PosTagRegexBasedCorpusReaderImpl implements
 		PosTagRegexBasedCorpusReader {
 	private String regex = PosTagRegexBasedCorpusReader.DEFAULT_REGEX;
+	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
+	private static final String POSTAG_PLACEHOLDER = "%POSTAG%";
+	private static final String FILENAME_PLACEHOLDER = "%FILENAME%";
+	private static final String ROW_PLACEHOLDER = "%ROW%";
+	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
 	private Pattern pattern;
 	private Scanner scanner;
 	private PosTagSequence sentence = null;
 	private List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
-	private int tokenGroupIndex = 0;
-	private int posTagGroupIndex = 0;
+
 	private int lineNumber = 0;
+	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TokeniserService tokeniserService;
@@ -92,13 +100,19 @@ class PosTagRegexBasedCorpusReaderImpl implements
 					if (!matcher.matches())
 						throw new TalismaneException("Didn't match pattern on line " + lineNumber);
 					
-					if (matcher.groupCount()!=2) {
-						throw new TalismaneException("Expected 2 matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+					if (matcher.groupCount()!=placeholderIndexMap.size()) {
+						throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
 					}
 					
-					String token = matcher.group(tokenGroupIndex);
-					String posTagCode = matcher.group(posTagGroupIndex);
-					this.addToken(tokenSequence, token);
+					String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+					String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
+					Token token = this.addToken(tokenSequence, word);
+					if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
+						token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+					if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
+						token.setLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+					if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
+						token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
 					
     				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
     				PosTag posTag = null;
@@ -114,22 +128,14 @@ class PosTagRegexBasedCorpusReaderImpl implements
 		return (sentence!=null);
 	}
 
-	void addToken(PretokenisedSequence pretokenisedSequence, String token) {
-		if (token.equals("_")) {
-			pretokenisedSequence.addToken("");
+	Token addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
+		Token token = null;
+		if (tokenText.equals("_")) {
+			token = pretokenisedSequence.addToken("");
 		} else {
-			if (pretokenisedSequence.size()==0) {
-				// do nothing
-			} else if (pretokenisedSequence.get(pretokenisedSequence.size()-1).getText().endsWith("'")) {
-				// do nothing
-			} else if (token.equals(".")||token.equals(",")||token.equals(")")||token.equals("]")) {
-				// do nothing
-			} else {
-				// add a space
-				pretokenisedSequence.addToken(" ");
-			}
-			pretokenisedSequence.addToken(token.replace("_", " "));
+			token = pretokenisedSequence.addToken(tokenText.replace("_", " "));
 		}
+		return token;
 	}
 	
 	@Override
@@ -151,23 +157,39 @@ class PosTagRegexBasedCorpusReaderImpl implements
 
 	public Pattern getPattern() {
 		if (this.pattern == null) {
-			int tokenPos = regex.indexOf("TOKEN");
-			int posTagPos = regex.indexOf("POSTAG");
+			int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);
 			if (tokenPos<0)
-				throw new TalismaneException("The regex must contain the string \"TOKEN\"");
-			if (posTagPos<0)
-				throw new TalismaneException("The regex must contain the string \"POSTAG\"");
+				throw new TalismaneException("The regex must contain the string \"" + TOKEN_PLACEHOLDER + "\"");
 			
-			if (tokenPos<posTagPos) {
-				tokenGroupIndex = 1;
-				posTagGroupIndex = 2;
-			} else {
-				tokenGroupIndex = 2;
-				posTagGroupIndex = 1;
+			int posTagPos = regex.indexOf(POSTAG_PLACEHOLDER);
+			if (posTagPos<0)
+				throw new TalismaneException("The regex must contain the string \"" + POSTAG_PLACEHOLDER + "\"");
+				
+			int filenamePos = regex.indexOf(FILENAME_PLACEHOLDER);
+			int rowNumberPos = regex.indexOf(ROW_PLACEHOLDER);
+			int columnNumberPos = regex.indexOf(COLUMN_PLACEHOLDER);
+			Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
+			placeholderMap.put(tokenPos, TOKEN_PLACEHOLDER);
+			placeholderMap.put(posTagPos, POSTAG_PLACEHOLDER);
+
+			if (filenamePos>=0)
+				placeholderMap.put(filenamePos, FILENAME_PLACEHOLDER);
+			if (rowNumberPos>=0)
+				placeholderMap.put(rowNumberPos, ROW_PLACEHOLDER);
+			if (columnNumberPos>=0)
+				placeholderMap.put(columnNumberPos, COLUMN_PLACEHOLDER);
+			
+			int i = 1;
+			for (String placeholderName : placeholderMap.values()) {
+				placeholderIndexMap.put(placeholderName, i++);
 			}
 			
-			String regexWithGroups = regex.replace("TOKEN", "(.*)");
-			regexWithGroups = regexWithGroups.replace("POSTAG", "(.+)");
+			String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
+			
 			this.pattern = Pattern.compile(regexWithGroups);
 		}
 		return pattern;
