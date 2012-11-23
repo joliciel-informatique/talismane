@@ -7,7 +7,8 @@ IS_SEPARATOR_BEFORE
 # For each pattern below, check if any set of n tokens matches it. If so, all of the separators inside the set are tested further.
 # For more information, see TokeniserPattern
 ellipses	\.\.\.
-dash	 - 
+dashWithSpaces	 - 
+dashAfterSpace	 -[^ ]
 Mr.	\D+\.[ ,\)/\\]
 S.A.	.+\..+
 Quat'z'Arts	(?![cdjlmnstCDJLMNST]\z|qu\z|jusqu\z|puisqu\z|lorsqu\z|aujourd\z|prud\z|quelqu\z).+'.+

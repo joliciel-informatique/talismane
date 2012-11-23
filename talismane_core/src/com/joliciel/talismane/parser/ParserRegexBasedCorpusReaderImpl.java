@@ -55,6 +55,15 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		ParserRegexBasedCorpusReader {
     private static final Log LOG = LogFactory.getLog(ParserRegexBasedCorpusReaderImpl.class);
 	private String regex = ParserRegexBasedCorpusReader.DEFAULT_REGEX;
+	private static final String INDEX_PLACEHOLDER = "%INDEX%";
+	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
+	private static final String GOVERNOR_PLACEHOLDER = "%GOVERNOR%";
+	private static final String LABEL_PLACEHOLDER = "%LABEL%";
+	private static final String POSTAG_PLACEHOLDER = "%POSTAG%";
+	private static final String FILENAME_PLACEHOLDER = "%FILENAME%";
+	private static final String ROW_PLACEHOLDER = "%ROW%";
+	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
+	
 	private Pattern pattern;
 	private ParseConfiguration configuration = null;
 	private Scanner scanner;
@@ -126,6 +135,9 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										dataLine.setToken(token);
 										if (dataLine.getIndex()>maxIndex)
 											maxIndex = dataLine.getIndex();
+										token.setFileName(dataLine.getOriginalFileName());
+										token.setLineNumber(dataLine.getOriginalLineNumber());
+										token.setColumnNumber(dataLine.getOriginalColumnNumber());
 									}
 									LOG.debug("Sentence " + sentenceCount + ": " + tokenSequence.getText());
 									
@@ -247,15 +259,15 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							if (!matcher.matches())
 								throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
 							
-							if (matcher.groupCount()!=5) {
-								throw new TalismaneException("Expected 5 matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+							if (matcher.groupCount()!=placeholderIndexMap.size()) {
+								throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
 							}
 							
-							int index = Integer.parseInt(matcher.group(placeholderIndexMap.get("INDEX")));
-							String word =  matcher.group(placeholderIndexMap.get("TOKEN"));
-							String posTagCode = matcher.group(placeholderIndexMap.get("POSTAG"));
-							String depLabel = matcher.group(placeholderIndexMap.get("LABEL"));
-							int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get("GOVERNOR")));
+							int index = Integer.parseInt(matcher.group(placeholderIndexMap.get(INDEX_PLACEHOLDER)));
+							String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+							String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
+							String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
+							int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(GOVERNOR_PLACEHOLDER)));
 							
 							ParseDataLine dataLine = new ParseDataLine();
 							dataLine.setLineNumber(this.lineNumber);
@@ -264,6 +276,12 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							dataLine.setPosTagCode(posTagCode);
 							dataLine.setDependencyLabel(depLabel);
 							dataLine.setGovernorIndex(governorIndex);
+							if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
+								dataLine.setOriginalFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+							if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
+								dataLine.setOriginalLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+							if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
+								dataLine.setOriginalColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
 							
 							dataLines.add(dataLine);
 							
@@ -304,22 +322,12 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		// nothing to do in the base class
 	}
 
-	Token addToken(PretokenisedSequence pretokenisedSequence, String word) {
+	Token addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
 		Token token = null;
-		if (word.equals("_")||word.length()==0) {
+		if (tokenText.equals("_")) {
 			token = pretokenisedSequence.addToken("");
 		} else {
-			if (pretokenisedSequence.size()==0) {
-				// do nothing
-			} else if (pretokenisedSequence.get(pretokenisedSequence.size()-1).getText().endsWith("'")) {
-				// do nothing
-			} else if (word.equals(".")||word.equals(",")||word.equals(")")||word.equals("]")) {
-				// do nothing
-			} else {
-				// add a space
-				pretokenisedSequence.addToken(" ");
-			}
-			token = pretokenisedSequence.addToken(word.replace("_", " "));
+			token = pretokenisedSequence.addToken(tokenText.replace("_", " "));
 		}
 		return token;
 	}
@@ -367,6 +375,9 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		private int governorIndex;
 		private String dependencyLabel = "";
 		private Token token;
+		private String originalFileName = "";
+		private int originalLineNumber = 0;
+		private int originalColumnNumber = 0;
 		private boolean skip = false;
 		
 		public int getLineNumber() {
@@ -437,6 +448,30 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			this.skip = skip;
 		}
 
+		public String getOriginalFileName() {
+			return originalFileName;
+		}
+
+		public void setOriginalFileName(String originalFileName) {
+			this.originalFileName = originalFileName;
+		}
+
+		public int getOriginalLineNumber() {
+			return originalLineNumber;
+		}
+
+		public void setOriginalLineNumber(int originalLineNumber) {
+			this.originalLineNumber = originalLineNumber;
+		}
+
+		public int getOriginalColumnNumber() {
+			return originalColumnNumber;
+		}
+
+		public void setOriginalColumnNumber(int originalColumnNumber) {
+			this.originalColumnNumber = originalColumnNumber;
+		}
+
 		public String toString() {
 			String string = lineNumber + ": " + index + "," + word + "," + posTagCode + "," + governorIndex + "," + dependencyLabel;
 			return string;
@@ -482,43 +517,56 @@ public class ParserRegexBasedCorpusReaderImpl implements
 
 	public Pattern getPattern() {
 		if (this.pattern == null) {
-			int indexPos = regex.indexOf("INDEX");
+			int indexPos = regex.indexOf(INDEX_PLACEHOLDER);
 			if (indexPos<0)
-				throw new TalismaneException("The regex must contain the string \"INDEX\"");
+				throw new TalismaneException("The regex must contain the string \"" + INDEX_PLACEHOLDER + "\"");
 
-			int tokenPos = regex.indexOf("TOKEN");
+			int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);
 			if (tokenPos<0)
-				throw new TalismaneException("The regex must contain the string \"TOKEN\"");
+				throw new TalismaneException("The regex must contain the string \"" + TOKEN_PLACEHOLDER + "\"");
 			
-			int posTagPos = regex.indexOf("POSTAG");
+			int posTagPos = regex.indexOf(POSTAG_PLACEHOLDER);
 			if (posTagPos<0)
-				throw new TalismaneException("The regex must contain the string \"POSTAG\"");
+				throw new TalismaneException("The regex must contain the string \"" + POSTAG_PLACEHOLDER + "\"");
 			
-			int labelPos = regex.indexOf("LABEL");
+			int labelPos = regex.indexOf(LABEL_PLACEHOLDER);
 			if (labelPos<0)
-				throw new TalismaneException("The regex must contain the string \"LABEL\"");
+				throw new TalismaneException("The regex must contain the string \"" + LABEL_PLACEHOLDER + "\"");
 			
-			int governorPos = regex.indexOf("GOVERNOR");
+			int governorPos = regex.indexOf(GOVERNOR_PLACEHOLDER);
 			if (governorPos<0)
-				throw new TalismaneException("The regex must contain the string \"GOVERNOR\"");
+				throw new TalismaneException("The regex must contain the string \"" + GOVERNOR_PLACEHOLDER + "\"");
 			
+			int filenamePos = regex.indexOf(FILENAME_PLACEHOLDER);
+			int rowNumberPos = regex.indexOf(ROW_PLACEHOLDER);
+			int columnNumberPos = regex.indexOf(COLUMN_PLACEHOLDER);
 			Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
-			placeholderMap.put(indexPos, "INDEX");
-			placeholderMap.put(tokenPos, "TOKEN");
-			placeholderMap.put(posTagPos, "POSTAG");
-			placeholderMap.put(labelPos, "LABEL");
-			placeholderMap.put(governorPos, "GOVERNOR");
+			placeholderMap.put(indexPos, INDEX_PLACEHOLDER);
+			placeholderMap.put(tokenPos, TOKEN_PLACEHOLDER);
+			placeholderMap.put(posTagPos, POSTAG_PLACEHOLDER);
+			placeholderMap.put(labelPos, LABEL_PLACEHOLDER);
+			placeholderMap.put(governorPos, GOVERNOR_PLACEHOLDER);
+			if (filenamePos>=0)
+				placeholderMap.put(filenamePos, FILENAME_PLACEHOLDER);
+			if (rowNumberPos>=0)
+				placeholderMap.put(rowNumberPos, ROW_PLACEHOLDER);
+			if (columnNumberPos>=0)
+				placeholderMap.put(columnNumberPos, COLUMN_PLACEHOLDER);
 			
 			int i = 1;
 			for (String placeholderName : placeholderMap.values()) {
 				placeholderIndexMap.put(placeholderName, i++);
 			}
 			
-			String regexWithGroups = regex.replace("INDEX", "(.+)");
-			regexWithGroups = regexWithGroups.replace("TOKEN", "(.*)");
-			regexWithGroups = regexWithGroups.replace("POSTAG", "(.+)");
-			regexWithGroups = regexWithGroups.replace("LABEL", "(.+)");
-			regexWithGroups = regexWithGroups.replace("GOVERNOR", "(.+)");
+			String regexWithGroups = regex.replace(INDEX_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(TOKEN_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(GOVERNOR_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
+			
 			this.pattern = Pattern.compile(regexWithGroups);
 		}
 		return pattern;

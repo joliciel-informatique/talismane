@@ -140,6 +140,12 @@ class PatternTokeniserImpl implements Tokeniser {
 						placeholderMap.put(placeholder.getStartIndex(), placeholder);
 					}
 				}
+				if (LOG.isTraceEnabled()) {
+					if (myPlaceholders.size()>0) {
+						LOG.trace("TokenFilter: " + tokenFilter);
+						LOG.trace("placeholders: " + myPlaceholders);
+					}
+				}
 			}
 			
 			Set<TokenPlaceholder> placeholders = new HashSet<TokenPlaceholder>(placeholderMap.values());
@@ -163,12 +169,19 @@ class PatternTokeniserImpl implements Tokeniser {
 				PerformanceMonitor.startTask("pattern matching");
 				try {
 					for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
-						if (LOG.isTraceEnabled())
-							LOG.trace("Parsed pattern: " + parsedPattern);
+						Set<Token> tokensToCheckForThisPattern = new HashSet<Token>();
 						List<TokenPatternMatch> matchesForThisPattern = parsedPattern.match(tokenSequence);
 						for (TokenPatternMatch tokenPatternMatch : matchesForThisPattern) {
 							tokenPatternMatches.add(tokenPatternMatch);
+							if (LOG.isTraceEnabled())
+								tokensToCheckForThisPattern.addAll(tokenPatternMatch.getTokensToCheck());
 							tokensToCheck.addAll(tokenPatternMatch.getTokensToCheck());
+						}
+						if (LOG.isTraceEnabled()) {
+							if (tokensToCheckForThisPattern.size()>0) {
+								LOG.trace("Parsed pattern: " + parsedPattern);
+								LOG.trace("tokensToCheck: " + tokensToCheckForThisPattern);
+							}
 						}
 					}
 				} finally {

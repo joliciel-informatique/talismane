@@ -2,10 +2,12 @@ package com.joliciel.talismane.tokeniser;
 
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +21,11 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 class TokenRegexBasedCorpusReaderImpl implements
 		TokenRegexBasedCorpusReader {
 	private String regex = TokenRegexBasedCorpusReader.DEFAULT_REGEX;
+	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
+	private static final String FILENAME_PLACEHOLDER = "%FILENAME%";
+	private static final String ROW_PLACEHOLDER = "%ROW%";
+	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
+	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	private Pattern pattern;
 	private Scanner scanner;
 	private PretokenisedSequence tokenSequence = null;
@@ -61,42 +68,42 @@ class TokenRegexBasedCorpusReaderImpl implements
 					break;
 				} else {
 					hasLine = true;
-					Matcher matcher = this.getPattern().matcher(line);
-					if (!matcher.matches())
-						throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
-					
-					if (matcher.groupCount()!=1) {
-						throw new TalismaneException("Expected 1 match (but found " + matcher.groupCount() + ") on line " + lineNumber);
-					}
 					
 					if (tokenSequence==null) {
 						tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
 					}
 					
-					String token = matcher.group(1);
-					this.addToken(tokenSequence, token);
+					Matcher matcher = this.getPattern().matcher(line);
+					if (!matcher.matches())
+						throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
+					
+					if (matcher.groupCount()!=placeholderIndexMap.size()) {
+						throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+					}
+					
+					String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+
+					Token token = this.addToken(tokenSequence, word);
+					if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
+						token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+					if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
+						token.setLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+					if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
+						token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
 				}
 			}
 		}
 		return (tokenSequence!=null);
 	}
 
-	void addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
+	Token addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
+		Token token = null;
 		if (tokenText.equals("_")) {
-			pretokenisedSequence.addToken("");
+			token = pretokenisedSequence.addToken("");
 		} else {
-			if (pretokenisedSequence.size()==0) {
-				// do nothing
-			} else if (pretokenisedSequence.get(pretokenisedSequence.size()-1).getText().endsWith("'")) {
-				// do nothing
-			} else if (tokenText.equals(".")||tokenText.equals(",")||tokenText.equals(")")||tokenText.equals("]")) {
-				// do nothing
-			} else {
-				// add a space
-				pretokenisedSequence.addToken(" ");
-			}
-			pretokenisedSequence.addToken(tokenText.replace("_", " "));
+			token = pretokenisedSequence.addToken(tokenText.replace("_", " "));
 		}
+		return token;
 	}
 	
 
@@ -139,10 +146,37 @@ class TokenRegexBasedCorpusReaderImpl implements
 	}
 
 	public Pattern getPattern() {
-		if (this.pattern==null) {
-			this.pattern = Pattern.compile(regex);
+		if (this.pattern == null) {
+			int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);
+			if (tokenPos<0)
+				throw new TalismaneException("The regex must contain the string \"" + TOKEN_PLACEHOLDER + "\"");
+				
+			int filenamePos = regex.indexOf(FILENAME_PLACEHOLDER);
+			int rowNumberPos = regex.indexOf(ROW_PLACEHOLDER);
+			int columnNumberPos = regex.indexOf(COLUMN_PLACEHOLDER);
+			Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
+			placeholderMap.put(tokenPos, TOKEN_PLACEHOLDER);
+
+			if (filenamePos>=0)
+				placeholderMap.put(filenamePos, FILENAME_PLACEHOLDER);
+			if (rowNumberPos>=0)
+				placeholderMap.put(rowNumberPos, ROW_PLACEHOLDER);
+			if (columnNumberPos>=0)
+				placeholderMap.put(columnNumberPos, COLUMN_PLACEHOLDER);
+			
+			int i = 1;
+			for (String placeholderName : placeholderMap.values()) {
+				placeholderIndexMap.put(placeholderName, i++);
+			}
+			
+			String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
+			
+			this.pattern = Pattern.compile(regexWithGroups);
 		}
-		return this.pattern;
+		return pattern;
 	}
 
 	public TokeniserService getTokeniserService() {

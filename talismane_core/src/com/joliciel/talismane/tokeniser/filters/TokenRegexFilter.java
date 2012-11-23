@@ -84,4 +84,12 @@ class TokenRegexFilter implements TokenFilter {
 			TokenFilterServiceInternal tokeniserFilterService) {
 		this.tokeniserFilterService = tokeniserFilterService;
 	}
+
+	@Override
+	public String toString() {
+		return "TokenRegexFilter [regex=" + regex + ", replacement="
+				+ replacement + "]";
+	}
+	
+	
 }

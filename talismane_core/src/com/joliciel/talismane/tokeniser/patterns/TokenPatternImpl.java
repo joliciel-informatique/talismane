@@ -24,10 +24,14 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 class TokenPatternImpl implements TokenPattern {
+	private static final Log LOG = LogFactory.getLog(TokenPatternImpl.class);
 	private String regexp;
 	private Pattern separatorPattern = null;
 	private List<Pattern> parsedPattern = null;
@@ -115,6 +119,9 @@ class TokenPatternImpl implements TokenPattern {
 			}
 			t0++;
 		} // next token
+		if (LOG.isTraceEnabled()) {
+			LOG.trace(tokensToCheck);
+		}
 		return tokensToCheck;
 	}
 	

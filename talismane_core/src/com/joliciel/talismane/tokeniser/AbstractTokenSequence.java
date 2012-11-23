@@ -208,7 +208,39 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 
 	@Override
-	public Token addToken(String string) {
+	public Token addToken(String tokenText) {
+		Token token = null;
+		
+		if (this.size()==0) {
+			// do nothing
+		} else {
+			//TODO: language-specific - e.g. French takes space before :, ? and !, English doesn't
+			// Double quotes are tricky because they could be opening or closing quotations. Most of the time we can simply 
+			// count quotes, but not if there's a sentence break inside a quotation.
+			// Single quotes are tricky, as they can be apostrophes or actual quotes
+			String lastTokenText = this.get(this.size()-1).getText();
+			if (lastTokenText.endsWith("'") || lastTokenText.endsWith("’") || lastTokenText.equals("“")
+					|| lastTokenText.equals("(") || lastTokenText.equals("[")
+					|| lastTokenText.equals("{")) {
+				// do nothing
+			} else if (tokenText.equals(".")||tokenText.equals(",")||tokenText.equals(")")||tokenText.equals("]")||tokenText.equals("}")||tokenText.equals("”")) {
+				// do nothing
+			} else if ((lastTokenText.endsWith(".") || lastTokenText.equals("?") || lastTokenText.equals("!"))
+					&& (tokenText.equals("\""))) {
+				// do nothing
+			} else {
+				// add a space
+				this.addTokenInternal(" ");
+			}
+		}
+		token = this.addTokenInternal(tokenText);
+
+		return token;
+	}
+
+	private Token addTokenInternal(String string) {
+		// note, this is only called for PretokenisedSequence, where the sentence has to be reconstructed
+		// from an annotated corpus
 		if (this.text==null)
 			this.text = "";
 		
@@ -216,6 +248,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		token.setStartIndex(this.getText().length());
 		token.setEndIndex(this.getText().length() + string.length());
 		this.setText(this.getText() + string);
+		this.getSentence().setText(this.getText());
 
 		this.listWithWhiteSpace().add(token);
 		

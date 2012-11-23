@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Takes the harmonic mean of the individual decision scores, and multiplies it by the scores of underlying solutions.
- * @author Assaf
+ * @author Assaf Urieli
  *
  */
 public class HarmonicMeanScoringStrategy implements ScoringStrategy {

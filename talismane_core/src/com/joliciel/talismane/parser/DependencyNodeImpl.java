@@ -27,7 +27,7 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 		this.parseConfiguration = parseConfiguration;
 	}
 
-	public PosTaggedToken getToken() {
+	public PosTaggedToken getPosTaggedToken() {
 		return token;
 	}
 	
@@ -73,7 +73,7 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	
 	@Override
 	public int compareTo(DependencyNode o) {
-		return this.getToken().compareTo(o.getToken());
+		return this.getPosTaggedToken().compareTo(o.getPosTaggedToken());
 	}
 
 	public PosTaggerLexicon getLexiconService() {
@@ -108,7 +108,7 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 
 	@Override
 	public String toString() {
-		String string = this.getToken().getToken().getOriginalText();
+		String string = this.getPosTaggedToken().getToken().getOriginalText();
 
 		boolean firstDependent = true;
 		string += "(";
@@ -140,7 +140,7 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 
 	public int getPerceivedDepth(Set<PosTag> zeroDepthPosTags) {
 		int depth = 1;
-		if (zeroDepthPosTags.contains(this.getToken().getTag()))
+		if (zeroDepthPosTags.contains(this.getPosTaggedToken().getTag()))
 			depth = 0;
 		int maxDepth = 0;
 		for (DependencyNode dependent : this.getDependents()) {
@@ -172,11 +172,11 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	public List<DependencyNode> getDetachableLeaves(Set<PosTag> includeChildren, Set<PosTag> includeWithParent) {
 		List<DependencyNode> detachableLeaves = new ArrayList<DependencyNode>();
 		
-		boolean includesChildren = includeChildren.contains(this.getToken().getTag());
+		boolean includesChildren = includeChildren.contains(this.getPosTaggedToken().getTag());
 		for (DependencyNode dependent : this.getDependents()) {
 			List<DependencyNode> myDetachableLeaves = dependent.getDetachableLeaves(includeChildren, includeWithParent);
 			if (myDetachableLeaves.size()==0) {
-				boolean detachable = !includesChildren && !(includeWithParent.contains(dependent.getToken().getTag()));
+				boolean detachable = !includesChildren && !(includeWithParent.contains(dependent.getPosTaggedToken().getTag()));
 				if (detachable)
 					detachableLeaves.add(dependent);
 			} else {
@@ -202,7 +202,7 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 
 	@Override
 	public PosTaggedToken getFirstToken() {
-		PosTaggedToken firstToken = this.getToken();
+		PosTaggedToken firstToken = this.getPosTaggedToken();
 		for (DependencyNode dependent : this.getDependents()) {
 			PosTaggedToken firstDepToken = dependent.getFirstToken();
 			if (firstDepToken.getToken().getStartIndex() < firstToken.getToken().getStartIndex()) {
@@ -214,7 +214,7 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 
 	@Override
 	public PosTaggedToken getLastToken() {
-		PosTaggedToken lastToken = this.getToken();
+		PosTaggedToken lastToken = this.getPosTaggedToken();
 		for (DependencyNode dependent : this.getDependents()) {
 			PosTaggedToken lastDepToken = dependent.getLastToken();
 			if (lastDepToken.getToken().getEndIndex() > lastToken.getToken().getEndIndex()) {

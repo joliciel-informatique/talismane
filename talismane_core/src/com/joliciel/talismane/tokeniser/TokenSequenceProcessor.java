@@ -24,5 +24,5 @@ package com.joliciel.talismane.tokeniser;
  *
  */
 public interface TokenSequenceProcessor {
-	public void process(TokenSequence tokenSequence);
+	public void onNextTokenSequence(TokenSequence tokenSequence);
 }

@@ -114,12 +114,16 @@ public interface TokenSequence extends Iterable<Token> {
 	
 	/**
 	 * Cleans out any collections of modifications, so that any modifications after this
-	 * clean slate can be viewed (see getTokensAdded()).
+	 * clean slate can be viewed.<br/>
+	 * If run before applying filters, will enable the client code to detect any tokens
+	 * added by the filters.
+	 * @see #getTokensAdded()
 	 */
 	public void cleanSlate();
 	
 	/**
-	 * Returns the tokens added since the last clean slate (see cleanSlate()).
+	 * Returns the tokens added since the last clean slate.
+	 * @see #cleanSlate()
 	 * @return
 	 */
 	public List<Token> getTokensAdded();

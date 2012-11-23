@@ -34,7 +34,7 @@ public interface DependencyNode {
 	 * The actual pos-tagged token in this node.
 	 * @return
 	 */
-	public PosTaggedToken getToken();
+	public PosTaggedToken getPosTaggedToken();
 	
 	/**
 	 * The dependency label tying this node to its parent.

@@ -148,6 +148,7 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	String getFileName();
+	void setFileName(String fileName);
 	
 	/**
 	 * Returns the original index in the original text at the beginning of this token.
@@ -166,6 +167,7 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	int getLineNumber();
+	void setLineNumber(int lineNumber);
 	
 	/**
 	 * Returns the original text line number at the end of this token.
@@ -178,6 +180,7 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	int getColumnNumber();
+	void setColumnNumber(int columnNumber);
 
 	/**
 	 * Returns the original text column number (inside a line) at the end of this token.

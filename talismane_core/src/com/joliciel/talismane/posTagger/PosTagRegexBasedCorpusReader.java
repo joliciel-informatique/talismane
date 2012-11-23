@@ -21,9 +21,14 @@ package com.joliciel.talismane.posTagger;
 /**
  * A corpus reader that expects one pos-tagged token per line,
  * and analyses the line content based on a regex supplied during construction.<br/>
- * The regex needs to contain two capturing groups: one for the token and one for the postag code.<br/>
- * These groups need to be indicated in the regex expression by the strings "TOKEN" and "POSTAG". These values will be replaced
- * by (.*) for the token, and (.+) for the postag.<br/>
+ * The regex needs to contain the following two capturing groups, indicated by the following strings:<br/>
+ * <li>%TOKEN%: the token</li>
+ * <li>%POSTAG%: the token's pos-tag</li>
+ * It can optionally contain the following capturing groups as well:<br/>
+ * <li>%FILENAME%: the file containing the token</li>
+ * <li>%ROW%: the row containing the token</li>
+ * <li>%COLUMN%: the column containing the token</li>
+ * The strings will (.*) for the token, and (.+) for all others.
  * @author Assaf Urieli
  *
  */
@@ -31,7 +36,7 @@ public interface PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReade
 	/**
 	 * The default regex (if none is set).
 	 */
-	public static final String DEFAULT_REGEX = ".*\\tTOKEN\\t.*\\tPOSTAG\\t.*\\t.*\\t";
+	public static final String DEFAULT_REGEX = ".*\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t";
 
 	/**
 	 * The regex used to find the various data items.
