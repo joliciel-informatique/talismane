@@ -23,7 +23,6 @@ import java.util.List;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 public interface TokenFeatureParser {
@@ -36,10 +35,6 @@ public interface TokenFeatureParser {
 	public PosTagSet getPosTagSet();
 
 	public void setPosTagSet(PosTagSet posTagSet);
-
-	public PosTaggerLexicon getLexiconService();
-
-	public void setLexiconService(PosTaggerLexicon lexiconService);
 
 	public List<TokenPattern> getPatternList();
 

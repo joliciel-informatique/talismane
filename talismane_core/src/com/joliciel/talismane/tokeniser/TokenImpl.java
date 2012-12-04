@@ -29,11 +29,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 
 class TokenImpl implements TokenInternal {
@@ -58,7 +58,6 @@ class TokenImpl implements TokenInternal {
 	private int startIndex = 0;
 	private int endIndex = 0;
 	
-	private PosTaggerLexicon lexicon;
 	private String fileName = null;
 	private Integer lineNumber = null;
 	private Integer columnNumber = null;
@@ -117,7 +116,7 @@ class TokenImpl implements TokenInternal {
 	@Override
 	public Set<PosTag> getPossiblePosTags() {
 		if (possiblePosTags==null) {
-			possiblePosTags = this.lexicon.findPossiblePosTags(this.getText());
+			possiblePosTags = TalismaneSession.getLexicon().findPossiblePosTags(this.getText());
 		}
 		
 		return possiblePosTags;
@@ -236,14 +235,6 @@ class TokenImpl implements TokenInternal {
 		if (startIndex != other.startIndex)
 			return false;
 		return true;
-	}
-
-	public PosTaggerLexicon getLexicon() {
-		return lexicon;
-	}
-
-	public void setLexicon(PosTaggerLexicon lexiconService) {
-		this.lexicon = lexiconService;
 	}
 
 	@Override

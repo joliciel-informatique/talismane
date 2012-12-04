@@ -8,7 +8,6 @@ import java.util.TreeSet;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 
 class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	private PosTaggedToken token;
@@ -17,7 +16,6 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	private Set<DependencyNode> dependents = new TreeSet<DependencyNode>();
 	private ParseConfiguration parseConfiguration;
 	private ParserServiceInternal parserServiceInternal;
-	private PosTaggerLexicon lexiconService;
 	
 	DependencyNodeImpl(PosTaggedToken token, String label,
 			ParseConfiguration parseConfiguration) {
@@ -74,14 +72,6 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	@Override
 	public int compareTo(DependencyNode o) {
 		return this.getPosTaggedToken().compareTo(o.getPosTaggedToken());
-	}
-
-	public PosTaggerLexicon getLexiconService() {
-		return lexiconService;
-	}
-
-	public void setLexiconService(PosTaggerLexicon lexiconService) {
-		this.lexiconService = lexiconService;
 	}
 
 	public ParseConfiguration getParseConfiguration() {

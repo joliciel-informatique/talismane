@@ -29,12 +29,10 @@ import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class TokenFeatureParserImpl implements TokenFeatureParser {
 	private FeatureService featureService;
-	private PosTaggerLexicon lexiconService;	
 	private PosTagSet posTagSet;
 	private List<TokenPattern> patternList;
 	private FeatureClassContainer container;
@@ -148,22 +146,6 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 	@Override
 	public void setPosTagSet(PosTagSet posTagSet) {
 		this.posTagSet = posTagSet;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#getLexiconService()
-	 */
-	@Override
-	public PosTaggerLexicon getLexiconService() {
-		return lexiconService;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#setLexiconService(com.joliciel.talismane.posTagger.PosTaggerLexiconService)
-	 */
-	@Override
-	public void setLexiconService(PosTaggerLexicon lexiconService) {
-		this.lexiconService = lexiconService;
 	}
 
 	/* (non-Javadoc)

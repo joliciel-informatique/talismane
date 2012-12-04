@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -30,7 +31,6 @@ import com.joliciel.talismane.tokeniser.TaggedTokenImpl;
 import com.joliciel.talismane.tokeniser.Token;
 
 class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
-	private  PosTaggerLexicon lexiconService;
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
 	private Set<LexicalEntry> lexicalEntries = null;
@@ -42,21 +42,13 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 	@Override
 	public Set<LexicalEntry> getLexicalEntries() {
 		if (lexicalEntries==null) {
-			lexicalEntries = this.lexiconService.findLexicalEntries(this.getToken().getText(), this.getTag());
+			lexicalEntries = TalismaneSession.getLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
 		}
 		return lexicalEntries;
 	}
 
 	public void setLexicalEntries(Set<LexicalEntry> lexicalEntries) {
 		this.lexicalEntries = lexicalEntries;
-	}
-
-	public PosTaggerLexicon getLexiconService() {
-		return lexiconService;
-	}
-
-	public void setLexiconService(PosTaggerLexicon lexiconService) {
-		this.lexiconService = lexiconService;
 	}
 
 	@Override

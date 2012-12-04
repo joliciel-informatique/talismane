@@ -162,6 +162,8 @@ public abstract class AbstractTalismane implements Talismane {
 	
 	private Charset inputCharset = null;
 	private Charset outputCharset = null;
+	
+	private char endBlockCharacter = '\f';
 
 	protected AbstractTalismane() {
 		
@@ -385,6 +387,9 @@ public abstract class AbstractTalismane implements Talismane {
 				transitionSystemStr = argValue;
 			else if (argName.equals("sentenceCount"))
 				maxSentenceCount = Integer.parseInt(argValue);
+			else if (argName.equals("endBlockCharCode")) {
+				endBlockCharacter = (char) Integer.parseInt(argValue);
+			}
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -1228,7 +1233,7 @@ public abstract class AbstractTalismane implements Talismane {
 			    	}
 	    			
 	    			// have sentence detector
-		    		if (finished || (Character.isWhitespace(c) && stringBuilder.length()>MIN_BLOCK_SIZE)) {
+		    		if (finished || (Character.isWhitespace(c) && stringBuilder.length()>MIN_BLOCK_SIZE) || c==endBlockCharacter) {
 		    			if (stringBuilder.length()>0) {
 			    			String textSegment = stringBuilder.toString();
 			    			stringBuilder = new StringBuilder();
@@ -1280,6 +1285,8 @@ public abstract class AbstractTalismane implements Talismane {
 							LOG.trace("nextProcessedText: " + nextProcessedText);							
 						}
 
+					    boolean reallyFinished = finished && textSegments.size()==3;
+
 						if (prevSentenceHolder!=null) {
 							if (startModule.equals(Module.SentenceDetector)) {
 								List<Integer> sentenceBreaks = sentenceDetector.detectSentences(prevProcessedText, processedText, nextProcessedText);
@@ -1291,9 +1298,10 @@ public abstract class AbstractTalismane implements Talismane {
 							List<Sentence> theSentences = prevSentenceHolder.getDetectedSentences(leftover);
 							leftover = null;
 							for (Sentence sentence : theSentences) {
-								if (sentence.isComplete()||finished) {
+								if (sentence.isComplete()||reallyFinished) {
 									sentences.add(sentence);
 								} else {
+									LOG.debug("Setting leftover to: " + sentence.getText());
 									leftover = sentence;
 								}
 							}

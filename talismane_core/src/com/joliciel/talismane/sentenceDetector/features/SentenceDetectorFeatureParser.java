@@ -30,12 +30,10 @@ import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
-	private PosTaggerLexicon lexiconService;	
 	private PosTagSet posTagSet;
 	private List<TokenPattern> patternList;
 	
@@ -88,14 +86,6 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 
 	public void setPosTagSet(PosTagSet posTagSet) {
 		this.posTagSet = posTagSet;
-	}
-
-	public PosTaggerLexicon getLexiconService() {
-		return lexiconService;
-	}
-
-	public void setLexiconService(PosTaggerLexicon lexiconService) {
-		this.lexiconService = lexiconService;
 	}
 
 	public List<TokenPattern> getPatternList() {
