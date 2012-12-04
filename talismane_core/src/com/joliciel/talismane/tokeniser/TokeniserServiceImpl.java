@@ -22,7 +22,6 @@ import java.io.Reader;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -51,7 +50,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	public TokenInternal getTokenInternal(String string,
 			TokenSequence tokenSequence, int index) {
 		TokenImpl token = new TokenImpl(string, tokenSequence, index);
-		token.setLexicon(TalismaneSession.getLexicon());
 		return token;
 	}
 

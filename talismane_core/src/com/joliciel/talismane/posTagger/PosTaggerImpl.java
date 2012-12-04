@@ -58,7 +58,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private PosTaggerService posTaggerService;
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
-	private PosTaggerLexicon lexiconService;
 	private DecisionMaker<PosTag> decisionMaker;
 	
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
@@ -338,14 +337,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	public void setPosTaggerFeatureService(
 			PosTaggerFeatureService posTaggerFeatureService) {
 		this.posTaggerFeatureService = posTaggerFeatureService;
-	}
-
-	public PosTaggerLexicon getLexiconService() {
-		return lexiconService;
-	}
-
-	public void setLexiconService(PosTaggerLexicon lexiconService) {
-		this.lexiconService = lexiconService;
 	}
 
 	public DecisionMaker<PosTag> getDecisionMaker() {

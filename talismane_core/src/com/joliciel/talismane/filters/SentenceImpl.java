@@ -24,7 +24,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 class SentenceImpl implements Sentence {
+	@SuppressWarnings("unused")
+	private static final Log LOG = LogFactory.getLog(SentenceImpl.class);
+	
 	private String text;
 	private TreeMap<Integer, String> originalTextSegments = new TreeMap<Integer, String>();
 	private List<Integer> originalIndexes = null;

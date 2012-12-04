@@ -29,6 +29,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.utils.StringUtils;
+
 class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	private static final Log LOG = LogFactory.getLog(RollingSentenceProcessorImpl.class);
 	private Stack<Boolean> shouldProcessStack = new Stack<Boolean>();
@@ -39,6 +41,8 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	private Pattern newlinePattern = Pattern.compile("\r\n|[\r\n]");
 	private int leftoverNewline = 0;
 	private String fileName = "";
+	private static final int NUM_CHARS = 30;
+
 	
 	private FilterService filterService;
 	
@@ -54,7 +58,19 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	
 	@Override
 	public SentenceHolder addNextSegment(String originalText, Set<TextMarker> textMarkers) {
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("addNextSegment: " + originalText);
+		}
 		SentenceHolder sentenceHolder = filterService.getSentenceHolder();
+
+		// find any newlines
+		sentenceHolder.addNewline(leftoverNewline, lineNumber-1);
+
+		Matcher matcher = newlinePattern.matcher(originalText);
+		while (matcher.find()) {
+			sentenceHolder.addNewline(originalTextIndex + matcher.end(), lineNumber++);
+			leftoverNewline = originalTextIndex + matcher.end();
+		}
 		
 		Map<Integer,Integer> insertionPoints = new TreeMap<Integer, Integer>();
 		StringBuilder processedText = new StringBuilder();
@@ -119,14 +135,36 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				}
 				break;
 			case SENTENCE_BREAK:
+				String leftoverText = null;
 				if (shouldProcess) {
 					insertionPoints.put(processedText.length(), currentPos);
-					processedText.append(originalText.substring(currentPos, textMarker.getPosition()));
+					leftoverText = originalText.substring(currentPos, textMarker.getPosition());
+					processedText.append(leftoverText);
 					currentPos = textMarker.getPosition();
 				}
 				
 				// add the sentence boundary on the last character that was actually added.
 				sentenceHolder.addSentenceBoundary(processedText.length()-1);
+				if (LOG.isTraceEnabled()) {
+					int boundary = processedText.length()-1;
+					String string = null;
+					int start1 = boundary - NUM_CHARS;
+					
+					if (start1<0) start1=0;
+					String startString = processedText.substring(start1, boundary);
+					
+					String middleString = "" + processedText.charAt(boundary);
+					
+					string = startString + "[" + middleString + "]";
+					string = string.replace('\n', '¶');
+					LOG.trace("Adding sentence break at position " + boundary + ": " + string);
+				}
+				if (shouldProcess) {
+					if (!leftoverText.endsWith(" ")) {
+						insertionPoints.put(processedText.length(), currentPos);
+						processedText.append(" ");
+					}
+				}
 				break;
 			case POP_SKIP: case POP_INCLUDE: case STOP: case START:
 			{
@@ -215,15 +253,6 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
 				j++;
 			}
-		}
-		
-		// find any newlines
-		sentenceHolder.addNewline(leftoverNewline, lineNumber-1);
-
-		Matcher matcher = newlinePattern.matcher(originalText);
-		while (matcher.find()) {
-			sentenceHolder.addNewline(originalTextIndex + matcher.end(), lineNumber++);
-			leftoverNewline = originalTextIndex + matcher.end();
 		}
 
 		originalTextIndex += originalText.length();

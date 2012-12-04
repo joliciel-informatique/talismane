@@ -4,7 +4,6 @@ import java.io.Reader;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
@@ -112,7 +111,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			ParseConfiguration parseConfiguration) {
 		DependencyNodeImpl dependencyNode = new DependencyNodeImpl(token, label, parseConfiguration);
 		dependencyNode.setParserServiceInternal(this);
-		dependencyNode.setLexiconService(TalismaneSession.getLexicon());
 		return dependencyNode;
 	}
 

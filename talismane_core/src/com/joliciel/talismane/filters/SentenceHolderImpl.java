@@ -27,12 +27,16 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
+	private static final Log LOG = LogFactory.getLog(SentenceHolderImpl.class);
 	private TreeSet<Integer> sentenceBoundaries = new TreeSet<Integer>();
 	private Pattern duplicateWhiteSpacePattern = Pattern.compile("[ \t\\x0B\f]{2,}");
 	private Pattern openingWhiteSpacePattern = Pattern.compile("\\A(\\s+)");
 	private Pattern closingWhiteSpacePattern = Pattern.compile("(\\s+)\\z");
-	
+
 	private FilterService filterService;
 	
 	public Set<Integer> getSentenceBoundaries() {
@@ -45,6 +49,10 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 
 	@Override
 	public List<Sentence> getDetectedSentences(Sentence leftover) {
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("getDetectedSentences. leftover=" + leftover);
+		}
+		
 		List<Sentence> sentences = new ArrayList<Sentence>();
 		
 		int currentIndex = 0;
@@ -55,7 +63,11 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 			if (lastSentenceBoundary<this.getText().length()-1) {
 				haveLeftOvers = true;
 			}
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("haveLeftOvers? " + lastSentenceBoundary + " < " + (this.getText().length()-1) + " = " + haveLeftOvers);
+			}
 		}
+		
 		List<Integer> allBoundaries = new ArrayList<Integer>(this.sentenceBoundaries);
 		if (haveLeftOvers)
 			allBoundaries.add(this.getText().length()-1);

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -52,7 +51,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
 		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);
-		posTagger.setLexiconService(TalismaneSession.getLexicon());
 		
 		return posTagger;
 	}
@@ -82,7 +80,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTaggedToken getPosTaggedToken(Token token, Decision<PosTag> decision) {
 		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, decision);
-		posTaggedToken.setLexiconService(TalismaneSession.getLexicon());
 		return posTaggedToken;
 	}
 	
