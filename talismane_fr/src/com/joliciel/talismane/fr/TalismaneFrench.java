@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
 import com.joliciel.talismane.AbstractTalismane;
+import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -42,7 +43,8 @@ public class TalismaneFrench extends AbstractTalismane {
 	 */
 	public static void main(String[] args) throws Exception {
     	TalismaneFrench instance = new TalismaneFrench();
-    	instance.runCommand(args);
+    	TalismaneConfig config = new TalismaneConfig(instance, args);
+    	instance.runCommand(config);
 	}
 
 	private static ZipInputStream getZipInputStreamFromResource(String resource) {
@@ -51,7 +53,6 @@ public class TalismaneFrench extends AbstractTalismane {
 		
 		return zis;
 	}
-	
 
 	private static InputStream getInputStreamFromResource(String resource) {
 		String path = "/com/joliciel/talismane/fr/resources/" + resource;
@@ -62,23 +63,23 @@ public class TalismaneFrench extends AbstractTalismane {
 	}
 
 	@Override
-	protected InputStream getDefaultPosTagSetFromStream() {
+	public InputStream getDefaultPosTagSetFromStream() {
 		InputStream posTagInputStream = getInputStreamFromResource("CrabbeCanditoTagset.txt");
 		return posTagInputStream;
 	}
 	
 
 	@Override
-	protected InputStream getDefaultPosTaggerRulesFromStream() {
+	public InputStream getDefaultPosTaggerRulesFromStream() {
 		InputStream inputStream = getInputStreamFromResource("posTaggerConstraints_fr.txt");
 		return inputStream;
 	}
 	
 
 	@Override
-	protected PosTaggerLexicon getDefaultLexiconService() {
+	public PosTaggerLexicon getDefaultLexiconService() {
       	LefffMemoryLoader loader = new LefffMemoryLoader();
-		String lefffPath = "/com/joliciel/talismane/fr/resources/lefff.zip";
+		String lefffPath = "/com/joliciel/talismane/fr/resources/lefff_PPAdj.zip";
 		ZipInputStream lefffInputStream = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lefffPath)); 
     	LefffMemoryBase lefffMemoryBase = loader.deserializeMemoryBase(lefffInputStream);
     	return lefffMemoryBase;
@@ -86,57 +87,55 @@ public class TalismaneFrench extends AbstractTalismane {
 	}
 
 	@Override
-	protected ZipInputStream getDefaultSentenceModelStream() {
+	public ZipInputStream getDefaultSentenceModelStream() {
 		String sentenceModelName = "ftbSentenceDetector_fr3.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(sentenceModelName);
 	}
 
 	@Override
-	protected ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_fr9.zip";
+	public ZipInputStream getDefaultTokeniserModelStream() {
+		String tokeniserModelName = "ftbTokeniser_fr10.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 
 	@Override
-	protected ZipInputStream getDefaultPosTaggerModelStream() {
-		String posTaggerModelName = "ftbPosTagger_fr7.zip";
+	public ZipInputStream getDefaultPosTaggerModelStream() {
+		String posTaggerModelName = "ftbPosTagger_fr11.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(posTaggerModelName);
 	}
 
 	@Override
-	protected ZipInputStream getDefaultParserModelStream() {
-		String parserModelName = "ftbDep_parser_arcEager_13.zip";
+	public ZipInputStream getDefaultParserModelStream() {
+		String parserModelName = "ftbDep_parser_arcEager_14.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 
 	@Override
-	protected List<TokenSequenceFilter> getTokenSequenceFilters() {
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
 		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
 		return tokenFilters;
 	}
 
 	@Override
-	protected List<TokenSequenceFilter> getPosTaggerPreprocessingFilters() {
+	public List<TokenSequenceFilter> getPosTaggerPreprocessingFilters() {
 		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
 		return tokenFilters;
 	}
 
 	@Override
-	protected InputStream getDefaultRegexTextMarkerFiltersFromStream() {
+	public InputStream getDefaultTextMarkerFiltersFromStream() {
 		InputStream inputStream = getInputStreamFromResource("text_marker_filters.txt");
 		return inputStream;
 	}
 
 	@Override
-	protected InputStream getDefaultTokenRegexFiltersFromStream() {
+	public InputStream getDefaultTokenFiltersFromStream() {
 		InputStream inputStream = getInputStreamFromResource("token_filters.txt");
 		return inputStream;
 	}
 
 	@Override
-	protected TransitionSystem getDefaultTransitionSystem() {
+	public TransitionSystem getDefaultTransitionSystem() {
 		return this.getParserService().getArcEagerTransitionSystem();
 	}
-
-	
 }

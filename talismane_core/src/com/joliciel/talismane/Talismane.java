@@ -18,21 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
-import java.io.Reader;
-import java.util.List;
-
-import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
-import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
-import com.joliciel.talismane.posTagger.PosTagger;
-import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
-import com.joliciel.talismane.tokeniser.Tokeniser;
 
 /**
- * A class for processing an input stream and writing the analysis result to an output stream.<br/>
+ * An interface for processing an input stream and writing the analysis result to an output stream.<br/>
  * The processing must go from a given start module to a given end module in sequence, where the modules available are:
  * Sentence detector, Tokeniser, Pos tagger, Parser.<br/>
  * There is a default input format for each start module,
@@ -80,67 +72,11 @@ public interface Talismane {
 	}
 
 	/**
-	 * Does this instance of Talismane need a sentence detector to perform the requested processing.
+	 * Analyse the reader from the startModule to the endModule,
+	 * where the analysis results are processed by the processors provided.
 	 */
-	public boolean needsSentenceDetector();
-
-	/**
-	 * Does this instance of Talismane need a tokeniser to perform the requested processing.
-	 */
-	public boolean needsTokeniser();
-
-	/**
-	 * Does this instance of Talismane need a pos tagger to perform the requested processing.
-	 */
-	public boolean needsPosTagger();
-
-	/**
-	 * Does this instance of Talismane need a parser to perform the requested processing.
-	 */
-	public boolean needsParser();
-
-	/**
-	 * Process the reader from the startModule to the endModule,
-	 * where the results are processed by the processors provided.
-	 */
-	public void process(Reader reader);
-
-	/**
-	 * The sentence detector constructed using the parameters provided.
-	 */
-	public SentenceDetector getSentenceDetector();
-
-	/**
-	 * The tokeniser constructed using the parameters provided.
-	 */
-	public Tokeniser getTokeniser();
-
-	/**
-	 * The pos-tagger constructed using the parameters provided.
-	 */
-	public PosTagger getPosTagger();
-
-	/**
-	 * The parser constructed using the parameters provided.
-	 */
-	public Parser getParser();
+	public void analyse(TalismaneConfig config);
 	
-	/**
-	 * Text marker filters are applied to raw text segments extracted from the stream, 3 segments at a time.
-	 * This means that if a particular marker crosses segment borders, it is handled correctly.
-	 * @return
-	 */
-	public List<TextMarkerFilter> getTextMarkerFilters();
-	public void setTextMarkerFilters(List<TextMarkerFilter> textMarkerFilters);
-	public void addTextMarkerFilter(TextMarkerFilter textMarkerFilter);
-
-	/**
-	 * Should the beam get propagated between various levels of analysis, e.g. should multiple analyses
-	 * be passed on from the tokeniser to the pos-tagger, etc.
-	 * @return
-	 */
-	public boolean isPropagateBeam();
-	public void setPropagateBeam(boolean propagateBeam);
 
 	public SentenceProcessor getSentenceProcessor();
 	public void setSentenceProcessor(SentenceProcessor sentenceProcessor);
@@ -156,16 +92,12 @@ public interface Talismane {
 	public ParseConfigurationProcessor getParseConfigurationProcessor();
 	public void setParseConfigurationProcessor(
 			ParseConfigurationProcessor parseConfigurationProcessor);
-
+	
 	/**
-	 * The requested start module for the processing chain.
+	 * If an error occurs during analysis, should Talismane stop immediately, or try to keep going with the next sentence?
+	 * Default is true (stop immediately).
 	 * @return
 	 */
-	public Module getStartModule();
-
-	/**
-	 * The requested end module for the processing chain.
-	 * @return
-	 */
-	public Module getEndModule();
+	public boolean isStopOnError();
+	public void setStopOnError(boolean stopOnError);
 }

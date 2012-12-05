@@ -21,6 +21,11 @@ package com.joliciel.talismane.filters;
 import java.util.List;
 
 public interface FilterService {
+	
+	public TextMarkerFilter getDuplicateWhiteSpaceFilter();
+	public TextMarkerFilter getNewlineEndOfSentenceMarker();
+	public TextMarkerFilter getNewlineSpaceMarker();
+
 	/**
 	 * For a given regex, finds any matches within the text,
 	 * and adds the appropriate marker to these matches.
@@ -29,15 +34,21 @@ public interface FilterService {
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex);
 	
-	public TextMarkerFilter getDuplicateWhiteSpaceFilter();
-	public TextMarkerFilter getNewlineEndOfSentenceMarker();
-	public TextMarkerFilter getNewlineSpaceMarker();
+	/**
+	 * @see #getRegexMarkerFilter(List, String)
+	 */
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex);
 
 	/**
 	 * For a given regex, finds any matches within the text, and adds the appropriate marker to these matches.
 	 * The markers will be added for the group indicated by the groupIndex.
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int groupIndex);
+
+	/**
+	 * @see #getRegexMarkerFilter(List, String, int)
+	 */
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex);
 
 	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault);
 	

@@ -25,7 +25,6 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
@@ -51,7 +50,6 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	
 	public TokenFeatureParser getTokenFeatureParser(List<TokenPattern> patternList) {
 		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl(this.getFeatureService());
-		tokenFeatureParser.setPosTagSet(TalismaneSession.getPosTagSet());
 		tokenFeatureParser.setPatternList(patternList);
 		return tokenFeatureParser;
 	}

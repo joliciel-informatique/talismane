@@ -389,6 +389,14 @@ v	Km	VPP
 v	Km	VPP
 v	Kmp	VPP
 v	Kms	VPP
+v	K	ADJ
+v	K	ADJ
+v	Kfp	ADJ
+v	Kfs	ADJ
+v	Km	ADJ
+v	Km	ADJ
+v	Kmp	ADJ
+v	Kms	ADJ
 v	mp	NC
 v	ms	NC
 v	null	V

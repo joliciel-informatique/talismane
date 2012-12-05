@@ -82,6 +82,20 @@ class FilterServiceImpl implements FilterService {
 
 	}
 
+	@Override
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types,
+			String regex) {
+		return this.getRegexMarkerFilter(types, regex, -1);
+	}
+
+
+	@Override
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types,
+			String regex, int groupIndex) {
+		RegexMarkerFilter filter = new RegexMarkerFilter(types, regex, groupIndex);
+		filter.setFilterService(this);
+		return filter;
+	}
 
 	@Override
 	public TextMarkerFilter getDuplicateWhiteSpaceFilter() {
@@ -164,5 +178,7 @@ class FilterServiceImpl implements FilterService {
 		
 		return filter;
 	}
+
+
 	
 }

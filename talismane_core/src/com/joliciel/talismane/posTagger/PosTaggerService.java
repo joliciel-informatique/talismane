@@ -42,7 +42,6 @@ public interface PosTaggerService {
 	 */
 	public PosTagger getPosTagger(
 			Set<PosTaggerFeature<?>> posTaggerFeatures,
-			PosTagSet posTagSet,
 			DecisionMaker<PosTag> decisionMaker,
 			int beamWidth);
 

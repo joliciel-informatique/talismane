@@ -29,6 +29,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -68,7 +69,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private List<TokenSequenceFilter> preprocessingFilters = new ArrayList<TokenSequenceFilter>();
 
 	private int beamWidth;
-	private PosTagSet posTagSet;
 
 	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
 	
@@ -81,11 +81,9 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	 * @param fScoreCalculator an f-score calculator for evaluating results
 	 */
 	public PosTaggerImpl(Set<PosTaggerFeature<?>> posTaggerFeatures,
-			PosTagSet posTagSet,
 			DecisionMaker<PosTag> decisionMaker,
 			int beamWidth) {
 		this.posTaggerFeatures = posTaggerFeatures;
-		this.posTagSet = posTagSet;
 		this.beamWidth = beamWidth;
 		this.decisionMaker = decisionMaker;
 	}
@@ -151,7 +149,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								}
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(context);
 								if (ruleResult!=null && ruleResult.getOutcome()) {
-									Decision<PosTag> positiveRuleDecision = this.posTagSet.createDefaultDecision(rule.getTag());
+									Decision<PosTag> positiveRuleDecision = TalismaneSession.getPosTagSet().createDefaultDecision(rule.getTag());
 									decisions.add(positiveRuleDecision);
 									positiveRuleDecision.addAuthority(rule.getCondition().getName());
 									ruleApplied = true;
@@ -362,14 +360,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	public void setPosTaggerService(PosTaggerService posTaggerService) {
 		this.posTaggerService = posTaggerService;
-	}
-
-	public PosTagSet getPosTagSet() {
-		return posTagSet;
-	}
-
-	public void setPosTagSet(PosTagSet posTagSet) {
-		this.posTagSet = posTagSet;
 	}
 
 	@Override
