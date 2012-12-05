@@ -419,7 +419,7 @@ public class PosTaggerMaxentRunner {
 				try {
 					Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerModel.getFeatureDescriptors());
 					
-					PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTagSet, posTaggerModel.getDecisionMaker(), beamWidth);
+					PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTaggerModel.getDecisionMaker(), beamWidth);
 					
 					if (tokeniser==null) {
 						// add these filters to the reader as if the tokeniser applied them

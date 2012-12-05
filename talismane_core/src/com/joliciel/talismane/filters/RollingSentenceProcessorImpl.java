@@ -29,8 +29,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.utils.StringUtils;
-
 class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	private static final Log LOG = LogFactory.getLog(RollingSentenceProcessorImpl.class);
 	private Stack<Boolean> shouldProcessStack = new Stack<Boolean>();

@@ -44,10 +44,9 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTagger getPosTagger(
 			Set<PosTaggerFeature<?>> posTaggerFeatures,
-			PosTagSet posTagSet,
 			DecisionMaker<PosTag> decisionMaker,
 			int beamWidth) {
-		PosTaggerImpl posTagger = new PosTaggerImpl(posTaggerFeatures, posTagSet, decisionMaker, beamWidth);
+		PosTaggerImpl posTagger = new PosTaggerImpl(posTaggerFeatures, decisionMaker, beamWidth);
 		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
 		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);

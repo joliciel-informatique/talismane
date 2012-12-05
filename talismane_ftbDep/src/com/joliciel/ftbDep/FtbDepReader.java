@@ -42,7 +42,7 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
      
 	public FtbDepReader(File ftbDepFile) throws FileNotFoundException {
 		super(new BufferedReader(new FileReader(ftbDepFile)));
-		this.setRegex("INDEX\\tTOKEN\\t.*\\t.*\\tPOSTAG\\t.*\\tGOVERNOR\\tLABEL\\t_\\t_");
+		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_");
 	}
 
 

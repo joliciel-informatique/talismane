@@ -30,17 +30,28 @@ import com.joliciel.talismane.posTagger.PosTaggerLexicon;
  *
  */
 public class TalismaneSession {
+	private static LanguageSpecificImplementation implementation = null;
+	
 	private static ThreadLocal<Locale> localeHolder = new ThreadLocal<Locale>();
 	private static ThreadLocal<PosTagSet> posTagSetHolder = new ThreadLocal<PosTagSet>();
 	private static ThreadLocal<PosTaggerLexicon> lexiconHolder = new ThreadLocal<PosTaggerLexicon>();
 	private static ThreadLocal<TransitionSystem> transitionSystemHolder = new ThreadLocal<TransitionSystem>();
 	
+	public static void setImplementation(LanguageSpecificImplementation implementation) {
+		TalismaneSession.implementation = implementation;
+	}
+
 	public static void setPosTagSet(PosTagSet posTagSet) {
 		posTagSetHolder.set(posTagSet);
 	}
 	
 	public static PosTagSet getPosTagSet() {
-		return posTagSetHolder.get();
+		PosTagSet posTagSet = posTagSetHolder.get();
+		if (posTagSet==null && implementation!=null) {
+			posTagSet = implementation.getDefaultPosTagSet();
+			TalismaneSession.setPosTagSet(posTagSet);
+		}
+		return posTagSet;
 	}
 	
 	public static void setTransitionSystem(TransitionSystem transitionSystem) {
@@ -48,7 +59,12 @@ public class TalismaneSession {
 	}
 	
 	public static TransitionSystem getTransitionSystem() {
-		return transitionSystemHolder.get();
+		TransitionSystem transitionSystem = transitionSystemHolder.get();
+		if (transitionSystem==null && implementation!=null) {
+			transitionSystem = implementation.getDefaultTransitionSystem();
+			TalismaneSession.setTransitionSystem(transitionSystem);
+		}
+		return transitionSystem;
 	}
 	
 	public static void setLexicon(PosTaggerLexicon lexicon) {
@@ -56,7 +72,12 @@ public class TalismaneSession {
 	}
 	
 	public static PosTaggerLexicon getLexicon() {
-		return lexiconHolder.get();
+		PosTaggerLexicon lexicon = lexiconHolder.get();
+		if (lexicon==null && implementation!=null) {
+			lexicon = implementation.getDefaultLexiconService();
+			TalismaneSession.setLexicon(lexicon);
+		}
+		return lexicon;
 	}
 	
 	public static Locale getLocale() {

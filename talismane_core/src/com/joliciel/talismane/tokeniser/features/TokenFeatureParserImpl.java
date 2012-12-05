@@ -23,17 +23,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class TokenFeatureParserImpl implements TokenFeatureParser {
 	private FeatureService featureService;
-	private PosTagSet posTagSet;
 	private List<TokenPattern> patternList;
 	private FeatureClassContainer container;
 	
@@ -94,12 +93,12 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 			if (functionDescriptor.getArguments().size()>0) {
 				// posTagCode already specified
 				String posTagCode = (String) functionDescriptor.getArguments().get(0).getObject();
-				PosTag posTag = this.posTagSet.getPosTag(posTagCode);
+				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagCode);
 				posTags = new HashSet<PosTag>();
 				posTags.add(posTag);
 			} else {
 				// no posTagCode specified - take all of 'em
-				posTags = this.posTagSet.getTags();
+				posTags = TalismaneSession.getPosTagSet().getTags();
 			}
 			
 			PosTag[] posTagArray = new PosTag[0];
@@ -130,22 +129,6 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 			descriptors.add(functionDescriptor);
 		}
 		return descriptors;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#getPosTagSet()
-	 */
-	@Override
-	public PosTagSet getPosTagSet() {
-		return posTagSet;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#setPosTagSet(com.joliciel.talismane.posTagger.PosTagSet)
-	 */
-	@Override
-	public void setPosTagSet(PosTagSet posTagSet) {
-		this.posTagSet = posTagSet;
 	}
 
 	/* (non-Javadoc)

@@ -519,7 +519,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		if (this.pattern == null) {
 			int indexPos = regex.indexOf(INDEX_PLACEHOLDER);
 			if (indexPos<0)
-				throw new TalismaneException("The regex must contain the string \"" + INDEX_PLACEHOLDER + "\"");
+				throw new TalismaneException("The regex must contain the string \"" + INDEX_PLACEHOLDER + "\": " + regex);
 
 			int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);
 			if (tokenPos<0)

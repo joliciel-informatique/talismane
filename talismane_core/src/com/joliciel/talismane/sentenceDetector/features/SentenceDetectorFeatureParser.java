@@ -29,12 +29,10 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
-import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
-	private PosTagSet posTagSet;
 	private List<TokenPattern> patternList;
 	
 	public SentenceDetectorFeatureParser(FeatureService featureService) {
@@ -78,14 +76,6 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 		descriptors.add(functionDescriptor);
 		
 		return descriptors;
-	}
-
-	public PosTagSet getPosTagSet() {
-		return posTagSet;
-	}
-
-	public void setPosTagSet(PosTagSet posTagSet) {
-		this.posTagSet = posTagSet;
 	}
 
 	public List<TokenPattern> getPatternList() {

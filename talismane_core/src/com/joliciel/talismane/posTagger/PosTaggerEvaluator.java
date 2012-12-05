@@ -78,5 +78,6 @@ public interface PosTaggerEvaluator {
 	 * to a csv file.
 	 * @param csvFileWriter
 	 */
+	public Writer getCsvFileWriter();
 	public void setCsvFileWriter(Writer csvFileWriter);
 }
