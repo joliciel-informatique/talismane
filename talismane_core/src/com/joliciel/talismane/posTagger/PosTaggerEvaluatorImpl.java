@@ -18,8 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,43 +27,33 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.stats.FScoreCalculator;
-import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.utils.CSVFormatter;
 
 class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 	private static final Log LOG = LogFactory.getLog(PosTaggerEvaluatorImpl.class);
 
-	private Writer csvFileWriter;
 	private PosTagger posTagger;
 	private Tokeniser tokeniser;
 	private boolean propagateBeam = false;
-	private FScoreCalculator<String> fscoreUnknownInCorpus;
-	private FScoreCalculator<String> fscoreUnknownInLexicon;
+	private int sentenceCount = 0;
 	
-	private Set<String> unknownWords;
+	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
 	
 	/**
 	 */
-	public PosTaggerEvaluatorImpl(PosTagger posTagger, Writer csvFileWriter) {
+	public PosTaggerEvaluatorImpl(PosTagger posTagger) {
 		this.posTagger = posTagger;
-		this.csvFileWriter = csvFileWriter;
 	}
 
 	@Override
-	public FScoreCalculator<String> evaluate(PosTagAnnotatedCorpusReader corpusReader) {
-		FScoreCalculator<String> fScoreCalculator = new FScoreCalculator<String>();
-		if (unknownWords!=null)
-			fscoreUnknownInCorpus = new FScoreCalculator<String>();
-		fscoreUnknownInLexicon = new FScoreCalculator<String>();
-		
+	public void evaluate(PosTagAnnotatedCorpusReader corpusReader) {
+		int sentenceIndex = 0;
 		while (corpusReader.hasNextPosTagSequence()) {
 			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
 			
 			List<TokenSequence> tokenSequences = null;
-			List<PosTagSequence> posTagSequences = null;
+			List<PosTagSequence> guessedSequences = null;
 			
 			TokenSequence tokenSequence = realPosTagSequence.getTokenSequence();
 			PosTagSequence guessedSequence = null;
@@ -84,8 +72,8 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 			
 			if (posTagger instanceof NonDeterministicPosTagger) {
 				NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-				posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
-				guessedSequence = posTagSequences.get(0);
+				guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+				guessedSequence = guessedSequences.get(0);
 			} else {
 				guessedSequence = posTagger.tagSentence(tokenSequence);
 			}
@@ -117,113 +105,17 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 				}
 				LOG.debug(stringBuilder.toString());
 			}
-			
-			int j = 0;
-			for (int i = 0; i<realPosTagSequence.size(); i++) {
-				TaggedToken<PosTag> realToken = realPosTagSequence.get(i);
-				TaggedToken<PosTag> testToken = guessedSequence.get(j);
-				boolean tokenError = false;
-				if (realToken.getToken().getStartIndex()==testToken.getToken().getStartIndex()
-						&& realToken.getToken().getEndIndex()==testToken.getToken().getEndIndex()) {
-					// no token error
-					j++;
-					if (j==guessedSequence.size()) {
-						j--;
-					}
-				} else {
-					tokenError = true;
-					while (realToken.getToken().getEndIndex()>=testToken.getToken().getEndIndex()) {
-						j++;
-						if (j==guessedSequence.size()) {
-							j--;
-							break;
-						}
-						testToken = guessedSequence.get(j);
-					}
-				}
-
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Token " + testToken.getToken().getText() + ", guessed: " + testToken.getTag().getCode() + " (" + testToken.getDecision().getProbability() + "), actual: " + realToken.getTag().getCode());
-				}
-				
-				String result = testToken.getTag().getCode();
-				if (tokenError)
-					result = "TOKEN_ERROR";
-				
-				fScoreCalculator.increment(realToken.getTag().getCode(), result);
-				if (testToken.getToken().getPossiblePosTags()!=null&&testToken.getToken().getPossiblePosTags().size()==0)
-					fscoreUnknownInLexicon.increment(realToken.getTag().getCode(), result);
-				if (unknownWords!=null&&unknownWords.contains(testToken.getToken().getText()))
-					fscoreUnknownInCorpus.increment(realToken.getTag().getCode(), result);
+			for (PosTagEvaluationObserver observer : this.observers) {
+				observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
 			}
-
-			if (this.csvFileWriter!=null) {
-				try {
-					for (int i = 0; i<realPosTagSequence.size(); i++) {
-						String token =  realPosTagSequence.get(i).getToken().getText();
-						csvFileWriter.write(CSVFormatter.format(token) + ",");
-					}
-					csvFileWriter.write("\n");
-					for (int i = 0; i<realPosTagSequence.size(); i++)
-						csvFileWriter.write(realPosTagSequence.get(i).getTag().getCode() + ",");
-					csvFileWriter.write("\n");
-					
-					int beamWidth = 1;
-					if (posTagger instanceof NonDeterministicPosTagger) {
-						beamWidth = ((NonDeterministicPosTagger) posTagger).getBeamWidth();
-					}
-					for (int k = 0; k<beamWidth; k++) {
-						PosTagSequence posTagSequence = null;
-						if (k<posTagSequences.size()) {
-							posTagSequence = posTagSequences.get(k);
-						} else {
-							csvFileWriter.write("\n");
-							csvFileWriter.write("\n");
-							continue;
-						}
-						j = 0;
-						String probs = "";
-						for (int i = 0; i<realPosTagSequence.size(); i++) {
-							TaggedToken<PosTag> realToken = realPosTagSequence.get(i);
-							TaggedToken<PosTag> testToken = posTagSequence.get(j);
-							boolean tokenError = false;
-							if (realToken.getToken().getStartIndex()==testToken.getToken().getStartIndex()
-									&& realToken.getToken().getEndIndex()==testToken.getToken().getEndIndex()) {
-								// no token error
-								j++;
-								if (j==posTagSequence.size()) {
-									j--;
-								}
-							} else {
-								tokenError = true;
-								while (realToken.getToken().getEndIndex()>=testToken.getToken().getEndIndex()) {
-									j++;
-									if (j==posTagSequence.size()) {
-										j--;
-										break;
-									}
-									testToken = posTagSequence.get(j);
-								}
-							}
-							if (tokenError) {
-								csvFileWriter.write("BAD_TOKEN,");
-							} else {
-								csvFileWriter.write(CSVFormatter.format(testToken.getTag().getCode()) + ",");
-							}
-							probs += CSVFormatter.format(testToken.getDecision().getProbability()) + ",";
-						}
-						csvFileWriter.write("\n");
-						csvFileWriter.write(probs + "\n");
-					}
-					csvFileWriter.flush();
-				} catch (IOException ioe) {
-					throw new RuntimeException(ioe);
-				}
-			}
+			sentenceIndex++;
+			if (sentenceCount>0 && sentenceIndex==sentenceCount)
+				break;
+		} // next sentence
+		
+		for (PosTagEvaluationObserver observer : this.observers) {
+			observer.onEvaluationComplete();
 		}
-		fScoreCalculator.getTotalFScore();
-
-		return fScoreCalculator;
 	}
 
 	public PosTagger getPosTagger() {
@@ -232,26 +124,6 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 
 	public void setPosTagger(PosTagger posTagger) {
 		this.posTagger = posTagger;
-	}
-
-	@Override
-	public FScoreCalculator<String> getFscoreUnknownInCorpus() {
-		return fscoreUnknownInCorpus;
-	}
-
-	@Override
-	public FScoreCalculator<String> getFscoreUnknownInLexicon() {
-		return fscoreUnknownInLexicon;
-	}
-
-	@Override
-	public Set<String> getUnknownWords() {
-		return unknownWords;
-	}
-
-	@Override
-	public void setUnknownWords(Set<String> unknownWords) {
-		this.unknownWords = unknownWords;
 	}
 
 	@Override
@@ -274,12 +146,28 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 		this.propagateBeam = propagateBeam;
 	}
 
-	public Writer getCsvFileWriter() {
-		return csvFileWriter;
+	public List<PosTagEvaluationObserver> getObservers() {
+		return observers;
 	}
 
-	public void setCsvFileWriter(Writer csvFileWriter) {
-		this.csvFileWriter = csvFileWriter;
+	public void setObservers(List<PosTagEvaluationObserver> observers) {
+		this.observers = observers;
 	}
+	
+	@Override
+	public void addObserver(PosTagEvaluationObserver observer) {
+		this.observers.add(observer);
+	}
+
+	@Override
+	public int getSentenceCount() {
+		return sentenceCount;
+	}
+
+	@Override
+	public void setSentenceCount(int sentenceCount) {
+		this.sentenceCount = sentenceCount;
+	}
+	
 	
 }

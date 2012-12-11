@@ -36,6 +36,8 @@ import com.joliciel.talismane.machineLearning.maxent.PerceptronModelTrainer;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ModelTrainer;
 import com.joliciel.talismane.parser.NonDeterministicParser;
+import com.joliciel.talismane.parser.ParseEvaluationFScoreCalculator;
+import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParserServiceLocator;
@@ -81,6 +83,9 @@ public class ParserMaxentRunner {
 		String transitionSystemStr = "ShiftReduce";
 		boolean logPerformance = false;
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+		
+		int outputGuessCount = 0;
+		int maxParseAnalysisTime = 60;
 		
 		double constraintViolationCost = -1;
 		double epsilon = -1;
@@ -148,6 +153,10 @@ public class ParserMaxentRunner {
 				tokenSequenceFilterPath = argValue;
 			else if (argName.equals("posTaggerPreprocessingFilters"))
 				posTaggerPreprocessingFilterPath = argValue;
+			else if (argName.equals("outputGuessCount"))
+				outputGuessCount = Integer.parseInt(argValue);
+			else if (argName.equals("maxParseAnalysisTime"))
+				maxParseAnalysisTime = Integer.parseInt(argValue);
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -347,15 +356,6 @@ public class ParserMaxentRunner {
 
 				ZipInputStream zis = new ZipInputStream(new FileInputStream(parserModelFilePath));
 				MachineLearningModel<Transition> parserModel = machineLearningService.getModel(zis);
-				
-				Writer csvFileWriter = null;
-				if (includeSentences) {
-					File csvFile = new File(outDir, modelName + "_sentences.csv");
-					csvFile.delete();
-					csvFile.createNewFile();
-					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
-				}
-
 
 				List<String> tokenFilterDescriptors = parserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
 				if (tokenFilterDescriptors!=null) {
@@ -392,13 +392,33 @@ public class ParserMaxentRunner {
 				
 				NonDeterministicParser parser = parserService.getTransitionBasedParser(parserModel, beamWidth);
 				TalismaneSession.setTransitionSystem(parser.getTransitionSystem());
+				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
 				
 				ParserEvaluator evaluator = parserService.getParserEvaluator();
 				evaluator.setParser(parser);
-				evaluator.setLabeledEvaluation(true);
-				evaluator.setCsvFileWriter(csvFileWriter);
+				
+				if (includeSentences) {
+					File csvFile = new File(outDir, modelName + "_sentences.csv");
+					csvFile.delete();
+					csvFile.createNewFile();
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					int guessCount = 1;
+					if (outputGuessCount>0)
+						guessCount = outputGuessCount;
+					else
+						guessCount = parser.getBeamWidth();
 
-				FScoreCalculator<String> fscoreCalculator = evaluator.evaluate(corpusReader);
+					ParseEvaluationSentenceWriter sentenceWriter = new ParseEvaluationSentenceWriter(csvFileWriter, guessCount);
+					evaluator.addObserver(sentenceWriter);
+				}
+
+				ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator();
+				parseFScoreCalculator.setLabeledEvaluation(true);
+				evaluator.addObserver(parseFScoreCalculator);
+
+				evaluator.evaluate(corpusReader);
+				
+				FScoreCalculator<String> fscoreCalculator = parseFScoreCalculator.getFscoreCalculator();
 				LOG.debug(fscoreCalculator.getTotalFScore());
 				
 				File fscoreFile = new File(outDir, modelName + "_fscores.csv");

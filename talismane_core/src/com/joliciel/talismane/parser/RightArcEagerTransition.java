@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
@@ -26,6 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class RightArcEagerTransition extends AbstractTransition implements Transition {
+	private static final Log LOG = LogFactory.getLog(RightArcEagerTransition.class);
 	private String label;
 	private String name;
 	
@@ -44,15 +48,23 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
 
 	@Override
 	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty())
+		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
+			}
 			return false;
+		}
 		
 		PosTaggedToken topOfBuffer = configuration.getBuffer().peekFirst();
 
 		// the top-of-buffer must not yet have a governor
 		PosTaggedToken governor = configuration.getHead(topOfBuffer);
-		if (governor!=null)
+		if (governor!=null) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Cannot apply " + this.toString() + ": top of buffer " + topOfBuffer + " already has governor " + governor);
+			}
 			return false;
+		}
 
 		return true;
 	}
@@ -72,6 +84,11 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
 	@Override
 	public boolean doesReduce() {
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return this.getCode();
 	}
 
 }

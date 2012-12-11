@@ -18,168 +18,101 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.CSVFormatter;
-import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.posTagger.PosTagger;
+import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.tokeniser.Tokeniser;
 
-public class ParserEvaluatorImpl implements ParserEvaluator {
+class ParserEvaluatorImpl implements ParserEvaluator {
+	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(ParserEvaluatorImpl.class);
 	private Parser parser;
+	private PosTagger posTagger;
+	private Tokeniser tokeniser;
+	private boolean propagateBeam = true;
+	private int sentenceCount = 0;
+	
 	private ParserServiceInternal parserServiceInternal;
-	private boolean labeledEvaluation = true;
-	private Writer csvFileWriter;
+	private List<ParseEvaluationObserver> observers = new ArrayList<ParseEvaluationObserver>();
 	
 	@Override
-	public FScoreCalculator<String> evaluate(
+	public void evaluate(
 			ParserAnnotatedCorpusReader corpusReader) {
-		FScoreCalculator<String> fscoreCalculator = new FScoreCalculator<String>();
-		
+		int sentenceIndex = 0;
 		while (corpusReader.hasNextConfiguration()) {
 			ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
-			PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();
-			List<PosTagSequence> posTagSequences = new ArrayList<PosTagSequence>();
-			posTagSequences.add(posTagSequence);
+			
+			List<PosTagSequence> posTagSequences = null;
+			List<TokenSequence> tokenSequences = null;
+			if (tokeniser!=null) {
+				if (posTagger==null)
+					throw new TalismaneException("Cannot evaluate with tokeniser but no pos-tagger");
+				
+				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
+				
+				tokenSequences = tokeniser.tokenise(sentence);
+				
+				if (!propagateBeam) {
+					TokenSequence tokenSequence = tokenSequences.get(0);
+					tokenSequences = new ArrayList<TokenSequence>();
+					tokenSequences.add(tokenSequence);
+				}
+			} else {
+				tokenSequences = new ArrayList<TokenSequence>();
+				tokenSequences.add(realConfiguration.getPosTagSequence().getTokenSequence());
+			}
+			
+			if (posTagger!=null) {
+				if (posTagger instanceof NonDeterministicPosTagger) {
+					NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
+					posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+					if (!propagateBeam) {
+						PosTagSequence posTagSequence = posTagSequences.get(0);
+						posTagSequences = new ArrayList<PosTagSequence>();
+						posTagSequences.add(posTagSequence);
+					}
+				} else {
+					posTagSequences = new ArrayList<PosTagSequence>();
+					PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
+					posTagSequences.add(posTagSequence);
+				}
+			} else {
+				PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();
+				posTagSequences = new ArrayList<PosTagSequence>();
+				posTagSequences.add(posTagSequence);				
+			}
 			
 			List<ParseConfiguration> guessedConfigurations = null;
-			ParseConfiguration bestGuess = null;
 			if (parser instanceof NonDeterministicParser) {
 				NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
 				guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
-				bestGuess = guessedConfigurations.get(0);
 			} else {
-				bestGuess = parser.parseSentence(posTagSequences.get(0));
+				ParseConfiguration bestGuess = parser.parseSentence(posTagSequences.get(0));
 				guessedConfigurations = new ArrayList<ParseConfiguration>();
 				guessedConfigurations.add(bestGuess);
-			}			
-			
-			for (PosTaggedToken posTaggedToken : posTagSequence) {
-				if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-					DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
-					DependencyArc guessedArc = bestGuess.getGoverningDependency(posTaggedToken);
-					
-					String realLabel = realArc==null ? "noHead" : labeledEvaluation ? realArc.getLabel() : "head";
-					String guessedLabel = guessedArc==null ? "noHead" : labeledEvaluation ? guessedArc.getLabel() : "head";
-					
-					if (realLabel==null||realLabel.length()==0) realLabel = "noLabel";
-					if (guessedLabel==null||guessedLabel.length()==0) guessedLabel = "noLabel";
-					
-					if (realArc==null || guessedArc==null) {
-						fscoreCalculator.increment(realLabel, guessedLabel);
-					} else {
-						if (realArc.getHead().equals(guessedArc.getHead())) {
-							fscoreCalculator.increment(realLabel, guessedLabel);
-						} else if (realArc.getLabel().equals(guessedArc.getLabel())) {
-							fscoreCalculator.increment(realLabel, "wrongHead");
-						} else {
-							fscoreCalculator.increment(realLabel, "wrongHeadWrongLabel");
-						}
-					}
-				}
 			}
 			
-			if (csvFileWriter!=null) {
-				try {
-					for (PosTaggedToken posTaggedToken : posTagSequence) {
-						if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-							csvFileWriter.write(CSVFormatter.format(posTaggedToken.getToken().getOriginalText()) + ",");
-						}					
-					}
-					csvFileWriter.write("\n");
-					for (PosTaggedToken posTaggedToken : posTagSequence) {
-						if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-							csvFileWriter.write(CSVFormatter.format(posTaggedToken.getTag().getCode()) + ",");
-						}					
-					}
-					csvFileWriter.write("\n");
-					for (PosTaggedToken posTaggedToken : posTagSequence) {
-						if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-							DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
-							String realLabel = realArc.getLabel()==null ? "null" : realArc.getLabel();
-							csvFileWriter.write(CSVFormatter.format(realLabel) + ",");
-						}					
-					}
-					csvFileWriter.write("\n");
-					for (PosTaggedToken posTaggedToken : posTagSequence) {
-						if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-							DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
-							int index = -1;
-							if (realArc!=null) {
-								index = realArc.getHead().getToken().getIndex() - 1;
-							}
-							if (index<0)
-								csvFileWriter.write("root,");
-							else
-								csvFileWriter.write(CSVFormatter.getColumnLabel(index) + ",");
-						}					
-					}
-					csvFileWriter.write("\n");
-					
-					for (int i = 0; i < parser.getBeamWidth(); i++) {
-						if (i<guessedConfigurations.size()) {
-							ParseConfiguration guessedConfiguration = guessedConfigurations.get(i);
-							for (PosTaggedToken posTaggedToken : posTagSequence) {
-								if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-									DependencyArc guessedArc = guessedConfiguration.getGoverningDependency(posTaggedToken);
-									String guessedLabel = "";
-									if (guessedArc!=null) {
-										guessedLabel = guessedArc.getLabel()==null ? "null" : guessedArc.getLabel();
-									}
-									csvFileWriter.write(CSVFormatter.format(guessedLabel) + ",");
-								}					
-							}
-							csvFileWriter.write("\n");
-							for (PosTaggedToken posTaggedToken : posTagSequence) {
-								if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-									DependencyArc guessedArc = guessedConfiguration.getGoverningDependency(posTaggedToken);
-									int index = -1;
-									if (guessedArc!=null) {
-										index = guessedArc.getHead().getToken().getIndex() - 1;
-									}
-									if (index<0)
-										csvFileWriter.write("root,");
-									else
-										csvFileWriter.write(CSVFormatter.getColumnLabel(index) + ",");
-								}					
-							}
-							csvFileWriter.write("\n");
-							for (PosTaggedToken posTaggedToken : posTagSequence) {
-								if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
-									DependencyArc guessedArc = guessedConfiguration.getGoverningDependency(posTaggedToken);
-									double prob = 1.0;
-									if (guessedArc!=null) {
-										Transition transition = guessedConfiguration.getTransition(guessedArc);
-										if (transition!=null)
-											prob = transition.getDecision().getProbability();
-									}
-									csvFileWriter.write(CSVFormatter.format(prob) + ",");
-								}					
-							}
-							csvFileWriter.write("\n");
-							
-						} else {
-							csvFileWriter.write("\n");
-							csvFileWriter.write("\n");							
-						} // have more configurations
-					} // next guessed configuration
-					csvFileWriter.flush();
-				} catch (IOException ioe) {
-					LogUtils.logError(LOG, ioe);
-					throw new RuntimeException(ioe);
-				}
-			} // have csvFileWriter
+			for (ParseEvaluationObserver observer : this.observers) {
+				observer.onNextParseConfiguration(realConfiguration, guessedConfigurations);
+			}
+			sentenceIndex++;
+			if (sentenceCount>0 && sentenceIndex==sentenceCount)
+				break;
 		} // next sentence
-		return fscoreCalculator;
+		
+		for (ParseEvaluationObserver observer : this.observers) {
+			observer.onEvaluationComplete();
+		}
+
 	}
 
 	public Parser getParser() {
@@ -190,6 +123,26 @@ public class ParserEvaluatorImpl implements ParserEvaluator {
 		this.parser = parser;
 	}
 
+	@Override
+	public PosTagger getPosTagger() {
+		return posTagger;
+	}
+
+	@Override
+	public void setPosTagger(PosTagger posTagger) {
+		this.posTagger = posTagger;
+	}
+
+	@Override
+	public Tokeniser getTokeniser() {
+		return tokeniser;
+	}
+
+	@Override
+	public void setTokeniser(Tokeniser tokeniser) {
+		this.tokeniser = tokeniser;
+	}
+
 	public ParserServiceInternal getParserServiceInternal() {
 		return parserServiceInternal;
 	}
@@ -198,22 +151,36 @@ public class ParserEvaluatorImpl implements ParserEvaluator {
 		this.parserServiceInternal = parserServiceInternal;
 	}
 
-	@Override
-	public boolean isLabeledEvaluation() {
-		return labeledEvaluation;
+	public List<ParseEvaluationObserver> getObservers() {
+		return observers;
+	}
+
+	public void setObservers(List<ParseEvaluationObserver> observers) {
+		this.observers = observers;
+	}
+
+	public void addObserver(ParseEvaluationObserver observer) {
+		this.observers.add(observer);
 	}
 
 	@Override
-	public void setLabeledEvaluation(boolean labeledEvaluation) {
-		this.labeledEvaluation = labeledEvaluation;
+	public boolean isPropagateBeam() {
+		return propagateBeam;
 	}
 
-	public Writer getCsvFileWriter() {
-		return csvFileWriter;
+	@Override
+	public void setPropagateBeam(boolean propagateBeam) {
+		this.propagateBeam = propagateBeam;
 	}
 
-	public void setCsvFileWriter(Writer csvFileWriter) {
-		this.csvFileWriter = csvFileWriter;
+	@Override
+	public int getSentenceCount() {
+		return sentenceCount;
+	}
+
+	@Override
+	public void setSentenceCount(int sentenceCount) {
+		this.sentenceCount = sentenceCount;
 	}
 	
 	

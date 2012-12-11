@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
@@ -80,6 +81,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	
 	private LexicalEntryReader lexicalEntryReader;
+	private TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 	
 	public ParserRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
@@ -127,7 +129,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 								}
 								
 								if (!badConfig) {
-									PretokenisedSequence tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+									PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
 	
 									int maxIndex = 0;
 									for (ParseDataLine dataLine : dataLines) {
@@ -199,7 +201,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										}
 									}
 									
-									PosTagSequence posTagSequence = this.posTaggerService.getPosTagSequence(tokenSequence, tokenSequence.size());
+									PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, tokenSequence.size());
 									Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
 									int i = 0;
 									int lexicalEntryIndex = 0;
@@ -214,7 +216,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 					    					throw new TalismaneException("Unknown posTag on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
 					    				}
 										Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(posTag);
-										PosTaggedToken posTaggedToken = this.posTaggerService.getPosTaggedToken(token, posTagDecision);
+										PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
 										if (LOG.isTraceEnabled()) {
 											LOG.trace(posTaggedToken.toString());
 										}
@@ -239,13 +241,13 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									for (ParseDataLine dataLine : dataLines) {
 										PosTaggedToken head = idTokenMap.get(dataLine.getGovernorIndex());
 										PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
-										DependencyArc arc = this.parserService.getDependencyArc(head, dependent, dataLine.getDependencyLabel());
+										DependencyArc arc = this.getParserService().getDependencyArc(head, dependent, dataLine.getDependencyLabel());
 										if (LOG.isTraceEnabled())
 											LOG.trace(arc);
 										dependencies.add(arc);
 									}
 									
-									configuration = this.parserService.getInitialConfiguration(posTagSequence);
+									configuration = this.getParserService().getInitialConfiguration(posTagSequence);
 									TransitionSystem transitionSystem = TalismaneSession.getTransitionSystem();
 									transitionSystem.predictTransitions(configuration, dependencies);
 	
@@ -343,6 +345,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	}
 
 	public PosTaggerService getPosTaggerService() {
+		if (posTaggerService==null)
+			posTaggerService = locator.getPosTaggerServiceLocator().getPosTaggerService();
 		return posTaggerService;
 	}
 
@@ -351,6 +355,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	}
 	
 	public TokeniserService getTokeniserService() {
+		if (tokeniserService==null)
+			tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		return tokeniserService;
 	}
 
@@ -359,6 +365,9 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	}
 
 	public ParserService getParserService() {
+		if (parserService==null)
+			parserService = locator.getParserServiceLocator().getParserService();
+		
 		return parserService;
 	}
 

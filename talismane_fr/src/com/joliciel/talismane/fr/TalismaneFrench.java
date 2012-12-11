@@ -18,14 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.fr;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.ftbDep.FtbDepReader;
 import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
 import com.joliciel.talismane.AbstractTalismane;
@@ -34,6 +37,11 @@ import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
+/**
+ * The default French implementation of Talismane.
+ * @author Assaf Urieli
+ *
+ */
 public class TalismaneFrench extends AbstractTalismane {
 	private static final Log LOG = LogFactory.getLog(TalismaneFrench.class);
 
@@ -43,7 +51,20 @@ public class TalismaneFrench extends AbstractTalismane {
 	 */
 	public static void main(String[] args) throws Exception {
     	TalismaneFrench instance = new TalismaneFrench();
-    	TalismaneConfig config = new TalismaneConfig(instance, args);
+    	Map<String,String> argsMap = TalismaneConfig.convertArgs(args);
+    	String corpusReaderType = null;
+    	if (argsMap.containsKey("corpusReader")) {
+    		corpusReaderType = argsMap.get("corpusReader");
+    		argsMap.remove("corpusReader");
+    	}
+    	TalismaneConfig config = new TalismaneConfig(instance, argsMap);
+    	if (corpusReaderType!=null) {
+    		if (corpusReaderType.equals("ftbDep")) {
+    			File inputFile = new File(config.getInFilePath());
+    			FtbDepReader ftbDepReader = new FtbDepReader(inputFile);
+    			config.setParserCorpusReader(ftbDepReader);
+    		}
+    	}
     	instance.runCommand(config);
 	}
 

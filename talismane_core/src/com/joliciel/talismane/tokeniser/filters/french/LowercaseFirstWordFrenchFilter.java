@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters.french;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -33,8 +34,14 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  *
  */
 public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
+	private static String[] openingPunctuationArray = new String[] {"\"", "-", "--", "—", "*", "(", "•", "[", "{" };
+	private Set<String> openingPunctuation;
 	public LowercaseFirstWordFrenchFilter() {
 		super();
+		openingPunctuation = new HashSet<String>();
+		for (String punctuation : openingPunctuationArray) {
+			openingPunctuation.add(punctuation);
+		}
 	}
 
 	@Override
@@ -63,10 +70,10 @@ public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
 			word1IsInteger = false;
 		}
 		
-		if (word0.equals("\"")||word0.equals("-")||word0.equals("--")||word0.equals("—")||word0.equals("*")||word0.equals("(")||word0.equals("•")) {
+		if (openingPunctuation.contains(word0)) {
 			startIndex = 1;
 		} else if ((word0IsInteger||word0.length()==1)
-				&& (word1.equals(")")||word1.equals("."))) {
+				&& (word1.equals(")")||word1.equals(".")||word1.equals("]"))) {
 			startIndex = 2;
 		} else if (word0.equals("(")
 				&& (word1IsInteger||word1.length()==1)
