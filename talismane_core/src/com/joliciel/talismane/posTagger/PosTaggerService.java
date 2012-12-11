@@ -20,7 +20,6 @@ package com.joliciel.talismane.posTagger;
 
 import java.io.File;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -45,8 +44,7 @@ public interface PosTaggerService {
 			DecisionMaker<PosTag> decisionMaker,
 			int beamWidth);
 
-	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger,
-			Writer csvFileWriter);
+	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger);
 	
 	public PosTagSequence getPosTagSequence(
 			PosTagSequence history);

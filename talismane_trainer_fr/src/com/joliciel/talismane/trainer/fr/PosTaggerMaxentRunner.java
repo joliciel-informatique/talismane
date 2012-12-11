@@ -39,7 +39,10 @@ import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
 import com.joliciel.talismane.machineLearning.maxent.PerceptronModelTrainer;
+import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTagEvaluationFScoreCalculator;
+import com.joliciel.talismane.posTagger.PosTagEvaluationSentenceWriter;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagger;
@@ -98,6 +101,7 @@ public class PosTaggerMaxentRunner {
 			boolean includeSentences = true;
 			String sentenceNumber = "";
 			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+			int outputGuessCount = 0;
 			
 			double constraintViolationCost = -1;
 			double epsilon = -1;
@@ -171,6 +175,8 @@ public class PosTaggerMaxentRunner {
 					perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
 				else if (argName.equals("perceptronTolerance"))
 					perceptronTolerance = Double.parseDouble(argValue);
+				else if (argName.equals("outputGuessCount"))
+					outputGuessCount = Integer.parseInt(argValue);
 				else
 					throw new RuntimeException("Unknown argument: " + argName);
 			}
@@ -407,102 +413,108 @@ public class PosTaggerMaxentRunner {
 				File outDir = new File(outDirPath);
 				outDir.mkdirs();
 
-				Writer csvFileWriter = null;
+				FScoreCalculator<String> fScoreCalculator = null;
+				
+				Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerModel.getFeatureDescriptors());
+				
+				PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTaggerModel.getDecisionMaker(), beamWidth);
+				
+				if (tokeniser==null) {
+					// add these filters to the reader as if the tokeniser applied them
+					List<String> tokenFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
+					if (tokenFilterDescriptors!=null) {
+						List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+						for (String descriptor : tokenFilterDescriptors) {
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
+								tokenFilters.add(tokenFilter);
+							}
+						}
+						TokenSequenceFilter tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(tokenFilters);
+						reader.addTokenSequenceFilter(tokenFilterWrapper);
+					}
+					
+					List<String> tokenSequenceFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
+					if (tokenSequenceFilterDescriptors!=null) {
+						for (String descriptor : tokenSequenceFilterDescriptors) {
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+								reader.addTokenSequenceFilter(tokenSequenceFilter);
+							}
+						}
+					}
+				}
+				
+				List<String> posTaggerPreprocessingFilters = posTaggerModel.getDescriptors().get(PosTagger.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
+				if (posTaggerPreprocessingFilters!=null) {
+					for (String descriptor : posTaggerPreprocessingFilters) {
+						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+							TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+							reader.addTokenSequenceFilter(tokenSequenceFilter);
+							posTagger.addPreprocessingFilter(tokenSequenceFilter);
+						}
+					}
+				}
+
+				if (posTaggerRuleFilePath.length()>0) {
+					File posTaggerRuleFile = new File(posTaggerRuleFilePath);
+					Scanner scanner = new Scanner(posTaggerRuleFile);
+					List<String> ruleDescriptors = new ArrayList<String>();
+					while (scanner.hasNextLine()) {
+						String ruleDescriptor = scanner.nextLine();
+						ruleDescriptors.add(ruleDescriptor);
+						LOG.debug(ruleDescriptor);
+					}
+					List<PosTaggerRule> rules = posTaggerFeatureService.getRules(ruleDescriptors);
+					posTagger.setPosTaggerRules(rules);
+				}
+
+				if (includeDetails) {
+					String detailsFilePath = modelName + "_posTagger_details.txt";
+					File detailsFile = new File(outDir, detailsFilePath);
+					detailsFile.delete();
+					AnalysisObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+					posTagger.addObserver(observer);
+				}
+				
+				PosTaggerEvaluator evaluator = posTaggerService.getPosTaggerEvaluator(posTagger);
+				
+				
 				if (includeSentences) {
 					File csvFile = new File(outDir, modelName + "_sentences.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					int guessCount = 1;
+					if (outputGuessCount>0)
+						guessCount = outputGuessCount;
+					else if (posTagger instanceof NonDeterministicPosTagger)
+						guessCount = ((NonDeterministicPosTagger) posTagger).getBeamWidth();
+					
+					PosTagEvaluationSentenceWriter sentenceWriter = new PosTagEvaluationSentenceWriter(csvFileWriter, guessCount);
+					evaluator.addObserver(sentenceWriter);
 				}
-				FScoreCalculator<String> fScoreCalculator = null;
 				
-				try {
-					Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerModel.getFeatureDescriptors());
-					
-					PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTaggerModel.getDecisionMaker(), beamWidth);
-					
-					if (tokeniser==null) {
-						// add these filters to the reader as if the tokeniser applied them
-						List<String> tokenFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
-						if (tokenFilterDescriptors!=null) {
-							List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-							for (String descriptor : tokenFilterDescriptors) {
-								if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-									TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
-									tokenFilters.add(tokenFilter);
-								}
-							}
-							TokenSequenceFilter tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(tokenFilters);
-							reader.addTokenSequenceFilter(tokenFilterWrapper);
-						}
-						
-						List<String> tokenSequenceFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
-						if (tokenSequenceFilterDescriptors!=null) {
-							for (String descriptor : tokenSequenceFilterDescriptors) {
-								if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-									TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-									reader.addTokenSequenceFilter(tokenSequenceFilter);
-								}
-							}
-						}
-					}
-					
-					List<String> posTaggerPreprocessingFilters = posTaggerModel.getDescriptors().get(PosTagger.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-					if (posTaggerPreprocessingFilters!=null) {
-						for (String descriptor : posTaggerPreprocessingFilters) {
-							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-								reader.addTokenSequenceFilter(tokenSequenceFilter);
-								posTagger.addPreprocessingFilter(tokenSequenceFilter);
-							}
-						}
-					}
+				PosTagEvaluationFScoreCalculator posTagFScoreCalculator = new PosTagEvaluationFScoreCalculator();
+				posTagFScoreCalculator.setUnknownWords(unknownWords);
+				evaluator.addObserver(posTagFScoreCalculator);
 
-					if (posTaggerRuleFilePath.length()>0) {
-						File posTaggerRuleFile = new File(posTaggerRuleFilePath);
-						Scanner scanner = new Scanner(posTaggerRuleFile);
-						List<String> ruleDescriptors = new ArrayList<String>();
-						while (scanner.hasNextLine()) {
-							String ruleDescriptor = scanner.nextLine();
-							ruleDescriptors.add(ruleDescriptor);
-							LOG.debug(ruleDescriptor);
-						}
-						List<PosTaggerRule> rules = posTaggerFeatureService.getRules(ruleDescriptors);
-						posTagger.setPosTaggerRules(rules);
-					}
-
-					if (includeDetails) {
-						String detailsFilePath = modelName + "_posTagger_details.txt";
-						File detailsFile = new File(outDir, detailsFilePath);
-						detailsFile.delete();
-						AnalysisObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
-						posTagger.addObserver(observer);
-					}
-					
-					PosTaggerEvaluator evaluator = posTaggerService.getPosTaggerEvaluator(posTagger, csvFileWriter);
-					evaluator.setUnknownWords(unknownWords);
-					if (tokeniser!=null) {
-						evaluator.setTokeniser(tokeniser);
-					}
-					evaluator.setPropagateBeam(propagateBeam);
-					
-					fScoreCalculator = evaluator.evaluate(reader);
-					
-					double unknownLexiconFScore = evaluator.getFscoreUnknownInLexicon().getTotalFScore();
-					LOG.debug("F-score for words unknown in lexicon " + posTaggerModelFilePath + ": " + unknownLexiconFScore);
-					double unknownCorpusFScore = evaluator.getFscoreUnknownInCorpus().getTotalFScore();
-					LOG.debug("F-score for words unknown in corpus " + posTaggerModelFilePath + ": " + unknownCorpusFScore);
-					
-					double fscore = fScoreCalculator.getTotalFScore();
-					LOG.debug("F-score for " + posTaggerModelFilePath + ": " + fscore);
-					
-					
-				} finally {
-					if (csvFileWriter!=null) {
-						csvFileWriter.flush();
-						csvFileWriter.close();
-					}
+				if (tokeniser!=null) {
+					evaluator.setTokeniser(tokeniser);
 				}
+				evaluator.setPropagateBeam(propagateBeam);
+				
+				evaluator.evaluate(reader);
+				
+				fScoreCalculator = posTagFScoreCalculator.getFScoreCalculator();
+				
+				double unknownLexiconFScore = posTagFScoreCalculator.getFscoreUnknownInLexicon().getTotalFScore();
+				LOG.debug("F-score for words unknown in lexicon " + posTaggerModelFilePath + ": " + unknownLexiconFScore);
+				double unknownCorpusFScore = posTagFScoreCalculator.getFscoreUnknownInCorpus().getTotalFScore();
+				LOG.debug("F-score for words unknown in corpus " + posTaggerModelFilePath + ": " + unknownCorpusFScore);
+				
+				double fscore = fScoreCalculator.getTotalFScore();
+				LOG.debug("F-score for " + posTaggerModelFilePath + ": " + fscore);
 				
 				File fscoreFile = new File(outDir, modelName + ".fscores.csv");
 				fScoreCalculator.writeScoresToCSVFile(fscoreFile);

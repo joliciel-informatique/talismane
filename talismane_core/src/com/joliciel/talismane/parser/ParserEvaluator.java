@@ -18,9 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.io.Writer;
-
-import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.posTagger.PosTagger;
+import com.joliciel.talismane.tokeniser.Tokeniser;
 
 /**
  * Evaluate a parser.
@@ -28,20 +27,40 @@ import com.joliciel.talismane.stats.FScoreCalculator;
  *
  */
 public interface ParserEvaluator {
-	public FScoreCalculator<String> evaluate(ParserAnnotatedCorpusReader corpusReader);
+	public void evaluate(ParserAnnotatedCorpusReader corpusReader);
 	
 	public Parser getParser();
 	public void setParser(Parser parser);
-
-	public abstract void setLabeledEvaluation(boolean labeledEvaluation);
-
-	public abstract boolean isLabeledEvaluation();
 	
+	public void addObserver(ParseEvaluationObserver observer);
+
 	/**
-	 * If provided, will write the evaluation of each sentence
-	 * to a csv file.
-	 * @param csvFileWriter
+	 * If provided, will apply tokenisation as part of the evaluation.
+	 * If provided, a pos-tagger must be provided as well.
+	 * @param tokeniser
 	 */
-	public Writer getCsvFileWriter();
-	public void setCsvFileWriter(Writer csvFileWriter);
+	public abstract void setTokeniser(Tokeniser tokeniser);
+	public abstract Tokeniser getTokeniser();
+
+	/**
+	 * If provided, will apply pos-tagging as part of the evaluation.
+	 * @param posTagger
+	 */
+	public abstract void setPosTagger(PosTagger posTagger);
+	public abstract PosTagger getPosTagger();
+
+	/**
+	 * Should the beam be propagated from one module to the next,
+	 * e.g. from the pos-tagger to the parser.
+	 * @param propagateBeam
+	 */
+	public abstract void setPropagateBeam(boolean propagateBeam);
+	public abstract boolean isPropagateBeam();
+
+	/**
+	 * The maximum number of sentences to evaluate. Default is 0, which means all.
+	 * @param sentenceCount
+	 */
+	public abstract void setSentenceCount(int sentenceCount);
+	public abstract int getSentenceCount();
 }

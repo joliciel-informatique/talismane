@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
@@ -26,6 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class ReduceTransition extends AbstractTransition implements Transition {
+	private static final Log LOG = LogFactory.getLog(ReduceTransition.class);
 	private static String name = "Reduce";
 	
 	public ReduceTransition() {
@@ -40,14 +44,22 @@ public class ReduceTransition extends AbstractTransition implements Transition {
 
 	@Override
 	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getStack().isEmpty())
+		if (configuration.getStack().isEmpty()) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Cannot apply " + this.toString() + ": stack is empty");
+			}
 			return false;
+		}
 		
 		// top of stack must already have a governor
 		PosTaggedToken topOfStack = configuration.getStack().peek();
 		PosTaggedToken governor = configuration.getHead(topOfStack);
-		if (governor==null)
+		if (governor==null) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Cannot apply " + this.toString() + ": top of stack " + topOfStack + " doesn't yet have a governor.");
+			}
 			return false;
+		}
 
 		return true;
 	}
@@ -60,6 +72,11 @@ public class ReduceTransition extends AbstractTransition implements Transition {
 	@Override
 	public boolean doesReduce() {
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return this.getCode();
 	}
 
 }

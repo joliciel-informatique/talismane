@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
@@ -26,6 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class ShiftTransition extends AbstractTransition implements Transition {
+	private static final Log LOG = LogFactory.getLog(ShiftTransition.class);
 	private static String name = "Shift";
 	
 	public ShiftTransition() {
@@ -41,7 +45,13 @@ public class ShiftTransition extends AbstractTransition implements Transition {
 
 	@Override
 	public boolean checkPreconditions(ParseConfiguration configuration) {
-		return !configuration.getBuffer().isEmpty();
+		if (configuration.getBuffer().isEmpty()) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Cannot apply " + this.toString() + ": buffer is empty");
+			}
+			return false;
+		}
+		return true;
 	}
 
 	public String getCode() {
@@ -52,6 +62,11 @@ public class ShiftTransition extends AbstractTransition implements Transition {
 	@Override
 	public boolean doesReduce() {
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return this.getCode();
 	}
 
 }

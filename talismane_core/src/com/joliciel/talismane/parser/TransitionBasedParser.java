@@ -106,11 +106,15 @@ class TransitionBasedParser implements NonDeterministicParser {
 				}
 				
 				boolean finished = false;
+				// systematically set the final heap here, just in case we exit "naturally" with no more heaps
+				finalHeap = heapEntry.getValue();
 				
 				// we jump out when either (a) all tokens have been attached or (b) we go over the max alloted time
 				ParseConfiguration topConf = previousHeap.peek();
-				if (topConf.isTerminal())
+				if (topConf.isTerminal()) {
+					LOG.trace("Exiting with terminal heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 					finished = true;
+				}
 				
 				long analysisTime = (new Date()).getTime() - startTime;
 				if (maxAnalysisTimePerSentence > 0 && analysisTime > maxAnalysisTimeMilliseconds) {
@@ -120,14 +124,14 @@ class TransitionBasedParser implements NonDeterministicParser {
 				}
 				
 				if (finished) {
-					finalHeap = heapEntry.getValue();
 					break;
 				}
 				
 				// limit the breadth to K
 				int maxSequences = previousHeap.size() > this.beamWidth ? this.beamWidth : previousHeap.size();
 				
-				for (int j = 0; j<maxSequences; j++) {
+				int j=0;
+				while (previousHeap.size()>0) {
 					ParseConfiguration history = previousHeap.poll();
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("### Next configuration on heap " + heapEntry.getKey() + ":");
@@ -179,6 +183,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 						PerformanceMonitor.endTask("make decision");
 					}
 					
+					boolean transitionApplied = false;
 					// add new TaggedTokenSequences to the heap, one for each outcome provided by MaxEnt
 					PerformanceMonitor.startTask("heap sort");
 					try {
@@ -188,6 +193,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 								LOG.trace("Outcome: " + transition.getCode() + ", " + decision.getProbability());
 							
 							if (transition.checkPreconditions(history)) {
+								transitionApplied = true;
 								ParseConfiguration configuration = this.parserServiceInternal.getConfiguration(history);
 								transition.apply(configuration);
 								if (decision.isStatistical())
@@ -211,12 +217,22 @@ class TransitionBasedParser implements NonDeterministicParser {
 							} else {
 								if (LOG.isTraceEnabled())
 									LOG.trace("Cannot apply transition: doesn't meet pre-conditions");
-							}
+							} // does transition meet pre-conditions?
 						} // next outcome for this token
 					} finally {
 						PerformanceMonitor.endTask("heap sort");
 					}
-				} // next history		
+					
+					if (transitionApplied) {
+						j++;
+					} else {
+						LOG.trace("No transitions could be applied: not counting this history as part of the beam");
+					}
+					
+					// beam width test
+					if (j==maxSequences)
+						break;
+				} // next history	
 			} // next atomic index
 			
 			// return the best sequences on the heap

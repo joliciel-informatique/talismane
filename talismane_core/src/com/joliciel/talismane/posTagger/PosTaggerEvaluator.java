@@ -18,10 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import java.io.Writer;
-import java.util.Set;
-
-import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 
 /**
@@ -30,32 +26,11 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
  *
  */
 public interface PosTaggerEvaluator {
-
 	/**
 	 * Evaluate a given pos tagger.
 	 * @param reader for reading manually tagged tokens from a corpus
-	 * @return an f-score calculator for this postagger
 	 */
-	public FScoreCalculator<String> evaluate(PosTagAnnotatedCorpusReader reader);
-
-	/**
-	 * A list of unknown words, for evaluating f-scores for unknown words in the corpus.
-	 * @return
-	 */
-	public abstract Set<String> getUnknownWords();
-	public abstract void setUnknownWords(Set<String> unknownWords);
-
-	/**
-	 * An f-score calculator for unknown words in the lexicon.
-	 * @return
-	 */
-	public abstract FScoreCalculator<String> getFscoreUnknownInLexicon();
-
-	/**
-	 * An f-score calculator for unknown words in the corpus.
-	 * @return
-	 */
-	public abstract FScoreCalculator<String> getFscoreUnknownInCorpus();
+	public void evaluate(PosTagAnnotatedCorpusReader reader);
 
 	/**
 	 * A tokeniser to tokenise the sentences brought back by the corpus reader,
@@ -72,12 +47,14 @@ public interface PosTaggerEvaluator {
 	 */
 	public abstract boolean isPropagateBeam();
 	public abstract void setPropagateBeam(boolean propagateBeam);
-	
+
+	public abstract void addObserver(PosTagEvaluationObserver observer);
+
 	/**
-	 * If provided, will write the evaluation of each sentence
-	 * to a csv file.
-	 * @param csvFileWriter
+	 * If set, will limit the maximum number of sentences that will be evaluated.
+	 * Default is 0 = all sentences.
+	 * @param sentenceCount
 	 */
-	public Writer getCsvFileWriter();
-	public void setCsvFileWriter(Writer csvFileWriter);
+	public abstract void setSentenceCount(int sentenceCount);
+	public abstract int getSentenceCount();
 }

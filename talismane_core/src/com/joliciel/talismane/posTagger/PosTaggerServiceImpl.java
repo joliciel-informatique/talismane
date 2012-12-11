@@ -20,7 +20,6 @@ package com.joliciel.talismane.posTagger;
 
 import java.io.File;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -55,8 +54,8 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	}
 	
 	@Override
-	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger, Writer csvFileWriter) {
-		PosTaggerEvaluatorImpl evaluator = new PosTaggerEvaluatorImpl(posTagger, csvFileWriter);
+	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger) {
+		PosTaggerEvaluator evaluator = new PosTaggerEvaluatorImpl(posTagger);
 		return evaluator;
 	}
 

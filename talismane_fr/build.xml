@@ -27,6 +27,7 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
+				<include name="talismane-ftbDep-${talismane.version}.jar" />
 			</fileset>
 			<!-- build output path -->
 			<pathelement location="${classes}"/>
@@ -87,6 +88,7 @@
 					<include name="talismane-machineLearning-${talismane.version}.jar" />
 					<include name="talismane-core-${talismane.version}.jar" />
 					<include name="talismane-lefff-${talismane.version}.jar" />
+					<include name="talismane-ftbDep-${talismane.version}.jar" />
 				</fileset>
             </lib>
         </one-jar>

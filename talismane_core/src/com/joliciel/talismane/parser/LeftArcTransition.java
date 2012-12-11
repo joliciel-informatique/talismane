@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -27,6 +30,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class LeftArcTransition extends AbstractTransition implements Transition {
+	private static final Log LOG = LogFactory.getLog(LeftArcTransition.class);
 	private String label;
 	private String name;
 	
@@ -45,13 +49,21 @@ public class LeftArcTransition extends AbstractTransition implements Transition 
 
 	@Override
 	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty())
+		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
+			}
 			return false;
+		}
 
 		// left arc cannot be applied to the root
 		PosTaggedToken topOfStack = configuration.getStack().peek();
-		if (topOfStack.getTag().equals(PosTag.ROOT_POS_TAG))
+		if (topOfStack.getTag().equals(PosTag.ROOT_POS_TAG)) {
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Cannot apply " + this.toString() + ": top-of-stack is ROOT");
+			}
 			return false;
+		}
 		
 		return true;
 	}
@@ -74,4 +86,8 @@ public class LeftArcTransition extends AbstractTransition implements Transition 
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return this.getCode();
+	}
 }
