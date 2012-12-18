@@ -20,12 +20,13 @@ package com.joliciel.talismane.utils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A List representing dependent objects stored in the database.
  * @author Assaf Urieli
  */
-public interface PersistentList<E> extends List<E> {
+public interface PersistentSet<E> extends Set<E> {
     /***
      * To be used whenever populating the list initially from the database.
      * Makes it possible to differentiate between previously persisted objects and new ones being added.
@@ -56,4 +57,9 @@ public interface PersistentList<E> extends List<E> {
      * @return
      */
     public boolean isDirty();
+    
+    /**
+     * After persistence, mark set as clean again.
+     */
+    public void cleanSlate();
 }

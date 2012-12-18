@@ -54,7 +54,7 @@ public abstract class AbstractMachineLearningModel<T extends Outcome> implements
 	public final void persist(File modelFile) {
 		try {
 			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(modelFile,false));
-			Writer writer = new BufferedWriter(new OutputStreamWriter(zos));
+			Writer writer = new BufferedWriter(new OutputStreamWriter(zos, "UTF-8"));
 
 			zos.putNextEntry(new ZipEntry("algorithm.txt"));
 			writer.write(this.getAlgorithm().name());

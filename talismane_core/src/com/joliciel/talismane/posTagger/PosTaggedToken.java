@@ -42,4 +42,6 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 */
 	public Set<LexicalEntry> getLexicalEntries();
 	public void setLexicalEntries(Set<LexicalEntry> lexicalEntries);
+	
+	public PosTaggedToken clonePosTaggedToken();
 }

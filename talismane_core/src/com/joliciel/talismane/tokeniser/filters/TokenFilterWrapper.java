@@ -38,8 +38,7 @@ class TokenFilterWrapper implements TokenSequenceFilter {
 				Set<TokenPlaceholder> placeholders = tokenFilter.apply(token.getOriginalText());
 				if (placeholders.size()>0) {
 					TokenPlaceholder placeholder = placeholders.iterator().next();
-					if (placeholder.getStartIndex()==0 && placeholder.getEndIndex()==token.getText().length())
-					if (placeholder.getReplacement()!=null) {
+					if (placeholder.getReplacement()!=null && placeholder.getStartIndex()==0 && placeholder.getEndIndex()==token.getText().length()) {
 						token.setText(placeholder.getReplacement());
 					}
 					break;

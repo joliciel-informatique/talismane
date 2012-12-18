@@ -34,6 +34,7 @@ public interface TaggedToken<T extends TokenTag> extends Comparable<TaggedToken<
 	 * @return
 	 */
 	public Token getToken();
+	public void setToken(Token token);
 	
 	/**
 	 * The Tag for this token.

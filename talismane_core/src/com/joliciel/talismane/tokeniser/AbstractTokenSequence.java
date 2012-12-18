@@ -281,6 +281,8 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		if (!emptyToken.isEmpty()) {
 			throw new TalismaneException("Can only remove empty tokens from token sequence.");
 		}
+		if (LOG.isDebugEnabled())
+			LOG.debug("Removing null empty token at position " + emptyToken.getStartIndex() + ": " + emptyToken);
 		this.remove(emptyToken);
 		this.markModified();
 	}
@@ -323,7 +325,11 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		tokenSequence.setUnderlyingAtomicTokenSequence(this.getUnderlyingAtomicTokenSequence());
 		tokenSequence.setAtomicTokenCount(this.getAtomicTokenCount());
 		
-		tokenSequence.addAll(this);
+		for (Token token : this) {
+			Token clone = token.cloneToken();
+			tokenSequence.add(clone);
+			clone.setTokenSequence(tokenSequence);
+		}
 	}
 	
 	public Sentence getSentence() {

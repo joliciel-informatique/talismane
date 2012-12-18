@@ -55,7 +55,7 @@ class ModelFactory {
 				throw new JolicielException("Expected algorithm.txt as first entry in zip. Was: " + ze.getName());
 			}
 			// note: assuming the model type will always be the first entry
-			Scanner typeScanner = new Scanner(zis);
+			Scanner typeScanner = new Scanner(zis, "UTF-8");
 			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
 			if (typeScanner.hasNextLine()) {
 				String algorithmString = typeScanner.nextLine();
@@ -97,7 +97,7 @@ class ModelFactory {
 					}
 		    	} else if (ze.getName().endsWith("_descriptors.txt")) {
 		    		String key = ze.getName().substring(0, ze.getName().length() - "_descriptors.txt".length());
-		    		Scanner scanner = new Scanner(zis);
+		    		Scanner scanner = new Scanner(zis, "UTF-8");
 		    		List<String> descriptorList = new ArrayList<String>();
 		    		while (scanner.hasNextLine()) {
 		    			String descriptor = scanner.nextLine();
@@ -105,7 +105,7 @@ class ModelFactory {
 		    		}
 		    		machineLearningModel.getDescriptors().put(key, descriptorList);
 		    	} else if (ze.getName().equals("attributes.txt")) {
-		    		Scanner scanner = new Scanner(zis);
+		    		Scanner scanner = new Scanner(zis, "UTF-8");
 		    		while (scanner.hasNextLine()) {
 		    			String line = scanner.nextLine();
 		    			if (line.length()>0) {	

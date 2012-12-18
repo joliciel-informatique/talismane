@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +50,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 class TransitionBasedParser implements NonDeterministicParser {
 	private static final Log LOG = LogFactory.getLog(TransitionBasedParser.class);
 	private static final double MIN_PROB_TO_STORE = 0.001;
+	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private int beamWidth;
 	
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
@@ -96,6 +98,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 				heap0.add(initialConfiguration);
 			}
 			heaps.put(0, heap0);
+			PriorityQueue<ParseConfiguration> backupHeap = null;
 			
 			PriorityQueue<ParseConfiguration> finalHeap = null;
 			while (heaps.size()>0) {
@@ -108,6 +111,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 				boolean finished = false;
 				// systematically set the final heap here, just in case we exit "naturally" with no more heaps
 				finalHeap = heapEntry.getValue();
+				backupHeap = new PriorityQueue<ParseConfiguration>();
 				
 				// we jump out when either (a) all tokens have been attached or (b) we go over the max alloted time
 				ParseConfiguration topConf = previousHeap.peek();
@@ -217,6 +221,8 @@ class TransitionBasedParser implements NonDeterministicParser {
 							} else {
 								if (LOG.isTraceEnabled())
 									LOG.trace("Cannot apply transition: doesn't meet pre-conditions");
+								// just in case the we run out of both heaps and analyses, we build this backup heap
+								backupHeap.add(history);
 							} // does transition meet pre-conditions?
 						} // next outcome for this token
 					} finally {
@@ -238,6 +244,10 @@ class TransitionBasedParser implements NonDeterministicParser {
 			// return the best sequences on the heap
 			List<ParseConfiguration> bestConfigurations = new ArrayList<ParseConfiguration>();
 			int i = 0;
+			
+			if (finalHeap.isEmpty())
+				finalHeap = backupHeap;
+			
 			while (!finalHeap.isEmpty()) {
 				bestConfigurations.add(finalHeap.poll());
 				i++;
@@ -246,12 +256,12 @@ class TransitionBasedParser implements NonDeterministicParser {
 			}
 			if (LOG.isDebugEnabled()) {
 				for (ParseConfiguration finalConfiguration : bestConfigurations) {
-					LOG.debug(finalConfiguration.getScore() + ": " + finalConfiguration.toString());
+					LOG.debug(df.format(finalConfiguration.getScore()) + ": " + finalConfiguration.toString());
 					if (LOG.isTraceEnabled()) {
 						StringBuilder sb = new StringBuilder();
 						for (Decision<Transition> decision : finalConfiguration.getDecisions()) {
 							sb.append(" * ");
-							sb.append(decision.getProbability());
+							sb.append(df.format(decision.getProbability()));
 						}
 						sb.append(" root ");
 						sb.append(finalConfiguration.getTransitions().size());
@@ -259,11 +269,11 @@ class TransitionBasedParser implements NonDeterministicParser {
 						
 						sb = new StringBuilder();
 						sb.append(" * PosTag sequence score ");
-						sb.append(finalConfiguration.getPosTagSequence().getScore());
+						sb.append(df.format(finalConfiguration.getPosTagSequence().getScore()));
 						sb.append(" = ");
 						for (PosTaggedToken posTaggedToken : finalConfiguration.getPosTagSequence()) {
 							sb.append(" * ");
-							sb.append(posTaggedToken.getDecision().getProbability());
+							sb.append(df.format(posTaggedToken.getDecision().getProbability()));
 						}
 						sb.append(" root ");
 						sb.append(finalConfiguration.getPosTagSequence().size());
@@ -271,7 +281,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 						
 						sb = new StringBuilder();
 						sb.append(" * Token sequence score = ");
-						sb.append(finalConfiguration.getPosTagSequence().getTokenSequence().getScore());
+						sb.append(df.format(finalConfiguration.getPosTagSequence().getTokenSequence().getScore()));
 						LOG.trace(sb.toString());
 						
 					}

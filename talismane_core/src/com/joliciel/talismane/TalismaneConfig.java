@@ -99,7 +99,7 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class TalismaneConfig {
 	private static final Log LOG = LogFactory.getLog(TalismaneConfig.class);
-	private Command command = Command.analyse;
+	private Command command = null;
 	
 	private Module startModule = Module.SentenceDetector;
 	private Module endModule = Module.Parser;
@@ -1144,6 +1144,10 @@ public class TalismaneConfig {
 			tokenCorpusReader = this.getTokeniserService().getRegexBasedCorpusReader(this.getReader());
 			if (this.getInputRegex()!=null)
 				tokenCorpusReader.setRegex(this.getInputRegex());
+			
+			for (TokenFilter tokenFilter : this.getTokenFilters()) {
+				tokenCorpusReader.addTokenFilter(tokenFilter);
+			}
 			
 			if (startModule.equals(Module.PosTagger)) {
 				MachineLearningModel<PosTag> posTaggerModel = this.getPosTaggerModel();

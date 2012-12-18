@@ -62,6 +62,7 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	public TokenSequence getTokenSequence();
+	public void setTokenSequence(TokenSequence tokenSequence);
 	
 	/**
 	 * The index of this token in the containing sequence.
@@ -194,4 +195,6 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	String getPrecedingRawOutput();
+	
+	Token cloneToken();
 }
