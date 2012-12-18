@@ -58,6 +58,9 @@ public class TalismaneFrench extends AbstractTalismane {
     		argsMap.remove("corpusReader");
     	}
     	TalismaneConfig config = new TalismaneConfig(instance, argsMap);
+    	if (config.getCommand()==null)
+    		return;
+    	
     	if (corpusReaderType!=null) {
     		if (corpusReaderType.equals("ftbDep")) {
     			File inputFile = new File(config.getInFilePath());

@@ -62,6 +62,27 @@ class TokenImpl implements TokenInternal {
 	private Integer lineNumber = null;
 	private Integer columnNumber = null;
 	
+	TokenImpl(TokenImpl tokenToClone) {
+		this.text = tokenToClone.text;
+		this.originalText = tokenToClone.originalText;
+		this.index = tokenToClone.index;
+		this.indexWithWhiteSpace = tokenToClone.indexWithWhiteSpace;
+		this.tokenSequence = tokenToClone.tokenSequence;
+		this.possiblePosTags = tokenToClone.possiblePosTags;
+		this.frequencies = tokenToClone.frequencies;
+		this.featureResults = tokenToClone.featureResults;
+		this.separator = tokenToClone.separator;
+		this.whiteSpace = tokenToClone.whiteSpace;
+		this.matches = tokenToClone.matches;
+		this.atomicDecisions = tokenToClone.atomicDecisions;
+		this.logged = tokenToClone.logged;
+		this.startIndex = tokenToClone.startIndex;
+		this.endIndex = tokenToClone.endIndex;
+		this.fileName = tokenToClone.fileName;
+		this.lineNumber = tokenToClone.lineNumber;
+		this.columnNumber = tokenToClone.columnNumber;
+	}
+	
 	TokenImpl(String text, TokenSequence tokenSequence) {
 		this(text, tokenSequence, 0);
 	}
@@ -311,6 +332,12 @@ class TokenImpl implements TokenInternal {
 		if (previousToken.getStartIndex()>=textSegment.getKey())
 			return null;
 		return textSegment.getValue();
+	}
+
+	@Override
+	public Token cloneToken() {
+		TokenImpl token = new TokenImpl(this);
+		return token;
 	}
 	
 	

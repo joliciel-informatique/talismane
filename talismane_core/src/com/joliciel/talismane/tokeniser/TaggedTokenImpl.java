@@ -25,6 +25,12 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 	private T tag = null;
 	private Decision<T> decision = null;
 	
+	protected TaggedTokenImpl(TaggedTokenImpl<T> taggedTokenToClone) {
+		this.token = taggedTokenToClone.token;
+		this.tag = taggedTokenToClone.tag;
+		this.decision = taggedTokenToClone.decision;
+	}
+	
 	public TaggedTokenImpl(Token token, Decision<T> decision) {
 		this.token = token;
 		this.decision = decision;
@@ -33,6 +39,10 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 	
 	public Token getToken() {
 		return token;
+	}
+	
+	public void setToken(Token token) {
+		this.token = token;
 	}
 
 	public T getTag() {

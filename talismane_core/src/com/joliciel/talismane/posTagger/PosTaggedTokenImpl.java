@@ -37,6 +37,12 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 	private Set<LexicalEntry> lexicalEntries = null;
 	private static final DecimalFormat df = new DecimalFormat("0.00");
 	
+	PosTaggedTokenImpl(PosTaggedTokenImpl taggedTokenToClone) {
+		super(taggedTokenToClone);
+		this.featureResults = taggedTokenToClone.featureResults;
+		this.lexicalEntries = taggedTokenToClone.lexicalEntries;
+	}
+	
 	public PosTaggedTokenImpl(Token token, Decision<PosTag> decision) {
 		super(token, decision);
 	}
@@ -90,6 +96,12 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 	@Override
 	public PosTaggedToken getPosTaggedToken() {
 		return this;
+	}
+
+	@Override
+	public PosTaggedToken clonePosTaggedToken() {
+		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(this);
+		return posTaggedToken;
 	}
 
 

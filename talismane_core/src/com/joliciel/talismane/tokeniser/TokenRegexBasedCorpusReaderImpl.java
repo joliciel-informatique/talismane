@@ -57,14 +57,19 @@ class TokenRegexBasedCorpusReaderImpl implements
 						continue;
 					
 					tokenSequence.cleanSlate();
-					for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-						tokenFilter.apply(tokenSequence);
-					}
+					
+					// first apply the token filters - which might replace the text of an individual token
+					// with something else
 					if (tokenFilterWrapper==null) {
 						tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.tokenFilters);
 					}
 					tokenFilterWrapper.apply(tokenSequence);
 					
+					// now apply the token sequence filters
+					for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+						tokenFilter.apply(tokenSequence);
+					}
+
 					break;
 				} else {
 					hasLine = true;

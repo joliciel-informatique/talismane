@@ -101,6 +101,8 @@ public abstract class AbstractTalismane implements Talismane, LanguageSpecificIm
 		PerformanceMonitor.setActive(config.isLogPerformance());
 		PerformanceMonitor.start();
 		try {
+			// force a lexicon read at the start, so that it doesn't skew performance monitoring downstream
+			TalismaneSession.getLexicon();
 			if (this.getSentenceProcessor()==null)
 				this.setSentenceProcessor(config.getSentenceProcessor());
 			if (this.getTokenSequenceProcessor()==null)

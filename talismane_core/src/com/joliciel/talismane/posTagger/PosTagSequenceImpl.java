@@ -155,25 +155,44 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 
 	@Override
 	public void removeEmptyPosTaggedTokens() {
-		List<PosTaggedToken> nullTokensToRemove = new ArrayList<PosTaggedToken>();
-		List<Token> emptyTokensToRemove = new ArrayList<Token>();
+		boolean haveEmptyTokens = false;
 		for (PosTaggedToken posTaggedToken : this) {
 			if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
-				nullTokensToRemove.add(posTaggedToken);
-				emptyTokensToRemove.add(posTaggedToken.getToken());
-				if (LOG.isDebugEnabled())
-					LOG.debug("Removing null empty token at position " + posTaggedToken.getToken().getStartIndex() + ": " + posTaggedToken);
+				haveEmptyTokens = true;
+				break;
 			}
 		}
-		this.removeAll(nullTokensToRemove);
 		
-		if (emptyTokensToRemove.size()>0) {
-			// first clone the token sequence, so we don't mess with token sequences shared with other pos-tag sequences
+		if (haveEmptyTokens) {
+			List<PosTaggedToken> cloneList = new ArrayList<PosTaggedToken>();
 			this.tokenSequence = this.tokenSequence.cloneTokenSequence();
-			for (Token emptyToken : emptyTokensToRemove)
-				this.tokenSequence.removeEmptyToken(emptyToken);
 			
+			List<Token> emptyTokensToRemove = new ArrayList<Token>();
+			int i = 0;
+			for (PosTaggedToken posTaggedToken : this) {
+				Token token = tokenSequence.get(i++);
+				if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
+					if (LOG.isDebugEnabled())
+						LOG.debug("Removing null empty pos-tagged token at position " + posTaggedToken.getToken().getStartIndex() + ": " + posTaggedToken);
+					emptyTokensToRemove.add(token);
+				} else {
+					PosTaggedToken clonedTaggedToken = posTaggedToken.clonePosTaggedToken();
+					cloneList.add(clonedTaggedToken);
+				}
+			}
+			
+			for (Token token : emptyTokensToRemove) {
+				this.tokenSequence.removeEmptyToken(token);
+			}
 			this.tokenSequence.finalise();
+			
+			i = 0;
+			for (PosTaggedToken posTaggedToken : cloneList) {
+				posTaggedToken.setToken(this.tokenSequence.get(i++));
+			}
+			
+			this.clear();
+			this.addAll(cloneList);
 		}
 	}
 	
