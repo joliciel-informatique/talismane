@@ -117,8 +117,7 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public InputStream getDefaultParserRulesFromStream() {
-//		InputStream inputStream = getInputStreamFromResource("parserRules_fr.txt");
-		InputStream inputStream = null;
+		InputStream inputStream = getInputStreamFromResource("parserRules_fr.txt");
 		return inputStream;
 	}
 
@@ -140,7 +139,7 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_fr10.zip";
+		String tokeniserModelName = "ftbTokeniser_fr12_cutoff5.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 
