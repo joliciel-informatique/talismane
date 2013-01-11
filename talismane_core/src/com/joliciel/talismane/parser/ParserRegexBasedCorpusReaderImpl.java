@@ -50,6 +50,7 @@ import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.utils.CoNLLFormatter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class ParserRegexBasedCorpusReaderImpl implements
@@ -133,7 +134,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	
 									int maxIndex = 0;
 									for (ParseDataLine dataLine : dataLines) {
-										Token token = this.addToken(tokenSequence, dataLine.getWord());
+										Token token = tokenSequence.addToken(dataLine.getWord());
 										dataLine.setToken(token);
 										if (dataLine.getIndex()>maxIndex)
 											maxIndex = dataLine.getIndex();
@@ -267,6 +268,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							
 							int index = Integer.parseInt(matcher.group(placeholderIndexMap.get(INDEX_PLACEHOLDER)));
 							String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+							word = CoNLLFormatter.fromCoNLL(word);
 							String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
 							String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
 							int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(GOVERNOR_PLACEHOLDER)));
@@ -322,16 +324,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	 */
 	protected void updateDataLine(List<ParseDataLine> dataLines, int index) {
 		// nothing to do in the base class
-	}
-
-	Token addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
-		Token token = null;
-		if (tokenText.equals("_")) {
-			token = pretokenisedSequence.addToken("");
-		} else {
-			token = pretokenisedSequence.addToken(tokenText.replace("_", " "));
-		}
-		return token;
 	}
 	
 	@Override

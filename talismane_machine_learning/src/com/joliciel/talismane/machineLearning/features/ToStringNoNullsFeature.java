@@ -16,38 +16,33 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.posTagger.features;
-
-import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
+package com.joliciel.talismane.machineLearning.features;
 
 /**
- * The "best" lemma of a given pos-tagged token as supplied by the lexicon.
+ * Converts a non-string feature to a string feature.
+ * If the feature result is null, will return null (rather than the string "null").
  * @author Assaf Urieli
  *
+ * @param <T>
  */
-public class LemmaFeature extends AbstractPosTaggedTokenFeature<String> implements StringFeature<PosTaggedTokenWrapper> {
+public class ToStringNoNullsFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
+	Feature<T,?> feature1;
 	
-	public LemmaFeature() {
+	public ToStringNoNullsFeature(Feature<T,?> feature1) {
 		super();
-		this.setName(super.getName());
+		this.feature1 = feature1;
+		this.setName(super.getName() + "(" + feature1.getName() + ")");
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper) {
-		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
-			return null;
+	public FeatureResult<String> checkInternal(T context) {
 		FeatureResult<String> featureResult = null;
-		LexicalEntry lexicalEntry = null;
-		if (posTaggedToken.getLexicalEntries().size()>0)
-			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
-		if (lexicalEntry!=null)
-			featureResult = this.generateResult(lexicalEntry.getLemma());
 		
+		FeatureResult<?> result1 = feature1.check(context);
+		
+		if (result1!=null) {
+			featureResult = this.generateResult(result1.getOutcome().toString());
+		}
 		return featureResult;
 	}
-	
 }

@@ -35,7 +35,8 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserContext> {
 	TokenFeatureParser tokenFeatureParser;
 	private List<TokenPattern> patternList;
-
+	private TokenPattern currentPattern;
+	
 	public TokeniserContextFeatureParser(FeatureService featureService) {
 		super(featureService);
 	}	
@@ -44,16 +45,25 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 	public List<TokeniserContextFeature<?>> parseDescriptor(FunctionDescriptor functionDescriptor) {
 		PerformanceMonitor.startTask("TokeniserContextFeatureParser.parseDescriptor");
 		try {
-			List<Feature<TokeniserContext, ?>> tokeniserContextFeatures = this.parse(functionDescriptor);
 			List<TokeniserContextFeature<?>> wrappedFeatures = new ArrayList<TokeniserContextFeature<?>>();
-			for (Feature<TokeniserContext, ?> tokeniserContextFeature : tokeniserContextFeatures) {
-				TokeniserContextFeature<?> wrappedFeature = null;
-				if (tokeniserContextFeature instanceof TokeniserContextFeature) {
-					wrappedFeature = (TokeniserContextFeature<?>) tokeniserContextFeature;
-				} else {
-					wrappedFeature = new TokeniserContextFeatureWrapper(tokeniserContextFeature);
+			for (TokenPattern pattern : patternList) {
+				// ensure all functions called by this descriptor use the same pattern from the list
+				// otherwise we would get cross-products on each function per pattern
+				currentPattern = pattern;
+				FunctionDescriptor descriptor = functionDescriptor.cloneDescriptor();
+				if (functionDescriptor.getDescriptorName()!=null)
+					descriptor.setDescriptorName(functionDescriptor.getDescriptorName() + "<" + pattern.getName() + ">");
+				List<Feature<TokeniserContext, ?>> tokeniserContextFeatures = this.parse(descriptor);
+				
+				for (Feature<TokeniserContext, ?> tokeniserContextFeature : tokeniserContextFeatures) {
+					TokeniserContextFeature<?> wrappedFeature = null;
+					if (tokeniserContextFeature instanceof TokeniserContextFeature) {
+						wrappedFeature = (TokeniserContextFeature<?>) tokeniserContextFeature;
+					} else {
+						wrappedFeature = new TokeniserContextFeatureWrapper(tokeniserContextFeature);
+					}
+					wrappedFeatures.add(wrappedFeature);
 				}
-				wrappedFeatures.add(wrappedFeature);
 			}
 			return wrappedFeatures;
 		} finally {
@@ -65,6 +75,10 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("InsidePatternNgram", InsidePatternNgramFeature.class);
+		container.addFeatureClass("CurrentPattern", CurrentPatternFeature.class);
+		container.addFeatureClass("CurrentPatternWordForm", CurrentPatternWordForm.class);
+		container.addFeatureClass("CurrentPatternIndex", CurrentPatternIndex.class);
+		container.addFeatureClass("PatternOffset", TokeniserPatternOffsetFeature.class);
 		this.tokenFeatureParser.addFeatureClasses(container);
 	}
 	
@@ -84,19 +98,64 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		
 		if (featureClass!=null) {
 			if (featureClass.equals(InsidePatternNgramFeature.class)) {
-				for (TokenPattern tokeniserPattern : patternList) {
-					boolean firstIndex = true;
-					for (int indexToTest : tokeniserPattern.getIndexesToTest()) {
-						if (firstIndex)
-							firstIndex = false;
-						else {
-							FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
-							descriptor.addArgument(tokeniserPattern);
-							descriptor.addArgument(indexToTest);
-							descriptors.add(descriptor);
-						}
-					} // next index
-				} // next pattern
+				boolean firstIndex = true;
+				for (int indexToTest : currentPattern.getIndexesToTest()) {
+					if (firstIndex)
+						firstIndex = false;
+					else {
+						FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
+						descriptor.addArgument(currentPattern);
+						descriptor.addArgument(indexToTest);
+						descriptors.add(descriptor);
+					}
+				} // next index
+			} else if (featureClass.equals(CurrentPatternFeature.class)
+					||featureClass.equals(CurrentPatternWordForm.class)
+					||featureClass.equals(CurrentPatternIndex.class)
+					||featureClass.equals(TokeniserPatternOffsetFeature.class)) {
+				FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
+				descriptor.addArgument(currentPattern);
+				for (FunctionDescriptor argument : functionDescriptor.getArguments())
+					descriptor.addArgument(argument);
+				descriptors.add(descriptor);
+			} else if (featureClass.equals(TokenReferenceFeature.class)) {
+				// do nothing in particular
+			} else if (TokenFeature.class.isAssignableFrom(featureClass)) {
+				// if the first argument is an address reference to another token
+				// we need to replace the whole thing with a TokenReferenceFeature
+				if (functionDescriptor.getArguments().size()>0) {
+					FunctionDescriptor firstArgument = functionDescriptor.getArguments().get(0);
+					if (firstArgument.isFunction()) {
+						@SuppressWarnings("rawtypes")
+						List<Class<? extends Feature>> firstArgumentClasses = this.getFeatureClasses(firstArgument.getFunctionName());
+						@SuppressWarnings("rawtypes")
+						Class<? extends Feature> firstArgumentClass = null;
+						if (firstArgumentClasses!=null && firstArgumentClasses.size()>0)
+							firstArgumentClass = firstArgumentClasses.get(0);
+						if (firstArgumentClass!=null && TokenAddressFunction.class.isAssignableFrom(firstArgumentClass)) {
+							// Our first argument is a token address function
+							// We need to pull it out of the internal descriptor, and wrap it into a TokenReferenceFeature
+							
+							// create a descriptor for the TokenReferenceFeature
+							String descriptor = this.getFeatureClassDescriptors(TokenReferenceFeature.class).get(0);
+							FunctionDescriptor explicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor(descriptor);
+							explicitAddressDescriptor.setDescriptorName(functionDescriptor.getDescriptorName());
+							FunctionDescriptor internalDescriptor = this.getFeatureService().getFunctionDescriptor(functionDescriptor.getFunctionName());
+							
+							// add the TokenAddressFunction as an argument
+							explicitAddressDescriptor.addArgument(functionDescriptor.getArguments().get(0));
+							
+							// add the TokenFeature as an argument
+							explicitAddressDescriptor.addArgument(internalDescriptor);
+							
+							// add all other arguments back to the TokenFeature
+							for (int i=1; i<functionDescriptor.getArguments().size();i++) {
+								internalDescriptor.addArgument(functionDescriptor.getArguments().get(i));
+							}
+							descriptors.add(explicitAddressDescriptor);
+						} // first argument is an address function
+					} // first argument is a function
+				} // has arguments
 			} // which feature class?
 		} // have a feature class?
 		

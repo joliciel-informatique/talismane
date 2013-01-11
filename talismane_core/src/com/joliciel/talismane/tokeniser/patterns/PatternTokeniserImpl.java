@@ -217,10 +217,17 @@ class PatternTokeniserImpl implements Tokeniser {
 							List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
 							PerformanceMonitor.startTask("analyse features");
 							try {
-								for (TokeniserContextFeature<?> tokeniserContextFeature : tokeniserContextFeatures) {
-									FeatureResult<?> featureResult = tokeniserContextFeature.check(context);
-									if (featureResult!=null)
+								for (TokeniserContextFeature<?> feature : tokeniserContextFeatures) {
+									FeatureResult<?> featureResult = feature.check(context);
+									if (featureResult!=null) {
 										tokenFeatureResults.add(featureResult);
+									}
+								}
+								
+								if (LOG.isTraceEnabled()) {
+									for (FeatureResult<?> featureResult : tokenFeatureResults) {
+										LOG.trace(featureResult.toString());
+									}
 								}
 							} finally {
 								PerformanceMonitor.endTask("analyse features");

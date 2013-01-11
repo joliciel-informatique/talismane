@@ -45,27 +45,29 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 	 */
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
-		container.addFeatureClass("CurrentPattern", CurrentPatternFeature.class);
-		container.addFeatureClass("CurrentPatternWordForm", CurrentPatternWordForm.class);
+		container.addFeatureClass("AndRange", AndRangeFeature.class);
+		container.addFeatureClass("BackwardLookup", BackwardLookupFeature.class);
+		container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
 		container.addFeatureClass("FirstWordInCompound", FirstWordInCompoundFeature.class);
 		container.addFeatureClass("FirstWordInSentence", FirstWordInSentenceFeature.class);
+		container.addFeatureClass("ForwardLookup", ForwardLookupFeature.class);
+		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
+		container.addFeatureClass("HasClosedClassesOnly", HasClosedClassesOnlyFeature.class);
 		container.addFeatureClass("LastWordInCompound", LastWordInCompoundFeature.class);
 		container.addFeatureClass("LastWordInSentence", LastWordInSentenceFeature.class);
+		container.addFeatureClass("LemmaForPosTag", LemmaForPosTagFeature.class);
 		container.addFeatureClass("LexiconAllPosTags", LexiconAllPosTagsFeature.class);
 		container.addFeatureClass("LexiconPosTag", LexiconPosTagFeature.class);
 		container.addFeatureClass("NLetterPrefix", NLetterPrefixFeature.class);
 		container.addFeatureClass("NLetterSuffix", NLetterSuffixFeature.class);
 		container.addFeatureClass("Offset", TokenOffsetFeature.class);
-		container.addFeatureClass("PatternOffset", TokeniserPatternOffsetFeature.class);
+		container.addFeatureClass("OrRange", OrRangeFeature.class);
 		container.addFeatureClass("Regex", RegexFeature.class);
-		container.addFeatureClass("WordForm", WordFormFeature.class);
 		container.addFeatureClass("UnknownWord", UnknownWordFeature.class);
 		container.addFeatureClass("Word", WordFeature.class);
-		container.addFeatureClass("AndRange", AndRangeFeature.class);
-		container.addFeatureClass("OrRange", OrRangeFeature.class);
-		container.addFeatureClass("ForwardLookup", ForwardLookupFeature.class);
-		container.addFeatureClass("BackwardLookup", BackwardLookupFeature.class);
-		container.addFeatureClass("HasClosedClassesOnly", HasClosedClassesOnlyFeature.class);
+		container.addFeatureClass("WordForm", WordFormFeature.class);
+		
+		container.addFeatureClass("TokenRef", TokenReferenceFeature.class);
 		
 		this.container = container;
 	}
@@ -106,24 +108,6 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 			
 			FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
 			descriptor.addArgument(posTagArray);
-			descriptors.add(descriptor);
-		} else if (featureClass.equals(CurrentPatternFeature.class)
-				||featureClass.equals(CurrentPatternWordForm.class)) {
-			TokenPattern[] patternArray = new TokenPattern[0];
-			patternArray = patternList.toArray(patternArray);
-			FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
-			descriptor.addArgument(patternArray);
-			for (FunctionDescriptor argument : functionDescriptor.getArguments())
-				descriptor.addArgument(argument);
-			descriptors.add(descriptor);
-			
-		} else if (featureClass.equals(TokeniserPatternOffsetFeature.class)) {
-			TokenPattern[] patternArray = new TokenPattern[0];
-			patternArray = patternList.toArray(patternArray);
-			FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
-			descriptor.addArgument(patternArray);
-			for (FunctionDescriptor argument : functionDescriptor.getArguments())
-				descriptor.addArgument(argument);
 			descriptors.add(descriptor);
 		} else {
 			descriptors.add(functionDescriptor);

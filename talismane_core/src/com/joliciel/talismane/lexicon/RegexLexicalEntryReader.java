@@ -25,9 +25,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.utils.CoNLLFormatter;
 
+/**
+ * A Lexical Entry reader based on a regex.<br/>
+ * The regex needs to contain the following five capturing groups, indicated by the following strings:<br/>
+ * <li>%TOKEN%: the token - note that we assume CoNLL formatting (with underscores for spaces and for empty tokens). The sequence &amp;und; should be used for true underscores.</li>
+ * <li>%LEMMA%: the lemma - note that we assume CoNLL formatting (with underscores for spaces and for missing lemmas)</li>
+ * <li>%POSTAG%: the token's pos-tag</li>
+ * <li>%MORPH%: the token's morphology.<br/>
+ * The placeholders will be replaced by (.+) meaning no empty strings allowed.
+ * @author Assaf Urieli
+ *
+ */
 public class RegexLexicalEntryReader implements LexicalEntryReader {
-	private static final String DEFAULT_REGEX = ".*\\tTOKEN\\tLEMMA\\tPOSTAG\\t.*\\tMORPH\\t.*\\t.*\\t_\\t_";;
+	private static final String DEFAULT_REGEX = ".*\\t%TOKEN%\\t%LEMMA%\\t%POSTAG%\\t.*\\t%MORPH%\\t.*\\t.*\\t_\\t_";;
 	private Pattern pattern;
 	private String regex = DEFAULT_REGEX;
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
@@ -47,10 +59,12 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 			throw new TalismaneException("Expected 4 matches (but found " + matcher.groupCount() + ") on line:" + line);
 		}
 		
-		String token =  matcher.group(placeholderIndexMap.get("TOKEN"));
-		String lemma =  matcher.group(placeholderIndexMap.get("LEMMA"));
-		String postag = matcher.group(placeholderIndexMap.get("POSTAG"));
-		String morphology = matcher.group(placeholderIndexMap.get("MORPH"));
+		String token =  matcher.group(placeholderIndexMap.get("%TOKEN%"));
+		token = CoNLLFormatter.fromCoNLL(token);
+		String lemma =  matcher.group(placeholderIndexMap.get("%LEMMA%"));
+		lemma = CoNLLFormatter.fromCoNLL(lemma);
+		String postag = matcher.group(placeholderIndexMap.get("%POSTAG%"));
+		String morphology = matcher.group(placeholderIndexMap.get("%MORPH%"));
 		
 		LexicalEntry lexicalEntry = this.morphologyReader.readEntry(token, lemma, postag, morphology);
 		return lexicalEntry;
@@ -58,38 +72,38 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 	
 	public Pattern getPattern() {
 		if (this.pattern == null) {
-			int tokenPos = regex.indexOf("TOKEN");
+			int tokenPos = regex.indexOf("%TOKEN%");
 			if (tokenPos<0)
-				throw new TalismaneException("The regex must contain the string \"TOKEN\"");
+				throw new TalismaneException("The regex must contain the string \"%TOKEN%\"");
 
-			int lemmaPos = regex.indexOf("LEMMA");
+			int lemmaPos = regex.indexOf("%LEMMA%");
 			if (lemmaPos<0)
-				throw new TalismaneException("The regex must contain the string \"LEMMA\"");
+				throw new TalismaneException("The regex must contain the string \"%LEMMA%\"");
 
-			int posTagPos = regex.indexOf("POSTAG");
+			int posTagPos = regex.indexOf("%POSTAG%");
 			if (posTagPos<0)
-				throw new TalismaneException("The regex must contain the string \"POSTAG\"");
+				throw new TalismaneException("The regex must contain the string \"%POSTAG%\"");
 
-			int morphPos = regex.indexOf("MORPH");
+			int morphPos = regex.indexOf("%MORPH%");
 			if (morphPos<0)
-				throw new TalismaneException("The regex must contain the string \"MORPH\"");
+				throw new TalismaneException("The regex must contain the string \"%MORPH%\"");
 			
 			
 			Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
-			placeholderMap.put(tokenPos, "TOKEN");
-			placeholderMap.put(lemmaPos, "LEMMA");
-			placeholderMap.put(posTagPos, "POSTAG");
-			placeholderMap.put(morphPos, "MORPH");
+			placeholderMap.put(tokenPos, "%TOKEN%");
+			placeholderMap.put(lemmaPos, "%LEMMA%");
+			placeholderMap.put(posTagPos, "%POSTAG%");
+			placeholderMap.put(morphPos, "%MORPH%");
 			
 			int i = 1;
 			for (String placeholderName : placeholderMap.values()) {
 				placeholderIndexMap.put(placeholderName, i++);
 			}
 			
-			String regexWithGroups = regex.replace("TOKEN", "(.*)");
-			regexWithGroups = regexWithGroups.replace("LEMMA", "(.*)");
-			regexWithGroups = regexWithGroups.replace("POSTAG", "(.+)");
-			regexWithGroups = regexWithGroups.replace("MORPH", "(.*)");
+			String regexWithGroups = regex.replace("%TOKEN%", "(.+)");
+			regexWithGroups = regexWithGroups.replace("%LEMMA%", "(.+)");
+			regexWithGroups = regexWithGroups.replace("%POSTAG%", "(.+)");
+			regexWithGroups = regexWithGroups.replace("%MORPH%", "(.+)");
 			this.pattern = Pattern.compile(regexWithGroups);
 		}
 		return pattern;

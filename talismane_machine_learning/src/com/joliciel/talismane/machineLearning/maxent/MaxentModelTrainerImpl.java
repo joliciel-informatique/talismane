@@ -73,7 +73,12 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 		try {
 	    	DataIndexer dataIndexer = new TwoPassRealValueDataIndexer(eventStream, cutoff);
 			GISTrainer trainer = new GISTrainer(true);
-
+			if (this.getSmoothing()>0) {
+				trainer.setSmoothing(true);
+				trainer.setSmoothingObservation(this.getSmoothing());
+			} else if (this.getSigma()>0) {
+				trainer.setGaussianSigma(this.getSigma());
+			}
 			PerformanceMonitor.startTask("MaxentModelTrainer.trainModel");
 			try {
 				maxentModel =  trainer.trainModel(iterations, dataIndexer, cutoff);

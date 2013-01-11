@@ -23,7 +23,7 @@ package com.joliciel.talismane.parser;
  * and analyses the line content based on a regex supplied during construction.
  * The regex needs to contain the following five capturing groups, indicated by the following strings:<br/>
  * <li>%INDEX%: a unique index for a given token (typically just a sequential index)</li>
- * <li>%TOKEN%: the token</li>
+ * <li>%TOKEN%: the token - note that we assume CoNLL formatting (with underscores for spaces and for empty tokens). The sequence &amp;und; should be used for true underscores.</li>
  * <li>%POSTAG%: the token's pos-tag</li>
  * <li>%LABEL%: the dependency label governing this token</li>
  * <li>%GOVERNOR%: the index of the token governing this token - a value of 0 indicates an invisible "root" token as a governor</li>
@@ -31,7 +31,7 @@ package com.joliciel.talismane.parser;
  * <li>%FILENAME%: the file containing the token</li>
  * <li>%ROW%: the row containing the token</li>
  * <li>%COLUMN%: the column containing the token</li>
- * The strings will (.*) for the token, and (.+) for all others.
+ * The token placeholder will be replaced by (.*). Other placeholders will be replaced by (.+) meaning no empty strings allowed.
  * @author Assaf Urieli
  *
  */

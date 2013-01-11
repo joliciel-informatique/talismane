@@ -136,10 +136,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 			Map<Token, ParseConfigurationTokenOutput> tokenOutputMap = new HashMap<Token, ParseConfigurationTokenOutput>();
 
 			for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
-				ParseConfigurationTokenOutput unit = new ParseConfigurationTokenOutput();
-				unit.setToken(posTaggedToken.getToken());
-				unit.setTag(posTaggedToken.getTag());
-				unit.setLexicalEntry(posTaggedToken.getLexicalEntry());
+				ParseConfigurationTokenOutput unit = new ParseConfigurationTokenOutput(posTaggedToken);
 				tokenOutputMap.put(posTaggedToken.getToken(), unit);
 				this.add(unit);
 			}
@@ -155,30 +152,34 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 		}
 	}
 	public static final class ParseConfigurationTokenOutput {
+		private PosTaggedToken posTaggedToken;
 		private Token token;
 		private PosTag tag;
 		private LexicalEntry lexicalEntry;
 		private ParseConfigurationTokenOutput governor;
 		private String label;
+		
+		public ParseConfigurationTokenOutput(PosTaggedToken posTaggedToken) {
+			this.posTaggedToken = posTaggedToken;
+			this.token = posTaggedToken.getToken();
+			this.tag = posTaggedToken.getTag();
+			this.lexicalEntry = posTaggedToken.getLexicalEntry();
+		}
+		
+		public PosTaggedToken getPosTaggedToken() {
+			return posTaggedToken;
+		}
 
 		public Token getToken() {
 			return token;
-		}
-		public void setToken(Token token) {
-			this.token = token;
 		}
 		
 		public PosTag getTag() {
 			return tag;
 		}
-		public void setTag(PosTag tag) {
-			this.tag = tag;
-		}
+		
 		public LexicalEntry getLexicalEntry() {
 			return lexicalEntry;
-		}
-		public void setLexicalEntry(LexicalEntry lexicalEntry) {
-			this.lexicalEntry = lexicalEntry;
 		}
 
 		public ParseConfigurationTokenOutput getGovernor() {

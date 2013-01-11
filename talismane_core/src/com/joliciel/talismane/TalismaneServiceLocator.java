@@ -44,6 +44,8 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternServiceLocator;
 public class TalismaneServiceLocator {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TalismaneServiceLocator.class);
+	private TalismaneServiceImpl talismaneService;
+	
 	private PosTaggerFeatureServiceLocator posTaggerFeatureServiceLocator;
 	private PosTaggerServiceLocator posTaggerServiceLocator;
 	private TokeniserServiceLocator tokeniserServiceLocator;
@@ -72,6 +74,16 @@ public class TalismaneServiceLocator {
     	return instance;
     }
 	
+    public TalismaneService getTalismaneService() {
+    	if (this.talismaneService == null) {
+    		this.talismaneService = new TalismaneServiceImpl();
+    		talismaneService.setFilterService(this.getFilterServiceLocator().getFilterService());
+    		talismaneService.setParserService(this.getParserServiceLocator().getParserService());
+    		talismaneService.setPosTaggerService(this.getPosTaggerServiceLocator().getPosTaggerService());
+    		talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
+    	}
+    	return this.talismaneService;
+    }
 
 	public PosTaggerFeatureServiceLocator getPosTaggerFeatureServiceLocator() {
 		if (this.posTaggerFeatureServiceLocator==null) {

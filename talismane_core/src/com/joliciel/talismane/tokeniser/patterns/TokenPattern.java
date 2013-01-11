@@ -80,5 +80,10 @@ public interface TokenPattern {
 	 */
 	public List<TokenPatternMatch> match(TokenSequence tokenSequence);
 
+	/**
+	 * This tokeniser pattern's user-friendly name.
+	 * @param name
+	 */
 	public void setName(String name);
+	public String getName();
 }

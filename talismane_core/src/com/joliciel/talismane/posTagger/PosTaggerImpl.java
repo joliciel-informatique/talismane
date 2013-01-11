@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -55,6 +56,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private static final Log LOG = LogFactory.getLog(PosTaggerImpl.class);
 	private static final double MIN_PROB_TO_STORE = 0.001;
+	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
 	private PosTaggerService posTaggerService;
 	private PosTaggerFeatureService posTaggerFeatureService;
@@ -133,6 +135,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					PosTagSequence history = previousHeap.poll();
 					Token token = history.getNextToken();
 					if (LOG.isTraceEnabled())
+						LOG.trace("####Next history: " + history.toString());
 						LOG.trace("Token: " + token.getText());
 					
 					PosTaggerContext context = this.getPosTaggerFeatureService().getContext(token, history);
@@ -302,9 +305,19 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			}
 			
 			// remove null empty tokens from the final sequences
+			LOG.debug("####Final sequences:");
+			int j = 1;
 			for (PosTagSequence sequence : sequences) {
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Sequence " + (j++) + ", score=" + df.format(sequence.getScore()));
+					LOG.debug("Sequence before remove empty: " + sequence);
+				}
 				sequence.removeEmptyPosTaggedTokens();
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Sequence after remove empty: " + sequence);
+				}
 			}
+			
 			return sequences;
 		} finally {
 			PerformanceMonitor.endTask("PosTaggerImpl.tagSentence");

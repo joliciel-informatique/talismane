@@ -71,6 +71,12 @@ public interface LanguageSpecificImplementation {
 	 * @return
 	 */
 	public InputStream getDefaultPosTaggerRulesFromStream();
+	
+	/**
+	 * Return a stream containing the default parser rule descriptors.
+	 * @return
+	 */
+	public InputStream getDefaultParserRulesFromStream();
 
 	/**
 	 * Return a ZipInputStream containing the default sentence model for this language.

@@ -31,10 +31,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class TokenImpl implements TokenInternal {
 	@SuppressWarnings("unused")
@@ -43,6 +45,7 @@ class TokenImpl implements TokenInternal {
 
 	private String text;
 	private String originalText;
+	private String conllText;
 	private int index;
 	private int indexWithWhiteSpace;
 	private TokenSequence tokenSequence;
@@ -61,6 +64,8 @@ class TokenImpl implements TokenInternal {
 	private String fileName = null;
 	private Integer lineNumber = null;
 	private Integer columnNumber = null;
+	
+	private Map<PosTag, Set<LexicalEntry>> lexicalEntryMap;
 	
 	TokenImpl(TokenImpl tokenToClone) {
 		this.text = tokenToClone.text;
@@ -339,6 +344,28 @@ class TokenImpl implements TokenInternal {
 		TokenImpl token = new TokenImpl(this);
 		return token;
 	}
-	
-	
+
+	@Override
+	public String getTextForCoNLL() {
+		if (conllText==null) {
+			conllText = CoNLLFormatter.toCoNLL(originalText);
+		}
+		return conllText;
+	}
+
+	@Override
+	public LexicalEntry getLexicalEntry(PosTag posTag) {
+		if (this.lexicalEntryMap==null) {
+			this.lexicalEntryMap = new HashMap<PosTag, Set<LexicalEntry>>();
+		}
+		Set<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
+		if (lexicalEntries==null) {
+			lexicalEntries = TalismaneSession.getLexicon().findLexicalEntries(this.getText(), posTag);
+			this.lexicalEntryMap.put(posTag, lexicalEntries);
+		}
+		LexicalEntry bestEntry = null;
+		if (lexicalEntries.size()>0)
+			bestEntry = lexicalEntries.iterator().next();
+		return bestEntry;
+	}
 }

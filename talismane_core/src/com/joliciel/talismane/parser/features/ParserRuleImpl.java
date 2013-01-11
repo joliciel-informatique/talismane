@@ -18,11 +18,32 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
-import java.util.List;
-import java.util.Set;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.parser.Transition;
 
-public interface ParserFeatureService {
-	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors);
+class ParserRuleImpl implements ParserRule {
+	private BooleanFeature<ParseConfigurationWrapper> condition;
+	private Transition transition;
+	private boolean negative;
 	
-	public List<ParserRule> getRules(List<String> ruleDescriptors);
+	public ParserRuleImpl(BooleanFeature<ParseConfigurationWrapper> condition,
+			Transition transition) {
+		super();
+		this.condition = condition;
+		this.transition = transition;
+	}
+	public BooleanFeature<ParseConfigurationWrapper> getCondition() {
+		return condition;
+	}
+
+	public Transition getTransition() {
+		return transition;
+	}
+	public boolean isNegative() {
+		return negative;
+	}
+	public void setNegative(boolean negative) {
+		this.negative = negative;
+	}
+
 }

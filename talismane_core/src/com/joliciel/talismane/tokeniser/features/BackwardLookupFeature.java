@@ -27,17 +27,16 @@ import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns the offset of the first feature to the left of this one
- * which matches a certain criterion, or null if no such feature is found.<br/>
- * If an initial offset is provided as a second argument (must be a negative integer), will only look
- * to the left of this initial offset.<br/>
- * Will always return a negative integer.<br/>
+ * Returns the offset of the first token to the left of this one
+ * which matches a certain criterion, or null if no such token is found.<br/>
+ * If an initial offset is provided as a second argument (must be &lt;=0), will start looking at this initial offset.<br/>
+ * The offset returned is expressed as a negative integer.<br/>
  * @author Assaf Urieli
  *
  */
 public class BackwardLookupFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper> {
 	private BooleanFeature<TokenWrapper> criterion;
-	private IntegerFeature<TokenWrapper> offsetFeature = new IntegerLiteralFeature<TokenWrapper>(0);
+	private IntegerFeature<TokenWrapper> offsetFeature = new IntegerLiteralFeature<TokenWrapper>(-1);
 	
 	public BackwardLookupFeature(BooleanFeature<TokenWrapper> criterion) {
 		this.criterion = criterion;
@@ -65,7 +64,7 @@ public class BackwardLookupFeature extends AbstractTokenFeature<Integer> impleme
 			
 			int matchingOffset = 0;
 			int j = -1;
-			for (int i=(index+initialOffset)-1; i>=0; i--) {
+			for (int i=index+initialOffset; i>=0; i--) {
 				Token oneToken = token.getTokenSequence().get(i);
 				FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken);
 				if (criterionResult!=null && criterionResult.getOutcome()) {

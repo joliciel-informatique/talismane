@@ -73,8 +73,6 @@ public class TokeniserMaxentRunner {
 		String treebankPath = "";
 		String outDirPath = "";
 		String tokeniserType = "maxent";
-		int iterations = 0;
-		int cutoff = 0;
 		int sentenceCount = 0;
 		int beamWidth = 10;
 		int startSentence = 0;
@@ -82,6 +80,10 @@ public class TokeniserMaxentRunner {
 		String sentenceNumber = "";
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
 		
+		
+		int iterations = 0;
+		int cutoff = 0;
+		double smoothing = 0;
 		double constraintViolationCost = -1;
 		double epsilon = -1;
 		LinearSVMSolverType solverType = null;
@@ -114,6 +116,8 @@ public class TokeniserMaxentRunner {
 				iterations = Integer.parseInt(argValue);
 			else if (argName.equals("cutoff"))
 				cutoff = Integer.parseInt(argValue);
+			else if (argName.equals("smoothing"))
+				smoothing = Double.parseDouble(argValue);
 			else if (argName.equals("outDir")) 
 				outDirPath = argValue;
 			else if (argName.equals("tokeniser")) 
@@ -281,6 +285,8 @@ public class TokeniserMaxentRunner {
 				if (algorithm.equals(MachineLearningAlgorithm.MaxEnt)) {
 					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Iterations.name(), iterations);
 					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Cutoff.name(), cutoff);
+					if (smoothing > 0)
+						trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Smoothing.name(), smoothing);
 				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
 					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
 					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);

@@ -76,7 +76,9 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 		int outputPos = 0;
 		
 		for (TextMarker textMarker : textMarkers) {
-			LOG.debug(textMarker.getType() + ", " + textMarker.getPosition());
+			if (LOG.isTraceEnabled())
+				LOG.trace(textMarker.getType() + ", " + textMarker.getPosition());
+			
 			boolean shouldProcess = shouldProcessStack.peek();
 			boolean shouldOutput = shouldOutputStack.peek();
 			

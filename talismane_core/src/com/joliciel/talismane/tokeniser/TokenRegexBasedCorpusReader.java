@@ -4,12 +4,12 @@ package com.joliciel.talismane.tokeniser;
  * A corpus reader that expects one token per line,
  * and analyses the line content based on a regex.<br/>
  * The regex needs to contain a capturing group indicated by the following strings:<br/>
- * <li>%TOKEN%: the token</li>
+ * <li>%TOKEN%: the token - note that we assume CoNLL formatting (with underscores for spaces and for empty tokens). The sequence &amp;und; should be used for true underscores.</li>
  * It can optionally contain the following capturing groups as well:<br/>
  * <li>%FILENAME%: the file containing the token</li>
  * <li>%ROW%: the row containing the token</li>
  * <li>%COLUMN%: the column containing the token</li>
- * The strings will (.*) for the token, and (.+) for all others.
+ * The token placeholder will be replaced by (.*). Other placeholders will be replaced by (.+) meaning no empty strings allowed.
  * @author Assaf Urieli
  *
  */

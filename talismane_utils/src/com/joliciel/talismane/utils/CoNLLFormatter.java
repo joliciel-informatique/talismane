@@ -16,13 +16,35 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.utils;
 
-import java.util.List;
-import java.util.Set;
-
-public interface ParserFeatureService {
-	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors);
+public class CoNLLFormatter {
+	/**
+	 * Convert a string to CoNLL format.
+	 * @param text
+	 * @return
+	 */
+	public static String toCoNLL(String text) {
+		String conllText = text.replace("_", "&und;");
+		conllText = conllText.replace(' ', '_');
+		if (conllText.length()==0)
+			conllText = "_";
+		return conllText;
+	}
 	
-	public List<ParserRule> getRules(List<String> ruleDescriptors);
+	/**
+	 * Convert a string from CoNLL format.
+	 * @param conllText
+	 * @return
+	 */
+	public static String fromCoNLL(String conllText) {
+		String text = null;
+		if (conllText.equals("_")) {
+			text = "";
+		} else {
+			text = conllText.replace('_', ' ');
+			text = text.replace("&und;", "_");
+		}
+		return text;
+	}
 }

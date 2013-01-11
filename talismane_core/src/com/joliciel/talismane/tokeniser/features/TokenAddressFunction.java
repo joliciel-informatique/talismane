@@ -16,13 +16,15 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.tokeniser.features;
 
-import java.util.List;
-import java.util.Set;
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.tokeniser.Token;
 
-public interface ParserFeatureService {
-	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors);
-	
-	public List<ParserRule> getRules(List<String> ruleDescriptors);
+/**
+ * A function that, given a reference token, can return another token.
+ * @author Assaf Urieli
+ *
+ */
+public interface TokenAddressFunction extends Feature<TokenWrapper, Token>{
 }

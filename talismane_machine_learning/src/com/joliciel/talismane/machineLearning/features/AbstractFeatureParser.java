@@ -99,6 +99,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			this.addFeatureClass("NullToFalse", NullToFalseFeature.class);
 			this.addFeatureClass("Normalise", NormaliseFeature.class);
 			this.addFeatureClass("ToString", ToStringFeature.class);
+			this.addFeatureClass("ToStringNoNulls", ToStringNoNullsFeature.class);
 			this.addFeatureClass("Truncate", TruncateFeature.class);
 			this.addFeatureClass("Round", RoundFeature.class);
 			this.addFeatureClass("Graduate", GraduateFeature.class);

@@ -27,17 +27,17 @@ import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns the offset of the first feature to the right of this one
- * which matches a certain criterion, or null if no such feature is found.<br/>
- * If an initial offset is provided as a second argument, will only look
- * to the right of this initial offset.<br/>
- * Will always return a positive integer.
+ * Returns the offset of the first token to the right of this one
+ * which matches a certain criterion, or null if no such token is found.<br/>
+ * By default, will look to the right of the current token.
+ * If an initial offset is provided as a second argument (must be &gt;=0), will only start looking at this offset.<br/>
+ * The offset returned is expressed as a positive integer.
  * @author Assaf Urieli
  *
  */
 public class ForwardLookupFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper> {
 	private BooleanFeature<TokenWrapper> criterion;
-	private IntegerFeature<TokenWrapper> offsetFeature = new IntegerLiteralFeature<TokenWrapper>(0);
+	private IntegerFeature<TokenWrapper> offsetFeature = new IntegerLiteralFeature<TokenWrapper>(1);
 	
 	public ForwardLookupFeature(BooleanFeature<TokenWrapper> criterion) {
 		this.criterion = criterion;
@@ -65,7 +65,7 @@ public class ForwardLookupFeature extends AbstractTokenFeature<Integer> implemen
 			
 			int matchingOffset = 0;
 			int j = 1;
-			for (int i=index+initialOffset+1; i<token.getTokenSequence().size(); i++) {
+			for (int i=index+initialOffset; i<token.getTokenSequence().size(); i++) {
 				Token oneToken = token.getTokenSequence().get(i);
 				FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken);
 				if (criterionResult!=null && criterionResult.getOutcome()) {

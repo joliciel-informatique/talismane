@@ -16,38 +16,38 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.posTagger;
+package com.joliciel.talismane.parser.features;
 
-import java.util.Set;
-
-import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
-import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
-import com.joliciel.talismane.tokeniser.TaggedToken;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.parser.Transition;
 
 /**
- * A token with a postag tagged onto it.
+ * A ParserRule is specified by a boolean feature and a Transition.<br/>
+ * If the boolean feature evaluates to true, the configuration will automatically be assigned the Transition in question,
+ * without taking any further decisions.<br/>
+ * Negative rules are also possible: in this case, the Transition in question is eliminated from the set
+ * of possible Transitions (unless no other Transitions are possible).
  * @author Assaf Urieli
  *
  */
-public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapper, HasFeatureCache {
+public interface ParserRule {
 	/**
-	 * The "best" lexical entry for this token/postag combination if one exists, or null otherwise.
-	 */
-	public LexicalEntry getLexicalEntry();
-	
-	/**
-	 * All lexical entries for this token/postag combination.
+	 * The condition to test.
 	 * @return
 	 */
-	public Set<LexicalEntry> getLexicalEntries();
-	public void setLexicalEntries(Set<LexicalEntry> lexicalEntries);
-	
-	public PosTaggedToken clonePosTaggedToken();
+	public BooleanFeature<ParseConfigurationWrapper> getCondition();
 	
 	/**
-	 * The lemma of the "best" lexical entry as encoded for the CoNLL output format.
+	 * The transition to apply (or to eliminate, for negative rules) if the condition evaluates to true.
 	 * @return
 	 */
-	public String getLemmaForCoNLL();
+	public Transition getTransition();
+	
+	/**
+	 * Is this rule a negative rule or not.
+	 * @return
+	 */
+	public boolean isNegative();
+	public void setNegative(boolean negative);
+	
 }

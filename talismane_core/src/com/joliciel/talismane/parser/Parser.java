@@ -18,7 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.util.List;
+
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
@@ -59,4 +62,11 @@ public interface Parser {
 	 */
 	public int getMaxAnalysisTimePerSentence();
 	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence);
+	
+	/**
+	 * Rules to apply while parsing (in place of the probablistic classifier).
+	 * @param parserRules
+	 */
+	public List<ParserRule> getParserRules();
+	public void setParserRules(List<ParserRule> parserRules);
 }

@@ -22,7 +22,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	private double score = 0;
 	private boolean scoreCalculated = false;
 	TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
-	private Integer unitTokenCount = null;
+	private Integer atomicTokenCount = null;
 	private boolean finalised = false;
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
@@ -110,6 +110,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	void markModified() {
 		this.finalised = false;
 		this.tokenSplits = null;
+		this.atomicTokenCount = null;
 	}
 	
 	public double getScore() {
@@ -133,16 +134,16 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 
 	@Override
 	public int getAtomicTokenCount() {
-		if (unitTokenCount==null) {
-			unitTokenCount = 0;
+		if (atomicTokenCount==null) {
+			atomicTokenCount = 0;
 			for (Token token : this) {
 				if (token.getAtomicParts().size()==0)
-					unitTokenCount += 1;
+					atomicTokenCount += 1;
 				else
-					unitTokenCount += token.getAtomicParts().size();
+					atomicTokenCount += token.getAtomicParts().size();
 			}
 		}
-		return unitTokenCount;
+		return atomicTokenCount;
 	}
 
 	@Override
@@ -164,7 +165,9 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		int prevTokenIndex = -1;
 		int i = 0;
 		for (Token aToken : this.listWithWhiteSpace) {
-			if (aToken.getStartIndex()==start&&aToken.getEndIndex()==end) {
+			if (aToken.getStartIndex()>end) {
+				break;
+			} else if (aToken.getStartIndex()==start&&aToken.getEndIndex()==end) {
 				return aToken;
 			} else if (aToken.getStartIndex()<end && aToken.getEndIndex()>start) {
 				tokensToRemove.add(aToken);
@@ -190,7 +193,9 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			prevTokenIndex = -1;
 			i = 0;
 			for (Token aToken : this) {
-				if (aToken.getEndIndex()<=start) {
+				if (aToken.getStartIndex()>end) {
+					break;
+				} else if (aToken.getEndIndex()<=start) {
 					prevTokenIndex = i;
 				}
 				i++;
@@ -274,7 +279,6 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	public Token addEmptyToken(int position) {
 		return this.addToken(position, position, true);
 	}
-	
 
 	@Override
 	public void removeEmptyToken(Token emptyToken) {
@@ -312,14 +316,15 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		this.underlyingAtomicTokenSequence = underlyingAtomicTokenSequence;
 	}
 	private void setAtomicTokenCount(Integer unitTokenCount) {
-		this.unitTokenCount = unitTokenCount;
+		this.atomicTokenCount = unitTokenCount;
 	}
 	
 	public void cloneTokenSequence(AbstractTokenSequence tokenSequence) {
 		tokenSequence.setText(this.getText());
 		tokenSequence.setSentence(this.getSentence());
 		tokenSequence.setTokeniserServiceInternal(this.getTokeniserServiceInternal());
-		tokenSequence.setListWithWhiteSpace(this.getListWithWhiteSpace());
+		List<Token> listWithWhiteSpace = new ArrayList<Token>(this.getListWithWhiteSpace());
+		tokenSequence.setListWithWhiteSpace(listWithWhiteSpace);
 		tokenSequence.setScore(this.getScore());
 		tokenSequence.setScoreCalculated(true);
 		tokenSequence.setUnderlyingAtomicTokenSequence(this.getUnderlyingAtomicTokenSequence());
