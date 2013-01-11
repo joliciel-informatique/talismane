@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
@@ -56,6 +57,12 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	public String getOriginalText();
+	
+	/**
+	 * The original text as encoded for the CoNLL output format.
+	 * @return
+	 */
+	public String getTextForCoNLL();
 	
 	/**
 	 * The token sequence containing this token.
@@ -196,5 +203,14 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 */
 	String getPrecedingRawOutput();
 	
+	/**
+	 * Make a shallow clone of this token.
+	 * @return
+	 */
 	Token cloneToken();
+	
+	/**
+	 * The "best" lexical entry for this token/postag combination if one exists, or null otherwise.
+	 */
+	public LexicalEntry getLexicalEntry(PosTag posTag);
 }

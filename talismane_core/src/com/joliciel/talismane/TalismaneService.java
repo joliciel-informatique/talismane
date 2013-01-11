@@ -16,13 +16,8 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane;
 
-import java.util.List;
-import java.util.Set;
-
-public interface ParserFeatureService {
-	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors);
-	
-	public List<ParserRule> getRules(List<String> ruleDescriptors);
+public interface TalismaneService {
+	Talismane getTalismane();
 }

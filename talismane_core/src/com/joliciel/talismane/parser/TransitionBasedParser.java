@@ -25,16 +25,19 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
+import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -61,6 +64,10 @@ class TransitionBasedParser implements NonDeterministicParser {
 
 	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
 	private int maxAnalysisTimePerSentence = 60;
+	
+	private List<ParserRule> parserRules;
+	private List<ParserRule> parserPositiveRules;
+	private List<ParserRule> parserNegativeRules;
 	
 	public TransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		super();
@@ -140,57 +147,126 @@ class TransitionBasedParser implements NonDeterministicParser {
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("### Next configuration on heap " + heapEntry.getKey() + ":");
 						LOG.trace(history.toString());
-						LOG.trace("Score: " + history.getScore());						
+						LOG.trace("Score: " + df.format(history.getScore()));
+						LOG.trace(history.getPosTagSequence());
 					}
 					
-					// test the features on the current token
-					List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
-					PerformanceMonitor.startTask("feature analyse");
-					try {
-						for (ParseConfigurationFeature<?> feature : this.parseFeatures) {
-							PerformanceMonitor.startTask(feature.getName());
+					List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
+					
+					// test the positive rules on the current token
+					boolean ruleApplied = false;
+					if (parserPositiveRules!=null) {
+						PerformanceMonitor.startTask("TransitionBasedParser.check rules");
+						try {
+							for (ParserRule rule : parserPositiveRules) {
+								if (LOG.isTraceEnabled()) {
+									LOG.trace("Checking rule: " + rule.getCondition().getName());
+								}
+								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history);
+								if (ruleResult!=null && ruleResult.getOutcome()) {
+									Decision<Transition> positiveRuleDecision = TalismaneSession.getTransitionSystem().createDefaultDecision(rule.getTransition());
+									decisions.add(positiveRuleDecision);
+									positiveRuleDecision.addAuthority(rule.getCondition().getName());
+									ruleApplied = true;
+									if (LOG.isTraceEnabled()) {
+										LOG.trace("Rule applies. Setting transition to: " + rule.getTransition().getCode());
+									}
+									break;
+								}
+							}
+						} finally {
+							PerformanceMonitor.endTask("TransitionBasedParser.check rules");
+						}
+					}
+					
+					if (!ruleApplied) {
+						// test the features on the current token
+						List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
+						PerformanceMonitor.startTask("feature analyse");
+						try {
+							for (ParseConfigurationFeature<?> feature : this.parseFeatures) {
+								PerformanceMonitor.startTask(feature.getName());
+								try {
+									FeatureResult<?> featureResult = feature.check(history);
+									if (featureResult!=null)
+										parseFeatureResults.add(featureResult);
+								} finally {
+									PerformanceMonitor.endTask(feature.getName());
+								}
+							}
+							if (LOG.isTraceEnabled()) {
+								for (FeatureResult<?> featureResult : parseFeatureResults) {
+									LOG.trace(featureResult.toString());
+								}
+							}
+						} finally {
+							PerformanceMonitor.endTask("feature analyse");
+						}
+						
+						// evaluate the feature results using the decision maker
+						PerformanceMonitor.startTask("make decision");
+						try {
+							decisions = this.decisionMaker.decide(parseFeatureResults);
+							
+							for (AnalysisObserver observer : this.observers) {
+								observer.onAnalyse(history, parseFeatureResults, decisions);
+							}
+	
+							
+							List<Decision<Transition>> decisionShortList = new ArrayList<Decision<Transition>>(decisions.size());
+							for (Decision<Transition> decision : decisions) {
+								if (decision.getProbability() > MIN_PROB_TO_STORE)
+									decisionShortList.add(decision);
+							}
+							decisions = decisionShortList;
+						} finally {
+							PerformanceMonitor.endTask("make decision");
+						}
+						
+						// apply the negative rules
+						Set<Transition> eliminatedTransitions = new TreeSet<Transition>();
+						if (parserNegativeRules!=null) {
+							PerformanceMonitor.startTask("TransitionBasedParser.check negative rules");
 							try {
-								FeatureResult<?> featureResult = feature.check(history);
-								if (featureResult!=null)
-									parseFeatureResults.add(featureResult);
+								for (ParserRule rule : parserNegativeRules) {
+									if (LOG.isTraceEnabled()) {
+										LOG.trace("Checking negative rule: " + rule.getCondition().getName());
+									}
+									FeatureResult<Boolean> ruleResult = rule.getCondition().check(history);
+									if (ruleResult!=null && ruleResult.getOutcome()) {
+										eliminatedTransitions.add(rule.getTransition());
+										if (LOG.isTraceEnabled()) {
+											LOG.trace("Rule applies. Eliminating transition: " + rule.getTransition().getCode());
+										}
+									}
+								}
+								
+								if (eliminatedTransitions.size()>0) {
+									List<Decision<Transition>> decisionShortList = new ArrayList<Decision<Transition>>();
+									for (Decision<Transition> decision : decisions) {
+										if (!eliminatedTransitions.contains(decision.getOutcome())) {
+											decisionShortList.add(decision);
+										} else {
+											LOG.trace("Eliminating decision: " + decision.toString());
+										}
+									}
+									if (decisionShortList.size()>0) {
+										decisions = decisionShortList;
+									} else {
+										LOG.debug("All decisions eliminated! Restoring original decisions.");
+									}
+								}
 							} finally {
-								PerformanceMonitor.endTask(feature.getName());
+								PerformanceMonitor.endTask("TransitionBasedParser.check negative rules");
 							}
 						}
-						if (LOG.isTraceEnabled()) {
-							for (FeatureResult<?> featureResult : parseFeatureResults) {
-								LOG.trace(featureResult.toString());
-							}
-						}
-					} finally {
-						PerformanceMonitor.endTask("feature analyse");
-					}
-					
-					// evaluate the feature results using the decision maker
-					List<Decision<Transition>> decisions = null;
-					PerformanceMonitor.startTask("make decision");
-					try {
-						decisions = this.decisionMaker.decide(parseFeatureResults);
-						
-						for (AnalysisObserver observer : this.observers) {
-							observer.onAnalyse(history, parseFeatureResults, decisions);
-						}
-
-						
-						List<Decision<Transition>> decisionShortList = new ArrayList<Decision<Transition>>(decisions.size());
-						for (Decision<Transition> decision : decisions) {
-							if (decision.getProbability() > MIN_PROB_TO_STORE)
-								decisionShortList.add(decision);
-						}
-						decisions = decisionShortList;
-					} finally {
-						PerformanceMonitor.endTask("make decision");
-					}
+					} // has a positive rule been applied?
 					
 					boolean transitionApplied = false;
 					// add new TaggedTokenSequences to the heap, one for each outcome provided by MaxEnt
 					PerformanceMonitor.startTask("heap sort");
 					try {
+						//TODO: why apply all decisions here? Why not just the top N (where N = beamwidth)?
 						for (Decision<Transition> decision : decisions) {
 							Transition transition = decision.getOutcome();
 							if (LOG.isTraceEnabled())
@@ -257,6 +333,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 			if (LOG.isDebugEnabled()) {
 				for (ParseConfiguration finalConfiguration : bestConfigurations) {
 					LOG.debug(df.format(finalConfiguration.getScore()) + ": " + finalConfiguration.toString());
+					LOG.debug(finalConfiguration.getPosTagSequence());
 					if (LOG.isTraceEnabled()) {
 						StringBuilder sb = new StringBuilder();
 						for (Decision<Transition> decision : finalConfiguration.getDecisions()) {
@@ -328,5 +405,24 @@ class TransitionBasedParser implements NonDeterministicParser {
 	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence) {
 		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
 	}
+	
+
+	@Override
+	public void setParserRules(List<ParserRule> parserRules) {
+		this.parserRules = parserRules;
+		this.parserPositiveRules = new ArrayList<ParserRule>();
+		this.parserNegativeRules = new ArrayList<ParserRule>();
+		for (ParserRule rule : parserRules) {
+			if (rule.isNegative())
+				parserNegativeRules.add(rule);
+			else
+				parserPositiveRules.add(rule);
+		}
+	}
+
+	public List<ParserRule> getParserRules() {
+		return parserRules;
+	}
+	
 	
 }

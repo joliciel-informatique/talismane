@@ -42,7 +42,7 @@ public interface PosTaggerLexicon extends Lexicon {
 	 * Find the lexical entries corresponding to a given postag for this word.
 	 * @param word
 	 * @param posTag
-	 * @return
+	 * @return an ordered Set containing the lexical entries, or an empty set if none found
 	 */
 	Set<LexicalEntry> findLexicalEntries(String word, PosTag posTag);
 	

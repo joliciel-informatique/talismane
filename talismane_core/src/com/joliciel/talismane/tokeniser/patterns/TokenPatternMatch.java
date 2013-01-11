@@ -70,7 +70,7 @@ public class TokenPatternMatch {
 
 	@Override
 	public int hashCode() {
-		final int prime = 3;
+		final int prime = 31;
 		int result = 1;
 		result = prime * result
 				+ ((tokenPattern == null) ? 0 : tokenPattern.hashCode());

@@ -30,12 +30,14 @@ import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.tokeniser.TaggedTokenImpl;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
 	private Set<LexicalEntry> lexicalEntries = null;
 	private static final DecimalFormat df = new DecimalFormat("0.00");
+	private String conllLemma = null;
 	
 	PosTaggedTokenImpl(PosTaggedTokenImpl taggedTokenToClone) {
 		super(taggedTokenToClone);
@@ -104,5 +106,16 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 		return posTaggedToken;
 	}
 
-
+	@Override
+	public String getLemmaForCoNLL() {
+		if (conllLemma==null) {
+			String lemma = "";
+			LexicalEntry lexicalEntry = this.getLexicalEntry();
+			if (lexicalEntry!=null) {
+				lemma = lexicalEntry.getLemma();
+			}
+			conllLemma = CoNLLFormatter.toCoNLL(lemma);
+		}
+		return conllLemma;
+	}
 }

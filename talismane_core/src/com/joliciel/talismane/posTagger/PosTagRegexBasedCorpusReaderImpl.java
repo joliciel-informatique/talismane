@@ -35,6 +35,7 @@ import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class PosTagRegexBasedCorpusReaderImpl implements
 		PosTagRegexBasedCorpusReader {
@@ -105,8 +106,9 @@ class PosTagRegexBasedCorpusReaderImpl implements
 					}
 					
 					String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+					word = CoNLLFormatter.fromCoNLL(word);
+					Token token = tokenSequence.addToken(word);
 					String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
-					Token token = this.addToken(tokenSequence, word);
 					if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
 						token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
 					if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
@@ -126,16 +128,6 @@ class PosTagRegexBasedCorpusReaderImpl implements
 			}
 		}
 		return (sentence!=null);
-	}
-
-	Token addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
-		Token token = null;
-		if (tokenText.equals("_")) {
-			token = pretokenisedSequence.addToken("");
-		} else {
-			token = pretokenisedSequence.addToken(tokenText.replace("_", " "));
-		}
-		return token;
 	}
 	
 	@Override

@@ -33,6 +33,9 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class DaoUtils {
+	public enum LogLevel {
+		TRACE, DEBUG, INFO
+	}
     private static final Log LOG = LogFactory.getLog(DaoUtils.class);
 
     public static void LogParameters(Map<String,Object> paramMap) {
@@ -42,6 +45,34 @@ public class DaoUtils {
 				Entry entry = (Entry) obj;
                 LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
             }
+        }
+    }
+    
+    public static void LogParameters(Map<String,Object> paramMap, LogLevel logLevel) {
+    	if (logLevel.equals(LogLevel.TRACE)) {
+            if (LOG.isTraceEnabled()) {
+                for (Object obj : paramMap.entrySet()) {
+                    @SuppressWarnings("rawtypes")
+    				Entry entry = (Entry) obj;
+                    LOG.trace(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
+                }
+            }
+        } else if (logLevel.equals(LogLevel.DEBUG)) {
+	        if (LOG.isDebugEnabled()) {
+	            for (Object obj : paramMap.entrySet()) {
+	                @SuppressWarnings("rawtypes")
+					Entry entry = (Entry) obj;
+	                LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
+	            }
+	        }
+        } else if (logLevel.equals(LogLevel.INFO)) {
+	        if (LOG.isInfoEnabled()) {
+	            for (Object obj : paramMap.entrySet()) {
+	                @SuppressWarnings("rawtypes")
+					Entry entry = (Entry) obj;
+	                LOG.info(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
+	            }
+	        }
         }
     }
     

@@ -24,16 +24,10 @@ import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 
 /**
- * An interface for processing an input stream and writing the analysis result to an output stream.<br/>
- * The processing must go from a given start module to a given end module in sequence, where the modules available are:
- * Sentence detector, Tokeniser, Pos tagger, Parser.<br/>
- * There is a default input format for each start module,
- * which can be over-ridden by providing a regex for processing lines of input. The default format is:
- * <li>Sentence detector: newlines indicate sentence breaks.</li>
- * <li>Tokeniser: expect exactly one sentence per newline.</li>
- * <li>Pos tagger: {@link  com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader#DEFAULT_REGEX default regex} </li>
- * <li>Parser: {@link  com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader#DEFAULT_REGEX default regex} </li>
- * <br/>The output format is determined by the processor corresponding to the end-module.<br/>
+ * An interface for processing a Reader from {@link TalismaneConfig#getReader()} 
+ * and writing the analysis result to a Writer from {@link TalismaneConfig#getWriter()}.<br/>
+ * The output format is determined by the processor corresponding to {@link TalismaneConfig#getEndModule()}.<br/>
+ * This is accomplished by calling {@link #runCommand(TalismaneConfig)}, and passing it all the configuration options.<br/>
  * @author Assaf Urieli
  *
  */
@@ -72,23 +66,39 @@ public interface Talismane {
 	}
 
 	/**
-	 * Analyse the reader from the startModule to the endModule,
-	 * where the analysis results are processed by the processors provided.
+	 * Run the {@link Command} specified by {@link TalismaneConfig#getCommand()}.
+	 * @param config a holder for all of the configuration options for this command.
+	 * @throws Exception
 	 */
-	public void analyse(TalismaneConfig config);
-	
+	public abstract void runCommand(TalismaneConfig config);
 
+	/**
+	 * The sentence processor to be used if the end-module is the sentence processor.
+	 * @return
+	 */
 	public SentenceProcessor getSentenceProcessor();
 	public void setSentenceProcessor(SentenceProcessor sentenceProcessor);
 
+	/**
+	 * The token sequence processor to be used if the end-module is the tokeniser.
+	 * @return
+	 */
 	public TokenSequenceProcessor getTokenSequenceProcessor();
 	public void setTokenSequenceProcessor(
 			TokenSequenceProcessor tokenSequenceProcessor);
 
+	/**
+	 * The pos-tag sequence processor to be used if the end-module is the pos-tagger.
+	 * @return
+	 */
 	public PosTagSequenceProcessor getPosTagSequenceProcessor();
 	public void setPosTagSequenceProcessor(
 			PosTagSequenceProcessor posTagSequenceProcessor);
 
+	/**
+	 * The parse configuration processor to be used if the end-module is the parser.
+	 * @return
+	 */
 	public ParseConfigurationProcessor getParseConfigurationProcessor();
 	public void setParseConfigurationProcessor(
 			ParseConfigurationProcessor parseConfigurationProcessor);

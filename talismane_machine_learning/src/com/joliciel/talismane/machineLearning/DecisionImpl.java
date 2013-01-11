@@ -107,6 +107,12 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 	void setStatistical(boolean statistical) {
 		this.statistical = statistical;
 	}
+
+	@Override
+	public String toString() {
+		return "DecisionImpl [outcome=" + name
+				+ ", probability=" + probability + "]";
+	}
 	
 	
 }

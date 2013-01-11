@@ -37,6 +37,12 @@ public class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<S
 	TokenPattern tokeniserPattern;
 	IntegerFeature<TokeniserContext> testIndexFeature;
 	
+	/**
+	 * No argument constructor for simplicity's sake - since InsidePatternNgram only applies to patterns with more than 2 atomic tokens,
+	 * and we don't want the feature parser crashing if it's called for a pattern with nothing to test.
+	 */
+	public InsidePatternNgramFeature() { }
+	
 	public InsidePatternNgramFeature(TokenPattern tokeniserPattern, IntegerFeature<TokeniserContext> testIndexFeature) {
 		this.tokeniserPattern = tokeniserPattern;
 		this.testIndexFeature = testIndexFeature;
@@ -45,6 +51,9 @@ public class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<S
 	
 	@Override
 	public FeatureResult<String> checkInternal(TokeniserContext tokeniserContext) {
+		if (this.tokeniserPattern==null)
+			return null;
+		
 		FeatureResult<String> result = null;
 		
 		FeatureResult<Integer> testIndexResult = testIndexFeature.check(tokeniserContext);

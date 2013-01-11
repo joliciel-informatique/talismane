@@ -106,6 +106,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 			rootToken = this.posTaggerServiceInternal.getPosTaggedToken(emptyToken, rootDecision);
 			this.add(0, rootToken);
 		}
+		this.string = null;
 		return rootToken;
 	}
 
@@ -151,6 +152,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	@Override
 	public void addPosTaggedToken(PosTaggedToken posTaggedToken) {
 		this.add(posTaggedToken);
+		this.string = null;
 	}
 
 	@Override
@@ -193,6 +195,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 			
 			this.clear();
 			this.addAll(cloneList);
+			this.string = null;
 		}
 	}
 	

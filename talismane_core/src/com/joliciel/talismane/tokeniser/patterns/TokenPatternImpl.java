@@ -120,7 +120,8 @@ class TokenPatternImpl implements TokenPattern {
 			t0++;
 		} // next token
 		if (LOG.isTraceEnabled()) {
-			LOG.trace(tokensToCheck);
+			if (tokensToCheck.size()>0)
+				LOG.trace(this.getName() + ": Tokens to check = " + tokensToCheck);
 		}
 		return tokensToCheck;
 	}

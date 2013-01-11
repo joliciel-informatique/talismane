@@ -53,6 +53,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+import com.joliciel.talismane.parser.ParseEvaluationGuessTemplateWriter;
 import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.ParserEvaluator;
@@ -60,6 +61,8 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.parser.TransitionSystem;
+import com.joliciel.talismane.parser.features.ParserFeatureService;
+import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagEvaluationSentenceWriter;
@@ -93,11 +96,20 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.utils.LogUtils;
 
 /**
- * A class for loading, storing and translating configuration information to be passed to Talismane when processing
+ * An abstract base class for loading, storing and translating configuration information to be passed to Talismane when processing.<br/>
+ * Implementing classes must include language-specific implementation resources.<br/>
+ * The processing must go from a given start module to a given end module in sequence, where the modules available are:
+ * Sentence detector, Tokeniser, Pos tagger, Parser.<br/>
+ * There is a default input format for each start module,
+ * which can be over-ridden by providing a regex for processing lines of input. The default format is:<br/>
+ * <li>Sentence detector: newlines indicate sentence breaks.</li>
+ * <li>Tokeniser: expect exactly one sentence per newline.</li>
+ * <li>Pos tagger: {@link  com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader#DEFAULT_REGEX default regex} </li>
+ * <li>Parser: {@link  com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader#DEFAULT_REGEX default regex} </li>
  * @author Assaf Urieli
  *
  */
-public class TalismaneConfig {
+public abstract class TalismaneConfig implements LanguageSpecificImplementation {
 	private static final Log LOG = LogFactory.getLog(TalismaneConfig.class);
 	private Command command = null;
 	
@@ -162,11 +174,14 @@ public class TalismaneConfig {
 	private boolean logPerformance = false;
 	private File outDir = null;
 	private String baseName = null;
+	private String suffix = "";
 	private boolean outputGuesses = false;
 	private int outputGuessCount = 0;
 	
 	private List<PosTaggerRule> posTaggerRules = null;
 	private String posTaggerRuleFilePath = null;
+	private List<ParserRule> parserRules = null;
+	private String parserRuleFilePath = null;
 	private List<TextMarkerFilter> textMarkerFilters = null;
 	private List<TokenFilter> tokenFilters = null;
 	
@@ -179,6 +194,7 @@ public class TalismaneConfig {
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private PosTaggerFeatureService posTaggerFeatureService;
+	private ParserFeatureService parserFeatureService;
 	private FilterService filterService;
 	private TokenFilterService tokenFilterService;
     private SentenceDetectorService sentenceDetectorService;
@@ -188,17 +204,16 @@ public class TalismaneConfig {
 	private TokenFeatureService tokenFeatureService;
 	private TokeniserService tokeniserService;
 	
-	private LanguageSpecificImplementation implementation = null;
-	
-	public TalismaneConfig(LanguageSpecificImplementation implementation, String[] args) throws Exception {
-		this.implementation = implementation;
+	public TalismaneConfig(String[] args) throws Exception {
+		TalismaneSession.setImplementation(this);
 		talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 		Map<String,String> argMap = convertArgs(args);
 		this.loadParameters(argMap);
 	}
 	
-	public TalismaneConfig(LanguageSpecificImplementation implementation, Map<String,String> args) throws Exception {
-		this.implementation = implementation;
+	public TalismaneConfig(Map<String,String> args) throws Exception {
+		TalismaneSession.setImplementation(this);
+
 		talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 		this.loadParameters(args);
 	}
@@ -245,35 +260,35 @@ public class TalismaneConfig {
 				
 				command = Command.valueOf(commandString);
 			} else if (argName.equals("module")) {
-				if (argValue.equalsIgnoreCase("sentence"))
+				if (argValue.equalsIgnoreCase("sentence")||argValue.equalsIgnoreCase("sentenceDetector"))
 					module = Talismane.Module.SentenceDetector;
-				else if (argValue.equalsIgnoreCase("tokenise"))
+				else if (argValue.equalsIgnoreCase("tokenise")||argValue.equalsIgnoreCase("tokeniser"))
 					module = Talismane.Module.Tokeniser;
-				else if (argValue.equalsIgnoreCase("postag"))
+				else if (argValue.equalsIgnoreCase("postag")||argValue.equalsIgnoreCase("posTagger"))
 					module = Talismane.Module.PosTagger;
-				else if (argValue.equalsIgnoreCase("parse"))
+				else if (argValue.equalsIgnoreCase("parse")||argValue.equalsIgnoreCase("parser"))
 					module = Talismane.Module.Parser;
 				else
 					throw new TalismaneException("Unknown module: " + argValue);
 			} else if (argName.equals("startModule")) {
-				if (argValue.equalsIgnoreCase("sentence"))
+				if (argValue.equalsIgnoreCase("sentence")||argValue.equalsIgnoreCase("sentenceDetector"))
 					startModule = Talismane.Module.SentenceDetector;
-				else if (argValue.equalsIgnoreCase("tokenise"))
+				else if (argValue.equalsIgnoreCase("tokenise")||argValue.equalsIgnoreCase("tokeniser"))
 					startModule = Talismane.Module.Tokeniser;
-				else if (argValue.equalsIgnoreCase("postag"))
+				else if (argValue.equalsIgnoreCase("postag")||argValue.equalsIgnoreCase("posTagger"))
 					startModule = Talismane.Module.PosTagger;
-				else if (argValue.equalsIgnoreCase("parse"))
+				else if (argValue.equalsIgnoreCase("parse")||argValue.equalsIgnoreCase("parser"))
 					startModule = Talismane.Module.Parser;
 				else
 					throw new TalismaneException("Unknown startModule: " + argValue);
 			} else if (argName.equals("endModule")) {
-				if (argValue.equalsIgnoreCase("sentence"))
+				if (argValue.equalsIgnoreCase("sentence")||argValue.equalsIgnoreCase("sentenceDetector"))
 					endModule = Talismane.Module.SentenceDetector;
-				else if (argValue.equalsIgnoreCase("tokenise"))
+				else if (argValue.equalsIgnoreCase("tokenise")||argValue.equalsIgnoreCase("tokeniser"))
 					endModule = Talismane.Module.Tokeniser;
-				else if (argValue.equalsIgnoreCase("postag"))
+				else if (argValue.equalsIgnoreCase("postag")||argValue.equalsIgnoreCase("posTagger"))
 					endModule = Talismane.Module.PosTagger;
-				else if (argValue.equalsIgnoreCase("parse"))
+				else if (argValue.equalsIgnoreCase("parse")||argValue.equalsIgnoreCase("parser"))
 					endModule = Talismane.Module.Parser;
 				else
 					throw new TalismaneException("Unknown endModule: " + argValue);
@@ -320,6 +335,8 @@ public class TalismaneConfig {
 				inputRegex = argValue;
 			else if (argName.equals("posTaggerRules"))
 				posTaggerRuleFilePath = argValue;
+			else if (argName.equals("parserRules"))
+				parserRuleFilePath = argValue;
 			else if (argName.equals("posTagSet"))
 				posTagSetPath = argValue;
 			else if (argName.equals("textFilters"))
@@ -346,6 +363,8 @@ public class TalismaneConfig {
 				outputGuesses = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("outputGuessCount"))
 				outputGuessCount = Integer.parseInt(argValue);
+			else if (argName.equals("suffix"))
+				suffix = argValue;
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -393,7 +412,7 @@ public class TalismaneConfig {
 		
 		if (posTagSetPath!=null) {
 			File posTagSetFile = new File(posTagSetPath);
-			Scanner posTagSetScanner = new Scanner(posTagSetFile);
+			Scanner posTagSetScanner = new Scanner(posTagSetFile,"UTF-8");
 			PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
 			TalismaneSession.setPosTagSet(posTagSet);
 		}
@@ -648,7 +667,7 @@ public class TalismaneConfig {
 				for (int i=0; i<=1; i++) {
 					Scanner rulesScanner = null;
 					if (i==0) {
-						InputStream defaultRulesStream = implementation.getDefaultPosTaggerRulesFromStream();
+						InputStream defaultRulesStream = this.getDefaultPosTaggerRulesFromStream();
 						if (defaultRulesStream!=null)
 							rulesScanner = new Scanner(defaultRulesStream);
 					} else {
@@ -674,6 +693,49 @@ public class TalismaneConfig {
 				}
 			}
 			return posTaggerRules;
+		} catch (Exception e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * The rules to apply when running the parser.
+	 * @return
+	 */
+	public List<ParserRule> getParserRules() {
+		try {
+			if (parserRules == null) {
+				parserRules = new ArrayList<ParserRule>();
+				for (int i=0; i<=1; i++) {
+					Scanner rulesScanner = null;
+					if (i==0) {
+						InputStream defaultRulesStream = this.getDefaultParserRulesFromStream();
+						if (defaultRulesStream!=null)
+							rulesScanner = new Scanner(defaultRulesStream);
+					} else {
+						if (parserRuleFilePath!=null && parserRuleFilePath.length()>0) {
+							File parserRuleFile = new File(parserRuleFilePath);
+							rulesScanner = new Scanner(parserRuleFile);
+						}
+					}
+					
+					if (rulesScanner!=null) {
+						List<String> ruleDescriptors = new ArrayList<String>();
+						while (rulesScanner.hasNextLine()) {
+							String ruleDescriptor = rulesScanner.nextLine();
+							if (ruleDescriptor.length()>0) {
+								ruleDescriptors.add(ruleDescriptor);
+								LOG.debug(ruleDescriptor);
+							}
+						}
+						List<ParserRule> rules = this.getParserFeatureService().getRules(ruleDescriptors);
+						parserRules.addAll(rules);
+						
+					}
+				}
+			}
+			return parserRules;
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -736,7 +798,7 @@ public class TalismaneConfig {
 							textFilterScanner = new Scanner(textFilterFile);
 						}
 					} else {
-						InputStream stream = implementation.getDefaultTextMarkerFiltersFromStream();
+						InputStream stream = this.getDefaultTextMarkerFiltersFromStream();
 						if (stream!=null) {
 							LOG.debug("From default");
 							textFilterScanner = new Scanner(stream);
@@ -788,7 +850,7 @@ public class TalismaneConfig {
 							tokenFilterScanner = new Scanner(tokenFilterFile);
 						}
 					} else {
-						InputStream stream = implementation.getDefaultTokenFiltersFromStream();
+						InputStream stream = this.getDefaultTokenFiltersFromStream();
 						if (stream!=null) {
 							LOG.debug("From default");
 							tokenFilterScanner = new Scanner(stream);
@@ -829,7 +891,7 @@ public class TalismaneConfig {
 				if (sentenceModelFilePath!=null) {
 					sentenceModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
 				} else {
-					sentenceModel = this.getMachineLearningService().getModel(implementation.getDefaultSentenceModelStream());
+					sentenceModel = this.getMachineLearningService().getModel(this.getDefaultSentenceModelStream());
 				}
 				Set<SentenceDetectorFeature<?>> sentenceDetectorFeatures =
 					this.getSentenceDetectorFeatureService().getFeatureSet(sentenceModel.getFeatureDescriptors());
@@ -858,7 +920,7 @@ public class TalismaneConfig {
 	
 				if (includeDetails) {
 					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
-					File detailsFile = new File(detailsFilePath);
+					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
 					AnalysisObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
 					tokeniser.addObserver(observer);
@@ -884,7 +946,7 @@ public class TalismaneConfig {
 					}
 				}
 				
-				for (TokenSequenceFilter tokenFilter : implementation.getTokenSequenceFilters()) {
+				for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters()) {
 					tokeniser.addTokenSequenceFilter(tokenFilter);
 				}
 	
@@ -911,7 +973,7 @@ public class TalismaneConfig {
 				if (tokeniserModelFilePath!=null) {
 					tokeniserModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
 				} else {
-					tokeniserModel = this.getMachineLearningService().getModel(implementation.getDefaultTokeniserModelStream());
+					tokeniserModel = this.getMachineLearningService().getModel(this.getDefaultTokeniserModelStream());
 				}
 			}
 			return tokeniserModel;
@@ -927,7 +989,7 @@ public class TalismaneConfig {
 				if (posTaggerModelFilePath!=null) {
 					posTaggerModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
 				} else {
-					posTaggerModel = this.getMachineLearningService().getModel(implementation.getDefaultPosTaggerModelStream());
+					posTaggerModel = this.getMachineLearningService().getModel(this.getDefaultPosTaggerModelStream());
 				}
 			}
 			return posTaggerModel;
@@ -943,7 +1005,7 @@ public class TalismaneConfig {
 				if (parserModelFilePath!=null) {
 					parserModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(parserModelFilePath)));
 				} else {
-					parserModel = this.getMachineLearningService().getModel(implementation.getDefaultParserModelStream());
+					parserModel = this.getMachineLearningService().getModel(this.getDefaultParserModelStream());
 				}
 			}
 			return parserModel;
@@ -976,14 +1038,14 @@ public class TalismaneConfig {
 					}
 				}
 				
-				for (TokenSequenceFilter tokenFilter : implementation.getPosTaggerPreprocessingFilters()) {
+				for (TokenSequenceFilter tokenFilter : this.getPosTaggerPreprocessingFilters()) {
 					posTagger.addPreprocessingFilter(tokenFilter);
 				}
 				posTagger.setPosTaggerRules(this.getPosTaggerRules());
 		
 				if (includeDetails) {
-					String detailsFilePath = outFilePath.substring(0, outFilePath.lastIndexOf(".")) + "_posTagger_details.txt";
-					File detailsFile = new File(detailsFilePath);
+					String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
+					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
 					AnalysisObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 					posTagger.addObserver(observer);
@@ -1008,10 +1070,11 @@ public class TalismaneConfig {
 				
 				parser = this.getParserService().getTransitionBasedParser(parserModel, beamWidth);
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
+				parser.setParserRules(this.getParserRules());
 				
 				if (includeDetails) {
-					String detailsFilePath = outFilePath.substring(0, outFilePath.lastIndexOf(".")) + "_parser_details.txt";
-					File detailsFile = new File(detailsFilePath);
+					String detailsFilePath = this.getBaseName() + "_parser_details.txt";
+					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
 					AnalysisObserver observer = parserModel.getDetailedAnalysisObserver(detailsFile);
 					parser.addObserver(observer);
@@ -1137,6 +1200,7 @@ public class TalismaneConfig {
 
 	/**
 	 * A token corpus reader to read a corpus pre-annotated in tokens.
+	 * Note that in general, any filters up to and including the tokeniser should be applied to the corpus reader.
 	 * @return
 	 */
 	public TokenRegexBasedCorpusReader getTokenCorpusReader() {
@@ -1173,7 +1237,7 @@ public class TalismaneConfig {
 				}
 			}
 			
-			for (TokenSequenceFilter tokenSequenceFilter : implementation.getTokenSequenceFilters()) {
+			for (TokenSequenceFilter tokenSequenceFilter : this.getTokenSequenceFilters()) {
 				tokenCorpusReader.addTokenSequenceFilter(tokenSequenceFilter);
 			}
 		}
@@ -1182,6 +1246,7 @@ public class TalismaneConfig {
 
 	/**
 	 * A pos tag corpus reader to read a corpus pre-annotated in postags.
+	 * Note that, in general, any filters up to and including the pos-tagger should be applied to the reader.
 	 * @return
 	 */
 	public PosTagRegexBasedCorpusReader getPosTagCorpusReader() {
@@ -1242,10 +1307,10 @@ public class TalismaneConfig {
 				}
 			}
 			
-			for (TokenSequenceFilter tokenFilter : implementation.getTokenSequenceFilters()) {
+			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters()) {
 				corpusReader.addTokenSequenceFilter(tokenFilter);
 			}
-			for (TokenSequenceFilter tokenFilter : implementation.getPosTaggerPreprocessingFilters()) {
+			for (TokenSequenceFilter tokenFilter : this.getPosTaggerPreprocessingFilters()) {
 				corpusReader.addTokenSequenceFilter(tokenFilter);
 			}
 			posTagCorpusReaderFiltersAdded = true;
@@ -1315,10 +1380,10 @@ public class TalismaneConfig {
 				}
 			}
 			
-			for (TokenSequenceFilter tokenFilter : implementation.getTokenSequenceFilters()) {
+			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters()) {
 				corpusReader.addTokenSequenceFilter(tokenFilter);
 			}
-			for (TokenSequenceFilter tokenFilter : implementation.getPosTaggerPreprocessingFilters()) {
+			for (TokenSequenceFilter tokenFilter : this.getPosTaggerPreprocessingFilters()) {
 				corpusReader.addTokenSequenceFilter(tokenFilter);
 			}
 			parserCorpusReaderFiltersAdded = true;
@@ -1368,6 +1433,20 @@ public class TalismaneConfig {
 						sentenceWriter.setHasPosTagger(true);
 					parserEvaluator.addObserver(sentenceWriter);
 				}
+				
+				Reader templateReader = null;
+				if (templatePath==null) {
+					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(parserTemplateName)));
+				} else {
+					templateReader = new BufferedReader(new FileReader(new File(templatePath)));
+				}
+				
+				File freemarkerFile = new File(this.getOutDir(), this.getBaseName() + "_output.txt");
+				freemarkerFile.delete();
+				freemarkerFile.createNewFile();
+				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),"UTF8"));
+				ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(freemakerFileWriter, templateReader);
+				parserEvaluator.addObserver(templateWriter);
 				parserEvaluator.setSentenceCount(maxSentenceCount);
 				parserEvaluator.setPropagateBeam(propagateBeam);
 			}
@@ -1455,6 +1534,7 @@ public class TalismaneConfig {
 				else
 					baseName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1);
 			}
+			baseName = baseName + suffix;
 		}
 		return baseName;
 	}
@@ -1491,6 +1571,18 @@ public class TalismaneConfig {
 	public void setPosTaggerFeatureService(
 			PosTaggerFeatureService posTaggerFeatureService) {
 		this.posTaggerFeatureService = posTaggerFeatureService;
+	}
+	
+	public ParserFeatureService getParserFeatureService() {
+		if (parserFeatureService==null) {
+			parserFeatureService = talismaneServiceLocator.getParserFeatureServiceLocator().getParserFeatureService();
+		}
+		return parserFeatureService;
+	}
+
+	public void setParserFeatureService(
+			ParserFeatureService parserFeatureService) {
+		this.parserFeatureService = parserFeatureService;
 	}
 
 	public FilterService getFilterService() {
@@ -1623,6 +1715,12 @@ public class TalismaneConfig {
 	public String getInFilePath() {
 		return inFilePath;
 	}
-	
+
+	@Override
+	public PosTagSet getDefaultPosTagSet() {
+		Scanner posTagSetScanner = new Scanner(this.getDefaultPosTagSetFromStream(),"UTF-8");
+		PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
+		return posTagSet;
+	}
 	
 }

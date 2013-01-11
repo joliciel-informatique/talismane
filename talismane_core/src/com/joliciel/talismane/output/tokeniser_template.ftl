@@ -3,6 +3,6 @@
 [#if token.precedingRawOutput??]
 ${token.precedingRawOutput}
 [/#if]
-${token.index?c}	${token.originalText?replace(" ","_")}
+${token.index?c}	${token.textForCoNLL}
 [/#list]
 

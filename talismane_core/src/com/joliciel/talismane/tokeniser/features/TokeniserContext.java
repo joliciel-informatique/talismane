@@ -18,12 +18,25 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 
-public class TokeniserContext implements TokenWrapper {
+/**
+ * A tokeniser context, which includes the current token and the analysis history.
+ * @author Assaf Urieli
+ *
+ */
+public class TokeniserContext implements TokenWrapper, HasFeatureCache {
 	private Token token;
 	private TokenisedAtomicTokenSequence history;
+	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+
 	public TokeniserContext(Token token,
 			TokenisedAtomicTokenSequence history) {
 		super();
@@ -35,6 +48,23 @@ public class TokeniserContext implements TokenWrapper {
 	}
 	public TokenisedAtomicTokenSequence getHistory() {
 		return history;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature) {
+		FeatureResult<Y> result = null;
+		
+		if (this.featureResults.containsKey(feature.getName())) {
+			result = (FeatureResult<Y>) this.featureResults.get(feature.getName());
+		}
+		return result;
+	}
+
+	@Override
+	public <T, Y> void putResultInCache(Feature<T, Y> feature,
+			FeatureResult<Y> featureResult) {
+		this.featureResults.put(feature.getName(), featureResult);	
 	}
 	
 

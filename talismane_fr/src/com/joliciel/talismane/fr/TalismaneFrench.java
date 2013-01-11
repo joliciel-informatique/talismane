@@ -31,8 +31,10 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.ftbDep.FtbDepReader;
 import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
-import com.joliciel.talismane.AbstractTalismane;
+import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
+import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -42,7 +44,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public class TalismaneFrench extends AbstractTalismane {
+public class TalismaneFrench extends TalismaneConfig {
 	private static final Log LOG = LogFactory.getLog(TalismaneFrench.class);
 
 	/**
@@ -50,14 +52,14 @@ public class TalismaneFrench extends AbstractTalismane {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-    	TalismaneFrench instance = new TalismaneFrench();
     	Map<String,String> argsMap = TalismaneConfig.convertArgs(args);
     	String corpusReaderType = null;
     	if (argsMap.containsKey("corpusReader")) {
     		corpusReaderType = argsMap.get("corpusReader");
     		argsMap.remove("corpusReader");
     	}
-    	TalismaneConfig config = new TalismaneConfig(instance, argsMap);
+    	
+    	TalismaneFrench config = new TalismaneFrench(argsMap);
     	if (config.getCommand()==null)
     		return;
     	
@@ -68,7 +70,20 @@ public class TalismaneFrench extends AbstractTalismane {
     			config.setParserCorpusReader(ftbDepReader);
     		}
     	}
-    	instance.runCommand(config);
+    	
+    	TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+    	TalismaneService talismaneService = talismaneServiceLocator.getTalismaneService();
+    	Talismane talismane = talismaneService.getTalismane();
+    	
+    	talismane.runCommand(config);
+	}
+
+	public TalismaneFrench(Map<String, String> args) throws Exception {
+		super(args);
+	}
+
+	public TalismaneFrench(String[] args) throws Exception {
+		super(args);
 	}
 
 	private static ZipInputStream getZipInputStreamFromResource(String resource) {
@@ -99,6 +114,13 @@ public class TalismaneFrench extends AbstractTalismane {
 		return inputStream;
 	}
 	
+
+	@Override
+	public InputStream getDefaultParserRulesFromStream() {
+//		InputStream inputStream = getInputStreamFromResource("parserRules_fr.txt");
+		InputStream inputStream = null;
+		return inputStream;
+	}
 
 	@Override
 	public PosTaggerLexicon getDefaultLexiconService() {

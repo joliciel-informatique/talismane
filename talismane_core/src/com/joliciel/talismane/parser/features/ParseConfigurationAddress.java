@@ -24,13 +24,15 @@ import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
  * A simple container for a ParseConfiguration + an address function.
  * @author Assaf Urieli
  *
  */
-public final class ParseConfigurationAddress implements ParseConfigurationWrapper, PosTaggedTokenWrapper, HasFeatureCache {
+public final class ParseConfigurationAddress implements ParseConfigurationWrapper, PosTaggedTokenWrapper, TokenWrapper, HasFeatureCache {
 	private ParseConfiguration parseConfiguration;
 	private AddressFunction addressFunction;
 	private PosTaggedToken posTaggedToken = null;
@@ -92,6 +94,15 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 		PosTaggedToken posTaggedToken = this.getPosTaggedToken();
 		if (posTaggedToken!=null)
 			posTaggedToken.putResultInCache(feature, featureResult);
+	}
+
+	@Override
+	public Token getToken() {
+		PosTaggedToken posTaggedToken = this.getPosTaggedToken();
+		Token token = null;
+		if (posTaggedToken!=null)
+			token = posTaggedToken.getToken();
+		return token;
 	}
 	
 	

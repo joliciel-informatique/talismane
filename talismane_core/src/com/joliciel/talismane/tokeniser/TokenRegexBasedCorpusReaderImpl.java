@@ -17,6 +17,7 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class TokenRegexBasedCorpusReaderImpl implements
 		TokenRegexBasedCorpusReader {
@@ -87,8 +88,9 @@ class TokenRegexBasedCorpusReaderImpl implements
 					}
 					
 					String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+					word = CoNLLFormatter.fromCoNLL(word);
+					Token token = tokenSequence.addToken(word);
 
-					Token token = this.addToken(tokenSequence, word);
 					if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
 						token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
 					if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
@@ -100,17 +102,6 @@ class TokenRegexBasedCorpusReaderImpl implements
 		}
 		return (tokenSequence!=null);
 	}
-
-	Token addToken(PretokenisedSequence pretokenisedSequence, String tokenText) {
-		Token token = null;
-		if (tokenText.equals("_")) {
-			token = pretokenisedSequence.addToken("");
-		} else {
-			token = pretokenisedSequence.addToken(tokenText.replace("_", " "));
-		}
-		return token;
-	}
-	
 
 	@Override
 	public TokenSequence nextTokenSequence() {

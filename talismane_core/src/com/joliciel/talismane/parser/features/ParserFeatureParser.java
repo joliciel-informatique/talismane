@@ -23,11 +23,15 @@ import java.util.List;
 
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
+import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.DoubleFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.features.PosTagFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
 
@@ -68,9 +72,18 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 			ParseConfigurationFeature<?> wrappedFeature = null;
 			if (parseFeature instanceof ParseConfigurationFeature) {
 				wrappedFeature = (ParseConfigurationFeature<?>) parseFeature;
+			} else if (parseFeature instanceof BooleanFeature) {
+				wrappedFeature = new ParseConfigurationBooleanFeatureWrapper((Feature<ParseConfigurationWrapper, Boolean>) parseFeature);
+			} else if (parseFeature instanceof StringFeature) {
+				wrappedFeature = new ParseConfigurationStringFeatureWrapper((Feature<ParseConfigurationWrapper, String>) parseFeature);
+			} else if (parseFeature instanceof IntegerFeature) {
+				wrappedFeature = new ParseConfigurationIntegerFeatureWrapper((Feature<ParseConfigurationWrapper, Integer>) parseFeature);
+			} else if (parseFeature instanceof DoubleFeature) {
+				wrappedFeature = new ParseConfigurationDoubleFeatureWrapper((Feature<ParseConfigurationWrapper, Double>) parseFeature);
 			} else {
 				wrappedFeature = new ParseConfigurationFeatureWrapper(parseFeature);
 			}
+			
 			wrappedFeatures.add(wrappedFeature);
 		}
 		return wrappedFeatures;
@@ -111,7 +124,7 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 					Class<? extends Feature> firstArgumentClass = null;
 					if (firstArgumentClasses!=null && firstArgumentClasses.size()>0)
 						firstArgumentClass = firstArgumentClasses.get(0);
-					if (AddressFunction.class.isAssignableFrom(firstArgumentClass)) {
+					if (firstArgumentClass!=null && AddressFunction.class.isAssignableFrom(firstArgumentClass)) {
 						// Our first argument is an address function
 						// We need to pull it out of the internal descriptor, and wrap it into an ExplicitAddressFeature
 						
@@ -164,6 +177,34 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		@Override
 		public Class<? extends Feature> getFeatureType() {
 			return wrappedFeature.getFeatureType();
+		}
+	}
+	
+	private class ParseConfigurationBooleanFeatureWrapper extends ParseConfigurationFeatureWrapper<Boolean> implements BooleanFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationBooleanFeatureWrapper(
+				Feature<ParseConfigurationWrapper, Boolean> wrappedFeature) {
+			super(wrappedFeature);
+		}
+	}
+	
+	private class ParseConfigurationStringFeatureWrapper extends ParseConfigurationFeatureWrapper<String> implements StringFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationStringFeatureWrapper(
+				Feature<ParseConfigurationWrapper, String> wrappedFeature) {
+			super(wrappedFeature);
+		}
+	}
+	
+	private class ParseConfigurationDoubleFeatureWrapper extends ParseConfigurationFeatureWrapper<Double> implements DoubleFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationDoubleFeatureWrapper(
+				Feature<ParseConfigurationWrapper, Double> wrappedFeature) {
+			super(wrappedFeature);
+		}
+	}
+	
+	private class ParseConfigurationIntegerFeatureWrapper extends ParseConfigurationFeatureWrapper<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationIntegerFeatureWrapper(
+				Feature<ParseConfigurationWrapper, Integer> wrappedFeature) {
+			super(wrappedFeature);
 		}
 	}
 }
