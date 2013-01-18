@@ -95,18 +95,18 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 			
 			for (PosTaggedToken posTaggedToken : realTokens) {
 				if (posTaggedToken != null) {
-					csvFileWriter.write(CSVFormatter.format(posTaggedToken.getToken().getOriginalText()) + ",");
+					csvFileWriter.write(CSVFormatter.format(posTaggedToken.getToken().getOriginalText()));
 				} else {
-					csvFileWriter.write(",");
+					csvFileWriter.write(CSVFormatter.getCsvSeparator());
 				}
 			}
 			
 			csvFileWriter.write("\n");
 			for (PosTaggedToken posTaggedToken : realTokens) {
 				if (posTaggedToken != null) {
-					csvFileWriter.write(CSVFormatter.format(posTaggedToken.getTag().getCode()) + ",");
+					csvFileWriter.write(CSVFormatter.format(posTaggedToken.getTag().getCode()));
 				} else {
-					csvFileWriter.write(",");
+					csvFileWriter.write(CSVFormatter.getCsvSeparator());
 				}
 			}
 			csvFileWriter.write("\n");
@@ -114,9 +114,9 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 				if (posTaggedToken != null) {
 					DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
 					String realLabel = realArc.getLabel()==null ? "null" : realArc.getLabel();
-					csvFileWriter.write(CSVFormatter.format(realLabel) + ",");
+					csvFileWriter.write(CSVFormatter.format(realLabel));
 				} else {
-					csvFileWriter.write(",");
+					csvFileWriter.write(CSVFormatter.getCsvSeparator());
 				}
 			}
 			csvFileWriter.write("\n");
@@ -131,11 +131,11 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 						}
 					}
 					if (startIndex<0)
-						csvFileWriter.write("ROOT,");
+						csvFileWriter.write(CSVFormatter.format("ROOT"));
 					else
-						csvFileWriter.write(CSVFormatter.getColumnLabel(startIndexMap.get(startIndex)) + ",");
+						csvFileWriter.write(CSVFormatter.getColumnLabel(startIndexMap.get(startIndex)) + CSVFormatter.getCsvSeparator());
 				} else {
-					csvFileWriter.write(",");
+					csvFileWriter.write(CSVFormatter.getCsvSeparator());
 				}
 			}
 			csvFileWriter.write("\n");
@@ -153,9 +153,9 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 					if (hasTokeniser) {
 						for (PosTaggedToken posTaggedToken : guessedTokens) {
 							if (posTaggedToken != null) {
-								csvFileWriter.write(CSVFormatter.format(posTaggedToken.getToken().getOriginalText()) + ",");
+								csvFileWriter.write(CSVFormatter.format(posTaggedToken.getToken().getOriginalText()));
 							} else {
-								csvFileWriter.write(",");
+								csvFileWriter.write(CSVFormatter.getCsvSeparator());
 							}
 						}
 						
@@ -165,9 +165,9 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 					if (hasPosTagger) {
 						for (PosTaggedToken posTaggedToken : guessedTokens) {
 							if (posTaggedToken != null) {
-								csvFileWriter.write(CSVFormatter.format(posTaggedToken.getTag().getCode()) + ",");
+								csvFileWriter.write(CSVFormatter.format(posTaggedToken.getTag().getCode()));
 							} else {
-								csvFileWriter.write(",");
+								csvFileWriter.write(CSVFormatter.getCsvSeparator());
 							}
 						}
 						csvFileWriter.write("\n");
@@ -180,9 +180,9 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 							if (guessedArc!=null) {
 								guessedLabel = guessedArc.getLabel()==null ? "null" : guessedArc.getLabel();
 							}
-							csvFileWriter.write(CSVFormatter.format(guessedLabel) + ",");
+							csvFileWriter.write(CSVFormatter.format(guessedLabel) );
 						} else {
-							csvFileWriter.write(",");
+							csvFileWriter.write(CSVFormatter.getCsvSeparator());
 						}					
 					}
 					csvFileWriter.write("\n");
@@ -197,11 +197,11 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 								}
 							}
 							if (startIndex<0)
-								csvFileWriter.write("ROOT,");
+								csvFileWriter.write(CSVFormatter.format("ROOT"));
 							else
-								csvFileWriter.write(CSVFormatter.getColumnLabel(startIndexMap.get(startIndex)) + ",");
+								csvFileWriter.write(CSVFormatter.getColumnLabel(startIndexMap.get(startIndex)) + CSVFormatter.getCsvSeparator());
 						} else {
-							csvFileWriter.write(",");
+							csvFileWriter.write(CSVFormatter.getCsvSeparator());
 						}
 					}
 					csvFileWriter.write("\n");
@@ -214,9 +214,9 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 								if (transition!=null)
 									prob = transition.getDecision().getProbability();
 							}
-							csvFileWriter.write(CSVFormatter.format(prob) + ",");
+							csvFileWriter.write(CSVFormatter.format(prob));
 						} else {
-							csvFileWriter.write(",");
+							csvFileWriter.write(CSVFormatter.getCsvSeparator());
 						}	
 					}
 					csvFileWriter.write("\n");

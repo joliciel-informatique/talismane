@@ -59,12 +59,18 @@ public class FScoreCalculator<E> {
 	double totalRecall = 0.0;
 	double totalFScore = 0.0;
 	
-	double totalTruePositiveCount = 0;
-	double totalFalsePositiveCount = 0;
-	double totalFalseNegativeCount = 0;
+	int totalTruePositiveCount = 0;
+	int totalFalsePositiveCount = 0;
+	int totalFalseNegativeCount = 0;
 	
 	boolean updatedSinceLastEval = false;
-
+	
+	Object label = null;
+	
+	public FScoreCalculator(Object label) {
+		this.label = label;
+	}
+	
 	public FScoreCalculator() {
 		
 	}
@@ -126,6 +132,7 @@ public class FScoreCalculator<E> {
 	
 	void evaluate() {
 		if (updatedSinceLastEval) {
+			LOG.info("###F-score calculations " + (label==null? "" : " for " + label.toString()));
 			precisions = new HashMap<E, Double>();
 			recalls = new HashMap<E, Double>();
 			fScores = new HashMap<E, Double>();
@@ -184,8 +191,8 @@ public class FScoreCalculator<E> {
 				totalFalsePositiveCount += falsePositiveCount;
 				totalFalseNegativeCount += falseNegativeCount;
 			}
-			totalPrecision = totalTruePositiveCount / (totalTruePositiveCount + totalFalsePositiveCount);
-			totalRecall = totalTruePositiveCount / (totalTruePositiveCount + totalFalseNegativeCount);
+			totalPrecision = (double) totalTruePositiveCount / ((double) totalTruePositiveCount + (double) totalFalsePositiveCount);
+			totalRecall = (double) totalTruePositiveCount / ((double) totalTruePositiveCount + (double) totalFalseNegativeCount);
 			totalFScore = (2 * totalPrecision * totalRecall) / (totalPrecision + totalRecall);
 			LOG.info("Total tests: " + testCount);
 			LOG.info("Total true positives: " + totalTruePositiveCount);
@@ -382,15 +389,18 @@ public class FScoreCalculator<E> {
 		return totalFScore;
 	}
 
-	public double getTotalTruePositiveCount() {
+	public int getTotalTruePositiveCount() {
+		this.evaluate();
 		return totalTruePositiveCount;
 	}
 
-	public double getTotalFalsePositiveCount() {
+	public int getTotalFalsePositiveCount() {
+		this.evaluate();
 		return totalFalsePositiveCount;
 	}
 
-	public double getTotalFalseNegativeCount() {
+	public int getTotalFalseNegativeCount() {
+		this.evaluate();
 		return totalFalseNegativeCount;
 	}
 

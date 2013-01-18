@@ -223,15 +223,21 @@ public class PerformanceMonitor {
 			return;
 		Set<TaskStats> taskStatSet = new TreeSet<TaskStats>(taskStatMap.values());
 		try {
-			csvWriter.write("name,call count,total time (s),%,average time (ms),total time with subtasks (s),%,\n");
+			csvWriter.write(CSVFormatter.format("name")
+					+ CSVFormatter.format("call count")
+					+ CSVFormatter.format("total time (s)")
+					+ CSVFormatter.format("%")
+					+ CSVFormatter.format("average time (ms)")
+					+ CSVFormatter.format("total time with subtasks (s)")
+					+ CSVFormatter.format("%") + "\n");
 			for (TaskStats stats : taskStatSet) {
-				csvWriter.write(CSVFormatter.format(stats.name) + ",");
-				csvWriter.write(CSVFormatter.format(stats.callCount) + ",");
-				csvWriter.write(CSVFormatter.format((double)stats.totalTime / 1000) + ",");
-				csvWriter.write(CSVFormatter.format(((double)stats.totalTime / (double) root.totalTime) * 100.0 ) + ",");
-				csvWriter.write(CSVFormatter.format(((double)stats.totalTime / (double) stats.callCount) ) + ",");
-				csvWriter.write(CSVFormatter.format((double)stats.totalTimeWithSubTasks / 1000) + ",");
-				csvWriter.write(CSVFormatter.format(((double)stats.totalTimeWithSubTasks / (double) root.totalTime) * 100.0 ) + ",");
+				csvWriter.write(CSVFormatter.format(stats.name));
+				csvWriter.write(CSVFormatter.format(stats.callCount));
+				csvWriter.write(CSVFormatter.format((double)stats.totalTime / 1000));
+				csvWriter.write(CSVFormatter.format(((double)stats.totalTime / (double) root.totalTime) * 100.0 ));
+				csvWriter.write(CSVFormatter.format(((double)stats.totalTime / (double) stats.callCount) ));
+				csvWriter.write(CSVFormatter.format((double)stats.totalTimeWithSubTasks / 1000));
+				csvWriter.write(CSVFormatter.format(((double)stats.totalTimeWithSubTasks / (double) root.totalTime) * 100.0 ));
 				csvWriter.write("\n");
 			}
 		} catch (IOException ioe) {

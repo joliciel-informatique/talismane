@@ -20,9 +20,11 @@ package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.features.TokenFeature;
 
 /**
  * 
@@ -47,15 +49,29 @@ class PosTaggerContextImpl implements PosTaggerContext, HasFeatureCache {
 		return this.history;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature) {
-		return this.getToken().getResultFromCache(feature);
+		Feature theFeature = feature;
+		while (feature instanceof FeatureWrapper)
+			theFeature = ((FeatureWrapper) feature).getWrappedFeature();
+		if (theFeature instanceof PosTaggedTokenFeature
+				|| theFeature instanceof TokenFeature)
+			return this.getToken().getResultFromCache(feature);
+		else
+			return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public <T, Y> void putResultInCache(Feature<T, Y> feature,
 			FeatureResult<Y> featureResult) {
-		this.getToken().putResultInCache(feature, featureResult);
+		Feature theFeature = feature;
+		while (feature instanceof FeatureWrapper)
+			theFeature = ((FeatureWrapper) feature).getWrappedFeature();
+		if (theFeature instanceof PosTaggedTokenFeature
+				|| theFeature instanceof TokenFeature)
+			this.getToken().putResultInCache(feature, featureResult);
 	}
 
 }

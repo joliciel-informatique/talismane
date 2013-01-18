@@ -119,8 +119,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			PriorityQueue<PosTagSequence> finalHeap = null;
 			while (heaps.size()>0) {
 				Entry<Double, PriorityQueue<PosTagSequence>> heapEntry = heaps.pollFirstEntry();
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("heap key: " + heapEntry.getKey() + ", sentence length: " + sentenceLength);
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("heap key: " + heapEntry.getKey() + ", sentence length: " + sentenceLength);
 				}
 				if (heapEntry.getKey()==sentenceLength) {
 					finalHeap = heapEntry.getValue();
@@ -134,9 +134,11 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 				for (int j = 0; j<maxSequences; j++) {
 					PosTagSequence history = previousHeap.poll();
 					Token token = history.getNextToken();
-					if (LOG.isTraceEnabled())
-						LOG.trace("####Next history: " + history.toString());
-						LOG.trace("Token: " + token.getText());
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("#### Next history ( " + heapEntry.getKey() + "): " + history.toString());
+						LOG.debug("Prob: " + df.format(history.getScore()));
+						LOG.debug("Token: " + token.getText());
+					}
 					
 					PosTaggerContext context = this.getPosTaggerFeatureService().getContext(token, history);
 					List<Decision<PosTag>> decisions = new ArrayList<Decision<PosTag>>();

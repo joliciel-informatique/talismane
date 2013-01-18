@@ -19,6 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
  * A token together with a piece of information that is tagged onto it.
@@ -28,7 +29,7 @@ import com.joliciel.talismane.machineLearning.Decision;
  *
  * @param <T>
  */
-public interface TaggedToken<T extends TokenTag> extends Comparable<TaggedToken<T>> {
+public interface TaggedToken<T extends TokenTag> extends Comparable<TaggedToken<T>>, TokenWrapper {
 	/**
 	 * The token being tagged.
 	 * @return

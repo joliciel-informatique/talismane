@@ -18,7 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.parser;
 
+import java.io.File;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -31,11 +35,17 @@ import com.joliciel.talismane.stats.FScoreCalculator;
  *
  */
 public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver {
+	private static final Log LOG = LogFactory.getLog(ParseEvaluationFScoreCalculator.class);
 	FScoreCalculator<String> fscoreCalculator = new FScoreCalculator<String>();
 	private boolean labeledEvaluation = true;
 	private boolean hasTokeniser = false;
 	private boolean hasPosTagger = false;
+	private File fscoreFile;
 	
+	public ParseEvaluationFScoreCalculator() {}
+	public ParseEvaluationFScoreCalculator(File fscoreFile) {
+		this.fscoreFile = fscoreFile;
+	}
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration realConfiguration,
 			List<ParseConfiguration> guessedConfigurations) {
@@ -63,26 +73,31 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 				if (realLabel==null||realLabel.length()==0) realLabel = "noLabel";
 				if (guessedLabel==null||guessedLabel.length()==0) guessedLabel = "noLabel";
 				
+				// anything attached "by default" to the root, without a label, should be considered a "no head" rather than "no label"
+				if (realArc!=null && realArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && realLabel.equals("noLabel"))
+					realLabel = "noHead";
+				if (guessedArc!=null && guessedArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && guessedLabel.equals("noLabel"))
+					guessedLabel = "noHead";
+				
 				if (realArc==null || guessedArc==null) {
 					fscoreCalculator.increment(realLabel, guessedLabel);
 				} else {
-					if (hasTokeniser || hasPosTagger) {
-						if (realArc.getHead().getToken().getStartIndex()==guessedArc.getHead().getToken().getStartIndex()) {
-							fscoreCalculator.increment(realLabel, guessedLabel);
-						} else if (realArc.getLabel().equals(guessedArc.getLabel())) {
-							fscoreCalculator.increment(realLabel, "wrongHead");
-						} else {
-							fscoreCalculator.increment(realLabel, "wrongHeadWrongLabel");
-						}
+					boolean sameHead = false;
+					if (hasTokeniser || hasPosTagger)
+						sameHead = realArc.getHead().getToken().getStartIndex()==guessedArc.getHead().getToken().getStartIndex();
+					else
+						sameHead = realArc.getHead().equals(guessedArc.getHead());
+
+					if (sameHead) {
+						fscoreCalculator.increment(realLabel, guessedLabel);
+					} else if (guessedLabel.equals("noHead")) {
+						fscoreCalculator.increment(realLabel, "noHead");
+					} else if (realArc.getLabel().equals(guessedArc.getLabel())) {
+						fscoreCalculator.increment(realLabel, "wrongHead");
 					} else {
-						if (realArc.getHead().equals(guessedArc.getHead())) {
-							fscoreCalculator.increment(realLabel, guessedLabel);
-						} else if (realArc.getLabel().equals(guessedArc.getLabel())) {
-							fscoreCalculator.increment(realLabel, "wrongHead");
-						} else {
-							fscoreCalculator.increment(realLabel, "wrongHeadWrongLabel");
-						}
+						fscoreCalculator.increment(realLabel, "wrongHeadWrongLabel");
 					}
+					
 				}
 			}
 		}
@@ -102,7 +117,13 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 
 	@Override
 	public void onEvaluationComplete() {
-		// nothing to do here
+		if (fscoreFile!=null) {
+			FScoreCalculator<String> fScoreCalculator = this.getFscoreCalculator();
+			
+			double fscore = fScoreCalculator.getTotalFScore();
+			LOG.debug("F-score: " + fscore);
+			fScoreCalculator.writeScoresToCSVFile(fscoreFile);
+		}
 	}
 
 	public boolean isHasTokeniser() {

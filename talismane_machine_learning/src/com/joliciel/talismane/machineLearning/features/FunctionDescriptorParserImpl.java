@@ -63,8 +63,10 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 			if (context.inQuote && context.c!='"') {
 				if (context.c=='\\') {
 					// escape for a double-quote or back-slash
-					i++;
-					context.c = text.charAt(i);
+					if (text.charAt(i+1)=='"' || text.charAt(i+1)=='\\') {
+						i++;
+						context.c = text.charAt(i);
+					}
 				}
 				context.currentString += "" + context.c;
 			} else if (context.c=='('||context.c=='[') {

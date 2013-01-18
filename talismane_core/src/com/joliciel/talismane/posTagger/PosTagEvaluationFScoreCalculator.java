@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +41,15 @@ public class PosTagEvaluationFScoreCalculator implements
 	private FScoreCalculator<String> fscoreUnknownInLexicon = new FScoreCalculator<String>();
 	
 	private Set<String> unknownWords;
+	private File fScoreFile;
 	
+	public PosTagEvaluationFScoreCalculator() { }
+	
+	public PosTagEvaluationFScoreCalculator(File fScoreFile) {
+		super();
+		this.fScoreFile = fScoreFile;
+	}
+
 	@Override
 	public void onNextPosTagSequence(PosTagSequence realSequence,
 			List<PosTagSequence> guessedSequences) {
@@ -126,5 +135,8 @@ public class PosTagEvaluationFScoreCalculator implements
 	@Override
 	public void onEvaluationComplete() {
 		fScoreCalculator.getTotalFScore();
+		if (fScoreFile!=null) {
+			fScoreCalculator.writeScoresToCSVFile(fScoreFile);
+		}
 	}
 }

@@ -62,7 +62,11 @@ public interface Talismane {
 		 * Process an annotated corpus - Talismane simply reads the corpus using the appropriate corpus reader
 		 * and passes the results to the appropriate processors.
 		 */
-		process
+		process,
+		/**
+		 * Compare two annotated corpora.
+		 */
+		compare
 	}
 
 	/**

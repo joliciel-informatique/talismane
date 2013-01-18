@@ -23,11 +23,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.frenchTreebank.TreebankReader;
+import com.joliciel.frenchTreebank.TreebankServiceLocator;
+import com.joliciel.frenchTreebank.export.FtbPosTagMapper;
+import com.joliciel.frenchTreebank.export.TreebankExportService;
+import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.ftbDep.FtbDepReader;
 import com.joliciel.lefff.LefffMemoryBase;
 import com.joliciel.lefff.LefffMemoryLoader;
@@ -36,8 +42,11 @@ import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.parser.TransitionSystem;
+import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenAfterDuFilter;
+import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenBeforeDuquelFilter;
 
 /**
  * The default French implementation of Talismane.
@@ -54,9 +63,14 @@ public class TalismaneFrench extends TalismaneConfig {
 	public static void main(String[] args) throws Exception {
     	Map<String,String> argsMap = TalismaneConfig.convertArgs(args);
     	String corpusReaderType = null;
+    	String treebankDirPath = null;
     	if (argsMap.containsKey("corpusReader")) {
     		corpusReaderType = argsMap.get("corpusReader");
     		argsMap.remove("corpusReader");
+    	}
+    	if (argsMap.containsKey("treebankDir")) {
+    		treebankDirPath = argsMap.get("treebankDir");
+    		argsMap.remove("treebankDir");
     	}
     	
     	TalismaneFrench config = new TalismaneFrench(argsMap);
@@ -67,8 +81,26 @@ public class TalismaneFrench extends TalismaneConfig {
     		if (corpusReaderType.equals("ftbDep")) {
     			File inputFile = new File(config.getInFilePath());
     			FtbDepReader ftbDepReader = new FtbDepReader(inputFile);
-    			config.setParserCorpusReader(ftbDepReader);
-    		}
+    			ftbDepReader.addTokenSequenceFilter(new EmptyTokenAfterDuFilter(true));
+    			ftbDepReader.addTokenSequenceFilter(new EmptyTokenBeforeDuquelFilter(true));
+	  			config.setParserCorpusReader(ftbDepReader);
+	  		} else if (corpusReaderType.equals("ftb")) {
+	  			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+	  			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
+	  			TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
+				TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
+	  			File treebankFile = new File(treebankDirPath);
+
+	  			InputStream posTagMapStream = config.getDefaultPosTagMapFromStream();
+	  			Scanner scanner = new Scanner(posTagMapStream,"UTF-8");
+	  			List<String> descriptors = new ArrayList<String>();
+	  			while (scanner.hasNextLine())
+	  				descriptors.add(scanner.nextLine());
+				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, config.getDefaultPosTagSet());
+				TreebankReader treebankReader = treebankUploadService.getXmlReader(treebankFile);
+				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper);
+				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);
+	  		}
     	}
     	
     	TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
@@ -117,7 +149,8 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public InputStream getDefaultParserRulesFromStream() {
-		InputStream inputStream = getInputStreamFromResource("parserRules_fr.txt");
+//		InputStream inputStream = getInputStreamFromResource("parserRules_fr.txt");
+		InputStream inputStream = null;
 		return inputStream;
 	}
 
@@ -145,7 +178,7 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultPosTaggerModelStream() {
-		String posTaggerModelName = "ftbPosTagger_fr11.zip";
+		String posTaggerModelName = "ftbPosTagger_fr12.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(posTaggerModelName);
 	}
 
@@ -176,6 +209,11 @@ public class TalismaneFrench extends TalismaneConfig {
 	@Override
 	public InputStream getDefaultTokenFiltersFromStream() {
 		InputStream inputStream = getInputStreamFromResource("token_filters.txt");
+		return inputStream;
+	}
+	
+	public InputStream getDefaultPosTagMapFromStream() {
+		InputStream inputStream = getInputStreamFromResource("ftbCrabbeCanditoTagsetMap.txt");
 		return inputStream;
 	}
 
