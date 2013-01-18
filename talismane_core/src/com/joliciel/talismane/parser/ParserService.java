@@ -48,6 +48,7 @@ public interface ParserService {
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 
 	public ParserEvaluator getParserEvaluator();
+	public ParseComparator getParseComparator();
 
 	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 }

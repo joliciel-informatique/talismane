@@ -35,6 +35,7 @@ public class CSVFormatter {
     private static DecimalFormat intFormat;
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static boolean addQuotesAlwaysLocal = false;
+    private static String csvSeparator = ",";
     
 	private static Pattern csvSeparators = Pattern.compile("[,\"]");
 	private enum TokenType {
@@ -56,8 +57,8 @@ public class CSVFormatter {
      */
     public static String format(double number) {
     	if (addQuotesAlwaysLocal)
-    		return "\"" + decFormat.format(number) + "\"";
-		return decFormat.format(number);
+    		return "\"" + decFormat.format(number) + "\"" + csvSeparator;
+		return decFormat.format(number) + csvSeparator;
 	}
     
     /**
@@ -67,8 +68,8 @@ public class CSVFormatter {
      */
     public static String format(float number) {
     	if (addQuotesAlwaysLocal)
-    		return "\"" + decFormat.format(number) + "\"";
-		return decFormat.format(number);
+    		return "\"" + decFormat.format(number) + "\"" + csvSeparator;
+		return decFormat.format(number) + csvSeparator;
 	}
     
     /**
@@ -78,8 +79,8 @@ public class CSVFormatter {
      */
     public static String format(int number) {
     	if (addQuotesAlwaysLocal)
-    		return "\"" + intFormat.format(number) + "\"";
-		return intFormat.format(number);
+    		return "\"" + intFormat.format(number) + "\"" + csvSeparator;
+		return intFormat.format(number) + csvSeparator;
 	}
     
     /**
@@ -89,15 +90,15 @@ public class CSVFormatter {
      */
     public static String format(String string) {
     	int quotePos = string.indexOf('"');
-    	int commaPos = string.indexOf(',');
+    	int commaPos = string.indexOf(csvSeparator);
        	int apostrophePos = string.indexOf('\'');
 		if (quotePos>=0) {
 			string = string.replace("\"", "\"\"");
 		}
 		if (quotePos>=0||commaPos>=0||apostrophePos>=0||addQuotesAlwaysLocal)
-			return "\"" + string + "\"";
+			return "\"" + string + "\"" + csvSeparator;
 		else
-			return string;
+			return string + csvSeparator;
    	
     }
     
@@ -132,7 +133,7 @@ public class CSVFormatter {
 				} else {
 					lastToken = TokenType.QUOTE;
 				}
-			} else if (token.equals(",")) {
+			} else if (token.equals(csvSeparator)) {
 				if (inQuote) {
 					currentCell.append(token);
 					lastToken = TokenType.OTHER;
@@ -175,4 +176,19 @@ public class CSVFormatter {
 	public static void setAddQuotesAlways(boolean addQuotesAlways) {
 		addQuotesAlwaysLocal = addQuotesAlways;
 	}
+
+	/**
+	 * The CSV separator to be used (default is a comma).
+	 * @return
+	 */
+	public static String getCsvSeparator() {
+		return csvSeparator;
+	}
+
+	public static void setCsvSeparator(String separator) {
+		csvSeparator = separator;
+		csvSeparators = Pattern.compile("[" + csvSeparator + "\"]");
+	}
+	
+	
 }

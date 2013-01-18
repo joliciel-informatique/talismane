@@ -36,7 +36,7 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
 	private Set<LexicalEntry> lexicalEntries = null;
-	private static final DecimalFormat df = new DecimalFormat("0.00");
+	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private String conllLemma = null;
 	
 	PosTaggedTokenImpl(PosTaggedTokenImpl taggedTokenToClone) {

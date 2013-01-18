@@ -40,22 +40,21 @@ import com.joliciel.talismane.filters.SentenceHolder;
 import com.joliciel.talismane.filters.TextMarker;
 import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.parser.NonDeterministicParser;
+import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
-import com.joliciel.talismane.parser.ParseEvaluationFScoreCalculator;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
-import com.joliciel.talismane.posTagger.PosTagEvaluationFScoreCalculator;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
-import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -146,49 +145,20 @@ class TalismaneImpl implements Talismane {
 
 				if (config.getModule().equals(Talismane.Module.PosTagger)) {
 					PosTaggerEvaluator posTaggerEvaluator = config.getPosTaggerEvaluator();
-					
-					PosTagEvaluationFScoreCalculator posTagFScoreCalculator = new PosTagEvaluationFScoreCalculator();
-					posTaggerEvaluator.addObserver(posTagFScoreCalculator);
-					
-					posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());
-					
-					FScoreCalculator<String> fScoreCalculator = posTagFScoreCalculator.getFScoreCalculator();
-					
-					double unknownLexiconFScore = posTagFScoreCalculator.getFscoreUnknownInLexicon().getTotalFScore();
-					LOG.debug("F-score for words unknown in lexicon: " + unknownLexiconFScore);
-					if (posTagFScoreCalculator.getFscoreUnknownInCorpus()!=null) {
-						double unknownCorpusFScore = posTagFScoreCalculator.getFscoreUnknownInCorpus().getTotalFScore();
-						LOG.debug("F-score for words unknown in corpus: " + unknownCorpusFScore);
-					}
-					
-					double fscore = fScoreCalculator.getTotalFScore();
-					LOG.debug("F-score: " + fscore);
-					File fscoreFile = new File(config.getOutDir(), config.getBaseName() + ".fscores.csv");
-					fScoreCalculator.writeScoresToCSVFile(fscoreFile);
-					
+					posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());					
 				} else if (config.getModule().equals(Talismane.Module.Parser)) {
 					ParserEvaluator parserEvaluator = config.getParserEvaluator();
-
-					ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator();
-					parseFScoreCalculator.setLabeledEvaluation(true);
-					
-					if (parserEvaluator.getTokeniser()!=null)
-						parseFScoreCalculator.setHasTokeniser(true);
-					if (parserEvaluator.getPosTagger()!=null)
-						parseFScoreCalculator.setHasPosTagger(true);
-					parserEvaluator.addObserver(parseFScoreCalculator);
-					
 					parserEvaluator.evaluate(config.getParserCorpusReader());
-					FScoreCalculator<String> fScoreCalculator = parseFScoreCalculator.getFscoreCalculator();
-					
-					double fscore = fScoreCalculator.getTotalFScore();
-					LOG.debug("F-score: " + fscore);
-					File fscoreFile = new File(config.getOutDir(), config.getBaseName() + ".fscores.csv");
-					fScoreCalculator.writeScoresToCSVFile(fscoreFile);
 				} else {
 					throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
 				}
-
+			} else if (config.getCommand().equals(Command.compare)) {
+				if (config.getModule().equals(Talismane.Module.Parser)) {
+					ParseComparator parseComparator = config.getParseComparator();
+					parseComparator.evaluate(config.getParserCorpusReader(), config.getParserEvaluationCorpusReader());
+				} else {
+					throw new TalismaneException("Command 'compare' does not yet support module: " + config.getModule());
+				}
 			} // which command?
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
@@ -199,12 +169,8 @@ class TalismaneImpl implements Talismane {
 			if (config.isLogPerformance()) {
 				try {
 					Writer csvFileWriter = null;
-					File csvFile = null;
-					if (config.getOutDir()!=null) {
-						csvFile = new File(config.getOutDir(), "performance.csv");
-					} else {
-						csvFile = new File("performance.csv");
-					}
+					File csvFile  =new File(config.getOutDir(), config.getBaseName() + ".performance.csv");
+					
 					csvFile.delete();
 					csvFile.createNewFile();
 					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
@@ -215,9 +181,27 @@ class TalismaneImpl implements Talismane {
 					LogUtils.logError(LOG, e);
 				}
 			}
+			
 			long endTime = new Date().getTime();
 			long totalTime = endTime - startTime;
 			LOG.info("Total time: " + totalTime);
+			
+			if (config.isLogStats()) {
+				try {
+					Writer csvFileWriter = null;
+					File csvFile  =new File(config.getOutDir(), config.getBaseName() + ".stats.csv");
+					
+					csvFile.delete();
+					csvFile.createNewFile();
+					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					csvFileWriter.write(CSVFormatter.format("total time")
+							+ CSVFormatter.format(totalTime) + "\n");
+					csvFileWriter.flush();
+					csvFileWriter.close();
+				} catch (Exception e) {
+					LogUtils.logError(LOG, e);
+				}
+			}
 		}
 	}
 

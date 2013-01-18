@@ -267,6 +267,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 					PerformanceMonitor.startTask("heap sort");
 					try {
 						//TODO: why apply all decisions here? Why not just the top N (where N = beamwidth)?
+						// Answer: because we're not always adding solutions to the same heap (validity to be confirmed)
 						for (Decision<Transition> decision : decisions) {
 							Transition transition = decision.getOutcome();
 							if (LOG.isTraceEnabled())

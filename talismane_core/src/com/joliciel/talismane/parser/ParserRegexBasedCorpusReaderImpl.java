@@ -271,6 +271,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							word = CoNLLFormatter.fromCoNLL(word);
 							String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
 							String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
+							if (depLabel.equals("_"))
+								depLabel = "";
 							int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(GOVERNOR_PLACEHOLDER)));
 							
 							ParseDataLine dataLine = new ParseDataLine();
@@ -562,7 +564,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			String regexWithGroups = regex.replace(INDEX_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(TOKEN_PLACEHOLDER, "(.*)");
 			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.*)");
 			regexWithGroups = regexWithGroups.replace(GOVERNOR_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");

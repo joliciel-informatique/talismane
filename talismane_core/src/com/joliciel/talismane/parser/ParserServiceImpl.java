@@ -146,6 +146,13 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public void setMacheLearningService(MachineLearningService macheLearningService) {
 		this.macheLearningService = macheLearningService;
 	}
+
+	@Override
+	public ParseComparator getParseComparator() {
+		ParseComparatorImpl parseComparator = new ParseComparatorImpl();
+		parseComparator.setParserServiceInternal(this);
+		return parseComparator;
+	}
 	
 	
 }

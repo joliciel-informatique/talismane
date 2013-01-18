@@ -16,37 +16,25 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser;
-
-import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.tokeniser.features.TokenWrapper;
+package com.joliciel.talismane.parser;
 
 /**
- * A token together with a piece of information that is tagged onto it.
- * This can either be a tokeniser decision (whether or not this token is attached to the previous/next token)
- * or a PosTag, or any other piece of information added by the learners.
+ * Compare two annotated corpora, one serving as reference and the other as
+ * an evaluation.
+ * Note: it is assumed that the corpora have an exact matching set of parse configurations!
  * @author Assaf Urieli
  *
- * @param <T>
  */
-public interface TaggedToken<T extends TokenTag> extends Comparable<TaggedToken<T>>, TokenWrapper {
-	/**
-	 * The token being tagged.
-	 * @return
-	 */
-	public Token getToken();
-	public void setToken(Token token);
+public interface ParseComparator {
+	public void evaluate(ParserAnnotatedCorpusReader referenceCorpusReader,
+			ParserAnnotatedCorpusReader evaluationCorpusReader);
 	
+	public void addObserver(ParseEvaluationObserver observer);
+
 	/**
-	 * The Tag for this token.
-	 * @return
+	 * The maximum number of sentences to evaluate. Default is 0, which means all.
+	 * @param sentenceCount
 	 */
-	public T getTag();
-	public void setTag(T tag);
-	
-	/**
-	 * The decision which was used to tag this token.
-	 * @return
-	 */
-	public Decision<T> getDecision();
+	public abstract void setSentenceCount(int sentenceCount);
+	public abstract int getSentenceCount();
 }
