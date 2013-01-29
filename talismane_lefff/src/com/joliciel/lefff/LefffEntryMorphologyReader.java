@@ -1,5 +1,6 @@
 package com.joliciel.lefff;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +25,8 @@ class LefffEntryMorphologyReader implements LexicalEntryMorphologyReader {
 		return lexicalEntry;
 	}
 
-	private static final class MorphologyReaderEntry implements LexicalEntry {
+	public static final class MorphologyReaderEntry implements LexicalEntry, Serializable {
+		private static final long serialVersionUID = 7890965710636824550L;
 		private String word;
 		private String lemma;
 		private String lemmaComplement;

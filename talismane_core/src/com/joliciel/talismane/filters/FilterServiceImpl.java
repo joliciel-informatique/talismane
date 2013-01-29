@@ -70,7 +70,7 @@ class FilterServiceImpl implements FilterService {
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes,
 			String regex) {
-		return this.getRegexMarkerFilter(filterTypes, regex, -1);
+		return this.getRegexMarkerFilter(filterTypes, regex, 0);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ class FilterServiceImpl implements FilterService {
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types,
 			String regex) {
-		return this.getRegexMarkerFilter(types, regex, -1);
+		return this.getRegexMarkerFilter(types, regex, 0);
 	}
 
 

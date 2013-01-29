@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.ObjectCache;
@@ -364,8 +365,7 @@ class LefffServiceImpl implements LefffServiceInternal {
 
 
 	@Override
-	public Map<String, List<LefffEntry>> findEntryMap() {
-//		LefffServiceMemory lefffServiceMemory = new LefffServiceMemory();
+	public Map<String, List<LexicalEntry>> findEntryMap() {
 		return this.lefffDao.findEntryMap();
 	}
 

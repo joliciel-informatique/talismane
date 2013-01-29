@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import java.util.Set;
+import java.util.List;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
@@ -40,8 +40,8 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * All lexical entries for this token/postag combination.
 	 * @return
 	 */
-	public Set<LexicalEntry> getLexicalEntries();
-	public void setLexicalEntries(Set<LexicalEntry> lexicalEntries);
+	public List<LexicalEntry> getLexicalEntries();
+	public void setLexicalEntries(List<LexicalEntry> lexicalEntries);
 	
 	public PosTaggedToken clonePosTaggedToken();
 	

@@ -21,7 +21,7 @@ package com.joliciel.talismane.parser;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -41,20 +41,26 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class ParserRegexBasedCorpusReaderImpl implements
-		ParserRegexBasedCorpusReader {
+		ParserRegexBasedCorpusReader, PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader {
     private static final Log LOG = LogFactory.getLog(ParserRegexBasedCorpusReaderImpl.class);
 	private String regex = ParserRegexBasedCorpusReader.DEFAULT_REGEX;
 	private static final String INDEX_PLACEHOLDER = "%INDEX%";
@@ -73,12 +79,17 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private ParserService parserService;
 	private PosTaggerService posTaggerService;
 	private TokeniserService tokeniserService;
+	private TokenFilterService tokenFilterService;
 	
 	private int maxSentenceCount = 0;
 	private int sentenceCount = 0;
 	private int lineNumber = 0;
 
-	private List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
+	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
+	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
+	private TokenSequenceFilter tokenFilterWrapper = null;
+
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	
 	private LexicalEntryReader lexicalEntryReader;
@@ -145,7 +156,15 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									LOG.debug("Sentence " + sentenceCount + ": " + tokenSequence.getText());
 									
 									tokenSequence.cleanSlate();
-									for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
+									
+									// first apply the token filters - which might replace the text of an individual token
+									// with something else
+									if (tokenFilterWrapper==null) {
+										tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
+									}
+									tokenFilterWrapper.apply(tokenSequence);
+									
+									for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 										tokenFilter.apply(tokenSequence);
 									}
 									
@@ -224,7 +243,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										
 										// set the lexical entry if we have one
 										if (this.lexicalEntryReader!=null) {
-											Set<LexicalEntry> lexicalEntrySet = new HashSet<LexicalEntry>(1);
+											List<LexicalEntry> lexicalEntrySet = new ArrayList<LexicalEntry>(1);
 											if (!tokenSequence.getTokensAdded().contains(token)) {
 												lexicalEntrySet.add(lexicalEntries.get(lexicalEntryIndex++));
 											}
@@ -235,6 +254,10 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										i++;
 									}
 									
+				    				for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+				    					posTagSequenceFilter.apply(posTagSequence);
+				    				}
+
 									PosTaggedToken rootToken = posTagSequence.prependRoot();
 									idTokenMap.put(0, rootToken);
 									
@@ -267,8 +290,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							}
 							
 							int index = Integer.parseInt(matcher.group(placeholderIndexMap.get(INDEX_PLACEHOLDER)));
-							String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-							word = CoNLLFormatter.fromCoNLL(word);
+							String rawWord =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+							String word = this.readWord(rawWord);
 							String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
 							String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
 							if (depLabel.equals("_"))
@@ -492,9 +515,13 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	public void setMaxSentenceCount(int maxSentenceCount) {
 		this.maxSentenceCount = maxSentenceCount;
 	}
+
+	public void addTokenFilter(TokenFilter tokenFilter) {
+		this.tokenFilters.add(tokenFilter);
+	}
 	
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.tokenFilters.add(tokenFilter);
+		this.tokenSequenceFilters.add(tokenFilter);
 	}
 
 	@Override
@@ -505,7 +532,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		attributes.put("transitionSystem", TalismaneSession.getTransitionSystem().getClass().getSimpleName());
 		
 		int i = 0;
-		for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
+		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 			attributes.put("filter" + i, "" + tokenFilter.getClass().getSimpleName());
 			
 			i++;
@@ -587,5 +614,73 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		this.lexicalEntryReader = lexicalEntryReader;
 	}
 	
+
+	@Override
+	public void addPosTagSequenceFilter(
+			PosTagSequenceFilter posTagSequenceFilter) {
+		this.posTagSequenceFilters.add(posTagSequenceFilter);
+	}
 	
+
+	public TokenFilterService getTokenFilterService() {
+		if (this.tokenFilterService==null) {
+			this.tokenFilterService = locator.getTokenFilterServiceLocator().getTokenFilterService();
+		}
+		return tokenFilterService;
+	}
+
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
+	}
+	
+
+
+	@Override
+	public boolean hasNextPosTagSequence() {
+		return this.hasNextConfiguration();
+	}
+
+
+	@Override
+	public PosTagSequence nextPosTagSequence() {
+		PosTagSequence sequence = this.nextConfiguration().getPosTagSequence();
+		PosTagSequence clone = sequence.clonePosTagSequence();
+		clone.removeRoot();
+		return clone;
+	}
+
+
+	@Override
+	public boolean hasNextTokenSequence() {
+		return this.hasNextConfiguration();
+	}
+
+
+	@Override
+	public TokenSequence nextTokenSequence() {
+		TokenSequence tokenSequence = this.nextPosTagSequence().getTokenSequence();
+		return tokenSequence;
+	}
+
+
+	@Override
+	public Map<String, String> getCharacteristics() {
+		Map<String,String> characteristics = new LinkedHashMap<String, String>();
+		return characteristics;
+	}
+
+	@Override
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
+		return this.tokenSequenceFilters;
+	}
+
+	@Override
+	public List<TokenFilter> getTokenFilters() {
+		return this.tokenFilters;
+	}
+	
+	protected String readWord(String rawWord) {
+		return CoNLLFormatter.fromCoNLL(rawWord);
+	}
 }

@@ -21,8 +21,8 @@ package com.joliciel.lefff;
 import java.io.Serializable;
 import java.util.Map;
 
+import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 
 /**
  * An in-memory representation of the lefff lexicon.

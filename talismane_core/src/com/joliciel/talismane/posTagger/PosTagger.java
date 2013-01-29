@@ -24,6 +24,7 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
@@ -33,8 +34,6 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  *
  */
 public interface PosTagger {
-	public static final String POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY = "postag_preprocessing_filter";
-	
 	/**
 	 * Apply PosTags to the tokens in a given sentence.
 	 * @param tokens the List of tokens comprising the sentence.
@@ -58,11 +57,19 @@ public interface PosTagger {
 	 * Filters to be applied to the token sequences prior to pos-tagging.
 	 * @return
 	 */
-	public List<TokenSequenceFilter> getPreprocessingFilters();
+	public List<TokenSequenceFilter> getPreProcessingFilters();
 
-	public void setPreprocessingFilters(List<TokenSequenceFilter> tokenFilters);
+	public void setPreProcessingFilters(List<TokenSequenceFilter> tokenFilters);
 	
-	public void addPreprocessingFilter(TokenSequenceFilter tokenFilter);
+	public void addPreProcessingFilter(TokenSequenceFilter tokenFilter);
 
+	/**
+	 * Filters to be applied to the final pos-tag sequences after pos-tagging.
+	 * @return
+	 */
+	public List<PosTagSequenceFilter> getPostProcessingFilters();
 
+	public void setPostProcessingFilters(List<PosTagSequenceFilter> posTagFilters);
+	
+	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter);
 }

@@ -63,10 +63,4 @@ public class ShiftTransition extends AbstractTransition implements Transition {
 	public boolean doesReduce() {
 		return false;
 	}
-
-	@Override
-	public String toString() {
-		return this.getCode();
-	}
-
 }

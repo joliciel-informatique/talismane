@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -39,4 +40,13 @@ public interface PosTagAnnotatedCorpusReader {
 	public PosTagSequence nextPosTagSequence();
 	
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
+	
+	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
+	
+	/**
+	 * If 0, all sentences will be read - otherwise will only read a certain number of sentences.
+	 * @return
+	 */
+	public int getMaxSentenceCount();
+	public void setMaxSentenceCount(int maxSentenceCount);
 }

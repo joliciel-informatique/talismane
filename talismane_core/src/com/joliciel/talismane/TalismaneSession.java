@@ -20,9 +20,9 @@ package com.joliciel.talismane;
 
 import java.util.Locale;
 
+import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerLexicon;
 
 /**
  * A class storing session-wide reference data.
@@ -74,7 +74,7 @@ public class TalismaneSession {
 	public static PosTaggerLexicon getLexicon() {
 		PosTaggerLexicon lexicon = lexiconHolder.get();
 		if (lexicon==null && implementation!=null) {
-			lexicon = implementation.getDefaultLexiconService();
+			lexicon = implementation.getLexicon();
 			TalismaneSession.setLexicon(lexicon);
 		}
 		return lexicon;

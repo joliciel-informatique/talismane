@@ -162,5 +162,11 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
+
+	@Override
+	public PosTagComparator getPosTagComparator() {
+		PosTagComparatorImpl comparator = new PosTagComparatorImpl();
+		return comparator;
+	}
 	
 }

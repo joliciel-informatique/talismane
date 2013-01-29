@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -47,10 +48,14 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
 	private Pattern pattern;
 	private Scanner scanner;
-	private PosTagSequence sentence = null;
+	private PosTagSequence posTagSequence = null;
 	private List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
+	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
 
 	private int lineNumber = 0;
+	private int maxSentenceCount = 0;
+	private int sentenceCount = 0;
+
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
@@ -62,78 +67,90 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	
 	@Override
 	public boolean hasNextPosTagSequence() {
-		while (sentence==null) {
-			PretokenisedSequence tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
-			List<PosTag> posTags = new ArrayList<PosTag>();
-			boolean hasLine = false;
-			if (!scanner.hasNextLine())
-				break;
-			while (scanner.hasNextLine()&&sentence==null) {
-				String line = scanner.nextLine().replace("\r", "");
-				lineNumber++;
-				if (line.length()==0) {
-					if (!hasLine)
-						continue;
-					
-					tokenSequence.cleanSlate();
-					for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
-						tokenFilter.apply(tokenSequence);
+		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+			// we've reached the end, do nothing
+		} else {
+			while (posTagSequence==null) {
+				PretokenisedSequence tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+				List<PosTag> posTags = new ArrayList<PosTag>();
+				boolean hasLine = false;
+				if (!scanner.hasNextLine())
+					break;
+				while (scanner.hasNextLine()&&posTagSequence==null) {
+					String line = scanner.nextLine().replace("\r", "");
+					lineNumber++;
+					if (line.length()==0) {
+						if (!hasLine)
+							continue;
+						
+						tokenSequence.cleanSlate();
+						for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
+							tokenFilter.apply(tokenSequence);
+						}
+						
+						posTagSequence = posTaggerServiceInternal.getPosTagSequence(tokenSequence, tokenSequence.size());
+						int i = 0;
+						PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+	    				for (PosTag posTag : posTags) {
+	    					Token token = tokenSequence.get(i++);
+	    					if (tokenSequence.getTokensAdded().contains(token)) {
+	    						Decision<PosTag> nullDecision = posTagSet.createDefaultDecision(PosTag.NULL_POS_TAG);
+	    						PosTaggedToken emptyToken = posTaggerServiceInternal.getPosTaggedToken(token, nullDecision);
+	    						posTagSequence.addPosTaggedToken(emptyToken);
+	    						token = tokenSequence.get(i++);
+	    					}
+	    					Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
+	    					PosTaggedToken posTaggedToken = posTaggerServiceInternal.getPosTaggedToken(token, corpusDecision);
+	    					posTagSequence.addPosTaggedToken(posTaggedToken);
+	    				}
+	    				
+	    				for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+	    					posTagSequenceFilter.apply(posTagSequence);
+	    				}
+						sentenceCount++;
+					} else {
+						hasLine = true;
+						Matcher matcher = this.getPattern().matcher(line);
+						if (!matcher.matches())
+							throw new TalismaneException("Didn't match pattern on line " + lineNumber);
+						
+						if (matcher.groupCount()!=placeholderIndexMap.size()) {
+							throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+						}
+						
+						String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+						word = CoNLLFormatter.fromCoNLL(word);
+						Token token = tokenSequence.addToken(word);
+						String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
+						if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
+							token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+						if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
+							token.setLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+						if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
+							token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
+						
+	    				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+	    				PosTag posTag = null;
+	    				try {
+	    					posTag = posTagSet.getPosTag(posTagCode);
+	    				} catch (UnknownPosTagException upte) {
+	    					throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
+	    				}
+	    				posTags.add(posTag);
 					}
-					
-					sentence = posTaggerServiceInternal.getPosTagSequence(tokenSequence, tokenSequence.size());
-					int i = 0;
-					PosTagSet posTagSet = TalismaneSession.getPosTagSet();
-    				for (PosTag posTag : posTags) {
-    					Token token = tokenSequence.get(i++);
-    					if (tokenSequence.getTokensAdded().contains(token)) {
-    						Decision<PosTag> nullDecision = posTagSet.createDefaultDecision(PosTag.NULL_POS_TAG);
-    						PosTaggedToken emptyToken = posTaggerServiceInternal.getPosTaggedToken(token, nullDecision);
-    						sentence.addPosTaggedToken(emptyToken);
-    						token = tokenSequence.get(i++);
-    					}
-    					Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
-    					PosTaggedToken posTaggedToken = posTaggerServiceInternal.getPosTaggedToken(token, corpusDecision);
-    					sentence.addPosTaggedToken(posTaggedToken);
-    				}
-				} else {
-					hasLine = true;
-					Matcher matcher = this.getPattern().matcher(line);
-					if (!matcher.matches())
-						throw new TalismaneException("Didn't match pattern on line " + lineNumber);
-					
-					if (matcher.groupCount()!=placeholderIndexMap.size()) {
-						throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
-					}
-					
-					String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-					word = CoNLLFormatter.fromCoNLL(word);
-					Token token = tokenSequence.addToken(word);
-					String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
-					if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
-						token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
-					if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
-						token.setLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
-					if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
-						token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
-					
-    				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
-    				PosTag posTag = null;
-    				try {
-    					posTag = posTagSet.getPosTag(posTagCode);
-    				} catch (UnknownPosTagException upte) {
-    					throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
-    				}
-    				posTags.add(posTag);
 				}
 			}
 		}
-		return (sentence!=null);
+		return (posTagSequence!=null);
 	}
 	
 	@Override
 	public PosTagSequence nextPosTagSequence() {
-		PosTagSequence nextSentence = sentence;
-		sentence = null;
+		PosTagSequence nextSentence = null;
+		if (this.hasNextPosTagSequence()) {
+			nextSentence = posTagSequence;
+			posTagSequence = null;
+		}
 		return nextSentence;
 	}
 
@@ -208,4 +225,18 @@ class PosTagRegexBasedCorpusReaderImpl implements
 		this.tokeniserService = tokeniserService;
 	}
 
+	@Override
+	public void addPosTagSequenceFilter(
+			PosTagSequenceFilter posTagSequenceFilter) {
+		this.posTagSequenceFilters.add(posTagSequenceFilter);
+	}
+
+
+	public int getMaxSentenceCount() {
+		return maxSentenceCount;
+	}
+
+	public void setMaxSentenceCount(int maxSentenceCount) {
+		this.maxSentenceCount = maxSentenceCount;
+	}
 }

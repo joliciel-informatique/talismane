@@ -61,7 +61,7 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 				FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
 				value = doubleResult.getOutcome().doubleValue();
 			}
-			Integer index = featureIndexMap.get(featureResult.getName());
+			Integer index = featureIndexMap.get(featureResult.getTrainingName());
 			if (index!=null) {
 				// we only need to bother adding features which existed in the training set
 				FeatureNode featureNode = new FeatureNode(index.intValue(), value);

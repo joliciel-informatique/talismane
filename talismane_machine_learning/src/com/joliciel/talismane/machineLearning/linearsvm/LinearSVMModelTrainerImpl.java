@@ -97,10 +97,10 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			outcomeList.add(outcomeIndex);
 			Map<Integer,Feature> featureList = new TreeMap<Integer,Feature>();
 			for (FeatureResult<?> featureResult : corpusEvent.getFeatureResults()) {
-				Integer featureIndex = featureIndexMap.get(featureResult.getName());
+				Integer featureIndex = featureIndexMap.get(featureResult.getTrainingName());
 				if (featureIndex==null) {
 					featureIndex = currentFeatureIndex++;
-					featureIndexMap.put(featureResult.getName(), featureIndex);
+					featureIndexMap.put(featureResult.getTrainingName(), featureIndex);
 				}
 				
 				if (cutoff>1) {

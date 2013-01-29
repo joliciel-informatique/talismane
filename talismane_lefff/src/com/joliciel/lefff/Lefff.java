@@ -173,7 +173,7 @@ public class Lefff {
 	       	String[] testCategories = new String[] { "V", "NC", "V", "NC" };
 	       	
 	       	for (int i = 0 ; i< testWords.length; i++) {
-		       	Set<? extends LexicalEntry> testWordEntries = memoryBase.findLexicalEntries(testWords[i], memoryBase.getPosTagSet().getPosTag(testCategories[i]));
+		       	List<LexicalEntry> testWordEntries = memoryBase.findLexicalEntries(testWords[i], memoryBase.getPosTagSet().getPosTag(testCategories[i]));
 	        	LOG.debug("##### Entries for '" + testWords[i] + "', '" + testCategories[i] + "': " + testWordEntries.size());
 	        	for (LexicalEntry entry : testWordEntries) {
 	        		LOG.debug("### Entry " + entry.getWord());
@@ -185,10 +185,10 @@ public class Lefff {
 	        	}
 	       	}
 	       	
-	       	List<? extends LexicalEntry> entriesForPetites = memoryBase.getEntries("petites");
+	       	List<LexicalEntry> entriesForPetites = memoryBase.getEntries("petites");
 	       	LexicalEntry entryForPetite = entriesForPetites.get(0);
 	       	
-	       	List<? extends LexicalEntry> testWordEntries = memoryBase.getEntriesMatchingCriteria(entryForPetite, memoryBase.getPosTagSet().getPosTag("ADJ"), "f", "s");
+	       	List<LexicalEntry> testWordEntries = memoryBase.getEntriesMatchingCriteria(entryForPetite, memoryBase.getPosTagSet().getPosTag("ADJ"), "f", "s");
         	LOG.debug("##### Entries for 'petites', fs: " + testWordEntries.size());
         	for (LexicalEntry entry : testWordEntries) {
         		LOG.debug("### Entry " + entry.getWord());

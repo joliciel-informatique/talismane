@@ -233,6 +233,8 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			} else if ((lastTokenText.endsWith(".") || lastTokenText.equals("?") || lastTokenText.equals("!"))
 					&& (tokenText.equals("\""))) {
 				// do nothing
+			} else if (tokenText.equals("")) {
+				// do nothing for empty tokens
 			} else {
 				// add a space
 				this.addTokenInternal(" ");
@@ -286,8 +288,9 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			throw new TalismaneException("Can only remove empty tokens from token sequence.");
 		}
 		if (LOG.isDebugEnabled())
-			LOG.debug("Removing null empty token at position " + emptyToken.getStartIndex() + ": " + emptyToken);
+			LOG.debug("Removing empty token at position " + emptyToken.getStartIndex() + ": " + emptyToken);
 		this.remove(emptyToken);
+		this.listWithWhiteSpace.remove(emptyToken);
 		this.markModified();
 	}
 	

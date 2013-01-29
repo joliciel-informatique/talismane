@@ -41,6 +41,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -68,7 +69,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private List<PosTaggerRule> posTaggerPositiveRules;
 	private List<PosTaggerRule> posTaggerNegativeRules;
 	
-	private List<TokenSequenceFilter> preprocessingFilters = new ArrayList<TokenSequenceFilter>();
+	private List<TokenSequenceFilter> preProcessingFilters = new ArrayList<TokenSequenceFilter>();
+	private List<PosTagSequenceFilter> postProcessingFilters = new ArrayList<PosTagSequenceFilter>();
 
 	private int beamWidth;
 
@@ -97,7 +99,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			PerformanceMonitor.startTask("PosTaggerImpl.apply filters");
 			try {
 				for (TokenSequence tokenSequence : tokenSequences) {
-					for (TokenSequenceFilter tokenFilter : this.preprocessingFilters) {
+					for (TokenSequenceFilter tokenFilter : this.preProcessingFilters) {
 						tokenFilter.apply(tokenSequence);
 					}
 				}
@@ -119,8 +121,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			PriorityQueue<PosTagSequence> finalHeap = null;
 			while (heaps.size()>0) {
 				Entry<Double, PriorityQueue<PosTagSequence>> heapEntry = heaps.pollFirstEntry();
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("heap key: " + heapEntry.getKey() + ", sentence length: " + sentenceLength);
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("heap key: " + heapEntry.getKey() + ", sentence length: " + sentenceLength);
 				}
 				if (heapEntry.getKey()==sentenceLength) {
 					finalHeap = heapEntry.getValue();
@@ -134,10 +136,10 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 				for (int j = 0; j<maxSequences; j++) {
 					PosTagSequence history = previousHeap.poll();
 					Token token = history.getNextToken();
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("#### Next history ( " + heapEntry.getKey() + "): " + history.toString());
-						LOG.debug("Prob: " + df.format(history.getScore()));
-						LOG.debug("Token: " + token.getText());
+					if (LOG.isTraceEnabled()) {
+						LOG.trace("#### Next history ( " + heapEntry.getKey() + "): " + history.toString());
+						LOG.trace("Prob: " + df.format(history.getScore()));
+						LOG.trace("Token: " + token.getText());
 					}
 					
 					PosTaggerContext context = this.getPosTaggerFeatureService().getContext(token, history);
@@ -306,17 +308,19 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					break;
 			}
 			
-			// remove null empty tokens from the final sequences
-			LOG.debug("####Final sequences:");
+			// apply post-processing filters
+			LOG.debug("####Final postag sequences:");
 			int j = 1;
 			for (PosTagSequence sequence : sequences) {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("Sequence " + (j++) + ", score=" + df.format(sequence.getScore()));
-					LOG.debug("Sequence before remove empty: " + sequence);
+					LOG.debug("Sequence before filters: " + sequence);
 				}
-				sequence.removeEmptyPosTaggedTokens();
+				for (PosTagSequenceFilter filter : this.postProcessingFilters)
+					filter.apply(sequence);
+				
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("Sequence after remove empty: " + sequence);
+					LOG.debug("Sequence after filters: " + sequence);
 				}
 			}
 			
@@ -405,16 +409,28 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		return posTaggerFeatures;
 	}
 	
-	public List<TokenSequenceFilter> getPreprocessingFilters() {
-		return preprocessingFilters;
+	public List<TokenSequenceFilter> getPreProcessingFilters() {
+		return preProcessingFilters;
 	}
 
-	public void setPreprocessingFilters(List<TokenSequenceFilter> tokenFilters) {
-		this.preprocessingFilters = tokenFilters;
+	public void setPreProcessingFilters(List<TokenSequenceFilter> tokenFilters) {
+		this.preProcessingFilters = tokenFilters;
 	}
 	
-	public void addPreprocessingFilter(TokenSequenceFilter tokenFilter) {
-		this.preprocessingFilters.add(tokenFilter);
+	public void addPreProcessingFilter(TokenSequenceFilter tokenFilter) {
+		this.preProcessingFilters.add(tokenFilter);
+	}
+	
+	public List<PosTagSequenceFilter> getPostProcessingFilters() {
+		return postProcessingFilters;
+	}
+
+	public void setPostProcessingFilters(List<PosTagSequenceFilter> posTagFilters) {
+		this.postProcessingFilters = posTagFilters;
+	}
+	
+	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter) {
+		this.postProcessingFilters.add(posTagFilter);
 	}
 	
 }

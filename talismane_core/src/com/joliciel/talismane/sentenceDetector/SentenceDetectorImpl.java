@@ -104,7 +104,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 				}
 				if (LOG.isTraceEnabled()) {
 					for (FeatureResult<?> result : featureResults) {
-						LOG.trace(result.getName() + ": " + result.getOutcome());
+						LOG.trace(result.toString());
 					}
 				}
 				

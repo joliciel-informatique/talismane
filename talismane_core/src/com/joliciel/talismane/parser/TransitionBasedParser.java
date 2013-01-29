@@ -103,6 +103,9 @@ class TransitionBasedParser implements NonDeterministicParser {
 				// add an initial ParseConfiguration for each postag sequence
 				ParseConfiguration initialConfiguration = this.getParserServiceInternal().getInitialConfiguration(posTagSequence);
 				heap0.add(initialConfiguration);
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Adding initial posTagSequence: " + posTagSequence);
+				}
 			}
 			heaps.put(0, heap0);
 			PriorityQueue<ParseConfiguration> backupHeap = null;
@@ -267,7 +270,9 @@ class TransitionBasedParser implements NonDeterministicParser {
 					PerformanceMonitor.startTask("heap sort");
 					try {
 						//TODO: why apply all decisions here? Why not just the top N (where N = beamwidth)?
-						// Answer: because we're not always adding solutions to the same heap (validity to be confirmed)
+						// Answer: because we're not always adding solutions to the same heap
+						// And yet: a decision here can only do one of two things: process a token (heap+1000), or add a non-processing transition (heap+1)
+						// So, if we've already applied N decisions of each type, we should be able to stop
 						for (Decision<Transition> decision : decisions) {
 							Transition transition = decision.getOutcome();
 							if (LOG.isTraceEnabled())
@@ -334,7 +339,8 @@ class TransitionBasedParser implements NonDeterministicParser {
 			if (LOG.isDebugEnabled()) {
 				for (ParseConfiguration finalConfiguration : bestConfigurations) {
 					LOG.debug(df.format(finalConfiguration.getScore()) + ": " + finalConfiguration.toString());
-					LOG.debug(finalConfiguration.getPosTagSequence());
+					LOG.debug("Pos tag sequence: " + finalConfiguration.getPosTagSequence());
+					LOG.debug("Transitions: " + finalConfiguration.getTransitions());
 					if (LOG.isTraceEnabled()) {
 						StringBuilder sb = new StringBuilder();
 						for (Decision<Transition> decision : finalConfiguration.getDecisions()) {

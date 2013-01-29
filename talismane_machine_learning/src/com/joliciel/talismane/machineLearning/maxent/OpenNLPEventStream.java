@@ -50,7 +50,7 @@ class OpenNLPEventStream implements EventStream {
 			float[] weights = new float[corpusEvent.getFeatureResults().size()];
 			int i = 0;
 			for (FeatureResult<?> result : corpusEvent.getFeatureResults()) {
-				featureNames[i] = result.getName();
+				featureNames[i] = result.getTrainingName();
 				float weight = 1;
 				if (result.getOutcome() instanceof Double)
 				{

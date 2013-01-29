@@ -114,7 +114,7 @@ class MaxentDetailedAnalysisWriter implements AnalysisObserver {
 			
 			writer.append("### Feature results:\n");
 			for (FeatureResult<?> featureResult : featureResults) {
-				String feature = featureResult.getName();
+				String feature = featureResult.getTrainingName();
 				writer.append("#" + feature + "\t");
 				writer.append("outcome=" + featureResult.getOutcome() + "\n");
 				double value = 1.0;

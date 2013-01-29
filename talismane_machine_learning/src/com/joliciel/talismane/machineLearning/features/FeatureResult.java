@@ -38,9 +38,9 @@ public interface FeatureResult<T> {
 	public abstract T getOutcome();
 	
 	/**
-	 * The name of this feature result.
+	 * The name of this feature result to be used when training and analysing.
 	 * @return
 	 */
-	public String getName();
+	public String getTrainingName();
 
 }

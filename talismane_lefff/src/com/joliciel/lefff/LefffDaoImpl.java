@@ -37,6 +37,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.ResultSetWrappingSqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryStatus;
 import com.joliciel.talismane.utils.DaoUtils;
 
@@ -690,7 +691,7 @@ class LefffDaoImpl implements LefffDao {
 	}
 
 	@Override
-	public Map<String, List<LefffEntry>> findEntryMap() {
+	public Map<String, List<LexicalEntry>> findEntryMap() {
 		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
         String sql = "SELECT " + SELECT_ENTRY + "," + SELECT_WORD + "," + SELECT_LEMMA + "," +
         	SELECT_CATEGORY + "," + SELECT_PREDICATE + "," + SELECT_ATTRIBUTE +
@@ -707,7 +708,7 @@ class LefffDaoImpl implements LefffDao {
         LOG.info(sql);
         LefffDaoImpl.LogParameters(paramSource);
         double requiredCapacity = 500000;
-        Map<String, List<LefffEntry>> entryMap = new HashMap<String, List<LefffEntry>>(((int) Math.ceil(requiredCapacity / 0.75)));
+        Map<String, List<LexicalEntry>> entryMap = new HashMap<String, List<LexicalEntry>>(((int) Math.ceil(requiredCapacity / 0.75)));
         EntryMapper entryMapper = new EntryMapper( this.lefffServiceInternal);
         WordMapper wordMapper = new WordMapper(this.lefffServiceInternal);
         CategoryMapper categoryMapper = new CategoryMapper(this.lefffServiceInternal);
@@ -758,9 +759,9 @@ class LefffDaoImpl implements LefffDao {
         	}
         	entry.setMorphology(attribute);
         	
-        	List<LefffEntry> entries = entryMap.get(word.getText());
+        	List<LexicalEntry> entries = entryMap.get(word.getText());
         	if (entries==null) {
-        		entries = new ArrayList<LefffEntry>();
+        		entries = new ArrayList<LexicalEntry>();
         		entryMap.put(word.getText(), entries);
         	}
         	entries.add(entry);

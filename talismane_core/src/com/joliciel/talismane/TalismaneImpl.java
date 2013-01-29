@@ -46,6 +46,7 @@ import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
+import com.joliciel.talismane.posTagger.PosTagComparator;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
@@ -103,16 +104,12 @@ class TalismaneImpl implements Talismane {
 			if (config.getCommand().equals(Command.analyse)) {
 				this.analyse(config);
 			} else if (config.getCommand().equals(Command.process)) {
-				int sentenceCount = 0;
 				if (config.getModule().equals(Talismane.Module.Tokeniser)) {
 					if (this.getTokenSequenceProcessor()==null)
 						throw new TalismaneException("Cannot process tokeniser output without a token sequence processor!");
 					while (config.getTokenCorpusReader().hasNextTokenSequence()) {
 						TokenSequence tokenSequence = config.getTokenCorpusReader().nextTokenSequence();
 						this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence);
-						sentenceCount++;
-						if (config.getMaxSentenceCount()>0 && sentenceCount>=config.getMaxSentenceCount())
-							break;
 					}
 				} else if (config.getModule().equals(Talismane.Module.PosTagger)) {
 					if (this.getPosTagSequenceProcessor()==null)
@@ -120,9 +117,6 @@ class TalismaneImpl implements Talismane {
 					while (config.getPosTagCorpusReader().hasNextPosTagSequence()) {
 						PosTagSequence posTagSequence = config.getPosTagCorpusReader().nextPosTagSequence();
 						this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence);
-						sentenceCount++;
-						if (config.getMaxSentenceCount()>0 && sentenceCount>=config.getMaxSentenceCount())
-							break;
 					}
 				} else if (config.getModule().equals(Talismane.Module.Parser)) {
 					if (this.getParseConfigurationProcessor()==null)
@@ -131,9 +125,6 @@ class TalismaneImpl implements Talismane {
 						while (config.getParserCorpusReader().hasNextConfiguration()) {
 							ParseConfiguration parseConfiguration = config.getParserCorpusReader().nextConfiguration();
 							this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration);
-							sentenceCount++;
-							if (config.getMaxSentenceCount()>0 && sentenceCount>=config.getMaxSentenceCount())
-								break;
 						}
 					} finally {
 						this.getParseConfigurationProcessor().onCompleteParse();
@@ -153,7 +144,10 @@ class TalismaneImpl implements Talismane {
 					throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
 				}
 			} else if (config.getCommand().equals(Command.compare)) {
-				if (config.getModule().equals(Talismane.Module.Parser)) {
+				if (config.getModule().equals(Talismane.Module.PosTagger)) {
+					PosTagComparator posTagComparator = config.getPosTagComparator();
+					posTagComparator.evaluate(config.getPosTagCorpusReader(), config.getPosTagEvaluationCorpusReader());
+				} else if (config.getModule().equals(Talismane.Module.Parser)) {
 					ParseComparator parseComparator = config.getParseComparator();
 					parseComparator.evaluate(config.getParserCorpusReader(), config.getParserEvaluationCorpusReader());
 				} else {
@@ -264,6 +258,7 @@ class TalismaneImpl implements Talismane {
 			
 		    StringBuilder stringBuilder = new StringBuilder();
 		    boolean finished = false;
+		    int sentenceCount = 0;
 		    
 			String prevProcessedText = "";
 			String processedText = "";
@@ -356,10 +351,14 @@ class TalismaneImpl implements Talismane {
 							for (Sentence sentence : theSentences) {
 								if (sentence.isComplete()||reallyFinished) {
 									sentences.add(sentence);
+									sentenceCount++;
 								} else {
 									LOG.debug("Setting leftover to: " + sentence.getText());
 									leftover = sentence;
 								}
+							}
+							if (config.getMaxSentenceCount()>0 && sentenceCount>=config.getMaxSentenceCount()) {
+								finished = true;
 							}
 						}
 						prevSentenceHolder = sentenceHolder;

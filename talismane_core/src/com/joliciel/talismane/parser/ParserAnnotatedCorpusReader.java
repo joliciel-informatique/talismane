@@ -21,6 +21,7 @@ package com.joliciel.talismane.parser;
 import java.util.Map;
 
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -43,6 +44,8 @@ public interface ParserAnnotatedCorpusReader {
 	
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
 	
+	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
+	
 	/**
 	 * 
 	 * @return
@@ -56,4 +59,10 @@ public interface ParserAnnotatedCorpusReader {
 	public LexicalEntryReader getLexicalEntryReader();
 	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
 	
+	/**
+	 * If 0, all sentences will be read - otherwise will only read a certain number of sentences.
+	 * @return
+	 */
+	public int getMaxSentenceCount();
+	public void setMaxSentenceCount(int maxSentenceCount);
 }

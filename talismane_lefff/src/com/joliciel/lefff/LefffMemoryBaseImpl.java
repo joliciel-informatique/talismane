@@ -36,29 +36,30 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
     private static final Log LOG = LogFactory.getLog(LefffMemoryBaseImpl.class);
 
 	private static final long serialVersionUID = -6687868826900071372L;
-	Map<String,List<LefffEntry>> entryMap = null;
+	Map<String,List<LexicalEntry>> entryMap = null;
 	Map<PosTagSet,LefffPosTagMapper> posTagMappers = null;
-	Map<String,List<LefffEntry>> lemmaEntryMap = null;
+	Map<String,List<LexicalEntry>> lemmaEntryMap = null;
 	
 	transient private PosTagSet posTagSet;
 	
-	public LefffMemoryBaseImpl(Map<String,List<LefffEntry>> entryMap, Map<PosTagSet,LefffPosTagMapper> posTagMappers) {
+	public LefffMemoryBaseImpl(Map<String,List<LexicalEntry>> entryMap, Map<PosTagSet,LefffPosTagMapper> posTagMappers) {
 		this.entryMap = entryMap;
 		this.posTagMappers = posTagMappers;
 		
         double requiredCapacity = 300000;
- 		this.lemmaEntryMap = new HashMap<String, List<LefffEntry>>(((int) Math.ceil(requiredCapacity / 0.75)));
+ 		this.lemmaEntryMap = new HashMap<String, List<LexicalEntry>>(((int) Math.ceil(requiredCapacity / 0.75)));
 		LOG.debug("Constructing lemma entry map");
-		for (List<LefffEntry> entries : entryMap.values()) {
-			for (LefffEntry entry : entries) {
-				String lemma = entry.getLefffLemma().getText();
-				String complement = entry.getLefffLemma().getComplement();
+		for (List<LexicalEntry> entries : entryMap.values()) {
+			for (LexicalEntry entry : entries) {
+				LefffEntry lefffEntry = (LefffEntry) entry;
+				String lemma = lefffEntry.getLefffLemma().getText();
+				String complement = lefffEntry.getLefffLemma().getComplement();
 				String key = lemma;
 				if (complement.length()>0)
 					key += "|" + complement;
-				List<LefffEntry> entriesPerLemma = lemmaEntryMap.get(key);
+				List<LexicalEntry> entriesPerLemma = lemmaEntryMap.get(key);
 				if (entriesPerLemma==null) {
-					entriesPerLemma = new ArrayList<LefffEntry>();
+					entriesPerLemma = new ArrayList<LexicalEntry>();
 					lemmaEntryMap.put(key, entriesPerLemma);
 				}
 				entriesPerLemma.add(entry);
@@ -67,26 +68,28 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 	}
 	
 	@Override
-	public List<? extends LexicalEntry> getEntries(String word) {
-		List<? extends LexicalEntry> entries = this.entryMap.get(word);
+	public List<LexicalEntry> getEntries(String word) {
+		List<LexicalEntry> entries = this.entryMap.get(word);
 		if (entries==null)
 			entries = new ArrayList<LexicalEntry>();
 		return entries;
 	}
 	
 	@Override
-	public List<? extends LexicalEntry> getEntriesForLemma(String lemma, String complement) {
+	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement) {
 		String key = lemma;
 		if (complement.length()>0)
 			key += "|" + complement;
-		List<? extends LexicalEntry> entries = this.lemmaEntryMap.get(key);
-		if (entries==null)
-			entries = new ArrayList<LexicalEntry>();
+		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
+		List<LexicalEntry> lefffEntries = this.lemmaEntryMap.get(key);
+		for (LexicalEntry lefffEntry : lefffEntries)
+			entries.add(lefffEntry);
+
 		return entries;
 	}
 	
-	public List<? extends LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number) {
-		List<? extends LexicalEntry> lemmaEntries = null;
+	public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number) {
+		List<LexicalEntry> lemmaEntries = null;
 		if (posTag!=null)
 			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), lexicalEntry.getLemmaComplement(), posTag);
 		else
@@ -108,7 +111,7 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 	public Set<PosTag> findPossiblePosTags(String word) {
 		LefffPosTagMapper posTagMapper = this.posTagMappers.get(this.posTagSet);
 		String checkWord = this.getCheckWord(word);
-		List<? extends LexicalEntry> entries = this.getEntries(checkWord);
+		List<LexicalEntry> entries = this.getEntries(checkWord);
 		Set<PosTag> posTags = new TreeSet<PosTag>();
 		for (LexicalEntry entry : entries) {
 			Set<PosTag> posTagsOnePos = posTagMapper.getPosTags(entry.getCategory(), entry.getMorphology());
@@ -129,11 +132,11 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 	}
 
 	@Override
-	public Set<LexicalEntry> findLexicalEntries(String word, PosTag posTag) {
+	public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag) {
 		LefffPosTagMapper posTagMapper = this.posTagMappers.get(this.posTagSet);
 		String checkWord = this.getCheckWord(word);
-		List<? extends LexicalEntry> entries = this.getEntries(checkWord);
-		Set<LexicalEntry> entriesToReturn = new TreeSet<LexicalEntry>();
+		List<LexicalEntry> entries = this.getEntries(checkWord);
+		List<LexicalEntry> entriesToReturn = new ArrayList<LexicalEntry>();
 		
 		for (LexicalEntry entry : entries) {
 			if (!entry.getCategory().equals("auxEtre")&&!entry.getCategory().equals("auxAvoir")) {
@@ -149,9 +152,9 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 	
 
 	@Override
-	public List<? extends LexicalEntry> getEntriesForLemma(String lemma, String complement, PosTag posTag) {
+	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement, PosTag posTag) {
 		LefffPosTagMapper posTagMapper = this.posTagMappers.get(this.posTagSet);
-		List<? extends LexicalEntry> entries = this.getEntriesForLemma(lemma, complement);
+		List<LexicalEntry> entries = this.getEntriesForLemma(lemma, complement);
 		Set<LexicalEntry> entriesToReturn = new TreeSet<LexicalEntry>();
 
 		for (LexicalEntry entry : entries) {
@@ -171,19 +174,7 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 
 	private String getCheckWord(String word) {
 		String checkWord = word;
-		if (word.endsWith(" des")) {
-			checkWord = word.substring(0,word.length()-1); // de			
-		} else if (word.endsWith(" du")||word.endsWith(" d'")) {
-			checkWord = word.substring(0,word.length()-1)+"e"; // de			
-		} else if (word.equals("des")||word.equals("du")) {
-			checkWord = "de";
-		} else if (word.endsWith(" aux")) {
-			checkWord = word.substring(0,word.length()-3)+ "à"; // à			
-		} else if (word.endsWith(" au")) {
-			checkWord = word.substring(0,word.length()-2)+"à"; // à			
-		} else if (word.equals("aux")||word.equals("au")) {
-			checkWord =  "à";
-		} else if (word.equals("[[au]]")) {
+		if (word.equals("[[au]]")) {
 			checkWord = "le";
 		} else if (word.equals("[[du]]")) {
 			checkWord = "le";

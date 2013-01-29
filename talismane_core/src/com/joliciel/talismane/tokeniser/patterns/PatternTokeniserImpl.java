@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,6 +71,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class PatternTokeniserImpl implements Tokeniser {
 	private static final Log LOG = LogFactory.getLog(PatternTokeniserImpl.class);
+	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
 	private Map<SeparatorDecision, String> separatorDefaults;
 	private Map<SeparatorDecision, Pattern> separatorDefaultPatterns;
@@ -292,8 +294,15 @@ class PatternTokeniserImpl implements Tokeniser {
 				sequences.add(defaultSequence);
 			} // have decision maker?
 			
+			LOG.debug("####Final token sequences:");
+			int j=1;
 			for (TokenisedAtomicTokenSequence sequence : sequences) {
 				TokenSequence newTokenSequence = sequence.inferTokenSequence();
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Token sequence " + (j++) + ", score=" + df.format(sequence.getScore()));
+					LOG.debug("Atomic sequence: " + sequence);
+					LOG.debug("Resulting sequence: " + newTokenSequence);
+				}
 				// need to re-apply the pre-processing filters, because the tokens are all new
 				// Question: why can't we conserve the initial tokens when they haven't changed at all?
 				// Answer: because the tokenSequence and index in the sequence is referenced by the token.
@@ -301,6 +310,9 @@ class PatternTokeniserImpl implements Tokeniser {
 				// one with index & sequence access & one without?
 				for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
 					tokenSequenceFilter.apply(newTokenSequence);
+				}
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("After filters: " + newTokenSequence);
 				}
 			}
 	

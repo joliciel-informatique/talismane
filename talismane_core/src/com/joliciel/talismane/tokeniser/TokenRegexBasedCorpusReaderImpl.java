@@ -36,6 +36,8 @@ class TokenRegexBasedCorpusReaderImpl implements
 	private TokenSequenceFilter tokenFilterWrapper = null;
 	
 	private int lineNumber = 0;
+	private int maxSentenceCount = 0;
+	private int sentenceCount = 0;
 	
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
@@ -46,57 +48,61 @@ class TokenRegexBasedCorpusReaderImpl implements
 	
 	@Override
 	public boolean hasNextTokenSequence() {
-		while (tokenSequence==null) {
-			boolean hasLine = false;
-			if (!scanner.hasNextLine())
-				break;
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine().replace("\r", "");
-				lineNumber++;
-				if (line.length()==0) {
-					if (!hasLine)
-						continue;
-					
-					tokenSequence.cleanSlate();
-					
-					// first apply the token filters - which might replace the text of an individual token
-					// with something else
-					if (tokenFilterWrapper==null) {
-						tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.tokenFilters);
-					}
-					tokenFilterWrapper.apply(tokenSequence);
-					
-					// now apply the token sequence filters
-					for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-						tokenFilter.apply(tokenSequence);
-					}
-
+		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+			// we've reached the end, do nothing
+		} else {
+			while (tokenSequence==null) {
+				boolean hasLine = false;
+				if (!scanner.hasNextLine())
 					break;
-				} else {
-					hasLine = true;
-					
-					if (tokenSequence==null) {
-						tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine().replace("\r", "");
+					lineNumber++;
+					if (line.length()==0) {
+						if (!hasLine)
+							continue;
+						
+						tokenSequence.cleanSlate();
+						
+						// first apply the token filters - which might replace the text of an individual token
+						// with something else
+						if (tokenFilterWrapper==null) {
+							tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.tokenFilters);
+						}
+						tokenFilterWrapper.apply(tokenSequence);
+						
+						// now apply the token sequence filters
+						for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+							tokenFilter.apply(tokenSequence);
+						}
+						sentenceCount++;
+						break;
+					} else {
+						hasLine = true;
+						
+						if (tokenSequence==null) {
+							tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+						}
+						
+						Matcher matcher = this.getPattern().matcher(line);
+						if (!matcher.matches())
+							throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
+						
+						if (matcher.groupCount()!=placeholderIndexMap.size()) {
+							throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+						}
+						
+						String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+						word = CoNLLFormatter.fromCoNLL(word);
+						Token token = tokenSequence.addToken(word);
+	
+						if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
+							token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+						if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
+							token.setLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+						if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
+							token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
 					}
-					
-					Matcher matcher = this.getPattern().matcher(line);
-					if (!matcher.matches())
-						throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
-					
-					if (matcher.groupCount()!=placeholderIndexMap.size()) {
-						throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
-					}
-					
-					String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-					word = CoNLLFormatter.fromCoNLL(word);
-					Token token = tokenSequence.addToken(word);
-
-					if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
-						token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
-					if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
-						token.setLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
-					if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
-						token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
 				}
 			}
 		}
@@ -197,4 +203,12 @@ class TokenRegexBasedCorpusReaderImpl implements
 		return characteristics;
 	}
 
+
+	public int getMaxSentenceCount() {
+		return maxSentenceCount;
+	}
+
+	public void setMaxSentenceCount(int maxSentenceCount) {
+		this.maxSentenceCount = maxSentenceCount;
+	}
 }

@@ -89,6 +89,16 @@ class TreebankExportServiceImpl implements TreebankExportService {
 		reader.setFtbPosTagMapper(ftbPosTagMapper);
 		return reader;
 	}
+	
+	@Override
+	public PosTagAnnotatedCorpusReader getPosTagAnnotatedCorpusReader(
+			TreebankReader treebankReader,
+			FtbPosTagMapper ftbPosTagMapper, boolean useCompoundPosTags) {
+		FrenchTreebankTokenReader reader = (FrenchTreebankTokenReader) this.getTokeniserAnnotatedCorpusReader(treebankReader);
+		reader.setFtbPosTagMapper(ftbPosTagMapper);
+		reader.setUseCompoundPosTags(useCompoundPosTags);
+		return reader;
+	}
 
 	@Override
 	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(
@@ -97,6 +107,16 @@ class TreebankExportServiceImpl implements TreebankExportService {
 		reader.setCsvFileErrorWriter(writer);
 		return reader;
 	}
+
+	@Override
+	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(
+			TreebankReader treebankReader, 
+			boolean useCompoundPosTags) {
+		FrenchTreebankTokenReader reader = (FrenchTreebankTokenReader) this.getTokeniserAnnotatedCorpusReader(treebankReader);
+		reader.setUseCompoundPosTags(useCompoundPosTags);
+		return reader;
+	}
+
 
 	public TokeniserService getTokeniserService() {
 		return tokeniserService;

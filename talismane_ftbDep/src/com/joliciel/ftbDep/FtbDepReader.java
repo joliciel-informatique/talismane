@@ -20,8 +20,10 @@ package com.joliciel.ftbDep;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,9 +41,16 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
 public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
     @SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(FtbDepReader.class);
-     
-	public FtbDepReader(File ftbDepFile) throws FileNotFoundException {
-		super(new BufferedReader(new FileReader(ftbDepFile)));
+    
+    private boolean keepCompoundPosTags = false;
+    
+	public FtbDepReader(File ftbDepFile, Charset charset) throws IOException {
+		super(new BufferedReader(new InputStreamReader(new FileInputStream(ftbDepFile), charset)));
+		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_");
+	}
+
+	public FtbDepReader(File ftbDepFile, String encoding) throws IOException {
+		super(new BufferedReader(new InputStreamReader(new FileInputStream(ftbDepFile), encoding)));
 		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_");
 	}
 
@@ -59,58 +68,93 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
 		ParseDataLine dataLine = dataLines.get(index);
 		if (dataLine.getPosTagCode().equals("PREF")) {
 			dataLine.setPosTagCode("ADV");
-		} else if (dataLine.getPosTagCode().equals("P+D")) {
-			dataLine.setPosTagCode("P");
-		} else if (dataLine.getPosTagCode().equals("P+PRO")) {
-			dataLine.setPosTagCode("PRO");
-		} else if (dataLine.getPosTagCode().length()==0) {
-			ParseDataLine previousLine = dataLines.get(index-1);
-			ParseDataLine nextLine = dataLines.get(index+1);
-			if (nextLine.getPosTagCode().equals("P+PRO")) {
+		} else if (!keepCompoundPosTags) {
+			if (dataLine.getPosTagCode().equals("P+D")) {
 				dataLine.setPosTagCode("P");
-				nextLine.setPosTagCode("PROREL");
-				
-				dataLine.setGovernorIndex(nextLine.getGovernorIndex());
-				nextLine.setGovernorIndex(dataLine.getIndex());
-			} else if (previousLine.getPosTagCode().equals("DET")) {
-				// this empty token is equivalent to a null postag, and can be removed
-				dataLine.setSkip(true);
-			} else {
-				// Initially checked for "P+D" only here, but since there are many other postags used,
-				// especially in the case of compounds, we left off the condition
-				if (previousLine.getPosTagCode().equals("P+D"))
-					previousLine.setPosTagCode("P");
-				dataLine.setPosTagCode("DET");
-				dataLine.setDependencyLabel("det");
-				// if it's a P+D, the D needs to become dependent on the noun that depends on the P
-				ParseDataLine governor = null;
-				int realGovernorIndex = 0;
-				for (int i=index+1; i<dataLines.size(); i++) {
-					ParseDataLine otherLine = dataLines.get(i);
-					if (otherLine.getPosTagCode().equals("PONCT"))
-						continue;
-					if (governor==null) {
-						governor = otherLine;
-						realGovernorIndex = i;
+			} else if (dataLine.getPosTagCode().equals("P+PRO")) {
+				dataLine.setPosTagCode("PRO");
+			} else if (dataLine.getPosTagCode().length()==0) {
+				ParseDataLine previousLine = dataLines.get(index-1);
+				ParseDataLine nextLine = dataLines.get(index+1);
+				if (nextLine.getPosTagCode().equals("P+PRO")) {
+					dataLine.setPosTagCode("P");
+					nextLine.setPosTagCode("PROREL");
+					
+					dataLine.setGovernorIndex(nextLine.getGovernorIndex());
+					nextLine.setGovernorIndex(dataLine.getIndex());
+				} else if (previousLine.getPosTagCode().equals("DET")) {
+					// this empty token is equivalent to a null postag, and can be removed
+					dataLine.setSkip(true);
+				} else {
+					// Initially checked for "P+D" only here, but since there are many other postags used,
+					// especially in the case of compounds, we left off the condition
+					if (previousLine.getPosTagCode().equals("P+D"))
+						previousLine.setPosTagCode("P");
+					dataLine.setPosTagCode("DET");
+					dataLine.setDependencyLabel("det");
+					// if it's a P+D, the D needs to become dependent on the noun that depends on the P
+					ParseDataLine governor = null;
+					int realGovernorIndex = 0;
+					for (int i=index+1; i<dataLines.size(); i++) {
+						ParseDataLine otherLine = dataLines.get(i);
+						if (otherLine.getPosTagCode().equals("PONCT"))
+							continue;
+						if (governor==null) {
+							governor = otherLine;
+							realGovernorIndex = i;
+						}
+						if (otherLine.getGovernorIndex()==previousLine.getIndex()) {
+							governor = otherLine;
+							realGovernorIndex = i;
+							break;
+						} else if (otherLine.getGovernorIndex()<previousLine.getIndex()) {
+							break;
+						}
 					}
-					if (otherLine.getGovernorIndex()==previousLine.getIndex()) {
-						governor = otherLine;
-						realGovernorIndex = i;
-						break;
-					} else if (otherLine.getGovernorIndex()<previousLine.getIndex()) {
-						break;
+					
+					for (int i=index+1; i<realGovernorIndex; i++) {
+						ParseDataLine otherLine = dataLines.get(i);
+						if (otherLine.getPosTagCode().equals("PONCT") && otherLine.getGovernorIndex()==previousLine.getIndex()) {
+							otherLine.setGovernorIndex(dataLine.getIndex());
+						}
 					}
+					dataLine.setGovernorIndex(governor.getIndex());
 				}
-				
-				for (int i=index+1; i<realGovernorIndex; i++) {
-					ParseDataLine otherLine = dataLines.get(i);
-					if (otherLine.getPosTagCode().equals("PONCT") && otherLine.getGovernorIndex()==previousLine.getIndex()) {
-						otherLine.setGovernorIndex(dataLine.getIndex());
-					}
-				}
-				dataLine.setGovernorIndex(governor.getIndex());
 			}
 		}
+	}
+
+
+	public boolean isKeepCompoundPosTags() {
+		return keepCompoundPosTags;
+	}
+
+
+	public void setKeepCompoundPosTags(boolean keepCompoundPosTags) {
+		this.keepCompoundPosTags = keepCompoundPosTags;
+	}
+	
+	@Override
+	protected String readWord(String rawWord) {
+		if (rawWord.equals("_")) {
+			return "";
+		}
+		String[] parts = rawWord.split("_");
+		String word = "";
+		boolean firstPart = true;
+		String lastPart = "";
+		for (String part : parts) {
+			if (firstPart) {
+				word += part;
+				firstPart = false;
+			} else if (lastPart.endsWith("-")||part.startsWith("-")||lastPart.endsWith("'")) {
+				word += part;
+			} else {
+				word += " " + part;
+			}
+			lastPart = part;
+		}
+		return word;
 	}
 	
 }

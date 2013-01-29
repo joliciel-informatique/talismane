@@ -53,7 +53,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 		PosTagFeatureParser posTagFeatureParser = this.getPosTagFeatureParser();
 		
 		for (String featureDescriptor : featureDescriptors) {
-			LOG.trace(featureDescriptor);
+			LOG.debug(featureDescriptor);
 			if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
 				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 				List<PosTaggerFeature<?>> myFeatures = posTagFeatureParser.parseDescriptor(functionDescriptor);
@@ -73,7 +73,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 		PosTagFeatureParser posTagFeatureParser = this.getPosTagFeatureParser();
 
 		for (String ruleDescriptor : ruleDescriptors) {
-			LOG.trace(ruleDescriptor);
+			LOG.debug(ruleDescriptor);
 			if (ruleDescriptor.length()>0 && !ruleDescriptor.startsWith("#")) {
 				String[] ruleParts = ruleDescriptor.split("\t");
 				String posTagCode = ruleParts[0];

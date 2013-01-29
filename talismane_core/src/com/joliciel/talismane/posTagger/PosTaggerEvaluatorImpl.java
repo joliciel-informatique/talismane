@@ -85,7 +85,7 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 					stringBuilder.append(posTaggedToken.getToken().getOriginalText());
 					stringBuilder.append("[" + posTaggedToken.getTag());
 					
-					Set<LexicalEntry> entries = posTaggedToken.getLexicalEntries();
+					List<LexicalEntry> entries = posTaggedToken.getLexicalEntries();
 					boolean dropCurrentWord = false;
 					if (entries.size()>1) 
 						dropCurrentWord = true;

@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.FilterServiceLocator;
+import com.joliciel.talismane.lexicon.LexiconServiceLocator;
 import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
 import com.joliciel.talismane.machineLearning.maxent.MaxentServiceLocator;
@@ -29,6 +30,7 @@ import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureServiceLocator;
+import com.joliciel.talismane.posTagger.filters.PosTagFilterServiceLocator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorServiceLocator;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureServiceLocator;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
@@ -48,6 +50,7 @@ public class TalismaneServiceLocator {
 	
 	private PosTaggerFeatureServiceLocator posTaggerFeatureServiceLocator;
 	private PosTaggerServiceLocator posTaggerServiceLocator;
+	private PosTagFilterServiceLocator posTagFilterServiceLocator;
 	private TokeniserServiceLocator tokeniserServiceLocator;
 	private TokeniserFeatureServiceLocator tokeniserFeatureServiceLocator;
 	private TokenFilterServiceLocator tokenFilterServiceLocator;
@@ -60,6 +63,7 @@ public class TalismaneServiceLocator {
 	private MachineLearningServiceLocator machineLearningServiceLocator;
 	private MaxentServiceLocator maxentServiceLocator;
 	private FilterServiceLocator filterServiceLocator;
+	private LexiconServiceLocator lexiconServiceLocator;
 	
     private static TalismaneServiceLocator instance = null;
 
@@ -100,6 +104,12 @@ public class TalismaneServiceLocator {
 		return posTaggerServiceLocator;
 	}
 	
+	public PosTagFilterServiceLocator getPosTagFilterServiceLocator() {
+		if (this.posTagFilterServiceLocator==null) {
+			this.posTagFilterServiceLocator = new PosTagFilterServiceLocator(this);
+		}
+		return posTagFilterServiceLocator;
+	}
 
 	public TokeniserServiceLocator getTokeniserServiceLocator() {
 		if (this.tokeniserServiceLocator==null) {
@@ -186,5 +196,10 @@ public class TalismaneServiceLocator {
 		return filterServiceLocator;
 	}
 	
-	
+
+	public LexiconServiceLocator getLexiconServiceLocator() {
+		if (this.lexiconServiceLocator==null)
+			this.lexiconServiceLocator = new LexiconServiceLocator(this);
+		return lexiconServiceLocator;
+	}
 }

@@ -85,9 +85,4 @@ public class LeftArcTransition extends AbstractTransition implements Transition 
 	public boolean doesReduce() {
 		return true;
 	}
-
-	@Override
-	public String toString() {
-		return this.getCode();
-	}
 }

@@ -34,7 +34,8 @@ public class ParserServiceLocator {
 			parserService.setParseFeatureService(this.talismaneServiceLocator.getParserFeatureServiceLocator().getParserFeatureService());
 			parserService.setPosTaggerService(this.talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService());
 			parserService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
-			parserService.setMacheLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
+			parserService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
+			parserService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
 		}
 		return parserService;
 	}

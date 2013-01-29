@@ -44,6 +44,7 @@ import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
@@ -72,9 +73,14 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private Writer csvFileErrorWriter = null;
 	private boolean ignoreCase = true;
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
+	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private TreebankReader treebankReader;
 	private TokenSequenceFilter tokenFilterWrapper = null;
+	private int maxSentenceCount = 0;
+	private int sentenceCount = 0;
+	
+	private boolean useCompoundPosTags = false;
 	
 	public FrenchTreebankTokenReader(TreebankReader treebankReader) {
 		this.treebankReader = treebankReader;
@@ -82,12 +88,20 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 	@Override
 	public boolean hasNextPosTagSequence() {
-		return treebankReader.hasNextSentence();
+		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+			return false;
+		} else {
+			return treebankReader.hasNextSentence();
+		}
 	}
 	
 	@Override
 	public boolean hasNextTokenSequence() {
-		return treebankReader.hasNextSentence();
+		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+			return false;
+		} else {
+			return treebankReader.hasNextSentence();
+		}
 	}
 
 	@Override
@@ -333,6 +347,55 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 					throw new RuntimeException("Expected only empty tokens added. Postag Token = " + posTaggedToken.getToken().getText() + ", start: " + token.getStartIndex() + ", end:" + token.getEndIndex());
 				}
 			}
+			
+			if (useCompoundPosTags) {
+				PosTagSequence newSequence = this.posTaggerService.getPosTagSequence(tokenSequence, allTokens.size() / 2);
+				PosTaggedToken lastPosTaggedToken = null;
+				for (PosTaggedToken posTaggedToken : posTagSequence) {
+					if (posTaggedToken.getToken().isEmpty()) {
+						String lastWord = "";
+						if (lastPosTaggedToken!=null) lastWord = lastPosTaggedToken.getToken().getOriginalText().toLowerCase();
+						if (lastWord.equals("des")||lastWord.equals("du")||lastWord.equals("aux")||lastWord.equals("au")
+								||lastWord.endsWith(" des")||lastWord.endsWith(" du")||lastWord.endsWith(" aux")||lastWord.endsWith(" au")||lastWord.endsWith("'aux")||lastWord.endsWith("'au")) {
+							if (lastWord.equals("des")||lastWord.equals("du")||lastWord.equals("aux")||lastWord.equals("au")) {
+								if (lastPosTaggedToken.getTag().getCode().equals("P")) {
+									lastPosTaggedToken.setTag(posTagSet.getPosTag("P+D"));
+									lastPosTaggedToken.getToken().setText(lastWord);
+								}
+							}
+							posTaggedToken.setTag(PosTag.NULL_POS_TAG);
+							tokenSequence.removeEmptyToken(posTaggedToken.getToken());
+						}
+					} else {
+						newSequence.addPosTaggedToken(posTaggedToken);
+					}
+					if (lastPosTaggedToken!=null && lastPosTaggedToken.getToken().isEmpty()&&!lastPosTaggedToken.getTag().equals(PosTag.NULL_POS_TAG)) {
+						String word = posTaggedToken.getToken().getOriginalText().toLowerCase();
+						if (word.equals("duquel")||word.equals("desquels")||word.equals("desquelles")||word.equals("auquel")||word.equals("auxquels")||word.equals("auxquelles")) {
+							posTaggedToken.setTag(posTagSet.getPosTag("P+PRO"));
+							lastPosTaggedToken.setTag(PosTag.NULL_POS_TAG);
+							posTaggedToken.getToken().setText(word);
+							tokenSequence.removeEmptyToken(lastPosTaggedToken.getToken());
+						} else if (word.equals("dudit")) {
+							posTaggedToken.setTag(posTagSet.getPosTag("P+D"));
+							lastPosTaggedToken.setTag(PosTag.NULL_POS_TAG);
+							posTaggedToken.getToken().setText(word);
+							tokenSequence.removeEmptyToken(lastPosTaggedToken.getToken());
+						} else {
+							LOG.info("Not expecting empty token here (index " + lastPosTaggedToken.getToken().getIndex() + ", next token = " + word + "): "+ posTagSequence);
+							lastPosTaggedToken.setTag(PosTag.NULL_POS_TAG);
+							tokenSequence.removeEmptyToken(lastPosTaggedToken.getToken());
+						}
+					}
+					lastPosTaggedToken = posTaggedToken;
+				}
+				posTagSequence = newSequence;
+			}
+			for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+				posTagSequenceFilter.apply(posTagSequence);
+			}
+			sentenceCount++;
+
 			return posTagSequence;
 		} finally {
 			PerformanceMonitor.endTask("FrenchTreebankTokenReader.nextSentenceInternal");
@@ -441,5 +504,30 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
 	}
+
+	@Override
+	public void addPosTagSequenceFilter(
+			PosTagSequenceFilter posTagSequenceFilter) {
+		this.posTagSequenceFilters.add(posTagSequenceFilter);
+	}
+	
+
+
+	public int getMaxSentenceCount() {
+		return maxSentenceCount;
+	}
+
+	public void setMaxSentenceCount(int maxSentenceCount) {
+		this.maxSentenceCount = maxSentenceCount;
+	}
+
+	public boolean isUseCompoundPosTags() {
+		return useCompoundPosTags;
+	}
+
+	public void setUseCompoundPosTags(boolean useCompoundPosTags) {
+		this.useCompoundPosTags = useCompoundPosTags;
+	}
+	
 	
 }

@@ -28,10 +28,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.RegexUtils;
 
 /**
  * For a given regex, finds any matches within the text, and adds the appropriate marker to these matches.
+ * If not group is provided, will match the expression as a whole.
  * @author Assaf Urieli
  *
  */
@@ -40,21 +42,21 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	private List<MarkerFilterType> filterTypes;
 	private Pattern pattern;
 	private String regex;
-	private int groupIndex = -1;
+	private int groupIndex = 0;
 	private String replacement;
 	
 	private FilterService filterService;
 	
 	public RegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex) {
-		this(filterTypes, regex, -1);
+		this(filterTypes, regex, 0);
 	}
 	
 	public RegexMarkerFilter(MarkerFilterType[] filterTypeArray, String regex) {
-		this(filterTypeArray, regex, -1);
+		this(filterTypeArray, regex, 0);
 	}
 	
 	public RegexMarkerFilter(MarkerFilterType filterType, String regex) {
-		this(filterType, regex, -1);
+		this(filterType, regex, 0);
 	}
 	
 	public RegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int groupIndex) {
@@ -78,11 +80,17 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	private void initialise(String regex, int groupIndex) {
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex);
+		if (groupIndex<0) {
+			throw new TalismaneException("Cannot have a group index < 0: " + groupIndex);
+		}
 		this.groupIndex = groupIndex;
 	}
 
 	@Override
 	public Set<TextMarker> apply(String prevText, String text, String nextText) {
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("Matching " + regex + "");
+		}
 		String context = prevText + text + nextText;
 		
 		int textStartPos = prevText.length();
@@ -93,16 +101,22 @@ class RegexMarkerFilter implements TextMarkerFilter {
 		while (matcher.find()) {
 			int matcherStart = 0;
 			int matcherEnd = 0;
-			if (groupIndex<0) {
-				// if regex contains an explicit group, use the group instead of the regex as a whole
-				matcherStart = matcher.start(matcher.groupCount());
-				matcherEnd = matcher.end(matcher.groupCount());
+			if (groupIndex==0) {
+				matcherStart = matcher.start();
+				matcherEnd = matcher.end();
 			} else {
 				matcherStart = matcher.start(groupIndex);
 				matcherEnd = matcher.end(groupIndex);
 			}
 			
 			if (matcherStart>=textStartPos && matcherStart<textEndPos) {
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("Next match: " + context.substring(matcher.start(), matcher.end()));
+					if (matcher.start()!=matcherStart || matcher.end()!=matcherEnd) {
+						LOG.trace("But matching group: " + context.substring(matcherStart, matcherEnd));
+					}
+				}
+				
 				for (MarkerFilterType filterType : filterTypes) {
 					switch (filterType) {
 					case SKIP:
@@ -130,6 +144,9 @@ class RegexMarkerFilter implements TextMarkerFilter {
 					{
 						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.INSERT, matcherStart - prevText.length());
 						String newText = RegexUtils.getReplacement(replacement, context, matcher);
+						if (LOG.isTraceEnabled()) {
+							LOG.trace("Setting replacement to: " + newText);
+						}
 						textMarker.setInsertionText(newText);
 						textMarkers.add(textMarker);
 						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
