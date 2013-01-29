@@ -74,9 +74,4 @@ public class ReduceTransition extends AbstractTransition implements Transition {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return this.getCode();
-	}
-
 }

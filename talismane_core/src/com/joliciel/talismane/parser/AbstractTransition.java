@@ -49,5 +49,8 @@ public abstract class AbstractTransition implements Transition {
 		this.decision = decision;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return this.getCode();
+	}
 }

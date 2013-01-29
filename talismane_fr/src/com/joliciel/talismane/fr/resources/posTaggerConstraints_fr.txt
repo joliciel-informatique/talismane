@@ -12,6 +12,8 @@
 !DETWH	Not(LexiconPosTag("DETWH"))
 #!null	Not(LexiconPosTag("null"))
 !P	Not(LexiconPosTag("P"))
+!P+D	Not(LexiconPosTag("P+D"))
+!P+PRO	Not(LexiconPosTag("P+PRO"))
 !PONCT	Not(LexiconPosTag("PONCT"))
 !PRO	Not(LexiconPosTag("PRO"))
 !PROREL	Not(LexiconPosTag("PROREL"))

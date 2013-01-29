@@ -99,7 +99,7 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 			}
 			if (LOG.isTraceEnabled()) {
 				for (FeatureResult<?> result : featureResults) {
-					LOG.trace(result.getName() + ": " + result.getOutcome());
+					LOG.trace(result.toString());
 				}
 			}			
 			String classification = SentenceDetectorOutcome.IS_NOT_BOUNDARY.name();

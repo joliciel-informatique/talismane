@@ -58,6 +58,7 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		container.addFeatureClass("LemmaForPosTag", LemmaForPosTagFeature.class);
 		container.addFeatureClass("LexiconAllPosTags", LexiconAllPosTagsFeature.class);
 		container.addFeatureClass("LexiconPosTag", LexiconPosTagFeature.class);
+		container.addFeatureClass("LexiconPosTagForString", LexiconPosTagForStringFeature.class);
 		container.addFeatureClass("NLetterPrefix", NLetterPrefixFeature.class);
 		container.addFeatureClass("NLetterSuffix", NLetterSuffixFeature.class);
 		container.addFeatureClass("Offset", TokenOffsetFeature.class);
@@ -107,6 +108,26 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 			posTagArray = posTags.toArray(posTagArray);
 			
 			FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
+			descriptor.addArgument(posTagArray);
+			descriptors.add(descriptor);
+		} else if (featureClass.equals(LexiconPosTagForStringFeature.class)) {
+			Set<PosTag> posTags = null;
+			if (functionDescriptor.getArguments().size()>1) {
+				// posTagCode already specified
+				String posTagCode = (String) functionDescriptor.getArguments().get(1).getObject();
+				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagCode);
+				posTags = new HashSet<PosTag>();
+				posTags.add(posTag);
+			} else {
+				// no posTagCode specified - take all of 'em
+				posTags = TalismaneSession.getPosTagSet().getTags();
+			}
+			
+			PosTag[] posTagArray = new PosTag[0];
+			posTagArray = posTags.toArray(posTagArray);
+			
+			FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
+			descriptor.addArgument(functionDescriptor.getArguments().get(0));
 			descriptor.addArgument(posTagArray);
 			descriptors.add(descriptor);
 		} else {

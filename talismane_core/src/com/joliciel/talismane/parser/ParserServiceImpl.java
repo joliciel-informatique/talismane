@@ -14,12 +14,14 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 public class ParserServiceImpl implements ParserServiceInternal {
 	ParserFeatureService parseFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
-	MachineLearningService macheLearningService;
+	MachineLearningService machineLearningService;
+	TokenFilterService tokenFilterService;
 	
 	@Override
 	public DependencyArc getDependencyArc(PosTaggedToken head,
@@ -56,7 +58,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			Set<ParseConfigurationFeature<?>> parseFeatures) {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
 		eventStream.setParserServiceInternal(this);
-		eventStream.setMachineLearningService(this.getMacheLearningService());
+		eventStream.setMachineLearningService(this.getMachineLearningService());
 		return eventStream;
 	}
 
@@ -120,6 +122,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setParserService(this);
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
+		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
 	}
 
@@ -139,12 +142,22 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		this.tokeniserService = tokeniserService;
 	}
 
-	public MachineLearningService getMacheLearningService() {
-		return macheLearningService;
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
 	}
 
-	public void setMacheLearningService(MachineLearningService macheLearningService) {
-		this.macheLearningService = macheLearningService;
+	public void setMachineLearningService(MachineLearningService macheLearningService) {
+		this.machineLearningService = macheLearningService;
+	}
+	
+	
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
 	}
 
 	@Override

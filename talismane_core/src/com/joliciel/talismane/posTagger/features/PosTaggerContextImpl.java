@@ -18,13 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.features.TokenFeature;
 
 /**
  * 
@@ -34,6 +35,7 @@ import com.joliciel.talismane.tokeniser.features.TokenFeature;
 class PosTaggerContextImpl implements PosTaggerContext, HasFeatureCache {
 	private Token token;
 	private PosTagSequence history;
+	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 	
 	public PosTaggerContextImpl(Token token, PosTagSequence history) {
 		this.token = token;
@@ -49,29 +51,22 @@ class PosTaggerContextImpl implements PosTaggerContext, HasFeatureCache {
 		return this.history;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Override
-	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature) {
-		Feature theFeature = feature;
-		while (feature instanceof FeatureWrapper)
-			theFeature = ((FeatureWrapper) feature).getWrappedFeature();
-		if (theFeature instanceof PosTaggedTokenFeature
-				|| theFeature instanceof TokenFeature)
-			return this.getToken().getResultFromCache(feature);
-		else
-			return null;
+	public <T,Y> FeatureResult<Y> getResultFromCache(
+			Feature<T, Y> feature) {
+		FeatureResult<Y> result = null;
+	
+		if (this.featureResults.containsKey(feature.getName())) {
+			result = (FeatureResult<Y>) this.featureResults.get(feature.getName());
+		}
+		return result;
 	}
 
-	@SuppressWarnings("rawtypes")
+	
 	@Override
-	public <T, Y> void putResultInCache(Feature<T, Y> feature,
+	public <T,Y> void putResultInCache(Feature<T, Y> feature,
 			FeatureResult<Y> featureResult) {
-		Feature theFeature = feature;
-		while (feature instanceof FeatureWrapper)
-			theFeature = ((FeatureWrapper) feature).getWrappedFeature();
-		if (theFeature instanceof PosTaggedTokenFeature
-				|| theFeature instanceof TokenFeature)
-			this.getToken().putResultInCache(feature, featureResult);
+		this.featureResults.put(feature.getName(), featureResult);	
 	}
-
 }

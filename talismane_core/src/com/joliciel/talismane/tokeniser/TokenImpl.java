@@ -65,7 +65,7 @@ class TokenImpl implements TokenInternal {
 	private Integer lineNumber = null;
 	private Integer columnNumber = null;
 	
-	private Map<PosTag, Set<LexicalEntry>> lexicalEntryMap;
+	private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
 	
 	TokenImpl(TokenImpl tokenToClone) {
 		this.text = tokenToClone.text;
@@ -356,16 +356,16 @@ class TokenImpl implements TokenInternal {
 	@Override
 	public LexicalEntry getLexicalEntry(PosTag posTag) {
 		if (this.lexicalEntryMap==null) {
-			this.lexicalEntryMap = new HashMap<PosTag, Set<LexicalEntry>>();
+			this.lexicalEntryMap = new HashMap<PosTag, List<LexicalEntry>>();
 		}
-		Set<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
+		List<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
 		if (lexicalEntries==null) {
 			lexicalEntries = TalismaneSession.getLexicon().findLexicalEntries(this.getText(), posTag);
 			this.lexicalEntryMap.put(posTag, lexicalEntries);
 		}
 		LexicalEntry bestEntry = null;
 		if (lexicalEntries.size()>0)
-			bestEntry = lexicalEntries.iterator().next();
+			bestEntry = lexicalEntries.get(0);
 		return bestEntry;
 	}
 }

@@ -56,16 +56,18 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 				DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
 				
 				DependencyArc guessedArc = null;
-				if (!hasTokeniser && !hasPosTagger) {
-					guessedArc = bestGuess.getGoverningDependency(posTaggedToken);
-				} else {
-					for (PosTaggedToken guessedToken : bestGuess.getPosTagSequence()) {
-						if (guessedToken.getToken().getStartIndex()==posTaggedToken.getToken().getStartIndex()) {
-							guessedArc = bestGuess.getGoverningDependency(guessedToken);
-							break;
-						}
+
+				for (PosTaggedToken guessedToken : bestGuess.getPosTagSequence()) {
+					if (guessedToken.getToken().getStartIndex()==posTaggedToken.getToken().getStartIndex()) {
+						if (guessedToken.getToken().isEmpty()&&!posTaggedToken.getToken().isEmpty())
+							continue;
+						if (!guessedToken.getToken().isEmpty()&&posTaggedToken.getToken().isEmpty())
+							continue;
+						guessedArc = bestGuess.getGoverningDependency(guessedToken);
+						break;
 					}
 				}
+
 				
 				String realLabel = realArc==null ? "noHead" : labeledEvaluation ? realArc.getLabel() : "head";
 				String guessedLabel = guessedArc==null ? "noHead" : labeledEvaluation ? guessedArc.getLabel() : "head";
@@ -82,11 +84,7 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 				if (realArc==null || guessedArc==null) {
 					fscoreCalculator.increment(realLabel, guessedLabel);
 				} else {
-					boolean sameHead = false;
-					if (hasTokeniser || hasPosTagger)
-						sameHead = realArc.getHead().getToken().getStartIndex()==guessedArc.getHead().getToken().getStartIndex();
-					else
-						sameHead = realArc.getHead().equals(guessedArc.getHead());
+					boolean sameHead = realArc.getHead().getToken().getStartIndex()==guessedArc.getHead().getToken().getStartIndex();
 
 					if (sameHead) {
 						fscoreCalculator.increment(realLabel, guessedLabel);

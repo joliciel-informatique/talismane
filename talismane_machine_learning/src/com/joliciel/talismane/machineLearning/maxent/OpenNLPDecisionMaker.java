@@ -52,7 +52,7 @@ class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 					FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
 					weight = doubleResult.getOutcome().floatValue();
 				}
-				contextList.add(featureResult.getName());
+				contextList.add(featureResult.getTrainingName());
 				weightList.add(weight);
 			}
 		}

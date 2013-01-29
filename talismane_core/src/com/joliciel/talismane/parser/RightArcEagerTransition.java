@@ -85,10 +85,4 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
 	public boolean doesReduce() {
 		return false;
 	}
-
-	@Override
-	public String toString() {
-		return this.getCode();
-	}
-
 }

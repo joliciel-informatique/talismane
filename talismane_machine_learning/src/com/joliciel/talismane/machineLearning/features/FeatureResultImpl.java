@@ -21,23 +21,14 @@ package com.joliciel.talismane.machineLearning.features;
 final class FeatureResultImpl<T> implements FeatureResult<T> {
 	private Feature<?,T> feature;
 	private T outcome;
-
-	@SuppressWarnings("unchecked")
+	private String trainingName = null;
+	
 	public FeatureResultImpl(Feature<?,T> feature, T outcome) {
 		this.feature = feature;
 		if (outcome==null)
 			throw new RuntimeException("Trying to set null outcome");
-		
-		if (outcome!=null && outcome instanceof String) {
-			String string = (String) outcome;
-			string = string.replace("_", "&und;");
-			string = string.replace(' ', '_');
-			string = string.replace("=", "&eq;");
-			string = string.replace("\n", "&nl;");
-			this.outcome = (T) string;
-		} else {
-			this.outcome = outcome;
-		}
+
+		this.outcome = outcome;
 	}
 
 	/* (non-Javadoc)
@@ -59,17 +50,30 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 
 	@Override
 	public String toString() {
-		String string = this.getName();
+		String string = this.getTrainingName();
 		if (outcome instanceof Double || outcome instanceof Integer)
 			string += "=" + outcome.toString();
 		return string;
 	}
 
 	@Override
-	public String getName() {
-		String string = feature.getName();
-		if (!(outcome instanceof Double || outcome instanceof Integer))
-			string += ":" + outcome.toString();
-		return string;
+	public String getTrainingName() {
+		if (trainingName==null) {
+			trainingName = feature.getName();
+			if (!(outcome instanceof Double || outcome instanceof Integer)) {
+				String string = null;
+				if (outcome instanceof String) {
+					string = (String) outcome;
+					string = string.replace("_", "&und;");
+					string = string.replace(' ', '_');
+					string = string.replace("=", "&eq;");
+					string = string.replace("\n", "&nl;");
+				} else {
+					string = outcome.toString();
+				}
+				trainingName += ":" + string;
+			}
+		}
+		return trainingName;
 	}
 }

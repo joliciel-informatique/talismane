@@ -68,7 +68,9 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 				}
 			} else {
 				tokenSequences = new ArrayList<TokenSequence>();
-				tokenSequences.add(realConfiguration.getPosTagSequence().getTokenSequence());
+				PosTagSequence posTagSequence = realConfiguration.getPosTagSequence().clonePosTagSequence();
+				posTagSequence.removeRoot();
+				tokenSequences.add(posTagSequence.getTokenSequence());
 			}
 			
 			if (posTagger!=null) {

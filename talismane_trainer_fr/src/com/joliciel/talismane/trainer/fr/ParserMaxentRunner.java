@@ -1,10 +1,14 @@
 package com.joliciel.talismane.trainer.fr;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,11 +25,13 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.TreebankServiceLocator;
 import com.joliciel.ftbDep.FtbDepReader;
-import com.joliciel.lefff.LefffMemoryBase;
-import com.joliciel.lefff.LefffMemoryLoader;
+import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.lexicon.LexiconChain;
+import com.joliciel.talismane.lexicon.LexiconDeserializer;
+import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
@@ -37,6 +43,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ModelTrainer;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseEvaluationFScoreCalculator;
+import com.joliciel.talismane.parser.ParseEvaluationGuessTemplateWriter;
 import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
@@ -47,9 +54,10 @@ import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
+import com.joliciel.talismane.posTagger.filters.PosTagFilterService;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
@@ -77,7 +85,7 @@ public class ParserMaxentRunner {
 		int cutoff = 0;
 		int sentenceCount = 0;
 		String outDirPath = "";
-		String lefffPath = "";
+		String lexiconDirPath = "";
 		int beamWidth = 10;
 		boolean includeSentences = true;
 		String transitionSystemStr = "ShiftReduce";
@@ -96,8 +104,11 @@ public class ParserMaxentRunner {
 		
 		String tokenFilterPath = "";
 		String tokenSequenceFilterPath = "";
-		String posTaggerPreprocessingFilterPath = "";
+		String posTaggerPreProcessingFilterPath = "";
+		String posTaggerPostProcessingFilterPath = "";
 
+		boolean keepCompoundPosTags = false;
+		
 		boolean firstArg = true;
 		for (String arg : args) {
 			if (firstArg) {
@@ -123,8 +134,8 @@ public class ParserMaxentRunner {
 				cutoff = Integer.parseInt(argValue);
 			else if (argName.equals("sentenceCount"))
 				sentenceCount = Integer.parseInt(argValue);
-			else if (argName.equals("lefff"))
-				lefffPath = argValue;
+			else if (argName.equals("lexiconDir"))
+				lexiconDirPath = argValue;
 			else if (argName.equals("beamWidth"))
 				beamWidth = Integer.parseInt(argValue);
 			else if (argName.equals("includeSentences"))
@@ -151,12 +162,16 @@ public class ParserMaxentRunner {
 				tokenFilterPath = argValue;
 			else if (argName.equals("tokenSequenceFilters"))
 				tokenSequenceFilterPath = argValue;
-			else if (argName.equals("posTaggerPreprocessingFilters"))
-				posTaggerPreprocessingFilterPath = argValue;
+			else if (argName.equals("posTaggerPreProcessingFilters"))
+				posTaggerPreProcessingFilterPath = argValue;
+			else if (argName.equals("posTaggerPostProcessingFilters"))
+				posTaggerPostProcessingFilterPath = argValue;
 			else if (argName.equals("outputGuessCount"))
 				outputGuessCount = Integer.parseInt(argValue);
 			else if (argName.equals("maxParseAnalysisTime"))
 				maxParseAnalysisTime = Integer.parseInt(argValue);
+			else if (argName.equals("keepCompoundPosTags"))
+				keepCompoundPosTags = argValue.equalsIgnoreCase("true");
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -164,8 +179,8 @@ public class ParserMaxentRunner {
 		if (posTagSetPath.length()==0) {
 			throw new RuntimeException("Missing argument: posTagSet");
 		}
-		if (lefffPath.length()==0) {
-			throw new RuntimeException("Missing argument: lefff");
+		if (lexiconDirPath.length()==0) {
+			throw new RuntimeException("Missing argument: lexiconDir");
 		}
 		String modelPath = parserModelFilePath.substring(0, parserModelFilePath.lastIndexOf('/')+1);
 		String modelName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1, parserModelFilePath.indexOf('.'));
@@ -180,15 +195,19 @@ public class ParserMaxentRunner {
 	        PosTaggerService posTaggerService = posTaggerServiceLocator.getPosTaggerService();
 	        File posTagSetFile = new File(posTagSetPath);
 			PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetFile);
-	        
-	      	LefffMemoryLoader loader = new LefffMemoryLoader();
-        	File memoryBaseFile = new File(lefffPath);
-        	LefffMemoryBase lefffMemoryBase = null;
-        	lefffMemoryBase = loader.deserializeMemoryBase(memoryBaseFile);
-        	lefffMemoryBase.setPosTagSet(posTagSet);
+			PosTagFilterService posTagFilterService = talismaneServiceLocator.getPosTagFilterServiceLocator().getPosTagFilterService();
 	        
         	TalismaneSession.setPosTagSet(posTagSet);
-        	TalismaneSession.setLexicon(lefffMemoryBase);
+			
+			File lexiconDir = new File(lexiconDirPath);
+			LexiconDeserializer lexiconDeserializer = new LexiconDeserializer();
+			List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconDir);
+			LexiconChain lexiconChain = new LexiconChain();
+			for (PosTaggerLexicon lexicon : lexicons) {
+				lexiconChain.addLexicon(lexicon);
+			}
+	        
+        	TalismaneSession.setLexicon(lexiconChain);
 	 
 	        TokeniserServiceLocator tokeniserServiceLocator = talismaneServiceLocator.getTokeniserServiceLocator();
 	        TokeniserService tokeniserService = tokeniserServiceLocator.getTokeniserService();
@@ -220,11 +239,12 @@ public class ParserMaxentRunner {
 			
 			File corpusFile = new File(corpusFilePath);
 
-			FtbDepReader corpusReader = new FtbDepReader(corpusFile);
+			FtbDepReader corpusReader = new FtbDepReader(corpusFile, "UTF-8");
 			corpusReader.setMaxSentenceCount(sentenceCount);
 			corpusReader.setParserService(parserService);
 			corpusReader.setPosTaggerService(posTaggerService);
 			corpusReader.setTokeniserService(tokeniserService);
+			corpusReader.setKeepCompoundPosTags(keepCompoundPosTags);
 			
 			if (command.equals("train")) {
 				if (parserFeatureFilePath.length()==0)
@@ -285,22 +305,41 @@ public class ParserMaxentRunner {
 					}
 				}
 				
-				List<String> posTaggerPreprocessingFilterDescriptors = new ArrayList<String>();
-				if (posTaggerPreprocessingFilterPath!=null && posTaggerPreprocessingFilterPath.length()>0) {
-					LOG.debug("From: " + tokenSequenceFilterPath);
-					File posTaggerPreprocessingFilterFile = new File(posTaggerPreprocessingFilterPath);
+				List<String> posTaggerPreProcessingFilterDescriptors = new ArrayList<String>();
+				if (posTaggerPreProcessingFilterPath!=null && posTaggerPreProcessingFilterPath.length()>0) {
+					LOG.debug("From: " + posTaggerPreProcessingFilterPath);
+					File posTaggerPreprocessingFilterFile = new File(posTaggerPreProcessingFilterPath);
 					Scanner posTaggerPreprocessingFilterScanner = new Scanner(posTaggerPreprocessingFilterFile);
 					while (posTaggerPreprocessingFilterScanner.hasNextLine()) {
 						String descriptor = posTaggerPreprocessingFilterScanner.nextLine();
-						posTaggerPreprocessingFilterDescriptors.add(descriptor);
+						posTaggerPreProcessingFilterDescriptors.add(descriptor);
 					}
 				}
 				
-				for (String descriptor : posTaggerPreprocessingFilterDescriptors) {
+				for (String descriptor : posTaggerPreProcessingFilterDescriptors) {
 					LOG.debug(descriptor);
 					if (descriptor.length()>0 && !descriptor.startsWith("#")) {
 						TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
 						corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
+					}
+				}
+				
+				List<String> posTaggerPostProcessingFilterDescriptors = new ArrayList<String>();
+				if (posTaggerPostProcessingFilterPath!=null && posTaggerPostProcessingFilterPath.length()>0) {
+					LOG.debug("From: " + posTaggerPostProcessingFilterPath);
+					File posTaggerPostProcessingFilterFile = new File(posTaggerPostProcessingFilterPath);
+					Scanner posTaggerPostProcessingFilterScanner = new Scanner(posTaggerPostProcessingFilterFile);
+					while (posTaggerPostProcessingFilterScanner.hasNextLine()) {
+						String descriptor = posTaggerPostProcessingFilterScanner.nextLine();
+						posTaggerPostProcessingFilterDescriptors.add(descriptor);
+					}
+				}
+				
+				for (String descriptor : posTaggerPostProcessingFilterDescriptors) {
+					LOG.debug(descriptor);
+					if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+						PosTagSequenceFilter posTagSequenceFilter = posTagFilterService.getPosTagSequenceFilter(descriptor);
+						corpusReader.addPosTagSequenceFilter(posTagSequenceFilter);
 					}
 				}
 				
@@ -343,7 +382,8 @@ public class ParserMaxentRunner {
 				descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				descriptors.put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 				descriptors.put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
-				descriptors.put(PosTagger.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPreprocessingFilterDescriptors);
+				descriptors.put(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPreProcessingFilterDescriptors);
+				descriptors.put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
 
 				MachineLearningModel<Transition> parserModel = trainer.trainModel(parseEventStream, transitionSystem, descriptors);
 				parserModel.persist(parserModelFile);
@@ -380,12 +420,22 @@ public class ParserMaxentRunner {
 					}
 				}
 				
-				List<String> posTaggerPreprocessingFilters = parserModel.getDescriptors().get(PosTagger.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-				if (posTaggerPreprocessingFilters!=null) {
-					for (String descriptor : posTaggerPreprocessingFilters) {
+				List<String> posTaggerPreProcessingFilters = parserModel.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
+				if (posTaggerPreProcessingFilters!=null) {
+					for (String descriptor : posTaggerPreProcessingFilters) {
 						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
 							TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
 							corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
+						}
+					}
+				}
+				
+				List<String> posTaggerPostProcessingFilters = parserModel.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
+				if (posTaggerPostProcessingFilters!=null) {
+					for (String descriptor : posTaggerPostProcessingFilters) {
+						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+							PosTagSequenceFilter posTagSequenceFilter = posTagFilterService.getPosTagSequenceFilter(descriptor);
+							corpusReader.addPosTagSequenceFilter(posTagSequenceFilter);
 						}
 					}
 				}
@@ -415,6 +465,16 @@ public class ParserMaxentRunner {
 				ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator();
 				parseFScoreCalculator.setLabeledEvaluation(true);
 				evaluator.addObserver(parseFScoreCalculator);
+				
+				Reader templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource("parser_conll_template.ftl")));
+				
+				File freemarkerFile = new File(outDir, modelName + "_output.txt");
+				freemarkerFile.delete();
+				freemarkerFile.createNewFile();
+				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),"UTF8"));
+				ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(freemakerFileWriter, templateReader);
+				evaluator.addObserver(templateWriter);
+				
 
 				evaluator.evaluate(corpusReader);
 				
@@ -453,5 +513,13 @@ public class ParserMaxentRunner {
 			long totalTime = endTime - startTime;
 			LOG.info("Total time: " + totalTime);
 		}
+	}
+	
+
+	private static InputStream getInputStreamFromResource(String resource) {
+		String path = "/com/joliciel/talismane/output/" + resource;
+		InputStream inputStream = Talismane.class.getResourceAsStream(path); 
+		
+		return inputStream;
 	}
 }

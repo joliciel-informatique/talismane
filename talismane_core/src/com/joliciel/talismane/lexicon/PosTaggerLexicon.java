@@ -16,13 +16,13 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.posTagger;
+package com.joliciel.talismane.lexicon;
 
 import java.util.List;
 import java.util.Set;
 
-import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.lexicon.Lexicon;
+import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTagSet;
 
 
 /**
@@ -36,7 +36,7 @@ public interface PosTaggerLexicon extends Lexicon {
 	 * @param word the word being considered
 	 * @return List&lt;PosTag&gt;
 	 */
-	Set<PosTag> findPossiblePosTags(String word);
+	public Set<PosTag> findPossiblePosTags(String word);
 	
 	/**
 	 * Find the lexical entries corresponding to a given postag for this word.
@@ -44,7 +44,7 @@ public interface PosTaggerLexicon extends Lexicon {
 	 * @param posTag
 	 * @return an ordered Set containing the lexical entries, or an empty set if none found
 	 */
-	Set<LexicalEntry> findLexicalEntries(String word, PosTag posTag);
+	public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag);
 	
 
 	/**
@@ -53,7 +53,7 @@ public interface PosTaggerLexicon extends Lexicon {
 	 * @param complement
 	 * @return
 	 */
-	public List<? extends LexicalEntry> getEntriesForLemma(String lemma, String complement, PosTag posTag);
+	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement, PosTag posTag);
 
 	/**
 	 * Return an entry for the same lemma as the lexical entry provided, matching the criteria provided (posTag, gender, number).
@@ -63,7 +63,7 @@ public interface PosTaggerLexicon extends Lexicon {
 	 * @param number
 	 * @return
 	 */
-	public List<? extends LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number);
+	public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number);
 
 	
 	/**

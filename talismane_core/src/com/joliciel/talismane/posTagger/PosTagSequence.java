@@ -72,6 +72,17 @@ public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<Pos
 	public PosTaggedToken prependRoot();
 	
 	/**
+	 * Remove a previously pre-pended root.
+	 */
+	public void removeRoot();
+	
+	/**
+	 * Make a deep clone of this pos-tag sequence.
+	 * @return
+	 */
+	public PosTagSequence clonePosTagSequence();
+	
+	/**
 	 * Remove all pos-tagged tokens that are empty and whose tag is null.
 	 * @param emptyPosTaggedToken
 	 */

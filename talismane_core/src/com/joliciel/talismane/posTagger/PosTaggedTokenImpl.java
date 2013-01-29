@@ -20,9 +20,8 @@ package com.joliciel.talismane.posTagger;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -35,7 +34,7 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
-	private Set<LexicalEntry> lexicalEntries = null;
+	private List<LexicalEntry> lexicalEntries = null;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private String conllLemma = null;
 	
@@ -50,14 +49,14 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 	}
 
 	@Override
-	public Set<LexicalEntry> getLexicalEntries() {
+	public List<LexicalEntry> getLexicalEntries() {
 		if (lexicalEntries==null) {
 			lexicalEntries = TalismaneSession.getLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
 		}
 		return lexicalEntries;
 	}
 
-	public void setLexicalEntries(Set<LexicalEntry> lexicalEntries) {
+	public void setLexicalEntries(List<LexicalEntry> lexicalEntries) {
 		this.lexicalEntries = lexicalEntries;
 	}
 
@@ -68,10 +67,10 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 
 	@Override
 	public LexicalEntry getLexicalEntry() {
-		Set<LexicalEntry> lexicalEntries = this.getLexicalEntries();
+		List<LexicalEntry> lexicalEntries = this.getLexicalEntries();
 		LexicalEntry bestLexicalEntry = null;
 		if (lexicalEntries.size()>0) {
-			bestLexicalEntry = lexicalEntries.iterator().next();
+			bestLexicalEntry = lexicalEntries.get(0);
 		}
 		return bestLexicalEntry;
 	}

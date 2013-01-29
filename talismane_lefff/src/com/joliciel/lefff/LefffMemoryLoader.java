@@ -33,6 +33,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -40,7 +41,7 @@ public class LefffMemoryLoader {
     private static final Log LOG = LogFactory.getLog(LefffMemoryLoader.class);
     
 	public LefffMemoryBase loadMemoryBaseFromDatabase(LefffService lefffService, Map<PosTagSet,LefffPosTagMapper> posTagMappers) {		
-		Map<String,List<LefffEntry>> entryMap = lefffService.findEntryMap();
+		Map<String,List<LexicalEntry>> entryMap = lefffService.findEntryMap();
 		LefffMemoryBase memoryBase = new LefffMemoryBaseImpl(entryMap, posTagMappers);
 		return memoryBase;
 	}

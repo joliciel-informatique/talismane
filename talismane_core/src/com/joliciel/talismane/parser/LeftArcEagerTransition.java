@@ -94,9 +94,4 @@ public class LeftArcEagerTransition extends AbstractTransition implements Transi
 	public boolean doesReduce() {
 		return true;
 	}
-
-	@Override
-	public String toString() {
-		return this.getCode();
-	}
 }

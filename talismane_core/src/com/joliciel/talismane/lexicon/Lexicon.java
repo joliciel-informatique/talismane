@@ -13,7 +13,7 @@ public interface Lexicon {
 	 * @param name
 	 * @return
 	 */
-	public List<? extends LexicalEntry> getEntries(String word);
+	public List<LexicalEntry> getEntries(String word);
 	
 
 	/**
@@ -22,5 +22,5 @@ public interface Lexicon {
 	 * @param complement
 	 * @return
 	 */
-	public List<? extends LexicalEntry> getEntriesForLemma(String lemma, String complement);
+	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement);
 }

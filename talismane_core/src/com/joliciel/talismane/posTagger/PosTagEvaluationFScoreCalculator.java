@@ -60,6 +60,23 @@ public class PosTagEvaluationFScoreCalculator implements
 		for (int i = 0; i<realSequence.size(); i++) {
 			TaggedToken<PosTag> realToken = realSequence.get(i);
 			TaggedToken<PosTag> testToken = guessedSequence.get(j);
+			
+			// special handling for null tags & empty tokens
+			if (realToken.getTag().equals(PosTag.NULL_POS_TAG)) {
+				// If the real token is null (and presumably empty)
+				// we don't include it in our stats
+				// We assume the previous non-empty token took care of any required comparisons.
+				if (testToken.getToken().isEmpty()) {
+					j++;
+				}
+				continue;
+			} else if (testToken.getToken().isEmpty() && !realToken.getToken().isEmpty()) {
+				// If the test token is empty, but the real token isn't, we skip this as well
+				// Again, we assume the previous non-empty token took care of any required comparisons.
+				j++;
+				testToken = guessedSequence.get(j);
+			}
+			
 			boolean tokenError = false;
 			if (realToken.getToken().getStartIndex()==testToken.getToken().getStartIndex()
 					&& realToken.getToken().getEndIndex()==testToken.getToken().getEndIndex()) {

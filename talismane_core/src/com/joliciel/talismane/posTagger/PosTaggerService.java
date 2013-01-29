@@ -45,6 +45,7 @@ public interface PosTaggerService {
 			int beamWidth);
 
 	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger);
+	public PosTagComparator getPosTagComparator();
 	
 	public PosTagSequence getPosTagSequence(
 			PosTagSequence history);

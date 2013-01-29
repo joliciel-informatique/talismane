@@ -131,6 +131,8 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 					for (int i=0; i<textMarker.getInsertionText().length(); i++) {
 						insertionPoints.put(processedText.length() + i, currentPos);
 					}
+					if (LOG.isTraceEnabled())
+						LOG.trace("Inserting: " + textMarker.getInsertionText());
 					processedText.append(textMarker.getInsertionText());
 				}
 				break;
@@ -147,17 +149,19 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				sentenceHolder.addSentenceBoundary(processedText.length()-1);
 				if (LOG.isTraceEnabled()) {
 					int boundary = processedText.length()-1;
-					String string = null;
-					int start1 = boundary - NUM_CHARS;
-					
-					if (start1<0) start1=0;
-					String startString = processedText.substring(start1, boundary);
-					
-					String middleString = "" + processedText.charAt(boundary);
-					
-					string = startString + "[" + middleString + "]";
-					string = string.replace('\n', '¶');
-					LOG.trace("Adding sentence break at position " + boundary + ": " + string);
+					if (boundary>=0) {
+						String string = null;
+						int start1 = boundary - NUM_CHARS;
+						
+						if (start1<0) start1=0;
+						String startString = processedText.substring(start1, boundary);
+						
+						String middleString = "" + processedText.charAt(boundary);
+						
+						string = startString + "[" + middleString + "]";
+						string = string.replace('\n', '¶');
+						LOG.trace("Adding sentence break at position " + boundary + ": " + string);
+					}
 				}
 				if (shouldProcess) {
 					if (!leftoverText.endsWith(" ")) {
@@ -234,7 +238,10 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 			leftoverOutput = leftoverOutput + originalText.substring(outputPos);
 		}
 		
-		sentenceHolder.setText(processedText.toString());
+		String finalProcessedText = processedText.toString();
+		if (LOG.isTraceEnabled())
+			LOG.trace("Text after processing: " + finalProcessedText);
+		sentenceHolder.setText(finalProcessedText);
 
 		int lastIndex = 0;
 		int lastOriginalIndex = 0;

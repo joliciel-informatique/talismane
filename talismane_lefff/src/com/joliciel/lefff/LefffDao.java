@@ -21,6 +21,8 @@ package com.joliciel.lefff;
 import java.util.List;
 import java.util.Map;
 
+import com.joliciel.talismane.lexicon.LexicalEntry;
+
 interface LefffDao {
     public LefffEntry loadEntry(int entryId);
     
@@ -57,7 +59,7 @@ interface LefffDao {
 	public Word loadWord(String text);
 
 	public Predicate loadPredicate(String text);
-	public Map<String, List<LefffEntry>> findEntryMap();
+	public Map<String, List<LexicalEntry>> findEntryMap();
 	
     public void setLefffServiceInternal(LefffServiceInternal lefffServiceInternal);
 	

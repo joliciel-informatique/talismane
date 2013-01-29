@@ -72,4 +72,11 @@ public interface TokeniserAnnotatedCorpusReader {
 	 * @return
 	 */
 	public List<TokenFilter> getTokenFilters();
+	
+	/**
+	 * If 0, all sentences will be read - otherwise will only read a certain number of sentences.
+	 * @return
+	 */
+	public int getMaxSentenceCount();
+	public void setMaxSentenceCount(int maxSentenceCount);
 }
