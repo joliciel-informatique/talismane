@@ -19,7 +19,9 @@
 package com.joliciel.talismane.fr;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +48,10 @@ import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * The default French implementation of Talismane.
@@ -121,7 +125,9 @@ public class TalismaneFrench extends TalismaneConfig {
 
 				TokeniserAnnotatedCorpusReader tokenCorpusReader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader, keepCompoundPosTags);
   				config.setTokenCorpusReader(tokenCorpusReader);
-
+  				
+  				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
+  				config.setSentenceCorpusReader(sentenceCorpusReader);
 	  		}
     	}
     	
@@ -156,50 +162,55 @@ public class TalismaneFrench extends TalismaneConfig {
 	}
 
 	@Override
-	public InputStream getDefaultPosTagSetFromStream() {
+	public Scanner getDefaultPosTagSetScanner() {
 		InputStream posTagInputStream = getInputStreamFromResource("CrabbeCanditoTagsetOriginal.txt");
-		return posTagInputStream;
+		return new Scanner(posTagInputStream, "UTF-8");
 	}
 	
 
 	@Override
-	public InputStream getDefaultPosTaggerRulesFromStream() {
+	public Scanner getDefaultPosTaggerRulesScanner() {
 		InputStream inputStream = getInputStreamFromResource("posTaggerConstraints_fr.txt");
-		return inputStream;
+		return new Scanner(inputStream, "UTF-8");
 	}
 	
 
 	@Override
-	public InputStream getDefaultParserRulesFromStream() {
+	public Scanner getDefaultParserRulesScanner() {
 //		InputStream inputStream = getInputStreamFromResource("parserRules_fr.txt");
-		InputStream inputStream = null;
-		return inputStream;
+//		InputStream inputStream = null;
+		return null;
 	}
 
 
 	@Override
 	public PosTaggerLexicon getLexicon() {
-		LexiconChain lexiconChain = new LexiconChain();
-		
-		LexiconDeserializer deserializer = new LexiconDeserializer();
-		
-		String lexiconPath = "/com/joliciel/talismane/fr/resources/lefff-2.1-additions.zip";
-		ZipInputStream zis = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-		PosTaggerLexicon lexicon = deserializer.deserializeLexiconFile(zis);
-		lexiconChain.addLexicon(lexicon);
-
-		lexiconPath = "/com/joliciel/talismane/fr/resources/lefff-2.1-specialCats-ftbDep.zip";
-		zis = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-		lexicon = deserializer.deserializeLexiconFile(zis);
-		lexiconChain.addLexicon(lexicon);
-
-		lexiconPath = "/com/joliciel/talismane/fr/resources/lefffCC.zip";
-		zis = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-		lexicon = deserializer.deserializeLexiconFile(zis);
-		lexiconChain.addLexicon(lexicon);
-
-		lexiconChain.setPosTagSet(this.getDefaultPosTagSet());
-		return lexiconChain;
+		try {
+			LexiconChain lexiconChain = new LexiconChain();
+			
+			LexiconDeserializer deserializer = new LexiconDeserializer();
+			
+			String lexiconPath = "/com/joliciel/talismane/fr/resources/lefff-2.1-additions.obj";
+			ObjectInputStream ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
+			PosTaggerLexicon lexicon = deserializer.deserializeLexiconFile(ois);
+			lexiconChain.addLexicon(lexicon);
+	
+			lexiconPath = "/com/joliciel/talismane/fr/resources/lefff-2.1-specialCats-ftbDep.obj";
+			ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
+			lexicon = deserializer.deserializeLexiconFile(ois);
+			lexiconChain.addLexicon(lexicon);
+	
+			lexiconPath = "/com/joliciel/talismane/fr/resources/lefffCC.zip";
+			ZipInputStream zis = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
+			lexicon = deserializer.deserializeLexiconFile(zis);
+			lexiconChain.addLexicon(lexicon);
+	
+			lexiconChain.setPosTagSet(this.getDefaultPosTagSet());
+			return lexiconChain;
+		} catch (IOException ioe) {
+			LogUtils.logError(LOG, ioe);
+			throw new RuntimeException(ioe);
+		}
 	}
 
 	@Override
@@ -210,13 +221,13 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_fr13_noCutoff.zip";
+		String tokeniserModelName = "ftbTokeniser_fr16_noCutoff.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultPosTaggerModelStream() {
-		String posTaggerModelName = "ftbPosTagger_fr4_compound_cutoff3.zip";
+		String posTaggerModelName = "ftbPosTagger_fr13_cutoff3.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(posTaggerModelName);
 	}
 
@@ -239,15 +250,15 @@ public class TalismaneFrench extends TalismaneConfig {
 	}
 
 	@Override
-	public InputStream getDefaultTextMarkerFiltersFromStream() {
+	public Scanner getDefaultTextMarkerFiltersScanner() {
 		InputStream inputStream = getInputStreamFromResource("text_marker_filters.txt");
-		return inputStream;
+		return new Scanner(inputStream, "UTF-8");
 	}
 
 	@Override
-	public InputStream getDefaultTokenFiltersFromStream() {
+	public Scanner getDefaultTokenFiltersScanner() {
 		InputStream inputStream = getInputStreamFromResource("token_filters.txt");
-		return inputStream;
+		return new Scanner(inputStream, "UTF-8");
 	}
 	
 	public InputStream getDefaultPosTagMapFromStream() {

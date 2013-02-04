@@ -18,10 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 class DecisionImpl<T extends Outcome> implements Decision<T> {
+	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private T outcome;
 	private String name;
 	private double probability;
@@ -110,8 +112,8 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 
 	@Override
 	public String toString() {
-		return "DecisionImpl [outcome=" + name
-				+ ", probability=" + probability + "]";
+		return "Decision [" + name
+				+ "," + df.format(probability) + "]";
 	}
 	
 	

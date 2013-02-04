@@ -38,6 +38,8 @@ desquelles	duquel	P+PRO	p+pro	fp
 à condition du	à condition de	P	p+d	ms
 à coups des	à coups de	P	p+d	p
 à coups du	à coups de	P	p+d	ms
+à court des	à court de	P	p+d	p
+à court du	à court de	P	p+d	ms
 à défaut des	à défaut de	P	p+d	p
 à défaut du	à défaut de	P	p+d	ms
 à destination des	à destination de	P	p+d	p
@@ -164,6 +166,8 @@ au delà des	au delà de	P	p+d	p
 au delà du	au delà de	P	p+d	ms
 au dessous des	au dessous de	P	p+d	p
 au dessous du	au dessous de	P	p+d	ms
+au dessus des	au dessus de	P	p+d	p
+au dessus du	au dessus de	P	p+d	ms
 au devant des	au devant de	P	p+d	p
 au devant du	au devant de	P	p+d	ms
 au fil des	au fil de	P	p+d	p
@@ -233,10 +237,8 @@ au travers du	au travers de	P	p+d	ms
 au vu des	au vu de	P	p+d	p
 au vu du	au vu de	P	p+d	ms
 au vu et au su des	au vu et au su de	P	p+d	p
-au vu et au su du	au vu et au su de	P	p+d	ms
+au vu et au su du	au vu et au su de	P	p+d	msau-delà des	au-delà de	P	p+d	p
 au-delà des	au-delà de	P	p+d	p
-au-delà des	au-delà de	P	p+d	p
-au-delà du	au-delà de	P	p+d	ms
 au-delà du	au-delà de	P	p+d	ms
 au-dessous des	au-dessous de	P	p+d	p
 au-dessous des	au-dessous de	P	p+d	p
@@ -324,8 +326,6 @@ de l'ordre des	de l'ordre de	P	p+d	p
 de l'ordre du	de l'ordre de	P	p+d	ms
 de la part des	de la part de	P	p+d	p
 de la part du	de la part de	P	p+d	ms
-de manière au	de manière à	P	p+d	ms
-de manière aux	de manière à	P	p+d	p
 de part et d'autre des	de part et d'autre de	P	p+d	p
 de part et d'autre du	de part et d'autre de	P	p+d	ms
 de plus en plus des	de plus en plus de	P	p+d	p
@@ -350,6 +350,8 @@ en avant des	en avant de	P	p+d	p
 en avant du	en avant de	P	p+d	ms
 en baisse des	en baisse de	P	p+d	p
 en baisse du	en baisse de	P	p+d	ms
+en butte au	en butte à	P	p+d	ms
+en butte aux	en butte à	P	p+d	p
 en cas des	en cas de	P	p+d	p
 en cas du	en cas de	P	p+d	ms
 en charge des	en charge de	P	p+d	p
@@ -449,6 +451,8 @@ en termes des	en termes de	P	p+d	p
 en termes du	en termes de	P	p+d	ms
 en train des	en train de	P	p+d	p
 en train du	en train de	P	p+d	ms
+en travers des	en travers de	P	p+d	p
+en travers du	en travers de	P	p+d	ms
 en vertu des	en vertu de	P	p+d	p
 en vertu du	en vertu de	P	p+d	ms
 en voie des	en voie de	P	p+d	p
@@ -551,6 +555,8 @@ sous le signe des	sous le signe de	P	p+d	p
 sous le signe du	sous le signe de	P	p+d	ms
 sous peine des	sous peine de	P	p+d	p
 sous peine du	sous peine de	P	p+d	ms
+sous prétexte des	sous prétexte de	P	p+d	p
+sous prétexte du	sous prétexte de	P	p+d	ms
 sous réserve des	sous réserve de	P	p+d	p
 sous réserve du	sous réserve de	P	p+d	ms
 suite au	suite à	P	p+d	ms

@@ -341,6 +341,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 					LOG.debug(df.format(finalConfiguration.getScore()) + ": " + finalConfiguration.toString());
 					LOG.debug("Pos tag sequence: " + finalConfiguration.getPosTagSequence());
 					LOG.debug("Transitions: " + finalConfiguration.getTransitions());
+					LOG.debug("Decisions: " + finalConfiguration.getDecisions());
 					if (LOG.isTraceEnabled()) {
 						StringBuilder sb = new StringBuilder();
 						for (Decision<Transition> decision : finalConfiguration.getDecisions()) {

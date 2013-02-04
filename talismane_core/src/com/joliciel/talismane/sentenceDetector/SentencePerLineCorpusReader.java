@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,20 +16,44 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser;
+package com.joliciel.talismane.sentenceDetector;
+
+import java.io.Reader;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
- * An interface for evaluating a given tokeniser.
+ * A default corpus reader which assumes one sentence per line.
  * @author Assaf Urieli
  *
  */
-public interface TokeniserEvaluator {
-	/**
-	 * Evaluate a given tokeniser.
-	 * @param reader for reading manually separated tokens from a corpus
-	 */
-	public void evaluate(
-			TokeniserAnnotatedCorpusReader corpusReader);
+class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
+	private Scanner scanner;
+	
+	public SentencePerLineCorpusReader(Reader reader) {
+		scanner = new Scanner(reader);
+	}
+	
+	@Override
+	public boolean hasNextSentence() {
+		return scanner.hasNextLine();
+	}
 
-	void addObserver(TokenEvaluationObserver observer);
+	@Override
+	public String nextSentence() {
+		return scanner.nextLine();
+	}
+
+	@Override
+	public Map<String, String> getCharacteristics() {
+		Map<String, String> characteristics = new LinkedHashMap<String, String>();
+		return characteristics;
+	}
+
+	@Override
+	public boolean isNewParagraph() {
+		return false;
+	}
+
 }

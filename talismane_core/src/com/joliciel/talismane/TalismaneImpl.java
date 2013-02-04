@@ -266,7 +266,7 @@ class TalismaneImpl implements Talismane {
 			SentenceHolder prevSentenceHolder = null;
 
 		    while (!finished) {
-		    	if (config.getStartModule().equals(Module.SentenceDetector)||config.getStartModule().equals(Module.Tokeniser)) {
+		    	if (config.getStartModule().equals(Module.SentenceDetector)) {
 				    // read characters from the reader, one at a time
 			    	char c;
 			    	int r = config.getReader().read();
@@ -363,7 +363,14 @@ class TalismaneImpl implements Talismane {
 						}
 						prevSentenceHolder = sentenceHolder;
 					} // we have at least 3 text segments (should always be the case once we get started)
-				} else if (config.getStartModule().equals(Module.PosTagger)) {
+		    	} else if (config.getStartModule().equals(Module.Tokeniser)) {
+		    		if (config.getSentenceCorpusReader().hasNextSentence()) {
+		    			Sentence sentence = this.getFilterService().getSentence(config.getSentenceCorpusReader().nextSentence());
+		    			sentences.add(sentence);
+		    		} else {
+		    			finished = true;
+		    		}
+		    	} else if (config.getStartModule().equals(Module.PosTagger)) {
 	    			if (config.getTokenCorpusReader().hasNextTokenSequence()) {
 	    				tokenSequence = config.getTokenCorpusReader().nextTokenSequence();
 	    			} else {
@@ -409,7 +416,7 @@ class TalismaneImpl implements Talismane {
 	    			List<PosTagSequence> posTagSequences = null;
  	    			if (config.needsPosTagger()) {
     					posTagSequence = null;
-    					if (tokenSequences==null||!config.isPropagateBeam()) {
+    					if (tokenSequences==null||!config.isPropagateTokeniserBeam()) {
     						tokenSequences = new ArrayList<TokenSequence>();
     						tokenSequences.add(tokenSequence);
     					}
@@ -430,7 +437,7 @@ class TalismaneImpl implements Talismane {
  	    			} // need to postag
  	    			
 	    			if (config.needsParser()) {
-    					if (posTagSequences==null||!config.isPropagateBeam()) {
+    					if (posTagSequences==null||!config.isPropagatePosTaggerBeam()) {
     						posTagSequences = new ArrayList<PosTagSequence>();
     						posTagSequences.add(posTagSequence);
     					}

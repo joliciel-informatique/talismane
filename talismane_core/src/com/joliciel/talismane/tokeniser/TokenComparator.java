@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -19,17 +19,25 @@
 package com.joliciel.talismane.tokeniser;
 
 /**
- * An interface for evaluating a given tokeniser.
+ * An interface for comparing two tokenised corpora, one of which is considered a reference.
  * @author Assaf Urieli
  *
  */
-public interface TokeniserEvaluator {
+public interface TokenComparator {
 	/**
-	 * Evaluate a given tokeniser.
-	 * @param reader for reading manually separated tokens from a corpus
+	 * Evaluate the evaluation corpus against the reference corpus.
+	 * @param reader for reading manually tagged tokens from a corpus
 	 */
-	public void evaluate(
-			TokeniserAnnotatedCorpusReader corpusReader);
+	public void evaluate(TokeniserAnnotatedCorpusReader referenceCorpusReader,
+			TokeniserAnnotatedCorpusReader evaluationCorpusReader);
 
-	void addObserver(TokenEvaluationObserver observer);
+	public abstract void addObserver(TokenEvaluationObserver observer);
+
+	/**
+	 * If set, will limit the maximum number of sentences that will be evaluated.
+	 * Default is 0 = all sentences.
+	 * @param sentenceCount
+	 */
+	public abstract void setSentenceCount(int sentenceCount);
+	public abstract int getSentenceCount();
 }

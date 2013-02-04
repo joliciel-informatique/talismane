@@ -50,6 +50,7 @@ CL	obj	3fp	CLO
 CL	obj	3fs	CLO
 CL	obj	3mp	CLO
 CL	obj	3ms	CLO
+CL	obj	null	CLO
 CL	refl	1fs	CLR
 CL	refl	1mp	CLR
 CL	refl	1ms	CLR
@@ -60,6 +61,7 @@ CL	refl	3fp	CLR
 CL	refl	3fs	CLR
 CL	refl	3mp	CLR
 CL	refl	3ms	CLR
+CL	refl	null	CLR
 CL	suj	1fp	CLS
 CL	suj	1fs	CLS
 CL	suj	1mp	CLS
@@ -73,6 +75,7 @@ CL	suj	3fs	CLS
 CL	suj	3mp	CLS
 CL	suj	3ms	CLS
 CL	suj	ms	CLS
+CL	suj	null	CLS
 CS	null	null	CS
 D	card	fp	DET
 D	card	fs	DET

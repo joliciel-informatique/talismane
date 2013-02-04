@@ -67,6 +67,8 @@ class PosTagEventStream implements CorpusEventStream {
 			while (currentSentence==null) {
 				if (this.corpusReader.hasNextPosTagSequence()) {
 					currentSentence = this.corpusReader.nextPosTagSequence();
+					if (LOG.isDebugEnabled())
+						LOG.debug("### next sentence: " + currentSentence.getTokenSequence().getSentence());
 					currentIndex = 0;
 					currentHistory = posTaggerService.getPosTagSequence(currentSentence.getTokenSequence(), currentSentence.size());
 					if (currentIndex == currentSentence.size()) {

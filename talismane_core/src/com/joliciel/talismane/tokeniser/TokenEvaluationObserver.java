@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,18 +18,20 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.util.List;
+
 /**
- * An interface for evaluating a given tokeniser.
+ * An interface that observes a tokeniser evaluation while its occurring.
  * @author Assaf Urieli
  *
  */
-public interface TokeniserEvaluator {
+public interface TokenEvaluationObserver {
 	/**
-	 * Evaluate a given tokeniser.
-	 * @param reader for reading manually separated tokens from a corpus
+	 * Called when the next token  sequence has been processed.
+	 * @param realSequence
+	 * @param guessedSequences
 	 */
-	public void evaluate(
-			TokeniserAnnotatedCorpusReader corpusReader);
-
-	void addObserver(TokenEvaluationObserver observer);
+	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences);
+	
+	public void onEvaluationComplete();
 }

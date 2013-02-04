@@ -32,6 +32,7 @@ bref	bref	CC	coo	null
 de même qu'	de même que	CC	coo	null
 de même que	de même que	CC	coo	null
 même	même	CC	coo	null
+ou même	ou même	CC	coo	null
 pas moins que	pas moins que	CC	coo	null
 pas moins qu'	pas moins que	CC	coo	null
 pas plus que	pas plus que	CC	coo	null
@@ -49,11 +50,28 @@ soit	soit	CC	coo	null
 à telle enseigne qu'	à telle enseigne que	CS	csu	null
 comme quoi	comme quoi	CS	csu	null
 comme s'	comme si	CS	csu	null
+de plus que	de plus que	CS	csu	null
+de plus qu'	de plus que	CS	csu	null
+étant donné que	étant donné que	CS	csu	null
+étant donné qu'	étant donné que	CS	csu	null
 même s'	même si	CS	csu	null
+que si	que si	CS	csu	null
 quitte à ce que	quitte à ce que	CS	csu	null
 quitte à ce qu'	quitte à ce que	CS	csu	null
 tant	tant	CS	csu	null
 tout comme	tout comme	CS	csu	null
+# clitiques abbrégés
+j'	je	CLS	cln	1s
+m'	me	CLO	clo	1s
+m'	me	CLR	clr	1s
+t'	te	CLO	clo	2s
+t'	te	CLR	clr	2s
+t'	tu	CLS	cls	2s
+l'	le	CLO	clo	3s
+c'	ce	CLS	cln	null
+-c'	ce	CLS	cln	null
+s'	se	CLR	clr	3
+s'	se	CLO	clda	3
 # clitique objet
 # ce: Pour ce faire... - rejecting, this isn't a clitic, it's a demonstrative pronoun
 - t - en	- t - en	CLO	cll	null
@@ -61,7 +79,6 @@ tout comme	tout comme	CS	csu	null
 -nous	-nous	CLR	clr	1p
 -vous	-vous	CLR	clr	2p
 # clitique sujet
--c'	ce	CLS	cln	null
 - t - elle	elle	CLS	cln	3fs
 - t - elles	elles	CLS	cln	3fp
 - t - il	il	CLS	cln	3ms
@@ -733,6 +750,8 @@ une sorte d'	une sorte de	DET	det	s
 -	-	P	prep	null
 /	/	P	prep	null
 =	=	P	prep	null
+à base de	à base de	P	prep	null
+à base d'	à base de	P	prep	null
 à bord de	à bord de	P	prep	null
 à bord d'	à bord de	P	prep	null
 à bout de	à bout de	P	prep	null
@@ -741,11 +760,15 @@ une sorte d'	une sorte de	DET	det	s
 à ce stade d'	à ce stade de	P	prep	null
 à commencer par	à commencer par	P	prep	null
 à compter de	à compter de	P	prep	null
+à compter d'	à compter de	P	prep	null
 à concurrence de	à concurrence de	P	prep	null
 à concurrence d'	à concurrence de	P	prep	null
 à condition de	à condition de	P	prep	null
 à condition d'	à condition de	P	prep	null
 à coups de	à coups de	P	prep	null
+à coups d'	à coups de	P	prep	null
+à court de	à court de	P	prep	null
+à court d'	à court de	P	prep	null
 à destination de	à destination de	P	prep	null
 à destination d'	à destination de	P	prep	null
 à l'abri de	à l'abri de	P	prep	null
@@ -811,8 +834,10 @@ une sorte d'	une sorte de	DET	det	s
 à part	à part	P	prep	null
 à proximité de	à proximité de	P	prep	null
 à proximité d'	à proximité de	P	prep	null
+à savoir	à savoir	P	prep	null
 à titre de	à titre de	P	prep	null
 à titre d'	à titre de	P	prep	null
+à travers	à travers	P	prep	null
 à valoir sur	à valoir sur	P	prep	null
 au bénéfice de	au bénéfice de	P	prep	null
 au bénéfice d'	au bénéfice de	P	prep	null
@@ -867,7 +892,12 @@ aux yeux de	aux yeux de	P	prep	null
 avant même	avant même	P	prep	null
 avec l'aide de	avec l'aide de	P	prep	null
 avec l'aide d'	avec l'aide de	P	prep	null
+bien après	bien après	P	prep	null
 bien avant	bien avant	P	prep	null
+c'est à dire	c'est à dire	P	prep	null
+c'est-à-dire	c'est à dire	P	prep	null
+c/o	c/o	P	prep	null
+comparé à	comparé à	P	prep	null
 compte tenu de	compte tenu de	P	prep	null
 compte tenu d'	compte tenu de	P	prep	null
 concernant	concernant	P	prep	null
@@ -875,6 +905,8 @@ conformément à	conformément à	P	prep	null
 contraire à	contraire à	P	prep	null
 contrairement à	contrairement à	P	prep	null
 courant	courant	P	prep	null
+davantage que	davantage que	P	prep	null
+davantage qu'	davantage que	P	prep	null
 d'un bout à l'autre de	d'un bout à l'autre de	P	prep	null
 d'un bout à l'autre d'	d'un bout à l'autre de	P	prep	null
 dans l'attente de	dans l'attente de	P	prep	null
@@ -912,6 +944,7 @@ de moins de	de moins de	P	prep	null
 de moins d'	de moins de	P	prep	null
 de nature à	de nature à	P	prep	null
 de pair avec	de pair avec	P	prep	null
+de par	de par	P	prep	null
 de part et d'autre	de part et d'autre	P	prep	null
 de part et d'autre de	de part et d'autre de	P	prep	null
 de part et d'autre d'	de part et d'autre de	P	prep	null
@@ -928,6 +961,7 @@ du fait d'	du fait de	P	prep	null
 en avance sur	en avance sur	P	prep	null
 en baisse de	en baisse de	P	prep	null
 en baisse d'	en baisse de	P	prep	null
+en butte à	en butte à	P	prep	null
 en ce qui concerne	en ce qui concerne	P	prep	null
 en charge de	en charge de	P	prep	null
 en charge d'	en charge de	P	prep	null
@@ -953,6 +987,8 @@ en l'absence d'	en l'absence de	P	prep	null
 en l'espace de	en l'espace de	P	prep	null
 en l'espace d'	en l'espace de	P	prep	null
 en liaison avec	en liaison avec	P	prep	null
+en mal de	en mal de	P	prep	null
+en mal d'	en mal de	P	prep	null
 en matière de	en matière de	P	prep	null
 en matière d'	en matière de	P	prep	null
 en mesure de	en mesure de	P	prep	null
@@ -966,9 +1002,12 @@ en présence de	en présence de	P	prep	null
 en présence d'	en présence de	P	prep	null
 en qualité de	en qualité de	P	prep	null
 en qualité de	en qualité d'	P	prep	null
+en tant que	en tant que	P	prep	null
 en tête	en tête	P	prep	null
 en tête de	en tête de	P	prep	null
 en tête de	en tête d'	P	prep	null
+en travers de	en travers de	P	prep	null
+en travers d'	en travers de	P	prep	null
 en vue de	en vue de	P	prep	null
 en vue d'	en vue de	P	prep	null
 environ	environ	P	prep	null
@@ -980,6 +1019,7 @@ le temps de	le temps de	P	prep	null
 le temps d'	le temps de	P	prep	null
 moins de	moins de	P	prep	null
 moins d'	moins de	P	prep	null
+non sans	non sans	P	prep	null
 par l'entremise de	par l'entremise de	P	prep	null
 par l'entremise d'	par l'entremise de	P	prep	null
 par l'intermédiaire de	par l'intermédiaire de	P	prep	null
@@ -1000,6 +1040,7 @@ quitte à	quitte à	P	prep	null
 sans compter	sans compter	P	prep	null
 sans parler de	sans parler de	P	prep	null
 sans parler d'	sans parler de	P	prep	null
+si ce n'est	si ce n'est	P	prep	null
 sous couvert de	sous couvert de	P	prep	null
 sous couvert d'	sous couvert de	P	prep	null
 sous forme de	sous forme de	P	prep	null
@@ -1022,6 +1063,8 @@ sous le signe de	sous le signe de	P	prep	null
 sous le signe d'	sous le signe de	P	prep	null
 sous peine de	sous peine de	P	prep	null
 sous peine d'	sous peine de	P	prep	null
+sous prétexte de	sous prétexte de	P	prep	null
+sous prétexte d'	sous prétexte de	P	prep	null
 sous réserve de	sous réserve de	P	prep	null
 sous réserve d'	sous réserve de	P	prep	null
 sur fond de	sur fond de	P	prep	null
@@ -1032,6 +1075,14 @@ sur le point de	sur le point de	P	prep	null
 sur le point d'	sur le point de	P	prep	null
 sur la voie de	sur la voie de	P	prep	null
 sur la voie d'	sur la voie de	P	prep	null
+tel que	tel que	P	prep	null
+telle que	tel que	P	prep	null
+tels que	tel que	P	prep	null
+telles que	tel que	P	prep	null
+tel qu'	tel que	P	prep	null
+telle qu'	tel que	P	prep	null
+tels qu'	tel que	P	prep	null
+telles qu'	tel que	P	prep	null
 tout comme	tout comme	P	prep	null
 voici	voici	P	prep	null
 voilà	voilà	P	prep	null
@@ -1153,109 +1204,224 @@ quand	quand	CS	csu	null
 à court terme	à court terme	ADV	adv	null
 à froid	à froid	ADV	adv	null
 à jour	à jour	ADV	adv	null
-à l'avance	à l'avance	ADV	adv	null
 à l'évidence	à l'évidence	ADV	adv	null
+à l'avance	à l'avance	ADV	adv	null
 à l'improviste	à l'improviste	ADV	adv	null
 à l'inverse	à l'inverse	ADV	adv	null
 à la cape	à la cape	ADV	adv	null
 à la fin	à la fin	ADV	adv	null
+à la fois	à la fois	ADV	adv	null
 à la hausse	à la hausse	ADV	adv	null
 à long terme	à long terme	ADV	adv	null
 à moyen terme	à moyen terme	ADV	adv	null
+à nouveau	à nouveau	ADV	adv	null
 à partir de là	à partir de là	ADV	adv	null
+à peine	à peine	ADV	adv	null
 à perte	à perte	ADV	adv	null
+à peu près	à peu près	ADV	adv	null
 à plusieurs reprises	à plusieurs reprises	ADV	adv	null
 à point nommé	à point nommé	ADV	adv	null
 à première vue	à première vue	ADV	adv	null
 à terme	à terme	ADV	adv	null
+çà et là	çà et là	ADV	adv	null
+a contrario	a contrario	ADV	adv	null
+a fortiori	a fortiori	ADV	adv	null
+a posteriori	a posteriori	ADV	adv	null
+a priori	a priori	ADV	adv	null
+après coup	après coup	ADV	adv	null
 au choix	au départ	ADV	adv	null
 au contraire	au contraire	ADV	adv	null
 au départ	au départ	ADV	adv	null
+au moins	au moins	ADV	adv	null
 au noir	au noir	ADV	adv	null
 au soir	au soir	ADV	adv	null
+aujourd'hui	aujourd'hui	ADV	adv	null
+autrement dit	autrement dit	ADV	adv	null
+beaucoup moins	beaucoup moins	ADV	adv	null
+beaucoup plus	beaucoup plus	ADV	adv	null
+bel et bien	bel et bien	ADV	adv	null
+bien entendu	bien entendu	ADV	adv	null
+bien sûr	bien sûr	ADV	adv	null
+bon an mal an	bon an mal an	ADV	adv	null
 bon an mal an	bon an mal an	ADV	adv	null
 c'est pourquoi	c'est pourquoi	ADV	adv	null
+ce faisant	ce faisant	ADV	adv	null
+ce faisant	ce faisant	ADV	adv	null
+ceci étant	ceci étant	ADV	adv	null
+ceci dit	ceci dit	ADV	adv	null
+ceci fait	ceci fait	ADV	adv	null
+ceci posé	ceci posé	ADV	adv	null
+cela étant	cela étant	ADV	adv	null
+cela dit	cela dit	ADV	adv	null
+cela fait	cela fait	ADV	adv	null
+cela posé	cela posé	ADV	adv	null
+cette fois-ci	cette fois-ci	ADV	adv	null
+coûte que coûte	coûte que coûte	ADV	adv	null
 comme si de rien n'était	comme si de rien n'était	ADV	adv	null
 comme tout un chacun	comme tout un chacun	ADV	adv	null
-ce faisant	ce faisant	ADV	adv	null
+dès lors	dès lors	ADV	adv	null
+d'abord	d'abord	ADV	adv	null
+d'accord	d'accord	ADV	adv	null
+d'ailleurs	d'ailleurs	ADV	adv	null
+d'autant	d'autant	ADV	adv	null
+d'autant plus	d'autant plus	ADV	adv	null
+d'autre part	d'autre part	ADV	adv	null
+d'emblée	d'emblée	ADV	adv	null
+d'ores et déjà	d'ores et déjà	ADV	adv	null
 d'origine	d'origine	ADV	adv	null
 d'un côté	d'un côté	ADV	adv	null
+d'une part	d'une part	ADV	adv	null
 dans ce sens	dans ce sens	ADV	adv	null
 dans ces conditions	dans ces conditions	ADV	adv	null
+dans l'ensemble	dans l'ensemble	ADV	adv	null
 dans un premier temps	dans un premier temps	ADV	adv	null
 dans une large mesure	dans une large mesure	ADV	adv	null
-dans l'ensemble	dans l'ensemble	ADV	adv	null
-davantage que	davantage que	ADV	adv	null
 davantage qu'	davantage qu'	ADV	adv	null
+davantage que	davantage que	ADV	adv	null
 de côté	de côté	ADV	adv	null
 de dos	de dos	ADV	adv	null
+de facto	de facto	ADV	adv	null
+de fait	de fait	ADV	adv	null
 de la sorte	de la sorte	ADV	adv	null
 de longue date	de longue date	ADV	adv	null
+de même	de même	ADV	adv	null
 de mise	de mise	ADV	adv	null
+de nouveau	de nouveau	ADV	adv	null
+de nouveau	de nouveau	ADV	adv	null
+de plus	de plus	ADV	adv	null
+de plus en plus	de plus en plus	ADV	adv	null
 de préférence	de préférence	ADV	adv	null
 de qualité	de qualité	ADV	adv	null
 de semaine en semaine	de semaine en semaine	ADV	adv	null
 de suite	de suite	ADV	adv	null
 du coup	du coup	ADV	adv	null
 du même coup	du même coup	ADV	adv	null
+du moins	du moins	ADV	adv	null
+en échec	en échec	ADV	adv	null
 en apparence	en apparence	ADV	adv	null
 en baisse	en baisse	ADV	adv	null
 en cause	en cause	ADV	adv	null
 en ce sens	en ce sens	ADV	adv	null
 en charge	en charge	ADV	adv	null
 en compte	en compte	ADV	adv	null
-en danger	en danger	ADV	adv	null
 en désespoir de cause	en désespoir de cause	ADV	adv	null
+en danger	en danger	ADV	adv	null
 en direct	en direct	ADV	adv	null
-en échec	en échec	ADV	adv	null
 en face	en face	ADV	adv	null
+en fait	en fait	ADV	adv	null
 en fanfare	en fanfare	ADV	adv	null
+en général	en général	ADV	adv	null
 en grande partie	en grande partie	ADV	adv	null
 en hausse	en hausse	ADV	adv	null
 en l'occurrence	en l'occurrence	ADV	adv	null
 en lumière	en lumière	ADV	adv	null
+en moyenne	en moyenne	ADV	adv	null
 en nature	en nature	ADV	adv	null
 en odeur de sainteté	en odeur de sainteté	ADV	adv	null
+en outre	en outre	ADV	adv	null
 en parallèle	en parallèle	ADV	adv	null
+en particulier	en particulier	ADV	adv	null
+en partie	en partie	ADV	adv	null
 en permanence	en permanence	ADV	adv	null
 en place	en place	ADV	adv	null
 en pointe	en pointe	ADV	adv	null
 en priorité	en priorité	ADV	adv	null
 en profondeur	en profondeur	ADV	adv	null
 en réalité	en réalité	ADV	adv	null
-en relief	en relief	ADV	adv	null
 en réseau	en réseau	ADV	adv	null
+en relief	en relief	ADV	adv	null
 en revanche	en revanche	ADV	adv	null
 en scène	en scène	ADV	adv	null
 en substance	en substance	ADV	adv	null
+en tout cas	en tout cas	ADV	adv	null
 en valeur	en valeur	ADV	adv	null
 en vente	en vente	ADV	adv	null
+grosso modo	grosso modo	ADV	adv	null
 il est vrai	il est vrai	ADV	adv	null
+in extremis	in extremis	ADV	adv	null
+in fine	in fine	ADV	adv	null
+jusqu'à présent	jusqu'à présent	ADV	adv	null
+jusqu'alors	jusqu'alors	ADV	adv	null
+jusqu'ici	jusqu'ici	ADV	adv	null
+jusqu'où	jusqu'où	ADV	adv	null
+jusque-là	jusque-là	ADV	adv	null
 là encore	là encore	ADV	adv	null
 la veille	la veille	ADV	adv	null
+le cas échéant	le cas échéant	ADV	adv	null
+le plus	le plus	ADV	adv	null
 le plus possible	le plus possible	ADV	adv	null
 le plus souvent	le plus souvent	ADV	adv	null
+le plus souvent	le plus souvent	ADV	adv	null
 mal à l'aise	mal à l'aise	ADV	adv	null
-moins que	moins que	ADV	adv	null
+manu militari	manu militari	ADV	adv	null
 moins qu'	moins que	ADV	adv	null
+moins que	moins que	ADV	adv	null
+moyennant quoi	moyennant quoi	ADV	adv	null
+ne jamais	ne jamais	ADV	adv	null
+ne pas	ne pas	ADV	adv	null
+ne plus	ne plus	ADV	adv	null
+ne point	ne point	ADV	adv	null
+non moins	non moins	ADV	adv	null
+non pas	non pas	ADV	adv	null
+non plus	non plus	ADV	adv	null
+non seulement	non seulement	ADV	adv	null
+outre mesure	outre mesure	ADV	adv	null
+par ailleurs	par ailleurs	ADV	adv	null
 par erreur	par erreur	ADV	adv	null
 par la suite	par la suite	ADV	adv	null
 par nature	par nature	ADV	adv	null
-plus que	plus que	ADV	adv	null
+pas du tout	pas du tout	ADV	adv	null
+pas encore	pas encore	ADV	adv	null
+pas même	pas même	ADV	adv	null
+pas moins	pas moins	ADV	adv	null
+pas pour autant	pas pour autant	ADV	adv	null
+pas tout à fait	pas tout à fait	ADV	adv	null
+peu à peu	peu à peu	ADV	adv	null
+plus ou moins	plus ou moins	ADV	adv	null
 plus qu'	plus que	ADV	adv	null
+plus que	plus que	ADV	adv	null
+pour autant	pour autant	ADV	adv	null
 pour l'essentiel	pour l'essentiel	ADV	adv	null
 pour l'heure	pour l'heure	ADV	adv	null
 pour l'instant	pour l'instant	ADV	adv	null
 pour la première fois	pour la première fois	ADV	adv	null
+quand même	quand même	ADV	adv	null
+qui plus est	qui plus est	ADV	adv	null
 qui plus est	qui plus est	ADV	adv	null
 sans aucun doute	sans aucun doute	ADV	adv	null
 sans cela	sans cela	ADV	adv	null
+si possible	si possible	ADV	adv	null
+sine die	sine die	ADV	adv	null
+sine qua non	sine qua non	ADV	adv	null
+soit dit en passant	soit dit en passant	ADV	adv	null
 somme toute	somme toute	ADV	adv	null
+somme toute	somme toute	ADV	adv	null
+stricto sensu	stricto sensu	ADV	adv	null
 sur le fond	sur le fond	ADV	adv	null
 sur le terrain	sur le terrain	ADV	adv	null
 sur pied	sur pied	ADV	adv	null
 sur place	sur place	ADV	adv	null
+tels quels	tels quels	ADV	adv	null
+telles quelles	telles quelles	ADV	adv	null
+tour à tour	tour à tour	ADV	adv	null
+tous azimuts	tous azimuts	ADV	adv	null
+tous comptes faits	tous comptes faits	ADV	adv	null
+tout à coup	tout à coup	ADV	adv	null
+tout à fait	tout à fait	ADV	adv	null
+tout à la fois	tout à la fois	ADV	adv	null
+tout au moins	tout au moins	ADV	adv	null
+tout au plus	tout au plus	ADV	adv	null
+tout compte fait	tout compte fait	ADV	adv	null
+tout d'abord	tout d'abord	ADV	adv	null
+tout d'un coup	tout d'un coup	ADV	adv	null
+tout de même	tout de même	ADV	adv	null
+tout de suite	tout de suite	ADV	adv	null
+tout juste	tout juste	ADV	adv	null
+un peu	un peu	ADV	adv	null
+un peu moins	un peu moins	ADV	adv	null
+un peu plus	un peu plus	ADV	adv	null
 une fois	une fois	ADV	adv	null
+vice versa	vice versa	ADV	adv	null
 y compris	y compris	ADV	adv	null
 # adjectifs composés
 à même	à même	ADJ	adj	null

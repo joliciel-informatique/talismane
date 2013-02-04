@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.Reader;
 import java.util.Set;
 
 import com.joliciel.talismane.filters.FilterService;
@@ -111,6 +112,12 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 
 	public void setFilterService(FilterService filterService) {
 		this.filterService = filterService;
+	}
+
+	@Override
+	public SentenceDetectorAnnotatedCorpusReader getDefaultReader(Reader reader) {
+		SentencePerLineCorpusReader corpusReader = new SentencePerLineCorpusReader(reader);
+		return corpusReader;
 	}
 
 

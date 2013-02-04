@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -35,6 +38,7 @@ import de.bwaldvogel.liblinear.Linear;
 import de.bwaldvogel.liblinear.Model;
 
 class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
+	private static final Log LOG = LogFactory.getLog(LinearSVMDecisionMaker.class);
 	private DecisionFactory<T> decisionFactory;
 	private Model model;
 	Map<String, Integer> featureIndexMap = null;
@@ -68,19 +72,31 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 				featureList.add(featureNode);
 			}
 		}
-		Feature[] instance = new Feature[1];
-		instance = featureList.toArray(instance);
-		
-		double[] probabilities = new double[model.getLabels().length];
-		Linear.predictProbability(model, instance, probabilities);
+		List<Decision<T>> decisions = null;
 
-		TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
-		for (int i = 0; i<model.getLabels().length; i++) {
-			Decision<T> decision = decisionFactory.createDecision(outcomes.get(i), probabilities[i]);
-			outcomeSet.add(decision);
+		if (featureList.size()==0) {
+			LOG.info("No features for current context.");
+			TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
+			double uniformProb = 1 / outcomes.size();
+			for (String outcome : outcomes) {
+				Decision<T> decision = decisionFactory.createDecision(outcome, uniformProb);
+				outcomeSet.add(decision);
+			}
+			decisions = new ArrayList<Decision<T>>(outcomeSet);
+		} else {
+			Feature[] instance = new Feature[1];
+			instance = featureList.toArray(instance);
+			
+			double[] probabilities = new double[model.getLabels().length];
+			Linear.predictProbability(model, instance, probabilities);
+	
+			TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
+			for (int i = 0; i<model.getLabels().length; i++) {
+				Decision<T> decision = decisionFactory.createDecision(outcomes.get(i), probabilities[i]);
+				outcomeSet.add(decision);
+			}
+			decisions = new ArrayList<Decision<T>>(outcomeSet);
 		}
-		
-		List<Decision<T>> decisions = new ArrayList<Decision<T>>(outcomeSet);
 
 		return decisions;
 

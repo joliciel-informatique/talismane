@@ -18,9 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.text.DecimalFormat;
+
 import com.joliciel.talismane.machineLearning.Decision;
 
 public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
+	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private Token token = null;
 	private T tag = null;
 	private Decision<T> decision = null;
@@ -103,5 +106,10 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 		return decision;
 	}
 	
-	
+
+	@Override
+	public String toString() {
+		return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex() + "| prob=" + df.format(this.getDecision().getProbability());
+	}
+
 }
