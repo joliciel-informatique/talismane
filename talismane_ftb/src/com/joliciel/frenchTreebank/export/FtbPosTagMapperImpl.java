@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.frenchTreebank.Category;
 import com.joliciel.frenchTreebank.Morphology;
 import com.joliciel.frenchTreebank.SubCategory;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.LogUtils;
@@ -79,7 +80,11 @@ class FtbPosTagMapperImpl implements FtbPosTagMapper {
 	public PosTag getPosTag(Category category, SubCategory subCategory,
 			Morphology morphology) {
 		String key = category.getCode() + "|" + subCategory.getCode() + "|" + morphology.getCode();
-		return posTagMap.get(key);
+		PosTag posTag = posTagMap.get(key);
+		if (posTag==null) {
+			throw new TalismaneException("Could not find postag for: " + key);
+		}
+		return posTag;
 	}
 
 	public PosTagSet getPosTagSet() {

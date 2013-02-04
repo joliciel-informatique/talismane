@@ -29,7 +29,7 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTag;
 
 /**
- * Returns true if the token has a given string has a lexicon entry for the PosTag provided.
+ * Returns true if the string provided has a lexicon entry for the PosTag provided.
  * @author Assaf Urieli
  *
  */

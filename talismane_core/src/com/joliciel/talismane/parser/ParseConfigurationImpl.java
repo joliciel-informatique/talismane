@@ -31,6 +31,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.HarmonicMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
@@ -154,6 +155,19 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 
 	public Set<DependencyArc> getDependencies() {
 		return dependencies;
+	}
+	
+	public Set<DependencyArc> getRealDependencies() {
+		Set<DependencyArc> realDependencies = new TreeSet<DependencyArc>();
+		for (DependencyArc arc : dependencies) {
+			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG)
+					&& (arc.getLabel()==null || arc.getLabel().length()==0)) {
+				// do nothing
+			} else {
+				realDependencies.add(arc);
+			}
+		}
+		return realDependencies;
 	}
 
 	@Override
@@ -432,5 +446,10 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.governingDependencyMap = null;
 		this.rightDependentMap = null;
 		this.leftDependentMap = null;
+	}
+
+	@Override
+	public Sentence getSentence() {
+		return this.getPosTagSequence().getTokenSequence().getSentence();
 	}
 }

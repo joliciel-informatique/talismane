@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.Reader;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
@@ -38,4 +39,11 @@ public interface SentenceDetectorService {
 			Set<SentenceDetectorFeature<?>> features);
 
 	public DecisionFactory<SentenceDetectorOutcome> getDecisionFactory();
+	
+	/**
+	 * A default reader which assumes one sentence per line.
+	 * @param reader
+	 * @return
+	 */
+	public SentenceDetectorAnnotatedCorpusReader getDefaultReader(Reader reader);
 }

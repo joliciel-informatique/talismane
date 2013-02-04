@@ -124,7 +124,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							line = scanner.nextLine().replace("\r", "");
 						
 						lineNumber++;
-						if (line.length()==0) {
+						if (line.trim().length()==0) {
 							if (!hasLine)
 								continue;
 							

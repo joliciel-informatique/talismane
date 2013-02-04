@@ -106,8 +106,20 @@ public class LexiconDeserializer {
 			throw new RuntimeException(ioe);
 		} catch (ClassNotFoundException cnfe) {
 			throw new RuntimeException(cnfe);
-		} finally {
-			PerformanceMonitor.endTask("LefffMemoryLoader.deserializeMemoryBase");
+		}
+
+		return memoryBase;
+	}
+	
+	public PosTaggerLexicon deserializeLexiconFile(ObjectInputStream ois) {
+		PosTaggerLexicon memoryBase = null;
+		try {
+			memoryBase = (PosTaggerLexicon) ois.readObject();
+			ois.close();
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		} catch (ClassNotFoundException cnfe) {
+			throw new RuntimeException(cnfe);
 		}
 
 		return memoryBase;

@@ -21,95 +21,193 @@ celui-ci	(celui|celle|ceux|celles)-(ci|là)
 1,000	\d+,\d+
 1.000	\d+\.\d+
 Canal+	.+\+
-à la fois
-à nouveau
-à partir de	à partir (de|du|des|d)
-à peine
-à peu près
-à savoir
-à travers
-a posteriori
-a priori
-afin de	(afin|avant|faute) (de|d)
+# conjonctions
+# version "cassables" : le prmeier mot peut appraître avant "que", sans y être attaché
+bien que	(ainsi|après|attendu|aussitôt|autant|alors|avant|bien|cependant|considerant|consideré|davantage|depuis|encore|maintenant|non|outre|quoi|sans|sinon|suivant|tant) (que|qu)
+comme si	(comme|même|que) (si|s)
+comme quoi	comme (si|s|quoi)
+# versions "incassables" : le premier mot ne peut pas apparaître avant "que", sans y être attaché
+parce que	(afin|dès|malgré|parce|pendant|plutôt|pour|pourvu|sauf|selon|sitôt|tandis) (que|qu)
+ou bien	ou (alors|bien|encore|même)
+et aussi	et (alors|aussi|encore|même|puis)
+mais aussi	(et|mais) (alors|aussi|encore)
+tout comme
+quand bien même
+ou bien encore
+si ce n'est
+dans la mesure où
+une fois
+# conjonctions à plus que 2 mots en "que"
+à condition que	à (condition|mesure|moins|présent) (que|qu)
+à telle enseigne que	à telle enseigne (que|qu)
+à chaque fois que	à chaque fois (que|qu)
 alors même que	(alors|avant|de) même (que|qu)
-au delà de	au delà (de|du|des|d)
-au-delà de	au-delà (de|du|des|d)
 au fur et à mesure que	au fur et à mesure (de|du|des|d|que|qu)
-au moins
+au même titre que	au même titre (que|qu)
+au point que	au point (que|qu)
 aussi bien que	aussi bien (que|qu)
-autour de	(autour|auprès|hors|lors|loin|près) (de|du|des|d)
-aujourd'hui
-bel et bien
-bien que	(ainsi|après|attendu|aussitôt|autant|alors|avant|bien|cependant|depuis|encore|maintenant|non|outre|quoi|sans|sinon|suivant|tant) (que|qu)
-bien sûr
-c'est à dire
-c'est-à-dire
-c'est à dire que	c'est à dire (que|qu)
-c'est-à-dire que	c'est-à-dire (que|qu)
-chef-d'oeuvre	(chef|chefs)-d'(oeuvre|oeuvres)
-comme si	comme (si|s)
-d'abord
-d'accord
-d'ailleurs
-d'après
-d'autant
-d'autant plus
+autant dire que	autant dire (que|qu)
+c'est à dire que	c'est[ -]à[ -]dire (que|qu)
 d'autant plus que	d'autant plus (que|qu)
 d'autant que	d'autant (que|qu)
-d'autre part
-d'emblée
+de manière que	de (manière|même|plus|sorte) (que|qu)
+de manière à ce que	de manière à ce (que|qu)
+de telle sorte que	de telle sorte (que|qu)
+du fait que	du (fait|moment) (que|qu)
+en ce sens que	en ce sens (que|qu)
+en même temps que	en même temps (que|qu)
+étant donné que	étant donné (que|qu)
+dès lors que	dès lors (que|qu)
+jusqu'à ce que	jusqu'à ce (que|qu)
+le temps que	le temps (que|qu)
+par le fait que	par le fait (que|qu)
+pour autant que	pour (autant|peu) (que|qu)
+pour une fois que	pour une fois (que|qu)
+quitte à ce que	quitte à ce (que|qu)
+si bien que	si (bien|peu) (que|qu)
+sous prétexte que	sous (prétexte|réserve) (que|qu)
+tant et si bien que	tant et si bien (que|qu)
+une fois que	(chaque|une|des) fois (que|qu)
+# prépositions
+à partir de	à (compter|partir) (de|du|des|d)
+à cause de	à (base|bord|bout|cause|condition|concurrence|coups|court|défaut|force|moins|propos|hauteur|raison|titre) (de|du|des|d)
+à savoir
+à travers
+afin de	(afin|avant|faute) (de|d)
+au delà de	au[ -](delà|dessous|dessus) (de|du|des|d)
+au plus fort de	au plus fort (de|du|des|d)
+autour de	(autour|auprès|hors|lors|loin|près) (de|du|des|d)
+avant même	avant même
+bien avant	bien (avant|après)
+c'est-à-dire	c'est[ -]à[ -]dire
+c/o
+compte tenu de	compte tenu (de|du|des|d)
+contrairement à	(comparé|conformément|contraire|contrairement|suite) (à|au|aux)
+d'après
 d'entre
 d'ici
 d'ici à	d'ici (à|au|aux)
 d'où
+de nature à	de (façon|manière|nature) à
+de par
+de part et d'autre de	de part et d'autre (de|du|des|d)
+de plus en plus de	de plus en plus (de|du|des|d)
+en cas de	en (cas|charge|cours|deçà|dehors|dépit|dessous|fonction|mal|mesure|passe|plus|qualité|raison|regard|termes|train|travers|vertu|vue|voie) (de|du|des|d)
+en proie à	en (butte|proie) (à|au|aux)
+en tant que	en tant (que|qu)
+étant donné
+grâce à	(face|grâce|quant) (à|au|aux)
+il y a
+jusqu'à	jusqu'(à|au|aux|en)
+le temps de	le temps (de|d)
+non sans
+par rapport à	par rapport (à|au|aux)
+par suite de	par suite (de|du|des|d)
+plutôt que de	plutôt que (de|d)
+pour cause de	pour cause (de|du|des|d)
+sans parler de	sans parler (de|du|des|d)
+sous forme de	sous (couvert|forme|peine|prétexte|réserve) (de|du|des|d)
+sur fond de	sur fond (de|du|des|d)
+quitte à	(quitte|sauf) à
+tel que	(tel|telle|telles|tels) (que|qu)
+tout au long de	tout au long (de|du|des|d)
+vis-à-vis de	vis-à-vis (de|du|des|d)
+y compris
+# adverbes
+à la fois
+à nouveau	(à|de) nouveau
+à peine	à (nouveau|peine)
+à peu près
+a priori	a (contrario|fortiori|priori|posteriori)
+après coup
+au moins
+autrement dit
+aujourd'hui
+beaucoup plus	beaucoup (plus|moins)
+bel et bien
+bien sûr	bien (sûr|entendu)
+bon an mal an
+çà et là
+ce faisant
+cela dit	(cela|ceci) (dit|fait|étant|posé)
+cette fois-ci
+coûte que coûte
+d'abord	d'(abord|emblée)
+d'accord
+d'ailleurs
+d'autant
+d'autant plus
+d'autre part	d'(autre|une) part
 d'ores et déjà
-d'une part
-de facto
-de la	de (la|l)
-de manière que	de manière (que|qu)
+de fait	de (facto|fait)
 de même
 de nouveau
 de plus
 de plus en plus
-de sorte que	de sorte (que|qu)
-de telle sorte que	de telle sorte (que|qu)
 dès lors
-dès lors que	dès lors (que|qu)
-dès que	dès (que|qu)
 du moins
 en fait	en (fait|général|moyenne|outre|particulier|partie)
-en tant que	en tant (que|qu)
 en tout cas
-grâce à	(face|grâce|quant) (à|au|aux)
-il y a
-jusqu'à	jusqu'(à|au|aux)
-jusqu'alors	jusqu'(alors|en|ici|là|où)
-jusqu'à ce que	jusqu'à ce (que|qu)
+grosso modo
+in extremis	in (extremis|fine)
+jusqu'alors	jusqu'(alors|ici|là|où)
 jusqu'à présent
 jusque-là
+le cas échéant
 le plus
-l'on
-même si	même (si|s)
-n'importe où	n'importe (où|quand|quel|quelle|quelles|quels)
-ou bien
+le plus souvent
+manu militari
+moyennant quoi
+ne pas	ne (pas|plus|jamais|point)
+non seulement	non (seulement|pas|plus|moins)
+outre mesure
 par ailleurs
-parce que	(afin|malgré|parce|pendant|plutôt|pour|pourvu|sauf|selon|sitôt|tandis) (que|qu)
-plus de	(plus|moins) (de|d)
+pas encore	pas (encore|moins|même)
+pas du tout
+pas pour autant
+pas tout à fait
+peu à peu
 plus ou moins
-plutôt que de	plutôt que (de|d)
 pour autant	pour autant
-pour autant que	pour (autant|peu) (que|qu)
-prud'homme	prud'(homme|hommes|homal|homaux|homale|homales)
 quand même
+qui plus est
+tels quels
+si possible
+sine die
+sine qua non
+soit dit en passant
+somme toute
+stricto sensu
+tour à tour
+tous azimuts
+tous comptes faits
+tout à fait	tout à (fait|coup)
+tout au moins	tout au (moins|plus)
+tout à la fois
+tout d'abord
+tout d'un coup
+tout compte fait
+tout de même	tout de (même|suite)
+tout juste
+un peu
+un peu plus	un peu (plus|moins)
+vice versa
+# noms, adjectifs, déterminants, clitiques, pronoms, ...
+bien des
+bon nombre de	bon nombre (de|d)
+chef-d'oeuvre	(chef|chefs|main|mains|maître|maîtres)-d'(oeuvre|oeuvres)
+de la	de (la|l)
+d'aucuns
+l'on
+n'importe où	n'importe (où|quand|quel|quelle|quelles|quels)
+plus de	(autant|beaucoup|bien|davantage|plus|moins|nombre) (de|d)
+prud'homme	prud'(homme|hommes|homal|homaux|homale|homales)
 quelqu'un
 quelque chose	quelque (chose|part|peu)
-quitte à
-tel que	(tel|telle|telles|tels) (que|qu)
-tels quels
-tout à fait
-tout de même
-un peu
-vis-à-vis de	vis-à-vis (de|du|des|d)
-y compris
-
+lui même	(lui|elle|eux|elles) (même|mêmes)
+tout le monde
+tout un chacun
+un peu de	(un|le) peu de
+un peu plus de	un peu (plus|moins) (de|d)
+nulle part
 

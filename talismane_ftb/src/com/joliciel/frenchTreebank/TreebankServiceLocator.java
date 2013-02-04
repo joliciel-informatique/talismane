@@ -19,8 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 import java.beans.PropertyVetoException;
-import java.io.FileInputStream;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -108,10 +107,10 @@ public class TreebankServiceLocator {
         if (dataSourceProperties==null) {
             dataSourceProperties = new Properties();
             try {
-                URL url =  ClassLoader.getSystemResource(this.getDataSourcePropertiesFile());
-                String file = url.getFile();
-                FileInputStream fis = new FileInputStream(file);
-                dataSourceProperties.load(fis);
+        		String path = this.getDataSourcePropertiesFile();
+        		InputStream inputStream = TreebankServiceLocator.class.getResourceAsStream(path); 
+
+                dataSourceProperties.load(inputStream);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);

@@ -390,6 +390,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 					lastPosTaggedToken = posTaggedToken;
 				}
 				posTagSequence = newSequence;
+				tokenSequence.finalise();
 			}
 			for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
 				posTagSequenceFilter.apply(posTagSequence);

@@ -22,6 +22,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.parser.features.ParseConfigurationWrapper;
@@ -146,4 +147,16 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Solu
 	 * Clear out any transitory dependents that can be recalculated if required.
 	 */
 	public void clearMemory();
+	
+	/**
+	 * The sentence on which this parse configuration is based.
+	 * @return
+	 */
+	public Sentence getSentence();
+	
+	/**
+	 * Get dependencies which are not unlabeled dependencies pointing at the root.
+	 * @return
+	 */
+	public Set<DependencyArc> getRealDependencies();
 }

@@ -97,18 +97,9 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	
 
 	@Override
-	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser, String separators) {
-		Pattern separatorPattern = Pattern.compile(separators);
-		return this.getTokeniserEvaluator(tokeniser, separatorPattern);
-	}
-	
-
-	@Override
-	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser,
-			Pattern separatorPattern) {
+	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser) {
 		TokeniserEvaluatorImpl evaluator = new TokeniserEvaluatorImpl();
 		evaluator.setTokeniser(tokeniser);
-		evaluator.setSeparatorPattern(separatorPattern);
 		return evaluator;
 	}
 

@@ -63,8 +63,7 @@ public interface TokeniserService {
 	
 	public Tokeniser getSimpleTokeniser();
 	
-	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser, String separators);
-	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser, Pattern separatorPattern);
+	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser);
 	
 	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision<T> decision);
 	

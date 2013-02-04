@@ -23,10 +23,11 @@ import com.joliciel.frenchTreebank.TreebankServiceLocator;
 import com.joliciel.frenchTreebank.TreebankSubSet;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
-import com.joliciel.lefff.LefffMemoryBase;
-import com.joliciel.lefff.LefffMemoryLoader;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.lexicon.LexiconChain;
+import com.joliciel.talismane.lexicon.LexiconDeserializer;
+import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
@@ -41,6 +42,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.tokeniser.TokenEvaluationFScoreCalculator;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
@@ -69,7 +71,7 @@ public class TokeniserMaxentRunner {
 		String tokeniserPatternFilePath = "";
 		String tokenFilterPath = "";
 		String tokenSequenceFilterPath = "";
-		String lefffPath = "";
+		String lexiconDirPath = "";
 		String treebankPath = "";
 		String outDirPath = "";
 		String tokeniserType = "maxent";
@@ -124,8 +126,8 @@ public class TokeniserMaxentRunner {
 				tokeniserType = argValue;
 			else if (argName.equals("treebank"))
 				treebankPath = argValue;
-			else if (argName.equals("lefff"))
-				lefffPath = argValue;
+			else if (argName.equals("lexiconDir"))
+				lexiconDirPath = argValue;
 			else if (argName.equals("sentenceCount"))
 				sentenceCount = Integer.parseInt(argValue);
 			else if (argName.equals("startSentence"))
@@ -152,8 +154,8 @@ public class TokeniserMaxentRunner {
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
 		
-		if (lefffPath.length()==0)
-			throw new RuntimeException("Missing argument: lefff");
+		if (lexiconDirPath.length()==0)
+			throw new RuntimeException("Missing argument: lexiconDir");
 		if (posTagSetPath.length()==0)
 			throw new RuntimeException("Missing argument: posTagSet");
 		
@@ -168,13 +170,16 @@ public class TokeniserMaxentRunner {
 			
 	       	TalismaneSession.setPosTagSet(posTagSet);
 	        
-	    	LefffMemoryLoader loader = new LefffMemoryLoader();
-	    	File memoryBaseFile = new File(lefffPath);
-	    	LefffMemoryBase lefffMemoryBase = null;
-	    	lefffMemoryBase = loader.deserializeMemoryBase(memoryBaseFile);
-	    	lefffMemoryBase.setPosTagSet(posTagSet);
-
-	    	TalismaneSession.setLexicon(lefffMemoryBase);
+			
+			File lexiconDir = new File(lexiconDirPath);
+			LexiconDeserializer lexiconDeserializer = new LexiconDeserializer();
+			List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconDir);
+			LexiconChain lexiconChain = new LexiconChain();
+			for (PosTaggerLexicon lexicon : lexicons) {
+				lexiconChain.addLexicon(lexicon);
+			}
+	        
+        	TalismaneSession.setLexicon(lexiconChain);
 	 
 	        TokeniserService tokeniserService = talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService();
 	        TokenFeatureService tokenFeatureService = talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService();
@@ -343,66 +348,63 @@ public class TokeniserMaxentRunner {
 				errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false),"UTF8"));
 				
 				FScoreCalculator<TokeniserOutcome> fScoreCalculator = null;
-				try {
-					Tokeniser tokeniser = null;
-					if (tokeniserType.equalsIgnoreCase("simple")) {
-						tokeniser = tokeniserService.getSimpleTokeniser();
-					} else {
-						if (tokeniserModelFilePath.length()==0)
-							throw new RuntimeException("Missing argument: tokeniserModel");
-						ZipInputStream zis = new ZipInputStream(new FileInputStream(tokeniserModelFilePath));
-						MachineLearningModel<TokeniserOutcome> tokeniserModel = machineLearningService.getModel(zis);
 
-						TokeniserPatternManager tokeniserPatternManager =
-							tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
-						Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
-	
-						if (tokeniserType.equalsIgnoreCase("pattern")) {
-							tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, null, beamWidth);
-						} else if (tokeniserType.equalsIgnoreCase("maxent")) {
-							tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
-							
-						} else {
-							throw new RuntimeException("Unknown tokeniser type: " + tokeniserType);
-						}
+				Tokeniser tokeniser = null;
+				if (tokeniserType.equalsIgnoreCase("simple")) {
+					tokeniser = tokeniserService.getSimpleTokeniser();
+				} else {
+					if (tokeniserModelFilePath.length()==0)
+						throw new RuntimeException("Missing argument: tokeniserModel");
+					ZipInputStream zis = new ZipInputStream(new FileInputStream(tokeniserModelFilePath));
+					MachineLearningModel<TokeniserOutcome> tokeniserModel = machineLearningService.getModel(zis);
+
+					TokeniserPatternManager tokeniserPatternManager =
+						tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
+					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
+
+					if (tokeniserType.equalsIgnoreCase("pattern")) {
+						tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, null, beamWidth);
+					} else if (tokeniserType.equalsIgnoreCase("maxent")) {
+						tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
 						
-						List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
-						if (tokenFilterDescriptors!=null) {
-							for (String descriptor : tokenFilterDescriptors) {
-								if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-									TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
-									tokeniser.addTokenFilter(tokenFilter);
-									reader.addTokenFilter(tokenFilter);
-								}
-							}
-						}
-
-						List<String> tokenSequenceFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
-						if (tokenSequenceFilterDescriptors!=null) {
-							for (String descriptor : tokenSequenceFilterDescriptors) {
-								if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-									TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-									tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
-									reader.addTokenSequenceFilter(tokenSequenceFilter);
-								}
+					} else {
+						throw new RuntimeException("Unknown tokeniser type: " + tokeniserType);
+					}
+					
+					List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
+					if (tokenFilterDescriptors!=null) {
+						for (String descriptor : tokenFilterDescriptors) {
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
+								tokeniser.addTokenFilter(tokenFilter);
+								reader.addTokenFilter(tokenFilter);
 							}
 						}
 					}
-					
-					TokeniserEvaluator evaluator = tokeniserService.getTokeniserEvaluator(tokeniser, Tokeniser.SEPARATORS);
-					
-					fScoreCalculator = evaluator.evaluate(reader, errorFileWriter);
-					
-					double fscore = fScoreCalculator.getTotalFScore();
-					LOG.debug("F-score for " + tokeniserModelFilePath + ": " + fscore);
-					
-					
-				} finally {
-					if (errorFileWriter!=null) {
-						errorFileWriter.flush();
-						errorFileWriter.close();
+
+					List<String> tokenSequenceFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
+					if (tokenSequenceFilterDescriptors!=null) {
+						for (String descriptor : tokenSequenceFilterDescriptors) {
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
+								tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
+								reader.addTokenSequenceFilter(tokenSequenceFilter);
+							}
+						}
 					}
 				}
+				
+				TokeniserEvaluator evaluator = tokeniserService.getTokeniserEvaluator(tokeniser);
+				
+				TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
+				tokenFScoreCalculator.setErrorWriter(errorFileWriter);
+				evaluator.addObserver(tokenFScoreCalculator);
+				evaluator.evaluate(reader);
+				
+				fScoreCalculator = tokenFScoreCalculator.getFScoreCalculator();
+				double fscore = fScoreCalculator.getTotalFScore();
+				LOG.debug("F-score for " + tokeniserModelFilePath + ": " + fscore);
+
 				
 				File fscoreFile = new File(outDir, filebase + ".fscores.csv");
 				fScoreCalculator.writeScoresToCSVFile(fscoreFile);	

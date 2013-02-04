@@ -57,6 +57,10 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	private static final Log LOG = LogFactory.getLog(FreemarkerTemplateWriter.class);
 	private Writer writer;
 	private Template template;
+	private int sentenceCount = 0;
+	private int tokenCount = 0;
+	private int relationCount = 0;
+	private int characterCount = 0;
 	
 	public FreemarkerTemplateWriter(Writer writer, Reader templateReader) {
 		super();
@@ -92,8 +96,16 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);
 		model.put("configuration", parseConfiguration);
+		model.put("tokenCount", tokenCount);
+		model.put("relationCount", relationCount);
+		model.put("sentenceCount", sentenceCount);
+		model.put("characterCount", characterCount);
 		model.put("LOG", LOG);
 		this.process(model);
+		tokenCount += parseConfiguration.getPosTagSequence().size();
+		relationCount += parseConfiguration.getRealDependencies().size();
+		characterCount += parseConfiguration.getSentence().getText().length();
+		sentenceCount += 1;
 	}
 	
 	@Override

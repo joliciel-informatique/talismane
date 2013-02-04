@@ -1,8 +1,8 @@
 //Copyright (C) 2012 Assaf Urieli
 package com.joliciel.talismane;
 
-import java.io.InputStream;
 import java.util.List;
+import java.util.Scanner;
 import java.util.zip.ZipInputStream;
 
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -24,16 +24,16 @@ public interface LanguageSpecificImplementation {
 	public TransitionSystem getDefaultTransitionSystem();
 
 	/**
-	 * Return a stream containing the default text maker filter descriptors.
+	 * Return a scanner containing the default text maker filter descriptors.
 	 * @return
 	 */
-	public InputStream getDefaultTextMarkerFiltersFromStream();
+	public Scanner getDefaultTextMarkerFiltersScanner();
 
 	/**
-	 * Return a stream containing the default token filter descriptors.
+	 * Return a scanner containing the default token filter descriptors.
 	 * @return
 	 */
-	public InputStream getDefaultTokenFiltersFromStream();
+	public Scanner getDefaultTokenFiltersScanner();
 
 	/**
 	 * A list of filters to be applied to the atomic token sequences
@@ -63,22 +63,22 @@ public interface LanguageSpecificImplementation {
 	public PosTagSet getDefaultPosTagSet();
 
 	/**
-	 * Return a stream containing the default pos-tag set descriptors.
+	 * Return a scanner containing the default pos-tag set descriptors.
 	 * @return
 	 */
-	public InputStream getDefaultPosTagSetFromStream();
+	public Scanner getDefaultPosTagSetScanner();
 	
 	/**
-	 * Return a stream containing the default pos tagger rule descriptors.
+	 * Return a scanner containing the default pos tagger rule descriptors.
 	 * @return
 	 */
-	public InputStream getDefaultPosTaggerRulesFromStream();
+	public Scanner getDefaultPosTaggerRulesScanner();
 	
 	/**
-	 * Return a stream containing the default parser rule descriptors.
+	 * Return a scanner containing the default parser rule descriptors.
 	 * @return
 	 */
-	public InputStream getDefaultParserRulesFromStream();
+	public Scanner getDefaultParserRulesScanner();
 
 	/**
 	 * Return a ZipInputStream containing the default sentence model for this language.
