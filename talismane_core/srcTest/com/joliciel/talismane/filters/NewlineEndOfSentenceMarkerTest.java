@@ -13,7 +13,7 @@ public class NewlineEndOfSentenceMarkerTest {
 
 	@Test
 	public void testApply() {
-		FilterService filterService = new FilterServiceImpl();
+		FilterServiceInternal filterService = new FilterServiceImpl();
 		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker();
 		filter.setFilterService(filterService);
 		
@@ -39,7 +39,7 @@ public class NewlineEndOfSentenceMarkerTest {
 
 	@Test
 	public void testApplyRealSentence() {
-		FilterService filterService = new FilterServiceImpl();
+		FilterServiceInternal filterService = new FilterServiceImpl();
 		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker();
 		filter.setFilterService(filterService);
 		

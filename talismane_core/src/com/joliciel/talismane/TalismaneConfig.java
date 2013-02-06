@@ -217,6 +217,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private boolean includeDistanceFScores = false;
 	
 	private MarkerFilterType newlineMarker = MarkerFilterType.SENTENCE_BREAK;
+	private int blockSize = 1000;
 	
 	private boolean parserCorpusReaderFiltersAdded = false;
 	private boolean posTagCorpusReaderFiltersAdded = false;
@@ -420,6 +421,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				parserBeamWidth = Integer.parseInt(argValue);
 			else if (argName.equals("propagateTokeniserBeam"))
 				propagateTokeniserBeam = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("blockSize"))
+				blockSize = Integer.parseInt(argValue);
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -884,7 +887,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				textMarkerFilters = new ArrayList<TextMarkerFilter>();
 				
 				// insert sentence breaks at end of block
-				this.addTextMarkerFilter(this.getFilterService().getRegexMarkerFilter(new MarkerFilterType[] { MarkerFilterType.SENTENCE_BREAK }, "" + endBlockCharacter));
+				this.addTextMarkerFilter(this.getFilterService().getRegexMarkerFilter(new MarkerFilterType[] { MarkerFilterType.SENTENCE_BREAK }, "" + endBlockCharacter, blockSize));
 				
 				// handle newline as requested
 				if (newlineMarker.equals(MarkerFilterType.SENTENCE_BREAK))
@@ -913,7 +916,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 							String descriptor = textFilterScanner.nextLine();
 							LOG.debug(descriptor);
 							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TextMarkerFilter textMarkerFilter = this.getFilterService().getTextMarkerFilter(descriptor);
+								TextMarkerFilter textMarkerFilter = this.getFilterService().getTextMarkerFilter(descriptor, blockSize);
 								this.addTextMarkerFilter(textMarkerFilter);
 							}
 						}
@@ -2099,6 +2102,14 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 
 	public boolean isPropagatePosTaggerBeam() {
 		return propagateBeam;
+	}
+
+	public int getBlockSize() {
+		return blockSize;
+	}
+
+	public void setBlockSize(int blockSize) {
+		this.blockSize = blockSize;
 	}
 	
 }

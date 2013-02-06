@@ -76,8 +76,13 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 		int outputPos = 0;
 		
 		for (TextMarker textMarker : textMarkers) {
-			if (LOG.isTraceEnabled())
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Stack before: " + shouldProcessStack);
+				LOG.trace("Text before: " + processedText.toString());
 				LOG.trace(textMarker.getType() + ", " + textMarker.getPosition());
+				LOG.trace("Added by filter: " + textMarker.getSource().toString());
+				LOG.trace("Match text: " + textMarker.getMatchText());
+			}
 			
 			boolean shouldProcess = shouldProcessStack.peek();
 			boolean shouldOutput = shouldOutputStack.peek();

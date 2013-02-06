@@ -391,7 +391,14 @@ class PatternTokeniserImpl implements Tokeniser {
 		if (this.separatorDefaultPatterns==null) {
 			this.separatorDefaultPatterns = new HashMap<SeparatorDecision, Pattern>();
 			for (Entry<SeparatorDecision, String> entry : this.getSeparatorDefaults().entrySet()) {
-				Pattern pattern = Pattern.compile("[" + entry.getValue() + "]");
+				String separators = entry.getValue();
+				StringBuilder sb = new StringBuilder();
+				for (int i=0; i<separators.length(); i++) {
+					char c = separators.charAt(i);
+					sb.append('\\');
+					sb.append(c);
+				}
+				Pattern pattern = Pattern.compile("[" + sb.toString() + "]");
 				this.separatorDefaultPatterns.put(entry.getKey(), pattern);
 			}
 			

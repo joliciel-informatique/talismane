@@ -13,7 +13,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApply() {
-		FilterService filterService = new FilterServiceImpl();
+		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>.*?</skip>");
 		filter.setFilterService(filterService);
 		
@@ -40,7 +40,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApplyWithGroup() {
-		FilterService filterService = new FilterServiceImpl();
+		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>(.*?)</skip>");
 		filter.setFilterService(filterService);
 		
@@ -70,7 +70,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApplyWithReplacement() {
-		FilterService filterService = new FilterServiceImpl();
+		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.REPLACE, "<skip>(.*?)</skip>", 0);
 		filter.setFilterService(filterService);
 		filter.setReplacement("Skipped:$1");
@@ -106,7 +106,7 @@ public class RegexMarkerFilterTest {
 	
 	@Test
 	public void testUnaryOperatorsStop() {
-		FilterService filterService = new FilterServiceImpl();
+		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.STOP, "<skip>");
 		filter.setFilterService(filterService);
 		
@@ -130,7 +130,7 @@ public class RegexMarkerFilterTest {
 	
 	@Test
 	public void testUnaryOperatorsStart() {
-		FilterService filterService = new FilterServiceImpl();
+		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.START, "</skip>");
 		filter.setFilterService(filterService);
 		

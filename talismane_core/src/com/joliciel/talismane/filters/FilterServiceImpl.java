@@ -28,15 +28,32 @@ import com.joliciel.talismane.TalismaneException;
 
 import com.joliciel.talismane.utils.LogUtils;
 
-class FilterServiceImpl implements FilterService {
+class FilterServiceImpl implements FilterServiceInternal {
 	private static final Log LOG = LogFactory.getLog(FilterServiceImpl.class);
 
 	@Override
 	public TextMarker getTextMarker(TextMarkerType type, int position) {
+		return this.getTextMarker(type, position, null, null);
+	}
+
+	@Override
+	public TextMarker getTextMarker(TextMarkerType type, int position,
+			TextMarkerFilter source) {
+		return this.getTextMarker(type, position, source, null);
+	}
+
+
+	@Override
+	public TextMarker getTextMarker(TextMarkerType type, int position,
+			TextMarkerFilter source, String matchText) {
 		TextMarkerImpl textMarker = new TextMarkerImpl(type, position);
+		textMarker.setSource(source);
+		textMarker.setMatchText(matchText);
 		return textMarker;
 	}
-	
+
+
+
 
 	public Sentence getSentence(String text) {
 		SentenceImpl sentence = new SentenceImpl();
@@ -69,31 +86,33 @@ class FilterServiceImpl implements FilterService {
 
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes,
-			String regex) {
-		return this.getRegexMarkerFilter(filterTypes, regex, 0);
+			String regex, int blockSize) {
+		return this.getRegexMarkerFilter(filterTypes, regex, 0, blockSize);
 	}
 
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes,
-			String regex, int groupIndex) {
+			String regex, int groupIndex, int blockSize) {
 		RegexMarkerFilter filter = new RegexMarkerFilter(filterTypes, regex, groupIndex);
 		filter.setFilterService(this);
+		filter.setBlockSize(blockSize);
 		return filter;
 
 	}
 
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types,
-			String regex) {
-		return this.getRegexMarkerFilter(types, regex, 0);
+			String regex, int blockSize) {
+		return this.getRegexMarkerFilter(types, regex, 0, blockSize);
 	}
 
 
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types,
-			String regex, int groupIndex) {
+			String regex, int groupIndex, int blockSize) {
 		RegexMarkerFilter filter = new RegexMarkerFilter(types, regex, groupIndex);
 		filter.setFilterService(this);
+		filter.setBlockSize(blockSize);
 		return filter;
 	}
 
@@ -122,7 +141,7 @@ class FilterServiceImpl implements FilterService {
 
 
 	@Override
-	public TextMarkerFilter getTextMarkerFilter(String descriptor) {
+	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize) {
 		TextMarkerFilter filter = null;
 		
 		List<Class<? extends TextMarkerFilter>> classes = new ArrayList<Class<? extends TextMarkerFilter>>();
@@ -146,11 +165,11 @@ class FilterServiceImpl implements FilterService {
 				minParams = 4;
 			}
 			if (parts.length==minParams+1){
-				filter = this.getRegexMarkerFilter(filterTypes, parts[2], Integer.parseInt(parts[3]));
+				filter = this.getRegexMarkerFilter(filterTypes, parts[2], Integer.parseInt(parts[3]), blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[4]);
 			} else if (parts.length==minParams) {
-				filter = this.getRegexMarkerFilter(filterTypes, parts[2]);
+				filter = this.getRegexMarkerFilter(filterTypes, parts[2], blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[3]);
 			} else {
@@ -170,6 +189,7 @@ class FilterServiceImpl implements FilterService {
 					}
 				}
 			}
+			filter.setBlockSize(blockSize);
 		}
 		
 		if (filter==null) {
@@ -178,7 +198,6 @@ class FilterServiceImpl implements FilterService {
 		
 		return filter;
 	}
-
 
 	
 }

@@ -18,42 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-/**
- * A text marker, indicating a position within a block of text and the action to take.
- * @author Assaf Urieli
- *
- */
-public interface TextMarker extends Comparable<TextMarker> {
-	/**
-	 * The marker type.
-	 * @return
-	 */
-	public TextMarkerType getType();
-	/**
-	 * The marker position in the original text.
-	 * @return
-	 */
-	public int getPosition();
-	public void setPosition(int position);
-	
-	/**
-	 * The text that should be inserted at this marker position.
-	 * @return
-	 */
-	public String getInsertionText();
-	public void setInsertionText(String insertionText);
-	
-	/**
-	 * The filter which generated this text marker.
-	 * @return
-	 */
-	public TextMarkerFilter getSource();
-	public void setSource(TextMarkerFilter source);
-	
-	/**
-	 * The text that was matched.
-	 * @return
-	 */
-	public String getMatchText();
-	public void setMatchText(String matchText);
+interface FilterServiceInternal extends FilterService {
+	public TextMarker getTextMarker(TextMarkerType type, int position, TextMarkerFilter source, String matchText);
+	public TextMarker getTextMarker(TextMarkerType type, int position, TextMarkerFilter source);
+	public TextMarker getTextMarker(TextMarkerType type, int position);
 }

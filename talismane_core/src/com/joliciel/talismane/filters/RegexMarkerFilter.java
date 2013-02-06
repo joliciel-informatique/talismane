@@ -44,8 +44,9 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	private String regex;
 	private int groupIndex = 0;
 	private String replacement;
+	private int blockSize = 1000;
 	
-	private FilterService filterService;
+	private FilterServiceInternal filterService;
 	
 	public RegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex) {
 		this(filterTypes, regex, 0);
@@ -95,7 +96,7 @@ class RegexMarkerFilter implements TextMarkerFilter {
 		
 		int textStartPos = prevText.length();
 		int textEndPos = prevText.length() + text.length();
-
+		
 		Matcher matcher = pattern.matcher(context);
 		Set<TextMarker> textMarkers = new TreeSet<TextMarker>();
 		while (matcher.find()) {
@@ -109,73 +110,91 @@ class RegexMarkerFilter implements TextMarkerFilter {
 				matcherEnd = matcher.end(groupIndex);
 			}
 			
+			String matchText = context.substring(matcher.start(), matcher.end());
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Next match: " + matchText);
+				if (matcher.start()!=matcherStart || matcher.end()!=matcherEnd) {
+					LOG.trace("But matching group: " + context.substring(matcherStart, matcherEnd));
+				}
+				LOG.trace("matcher.start()=" + matcher.start()
+						+ ", matcher.end()=" + matcher.end()
+						+ ", matcherStart=" + matcherStart
+						+ ", matcherEnd=" + matcherEnd
+						+ ", textStartPos=" + textStartPos
+						+ ", textEndPos=" + textEndPos);
+			}
+			
+			if (matcherEnd-matcherStart > blockSize) {
+				String errorString = "Match size (" + (matcherEnd-matcherStart) + ") bigger than block size (" + blockSize + "). " +
+						"Increase blockSize or change filter. " +
+						"Maybe you need to change a greedy quantifier (e.g. .*) to a reluctant quantifier (e.g. .*?)? " +
+						"Regex: " + regex + ". Text: " + matchText;
+				throw new TalismaneException(errorString);
+			}
+			
 			if (matcherStart>=textStartPos && matcherStart<textEndPos) {
 				if (LOG.isTraceEnabled()) {
-					LOG.trace("Next match: " + context.substring(matcher.start(), matcher.end()));
-					if (matcher.start()!=matcherStart || matcher.end()!=matcherEnd) {
-						LOG.trace("But matching group: " + context.substring(matcherStart, matcherEnd));
-					}
+					LOG.trace("Start in range: textStartPos " + textStartPos + ">= matcherStart [[" + matcherStart + "]] < textEndPos " + textEndPos);
 				}
-				
 				for (MarkerFilterType filterType : filterTypes) {
 					switch (filterType) {
 					case SKIP:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
 					case SENTENCE_BREAK:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.SENTENCE_BREAK, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.SENTENCE_BREAK, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
 					case SPACE:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.SPACE, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.SPACE, matcherStart - prevText.length(), this, matchText);
 						textMarker.setInsertionText(" ");
 						textMarkers.add(textMarker);
-						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker2);
 						break;
 					}
 					case REPLACE:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.INSERT, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.INSERT, matcherStart - prevText.length(), this, matchText);
 						String newText = RegexUtils.getReplacement(replacement, context, matcher);
 						if (LOG.isTraceEnabled()) {
 							LOG.trace("Setting replacement to: " + newText);
 						}
 						textMarker.setInsertionText(newText);
 						textMarkers.add(textMarker);
-						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker2);
 						break;
 					}
 					case OUTPUT:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_OUTPUT, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_OUTPUT, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
-						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length());
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.PUSH_SKIP, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker2);
 						break;
 					}
 					case INCLUDE:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_INCLUDE, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.PUSH_INCLUDE, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
 					case OUTPUT_START:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START_OUTPUT, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START_OUTPUT, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
 					case STOP:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP, matcherStart - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP, matcherStart - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
@@ -183,37 +202,40 @@ class RegexMarkerFilter implements TextMarkerFilter {
 				}
 			}
 			if (matcherEnd>=textStartPos && matcherEnd<textEndPos) {
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("End in range: textStartPos " + textStartPos + ">= matcherEnd [[" + matcherEnd + "]] < textEndPos " + textEndPos);
+				}
 				for (MarkerFilterType filterType : filterTypes) {
 					switch (filterType) {
 					case SKIP: case SPACE: case REPLACE:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherEnd - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherEnd - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
 					case OUTPUT:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_OUTPUT, matcherEnd - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_OUTPUT, matcherEnd - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
-						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherEnd - prevText.length());
+						TextMarker textMarker2 = this.getFilterService().getTextMarker(TextMarkerType.POP_SKIP, matcherEnd - prevText.length(), this, matchText);
 						textMarkers.add(textMarker2);
 						break;
 					}
 					case INCLUDE:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_INCLUDE, matcherEnd - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.POP_INCLUDE, matcherEnd - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
 					case START:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START, matcherEnd - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.START, matcherEnd - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
 					case OUTPUT_STOP:
 					{
-						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP_OUTPUT, matcherEnd - prevText.length());
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.STOP_OUTPUT, matcherEnd - prevText.length(), this, matchText);
 						textMarkers.add(textMarker);
 						break;
 					}
@@ -231,11 +253,11 @@ class RegexMarkerFilter implements TextMarkerFilter {
 		return regex;
 	}
 	
-	public FilterService getFilterService() {
+	public FilterServiceInternal getFilterService() {
 		return filterService;
 	}
 
-	public void setFilterService(FilterService filterService) {
+	public void setFilterService(FilterServiceInternal filterService) {
 		this.filterService = filterService;
 	}
 
@@ -247,5 +269,20 @@ class RegexMarkerFilter implements TextMarkerFilter {
 		this.replacement = replacement;
 	}
 
+	@Override
+	public String toString() {
+		return "RegexMarkerFilter [filterTypes=" + filterTypes + ", regex="
+				+ regex + ", groupIndex=" + groupIndex + ", replacement="
+				+ replacement + "]";
+	}
 
+	public int getBlockSize() {
+		return blockSize;
+	}
+
+	public void setBlockSize(int blockSize) {
+		this.blockSize = blockSize;
+	}
+	
+	
 }

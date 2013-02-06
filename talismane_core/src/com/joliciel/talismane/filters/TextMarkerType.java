@@ -32,6 +32,22 @@ public enum TextMarkerType {
 	 */
 	SENTENCE_BREAK,
 	/**
+	 * Remove the effect of the last skip marker.
+	 * If two skip markers are nested, this has no effect.
+	 * If a skip is nested in an include, this will start processing.
+	 * Always matched to a PUSH_SKIP.
+	 */
+	POP_SKIP,
+	/**
+	 * Start processing again when you hit this marker (unless already started).
+	 */
+	PUSH_INCLUDE,
+	/**
+	 * Regardless of the current top-of-stack for processing, stops processing until either
+	 * pop or end is reached.
+	 */
+	STOP,
+	/**
 	 * Insert a space when you hit this marker.
 	 */
 	SPACE,
@@ -39,13 +55,6 @@ public enum TextMarkerType {
 	 * Insert text when you hit this marker.
 	 */
 	INSERT,
-	/**
-	 * Remove the effect of the last skip marker.
-	 * If two skip markers are nested, this has no effect.
-	 * If a skip is nested in an include, this will start processing.
-	 * Always matched to a PUSH_SKIP.
-	 */
-	POP_SKIP,
 	/**
 	 * Remove the effect of the last output marker.
 	 * Always matched to a PUSH_OUTPUT.
@@ -58,11 +67,6 @@ public enum TextMarkerType {
 	 * Always matched to a PUSH_INCLUDE.
 	 */
 	POP_INCLUDE,
-	/**
-	 * Regardless of the current top-of-stack for processing, stops processing until either
-	 * pop or end is reached.
-	 */
-	STOP,
 	/**
 	 * Regardless of the current top-of-stack for processing, starts processing until either
 	 * pop or end is reached.
@@ -78,10 +82,6 @@ public enum TextMarkerType {
 	 * pop or end is reached.
 	 */
 	STOP_OUTPUT,
-	/**
-	 * Start processing again when you hit this marker (unless already started).
-	 */
-	PUSH_INCLUDE,
 	/**
 	 * Output the raw contents in any output files produced by Talismane,
 	 * assuming we're not processing.
