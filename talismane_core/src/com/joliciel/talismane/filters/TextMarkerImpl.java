@@ -22,6 +22,8 @@ class TextMarkerImpl implements TextMarker {
 	private TextMarkerType type;
 	private int position;
 	private String insertionText;
+	private TextMarkerFilter source;
+	private String matchText;
 	
 	public TextMarkerImpl(TextMarkerType type, int position) {
 		super();
@@ -62,6 +64,22 @@ class TextMarkerImpl implements TextMarker {
 
 	public void setInsertionText(String insertionText) {
 		this.insertionText = insertionText;
+	}
+
+	public TextMarkerFilter getSource() {
+		return source;
+	}
+
+	public void setSource(TextMarkerFilter source) {
+		this.source = source;
+	}
+
+	public String getMatchText() {
+		return matchText;
+	}
+
+	public void setMatchText(String matchText) {
+		this.matchText = matchText;
 	}
 	
 

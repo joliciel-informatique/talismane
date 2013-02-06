@@ -25,6 +25,6 @@ package com.joliciel.talismane.filters;
  */
 class DuplicateWhiteSpaceFilter extends RegexMarkerFilter {
 	public DuplicateWhiteSpaceFilter() {
-		super(MarkerFilterType.SKIP, "[ \t\\x0B\f]([ \t\\x0B\f]+)");
+		super(MarkerFilterType.SKIP, "[ \t\\x0B\f]([ \t\\x0B\f]+)", 1);
 	}
 }

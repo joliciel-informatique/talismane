@@ -42,4 +42,13 @@ public interface TextMarkerFilter {
 	 */
 	public String getReplacement();
 	public void setReplacement(String replacement);
+	
+	/**
+	 * The maximum size of text that this filter can match (without risking
+	 * to add only the beginning and not the end, or vice versa).
+	 * Bigger matches will throw an error.
+	 * @return
+	 */
+	public int getBlockSize();
+	public void setBlockSize(int blockSize);
 }

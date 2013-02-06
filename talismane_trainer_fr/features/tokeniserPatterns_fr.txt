@@ -1,7 +1,7 @@
 # tokeniser decision regular expressions
 # default tokeniser decisions for various separators:
 # All other separators are assumed to separate tokens on both sides (IS_SEPARATOR), unless proven otherwise
-IS_NOT_SEPARATOR -
+IS_NOT_SEPARATOR -_
 IS_SEPARATOR_AFTER '
 IS_SEPARATOR_BEFORE
 # For each pattern below, check if any set of n tokens matches it. If so, all of the separators inside the set are tested further.
@@ -22,7 +22,7 @@ celui-ci	(celui|celle|ceux|celles)-(ci|là)
 1.000	\d+\.\d+
 Canal+	.+\+
 # conjonctions
-# version "cassables" : le prmeier mot peut appraître avant "que", sans y être attaché
+# version "cassables" : le premier mot peut appraître avant "que", sans y être attaché
 bien que	(ainsi|après|attendu|aussitôt|autant|alors|avant|bien|cependant|considerant|consideré|davantage|depuis|encore|maintenant|non|outre|quoi|sans|sinon|suivant|tant) (que|qu)
 comme si	(comme|même|que) (si|s)
 comme quoi	comme (si|s|quoi)

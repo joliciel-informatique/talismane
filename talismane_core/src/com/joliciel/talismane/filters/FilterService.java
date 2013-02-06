@@ -32,23 +32,23 @@ public interface FilterService {
 	 * The markers will automatically be added to the last group indicated in the regex,
 	 * or to the entire regex if it contains no groups.
 	 */
-	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex);
+	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int blockSize);
 	
 	/**
 	 * @see #getRegexMarkerFilter(List, String)
 	 */
-	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex);
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int blockSize);
 
 	/**
 	 * For a given regex, finds any matches within the text, and adds the appropriate marker to these matches.
 	 * The markers will be added for the group indicated by the groupIndex.
 	 */
-	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int groupIndex);
+	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int groupIndex, int blockSize);
 
 	/**
 	 * @see #getRegexMarkerFilter(List, String, int)
 	 */
-	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex);
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex, int blockSize);
 
 	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault);
 	
@@ -59,5 +59,5 @@ public interface FilterService {
 	
 	public SentenceHolder getSentenceHolder();
 	
-	public TextMarkerFilter getTextMarkerFilter(String descriptor);
+	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize);
 }
