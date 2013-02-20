@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
@@ -64,8 +65,21 @@ public class TokeniserMaxentRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		String command = args[0];
+		Map<String, String> argMap = new HashMap<String, String>();
+		
+		for (String arg : args) {
+			int equalsPos = arg.indexOf('=');
+			String argName = arg.substring(0, equalsPos);
+			String argValue = arg.substring(equalsPos+1);
+			argMap.put(argName, argValue);
+		}
+		
+		@SuppressWarnings("unused")
+		TokeniserMaxentRunner maxentRunner = new TokeniserMaxentRunner(argMap);
+	}
 
+    public TokeniserMaxentRunner(Map<String,String> argMap) throws Exception {
+    	String command = null;
 		String tokeniserModelFilePath = "";
 		String tokeniserFeatureFilePath = "";
 		String tokeniserPatternFilePath = "";
@@ -93,16 +107,12 @@ public class TokeniserMaxentRunner {
 		boolean perceptronSkippedAveraging = false;
 		double perceptronTolerance = -1;
 
-		boolean firstArg = true;
-		for (String arg : args) {
-			if (firstArg) {
-				firstArg = false;
-				continue;
-			}
-			int equalsPos = arg.indexOf('=');
-			String argName = arg.substring(0, equalsPos);
-			String argValue = arg.substring(equalsPos+1);
-			if (argName.equals("tokeniserModel"))
+		for (Entry<String, String> argEntry : argMap.entrySet()) {
+			String argName = argEntry.getKey();
+			String argValue = argEntry.getValue();
+			if (argName.equals("command"))
+				command = argValue;
+			else if (argName.equals("tokeniserModel"))
 				tokeniserModelFilePath = argValue;
 			else if (argName.equals("tokeniserFeatures"))
 				tokeniserFeatureFilePath = argValue;

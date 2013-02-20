@@ -95,6 +95,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private LexicalEntryReader lexicalEntryReader;
 	private TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 	
+	private boolean predictTransitions = true;
+	
 	public ParserRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
 	}
@@ -272,9 +274,14 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									}
 									
 									configuration = this.getParserService().getInitialConfiguration(posTagSequence);
-									TransitionSystem transitionSystem = TalismaneSession.getTransitionSystem();
-									transitionSystem.predictTransitions(configuration, dependencies);
-	
+									if (this.predictTransitions) {
+										TransitionSystem transitionSystem = TalismaneSession.getTransitionSystem();
+										transitionSystem.predictTransitions(configuration, dependencies);
+									} else {
+										for (DependencyArc arc : dependencies) {
+											configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
+										}
+									}
 									sentenceCount++;
 								} // is the configuration a valid one
 							} // have we data lines?
@@ -682,5 +689,13 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	
 	protected String readWord(String rawWord) {
 		return CoNLLFormatter.fromCoNLL(rawWord);
+	}
+
+	public boolean isPredictTransitions() {
+		return predictTransitions;
+	}
+
+	public void setPredictTransitions(boolean predictTransitions) {
+		this.predictTransitions = predictTransitions;
 	}
 }

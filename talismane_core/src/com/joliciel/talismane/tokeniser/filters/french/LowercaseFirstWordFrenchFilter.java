@@ -47,12 +47,15 @@ public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
 	@Override
 	public void apply(TokenSequence tokenSequence) {
 		int startIndex = 0;
+		if (tokenSequence.isWithRoot())
+			startIndex += 1;
 		String word0 = "";
 		String word1 = "";
 		String word2 = "";
-		if (tokenSequence.size()>0) word0 = tokenSequence.get(0).getText();
-		if (tokenSequence.size()>1) word1 = tokenSequence.get(1).getText();
-		if (tokenSequence.size()>2) word2 = tokenSequence.get(2).getText();
+		
+		if (tokenSequence.size()>0) word0 = tokenSequence.get(startIndex).getText();
+		if (tokenSequence.size()>1) word1 = tokenSequence.get(startIndex+1).getText();
+		if (tokenSequence.size()>2) word2 = tokenSequence.get(startIndex+2).getText();
 
 		boolean word0IsInteger = false;
 		try {
@@ -71,14 +74,14 @@ public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
 		}
 		
 		if (openingPunctuation.contains(word0)) {
-			startIndex = 1;
+			startIndex += 1;
 		} else if ((word0IsInteger||word0.length()==1)
 				&& (word1.equals(")")||word1.equals(".")||word1.equals("]"))) {
-			startIndex = 2;
+			startIndex += 2;
 		} else if (word0.equals("(")
 				&& (word1IsInteger||word1.length()==1)
 				&& word2.equals(")")) {
-			startIndex = 3;
+			startIndex += 3;
 		}
 		
 		boolean lowerCaseNextWord = true;

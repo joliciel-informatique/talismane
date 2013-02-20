@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,24 +16,26 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.output;
+package com.joliciel.talismane.standoff;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.output.ParseConfigurationOutput;
+import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
-import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
-import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.utils.LogUtils;
 
 import freemarker.cache.NullCacheStorage;
@@ -42,35 +44,58 @@ import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-/**
- * Processes output by writing via a freemarker template.
- * @author Assaf Urieli
- *
- */
-public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, PosTagSequenceProcessor, TokenSequenceProcessor, SentenceProcessor {
-	private static final Log LOG = LogFactory.getLog(FreemarkerTemplateWriter.class);
+public class StandoffWriter implements ParseConfigurationProcessor {
+	private static final Log LOG = LogFactory.getLog(StandoffWriter.class);
 	private Writer writer;
 	private Template template;
 	private int sentenceCount = 0;
 	private int tokenCount = 0;
 	private int relationCount = 0;
 	private int characterCount = 0;
-	
-	public FreemarkerTemplateWriter(Writer writer, Reader templateReader) {
+
+	public StandoffWriter(Writer writer) {
 		super();
 		try {
 			this.writer = writer;
 			Configuration cfg = new Configuration();
 			cfg.setCacheStorage(new NullCacheStorage());
 			cfg.setObjectWrapper(new DefaultObjectWrapper());
-	
+			InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoff.ftl"); 
+			Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
+			
 			this.template = new Template("freemarkerTemplate", templateReader, cfg);
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
 			throw new RuntimeException(ioe);
 		}
 	}
-	
+	@Override
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+		Map<String,Object> model = new HashMap<String, Object>();
+		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
+		model.put("sentence", output);
+		model.put("configuration", parseConfiguration);
+		model.put("tokenCount", tokenCount);
+		model.put("relationCount", relationCount);
+		model.put("sentenceCount", sentenceCount);
+		model.put("characterCount", characterCount);
+		model.put("LOG", LOG);
+		List<DependencyArc> dependencies = new ArrayList<DependencyArc>();
+		for (DependencyArc dependencyArc : parseConfiguration.getRealDependencies()) {
+			if (!dependencyArc.getLabel().equals("ponct")) {
+				dependencies.add(dependencyArc);
+			}
+		}
+		model.put("dependencies", dependencies);
+		this.process(model);
+		tokenCount += parseConfiguration.getPosTagSequence().size();
+
+		relationCount += dependencies.size();
+		characterCount += parseConfiguration.getSentence().getText().length();
+		sentenceCount += 1;
+	}
+
+
 	void process(Map<String,Object> model) {
 		try {
 			template.process(model, writer);
@@ -83,51 +108,9 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 			throw new RuntimeException(ioe);
 		}
 	}
-
-	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
-		Map<String,Object> model = new HashMap<String, Object>();
-		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
-		model.put("sentence", output);
-		model.put("configuration", parseConfiguration);
-		model.put("tokenCount", tokenCount);
-		model.put("relationCount", relationCount);
-		model.put("sentenceCount", sentenceCount);
-		model.put("characterCount", characterCount);
-		model.put("LOG", LOG);
-		this.process(model);
-		tokenCount += parseConfiguration.getPosTagSequence().size();
-		relationCount += parseConfiguration.getRealDependencies().size();
-		characterCount += parseConfiguration.getSentence().getText().length();
-		sentenceCount += 1;
-	}
 	
 	@Override
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) {
-		Map<String,Object> model = new HashMap<String, Object>();
-		model.put("sentence", posTagSequence);
-		model.put("LOG", LOG);
-		this.process(model);
-	}
-
-	@Override
-	public void onNextTokenSequence(TokenSequence tokenSequence) {
-		Map<String,Object> model = new HashMap<String, Object>();
-		model.put("sentence", tokenSequence);
-		model.put("LOG", LOG);
-		this.process(model);
-	}
-
-	@Override
-	public void process(String sentence) {
-		Map<String,Object> model = new HashMap<String, Object>();
-		model.put("sentence", sentence);
-		model.put("LOG", LOG);
-		this.process(model);
-	}
-
-	@Override
 	public void onCompleteParse() {
-		// nothing to do here
 	}
+
 }

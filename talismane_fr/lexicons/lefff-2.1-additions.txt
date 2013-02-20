@@ -48,6 +48,7 @@ soit	soit	CC	coo	null
 à présent qu'	à présent que	CS	csu	null
 à telle enseigne que	à telle enseigne que	CS	csu	null
 à telle enseigne qu'	à telle enseigne que	CS	csu	null
+car	car	CS	csu	null
 comme quoi	comme quoi	CS	csu	null
 comme s'	comme si	CS	csu	null
 de plus que	de plus que	CS	csu	null
@@ -85,61 +86,6 @@ s'	se	CLO	clda	3
 - t - ils	ils	CLS	cln	3mp
 - t - on	on	CLS	cln	3s
 - t - y	y	CLO	cld	null
-# portions : déterminants
-demi	demi	DET	det	p
-demie	demie	DET	det	p
-quart	quart	DET	det	p
-quarts	quarts	DET	det	p
-cinquième	cinquième	DET	det	p
-cinquièmes	cinquièmes	DET	det	p
-sixième	sixième	DET	det	p
-sixièmes	sixièmes	DET	det	p
-septième	septième	DET	det	p
-septièmes	septièmes	DET	det	p
-huitième	huitième	DET	det	p
-huitièmes	huitièmes	DET	det	p
-neuvième	neuvième	DET	det	p
-neuvièmes	neuvièmes	DET	det	p
-dixième	dixième	DET	det	p
-dixièmes	dixièmes	DET	det	p
-onzième	onzième	DET	det	p
-onzièmes	onzièmes	DET	det	p
-douzième	douzième	DET	det	p
-douzièmes	douzièmes	DET	det	p
-treizième	treizième	DET	det	p
-treizièmes	treizièmes	DET	det	p
-quatorzième	quatorzième	DET	det	p
-quatorzièmes	quatorzièmes	DET	det	p
-quinzième	quinzième	DET	det	p
-quinzièmes	quinzièmes	DET	det	p
-seizième	seizième	DET	det	p
-seizièmes	seizièmes	DET	det	p
-dix-septième	dix-septième	DET	det	p
-dix-septièmes	dix-septièmes	DET	det	p
-dix-huitième	dix-huitième	DET	det	p
-dix-huitièmes	dix-huitièmes	DET	det	p
-dix-neuvième	dix-neuvième	DET	det	p
-dix-neuvièmes	dix-neuvièmes	DET	det	p
-vingtième	vingtième	DET	det	p
-vingtièmes	vingtièmes	DET	det	p
-trentième	trentième	DET	det	p
-trentièmes	trentièmes	DET	det	p
-quarantième	quarantième	DET	det	p
-quarantièmes	quarantièmes	DET	det	p
-cinquantième	cinquantième	DET	det	p
-cinquantièmes	cinquantièmes	DET	det	p
-soixantième	soixantième	DET	det	p
-soixantièmes	soixantièmes	DET	det	p
-soixante-dixième	soixante-dixième	DET	det	p
-soixante-dixièmes	soixante-dixièmes	DET	det	p
-quatre-vingtième	quatre-vingtième	DET	det	p
-quatre-vingtièmes	quatre-vingtièmes	DET	det	p
-quatre-vingt-dixième	quatre-vingt-dixième	DET	det	p
-quatre-vingt-dixièmes	quatre-vingt-dixièmes	DET	det	p
-centième	centième	DET	det	p
-centièmes	centièmes	DET	det	p
-millième	millième	DET	det	p
-millièmes	millièmes	DET	det	p
 # chiffres : déterminants
 1	1	DET	det	null
 12	12	DET	det	p
@@ -292,7 +238,12 @@ trillion	trillion	DET	det	p
 trillions	trillions	DET	det	p
 trilliard	trilliard	DET	det	p
 trilliards	trilliards	DET	det	p
-# portions : pronoms
+# portions et ordinaux : pronoms
+premier	premier	PRO	pro	p
+deuxième	deuxième	PRO	pro	p
+second	second	PRO	pro	p
+troisième	troisième	PRO	pro	p
+quatrième	quatrième	PRO	pro	p
 demi	demi	PRO	pro	p
 demie	demie	PRO	pro	p
 quart	quart	PRO	pro	p
@@ -499,7 +450,12 @@ trillion	trillion	PRO	pro	p
 trillions	trillions	PRO	pro	p
 trilliard	trilliard	PRO	pro	p
 trilliards	trilliards	PRO	pro	p
-# portions : adjectifs
+# portions et ordinaux : adjectifs
+premier	premier	ADJ	adj	p
+deuxième	deuxième	ADJ	adj	p
+second	second	ADJ	adj	p
+troisième	troisième	ADJ	adj	p
+quatrième	quatrième	ADJ	adj	p
 demi	demi	ADJ	adj	p
 demie	demie	ADJ	adj	p
 quart	quart	ADJ	adj	p
@@ -900,7 +856,6 @@ c/o	c/o	P	prep	null
 comparé à	comparé à	P	prep	null
 compte tenu de	compte tenu de	P	prep	null
 compte tenu d'	compte tenu de	P	prep	null
-concernant	concernant	P	prep	null
 conformément à	conformément à	P	prep	null
 contraire à	contraire à	P	prep	null
 contrairement à	contrairement à	P	prep	null
@@ -1086,6 +1041,7 @@ telles qu'	tel que	P	prep	null
 tout comme	tout comme	P	prep	null
 voici	voici	P	prep	null
 voilà	voilà	P	prep	null
+vu	vu	P	prep	null
 # Ponctuation
 (*)	(*)	PONCT	ponctw	null
 (...)	(...)	PONCT	ponctw	null
@@ -1095,6 +1051,7 @@ voilà	voilà	P	prep	null
 !	!	PONCT	ponctw	null
 =	=	PONCT	ponctw	null
 ...	...	PONCT	poncts	null
+—	—	PONCT	ponctw	null
 # Adjectifs
 n'importe laquelle	n'importe lequel	ADJ	adj	fs
 n'importe lequel	n'importe lequel	ADJ	adj	ms

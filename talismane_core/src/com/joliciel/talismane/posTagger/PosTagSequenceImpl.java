@@ -113,7 +113,9 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 		if (rootToken==null) {
 			Token emptyToken = tokenSequence.addEmptyToken(0);
 			emptyToken.setText("[ROOT]");
+			tokenSequence.setWithRoot(true);
 			tokenSequence.finalise();
+			
 			PosTagSet posTagSet = TalismaneSession.getPosTagSet();
 			Decision<PosTag> rootDecision = posTagSet.createDefaultDecision(PosTag.ROOT_POS_TAG);
 			rootToken = this.posTaggerServiceInternal.getPosTaggedToken(emptyToken, rootDecision);
@@ -136,6 +138,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 			Token emptyToken = rootToken.getToken();
 			tokenSequence.removeEmptyToken(emptyToken);
 			this.remove(0);
+			tokenSequence.setWithRoot(false);
 			tokenSequence.finalise();
 		}
 	}

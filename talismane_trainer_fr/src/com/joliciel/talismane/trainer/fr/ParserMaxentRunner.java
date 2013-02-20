@@ -17,13 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.frenchTreebank.TreebankService;
-import com.joliciel.frenchTreebank.TreebankServiceLocator;
 import com.joliciel.ftbDep.FtbDepReader;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneException;
@@ -73,9 +72,22 @@ public class ParserMaxentRunner {
 	/**
 	 * @param args
 	 */
-	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		String command = args[0];
+		Map<String, String> argMap = new HashMap<String, String>();
+		
+		for (String arg : args) {
+			int equalsPos = arg.indexOf('=');
+			String argName = arg.substring(0, equalsPos);
+			String argValue = arg.substring(equalsPos+1);
+			argMap.put(argName, argValue);
+		}
+		
+		@SuppressWarnings("unused")
+		ParserMaxentRunner maxentRunner = new ParserMaxentRunner(argMap);
+	}
+
+    public ParserMaxentRunner(Map<String,String> argMap) throws Exception {
+    	String command = null;
 
 		String parserModelFilePath = "";
 		String parserFeatureFilePath = "";
@@ -108,17 +120,13 @@ public class ParserMaxentRunner {
 		String posTaggerPostProcessingFilterPath = "";
 
 		boolean keepCompoundPosTags = false;
-		
-		boolean firstArg = true;
-		for (String arg : args) {
-			if (firstArg) {
-				firstArg = false;
-				continue;
-			}
-			int equalsPos = arg.indexOf('=');
-			String argName = arg.substring(0, equalsPos);
-			String argValue = arg.substring(equalsPos+1);
-			if (argName.equals("parserModel"))
+
+		for (Entry<String, String> argEntry : argMap.entrySet()) {
+			String argName = argEntry.getKey();
+			String argValue = argEntry.getValue();
+			if (argName.equals("command"))
+				command = argValue;
+			else if (argName.equals("parserModel"))
 				parserModelFilePath = argValue;
 			else if (argName.equals("parserFeatures"))
 				parserFeatureFilePath = argValue;
@@ -217,14 +225,8 @@ public class ParserMaxentRunner {
 			ParserService parserService = parserServiceLocator.getParserService();
 			ParserFeatureServiceLocator parserFeatureServiceLocator = talismaneServiceLocator.getParserFeatureServiceLocator();
 			ParserFeatureService parserFeatureService = parserFeatureServiceLocator.getParserFeatureService();
-			
-			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
 				
-			TreebankService treebankService = treebankServiceLocator.getTreebankService();
-			
 			MachineLearningService machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
-
-			boolean createEmptyTokensIfMissing = true;
 				
 			if (parserModelFilePath.length()==0)
 				throw new RuntimeException("Missing argument: parserModel");

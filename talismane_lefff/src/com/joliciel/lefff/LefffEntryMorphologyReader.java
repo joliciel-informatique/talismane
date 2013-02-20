@@ -41,6 +41,7 @@ class LefffEntryMorphologyReader implements LexicalEntryMorphologyReader {
 		private List<String> person = new ArrayList<String>();
 		private List<String> possessorNumber = new ArrayList<String>();
 		private String morphology;
+		private transient String morphologyForConll;
 
 		public String getWord() {
 			return word;
@@ -124,6 +125,13 @@ class LefffEntryMorphologyReader implements LexicalEntryMorphologyReader {
 		public LexicalEntryStatus getStatus() {
 			return LexicalEntryStatus.NEUTRAL;
 		}
+
+		@Override
+		public String getMorphologyForCoNLL() {
+			if (morphologyForConll==null)
+				morphologyForConll = readMorphologyForConll(this);
+			return morphologyForConll;
+		}
 	}
 	
 	static void readMorphology(LexicalEntry entry, String morphology) {
@@ -183,5 +191,56 @@ class LefffEntryMorphologyReader implements LexicalEntryMorphologyReader {
 			entry.getTense().add("W"); // infinitive
 		if (morphNoPossessor.contains("Y"))
 			entry.getTense().add("Y"); // imperative
+	}
+	
+	static String readMorphologyForConll(LexicalEntry lexicalEntry) {
+		String morphologyForConll = null;
+		StringBuilder sb = new StringBuilder();
+		if (lexicalEntry.getGender().size()==1)
+			sb.append("g=" + lexicalEntry.getGender().get(0) + "|");
+		if (lexicalEntry.getNumber().size()==1)
+			sb.append("n=" + lexicalEntry.getNumber().get(0) + "|");
+		if (lexicalEntry.getPerson().size()>0) {
+			sb.append("p=");
+			for (String person : lexicalEntry.getPerson()) {
+				sb.append(person);
+			}
+			sb.append("|");
+		}
+		if (lexicalEntry.getPossessorNumber().size()>0) {
+			sb.append("poss=");
+			for (String possessorNumber : lexicalEntry.getPossessorNumber()) {
+				sb.append(possessorNumber);
+			}
+			sb.append("|");
+			
+		}
+		if (lexicalEntry.getTense().size()>0) {
+			if (lexicalEntry.getTense().contains("P"))
+				sb.append("t=pst|");
+			else if (lexicalEntry.getTense().contains("I"))
+				sb.append("t=imp|");
+			else if (lexicalEntry.getTense().contains("F"))
+				sb.append("t=fut|");
+			else if (lexicalEntry.getTense().contains("C"))
+				sb.append("t=cond|");
+			else if (lexicalEntry.getTense().contains("K"))
+				sb.append("t=past|");
+			else if (lexicalEntry.getTense().contains("G"))
+				sb.append("t=pst|");
+			else if (lexicalEntry.getTense().contains("S"))
+				sb.append("t=pst|");
+			else if (lexicalEntry.getTense().contains("J"))
+				sb.append("t=past|");
+			else if (lexicalEntry.getTense().contains("T"))
+				sb.append("t=past|");
+		}
+		
+		if (sb.length()>0)
+			morphologyForConll = sb.substring(0, sb.length()-1);
+		else
+			morphologyForConll = "_";
+		
+		return morphologyForConll;
 	}
 }

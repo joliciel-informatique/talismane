@@ -139,4 +139,11 @@ public interface TokenSequence extends Iterable<Token> {
 	 * @return
 	 */
 	public TokenSequence cloneTokenSequence();
+	
+	/**
+	 * Does this token sequence have an "artificial" root or not.
+	 * @return
+	 */
+	public boolean isWithRoot();
+	public void setWithRoot(boolean withRoot);
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
@@ -52,9 +53,23 @@ public class SentenceDetectorMaxentRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
+		Map<String, String> argMap = new HashMap<String, String>();
+		
+		for (String arg : args) {
+			int equalsPos = arg.indexOf('=');
+			String argName = arg.substring(0, equalsPos);
+			String argValue = arg.substring(equalsPos+1);
+			argMap.put(argName, argValue);
+		}
+		
+		@SuppressWarnings("unused")
+		SentenceDetectorMaxentRunner maxentRunner = new SentenceDetectorMaxentRunner(argMap);
+	}
+
+    public SentenceDetectorMaxentRunner(Map<String,String> argMap) throws Exception {
 		PerformanceMonitor.start();
 		try {
-			String command = args[0];
+			String command = null;
 	
 			String sentenceModelFilePath = "";
 			String sentenceFeatureFilePath = "";
@@ -73,16 +88,12 @@ public class SentenceDetectorMaxentRunner {
 			boolean perceptronSkippedAveraging = false;
 			double perceptronTolerance = -1;
 			
-			boolean firstArg = true;
-			for (String arg : args) {
-				if (firstArg) {
-					firstArg = false;
-					continue;
-				}
-				int equalsPos = arg.indexOf('=');
-				String argName = arg.substring(0, equalsPos);
-				String argValue = arg.substring(equalsPos+1);
-				if (argName.equals("sentenceModel"))
+			for (Entry<String, String> argEntry : argMap.entrySet()) {
+				String argName = argEntry.getKey();
+				String argValue = argEntry.getValue();
+				if (argName.equals("command"))
+					command = argValue;
+				else if (argName.equals("sentenceModel"))
 					sentenceModelFilePath = argValue;
 				else if (argName.equals("sentenceFeatures"))
 					sentenceFeatureFilePath = argValue;
