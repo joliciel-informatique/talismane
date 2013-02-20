@@ -146,7 +146,8 @@ de plus
 de plus en plus
 dès lors
 du moins
-en fait	en (fait|général|moyenne|outre|particulier|partie)
+en fait	en (effet|définitive|fait|général|gros|moyenne|outre|parallèle|particulier|partie|plus|privé|revanche)
+en cours	en (arrière|avant|commun|continu|cours|direct|moins|plein|pratique|propre|référé|vain|vigueur)
 en tout cas
 grosso modo
 in extremis	in (extremis|fine)
@@ -161,7 +162,7 @@ moyennant quoi
 ne pas	ne (pas|plus|jamais|point)
 non seulement	non (seulement|pas|plus|moins)
 outre mesure
-par ailleurs
+par ailleurs	par (ailleurs|conséquent|contre)
 pas encore	pas (encore|moins|même)
 pas du tout
 pas pour autant

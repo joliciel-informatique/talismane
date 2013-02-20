@@ -50,6 +50,7 @@ public class Lefff {
         String lefffFilePath = "";
         String posTagSetPath = "";
         String posTagMapPath = "";
+        String word = null;
         int startLine = -1;
         int stopLine = -1;
         
@@ -74,6 +75,8 @@ public class Lefff {
 				posTagSetPath = argValue;
 			else if (argName.equals("posTagMap")) 
 				posTagMapPath = argValue;
+			else if (argName.equals("word"))
+				word = argValue;
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -127,9 +130,13 @@ public class Lefff {
            	LefffMemoryLoader loader = new LefffMemoryLoader();
         	File memoryBaseFile = new File(memoryBaseFilePath);
         	LefffMemoryBase memoryBase = loader.deserializeMemoryBase(memoryBaseFile);
-        	        	
-        	List<? extends LexicalEntry> entriesForAvoir = memoryBase.getEntries("avoir");
-        	LOG.debug("##### Entries for 'avoir': " + entriesForAvoir.size());
+        	
+        	String testWord = "avoir";
+        	if (word!=null)
+        		testWord = word;
+        	
+        	List<? extends LexicalEntry> entriesForAvoir = memoryBase.getEntries(testWord);
+        	LOG.debug("##### Entries for '" + testWord + "': " + entriesForAvoir.size());
         	for (LexicalEntry entry : entriesForAvoir) {
         		LOG.debug("### Entry " + entry.getWord());
         		LOG.debug("Category " + entry.getCategory());
@@ -137,18 +144,13 @@ public class Lefff {
         		LOG.debug("Lemma " + entry.getLemma());
         		LOG.debug("Morphology " + entry.getMorphology());
         	}
-        	List<? extends LexicalEntry> entriesForBase = memoryBase.getEntries("base");
-        	LOG.debug("##### Entries for 'base': " + entriesForBase.size());
-        	for (LexicalEntry entry : entriesForBase) {
-        		LOG.debug("### Entry " + entry.getWord());
-        		LOG.debug("Category " + entry.getCategory());
-        		LOG.debug("Predicate " + entry.getPredicate());
-        		LOG.debug("Lemma " + entry.getLemma());
-        		LOG.debug("Morphology " + entry.getMorphology());
-        	}
         	
-        	List<? extends LexicalEntry> entriesForBaserLemma = memoryBase.getEntriesForLemma("baser", "");
-        	LOG.debug("##### Entries for 'baser' lemma: " + entriesForBaserLemma.size());
+        	testWord = "baser";
+        	if (word!=null)
+        		testWord = word;
+        	
+        	List<? extends LexicalEntry> entriesForBaserLemma = memoryBase.getEntriesForLemma(testWord, "");
+        	LOG.debug("##### Entries for '" + testWord + "' lemma: " + entriesForBaserLemma.size());
         	for (LexicalEntry entry : entriesForBaserLemma) {
         		LOG.debug("### Entry " + entry.getWord());
         		LOG.debug("Category " + entry.getCategory());
@@ -161,6 +163,16 @@ public class Lefff {
         				LOG.debug("Realisation: " + realisation);
         			}
         		}
+        	}
+
+        	List<? extends LexicalEntry> entriesForBase = memoryBase.getEntries("base");
+        	LOG.debug("##### Entries for 'base': " + entriesForBase.size());
+        	for (LexicalEntry entry : entriesForBase) {
+        		LOG.debug("### Entry " + entry.getWord());
+        		LOG.debug("Category " + entry.getCategory());
+        		LOG.debug("Predicate " + entry.getPredicate());
+        		LOG.debug("Lemma " + entry.getLemma());
+        		LOG.debug("Morphology " + entry.getMorphology());
         	}
 
         	Set<PosTag> posTagsBase = memoryBase.findPossiblePosTags("base");

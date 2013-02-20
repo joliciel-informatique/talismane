@@ -133,4 +133,11 @@ public interface LexicalEntry {
 	 * @return
 	 */
 	public LexicalEntryStatus getStatus();
+	
+	/**
+	 * A string representation of all of the morpho-syntaxic information combined
+	 * in conll format.
+	 * @return
+	 */
+	public String getMorphologyForCoNLL();
 }

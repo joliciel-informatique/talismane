@@ -78,7 +78,7 @@
         <!-- Construct the One-JAR file -->   
         <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
         	<manifest>
-        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.trainer.fr.PosTaggerMaxentRunner" />
+        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.trainer.fr.Main" />
         	</manifest>
             <main>
                 <!-- Construct main.jar from classes and source code -->

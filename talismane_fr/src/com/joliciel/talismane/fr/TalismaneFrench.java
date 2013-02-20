@@ -51,6 +51,7 @@ import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.french.AllUppercaseFrenchFilter;
 import com.joliciel.talismane.utils.LogUtils;
 
 /**
@@ -221,19 +222,19 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_fr16_noCutoff.zip";
+		String tokeniserModelName = "ftbTokeniser_fr17_noCutoff.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultPosTaggerModelStream() {
-		String posTaggerModelName = "ftbPosTagger_fr13_cutoff3.zip";
+		String posTaggerModelName = "ftbPosTagger_fr14_cutoff3.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(posTaggerModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultParserModelStream() {
-		String parserModelName = "ftbDep_parser_arcEager_16_compoundPosTags.zip";
+		String parserModelName = "ftbDep_parser_arcEager_17_compoundPosTags_cutoff5.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 
@@ -244,8 +245,9 @@ public class TalismaneFrench extends TalismaneConfig {
 	}
 
 	@Override
-	public List<TokenSequenceFilter> getPosTaggerPreProcessingFilters() {
+	public List<TokenSequenceFilter> getDefaultPosTaggerPreProcessingFilters() {
 		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
+		tokenFilters.add(new AllUppercaseFrenchFilter());
 		return tokenFilters;
 	}
 

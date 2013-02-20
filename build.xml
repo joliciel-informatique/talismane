@@ -30,6 +30,11 @@
 				<include name="talismane_trainer_fr/build.xml"/>
 			</fileset>
 		</subant>
+		<subant target="one-jar">
+			<fileset dir=".">
+				<include name="talismane_standoff/build.xml"/>
+			</fileset>
+		</subant>
 	</target>
 	
 	<target name="clean">
@@ -59,6 +64,11 @@
 			<fileset dir=".">
 				<include name="talismane_fr/build.xml"/>
 				<include name="talismane_trainer_fr/build.xml"/>
+			</fileset>
+		</subant>
+		<subant target="clean">
+			<fileset dir=".">
+				<include name="talismane_standoff/build.xml"/>
 			</fileset>
 		</subant>
 	</target>

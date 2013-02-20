@@ -21,23 +21,17 @@ package com.joliciel.talismane.output;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
-import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.utils.LogUtils;
@@ -130,83 +124,6 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 		model.put("sentence", sentence);
 		model.put("LOG", LOG);
 		this.process(model);
-	}
-
-	public static final class ParseConfigurationOutput extends ArrayList<ParseConfigurationTokenOutput> {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 8874423911960774024L;
-
-		public ParseConfigurationOutput(ParseConfiguration parseConfiguration) {
-			Map<Token, DependencyArc> tokenDependencyMap = new HashMap<Token, DependencyArc>();
-			for (DependencyArc dependencyArc : parseConfiguration.getDependencies()) {
-				tokenDependencyMap.put(dependencyArc.getDependent().getToken(), dependencyArc);
-			}
-
-			Map<Token, ParseConfigurationTokenOutput> tokenOutputMap = new HashMap<Token, ParseConfigurationTokenOutput>();
-
-			for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
-				ParseConfigurationTokenOutput unit = new ParseConfigurationTokenOutput(posTaggedToken);
-				tokenOutputMap.put(posTaggedToken.getToken(), unit);
-				this.add(unit);
-			}
-			
-			for (ParseConfigurationTokenOutput unit : this) {
-				DependencyArc arc = tokenDependencyMap.get(unit.getToken());
-				if (arc!=null) {
-					ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(arc.getHead().getToken());
-					unit.setGovernor(governorOutput);
-					unit.setLabel(arc.getLabel());
-				}
-			}
-		}
-	}
-	public static final class ParseConfigurationTokenOutput {
-		private PosTaggedToken posTaggedToken;
-		private Token token;
-		private PosTag tag;
-		private LexicalEntry lexicalEntry;
-		private ParseConfigurationTokenOutput governor;
-		private String label;
-		
-		public ParseConfigurationTokenOutput(PosTaggedToken posTaggedToken) {
-			this.posTaggedToken = posTaggedToken;
-			this.token = posTaggedToken.getToken();
-			this.tag = posTaggedToken.getTag();
-			this.lexicalEntry = posTaggedToken.getLexicalEntry();
-		}
-		
-		public PosTaggedToken getPosTaggedToken() {
-			return posTaggedToken;
-		}
-
-		public Token getToken() {
-			return token;
-		}
-		
-		public PosTag getTag() {
-			return tag;
-		}
-		
-		public LexicalEntry getLexicalEntry() {
-			return lexicalEntry;
-		}
-
-		public ParseConfigurationTokenOutput getGovernor() {
-			return governor;
-		}
-		public void setGovernor(ParseConfigurationTokenOutput governor) {
-			this.governor = governor;
-		}
-
-		public String getLabel() {
-			return label;
-		}
-		public void setLabel(String label) {
-			this.label = label;
-		}
 	}
 
 	@Override

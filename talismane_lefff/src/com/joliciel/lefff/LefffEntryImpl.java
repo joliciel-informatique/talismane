@@ -68,6 +68,7 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 	transient private Set<String> predicateMacros;
 	
 	transient boolean lexicalEntryLoaded = false;
+	transient private String morphologyForConll = null;
 
 	private transient LefffServiceInternal lefffServiceInternal;
 
@@ -398,6 +399,14 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 			}
 		}
 		return this.predicateMacros;
+	}
+
+	@Override
+	public String getMorphologyForCoNLL() {
+		if (morphologyForConll==null) {
+			morphologyForConll = LefffEntryMorphologyReader.readMorphologyForConll(this);
+		}
+		return morphologyForConll;
 	}
 	
 }

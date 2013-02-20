@@ -82,8 +82,10 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 			key += "|" + complement;
 		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
 		List<LexicalEntry> lefffEntries = this.lemmaEntryMap.get(key);
-		for (LexicalEntry lefffEntry : lefffEntries)
-			entries.add(lefffEntry);
+		if (lefffEntries!=null) {
+			for (LexicalEntry lefffEntry : lefffEntries)
+				entries.add(lefffEntry);
+		}
 
 		return entries;
 	}

@@ -47,5 +47,13 @@ public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReade
 	 */
 	public String getRegex();
 	public void setRegex(String regex);
+	
+	/**
+	 * Should an attempt be made to the predict the transitions that led to this configuration,
+	 * or should dependencies simply be added with null transitions.
+	 * @return
+	 */
+	public boolean isPredictTransitions();
+	public void setPredictTransitions(boolean predictTransitions);
 
 }

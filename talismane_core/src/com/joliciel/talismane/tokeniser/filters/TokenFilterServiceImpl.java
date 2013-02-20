@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.tokeniser.filters.french.AllUppercaseFrenchFilter;
 import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenBeforeDuquelFilter;
 import com.joliciel.talismane.tokeniser.filters.french.LowercaseFirstWordFrenchFilter;
@@ -67,6 +68,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		classes.add(EmptyTokenBeforeDuquelFilter.class);
 		classes.add(LowercaseFirstWordFrenchFilter.class);
 		classes.add(UpperCaseSeriesFrenchFilter.class);
+		classes.add(AllUppercaseFrenchFilter.class);
 		
 		for (Class<? extends TokenSequenceFilter> clazz : classes) {
 			if (descriptor.equals(clazz.getSimpleName())) {

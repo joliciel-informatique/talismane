@@ -24,6 +24,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
 	private Integer atomicTokenCount = null;
 	private boolean finalised = false;
+	private boolean withRoot = false;
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
 
@@ -345,6 +346,12 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 	public void setSentence(Sentence sentence) {
 		this.sentence = sentence;
+	}
+	public boolean isWithRoot() {
+		return withRoot;
+	}
+	public void setWithRoot(boolean withRoot) {
+		this.withRoot = withRoot;
 	}
 	
 }

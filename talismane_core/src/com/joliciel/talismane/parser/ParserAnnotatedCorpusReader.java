@@ -22,6 +22,7 @@ import java.util.Map;
 
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -41,6 +42,8 @@ public interface ParserAnnotatedCorpusReader {
 	 * @return
 	 */
 	public ParseConfiguration nextConfiguration();
+	
+	public void addTokenFilter(TokenFilter tokenFilter);
 	
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
 	
