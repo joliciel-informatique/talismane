@@ -64,6 +64,8 @@ class TransitionBasedParser implements NonDeterministicParser {
 
 	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
 	private int maxAnalysisTimePerSentence = 60;
+	private int minFreeMemory = 64;
+	private static final int KILOBYTE = 1024;
 	
 	private List<ParserRule> parserRules;
 	private List<ParserRule> parserPositiveRules;
@@ -93,6 +95,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 		try {
 			long startTime = (new Date()).getTime();
 			int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
+			int minFreeMemoryBytes = minFreeMemory * KILOBYTE;
 			
 			TokenSequence tokenSequence = posTagSequences.get(0).getTokenSequence();
 				
@@ -135,6 +138,16 @@ class TransitionBasedParser implements NonDeterministicParser {
 					LOG.info("Parse tree analysis took too long for sentence: " + tokenSequence.getText());
 					LOG.info("Breaking out after " +  maxAnalysisTimePerSentence + " seconds.");
 					finished = true;
+				}
+				
+				if (minFreeMemory > 0) {
+					long freeMemory = Runtime.getRuntime().freeMemory();
+					if (freeMemory < minFreeMemoryBytes) {
+						LOG.info("Not enough memory left to parse sentence: " + tokenSequence.getText());
+						LOG.info("Min free memory (bytes):" +  minFreeMemoryBytes);
+						LOG.info("Current free memory (bytes): " +  freeMemory);
+						finished = true;
+					}
 				}
 				
 				if (finished) {
@@ -414,6 +427,16 @@ class TransitionBasedParser implements NonDeterministicParser {
 		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
 	}
 	
+	
+	public int getMinFreeMemory() {
+		return minFreeMemory;
+	}
+
+
+	public void setMinFreeMemory(int minFreeMemory) {
+		this.minFreeMemory = minFreeMemory;
+	}
+
 
 	@Override
 	public void setParserRules(List<ParserRule> parserRules) {
