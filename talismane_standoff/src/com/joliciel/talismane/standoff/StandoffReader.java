@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,8 +63,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private TokenFilterService tokenFilterService;
 	
 	ParseConfiguration configuration = null;
-	private Scanner scanner = null;
-	private String currentLine = null;
+	private int sentenceIndex = 0;
 	
 	private TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
 	
@@ -71,12 +71,71 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
 	private TokenSequenceFilter tokenFilterWrapper = null;
+	
+	private Map<String, StandoffToken> tokenMap = new HashMap<String, StandoffReader.StandoffToken>();
+	private Map<String, StandoffRelation> relationMap = new HashMap<String, StandoffReader.StandoffRelation>();
+	
+	private List<List<StandoffToken>> sentences = new ArrayList<List<StandoffReader.StandoffToken>>();
 
 	public StandoffReader(Scanner scanner) {
-		this.scanner = scanner;
-		if (scanner.hasNextLine()) {
-			currentLine = scanner.nextLine();
+		PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+		
+		Map<Integer,StandoffToken> sortedTokens = new TreeMap<Integer, StandoffReader.StandoffToken>();
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			if (line.startsWith("T")) {
+				
+				String[] parts = line.split("[\\t]");
+				String id = parts[0];
+				String[] posTagParts = parts[1].split(" ");
+				String posTagCode = posTagParts[0].replace('_', '+');
+				int startPos = Integer.parseInt(posTagParts[1]);
+				String text = parts[2];
+				
+  				PosTag posTag = null;
+  				if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
+  					posTag = PosTag.ROOT_POS_TAG;
+  				} else {
+    				try {
+    					posTag = posTagSet.getPosTag(posTagCode);
+    				} catch (UnknownPosTagException upte) {
+    					throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
+    				}
+  				}
+  				
+  				StandoffToken token = new StandoffToken();
+  				token.posTag = posTag;
+  				token.text = text;
+  				token.id = id;
+  				
+  				sortedTokens.put(startPos, token);
+  				tokenMap.put(id, token);
+  				
+			} else if (line.startsWith("R")) {
+				
+				String[] parts = line.split("[\\t :]");
+				String label = parts[1];
+				String headId = parts[3];
+				String dependentId = parts[5];
+				StandoffRelation relation = new StandoffRelation();
+				relation.fromToken = headId;
+				relation.toToken = dependentId;
+				relation.label = label;
+				relationMap.put(dependentId, relation);
+			}
 		}
+		
+		List<StandoffToken> currentSentence = null;
+		for (StandoffToken token : sortedTokens.values()) {
+			if (token.text.equals("ROOT")) {
+				if (currentSentence!=null)
+					sentences.add(currentSentence);
+				currentSentence = new ArrayList<StandoffReader.StandoffToken>();
+			}
+			currentSentence.add(token);
+		}
+		if (currentSentence!=null)
+			sentences.add(currentSentence);
 	}
 	
 	@Override
@@ -84,94 +143,66 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
 			// we've reached the end, do nothing
 		} else {
-			if (configuration==null) {
-				boolean tokensFinished = false;
+			if (configuration==null && sentenceIndex<sentences.size()) {
+				
 				PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
 				PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, tokenSequence.size());
 				Map<String,PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
 				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
-				while (currentLine!=null) {
-					String line = currentLine;
+				
+				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
+				
+				for (StandoffToken standoffToken : tokens) {
+					Token token = tokenSequence.addToken(standoffToken.text);
+					Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(standoffToken.posTag);
+					PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
+					if (LOG.isTraceEnabled()) {
+						LOG.trace(posTaggedToken.toString());
+					}
 					
-					if (line.startsWith("T")) {
-						if (tokensFinished) {
-							sentenceCount++;
-							break;
-						}
-						String[] parts = line.split("[\\t]");
-						String id = parts[0];
-						String[] posTagParts = parts[1].split(" ");
-						String posTagCode = posTagParts[0].replace('_', '+');
-						String text = parts[2];
-						Token token = tokenSequence.addToken(text);
-		  				PosTag posTag = null;
-		  				if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
-		  					posTag = PosTag.ROOT_POS_TAG;
-		  				} else {
-		    				try {
-		    					posTag = posTagSet.getPosTag(posTagCode);
-		    				} catch (UnknownPosTagException upte) {
-		    					throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
-		    				}
-		  				}
-		  				
-						Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(posTag);
-						PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
-						if (LOG.isTraceEnabled()) {
-							LOG.trace(posTaggedToken.toString());
-						}
-						
-						posTagSequence.addPosTaggedToken(posTaggedToken);
-						LOG.debug("Found token " + id + ", " + posTaggedToken);
-						idTokenMap.put(id, posTaggedToken);	    				
-					} else if (line.startsWith("R")) {
-						if (!tokensFinished) {
-							tokensFinished = true;
-							tokenSequence.setWithRoot(true);							
+					posTagSequence.addPosTaggedToken(posTaggedToken);
+					idTokenMap.put(standoffToken.id, posTaggedToken);
+					LOG.debug("Found token " + standoffToken.id + ", " + posTaggedToken);					
+				}
+				
+				tokenSequence.setWithRoot(true);							
 
-							tokenSequence.cleanSlate();
-							
-							// first apply the token filters - which might replace the text of an individual token
-							// with something else
-							if (tokenFilterWrapper==null) {
-								tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
-							}
-							tokenFilterWrapper.apply(tokenSequence);
-							
-							for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-								tokenFilter.apply(tokenSequence);
-							}
-							
-							if (tokenSequence.getTokensAdded().size()>0) {
-								throw new TalismaneException("Added tokens not currently supported by StandoffReader");
-							}
-							
-							tokenSequence.finalise();
-							
-							configuration = this.getParserService().getInitialConfiguration(posTagSequence);
-						
-						}
-						
-						String[] parts = line.split("[\\t :]");
-						String label = parts[1];
-						String headId = parts[3];
-						String dependentId = parts[5];
-						PosTaggedToken head = idTokenMap.get(headId);
-						PosTaggedToken dependent = idTokenMap.get(dependentId);
+				tokenSequence.cleanSlate();
+				
+				// first apply the token filters - which might replace the text of an individual token
+				// with something else
+				if (tokenFilterWrapper==null) {
+					tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
+				}
+				tokenFilterWrapper.apply(tokenSequence);
+				
+				for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+					tokenFilter.apply(tokenSequence);
+				}
+				
+				if (tokenSequence.getTokensAdded().size()>0) {
+					throw new TalismaneException("Added tokens not currently supported by StandoffReader");
+				}
+				
+				tokenSequence.finalise();
+				
+				configuration = this.getParserService().getInitialConfiguration(posTagSequence);
+
+				for (StandoffToken standoffToken : tokens) {
+					StandoffRelation relation = relationMap.get(standoffToken.id);
+					if (relation!=null) {
+						PosTaggedToken head = idTokenMap.get(relation.fromToken);
+						PosTaggedToken dependent = idTokenMap.get(relation.toToken);
 						if (head==null) {
-							throw new TalismaneException("No token found for head id: " + headId);
+							throw new TalismaneException("No token found for head id: " + relation.fromToken);
 						}
 						if (dependent==null) {
-							throw new TalismaneException("No token found for dependent id: " + dependentId);
+							throw new TalismaneException("No token found for dependent id: " + relation.toToken);
 						}
-						configuration.addDependency(head, dependent, label, null);
-					}
-					currentLine = null;
-					if (scanner.hasNextLine()) {
-						currentLine = scanner.nextLine();
-						lineNumber++;
+						configuration.addDependency(head, dependent, relation.label, null);
 					}
 				}
+	
 			}
 		}
 		return (configuration!=null);
@@ -271,5 +302,17 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 	public void setParserService(ParserService parserService) {
 		this.parserService = parserService;
+	}
+	
+	private static final class StandoffToken {
+		public PosTag posTag;
+		public String text;
+		public String id;
+	}
+	
+	private static final class StandoffRelation {
+		public String label;
+		public String fromToken;
+		public String toToken;
 	}
 }

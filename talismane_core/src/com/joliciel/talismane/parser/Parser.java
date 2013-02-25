@@ -64,6 +64,17 @@ public interface Parser {
 	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence);
 	
 	/**
+	 * The minimum amount of remaining free memory to continue a parse, in kilobytes.
+	 * Will be ignored is set to 0.
+	 * If analysis jumps out because of free memory descends below this limit,
+	 * there will be a parse-forest instead of a parse-tree,
+	 * with several nodes left unattached.
+	 * @return
+	 */
+	public int getMinFreeMemory();
+	public void setMinFreeMemory(int minFreeMemory);
+	
+	/**
 	 * Rules to apply while parsing (in place of the probablistic classifier).
 	 * @param parserRules
 	 */

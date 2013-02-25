@@ -174,6 +174,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private String evaluationRegex;
 	private String evaluationPatternFilePath = null;
 	private int maxParseAnalysisTime = 60;
+	private int minFreeMemory = 64;
 	
 	private Reader reader = null;
 	private Writer writer = null;
@@ -397,6 +398,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				processByDefault = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("maxParseAnalysisTime"))
 				maxParseAnalysisTime = Integer.parseInt(argValue);
+			else if (argName.equals("minFreeMemory"))
+				minFreeMemory = Integer.parseInt(argValue);
 			else if (argName.equals("transitionSystem"))
 				transitionSystemStr = argValue;
 			else if (argName.equals("sentenceCount"))
@@ -1238,6 +1241,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				
 				parser = this.getParserService().getTransitionBasedParser(parserModel, parserBeamWidth);
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
+				parser.setMinFreeMemory(minFreeMemory);
 				parser.setParserRules(this.getParserRules());
 				
 				if (includeDetails) {
