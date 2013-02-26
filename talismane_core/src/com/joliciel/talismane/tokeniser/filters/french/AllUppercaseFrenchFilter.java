@@ -35,8 +35,12 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  *
  */
 public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
-
 	private static final String[] upperCaseEndWordArray = new String[] { "SARL", "SA", "EURL" };
+	
+	/**
+	 * No more than 1000 different lowercase words to check per single uppercase word.
+	 */
+	private static final int MAX_WORD_ATTEMPTS = 1000;
 	
 	private Set<String> upperCaseEndWords;
 	
@@ -75,7 +79,7 @@ public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
 		if (this.getUpperCaseEndWords().contains(token.getText()))
 			return;
 		
-		List<String> possibleWords = this.getPossibleWords(token.getText());
+		List<String> possibleWords = getPossibleWords(token.getText());
 		for (String possibleWord : possibleWords) {
 			Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(possibleWord);
 			if (posTags.size()>0) {
@@ -86,7 +90,7 @@ public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
 	}
 
 	
-	List<String> getPossibleWords(String word) {
+	static List<String> getPossibleWords(String word) {
 		List<char[]> possibleChars = new ArrayList<char[]>();
 		for (int i = 0; i<word.length();i++) {
 			char c = word.charAt(i);
@@ -116,10 +120,14 @@ public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
 			}
 			possibleChars.add(lowerCaseChars);
 		}
+		
 		List<String> possibleWords = new ArrayList<String>();
 		possibleWords.add("");
 		for (int i=0;i<word.length();i++) {
 			char[] lowerCaseChars = possibleChars.get(i);
+			if (possibleWords.size()>=MAX_WORD_ATTEMPTS) {
+				lowerCaseChars = new char[] { possibleChars.get(i)[0] };
+			}
 			List<String> newPossibleWords = new ArrayList<String>();
 			for (String possibleWord : possibleWords) {
 				for (char c : lowerCaseChars) {

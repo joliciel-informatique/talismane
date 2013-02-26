@@ -14,7 +14,7 @@
 !P	Not(LexiconPosTag("P"))
 !P+D	Not(LexiconPosTag("P+D"))
 !P+PRO	Not(LexiconPosTag("P+PRO"))
-!PONCT	Not(LexiconPosTag("PONCT"))
+!PONCT	Not(LexiconPosTag("PONCT")) & Not(Regex("[\.\?\!]+"))
 !PRO	Not(LexiconPosTag("PRO"))
 !PROREL	Not(LexiconPosTag("PROREL"))
 !PROWH	Not(LexiconPosTag("PROWH"))
@@ -33,3 +33,4 @@
 ###### Token patterns ######
 NPP	Word("EntitéNomméeURL")
 NPP	Word("EntitéNomméeAdresseMail")
+PONCT	Regex("[\.\?\!]+")
