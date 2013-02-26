@@ -90,7 +90,7 @@ public class UpperCaseSeriesFrenchFilter implements TokenSequenceFilter {
 		
 		for (Token token : upperCaseSequence) {
 			boolean foundWord = false;
-			List<String> possibleWords = this.getPossibleWords(token.getText());
+			List<String> possibleWords = AllUppercaseFrenchFilter.getPossibleWords(token.getText());
 			for (String possibleWord : possibleWords) {
 				Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(possibleWord);
 				if (posTags.size()>0) {
@@ -107,51 +107,6 @@ public class UpperCaseSeriesFrenchFilter implements TokenSequenceFilter {
 				}
 			}
 		}
-	}
-	
-	List<String> getPossibleWords(String word) {
-		List<char[]> possibleChars = new ArrayList<char[]>();
-		for (int i = 0; i<word.length();i++) {
-			char c = word.charAt(i);
-			char[] lowerCaseChars = null;
-			switch (c) {
-				case 'E':
-					lowerCaseChars = new char[] {'e', 'é', 'ê', 'è', 'ë'};
-					break;
-				case 'A':
-					lowerCaseChars = new char[] {'à', 'a', 'â'};
-					break;
-				case 'O':
-					lowerCaseChars  = new char[] {'o', 'ô'};
-					break;
-				case 'I':
-					lowerCaseChars  = new char[] {'i', 'î', 'ï'};
-					break;
-				case 'U':
-					lowerCaseChars = new char[] {'u', 'ù', 'û'};
-					break;
-				case 'C':
-					lowerCaseChars = new char[] {'ç', 'c'};
-					break;
-				default:
-					lowerCaseChars = new char[] {Character.toLowerCase(c)};
-					break;
-			}
-			possibleChars.add(lowerCaseChars);
-		}
-		List<String> possibleWords = new ArrayList<String>();
-		possibleWords.add("");
-		for (int i=0;i<word.length();i++) {
-			char[] lowerCaseChars = possibleChars.get(i);
-			List<String> newPossibleWords = new ArrayList<String>();
-			for (String possibleWord : possibleWords) {
-				for (char c : lowerCaseChars) {
-					newPossibleWords.add(possibleWord + c);
-				}
-			}
-			possibleWords = newPossibleWords;
-		}
-		return possibleWords;
 	}
 
 	public Set<String> getUpperCaseEndWords() {
