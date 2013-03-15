@@ -31,6 +31,8 @@ import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
+import com.joliciel.talismane.utils.WeightedOutcome;
 
 import de.bwaldvogel.liblinear.Feature;
 import de.bwaldvogel.liblinear.FeatureNode;
@@ -56,22 +58,8 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	@Override
 	public List<Decision<T>> decide(List<FeatureResult<?>> featureResults) {
 		List<Feature> featureList = new ArrayList<Feature>(featureResults.size());
-		for (int i=0; i<featureResults.size(); i++) {
-			FeatureResult<?> featureResult = featureResults.get(i);
-			double value = 1.0;
-			if (featureResult.getOutcome() instanceof Double)
-			{
-				@SuppressWarnings("unchecked")
-				FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
-				value = doubleResult.getOutcome().doubleValue();
-			}
-			Integer index = featureIndexMap.get(featureResult.getTrainingName());
-			if (index!=null) {
-				// we only need to bother adding features which existed in the training set
-				FeatureNode featureNode = new FeatureNode(index.intValue(), value);
-				featureList.add(featureNode);
-			}
-		}
+		this.prepareData(featureResults, featureList);
+		
 		List<Decision<T>> decisions = null;
 
 		if (featureList.size()==0) {
@@ -100,6 +88,36 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 
 		return decisions;
 
+	}
+	
+	void prepareData(List<FeatureResult<?>> featureResults, List<Feature> featureList) {
+		for (FeatureResult<?> featureResult : featureResults) {
+			if (featureResult.getFeature() instanceof StringCollectionFeature) {
+				@SuppressWarnings("unchecked")
+				FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+				for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+					Integer index = featureIndexMap.get(featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
+					double value = stringOutcome.getWeight();
+					FeatureNode featureNode = new FeatureNode(index.intValue(), value);
+					featureList.add(featureNode);
+				}
+			} else {
+				double value = 1.0;
+			
+				if (featureResult.getOutcome() instanceof Double)
+				{
+					@SuppressWarnings("unchecked")
+					FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+					value = doubleResult.getOutcome().doubleValue();
+				}
+				Integer index = featureIndexMap.get(featureResult.getTrainingName());
+				if (index!=null) {
+					// we only need to bother adding features which existed in the training set
+					FeatureNode featureNode = new FeatureNode(index.intValue(), value);
+					featureList.add(featureNode);
+				}
+			}
+		}
 	}
 
 	public DecisionFactory<T> getDecisionFactory() {

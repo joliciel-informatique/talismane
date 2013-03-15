@@ -24,6 +24,7 @@ import java.util.Map;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 
@@ -52,20 +53,21 @@ public class TokeniserContext implements TokenWrapper, HasFeatureCache {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature) {
+	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
 		FeatureResult<Y> result = null;
 		
-		if (this.featureResults.containsKey(feature.getName())) {
-			result = (FeatureResult<Y>) this.featureResults.get(feature.getName());
+		String key = feature.getName() + env.getKey();
+		if (this.featureResults.containsKey(key)) {
+			result = (FeatureResult<Y>) this.featureResults.get(key);
 		}
 		return result;
 	}
 
 	@Override
 	public <T, Y> void putResultInCache(Feature<T, Y> feature,
-			FeatureResult<Y> featureResult) {
-		this.featureResults.put(feature.getName(), featureResult);	
+			FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+		String key = feature.getName() + env.getKey();
+		this.featureResults.put(key, featureResult);	
 	}
-	
 
 }

@@ -32,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
@@ -46,6 +48,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 	
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
+	private FeatureService featureService;
 	
 	public SentenceDetectorImpl(DecisionMaker<SentenceDetectorOutcome> decisionMaker,
 			Set<SentenceDetectorFeature<?>> features) {
@@ -98,7 +101,8 @@ class SentenceDetectorImpl implements SentenceDetector {
 				
 				List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
 				for (SentenceDetectorFeature<?> feature : features) {
-					FeatureResult<?> featureResult = feature.check(boundary);
+					RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+					FeatureResult<?> featureResult = feature.check(boundary, env);
 					if (featureResult!=null)
 						featureResults.add(featureResult);
 				}
@@ -162,4 +166,14 @@ class SentenceDetectorImpl implements SentenceDetector {
 	public void addTokenFilter(TokenFilter filter) {
 		this.preTokeniserFilters.add(filter);
 	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
+	}
+	
+	
 }

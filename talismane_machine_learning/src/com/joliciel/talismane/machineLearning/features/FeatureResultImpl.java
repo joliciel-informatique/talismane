@@ -51,7 +51,7 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 	@Override
 	public String toString() {
 		String string = this.getTrainingName();
-		if (outcome instanceof Double || outcome instanceof Integer)
+		if (outcome instanceof Double || outcome instanceof Integer || feature instanceof StringCollectionFeature)
 			string += "=" + outcome.toString();
 		return string;
 	}
@@ -60,14 +60,11 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 	public String getTrainingName() {
 		if (trainingName==null) {
 			trainingName = feature.getName();
-			if (!(outcome instanceof Double || outcome instanceof Integer)) {
+			if (!(outcome instanceof Double || outcome instanceof Integer)
+					&& !(feature instanceof StringCollectionFeature)) {
 				String string = null;
 				if (outcome instanceof String) {
-					string = (String) outcome;
-					string = string.replace("_", "&und;");
-					string = string.replace(' ', '_');
-					string = string.replace("=", "&eq;");
-					string = string.replace("\n", "&nl;");
+					string = this.getTrainingOutcome((String)outcome);
 				} else {
 					string = outcome.toString();
 				}
@@ -75,5 +72,14 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 			}
 		}
 		return trainingName;
+	}
+	
+	public String getTrainingOutcome(String outcome) {
+		String string = outcome;
+		string = string.replace("_", "&und;");
+		string = string.replace(' ', '_');
+		string = string.replace("=", "&eq;");
+		string = string.replace("\n", "&nl;");
+		return string;
 	}
 }

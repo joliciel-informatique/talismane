@@ -37,8 +37,8 @@ public class GraduateFeature<T> extends AbstractCachableFeature<T,Double> implem
 
 
 	@Override
-	public FeatureResult<Double> checkInternal(T context) {
-		FeatureResult<Double> rawOutcome = feature.check(context);
+	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
+		FeatureResult<Double> rawOutcome = feature.check(context, env);
 		FeatureResult<Double> outcome = null;
 		if (rawOutcome!=null) {
 			double weight = rawOutcome.getOutcome();

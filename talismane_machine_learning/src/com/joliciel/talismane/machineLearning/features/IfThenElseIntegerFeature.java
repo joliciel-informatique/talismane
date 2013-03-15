@@ -39,20 +39,20 @@ public class IfThenElseIntegerFeature<T> extends AbstractCachableFeature<T,Integ
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(T context) {
+	protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (conditionOutcome) {
-				FeatureResult<Integer> thenFeatureResult = thenFeature.check(context);
+				FeatureResult<Integer> thenFeatureResult = thenFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					int result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			} else {
-				FeatureResult<Integer> elseFeatureResult = elseFeature.check(context);
+				FeatureResult<Integer> elseFeatureResult = elseFeature.check(context, env);
 				if (elseFeatureResult!=null) {
 					int result = elseFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -45,10 +46,10 @@ public class DistanceFeature extends AbstractParseConfigurationFeature<Integer>
 
 
 	@Override
-	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper) {
+	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		FeatureResult<PosTaggedToken> tokenResult1 = addressFunction1.check(configuration);
-		FeatureResult<PosTaggedToken> tokenResult2 = addressFunction2.check(configuration);
+		FeatureResult<PosTaggedToken> tokenResult1 = addressFunction1.check(configuration, env);
+		FeatureResult<PosTaggedToken> tokenResult2 = addressFunction2.check(configuration, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult1!=null && tokenResult2!=null) {
 			PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome();

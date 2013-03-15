@@ -34,7 +34,7 @@ public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	 * @param shape
 	 * @return
 	 */
-	public FeatureResult<Y> check(T context);
+	public FeatureResult<Y> check(T context, RuntimeEnvironment env);
 	
 	/**
 	 * The name of this feature.

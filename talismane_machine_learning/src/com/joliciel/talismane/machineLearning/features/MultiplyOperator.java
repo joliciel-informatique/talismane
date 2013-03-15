@@ -37,11 +37,11 @@ public class MultiplyOperator<T> extends AbstractCachableFeature<T,Double> imple
 	}
 
 	@Override
-	protected FeatureResult<Double> checkInternal(T context) {
+	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
 		
-		FeatureResult<Double> operand1Result = operand1.check(context);
-		FeatureResult<Double> operand2Result = operand2.check(context);
+		FeatureResult<Double> operand1Result = operand1.check(context, env);
+		FeatureResult<Double> operand2Result = operand2.check(context, env);
 		
 		if (operand1Result!=null && operand2Result!=null) {
 			double result = operand1Result.getOutcome() * operand2Result.getOutcome();

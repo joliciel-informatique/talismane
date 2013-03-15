@@ -25,6 +25,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTag;
 
@@ -34,30 +35,34 @@ import com.joliciel.talismane.posTagger.PosTag;
  *
  */
 public class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	private PosTag posTag;
+	private StringFeature<TokenWrapper> posTagFeature;
 	private StringFeature<TokenWrapper> wordToCheckFeature;
 	
 	/**
 	 * 
 	 * @param posTag the PosTag we're testing for
 	 */
-	public LexiconPosTagForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature, PosTag posTag) {
-		this.posTag = posTag;
+	public LexiconPosTagForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature, StringFeature<TokenWrapper> posTagFeature) {
+		this.posTagFeature = posTagFeature;
 		this.wordToCheckFeature = wordToCheckFeature;
-		this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + "," + this.posTag.getCode() + ")");
+		this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + "," + this.posTagFeature.getName() + ")");
 	}
 	
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		FeatureResult<Boolean> result = null;
 
-		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(tokenWrapper);
+		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(tokenWrapper, env);
 		if (wordToCheckResult!=null) {
-			String wordToCheck = wordToCheckResult.getOutcome();
-			PosTaggerLexicon lexicon = TalismaneSession.getLexicon();
-			Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
-			boolean hasPosTag = (posTags.contains(posTag));
-			result = this.generateResult(hasPosTag);
+			FeatureResult<String> posTagResult = posTagFeature.check(tokenWrapper, env);
+			if (posTagResult!=null) {
+				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+				String wordToCheck = wordToCheckResult.getOutcome();
+				PosTaggerLexicon lexicon = TalismaneSession.getLexicon();
+				Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
+				boolean hasPosTag = (posTags.contains(posTag));
+				result = this.generateResult(hasPosTag);
+			}
 		}
 		
 		return result;

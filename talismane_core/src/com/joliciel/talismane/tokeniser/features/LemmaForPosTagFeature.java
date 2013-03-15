@@ -24,6 +24,7 @@ import java.util.List;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
@@ -52,7 +53,7 @@ public class LemmaForPosTagFeature extends AbstractTokenFeature<String> implemen
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper wrapper) {
+	public FeatureResult<String> checkInternal(TokenWrapper wrapper, RuntimeEnvironment env) {
 		Token token = wrapper.getToken();
 		if (token==null)
 			return null;
@@ -60,7 +61,7 @@ public class LemmaForPosTagFeature extends AbstractTokenFeature<String> implemen
 		
 		List<String> posTagCodes = new ArrayList<String>();
 		for (StringFeature<TokenWrapper> posTagCodeFeature : posTagCodeFeatures) {
-			FeatureResult<String> posTagCodeResult = posTagCodeFeature.check(wrapper);
+			FeatureResult<String> posTagCodeResult = posTagCodeFeature.check(wrapper, env);
 			if (posTagCodeResult!=null)
 				posTagCodes.add(posTagCodeResult.getOutcome());
 		}

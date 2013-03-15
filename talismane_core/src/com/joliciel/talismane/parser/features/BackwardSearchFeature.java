@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
@@ -43,20 +44,20 @@ public class BackwardSearchFeature extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedToken> referenceTokenResult = referenceTokenFeature.check(configuration);
+		FeatureResult<PosTaggedToken> referenceTokenResult = referenceTokenFeature.check(configuration, env);
 		
 		if (referenceTokenResult!=null) {
 			PosTaggedToken referenceToken = referenceTokenResult.getOutcome();
 			
-			ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress();
+			ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
 			parseConfigurationAddress.setParseConfiguration(configuration);
 			for (int i=referenceToken.getToken().getIndex()-1; i>=0; i--) {
 				PosTaggedToken nextToken = configuration.getPosTagSequence().get(i);
 				parseConfigurationAddress.setPosTaggedToken(nextToken);
-				FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress);
+				FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
 				if (criterionResult!=null) {
 					boolean criterion = criterionResult.getOutcome();
 					if (criterion) {

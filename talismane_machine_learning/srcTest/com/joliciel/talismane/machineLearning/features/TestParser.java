@@ -20,6 +20,11 @@ package com.joliciel.talismane.machineLearning.features;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
+import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+
 /**
  * A concrete class useful for testing the AbstractFeatureParser functionality.
  * @author Assaf
@@ -32,13 +37,19 @@ final class TestParser extends AbstractFeatureParser<TestContext> {
 	}
 
 	@Override
-	public void addFeatureClasses(FeatureClassContainer container) {		
+	public void addFeatureClasses(FeatureClassContainer container) {
+		container.addFeatureClass("TestStringCollectionFeature", TestStringCollectionFeature.class);
 	}
 
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(
 			FunctionDescriptor functionDescriptor) {
 		return null;
+	}
+
+	@Override
+	protected void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+		
 	}
 
 }

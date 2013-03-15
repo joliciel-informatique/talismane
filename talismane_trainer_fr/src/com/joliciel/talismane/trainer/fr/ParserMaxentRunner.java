@@ -134,7 +134,7 @@ public class ParserMaxentRunner {
 				posTagSetPath = argValue;
 			else if (argName.equals("corpus")) 
 				corpusFilePath = argValue;
-			else if (argName.equals("outDir")) 
+			else if (argName.equals("outdir")) 
 				outDirPath = argValue;
 			else if (argName.equals("iterations"))
 				iterations = Integer.parseInt(argValue);

@@ -44,13 +44,13 @@ public class AndFeature<T> extends AbstractCachableFeature<T, Boolean> implement
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
 		boolean hasNull = false;
 		boolean booleanResult = true;
 		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			FeatureResult<Boolean> result = booleanFeature.check(context);
+			FeatureResult<Boolean> result = booleanFeature.check(context, env);
 			if (result==null) {
 				hasNull = true;
 				break;

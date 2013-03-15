@@ -37,10 +37,10 @@ public class ToStringFeature<T> extends AbstractCachableFeature<T, String> imple
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(T context) {
+	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
 		
-		FeatureResult<?> result1 = feature1.check(context);
+		FeatureResult<?> result1 = feature1.check(context, env);
 		
 		if (result1!=null) {
 			featureResult = this.generateResult(result1.getOutcome().toString());

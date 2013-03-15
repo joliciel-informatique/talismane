@@ -18,8 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import java.util.Map;
+
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
@@ -34,8 +37,11 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  *
  */
 public class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<String> implements StringFeature<TokeniserContext> {
-	TokenPattern tokeniserPattern;
+	StringFeature<TokenWrapper> tokenPatternFeature;
 	IntegerFeature<TokeniserContext> testIndexFeature;
+	StringFeature<TokenWrapper> tokenPatternAndIndexFeature;
+	
+	private Map<String,TokenPattern> patternMap;
 	
 	/**
 	 * No argument constructor for simplicity's sake - since InsidePatternNgram only applies to patterns with more than 2 atomic tokens,
@@ -43,26 +49,60 @@ public class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<S
 	 */
 	public InsidePatternNgramFeature() { }
 	
-	public InsidePatternNgramFeature(TokenPattern tokeniserPattern, IntegerFeature<TokeniserContext> testIndexFeature) {
-		this.tokeniserPattern = tokeniserPattern;
+	/**
+	 * This single argument version is a bit of a hack, but it was the simplest way to send
+	 * both the pattern and the related index in one go.<br/>
+	 * The tokenPatternAndIndexFeature should thus include the pattern name, followed by the character ¤,
+	 * followed by the index number.
+	 * @param tokenPatternFeature
+	 * @param testIndexFeature
+	 */
+	public InsidePatternNgramFeature(StringFeature<TokenWrapper> tokenPatternAndIndexFeature) {
+		this.tokenPatternAndIndexFeature = tokenPatternAndIndexFeature;
+		this.setName(super.getName() + "(" + this.tokenPatternAndIndexFeature.getName() + ")");
+	}	
+	/**
+	 * @param tokenPatternFeature
+	 * @param testIndexFeature
+	 */
+	public InsidePatternNgramFeature(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokeniserContext> testIndexFeature) {
+		this.tokenPatternFeature = tokenPatternFeature;
 		this.testIndexFeature = testIndexFeature;
-		this.setName(super.getName() + "[pattern<" + this.tokeniserPattern + ">index<" + this.testIndexFeature.getName() + ">]");
+		this.setName(super.getName() + "(" + this.tokenPatternFeature.getName() + "," + this.testIndexFeature.getName() + ")");
 	}
 	
 	@Override
-	public FeatureResult<String> checkInternal(TokeniserContext tokeniserContext) {
-		if (this.tokeniserPattern==null)
+	public FeatureResult<String> checkInternal(TokeniserContext tokeniserContext, RuntimeEnvironment env) {
+		if (this.tokenPatternFeature==null && this.tokenPatternAndIndexFeature==null)
 			return null;
 		
 		FeatureResult<String> result = null;
+		TokenPattern tokenPattern = null;
+		int testIndex = -1;
 		
-		FeatureResult<Integer> testIndexResult = testIndexFeature.check(tokeniserContext);
-		if (testIndexResult!=null) {
-			int testIndex = testIndexResult.getOutcome();
+		if (tokenPatternAndIndexFeature!=null) {
+			FeatureResult<String> tokenPatternAndIndexResult = tokenPatternAndIndexFeature.check(tokeniserContext, env);
+			if (tokenPatternAndIndexResult!=null) {
+				String tokenPatternAndIndex = tokenPatternAndIndexResult.getOutcome();
+				String[] parts = tokenPatternAndIndex.split("¤");
+				tokenPattern = this.patternMap.get(parts[0]);
+				testIndex = Integer.parseInt(parts[1]);
+			}
+			
+		} else {
+			FeatureResult<Integer> testIndexResult = testIndexFeature.check(tokeniserContext, env);
+			FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokeniserContext, env);
+			if (tokenPatternResult!=null) {
+				tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
+			}
+			if (testIndexResult!=null)
+				testIndex = testIndexResult.getOutcome();
+		}
 
+		if (testIndex>=0 && tokenPattern!=null) {
 			boolean foundMatch = false;
-			for (TokenMatch tokenMatch : tokeniserContext.getToken().getMatches()) {
-				if (tokenMatch.getPattern().equals(tokeniserPattern)&&tokenMatch.getIndex()==testIndex) {
+			for (TokenMatch tokenMatch : tokeniserContext.getToken().getMatches(tokenPattern)) {
+				if (tokenMatch.getPattern().equals(tokenPattern)&&tokenMatch.getIndex()==testIndex) {
 					foundMatch = true;
 					break;
 				}
@@ -80,4 +120,14 @@ public class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<S
 		
 		return result;
 	}
+
+	public Map<String, TokenPattern> getPatternMap() {
+		return patternMap;
+	}
+
+	public void setPatternMap(Map<String, TokenPattern> patternMap) {
+		this.patternMap = patternMap;
+	}
+	
+	
 }

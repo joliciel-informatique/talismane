@@ -53,5 +53,12 @@ class FeatureServiceImpl implements FeatureServiceInternal {
 	}
 
 
+	@Override
+	public RuntimeEnvironment getRuntimeEnvironment() {
+		RuntimeEnvironmentImpl env = new RuntimeEnvironmentImpl();
+		return env;
+	}
+
+
 
 }

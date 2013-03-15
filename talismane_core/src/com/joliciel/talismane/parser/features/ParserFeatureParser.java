@@ -31,6 +31,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.features.PosTagFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
@@ -169,8 +170,8 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		}
 		
 		@Override
-		public FeatureResult<Y> check(ParseConfigurationWrapper context) {
-			return wrappedFeature.check(context);
+		public FeatureResult<Y> check(ParseConfigurationWrapper context, RuntimeEnvironment env) {
+			return wrappedFeature.check(context, env);
 		}
 		
 		@SuppressWarnings("rawtypes")
@@ -206,5 +207,10 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 				Feature<ParseConfigurationWrapper, Integer> wrappedFeature) {
 			super(wrappedFeature);
 		}
+	}
+
+	@Override
+	protected void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+		// no dependencies to inject
 	}
 }

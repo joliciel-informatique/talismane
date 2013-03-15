@@ -24,7 +24,7 @@ package com.joliciel.talismane.machineLearning.features;
  *
  * @param <T>
  */
-class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implements
+public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implements
 		DoubleFeature<T> {
 	private IntegerFeature<T> integerFeature;
 	
@@ -35,10 +35,10 @@ class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implements
 	}
 
 	@Override
-	public FeatureResult<Double> check(T context) {
+	public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
 		
-		FeatureResult<Integer> integerResult = integerFeature.check(context);
+		FeatureResult<Integer> integerResult = integerFeature.check(context, env);
 		if (integerResult!=null) {
 			featureResult = this.generateResult(integerResult.getOutcome().doubleValue());
 		}

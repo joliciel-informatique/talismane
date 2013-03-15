@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
@@ -38,7 +39,7 @@ public class LexiconAllPosTagsFeature extends AbstractTokenFeature<String> imple
 	}
 	
 	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<String> result = null;
 

@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -42,11 +43,11 @@ public class AddressFunctionOffset extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration);
-		FeatureResult<Integer> offsetResult = offsetFeature.check(configuration);
+		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration, env);
+		FeatureResult<Integer> offsetResult = offsetFeature.check(configuration, env);
 		if (addressResult!=null && offsetResult!=null) {
 			int offset = offsetResult.getOutcome();
 			PosTaggedToken referenceToken = addressResult.getOutcome();

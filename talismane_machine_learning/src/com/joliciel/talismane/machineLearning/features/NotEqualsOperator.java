@@ -67,12 +67,12 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
 		if (operandType.equals(Double.class)) {
-			FeatureResult<Double> operand1Result = (FeatureResult<Double>) operand1.check(context);
-			FeatureResult<Double> operand2Result = (FeatureResult<Double>) operand2.check(context);
+			FeatureResult<Double> operand1Result = (FeatureResult<Double>) operand1.check(context, env);
+			FeatureResult<Double> operand2Result = (FeatureResult<Double>) operand2.check(context, env);
 			
 			if (operand1Result!=null && operand2Result!=null) {
 				double diff = Math.abs(operand1Result.getOutcome() - operand2Result.getOutcome());
@@ -80,24 +80,24 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 				featureResult = this.generateResult(result);
 			}
 		} else if (operandType.equals(Integer.class)) {
-			FeatureResult<Integer> operand1Result = (FeatureResult<Integer>) operand1.check(context);
-			FeatureResult<Integer> operand2Result = (FeatureResult<Integer>) operand2.check(context);
+			FeatureResult<Integer> operand1Result = (FeatureResult<Integer>) operand1.check(context, env);
+			FeatureResult<Integer> operand2Result = (FeatureResult<Integer>) operand2.check(context, env);
 			
 			if (operand1Result!=null && operand2Result!=null) {
 				boolean result = operand1Result.getOutcome()!=operand2Result.getOutcome();
 				featureResult = this.generateResult(result);
 			}
 		} else if (operandType.equals(String.class)) {
-			FeatureResult<String> operand1Result = (FeatureResult<String>) operand1.check(context);
-			FeatureResult<String> operand2Result = (FeatureResult<String>) operand2.check(context);
+			FeatureResult<String> operand1Result = (FeatureResult<String>) operand1.check(context, env);
+			FeatureResult<String> operand2Result = (FeatureResult<String>) operand2.check(context, env);
 			
 			if (operand1Result!=null && operand2Result!=null) {
 				boolean result = !operand1Result.getOutcome().equals(operand2Result.getOutcome());
 				featureResult = this.generateResult(result);
 			}
 		} else if (operandType.equals(Boolean.class)) {
-			FeatureResult<Boolean> operand1Result = (FeatureResult<Boolean>) operand1.check(context);
-			FeatureResult<Boolean> operand2Result = (FeatureResult<Boolean>) operand2.check(context);
+			FeatureResult<Boolean> operand1Result = (FeatureResult<Boolean>) operand1.check(context, env);
+			FeatureResult<Boolean> operand2Result = (FeatureResult<Boolean>) operand2.check(context, env);
 			
 			if (operand1Result!=null && operand2Result!=null) {
 				boolean result = !operand1Result.getOutcome().equals(operand2Result.getOutcome());

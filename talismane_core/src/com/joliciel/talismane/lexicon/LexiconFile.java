@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -85,7 +84,8 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 
 	@Override
 	public Set<PosTag> findPossiblePosTags(String word) {
-		Set<PosTag> posTags = new HashSet<PosTag>();
+		// Using TreeSet as set must be ordered
+		Set<PosTag> posTags = new TreeSet<PosTag>();
 		List<LexicalEntry> entries = this.getEntries(word);
 		PosTagSet posTagSet = TalismaneSession.getPosTagSet();
 		for (LexicalEntry entry : entries) {

@@ -38,6 +38,7 @@ import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -419,22 +420,21 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T,Y> FeatureResult<Y> getResultFromCache(
-			Feature<T, Y> feature) {
+	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
 		FeatureResult<Y> result = null;
-	
-		if (this.featureResults.containsKey(feature.getName())) {
-			result = (FeatureResult<Y>) this.featureResults.get(feature.getName());
+		
+		String key = feature.getName() + env.getKey();
+		if (this.featureResults.containsKey(key)) {
+			result = (FeatureResult<Y>) this.featureResults.get(key);
 		}
 		return result;
 	}
 
-	
 	@Override
-	public <T,Y> void putResultInCache(
-			Feature<T, Y> feature,
-			FeatureResult<Y> featureResult) {
-		this.featureResults.put(feature.getName(), featureResult);	
+	public <T, Y> void putResultInCache(Feature<T, Y> feature,
+			FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+		String key = feature.getName() + env.getKey();
+		this.featureResults.put(key, featureResult);	
 	}
 
 	@Override

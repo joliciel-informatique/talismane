@@ -57,12 +57,12 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 	}
 
 	@Override
-	public FeatureResult<Double> checkInternal(T context) {
+	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
 		
-		FeatureResult<Double> resultToNormalise = featureToNormalise.check(context);
-		FeatureResult<Double> minValueResult = minValueFeature.check(context);
-		FeatureResult<Double> maxValueResult = maxValueFeature.check(context);
+		FeatureResult<Double> resultToNormalise = featureToNormalise.check(context, env);
+		FeatureResult<Double> minValueResult = minValueFeature.check(context, env);
+		FeatureResult<Double> maxValueResult = maxValueFeature.check(context, env);
 		
 		if (resultToNormalise!=null && minValueResult!=null && maxValueResult!=null) {
 			double minValue = minValueResult.getOutcome();

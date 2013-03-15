@@ -37,11 +37,11 @@ public class MinusIntegerOperator<T> extends AbstractCachableFeature<T,Integer> 
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(T context) {
+	protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Integer> operand1Result = operand1.check(context);
-		FeatureResult<Integer> operand2Result = operand2.check(context);
+		FeatureResult<Integer> operand1Result = operand1.check(context, env);
+		FeatureResult<Integer> operand2Result = operand2.check(context, env);
 		
 		if (operand1Result!=null && operand2Result!=null) {
 			int result = operand1Result.getOutcome() - operand2Result.getOutcome();

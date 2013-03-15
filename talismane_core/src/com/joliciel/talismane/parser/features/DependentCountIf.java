@@ -24,6 +24,7 @@ import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -45,9 +46,9 @@ public class DependentCountIf extends AbstractParseConfigurationFeature<Integer>
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper) {
+	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();		
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
+		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult!=null) {
 			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
@@ -56,8 +57,8 @@ public class DependentCountIf extends AbstractParseConfigurationFeature<Integer>
 			for (int i=0; i<dependents.size(); i++) {
 				IntegerFeature<ParseConfiguration> indexFeature = new IntegerLiteralFeature<ParseConfiguration>(i);
 				AddressFunction depFunction = new AddressFunctionDep(addressFunction, indexFeature);
-				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, depFunction);
-				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress);
+				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, depFunction, env);
+				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
 				if (criterionResult!=null && criterionResult.getOutcome())
 					countMatching++;
 			}

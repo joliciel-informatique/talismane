@@ -20,6 +20,7 @@ package com.joliciel.talismane.sentenceDetector.features;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
 /**
@@ -29,7 +30,7 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  */
 public class IsStrongPunctuationFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {
 	@Override
-	public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context) {
+	public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
 		char boundary = context.getText().charAt(context.getIndex());
 		boolean isStrong = (boundary=='.'||boundary=='!'||boundary=='?');
 		return this.generateResult(isStrong);

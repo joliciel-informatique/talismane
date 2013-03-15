@@ -38,6 +38,8 @@ import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
@@ -82,6 +84,7 @@ class PatternTokeniserImpl implements Tokeniser {
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFeatureService tokenFeatureService;
 	private FilterService filterService;
+	private FeatureService featureService;
 	
 	private TokeniserPatternManager tokeniserPatternManager;
 	private int beamWidth;
@@ -220,7 +223,8 @@ class PatternTokeniserImpl implements Tokeniser {
 							PerformanceMonitor.startTask("analyse features");
 							try {
 								for (TokeniserContextFeature<?> feature : tokeniserContextFeatures) {
-									FeatureResult<?> featureResult = feature.check(context);
+									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									FeatureResult<?> featureResult = feature.check(context, env);
 									if (featureResult!=null) {
 										tokenFeatureResults.add(featureResult);
 									}
@@ -499,6 +503,14 @@ class PatternTokeniserImpl implements Tokeniser {
 
 	public void setFilterService(FilterService filterService) {
 		this.filterService = filterService;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 	
 	

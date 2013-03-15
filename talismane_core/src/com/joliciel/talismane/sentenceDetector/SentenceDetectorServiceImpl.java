@@ -26,6 +26,7 @@ import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -35,6 +36,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	TokeniserService tokeniserService;
 	MachineLearningService machineLearningService;
 	FilterService filterService;
+	FeatureService featureService;
 	
 	@Override
 	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text,
@@ -52,6 +54,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		SentenceDetectorImpl sentenceDetector = new SentenceDetectorImpl(decisionMaker, features);
 		sentenceDetector.setSentenceDetectorService(this);
 		sentenceDetector.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
+		sentenceDetector.setFeatureService(featureService);
 		return sentenceDetector;
 	}
 
@@ -88,6 +91,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		eventStream.setSentenceDetectorService(this);
 		eventStream.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
 		eventStream.setMachineLearningService(machineLearningService);
+		eventStream.setFeatureService(featureService);
 		return eventStream;
 	}
 
@@ -118,6 +122,14 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	public SentenceDetectorAnnotatedCorpusReader getDefaultReader(Reader reader) {
 		SentencePerLineCorpusReader corpusReader = new SentencePerLineCorpusReader(reader);
 		return corpusReader;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 
 

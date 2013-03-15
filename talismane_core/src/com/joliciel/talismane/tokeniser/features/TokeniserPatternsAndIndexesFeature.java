@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,41 +18,35 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import java.util.ArrayList;
+import java.util.List;
+import com.joliciel.talismane.machineLearning.features.AbstractStringCollectionFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
-import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
+import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * Returns true if current token is the FIRST TOKEN in a sequence of tokens matching a given pattern.<br/>
- * Returns null (not false!) otherwise.
+ * A StringCollectionFeature returning all of the patterns in which the current token
+ * is not in position 0.
  * @author Assaf Urieli
  *
  */
-public class CurrentPatternFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	TokenPattern tokeniserPattern;
-	
-	public CurrentPatternFeature(TokenPattern tokeniserPattern) {
-		this.tokeniserPattern = tokeniserPattern;
-		this.setName(super.getName() + "[pattern<" + this.tokeniserPattern + ">]");
-	}
-	
+public class TokeniserPatternsAndIndexesFeature extends AbstractStringCollectionFeature<TokenWrapper> {
+
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<List<WeightedOutcome<String>>> check(
+			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
-		FeatureResult<Boolean> result = null;
-		boolean foundMatch = false;
+		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
 		for (TokenMatch tokenMatch : token.getMatches()) {
-			if (tokenMatch.getPattern().equals(tokeniserPattern)&&tokenMatch.getIndex()==tokeniserPattern.getIndexesToTest().get(0)) {
-				foundMatch = true;
-				break;
+			if (tokenMatch.getIndex()!=tokenMatch.getPattern().getIndexesToTest().get(0)) {
+				resultList.add(new WeightedOutcome<String>(tokenMatch.getPattern().getName() + "¤" + tokenMatch.getIndex(), 1.0));
 			}
 		}
-		if (foundMatch) {
-			result = this.generateResult(true);
-		} // the current token matches the tokeniserPattern at it's first test index
 		
-		return result;
+		return this.generateResult(resultList);
 	}
+
 }

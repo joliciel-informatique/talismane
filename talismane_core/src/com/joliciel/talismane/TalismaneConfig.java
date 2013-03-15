@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
@@ -42,6 +43,7 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.PropertyConfigurator;
 
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
@@ -278,6 +280,14 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			return;
 		}
 		
+		String logConfigPath = args.get("logConfigFile");
+		if (logConfigPath!=null) {
+			args.remove("logConfigFile");
+			Properties props = new Properties();
+			props.load(new FileInputStream(logConfigPath));
+			PropertyConfigurator.configure(props);
+		}
+
 		String encoding = null;
 		String inputEncoding = null;
 		String outputEncoding = null;

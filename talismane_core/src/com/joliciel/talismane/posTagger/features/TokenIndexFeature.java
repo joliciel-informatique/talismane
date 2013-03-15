@@ -20,6 +20,7 @@ package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -35,7 +36,7 @@ public class TokenIndexFeature extends AbstractPosTaggedTokenFeature<Integer> im
 	}
 
 	@Override
-	public FeatureResult<Integer> checkInternal(PosTaggedTokenWrapper wrapper) {
+	public FeatureResult<Integer> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
 		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;

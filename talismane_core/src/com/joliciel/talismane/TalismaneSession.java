@@ -90,4 +90,5 @@ public class TalismaneSession {
 	public static void setLocale(Locale locale) {
 		localeHolder.set(locale);
 	}
+	
 }

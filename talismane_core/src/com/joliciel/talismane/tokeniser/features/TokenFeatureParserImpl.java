@@ -19,23 +19,16 @@
 package com.joliciel.talismane.tokeniser.features;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class TokenFeatureParserImpl implements TokenFeatureParser {
 	private FeatureService featureService;
 	private List<TokenPattern> patternList;
-	private FeatureClassContainer container;
-	
+
 	public TokenFeatureParserImpl(FeatureService featureService) {
 		this.featureService = featureService;
 	}	
@@ -63,14 +56,14 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		container.addFeatureClass("NLetterSuffix", NLetterSuffixFeature.class);
 		container.addFeatureClass("Offset", TokenOffsetFeature.class);
 		container.addFeatureClass("OrRange", OrRangeFeature.class);
+		container.addFeatureClass("PosTagSet", PosTagSetFeature.class);
 		container.addFeatureClass("Regex", RegexFeature.class);
+		container.addFeatureClass("TokenIndex", TokenIndexFeature.class);
 		container.addFeatureClass("UnknownWord", UnknownWordFeature.class);
 		container.addFeatureClass("Word", WordFeature.class);
 		container.addFeatureClass("WordForm", WordFormFeature.class);
 		
 		container.addFeatureClass("TokenRef", TokenReferenceFeature.class);
-		
-		this.container = container;
 	}
 
 	/* (non-Javadoc)
@@ -79,60 +72,7 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
 		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
-		String functionName = functionDescriptor.getFunctionName();
-		
-		@SuppressWarnings("rawtypes")
-		List<Class<? extends Feature>> featureClasses = container.getFeatureClasses(functionName);
-		
-		@SuppressWarnings("rawtypes")
-		Class<? extends Feature> featureClass = null;
-		if (featureClasses!=null && featureClasses.size()>0)
-			featureClass = featureClasses.get(0);
-		
-		if (featureClass==null) {
-			descriptors.add(functionDescriptor);
-		} else if (featureClass.equals(LexiconPosTagFeature.class)) {
-			Set<PosTag> posTags = null;
-			if (functionDescriptor.getArguments().size()>0) {
-				// posTagCode already specified
-				String posTagCode = (String) functionDescriptor.getArguments().get(0).getObject();
-				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagCode);
-				posTags = new HashSet<PosTag>();
-				posTags.add(posTag);
-			} else {
-				// no posTagCode specified - take all of 'em
-				posTags = TalismaneSession.getPosTagSet().getTags();
-			}
-			
-			PosTag[] posTagArray = new PosTag[0];
-			posTagArray = posTags.toArray(posTagArray);
-			
-			FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
-			descriptor.addArgument(posTagArray);
-			descriptors.add(descriptor);
-		} else if (featureClass.equals(LexiconPosTagForStringFeature.class)) {
-			Set<PosTag> posTags = null;
-			if (functionDescriptor.getArguments().size()>1) {
-				// posTagCode already specified
-				String posTagCode = (String) functionDescriptor.getArguments().get(1).getObject();
-				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagCode);
-				posTags = new HashSet<PosTag>();
-				posTags.add(posTag);
-			} else {
-				// no posTagCode specified - take all of 'em
-				posTags = TalismaneSession.getPosTagSet().getTags();
-			}
-			
-			PosTag[] posTagArray = new PosTag[0];
-			posTagArray = posTags.toArray(posTagArray);
-			
-			FunctionDescriptor descriptor = this.getFeatureService().getFunctionDescriptor(functionName);
-			descriptor.addArgument(functionDescriptor.getArguments().get(0));
-			descriptor.addArgument(posTagArray);
-			descriptors.add(descriptor);
-		} else {
-			descriptors.add(functionDescriptor);
-		}
+		descriptors.add(functionDescriptor);
 		return descriptors;
 	}
 

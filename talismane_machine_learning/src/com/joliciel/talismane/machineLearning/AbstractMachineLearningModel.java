@@ -75,7 +75,9 @@ public abstract class AbstractMachineLearningModel<T extends Outcome> implements
 			zos.putNextEntry(new ZipEntry("attributes.txt"));
 			for (String name : this.modelAttributes.keySet()) {
 				Object value = this.modelAttributes.get(name);
-				if (value instanceof Collection) {
+				if (value==null) {
+					writer.write(name + "\tnull\n");				
+				} else if (value instanceof Collection) {
 					writer.write(name);
 					for (Object o : (Collection) value) {
 						writer.write("\t" + o.toString());

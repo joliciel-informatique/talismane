@@ -42,5 +42,12 @@ public interface FeatureResult<T> {
 	 * @return
 	 */
 	public String getTrainingName();
+	
+	/**
+	 * Convert a String outcome to a format that can safely be included in a training file.
+	 * @param outcome
+	 * @return
+	 */
+	public String getTrainingOutcome(String outcome);
 
 }

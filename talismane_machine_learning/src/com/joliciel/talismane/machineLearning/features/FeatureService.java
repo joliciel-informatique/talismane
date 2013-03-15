@@ -27,4 +27,10 @@ public interface FeatureService {
 	 * @return
 	 */
 	public FunctionDescriptor getFunctionDescriptor(String functionName);
+	
+	/**
+	 * Get a runtime environment for variable storage.
+	 * @return
+	 */
+	public RuntimeEnvironment getRuntimeEnvironment();
 }

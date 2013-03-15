@@ -31,6 +31,8 @@ import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -50,6 +52,7 @@ class ParseEventStream implements CorpusEventStream {
 	
 	ParserServiceInternal parserServiceInternal;
 	MachineLearningService machineLearningService;
+	FeatureService featureService;
 
 	int currentIndex;
 	
@@ -97,7 +100,8 @@ class ParseEventStream implements CorpusEventStream {
 				for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
 					PerformanceMonitor.startTask(parseFeature.getName());
 					try {
-						FeatureResult<?> featureResult = parseFeature.check(currentConfiguration);
+						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+						FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
 						if (featureResult!=null) {
 							parseFeatureResults.add(featureResult);
 							if (LOG.isTraceEnabled()) {
@@ -153,6 +157,14 @@ class ParseEventStream implements CorpusEventStream {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 
 	

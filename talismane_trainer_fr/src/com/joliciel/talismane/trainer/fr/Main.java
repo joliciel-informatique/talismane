@@ -18,8 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.trainer.fr;
 
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import org.apache.log4j.PropertyConfigurator;
 
 import com.joliciel.talismane.TalismaneException;
 
@@ -37,6 +41,15 @@ public class Main {
 			String argName = arg.substring(0, equalsPos);
 			String argValue = arg.substring(equalsPos+1);
 			argMap.put(argName, argValue);
+		}
+		
+
+		String logConfigPath = argMap.get("logConfigFile");
+		if (logConfigPath!=null) {
+			argMap.remove("logConfigFile");
+			Properties props = new Properties();
+			props.load(new FileInputStream(logConfigPath));
+			PropertyConfigurator.configure(props);
 		}
 		
 		String trainerName = argMap.get("trainer");

@@ -76,4 +76,13 @@ public class WeightedOutcome<T> implements Comparable<WeightedOutcome<T>> {
 			return this.hashCode()-o.hashCode();
 		}
 	}
+
+
+	@Override
+	public String toString() {
+		return "[" + outcome + "," + weight
+				+ "]";
+	}
+	
+	
 }

@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
@@ -36,7 +37,7 @@ public class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean> im
 	}
 	
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 		

@@ -35,10 +35,10 @@ public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T,Integer> 
 	}
 
 	@Override
-	public FeatureResult<Integer> check(T context) {
+	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Integer> literalResult = integerLiteralFeature.check(context);
+		FeatureResult<Integer> literalResult = integerLiteralFeature.check(context, env);
 		
 		if (literalResult!=null) {
 			int result = literalResult.getOutcome();

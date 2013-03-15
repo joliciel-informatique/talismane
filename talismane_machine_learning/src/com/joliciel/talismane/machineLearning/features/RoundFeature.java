@@ -35,10 +35,10 @@ class RoundFeature<T> extends AbstractFeature<T, Integer> implements
 	}
 
 	@Override
-	public FeatureResult<Integer> check(T context) {
+	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Double> doubleResult = doubleFeature.check(context);
+		FeatureResult<Double> doubleResult = doubleFeature.check(context, env);
 		if (doubleResult!=null) {
 			int intResult = (int) Math.round(doubleResult.getOutcome());
 			featureResult = this.generateResult(intResult);

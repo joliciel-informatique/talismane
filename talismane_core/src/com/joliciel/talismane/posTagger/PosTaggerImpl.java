@@ -35,6 +35,8 @@ import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.features.PosTaggerContext;
@@ -62,6 +64,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private PosTaggerService posTaggerService;
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
+	private FeatureService featureService;
 	private DecisionMaker<PosTag> decisionMaker;
 	
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
@@ -154,7 +157,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								if (LOG.isTraceEnabled()) {
 									LOG.trace("Checking rule: " + rule.getCondition().getName());
 								}
-								FeatureResult<Boolean> ruleResult = rule.getCondition().check(context);
+								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+								FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
 								if (ruleResult!=null && ruleResult.getOutcome()) {
 									Decision<PosTag> positiveRuleDecision = TalismaneSession.getPosTagSet().createDefaultDecision(rule.getTag());
 									decisions.add(positiveRuleDecision);
@@ -179,7 +183,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 							for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
 								PerformanceMonitor.startTask(posTaggerFeature.getGroupName());
 								try {
-									FeatureResult<?> featureResult = posTaggerFeature.check(context);
+									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
 									if (featureResult!=null)
 										featureResults.add(featureResult);
 								} finally {
@@ -213,7 +218,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 									if (LOG.isTraceEnabled()) {
 										LOG.trace("Checking negative rule: " + rule.getCondition().getName());
 									}
-									FeatureResult<Boolean> ruleResult = rule.getCondition().check(context);
+									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
 									if (ruleResult!=null && ruleResult.getOutcome()) {
 										eliminatedPosTags.add(rule.getTag());
 										if (LOG.isTraceEnabled()) {
@@ -431,6 +437,14 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	
 	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter) {
 		this.postProcessingFilters.add(posTagFilter);
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 	
 }

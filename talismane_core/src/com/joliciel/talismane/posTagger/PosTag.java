@@ -27,7 +27,7 @@ import com.joliciel.talismane.tokeniser.TokenTag;
  * @author Assaf Urieli
  * 
  */
-public interface PosTag extends TokenTag, Serializable {
+public interface PosTag extends TokenTag, Serializable, Comparable<PosTag> {
 	/**
 	 * An empty PosTag is used for the "empty" sentence start element in n-gram models.
 	 * @return true if this is the empty PosTag, false otherwise

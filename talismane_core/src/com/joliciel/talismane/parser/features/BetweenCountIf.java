@@ -22,6 +22,7 @@ import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -45,10 +46,10 @@ public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> i
 	}
 
 	@Override
-	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper) {
+	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		FeatureResult<PosTaggedToken> tokenResult1 = addressFunction1.check(configuration);
-		FeatureResult<PosTaggedToken> tokenResult2 = addressFunction2.check(configuration);
+		FeatureResult<PosTaggedToken> tokenResult1 = addressFunction1.check(configuration, env);
+		FeatureResult<PosTaggedToken> tokenResult2 = addressFunction2.check(configuration, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult1!=null && tokenResult2!=null) {
 			PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome();
@@ -64,8 +65,8 @@ public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> i
 			for (int i=minIndex+1; i<maxIndex; i++) {
 				IntegerFeature<ParseConfiguration> indexFeature = new IntegerLiteralFeature<ParseConfiguration>(i);
 				AddressFunction indexFunction = new AddressFunctionSequence(indexFeature);
-				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, indexFunction);
-				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress);
+				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, indexFunction, env);
+				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
 				if (criterionResult!=null && criterionResult.getOutcome())
 					countMatching++;
 			}

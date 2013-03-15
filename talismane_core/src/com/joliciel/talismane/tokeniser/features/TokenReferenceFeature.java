@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
@@ -58,14 +59,14 @@ public class TokenReferenceFeature<T> extends AbstractCachableFeature<TokenWrapp
 	}
 	
 	@Override
-	public FeatureResult<T> checkInternal(TokenWrapper wrapper) {
+	public FeatureResult<T> checkInternal(TokenWrapper wrapper, RuntimeEnvironment env) {
 		FeatureResult<T> result = null;
 		FeatureResult<T> internalResult = null;
 		
-		FeatureResult<Token> tokenResult = addressFunction.check(wrapper);
+		FeatureResult<Token> tokenResult = addressFunction.check(wrapper, env);
 		if (tokenResult!=null) {
 			Token referencedToken = tokenResult.getOutcome();
-			internalResult = this.tokenFeature.check(referencedToken);
+			internalResult = this.tokenFeature.check(referencedToken, env);
 			
 			if (internalResult!=null) {
 				result = this.generateResult(internalResult.getOutcome());
@@ -81,14 +82,14 @@ public class TokenReferenceFeature<T> extends AbstractCachableFeature<TokenWrapp
 	}
 
 	@Override
-	protected FeatureResult<T> checkInCache(TokenWrapper context) {
-		return context.getToken().getResultFromCache(this);
+	protected FeatureResult<T> checkInCache(TokenWrapper context, RuntimeEnvironment env) {
+		return context.getToken().getResultFromCache(this, env);
 	}
 
 	@Override
 	protected void putInCache(TokenWrapper context,
-			FeatureResult<T> featureResult) {
-		context.getToken().putResultInCache(this, featureResult);
+			FeatureResult<T> featureResult, RuntimeEnvironment env) {
+		context.getToken().putResultInCache(this, featureResult, env);
 	}	
 	
 	

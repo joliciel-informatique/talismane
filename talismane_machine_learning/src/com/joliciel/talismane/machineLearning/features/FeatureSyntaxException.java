@@ -28,14 +28,24 @@ import com.joliciel.talismane.utils.JolicielException;
 public class FeatureSyntaxException extends JolicielException {
 	private static final long serialVersionUID = -3315622182688781983L;
 	private FunctionDescriptor descriptor;
+	private FunctionDescriptor topLevelDescriptor;
 	
-	public FeatureSyntaxException(String message, FunctionDescriptor descriptor) {
-		super(message + ": " + descriptor.toString());
+	public FeatureSyntaxException(String message, FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
+		super(message + ": " + descriptor.toString() + " in top-level descriptor: " + topLevelDescriptor.toString());
 		this.descriptor = descriptor;
+		this.topLevelDescriptor = topLevelDescriptor;
 	}
 
 	public FunctionDescriptor getDescriptor() {
 		return descriptor;
+	}
+
+	public FunctionDescriptor getTopLevelDescriptor() {
+		return topLevelDescriptor;
+	}
+
+	public void setTopLevelDescriptor(FunctionDescriptor topLevelDescriptor) {
+		this.topLevelDescriptor = topLevelDescriptor;
 	}
 
 }

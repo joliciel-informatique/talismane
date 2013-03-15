@@ -20,6 +20,7 @@ package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -35,7 +36,7 @@ public class VerbTenseFeature extends AbstractPosTaggedTokenFeature<String> impl
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper) {
+	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
 		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;

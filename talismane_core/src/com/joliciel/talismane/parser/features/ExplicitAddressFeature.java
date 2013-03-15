@@ -21,6 +21,7 @@ package com.joliciel.talismane.parser.features;
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
 
@@ -77,19 +78,19 @@ public class ExplicitAddressFeature<T> extends AbstractCachableFeature<ParseConf
 	}
 	
 	@Override
-	public FeatureResult<T> checkInternal(ParseConfigurationWrapper wrapper) {
+	public FeatureResult<T> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		
-		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress();
+		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
 		parseConfigurationAddress.setAddressFunction(addressFunction);
 		parseConfigurationAddress.setParseConfiguration(configuration);
 		
 		FeatureResult<T> result = null;
 		FeatureResult<T> internalResult = null;
 		if (isParseConfigurationAddress)
-			internalResult = this.parseConfigurationAddressFeature.check(parseConfigurationAddress);
+			internalResult = this.parseConfigurationAddressFeature.check(parseConfigurationAddress, env);
 		else
-			internalResult = this.posTaggedTokenFeature.check(parseConfigurationAddress);
+			internalResult = this.posTaggedTokenFeature.check(parseConfigurationAddress, env);
 		
 		if (internalResult!=null) {
 			result = this.generateResult(internalResult.getOutcome());
@@ -108,15 +109,15 @@ public class ExplicitAddressFeature<T> extends AbstractCachableFeature<ParseConf
 
 
 	@Override
-	protected FeatureResult<T> checkInCache(ParseConfigurationWrapper context) {
-		return context.getParseConfiguration().getResultFromCache(this);
+	protected FeatureResult<T> checkInCache(ParseConfigurationWrapper context, RuntimeEnvironment env) {
+		return context.getParseConfiguration().getResultFromCache(this, env);
 	}
 
 
 	@Override
 	protected void putInCache(ParseConfigurationWrapper context,
-			FeatureResult<T> featureResult) {
-		context.getParseConfiguration().putResultInCache(this, featureResult);
+			FeatureResult<T> featureResult, RuntimeEnvironment env) {
+		context.getParseConfiguration().putResultInCache(this, featureResult, env);
 	}	
 	
 	

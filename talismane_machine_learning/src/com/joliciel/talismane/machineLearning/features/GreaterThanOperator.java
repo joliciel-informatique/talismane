@@ -37,11 +37,11 @@ public class GreaterThanOperator<T> extends AbstractCachableFeature<T,Boolean> i
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Double> operand1Result = operand1.check(context);
-		FeatureResult<Double> operand2Result = operand2.check(context);
+		FeatureResult<Double> operand1Result = operand1.check(context, env);
+		FeatureResult<Double> operand2Result = operand2.check(context, env);
 		
 		if (operand1Result!=null && operand2Result!=null) {
 			boolean result = operand1Result.getOutcome() > operand2Result.getOutcome();

@@ -37,14 +37,14 @@ public class NullIfBooleanFeature<T> extends AbstractCachableFeature<T,Boolean> 
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (!conditionOutcome) {
-				FeatureResult<Boolean> thenFeatureResult = resultFeature.check(context);
+				FeatureResult<Boolean> thenFeatureResult = resultFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					boolean result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

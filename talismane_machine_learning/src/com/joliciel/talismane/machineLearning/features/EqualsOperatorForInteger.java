@@ -38,13 +38,13 @@ public class EqualsOperatorForInteger<T> extends AbstractCachableFeature<T,Boole
 	}
 	
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
 
-		FeatureResult<Integer> operand1Result = operand1.check(context);
+		FeatureResult<Integer> operand1Result = operand1.check(context, env);
 		if (operand1Result!=null) {
-			FeatureResult<Integer> operand2Result = operand2.check(context);
+			FeatureResult<Integer> operand2Result = operand2.check(context, env);
 			
 			if (operand2Result!=null) {
 				boolean result = operand1Result.getOutcome()==operand2Result.getOutcome();

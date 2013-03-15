@@ -39,12 +39,12 @@ public class EqualsOperatorForDouble<T> extends AbstractCachableFeature<T,Boolea
 	}
 	
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Double> operand1Result = operand1.check(context);
+		FeatureResult<Double> operand1Result = operand1.check(context, env);
 		if (operand1Result!=null) {
-			FeatureResult<Double> operand2Result = operand2.check(context);
+			FeatureResult<Double> operand2Result = operand2.check(context, env);
 			
 			if (operand2Result!=null) {
 				double diff = Math.abs(operand1Result.getOutcome() - operand2Result.getOutcome());

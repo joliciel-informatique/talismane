@@ -130,11 +130,11 @@ public class TokeniserMaxentRunner {
 				cutoff = Integer.parseInt(argValue);
 			else if (argName.equals("smoothing"))
 				smoothing = Double.parseDouble(argValue);
-			else if (argName.equals("outDir")) 
+			else if (argName.equals("outdir")) 
 				outDirPath = argValue;
 			else if (argName.equals("tokeniser")) 
 				tokeniserType = argValue;
-			else if (argName.equals("treebank"))
+			else if (argName.equals("corpus"))
 				treebankPath = argValue;
 			else if (argName.equals("lexiconDir"))
 				lexiconDirPath = argValue;

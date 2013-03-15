@@ -19,6 +19,7 @@
 package com.joliciel.talismane.sentenceDetector.features;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
@@ -30,7 +31,7 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  */
 public class InParenthesesFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
 	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context) {
+	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
 		FeatureResult<String> result = null;
 
 		boolean openParenthesis = false;

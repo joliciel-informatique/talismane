@@ -22,6 +22,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
@@ -41,10 +42,10 @@ public class PosTaggerHistoryFeature<T> extends AbstractPosTaggerFeature<T> {
 	}
 	
 	@Override
-	protected FeatureResult<T> checkInternal(PosTaggerContext context) {
+	protected FeatureResult<T> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
 		FeatureResult<T> result = null;
 		
-		FeatureResult<Integer> offsetResult = offsetFeature.check(context);
+		FeatureResult<Integer> offsetResult = offsetFeature.check(context, env);
 		if (offsetResult!=null) {
 			int n = offsetResult.getOutcome();
 			if (n>=0) {
@@ -54,7 +55,7 @@ public class PosTaggerHistoryFeature<T> extends AbstractPosTaggerFeature<T> {
 			int i = context.getToken().getIndex();
 			if (i >= n) {
 				PosTaggedToken prevToken = context.getHistory().get(i-n);
-				FeatureResult<T> wrappedFeatureResult = this.posTaggerFeature.check(prevToken);
+				FeatureResult<T> wrappedFeatureResult = this.posTaggerFeature.check(prevToken, env);
 				if (wrappedFeatureResult!=null)
 					result = this.generateResult(wrappedFeatureResult.getOutcome());		
 			}

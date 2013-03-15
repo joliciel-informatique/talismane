@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -33,7 +34,7 @@ public class WordFormFeature extends AbstractTokenFeature<String> implements Str
 	}
 	
 	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<String> result = null;
 		

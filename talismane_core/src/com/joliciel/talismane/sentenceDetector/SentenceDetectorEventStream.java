@@ -33,6 +33,8 @@ import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 
@@ -52,6 +54,7 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	private MachineLearningService machineLearningService;
+	private FeatureService featureService;
 	
 	public SentenceDetectorEventStream(
 			SentenceDetectorAnnotatedCorpusReader corpusReader,
@@ -93,7 +96,8 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 
 			List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
 			for (SentenceDetectorFeature<?> feature : features) {
-				FeatureResult<?> featureResult = feature.check(boundary);
+				RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+				FeatureResult<?> featureResult = feature.check(boundary, env);
 				if (featureResult!=null)
 					featureResults.add(featureResult);
 			}
@@ -185,6 +189,14 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 
 }

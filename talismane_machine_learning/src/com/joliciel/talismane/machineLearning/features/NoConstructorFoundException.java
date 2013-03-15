@@ -28,8 +28,8 @@ public class NoConstructorFoundException extends FeatureSyntaxException {
 	private static final long serialVersionUID = 8010492391503399151L;
 
 	public NoConstructorFoundException(String message,
-			FunctionDescriptor descriptor) {
-		super(message, descriptor);
+			FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
+		super(message, descriptor, topLevelDescriptor);
 	}
 
 }

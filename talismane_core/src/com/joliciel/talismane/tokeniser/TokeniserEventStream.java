@@ -34,6 +34,8 @@ import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -61,6 +63,7 @@ class TokeniserEventStream implements CorpusEventStream {
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
 	private FilterService filterService;
+	private FeatureService featureService;
 	
 	private MachineLearningService machineLearningService;
 
@@ -173,7 +176,8 @@ class TokeniserEventStream implements CorpusEventStream {
 				PerformanceMonitor.startTask("TokeniserEventStream.next - check features");
 				try {
 					for (TokeniserContextFeature<?> tokeniserContextFeature : tokeniserContextFeatures) {
-						FeatureResult<?> featureResult = tokeniserContextFeature.check(context);
+						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+						FeatureResult<?> featureResult = tokeniserContextFeature.check(context, env);
 						if (featureResult!=null) {
 							tokenFeatureResults.add(featureResult);
 							if (LOG.isTraceEnabled()) {
@@ -269,6 +273,14 @@ class TokeniserEventStream implements CorpusEventStream {
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 	
 	

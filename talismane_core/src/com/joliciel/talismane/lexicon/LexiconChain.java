@@ -19,9 +19,9 @@
 package com.joliciel.talismane.lexicon;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -56,7 +56,8 @@ public class LexiconChain implements PosTaggerLexicon {
 
 	@Override
 	public Set<PosTag> findPossiblePosTags(String word) {
-		Set<PosTag> posTags = new HashSet<PosTag>();
+		// Using TreeSet as set must be ordered
+		Set<PosTag> posTags = new TreeSet<PosTag>();
 		for (PosTaggerLexicon lexicon : lexicons) {
 			posTags.addAll(lexicon.findPossiblePosTags(word));
 		}
