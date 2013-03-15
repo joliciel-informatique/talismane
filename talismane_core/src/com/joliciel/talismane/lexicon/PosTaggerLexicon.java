@@ -32,7 +32,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  */
 public interface PosTaggerLexicon extends Lexicon {
 	/**
-	 * For a given word, a set of all postags to be considered in tagging.
+	 * For a given word, an ordered set of all postags to be considered in tagging (using the natural ordering for postags).
 	 * @param word the word being considered
 	 * @return List&lt;PosTag&gt;
 	 */

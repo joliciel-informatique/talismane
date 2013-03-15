@@ -7,7 +7,6 @@
 Crabbé et Candito
 fr
 ADJ	adjectif	OPEN
-ADJWH	adjectif intérrogatif	CLOSED
 ADV	adverbe	OPEN
 ADVWH	adverbe intérrogatif	CLOSED
 CC	conjonction de coordination	CLOSED

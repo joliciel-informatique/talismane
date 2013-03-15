@@ -19,8 +19,11 @@
 package com.joliciel.talismane.tokeniser.features;
 
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -30,24 +33,28 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	private PosTag posTag;
+	StringFeature<TokenWrapper> posTagFeature;
 	
 	/**
 	 * 
 	 * @param posTag the PosTag we're testing for
 	 */
-	public LexiconPosTagFeature(PosTag posTag) {
-		this.posTag = posTag;
-		this.setName(super.getName() + "(" + this.posTag.getCode() + ")");
+	public LexiconPosTagFeature(StringFeature<TokenWrapper> posTagFeature) {
+		this.posTagFeature = posTagFeature;
+		this.setName(super.getName() + "(" + this.posTagFeature.getName() + ")");
 	}
 	
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 
-		boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
-		result = this.generateResult(hasPosTag);
+		FeatureResult<String> posTagResult = posTagFeature.check(tokenWrapper, env);
+		if (posTagResult!=null) {
+			PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+			boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
+			result = this.generateResult(hasPosTag);
+		}
 		
 		return result;
 	}

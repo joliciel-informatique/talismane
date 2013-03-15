@@ -29,7 +29,7 @@ public interface HasFeatureCache {
 	 * @param feature
 	 * @return
 	 */
-	public <T,Y> FeatureResult<Y> getResultFromCache(Feature<T,Y> feature);
+	public <T,Y> FeatureResult<Y> getResultFromCache(Feature<T,Y> feature, RuntimeEnvironment env);
 
 	/**
 	 * Place a feature result in the cache.
@@ -37,5 +37,5 @@ public interface HasFeatureCache {
 	 * @param feature
 	 * @param featureResult
 	 */
-	public <T,Y> void putResultInCache(Feature<T,Y>feature, FeatureResult<Y> featureResult);
+	public <T,Y> void putResultInCache(Feature<T,Y>feature, FeatureResult<Y> featureResult, RuntimeEnvironment env);
 }

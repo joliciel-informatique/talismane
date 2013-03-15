@@ -37,14 +37,14 @@ public class NullIfDoubleFeature<T> extends AbstractCachableFeature<T,Double> im
 	}
 
 	@Override
-	protected FeatureResult<Double> checkInternal(T context) {
+	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (!conditionOutcome) {
-				FeatureResult<Double> thenFeatureResult = resultFeature.check(context);
+				FeatureResult<Double> thenFeatureResult = resultFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					double result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

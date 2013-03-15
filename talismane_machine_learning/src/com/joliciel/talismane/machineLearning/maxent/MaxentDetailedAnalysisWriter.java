@@ -39,6 +39,7 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.DoubleFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 import opennlp.model.Context;
@@ -114,49 +115,23 @@ class MaxentDetailedAnalysisWriter implements AnalysisObserver {
 			
 			writer.append("### Feature results:\n");
 			for (FeatureResult<?> featureResult : featureResults) {
-				String feature = featureResult.getTrainingName();
-				writer.append("#" + feature + "\t");
-				writer.append("outcome=" + featureResult.getOutcome() + "\n");
-				double value = 1.0;
-				if (featureResult.getFeature() instanceof DoubleFeature) {
-					value = (Double) featureResult.getOutcome();
-				}
-				
-				writer.append(String.format("%1$-30s", "outcome")  + String.format("%1$#15s","weight") +  String.format("%1$#15s","total") +  String.format("%1$#15s","exp") + "\n");
-				int predicateIndex = predicateTable.get(feature);
-				if (predicateIndex >=0) {
-					Context context = modelParameters[predicateIndex];
-					int[] outcomeIndexes = context.getOutcomes();
-					double[] parameters = context.getParameters();
-					for (String outcome : outcomeList) {
-						int outcomeIndex = -1;
-						for (int j=0;j<outcomeNames.length;j++) {
-							if (outcomeNames[j].equals(outcome)) {
-								outcomeIndex = j;
-								break;
-							}
-						}
-						int paramIndex = -1;
-						for (int k=0;k<outcomeIndexes.length;k++) {
-							if (outcomeIndexes[k]==outcomeIndex) {
-								paramIndex = k;
-								break;
-							}
-						}
-						double weight = 0.0;
-						if (paramIndex>=0)
-							weight = parameters[paramIndex];
-						
-						double total = value * weight;
-						double exp = Math.exp(total);
-						writer.append(String.format("%1$-30s", outcome)  + String.format("%1$#15s",decFormat.format(weight)) +  String.format("%1$#15s",decFormat.format(total)) +  String.format("%1$#15s",decFormat.format(exp)) + "\n");
-					
-						double runningTotal = outcomeTotals.get(outcome);
-						runningTotal += total;
-						outcomeTotals.put(outcome, runningTotal);
+				if (featureResult.getFeature() instanceof StringCollectionFeature) {
+					@SuppressWarnings("unchecked")
+					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+						String featureName = featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
+						String featureOutcome = stringOutcome.getOutcome();
+						double value = stringOutcome.getWeight();
+						this.writeFeatureResult(featureName, featureOutcome, value, outcomeTotals);
 					}
+
+				} else {
+					double value = 1.0;
+					if (featureResult.getFeature() instanceof DoubleFeature) {
+						value = (Double) featureResult.getOutcome();
+					}
+					this.writeFeatureResult(featureResult.getTrainingName(), featureResult.getOutcome().toString(), value, outcomeTotals);
 				}
-				writer.append("\n");
 			}
 			
 			writer.append("### Outcome totals:\n");
@@ -198,6 +173,48 @@ class MaxentDetailedAnalysisWriter implements AnalysisObserver {
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
+	}
+	
+	private void writeFeatureResult(String featureName, String featureOutcome, double value, Map<String, Double> outcomeTotals) throws IOException {
+		writer.append("#" + featureName + "\t");
+		writer.append("outcome=" + featureOutcome + "\n");
+		writer.append("value=" + String.format("%1$-30s", value) + "\n");
+		
+		writer.append(String.format("%1$-30s", "outcome")  + String.format("%1$#15s","weight") +  String.format("%1$#15s","total") +  String.format("%1$#15s","exp") + "\n");
+		int predicateIndex = predicateTable.get(featureName);
+		if (predicateIndex >=0) {
+			Context context = modelParameters[predicateIndex];
+			int[] outcomeIndexes = context.getOutcomes();
+			double[] parameters = context.getParameters();
+			for (String outcome : outcomeList) {
+				int outcomeIndex = -1;
+				for (int j=0;j<outcomeNames.length;j++) {
+					if (outcomeNames[j].equals(outcome)) {
+						outcomeIndex = j;
+						break;
+					}
+				}
+				int paramIndex = -1;
+				for (int k=0;k<outcomeIndexes.length;k++) {
+					if (outcomeIndexes[k]==outcomeIndex) {
+						paramIndex = k;
+						break;
+					}
+				}
+				double weight = 0.0;
+				if (paramIndex>=0)
+					weight = parameters[paramIndex];
+				
+				double total = value * weight;
+				double exp = Math.exp(total);
+				writer.append(String.format("%1$-30s", outcome)  + String.format("%1$#15s",decFormat.format(weight)) +  String.format("%1$#15s",decFormat.format(total)) +  String.format("%1$#15s",decFormat.format(exp)) + "\n");
+			
+				double runningTotal = outcomeTotals.get(outcome);
+				runningTotal += total;
+				outcomeTotals.put(outcome, runningTotal);
+			}
+		}
+		writer.append("\n");		
 	}
 	
 	/* (non-Javadoc)

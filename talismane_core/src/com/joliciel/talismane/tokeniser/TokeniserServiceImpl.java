@@ -27,6 +27,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
@@ -40,6 +41,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	private TokenFilterService tokenFilterService;
 	private FilterService filterService;
 	private MachineLearningService machineLearningService;
+	private FeatureService featureService;
 
 	@Override
 	public Token getToken(String string, TokenSequence tokenSequence, int index) {
@@ -151,6 +153,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		eventStream.setTokeniserPatternManager(patternManager);
 		eventStream.setFilterService(this.getFilterService());
 		eventStream.setTokenFilterService(this.getTokenFilterService());
+		eventStream.setFeatureService(this.getFeatureService());
 		return eventStream;
 	}
 
@@ -215,6 +218,14 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 
 

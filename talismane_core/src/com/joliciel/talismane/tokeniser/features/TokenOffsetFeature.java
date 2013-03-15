@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
@@ -41,11 +42,11 @@ public class TokenOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 	}
 	
 	@Override
-	public FeatureResult<Y> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Y> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Y> result = null;
 		Token offsetToken = null;
-		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper);
+		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
 		if (offsetResult!=null) {
 			int offset = offsetResult.getOutcome();
 			if (offset==0)
@@ -80,7 +81,7 @@ public class TokenOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 			}
 		}
 		if (offsetToken!=null) {
-			FeatureResult<Y> originalResult = tokenFeature.check(offsetToken);
+			FeatureResult<Y> originalResult = tokenFeature.check(offsetToken, env);
 			if (originalResult!=null)
 				result = this.generateResult(originalResult.getOutcome());
 		}

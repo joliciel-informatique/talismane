@@ -34,16 +34,16 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	}
 
 	@Override
-	public final FeatureResult<Y> check(T context) {
-		FeatureResult<Y> featureResult = this.checkInCache(context);
+	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) {
+		FeatureResult<Y> featureResult = this.checkInCache(context, env);
 		if (featureResult==null) {
 			PerformanceMonitor.startTask(logName);
 			try {
-				featureResult = this.checkInternal(context);
+				featureResult = this.checkInternal(context, env);
 			} finally {
 				PerformanceMonitor.endTask(logName);
 			}
-			this.putInCache(context, featureResult);
+			this.putInCache(context, featureResult, env);
 		}
 		return featureResult;		
 	}
@@ -55,9 +55,9 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	 * @param context
 	 * @return
 	 */
-	protected FeatureResult<Y> checkInCache(T context) {
+	protected FeatureResult<Y> checkInCache(T context, RuntimeEnvironment env) {
 		if (context instanceof HasFeatureCache) {
-			return ((HasFeatureCache) context).getResultFromCache(this);
+			return ((HasFeatureCache) context).getResultFromCache(this, env);
 		}
 		return null;
 	}
@@ -68,11 +68,11 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	 * @param context
 	 * @return
 	 */	
-	protected void putInCache(T context, FeatureResult<Y> featureResult) {
+	protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
 		if (context instanceof HasFeatureCache) {
-			((HasFeatureCache) context).putResultInCache(this, featureResult);
+			((HasFeatureCache) context).putResultInCache(this, featureResult, env);
 		}
 	}
 
-	protected abstract FeatureResult<Y> checkInternal(T context);
+	protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env);
 }

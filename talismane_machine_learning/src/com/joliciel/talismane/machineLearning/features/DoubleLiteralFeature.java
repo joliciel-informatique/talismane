@@ -35,7 +35,7 @@ public class DoubleLiteralFeature<T> extends AbstractFeature<T, Double> implemen
 	}
 
 	@Override
-	public FeatureResult<Double> check(T context) {
+	public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
 		return this.generateResult(literal);
 	}
 

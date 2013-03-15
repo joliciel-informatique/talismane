@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 /**
  * An Abstract base class for intrinsic features.
@@ -35,13 +36,13 @@ public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<To
 	private static final Log LOG = LogFactory.getLog(AbstractTokenFeature.class);
 
 	@Override
-	protected final FeatureResult<Y> checkInCache(TokenWrapper context) {
-		return context.getToken().getResultFromCache(this);
+	protected final FeatureResult<Y> checkInCache(TokenWrapper context, RuntimeEnvironment env) {
+		return context.getToken().getResultFromCache(this, env);
 	}
 
 	@Override
-	protected final void putInCache(TokenWrapper context, FeatureResult<Y> result) {
-		context.getToken().putResultInCache(this, result);
+	protected final void putInCache(TokenWrapper context, FeatureResult<Y> result, RuntimeEnvironment env) {
+		context.getToken().putResultInCache(this, result, env);
 	}
 
 }

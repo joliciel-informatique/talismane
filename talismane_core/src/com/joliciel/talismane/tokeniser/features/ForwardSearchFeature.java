@@ -23,6 +23,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
@@ -57,7 +58,7 @@ public class ForwardSearchFeature extends AbstractTokenAddressFunction implement
 	}
 	
 	@Override
-	public FeatureResult<Token> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Token> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Token> featureResult = null;
 		
@@ -65,7 +66,7 @@ public class ForwardSearchFeature extends AbstractTokenAddressFunction implement
 		int endOffset = token.getTokenSequence().size();
 		
 		if (startOffsetFeature!=null) {
-			FeatureResult<Integer> startOffsetResult = startOffsetFeature.check(tokenWrapper);
+			FeatureResult<Integer> startOffsetResult = startOffsetFeature.check(tokenWrapper, env);
 			if (startOffsetResult!=null) {
 				startOffset = startOffsetResult.getOutcome();
 			} else {
@@ -74,7 +75,7 @@ public class ForwardSearchFeature extends AbstractTokenAddressFunction implement
 		}
 		
 		if (endOffsetFeature!=null) {
-			FeatureResult<Integer> endOffsetResult = endOffsetFeature.check(tokenWrapper);
+			FeatureResult<Integer> endOffsetResult = endOffsetFeature.check(tokenWrapper, env);
 			if (endOffsetResult!=null) {
 				endOffset = endOffsetResult.getOutcome();
 			} else {
@@ -95,7 +96,7 @@ public class ForwardSearchFeature extends AbstractTokenAddressFunction implement
 		Token matchingToken = null;
 		for (int i=index+startOffset; i<token.getTokenSequence().size() && i<=index+endOffset; i++) {
 			Token oneToken = token.getTokenSequence().get(i);
-			FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken);
+			FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
 			if (criterionResult!=null && criterionResult.getOutcome()) {
 				matchingToken = oneToken;
 				break;

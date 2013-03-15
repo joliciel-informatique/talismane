@@ -36,6 +36,7 @@ public class ParserServiceLocator {
 			parserService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
 			parserService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 			parserService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
+			parserService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 		}
 		return parserService;
 	}

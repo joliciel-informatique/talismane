@@ -34,7 +34,9 @@ import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.utils.JolicielException;
+import com.joliciel.talismane.utils.WeightedOutcome;
 
 import de.bwaldvogel.liblinear.Feature;
 import de.bwaldvogel.liblinear.FeatureNode;
@@ -75,10 +77,9 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			throw new JolicielException("To get a probability distribution of outcomes, only logistic regression solvers are supported.");
 			
 		int numEvents = 0;
-		int currentFeatureIndex = 1;
 		int currentOutcomeIndex = 0;
 		int maxFeatureCount = 0;
-		int featureCountOverCutoff = 0;
+		CountingInfo countingInfo = new CountingInfo();
 		
 		Map<String, Integer> featureIndexMap = new HashMap<String, Integer>();
 		Map<Integer, Integer> featureCountMap = new HashMap<Integer, Integer>();
@@ -97,34 +98,25 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			outcomeList.add(outcomeIndex);
 			Map<Integer,Feature> featureList = new TreeMap<Integer,Feature>();
 			for (FeatureResult<?> featureResult : corpusEvent.getFeatureResults()) {
-				Integer featureIndex = featureIndexMap.get(featureResult.getTrainingName());
-				if (featureIndex==null) {
-					featureIndex = currentFeatureIndex++;
-					featureIndexMap.put(featureResult.getTrainingName(), featureIndex);
-				}
-				
-				if (cutoff>1) {
-					Integer featureCountObj = featureCountMap.get(featureIndex);
-					int featureCount = 0;
-					if (featureCountObj!=null) {
-						featureCount = featureCountObj.intValue();
-					}
-					featureCount = featureCount + 1;
-					if (featureCount==cutoff)
-						featureCountOverCutoff++;
-					featureCountMap.put(featureIndex, featureCount);
-				}
-				
-				double value = 1.0;
-				if (featureResult.getOutcome() instanceof Double)
-				{
+				if (featureResult.getFeature() instanceof StringCollectionFeature) {
 					@SuppressWarnings("unchecked")
-					FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
-					value = doubleResult.getOutcome().doubleValue();
-				}
+					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+						String featureName = featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
+						double value = stringOutcome.getWeight();
+						this.addFeatureResult(featureName, value, featureList, featureIndexMap, featureCountMap, outcomeIndexMap, countingInfo);
+					}
 
-				FeatureNode featureNode = new FeatureNode(featureIndex.intValue(), value);
-				featureList.put(featureIndex.intValue(),featureNode);
+				} else {
+					double value = 1.0;
+					if (featureResult.getOutcome() instanceof Double)
+					{
+						@SuppressWarnings("unchecked")
+						FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+						value = doubleResult.getOutcome().doubleValue();
+					}
+					this.addFeatureResult(featureResult.getTrainingName(), value, featureList, featureIndexMap, featureCountMap, outcomeIndexMap, countingInfo);
+				}
 			}
 			if (featureList.size()>maxFeatureCount)
 				maxFeatureCount = featureList.size();
@@ -148,7 +140,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 //		problem.y = ... // target values
 
 		problem.l = numEvents; // number of training examples
-		problem.n = currentFeatureIndex; // number of features
+		problem.n = countingInfo.currentFeatureIndex; // number of features
 		
 		Feature[][] featureMatrix = new Feature[numEvents][];
 		int i = 0;
@@ -162,7 +154,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 		LOG.debug("Feature count: " + featureIndexMap.size());
 		// apply the cutoff
 		if (cutoff>1) {
-			LOG.debug("Feature count (after cutoff): " + featureCountOverCutoff);
+			LOG.debug("Feature count (after cutoff): " + countingInfo.featureCountOverCutoff);
 			for (i=0; i<featureMatrix.length; i++) {
 				Feature[] featureArray = featureMatrix[i];
 				List<Feature> featureList = new ArrayList<Feature>(featureArray.length);
@@ -216,6 +208,39 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 		return linearSVMModel;
 	}
 
+	void addFeatureResult(String featureName, double value,
+			Map<Integer,Feature> featureList,
+			Map<String, Integer> featureIndexMap,
+			Map<Integer, Integer> featureCountMap,
+			Map<String, Integer> outcomeIndexMap,
+			CountingInfo countingInfo) {
+		Integer featureIndex = featureIndexMap.get(featureName);
+		if (featureIndex==null) {
+			featureIndex = countingInfo.currentFeatureIndex++;
+			featureIndexMap.put(featureName, featureIndex);
+		}
+		
+		if (cutoff>1) {
+			Integer featureCountObj = featureCountMap.get(featureIndex);
+			int featureCount = 0;
+			if (featureCountObj!=null) {
+				featureCount = featureCountObj.intValue();
+			}
+			featureCount = featureCount + 1;
+			if (featureCount==cutoff)
+				countingInfo.featureCountOverCutoff++;
+			featureCountMap.put(featureIndex, featureCount);
+		}
+
+		FeatureNode featureNode = new FeatureNode(featureIndex.intValue(), value);
+		featureList.put(featureIndex.intValue(),featureNode);		
+	}
+	
+	private static class CountingInfo {
+		public int currentFeatureIndex = 1;
+		public int featureCountOverCutoff = 0;
+	}
+	
 	public int getCutoff() {
 		return cutoff;
 	}

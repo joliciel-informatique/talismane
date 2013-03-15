@@ -27,6 +27,7 @@ import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
  * A token is a single parsing unit, which can have dependents and a governor.<br/>
@@ -128,6 +129,13 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	public List<TokenMatch> getMatches();
+	
+	/**
+	 * Get all matches for a given pattern.
+	 * @param pattern
+	 * @return
+	 */
+	public List<TokenMatch> getMatches(TokenPattern pattern);
 	
 	/**
 	 * A list of atomic decisions which make up this token.

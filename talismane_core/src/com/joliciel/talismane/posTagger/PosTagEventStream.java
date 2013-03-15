@@ -31,6 +31,8 @@ import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
@@ -49,6 +51,7 @@ class PosTagEventStream implements CorpusEventStream {
 	PosTaggerFeatureService posTaggerFeatureService;
 	PosTaggerService posTaggerService;
 	MachineLearningService machineLearningService;
+	FeatureService featureService;
 	
 	PosTagSequence currentSentence;
 	PosTagSequence currentHistory;
@@ -103,7 +106,8 @@ class PosTagEventStream implements CorpusEventStream {
 					for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
 						PerformanceMonitor.startTask(posTaggerFeature.getGroupName());
 						try {
-							FeatureResult<?> featureResult = posTaggerFeature.check(context);
+							RuntimeEnvironment env = featureService.getRuntimeEnvironment();
+							FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
 							if (featureResult!=null)
 								posTagFeatureResults.add(featureResult);
 						} finally {
@@ -167,6 +171,14 @@ class PosTagEventStream implements CorpusEventStream {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 
 }

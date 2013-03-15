@@ -233,7 +233,13 @@ class LefffEntryMorphologyReader implements LexicalEntryMorphologyReader {
 			else if (lexicalEntry.getTense().contains("J"))
 				sb.append("t=past|");
 			else if (lexicalEntry.getTense().contains("T"))
-				sb.append("t=past|");
+				sb.append("t=imp|");
+			
+//			sb.append("m=");
+//			for (String tense : lexicalEntry.getTense()) {
+//				sb.append(tense);
+//			}
+//			sb.append("|");
 		}
 		
 		if (sb.length()>0)

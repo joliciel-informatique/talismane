@@ -33,15 +33,15 @@ public abstract class AbstractMonitorableFeature<T,Y> extends AbstractFeature<T,
 	}
 
 	@Override
-	public final FeatureResult<Y> check(T context) {
+	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) {
 		PerformanceMonitor.startTask(logName);
 		try {
-			return this.checkInternal(context);
+			return this.checkInternal(context, env);
 		} finally {
 			PerformanceMonitor.endTask(logName);
 		}
 	}
 
-	protected abstract FeatureResult<Y> checkInternal(T context);
+	protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env);
 
 }

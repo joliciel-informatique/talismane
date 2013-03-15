@@ -101,13 +101,13 @@ public class SentenceDetectorMaxentRunner {
 					iterations = Integer.parseInt(argValue);
 				else if (argName.equals("cutoff"))
 					cutoff = Integer.parseInt(argValue);
-				else if (argName.equals("outDir")) 
+				else if (argName.equals("outdir")) 
 					outDirPath = argValue;
 				else if (argName.equals("sentenceCount"))
 					sentenceCount = Integer.parseInt(argValue);
 				else if (argName.equals("startSentence"))
 					startSentence = Integer.parseInt(argValue);
-				else if (argName.equals("treebank"))
+				else if (argName.equals("corpus"))
 					treebankPath = argValue;
 				else if (argName.equals("algorithm"))
 					algorithm = MachineLearningAlgorithm.valueOf(argValue);
@@ -144,7 +144,7 @@ public class SentenceDetectorMaxentRunner {
 
 			if (command.equals("train")) {
 				if (sentenceModelFilePath.length()==0)
-					throw new RuntimeException("Missing argument: model");
+					throw new RuntimeException("Missing argument: sentenceModel");
 	
 				String modelDirPath = sentenceModelFilePath.substring(0, sentenceModelFilePath.lastIndexOf("/"));
 				File modelDir = new File(modelDirPath);
@@ -208,7 +208,7 @@ public class SentenceDetectorMaxentRunner {
 
 			} else if (command.equals("evaluate")) {
 				if (sentenceModelFilePath.length()==0)
-					throw new RuntimeException("Missing argument: model");
+					throw new RuntimeException("Missing argument: sentenceModel");
 				
 				TreebankReader treebankReader = null;
 				

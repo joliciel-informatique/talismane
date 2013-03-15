@@ -34,8 +34,10 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class TokenImpl implements TokenInternal {
@@ -55,6 +57,7 @@ class TokenImpl implements TokenInternal {
 	private boolean separator = false;
 	private boolean whiteSpace = false;
 	private List<TokenMatch> matches = null;
+	private Map<String, List<TokenMatch>> matchesPerPattern = null;
 	private List<TaggedToken<TokeniserOutcome>> atomicDecisions = new ArrayList<TaggedToken<TokeniserOutcome>>();
 	private boolean logged = false;
 	
@@ -160,19 +163,21 @@ class TokenImpl implements TokenInternal {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature) {
+	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
 		FeatureResult<Y> result = null;
 		
-		if (this.featureResults.containsKey(feature.getName())) {
-			result = (FeatureResult<Y>) this.featureResults.get(feature.getName());
+		String key = feature.getName() + env.getKey();
+		if (this.featureResults.containsKey(key)) {
+			result = (FeatureResult<Y>) this.featureResults.get(key);
 		}
 		return result;
 	}
 
 	@Override
 	public <T, Y> void putResultInCache(Feature<T, Y> feature,
-			FeatureResult<Y> featureResult) {
-		this.featureResults.put(feature.getName(), featureResult);	
+			FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+		String key = feature.getName() + env.getKey();
+		this.featureResults.put(key, featureResult);	
 	}
 
 	@Override
@@ -204,6 +209,23 @@ class TokenImpl implements TokenInternal {
 		if (matches==null)
 			matches = new ArrayList<TokenMatch>();
 		return matches;
+	}
+	
+
+	@Override
+	public List<TokenMatch> getMatches(TokenPattern pattern) {
+		if (matchesPerPattern==null) {
+			matchesPerPattern = new HashMap<String, List<TokenMatch>>();
+			for (TokenMatch match : this.getMatches()) {
+				List<TokenMatch> matchesForPattern = matchesPerPattern.get(match.getPattern().getName());
+				if (matchesForPattern==null) {
+					matchesForPattern = new ArrayList<TokenMatch>();
+					matchesPerPattern.put(match.getPattern().getName(), matchesForPattern);
+				}
+				matchesForPattern.add(match);
+			}
+		}
+		return matchesPerPattern.get(pattern.getName());
 	}
 
 	@Override
@@ -368,4 +390,5 @@ class TokenImpl implements TokenInternal {
 			bestEntry = lexicalEntries.get(0);
 		return bestEntry;
 	}
+
 }

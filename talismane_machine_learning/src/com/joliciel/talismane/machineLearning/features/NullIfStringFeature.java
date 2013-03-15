@@ -37,14 +37,14 @@ public class NullIfStringFeature<T> extends AbstractCachableFeature<T,String> im
 	}
 
 	@Override
-	protected FeatureResult<String> checkInternal(T context) {
+	protected FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (!conditionOutcome) {
-				FeatureResult<String> thenFeatureResult = resultFeature.check(context);
+				FeatureResult<String> thenFeatureResult = resultFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					String result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

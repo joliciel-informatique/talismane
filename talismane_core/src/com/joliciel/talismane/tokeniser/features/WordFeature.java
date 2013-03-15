@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -46,13 +47,13 @@ public class WordFeature extends AbstractTokenFeature<Boolean> implements Boolea
 	}
 	
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 
 		boolean matches = false;
 		for (StringFeature<TokenWrapper> word : words) {
-			FeatureResult<String> wordResult = word.check(tokenWrapper);
+			FeatureResult<String> wordResult = word.check(tokenWrapper, env);
 			if (wordResult!=null) {
 				String wordText = wordResult.getOutcome();
 				if (wordText.equals(token.getText())) {

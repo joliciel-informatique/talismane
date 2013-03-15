@@ -22,6 +22,7 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PredicateArgument;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -42,14 +43,14 @@ public class PredicateFunctionIsOptionalFeature extends AbstractPosTaggedTokenFe
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(PosTaggedTokenWrapper wrapper) {
+	public FeatureResult<Boolean> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
 		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;
 		
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<String> functionNameResult = this.functionNameFeature.check(wrapper);
+		FeatureResult<String> functionNameResult = this.functionNameFeature.check(wrapper, env);
 		if (functionNameResult!=null) {
 			String functionName = functionNameResult.getOutcome();
 			LexicalEntry lexicalEntry = null;

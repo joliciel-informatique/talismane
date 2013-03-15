@@ -19,11 +19,11 @@
 package com.joliciel.talismane.machineLearning.maxent;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.joliciel.talismane.machineLearning.CorpusEvent;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
-
 import opennlp.model.Event;
 import opennlp.model.EventStream;
 
@@ -46,23 +46,24 @@ class OpenNLPEventStream implements EventStream {
 		Event event = null;
 		if (this.corpusEventStream.hasNext()) {
 			CorpusEvent corpusEvent = this.corpusEventStream.next();
-			String[] featureNames = new String[corpusEvent.getFeatureResults().size()];
-			float[] weights = new float[corpusEvent.getFeatureResults().size()];
+			
+			List<String> contextList = new ArrayList<String>();
+			List<Float> weightList = new ArrayList<Float>();
+			OpenNLPDecisionMaker.prepareData(corpusEvent.getFeatureResults(), contextList, weightList);
+			
+			String[] contexts = new String[contextList.size()];
+			float[] weights = new float[weightList.size()];
+			
 			int i = 0;
-			for (FeatureResult<?> result : corpusEvent.getFeatureResults()) {
-				featureNames[i] = result.getTrainingName();
-				float weight = 1;
-				if (result.getOutcome() instanceof Double)
-				{
-					@SuppressWarnings("unchecked")
-					FeatureResult<Double> doubleResult = (FeatureResult<Double>) result;
-					weight = doubleResult.getOutcome().floatValue();
-				}
-				weights[i]  = weight;
-				i++;
+			for (String context : contextList) {
+				contexts[i++] = context;
+			}
+			i = 0;
+			for (Float weight : weightList) {
+				weights[i++]  = weight;
 			}
 			
-			event = new Event(corpusEvent.getClassification(), featureNames, weights);
+			event = new Event(corpusEvent.getClassification(), contexts, weights);
 		}
 		return event;
 	}

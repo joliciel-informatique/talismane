@@ -29,12 +29,10 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
-import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
-	private List<TokenPattern> patternList;
-	
 	public SentenceDetectorFeatureParser(FeatureService featureService) {
 		super(featureService);
 	}	
@@ -78,15 +76,11 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 		return descriptors;
 	}
 
-	public List<TokenPattern> getPatternList() {
-		return patternList;
+	@Override
+	protected void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+		// no dependencies to inject
 	}
-
-	public void setPatternList(List<TokenPattern> patternList) {
-		this.patternList = patternList;
-	}
-
-
+	
 	private static class SentenceDetectorFeatureWrapper<T> extends AbstractFeature<PossibleSentenceBoundary, T> implements
 		SentenceDetectorFeature<T>, FeatureWrapper<PossibleSentenceBoundary, T> {
 		private Feature<PossibleSentenceBoundary,T> wrappedFeature = null;
@@ -100,8 +94,8 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 		}
 		
 		@Override
-		public FeatureResult<T> check(PossibleSentenceBoundary context) {
-			return wrappedFeature.check(context);
+		public FeatureResult<T> check(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+			return wrappedFeature.check(context, env);
 		}
 		
 

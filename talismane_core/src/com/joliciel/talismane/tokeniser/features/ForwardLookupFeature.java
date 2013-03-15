@@ -24,6 +24,7 @@ import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
@@ -51,11 +52,11 @@ public class ForwardLookupFeature extends AbstractTokenFeature<Integer> implemen
 	}
 
 	@Override
-	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper);
+		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
 		if (offsetResult!=null) {
 			int index = token.getIndex();
 			int initialOffset = offsetResult.getOutcome();
@@ -67,7 +68,7 @@ public class ForwardLookupFeature extends AbstractTokenFeature<Integer> implemen
 			int j = 1;
 			for (int i=index+initialOffset; i<token.getTokenSequence().size(); i++) {
 				Token oneToken = token.getTokenSequence().get(i);
-				FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken);
+				FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
 				if (criterionResult!=null && criterionResult.getOutcome()) {
 					matchingOffset = j;
 					break;

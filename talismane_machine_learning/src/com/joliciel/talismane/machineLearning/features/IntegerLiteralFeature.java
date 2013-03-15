@@ -35,7 +35,7 @@ public class IntegerLiteralFeature<T> extends AbstractFeature<T, Integer> implem
 	}
 
 	@Override
-	public FeatureResult<Integer> check(T context) {
+	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		return this.generateResult(literal);
 	}
 

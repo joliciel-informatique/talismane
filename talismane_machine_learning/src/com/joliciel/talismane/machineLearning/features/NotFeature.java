@@ -35,10 +35,10 @@ public class NotFeature<T> extends AbstractCachableFeature<T, Boolean> implement
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Boolean> result1 = feature1.check(context);
+		FeatureResult<Boolean> result1 = feature1.check(context, env);
 		
 		if (result1!=null) {
 			featureResult = this.generateResult(!result1.getOutcome());

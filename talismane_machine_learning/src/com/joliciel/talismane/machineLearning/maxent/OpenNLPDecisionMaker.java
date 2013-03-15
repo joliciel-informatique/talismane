@@ -27,6 +27,8 @@ import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
+import com.joliciel.talismane.utils.WeightedOutcome;
 
 import opennlp.model.MaxentModel;
 
@@ -38,24 +40,12 @@ class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		super();
 		this.model = model;
 	}
-
+	
 	@Override
 	public List<Decision<T>> decide(List<FeatureResult<?>> featureResults) {
 		List<String> contextList = new ArrayList<String>();
 		List<Float> weightList = new ArrayList<Float>();
-		for (FeatureResult<?> featureResult : featureResults) {
-			if (featureResult!=null) {
-				float weight = 1;
-				if (featureResult.getOutcome() instanceof Double)
-				{
-					@SuppressWarnings("unchecked")
-					FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
-					weight = doubleResult.getOutcome().floatValue();
-				}
-				contextList.add(featureResult.getTrainingName());
-				weightList.add(weight);
-			}
-		}
+		OpenNLPDecisionMaker.prepareData(featureResults, contextList, weightList);
 		
 		String[] contexts = new String[contextList.size()];
 		float[] weights = new float[weightList.size()];
@@ -87,6 +77,31 @@ class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		return decisions;
 	}
 
+	static void prepareData(List<FeatureResult<?>> featureResults, List<String> contextList, List<Float> weightList) {
+		for (FeatureResult<?> featureResult : featureResults) {
+			if (featureResult!=null) {
+				if (featureResult.getFeature() instanceof StringCollectionFeature) {
+					@SuppressWarnings("unchecked")
+					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+						contextList.add(featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
+						weightList.add(((Double)stringOutcome.getWeight()).floatValue());
+					}
+				} else {
+					float weight = 1;
+					if (featureResult.getOutcome() instanceof Double)
+					{
+						@SuppressWarnings("unchecked")
+						FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+						weight = doubleResult.getOutcome().floatValue();
+					}
+					contextList.add(featureResult.getTrainingName());
+					weightList.add(weight);
+				}
+			}
+		}
+	}
+	
 	@Override
 	public DecisionFactory<T> getDecisionFactory() {
 		return this.decisionFactory;

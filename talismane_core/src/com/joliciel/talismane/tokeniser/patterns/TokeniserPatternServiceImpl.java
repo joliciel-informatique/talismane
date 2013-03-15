@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -34,6 +35,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 	TokeniserService tokeniserService;
 	TokenFeatureService tokenFeatureService;
 	FilterService filterService;
+	FeatureService featureService;
 
 	@Override
 	public TokeniserPatternManager getPatternManager(List<String> patternDescriptors) {
@@ -52,6 +54,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 		tokeniser.setTokenFeatureService(this.getTokenFeatureService());
 		tokeniser.setFilterService(this.getFilterService());
 		tokeniser.setDecisionMaker(decisionMaker);
+		tokeniser.setFeatureService(this.getFeatureService());
 		return tokeniser;
 	}
 	
@@ -83,6 +86,14 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 
 	public void setFilterService(FilterService filterService) {
 		this.filterService = filterService;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 
 

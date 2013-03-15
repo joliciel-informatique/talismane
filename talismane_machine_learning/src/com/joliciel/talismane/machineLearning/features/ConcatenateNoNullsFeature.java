@@ -45,7 +45,7 @@ public class ConcatenateNoNullsFeature<T> extends AbstractCachableFeature<T, Str
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(T context) {
+	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
 		
 		StringBuilder sb = new StringBuilder();
@@ -54,7 +54,7 @@ public class ConcatenateNoNullsFeature<T> extends AbstractCachableFeature<T, Str
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature)
 				sb.append("|");
-			FeatureResult<String> result = stringFeature.check(context);
+			FeatureResult<String> result = stringFeature.check(context, env);
 			if (result==null) {
 				hasNull = true;
 				break;

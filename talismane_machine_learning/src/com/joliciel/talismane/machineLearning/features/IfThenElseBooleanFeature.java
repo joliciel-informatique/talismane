@@ -39,20 +39,20 @@ public class IfThenElseBooleanFeature<T> extends AbstractCachableFeature<T,Boole
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (conditionOutcome) {
-				FeatureResult<Boolean> thenFeatureResult = thenFeature.check(context);
+				FeatureResult<Boolean> thenFeatureResult = thenFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					boolean result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			} else {
-				FeatureResult<Boolean> elseFeatureResult = elseFeature.check(context);
+				FeatureResult<Boolean> elseFeatureResult = elseFeature.check(context, env);
 				if (elseFeatureResult!=null) {
 					boolean result = elseFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

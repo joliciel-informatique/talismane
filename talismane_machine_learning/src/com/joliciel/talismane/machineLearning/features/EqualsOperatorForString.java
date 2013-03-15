@@ -38,12 +38,12 @@ public class EqualsOperatorForString<T> extends AbstractCachableFeature<T,Boolea
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<String> operand1Result = operand1.check(context);
+		FeatureResult<String> operand1Result = operand1.check(context, env);
 		if (operand1Result!=null) {
-			FeatureResult<String> operand2Result = operand2.check(context);
+			FeatureResult<String> operand2Result = operand2.check(context, env);
 			if (operand2Result!=null) {
 				boolean result = operand1Result.getOutcome().equals(operand2Result.getOutcome());
 				featureResult = this.generateResult(result);

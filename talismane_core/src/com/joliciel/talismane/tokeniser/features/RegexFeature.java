@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -40,11 +41,11 @@ public class RegexFeature extends AbstractTokenFeature<Boolean> implements Boole
 	}
 	
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 		
-		FeatureResult<String> regexResult = regexFeature.check(tokenWrapper);
+		FeatureResult<String> regexResult = regexFeature.check(tokenWrapper, env);
 		if (regexResult!=null) {
 			String regex = regexResult.getOutcome();
 			this.pattern = Pattern.compile(regex);

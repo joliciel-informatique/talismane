@@ -21,6 +21,7 @@ package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 /**
  * An Abstract base class for features applied to a given pos-tagged token.
@@ -30,17 +31,17 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 public abstract class AbstractPosTaggedTokenFeature<T> extends AbstractCachableFeature<PosTaggedTokenWrapper,T> implements PosTaggedTokenFeature<T> {
 
 	@Override
-	protected final FeatureResult<T> checkInCache(PosTaggedTokenWrapper context) {
+	protected final FeatureResult<T> checkInCache(PosTaggedTokenWrapper context, RuntimeEnvironment env) {
 		if (context.getPosTaggedToken()!=null)
-			return context.getPosTaggedToken().getResultFromCache(this);
+			return context.getPosTaggedToken().getResultFromCache(this, env);
 		return null;
 	}
 
 	@Override
 	protected final void putInCache(PosTaggedTokenWrapper context,
-			FeatureResult<T> featureResult) {
+			FeatureResult<T> featureResult, RuntimeEnvironment env) {
 		if (context.getPosTaggedToken()!=null)
-			context.getPosTaggedToken().putResultInCache(this, featureResult);
+			context.getPosTaggedToken().putResultInCache(this, featureResult, env);
 	}
 
 }

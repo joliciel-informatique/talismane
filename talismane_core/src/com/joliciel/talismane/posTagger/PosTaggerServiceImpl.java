@@ -28,6 +28,7 @@ import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.tokeniser.Token;
@@ -39,6 +40,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
 	MachineLearningService machineLearningService;
+	FeatureService featureService;
 
 	@Override
 	public PosTagger getPosTagger(
@@ -49,6 +51,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
 		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);
+		posTagger.setFeatureService(this.featureService);
 		
 		return posTagger;
 	}
@@ -124,6 +127,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		eventStream.setPosTaggerFeatureService(posTaggerFeatureService);
 		eventStream.setPosTaggerService(posTaggerService);
 		eventStream.setMachineLearningService(machineLearningService);
+		eventStream.setFeatureService(featureService);
 		return eventStream;
 	}
 
@@ -167,6 +171,14 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	public PosTagComparator getPosTagComparator() {
 		PosTagComparatorImpl comparator = new PosTagComparatorImpl();
 		return comparator;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 	
 }

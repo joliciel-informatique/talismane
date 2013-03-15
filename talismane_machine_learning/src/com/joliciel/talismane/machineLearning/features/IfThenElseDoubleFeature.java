@@ -39,20 +39,20 @@ public class IfThenElseDoubleFeature<T> extends AbstractCachableFeature<T,Double
 	}
 
 	@Override
-	protected FeatureResult<Double> checkInternal(T context) {
+	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (conditionOutcome) {
-				FeatureResult<Double> thenFeatureResult = thenFeature.check(context);
+				FeatureResult<Double> thenFeatureResult = thenFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					double result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			} else {
-				FeatureResult<Double> elseFeatureResult = elseFeature.check(context);
+				FeatureResult<Double> elseFeatureResult = elseFeature.check(context, env);
 				if (elseFeatureResult!=null) {
 					double result = elseFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

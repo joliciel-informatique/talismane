@@ -35,6 +35,7 @@ public class SentenceDetectorServiceLocator {
 			sentenceDetectorService.setTokeniserService(talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
 			sentenceDetectorService.setMachineLearningService(talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 			sentenceDetectorService.setFilterService(talismaneServiceLocator.getFilterServiceLocator().getFilterService());
+			sentenceDetectorService.setFeatureService(talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 		}
 		return sentenceDetectorService;
 	}

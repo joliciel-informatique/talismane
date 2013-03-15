@@ -8,6 +8,7 @@ import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -22,6 +23,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	TokeniserService tokeniserService;
 	MachineLearningService machineLearningService;
 	TokenFilterService tokenFilterService;
+	FeatureService featureService;
 	
 	@Override
 	public DependencyArc getDependencyArc(PosTaggedToken head,
@@ -49,6 +51,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		TransitionBasedParser parser = new TransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
+		parser.setFeatureService(this.getFeatureService());
 		return parser;
 	}
 
@@ -59,6 +62,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
 		eventStream.setParserServiceInternal(this);
 		eventStream.setMachineLearningService(this.getMachineLearningService());
+		eventStream.setFeatureService(this.getFeatureService());
 		return eventStream;
 	}
 
@@ -165,6 +169,14 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		ParseComparatorImpl parseComparator = new ParseComparatorImpl();
 		parseComparator.setParserServiceInternal(this);
 		return parseComparator;
+	}
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 	
 	

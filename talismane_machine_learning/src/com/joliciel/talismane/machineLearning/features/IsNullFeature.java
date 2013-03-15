@@ -34,10 +34,10 @@ public class IsNullFeature<T> extends AbstractCachableFeature<T, Boolean> implem
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<?> result1 = feature1.check(context);
+		FeatureResult<?> result1 = feature1.check(context, env);
 		featureResult = this.generateResult(result1==null);
 		return featureResult;
 	}

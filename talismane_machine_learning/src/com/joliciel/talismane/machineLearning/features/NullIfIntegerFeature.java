@@ -37,14 +37,14 @@ public class NullIfIntegerFeature<T> extends AbstractCachableFeature<T,Integer> 
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(T context) {
+	protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (!conditionOutcome) {
-				FeatureResult<Integer> thenFeatureResult = resultFeature.check(context);
+				FeatureResult<Integer> thenFeatureResult = resultFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					int result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

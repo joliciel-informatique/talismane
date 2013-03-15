@@ -35,10 +35,10 @@ class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
 	}
 
 	@Override
-	public FeatureResult<Integer> check(T context) {
+	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Double> doubleResult = doubleFeature.check(context);
+		FeatureResult<Double> doubleResult = doubleFeature.check(context, env);
 		if (doubleResult!=null) {
 			int intResult = doubleResult.getOutcome().intValue();
 			featureResult = this.generateResult(intResult);

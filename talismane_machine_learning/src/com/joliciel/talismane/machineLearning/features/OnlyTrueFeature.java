@@ -35,10 +35,10 @@ public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean> impl
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Boolean> result1 = feature1.check(context);
+		FeatureResult<Boolean> result1 = feature1.check(context, env);
 		
 		if (result1!=null && result1.getOutcome().booleanValue()==true) {
 			featureResult = this.generateResult(true);

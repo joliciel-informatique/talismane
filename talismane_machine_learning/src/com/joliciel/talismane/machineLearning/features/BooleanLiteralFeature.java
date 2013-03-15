@@ -35,7 +35,7 @@ public class BooleanLiteralFeature<T> extends AbstractFeature<T, Boolean> implem
 	}
 
 	@Override
-	public FeatureResult<Boolean> check(T context) {
+	public FeatureResult<Boolean> check(T context, RuntimeEnvironment env) {
 		return this.generateResult(literal);
 	}
 

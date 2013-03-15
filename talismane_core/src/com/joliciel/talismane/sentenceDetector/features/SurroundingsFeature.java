@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
@@ -45,10 +46,10 @@ public class SurroundingsFeature extends AbstractSentenceDetectorFeature<String>
 	}
 	
 	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context) {
+	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
 		FeatureResult<String> result = null;
 		
-		FeatureResult<Integer> nResult = nFeature.check(context);
+		FeatureResult<Integer> nResult = nFeature.check(context, env);
 		if (nResult!=null) {
 			int n = nResult.getOutcome();
 	

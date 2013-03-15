@@ -39,20 +39,20 @@ public class IfThenElseStringFeature<T> extends AbstractCachableFeature<T,String
 	}
 
 	@Override
-	protected FeatureResult<String> checkInternal(T context) {
+	protected FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
 		
-		FeatureResult<Boolean> conditionResult = condition.check(context);
+		FeatureResult<Boolean> conditionResult = condition.check(context, env);
 		if (conditionResult!=null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (conditionOutcome) {
-				FeatureResult<String> thenFeatureResult = thenFeature.check(context);
+				FeatureResult<String> thenFeatureResult = thenFeature.check(context, env);
 				if (thenFeatureResult!=null) {
 					String result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			} else {
-				FeatureResult<String> elseFeatureResult = elseFeature.check(context);
+				FeatureResult<String> elseFeatureResult = elseFeature.check(context, env);
 				if (elseFeatureResult!=null) {
 					String result = elseFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);

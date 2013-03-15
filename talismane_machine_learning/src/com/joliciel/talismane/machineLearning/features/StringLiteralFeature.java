@@ -35,7 +35,7 @@ public class StringLiteralFeature<T> extends AbstractFeature<T, String> implemen
 	}
 
 	@Override
-	public FeatureResult<String> check(T context) {
+	public FeatureResult<String> check(T context, RuntimeEnvironment env) {
 		return this.generateResult(literal);
 	}
 

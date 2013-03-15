@@ -36,6 +36,8 @@ import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -59,6 +61,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
 	
 	private ParserServiceInternal parserServiceInternal;
+	private FeatureService featureService;
 	private DecisionMaker<Transition> decisionMaker;
 	private TransitionSystem transitionSystem;
 
@@ -178,7 +181,8 @@ class TransitionBasedParser implements NonDeterministicParser {
 								if (LOG.isTraceEnabled()) {
 									LOG.trace("Checking rule: " + rule.getCondition().getName());
 								}
-								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history);
+								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
 								if (ruleResult!=null && ruleResult.getOutcome()) {
 									Decision<Transition> positiveRuleDecision = TalismaneSession.getTransitionSystem().createDefaultDecision(rule.getTransition());
 									decisions.add(positiveRuleDecision);
@@ -203,7 +207,8 @@ class TransitionBasedParser implements NonDeterministicParser {
 							for (ParseConfigurationFeature<?> feature : this.parseFeatures) {
 								PerformanceMonitor.startTask(feature.getName());
 								try {
-									FeatureResult<?> featureResult = feature.check(history);
+									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									FeatureResult<?> featureResult = feature.check(history, env);
 									if (featureResult!=null)
 										parseFeatureResults.add(featureResult);
 								} finally {
@@ -248,7 +253,8 @@ class TransitionBasedParser implements NonDeterministicParser {
 									if (LOG.isTraceEnabled()) {
 										LOG.trace("Checking negative rule: " + rule.getCondition().getName());
 									}
-									FeatureResult<Boolean> ruleResult = rule.getCondition().check(history);
+									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
 									if (ruleResult!=null && ruleResult.getOutcome()) {
 										eliminatedTransitions.add(rule.getTransition());
 										if (LOG.isTraceEnabled()) {
@@ -453,6 +459,16 @@ class TransitionBasedParser implements NonDeterministicParser {
 
 	public List<ParserRule> getParserRules() {
 		return parserRules;
+	}
+
+
+	public FeatureService getFeatureService() {
+		return featureService;
+	}
+
+
+	public void setFeatureService(FeatureService featureService) {
+		this.featureService = featureService;
 	}
 	
 	

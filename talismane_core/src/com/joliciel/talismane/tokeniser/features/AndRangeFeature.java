@@ -22,6 +22,7 @@ package com.joliciel.talismane.tokeniser.features;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
@@ -48,12 +49,12 @@ public class AndRangeFeature extends AbstractTokenFeature<Boolean> implements Bo
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Integer> startResult = startFeature.check(tokenWrapper);
-		FeatureResult<Integer> endResult = endFeature.check(tokenWrapper);
+		FeatureResult<Integer> startResult = startFeature.check(tokenWrapper, env);
+		FeatureResult<Integer> endResult = endFeature.check(tokenWrapper, env);
 		if (startResult!=null && endResult!=null) {
 			int relativeStart = startResult.getOutcome();
 			int relativeEnd = endResult.getOutcome();
@@ -65,7 +66,7 @@ public class AndRangeFeature extends AbstractTokenFeature<Boolean> implements Bo
 				Boolean result = Boolean.TRUE;
 				for (int i=start; i<=end; i++) {
 					Token oneToken = token.getTokenSequence().get(i);
-					FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken);
+					FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
 					if (criterionResult==null) {
 						result = null;
 						break;

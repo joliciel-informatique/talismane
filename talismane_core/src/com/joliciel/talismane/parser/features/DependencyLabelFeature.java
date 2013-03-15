@@ -19,6 +19,7 @@
 package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -38,10 +39,10 @@ implements StringFeature<ParseConfigurationAddress> {
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress) {
+	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress, RuntimeEnvironment env) {
 		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
 		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration);
+		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration, env);
 		FeatureResult<String> featureResult = null;
 		if (tokenResult!=null) {
 			PosTaggedToken posTaggedToken = tokenResult.getOutcome();

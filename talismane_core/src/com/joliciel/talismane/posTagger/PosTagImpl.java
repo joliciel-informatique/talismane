@@ -1,6 +1,6 @@
 package com.joliciel.talismane.posTagger;
 
-public class PosTagImpl implements PosTag, Comparable<PosTag> {
+public class PosTagImpl implements PosTag {
 
 	private static final long serialVersionUID = -7223891382830355170L;
 	private String code;

@@ -18,11 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import java.util.Map;
+
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
@@ -34,32 +37,30 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  *
  */
 public class TokeniserPatternOffsetFeature<Y> extends AbstractTokenFeature<Y> {
-	TokenPattern tokeniserPattern;
+	StringFeature<TokenWrapper> tokenPatternFeature;
 	Feature<TokenWrapper,Y> tokenFeature;
 	IntegerFeature<TokenWrapper> offsetFeature;
+	private Map<String,TokenPattern> patternMap;
 	
-	public TokeniserPatternOffsetFeature(TokenPattern tokeniserPattern, IntegerFeature<TokenWrapper> offsetFeature, Feature<TokenWrapper,Y> tokenFeature) {
-		this.tokeniserPattern = tokeniserPattern;
+	public TokeniserPatternOffsetFeature(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokenWrapper> offsetFeature, Feature<TokenWrapper,Y> tokenFeature) {
+		this.tokenPatternFeature = tokenPatternFeature;
 		this.tokenFeature = tokenFeature;
 		this.offsetFeature = offsetFeature;
-		this.setName(tokenFeature.getName() + "[pattern<" + this.tokeniserPattern + ">offset<" + this.offsetFeature.getName() + ">]");
+		this.setName(tokenFeature.getName() + "(" + this.tokenPatternFeature.getName() + "," + this.offsetFeature.getName() + ")");
 	}
 	
 	@Override
-	public FeatureResult<Y> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<Y> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Y> result = null;
-		boolean foundMatch = false;
-		int testIndex = tokeniserPattern.getIndexesToTest().get(0);
-		for (TokenMatch tokenMatch : token.getMatches()) {
-			if (tokenMatch.getPattern().equals(tokeniserPattern)&&tokenMatch.getIndex()==testIndex) {
-				foundMatch = true;
-				break;
-			}
-		}
-		if (foundMatch) {
+		
+		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
+		if (tokenPatternResult!=null) {
+			TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
+			int testIndex = tokenPattern.getIndexesToTest().get(0);
+		
 			// Only continue if the current token matched this pattern at this index
-			FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper);
+			FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
 			if (offsetResult!=null) {
 				int offset = offsetResult.getOutcome();
 			
@@ -71,7 +72,7 @@ public class TokeniserPatternOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 					// or the first non-whitespace word in the pattern if offset < 0
 					int baseIndex = 0;
 					int j = token.getIndexWithWhiteSpace() - testIndex;
-					for (int i=0; i<tokeniserPattern.getTokenCount(); i++) {
+					for (int i=0; i<tokenPattern.getTokenCount(); i++) {
 						if (j>=0&&j<token.getTokenSequence().listWithWhiteSpace().size()) {
 							Token tokenInPattern = token.getTokenSequence().listWithWhiteSpace().get(j);
 							if (!tokenInPattern.isWhiteSpace()) {
@@ -90,13 +91,12 @@ public class TokeniserPatternOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 					}
 				}
 				if (offsetToken!=null) {
-					FeatureResult<Y> originalResult = tokenFeature.check(offsetToken);
+					FeatureResult<Y> originalResult = tokenFeature.check(offsetToken, env);
 					if (originalResult!=null)
 						result = this.generateResult(originalResult.getOutcome());
 				} // we have an offset token
 			} // we have an offset result
-		} // the current token matches the tokeniserPattern at the testIndex
-		
+		}
 		return result;
 	}
 
@@ -104,6 +104,14 @@ public class TokeniserPatternOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 	@Override
 	public Class<? extends Feature> getFeatureType() {
 		return tokenFeature.getFeatureType();
+	}
+
+	public Map<String, TokenPattern> getPatternMap() {
+		return patternMap;
+	}
+
+	public void setPatternMap(Map<String, TokenPattern> patternMap) {
+		this.patternMap = patternMap;
 	}
 
 }

@@ -20,6 +20,7 @@ package com.joliciel.talismane.sentenceDetector.features;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -31,7 +32,7 @@ import com.joliciel.talismane.tokeniser.Token;
  */
 public class InitialsFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {	
 	@Override
-	public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context) {
+	public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> result = null;
 		
 		if (context.getBoundaryString().equals(".")) {

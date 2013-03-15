@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -38,7 +39,7 @@ public class NLetterSuffixFeature extends AbstractTokenFeature<String> implement
 	}
 	
 	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper) {
+	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<String> result = null;
 		String lastWord = token.getText().trim();
@@ -47,7 +48,7 @@ public class NLetterSuffixFeature extends AbstractTokenFeature<String> implement
 			lastWord = lastWord.substring(lastSpace+1);
 		}
 
-		FeatureResult<Integer> nResult = nFeature.check(tokenWrapper);
+		FeatureResult<Integer> nResult = nFeature.check(tokenWrapper, env);
 		if (nResult!=null) {
 			int n = nResult.getOutcome();
 			if (lastWord.length()>n) {

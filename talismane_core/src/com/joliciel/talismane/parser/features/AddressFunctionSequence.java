@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -38,10 +39,10 @@ public class AddressFunctionSequence extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper) {
+	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<Integer> indexResult = indexFeature.check(configuration);
+		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
 		if (indexResult!=null) {
 			int index = indexResult.getOutcome();
 			if (index>=0 && index<configuration.getPosTagSequence().size())

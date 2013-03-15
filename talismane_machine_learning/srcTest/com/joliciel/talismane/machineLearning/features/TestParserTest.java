@@ -28,9 +28,11 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.machineLearning.features.DoubleLiteralFeature;
+import com.joliciel.talismane.machineLearning.features.EqualsOperatorForInteger;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
+import com.joliciel.talismane.machineLearning.features.FeatureSyntaxException;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
@@ -38,8 +40,8 @@ import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.machineLearning.features.IntegerToDoubleFeature;
 import com.joliciel.talismane.machineLearning.features.MinusIntegerOperator;
 import com.joliciel.talismane.machineLearning.features.MinusOperator;
-import com.joliciel.talismane.machineLearning.features.TestContext;
-import com.joliciel.talismane.machineLearning.features.TestParser;
+import com.joliciel.talismane.machineLearning.features.PlusIntegerOperator;
+import com.joliciel.talismane.utils.WeightedOutcome;
 
 public class TestParserTest {
 	private static final Log LOG = LogFactory.getLog(TestParserTest.class);
@@ -164,5 +166,133 @@ public class TestParserTest {
 			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
 		LOG.debug(feature.getClass());
 		assertTrue(feature instanceof MinusIntegerOperator);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testStringCollectionFeatures() {
+		FeatureServiceLocator featureServiceLocator = FeatureServiceLocator.getInstance();
+		FeatureService featureService = featureServiceLocator.getFeatureService();
+		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
+		
+		TestParser parser = new TestParser(featureService);
+		
+		FunctionDescriptor descriptor1 = functionDescriptorParser.parseDescriptor("ABC\tTestStringCollectionFeature(\"A\",\"B\",\"C\")");
+		FunctionDescriptor descriptor2 = functionDescriptorParser.parseDescriptor("XYZ\tTestStringCollectionFeature(\"X\",\"Y\",\"Z\")");
+		FunctionDescriptor descriptor3 = functionDescriptorParser.parseDescriptor("ConcatABCABC\tConcat(\"X\",ABC,ABC)");
+		FunctionDescriptor descriptor4 = functionDescriptorParser.parseDescriptor("ConcatABCXYZ\tConcat(\"X\",ABC,XYZ)");
+		FunctionDescriptor descriptor5 = functionDescriptorParser.parseDescriptor("ConcatABCABC2\tConcat(\"X\",ABC,TestStringCollectionFeature(\"A\",\"B\",\"C\"))");
+		FunctionDescriptor descriptor6 = functionDescriptorParser.parseDescriptor("ConcatABCABC3\tConcat(\"X\",TestStringCollectionFeature(\"A\",\"B\",\"C\"),TestStringCollectionFeature(\"A\",\"B\",\"C\"))");
+		
+		List<Feature<TestContext, ?>> features = parser.parse(descriptor1);
+
+		assertEquals(1, features.size());
+		Feature<TestContext,?> feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof TestStringCollectionFeature);
+		
+		TestContext testContext = new TestContext();
+		RuntimeEnvironment env = featureService.getRuntimeEnvironment();
+		TestStringCollectionFeature testStringCollectionFeature = (TestStringCollectionFeature) feature;
+		FeatureResult<List<WeightedOutcome<String>>> featureResult = testStringCollectionFeature.check(testContext, env);
+		List<WeightedOutcome<String>> outcome = featureResult.getOutcome();
+		LOG.debug(outcome);
+		assertEquals(3, outcome.size());
+		assertEquals("A", outcome.get(0).getOutcome());
+		assertEquals(1.0, outcome.get(0).getWeight(), 0.0001);
+		
+		features = parser.parse(descriptor2);
+		assertEquals(1, features.size());
+		feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof TestStringCollectionFeature);
+		
+		features = parser.parse(descriptor3);
+		assertEquals(1, features.size());
+		feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof StringCollectionFeatureWrapper);
+		
+		testContext = new TestContext();
+		env = featureService.getRuntimeEnvironment();
+		StringCollectionFeatureWrapper<TestContext> stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<TestContext>) feature;
+		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
+		outcome = featureResult.getOutcome();
+		LOG.debug(outcome);
+		// when the same feature is repeated several times, it shouldn't produce a cross-product
+		assertEquals(3, outcome.size());
+		// The result should prefix the collection outcome.
+		assertEquals("A|X|A|A", outcome.get(0).getOutcome());
+		assertEquals(1.0, outcome.get(0).getWeight(), 0.0001);
+		
+		features = parser.parse(descriptor4);
+		assertEquals(1, features.size());
+		feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof StringCollectionFeatureWrapper);
+		
+		testContext = new TestContext();
+		env = featureService.getRuntimeEnvironment();
+		stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<TestContext>) feature;
+		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
+		outcome = featureResult.getOutcome();
+		LOG.debug(outcome);
+		// this time we should have a cross-product
+		assertEquals(9, outcome.size());
+		
+		// The result should prefix the collection outcomes
+		assertEquals("X|A|X|A|X", outcome.get(0).getOutcome());
+		assertEquals(1.0, outcome.get(0).getWeight(), 0.0001);
+		
+		features = parser.parse(descriptor5);
+		assertEquals(1, features.size());
+		feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof StringCollectionFeatureWrapper);
+		
+		testContext = new TestContext();
+		env = featureService.getRuntimeEnvironment();
+		stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<TestContext>) feature;
+		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
+		outcome = featureResult.getOutcome();
+		LOG.debug(outcome);
+		// this time we should have a cross-product, cause the inner feature wasn't named
+		assertEquals(9, outcome.size());
+		
+		// The result should prefix the collection outcomes
+		assertEquals("A|A|X|A|A", outcome.get(0).getOutcome());
+		assertEquals(1.0, outcome.get(0).getWeight(), 0.0001);
+		
+		features = parser.parse(descriptor6);
+		assertEquals(1, features.size());
+		feature = features.get(0);
+		if (feature instanceof FeatureWrapper)
+			feature = ((FeatureWrapper<TestContext,?>) feature).getWrappedFeature();
+		LOG.debug(feature.getClass());
+		assertTrue(feature instanceof StringCollectionFeatureWrapper);
+		
+		testContext = new TestContext();
+		stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<TestContext>) feature;
+		env = featureService.getRuntimeEnvironment();
+		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
+		outcome = featureResult.getOutcome();
+		LOG.debug(outcome);
+		// this time we shouldn't have a cross-product, cause both inner features were named
+		assertEquals(3, outcome.size());
+		
+		// The result should prefix the collection outcomes
+		assertEquals("A|X|A|A", outcome.get(0).getOutcome());
+		assertEquals(1.0, outcome.get(0).getWeight(), 0.0001);
+
 	}
 }
