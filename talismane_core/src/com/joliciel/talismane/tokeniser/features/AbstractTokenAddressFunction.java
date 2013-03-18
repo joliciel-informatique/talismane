@@ -19,11 +19,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import com.joliciel.talismane.machineLearning.features.AbstractMonitorableFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.tokeniser.Token;
 
-public abstract class AbstractTokenAddressFunction extends AbstractMonitorableFeature<TokenWrapper, Token> implements TokenAddressFunction {
+public abstract class AbstractTokenAddressFunction extends AbstractTokenFeature<TokenWrapper> implements TokenAddressFunction<TokenWrapper> {
 
 	@SuppressWarnings("rawtypes")
 	@Override

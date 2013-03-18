@@ -38,11 +38,18 @@ public class LexiconAllPosTagsFeature extends AbstractTokenFeature<String> imple
 	public LexiconAllPosTagsFeature() {
 	}
 	
+	public LexiconAllPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
-
+		
 		if (token.getPossiblePosTags().size()>0) {
 			StringBuilder sb = new StringBuilder();
 			boolean firstPosTag = true;

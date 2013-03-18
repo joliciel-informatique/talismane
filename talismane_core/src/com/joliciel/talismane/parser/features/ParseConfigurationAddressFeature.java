@@ -28,6 +28,6 @@ import com.joliciel.talismane.machineLearning.features.Feature;
  *
  * @param <T>
  */
-public interface ParseConfigurationAddressFeature<T> extends Feature<ParseConfigurationAddress,T> {
+public interface ParseConfigurationAddressFeature<T> extends Feature<ParseConfigurationWrapper,T> {
 
 }

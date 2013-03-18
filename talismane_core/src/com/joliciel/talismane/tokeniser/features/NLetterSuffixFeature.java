@@ -38,9 +38,17 @@ public class NLetterSuffixFeature extends AbstractTokenFeature<String> implement
 		this.setName(super.getName() + "(" + this.nFeature.getName() + ")");
 	}
 	
+	public NLetterSuffixFeature(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> nFeature) {
+		this(nFeature);
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
 		String lastWord = token.getText().trim();
 		if (lastWord.indexOf(' ')>=0) {
@@ -48,7 +56,7 @@ public class NLetterSuffixFeature extends AbstractTokenFeature<String> implement
 			lastWord = lastWord.substring(lastSpace+1);
 		}
 
-		FeatureResult<Integer> nResult = nFeature.check(tokenWrapper, env);
+		FeatureResult<Integer> nResult = nFeature.check(innerWrapper, env);
 		if (nResult!=null) {
 			int n = nResult.getOutcome();
 			if (lastWord.length()>n) {

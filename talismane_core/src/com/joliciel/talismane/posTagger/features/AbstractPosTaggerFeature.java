@@ -29,4 +29,5 @@ import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
  */
 public abstract class AbstractPosTaggerFeature<T> extends AbstractCachableFeature<PosTaggerContext,T> implements PosTaggerFeature<T> {
 
+
 }

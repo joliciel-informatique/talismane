@@ -25,8 +25,8 @@ package com.joliciel.talismane.machineLearning.features;
  *
  */
 public interface RuntimeEnvironment {
-	public String getValue(String variableName);
-	public void setValue(String variableName, String value);
+	public Object getValue(String variableName);
+	public void setValue(String variableName, Object value);
 
 	/**
 	 * A key uniquely describing this environment.

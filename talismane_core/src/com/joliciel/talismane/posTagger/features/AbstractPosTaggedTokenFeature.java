@@ -28,20 +28,32 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractPosTaggedTokenFeature<T> extends AbstractCachableFeature<PosTaggedTokenWrapper,T> implements PosTaggedTokenFeature<T> {
-
-	@Override
-	protected final FeatureResult<T> checkInCache(PosTaggedTokenWrapper context, RuntimeEnvironment env) {
-		if (context.getPosTaggedToken()!=null)
-			return context.getPosTaggedToken().getResultFromCache(this, env);
-		return null;
+public abstract class AbstractPosTaggedTokenFeature<T,Y> extends AbstractCachableFeature<T,Y> implements PosTaggedTokenFeature<T,Y> {
+	PosTaggedTokenAddressFunction<T> addressFunction;
+	
+	public AbstractPosTaggedTokenFeature (PosTaggedTokenAddressFunction<T> addressFunction) {
+		this.addressFunction = addressFunction;
+	}
+	
+	public PosTaggedTokenAddressFunction<T> getAddressFunction() {
+		return addressFunction;
 	}
 
-	@Override
-	protected final void putInCache(PosTaggedTokenWrapper context,
-			FeatureResult<T> featureResult, RuntimeEnvironment env) {
-		if (context.getPosTaggedToken()!=null)
-			context.getPosTaggedToken().putResultInCache(this, featureResult, env);
+	public void setAddressFunction(PosTaggedTokenAddressFunction<T> addressFunction) {
+		this.addressFunction = addressFunction;
+		String name = this.getName();
+		if (name.endsWith(")")) {
+			name = name.substring(0, name.length()-1) + "," + addressFunction.getName() + ")";
+		} else {
+			name = name + "(" + addressFunction.getName() + ")";
+		}
+		this.setName(name);
 	}
-
+	
+	protected PosTaggedTokenWrapper getToken(T context, RuntimeEnvironment env) {
+		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(context, env);
+		if (tokenResult==null)
+			return null;
+		return tokenResult.getOutcome();
+	}
 }

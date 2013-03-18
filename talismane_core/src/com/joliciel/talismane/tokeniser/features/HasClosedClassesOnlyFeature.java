@@ -38,9 +38,17 @@ public class HasClosedClassesOnlyFeature extends AbstractTokenFeature<Boolean> i
 	public HasClosedClassesOnlyFeature() {
 	}
 	
+	public HasClosedClassesOnlyFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+
+	
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 
 		boolean hasClosedClassesOnly = false;

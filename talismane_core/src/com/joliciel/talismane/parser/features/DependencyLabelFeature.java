@@ -24,6 +24,8 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * The dependency label of a given token's governing dependency,
@@ -32,28 +34,33 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String>
-implements StringFeature<ParseConfigurationAddress> {
+implements StringFeature<ParseConfigurationWrapper> {
 
-	public DependencyLabelFeature() {
-		super();
+	public DependencyLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+		super(addressFunction);
+		this.setAddressFunction(addressFunction);
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationAddress parseConfigurationAddress, RuntimeEnvironment env) {
-		ParseConfiguration configuration = parseConfigurationAddress.getParseConfiguration();
-		AddressFunction addressFunction = parseConfigurationAddress.getAddressFunction();
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration, env);
+	public FeatureResult<String> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+		PosTaggedTokenWrapper innerWrapper = this.getToken(wrapper, env);
+		if (innerWrapper==null)
+			return null;
+		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+		if (posTaggedToken==null)
+			return null;
+
 		FeatureResult<String> featureResult = null;
-		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
-			DependencyArc arc = configuration.getGoverningDependency(posTaggedToken);
-			if (arc!=null) {
-				String label = arc.getLabel();
-				if (label==null)
-					label = "null";
-				featureResult = this.generateResult(label);
-			}
+
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
+		DependencyArc arc = configuration.getGoverningDependency(posTaggedToken);
+		if (arc!=null) {
+			String label = arc.getLabel();
+			if (label==null)
+				label = "null";
+			featureResult = this.generateResult(label);
 		}
+		
 		return featureResult;
 	}	
 }

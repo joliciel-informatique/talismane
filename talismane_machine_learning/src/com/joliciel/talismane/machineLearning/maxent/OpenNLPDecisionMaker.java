@@ -27,7 +27,6 @@ import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 import opennlp.model.MaxentModel;
@@ -80,7 +79,7 @@ class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	static void prepareData(List<FeatureResult<?>> featureResults, List<String> contextList, List<Float> weightList) {
 		for (FeatureResult<?> featureResult : featureResults) {
 			if (featureResult!=null) {
-				if (featureResult.getFeature() instanceof StringCollectionFeature) {
+				if (featureResult.getOutcome() instanceof List) {
 					@SuppressWarnings("unchecked")
 					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
 					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {

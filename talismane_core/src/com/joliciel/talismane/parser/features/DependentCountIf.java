@@ -27,6 +27,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Returns the number of dependents already matching a certain criterion.
@@ -34,10 +35,10 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class DependentCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-	private AddressFunction addressFunction;
+	private ParserAddressFunction addressFunction;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
 	
-	public DependentCountIf(AddressFunction addressFunction,
+	public DependentCountIf(ParserAddressFunction addressFunction,
 			BooleanFeature<ParseConfigurationAddress> criterion) {
 		super();
 		this.addressFunction = addressFunction;
@@ -48,15 +49,15 @@ public class DependentCountIf extends AbstractParseConfigurationFeature<Integer>
 	@Override
 	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();		
-		FeatureResult<PosTaggedToken> tokenResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(configuration, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult!=null) {
-			PosTaggedToken posTaggedToken = tokenResult.getOutcome();
+			PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
 			int countMatching = 0;
 			List<PosTaggedToken> dependents = configuration.getDependents(posTaggedToken);
 			for (int i=0; i<dependents.size(); i++) {
 				IntegerFeature<ParseConfiguration> indexFeature = new IntegerLiteralFeature<ParseConfiguration>(i);
-				AddressFunction depFunction = new AddressFunctionDep(addressFunction, indexFeature);
+				ParserAddressFunction depFunction = new AddressFunctionDep(addressFunction, indexFeature);
 				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, depFunction, env);
 				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
 				if (criterionResult!=null && criterionResult.getOutcome())

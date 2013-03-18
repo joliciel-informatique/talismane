@@ -35,20 +35,31 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class ForwardSearchFeature extends AbstractTokenAddressFunction implements TokenAddressFunction {
+public class ForwardSearchFeature extends AbstractTokenAddressFunction {
 	private BooleanFeature<TokenWrapper> criterion;
 	private IntegerFeature<TokenWrapper> startOffsetFeature = null;
 	private IntegerFeature<TokenWrapper> endOffsetFeature = null;
 	
+
 	public ForwardSearchFeature(BooleanFeature<TokenWrapper> criterion) {
 		this.criterion = criterion;
 		this.setName(super.getName() + "(" + criterion.getName() + ")");
+	}
+	
+	public ForwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
+		this(criterion);
+		this.setAddressFunction(addressFunction);
 	}
 
 	public ForwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature) {
 		this.criterion = criterion;
 		this.startOffsetFeature = startOffsetFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + startOffsetFeature.getName() + ")");
+	}
+	
+	public ForwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature) {
+		this(criterion, startOffsetFeature);
+		this.setAddressFunction(addressFunction);
 	}
 
 	public ForwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature, IntegerFeature<TokenWrapper> endOffsetFeature) {
@@ -57,16 +68,25 @@ public class ForwardSearchFeature extends AbstractTokenAddressFunction implement
 		this.setName(super.getName() + "(" + criterion.getName() + "," + startOffsetFeature.getName() + "," + endOffsetFeature.getName() + ")");
 	}
 	
+	public ForwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature, IntegerFeature<TokenWrapper> endOffsetFeature) {
+		this(criterion, startOffsetFeature, endOffsetFeature);
+		this.setAddressFunction(addressFunction);
+	}
+		
 	@Override
-	public FeatureResult<Token> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
-		FeatureResult<Token> featureResult = null;
+	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
+
+		FeatureResult<TokenWrapper> featureResult = null;
 		
 		int startOffset = 1;
 		int endOffset = token.getTokenSequence().size();
 		
 		if (startOffsetFeature!=null) {
-			FeatureResult<Integer> startOffsetResult = startOffsetFeature.check(tokenWrapper, env);
+			FeatureResult<Integer> startOffsetResult = startOffsetFeature.check(innerWrapper, env);
 			if (startOffsetResult!=null) {
 				startOffset = startOffsetResult.getOutcome();
 			} else {
@@ -75,7 +95,7 @@ public class ForwardSearchFeature extends AbstractTokenAddressFunction implement
 		}
 		
 		if (endOffsetFeature!=null) {
-			FeatureResult<Integer> endOffsetResult = endOffsetFeature.check(tokenWrapper, env);
+			FeatureResult<Integer> endOffsetResult = endOffsetFeature.check(innerWrapper, env);
 			if (endOffsetResult!=null) {
 				endOffset = endOffsetResult.getOutcome();
 			} else {

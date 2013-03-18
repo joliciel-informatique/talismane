@@ -19,12 +19,11 @@
 package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * A function that, given a reference token, can return another token.
  * @author Assaf Urieli
  *
  */
-public interface TokenAddressFunction extends Feature<TokenWrapper, Token>{
+public interface TokenAddressFunction<T> extends Feature<T, TokenWrapper>{
 }

@@ -22,6 +22,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the head (or governor) of the reference token.
@@ -29,25 +30,25 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class AddressFunctionHead extends AbstractAddressFunction {
-	private AddressFunction addressFunction;
+	private ParserAddressFunction addressFunction;
 	
-	public AddressFunctionHead(AddressFunction addressFunction) {
+	public AddressFunctionHead(ParserAddressFunction addressFunction) {
 		super();
 		this.addressFunction = addressFunction;
 		this.setName("Head(" + addressFunction.getName() + ")");
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(configuration, env);
 		if (addressResult!=null) {
-			PosTaggedToken referenceToken = addressResult.getOutcome();
+			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
 			resultToken = configuration.getHead(referenceToken);
 		}
 
-		FeatureResult<PosTaggedToken> featureResult = null;
+		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;

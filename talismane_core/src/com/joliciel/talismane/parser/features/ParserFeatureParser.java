@@ -59,7 +59,7 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		container.addFeatureClass("Seq", AddressFunctionSequence.class);
 		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
 		container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
-		container.addFeatureClass("ExplicitAddress", ExplicitAddressFeature.class);
+		container.addFeatureClass("ImplicitAddress", ImplicitAddressFeature.class);
 		
 		PosTagFeatureParser.addPosTaggedTokenFeatureClasses(container);
 
@@ -116,38 +116,11 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		if (featureClass!=null &&
 				(PosTaggedTokenFeature.class.isAssignableFrom(featureClass)
 					|| ParseConfigurationAddressFeature.class.isAssignableFrom(featureClass))) {
-			if (functionDescriptor.getArguments().size()>0) {
-				FunctionDescriptor firstArgument = functionDescriptor.getArguments().get(0);
-				if (firstArgument.isFunction()) {
-					@SuppressWarnings("rawtypes")
-					List<Class<? extends Feature>> firstArgumentClasses = this.getFeatureClasses(firstArgument.getFunctionName());
-					@SuppressWarnings("rawtypes")
-					Class<? extends Feature> firstArgumentClass = null;
-					if (firstArgumentClasses!=null && firstArgumentClasses.size()>0)
-						firstArgumentClass = firstArgumentClasses.get(0);
-					if (firstArgumentClass!=null && AddressFunction.class.isAssignableFrom(firstArgumentClass)) {
-						// Our first argument is an address function
-						// We need to pull it out of the internal descriptor, and wrap it into an ExplicitAddressFeature
-						
-						// create a descriptor for the ExplicitAddressFeature
-						String descriptor = this.getFeatureClassDescriptors(ExplicitAddressFeature.class).get(0);
-						FunctionDescriptor explicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor(descriptor);
-						explicitAddressDescriptor.setDescriptorName(functionDescriptor.getDescriptorName());
-						FunctionDescriptor internalDescriptor = this.getFeatureService().getFunctionDescriptor(functionDescriptor.getFunctionName());
-						
-						// add the ParseConfigurationAddressFeature or PosTaggedTokenFeature as an argument
-						explicitAddressDescriptor.addArgument(internalDescriptor);
-						
-						// add the address function as an argument
-						explicitAddressDescriptor.addArgument(functionDescriptor.getArguments().get(0));
-						
-						// add all other arguments back to the ParseConfigurationAddressFeature or PosTaggedTokenFeature
-						for (int i=1; i<functionDescriptor.getArguments().size();i++) {
-							internalDescriptor.addArgument(functionDescriptor.getArguments().get(i));
-						}
-						descriptors.add(explicitAddressDescriptor);
-					} // first argument is an address function
-				} // first argument is a function
+			if (functionDescriptor.getArguments().size()==0) {
+				String descriptor = this.getFeatureClassDescriptors(ImplicitAddressFeature.class).get(0);
+				FunctionDescriptor implicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor(descriptor);
+				functionDescriptor.addArgument(implicitAddressDescriptor);
+			
 			} // has arguments
 		} // is a PosTaggedTokenFeature or ParseConfigurationAddressFeature
 		
@@ -213,4 +186,19 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 	protected void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		// no dependencies to inject
 	}
+
+	@Override
+	protected boolean canConvert(Class<?> parameterType,
+			Class<?> originalArgumentType) {
+		return false;
+	}
+
+	@Override
+	protected Feature<ParseConfigurationWrapper, ?> convertArgument(
+			Class<?> parameterType,
+			Feature<ParseConfigurationWrapper, ?> originalArgument) {
+		return null;
+	}
+	
+	
 }

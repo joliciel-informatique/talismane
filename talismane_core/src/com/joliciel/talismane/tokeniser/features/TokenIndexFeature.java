@@ -33,9 +33,16 @@ public class TokenIndexFeature extends AbstractTokenFeature<Integer> implements 
 	public TokenIndexFeature() {
 	}
 	
+	public TokenIndexFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Integer> result = null;
 		
 		int index = token.getIndex();

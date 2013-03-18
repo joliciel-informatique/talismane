@@ -33,9 +33,16 @@ public class LastWordInSentenceFeature extends AbstractTokenFeature<Boolean> imp
 	public LastWordInSentenceFeature() {
 	}
 	
+	public LastWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 		
 		boolean lastWord = (token.getIndex()==token.getTokenSequence().size()-1);

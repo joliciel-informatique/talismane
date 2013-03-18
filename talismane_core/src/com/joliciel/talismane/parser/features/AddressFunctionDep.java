@@ -25,6 +25,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the nth dependent of the reference token.
@@ -32,10 +33,10 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class AddressFunctionDep extends AbstractAddressFunction {
-	private AddressFunction addressFunction;
+	private ParserAddressFunction addressFunction;
 	private IntegerFeature<ParseConfiguration> indexFeature;
 	
-	public AddressFunctionDep(AddressFunction addressFunction, IntegerFeature<ParseConfiguration> indexFeature) {
+	public AddressFunctionDep(ParserAddressFunction addressFunction, IntegerFeature<ParseConfiguration> indexFeature) {
 		super();
 		this.addressFunction = addressFunction;
 		this.indexFeature = indexFeature;
@@ -43,14 +44,14 @@ public class AddressFunctionDep extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(configuration, env);
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
 		if (addressResult!=null && indexResult!=null) {
 			int index = indexResult.getOutcome();
-			PosTaggedToken referenceToken = addressResult.getOutcome();
+			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
 			if (referenceToken!=null) {
 				List<PosTaggedToken> dependents = configuration.getDependents(referenceToken);
 				if (dependents.size()>index)
@@ -58,7 +59,7 @@ public class AddressFunctionDep extends AbstractAddressFunction {
 			}
 		}
 
-		FeatureResult<PosTaggedToken> featureResult = null;
+		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;

@@ -22,15 +22,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 class RuntimeEnvironmentImpl implements RuntimeEnvironment {
-	private Map<String, String> variableMap = new HashMap<String, String>();
+	private Map<String, Object> variableMap = new HashMap<String, Object>();
 	
 	@Override
-	public String getValue(String variableName) {
+	public Object getValue(String variableName) {
 		return variableMap.get(variableName);
 	}
 
 	@Override
-	public void setValue(String variableName, String value) {
+	public void setValue(String variableName, Object value) {
 		variableMap.put(variableName, value);
 	}
 
@@ -40,7 +40,7 @@ class RuntimeEnvironmentImpl implements RuntimeEnvironment {
 			return "";
 		StringBuilder sb = new StringBuilder();
 		for (String variable : variableMap.keySet()) {
-			sb.append("|" + variable + ":" + variableMap.get(variable));
+			sb.append("|" + variable + ":" + variableMap.get(variable).toString());
 		}
 		return sb.toString();
 	}

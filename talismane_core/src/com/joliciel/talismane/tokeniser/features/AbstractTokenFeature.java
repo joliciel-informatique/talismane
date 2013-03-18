@@ -34,7 +34,8 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<TokenWrapper,Y> implements TokenFeature<Y> {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(AbstractTokenFeature.class);
-
+	private TokenAddressFunction<TokenWrapper> addressFunction;
+	
 	@Override
 	protected final FeatureResult<Y> checkInCache(TokenWrapper context, RuntimeEnvironment env) {
 		return context.getToken().getResultFromCache(this, env);
@@ -45,4 +46,30 @@ public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<To
 		context.getToken().putResultInCache(this, result, env);
 	}
 
+	protected TokenAddressFunction<TokenWrapper> getAddressFunction() {
+		return addressFunction;
+	}
+
+	protected void setAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.addressFunction = addressFunction;
+		String name = this.getName();
+		if (name.endsWith(")")) {
+			name = name.substring(0, name.length()-1) + "," + addressFunction.getName() + ")";
+		} else {
+			name = name + "(" + addressFunction.getName() + ")";
+		}
+		this.setName(name);
+	}
+
+	protected TokenWrapper getToken(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+		if (this.addressFunction==null) {
+			return tokenWrapper;
+		} else {
+			FeatureResult<TokenWrapper> tokenResult = addressFunction.check(tokenWrapper, env);
+			if (tokenResult==null)
+				return null;
+			return tokenResult.getOutcome();
+		}
+	}
+	
 }

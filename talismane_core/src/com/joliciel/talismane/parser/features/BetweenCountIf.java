@@ -25,6 +25,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Returns the number of pos-tagged tokens between two pos-tagged tokens (and not including them) matching a certain criterion.
@@ -32,11 +33,11 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-	private AddressFunction addressFunction1;
-	private AddressFunction addressFunction2;
+	private ParserAddressFunction addressFunction1;
+	private ParserAddressFunction addressFunction2;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
 	
-	public BetweenCountIf(AddressFunction addressFunction1, AddressFunction addressFunction2,
+	public BetweenCountIf(ParserAddressFunction addressFunction1, ParserAddressFunction addressFunction2,
 			BooleanFeature<ParseConfigurationAddress> criterion) {
 		super();
 		this.addressFunction1 = addressFunction1;
@@ -48,12 +49,12 @@ public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> i
 	@Override
 	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		FeatureResult<PosTaggedToken> tokenResult1 = addressFunction1.check(configuration, env);
-		FeatureResult<PosTaggedToken> tokenResult2 = addressFunction2.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult1 = addressFunction1.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult2 = addressFunction2.check(configuration, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult1!=null && tokenResult2!=null) {
-			PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome();
-			PosTaggedToken posTaggedToken2 = tokenResult2.getOutcome();
+			PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome().getPosTaggedToken();
+			PosTaggedToken posTaggedToken2 = tokenResult2.getOutcome().getPosTaggedToken();
 			int index1 = posTaggedToken1.getToken().getIndex();
 			int index2 = posTaggedToken2.getToken().getIndex();
 			
@@ -64,7 +65,7 @@ public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> i
 			
 			for (int i=minIndex+1; i<maxIndex; i++) {
 				IntegerFeature<ParseConfiguration> indexFeature = new IntegerLiteralFeature<ParseConfiguration>(i);
-				AddressFunction indexFunction = new AddressFunctionSequence(indexFeature);
+				ParserAddressFunction indexFunction = new AddressFunctionSequence(indexFeature);
 				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, indexFunction, env);
 				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
 				if (criterionResult!=null && criterionResult.getOutcome())

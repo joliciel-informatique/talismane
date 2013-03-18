@@ -48,13 +48,22 @@ public class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean>
 		this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + "," + this.posTagFeature.getName() + ")");
 	}
 	
+	public LexiconPosTagForStringFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> wordToCheckFeature, StringFeature<TokenWrapper> posTagFeature) {
+		this(wordToCheckFeature, posTagFeature);
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+
 		FeatureResult<Boolean> result = null;
 
-		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(tokenWrapper, env);
+		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
 		if (wordToCheckResult!=null) {
-			FeatureResult<String> posTagResult = posTagFeature.check(tokenWrapper, env);
+			FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
 			if (posTagResult!=null) {
 				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
 				String wordToCheck = wordToCheckResult.getOutcome();

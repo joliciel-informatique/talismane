@@ -29,17 +29,21 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class TokenIndexFeature extends AbstractPosTaggedTokenFeature<Integer> implements IntegerFeature<PosTaggedTokenWrapper> {
-	public TokenIndexFeature() {
-		super();
-		this.setName(super.getName());
+public class TokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T,Integer> implements IntegerFeature<T> {
+	public TokenIndexFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+		super(addressFunction);
+		this.setAddressFunction(addressFunction);
 	}
 
 	@Override
-	public FeatureResult<Integer> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
-		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+	public FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
+		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+		if (innerWrapper==null)
+			return null;
+		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;
+		
 		FeatureResult<Integer> featureResult = null;
 		Token token = posTaggedToken.getToken();
 		int index = token.getIndex();

@@ -34,10 +34,18 @@ public class LastWordInCompoundFeature extends AbstractTokenFeature<String> impl
 	public LastWordInCompoundFeature() {
 	}
 	
+	public LastWordInCompoundFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
+		
 		String string = token.getText().trim();
 		
 		if (string.indexOf(' ')>=0) {

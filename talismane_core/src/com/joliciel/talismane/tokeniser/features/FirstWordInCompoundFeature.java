@@ -33,9 +33,17 @@ public class FirstWordInCompoundFeature extends AbstractTokenFeature<String> imp
 	public FirstWordInCompoundFeature() {
 	}
 	
+	public FirstWordInCompoundFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+
 	@Override
 	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
+		
 		FeatureResult<String> result = null;
 		String string = token.getText().trim();
 		
@@ -43,6 +51,7 @@ public class FirstWordInCompoundFeature extends AbstractTokenFeature<String> imp
 			String firstWord = string.substring(0, string.indexOf(' '));
 			result = this.generateResult(firstWord);
 		}
+
 		return result;
 	}
 }

@@ -36,9 +36,17 @@ public class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean> im
 	public FirstWordInSentenceFeature() {
 	}
 	
+	public FirstWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
+		
 		FeatureResult<Boolean> result = null;
 		
 		boolean firstWord = (token.getIndex()==0);
@@ -79,9 +87,9 @@ public class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean> im
 				startIndex = 3;
 			}
 			firstWord = (token.getIndex()==startIndex);
-		}
-		
-		result = this.generateResult(firstWord);
+			
+			result = this.generateResult(firstWord);
+		} // have token
 		
 		return result;
 	}

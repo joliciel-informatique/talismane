@@ -33,9 +33,16 @@ public class UnknownWordFeature extends AbstractTokenFeature<Boolean> implements
 	public UnknownWordFeature() {
 	}
 	
+	public UnknownWordFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 
 		boolean unknownWord = token.getPossiblePosTags().size()==0;

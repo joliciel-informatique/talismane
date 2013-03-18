@@ -35,7 +35,7 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  */
 public final class ParseConfigurationAddress implements ParseConfigurationWrapper, PosTaggedTokenWrapper, TokenWrapper, HasFeatureCache {
 	private ParseConfiguration parseConfiguration;
-	private AddressFunction addressFunction;
+	private ParserAddressFunction addressFunction;
 	private PosTaggedToken posTaggedToken = null;
 	private boolean posTaggedTokenRetrieved = false;
 	private RuntimeEnvironment env;
@@ -45,7 +45,7 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 	}
 	
 	public ParseConfigurationAddress(ParseConfiguration parseConfiguration,
-			AddressFunction addressFunction, RuntimeEnvironment env) {
+			ParserAddressFunction addressFunction, RuntimeEnvironment env) {
 		super();
 		this.parseConfiguration = parseConfiguration;
 		this.addressFunction = addressFunction;
@@ -54,7 +54,7 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 	public ParseConfiguration getParseConfiguration() {
 		return parseConfiguration;
 	}
-	public AddressFunction getAddressFunction() {
+	public ParserAddressFunction getAddressFunction() {
 		return addressFunction;
 	}
 
@@ -62,16 +62,16 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 		this.parseConfiguration = parseConfiguration;
 	}
 
-	public void setAddressFunction(AddressFunction addressFunction) {
+	public void setAddressFunction(ParserAddressFunction addressFunction) {
 		this.addressFunction = addressFunction;
 	}
 
 	@Override
 	public PosTaggedToken getPosTaggedToken() {
 		if (!posTaggedTokenRetrieved) {
-			FeatureResult<PosTaggedToken> featureResult = this.addressFunction.check(this.parseConfiguration, this.env);
+			FeatureResult<PosTaggedTokenWrapper> featureResult = this.addressFunction.check(this.parseConfiguration, this.env);
 			if (featureResult!=null)
-				posTaggedToken = featureResult.getOutcome();
+				posTaggedToken = featureResult.getOutcome().getPosTaggedToken();
 			posTaggedTokenRetrieved = true;
 		}
 		return posTaggedToken;

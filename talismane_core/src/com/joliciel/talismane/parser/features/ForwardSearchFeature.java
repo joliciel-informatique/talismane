@@ -31,10 +31,10 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public class ForwardSearchFeature extends AbstractAddressFunction {
-	private AddressFunction referenceTokenFeature;
+	private ParserAddressFunction referenceTokenFeature;
 	private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
 	
-	public ForwardSearchFeature(AddressFunction referenceTokenFeature, BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
+	public ForwardSearchFeature(ParserAddressFunction referenceTokenFeature, BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
 		super();
 		this.referenceTokenFeature = referenceTokenFeature;
 		this.criterionFeature = criterionFeature;
@@ -43,13 +43,13 @@ public class ForwardSearchFeature extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedToken> referenceTokenResult = referenceTokenFeature.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> referenceTokenResult = referenceTokenFeature.check(configuration, env);
 		
 		if (referenceTokenResult!=null) {
-			PosTaggedToken referenceToken = referenceTokenResult.getOutcome();
+			PosTaggedToken referenceToken = referenceTokenResult.getOutcome().getPosTaggedToken();
 			
 			ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
 			parseConfigurationAddress.setParseConfiguration(configuration);
@@ -66,7 +66,7 @@ public class ForwardSearchFeature extends AbstractAddressFunction {
 				}
 			}
 		}
-		FeatureResult<PosTaggedToken> featureResult = null;
+		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;

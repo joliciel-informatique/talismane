@@ -52,9 +52,11 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		container.addFeatureClass("LexiconAllPosTags", LexiconAllPosTagsFeature.class);
 		container.addFeatureClass("LexiconPosTag", LexiconPosTagFeature.class);
 		container.addFeatureClass("LexiconPosTagForString", LexiconPosTagForStringFeature.class);
+		container.addFeatureClass("LexiconPosTags", LexiconPosTagsFeature.class);
+		container.addFeatureClass("LexiconPosTagsForString", LexiconPosTagsForStringFeature.class);
 		container.addFeatureClass("NLetterPrefix", NLetterPrefixFeature.class);
 		container.addFeatureClass("NLetterSuffix", NLetterSuffixFeature.class);
-		container.addFeatureClass("Offset", TokenOffsetFeature.class);
+		container.addFeatureClass("Offset", TokenOffsetAddressFunction.class);
 		container.addFeatureClass("OrRange", OrRangeFeature.class);
 		container.addFeatureClass("PosTagSet", PosTagSetFeature.class);
 		container.addFeatureClass("Regex", RegexFeature.class);
@@ -62,8 +64,6 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		container.addFeatureClass("UnknownWord", UnknownWordFeature.class);
 		container.addFeatureClass("Word", WordFeature.class);
 		container.addFeatureClass("WordForm", WordFormFeature.class);
-		
-		container.addFeatureClass("TokenRef", TokenReferenceFeature.class);
 	}
 
 	/* (non-Javadoc)
