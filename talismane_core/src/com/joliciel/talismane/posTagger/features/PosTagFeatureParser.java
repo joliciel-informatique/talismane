@@ -34,7 +34,9 @@ import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
+import com.joliciel.talismane.tokeniser.features.TokenAddressFunction;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureParser;
+import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
  * A feature parser for PosTaggerContext features.
@@ -51,7 +53,7 @@ public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext>
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("Ngram", NgramFeature.class);
-		container.addFeatureClass("History", PosTaggerHistoryFeature.class);
+		container.addFeatureClass("History", PosTaggerHistoryAddressFunction.class);
 		PosTagFeatureParser.addPosTaggedTokenFeatureClasses(container);
 		this.tokenFeatureParser.addFeatureClasses(container);
 	}
@@ -180,5 +182,45 @@ public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext>
 	@Override
 	protected void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		// no dependencies to inject
+	}
+
+	@Override
+	protected boolean canConvert(Class<?> parameterType,
+			Class<?> originalArgumentType) {
+		if (TokenAddressFunction.class.isAssignableFrom(parameterType) && PosTaggedTokenAddressFunction.class.isAssignableFrom(originalArgumentType))
+			return true;
+		return false;
+	}
+
+	@Override
+	protected Feature<PosTaggerContext, ?> convertArgument(
+			Class<?> parameterType,
+			Feature<PosTaggerContext, ?> originalArgument) {
+		if (TokenAddressFunction.class.isAssignableFrom(parameterType) && (originalArgument instanceof PosTaggedTokenAddressFunction)) {
+			@SuppressWarnings("unchecked")
+			PosTaggedTokenAddressFunction<PosTaggerContext> originalAddressFunction = (PosTaggedTokenAddressFunction<PosTaggerContext>) originalArgument;
+			Feature<PosTaggerContext, ?> convertedFunction = new TokenAddressFunctionWrapper(originalAddressFunction);
+			return convertedFunction;
+		}
+		return null;
+	}
+	
+	private static final class TokenAddressFunctionWrapper extends AbstractFeature<PosTaggerContext,TokenWrapper> implements TokenAddressFunction<PosTaggerContext> {
+		PosTaggedTokenAddressFunction<PosTaggerContext> posTaggedTokenAddressFunction = null;
+		public TokenAddressFunctionWrapper(PosTaggedTokenAddressFunction<PosTaggerContext> posTaggedTokenAddressFunction) {
+			this.posTaggedTokenAddressFunction = posTaggedTokenAddressFunction;
+		}
+		
+		@Override
+		public FeatureResult<TokenWrapper> check(PosTaggerContext context,
+				RuntimeEnvironment env) {
+			FeatureResult<PosTaggedTokenWrapper> posTaggedTokenResult = posTaggedTokenAddressFunction.check(context, env);
+			FeatureResult<TokenWrapper> result = null;
+			if (posTaggedTokenResult!=null) {
+				result = this.generateResult(posTaggedTokenResult.getOutcome().getPosTaggedToken());
+			}
+			return result;
+		}
+
 	}
 }

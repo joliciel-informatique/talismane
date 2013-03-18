@@ -44,12 +44,21 @@ public class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> implemen
 		this.setName(super.getName() + "(" + this.posTagFeature.getName() + ")");
 	}
 	
+	public LexiconPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> posTagFeature) {
+		this(posTagFeature);
+		this.setAddressFunction(addressFunction);
+	}
+
+	
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 
-		FeatureResult<String> posTagResult = posTagFeature.check(tokenWrapper, env);
+		FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
 		if (posTagResult!=null) {
 			PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
 			boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));

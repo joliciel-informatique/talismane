@@ -23,6 +23,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the nth pos-tagged token in the sequence of tokens.
@@ -39,7 +40,7 @@ public class AddressFunctionSequence extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
@@ -48,7 +49,7 @@ public class AddressFunctionSequence extends AbstractAddressFunction {
 			if (index>=0 && index<configuration.getPosTagSequence().size())
 				resultToken = configuration.getPosTagSequence().get(index);
 		}
-		FeatureResult<PosTaggedToken> featureResult = null;
+		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;

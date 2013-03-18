@@ -20,9 +20,11 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.joliciel.talismane.machineLearning.features.AbstractStringCollectionFeature;
+
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 import com.joliciel.talismane.utils.WeightedOutcome;
@@ -33,10 +35,10 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public class TokeniserPatternsAndIndexesFeature extends AbstractStringCollectionFeature<TokenWrapper> {
+public class TokeniserPatternsAndIndexesFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
 
 	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> check(
+	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
 			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
@@ -48,5 +50,10 @@ public class TokeniserPatternsAndIndexesFeature extends AbstractStringCollection
 		
 		return this.generateResult(resultList);
 	}
-
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<? extends Feature> getFeatureType() {
+		return StringCollectionFeature.class;
+	}
 }

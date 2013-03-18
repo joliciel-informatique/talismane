@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import java.util.List;
+
 final class FeatureResultImpl<T> implements FeatureResult<T> {
 	private Feature<?,T> feature;
 	private T outcome;
@@ -51,7 +53,7 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 	@Override
 	public String toString() {
 		String string = this.getTrainingName();
-		if (outcome instanceof Double || outcome instanceof Integer || feature instanceof StringCollectionFeature)
+		if (outcome instanceof Double || outcome instanceof Integer || outcome instanceof List)
 			string += "=" + outcome.toString();
 		return string;
 	}
@@ -60,8 +62,7 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 	public String getTrainingName() {
 		if (trainingName==null) {
 			trainingName = feature.getName();
-			if (!(outcome instanceof Double || outcome instanceof Integer)
-					&& !(feature instanceof StringCollectionFeature)) {
+			if (!(outcome instanceof Double || outcome instanceof Integer || outcome instanceof List)) {
 				String string = null;
 				if (outcome instanceof String) {
 					string = this.getTrainingOutcome((String)outcome);

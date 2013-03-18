@@ -29,15 +29,18 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class GrammaticalGenderFeature extends AbstractPosTaggedTokenFeature<String> implements StringFeature<PosTaggedTokenWrapper> {
-	public GrammaticalGenderFeature() {
-		super();
-		this.setName(super.getName());
+public class GrammaticalGenderFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+	public GrammaticalGenderFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+		super(addressFunction);
+		this.setAddressFunction(addressFunction);
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
-		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
+		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+		if (innerWrapper==null)
+			return null;
+		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;
 		

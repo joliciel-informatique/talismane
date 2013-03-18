@@ -37,7 +37,7 @@ class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String> impleme
 	@Override
 	public FeatureResult<String> check(T context, RuntimeEnvironment env) {
 		FeatureResult<String> result = null;
-		String outcome = env.getValue(stringCollectionFeature.getName());
+		String outcome = (String) env.getValue(stringCollectionFeature.getName());
 		if (outcome!=null) {
 			result = this.generateResult(outcome);
 		}

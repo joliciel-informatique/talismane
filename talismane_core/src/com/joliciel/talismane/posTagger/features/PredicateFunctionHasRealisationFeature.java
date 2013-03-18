@@ -33,27 +33,32 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class PredicateFunctionHasRealisationFeature extends AbstractPosTaggedTokenFeature<Boolean> implements BooleanFeature<PosTaggedTokenWrapper> {
-	public StringFeature<PosTaggedTokenWrapper> functionNameFeature;
-	public StringFeature<PosTaggedTokenWrapper> realisationNameFeature;
-	
-	public PredicateFunctionHasRealisationFeature(StringFeature<PosTaggedTokenWrapper> functionNameFeature, StringFeature<PosTaggedTokenWrapper> realisationNameFeature) {
-		super();
+public class PredicateFunctionHasRealisationFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
+	public StringFeature<T> functionNameFeature;
+	public StringFeature<T> realisationNameFeature;
+
+	public PredicateFunctionHasRealisationFeature(PosTaggedTokenAddressFunction<T> addressFunction, StringFeature<T> functionNameFeature, StringFeature<T> realisationNameFeature) {
+		super(addressFunction);
 		this.functionNameFeature = functionNameFeature;
 		this.realisationNameFeature = realisationNameFeature;
 		this.setName(super.getName() + "(" + functionNameFeature.getName() + "," + realisationNameFeature.getName() + ")");
+		this.setAddressFunction(addressFunction);
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
-		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+		if (innerWrapper==null)
+			return null;
+		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;
 		
+		
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<String> functionNameResult = this.functionNameFeature.check(wrapper, env);
-		FeatureResult<String> realisationNameResult = this.realisationNameFeature.check(wrapper, env);
+		FeatureResult<String> functionNameResult = this.functionNameFeature.check(context, env);
+		FeatureResult<String> realisationNameResult = this.realisationNameFeature.check(context, env);
 		if (functionNameResult!=null && realisationNameResult!=null) {
 			String functionName = functionNameResult.getOutcome();
 			String realisationName = realisationNameResult.getOutcome();

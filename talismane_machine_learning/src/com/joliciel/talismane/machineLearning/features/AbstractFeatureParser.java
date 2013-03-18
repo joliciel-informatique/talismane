@@ -46,7 +46,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	private FeatureService featureService;
 	private Map<String,List<Feature<T, ?>>> namedFeatures = new HashMap<String, List<Feature<T,?>>>();
 	private Map<String,NamedFeatureWithParameters> namedFeaturesWithParameters = new HashMap<String, NamedFeatureWithParameters>();
-	private Map<String,StringCollectionFeature<T>> namedStringCollectionFeatures = new HashMap<String, StringCollectionFeature<T>>();
 
 	@SuppressWarnings("rawtypes")
 	private Map<String,List<Class<? extends Feature>>> featureClasses = null;
@@ -216,14 +215,15 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 					for (Constructor<?> oneConstructor : constructors) {
 						Class<?>[] parameterTypes = oneConstructor.getParameterTypes();
 						
-						if (parameterTypes.length==1 && argumentsList.size()==1 && argumentsList.get(0).length>=1) {
+						if (parameterTypes.length>=1 && argumentsList.size()==1 && argumentsList.get(0).length>=parameterTypes.length) {
 							Object[] arguments = argumentsList.get(0);
-							Class<?> parameterType = parameterTypes[0];
+							Class<?> parameterType = parameterTypes[parameterTypes.length-1];
 							if (parameterType.isArray()) {
+								//TODO: shouldn't we use argument.getFeatureType() instead of argument instanceof?
 								// assume it's a variable-argument constructor
 								// build the argument for this constructor
 								// find a common type for all of the arguments.
-								Object argument = arguments[0];
+								Object argument = arguments[parameterTypes.length-1];
 								Class<?> clazz = null;
 								if (argument instanceof StringFeature)
 									clazz = StringFeature.class;
@@ -235,12 +235,16 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 									clazz = IntegerFeature.class;
 								else if (argument instanceof StringCollectionFeature)
 									clazz = StringFeature.class;
-								else
-									throw new FeatureSyntaxException("Unknown argument type: " + argument.getClass().getSimpleName(), descriptor, topLevelDescriptor);
-								
-								Object[] argumentArray = (Object[]) Array.newInstance(clazz, arguments.length);
+								else {
+									// no good, can't make arrays of this type
+									continue;
+								}
+									
+								Object[] argumentArray = (Object[]) Array.newInstance(clazz, (arguments.length-parameterTypes.length)+1);
 								int j = 0;
-								for (Object oneArgument : arguments) {
+								for (int k=parameterTypes.length-1; k<arguments.length; k++) {
+									Object oneArgument = arguments[k];
+									//TODO: shouldn't we use argument.getFeatureType() instead of argument instanceof?
 									if (oneArgument instanceof StringCollectionFeature) {
 										@SuppressWarnings("unchecked")
 										StringCollectionFeature<T> stringCollectionFeature = (StringCollectionFeature<T>) oneArgument;
@@ -251,11 +255,23 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 									argumentArray[j++] = oneArgument;
 								} // next argument
 								
-								constructor = ConstructorUtils.getMatchingAccessibleConstructor(featureClass, argumentArray.getClass());
+								Class<?>[] argumentTypesWithArray = new Class<?>[parameterTypes.length];
+								for (int k=0;k<parameterTypes.length-1;k++) {
+									Object oneArgument = arguments[k];
+									argumentTypesWithArray[k] = oneArgument.getClass();
+								}
+								argumentTypesWithArray[argumentTypesWithArray.length-1] = argumentArray.getClass();
+								constructor = ConstructorUtils.getMatchingAccessibleConstructor(featureClass, argumentTypesWithArray);
 								
 								if (constructor!=null) {
 									argumentsList = new ArrayList<Object[]>();
-									argumentsList.add(new Object[] {argumentArray});
+									Object[] argumentsWithArray = new Object[parameterTypes.length];
+ 									for (int k=0;k<parameterTypes.length-1;k++) {
+										Object oneArgument = arguments[k];
+										argumentsWithArray[k] = oneArgument;
+									}
+ 									argumentsWithArray[parameterTypes.length-1] = argumentArray;
+									argumentsList.add(argumentsWithArray);
 									break;
 								}
 							} // constructor takes an array
@@ -271,16 +287,20 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 							boolean isMatchingConstructor = false;
 							List<Integer> intParametersToConvert = new ArrayList<Integer>();
 							List<Integer> stringCollectionParametersToConvert = new ArrayList<Integer>();
+							List<Integer> customParametersToConvert = new ArrayList<Integer>();
 							if (parameterTypes.length==argumentTypes.length) {
 								int j=0;
 								isMatchingConstructor = true;
+								
 								for (Class<?> parameterType : parameterTypes) {
-									if (parameterType.isAssignableFrom(argumentTypes[j])) {
+									if (parameterType.isAssignableFrom(argumentTypes[j])&& !StringCollectionFeature.class.isAssignableFrom(argumentTypes[j])) {
 										// nothing to do here
 									} else if (parameterType.equals(DoubleFeature.class) && IntegerFeature.class.isAssignableFrom(argumentTypes[j])) {
 										intParametersToConvert.add(j);
-									} else if (parameterType.equals(StringFeature.class) && StringCollectionFeature.class.isAssignableFrom(argumentTypes[j])) {
+									} else if ((parameterType.equals(StringFeature.class)||parameterType.equals(Feature.class)) && StringCollectionFeature.class.isAssignableFrom(argumentTypes[j])) {
 										stringCollectionParametersToConvert.add(j);
+									} else if (this.canConvert(parameterType, argumentTypes[j])) {
+										customParametersToConvert.add(j);
 									} else {
 										isMatchingConstructor = false;
 										break;
@@ -306,6 +326,11 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 										collectionFeaturesToExtract.add(stringCollectionFeature);
 										StringCollectionFeatureProxy<T> proxy = new StringCollectionFeatureProxy<T>(stringCollectionFeature);
 										myArguments[indexToConvert] = proxy;
+									}
+									for (int indexToConvert : customParametersToConvert) {
+										@SuppressWarnings("unchecked")
+										Feature<T,?> customArgument = this.convertArgument(parameterTypes[indexToConvert], (Feature<T, ?>) myArguments[indexToConvert]);
+										myArguments[indexToConvert] = customArgument;
 									}
 								}
 								break;
@@ -346,6 +371,22 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		} // next argument list
 		return features;
 	}
+	
+	/**
+	 * Is it possible to convert a given argument type to the requested parameter type?
+	 * @param parameterType
+	 * @param originalArgumentType
+	 * @return
+	 */
+	protected abstract boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType);
+
+	/**
+	 * If canConvert returned true, convert the original argument to the requested parameter type.
+	 * @param parameterType
+	 * @param originalArgument
+	 * @return
+	 */
+	protected abstract Feature<T,?> convertArgument(Class<?> parameterType, Feature<T,?> originalArgument);
 	
 	/**
 	 * Add the feature return-type interface if required,
@@ -391,8 +432,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			}
 			if (featureClasses.containsKey(featureName)
 					||namedFeatures.containsKey(featureName)
-					||namedFeaturesWithParameters.containsKey(featureName)
-					||namedStringCollectionFeatures.containsKey(featureName)) {
+					||namedFeaturesWithParameters.containsKey(featureName)) {
 				throw new FeatureSyntaxException("Feature name already used: " + descriptor.getDescriptorName(), descriptor, descriptor);
 			}
 		}
@@ -516,10 +556,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 
 			if (namedFeatures.containsKey(functionName)) {
 				features.addAll(namedFeatures.get(functionName));
-			} else if (namedStringCollectionFeatures.containsKey(functionName)) {
-				StringCollectionFeature<T> stringCollectionFeature = namedStringCollectionFeatures.get(functionName);
-				StringCollectionFeatureProxy<T> proxy = new StringCollectionFeatureProxy<T>(stringCollectionFeature);
-				features.add(proxy);
 			} else {
 				@SuppressWarnings("rawtypes")
 				List<Class<? extends Feature>> featureClasses = this.featureClasses.get(functionName);
@@ -547,16 +583,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		} // next modified descriptor
 		
 		return features;
-	}
-
-	void findNamedStringCollectionFeatures(FunctionDescriptor descriptor, Set<String> stringCollectionFeatures) {
-		if (namedStringCollectionFeatures.containsKey(descriptor.getFunctionName())) {
-			stringCollectionFeatures.add(descriptor.getFunctionName());
-		} else {
-			for (FunctionDescriptor argument : descriptor.getArguments()) {
-				this.findNamedStringCollectionFeatures(argument, stringCollectionFeatures);
-			}
-		}
 	}
 	
 	/**

@@ -28,22 +28,18 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 /**
  * Applies a posTaggerFeature to a particular pos-tagged token in the current history.
  * @author Assaf Urieli
- *
- * @param <T>
  */
-public class PosTaggerHistoryFeature<T> extends AbstractPosTaggerFeature<T> {
+public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggerContext> {
 	private IntegerFeature<PosTaggerContext> offsetFeature = null;
-	private Feature<PosTaggedTokenWrapper,T> posTaggerFeature = null;
 	
-	public PosTaggerHistoryFeature(IntegerFeature<PosTaggerContext> offset, Feature<PosTaggedTokenWrapper,T> posTaggerFeature) {
-		this.posTaggerFeature = posTaggerFeature;
+	public PosTaggerHistoryAddressFunction(IntegerFeature<PosTaggerContext> offset) {
 		this.offsetFeature = offset;
-		this.setName(posTaggerFeature.getName() + "[offset<" + this.offsetFeature.getName() + ">]");
+		this.setName("History(" + offsetFeature.getName() + ")");
 	}
 	
 	@Override
-	protected FeatureResult<T> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
-		FeatureResult<T> result = null;
+	protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
+		FeatureResult<PosTaggedTokenWrapper> result = null;
 		
 		FeatureResult<Integer> offsetResult = offsetFeature.check(context, env);
 		if (offsetResult!=null) {
@@ -55,9 +51,8 @@ public class PosTaggerHistoryFeature<T> extends AbstractPosTaggerFeature<T> {
 			int i = context.getToken().getIndex();
 			if (i >= n) {
 				PosTaggedToken prevToken = context.getHistory().get(i-n);
-				FeatureResult<T> wrappedFeatureResult = this.posTaggerFeature.check(prevToken, env);
-				if (wrappedFeatureResult!=null)
-					result = this.generateResult(wrappedFeatureResult.getOutcome());		
+				if (prevToken!=null)
+					result = this.generateResult(prevToken);		
 			}
 		} // have n
 		return result;
@@ -66,7 +61,7 @@ public class PosTaggerHistoryFeature<T> extends AbstractPosTaggerFeature<T> {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Class<? extends Feature> getFeatureType() {
-		return this.posTaggerFeature.getFeatureType();
+		return PosTaggedTokenAddressFunction.class;
 	}
 
 	

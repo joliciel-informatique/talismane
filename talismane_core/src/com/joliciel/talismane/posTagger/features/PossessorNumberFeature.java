@@ -29,17 +29,21 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class PossessorNumberFeature extends AbstractPosTaggedTokenFeature<String> implements StringFeature<PosTaggedTokenWrapper> {
-	public PossessorNumberFeature() {
-		super();
-		this.setName(super.getName());
+public class PossessorNumberFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+	public PossessorNumberFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+		super(addressFunction);
+		this.setAddressFunction(addressFunction);
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
-		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
+		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+		if (innerWrapper==null)
+			return null;
+		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;
+		
 		FeatureResult<String> featureResult = null;
 		LexicalEntry lexicalEntry = null;
 		if (posTaggedToken.getLexicalEntries().size()>0)

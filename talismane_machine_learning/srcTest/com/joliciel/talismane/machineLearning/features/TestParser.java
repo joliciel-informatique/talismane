@@ -52,4 +52,16 @@ final class TestParser extends AbstractFeatureParser<TestContext> {
 		
 	}
 
+	@Override
+	protected boolean canConvert(Class<?> parameterType,
+			Class<?> originalArgumentType) {
+		return false;
+	}
+
+	@Override
+	protected Feature<TestContext, ?> convertArgument(Class<?> parameterType,
+			Feature<TestContext, ?> originalArgument) {
+		return null;
+	}
+
 }

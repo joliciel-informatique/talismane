@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,36 +18,53 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import java.util.ArrayList;
+import java.util.List;
 
-import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * Returns true if this is the last word in the sentence (including punctuation).
+ * A StringCollectionFeature returning all of the postags for the current token in the lexicon.
  * @author Assaf Urieli
  *
  */
-public class LastWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {	
-	public LastWordInSentenceFeature() {
-	}
+public class LexiconPosTagsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
+
+	public LexiconPosTagsFeature() {}
 	
-	public LastWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+	public LexiconPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
 		this.setAddressFunction(addressFunction);
 	}
-	
+
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
+			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
 		if (innerWrapper==null)
 			return null;
 		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
-		
-		boolean lastWord = (token.getIndex()==token.getTokenSequence().size()-1);
-		result = this.generateResult(lastWord);
+		FeatureResult<List<WeightedOutcome<String>>> result = null;
+		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+
+		for (PosTag posTag : token.getPossiblePosTags()) {
+			resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
+		}
+
+		if (resultList.size()>0)
+			result = this.generateResult(resultList);
 		
 		return result;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<? extends Feature> getFeatureType() {
+		return StringCollectionFeature.class;
 	}
 }

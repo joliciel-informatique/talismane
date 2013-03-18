@@ -45,18 +45,31 @@ public class ForwardLookupFeature extends AbstractTokenFeature<Integer> implemen
 		this.setName(super.getName() + "(" + criterion.getName() + ")");
 	}
 
+	public ForwardLookupFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
+		this(criterion);
+		this.setAddressFunction(addressFunction);
+	}
+
 	public ForwardLookupFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> offsetFeature) {
 		this.criterion = criterion;
 		this.offsetFeature = offsetFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + offsetFeature.getName() + ")");
 	}
+	
+	public ForwardLookupFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> offsetFeature) {
+		this(criterion, offsetFeature);
+		this.setAddressFunction(addressFunction);
+	}
 
 	@Override
 	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
+		FeatureResult<Integer> offsetResult = offsetFeature.check(innerWrapper, env);
 		if (offsetResult!=null) {
 			int index = token.getIndex();
 			int initialOffset = offsetResult.getOutcome();
@@ -79,6 +92,7 @@ public class ForwardLookupFeature extends AbstractTokenFeature<Integer> implemen
 				featureResult = this.generateResult(matchingOffset);
 			}
 		}
+
 		return featureResult;
 	}
 }

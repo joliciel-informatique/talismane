@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2013 Assaf Urieli
+//Copyright (C) 2012 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,33 +16,14 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.features;
+package com.joliciel.talismane.parser.features;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 
-class RuntimeEnvironmentImpl implements RuntimeEnvironment {
-	private Map<String, Object> variableMap = new HashMap<String, Object>();
-	
-	@Override
-	public Object getValue(String variableName) {
-		return variableMap.get(variableName);
-	}
-
-	@Override
-	public void setValue(String variableName, Object value) {
-		variableMap.put(variableName, value);
-	}
-
-	@Override
-	public String getKey() {
-		if (variableMap.size()==0)
-			return "";
-		StringBuilder sb = new StringBuilder();
-		for (String variable : variableMap.keySet()) {
-			sb.append("|" + variable + ":" + variableMap.get(variable).toString());
-		}
-		return sb.toString();
-	}
-
+/**
+ * A function that, given a parse configuration, returns a pos-tagged token within the configuration.
+ * @author Assaf Urieli
+ *
+ */
+public interface ParserAddressFunction extends PosTaggedTokenAddressFunction<ParseConfigurationWrapper> {
 }

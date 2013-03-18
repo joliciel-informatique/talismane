@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,15 +16,10 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
 
-/**
- * A function that, given a parse configuration, can return a given pos-tagged token.
- * @author Assaf Urieli
- *
- */
-public interface AddressFunction extends Feature<ParseConfigurationWrapper, PosTaggedToken>{
+public interface PosTaggedTokenAddressFunction<T> extends Feature<T, PosTaggedTokenWrapper> {
+
 }

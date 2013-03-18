@@ -110,4 +110,17 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 			return wrappedFeature.getFeatureType();
 		}
 	}
+
+	@Override
+	protected boolean canConvert(Class<?> parameterType,
+			Class<?> originalArgumentType) {
+		return false;
+	}
+
+	@Override
+	protected Feature<PossibleSentenceBoundary, ?> convertArgument(
+			Class<?> parameterType,
+			Feature<PossibleSentenceBoundary, ?> originalArgument) {
+		return null;
+	}
 }

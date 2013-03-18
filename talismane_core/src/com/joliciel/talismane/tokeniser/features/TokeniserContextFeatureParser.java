@@ -72,7 +72,7 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("InsidePatternNgram", InsidePatternNgramFeature.class);
-		container.addFeatureClass("PatternOffset", TokeniserPatternOffsetFeature.class);
+		container.addFeatureClass("PatternOffset", TokeniserPatternOffsetAddressFunction.class);
 		container.addFeatureClass("PatternWordForm", PatternWordForm.class);
 		container.addFeatureClass("PatternIndexInSentence", PatternIndexInSentence.class);
 		container.addFeatureClass("TokeniserPatterns", TokeniserPatternsFeature.class);
@@ -83,74 +83,11 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(
 			FunctionDescriptor functionDescriptor) {
-		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
-		String functionName = functionDescriptor.getFunctionName();
-		
-		@SuppressWarnings("rawtypes")
-		List<Class<? extends Feature>> featureClasses = this.getFeatureClasses(functionName);
-		
-		@SuppressWarnings("rawtypes")
-		Class<? extends Feature> featureClass = null;
-		if (featureClasses!=null && featureClasses.size()>0)
-			featureClass = featureClasses.get(0);
-		
-		if (featureClass!=null) {
-			if (featureClass.equals(InsidePatternNgramFeature.class)) {
-				// do nothing in particular
-			} else if (featureClass.equals(PatternWordForm.class)
-					||featureClass.equals(PatternIndexInSentence.class)
-					||featureClass.equals(TokeniserPatternOffsetFeature.class)) {
-				// do nothing in particular
-			} else if (featureClass.equals(TokenReferenceFeature.class)) {
-				// do nothing in particular
-			} else if (TokenFeature.class.isAssignableFrom(featureClass)) {
-				// if the first argument is an address reference to another token
-				// we need to replace the whole thing with a TokenReferenceFeature
-				if (functionDescriptor.getArguments().size()>0) {
-					FunctionDescriptor firstArgument = functionDescriptor.getArguments().get(0);
-					if (firstArgument.isFunction()) {
-						@SuppressWarnings("rawtypes")
-						List<Class<? extends Feature>> firstArgumentClasses = this.getFeatureClasses(firstArgument.getFunctionName());
-						@SuppressWarnings("rawtypes")
-						Class<? extends Feature> firstArgumentClass = null;
-						if (firstArgumentClasses!=null && firstArgumentClasses.size()>0)
-							firstArgumentClass = firstArgumentClasses.get(0);
-						if (firstArgumentClass!=null && TokenAddressFunction.class.isAssignableFrom(firstArgumentClass)) {
-							// Our first argument is a token address function
-							// We need to pull it out of the internal descriptor, and wrap it into a TokenReferenceFeature
-							
-							// create a descriptor for the TokenReferenceFeature
-							String descriptor = this.getFeatureClassDescriptors(TokenReferenceFeature.class).get(0);
-							FunctionDescriptor explicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor(descriptor);
-							explicitAddressDescriptor.setDescriptorName(functionDescriptor.getDescriptorName());
-							FunctionDescriptor internalDescriptor = this.getFeatureService().getFunctionDescriptor(functionDescriptor.getFunctionName());
-							
-							// add the TokenAddressFunction as an argument
-							explicitAddressDescriptor.addArgument(functionDescriptor.getArguments().get(0));
-							
-							// add the TokenFeature as an argument
-							explicitAddressDescriptor.addArgument(internalDescriptor);
-							
-							// add all other arguments back to the TokenFeature
-							for (int i=1; i<functionDescriptor.getArguments().size();i++) {
-								internalDescriptor.addArgument(functionDescriptor.getArguments().get(i));
-							}
-							descriptors.add(explicitAddressDescriptor);
-						} // first argument is an address function
-					} // first argument is a function
-				} // has arguments
-			} // which feature class?
-		} // have a feature class?
-		
-		if (descriptors.size()==0) {
-			descriptors = tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
-		}
-		
-		return descriptors;
+		return tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
 	}
 
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	protected void injectDependencies(Feature feature) {
 		if (feature instanceof InsidePatternNgramFeature) {
@@ -159,8 +96,8 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 			((PatternWordForm) feature).setPatternMap(patternMap);
 		} else if (feature instanceof PatternIndexInSentence) {
 			((PatternIndexInSentence) feature).setPatternMap(patternMap);
-		} else if (feature instanceof TokeniserPatternOffsetFeature) {
-			((TokeniserPatternOffsetFeature) feature).setPatternMap(patternMap);
+		} else if (feature instanceof TokeniserPatternOffsetAddressFunction) {
+			((TokeniserPatternOffsetAddressFunction) feature).setPatternMap(patternMap);
 		}
 	}
 	
@@ -212,6 +149,19 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		for (TokenPattern tokenPattern : this.patternList) {
 			this.patternMap.put(tokenPattern.getName(), tokenPattern);
 		}
+	}
+
+	@Override
+	protected boolean canConvert(Class<?> parameterType,
+			Class<?> originalArgumentType) {
+		return false;
+	}
+
+	@Override
+	protected Feature<TokeniserContext, ?> convertArgument(
+			Class<?> parameterType,
+			Feature<TokeniserContext, ?> originalArgument) {
+		return null;
 	}
 
 	

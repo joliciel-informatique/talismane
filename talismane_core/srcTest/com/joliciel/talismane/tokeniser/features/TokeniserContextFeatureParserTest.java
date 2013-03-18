@@ -35,7 +35,6 @@ import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
-import com.joliciel.talismane.machineLearning.features.NullToFalseFeature;
 import com.joliciel.talismane.machineLearning.features.OrFeature;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 
@@ -116,29 +115,8 @@ public class TokeniserContextFeatureParserTest {
 		assertTrue(stringFeatures[2] instanceof NLetterSuffixFeature);
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testNestedOffsetParameter() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
-		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
-		
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(featureService);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(featureService);
-		parser.setTokenFeatureParser(tokenFeatureParser);
-		
-		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("Offset(1,OnlyTrue(UnknownWord()))");
-		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
-		assertEquals(1, features.size());
-		Feature<TokeniserContext,?> feature = features.get(0);
-		if (feature instanceof FeatureWrapper)
-			feature = ((FeatureWrapper<TokeniserContext,?>) feature).getWrappedFeature();
-		LOG.debug(feature.getClass());
-		assertTrue(feature instanceof TokenOffsetFeature);
-		
-	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testNamedFeatures() {
 		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
@@ -160,32 +138,6 @@ public class TokeniserContextFeatureParserTest {
 		WordFeature wordFeature = (WordFeature) feature;
 		assertEquals("IsMonthName", feature.getName());
 		assertEquals(12, wordFeature.words.length);
-		
-		descriptor = functionDescriptorParser.parseDescriptor("IsDayOfMonth\tAnd(Word(\"31\"),Offset(1,NullToFalse(IsMonthName())))");
-		features = parser.parse(descriptor);
-		assertEquals(1, features.size());
-		feature = features.get(0);
-		if (feature instanceof FeatureWrapper)
-			feature = ((FeatureWrapper<TokeniserContext,?>) feature).getWrappedFeature();
-		LOG.debug(feature.getClass());
-		assertEquals("IsDayOfMonth", feature.getName());
-		assertTrue(feature instanceof AndFeature);
-		AndFeature andFeature = (AndFeature) feature;
-		feature = andFeature.getBooleanFeatures()[1];
-		if (feature instanceof FeatureWrapper)
-			feature = ((FeatureWrapper<TokeniserContext,?>) feature).getWrappedFeature();
-		TokenOffsetFeature tokenOffsetFeature = (TokenOffsetFeature) feature;
-		feature =tokenOffsetFeature.getTokenFeature();
-		if (feature instanceof FeatureWrapper)
-			feature = ((FeatureWrapper<TokeniserContext,?>) feature).getWrappedFeature();
-		NullToFalseFeature nullToFalseFeature = (NullToFalseFeature) feature;
-		feature = nullToFalseFeature.getWrappedFeature();
-		if (feature instanceof FeatureWrapper)
-			feature = ((FeatureWrapper<TokeniserContext,?>) feature).getWrappedFeature();
-		wordFeature = (WordFeature) nullToFalseFeature.getWrappedFeature();
-		assertEquals("IsMonthName", wordFeature.getName());
-		assertEquals(12, wordFeature.words.length);
-		
 	}
 	
 	

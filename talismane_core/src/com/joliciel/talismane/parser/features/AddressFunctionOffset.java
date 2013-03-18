@@ -23,6 +23,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the token offset from the current token by <i>n</i> (in the linear sentence),
@@ -32,10 +33,10 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class AddressFunctionOffset extends AbstractAddressFunction {
-	private AddressFunction addressFunction;
+	private ParserAddressFunction addressFunction;
 	private IntegerFeature<ParseConfiguration> offsetFeature;
 	
-	public AddressFunctionOffset(AddressFunction addressFunction, IntegerFeature<ParseConfiguration> offsetFeature) {
+	public AddressFunctionOffset(ParserAddressFunction addressFunction, IntegerFeature<ParseConfiguration> offsetFeature) {
 		super();
 		this.addressFunction = addressFunction;
 		this.offsetFeature = offsetFeature;
@@ -43,14 +44,14 @@ public class AddressFunctionOffset extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(configuration, env);
 		FeatureResult<Integer> offsetResult = offsetFeature.check(configuration, env);
 		if (addressResult!=null && offsetResult!=null) {
 			int offset = offsetResult.getOutcome();
-			PosTaggedToken referenceToken = addressResult.getOutcome();
+			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
 			
 			int refIndex = referenceToken.getToken().getIndex();
 			int index = refIndex + offset;
@@ -59,7 +60,7 @@ public class AddressFunctionOffset extends AbstractAddressFunction {
 			}
 		}
 
-		FeatureResult<PosTaggedToken> featureResult = null;
+		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;

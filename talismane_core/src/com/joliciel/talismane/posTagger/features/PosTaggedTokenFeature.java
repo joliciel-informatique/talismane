@@ -25,6 +25,6 @@ import com.joliciel.talismane.machineLearning.features.Feature;
  * when pos-tagging on the history of the current task, or when parsing,
  * after referring to an individual pos-tag.
  */
-public interface PosTaggedTokenFeature<T> extends Feature<PosTaggedTokenWrapper, T> {
-
+public interface PosTaggedTokenFeature<T,Y> extends Feature<T, Y> {
+	public PosTaggedTokenAddressFunction<?> getAddressFunction();
 }

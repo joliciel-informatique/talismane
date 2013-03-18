@@ -31,24 +31,28 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class PredicateHasFunctionFeature extends AbstractPosTaggedTokenFeature<Boolean> implements BooleanFeature<PosTaggedTokenWrapper> {
-	public StringFeature<PosTaggedTokenWrapper> functionNameFeature;
+public class PredicateHasFunctionFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
+	public StringFeature<T> functionNameFeature;
 	
-	public PredicateHasFunctionFeature(StringFeature<PosTaggedTokenWrapper> functionNameFeature) {
-		super();
+	public PredicateHasFunctionFeature(PosTaggedTokenAddressFunction<T> addressFunction, StringFeature<T> functionNameFeature) {
+		super(addressFunction);
 		this.functionNameFeature = functionNameFeature;
 		this.setName(super.getName() + "(" + functionNameFeature.getName() + ")");
+		this.setAddressFunction(addressFunction);
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(PosTaggedTokenWrapper wrapper, RuntimeEnvironment env) {
-		PosTaggedToken posTaggedToken = wrapper.getPosTaggedToken();
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+		if (innerWrapper==null)
+			return null;
+		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
 		if (posTaggedToken==null)
 			return null;
-		
+				
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<String> functionNameResult = this.functionNameFeature.check(wrapper, env);
+		FeatureResult<String> functionNameResult = this.functionNameFeature.check(context, env);
 		if (functionNameResult!=null) {
 			String functionName = functionNameResult.getOutcome();
 			LexicalEntry lexicalEntry = null;

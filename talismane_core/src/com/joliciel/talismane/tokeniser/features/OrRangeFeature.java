@@ -47,14 +47,22 @@ public class OrRangeFeature extends AbstractTokenFeature<Boolean> implements Boo
 		this.endFeature = endFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + startFeature.getName() + "," + endFeature.getName() + ")");
 	}
+	
+	public OrRangeFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startFeature, IntegerFeature<TokenWrapper> endFeature) {
+		this(criterion, startFeature, endFeature);
+		this.setAddressFunction(addressFunction);
+	}
 
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Integer> startResult = startFeature.check(tokenWrapper, env);
-		FeatureResult<Integer> endResult = endFeature.check(tokenWrapper, env);
+		FeatureResult<Integer> startResult = startFeature.check(innerWrapper, env);
+		FeatureResult<Integer> endResult = endFeature.check(innerWrapper, env);
 		if (startResult!=null && endResult!=null) {
 			int relativeStart = startResult.getOutcome();
 			int relativeEnd = endResult.getOutcome();

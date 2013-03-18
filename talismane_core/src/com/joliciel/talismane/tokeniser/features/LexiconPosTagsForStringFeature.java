@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,63 +18,68 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
-import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * Returns true if the string provided has a lexicon entry for the PosTag provided.
+ * A StringCollectionFeature returning all of the postags in the lexicon for a word specified by the wordToCheckFeature.
  * @author Assaf Urieli
  *
  */
-public class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	private StringFeature<TokenWrapper> posTagFeature;
+public class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
 	private StringFeature<TokenWrapper> wordToCheckFeature;
-	
-	/**
-	 * 
-	 * @param posTag the PosTag we're testing for
-	 */
-	public LexiconPosTagForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature, StringFeature<TokenWrapper> posTagFeature) {
-		this.posTagFeature = posTagFeature;
+
+	public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {
 		this.wordToCheckFeature = wordToCheckFeature;
-		this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + "," + this.posTagFeature.getName() + ")");
+		this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + ")");
 	}
 	
-	public LexiconPosTagForStringFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> wordToCheckFeature, StringFeature<TokenWrapper> posTagFeature) {
-		this(wordToCheckFeature, posTagFeature);
+	public LexiconPosTagsForStringFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> wordToCheckFeature) {
+		this(wordToCheckFeature);
 		this.setAddressFunction(addressFunction);
 	}
-	
+
+
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
+			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
 		if (innerWrapper==null)
 			return null;
 
-		FeatureResult<Boolean> result = null;
-
+		FeatureResult<List<WeightedOutcome<String>>> result = null;
 		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
 		if (wordToCheckResult!=null) {
-			FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
-			if (posTagResult!=null) {
-				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
-				String wordToCheck = wordToCheckResult.getOutcome();
-				PosTaggerLexicon lexicon = TalismaneSession.getLexicon();
-				Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
-				boolean hasPosTag = (posTags.contains(posTag));
-				result = this.generateResult(hasPosTag);
+			String wordToCheck = wordToCheckResult.getOutcome();
+			List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+			PosTaggerLexicon lexicon = TalismaneSession.getLexicon();
+			Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
+	
+			for (PosTag posTag : posTags) {
+				resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
 			}
+	
+			if (resultList.size()>0)
+				result = this.generateResult(resultList);
 		}
 		
 		return result;
 	}
-
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<? extends Feature> getFeatureType() {
+		return StringCollectionFeature.class;
+	}
 }

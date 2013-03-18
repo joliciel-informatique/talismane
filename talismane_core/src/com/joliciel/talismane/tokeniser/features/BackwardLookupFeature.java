@@ -43,19 +43,35 @@ public class BackwardLookupFeature extends AbstractTokenFeature<Integer> impleme
 		this.criterion = criterion;
 		this.setName(super.getName() + "(" + criterion.getName() + ")");
 	}
+	
+	public BackwardLookupFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
+		this(criterion);
+		this.setAddressFunction(addressFunction);
+	}
+
 
 	public BackwardLookupFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> offsetFeature) {
 		this.criterion = criterion;
 		this.offsetFeature = offsetFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + offsetFeature.getName() + ")");
 	}
+	
+	public BackwardLookupFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> offsetFeature) {
+		this(criterion, offsetFeature);
+		this.setAddressFunction(addressFunction);
+	}
+
 
 	@Override
 	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
-		FeatureResult<Integer> featureResult = null;
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		
-		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
+		FeatureResult<Integer> featureResult = null;
+
+		FeatureResult<Integer> offsetResult = offsetFeature.check(innerWrapper, env);
 		if (offsetResult!=null) {
 			int index = token.getIndex();
 			int initialOffset = offsetResult.getOutcome();

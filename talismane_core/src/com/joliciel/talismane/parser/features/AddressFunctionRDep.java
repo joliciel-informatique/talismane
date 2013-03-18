@@ -24,6 +24,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the right-most right-hand dependent of the reference token.
@@ -31,27 +32,27 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class AddressFunctionRDep extends AbstractAddressFunction {
-	private AddressFunction addressFunction;
+	private ParserAddressFunction addressFunction;
 	
-	public AddressFunctionRDep(AddressFunction addressFunction) {
+	public AddressFunctionRDep(ParserAddressFunction addressFunction) {
 		super();
 		this.addressFunction = addressFunction;
 		this.setName("RDep(" + addressFunction.getName() + ")");
 	}
 
 	@Override
-	public FeatureResult<PosTaggedToken> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedToken> addressResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(configuration, env);
 		if (addressResult!=null) {
-			PosTaggedToken referenceToken = addressResult.getOutcome();
+			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
 			List<PosTaggedToken> rightDependents = configuration.getRightDependents(referenceToken);
 			if (rightDependents.size()>0)
 				resultToken = rightDependents.get(rightDependents.size()-1);
 		}
 
-		FeatureResult<PosTaggedToken> featureResult = null;
+		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;

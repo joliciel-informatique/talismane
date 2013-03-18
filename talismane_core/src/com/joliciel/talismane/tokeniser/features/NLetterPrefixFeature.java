@@ -38,12 +38,20 @@ public class NLetterPrefixFeature extends AbstractTokenFeature<String> implement
 		this.setName(super.getName() + "(" + this.nFeature.getName() + ")");
 	}
 	
+	public NLetterPrefixFeature(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> nFeature) {
+		this(nFeature);
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
 		
-		FeatureResult<Integer> nResult = nFeature.check(tokenWrapper, env);
+		FeatureResult<Integer> nResult = nFeature.check(innerWrapper, env);
 		if (nResult!=null) {
 			int n = nResult.getOutcome();
 			

@@ -18,35 +18,41 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Allows to apply any other TokenFeature to a token
+ * Returns a token
  * offset from the current token by a certain offset.<br/>
  * Returns null if the offset goes outside the token sequence.
  * @author Assaf Urieli
  *
  */
-public class TokenOffsetFeature<Y> extends AbstractTokenFeature<Y> {
-	Feature<TokenWrapper,Y> tokenFeature;
+public class TokenOffsetAddressFunction extends AbstractTokenAddressFunction {
 	IntegerFeature<TokenWrapper> offsetFeature;
 	
-	public TokenOffsetFeature(IntegerFeature<TokenWrapper> offset, Feature<TokenWrapper,Y> tokenFeature) {
-		this.tokenFeature = tokenFeature;
+	public TokenOffsetAddressFunction(IntegerFeature<TokenWrapper> offset) {
 		this.offsetFeature = offset;
-		this.setName(tokenFeature.getName() + "[offset<" + this.offsetFeature.getName() + ">]");
+		this.setName("TokenOffset(" + this.offsetFeature.getName() + ")");
+	}
+	
+	public TokenOffsetAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> offset) {
+		this(offset);
+		this.setAddressFunction(addressFunction);
 	}
 	
 	@Override
-	public FeatureResult<Y> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
-		FeatureResult<Y> result = null;
+	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
+		
+		FeatureResult<TokenWrapper> result = null;
 		Token offsetToken = null;
-		FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
+		FeatureResult<Integer> offsetResult = offsetFeature.check(innerWrapper, env);
 		if (offsetResult!=null) {
 			int offset = offsetResult.getOutcome();
 			if (offset==0)
@@ -81,23 +87,9 @@ public class TokenOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 			}
 		}
 		if (offsetToken!=null) {
-			FeatureResult<Y> originalResult = tokenFeature.check(offsetToken, env);
-			if (originalResult!=null)
-				result = this.generateResult(originalResult.getOutcome());
+			result = this.generateResult(offsetToken);
 		}
 		
 		return result;
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return tokenFeature.getFeatureType();
-	}
-
-	public Feature<TokenWrapper, Y> getTokenFeature() {
-		return tokenFeature;
-	}
-	
-	
+	}	
 }

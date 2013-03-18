@@ -20,14 +20,14 @@ package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.machineLearning.features.AbstractMonitorableFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
-abstract class AbstractAddressFunction extends AbstractMonitorableFeature<ParseConfigurationWrapper, PosTaggedToken> implements AddressFunction
+abstract class AbstractAddressFunction extends AbstractMonitorableFeature<ParseConfigurationWrapper, PosTaggedTokenWrapper> implements ParserAddressFunction
 {
 
 	@Override
-	public Class<? extends Feature<?, PosTaggedToken>> getFeatureType() {
-		return AddressFunction.class;
+	public Class<? extends Feature<?, PosTaggedTokenWrapper>> getFeatureType() {
+		return ParserAddressFunction.class;
 	}
 	
 }

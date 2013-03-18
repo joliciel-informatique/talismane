@@ -20,7 +20,6 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.Map;
 
-import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -29,30 +28,28 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
- * Allows to apply any other TokenFeature to a token
+ * Returns a token
  * offset from the TokeniserPattern containing the present token.<br/>
  * This allows us to find the word preceding a given compound candidate, or following a given compound candidate.<br/>
  * Returns null if the offset goes outside the token sequence.<br/>
  * @author Assaf Urieli
  *
  */
-public class TokeniserPatternOffsetFeature<Y> extends AbstractTokenFeature<Y> {
+public class TokeniserPatternOffsetAddressFunction extends AbstractTokenAddressFunction {
 	StringFeature<TokenWrapper> tokenPatternFeature;
-	Feature<TokenWrapper,Y> tokenFeature;
 	IntegerFeature<TokenWrapper> offsetFeature;
 	private Map<String,TokenPattern> patternMap;
 	
-	public TokeniserPatternOffsetFeature(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokenWrapper> offsetFeature, Feature<TokenWrapper,Y> tokenFeature) {
+	public TokeniserPatternOffsetAddressFunction(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokenWrapper> offsetFeature) {
 		this.tokenPatternFeature = tokenPatternFeature;
-		this.tokenFeature = tokenFeature;
 		this.offsetFeature = offsetFeature;
-		this.setName(tokenFeature.getName() + "(" + this.tokenPatternFeature.getName() + "," + this.offsetFeature.getName() + ")");
+		this.setName("PatternOffset(" + this.tokenPatternFeature.getName() + "," + this.offsetFeature.getName() + ")");
 	}
 	
 	@Override
-	public FeatureResult<Y> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
-		FeatureResult<Y> result = null;
+		FeatureResult<TokenWrapper> result = null;
 		
 		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
 		if (tokenPatternResult!=null) {
@@ -91,23 +88,11 @@ public class TokeniserPatternOffsetFeature<Y> extends AbstractTokenFeature<Y> {
 					}
 				}
 				if (offsetToken!=null) {
-					FeatureResult<Y> originalResult = tokenFeature.check(offsetToken, env);
-					if (originalResult!=null)
-						result = this.generateResult(originalResult.getOutcome());
+					result = this.generateResult(offsetToken);
 				} // we have an offset token
 			} // we have an offset result
 		}
 		return result;
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return tokenFeature.getFeatureType();
-	}
-
-	public Map<String, TokenPattern> getPatternMap() {
-		return patternMap;
 	}
 
 	public void setPatternMap(Map<String, TokenPattern> patternMap) {

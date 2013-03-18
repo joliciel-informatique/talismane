@@ -51,17 +51,24 @@ public class LemmaForPosTagFeature extends AbstractTokenFeature<String> implemen
 		name += ")";
 		this.setName(name);
 	}
+	
+	public LemmaForPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... posTagCodeFeatures) {
+		this(posTagCodeFeatures);
+		this.setAddressFunction(addressFunction);
+	}
+
 
 	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper wrapper, RuntimeEnvironment env) {
-		Token token = wrapper.getToken();
-		if (token==null)
+	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
 			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<String> featureResult = null;
 		
 		List<String> posTagCodes = new ArrayList<String>();
 		for (StringFeature<TokenWrapper> posTagCodeFeature : posTagCodeFeatures) {
-			FeatureResult<String> posTagCodeResult = posTagCodeFeature.check(wrapper, env);
+			FeatureResult<String> posTagCodeResult = posTagCodeFeature.check(innerWrapper, env);
 			if (posTagCodeResult!=null)
 				posTagCodes.add(posTagCodeResult.getOutcome());
 		}

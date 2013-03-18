@@ -40,12 +40,20 @@ public class RegexFeature extends AbstractTokenFeature<Boolean> implements Boole
 		this.setName(super.getName() + "(" + regexFeature.getName() + ")");
 	}
 	
+	public RegexFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> regexFeature) {
+		this(regexFeature);
+		this.setAddressFunction(addressFunction);
+	}
+	
 	@Override
 	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
+		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+		if (innerWrapper==null)
+			return null;
+		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 		
-		FeatureResult<String> regexResult = regexFeature.check(tokenWrapper, env);
+		FeatureResult<String> regexResult = regexFeature.check(innerWrapper, env);
 		if (regexResult!=null) {
 			String regex = regexResult.getOutcome();
 			this.pattern = Pattern.compile(regex);
