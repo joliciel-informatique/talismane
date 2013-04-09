@@ -27,9 +27,11 @@ import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
@@ -67,66 +69,73 @@ public class SentenceDetectorMaxentRunner {
 	}
 
     public SentenceDetectorMaxentRunner(Map<String,String> argMap) throws Exception {
-		PerformanceMonitor.start();
+		String command = null;
+
+		String sentenceModelFilePath = "";
+		String sentenceFeatureFilePath = "";
+		String outDirPath = "";
+		String treebankPath = "";
+		int iterations = 0;
+		int cutoff = 0;
+		int sentenceCount = 0;
+		int startSentence = 0;
+		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+		
+		double constraintViolationCost = -1;
+		double epsilon = -1;
+		LinearSVMSolverType solverType = null;
+		boolean perceptronAveraging = false;
+		boolean perceptronSkippedAveraging = false;
+		double perceptronTolerance = -1;
+		String externalResourcePath = null;
+
+		File performanceConfigFile = null;
+
+		for (Entry<String, String> argEntry : argMap.entrySet()) {
+			String argName = argEntry.getKey();
+			String argValue = argEntry.getValue();
+			if (argName.equals("command"))
+				command = argValue;
+			else if (argName.equals("sentenceModel"))
+				sentenceModelFilePath = argValue;
+			else if (argName.equals("sentenceFeatures"))
+				sentenceFeatureFilePath = argValue;
+			else if (argName.equals("iterations"))
+				iterations = Integer.parseInt(argValue);
+			else if (argName.equals("cutoff"))
+				cutoff = Integer.parseInt(argValue);
+			else if (argName.equals("outdir")) 
+				outDirPath = argValue;
+			else if (argName.equals("sentenceCount"))
+				sentenceCount = Integer.parseInt(argValue);
+			else if (argName.equals("startSentence"))
+				startSentence = Integer.parseInt(argValue);
+			else if (argName.equals("corpus"))
+				treebankPath = argValue;
+			else if (argName.equals("algorithm"))
+				algorithm = MachineLearningAlgorithm.valueOf(argValue);
+			else if (argName.equals("linearSVMSolver"))
+				solverType = LinearSVMSolverType.valueOf(argValue);
+			else if (argName.equals("linearSVMCost"))
+				constraintViolationCost = Double.parseDouble(argValue);
+			else if (argName.equals("linearSVMEpsilon"))
+				epsilon = Double.parseDouble(argValue);
+			else if (argName.equals("perceptronAveraging"))
+				perceptronAveraging = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronSkippedAveraging"))
+				perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronTolerance"))
+				perceptronTolerance = Double.parseDouble(argValue);
+			else if (argName.equals("externalResources"))
+				externalResourcePath = argValue;
+			else if (argName.equals("performanceConfigFile"))
+				performanceConfigFile = new File(argValue);
+			else
+				throw new RuntimeException("Unknown argument: " + argName);
+		}
+		
+		PerformanceMonitor.start(performanceConfigFile);
 		try {
-			String command = null;
-	
-			String sentenceModelFilePath = "";
-			String sentenceFeatureFilePath = "";
-			String outDirPath = "";
-			String treebankPath = "";
-			int iterations = 0;
-			int cutoff = 0;
-			int sentenceCount = 0;
-			int startSentence = 0;
-			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-			
-			double constraintViolationCost = -1;
-			double epsilon = -1;
-			LinearSVMSolverType solverType = null;
-			boolean perceptronAveraging = false;
-			boolean perceptronSkippedAveraging = false;
-			double perceptronTolerance = -1;
-			
-			for (Entry<String, String> argEntry : argMap.entrySet()) {
-				String argName = argEntry.getKey();
-				String argValue = argEntry.getValue();
-				if (argName.equals("command"))
-					command = argValue;
-				else if (argName.equals("sentenceModel"))
-					sentenceModelFilePath = argValue;
-				else if (argName.equals("sentenceFeatures"))
-					sentenceFeatureFilePath = argValue;
-				else if (argName.equals("iterations"))
-					iterations = Integer.parseInt(argValue);
-				else if (argName.equals("cutoff"))
-					cutoff = Integer.parseInt(argValue);
-				else if (argName.equals("outdir")) 
-					outDirPath = argValue;
-				else if (argName.equals("sentenceCount"))
-					sentenceCount = Integer.parseInt(argValue);
-				else if (argName.equals("startSentence"))
-					startSentence = Integer.parseInt(argValue);
-				else if (argName.equals("corpus"))
-					treebankPath = argValue;
-				else if (argName.equals("algorithm"))
-					algorithm = MachineLearningAlgorithm.valueOf(argValue);
-				else if (argName.equals("linearSVMSolver"))
-					solverType = LinearSVMSolverType.valueOf(argValue);
-				else if (argName.equals("linearSVMCost"))
-					constraintViolationCost = Double.parseDouble(argValue);
-				else if (argName.equals("linearSVMEpsilon"))
-					epsilon = Double.parseDouble(argValue);
-				else if (argName.equals("perceptronAveraging"))
-					perceptronAveraging = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("perceptronSkippedAveraging"))
-					perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("perceptronTolerance"))
-					perceptronTolerance = Double.parseDouble(argValue);
-				else
-					throw new RuntimeException("Unknown argument: " + argName);
-			}
-			
 			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 
 			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
@@ -163,6 +172,22 @@ public class SentenceDetectorMaxentRunner {
 				treebankReader.setSentenceCount(sentenceCount);
 
 				SentenceDetectorAnnotatedCorpusReader reader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
+				
+				ExternalResourceFinder externalResourceFinder = null;
+				if (externalResourcePath!=null) {
+					externalResourceFinder = sentenceDetectorFeatureService.getExternalResourceFinder();
+					File externalResourceFile = new File (externalResourcePath);
+					if (externalResourceFile.isDirectory()) {
+						File[] files = externalResourceFile.listFiles();
+						for (File resourceFile : files) {
+							TextFileResource textFileResource = new TextFileResource(resourceFile);
+							externalResourceFinder.addExternalResource(textFileResource);
+						}
+					} else {
+						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
+						externalResourceFinder.addExternalResource(textFileResource);
+					}
+				}
 				
 				File sentenceFeatureFile = new File(sentenceFeatureFilePath);
 				Scanner scanner = new Scanner(sentenceFeatureFile);
@@ -204,6 +229,8 @@ public class SentenceDetectorMaxentRunner {
 				
 				DecisionFactory<SentenceDetectorOutcome> decisionFactory = sentenceDetectorService.getDecisionFactory();
 				MachineLearningModel<SentenceDetectorOutcome> sentenceModel = trainer.trainModel(tokeniserEventStream, decisionFactory, featureDescriptors);
+				if (externalResourceFinder!=null)
+					sentenceModel.setExternalResources(externalResourceFinder.getExternalResources());
 				sentenceModel.persist(sentenceModelFile);
 
 			} else if (command.equals("evaluate")) {

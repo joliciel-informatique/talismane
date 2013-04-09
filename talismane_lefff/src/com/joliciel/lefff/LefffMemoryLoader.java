@@ -39,6 +39,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class LefffMemoryLoader {
     private static final Log LOG = LogFactory.getLog(LefffMemoryLoader.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LefffMemoryLoader.class);
     
 	public LefffMemoryBase loadMemoryBaseFromDatabase(LefffService lefffService, Map<PosTagSet,LefffPosTagMapper> posTagMappers) {		
 		Map<String,List<LexicalEntry>> entryMap = lefffService.findEntryMap();
@@ -48,7 +49,7 @@ public class LefffMemoryLoader {
 	
 	public LefffMemoryBase deserializeMemoryBase(ZipInputStream zis) {
 		LefffMemoryBase memoryBase = null;
-		PerformanceMonitor.startTask("LefffMemoryLoader.deserializeMemoryBase");
+		MONITOR.startTask("deserializeMemoryBase");
 		try {
 			ZipEntry zipEntry;
 			if ((zipEntry = zis.getNextEntry()) != null) {
@@ -66,7 +67,7 @@ public class LefffMemoryLoader {
 		} catch (ClassNotFoundException cnfe) {
 			throw new RuntimeException(cnfe);
 		} finally {
-			PerformanceMonitor.endTask("LefffMemoryLoader.deserializeMemoryBase");
+			MONITOR.endTask("deserializeMemoryBase");
 		}
 		
        	Map<PosTagSet, LefffPosTagMapper> posTagMappers = memoryBase.getPosTagMappers();

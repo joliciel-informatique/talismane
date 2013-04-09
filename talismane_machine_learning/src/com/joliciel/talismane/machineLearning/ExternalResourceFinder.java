@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,33 +16,19 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.features;
+package com.joliciel.talismane.machineLearning;
 
-import com.joliciel.talismane.utils.PerformanceMonitor;
+import java.util.Collection;
 
 /**
- * In addition to AbstractFeature, logs performance.
+ * Finds the external resource corresponding to a given name.
  * @author Assaf Urieli
  *
- * @param <T>
- * @param <Y>
  */
-public abstract class AbstractMonitorableFeature<T,Y> extends AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<Feature<T,?>> {
-	public AbstractMonitorableFeature() {
-		super();
-	}
-
-	@Override
-	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) {
-		PerformanceMonitor monitor = PerformanceMonitor.getMonitor(this.getClass());
-		monitor.startTask("check");
-		try {
-			return this.checkInternal(context, env);
-		} finally {
-			monitor.endTask("check");
-		}
-	}
-
-	protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env);
-
+public interface ExternalResourceFinder {
+	public ExternalResource getExternalResource(String name);
+	
+	public void addExternalResource(ExternalResource externalResource);
+	
+	public Collection<ExternalResource> getExternalResources();
 }

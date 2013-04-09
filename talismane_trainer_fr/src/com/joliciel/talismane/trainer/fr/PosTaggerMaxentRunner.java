@@ -39,9 +39,11 @@ import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
@@ -101,120 +103,127 @@ public class PosTaggerMaxentRunner {
 	}
 
     public PosTaggerMaxentRunner(Map<String,String> argMap) throws Exception {
-		PerformanceMonitor.start();
+		String command = null;
+
+		String corpusType = "ftb";
+		String posTaggerModelFilePath = "";
+		String tokeniserModelFilePath = "";
+		String posTaggerFeatureFilePath = "";
+		String posTaggerRuleFilePath = "";
+		String tokenFilterPath = "";
+		String tokenSequenceFilterPath = "";
+		String posTaggerPreProcessingFilterPath = "";
+		String posTaggerPostProcessingFilterPath = "";
+		String outDirPath = "";
+		int iterations = 0;
+		int cutoff = 0;
+		int sentenceCount = 0;
+		int startSentence = 0;
+		int beamWidth = 10;
+		boolean propagateBeam = true;
+		String posTagSetPath = "";
+		String posTagMapPath = "";
+		String corpusPath = "";
+		String lexiconDirPath = "";
+		boolean includeDetails = false;
+		boolean includeSentences = true;
+		String suffix = "";
+
+		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+		int outputGuessCount = 0;
+		
+		double constraintViolationCost = -1;
+		double epsilon = -1;
+		LinearSVMSolverType solverType = null;
+		boolean perceptronAveraging = false;
+		boolean perceptronSkippedAveraging = false;
+		double perceptronTolerance = -1;
+
+		boolean useCompoundPosTags = false;
+		String externalResourcePath = null;
+		
+		File performanceConfigFile = null;
+
+		for (Entry<String, String> argEntry : argMap.entrySet()) {
+			String argName = argEntry.getKey();
+			String argValue = argEntry.getValue();
+			if (argName.equals("command"))
+				command = argValue;
+			else if (argName.equals("posTaggerModel"))
+				posTaggerModelFilePath = argValue;
+			else if (argName.equals("posTaggerFeatures")) 
+				posTaggerFeatureFilePath = argValue;
+			else if (argName.equals("posTaggerRules")) 
+				posTaggerRuleFilePath = argValue;
+			else if (argName.equals("tokenFilters"))
+				tokenFilterPath = argValue;
+			else if (argName.equals("tokenSequenceFilters"))
+				tokenSequenceFilterPath = argValue;
+			else if (argName.equals("posTaggerPreProcessingFilters"))
+				posTaggerPreProcessingFilterPath = argValue;
+			else if (argName.equals("posTaggerPostProcessingFilters"))
+				posTaggerPostProcessingFilterPath = argValue;
+			else if (argName.equals("posTagSet"))
+				posTagSetPath = argValue;
+			else if (argName.equals("posTagMap"))
+				posTagMapPath = argValue;
+			else if (argName.equals("corpus"))
+				corpusPath = argValue;
+			else if (argName.equals("lexiconDir"))
+				lexiconDirPath = argValue;
+			else if (argName.equals("tokeniserModel")) 
+				tokeniserModelFilePath = argValue;
+			else if (argName.equals("iterations"))
+				iterations = Integer.parseInt(argValue);
+			else if (argName.equals("cutoff"))
+				cutoff = Integer.parseInt(argValue);
+			else if (argName.equals("outdir")) 
+				outDirPath = argValue;
+			else if (argName.equals("sentenceCount"))
+				sentenceCount = Integer.parseInt(argValue);
+			else if (argName.equals("startSentence"))
+				startSentence = Integer.parseInt(argValue);
+			else if (argName.equals("beamWidth"))
+				beamWidth = Integer.parseInt(argValue);
+			else if (argName.equals("propagateBeam"))
+				propagateBeam = argValue.equals("true");
+			else if (argName.equals("includeSentences"))
+				includeSentences = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("includeDetails"))
+				includeDetails = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("algorithm"))
+				algorithm = MachineLearningAlgorithm.valueOf(argValue);
+			else if (argName.equals("linearSVMSolver"))
+				solverType = LinearSVMSolverType.valueOf(argValue);
+			else if (argName.equals("linearSVMCost"))
+				constraintViolationCost = Double.parseDouble(argValue);
+			else if (argName.equals("linearSVMEpsilon"))
+				epsilon = Double.parseDouble(argValue);
+			else if (argName.equals("perceptronAveraging"))
+				perceptronAveraging = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronSkippedAveraging"))
+				perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronTolerance"))
+				perceptronTolerance = Double.parseDouble(argValue);
+			else if (argName.equals("outputGuessCount"))
+				outputGuessCount = Integer.parseInt(argValue);
+			else if (argName.equals("corpusReader"))
+				corpusType = argValue;
+			else if (argName.equals("suffix"))
+				suffix = argValue;
+			else if (argName.equals("useCompoundPosTags"))
+				useCompoundPosTags = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("externalResources"))
+				externalResourcePath = argValue;
+			else if (argName.equals("performanceConfigFile"))
+				performanceConfigFile = new File(argValue);
+			else
+				throw new RuntimeException("Unknown argument: " + argName);
+		}
+		
+		PerformanceMonitor.start(performanceConfigFile);
 		try {
-			String command = null;
-	
-			String corpusType = "ftb";
-			String posTaggerModelFilePath = "";
-			String tokeniserModelFilePath = "";
-			String posTaggerFeatureFilePath = "";
-			String posTaggerRuleFilePath = "";
-			String tokenFilterPath = "";
-			String tokenSequenceFilterPath = "";
-			String posTaggerPreProcessingFilterPath = "";
-			String posTaggerPostProcessingFilterPath = "";
-			String outDirPath = "";
-			int iterations = 0;
-			int cutoff = 0;
-			int sentenceCount = 0;
-			int startSentence = 0;
-			int beamWidth = 10;
-			boolean propagateBeam = true;
-			String posTagSetPath = "";
-			String posTagMapPath = "";
-			String corpusPath = "";
-			String lexiconDirPath = "";
-			boolean includeDetails = false;
-			boolean includeSentences = true;
-			String suffix = "";
 
-			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-			int outputGuessCount = 0;
-			
-			double constraintViolationCost = -1;
-			double epsilon = -1;
-			LinearSVMSolverType solverType = null;
-			boolean perceptronAveraging = false;
-			boolean perceptronSkippedAveraging = false;
-			double perceptronTolerance = -1;
-
-			boolean useCompoundPosTags = false;
-			
-
-			for (Entry<String, String> argEntry : argMap.entrySet()) {
-				String argName = argEntry.getKey();
-				String argValue = argEntry.getValue();
-				if (argName.equals("command"))
-					command = argValue;
-				else if (argName.equals("posTaggerModel"))
-					posTaggerModelFilePath = argValue;
-				else if (argName.equals("posTaggerFeatures")) 
-					posTaggerFeatureFilePath = argValue;
-				else if (argName.equals("posTaggerRules")) 
-					posTaggerRuleFilePath = argValue;
-				else if (argName.equals("tokenFilters"))
-					tokenFilterPath = argValue;
-				else if (argName.equals("tokenSequenceFilters"))
-					tokenSequenceFilterPath = argValue;
-				else if (argName.equals("posTaggerPreProcessingFilters"))
-					posTaggerPreProcessingFilterPath = argValue;
-				else if (argName.equals("posTaggerPostProcessingFilters"))
-					posTaggerPostProcessingFilterPath = argValue;
-				else if (argName.equals("posTagSet"))
-					posTagSetPath = argValue;
-				else if (argName.equals("posTagMap"))
-					posTagMapPath = argValue;
-				else if (argName.equals("corpus"))
-					corpusPath = argValue;
-				else if (argName.equals("lexiconDir"))
-					lexiconDirPath = argValue;
-				else if (argName.equals("tokeniserModel")) 
-					tokeniserModelFilePath = argValue;
-				else if (argName.equals("iterations"))
-					iterations = Integer.parseInt(argValue);
-				else if (argName.equals("cutoff"))
-					cutoff = Integer.parseInt(argValue);
-				else if (argName.equals("outdir")) 
-					outDirPath = argValue;
-				else if (argName.equals("sentenceCount"))
-					sentenceCount = Integer.parseInt(argValue);
-				else if (argName.equals("startSentence"))
-					startSentence = Integer.parseInt(argValue);
-				else if (argName.equals("beamWidth"))
-					beamWidth = Integer.parseInt(argValue);
-				else if (argName.equals("propagateBeam"))
-					propagateBeam = argValue.equals("true");
-				else if (argName.equals("includeSentences"))
-					includeSentences = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("includeDetails"))
-					includeDetails = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("algorithm"))
-					algorithm = MachineLearningAlgorithm.valueOf(argValue);
-				else if (argName.equals("linearSVMSolver"))
-					solverType = LinearSVMSolverType.valueOf(argValue);
-				else if (argName.equals("linearSVMCost"))
-					constraintViolationCost = Double.parseDouble(argValue);
-				else if (argName.equals("linearSVMEpsilon"))
-					epsilon = Double.parseDouble(argValue);
-				else if (argName.equals("perceptronAveraging"))
-					perceptronAveraging = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("perceptronSkippedAveraging"))
-					perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("perceptronTolerance"))
-					perceptronTolerance = Double.parseDouble(argValue);
-				else if (argName.equals("outputGuessCount"))
-					outputGuessCount = Integer.parseInt(argValue);
-				else if (argName.equals("corpusReader"))
-					corpusType = argValue;
-				else if (argName.equals("suffix"))
-					suffix = argValue;
-				else if (argName.equals("useCompoundPosTags"))
-					useCompoundPosTags = argValue.equalsIgnoreCase("true");
-				else
-					throw new RuntimeException("Unknown argument: " + argName);
-			}
-			
 			if (lexiconDirPath.length()==0)
 				throw new RuntimeException("Missing argument: lexiconDir");
 			if (posTagSetPath.length()==0)
@@ -308,6 +317,21 @@ public class PosTaggerMaxentRunner {
 				modelDir.mkdirs();
 				File modelFile = new File(posTaggerModelFilePath);
 				
+				ExternalResourceFinder externalResourceFinder = null;
+				if (externalResourcePath!=null) {
+					externalResourceFinder = posTaggerFeatureService.getExternalResourceFinder();
+					File externalResourceFile = new File (externalResourcePath);
+					if (externalResourceFile.isDirectory()) {
+						File[] files = externalResourceFile.listFiles();
+						for (File resourceFile : files) {
+							TextFileResource textFileResource = new TextFileResource(resourceFile);
+							externalResourceFinder.addExternalResource(textFileResource);
+						}
+					} else {
+						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
+						externalResourceFinder.addExternalResource(textFileResource);
+					}
+				}
 				File posTaggerTokenFeatureFile = new File(posTaggerFeatureFilePath);
 				Scanner scanner = new Scanner(posTaggerTokenFeatureFile);
 				List<String> featureDescriptors = new ArrayList<String>();
@@ -433,6 +457,8 @@ public class PosTaggerMaxentRunner {
 				descriptors.put(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPreprocessingFilterDescriptors);
 				descriptors.put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
 				MachineLearningModel<PosTag> posTaggerModel = trainer.trainModel(posTagEventStream, posTagSet, descriptors);			
+				if (externalResourceFinder!=null)
+					posTaggerModel.setExternalResources(externalResourceFinder.getExternalResources());
 				posTaggerModel.persist(modelFile);
 
 			} else if (command.equals("evaluate")) {

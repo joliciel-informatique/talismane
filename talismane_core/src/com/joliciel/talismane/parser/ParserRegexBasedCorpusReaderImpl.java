@@ -62,6 +62,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 public class ParserRegexBasedCorpusReaderImpl implements
 		ParserRegexBasedCorpusReader, PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader {
     private static final Log LOG = LogFactory.getLog(ParserRegexBasedCorpusReaderImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserRegexBasedCorpusReaderImpl.class);
 	private String regex = ParserRegexBasedCorpusReader.DEFAULT_REGEX;
 	private static final String INDEX_PLACEHOLDER = "%INDEX%";
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
@@ -84,6 +85,10 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private int maxSentenceCount = 0;
 	private int sentenceCount = 0;
 	private int lineNumber = 0;
+	private int crossValidationSize = -1;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	private int totalSentenceCount = 0;
 
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
@@ -103,7 +108,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 
 	@Override
 	public boolean hasNextConfiguration() {
-		PerformanceMonitor.startTask("ParserRegexBasedCorpusReaderImpl.hasNextConfiguration");
+		MONITOR.startTask("hasNextConfiguration");
 		try {
 			if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
 				// we've reached the end, do nothing
@@ -130,7 +135,31 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							if (!hasLine)
 								continue;
 							
-							// end of sentence: construct the configuration
+							// end of sentence
+							totalSentenceCount++;
+							LOG.debug("totalSentenceCount: " + totalSentenceCount);
+							
+							// check cross-validation
+							if (crossValidationSize>0) {
+								boolean includeMe = true;
+								if (includeIndex>=0) {
+									if (totalSentenceCount % crossValidationSize != includeIndex) {
+										includeMe = false;
+									}
+								} else if (excludeIndex>=0) {
+									if (totalSentenceCount % crossValidationSize == excludeIndex) {
+										includeMe = false;
+									}
+								}
+								if (!includeMe) {
+									dataLines = new ArrayList<ParseDataLine>();
+									lexicalEntries = new ArrayList<LexicalEntry>();
+									hasLine = false;
+									continue;
+								}
+							}
+							
+							// construct the configuration
 							if (dataLines.size()>0) {
 								boolean badConfig = false;
 								for (ParseDataLine dataLine : dataLines) {
@@ -336,7 +365,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			
 			return configuration!=null;
 		} finally {
-			PerformanceMonitor.endTask("ParserRegexBasedCorpusReaderImpl.hasNextConfiguration");
+			MONITOR.endTask("hasNextConfiguration");
 		}
 	}
 
@@ -698,4 +727,36 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	public void setPredictTransitions(boolean predictTransitions) {
 		this.predictTransitions = predictTransitions;
 	}
+
+	@Override
+	public int getCrossValidationSize() {
+		return crossValidationSize;
+	}
+
+	@Override
+	public void setCrossValidationSize(int crossValidationSize) {
+		this.crossValidationSize = crossValidationSize;
+	}
+
+	@Override
+	public int getIncludeIndex() {
+		return includeIndex;
+	}
+
+	@Override
+	public void setIncludeIndex(int includeIndex) {
+		this.includeIndex = includeIndex;
+	}
+
+	@Override
+	public int getExcludeIndex() {
+		return excludeIndex;
+	}
+
+	@Override
+	public void setExcludeIndex(int excludeIndex) {
+		this.excludeIndex = excludeIndex;
+	}
+
+	
 }

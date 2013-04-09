@@ -40,9 +40,10 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public class LexiconDeserializer {
 	private static final Log LOG = LogFactory.getLog(LexiconDeserializer.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LexiconDeserializer.class);
 	
 	public List<PosTaggerLexicon> deserializeLexicons(File lexiconDir) {
-		PerformanceMonitor.startTask("LexiconDeserializer.deserializeLexicons");
+		MONITOR.startTask("LexiconDeserializer.deserializeLexicons");
 		try {
 			File[] inFiles = lexiconDir.listFiles();
 			List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
@@ -54,7 +55,7 @@ public class LexiconDeserializer {
 			}
 			return lexicons;
 		} finally {
-			PerformanceMonitor.endTask("LexiconDeserializer.deserializeLexicons");
+			MONITOR.endTask("LexiconDeserializer.deserializeLexicons");
 		}
 	}
 	

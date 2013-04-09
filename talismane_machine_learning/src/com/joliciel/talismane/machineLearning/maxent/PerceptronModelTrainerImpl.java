@@ -47,6 +47,7 @@ import opennlp.perceptron.PerceptronTrainer;
 class PerceptronModelTrainerImpl<T extends Outcome> implements PerceptronModelTrainer<T> {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(PerceptronModelTrainerImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PerceptronModelTrainerImpl.class);
 	
 	private int iterations = 100;
 	private int cutoff = 5;
@@ -79,11 +80,11 @@ class PerceptronModelTrainerImpl<T extends Outcome> implements PerceptronModelTr
 			trainer.setStepSizeDecrease(stepSizeDecrease);
 			trainer.setTolerance(tolerance);
 
-			PerformanceMonitor.startTask("MaxentModelTrainer.trainModel");
+			MONITOR.startTask("train");
 			try {
 				perceptronModel =  trainer.trainModel(iterations, dataIndexer, cutoff, useAverage);
 			} finally {
-				PerformanceMonitor.endTask("MaxentModelTrainer.trainModel");
+				MONITOR.endTask("train");
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

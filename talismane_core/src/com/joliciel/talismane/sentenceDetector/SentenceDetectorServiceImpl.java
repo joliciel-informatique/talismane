@@ -19,12 +19,15 @@
 package com.joliciel.talismane.sentenceDetector;
 
 import java.io.Reader;
+import java.util.Collection;
 import java.util.Set;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.ExternalResource;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
@@ -55,6 +58,22 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		sentenceDetector.setSentenceDetectorService(this);
 		sentenceDetector.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
 		sentenceDetector.setFeatureService(featureService);
+		return sentenceDetector;
+	}
+
+	@Override
+	public SentenceDetector getSentenceDetector(
+			MachineLearningModel<SentenceDetectorOutcome> sentenceModel) {
+		Collection<ExternalResource> externalResources = sentenceModel.getExternalResources();
+		if (externalResources!=null) {
+			for (ExternalResource externalResource : externalResources) {
+				this.getSentenceDetectorFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
+			}
+		}
+
+		Set<SentenceDetectorFeature<?>> sentenceDetectorFeatures =
+			this.getSentenceDetectorFeatureService().getFeatureSet(sentenceModel.getFeatureDescriptors());
+		SentenceDetector sentenceDetector = this.getSentenceDetector(sentenceModel.getDecisionMaker(), sentenceDetectorFeatures);
 		return sentenceDetector;
 	}
 
@@ -131,6 +150,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
 	}
+
 
 
 }

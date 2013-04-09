@@ -32,6 +32,7 @@ public class TokeniserFeatureServiceLocator {
 		if (tokenFeatureService==null) {
 			tokenFeatureService = new TokenFeatureServiceImpl();
 			tokenFeatureService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());;
+			tokenFeatureService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return tokenFeatureService;
 	}

@@ -43,6 +43,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class ParseEventStream implements CorpusEventStream {
     private static final Log LOG = LogFactory.getLog(ParseEventStream.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseEventStream.class);
 
     ParserAnnotatedCorpusReader corpusReader;
     Set<ParseConfigurationFeature<?>> parseFeatures;
@@ -63,7 +64,7 @@ class ParseEventStream implements CorpusEventStream {
 
 	@Override
 	public boolean hasNext() {
-		PerformanceMonitor.startTask("ParseEventStream.hasNext");
+		MONITOR.startTask("hasNext");
 		try {
 			while (targetConfiguration==null) {
 				if (this.corpusReader.hasNextConfiguration()) {
@@ -84,13 +85,13 @@ class ParseEventStream implements CorpusEventStream {
 			}
 			return targetConfiguration!=null;
 		} finally {
-			PerformanceMonitor.endTask("ParseEventStream.hasNext");
+			MONITOR.endTask("hasNext");
 		}
 	}
 
 	@Override
 	public CorpusEvent next() {
-		PerformanceMonitor.startTask("ParseEventStream.next");
+		MONITOR.startTask("next");
 		try {
 			CorpusEvent event = null;
 			if (this.hasNext()) {
@@ -98,7 +99,7 @@ class ParseEventStream implements CorpusEventStream {
 		
 				List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
 				for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
-					PerformanceMonitor.startTask(parseFeature.getName());
+					MONITOR.startTask(parseFeature.getName());
 					try {
 						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 						FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
@@ -109,7 +110,7 @@ class ParseEventStream implements CorpusEventStream {
 							}
 						}	
 					} finally {
-						PerformanceMonitor.endTask(parseFeature.getName());
+						MONITOR.endTask(parseFeature.getName());
 					}
 				}
 				
@@ -128,7 +129,7 @@ class ParseEventStream implements CorpusEventStream {
 			}
 			return event;
 		} finally {
-			PerformanceMonitor.endTask("ParseEventStream.next");
+			MONITOR.endTask("next");
 		}
 	}
 

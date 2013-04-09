@@ -33,6 +33,7 @@ public class PosTaggerFeatureServiceLocator {
 			posTaggerFeatureService = new PosTaggerFeatureServiceImpl();
 			posTaggerFeatureService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 			posTaggerFeatureService.setTokenFeatureService(this.talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService());
+			posTaggerFeatureService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return posTaggerFeatureService;
 	}

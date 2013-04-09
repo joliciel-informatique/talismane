@@ -37,13 +37,17 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Y> featureResult = this.checkInCache(context, env);
 		if (featureResult==null) {
-			PerformanceMonitor.startTask(logName);
+			PerformanceMonitor monitor = PerformanceMonitor.getMonitor(this.getClass());
+			monitor.startTask("check");
 			try {
 				featureResult = this.checkInternal(context, env);
 			} finally {
-				PerformanceMonitor.endTask(logName);
+				monitor.endTask("check");
 			}
 			this.putInCache(context, featureResult, env);
+		} else if (featureResult.getOutcome()==null) {
+			// a NullFeatureResult was stored in the cache
+			featureResult = null;
 		}
 		return featureResult;		
 	}
@@ -70,6 +74,8 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	 */	
 	protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
 		if (context instanceof HasFeatureCache) {
+			if (featureResult==null)
+				featureResult = new NullFeatureResult<Y>();
 			((HasFeatureCache) context).putResultInCache(this, featureResult, env);
 		}
 	}

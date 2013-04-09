@@ -18,31 +18,33 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
-import com.joliciel.talismane.utils.PerformanceMonitor;
-
 /**
- * In addition to AbstractFeature, logs performance.
+ * Simply a marker class for storing something in the cache
+ * to indicate a feature has already been checked.
  * @author Assaf Urieli
  *
  * @param <T>
- * @param <Y>
  */
-public abstract class AbstractMonitorableFeature<T,Y> extends AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<Feature<T,?>> {
-	public AbstractMonitorableFeature() {
-		super();
+class NullFeatureResult<T> implements FeatureResult<T> {
+
+	@Override
+	public Feature<?, T> getFeature() {
+		return null;
 	}
 
 	@Override
-	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) {
-		PerformanceMonitor monitor = PerformanceMonitor.getMonitor(this.getClass());
-		monitor.startTask("check");
-		try {
-			return this.checkInternal(context, env);
-		} finally {
-			monitor.endTask("check");
-		}
+	public T getOutcome() {
+		return null;
 	}
 
-	protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env);
+	@Override
+	public String getTrainingName() {
+		return null;
+	}
+
+	@Override
+	public String getTrainingOutcome(String outcome) {
+		return null;
+	}
 
 }

@@ -58,6 +58,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private static final Log LOG = LogFactory.getLog(PosTaggerImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTaggerImpl.class);
 	private static final double MIN_PROB_TO_STORE = 0.001;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
@@ -97,9 +98,9 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	@Override
 	public List<PosTagSequence> tagSentence(List<TokenSequence> tokenSequences) {
-		PerformanceMonitor.startTask("PosTaggerImpl.tagSentence");
+		MONITOR.startTask("tagSentence");
 		try {
-			PerformanceMonitor.startTask("PosTaggerImpl.apply filters");
+			MONITOR.startTask("apply filters");
 			try {
 				for (TokenSequence tokenSequence : tokenSequences) {
 					for (TokenSequenceFilter tokenFilter : this.preProcessingFilters) {
@@ -107,7 +108,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					}
 				}
 			} finally {
-				PerformanceMonitor.endTask("PosTaggerImpl.apply filters");
+				MONITOR.endTask("apply filters");
 			}
 			int sentenceLength = tokenSequences.get(0).getText().length();
 			
@@ -151,7 +152,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					// test the positive rules on the current token
 					boolean ruleApplied = false;
 					if (posTaggerPositiveRules!=null) {
-						PerformanceMonitor.startTask("PosTaggerImpl.check rules");
+						MONITOR.startTask("check rules");
 						try {
 							for (PosTaggerRule rule : posTaggerPositiveRules) {
 								if (LOG.isTraceEnabled()) {
@@ -171,24 +172,24 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								}
 							}
 						} finally {
-							PerformanceMonitor.endTask("PosTaggerImpl.check rules");
+							MONITOR.endTask("check rules");
 						}
 					}
 					
 					if (!ruleApplied) {
 						// test the features on the current token
 						List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
-						PerformanceMonitor.startTask("PosTaggerImpl.analyse features");
+						MONITOR.startTask("analyse features");
 						try {
 							for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
-								PerformanceMonitor.startTask(posTaggerFeature.getGroupName());
+								MONITOR.startTask(posTaggerFeature.getCollectionName());
 								try {
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 									FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
 									if (featureResult!=null)
 										featureResults.add(featureResult);
 								} finally {
-									PerformanceMonitor.endTask(posTaggerFeature.getGroupName());
+									MONITOR.endTask(posTaggerFeature.getCollectionName());
 								}
 							}
 							if (LOG.isTraceEnabled()) {
@@ -197,13 +198,13 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								}
 							}	
 						} finally {
-							PerformanceMonitor.endTask("PosTaggerImpl.analyse features");
+							MONITOR.endTask("analyse features");
 						}
 						
 						// evaluate the feature results using the maxent model
-						PerformanceMonitor.startTask("PosTaggerImpl.decision maker");
+						MONITOR.startTask("make decision");
 						decisions = this.decisionMaker.decide(featureResults);
-						PerformanceMonitor.endTask("PosTaggerImpl.decision maker");
+						MONITOR.endTask("make decision");
 						
 						for (AnalysisObserver observer : this.observers) {
 							observer.onAnalyse(token, featureResults, decisions);
@@ -212,7 +213,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						// apply the negative rules
 						Set<PosTag> eliminatedPosTags = new TreeSet<PosTag>();
 						if (posTaggerNegativeRules!=null) {
-							PerformanceMonitor.startTask("PosTaggerImpl.check negative rules");
+							MONITOR.startTask("check negative rules");
 							try {
 								for (PosTaggerRule rule : posTaggerNegativeRules) {
 									if (LOG.isTraceEnabled()) {
@@ -244,12 +245,12 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 									}
 								}
 							} finally {
-								PerformanceMonitor.endTask("PosTaggerImpl.check negative rules");
+								MONITOR.endTask("check negative rules");
 							}
 						}
 						
 						// is this a known word in the lexicon?
-						PerformanceMonitor.startTask("PosTaggerImpl.apply constraints");
+						MONITOR.startTask("apply constraints");
 						try {
 							if (LOG.isTraceEnabled()) {
 								String posTags = "";
@@ -270,12 +271,12 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								decisions = decisionShortList;
 							}
 						} finally {
-							PerformanceMonitor.endTask("PosTaggerImpl.apply constraints");		
+							MONITOR.endTask("apply constraints");		
 						}
 					} // has a rule been applied?
 					
 					// add new TaggedTokenSequences to the heap, one for each outcome provided by MaxEnt
-					PerformanceMonitor.startTask("PosTaggerImpl.heap sort");
+					MONITOR.startTask("heap sort");
 					for (Decision<PosTag> decision : decisions) {
 						if (LOG.isTraceEnabled())
 							LOG.trace("Outcome: " + decision.getOutcome() + ", " + decision.getProbability());
@@ -301,7 +302,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						}
 						heap.add(sequence);
 					} // next outcome for this token
-					PerformanceMonitor.endTask("PosTaggerImpl.heap sort");
+					MONITOR.endTask("heap sort");
 				} // next history		
 			} // next atomic index
 			// return the best sequence on the heap
@@ -332,7 +333,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			
 			return sequences;
 		} finally {
-			PerformanceMonitor.endTask("PosTaggerImpl.tagSentence");
+			MONITOR.endTask("tagSentence");
 		}
 	}
 

@@ -21,6 +21,7 @@ package com.joliciel.talismane.machineLearning;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -117,5 +118,13 @@ public interface MachineLearningModel<T extends Outcome> {
 	 * Loads data from the input stream that is specific to this model type.
 	 */
 	public void loadDataFromStream(InputStream inputStream, ZipEntry zipEntry);
-
+	
+	/**
+	 * External resources used by this model.
+	 * @return
+	 */
+	public Collection<ExternalResource> getExternalResources();
+	public void setExternalResources(Collection<ExternalResource> externalResources);
+	
+	public ExternalResourceFinder getExternalResourceFinder();
 }

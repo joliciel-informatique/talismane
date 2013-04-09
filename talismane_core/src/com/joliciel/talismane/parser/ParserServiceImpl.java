@@ -1,11 +1,13 @@
 package com.joliciel.talismane.parser;
 
 import java.io.Reader;
+import java.util.Collection;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
@@ -87,10 +89,17 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(
-			MachineLearningModel<Transition> jolicielMaxentModel, int beamWidth) {
-		DecisionMaker<Transition> decisionMaker = jolicielMaxentModel.getDecisionMaker();
+			MachineLearningModel<Transition> model, int beamWidth) {
+		Collection<ExternalResource> externalResources = model.getExternalResources();
+		if (externalResources!=null) {
+			for (ExternalResource externalResource : externalResources) {
+				this.getParseFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
+			}
+		}
+		
+		DecisionMaker<Transition> decisionMaker = model.getDecisionMaker();
 		TransitionSystem transitionSystem = null;
-		String transitionSystemClassName = (String) jolicielMaxentModel.getModelAttributes().get("transitionSystem");
+		String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
 		if (transitionSystemClassName.equalsIgnoreCase("ShiftReduceTransitionSystem")) {
 			transitionSystem = this.getShiftReduceTransitionSystem();
 		} else if (transitionSystemClassName.equalsIgnoreCase("ArcEagerTransitionSystem")) {
@@ -99,7 +108,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			throw new TalismaneException("Unknown transition system: " + transitionSystemClassName);
 		}
 		
-		Set<ParseConfigurationFeature<?>> parseFeatures = this.getParseFeatureService().getFeatures(jolicielMaxentModel.getFeatureDescriptors());
+		Set<ParseConfigurationFeature<?>> parseFeatures = this.getParseFeatureService().getFeatures(model.getFeatureDescriptors());
 
 		return this.getTransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 	}

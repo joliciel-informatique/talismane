@@ -25,6 +25,8 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
@@ -34,7 +36,11 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 public class TokenFeatureServiceImpl implements TokenFeatureService {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TokenFeatureServiceImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokenFeatureServiceImpl.class);
+
 	private FeatureService featureService;
+	private MachineLearningService machineLearningService;
+	private ExternalResourceFinder externalResourceFinder;
 
 	TokeniserContextFeatureParser getTokeniserContextFeatureParser(List<TokenPattern> patternList) {
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(this.getFeatureService());
@@ -62,20 +68,21 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
 		TokeniserContextFeatureParser tokeniserContextFeatureParser = this.getTokeniserContextFeatureParser(patternList);
 		tokeniserContextFeatureParser.setPatternList(patternList);
+		tokeniserContextFeatureParser.setExternalResourceFinder(externalResourceFinder);
 		
-		PerformanceMonitor.startTask("TokenFeatureServiceImpl.findFeatureSet");
+		MONITOR.startTask("findFeatureSet");
 		try {
 			for (String featureDescriptor : featureDescriptors) {
 				if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 					List<TokeniserContextFeature<?>> myFeatures = tokeniserContextFeatureParser.parseDescriptor(functionDescriptor);
-					PerformanceMonitor.startTask("TokenFeatureServiceImpl.add features");
+					MONITOR.startTask("add features");
 					features.addAll(myFeatures);
-					PerformanceMonitor.endTask("TokenFeatureServiceImpl.add features");
+					MONITOR.endTask("add features");
 				}
 			}
 		} finally {
-			PerformanceMonitor.endTask("TokenFeatureServiceImpl.findFeatureSet");
+			MONITOR.endTask("findFeatureSet");
 		}
 		return features;
 	}
@@ -88,6 +95,25 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 		this.featureService = featureService;
 	}
 
+	public ExternalResourceFinder getExternalResourceFinder() {
+		if (this.externalResourceFinder==null) {
+			this.externalResourceFinder = this.machineLearningService.getExternalResourceFinder();
+		}
+		return externalResourceFinder;
+	}
 
+	public void setExternalResourceFinder(
+			ExternalResourceFinder externalResourceFinder) {
+		this.externalResourceFinder = externalResourceFinder;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
 
 }

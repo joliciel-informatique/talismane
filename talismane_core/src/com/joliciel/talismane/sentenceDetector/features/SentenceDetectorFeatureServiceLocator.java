@@ -32,6 +32,7 @@ public class SentenceDetectorFeatureServiceLocator {
 		if (sentenceDetectorFeatureService==null) {
 			sentenceDetectorFeatureService = new SentenceDetectorFeatureServiceImpl();
 			sentenceDetectorFeatureService.setFeatureService(this.getTalismaneServiceLocator().getFeatureServiceLocator().getFeatureService());
+			sentenceDetectorFeatureService.setMachineLearningService(this.getTalismaneServiceLocator().getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return sentenceDetectorFeatureService;
 	}

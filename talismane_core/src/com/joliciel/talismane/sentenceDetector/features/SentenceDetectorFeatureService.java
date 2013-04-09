@@ -21,6 +21,12 @@ package com.joliciel.talismane.sentenceDetector.features;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+
 public interface SentenceDetectorFeatureService {
 	public Set<SentenceDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors);
+	
+	public ExternalResourceFinder getExternalResourceFinder();
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder);
+
 }

@@ -44,7 +44,7 @@ public class CSVFormatter {
     
     static {
 	    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
-	    decFormat.applyPattern("##0.00000000");
+	    decFormat.applyPattern("0.00");
 	    intFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
 	    intFormat.applyPattern("##0");
 	    

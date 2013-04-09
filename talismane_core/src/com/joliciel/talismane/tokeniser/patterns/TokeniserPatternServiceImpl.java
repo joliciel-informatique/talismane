@@ -18,12 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.ExternalResource;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
@@ -57,6 +60,24 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 		tokeniser.setFeatureService(this.getFeatureService());
 		return tokeniser;
 	}
+	
+
+	@Override
+	public Tokeniser getPatternTokeniser(
+			MachineLearningModel<TokeniserOutcome> tokeniserModel, int beamWidth) {
+		Collection<ExternalResource> externalResources = tokeniserModel.getExternalResources();
+		if (externalResources!=null) {
+			for (ExternalResource externalResource : externalResources) {
+				this.getTokenFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
+			}
+		}
+		
+		TokeniserPatternManager tokeniserPatternManager = this.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
+		Set<TokeniserContextFeature<?>> tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
+		Tokeniser tokeniser = this.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
+		return tokeniser;
+	}
+
 	
 	@Override
 	public TokenPattern getTokeniserPattern(String regexp, Pattern separatorPattern) {

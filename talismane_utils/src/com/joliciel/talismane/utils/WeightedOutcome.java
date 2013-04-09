@@ -18,16 +18,19 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
+import java.io.Serializable;
+
 /**
  * An outcome/value pair that orders automatically in descending order (from highest to lowest weight).
  * @author Assaf Urieli
  *
  */
-public class WeightedOutcome<T> implements Comparable<WeightedOutcome<T>> {
+public class WeightedOutcome<T> implements Comparable<WeightedOutcome<T>>, Serializable {
+	private static final long serialVersionUID = 6970237630148498476L;
 	private T outcome;
 	private double weight;
-	private double weightLog;
-	private boolean weightLogCalculated = false;
+	private transient double weightLog;
+	private transient boolean weightLogCalculated = false;
 	
 	public WeightedOutcome(T outcome, double weight) {
 		this.outcome = outcome;

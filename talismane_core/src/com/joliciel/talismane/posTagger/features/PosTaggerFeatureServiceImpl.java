@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
@@ -41,7 +43,9 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
     private static final Log LOG = LogFactory.getLog(PosTaggerFeatureServiceImpl.class);
 	private FeatureService featureService;
 	private TokenFeatureService tokenFeatureService;
-	
+	private MachineLearningService machineLearningService;
+	private ExternalResourceFinder externalResourceFinder;
+
 	public PosTaggerContext getContext(Token token, PosTagSequence history) {
 		PosTaggerContextImpl context = new PosTaggerContextImpl(token, history);
 		return context;
@@ -127,6 +131,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	private PosTagFeatureParser getPosTagFeatureParser() {
 		PosTagFeatureParser posTagFeatureParser = new PosTagFeatureParser(featureService);
 		posTagFeatureParser.setTokenFeatureParser(this.tokenFeatureService.getTokenFeatureParser());
+		posTagFeatureParser.setExternalResourceFinder(externalResourceFinder);
 		return posTagFeatureParser;
 	}
 	
@@ -150,5 +155,27 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
 		this.tokenFeatureService = tokenFeatureService;
 	}
+
+	public ExternalResourceFinder getExternalResourceFinder() {
+		if (this.externalResourceFinder==null) {
+			this.externalResourceFinder = this.machineLearningService.getExternalResourceFinder();
+		}
+		return externalResourceFinder;
+	}
+
+	public void setExternalResourceFinder(
+			ExternalResourceFinder externalResourceFinder) {
+		this.externalResourceFinder = externalResourceFinder;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+
 
 }

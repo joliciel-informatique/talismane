@@ -47,6 +47,7 @@ import opennlp.model.TwoPassRealValueDataIndexer;
 class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T> {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(MaxentModelTrainerImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(MaxentModelTrainerImpl.class);
 	
 	private int iterations = 100;
 	private int cutoff = 5;
@@ -79,11 +80,11 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 			} else if (this.getSigma()>0) {
 				trainer.setGaussianSigma(this.getSigma());
 			}
-			PerformanceMonitor.startTask("MaxentModelTrainer.trainModel");
+			MONITOR.startTask("train");
 			try {
 				maxentModel =  trainer.trainModel(iterations, dataIndexer, cutoff);
 			} finally {
-				PerformanceMonitor.endTask("MaxentModelTrainer.trainModel");
+				MONITOR.endTask("train");
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

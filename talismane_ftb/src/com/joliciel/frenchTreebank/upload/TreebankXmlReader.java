@@ -52,7 +52,8 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class TreebankXmlReader implements TreebankReader {
 	private static final Log LOG = LogFactory.getLog(TreebankXmlReader.class);
-    
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TreebankXmlReader.class);
+	    
     private TreebankFile treebankFile;
     private TreebankService treebankService;
     private Sentence sentence = null;
@@ -86,7 +87,7 @@ class TreebankXmlReader implements TreebankReader {
 	 */
     @Override
 	public boolean hasNextSentence() {
-		PerformanceMonitor.startTask("TreebankXmlReader.hasNextSentence");
+    	MONITOR.startTask("hasNextSentence");
 		try {
 	    	if (sentenceCount>0 && currentSentenceCount==sentenceCount)
 	    		return false;
@@ -150,7 +151,7 @@ class TreebankXmlReader implements TreebankReader {
 	    	}
 			return sentenceClosed;
 		} finally {
-			PerformanceMonitor.endTask("TreebankXmlReader.hasNextSentence");
+			MONITOR.endTask("hasNextSentence");
 		}
 	}
     

@@ -95,6 +95,15 @@ class ModelFactory {
 						LogUtils.logError(LOG, e);
 						throw new RuntimeException(e);
 					}
+		    	} else if (ze.getName().equals("externalResources.obj")) {
+		    		ObjectInputStream in = new ObjectInputStream(zis);
+					try {
+						List<ExternalResource> externalResources = (List<ExternalResource>) in.readObject();
+			    		machineLearningModel.setExternalResources(externalResources);
+					} catch (ClassNotFoundException e) {
+						LogUtils.logError(LOG, e);
+						throw new RuntimeException(e);
+					}
 		    	} else if (ze.getName().endsWith("_descriptors.txt")) {
 		    		String key = ze.getName().substring(0, ze.getName().length() - "_descriptors.txt".length());
 		    		Scanner scanner = new Scanner(zis, "UTF-8");

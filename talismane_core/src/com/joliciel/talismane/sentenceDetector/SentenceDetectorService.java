@@ -24,12 +24,14 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 
 public interface SentenceDetectorService {
 	
 	public SentenceDetector getSentenceDetector(DecisionMaker<SentenceDetectorOutcome> decisionMaker,
 			Set<SentenceDetectorFeature<?>> features);
+	public SentenceDetector getSentenceDetector(MachineLearningModel<SentenceDetectorOutcome> model);
 	
 	public SentenceDetectorEvaluator getEvaluator(SentenceDetector sentenceDetector);
 	

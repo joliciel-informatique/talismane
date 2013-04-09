@@ -23,15 +23,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PredicateArgument;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -131,84 +128,38 @@ public class Lefff {
         	File memoryBaseFile = new File(memoryBaseFilePath);
         	LefffMemoryBase memoryBase = loader.deserializeMemoryBase(memoryBaseFile);
         	
-        	String testWord = "avoir";
-        	if (word!=null)
-        		testWord = word;
-        	
-        	List<? extends LexicalEntry> entriesForAvoir = memoryBase.getEntries(testWord);
-        	LOG.debug("##### Entries for '" + testWord + "': " + entriesForAvoir.size());
-        	for (LexicalEntry entry : entriesForAvoir) {
-        		LOG.debug("### Entry " + entry.getWord());
-        		LOG.debug("Category " + entry.getCategory());
-        		LOG.debug("Predicate " + entry.getPredicate());
-        		LOG.debug("Lemma " + entry.getLemma());
-        		LOG.debug("Morphology " + entry.getMorphology());
+        	String[] testWords = new String[] {"avoir"};
+        	if (word!=null) {
+        		testWords = word.split(",");
         	}
-        	
-        	testWord = "baser";
-        	if (word!=null)
-        		testWord = word;
-        	
-        	List<? extends LexicalEntry> entriesForBaserLemma = memoryBase.getEntriesForLemma(testWord, "");
-        	LOG.debug("##### Entries for '" + testWord + "' lemma: " + entriesForBaserLemma.size());
-        	for (LexicalEntry entry : entriesForBaserLemma) {
-        		LOG.debug("### Entry " + entry.getWord());
-        		LOG.debug("Category " + entry.getCategory());
-        		LOG.debug("Predicate " + entry.getPredicate());
-        		LOG.debug("Lemma " + entry.getLemma());
-        		LOG.debug("Morphology " + entry.getMorphology());
-        		for (PredicateArgument argument : entry.getPredicateArguments()) {
-        			LOG.debug("Argument: " + argument.getFunction() + ",Optional? " + argument.isOptional());
-        			for (String realisation : argument.getRealisations()) {
-        				LOG.debug("Realisation: " + realisation);
-        			}
-        		}
-        	}
-
-        	List<? extends LexicalEntry> entriesForBase = memoryBase.getEntries("base");
-        	LOG.debug("##### Entries for 'base': " + entriesForBase.size());
-        	for (LexicalEntry entry : entriesForBase) {
-        		LOG.debug("### Entry " + entry.getWord());
-        		LOG.debug("Category " + entry.getCategory());
-        		LOG.debug("Predicate " + entry.getPredicate());
-        		LOG.debug("Lemma " + entry.getLemma());
-        		LOG.debug("Morphology " + entry.getMorphology());
-        	}
-
-        	Set<PosTag> posTagsBase = memoryBase.findPossiblePosTags("base");
-           	LOG.debug("##### PosTags for 'base' (CRABBE_CANDITO): " + posTagsBase.size());
-	       	for (PosTag postag : posTagsBase) {
-	        		LOG.debug(postag.getCode());
-	       	}
-	       	
-	       	String[] testWords = new String[] { "suis", "fils", "aille", "ados" };
-	       	String[] testCategories = new String[] { "V", "NC", "V", "NC" };
-	       	
-	       	for (int i = 0 ; i< testWords.length; i++) {
-		       	List<LexicalEntry> testWordEntries = memoryBase.findLexicalEntries(testWords[i], memoryBase.getPosTagSet().getPosTag(testCategories[i]));
-	        	LOG.debug("##### Entries for '" + testWords[i] + "', '" + testCategories[i] + "': " + testWordEntries.size());
-	        	for (LexicalEntry entry : testWordEntries) {
+      
+        	for (String testWord : testWords) {
+	        	List<? extends LexicalEntry> entriesForWord = memoryBase.getEntries(testWord);
+	        	LOG.debug("##### Entries for '" + testWord + "': " + entriesForWord.size());
+	        	int i = 1;
+	        	for (LexicalEntry entry : entriesForWord) {
+	        		LOG.debug("### Entry " + (i++) + ":" + entry.getWord());
+	        		LOG.debug("Category " + entry.getCategory());
+	        		LOG.debug("Predicate " + entry.getPredicate());
+	        		LOG.debug("Lemma " + entry.getLemma());
+	        		LOG.debug("Morphology " + entry.getMorphology());
+	        	}
+	        	
+	        	List<? extends LexicalEntry> entriesForLemma = memoryBase.getEntriesForLemma(testWord, "");
+	        	LOG.debug("##### Entries for '" + testWord + "' lemma: " + entriesForLemma.size());
+	        	for (LexicalEntry entry : entriesForLemma) {
 	        		LOG.debug("### Entry " + entry.getWord());
 	        		LOG.debug("Category " + entry.getCategory());
 	        		LOG.debug("Predicate " + entry.getPredicate());
 	        		LOG.debug("Lemma " + entry.getLemma());
 	        		LOG.debug("Morphology " + entry.getMorphology());
-	        		LOG.debug("Status " + entry.getStatus());
+	        		for (PredicateArgument argument : entry.getPredicateArguments()) {
+	        			LOG.debug("Argument: " + argument.getFunction() + ",Optional? " + argument.isOptional());
+	        			for (String realisation : argument.getRealisations()) {
+	        				LOG.debug("Realisation: " + realisation);
+	        			}
+	        		}
 	        	}
-	       	}
-	       	
-	       	List<LexicalEntry> entriesForPetites = memoryBase.getEntries("petites");
-	       	LexicalEntry entryForPetite = entriesForPetites.get(0);
-	       	
-	       	List<LexicalEntry> testWordEntries = memoryBase.getEntriesMatchingCriteria(entryForPetite, memoryBase.getPosTagSet().getPosTag("ADJ"), "f", "s");
-        	LOG.debug("##### Entries for 'petites', fs: " + testWordEntries.size());
-        	for (LexicalEntry entry : testWordEntries) {
-        		LOG.debug("### Entry " + entry.getWord());
-        		LOG.debug("Category " + entry.getCategory());
-        		LOG.debug("Predicate " + entry.getPredicate());
-        		LOG.debug("Lemma " + entry.getLemma());
-        		LOG.debug("Morphology " + entry.getMorphology());
-        		LOG.debug("Status " + entry.getStatus());
         	}
         	
         } else {

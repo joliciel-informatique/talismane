@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.joliciel.talismane.utils.WeightedOutcome;
 
-public abstract class AbstractStringCollectionFeature<T> extends AbstractFeature<T, List<WeightedOutcome<String>>>
+public abstract class AbstractStringCollectionFeature<T> extends AbstractCachableFeature<T, List<WeightedOutcome<String>>>
 		implements StringCollectionFeature<T> {
 
 	@SuppressWarnings("rawtypes")

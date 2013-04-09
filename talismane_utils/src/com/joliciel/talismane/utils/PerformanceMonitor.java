@@ -18,15 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayDeque;
-import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -34,7 +36,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Monitors the performance of various sub-tasks within an application run.
+ * Monitors the performance of various sub-tasks within an application run.<br/>
+ * Configuration file keys:<br/>
+ * <ul>
+ * <li>talismane.monitoring.activated=true/false : whether the entire system is activated (default = false)</li>
+ * <li>talismane.monitoring.default=true/false : whether individual monitors are active by default</li>
+ * <li>talismane.monitor.[package name] : whether this whole package is active by default - sub-packages override parent package settings for their classes</li>
+ * <li>talismane.monitor.[package + class name] : whether this specific class is active</li>
+ * </ul>
  * @author Assaf Urieli
  *
  */
@@ -44,43 +53,145 @@ public class PerformanceMonitor {
 	private static Map<String,TaskStats> taskStatMap = new HashMap<String, TaskStats>();
 	private static DecimalFormat decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
 	private static Task root = null;
-	private static boolean active = false;
+	private static boolean activated = false;
+	private static boolean defaultActive = false;
+	private static Map<String,Boolean> activeMonitors = new HashMap<String, Boolean>();
+	private static Map<String,PerformanceMonitor> monitors = new HashMap<String, PerformanceMonitor>();
+	private static PerformanceMonitor rootMonitor = null;
+	
+	private static final String ACTIVE_PREFIX = "talismane.monitor.";
+	private static final String ALL_ACTIVE = "talismane.monitoring.activated";
+	private static final String DEFAULT_ACTIVE = "talismane.monitoring.default";
+	
+	private String name;
+	private String simpleName;
+	private boolean active = false;
+	
+	
 	
 	/**
-	 * Must be called at the very start of the application run.
+	 * Must be called at start of the application run.<br/>
+	 * Uses a config properties file.<br/>
+	 * Lines starting with # will be skipped.
+	 * @throws IOException 
 	 */
-	public static void start() {
-		if (!active)
-			return;
-		startTask("root");
-	    decFormat.applyPattern("##0.00");
+	public static void start(File configFile) {
+		try {
+			if (configFile==null)
+				return;
+			
+			Properties props = new Properties();
+			props.load(new FileReader(configFile));
+			
+			for (Object keyObj : props.keySet()) {
+				String key = (String) keyObj;
+				if (key.equals(ALL_ACTIVE)) {
+					boolean active = props.getProperty(key).equalsIgnoreCase("true");
+					activated = active;
+				} else if (key.equals(DEFAULT_ACTIVE)) {
+					boolean active = props.getProperty(key).equalsIgnoreCase("true");
+					defaultActive = active;
+				} else if (key.startsWith(ACTIVE_PREFIX)) {
+					String name = key.substring(ACTIVE_PREFIX.length());
+					boolean active = props.getProperty(key).equalsIgnoreCase("true");
+					activeMonitors.put(name, active);
+				}
+			}
+			
+			rootMonitor = new PerformanceMonitor("[[ROOT]]","ROOT");
+			rootMonitor.setActive(true);
+
+			if (monitors.size()>0) {
+				for (PerformanceMonitor monitor : monitors.values()) {
+					monitor.updateActive();
+				}
+			}
+			rootMonitor.startTask("root");
+		    decFormat.applyPattern("##0.00");
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 	
+	private PerformanceMonitor(String name, String simpleName) {
+		this.name = name;
+		this.simpleName = simpleName;
+		this.updateActive();
+	}
+	
+	private void updateActive() {
+		if (!activated) {
+			this.active = false;
+			return;
+		}
+		String test = this.name;
+		boolean isActive = defaultActive;
+		while (test.length()>0) {
+			Boolean active = activeMonitors.get(test);
+			if (active!=null) {
+				isActive = active;
+				break;
+			}
+			int dotIndex = test.lastIndexOf('.');
+			if (dotIndex<0)
+				break;
+			if (dotIndex>=0) {
+				test = test.substring(0,dotIndex);
+			}
+		}
+		this.active = isActive;
+	}
+	
+	/**
+	 * Get a monitor for the class provided.
+	 * @param clazz
+	 * @return
+	 */
+	public static PerformanceMonitor getMonitor(@SuppressWarnings("rawtypes") Class clazz) {
+		return getMonitor(clazz.getCanonicalName(), clazz.getSimpleName());
+	}
+	
+	/**
+	 * Get a monitor for the name provided.
+	 * @param name
+	 * @return
+	 */
+	public static PerformanceMonitor getMonitor(String name, String simpleName) {
+		PerformanceMonitor monitor = monitors.get(name);
+		if (monitor==null) {
+			monitor = new PerformanceMonitor(name, simpleName);
+			monitors.put(name, monitor);
+		}
+		return monitor;
+		
+	}
 	/**
 	 * Indicates that a particular task is starting.
 	 * It's safest to place a try block immediately after the startTask, and place the corresponding endTask
 	 * in the finally block.
-	 * @param name
+	 * @param taskName
 	 */
-	public static void startTask(String name) {
+	public void startTask(String taskName) {
 		if (!active)
 			return;
 		Task currentHead = tasks.peek();
 		Task task = null;
+		String localName = this.simpleName + "." + taskName;
 		if (currentHead==null) {
-			task = new Task(name);
+			task = new Task(localName);
 			if (root == null)
 				root = task;
 		} else {
-			task = currentHead.subTasks.get(name);
+			task = currentHead.subTasks.get(localName);
 			if (task==null) {
-				task = new Task(name);
-				currentHead.subTasks.put(name, task);
+				task = new Task(localName);
+				currentHead.subTasks.put(localName, task);
 			}
 		}
 		task.subTaskDuration = 0;
 		
-		task.startTime = new Date().getTime();
+		task.startTime = System.currentTimeMillis();
 		
 		tasks.push(task);
 	}
@@ -91,22 +202,23 @@ public class PerformanceMonitor {
 	 * It's safest to place this in the finally block of a try block starting immediately after the corresponding startTask.
 	 * @param name
 	 */
-	public static void endTask(String name) {
+	public void endTask(String taskName) {
 		if (!active)
 			return;
+		String localName = this.simpleName + "." + taskName;
 		Task task = tasks.pop();
-		if (!task.name.equals(name)) {
-			LOG.error("Mismatched task start and end: " + task.name + ", " + name);
+		if (!task.name.equals(localName)) {
+			LOG.error("Mismatched task start and end: " + task.name + ", " + localName);
 			return;
 		}
-		long duration = (new Date().getTime()) - task.startTime;
+		long duration = System.currentTimeMillis() - task.startTime;
 
 		task.totalTime += duration;
 		
-		TaskStats taskStats = taskStatMap.get(name);
+		TaskStats taskStats = taskStatMap.get(localName);
 		if (taskStats==null) {
-			taskStats = new TaskStats(name);
-			taskStatMap.put(name, taskStats);
+			taskStats = new TaskStats(localName);
+			taskStatMap.put(localName, taskStats);
 		}
 		taskStats.callCount = taskStats.callCount + 1;
 		
@@ -124,18 +236,18 @@ public class PerformanceMonitor {
 	 * Must be called at the end of the application run, preferably in a finally block.
 	 */
 	public static void end() {
-		if (!active)
+		if (!activated)
 			return;
-		endTask("root");
+		rootMonitor.endTask("root");
 		if (root.totalTime==0) {
-			long duration = (new Date().getTime()) - root.startTime;
+			long duration = System.currentTimeMillis() - root.startTime;
 			root.totalTime = duration;
 		}
 		logPerformance(root, 0, root, root.totalTime);
 	}
 	
 	static void logPerformance(Task task, int depth, Task parent, long rootTotalTime) {
-		if (!active)
+		if (!activated)
 			return;
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i<depth; i++)
@@ -219,7 +331,7 @@ public class PerformanceMonitor {
 	 * @param csvWriter
 	 */
 	public static void writePerformanceCSV(Writer csvWriter) {
-		if (!active)
+		if (!activated)
 			return;
 		Set<TaskStats> taskStatSet = new TreeSet<TaskStats>(taskStatMap.values());
 		try {
@@ -245,12 +357,20 @@ public class PerformanceMonitor {
 		}
 	}
 
-	public static boolean isActive() {
+	public boolean isActive() {
 		return active;
 	}
 
-	public static void setActive(boolean active) {
-		PerformanceMonitor.active = active;
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public static boolean isActivated() {
+		return activated;
+	}
+
+	public static void setActivated(boolean active) {
+		PerformanceMonitor.activated = active;
 	}
 	
 	

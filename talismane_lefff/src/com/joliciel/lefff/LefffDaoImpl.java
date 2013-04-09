@@ -702,7 +702,7 @@ class LefffDaoImpl implements LefffDao {
         	" INNER JOIN lef_predicate ON entry_predicate_id = predicate_id" +
         	" INNER JOIN lef_attribute ON entry_morph_id = attribute_id" +
         	" WHERE entry_status < 3" +
-        	" ORDER BY entry_id, entry_status";
+        	" ORDER BY entry_status, entry_id";
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
        
         LOG.info(sql);
@@ -767,9 +767,13 @@ class LefffDaoImpl implements LefffDao {
         	entries.add(entry);
         }
         
+        for (String word : entryMap.keySet()) {
+        	List<LexicalEntry> entries = entryMap.get(word);
+        	ArrayList<LexicalEntry> entriesArrayList = (ArrayList<LexicalEntry>) entries;
+        	entriesArrayList.trimToSize();
+        }
         return entryMap;
     }
-	
 	
     @SuppressWarnings("unchecked")
     public static void LogParameters(MapSqlParameterSource paramSource) {

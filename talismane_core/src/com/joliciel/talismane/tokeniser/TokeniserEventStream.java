@@ -57,6 +57,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class TokeniserEventStream implements CorpusEventStream {
     private static final Log LOG = LogFactory.getLog(TokeniserEventStream.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokeniserEventStream.class);
     
     private TokenFeatureService tokenFeatureService;
 	private TokenFilterService tokenFilterService;
@@ -85,7 +86,7 @@ class TokeniserEventStream implements CorpusEventStream {
 
 	@Override
 	public boolean hasNext() {
-		PerformanceMonitor.startTask("TokeniserEventStream.hasNext");
+		MONITOR.startTask("hasNext");
 		try {
 			if (tokensToCheck!=null) {
 				if (currentIndex==tokensToCheck.size()) {
@@ -147,7 +148,7 @@ class TokeniserEventStream implements CorpusEventStream {
 			
 			return tokensToCheck!=null;
 		} finally {
-			PerformanceMonitor.endTask("TokeniserEventStream.hasNext");
+			MONITOR.endTask("hasNext");
 		}
 	}
 
@@ -164,7 +165,7 @@ class TokeniserEventStream implements CorpusEventStream {
 
 	@Override
 	public CorpusEvent next() {
-		PerformanceMonitor.startTask("TokeniserEventStream.next");
+		MONITOR.startTask("next");
 		try {
 			CorpusEvent event = null;
 			if (this.hasNext()) {
@@ -173,7 +174,7 @@ class TokeniserEventStream implements CorpusEventStream {
 				
 				LOG.debug("next event, token: " + taggedToken.getToken().getText());
 				List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
-				PerformanceMonitor.startTask("TokeniserEventStream.next - check features");
+				MONITOR.startTask("check features");
 				try {
 					for (TokeniserContextFeature<?> tokeniserContextFeature : tokeniserContextFeatures) {
 						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
@@ -186,7 +187,7 @@ class TokeniserEventStream implements CorpusEventStream {
 						}
 					}
 				} finally {
-					PerformanceMonitor.endTask("TokeniserEventStream.next - check features");
+					MONITOR.endTask("check features");
 				}
 				
 				String classification = taggedToken.getTag().name();
@@ -199,7 +200,7 @@ class TokeniserEventStream implements CorpusEventStream {
 			}
 			return event;
 		} finally {
-			PerformanceMonitor.endTask("TokeniserEventStream.next");
+			MONITOR.endTask("next");
 		}
 	}
 

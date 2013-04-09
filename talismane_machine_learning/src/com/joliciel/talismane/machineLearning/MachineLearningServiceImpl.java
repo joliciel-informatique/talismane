@@ -75,4 +75,10 @@ class MachineLearningServiceImpl implements MachineLearningService {
 		this.linearSVMService = linearSVMService;
 	}
 
+	@Override
+	public ExternalResourceFinder getExternalResourceFinder() {
+		ExternalResourceFinderImpl finder = new ExternalResourceFinderImpl();
+		return finder;
+	}
+
 }

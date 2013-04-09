@@ -73,6 +73,8 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class PatternTokeniserImpl implements Tokeniser {
 	private static final Log LOG = LogFactory.getLog(PatternTokeniserImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PatternTokeniserImpl.class);
+
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
 	private Map<SeparatorDecision, String> separatorDefaults;
@@ -133,7 +135,7 @@ class PatternTokeniserImpl implements Tokeniser {
 
 	@Override
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
-		PerformanceMonitor.startTask("PatternTokeniserImpl.tokeniseWithDecisions");
+		MONITOR.startTask("tokeniseWithDecisions");
 		try {
 			// apply any pre-tokenisation decisions via filters
 			// we only want one placeholder per start index - the first one that gets added
@@ -171,7 +173,7 @@ class PatternTokeniserImpl implements Tokeniser {
 			if (this.decisionMaker!=null) {
 				Set<Token> tokensToCheck = new HashSet<Token>();
 				List<TokenPatternMatch> tokenPatternMatches = new ArrayList<TokenPatternMatch>();
-				PerformanceMonitor.startTask("pattern matching");
+				MONITOR.startTask("pattern matching");
 				try {
 					for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
 						Set<Token> tokensToCheckForThisPattern = new HashSet<Token>();
@@ -190,7 +192,7 @@ class PatternTokeniserImpl implements Tokeniser {
 						}
 					}
 				} finally {
-					PerformanceMonitor.endTask("pattern matching");
+					MONITOR.endTask("pattern matching");
 				}
 				
 				// we want to create the n most likely token sequences
@@ -220,7 +222,7 @@ class PatternTokeniserImpl implements Tokeniser {
 							// test the features on the current token
 							TokeniserContext context = new TokeniserContext(token, history);
 							List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
-							PerformanceMonitor.startTask("analyse features");
+							MONITOR.startTask("analyse features");
 							try {
 								for (TokeniserContextFeature<?> feature : tokeniserContextFeatures) {
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
@@ -236,10 +238,10 @@ class PatternTokeniserImpl implements Tokeniser {
 									}
 								}
 							} finally {
-								PerformanceMonitor.endTask("analyse features");
+								MONITOR.endTask("analyse features");
 							}
 							
-							PerformanceMonitor.startTask("make decision");
+							MONITOR.startTask("make decision");
 							try {
 								decisions = this.decisionMaker.decide(tokenFeatureResults);
 								
@@ -253,14 +255,14 @@ class PatternTokeniserImpl implements Tokeniser {
 									}
 								}
 							} finally {
-								PerformanceMonitor.endTask("make decision");
+								MONITOR.endTask("make decision");
 							}
 						} else {
 							decisions = new ArrayList<Decision<TokeniserOutcome>>();
 							decisions.add(defaultDecisions.get(i));
 						}
 	
-						PerformanceMonitor.startTask("heap sort");
+						MONITOR.startTask("heap sort");
 						try {
 							for (Decision<TokeniserOutcome> decision : decisions) {
 								TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
@@ -272,7 +274,7 @@ class PatternTokeniserImpl implements Tokeniser {
 								heap.add(tokenisedSequence);
 							}
 						} finally {
-							PerformanceMonitor.endTask("heap sort");
+							MONITOR.endTask("heap sort");
 						}
 	
 					} // next sequence in the old heap
@@ -322,7 +324,7 @@ class PatternTokeniserImpl implements Tokeniser {
 	
 			return sequences;
 		} finally {
-			PerformanceMonitor.endTask("PatternTokeniserImpl.tokeniseWithDecisions");
+			MONITOR.endTask("tokeniseWithDecisions");
 		}
 	}
 	

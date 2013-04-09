@@ -62,6 +62,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTagAnnotatedCorpusReader {
     private static final Log LOG = LogFactory.getLog(FrenchTreebankTokenReader.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(FrenchTreebankTokenReader.class);
     
     private TreebankService treebankService;
 	private TokeniserService tokeniserService;
@@ -122,7 +123,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	}
 	
 	PosTagSequence nextSentenceInternal(List<Integer> tokenSplits) {
-		PerformanceMonitor.startTask("FrenchTreebankTokenReader.nextSentenceInternal");
+		MONITOR.startTask("nextSentenceInternal");
 		try {
 			Sentence sentence = treebankReader.nextSentence();
 			LOG.debug("Sentence " + sentence.getSentenceNumber());
@@ -399,7 +400,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 			return posTagSequence;
 		} finally {
-			PerformanceMonitor.endTask("FrenchTreebankTokenReader.nextSentenceInternal");
+			MONITOR.endTask("nextSentenceInternal");
 		}
 	}
 	
