@@ -23,6 +23,7 @@ import java.util.Map;
 
 class RuntimeEnvironmentImpl implements RuntimeEnvironment {
 	private Map<String, Object> variableMap = new HashMap<String, Object>();
+	private String key = null;
 	
 	@Override
 	public Object getValue(String variableName) {
@@ -32,17 +33,23 @@ class RuntimeEnvironmentImpl implements RuntimeEnvironment {
 	@Override
 	public void setValue(String variableName, Object value) {
 		variableMap.put(variableName, value);
+		key = null;
 	}
 
 	@Override
 	public String getKey() {
-		if (variableMap.size()==0)
-			return "";
-		StringBuilder sb = new StringBuilder();
-		for (String variable : variableMap.keySet()) {
-			sb.append("|" + variable + ":" + variableMap.get(variable).toString());
+		if (key==null) {
+			if (variableMap.size()==0)
+				key = "";
+			else {
+				StringBuilder sb = new StringBuilder();
+				for (String variable : variableMap.keySet()) {
+					sb.append("|" + variable + ":" + variableMap.get(variable).toString());
+				}
+				key = sb.toString();
+			}
 		}
-		return sb.toString();
+		return key;
 	}
 
 }

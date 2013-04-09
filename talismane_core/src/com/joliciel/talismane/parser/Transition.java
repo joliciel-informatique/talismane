@@ -26,7 +26,7 @@ import com.joliciel.talismane.machineLearning.Outcome;
  * @author Assaf Urieli
  *
  */
-public interface Transition extends Outcome {
+public interface Transition extends Outcome, Comparable<Transition> {
 	/**
 	 * Check whether this transition is valid for the configuration provided.
 	 * @param configuration

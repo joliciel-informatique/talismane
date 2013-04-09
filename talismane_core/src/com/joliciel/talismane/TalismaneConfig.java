@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
@@ -82,7 +81,6 @@ import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerGuessTemplateWriter;
 import com.joliciel.talismane.posTagger.PosTaggerService;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterService;
@@ -92,7 +90,6 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusRe
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
-import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 import com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
@@ -101,11 +98,9 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
-import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -194,8 +189,6 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private String posTaggerPreProcessingFilterPath = null;
 	private String templatePath = null;
 	private String evaluationFilePath = null;
-	
-	private String posTaggerFeaturePath = null;
 
 	private String sentenceTemplateName = "sentence_template.ftl";
 	private String tokeniserTemplateName = "tokeniser_template.ftl";
@@ -203,7 +196,6 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private String parserTemplateName = "parser_conll_template.ftl";
 	
 	private String fileName = null;
-	private boolean logPerformance = false;
 	private boolean logStats = false;
 	private File outDir = null;
 	private String baseName = null;
@@ -224,6 +216,10 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private MarkerFilterType newlineMarker = MarkerFilterType.SENTENCE_BREAK;
 	private int blockSize = 1000;
 	
+	private int crossValidationSize = -1;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	
 	private boolean parserCorpusReaderFiltersAdded = false;
 	private boolean posTagCorpusReaderFiltersAdded = false;
 	private boolean tokenCorpusReaderFiltersAdded = false;
@@ -242,6 +238,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private TokenFeatureService tokenFeatureService;
 	private TokeniserService tokeniserService;
 	private PosTagFilterService posTagFilterService;
+	
+	private File performanceConfigFile;
 	
 	public TalismaneConfig(String[] args) throws Exception {
 		TalismaneSession.setImplementation(this);
@@ -286,6 +284,12 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			Properties props = new Properties();
 			props.load(new FileInputStream(logConfigPath));
 			PropertyConfigurator.configure(props);
+		}
+		
+		String performanceConifPath = args.get("performanceConfigFile");
+		if (performanceConifPath!=null) {
+			args.remove("performanceConfigFile");
+			performanceConfigFile = new File(performanceConifPath);
 		}
 
 		String encoding = null;
@@ -396,8 +400,6 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				tokenFiltersPath = argValue;
 			else if (argName.equals("posTaggerPreProcessingFilters"))
 				posTaggerPreProcessingFilterPath = argValue;
-			else if (argName.equals("logPerformance"))
-				logPerformance = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("logStats"))
 				logStats = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("newline"))
@@ -426,8 +428,6 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				includeDistanceFScores = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("evaluationFile"))
 				evaluationFilePath = argValue;
-			else if (argName.equals("posTaggerFeatures"))
-				posTaggerFeaturePath = argValue;
 			else if (argName.equals("labeledEvaluation"))
 				labeledEvaluation = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("tokeniserBeamWidth"))
@@ -440,6 +440,12 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				propagateTokeniserBeam = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("blockSize"))
 				blockSize = Integer.parseInt(argValue);
+			else if (argName.equals("crossValidationSize"))
+				crossValidationSize = Integer.parseInt(argValue);
+			else if (argName.equals("includeIndex"))
+				includeIndex = Integer.parseInt(argValue);
+			else if (argName.equals("excludeIndex"))
+				excludeIndex = Integer.parseInt(argValue);
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -724,17 +730,6 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	 */
 	public String getFileName() {
 		return fileName;
-	}
-
-	/**
-	 * Whether or not we should log performance for this run.
-	 * @return
-	 */
-	public boolean isLogPerformance() {
-		return logPerformance;
-	}
-	public void setLogPerformance(boolean logPerformance) {
-		this.logPerformance = logPerformance;
 	}
 
 	/**
@@ -1046,9 +1041,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				} else {
 					sentenceModel = this.getMachineLearningService().getModel(this.getDefaultSentenceModelStream());
 				}
-				Set<SentenceDetectorFeature<?>> sentenceDetectorFeatures =
-					this.getSentenceDetectorFeatureService().getFeatureSet(sentenceModel.getFeatureDescriptors());
-				sentenceDetector = this.getSentenceDetectorService().getSentenceDetector(sentenceModel.getDecisionMaker(), sentenceDetectorFeatures);
+				sentenceDetector = this.getSentenceDetectorService().getSentenceDetector(sentenceModel);
 			}
 			return sentenceDetector;
 		} catch (Exception e) {
@@ -1066,10 +1059,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			if (tokeniser==null) {
 				LOG.debug("Getting tokeniser model");
 				MachineLearningModel<TokeniserOutcome> tokeniserModel = this.getTokeniserModel();
-				
-				TokeniserPatternManager tokeniserPatternManager = this.getTokeniserPatternService().getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
-				Set<TokeniserContextFeature<?>> tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
-				tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), tokeniserBeamWidth);
+				tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
 	
 				if (includeDetails) {
 					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
@@ -1178,21 +1168,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				LOG.debug("Getting pos-tagger model");
 				
 				MachineLearningModel<PosTag> posTaggerModel = this.getPosTaggerModel();
-				Set<PosTaggerFeature<?>> posTaggerFeatures = null;
-				if (this.posTaggerFeaturePath!=null) {
-					File posTaggerFeatureFile = new File(posTaggerFeaturePath);
-					Scanner scanner = new Scanner(posTaggerFeatureFile);
-					List<String> featureDescriptors = new ArrayList<String>();
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						featureDescriptors.add(descriptor);
-						LOG.debug(descriptor);
-					}
-					posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(featureDescriptors);
-				} else {
-					posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(posTaggerModel.getFeatureDescriptors());
-				}
-				posTagger = this.getPosTaggerService().getPosTagger(posTaggerFeatures, posTaggerModel.getDecisionMaker(), posTaggerBeamWidth);
+
+				posTagger = this.getPosTaggerService().getPosTagger(posTaggerModel, posTaggerBeamWidth);
 				
 				List<String> posTaggerPreprocessingFilters = posTaggerModel.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
 				if (posTaggerPreprocessingFilters!=null) {
@@ -1564,6 +1541,16 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		}
 		this.addParserCorpusReaderFilters(parserCorpusReader);
 		parserCorpusReader.setMaxSentenceCount(maxSentenceCount);
+		
+		if (parserCorpusReader instanceof ParserRegexBasedCorpusReader) {
+			ParserRegexBasedCorpusReader regexBasedReader = (ParserRegexBasedCorpusReader) parserCorpusReader;
+			if (crossValidationSize>0)
+				regexBasedReader.setCrossValidationSize(crossValidationSize);
+			if (includeIndex>=0)
+				regexBasedReader.setIncludeIndex(includeIndex);
+			if (excludeIndex>=0)
+				regexBasedReader.setExcludeIndex(excludeIndex);
+		}
 
 		return parserCorpusReader;
 	}
@@ -2160,6 +2147,14 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;
+	}
+
+	public File getPerformanceConfigFile() {
+		return performanceConfigFile;
+	}
+
+	public void setPerformanceConfigFile(File performanceConfigFile) {
+		this.performanceConfigFile = performanceConfigFile;
 	}
 	
 }

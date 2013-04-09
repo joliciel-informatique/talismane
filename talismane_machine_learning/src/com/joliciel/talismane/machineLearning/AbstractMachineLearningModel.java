@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,8 @@ public abstract class AbstractMachineLearningModel<T extends Outcome> implements
 	private Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 	private Map<String, Object> modelAttributes = new TreeMap<String, Object>();
 	private DecisionFactory<T> decisionFactory;
+	private Collection<ExternalResource> externalResources;
+	private ExternalResourceFinder externalResourceFinder;
 	
 	@Override
 	@SuppressWarnings("rawtypes")
@@ -106,6 +109,18 @@ public abstract class AbstractMachineLearningModel<T extends Outcome> implements
 			this.writeModelToStream(zos);
 			zos.flush();
 
+			if (this.externalResources!=null) {
+				zos.putNextEntry(new ZipEntry("externalResources.obj"));
+				ObjectOutputStream oos = new ObjectOutputStream(zos);
+				try {
+					oos.writeObject(externalResources);
+				} finally {
+					oos.flush();
+				}
+				zos.flush();
+			}
+			
+			this.writeDataToStream(zos);
 			zos.close();
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
@@ -142,10 +157,29 @@ public abstract class AbstractMachineLearningModel<T extends Outcome> implements
 	public void addModelAttribute(String name, Object value) {
 		this.modelAttributes.put(name, value);
 	}
-	
 
 	@Override
 	public List<String> getFeatureDescriptors() {
 		return this.descriptors.get(MachineLearningModel.FEATURE_DESCRIPTOR_KEY);
 	}
+
+	public Collection<ExternalResource> getExternalResources() {
+		return externalResources;
+	}
+
+	public void setExternalResources(Collection<ExternalResource> externalResources) {
+		this.externalResources = new ArrayList<ExternalResource>(externalResources);
+	}
+
+	public ExternalResourceFinder getExternalResourceFinder() {
+		if (externalResourceFinder==null) {
+			externalResourceFinder = new ExternalResourceFinderImpl();
+			for (ExternalResource resource : this.externalResources) {
+				externalResourceFinder.addExternalResource(resource);
+			}
+		}
+		return externalResourceFinder;
+	}
+	
+	
 }

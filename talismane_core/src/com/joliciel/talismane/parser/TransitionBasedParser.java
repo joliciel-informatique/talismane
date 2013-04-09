@@ -54,6 +54,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class TransitionBasedParser implements NonDeterministicParser {
 	private static final Log LOG = LogFactory.getLog(TransitionBasedParser.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TransitionBasedParser.class);
 	private static final double MIN_PROB_TO_STORE = 0.001;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private int beamWidth;
@@ -94,7 +95,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 	
 	@Override
 	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) {
-		PerformanceMonitor.startTask("TransitionBasedParser.parseSentence");
+		MONITOR.startTask("parseSentence");
 		try {
 			long startTime = (new Date()).getTime();
 			int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
@@ -175,7 +176,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 					// test the positive rules on the current token
 					boolean ruleApplied = false;
 					if (parserPositiveRules!=null) {
-						PerformanceMonitor.startTask("TransitionBasedParser.check rules");
+						MONITOR.startTask("check rules");
 						try {
 							for (ParserRule rule : parserPositiveRules) {
 								if (LOG.isTraceEnabled()) {
@@ -195,24 +196,24 @@ class TransitionBasedParser implements NonDeterministicParser {
 								}
 							}
 						} finally {
-							PerformanceMonitor.endTask("TransitionBasedParser.check rules");
+							MONITOR.endTask("check rules");
 						}
 					}
 					
 					if (!ruleApplied) {
 						// test the features on the current token
 						List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
-						PerformanceMonitor.startTask("feature analyse");
+						MONITOR.startTask("feature analyse");
 						try {
 							for (ParseConfigurationFeature<?> feature : this.parseFeatures) {
-								PerformanceMonitor.startTask(feature.getName());
+								MONITOR.startTask(feature.getName());
 								try {
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 									FeatureResult<?> featureResult = feature.check(history, env);
 									if (featureResult!=null)
 										parseFeatureResults.add(featureResult);
 								} finally {
-									PerformanceMonitor.endTask(feature.getName());
+									MONITOR.endTask(feature.getName());
 								}
 							}
 							if (LOG.isTraceEnabled()) {
@@ -221,11 +222,11 @@ class TransitionBasedParser implements NonDeterministicParser {
 								}
 							}
 						} finally {
-							PerformanceMonitor.endTask("feature analyse");
+							MONITOR.endTask("feature analyse");
 						}
 						
 						// evaluate the feature results using the decision maker
-						PerformanceMonitor.startTask("make decision");
+						MONITOR.startTask("make decision");
 						try {
 							decisions = this.decisionMaker.decide(parseFeatureResults);
 							
@@ -241,13 +242,13 @@ class TransitionBasedParser implements NonDeterministicParser {
 							}
 							decisions = decisionShortList;
 						} finally {
-							PerformanceMonitor.endTask("make decision");
+							MONITOR.endTask("make decision");
 						}
 						
 						// apply the negative rules
 						Set<Transition> eliminatedTransitions = new TreeSet<Transition>();
 						if (parserNegativeRules!=null) {
-							PerformanceMonitor.startTask("TransitionBasedParser.check negative rules");
+							MONITOR.startTask("check negative rules");
 							try {
 								for (ParserRule rule : parserNegativeRules) {
 									if (LOG.isTraceEnabled()) {
@@ -279,14 +280,14 @@ class TransitionBasedParser implements NonDeterministicParser {
 									}
 								}
 							} finally {
-								PerformanceMonitor.endTask("TransitionBasedParser.check negative rules");
+								MONITOR.endTask("check negative rules");
 							}
 						}
 					} // has a positive rule been applied?
 					
 					boolean transitionApplied = false;
 					// add new TaggedTokenSequences to the heap, one for each outcome provided by MaxEnt
-					PerformanceMonitor.startTask("heap sort");
+					MONITOR.startTask("heap sort");
 					try {
 						//TODO: why apply all decisions here? Why not just the top N (where N = beamwidth)?
 						// Answer: because we're not always adding solutions to the same heap
@@ -327,7 +328,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 							} // does transition meet pre-conditions?
 						} // next outcome for this token
 					} finally {
-						PerformanceMonitor.endTask("heap sort");
+						MONITOR.endTask("heap sort");
 					}
 					
 					if (transitionApplied) {
@@ -393,7 +394,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 			}
 			return bestConfigurations;
 		} finally {
-			PerformanceMonitor.endTask("TransitionBasedParser.parseSentence");
+			MONITOR.endTask("parseSentence");
 		}
 	}
 

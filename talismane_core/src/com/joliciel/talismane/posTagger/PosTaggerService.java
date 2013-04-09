@@ -27,6 +27,7 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -42,6 +43,15 @@ public interface PosTaggerService {
 	public PosTagger getPosTagger(
 			Set<PosTaggerFeature<?>> posTaggerFeatures,
 			DecisionMaker<PosTag> decisionMaker,
+			int beamWidth);
+	
+	/**
+	 * Get a pos-tagger defined by a particular machine learning model.
+	 * @param beamWidth the maximum beamwidth to consider during the beam search
+	 * @return
+	 */
+	public PosTagger getPosTagger(
+			MachineLearningModel<PosTag> model,
 			int beamWidth);
 
 	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger);

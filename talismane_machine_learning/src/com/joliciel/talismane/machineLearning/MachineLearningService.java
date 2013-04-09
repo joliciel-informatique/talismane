@@ -56,4 +56,9 @@ public interface MachineLearningService {
 	 */
 	public<T extends Outcome> ModelTrainer<T> getModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
 	
+	/**
+	 * Get a default implementation of the ExternalResourceFinder.
+	 * @return
+	 */
+	public ExternalResourceFinder getExternalResourceFinder();
 }

@@ -32,7 +32,9 @@ import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
@@ -99,9 +101,8 @@ public class ParserMaxentRunner {
 		String outDirPath = "";
 		String lexiconDirPath = "";
 		int beamWidth = 10;
-		boolean includeSentences = true;
+		boolean includeSentences = false;
 		String transitionSystemStr = "ShiftReduce";
-		boolean logPerformance = false;
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
 		
 		int outputGuessCount = 0;
@@ -118,6 +119,13 @@ public class ParserMaxentRunner {
 		String tokenSequenceFilterPath = "";
 		String posTaggerPreProcessingFilterPath = "";
 		String posTaggerPostProcessingFilterPath = "";
+		String externalResourcePath = null;
+		
+		int crossValidationSize = -1;
+		int includeIndex = -1;
+		int excludeIndex = -1;
+
+		File performanceConfigFile = null;
 
 		boolean keepCompoundPosTags = false;
 
@@ -150,8 +158,6 @@ public class ParserMaxentRunner {
 				includeSentences = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("transitionSystem"))
 				transitionSystemStr = argValue;
-			else if (argName.equals("logPerformance"))
-				logPerformance = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("algorithm"))
 				algorithm = MachineLearningAlgorithm.valueOf(argValue);
 			else if (argName.equals("linearSVMSolver"))
@@ -180,6 +186,16 @@ public class ParserMaxentRunner {
 				maxParseAnalysisTime = Integer.parseInt(argValue);
 			else if (argName.equals("keepCompoundPosTags"))
 				keepCompoundPosTags = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("externalResources"))
+				externalResourcePath = argValue;
+			else if (argName.equals("performanceConfigFile"))
+				performanceConfigFile = new File(argValue);
+			else if (argName.equals("crossValidationSize"))
+				crossValidationSize = Integer.parseInt(argValue);
+			else if (argName.equals("includeIndex"))
+				includeIndex = Integer.parseInt(argValue);
+			else if (argName.equals("excludeIndex"))
+				excludeIndex = Integer.parseInt(argValue);
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -190,12 +206,17 @@ public class ParserMaxentRunner {
 		if (lexiconDirPath.length()==0) {
 			throw new RuntimeException("Missing argument: lexiconDir");
 		}
-		String modelPath = parserModelFilePath.substring(0, parserModelFilePath.lastIndexOf('/')+1);
-		String modelName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1, parserModelFilePath.indexOf('.'));
+		String modelPath = "";
+		String modelName = "";
+		if (parserModelFilePath.indexOf('/')>=0) {
+			modelPath = parserModelFilePath.substring(0, parserModelFilePath.lastIndexOf('/')+1);
+			modelName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1, parserModelFilePath.indexOf('.'));
+		} else {
+			modelName = parserModelFilePath.substring(0, parserModelFilePath.indexOf('.'));
+		}
 		
-		PerformanceMonitor.setActive(logPerformance);
 		long startTime = new Date().getTime();
-		PerformanceMonitor.start();
+		PerformanceMonitor.start(performanceConfigFile);
 		try {
 			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 
@@ -248,9 +269,35 @@ public class ParserMaxentRunner {
 			corpusReader.setTokeniserService(tokeniserService);
 			corpusReader.setKeepCompoundPosTags(keepCompoundPosTags);
 			
+			if (crossValidationSize>0)
+				corpusReader.setCrossValidationSize(crossValidationSize);
+			if (includeIndex>=0)
+				corpusReader.setIncludeIndex(includeIndex);
+			if (excludeIndex>=0)
+				corpusReader.setExcludeIndex(excludeIndex);
+
+			
 			if (command.equals("train")) {
 				if (parserFeatureFilePath.length()==0)
 					throw new RuntimeException("Missing argument: parserFeatures");
+				
+				ExternalResourceFinder externalResourceFinder = null;
+				if (externalResourcePath!=null) {
+					externalResourceFinder = parserFeatureService.getExternalResourceFinder();
+					File externalResourceFile = new File (externalResourcePath);
+					if (externalResourceFile.isDirectory()) {
+						File[] files = externalResourceFile.listFiles();
+						for (File resourceFile : files) {
+							LOG.debug("Reading " + resourceFile.getName());
+							TextFileResource textFileResource = new TextFileResource(resourceFile);
+							externalResourceFinder.addExternalResource(textFileResource);
+						}
+					} else {
+						LOG.debug("Reading " + externalResourceFile.getName());
+						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
+						externalResourceFinder.addExternalResource(textFileResource);
+					}
+				}
 				
 				File parserFeatureFile = new File(parserFeatureFilePath);
 				Scanner scanner = new Scanner(parserFeatureFile);
@@ -388,6 +435,8 @@ public class ParserMaxentRunner {
 				descriptors.put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
 
 				MachineLearningModel<Transition> parserModel = trainer.trainModel(parseEventStream, transitionSystem, descriptors);
+				if (externalResourceFinder!=null)
+					parserModel.setExternalResources(externalResourceFinder.getExternalResources());
 				parserModel.persist(parserModelFile);
 			} else if (command.equals("evaluate")) {
 				if (outDirPath.length()==0)
@@ -494,18 +543,19 @@ public class ParserMaxentRunner {
 		} finally {
 			PerformanceMonitor.end();
 			
-			if (logPerformance) {
+			if (PerformanceMonitor.isActivated()) {
 				Writer csvFileWriter = null;
 				File csvFile = null;
-				if (outDirPath!=null) {
+				if (outDirPath!=null && outDirPath.length()>0) {
 					File outDir = new File(outDirPath);
+					outDir.mkdirs();
 		
 					csvFile = new File(outDir, modelName + "_performance.csv");
 				} else {
 					csvFile = new File(modelPath + modelName + "_performance.csv");
 				}
 				csvFile.delete();
-				csvFile.createNewFile();
+
 				csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
 				PerformanceMonitor.writePerformanceCSV(csvFileWriter);
 				csvFileWriter.flush();

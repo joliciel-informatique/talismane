@@ -31,9 +31,11 @@ import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
@@ -106,6 +108,9 @@ public class TokeniserMaxentRunner {
 		boolean perceptronAveraging = false;
 		boolean perceptronSkippedAveraging = false;
 		double perceptronTolerance = -1;
+		String externalResourcePath = null;
+		File performanceConfigFile = null;
+
 
 		for (Entry<String, String> argEntry : argMap.entrySet()) {
 			String argName = argEntry.getKey();
@@ -160,6 +165,10 @@ public class TokeniserMaxentRunner {
 				perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("perceptronTolerance"))
 				perceptronTolerance = Double.parseDouble(argValue);
+			else if (argName.equals("externalResources"))
+				externalResourcePath = argValue;
+			else if (argName.equals("performanceConfigFile"))
+				performanceConfigFile = new File(argValue);
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -169,7 +178,7 @@ public class TokeniserMaxentRunner {
 		if (posTagSetPath.length()==0)
 			throw new RuntimeException("Missing argument: posTagSet");
 		
-		PerformanceMonitor.start();
+		PerformanceMonitor.start(performanceConfigFile);
 		try {
 			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 
@@ -232,6 +241,21 @@ public class TokeniserMaxentRunner {
 
 				TokeniserAnnotatedCorpusReader reader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader);
 				
+				ExternalResourceFinder externalResourceFinder = null;
+				if (externalResourcePath!=null) {
+					externalResourceFinder = tokenFeatureService.getExternalResourceFinder();
+					File externalResourceFile = new File (externalResourcePath);
+					if (externalResourceFile.isDirectory()) {
+						File[] files = externalResourceFile.listFiles();
+						for (File resourceFile : files) {
+							TextFileResource textFileResource = new TextFileResource(resourceFile);
+							externalResourceFinder.addExternalResource(textFileResource);
+						}
+					} else {
+						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
+						externalResourceFinder.addExternalResource(textFileResource);
+					}
+				}
 				List<String> tokenFilterDescriptors = new ArrayList<String>();
 				if (tokenFilterPath!=null && tokenFilterPath.length()>0) {
 					LOG.debug("From: " + tokenFilterPath);
@@ -329,7 +353,8 @@ public class TokeniserMaxentRunner {
 				descriptors.put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
 				
 				MachineLearningModel<TokeniserOutcome> tokeniserModel = trainer.trainModel(tokeniserEventStream, decisionFactory, descriptors);
-	
+				if (externalResourceFinder!=null)
+					tokeniserModel.setExternalResources(externalResourceFinder.getExternalResources());
 				tokeniserModel.persist(tokeniserModelFile);
 	
 			} else if (command.equals("evaluate")) {

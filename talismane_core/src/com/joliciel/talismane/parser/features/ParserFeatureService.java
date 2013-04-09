@@ -21,8 +21,13 @@ package com.joliciel.talismane.parser.features;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+
 public interface ParserFeatureService {
 	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors);
 	
 	public List<ParserRule> getRules(List<String> ruleDescriptors);
+	
+	public ExternalResourceFinder getExternalResourceFinder();
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder);
 }

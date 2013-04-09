@@ -85,8 +85,8 @@ class TalismaneImpl implements Talismane {
 	@Override
 	public void runCommand(TalismaneConfig config) {
 		long startTime = new Date().getTime();
-		PerformanceMonitor.setActive(config.isLogPerformance());
-		PerformanceMonitor.start();
+
+		PerformanceMonitor.start(config.getPerformanceConfigFile());
 		try {
 			if (!config.getCommand().equals(Command.process)) {
 				// force a lexicon read at the start, so that it doesn't skew performance monitoring downstream
@@ -160,7 +160,7 @@ class TalismaneImpl implements Talismane {
 		} finally {
 			PerformanceMonitor.end();
 			
-			if (config.isLogPerformance()) {
+			if (PerformanceMonitor.isActivated()) {
 				try {
 					Writer csvFileWriter = null;
 					File csvFile  =new File(config.getOutDir(), config.getBaseName() + ".performance.csv");

@@ -139,7 +139,7 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 			super();
 			this.wrappedFeature = wrappedFeature;
 			this.setName(wrappedFeature.getName());
-			this.setGroupName(wrappedFeature.getGroupName());
+			this.setCollectionName(wrappedFeature.getCollectionName());
 		}
 		
 		@Override

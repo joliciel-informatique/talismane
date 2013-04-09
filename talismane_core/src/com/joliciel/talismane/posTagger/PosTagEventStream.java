@@ -45,6 +45,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class PosTagEventStream implements CorpusEventStream {
     private static final Log LOG = LogFactory.getLog(PosTagEventStream.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagEventStream.class);
 
     PosTagAnnotatedCorpusReader corpusReader;
 	Set<PosTaggerFeature<?>> posTaggerFeatures;
@@ -65,7 +66,7 @@ class PosTagEventStream implements CorpusEventStream {
 
 	@Override
 	public boolean hasNext() {
-		PerformanceMonitor.startTask("PosTagEventStream.hasNext");
+		MONITOR.startTask("hasNext");
 		try {
 			while (currentSentence==null) {
 				if (this.corpusReader.hasNextPosTagSequence()) {
@@ -83,13 +84,13 @@ class PosTagEventStream implements CorpusEventStream {
 			}
 			return currentSentence!=null;
 		} finally {
-			PerformanceMonitor.endTask("PosTagEventStream.hasNext");
+			MONITOR.endTask("hasNext");
 		}
 	}
 
 	@Override
 	public CorpusEvent next() {
-		PerformanceMonitor.startTask("PosTagEventStream.next");
+		MONITOR.startTask("next");
 		try {
 			CorpusEvent event = null;
 			if (this.hasNext()) {
@@ -101,21 +102,21 @@ class PosTagEventStream implements CorpusEventStream {
 				PosTaggerContext context = posTaggerFeatureService.getContext(taggedToken.getToken(), currentHistory);
 				
 				List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
-				PerformanceMonitor.startTask("PosTagEventStream.next - check features");
+				MONITOR.startTask("check features");
 				try {
 					for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
-						PerformanceMonitor.startTask(posTaggerFeature.getGroupName());
+						MONITOR.startTask(posTaggerFeature.getCollectionName());
 						try {
 							RuntimeEnvironment env = featureService.getRuntimeEnvironment();
 							FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
 							if (featureResult!=null)
 								posTagFeatureResults.add(featureResult);
 						} finally {
-							PerformanceMonitor.endTask(posTaggerFeature.getGroupName());
+							MONITOR.endTask(posTaggerFeature.getCollectionName());
 						}
 					}
 				} finally {
-					PerformanceMonitor.endTask("PosTagEventStream.next - check features");					
+					MONITOR.endTask("check features");					
 				}
 				
 				if (LOG.isTraceEnabled()) {
@@ -133,7 +134,7 @@ class PosTagEventStream implements CorpusEventStream {
 			}
 			return event;
 		} finally {
-			PerformanceMonitor.endTask("PosTagEventStream.next");
+			MONITOR.endTask("next");
 		}
 
 	}

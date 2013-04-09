@@ -27,7 +27,6 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 
 	private String name = null;
 	private String groupName = null;
-	protected String logName = this.getClass().getSimpleName();
 
 	public AbstractFeature() {
 		super();
@@ -47,14 +46,14 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 	}
 
 	
-	public String getGroupName() {
+	public String getCollectionName() {
 		if (groupName==null) {
 			groupName = this.getName();
 		}
 		return groupName;
 	}
 
-	public void setGroupName(String groupName) {
+	public void setCollectionName(String groupName) {
 		this.groupName = groupName;
 	}
 

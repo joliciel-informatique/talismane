@@ -38,7 +38,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 public class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper> {
 
 	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> check(
+	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
 			TokenWrapper context, RuntimeEnvironment env) {
 		PosTagSet posTagSet = TalismaneSession.getPosTagSet();
 		Set<PosTag> posTags = posTagSet.getTags();

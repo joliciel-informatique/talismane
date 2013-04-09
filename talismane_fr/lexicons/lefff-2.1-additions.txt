@@ -87,16 +87,16 @@ s'	se	CLO	clda	3
 - t - on	on	CLS	cln	3s
 - t - y	y	CLO	cld	null
 # chiffres : déterminants
-1	1	DET	det	null
-12	12	DET	det	p
-31	31	DET	det	p
-123	123	DET	det	p
-999	999	DET	det	p
-1234	1234	DET	det	p
-1999	1999	DET	det	p
-12345	12345	DET	det	p
-1,23	1,23	DET	det	p
-9,99	9,99	DET	det	p
+1	#NUM#	DET	det	null
+12	#NUM#	DET	det	p
+31	#NUM#	DET	det	p
+123	#NUM#	DET	det	p
+999	#NUM#	DET	det	p
+1234	#NUM#	DET	det	p
+1999	#NUM#	DET	det	p
+12345	#NUM#	DET	det	p
+1,23	#NUM#	DET	det	p
+9,99	#NUM#	DET	det	p
 deux	deux	DET	det	p
 trois	trois	DET	det	p
 quatre	quatre	DET	det	p
@@ -299,16 +299,16 @@ centièmes	centièmes	PRO	pro	p
 millième	millième	PRO	pro	p
 millièmes	millièmes	PRO	pro	p
 # chiffres : pronoms
-1	1	PRO	pro	null
-12	12	PRO	pro	p
-31	31	PRO	pro	p
-123	123	PRO	pro	p
-999	999	PRO	pro	p
-1234	1234	PRO	pro	p
-1999	1999	PRO	pro	p
-12345	12345	PRO	pro	p
-1,23	1,23	PRO	pro	p
-9,99	9,99	PRO	pro	p
+1	#NUM#	PRO	pro	null
+12	#NUM#	PRO	pro	p
+31	#NUM#	PRO	pro	p
+123	#NUM#	PRO	pro	p
+999	#NUM#	PRO	pro	p
+1234	#NUM#	PRO	pro	p
+1999	#NUM#	PRO	pro	p
+12345	#NUM#	PRO	pro	p
+1,23	#NUM#	PRO	pro	p
+9,99	#NUM#	PRO	pro	p
 deux	deux	PRO	pro	p
 trois	trois	PRO	pro	p
 quatre	quatre	PRO	pro	p
@@ -511,16 +511,16 @@ centièmes	centièmes	ADJ	adj	p
 millième	millième	ADJ	adj	p
 millièmes	millièmes	ADJ	adj	p
 # chiffres : adjectifs
-1	1	ADJ	adj	null
-12	12	ADJ	adj	p
-31	31	ADJ	adj	p
-123	123	ADJ	adj	p
-999	999	ADJ	adj	p
-1234	1234	ADJ	adj	p
-1999	1999	ADJ	adj	p
-12345	12345	ADJ	adj	p
-1,23	1,23	ADJ	adj	p
-9,99	9,99	ADJ	adj	p
+1	#NUM#	ADJ	adj	null
+12	#NUM#	ADJ	adj	p
+31	#NUM#	ADJ	adj	p
+123	#NUM#	ADJ	adj	p
+999	#NUM#	ADJ	adj	p
+1234	#NUM#	ADJ	adj	p
+1999	#NUM#	ADJ	adj	p
+12345	#NUM#	ADJ	adj	p
+1,23	#NUM#	ADJ	adj	p
+9,99	#NUM#	ADJ	adj	p
 deux	deux	ADJ	adj	p
 trois	trois	ADJ	adj	p
 quatre	quatre	ADJ	adj	p

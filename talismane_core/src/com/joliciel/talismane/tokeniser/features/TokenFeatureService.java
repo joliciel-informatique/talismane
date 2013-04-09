@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 public interface TokenFeatureService {
@@ -28,4 +29,8 @@ public interface TokenFeatureService {
 			List<TokenPattern> patternList);
 
 	public TokenFeatureParser getTokenFeatureParser();
+	
+	public ExternalResourceFinder getExternalResourceFinder();
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder);
+
 }

@@ -46,10 +46,19 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 	@Override
 	public FunctionDescriptor parseDescriptor(String text) {
 		String descriptorName = null;
-		int tabPos = text.indexOf('\t');
-		if (tabPos>0) {
-			descriptorName = text.substring(0, tabPos);
-			text = text.substring(tabPos+1);
+		String groupName = null;
+		String[] parts = text.split("\t");
+		if (parts.length==1) {
+			// nothing to do
+		} else if (parts.length==2) {
+			descriptorName = parts[0];
+			text = parts[1];
+		} else if (parts.length==3) {
+			descriptorName = parts[0];
+			groupName = parts[1];
+			text = parts[2];
+		} else {
+			throw new DescriptorSyntaxException("Too many tabs in descriptor: " + parts.length, text, -1);
 		}
 		
 		FunctionDescriptorParseContext context = new FunctionDescriptorParseContext(text);
@@ -99,6 +108,7 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 		
 		FunctionDescriptor descriptor = rootDescriptor.getArguments().get(0);
 		descriptor.setDescriptorName(descriptorName);
+		descriptor.setGroupName(groupName);
 		return descriptor;
 	}
 	

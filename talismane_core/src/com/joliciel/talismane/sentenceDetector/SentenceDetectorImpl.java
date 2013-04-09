@@ -42,6 +42,8 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class SentenceDetectorImpl implements SentenceDetector {
 	private static final Log LOG = LogFactory.getLog(SentenceDetectorImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(SentenceDetectorImpl.class);
+
 	private DecisionMaker<SentenceDetectorOutcome> decisionMaker;
 	private Set<SentenceDetectorFeature<?>> features;
 	private List<TokenFilter> preTokeniserFilters = new ArrayList<TokenFilter>();
@@ -59,7 +61,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 	
 	@Override
 	public List<Integer> detectSentences(String prevText, String text, String moreText) {
-		PerformanceMonitor.startTask("SentenceDetectorImpl.detectSentences");
+		MONITOR.startTask("detectSentences");
 		try {
 			String context = prevText + text + moreText;
 
@@ -129,7 +131,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 			
 			return guessedBoundaries;
 		} finally {
-			PerformanceMonitor.endTask("SentenceDetectorImpl.detectSentences");
+			MONITOR.endTask("detectSentences");
 		}
 	}
 	

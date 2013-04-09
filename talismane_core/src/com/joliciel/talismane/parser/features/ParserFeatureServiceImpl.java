@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
@@ -37,6 +39,8 @@ import com.joliciel.talismane.parser.Transition;
 public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	private static final Log LOG = LogFactory.getLog(ParserFeatureServiceImpl.class);
 	private FeatureService featureService;
+	private MachineLearningService machineLearningService;
+	private ExternalResourceFinder externalResourceFinder;
 	
 	@Override
 	public Set<ParseConfigurationFeature<?>> getFeatures(
@@ -57,6 +61,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	public ParserFeatureParser getParserFeatureParser() {
 		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(featureService);
 		parserFeatureParser.setParserFeatureServiceInternal(this);
+		parserFeatureParser.setExternalResourceFinder(externalResourceFinder);
 		
 		return parserFeatureParser;
 	}
@@ -131,6 +136,27 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+	public ExternalResourceFinder getExternalResourceFinder() {
+		if (this.externalResourceFinder==null) {
+			this.externalResourceFinder = this.machineLearningService.getExternalResourceFinder();
+		}
+		return externalResourceFinder;
+	}
+
+	public void setExternalResourceFinder(
+			ExternalResourceFinder externalResourceFinder) {
+		this.externalResourceFinder = externalResourceFinder;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 
 }

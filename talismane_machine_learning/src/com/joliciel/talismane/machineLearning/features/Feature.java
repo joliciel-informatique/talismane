@@ -56,8 +56,11 @@ public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	public Class<? extends Feature> getFeatureType();
 	
 	/**
-	 * The group name is used for measuring the performance of entire group of features together.
+	 * A single feature descriptor can result in the generation of multiple features
+	 * (e.g. in the case where it refers to a range of indexes).
+	 * The collection name groups all these features under one name - that of the feature descriptor.
+	 * It can used, for example, for measuring the performance of the entire collection of features together.
 	 */
-	public String getGroupName();
-	public void setGroupName(String groupName);
+	public String getCollectionName();
+	public void setCollectionName(String groupName);
 }

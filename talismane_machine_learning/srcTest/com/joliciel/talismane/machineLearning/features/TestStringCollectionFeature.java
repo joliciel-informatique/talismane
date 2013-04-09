@@ -27,7 +27,7 @@ public class TestStringCollectionFeature extends AbstractStringCollectionFeature
 	}
 
 	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> check(
+	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
 			TestContext context, RuntimeEnvironment env) {
 		List<WeightedOutcome<String>> abcList = new ArrayList<WeightedOutcome<String>>();
 		double weight = 1.0;

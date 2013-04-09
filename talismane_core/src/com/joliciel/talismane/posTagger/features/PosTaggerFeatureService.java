@@ -21,6 +21,7 @@ package com.joliciel.talismane.posTagger.features;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -30,4 +31,8 @@ public interface PosTaggerFeatureService {
 	public Set<PosTaggerFeature<?>> getFeatureSet(List<String> featureDescriptors);
 	
 	public List<PosTaggerRule> getRules(List<String> ruleDescriptors);
+	
+	public ExternalResourceFinder getExternalResourceFinder();
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder);
+
 }

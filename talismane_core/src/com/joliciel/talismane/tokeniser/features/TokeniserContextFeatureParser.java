@@ -36,6 +36,8 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserContext> {
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokeniserContextFeatureParser.class);
+
 	TokenFeatureParser tokenFeatureParser;
 	private List<TokenPattern> patternList;
 	private Map<String,TokenPattern> patternMap;
@@ -46,7 +48,7 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<TokeniserContextFeature<?>> parseDescriptor(FunctionDescriptor descriptor) {
-		PerformanceMonitor.startTask("TokeniserContextFeatureParser.parseDescriptor");
+		MONITOR.startTask("parseDescriptor");
 		try {
 			List<TokeniserContextFeature<?>> wrappedFeatures = new ArrayList<TokeniserContextFeature<?>>();
 
@@ -64,7 +66,7 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 
 			return wrappedFeatures;
 		} finally {
-			PerformanceMonitor.endTask("TokeniserContextFeatureParser.parseDescriptor");
+			MONITOR.endTask("parseDescriptor");
 		}
 	}
 
@@ -119,7 +121,7 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 			super();
 			this.wrappedFeature = wrappedFeature;
 			this.setName(wrappedFeature.getName());
-			this.setGroupName(wrappedFeature.getGroupName());
+			this.setCollectionName(wrappedFeature.getCollectionName());
 		}
 		
 		@Override

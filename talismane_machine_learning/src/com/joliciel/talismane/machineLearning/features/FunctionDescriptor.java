@@ -69,6 +69,15 @@ public interface FunctionDescriptor {
 	public void setDescriptorName(String descriptorName);
 	
 	/**
+	 * The name of the group to which this descriptor belongs, or null otherwise.
+	 * Several descriptors can be grouped together in a group, for mutual handling
+	 * downstream by other descriptors.
+	 * @return
+	 */
+	public String getGroupName();
+	public void setGroupName(String groupName);
+	
+	/**
 	 * Is this descriptor a binary operator?
 	 * @return
 	 */

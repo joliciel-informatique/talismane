@@ -20,6 +20,7 @@ package com.joliciel.talismane.posTagger;
 
 import java.io.File;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -27,6 +28,8 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.ExternalResource;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
@@ -53,6 +56,21 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagger.setPosTaggerService(this);
 		posTagger.setFeatureService(this.featureService);
 		
+		return posTagger;
+	}
+	
+	public PosTagger getPosTagger(MachineLearningModel<PosTag> posTaggerModel,
+			int beamWidth) {
+		Collection<ExternalResource> externalResources = posTaggerModel.getExternalResources();
+		if (externalResources!=null) {
+			for (ExternalResource externalResource : externalResources) {
+				this.getPosTaggerFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
+			}
+		}
+		
+		Set<PosTaggerFeature<?>> posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(posTaggerModel.getFeatureDescriptors());
+		
+		PosTagger posTagger = this.getPosTagger(posTaggerFeatures, posTaggerModel.getDecisionMaker(), beamWidth);
 		return posTagger;
 	}
 	
@@ -180,5 +198,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
 	}
+
 	
 }

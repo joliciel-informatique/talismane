@@ -53,4 +53,36 @@ public abstract class AbstractTransition implements Transition {
 	public String toString() {
 		return this.getCode();
 	}
+
+	@Override
+	public int compareTo(Transition o) {
+		return this.getCode().compareTo(o.getCode());
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.getCode() == null) ? 0 : this.getCode().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractTransition other = (AbstractTransition) obj;
+		if (this.getCode() == null) {
+			if (other.getCode() != null)
+				return false;
+		} else if (!this.getCode().equals(other.getCode()))
+			return false;
+		return true;
+	}
+	
+	
 }

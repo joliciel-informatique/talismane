@@ -32,6 +32,8 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
@@ -43,10 +45,14 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, FeatureClassContainer {
 	private static final Log LOG = LogFactory.getLog(AbstractFeatureParser.class);
-	private FeatureService featureService;
-	private Map<String,List<Feature<T, ?>>> namedFeatures = new HashMap<String, List<Feature<T,?>>>();
-	private Map<String,NamedFeatureWithParameters> namedFeaturesWithParameters = new HashMap<String, NamedFeatureWithParameters>();
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractFeatureParser.class);
 
+	private FeatureService featureService;
+	private ExternalResourceFinder externalResourceFinder;
+	private Map<String,List<Feature<T, ?>>> namedFeatures = new HashMap<String, List<Feature<T,?>>>();
+	private Map<String,List<Feature<T, ?>>> featureGroups = new HashMap<String, List<Feature<T,?>>>();
+	private Map<String,NamedFeatureWithParameters> namedFeaturesWithParameters = new HashMap<String, NamedFeatureWithParameters>();
+	
 	@SuppressWarnings("rawtypes")
 	private Map<String,List<Class<? extends Feature>>> featureClasses = null;
 	@SuppressWarnings("rawtypes")
@@ -108,6 +114,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			this.addFeatureClass("Graduate", GraduateFeature.class);
 			this.addFeatureClass("Inverse", InverseFeature.class);
 			this.addFeatureClass("Integer", IntegerLiteralFeatureWrapper.class);
+			this.addFeatureClass("ExternalResource", ExternalResourceFeature.class);
+			this.addFeatureClass("MultivaluedExternalResource", MultivaluedExternalResourceFeature.class);
 			this.addFeatureClasses(this);
 		}
 	}
@@ -204,7 +212,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			
 			@SuppressWarnings("rawtypes")
 			Constructor<? extends Feature> constructor = null;
-			PerformanceMonitor.startTask("AbstractFeatureParser.findContructor");
+			MONITOR.startTask("findContructor");
 			try {
 				constructor = ConstructorUtils.getMatchingAccessibleConstructor(featureClass, argumentTypes);
 								
@@ -219,7 +227,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 							Object[] arguments = argumentsList.get(0);
 							Class<?> parameterType = parameterTypes[parameterTypes.length-1];
 							if (parameterType.isArray()) {
-								//TODO: shouldn't we use argument.getFeatureType() instead of argument instanceof?
 								// assume it's a variable-argument constructor
 								// build the argument for this constructor
 								// find a common type for all of the arguments.
@@ -244,7 +251,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 								int j = 0;
 								for (int k=parameterTypes.length-1; k<arguments.length; k++) {
 									Object oneArgument = arguments[k];
-									//TODO: shouldn't we use argument.getFeatureType() instead of argument instanceof?
 									if (oneArgument instanceof StringCollectionFeature) {
 										@SuppressWarnings("unchecked")
 										StringCollectionFeature<T> stringCollectionFeature = (StringCollectionFeature<T>) oneArgument;
@@ -339,7 +345,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 					} // still haven't found a constructor, what next?
 				} // didn't find a constructor yet
 			} finally {
-				PerformanceMonitor.endTask("AbstractFeatureParser.findContructor");
+				MONITOR.endTask("findContructor");
 			}
 			
 			if (constructor==null)
@@ -363,6 +369,21 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 				@SuppressWarnings("unchecked")
 				Feature<T,?> genericFeature = (Feature<T,?>) feature;
 				this.injectDependencies(feature);
+				if (genericFeature instanceof ExternalResourceFeature) {
+					if (this.getExternalResourceFinder()==null) {
+						throw new JolicielException("No external resource finder set.");
+					}
+					@SuppressWarnings("unchecked")
+					ExternalResourceFeature<T> externalResourceFeature = (ExternalResourceFeature<T>) genericFeature;
+					externalResourceFeature.setExternalResourceFinder(this.getExternalResourceFinder());
+				} else if (genericFeature instanceof MultivaluedExternalResourceFeature) {
+					if (this.getExternalResourceFinder()==null) {
+						throw new JolicielException("No external resource finder set.");
+					}
+					@SuppressWarnings("unchecked")
+					MultivaluedExternalResourceFeature<T> externalResourceFeature = (MultivaluedExternalResourceFeature<T>) genericFeature;
+					externalResourceFeature.setExternalResourceFinder(this.getExternalResourceFinder());
+				} 
 				
 				Feature<T,?> convertedFeature = this.convertFeature(genericFeature);
 				
@@ -419,20 +440,30 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	@Override
 	public final List<Feature<T, ?>> parse(FunctionDescriptor descriptor) {
 		LOG.debug("Parsing: " + descriptor.toString());
+		LOG.debug("Name: " + descriptor.getDescriptorName());
 		this.addFeatureClassesInternal();
 		List<Feature<T, ?>> features = new ArrayList<Feature<T,?>>();
 		
 		boolean hasDescriptorName = descriptor.getDescriptorName()!=null && descriptor.getDescriptorName().length()>0;
+		boolean namedFeatureWithZeroParameters = false;
+		String featureName = descriptor.getDescriptorName();
+		
 		NamedFeatureWithParameters namedFeatureWithParameters = null;
 		if (hasDescriptorName) {
-			String featureName = descriptor.getDescriptorName();
 			if (descriptor.getDescriptorName().indexOf("(")>=0) {
 				namedFeatureWithParameters = new NamedFeatureWithParameters(descriptor.getDescriptorName(), descriptor);
 				featureName = namedFeatureWithParameters.getFeatureName();
+				if (namedFeatureWithParameters.getParameterNames().size()==0) {
+					// if zero parameters, we want to parse it and store it against the name
+					// but not return it from this function
+					namedFeatureWithParameters = null;
+					namedFeatureWithZeroParameters = true;
+				}
 			}
 			if (featureClasses.containsKey(featureName)
 					||namedFeatures.containsKey(featureName)
-					||namedFeaturesWithParameters.containsKey(featureName)) {
+					||namedFeaturesWithParameters.containsKey(featureName)
+					||featureGroups.containsKey(featureName)) {
 				throw new FeatureSyntaxException("Feature name already used: " + descriptor.getDescriptorName(), descriptor, descriptor);
 			}
 		}
@@ -473,26 +504,42 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			}
 			
 			if (hasDescriptorName) {
-				this.namedFeatures.put(descriptor.getDescriptorName(), features);
+				this.namedFeatures.put(featureName, features);
 				
 				for (Feature<T,?> feature : features) {
-					feature.setGroupName(descriptor.getDescriptorName());
+					feature.setCollectionName(featureName);
 					while (feature instanceof FeatureWrapper) {
 						Feature<T,?> wrappedFeature = ((FeatureWrapper<T,?>) feature).getWrappedFeature();
-						wrappedFeature.setGroupName(descriptor.getDescriptorName());
+						wrappedFeature.setCollectionName(featureName);
 						feature = wrappedFeature;
 					}
 				}
 				if (features.size()==1) {
 					Feature<T,?> feature = features.get(0);
-					feature.setName(descriptor.getDescriptorName());
+					feature.setName(featureName);
 					while (feature instanceof FeatureWrapper) {
 						Feature<T,?> wrappedFeature = ((FeatureWrapper<T,?>) feature).getWrappedFeature();
-						wrappedFeature.setName(descriptor.getDescriptorName());
+						wrappedFeature.setName(featureName);
 						feature = wrappedFeature;
 					}
 				} // exactly one feature returned
 			} // has a descriptor name
+			
+			if (descriptor.getGroupName()!=null) {
+				List<Feature<T, ?>> featureGroup = featureGroups.get(descriptor.getGroupName());
+				if (featureGroup==null) {
+					featureGroup = new ArrayList<Feature<T,?>>();
+					featureGroups.put(descriptor.getGroupName(), featureGroup);
+				}
+				featureGroup.addAll(features);
+			}
+			
+			if (namedFeatureWithZeroParameters) {
+				// if it's a named feature with zero parameters,
+				// we parse it, but we don't return it, since we don't want it
+				// to act alone
+				features = new ArrayList<Feature<T,?>>();
+			}
 		} // named feature with parameters?
 		
 		return features;
@@ -556,6 +603,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 
 			if (namedFeatures.containsKey(functionName)) {
 				features.addAll(namedFeatures.get(functionName));
+			} else if (featureGroups.containsKey(functionName)) {
+				features.addAll(featureGroups.get(functionName));
 			} else {
 				@SuppressWarnings("rawtypes")
 				List<Class<? extends Feature>> featureClasses = this.featureClasses.get(functionName);
@@ -577,7 +626,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 						i++;
 					} // next feature class
 				} else {
-					throw new FeatureSyntaxException("Unknown function", descriptor, topLevelDescriptor);
+					throw new FeatureSyntaxException("Unknown function: " + functionName, descriptor, topLevelDescriptor);
 				} // have feature classes for this function name
 			} // is a named feature
 		} // next modified descriptor
@@ -799,5 +848,14 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	public final void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
 	}
-	
+
+	public ExternalResourceFinder getExternalResourceFinder() {
+		return externalResourceFinder;
+	}
+
+	public void setExternalResourceFinder(
+			ExternalResourceFinder externalResourceFinder) {
+		this.externalResourceFinder = externalResourceFinder;
+	}
+
 }

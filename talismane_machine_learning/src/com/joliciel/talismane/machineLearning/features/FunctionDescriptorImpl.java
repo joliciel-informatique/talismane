@@ -34,6 +34,7 @@ class FunctionDescriptorImpl implements FunctionDescriptor {
 	boolean binaryOperator = false;
 	boolean empty = false;
 	FunctionDescriptor parent;
+	String groupName = null;
 
 	public String getFunctionName() {
 		return functionName;
@@ -198,6 +199,7 @@ class FunctionDescriptorImpl implements FunctionDescriptor {
 		} else {
 			descriptor.setObject(this.getObject());
 		}
+		descriptor.setGroupName(this.getGroupName());
 		return descriptor;
 	}
 
@@ -224,6 +226,14 @@ class FunctionDescriptorImpl implements FunctionDescriptor {
 			descriptor.replaceParameter(parameterName, argument);
 			i++;
 		}
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 
 }
