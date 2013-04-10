@@ -43,7 +43,7 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 class TokenImpl implements TokenInternal {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TokenImpl.class);
-	private static Pattern whiteSpacePattern = Pattern.compile("\\s+");
+	private static Pattern whiteSpacePattern = Pattern.compile("[\\s\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u202f\u205f\u3000\ufeff]+");
 
 	private String text;
 	private String originalText;
