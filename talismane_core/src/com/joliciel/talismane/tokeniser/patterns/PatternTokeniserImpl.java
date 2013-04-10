@@ -80,7 +80,6 @@ class PatternTokeniserImpl implements Tokeniser {
 	private Map<SeparatorDecision, String> separatorDefaults;
 	private Map<SeparatorDecision, Pattern> separatorDefaultPatterns;
 	private DecisionMaker<TokeniserOutcome> decisionMaker;
-	protected Pattern whitespace = Pattern.compile("\\s+");
 	
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;

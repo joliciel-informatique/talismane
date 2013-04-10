@@ -334,7 +334,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			PosTagSequence posTagSequence = this.posTaggerService.getPosTagSequence(tokenSequence, allTokens.size() / 2);
 			int i = 0;
 			for (Token token : tokenSequence) {
-				LOG.debug("Token : \"" + token.getText() + "\" (was \"" + token.getOriginalText() + "\")");
+				if (LOG.isTraceEnabled())
+					LOG.trace("Token : \"" + token.getText() + "\" (was \"" + token.getOriginalText() + "\")");
 				PosTaggedToken posTaggedToken = posTaggedTokens.get(i);
 				if (token.equals(posTaggedToken.getToken())) {
 					posTagSequence.addPosTaggedToken(posTaggedToken);
