@@ -78,7 +78,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	private int beamWidth;
 
-	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
+	private List<AnalysisObserver<PosTag>> observers = new ArrayList<AnalysisObserver<PosTag>>();
 	
 	/**
 	 * 
@@ -206,7 +206,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						decisions = this.decisionMaker.decide(featureResults);
 						MONITOR.endTask("make decision");
 						
-						for (AnalysisObserver observer : this.observers) {
+						for (AnalysisObserver<PosTag> observer : this.observers) {
 							observer.onAnalyse(token, featureResults, decisions);
 						}
 		
@@ -389,7 +389,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	}
 
 	@Override
-	public void addObserver(AnalysisObserver observer) {
+	public void addObserver(AnalysisObserver<PosTag> observer) {
 		this.observers.add(observer);
 	}
 

@@ -25,7 +25,9 @@ import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
 import com.joliciel.talismane.machineLearning.maxent.MaxentService;
-import com.joliciel.talismane.machineLearning.maxent.PerceptronModelTrainer;
+import com.joliciel.talismane.machineLearning.maxent.OpenNLPPerceptronModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
 import com.joliciel.talismane.utils.JolicielException;
 
 /**
@@ -34,6 +36,7 @@ import com.joliciel.talismane.utils.JolicielException;
  *
  */
 class ModelTrainerFactory {
+	PerceptronService perceptronService;
 	MaxentService maxentService;
 	LinearSVMService linearSVMService;
 
@@ -55,8 +58,12 @@ class ModelTrainerFactory {
 			modelTrainer = linearSVMModelTrainer;
 			break;
 		case Perceptron:
-			PerceptronModelTrainer<T> perceptronModelTrainer = maxentService.getPerceptronModelTrainer();
+			PerceptronModelTrainer<T> perceptronModelTrainer = perceptronService.getPerceptronModelTrainer();
 			modelTrainer = perceptronModelTrainer;
+			break;
+		case OpenNLPPerceptron:
+			OpenNLPPerceptronModelTrainer<T> openNLPPerceptronModelTrainer = maxentService.getPerceptronModelTrainer();
+			modelTrainer = openNLPPerceptronModelTrainer;
 			break;
 		default:
 			throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
@@ -80,6 +87,14 @@ class ModelTrainerFactory {
 
 	public void setLinearSVMService(LinearSVMService linearSVMService) {
 		this.linearSVMService = linearSVMService;
+	}
+
+	public PerceptronService getPerceptronService() {
+		return perceptronService;
+	}
+
+	public void setPerceptronService(PerceptronService perceptronService) {
+		this.perceptronService = perceptronService;
 	}
 
 }

@@ -48,7 +48,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearni
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.machineLearning.maxent.PerceptronModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainer;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.TransitionSystem;
@@ -135,8 +135,6 @@ public class PosTaggerMaxentRunner {
 		double constraintViolationCost = -1;
 		double epsilon = -1;
 		LinearSVMSolverType solverType = null;
-		boolean perceptronAveraging = false;
-		boolean perceptronSkippedAveraging = false;
 		double perceptronTolerance = -1;
 
 		boolean useCompoundPosTags = false;
@@ -199,10 +197,6 @@ public class PosTaggerMaxentRunner {
 				constraintViolationCost = Double.parseDouble(argValue);
 			else if (argName.equals("linearSVMEpsilon"))
 				epsilon = Double.parseDouble(argValue);
-			else if (argName.equals("perceptronAveraging"))
-				perceptronAveraging = argValue.equalsIgnoreCase("true");
-			else if (argName.equals("perceptronSkippedAveraging"))
-				perceptronSkippedAveraging = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("perceptronTolerance"))
 				perceptronTolerance = Double.parseDouble(argValue);
 			else if (argName.equals("outputGuessCount"))
@@ -434,8 +428,7 @@ public class PosTaggerMaxentRunner {
 				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
 					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
 					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.UseAverage.name(), perceptronAveraging);
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.UseSkippedAverage.name(), perceptronSkippedAveraging);					
+					
 					if (perceptronTolerance>=0)
 						trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
 				} else if (algorithm.equals(MachineLearningAlgorithm.LinearSVM)) {
@@ -578,7 +571,7 @@ public class PosTaggerMaxentRunner {
 					String detailsFilePath = modelName + "_posTagger_details.txt";
 					File detailsFile = new File(outDir, detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+					AnalysisObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 					posTagger.addObserver(observer);
 				}
 				

@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.machineLearning.perceptron;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -32,8 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.ArrayList;
-
 import com.joliciel.talismane.machineLearning.AnalysisObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.Outcome;
@@ -41,33 +40,27 @@ import com.joliciel.talismane.machineLearning.features.DoubleFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
-import opennlp.model.Context;
-import opennlp.model.IndexHashTable;
-import opennlp.model.MaxentModel;
-
 /**
  * Writes a text file with a detailed analysis of what was calculated for each event.
  * @author Assaf Urieli
  *
  */
-class MaxentDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserver<T> {
+class PerceptronDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserver<T> {
     private static DecimalFormat decFormat;
 
     private Writer writer;
-	private MaxentModel maxentModel;
-	private List<String> outcomeList = new ArrayList<String>();
-	private String[] predicates;
-	private Context[] modelParameters;
-	private String[] outcomeNames;
-	private IndexHashTable<String> predicateTable;
+	private PerceptronModelParameters modelParams;
+	private PerceptronDecisionMaker<T> decisionMaker;
+
 
     static {
 	    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
-	    decFormat.applyPattern("##0.00000000");
+	    decFormat.applyPattern("##0.0000");
     }
     
-	public MaxentDetailedAnalysisWriter(MaxentModel maxentModel, File file) {
-		this.maxentModel = maxentModel;
+	public PerceptronDetailedAnalysisWriter(PerceptronDecisionMaker<T> decisionMaker, File file) {
+		this.decisionMaker = decisionMaker;
+		this.modelParams = decisionMaker.getModelParameters();
 		try {
 			file.delete();
 			file.createNewFile();
@@ -77,24 +70,16 @@ class MaxentDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserve
 		}
 		this.initialise();
 	}
-	public MaxentDetailedAnalysisWriter(MaxentModel maxentModel, Writer outcomeFileWriter) {
-		this.maxentModel = maxentModel;
+	
+	public PerceptronDetailedAnalysisWriter(PerceptronDecisionMaker<T> decisionMaker, Writer outcomeFileWriter) {
+		this.decisionMaker = decisionMaker;
+		this.modelParams = decisionMaker.getModelParameters();
 		this.writer = outcomeFileWriter;
 		this.initialise();
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void initialise() {
-		Object[] dataStructures = maxentModel.getDataStructures();
-		outcomeNames = (String[]) dataStructures[2];
-		TreeSet<String> outcomeSet = new TreeSet<String>();
-		for (String outcome: outcomeNames)
-			outcomeSet.add(outcome);
-		outcomeList.addAll(outcomeSet);
-		this.predicateTable = (IndexHashTable<String>) dataStructures[1];
-		predicates = new String[predicateTable.size()];
-		predicateTable.toArray(predicates);
-		modelParameters = (Context[]) dataStructures[0];
+		
 	}
 	
 	/* (non-Javadoc)
@@ -102,13 +87,11 @@ class MaxentDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserve
 	 */
 	@Override
 	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
-			Collection<Decision<T>> outcomes) {
+			Collection<Decision<T>> decisions) {
 		try {
 			Map<String, Double> outcomeTotals = new TreeMap<String, Double>();
-			double uniformPrior = Math.log(1 / (double) outcomeList.size());
-			
-			for (String outcome : outcomeList)
-				outcomeTotals.put(outcome, uniformPrior);
+			for (String outcome : modelParams.getOutcomes())
+				outcomeTotals.put(outcome, 0.0);
 			
 			writer.append("####### Event: " + event.toString() + "\n");
 			
@@ -133,32 +116,31 @@ class MaxentDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserve
 				}
 			}
 			
+			List<Integer> featureIndexList = new ArrayList<Integer>();
+			List<Double> featureValueList = new ArrayList<Double>();
+			decisionMaker.prepareData(featureResults, featureIndexList, featureValueList);
+			double[] results = decisionMaker.predict(featureIndexList, featureValueList);
+
 			writer.append("### Outcome totals:\n");
-			writer.append("# Uniform prior: " + uniformPrior + " (=1/" + outcomeList.size() + ")\n");
+
+			writer.append(String.format("%1$-30s", "outcome") + String.format("%1$#15s","total") + String.format("%1$#15s","normalised")+"\n");
 			
-			double grandTotal = 0;
-			for (String outcome : outcomeList) {
+			int j = 0;
+			for (String outcome : modelParams.getOutcomes()) {
 				double total = outcomeTotals.get(outcome);
-				double expTotal = Math.exp(total);
-				grandTotal += expTotal;
-			}
-			writer.append(String.format("%1$-30s", "outcome") + String.format("%1$#15s","total(log)") + String.format("%1$#15s","total") + String.format("%1$#15s","normalised")+"\n");
-			
-			for (String outcome : outcomeList) {
-				double total = outcomeTotals.get(outcome);
-				double expTotal = Math.exp(total);
-				writer.append(String.format("%1$-30s", outcome) + String.format("%1$#15s",decFormat.format(total)) + String.format("%1$#15s",decFormat.format(expTotal)) + String.format("%1$#15s",decFormat.format(expTotal/grandTotal))+"\n");
+				double normalised = results[j++];
+				writer.append(String.format("%1$-30s", outcome) + String.format("%1$#15s",decFormat.format(total)) + String.format("%1$#15s",decFormat.format(normalised))+"\n");
 			}
 			writer.append("\n");
 			
 			Map<String,Double> outcomeWeights = new TreeMap<String, Double>();
-			for (@SuppressWarnings("rawtypes") Decision decision : outcomes) {
+			for (Decision<T> decision : decisions) {
 				outcomeWeights.put(decision.getCode(), decision.getProbability());
 			}
 			
 			writer.append("### Outcome list:\n");
 			Set<WeightedOutcome<String>> weightedOutcomes = new TreeSet<WeightedOutcome<String>>();
-			for (String outcome : outcomeList) {
+			for (String outcome : modelParams.getOutcomes()) {
 				Double weightObj = outcomeWeights.get(outcome);
 				double weight = (weightObj==null ? 0.0 : weightObj.doubleValue());
 				WeightedOutcome<String> weightedOutcome = new WeightedOutcome<String>(outcome, weight);
@@ -179,41 +161,24 @@ class MaxentDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserve
 		writer.append("outcome=" + featureOutcome + "\n");
 		writer.append("value=" + String.format("%1$-30s", value) + "\n");
 		
-		writer.append(String.format("%1$-30s", "outcome")  + String.format("%1$#15s","weight") +  String.format("%1$#15s","total") +  String.format("%1$#15s","exp") + "\n");
-		int predicateIndex = predicateTable.get(featureName);
-		if (predicateIndex >=0) {
-			Context context = modelParameters[predicateIndex];
-			int[] outcomeIndexes = context.getOutcomes();
-			double[] parameters = context.getParameters();
-			for (String outcome : outcomeList) {
-				int outcomeIndex = -1;
-				for (int j=0;j<outcomeNames.length;j++) {
-					if (outcomeNames[j].equals(outcome)) {
-						outcomeIndex = j;
-						break;
-					}
-				}
-				int paramIndex = -1;
-				for (int k=0;k<outcomeIndexes.length;k++) {
-					if (outcomeIndexes[k]==outcomeIndex) {
-						paramIndex = k;
-						break;
-					}
-				}
-				double weight = 0.0;
-				if (paramIndex>=0)
-					weight = parameters[paramIndex];
+		writer.append(String.format("%1$-30s", "outcome")  + String.format("%1$#15s","weight") +  String.format("%1$#15s","total") + "\n");
+		int featureIndex = modelParams.getFeatureIndex(featureName);
+		if (featureIndex >=0) {
+			double[] classWeights = modelParams.getFeatureWeights()[featureIndex];
+			int j = 0;
+			for (String outcome : modelParams.getOutcomes()) {
+				double weight = classWeights[j];
 				
 				double total = value * weight;
-				double exp = Math.exp(total);
-				writer.append(String.format("%1$-30s", outcome)  + String.format("%1$#15s",decFormat.format(weight)) +  String.format("%1$#15s",decFormat.format(total)) +  String.format("%1$#15s",decFormat.format(exp)) + "\n");
+				writer.append(String.format("%1$-30s", outcome)  + String.format("%1$#15s",decFormat.format(weight)) +  String.format("%1$#15s",decFormat.format(total)) + "\n");
 			
 				double runningTotal = outcomeTotals.get(outcome);
 				runningTotal += total;
 				outcomeTotals.put(outcome, runningTotal);
+				j++;
 			}
 		}
-		writer.append("\n");		
+		writer.append("\n");
 	}
 	
 	/* (non-Javadoc)

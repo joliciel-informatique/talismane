@@ -18,34 +18,30 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.Outcome;
+import java.io.IOException;
+import java.io.InputStream;
 
-class MaxentServiceImpl implements MaxentService {
+import opennlp.model.AbstractModel;
+import opennlp.model.AbstractModelReader;
+import opennlp.model.BinaryFileDataReader;
+import opennlp.perceptron.PerceptronModelReader;
 
-	@Override
-	public <T extends Outcome> MaxentModelTrainer<T> getMaxentModelTrainer() {
-		MaxentModelTrainerImpl<T> maxentModelTrainer = new MaxentModelTrainerImpl<T>();
-		return maxentModelTrainer;
+class OpenNLPPerceptronModelReaderWrapper extends AbstractModelReader {
+	AbstractModelReader reader = null;
+	
+	public OpenNLPPerceptronModelReaderWrapper(InputStream inputStream) {
+		super(new BinaryFileDataReader(inputStream));
+		reader = new PerceptronModelReader(super.dataReader);
 	}
 
 	@Override
-	public <T extends Outcome> MachineLearningModel<T> getMaxentModel() {
-		MaximumEntropyModel<T> maxentModel = new MaximumEntropyModel<T>();
-		return maxentModel;
+	public void checkModelType() throws IOException {
+		reader.checkModelType();
 	}
 
 	@Override
-	public <T extends Outcome> OpenNLPPerceptronModelTrainer<T> getPerceptronModelTrainer() {
-		OpenNLPPerceptronModelTrainerImpl<T> trainer = new OpenNLPPerceptronModelTrainerImpl<T>();
-		return trainer;
+	public AbstractModel constructModel() throws IOException {
+		return reader.constructModel();
 	}
-
-	@Override
-	public <T extends Outcome> MachineLearningModel<T> getPerceptronModel() {
-		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>();
-		return model;
-	}
-
 
 }

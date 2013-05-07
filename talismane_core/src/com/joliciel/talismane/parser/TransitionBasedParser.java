@@ -66,7 +66,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 	private DecisionMaker<Transition> decisionMaker;
 	private TransitionSystem transitionSystem;
 
-	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
+	private List<AnalysisObserver<Transition>> observers = new ArrayList<AnalysisObserver<Transition>>();
 	private int maxAnalysisTimePerSentence = 60;
 	private int minFreeMemory = 64;
 	private static final int KILOBYTE = 1024;
@@ -230,7 +230,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 						try {
 							decisions = this.decisionMaker.decide(parseFeatureResults);
 							
-							for (AnalysisObserver observer : this.observers) {
+							for (AnalysisObserver<Transition> observer : this.observers) {
 								observer.onAnalyse(history, parseFeatureResults, decisions);
 							}
 	
@@ -412,7 +412,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public void addObserver(AnalysisObserver observer) {
+	public void addObserver(AnalysisObserver<Transition> observer) {
 		this.observers.add(observer);
 	}
 

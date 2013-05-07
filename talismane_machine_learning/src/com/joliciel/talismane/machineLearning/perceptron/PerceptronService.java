@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,36 +16,28 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.machineLearning.perceptron;
 
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Outcome;
 
-class MaxentServiceImpl implements MaxentService {
-
-	@Override
-	public <T extends Outcome> MaxentModelTrainer<T> getMaxentModelTrainer() {
-		MaxentModelTrainerImpl<T> maxentModelTrainer = new MaxentModelTrainerImpl<T>();
-		return maxentModelTrainer;
-	}
-
-	@Override
-	public <T extends Outcome> MachineLearningModel<T> getMaxentModel() {
-		MaximumEntropyModel<T> maxentModel = new MaximumEntropyModel<T>();
-		return maxentModel;
-	}
-
-	@Override
-	public <T extends Outcome> OpenNLPPerceptronModelTrainer<T> getPerceptronModelTrainer() {
-		OpenNLPPerceptronModelTrainerImpl<T> trainer = new OpenNLPPerceptronModelTrainerImpl<T>();
-		return trainer;
-	}
-
-	@Override
-	public <T extends Outcome> MachineLearningModel<T> getPerceptronModel() {
-		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>();
-		return model;
-	}
-
-
+/**
+ * A service for retrieving implementations of the perceptron package.
+ * @author Assaf Urieli
+ *
+ */
+public interface PerceptronService {
+	/**
+	 * Returns a perceptron model trainer.
+	 * @param <T>
+	 * @return
+	 */
+	public<T extends Outcome> PerceptronModelTrainer<T> getPerceptronModelTrainer();
+	
+	/**
+	 * Get an "empty" perceptron model.
+	 * @param <T>
+	 * @return
+	 */
+	public<T extends Outcome> MachineLearningModel<T> getPerceptronModel();
 }

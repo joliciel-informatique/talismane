@@ -73,7 +73,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 		ParserFeatureParser parserFeatureParser = this.getParserFeatureParser();
 
 		for (String ruleDescriptor : ruleDescriptors) {
-			LOG.trace(ruleDescriptor);
+			LOG.debug(ruleDescriptor);
 			if (ruleDescriptor.length()>0 && !ruleDescriptor.startsWith("#")) {
 				String[] ruleParts = ruleDescriptor.split("\t");
 				String transitionCode = ruleParts[0];

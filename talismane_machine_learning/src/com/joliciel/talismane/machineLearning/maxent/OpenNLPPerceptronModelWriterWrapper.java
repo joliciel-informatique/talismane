@@ -31,11 +31,11 @@ import opennlp.perceptron.PerceptronModelWriter;
  * @author Assaf Urieli
  *
  */
-class PerceptronModelWriterWrapper extends PerceptronModelWriter {
+class OpenNLPPerceptronModelWriterWrapper extends PerceptronModelWriter {
 	private final BinaryPerceptronModelWriter writer;
 	private OutputStream outputStream;
 	
-	public PerceptronModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
+	public OpenNLPPerceptronModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
 		super(model);
 		writer = new BinaryPerceptronModelWriter(model,
 	            new DataOutputStream(outputStream));

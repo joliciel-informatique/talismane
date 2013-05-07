@@ -45,20 +45,20 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-class PerceptronModel<T extends Outcome> extends AbstractOpenNLPModel<T> implements MachineLearningModel<T> {
-	private static final Log LOG = LogFactory.getLog(PerceptronModel.class);
+class OpenNLPPerceptronModel<T extends Outcome> extends AbstractOpenNLPModel<T> implements MachineLearningModel<T> {
+	private static final Log LOG = LogFactory.getLog(OpenNLPPerceptronModel.class);
 	
 	/**
 	 * Default constructor for factory.
 	 */
-	PerceptronModel() {}
+	OpenNLPPerceptronModel() {}
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 * @param model
 	 * @param featureDescriptors
 	 */
-	PerceptronModel(MaxentModel model,
+	OpenNLPPerceptronModel(MaxentModel model,
 			Map<String,List<String>> descriptors,
 			DecisionFactory<T> decisionFactory) {
 		super(model, descriptors, decisionFactory);
@@ -66,11 +66,11 @@ class PerceptronModel<T extends Outcome> extends AbstractOpenNLPModel<T> impleme
 	
 	@Override
 	public MachineLearningAlgorithm getAlgorithm() {
-		return MachineLearningAlgorithm.Perceptron;
+		return MachineLearningAlgorithm.OpenNLPPerceptron;
 	}
 
 	@Override
-	public AnalysisObserver getDetailedAnalysisObserver(File file) {
+	public AnalysisObserver<T> getDetailedAnalysisObserver(File file) {
 		throw new JolicielException("No detailed analysis observer currently available for perceptrons.");
 	}
 	
@@ -78,7 +78,7 @@ class PerceptronModel<T extends Outcome> extends AbstractOpenNLPModel<T> impleme
 	@Override
 	public void writeModelToStream(OutputStream outputStream) {
 		try {
-			new PerceptronModelWriterWrapper(this.getModel(), outputStream).persist();
+			new OpenNLPPerceptronModelWriterWrapper(this.getModel(), outputStream).persist();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -87,7 +87,7 @@ class PerceptronModel<T extends Outcome> extends AbstractOpenNLPModel<T> impleme
 
 	@Override
 	public void loadModelFromStream(InputStream inputStream) {
-		PerceptronModelReaderWrapper maxentModelReader = new PerceptronModelReaderWrapper(inputStream);
+		OpenNLPPerceptronModelReaderWrapper maxentModelReader = new OpenNLPPerceptronModelReaderWrapper(inputStream);
 		try {
 			this.setModel(maxentModelReader.getModel());
 		} catch (IOException e) {

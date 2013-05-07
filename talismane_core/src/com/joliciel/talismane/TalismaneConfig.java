@@ -775,7 +775,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 							String ruleDescriptor = rulesScanner.nextLine();
 							if (ruleDescriptor.length()>0) {
 								ruleDescriptors.add(ruleDescriptor);
-								LOG.debug(ruleDescriptor);
+								LOG.trace(ruleDescriptor);
 							}
 						}
 						List<PosTaggerRule> rules = this.getPosTaggerFeatureService().getRules(ruleDescriptors);
@@ -819,7 +819,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 								String ruleDescriptor = rulesScanner.nextLine();
 								if (ruleDescriptor.length()>0) {
 									ruleDescriptors.add(ruleDescriptor);
-									LOG.debug(ruleDescriptor);
+									LOG.trace(ruleDescriptor);
 								}
 							}
 							List<ParserRule> rules = this.getParserFeatureService().getRules(ruleDescriptors);
@@ -1065,7 +1065,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
+					AnalysisObserver<TokeniserOutcome> observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
 					tokeniser.addObserver(observer);
 				}
 				
@@ -1205,7 +1205,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+					AnalysisObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 					posTagger.addObserver(observer);
 				}
 			}
@@ -1235,7 +1235,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					String detailsFilePath = this.getBaseName() + "_parser_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver observer = parserModel.getDetailedAnalysisObserver(detailsFile);
+					AnalysisObserver<Transition> observer = parserModel.getDetailedAnalysisObserver(detailsFile);
 					parser.addObserver(observer);
 				}
 				TalismaneSession.setTransitionSystem(parser.getTransitionSystem());
@@ -2141,6 +2141,13 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		return propagateBeam;
 	}
 
+	/**
+	 * the minimum block size, in characters, to process by the sentence detector. Filters are applied to a concatenation of the previous block, the current block,
+	 * and the next block prior to sentence detection, in order to ensure that a filter which crosses block boundaries is correctly applied.
+	 * It is not legal to have a filter which matches text greater than a block size, since this could result in a filter which stops analysis but doesn't start it again correctly,
+	 * or vice versa. Block size can be increased if really big filters are really required. Default is 1000.
+	 * @return
+	 */
 	public int getBlockSize() {
 		return blockSize;
 	}

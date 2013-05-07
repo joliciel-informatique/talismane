@@ -92,7 +92,7 @@ class PatternTokeniserImpl implements Tokeniser {
 	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	
-	private List<AnalysisObserver> observers = new ArrayList<AnalysisObserver>();
+	private List<AnalysisObserver<TokeniserOutcome>> observers = new ArrayList<AnalysisObserver<TokeniserOutcome>>();
 	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 	
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
@@ -244,7 +244,7 @@ class PatternTokeniserImpl implements Tokeniser {
 							try {
 								decisions = this.decisionMaker.decide(tokenFeatureResults);
 								
-								for (AnalysisObserver observer : this.observers)
+								for (AnalysisObserver<TokeniserOutcome> observer : this.observers)
 									observer.onAnalyse(token, tokenFeatureResults, decisions);
 								
 								for (Decision<TokeniserOutcome> decision: decisions) {
@@ -485,7 +485,7 @@ class PatternTokeniserImpl implements Tokeniser {
 	}
 
 	@Override
-	public void addObserver(AnalysisObserver observer) {
+	public void addObserver(AnalysisObserver<TokeniserOutcome> observer) {
 		this.observers.add(observer);
 	}
 	

@@ -26,10 +26,12 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearni
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentService;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
 
 class MachineLearningServiceImpl implements MachineLearningService {
 	MaxentService maxentService;
 	LinearSVMService linearSVMService;
+	PerceptronService perceptronService;
 	
 	@Override
 	public CorpusEvent getCorpusEvent(List<FeatureResult<?>> featureResults,
@@ -44,6 +46,7 @@ class MachineLearningServiceImpl implements MachineLearningService {
 		ModelFactory modelFactory = new ModelFactory();
 		modelFactory.setMaxentService(this.getMaxentService());
 		modelFactory.setLinearSVMService(this.getLinearSVMService());
+		modelFactory.setPerceptronService(this.getPerceptronService());
 		MachineLearningModel<T> model = modelFactory.getModel(zis);
 		return model;
 	}
@@ -54,6 +57,7 @@ class MachineLearningServiceImpl implements MachineLearningService {
 		ModelTrainerFactory modelTrainerFactory = new ModelTrainerFactory();
 		modelTrainerFactory.setMaxentService(this.getMaxentService());
 		modelTrainerFactory.setLinearSVMService(this.getLinearSVMService());
+		modelTrainerFactory.setPerceptronService(this.getPerceptronService());
 		ModelTrainer<T> modelTrainer = modelTrainerFactory.makeModelTrainer(algorithm, parameters);
 		return modelTrainer;
 	}
@@ -79,6 +83,14 @@ class MachineLearningServiceImpl implements MachineLearningService {
 	public ExternalResourceFinder getExternalResourceFinder() {
 		ExternalResourceFinderImpl finder = new ExternalResourceFinderImpl();
 		return finder;
+	}
+
+	public PerceptronService getPerceptronService() {
+		return perceptronService;
+	}
+
+	public void setPerceptronService(PerceptronService perceptronService) {
+		this.perceptronService = perceptronService;
 	}
 
 }
