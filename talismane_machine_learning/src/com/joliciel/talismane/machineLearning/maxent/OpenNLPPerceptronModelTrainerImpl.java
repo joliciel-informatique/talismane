@@ -44,10 +44,10 @@ import opennlp.perceptron.PerceptronTrainer;
  * @author Assaf Urieli
  *
  */
-class PerceptronModelTrainerImpl<T extends Outcome> implements PerceptronModelTrainer<T> {
+class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPerceptronModelTrainer<T> {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(PerceptronModelTrainerImpl.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PerceptronModelTrainerImpl.class);
+	private static final Log LOG = LogFactory.getLog(OpenNLPPerceptronModelTrainerImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(OpenNLPPerceptronModelTrainerImpl.class);
 	
 	private int iterations = 100;
 	private int cutoff = 5;
@@ -89,7 +89,7 @@ class PerceptronModelTrainerImpl<T extends Outcome> implements PerceptronModelTr
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		PerceptronModel<T> model = new PerceptronModel<T>(perceptronModel, descriptors, decisionFactory);
+		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>(perceptronModel, descriptors, decisionFactory);
 		model.addModelAttribute("cutoff", this.getCutoff());
 		model.addModelAttribute("iterations", this.getIterations());
 		model.addModelAttribute("averaging", this.isUseAverage());
@@ -155,7 +155,7 @@ class PerceptronModelTrainerImpl<T extends Outcome> implements PerceptronModelTr
 	public void setParameters(Map<String, Object> parameters) {
 		if (parameters!=null) {
 			for (String parameter : parameters.keySet()) {
-				PerceptronModelParameter modelParameter = PerceptronModelParameter.valueOf(parameter);
+				OpenNLPPerceptronModelParameter modelParameter = OpenNLPPerceptronModelParameter.valueOf(parameter);
 				Object value = parameters.get(parameter);
 				if (!modelParameter.getParameterType().isAssignableFrom(value.getClass())) {
 					throw new JolicielException("Parameter of wrong type: " + parameter + ". Expected: " + modelParameter.getParameterType().getSimpleName());

@@ -45,21 +45,21 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
+		container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
+		container.addFeatureClass("BetweenCountIf", BetweenCountIf.class);
+		container.addFeatureClass("Buffer", AddressFunctionBuffer.class);
+		container.addFeatureClass("Dep", AddressFunctionDep.class);
 		container.addFeatureClass("DependencyLabel", DependencyLabelFeature.class);
 		container.addFeatureClass("DependentCountIf", DependentCountIf.class);
-		container.addFeatureClass("BetweenCountIf", BetweenCountIf.class);
 		container.addFeatureClass("Distance", DistanceFeature.class);
-		container.addFeatureClass("Stack", AddressFunctionStack.class);
-		container.addFeatureClass("Buffer", AddressFunctionBuffer.class);
-		container.addFeatureClass("Head", AddressFunctionHead.class);
-		container.addFeatureClass("LDep", AddressFunctionLDep.class);
-		container.addFeatureClass("RDep", AddressFunctionRDep.class);
-		container.addFeatureClass("Dep", AddressFunctionDep.class);
-		container.addFeatureClass("Offset", AddressFunctionOffset.class);
-		container.addFeatureClass("Seq", AddressFunctionSequence.class);
 		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
-		container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
+		container.addFeatureClass("Head", AddressFunctionHead.class);
 		container.addFeatureClass("ImplicitAddress", ImplicitAddressFeature.class);
+		container.addFeatureClass("LDep", AddressFunctionLDep.class);
+		container.addFeatureClass("Offset", AddressFunctionOffset.class);
+		container.addFeatureClass("RDep", AddressFunctionRDep.class);
+		container.addFeatureClass("Seq", AddressFunctionSequence.class);
+		container.addFeatureClass("Stack", AddressFunctionStack.class);
 		
 		PosTagFeatureParser.addPosTaggedTokenFeatureClasses(container);
 

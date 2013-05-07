@@ -45,7 +45,7 @@ public interface PosTagger {
 	 * Add an analysis observer to this pos tagger.
 	 * @param observer
 	 */
-	public abstract void addObserver(AnalysisObserver observer);
+	public abstract void addObserver(AnalysisObserver<PosTag> observer);
 
 	public abstract Set<PosTaggerFeature<?>> getPosTaggerFeatures();
 

@@ -16,24 +16,26 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning;
+package com.joliciel.talismane.machineLearning.perceptron;
 
-import java.util.Collection;
-import java.util.List;
-
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
-
-/**
- * Makes it possible to observe the decision making procedure
- * for a given analyser.
- * @author Assaf Urieli
- *
- */
-public interface AnalysisObserver<T extends Outcome> {
-
-	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
-			Collection<Decision<T>> outcomes);
-
-	public void onTerminate();
-
+public class PerceptronServiceLocator {
+	private static PerceptronServiceLocator instance;
+	
+	private PerceptronServiceImpl perceptronService;
+	
+	private PerceptronServiceLocator() { }
+	
+	public static PerceptronServiceLocator getInstance() {
+		if (instance==null) {
+			instance = new PerceptronServiceLocator();
+		}
+		return instance;
+	}
+	
+	public PerceptronService getPerceptronService() {
+		if (perceptronService == null) {
+			perceptronService = new PerceptronServiceImpl();
+		}
+		return perceptronService;
+	}
 }

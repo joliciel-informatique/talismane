@@ -41,7 +41,8 @@ public interface MachineLearningModel<T extends Outcome> {
 	public enum MachineLearningAlgorithm {
 		MaxEnt,
 		LinearSVM,
-		Perceptron
+		Perceptron,
+		OpenNLPPerceptron,
 	}
 	
 	public static final String FEATURE_DESCRIPTOR_KEY = "feature";
@@ -88,7 +89,7 @@ public interface MachineLearningModel<T extends Outcome> {
 	 * @param file
 	 * @return
 	 */
-	public AnalysisObserver getDetailedAnalysisObserver(File file);
+	public AnalysisObserver<T> getDetailedAnalysisObserver(File file);
 
 	/**
 	 * The machine learning algorithm implemented by this model.

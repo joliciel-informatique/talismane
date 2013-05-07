@@ -226,7 +226,10 @@ git clone https://github.com/urieli/Talismane</pre>
 <li>Create an executable <b>.jar</b> file from the Talismane source code using <tt>Ant</tt>. First of all, make sure you have <tt>Ant</tt> on your system:</li>
 <pre class="shell">
 ant -version</pre>
-<li>Next, if <tt>Ant</tt> is correctly installed, go to the Talismane folder and generate the jar.</li>
+<li>Next, if <tt>Ant</tt> is correctly installed, go to the Talismane folder and generate the jar. On Linux, issue the following command:</li>
+<pre class="shell">
+ant -lib ant/</pre>
+<li>On Windows, issue the following command:</li>
 <pre class="shell">
 ant -lib=ant</pre>
 <li>Check that the <b>talismane-fr-<i>version</i>.jar</b> file has been generated in the <tt>dist</tt> directory.</li>

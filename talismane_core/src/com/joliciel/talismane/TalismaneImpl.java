@@ -266,7 +266,12 @@ class TalismaneImpl implements Talismane {
 			SentenceHolder prevSentenceHolder = null;
 
 		    while (!finished) {
-		    	if (config.getStartModule().equals(Module.SentenceDetector)) {
+		    	if (config.getStartModule().equals(Module.SentenceDetector)||config.getStartModule().equals(Module.Tokeniser)) {
+		    		// Note SentenceDetector and Tokeniser start modules treated identically,
+		    		// except that for SentenceDetector we apply a probabilistic sentence detector
+		    		// whereas for Tokeniser we assume all sentence breaks are marked by filters
+		    		
+		    		
 				    // read characters from the reader, one at a time
 			    	char c;
 			    	int r = config.getReader().read();
@@ -363,13 +368,6 @@ class TalismaneImpl implements Talismane {
 						}
 						prevSentenceHolder = sentenceHolder;
 					} // we have at least 3 text segments (should always be the case once we get started)
-		    	} else if (config.getStartModule().equals(Module.Tokeniser)) {
-		    		if (config.getSentenceCorpusReader().hasNextSentence()) {
-		    			Sentence sentence = this.getFilterService().getSentence(config.getSentenceCorpusReader().nextSentence());
-		    			sentences.add(sentence);
-		    		} else {
-		    			finished = true;
-		    		}
 		    	} else if (config.getStartModule().equals(Module.PosTagger)) {
 	    			if (config.getTokenCorpusReader().hasNextTokenSequence()) {
 	    				tokenSequence = config.getTokenCorpusReader().nextTokenSequence();

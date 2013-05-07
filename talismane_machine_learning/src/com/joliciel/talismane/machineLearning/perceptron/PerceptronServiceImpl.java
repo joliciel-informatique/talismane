@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,32 +16,24 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.machineLearning.perceptron;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.Outcome;
 
-import opennlp.model.AbstractModel;
-import opennlp.model.AbstractModelReader;
-import opennlp.model.BinaryFileDataReader;
-import opennlp.perceptron.PerceptronModelReader;
+class PerceptronServiceImpl implements PerceptronService {
 
-class PerceptronModelReaderWrapper extends AbstractModelReader {
-	AbstractModelReader reader = null;
-	
-	public PerceptronModelReaderWrapper(InputStream inputStream) {
-		super(new BinaryFileDataReader(inputStream));
-		reader = new PerceptronModelReader(super.dataReader);
+	@Override
+	public <T extends Outcome> PerceptronModelTrainer<T> getPerceptronModelTrainer() {
+		StructuredPerceptronTrainerImpl<T> trainer = new StructuredPerceptronTrainerImpl<T>();
+		return trainer;
 	}
 
 	@Override
-	public void checkModelType() throws IOException {
-		reader.checkModelType();
+	public <T extends Outcome> MachineLearningModel<T> getPerceptronModel() {
+		PerceptronModel<T> model = new PerceptronModel<T>();
+		return model;
 	}
 
-	@Override
-	public AbstractModel constructModel() throws IOException {
-		return reader.constructModel();
-	}
 
 }

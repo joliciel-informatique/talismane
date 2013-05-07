@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,42 +16,34 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.machineLearning.perceptron;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.ModelTrainer;
 import com.joliciel.talismane.machineLearning.Outcome;
 
-/**
- * A service for retrieving implementations of the maxent package.
- * @author Assaf Urieli
- *
- */
-public interface MaxentService {
+public interface PerceptronModelTrainer<T extends Outcome> extends ModelTrainer<T> {
 	/**
-	 * Returns a maxent model trainer.
-	 * @param <T>
+	 * A parameter accepted by the perceptron model trainer.
+	 * @author Assaf Urieli
+	 *
+	 */
+	public enum PerceptronModelParameter {
+		Iterations(Integer.class),
+		Cutoff(Integer.class),
+		Tolerance(Double.class);
+		
+		private Class<?> parameterType;
+		private PerceptronModelParameter(Class<?> parameterType) {
+			this.parameterType = parameterType;
+		}
+		public Class<?> getParameterType() {
+			return parameterType;
+		}
+	}
+	/**
+	 * The number of training iterations to run.
 	 * @return
 	 */
-	public<T extends Outcome> MaxentModelTrainer<T> getMaxentModelTrainer();
-	
-	/**
-	 * Get an "empty" maxent model.
-	 * @param <T>
-	 * @return
-	 */
-	public<T extends Outcome> MachineLearningModel<T> getMaxentModel();
-	
-	/**
-	 * Returns a perceptron model trainer.
-	 * @param <T>
-	 * @return
-	 */
-	public<T extends Outcome> OpenNLPPerceptronModelTrainer<T> getPerceptronModelTrainer();
-	
-	/**
-	 * Get an "empty" perceptron model.
-	 * @param <T>
-	 * @return
-	 */
-	public<T extends Outcome> MachineLearningModel<T> getPerceptronModel();
+	public int getIterations();
+	public void setIterations(int iterations);
 }

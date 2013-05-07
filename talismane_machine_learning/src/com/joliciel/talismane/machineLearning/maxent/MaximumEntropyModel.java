@@ -69,8 +69,8 @@ class MaximumEntropyModel<T extends Outcome> extends AbstractOpenNLPModel<T> imp
 	}
 
 	@Override
-	public AnalysisObserver getDetailedAnalysisObserver(File file) {
-		MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
+	public AnalysisObserver<T> getDetailedAnalysisObserver(File file) {
+		MaxentDetailedAnalysisWriter<T> observer = new MaxentDetailedAnalysisWriter<T>(this.getModel(), file);
 		return observer;
 	}
 	

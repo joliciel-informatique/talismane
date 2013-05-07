@@ -45,7 +45,7 @@ public interface Parser {
 	 */
 	public abstract int getBeamWidth();
 	
-	public void addObserver(AnalysisObserver observer);
+	public void addObserver(AnalysisObserver<Transition> observer);
 	
 	/**
 	 * The transition system used by this parser to make parse decisions.

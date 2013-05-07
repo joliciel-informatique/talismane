@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentService;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -43,6 +44,7 @@ import com.joliciel.talismane.utils.LogUtils;
 class ModelFactory {
 	private static final Log LOG = LogFactory.getLog(ModelFactory.class);
 	
+	private PerceptronService perceptronService;
 	private MaxentService maxentService;
 	private LinearSVMService linearSVMService;
 	
@@ -76,6 +78,9 @@ class ModelFactory {
 				machineLearningModel = linearSVMService.getLinearSVMModel();
 				break;
 			case Perceptron:
+				machineLearningModel = perceptronService.getPerceptronModel();
+				break;
+			case OpenNLPPerceptron:
 				machineLearningModel = maxentService.getPerceptronModel();
 				break;
 			default:
@@ -166,6 +171,14 @@ class ModelFactory {
 
 	public void setLinearSVMService(LinearSVMService linearSVMService) {
 		this.linearSVMService = linearSVMService;
+	}
+
+	public PerceptronService getPerceptronService() {
+		return perceptronService;
+	}
+
+	public void setPerceptronService(PerceptronService perceptronService) {
+		this.perceptronService = perceptronService;
 	}
 	
 	

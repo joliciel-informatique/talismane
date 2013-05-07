@@ -29,13 +29,13 @@ import com.joliciel.talismane.machineLearning.Outcome;
  * @author Assaf Urieli
  *
  */
-public interface PerceptronModelTrainer<T extends Outcome> extends ModelTrainer<T> {
+public interface OpenNLPPerceptronModelTrainer<T extends Outcome> extends ModelTrainer<T> {
 	/**
 	 * A parameter accepted by the perceptron model trainer.
 	 * @author Assaf Urieli
 	 *
 	 */
-	public enum PerceptronModelParameter {
+	public enum OpenNLPPerceptronModelParameter {
 		Iterations(Integer.class),
 		Cutoff(Integer.class),
 		UseAverage(Boolean.class),
@@ -44,7 +44,7 @@ public interface PerceptronModelTrainer<T extends Outcome> extends ModelTrainer<
 		Tolerance(Double.class);
 
 		private Class<?> parameterType;
-		private PerceptronModelParameter(Class<?> parameterType) {
+		private OpenNLPPerceptronModelParameter(Class<?> parameterType) {
 			this.parameterType = parameterType;
 		}
 		public Class<?> getParameterType() {

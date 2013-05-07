@@ -82,7 +82,7 @@ class LinearSVMModel<T extends Outcome> extends AbstractMachineLearningModel<T> 
 	}
 
 	@Override
-	public AnalysisObserver getDetailedAnalysisObserver(File file) {
+	public AnalysisObserver<T> getDetailedAnalysisObserver(File file) {
 		throw new JolicielException("No detailed analysis observer currently available for linear SVM.");
 	}
 

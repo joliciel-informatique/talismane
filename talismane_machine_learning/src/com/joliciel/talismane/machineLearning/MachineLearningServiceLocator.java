@@ -20,6 +20,7 @@ package com.joliciel.talismane.machineLearning;
 
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMServiceLocator;
 import com.joliciel.talismane.machineLearning.maxent.MaxentServiceLocator;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronServiceLocator;
 
 public class MachineLearningServiceLocator {
 	private static MachineLearningServiceLocator instance;
@@ -40,6 +41,7 @@ public class MachineLearningServiceLocator {
 			machineLearningService = new MachineLearningServiceImpl();
 			machineLearningService.setMaxentService(MaxentServiceLocator.getInstance().getMaxentService());
 			machineLearningService.setLinearSVMService(LinearSVMServiceLocator.getInstance().getLinearSVMService());
+			machineLearningService.setPerceptronService(PerceptronServiceLocator.getInstance().getPerceptronService());
 		}
 		return machineLearningService;
 	}

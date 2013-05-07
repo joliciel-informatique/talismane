@@ -128,7 +128,7 @@ class SimpleTokeniser implements Tokeniser {
 		this.preprocessingFilters.add(tokenFilter);
 	}
 	
-	public void addObserver(AnalysisObserver observer) {
+	public void addObserver(AnalysisObserver<TokeniserOutcome> observer) {
 		// nothing to do here
 	}
 	
