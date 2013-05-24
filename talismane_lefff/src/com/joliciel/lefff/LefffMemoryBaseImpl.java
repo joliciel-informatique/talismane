@@ -78,7 +78,7 @@ public class LefffMemoryBaseImpl implements LefffMemoryBase {
 	@Override
 	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement) {
 		String key = lemma;
-		if (complement.length()>0)
+		if (complement!=null && complement.length()>0)
 			key += "|" + complement;
 		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
 		List<LexicalEntry> lefffEntries = this.lemmaEntryMap.get(key);

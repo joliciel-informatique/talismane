@@ -32,6 +32,7 @@ public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implem
 		super();
 		this.integerFeature = integerFeature;
 		this.setName(this.integerFeature.getName());
+		this.addArgument(integerFeature);
 	}
 
 	@Override

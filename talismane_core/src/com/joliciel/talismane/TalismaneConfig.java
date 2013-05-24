@@ -471,10 +471,14 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		if (module==null)
 			module = endModule;
 
-		if (builtInTemplate!=null && builtInTemplate.equalsIgnoreCase("with_location")) {
-			tokeniserTemplateName = "tokeniser_template_with_location.ftl";
-			posTaggerTemplateName = "posTagger_template_with_location.ftl";
-			parserTemplateName = "parser_conll_template_with_location.ftl";
+		if (builtInTemplate!=null) {
+			if (builtInTemplate.equalsIgnoreCase("with_location")) {
+				tokeniserTemplateName = "tokeniser_template_with_location.ftl";
+				posTaggerTemplateName = "posTagger_template_with_location.ftl";
+				parserTemplateName = "parser_conll_template_with_location.ftl";
+			} else {
+				throw new TalismaneException("Unknown builtInTemplate: " + builtInTemplate);
+			}
 		}
 		
 		if (posTaggerBeamWidth<0)

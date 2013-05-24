@@ -41,7 +41,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * All lines starting with # are skipped.<br/>
  * Any other line will be broken up by tabs:<br/>
  * For multi-valued resources, the second-to-last tab is the class, the last tab is the weight.<br/>
- * For normal resoruces, the last tab is the class.<br/>
+ * For normal resources, the last tab is the class.<br/>
  * All previous tabs are considered to be key components.<br/>
  * The same set of key components can have multiple classes with different weights.<br/>
  * @author Assaf Urieli
@@ -54,7 +54,7 @@ public class TextFileResource implements ExternalResource {
 	Map<String, String> resultMap = new HashMap<String, String>();
 	
 	private String name;
-	private boolean multivalued;
+	private boolean multivalued = false;
 	
 	public TextFileResource(File file) {
 		try {

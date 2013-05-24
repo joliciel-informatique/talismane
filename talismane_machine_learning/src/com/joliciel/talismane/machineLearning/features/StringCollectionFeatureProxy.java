@@ -43,4 +43,9 @@ class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String> impleme
 		}
 		return result;
 	}
+
+	public StringCollectionFeature<T> getStringCollectionFeature() {
+		return stringCollectionFeature;
+	}
+	
 }

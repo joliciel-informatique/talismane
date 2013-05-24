@@ -76,6 +76,16 @@ public class DaoUtils {
         }
     }
     
+    public static void LogParameters(Map<String,Object> paramMap, Log log) {
+        if (log.isTraceEnabled()) {
+            for (Object obj : paramMap.entrySet()) {
+                @SuppressWarnings("rawtypes")
+				Entry entry = (Entry) obj;
+                log.trace(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
+            }
+        }
+    }
+    
     public static List<String> getSelectArray(String selectString, String alias) {
         List<String> selectArray = new ArrayList<String>();
         StringTokenizer st = new StringTokenizer(selectString, ",", false);

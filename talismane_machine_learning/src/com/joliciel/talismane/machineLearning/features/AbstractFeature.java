@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * An Abstract base class for features, basically defining feature equality.
  * @author Assaf Urieli
@@ -27,7 +30,8 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 
 	private String name = null;
 	private String groupName = null;
-
+	private List<Feature<T,?>> arguments = new ArrayList<Feature<T,?>>();
+	
 	public AbstractFeature() {
 		super();
 	}
@@ -97,4 +101,11 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 		throw new RuntimeException("Unknown feature return type for " + this.getName());
 	}
 
+	public void addArgument(Feature<T,?> argument) {
+		this.arguments.add(argument);
+	}
+	
+	public List<Feature<T,?>> getArguments() {
+		return this.arguments;
+	}
 }
