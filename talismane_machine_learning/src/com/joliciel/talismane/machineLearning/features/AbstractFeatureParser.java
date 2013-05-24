@@ -127,7 +127,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	 * @param featureClass
 	 * @return
 	 */
-	final List<Feature<T, ?>> getFeatures(FunctionDescriptor descriptor, @SuppressWarnings("rawtypes") Class<? extends Feature> featureClass, Set<StringCollectionFeature<T>> collectionFeaturesToExtract, FunctionDescriptor topLevelDescriptor) {
+	final List<Feature<T, ?>> getFeatures(FunctionDescriptor descriptor, @SuppressWarnings("rawtypes") Class<? extends Feature> featureClass, FunctionDescriptor topLevelDescriptor) {
 		if (featureClass==null)
 			throw new FeatureSyntaxException("No class provided for", descriptor, topLevelDescriptor);
 		
@@ -163,7 +163,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 					newArgumentLists.add(arguments);
 					
 				} else {
-					List<Feature<T,?>> featureArguments = this.parseInternal(argumentDescriptor, collectionFeaturesToExtract, topLevelDescriptor);
+					List<Feature<T,?>> featureArguments = this.parseInternal(argumentDescriptor, topLevelDescriptor);
 					// a single argument descriptor could produce multiple arguments
 					// e.g. when a function with an array argument is mapped onto multiple function calls
 					for (Feature<T,?> featureArgument : featureArguments) {
@@ -254,7 +254,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 									if (oneArgument instanceof StringCollectionFeature) {
 										@SuppressWarnings("unchecked")
 										StringCollectionFeature<T> stringCollectionFeature = (StringCollectionFeature<T>) oneArgument;
-										collectionFeaturesToExtract.add(stringCollectionFeature);
 										StringCollectionFeatureProxy<T> proxy = new StringCollectionFeatureProxy<T>(stringCollectionFeature);
 										oneArgument = proxy;
 									}
@@ -329,14 +328,15 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 									for (int indexToConvert : stringCollectionParametersToConvert) {
 										@SuppressWarnings("unchecked")
 										StringCollectionFeature<T> stringCollectionFeature = (StringCollectionFeature<T>) myArguments[indexToConvert];
-										collectionFeaturesToExtract.add(stringCollectionFeature);
 										StringCollectionFeatureProxy<T> proxy = new StringCollectionFeatureProxy<T>(stringCollectionFeature);
 										myArguments[indexToConvert] = proxy;
 									}
 									for (int indexToConvert : customParametersToConvert) {
 										@SuppressWarnings("unchecked")
-										Feature<T,?> customArgument = this.convertArgument(parameterTypes[indexToConvert], (Feature<T, ?>) myArguments[indexToConvert]);
+										Feature<T,?> argumentToConvert = (Feature<T, ?>) myArguments[indexToConvert];
+										Feature<T,?> customArgument = this.convertArgument(parameterTypes[indexToConvert], argumentToConvert);
 										myArguments[indexToConvert] = customArgument;
+										customArgument.addArgument(argumentToConvert);
 									}
 								}
 								break;
@@ -384,9 +384,23 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 					MultivaluedExternalResourceFeature<T> externalResourceFeature = (MultivaluedExternalResourceFeature<T>) genericFeature;
 					externalResourceFeature.setExternalResourceFinder(this.getExternalResourceFinder());
 				} 
+
+				// add this feature's arguments
+				for (Object argument : myArguments) {
+					if (argument instanceof Feature[]) {
+						@SuppressWarnings("unchecked")
+						Feature<T,?>[] featureArray = (Feature<T,?>[]) argument;
+						for (Feature<T,?> oneFeature : featureArray) {
+							genericFeature.addArgument(oneFeature);
+						}
+					} else {
+						@SuppressWarnings("unchecked")
+						Feature<T,?> featureArgument = (Feature<T,?>) argument;
+						genericFeature.addArgument(featureArgument);
+					}
+				}
 				
 				Feature<T,?> convertedFeature = this.convertFeature(genericFeature);
-				
 				features.add(convertedFeature);
 			} // next internal argument list
 		} // next argument list
@@ -479,8 +493,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			// normal parsing
 			FunctionDescriptor rootDescriptor = this.featureService.getFunctionDescriptor("RootWrapper");
 			rootDescriptor.addArgument(descriptor);
-			Set<StringCollectionFeature<T>> collectionFeaturesToExtract = new HashSet<StringCollectionFeature<T>>();
-			List<Feature<T, ?>> rootFeatures = this.parseInternal(rootDescriptor, collectionFeaturesToExtract, descriptor);
+			List<Feature<T, ?>> rootFeatures = this.parseInternal(rootDescriptor, descriptor);
 	
 			for (Feature<T, ?> rootFeature : rootFeatures) {
 				Feature<T, ?> oneRootFeature = rootFeature;
@@ -493,15 +506,20 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			
 			// If this feature contains any named StringCollectionFeatures
 			// wrap all top level features in CollectionFeatureWrapper
-			if (collectionFeaturesToExtract.size()>0) {
-				List<Feature<T, ?>> wrappedFeatures = new ArrayList<Feature<T,?>>();
-
-				for (Feature<T, ?> feature : features) {
+			List<Feature<T, ?>> wrappedFeatures = new ArrayList<Feature<T,?>>();
+			for (Feature<T,?> feature : features) {
+				// recursively check if this feature contains any StringCollectionFeatures
+				// but this is only possible if we can always recurse through all the arguments!
+				Set<StringCollectionFeature<T>> collectionFeaturesToExtract = new HashSet<StringCollectionFeature<T>>();
+				this.findStringCollectionFeatures(feature, collectionFeaturesToExtract);
+				if (collectionFeaturesToExtract.size()>0) {
 					StringCollectionFeatureWrapper<T> collectionFeatureWrapper = new StringCollectionFeatureWrapper<T>(feature, collectionFeaturesToExtract);
 					wrappedFeatures.add(collectionFeatureWrapper);
+				} else {
+					wrappedFeatures.add(feature);
 				}
-				features = wrappedFeatures;
 			}
+			features = wrappedFeatures;
 			
 			if (hasDescriptorName) {
 				this.namedFeatures.put(featureName, features);
@@ -545,7 +563,19 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		return features;
 	}
 	
-	final List<Feature<T, ?>> parseInternal(FunctionDescriptor descriptor, Set<StringCollectionFeature<T>> collectionFeaturesToExtract, FunctionDescriptor topLevelDescriptor) {
+	final void findStringCollectionFeatures(Feature<T,?> feature, Set<StringCollectionFeature<T>> collectionFeaturesToExtract) {
+		if (feature instanceof StringCollectionFeatureProxy) {
+			@SuppressWarnings("unchecked")
+			StringCollectionFeatureProxy<T> stringCollectionFeatureProxy = (StringCollectionFeatureProxy<T>) feature;
+			StringCollectionFeature<T> stringCollectionFeature = stringCollectionFeatureProxy.getStringCollectionFeature();
+			collectionFeaturesToExtract.add(stringCollectionFeature);
+		}
+		for (Feature<T,?> argument : feature.getArguments()) {
+			this.findStringCollectionFeatures(argument, collectionFeaturesToExtract);
+		}
+	}
+	
+	final List<Feature<T, ?>> parseInternal(FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
 		if (LOG.isTraceEnabled())
 			LOG.trace(descriptor.toString());
 		List<Feature<T, ?>> features = new ArrayList<Feature<T,?>>();
@@ -615,7 +645,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 						boolean lastClass = (i==featureClasses.size()-1);
 						boolean foundConstructor = false;
 						try {
-							features.addAll(this.getFeatures(modifiedDescriptor, featureClass, collectionFeaturesToExtract, topLevelDescriptor));
+							features.addAll(this.getFeatures(modifiedDescriptor, featureClass, topLevelDescriptor));
 							foundConstructor = true;
 						} catch (NoConstructorFoundException ncfe) {
 							if (lastClass)
@@ -691,6 +721,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		public RootWrapper(Feature<T,Y> feature) {
 			this.feature = feature;
 			this.setName(super.getName() + "|" + this.feature.getName());
+			this.addArgument(feature);
 		}
 
 		@Override
@@ -711,6 +742,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		public StringFeatureWrapper(Feature<T,String> feature) {
 			this.feature = feature;
 			this.setName(this.feature.getName());
+			this.addArgument(feature);
 		}
 
 		@Override
@@ -736,6 +768,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		public BooleanFeatureWrapper(Feature<T,Boolean> feature) {
 			this.feature = feature;
 			this.setName(this.feature.getName());
+			this.addArgument(feature);
 		}
 		
 		@Override
@@ -760,6 +793,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		public DoubleFeatureWrapper(Feature<T,Double> feature) {
 			this.feature = feature;
 			this.setName(this.feature.getName());
+			this.addArgument(feature);
 		}
 		
 		@Override
@@ -784,6 +818,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 		public IntegerFeatureWrapper(Feature<T,Integer> feature) {
 			this.feature = feature;
 			this.setName(this.feature.getName());
+			this.addArgument(feature);
 		}
 		
 		@Override

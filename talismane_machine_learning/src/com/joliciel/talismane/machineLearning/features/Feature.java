@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import java.util.List;
+
 /**
  * A single feature that checks a given object T (e.g. a token) and returns an outcome.
  * The outcome Y could be a String (handled as a nominal class), a Boolean, a Double (generally between 0 and 1), an Integer, etc.
@@ -63,4 +65,15 @@ public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	 */
 	public String getCollectionName();
 	public void setCollectionName(String groupName);
+	
+	/**
+	 * 
+	 * @param argument
+	 */
+	public void addArgument(Feature<T,?> argument);
+	
+	/**
+	 * The features fed to this feature as constructor arguments.
+	 */
+	public List<Feature<T,?>> getArguments();
 }
