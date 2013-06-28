@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,13 +16,28 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.features;
+package com.joliciel.talismane.utils.compiler;
+
+import com.joliciel.talismane.utils.JolicielException;
 
 /**
- * The context class tested by the TestParser.
+ * Represents an exception thrown by the dynamic compiler.
  * @author Assaf Urieli
- * 
+ *
  */
-final class TestContext {
+public class DynamicCompilerException extends JolicielException {
+	private static final long serialVersionUID = 1L;
 
+	public DynamicCompilerException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public DynamicCompilerException(String message) {
+		super(message);
+	}
+
+	public DynamicCompilerException(Throwable cause) {
+		super(cause);
+	}
+	
 }

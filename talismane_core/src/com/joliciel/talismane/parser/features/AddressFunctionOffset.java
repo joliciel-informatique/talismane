@@ -32,11 +32,11 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class AddressFunctionOffset extends AbstractAddressFunction {
+public final class AddressFunctionOffset extends AbstractAddressFunction {
 	private ParserAddressFunction addressFunction;
-	private IntegerFeature<ParseConfiguration> offsetFeature;
+	private IntegerFeature<ParseConfigurationWrapper> offsetFeature;
 	
-	public AddressFunctionOffset(ParserAddressFunction addressFunction, IntegerFeature<ParseConfiguration> offsetFeature) {
+	public AddressFunctionOffset(ParserAddressFunction addressFunction, IntegerFeature<ParseConfigurationWrapper> offsetFeature) {
 		super();
 		this.addressFunction = addressFunction;
 		this.offsetFeature = offsetFeature;

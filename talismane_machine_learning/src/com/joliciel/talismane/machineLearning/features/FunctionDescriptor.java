@@ -109,4 +109,11 @@ public interface FunctionDescriptor {
 	 * @param argument
 	 */
 	public void replaceParameter(String parameterName, FunctionDescriptor argument);
+	
+	/**
+	 * Was this descriptor defined at the top level (a line of its own), or is it
+	 * inside another descriptor.
+	 * @return
+	 */
+	public boolean isTopLevelDescriptor();
 }

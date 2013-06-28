@@ -33,7 +33,7 @@ import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
  * @author Assaf Urieli
  *
  */
-public class TokeniserContext implements TokenWrapper, HasFeatureCache {
+public final class TokeniserContext implements TokenWrapper, HasFeatureCache {
 	private Token token;
 	private TokenisedAtomicTokenSequence history;
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();

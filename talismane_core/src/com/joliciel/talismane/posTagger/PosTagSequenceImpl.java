@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.HarmonicMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.tokeniser.Token;
@@ -23,7 +23,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	private String string = null;
 	private List<Decision<PosTag>> decisions = new ArrayList<Decision<PosTag>>();
 	private List<Solution<?>> underlyingSolutions = new ArrayList<Solution<?>>();
-	private ScoringStrategy scoringStrategy = new HarmonicMeanScoringStrategy();
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	

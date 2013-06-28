@@ -118,4 +118,14 @@ public class EqualsOperator<T> extends AbstractCachableFeature<T,Boolean> implem
 	public Feature<T, ?> getOperand2() {
 		return operand2;
 	}
+
+	public void setOperand1(Feature<T, ?> operand1) {
+		this.operand1 = operand1;
+	}
+
+	public void setOperand2(Feature<T, ?> operand2) {
+		this.operand2 = operand2;
+	}
+	
+	
 }

@@ -29,7 +29,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class UnknownWordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class UnknownWordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
 	public UnknownWordFeature() {
 	}
 	

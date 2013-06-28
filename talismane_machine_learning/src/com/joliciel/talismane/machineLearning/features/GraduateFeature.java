@@ -25,27 +25,44 @@ package com.joliciel.talismane.machineLearning.features;
  *
  */
 public class GraduateFeature<T> extends AbstractCachableFeature<T,Double> implements DoubleFeature<T> {
-	private DoubleFeature<T> feature = null;
-	private int n;
+	private DoubleFeature<T> valueFeature;
+	private IntegerFeature<T> nFeature;
 	
-	public GraduateFeature(DoubleFeature<T> feature, int n) {
+	public GraduateFeature(DoubleFeature<T> valueFeature, IntegerFeature<T> nFeature) {
 		super();
-		this.feature = feature;
-		this.n = n;
-		this.setName(this.feature.getName() + "{graduated_" + n + "}");
+		this.valueFeature = valueFeature;
+		this.nFeature = nFeature;
+		this.setName(this.getName() + "(" + valueFeature.getName() + "," + nFeature.getName() + ")");
 	}
-
 
 	@Override
 	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Double> rawOutcome = feature.check(context, env);
-		FeatureResult<Double> outcome = null;
-		if (rawOutcome!=null) {
-			double weight = rawOutcome.getOutcome();
+		FeatureResult<Double> rawResult = valueFeature.check(context, env);
+		FeatureResult<Integer> nResult = nFeature.check(context, env);
+		FeatureResult<Double> result = null;
+		if (rawResult!=null && nResult!=null) {
+			double weight = rawResult.getOutcome();
+			int n = nResult.getOutcome();
 			double graduatedWeight = (1.0/(double)n) * Math.round(weight * (double) (n-1));
-			outcome = this.generateResult(graduatedWeight);
+			result = this.generateResult(graduatedWeight);
 		}
-		return outcome;
+		return result;
+	}
+
+	public DoubleFeature<T> getValueFeature() {
+		return valueFeature;
+	}
+
+	public void setValueFeature(DoubleFeature<T> valueFeature) {
+		this.valueFeature = valueFeature;
+	}
+
+	public IntegerFeature<T> getnFeature() {
+		return nFeature;
+	}
+
+	public void setnFeature(IntegerFeature<T> nFeature) {
+		this.nFeature = nFeature;
 	}
 
 

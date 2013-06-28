@@ -28,7 +28,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class WordFormFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class WordFormFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
 	public WordFormFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);

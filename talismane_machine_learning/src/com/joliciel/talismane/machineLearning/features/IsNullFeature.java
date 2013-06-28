@@ -25,20 +25,37 @@ package com.joliciel.talismane.machineLearning.features;
  * @param <T>
  */
 public class IsNullFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	Feature<T,?> feature1;
+	Feature<T,?> testFeature;
 	
-	public IsNullFeature(Feature<T,?> feature1) {
+	public IsNullFeature(Feature<T,?> testFeature) {
 		super();
-		this.feature1 = feature1;
-		this.setName("IsNull(" + feature1.getName() + ")");
+		this.testFeature = testFeature;
+		this.setName("IsNull(" + testFeature.getName() + ")");
 	}
 
 	@Override
 	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<?> result1 = feature1.check(context, env);
+		FeatureResult<?> result1 = testFeature.check(context, env);
 		featureResult = this.generateResult(result1==null);
 		return featureResult;
 	}
+
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String test = builder.addFeatureVariable(testFeature, "test");
+		builder.append(variableName + " = (" + test + "==null);");
+		return true;
+	}
+	
+	public Feature<T, ?> getTestFeature() {
+		return testFeature;
+	}
+
+	public void setTestFeature(Feature<T, ?> testFeature) {
+		this.testFeature = testFeature;
+	}
+	
+	
 }

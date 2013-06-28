@@ -29,7 +29,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class FirstWordInCompoundFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
+public final class FirstWordInCompoundFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
 	public FirstWordInCompoundFeature() {
 	}
 	

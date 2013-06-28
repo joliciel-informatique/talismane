@@ -66,6 +66,34 @@ public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String> im
 		featureResult = this.generateResult(sb.toString());
 		return featureResult;
 	}
+	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		
+		String sb = builder.getVarName("sb");
+		builder.append("StringBuilder " + sb + " = new StringBuilder();");
+		boolean firstFeature = true;
+		for (StringFeature<T> stringFeature : stringFeatures) {
+			if (!firstFeature) {
+				builder.append(sb + ".append(\"|\");");
+			}
+			String stringFeatureName = builder.addFeatureVariable(stringFeature, "string");
+			
+			builder.append("if (" + stringFeatureName + "==null)");
+			builder.indent();
+			builder.append(	sb + ".append(\"" + NULL_RESULT + "\");");
+			builder.outdent();
+			builder.append("else");
+			builder.indent();
+			builder.append(	sb + ".append(" + stringFeatureName + ");");
+			builder.outdent();
+			firstFeature = false;
+		}
+		
+		builder.append(variableName + " = " + sb + ".toString();");
+		return true;
+	}
 
 	public StringFeature<T>[] getStringFeatures() {
 		return stringFeatures;

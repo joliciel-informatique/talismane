@@ -301,9 +301,9 @@ class TransitionBasedParser implements NonDeterministicParser {
 							if (transition.checkPreconditions(history)) {
 								transitionApplied = true;
 								ParseConfiguration configuration = this.parserServiceInternal.getConfiguration(history);
-								transition.apply(configuration);
 								if (decision.isStatistical())
 									configuration.addDecision(decision);
+								transition.apply(configuration);
 								
 								int heapIndex = configuration.getConfigurationComparisonIndex();
 			

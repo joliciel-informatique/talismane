@@ -30,7 +30,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class TokenOffsetAddressFunction extends AbstractTokenAddressFunction {
+public final class TokenOffsetAddressFunction extends AbstractTokenAddressFunction {
 	IntegerFeature<TokenWrapper> offsetFeature;
 	
 	public TokenOffsetAddressFunction(IntegerFeature<TokenWrapper> offset) {

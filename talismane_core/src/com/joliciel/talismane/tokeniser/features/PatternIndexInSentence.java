@@ -33,7 +33,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  * @author Assaf Urieli
  *
  */
-public class PatternIndexInSentence extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper> {
+public final class PatternIndexInSentence extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper> {
 	StringFeature<TokenWrapper> tokenPatternFeature;
 	private Map<String,TokenPattern> patternMap;
 

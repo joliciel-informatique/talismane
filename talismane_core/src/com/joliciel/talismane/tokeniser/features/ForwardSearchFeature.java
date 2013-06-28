@@ -35,7 +35,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class ForwardSearchFeature extends AbstractTokenAddressFunction {
+public final class ForwardSearchFeature extends AbstractTokenAddressFunction {
 	private BooleanFeature<TokenWrapper> criterion;
 	private IntegerFeature<TokenWrapper> startOffsetFeature = null;
 	private IntegerFeature<TokenWrapper> endOffsetFeature = null;

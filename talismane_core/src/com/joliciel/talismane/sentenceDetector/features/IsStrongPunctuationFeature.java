@@ -28,7 +28,7 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  * @author Assaf
  *
  */
-public class IsStrongPunctuationFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {
+public final class IsStrongPunctuationFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {
 	@Override
 	public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
 		char boundary = context.getText().charAt(context.getIndex());

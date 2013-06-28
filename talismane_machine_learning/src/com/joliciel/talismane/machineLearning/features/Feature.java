@@ -67,7 +67,8 @@ public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	public void setCollectionName(String groupName);
 	
 	/**
-	 * 
+	 * Explicitly add a constructor argument to this feature,
+	 * so that the system can recursively iterate through a feature's argument tree.
 	 * @param argument
 	 */
 	public void addArgument(Feature<T,?> argument);
@@ -76,4 +77,21 @@ public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	 * The features fed to this feature as constructor arguments.
 	 */
 	public List<Feature<T,?>> getArguments();
+	
+	/**
+	 * Add source code to a string builder, allowing us to construct this feature dynamically.
+	 * To ensure that the current feature gets a value, it contain the line:
+	 * <pre>builder.append(variableName + " = " + ... + ";");</pre>
+	 * @param builder the current builder
+	 * @param variableName this feature's variable name, to which values should be assigned in the code
+	 * @return true if this feature supports dynamic code adding, false otherwise.
+	 */
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName);
+	
+	/**
+	 * Was this feature defined in a top-level descriptor, or as part of another feature.
+	 * @return
+	 */
+	public boolean isTopLevelFeature();
+	public void setTopLevelFeature(boolean topLevelFeature);
 }

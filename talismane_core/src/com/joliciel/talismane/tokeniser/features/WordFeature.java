@@ -30,7 +30,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class WordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class WordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
 	StringFeature<TokenWrapper>[] words = null;
 
 	public WordFeature(StringFeature<TokenWrapper>... words) {

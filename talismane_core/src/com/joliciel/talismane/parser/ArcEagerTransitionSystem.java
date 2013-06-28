@@ -87,9 +87,6 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 				targetDependencies.remove(currentDep);
 			
 			transition.apply(configuration);
-			if (LOG.isTraceEnabled())
-				LOG.trace(this.toString());
-			
 		}
 		if (targetDependencies.size()>0) {
 			throw new RuntimeException("Wasn't able to predict: " + targetDependencies);

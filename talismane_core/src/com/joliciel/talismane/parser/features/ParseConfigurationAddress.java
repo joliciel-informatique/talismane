@@ -57,7 +57,7 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 	public ParserAddressFunction getAddressFunction() {
 		return addressFunction;
 	}
-
+	
 	public void setParseConfiguration(ParseConfiguration parseConfiguration) {
 		this.parseConfiguration = parseConfiguration;
 	}

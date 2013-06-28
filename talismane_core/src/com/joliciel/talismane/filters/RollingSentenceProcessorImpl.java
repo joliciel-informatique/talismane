@@ -80,7 +80,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				LOG.trace("Stack before: " + shouldProcessStack);
 				LOG.trace("Text before: " + processedText.toString());
 				LOG.trace(textMarker.getType() + ", " + textMarker.getPosition());
-				LOG.trace("Added by filter: " + textMarker.getSource().toString());
+				LOG.trace("Added by filter: " + textMarker.getSource());
 				LOG.trace("Match text: " + textMarker.getMatchText());
 			}
 			

@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+
 class ParseComparatorImpl implements ParseComparator {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(ParseComparatorImpl.class);

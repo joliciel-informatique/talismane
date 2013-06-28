@@ -50,7 +50,9 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem,
+			Set<ParseConfigurationFeature<?>> parseFeatures,
+			int beamWidth) {
 		TransitionBasedParser parser = new TransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
 		parser.setFeatureService(this.getFeatureService());
@@ -89,7 +91,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(
-			MachineLearningModel<Transition> model, int beamWidth) {
+			MachineLearningModel<Transition> model, int beamWidth, boolean dynamiseFeatures) {
 		Collection<ExternalResource> externalResources = model.getExternalResources();
 		if (externalResources!=null) {
 			for (ExternalResource externalResource : externalResources) {
@@ -108,7 +110,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			throw new TalismaneException("Unknown transition system: " + transitionSystemClassName);
 		}
 		
-		Set<ParseConfigurationFeature<?>> parseFeatures = this.getParseFeatureService().getFeatures(model.getFeatureDescriptors());
+		Set<ParseConfigurationFeature<?>> parseFeatures = this.getParseFeatureService().getFeatures(model.getFeatureDescriptors(), dynamiseFeatures);
 
 		return this.getTransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 	}

@@ -35,7 +35,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public class TokeniserPatternsAndIndexesFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
+public final class TokeniserPatternsAndIndexesFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
 
 	@Override
 	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(

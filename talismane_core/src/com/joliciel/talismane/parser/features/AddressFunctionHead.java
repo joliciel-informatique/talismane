@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -29,7 +30,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class AddressFunctionHead extends AbstractAddressFunction {
+public final class AddressFunctionHead extends AbstractAddressFunction {
 	private ParserAddressFunction addressFunction;
 	
 	public AddressFunctionHead(ParserAddressFunction addressFunction) {
@@ -52,5 +53,19 @@ public class AddressFunctionHead extends AbstractAddressFunction {
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
+	}
+
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
+			String variableName) {
+		String address = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + address + "!=null) {" );
+		builder.indent();
+
+		builder.append(		variableName + " = context.getParseConfiguration().getHead(" + address + ".getPosTaggedToken());");
+		builder.outdent();
+		builder.append("}");
+		return true;
 	}
 }

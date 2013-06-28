@@ -31,7 +31,7 @@ public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implem
 	public IntegerToDoubleFeature(IntegerFeature<T> integerFeature) {
 		super();
 		this.integerFeature = integerFeature;
-		this.setName(this.integerFeature.getName());
+		this.setName("IntToDouble(" + this.integerFeature.getName() + ")");
 		this.addArgument(integerFeature);
 	}
 
@@ -45,9 +45,27 @@ public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implem
 		}
 		return featureResult;
 	}
+	
+
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String int1 = builder.addFeatureVariable(integerFeature, "integer");
+		
+		builder.append("if (" + int1 + "!=null) {");
+		builder.indent();
+		builder.append(variableName + "=" + int1 + ".doubleValue();");
+		builder.outdent();
+		builder.append("}");
+		
+		return true;
+	}
 
 	public IntegerFeature<T> getIntegerFeature() {
 		return integerFeature;
+	}
+
+	public void setIntegerFeature(IntegerFeature<T> integerFeature) {
+		this.integerFeature = integerFeature;
 	}
 
 }

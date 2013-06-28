@@ -26,23 +26,46 @@ package com.joliciel.talismane.machineLearning.features;
  * @param <T>
  */
 public class NotFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	BooleanFeature<T> feature1;
+	BooleanFeature<T> operand;
 	
-	public NotFeature(BooleanFeature<T> feature1) {
+	public NotFeature(BooleanFeature<T> operand) {
 		super();
-		this.feature1 = feature1;
-		this.setName("Not(" + feature1.getName() + ")");
+		this.operand = operand;
+		this.setName("Not(" + operand.getName() + ")");
 	}
 
 	@Override
 	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Boolean> result1 = feature1.check(context, env);
+		FeatureResult<Boolean> result1 = operand.check(context, env);
 		
 		if (result1!=null) {
 			featureResult = this.generateResult(!result1.getOutcome());
 		}
 		return featureResult;
 	}
+	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String op = builder.addFeatureVariable(operand, "operand");
+		
+		builder.append("if (" + op + "!=null) {");
+		builder.indent();
+		builder.append(		variableName + " = !(" + op + ");");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
+
+	public BooleanFeature<T> getOperand() {
+		return operand;
+	}
+
+	public void setOperand(BooleanFeature<T> operand) {
+		this.operand = operand;
+	}
+	
+	
 }

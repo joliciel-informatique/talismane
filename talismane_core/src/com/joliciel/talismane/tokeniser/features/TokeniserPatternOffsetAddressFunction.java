@@ -35,7 +35,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  * @author Assaf Urieli
  *
  */
-public class TokeniserPatternOffsetAddressFunction extends AbstractTokenAddressFunction {
+public final class TokeniserPatternOffsetAddressFunction extends AbstractTokenAddressFunction {
 	StringFeature<TokenWrapper> tokenPatternFeature;
 	IntegerFeature<TokenWrapper> offsetFeature;
 	private Map<String,TokenPattern> patternMap;

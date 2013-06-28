@@ -65,6 +65,29 @@ public class IfThenElseBooleanFeature<T> extends AbstractCachableFeature<T,Boole
 		
 	}
 
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String condition1 = builder.addFeatureVariable(condition, "condition");
+		
+		builder.append("if (" + condition1 + "!=null) {");
+		builder.indent();
+		builder.append(		"if (" + condition1 +") {");
+		builder.indent();
+		String thenResult = 	builder.addFeatureVariable(thenFeature, "then");
+		builder.append(			"if (" + thenResult + "!=null) " + variableName + " = " + thenResult + ";");
+		builder.outdent();
+		builder.append(		"} else {");
+		builder.indent();
+		String elseResult = 	builder.addFeatureVariable(elseFeature, "else");
+		builder.append(			"if (" + elseResult + "!=null) " + variableName + " = " + elseResult + ";");
+		builder.outdent();
+		builder.append(		"}");
+		builder.outdent();
+		builder.append("}");
+		
+		return true;
+	}
+	
 	public BooleanFeature<T> getCondition() {
 		return condition;
 	}
@@ -75,6 +98,18 @@ public class IfThenElseBooleanFeature<T> extends AbstractCachableFeature<T,Boole
 
 	public BooleanFeature<T> getElseFeature() {
 		return elseFeature;
+	}
+
+	public void setCondition(BooleanFeature<T> condition) {
+		this.condition = condition;
+	}
+
+	public void setThenFeature(BooleanFeature<T> thenFeature) {
+		this.thenFeature = thenFeature;
+	}
+
+	public void setElseFeature(BooleanFeature<T> elseFeature) {
+		this.elseFeature = elseFeature;
 	}
 
 }

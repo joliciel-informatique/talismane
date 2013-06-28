@@ -47,8 +47,29 @@ public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean> i
 		return featureResult;
 	}
 
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String result = builder.addFeatureVariable(wrappedFeature, "result");
+		
+		builder.append("if (" + result + "==null) {");
+		builder.indent();
+		builder.append(		variableName + " = false;");
+		builder.outdent();
+		builder.append("} else {");
+		builder.indent();
+		builder.append(		variableName + " = " + result + ";");
+		builder.outdent();
+		builder.append("}");
+
+		return true;
+	}
+	
 	public BooleanFeature<T> getWrappedFeature() {
 		return wrappedFeature;
+	}
+
+	public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
+		this.wrappedFeature = wrappedFeature;
 	}
 	
 	

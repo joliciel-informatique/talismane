@@ -19,6 +19,7 @@
 package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
@@ -29,7 +30,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
+public final class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
 	public ClosedClassFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -51,4 +52,18 @@ public class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T,Boole
 		return featureResult;
 	}
 
+
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String addressFunctionName = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + addressFunctionName + "!=null) {" );
+		builder.indent();
+		builder.addImport(PosTagOpenClassIndicator.class);
+		builder.append(	variableName + " = " + addressFunctionName + ".getPosTaggedToken().getTag().getOpenClassIndicator().equals(PosTagOpenClassIndicator.CLOSED);");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
 }

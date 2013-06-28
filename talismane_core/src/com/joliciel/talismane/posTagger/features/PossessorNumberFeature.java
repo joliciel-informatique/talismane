@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -29,7 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class PossessorNumberFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class PossessorNumberFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
 	public PossessorNumberFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -45,18 +45,26 @@ public class PossessorNumberFeature<T> extends AbstractPosTaggedTokenFeature<T,S
 			return null;
 		
 		FeatureResult<String> featureResult = null;
-		LexicalEntry lexicalEntry = null;
-		if (posTaggedToken.getLexicalEntries().size()>0)
-			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
-		if (lexicalEntry!=null) {
-			String possessorNumber = "";
-			for (String onePossessorNumber : lexicalEntry.getPossessorNumber()) {
-				possessorNumber += onePossessorNumber;
-			}
-			if (possessorNumber.length()>0)
-				featureResult = this.generateResult(possessorNumber);
-		}
+
+		String possessorNumber = posTaggedToken.getPossessorNumber();
+
+		if (possessorNumber!=null)
+			featureResult = this.generateResult(possessorNumber);
+		
 		return featureResult;
 	}
 	
+
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String address = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getPossessorNumber()!=null) {" );
+		builder.indent();
+		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getPossessorNumber();");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
 }

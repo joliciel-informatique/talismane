@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -28,7 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class AssignedPosTagFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class AssignedPosTagFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
 	public AssignedPosTagFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -50,4 +51,16 @@ public class AssignedPosTagFeature<T> extends AbstractPosTaggedTokenFeature<T,St
 		return featureResult;
 	}
 
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String addressFunctionName = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + addressFunctionName + "!=null) {" );
+		builder.indent();
+		builder.append(	variableName + " = " + addressFunctionName + ".getPosTaggedToken().getTag().getCode();");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
 }

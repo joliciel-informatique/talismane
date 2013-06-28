@@ -28,11 +28,11 @@ package com.joliciel.talismane.machineLearning.features;
 public class ToStringFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
 	private static final String NULL_STRING = "null";
 
-	Feature<T,?> feature1;
+	Feature<T,?> featureToString;
 	
 	public ToStringFeature(Feature<T,?> feature1) {
 		super();
-		this.feature1 = feature1;
+		this.featureToString = feature1;
 		this.setName("ToString(" + feature1.getName() + ")");
 	}
 
@@ -40,7 +40,7 @@ public class ToStringFeature<T> extends AbstractCachableFeature<T, String> imple
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
 		
-		FeatureResult<?> result1 = feature1.check(context, env);
+		FeatureResult<?> result1 = featureToString.check(context, env);
 		
 		if (result1!=null) {
 			featureResult = this.generateResult(result1.getOutcome().toString());
@@ -49,4 +49,32 @@ public class ToStringFeature<T> extends AbstractCachableFeature<T, String> imple
 		}
 		return featureResult;
 	}
+
+
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String op = builder.addFeatureVariable(featureToString, "operand");
+		
+		builder.append("if (" + op + "!=null) {");
+		builder.indent();
+		builder.append(		variableName + " = " + op + ".toString();");
+		builder.outdent();
+		builder.append("} else {");
+		builder.indent();
+		builder.append(		variableName + " = \"" + NULL_STRING + "\";");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
+	
+	public Feature<T, ?> getFeatureToString() {
+		return featureToString;
+	}
+
+	public void setFeatureToString(Feature<T, ?> featureToString) {
+		this.featureToString = featureToString;
+	}
+	
+	
 }

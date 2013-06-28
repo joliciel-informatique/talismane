@@ -33,7 +33,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-class PosTaggerContextImpl implements PosTaggerContext, HasFeatureCache {
+final class PosTaggerContextImpl implements PosTaggerContext, HasFeatureCache {
 	private Token token;
 	private PosTagSequence history;
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();

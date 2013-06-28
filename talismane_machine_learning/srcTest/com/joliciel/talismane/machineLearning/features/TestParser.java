@@ -27,10 +27,10 @@ import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 
 /**
  * A concrete class useful for testing the AbstractFeatureParser functionality.
- * @author Assaf
+ * @author Assaf Urieli
  *
  */
-final class TestParser extends AbstractFeatureParser<TestContext> {
+final class TestParser extends AbstractFeatureParser<String> {
 
 	public TestParser(FeatureService featureService) {
 		super(featureService);
@@ -38,6 +38,8 @@ final class TestParser extends AbstractFeatureParser<TestContext> {
 
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
+		container.addFeatureClass("Length", StringLengthTestFeature.class);
+		container.addFeatureClass("Substring", SubstringTestFeature.class);
 		container.addFeatureClass("TestStringCollectionFeature", TestStringCollectionFeature.class);
 	}
 
@@ -59,8 +61,8 @@ final class TestParser extends AbstractFeatureParser<TestContext> {
 	}
 
 	@Override
-	protected Feature<TestContext, ?> convertArgument(Class<?> parameterType,
-			Feature<TestContext, ?> originalArgument) {
+	protected Feature<String, ?> convertArgument(Class<?> parameterType,
+			Feature<String, ?> originalArgument) {
 		return null;
 	}
 

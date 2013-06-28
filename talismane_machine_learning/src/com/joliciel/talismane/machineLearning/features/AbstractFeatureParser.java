@@ -58,6 +58,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	@SuppressWarnings("rawtypes")
 	private Map<Class<? extends Feature>,List<String>> featureClassDescriptors = null;
 	
+	private Dynamiser<T> dynamiser = null;
+	
 	public AbstractFeatureParser(FeatureService featureService) {
 		super();
 		this.featureService = featureService;
@@ -84,9 +86,13 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			this.addFeatureClass("==", EqualsOperatorForString.class);
 			this.addFeatureClass("==", EqualsOperatorForBoolean.class);
 			this.addFeatureClass("!=", NotEqualsOperator.class);
+			this.addFeatureClass(">", GreaterThanIntegerOperator.class);
 			this.addFeatureClass(">", GreaterThanOperator.class);
+			this.addFeatureClass(">=", GreaterThanOrEqualsIntegerOperator.class);
 			this.addFeatureClass(">=", GreaterThanOrEqualsOperator.class);
+			this.addFeatureClass("<", LessThanIntegerOperator.class);
 			this.addFeatureClass("<", LessThanOperator.class);
+			this.addFeatureClass("<=", LessThanOrEqualsIntegerOperator.class);
 			this.addFeatureClass("<=", LessThanOrEqualsOperator.class);
 			this.addFeatureClass("&", AndFeature.class);
 			this.addFeatureClass("|", OrFeature.class);
@@ -521,6 +527,17 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			}
 			features = wrappedFeatures;
 			
+			// dynamise the features if manager available
+			if (dynamiser!=null) {
+				List<Feature<T, ?>> dynamisedFeatures = new ArrayList<Feature<T,?>>();
+				for (Feature<T,?> feature : features) {
+					DynamicSourceCodeBuilder<T> builder = dynamiser.getBuilder(feature);
+					Feature<T,?> dynamisedFeature = builder.getFeature();
+					dynamisedFeatures.add(dynamisedFeature);
+				}
+				features = dynamisedFeatures;
+			}
+
 			if (hasDescriptorName) {
 				this.namedFeatures.put(featureName, features);
 				
@@ -580,6 +597,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			LOG.trace(descriptor.toString());
 		List<Feature<T, ?>> features = new ArrayList<Feature<T,?>>();
 		
+		boolean topLevelFeature = descriptor.isTopLevelDescriptor();
+		
 		List<FunctionDescriptor> modifiedDescriptors = new ArrayList<FunctionDescriptor>();
 		if (descriptor.getFunctionName().equals("IndexRange")) {
 			if (descriptor.getArguments().size()<2 || descriptor.getArguments().size()> 3)
@@ -629,10 +648,14 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 				}
 				modifiedDescriptor = clonedDescriptor;
 				functionName = clonedDescriptor.getFunctionName();
+				// we consider top-level features anything the user placed at the top-level
+				// whether or not it's parametrised
+				topLevelFeature = true;
 			} // is a named feature with parameters
-
+			
 			if (namedFeatures.containsKey(functionName)) {
 				features.addAll(namedFeatures.get(functionName));
+				topLevelFeature = true;
 			} else if (featureGroups.containsKey(functionName)) {
 				features.addAll(featureGroups.get(functionName));
 			} else {
@@ -661,6 +684,10 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 			} // is a named feature
 		} // next modified descriptor
 		
+		if (topLevelFeature) {
+			for (Feature<T, ?> feature : features)
+				feature.setTopLevelFeature(true);
+		}
 		return features;
 	}
 	
@@ -891,6 +918,14 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	public void setExternalResourceFinder(
 			ExternalResourceFinder externalResourceFinder) {
 		this.externalResourceFinder = externalResourceFinder;
+	}
+
+	public Dynamiser<T> getDynamiser() {
+		return dynamiser;
+	}
+
+	public void setDynamiser(Dynamiser<T> dynamiser) {
+		this.dynamiser = dynamiser;
 	}
 
 }

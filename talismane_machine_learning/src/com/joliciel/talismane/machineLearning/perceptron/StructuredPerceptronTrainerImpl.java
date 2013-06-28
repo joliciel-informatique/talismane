@@ -46,6 +46,7 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 	private int iterations = 100;
 	private int cutoff = 0;
 	private double tolerance = 0.0001;
+	private boolean calculateLogLikelihood = false;
 	
 	private double[][] totalFeatureWeights;
 	private PerceptronModelParameters params;
@@ -123,7 +124,8 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 					PerceptronEvent event = new PerceptronEvent(line);
 					totalEvents++;
 					
-					double[] results = decisionMaker.predict(event.getFeatureIndexes(), event.getFeatureValues());
+					// don't normalise unless we calculate the log-likelihood, do avoid mathematical cost of normalising
+					double[] results = decisionMaker.predict(event.getFeatureIndexes(), event.getFeatureValues(), calculateLogLikelihood);
 					double maxValue = results[0];
 					int predicted = 0;
 					for (int j=1;j<results.length;j++) {
@@ -134,7 +136,8 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 					}
 					
 					int actual = event.getOutcomeIndex();
-					logLikelihood += Math.log(results[actual] + 0.0001);
+					if (calculateLogLikelihood)
+						logLikelihood += Math.log(results[actual] + 0.0001);
 					
 					if (actual!=predicted) {
 						for (int j=0; j<event.getFeatureIndexes().size(); j++) {
@@ -157,7 +160,8 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 				
 				double accuracy = (double) (totalEvents - totalErrors) / (double) totalEvents;
 				LOG.debug("Accuracy: " + accuracy);
-				LOG.debug("LogLikelihood: " + logLikelihood);
+				if (calculateLogLikelihood)
+					LOG.debug("LogLikelihood: " + logLikelihood);
 				
 				// exit if log-likelihood doesn't improve
 				if (Math.abs(accuracy - prevAccuracy1)<tolerance
@@ -328,6 +332,14 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 				}
 			}
 		}
+	}
+
+	public boolean isCalculateLogLikelihood() {
+		return calculateLogLikelihood;
+	}
+
+	public void setCalculateLogLikelihood(boolean calculateLogLikelihood) {
+		this.calculateLogLikelihood = calculateLogLikelihood;
 	}
 
 }

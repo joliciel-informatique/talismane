@@ -48,4 +48,20 @@ public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T,Integer> 
 		return featureResult;
 		
 	}
+
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String int1 = builder.addFeatureVariable(integerLiteralFeature, "integer");
+		builder.append(variableName + "=" + int1 + ";");	
+		return true;
+	}
+	public IntegerFeature<T> getIntegerLiteralFeature() {
+		return integerLiteralFeature;
+	}
+
+	public void setIntegerLiteralFeature(IntegerFeature<T> integerLiteralFeature) {
+		this.integerLiteralFeature = integerLiteralFeature;
+	}
+	
+	
 }

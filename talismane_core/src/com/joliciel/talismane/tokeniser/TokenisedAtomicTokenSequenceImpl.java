@@ -23,7 +23,7 @@ import java.util.List;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.HarmonicMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
 
@@ -34,7 +34,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	private TokenSequence tokenSequence = null;
 	private List<Decision<TokeniserOutcome>> decisions = new ArrayList<Decision<TokeniserOutcome>>();
 	private List<Solution<?>> underlyingSolutions = new ArrayList<Solution<?>>();
-	private ScoringStrategy scoringStrategy = new HarmonicMeanScoringStrategy();
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	double score = 1.0;
 	boolean scoreCalculated = false;
 	

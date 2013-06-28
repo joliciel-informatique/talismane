@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.HarmonicMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -45,7 +45,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
 import com.joliciel.talismane.tokeniser.Token;
 
-class ParseConfigurationImpl implements ParseConfigurationInternal {
+final class ParseConfigurationImpl implements ParseConfigurationInternal {
     @SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(ParseConfigurationImpl.class);
 	/**
@@ -72,8 +72,9 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private DependencyNode parseTree = null;
 	
 	private List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
+	private int nextDecisionToAdd = 0;
 	private List<Solution<?>> underlyingSolutions = new ArrayList<Solution<?>>();
-	private ScoringStrategy scoringStrategy = new HarmonicMeanScoringStrategy();
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
@@ -107,6 +108,7 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.dependentTransitionMap = new HashMap<PosTaggedToken, Transition>(((ParseConfigurationInternal)history).getDependentTransitionMap());
 		
 		this.decisions = new ArrayList<Decision<Transition>>(history.getDecisions());
+		this.nextDecisionToAdd = ((ParseConfigurationInternal)history).getNextDecisionToAdd();
 	}
 		
 	@Override
@@ -291,12 +293,27 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 			}
 		}
 	}
+	
 	@Override
 	public DependencyArc addDependency(PosTaggedToken head,
 			PosTaggedToken dependent, String label, Transition transition) {
 		DependencyArc arc = this.parserServiceInternal.getDependencyArc(head, dependent, label);
 		this.addDependency(arc);
 		this.dependentTransitionMap.put(dependent, transition);
+		
+		// we assign this arc a probability
+		// since several transitions (e.g. shift, reduce) could have occurred prior to adding a dependency
+		// the probability will be the product of these transitions
+		double probLog = 0.0;
+		int decisionCount = 0;
+		for (int i=nextDecisionToAdd; i<this.decisions.size(); i++) {
+			probLog += decisions.get(i).getProbabilityLog();
+			decisionCount++;
+		}
+		if (decisionCount>0) {
+			nextDecisionToAdd = this.decisions.size();
+			arc.setProbability(Math.exp(probLog));
+		}
 		return arc;
 	}
 	
@@ -452,4 +469,10 @@ class ParseConfigurationImpl implements ParseConfigurationInternal {
 	public Sentence getSentence() {
 		return this.getPosTagSequence().getTokenSequence().getSentence();
 	}
+
+	public int getNextDecisionToAdd() {
+		return nextDecisionToAdd;
+	}
+	
+	
 }

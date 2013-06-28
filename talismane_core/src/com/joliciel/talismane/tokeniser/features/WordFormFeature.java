@@ -29,7 +29,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class WordFormFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper>  {	
+public final class WordFormFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper>  {	
 	public WordFormFeature() {
 	}
 	

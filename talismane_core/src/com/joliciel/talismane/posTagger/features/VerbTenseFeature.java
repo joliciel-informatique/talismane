@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -29,7 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class VerbTenseFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class VerbTenseFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
 	public VerbTenseFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -45,18 +45,26 @@ public class VerbTenseFeature<T> extends AbstractPosTaggedTokenFeature<T,String>
 			return null;
 		
 		FeatureResult<String> featureResult = null;
-		LexicalEntry lexicalEntry = null;
-		if (posTaggedToken.getLexicalEntries().size()>0)
-			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
-		if (lexicalEntry!=null) {
-			String tense = "";
-			for (String oneTense : lexicalEntry.getTense()) {
-				tense += oneTense;
-			}
-			if (tense.length()>0)
-				featureResult = this.generateResult(tense);
-		}
+
+		String tense = posTaggedToken.getTense();
+
+		if (tense!=null)
+			featureResult = this.generateResult(tense);
+		
 		return featureResult;
 	}
 
+
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String address = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getTense()!=null) {" );
+		builder.indent();
+		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getTense();");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
 }

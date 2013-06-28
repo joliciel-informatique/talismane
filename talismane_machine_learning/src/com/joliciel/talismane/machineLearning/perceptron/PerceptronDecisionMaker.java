@@ -76,19 +76,27 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 				results[j] += value * weight;
 			}			
 		}
+
 		if (normalise) {
-			double min = results[0];
-			for (int i=1;i<results.length;i++) {
-				if (results[i]<min)
-					min = results[i];
+			//e^(x/absmax)/sum(e^(x/absmax))
+			// where x/absmax is in [-1,1]
+			// e^(x/absmax) is in [1/e,e]
+			
+			double absoluteMax = 1;
+
+			for (int i=0;i<results.length;i++) {
+				if (Math.abs(results[i]) > absoluteMax)
+					absoluteMax = Math.abs(results[i]);
 			}
+
 			double total = 0.0;
 			for (int i=0;i<results.length;i++) {
-				results[i] -= min;
+				results[i] = Math.exp(results[i]/absoluteMax);
 				total += results[i];
 			}
+
 			for (int i=0;i<results.length;i++) {
-				results[i] = results[i] / total;
+				results[i] /= total;
 			}
 		}
 		return results;

@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -29,7 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class GrammaticalPersonFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class GrammaticalPersonFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
 	public GrammaticalPersonFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -45,18 +45,25 @@ public class GrammaticalPersonFeature<T> extends AbstractPosTaggedTokenFeature<T
 			return null;
 		
 		FeatureResult<String> featureResult = null;
-		LexicalEntry lexicalEntry = null;
-		if (posTaggedToken.getLexicalEntries().size()>0)
-			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
-		if (lexicalEntry!=null) {
-			String person = "";
-			for (String onePerson : lexicalEntry.getPerson()) {
-				person += onePerson;
-			}
-			if (person.length()>0)
-				featureResult = this.generateResult(person);
-		}
+
+		String person = posTaggedToken.getPerson();
+
+		if (person!=null)
+			featureResult = this.generateResult(person);
+		
 		return featureResult;
 	}
 	
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String address = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getPerson()!=null) {" );
+		builder.indent();
+		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getPerson();");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
 }

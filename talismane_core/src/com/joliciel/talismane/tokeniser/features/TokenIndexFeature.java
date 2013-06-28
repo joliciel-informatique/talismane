@@ -29,7 +29,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class TokenIndexFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper>  {	
+public final class TokenIndexFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper>  {	
 	public TokenIndexFeature() {
 	}
 	

@@ -203,6 +203,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private boolean outputGuesses = false;
 	private int outputGuessCount = 0;
 	private boolean labeledEvaluation = true;
+	private boolean dynamiseFeatures = false;
 	
 	private List<PosTaggerRule> posTaggerRules = null;
 	private String posTaggerRuleFilePath = null;
@@ -446,6 +447,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				includeIndex = Integer.parseInt(argValue);
 			else if (argName.equals("excludeIndex"))
 				excludeIndex = Integer.parseInt(argValue);
+			else if (argName.equals("dynamiseFeatures"))
+				dynamiseFeatures = argValue.equalsIgnoreCase("true");
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -476,6 +479,10 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				tokeniserTemplateName = "tokeniser_template_with_location.ftl";
 				posTaggerTemplateName = "posTagger_template_with_location.ftl";
 				parserTemplateName = "parser_conll_template_with_location.ftl";
+			} else if (builtInTemplate.equalsIgnoreCase("with_prob")) {
+				tokeniserTemplateName = "tokeniser_template.ftl";
+				posTaggerTemplateName = "posTagger_template_with_prob.ftl";
+				parserTemplateName = "parser_conll_template_with_prob.ftl";
 			} else {
 				throw new TalismaneException("Unknown builtInTemplate: " + builtInTemplate);
 			}
@@ -826,7 +833,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 									LOG.trace(ruleDescriptor);
 								}
 							}
-							List<ParserRule> rules = this.getParserFeatureService().getRules(ruleDescriptors);
+							List<ParserRule> rules = this.getParserFeatureService().getRules(ruleDescriptors, dynamiseFeatures);
 							parserRules.addAll(rules);
 							
 						}
@@ -1230,7 +1237,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				LOG.debug("Getting parser model");
 				MachineLearningModel<Transition> parserModel = this.getParserModel();
 				
-				parser = this.getParserService().getTransitionBasedParser(parserModel, parserBeamWidth);
+				parser = this.getParserService().getTransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures);
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
 				parser.setMinFreeMemory(minFreeMemory);
 				parser.setParserRules(this.getParserRules());

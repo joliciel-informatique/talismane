@@ -48,24 +48,22 @@ public class RegexMarkerFilterTest {
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
 		LOG.debug(textMarkers);
 		
-		assertEquals(4, textMarkers.size());
 		int i = 0;
 		for (TextMarker textMarker : textMarkers) {
 			if (i==0) {
 				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(14, textMarker.getPosition());
+				assertEquals(8, textMarker.getPosition());
 			} else if (i==1) {
 				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(21, textMarker.getPosition());
+				assertEquals(28, textMarker.getPosition());
 			} else if (i==2) {
 				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(50, textMarker.getPosition());
-			} else if (i==3) {
-				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(57, textMarker.getPosition());
+				assertEquals(44, textMarker.getPosition());
 			}
 			i++;
 		}
+		
+		assertEquals(3, textMarkers.size());
 	}
 
 	@Test

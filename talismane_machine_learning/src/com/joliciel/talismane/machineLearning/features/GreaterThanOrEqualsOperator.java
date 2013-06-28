@@ -51,12 +51,34 @@ public class GreaterThanOrEqualsOperator<T> extends AbstractCachableFeature<T,Bo
 		return featureResult;	
 	}
 
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String operand1Name = builder.addFeatureVariable(operand1, "operand");
+		String operand2Name = builder.addFeatureVariable(operand2, "operand");
+		
+		builder.append("if (" + operand1Name + "!=null && " + operand2Name + "!=null) {");
+		builder.indent();
+		builder.append(variableName + "=" + operand1Name + ">=" + operand2Name + ";");
+		builder.outdent();
+		builder.append("}");
+		
+		return true;
+	}
+	
 	public DoubleFeature<T> getOperand1() {
 		return operand1;
 	}
 
 	public DoubleFeature<T> getOperand2() {
 		return operand2;
+	}
+
+	public void setOperand1(DoubleFeature<T> operand1) {
+		this.operand1 = operand1;
+	}
+
+	public void setOperand2(DoubleFeature<T> operand2) {
+		this.operand2 = operand2;
 	}
 
 

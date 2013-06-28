@@ -137,12 +137,12 @@ public class RollingSentenceProcessorImplTest {
 		assertEquals(0, holder.getOriginalTextSegments().size());
 		
 		holder = processor.addNextSegment("</b>. How are you? Fine thanks.", textMarkers2);
-		assertEquals(". How are you? Fine thanks.", holder.getText());
+		assertEquals(". How are you?  Fine thanks.", holder.getText());
 		assertEquals(0, holder.getOriginalTextSegments().size());
 		
 		assertEquals("Hello <b>World</b>.".length(), holder.getOriginalIndex(".".length()));
-		assertEquals("Hello <b>World</b>. How are you? F".length(), holder.getOriginalIndex(". How are you? F".length()));
-		assertEquals(". How are you? Fine thanks.", holder.getText());
+		assertEquals("Hello <b>World</b>. How are you? F".length(), holder.getOriginalIndex(". How are you?  F".length()));
+		assertEquals(". How are you?  Fine thanks.", holder.getText());
 		assertEquals(". How are you?".length()-1, holder.getSentenceBoundaries().iterator().next().intValue());
 	}
 	
