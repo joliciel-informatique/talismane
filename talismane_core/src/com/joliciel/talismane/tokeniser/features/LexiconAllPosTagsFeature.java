@@ -30,7 +30,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class LexiconAllPosTagsFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
+public final class LexiconAllPosTagsFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
 	
 	/**
 	 * 

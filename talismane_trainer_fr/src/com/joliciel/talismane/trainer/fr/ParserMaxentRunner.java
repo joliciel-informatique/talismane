@@ -484,7 +484,7 @@ public class ParserMaxentRunner {
 					}
 				}
 				
-				NonDeterministicParser parser = parserService.getTransitionBasedParser(parserModel, beamWidth);
+				NonDeterministicParser parser = parserService.getTransitionBasedParser(parserModel, beamWidth, false);
 				TalismaneSession.setTransitionSystem(parser.getTransitionSystem());
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
 				

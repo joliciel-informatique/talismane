@@ -30,7 +30,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class ImplicitAddressFeature extends AbstractFeature<PosTaggedTokenWrapper,PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggedTokenWrapper> {
+public final class ImplicitAddressFeature extends AbstractFeature<PosTaggedTokenWrapper,PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggedTokenWrapper> {
 	@Override
 	public FeatureResult<PosTaggedTokenWrapper> check(
 			PosTaggedTokenWrapper context, RuntimeEnvironment env) {

@@ -35,7 +35,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * Used to deserialize a set of lexicon files found in a given directory.
- * @author Assaf
+ * @author Assaf Urieli
  *
  */
 public class LexiconDeserializer {
@@ -43,73 +43,78 @@ public class LexiconDeserializer {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LexiconDeserializer.class);
 	
 	public List<PosTaggerLexicon> deserializeLexicons(File lexiconDir) {
-		MONITOR.startTask("LexiconDeserializer.deserializeLexicons");
-		try {
-			File[] inFiles = lexiconDir.listFiles();
-			List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
-			for (File inFile : inFiles) {
-				PosTaggerLexicon lexicon = this.deserializeLexiconFile(inFile);
-				if (lexicon.getPosTagSet()==null)
-					lexicon.setPosTagSet(TalismaneSession.getPosTagSet());
-				lexicons.add(lexicon);
-			}
-			return lexicons;
-		} finally {
-			MONITOR.endTask("LexiconDeserializer.deserializeLexicons");
+		File[] inFiles = lexiconDir.listFiles();
+		List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
+		for (File inFile : inFiles) {
+			PosTaggerLexicon lexicon = this.deserializeLexiconFile(inFile);
+			if (lexicon.getPosTagSet()==null)
+				lexicon.setPosTagSet(TalismaneSession.getPosTagSet());
+			lexicons.add(lexicon);
 		}
+		return lexicons;
 	}
 	
 	public PosTaggerLexicon deserializeLexiconFile(File lexiconFile) {
-		LOG.debug("deserializing " + lexiconFile.getName());
-		boolean isZip = false;
-		if (lexiconFile.getName().endsWith(".zip"))
-			isZip = true;
-
-		PosTaggerLexicon memoryBase = null;
-		ZipInputStream zis = null;
-		FileInputStream fis = null;
-		ObjectInputStream in = null;
-	
+		MONITOR.startTask("deserializeLexiconFile(File)");
 		try {
-			fis = new FileInputStream(lexiconFile);
-			if (isZip) {
-				zis = new ZipInputStream(fis);
-				memoryBase = this.deserializeLexiconFile(zis);
-			} else {
-				in = new ObjectInputStream(fis);
-				memoryBase = (PosTaggerLexicon)in.readObject();
-				in.close();
-			}
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		} catch (ClassNotFoundException cnfe) {
-			throw new RuntimeException(cnfe);
-		}
+			LOG.debug("deserializing " + lexiconFile.getName());
+			boolean isZip = false;
+			if (lexiconFile.getName().endsWith(".zip"))
+				isZip = true;
+	
+			PosTaggerLexicon lexicon = null;
+			ZipInputStream zis = null;
+			FileInputStream fis = null;
+			ObjectInputStream in = null;
 		
-		return memoryBase;
+			try {
+				fis = new FileInputStream(lexiconFile);
+				if (isZip) {
+					zis = new ZipInputStream(fis);
+					lexicon = this.deserializeLexiconFile(zis);
+				} else {
+					in = new ObjectInputStream(fis);
+					lexicon = (PosTaggerLexicon)in.readObject();
+					in.close();
+				}
+			} catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			} catch (ClassNotFoundException cnfe) {
+				throw new RuntimeException(cnfe);
+			}
+			
+			return lexicon;
+		} finally {
+			MONITOR.endTask("deserializeLexiconFile(File)");
+		}
 	}
 	
 	public PosTaggerLexicon deserializeLexiconFile(ZipInputStream zis) {
-		PosTaggerLexicon memoryBase = null;
+		MONITOR.startTask("deserializeLexiconFile(ZipInputStream)");
 		try {
-			ZipEntry zipEntry;
-			if ((zipEntry = zis.getNextEntry()) != null) {
-				LOG.debug("Scanning zip entry " + zipEntry.getName());
-
-				ObjectInputStream in = new ObjectInputStream(zis);
-				memoryBase = (PosTaggerLexicon) in.readObject();
-				zis.closeEntry();
-				in.close();
-			} else {
-				throw new RuntimeException("No zip entry in input stream");
+			PosTaggerLexicon lexicon = null;
+			try {
+				ZipEntry zipEntry;
+				if ((zipEntry = zis.getNextEntry()) != null) {
+					LOG.debug("Scanning zip entry " + zipEntry.getName());
+	
+					ObjectInputStream in = new ObjectInputStream(zis);
+					lexicon = (PosTaggerLexicon) in.readObject();
+					zis.closeEntry();
+					in.close();
+				} else {
+					throw new RuntimeException("No zip entry in input stream");
+				}
+			} catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			} catch (ClassNotFoundException cnfe) {
+				throw new RuntimeException(cnfe);
 			}
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		} catch (ClassNotFoundException cnfe) {
-			throw new RuntimeException(cnfe);
+	
+			return lexicon;
+		} finally {
+			MONITOR.endTask("deserializeLexiconFile(ZipInputStream)");
 		}
-
-		return memoryBase;
 	}
 	
 	public PosTaggerLexicon deserializeLexiconFile(ObjectInputStream ois) {

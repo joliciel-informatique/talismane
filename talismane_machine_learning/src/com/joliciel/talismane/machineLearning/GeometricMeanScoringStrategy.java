@@ -22,12 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Takes the harmonic mean of the individual decision scores, and multiplies it by the scores of underlying solutions.
+ * Takes the geometric mean of the individual decision scores, and multiplies it by the scores of underlying solutions.
  * @author Assaf Urieli
  *
  */
-public class HarmonicMeanScoringStrategy implements ScoringStrategy {
-	private static final Log LOG = LogFactory.getLog(HarmonicMeanScoringStrategy.class);
+public class GeometricMeanScoringStrategy implements ScoringStrategy {
+	private static final Log LOG = LogFactory.getLog(GeometricMeanScoringStrategy.class);
 
 	@Override
 	public double calculateScore(Solution<?> solution) {

@@ -236,4 +236,9 @@ class FunctionDescriptorImpl implements FunctionDescriptor {
 		this.groupName = groupName;
 	}
 
+	@Override
+	public boolean isTopLevelDescriptor() {
+		return this.getParent()==null;
+	}
+
 }

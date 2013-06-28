@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.AbstractDecisionFactory;
 import com.joliciel.talismane.utils.LogUtils;
 
-class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements PosTagSet {
+final class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements PosTagSet {
 	private static final long serialVersionUID = 4894889727388356815L;
 	private static final Log LOG = LogFactory.getLog(PosTagSetImpl.class);
 	

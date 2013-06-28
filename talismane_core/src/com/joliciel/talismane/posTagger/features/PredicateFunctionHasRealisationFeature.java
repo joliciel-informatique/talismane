@@ -33,7 +33,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class PredicateFunctionHasRealisationFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
+public final class PredicateFunctionHasRealisationFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
 	public StringFeature<T> functionNameFeature;
 	public StringFeature<T> realisationNameFeature;
 

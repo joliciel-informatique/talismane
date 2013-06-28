@@ -32,7 +32,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
+public final class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
 	private ParserAddressFunction addressFunction1;
 	private ParserAddressFunction addressFunction2;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
@@ -64,7 +64,7 @@ public class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> i
 			int countMatching = 0;
 			
 			for (int i=minIndex+1; i<maxIndex; i++) {
-				IntegerFeature<ParseConfiguration> indexFeature = new IntegerLiteralFeature<ParseConfiguration>(i);
+				IntegerFeature<ParseConfigurationWrapper> indexFeature = new IntegerLiteralFeature<ParseConfigurationWrapper>(i);
 				ParserAddressFunction indexFunction = new AddressFunctionSequence(indexFeature);
 				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, indexFunction, env);
 				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);

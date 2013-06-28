@@ -30,7 +30,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class ForwardSearchFeature extends AbstractAddressFunction {
+public final class ForwardSearchFeature extends AbstractAddressFunction {
 	private ParserAddressFunction referenceTokenFeature;
 	private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
 	

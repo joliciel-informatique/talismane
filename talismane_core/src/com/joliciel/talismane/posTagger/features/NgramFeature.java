@@ -32,7 +32,7 @@ import com.joliciel.talismane.posTagger.PosTag;
  * @author Assaf Urieli
  *
  */
-public class NgramFeature extends AbstractPosTaggerFeature<String> implements StringFeature<PosTaggerContext> {
+public final class NgramFeature extends AbstractPosTaggerFeature<String> implements StringFeature<PosTaggerContext> {
     static final String START_TOKEN = "[[START]]";
 	private IntegerFeature<PosTaggerContext> nFeature;
 	

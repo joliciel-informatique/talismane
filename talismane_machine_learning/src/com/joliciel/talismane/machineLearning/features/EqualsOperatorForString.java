@@ -54,11 +54,34 @@ public class EqualsOperatorForString<T> extends AbstractCachableFeature<T,Boolea
 		
 	}
 
-	public Feature<T, ?> getOperand1() {
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String op1 = builder.addFeatureVariable(operand1, "operand");
+		String op2 = builder.addFeatureVariable(operand2, "operand");
+		
+		builder.append("if (" + op1 + "!=null && " + op2 + "!=null) {");
+		builder.indent();
+		builder.append(		variableName + " = " + op1 + ".equals(" + op2 + ");");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
+	
+	public StringFeature<T> getOperand1() {
 		return operand1;
 	}
 
-	public Feature<T, ?> getOperand2() {
+	public void setOperand1(StringFeature<T> operand1) {
+		this.operand1 = operand1;
+	}
+
+	public StringFeature<T> getOperand2() {
 		return operand2;
 	}
+
+	public void setOperand2(StringFeature<T> operand2) {
+		this.operand2 = operand2;
+	}
+
 }

@@ -25,7 +25,7 @@ class LefffEntryMorphologyReader implements LexicalEntryMorphologyReader {
 		return lexicalEntry;
 	}
 
-	public static final class MorphologyReaderEntry implements LexicalEntry, Serializable {
+	public static final class MorphologyReaderEntry implements LexicalEntry, Serializable, Comparable<LexicalEntry> {
 		private static final long serialVersionUID = 7890965710636824550L;
 		private String word;
 		private String lemma;
@@ -131,6 +131,25 @@ class LefffEntryMorphologyReader implements LexicalEntryMorphologyReader {
 			if (morphologyForConll==null)
 				morphologyForConll = readMorphologyForConll(this);
 			return morphologyForConll;
+		}
+		
+		@Override
+		public int compareTo(LexicalEntry o) {
+			if (this==o)
+				return 0;
+			if (!this.getStatus().equals(o.getStatus()))
+				return (this.getStatus().compareTo(o.getStatus()));
+			if (!this.word.equals(o.getWord()))
+				return (this.word.compareTo(o.getWord()));
+			if (!this.category.equals(o.getCategory()))
+				return (this.category.compareTo(o.getCategory()));
+			if (!this.lemma.equals(o.getLemma()))
+				return (this.lemma.compareTo(o.getLemma()));
+			if (!this.subCategory.equals(o.getSubCategory()))
+				return (this.subCategory.compareTo(o.getSubCategory()));
+			if (!this.morphology.equals(o.getMorphology()))
+				return (this.morphology.compareTo(o.getMorphology()));
+			return -1;
 		}
 	}
 	

@@ -37,7 +37,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
+public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
 	private StringFeature<TokenWrapper> wordToCheckFeature;
 
 	public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {

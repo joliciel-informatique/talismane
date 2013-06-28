@@ -80,4 +80,57 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 		}
 		return featureResult;
 	}
+	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String val = builder.addFeatureVariable(featureToNormalise, "val");
+		String min = builder.addFeatureVariable(minValueFeature, "min");
+		String max = builder.addFeatureVariable(maxValueFeature, "max");
+		
+		builder.append("if (" + val + "!=null && " + min + "!=null && " + max + "!=null) {");
+		builder.indent();
+		builder.append(variableName + " = 0.0;");
+		builder.append("if (" + val + "<" + min + ")");
+		builder.indent();
+		builder.append(		variableName + " = 0.0;");
+		builder.outdent();
+		builder.append("else if (" + val + ">" + max + ")");
+		builder.indent();
+		builder.append(		variableName + " = 1.0;");
+		builder.outdent();
+		builder.append("else");
+		builder.indent();
+		builder.append(		variableName + " = (" + val + " - " + min + ") / (" + max + " - " + min + ");");
+		builder.outdent();
+		builder.outdent();
+		builder.append("}");
+		
+		return true;
+	}
+
+	public DoubleFeature<T> getFeatureToNormalise() {
+		return featureToNormalise;
+	}
+
+	public void setFeatureToNormalise(DoubleFeature<T> featureToNormalise) {
+		this.featureToNormalise = featureToNormalise;
+	}
+
+	public DoubleFeature<T> getMinValueFeature() {
+		return minValueFeature;
+	}
+
+	public void setMinValueFeature(DoubleFeature<T> minValueFeature) {
+		this.minValueFeature = minValueFeature;
+	}
+
+	public DoubleFeature<T> getMaxValueFeature() {
+		return maxValueFeature;
+	}
+
+	public void setMaxValueFeature(DoubleFeature<T> maxValueFeature) {
+		this.maxValueFeature = maxValueFeature;
+	}
+	
+	
 }

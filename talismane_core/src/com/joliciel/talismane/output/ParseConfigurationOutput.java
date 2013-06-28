@@ -52,6 +52,7 @@ public final class ParseConfigurationOutput extends ArrayList<ParseConfiguration
 			DependencyArc arc = tokenDependencyMap.get(unit.getToken());
 			if (arc!=null) {
 				ParseConfigurationTokenOutput governorOutput = tokenOutputMap.get(arc.getHead().getToken());
+				unit.setArc(arc);
 				unit.setGovernor(governorOutput);
 				unit.setLabel(arc.getLabel());
 			}

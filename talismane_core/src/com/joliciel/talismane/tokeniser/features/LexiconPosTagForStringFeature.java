@@ -34,7 +34,7 @@ import com.joliciel.talismane.posTagger.PosTag;
  * @author Assaf Urieli
  *
  */
-public class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
 	private StringFeature<TokenWrapper> posTagFeature;
 	private StringFeature<TokenWrapper> wordToCheckFeature;
 	

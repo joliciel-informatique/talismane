@@ -31,6 +31,7 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 	private String name = null;
 	private String groupName = null;
 	private List<Feature<T,?>> arguments = new ArrayList<Feature<T,?>>();
+	private boolean topLevelFeature = false;
 	
 	public AbstractFeature() {
 		super();
@@ -108,4 +109,18 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 	public List<Feature<T,?>> getArguments() {
 		return this.arguments;
 	}
+	
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		return false;
+	}
+
+	public boolean isTopLevelFeature() {
+		return topLevelFeature;
+	}
+
+	public void setTopLevelFeature(boolean topLevelFeature) {
+		this.topLevelFeature = topLevelFeature;
+	}
+	
+	
 }

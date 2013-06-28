@@ -29,7 +29,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class LastWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {	
+public final class LastWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {	
 	public LastWordInSentenceFeature() {
 	}
 	

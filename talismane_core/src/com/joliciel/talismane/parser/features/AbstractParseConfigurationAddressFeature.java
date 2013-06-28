@@ -38,13 +38,6 @@ abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractMonit
 
 	public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		this.addressFunction = addressFunction;
-		String name = this.getName();
-		if (name.endsWith(")")) {
-			name = name.substring(0, name.length()-1) + "," + addressFunction.getName() + ")";
-		} else {
-			name = name + "(" + addressFunction.getName() + ")";
-		}
-		this.setName(name);
 	}
 	
 	protected PosTaggedTokenWrapper getToken(ParseConfigurationWrapper parseConfiguration, RuntimeEnvironment env) {

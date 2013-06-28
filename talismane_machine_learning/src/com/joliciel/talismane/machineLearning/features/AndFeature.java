@@ -70,5 +70,17 @@ public class AndFeature<T> extends AbstractCachableFeature<T, Boolean> implement
 		return booleanFeatures;
 	}
 	
-	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		builder.append(variableName + "=true;");
+		for (BooleanFeature<T> booleanFeature : this.booleanFeatures) {
+			String featureName = builder.addFeatureVariable(booleanFeature, "expression");
+			
+			builder.append("if (" + featureName + "==null) " + variableName + " = null;");
+			
+			builder.append("if (" + variableName + "!=null) " + variableName + "=" + variableName + " && " + featureName + ";");
+		}
+		
+		return true;
+	}
 }

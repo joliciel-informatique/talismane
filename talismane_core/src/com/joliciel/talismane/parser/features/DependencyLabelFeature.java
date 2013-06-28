@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -33,12 +34,13 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String>
+public final class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String>
 implements StringFeature<ParseConfigurationWrapper> {
 
 	public DependencyLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		super(addressFunction);
-		this.setAddressFunction(addressFunction);
+		String name = this.getName() + "(" + addressFunction.getName() + ")";
+		this.setName(name);
 	}
 
 	@Override
@@ -62,5 +64,24 @@ implements StringFeature<ParseConfigurationWrapper> {
 		}
 		
 		return featureResult;
-	}	
+	}
+	
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
+			String variableName) {
+		String address = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + address + "!=null) {" );
+		builder.indent();
+		String arc = builder.getVarName("arc");
+		builder.addImport(DependencyArc.class);
+		builder.append(		"DependencyArc " + arc + " = context.getParseConfiguration().getGoverningDependency(" + address + ".getPosTaggedToken());");
+		builder.append("if (" + arc + "!=null)");
+		builder.indent();
+		builder.append(		variableName + " = " + arc + ".getLabel()==null ? \"null\" : " + arc + ".getLabel();");
+		builder.outdent();
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
 }

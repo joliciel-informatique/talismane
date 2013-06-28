@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -31,7 +32,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class AddressFunctionLDep extends AbstractAddressFunction {
+public final class AddressFunctionLDep extends AbstractAddressFunction {
 	private ParserAddressFunction addressFunction;
 	
 	public AddressFunctionLDep(ParserAddressFunction addressFunction) {
@@ -56,5 +57,25 @@ public class AddressFunctionLDep extends AbstractAddressFunction {
 		if (resultToken!=null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
+	}
+	
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
+			String variableName) {
+		String address = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + address + "!=null) {" );
+		builder.indent();
+		String leftDependents = builder.getVarName("leftDependents");
+		builder.addImport(List.class);
+		
+		builder.append("List<PosTaggedToken> " + leftDependents + " = context.getParseConfiguration().getLeftDependents(" + address + ".getPosTaggedToken());");
+		builder.append("if (" + leftDependents + ".size()>0)");
+		builder.indent();
+		builder.append(		variableName + " = " + leftDependents + ".get(0);");
+		builder.outdent();
+		builder.outdent();
+		builder.append("}");
+		return true;
 	}
 }

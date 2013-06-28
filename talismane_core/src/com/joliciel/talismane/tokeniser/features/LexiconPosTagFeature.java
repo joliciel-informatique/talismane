@@ -32,7 +32,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
 	StringFeature<TokenWrapper> posTagFeature;
 	
 	/**

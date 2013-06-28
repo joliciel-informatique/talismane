@@ -26,19 +26,19 @@ package com.joliciel.talismane.machineLearning.features;
  */
 class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
 		IntegerFeature<T> {
-	private DoubleFeature<T> doubleFeature;
+	private DoubleFeature<T> featureToTruncate;
 	
 	public TruncateFeature(DoubleFeature<T> doubleFeature) {
 		super();
-		this.doubleFeature = doubleFeature;
-		this.setName(this.doubleFeature.getName());
+		this.featureToTruncate = doubleFeature;
+		this.setName(this.featureToTruncate.getName());
 	}
 
 	@Override
 	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Double> doubleResult = doubleFeature.check(context, env);
+		FeatureResult<Double> doubleResult = featureToTruncate.check(context, env);
 		if (doubleResult!=null) {
 			int intResult = doubleResult.getOutcome().intValue();
 			featureResult = this.generateResult(intResult);
@@ -46,7 +46,30 @@ class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
 		return featureResult;
 	}
 
-	public DoubleFeature<T> getDoubleFeature() {
-		return doubleFeature;
+
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String op = builder.addFeatureVariable(featureToTruncate, "operand");
+		
+		builder.append("if (" + op + "!=null) {");
+		builder.indent();
+		builder.append(		variableName + " = " + op + ".intValue();");
+		builder.outdent();
+		builder.append("}");
+		return true;
 	}
+	public DoubleFeature<T> getDoubleFeature() {
+		return featureToTruncate;
+	}
+
+	public DoubleFeature<T> getFeatureToTruncate() {
+		return featureToTruncate;
+	}
+
+	public void setFeatureToTruncate(DoubleFeature<T> featureToTruncate) {
+		this.featureToTruncate = featureToTruncate;
+	}
+	
+	
 }

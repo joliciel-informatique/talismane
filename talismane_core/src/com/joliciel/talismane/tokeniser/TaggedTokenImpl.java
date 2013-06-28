@@ -107,6 +107,14 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 	}
 	
 	@Override
+	public double getProbability() {
+		double prob = 0;
+		if (decision!=null)
+			prob = decision.getProbability();
+		return prob;
+	}
+
+	@Override
 	public String toString() {
 		return this.getToken().getText() + "|" + this.getTag() + "|" + this.getToken().getIndex() + "| prob=" + df.format(this.getDecision().getProbability());
 	}

@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser;
 
 import java.util.List;
 
+
 /**
  * An interface that observes a parsing evaluation while its occurring.
  * @author Assaf Urieli

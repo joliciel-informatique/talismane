@@ -35,7 +35,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper> {
+public final class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper> {
 
 	@Override
 	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(

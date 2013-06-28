@@ -50,4 +50,43 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * @return
 	 */
 	public String getLemmaForCoNLL();
+	
+	/**
+	 * A list of possible (language-specific) genders for this entry.
+	 * In French, this will include entries such as "masculine", "feminine".
+	 * If gender unknown, will return null.
+	 * @return
+	 */
+	public String getGender();
+	
+	/**
+	 * A list of possible (language-specific) numbers for this entry.
+	 * In French, this will include entries such as "singular", "plural".
+	 * If number unknown, will return null.
+	 * @return
+	 */
+	public String getNumber();
+	
+	/**
+	 * A list of possible (language-specific) tenses/moods for this entry, when the entry is a verb.
+	 * If tense unknown, will return null.
+	 * @return
+	 */
+	public String getTense();
+	
+	/**
+	 * A list of possible persons for this entry.
+	 * In French, this will inlude entries such as "1st person", "2nd person", "3rd person".
+	 * If person unknown, will return null.
+	 * @return
+	 */
+	public String getPerson();
+	
+	/**
+	 * A list of possible (language-specific) numbers for the possessor in this entry,
+	 * when the entry is a possessive determinant or pronoun.
+	 * If possessor number unknown, will return null.
+	 * @return
+	 */
+	public String getPossessorNumber();
 }

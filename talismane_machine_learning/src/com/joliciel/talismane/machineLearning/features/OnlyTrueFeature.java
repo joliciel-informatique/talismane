@@ -26,23 +26,45 @@ package com.joliciel.talismane.machineLearning.features;
  * @param <T>
  */
 public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	BooleanFeature<T> feature1;
+	BooleanFeature<T> wrappedFeature;
 	
-	public OnlyTrueFeature(BooleanFeature<T> feature1) {
+	public OnlyTrueFeature(BooleanFeature<T> wrappedFeature) {
 		super();
-		this.feature1 = feature1;
-		this.setName(feature1.getName() + "*");
+		this.wrappedFeature = wrappedFeature;
+		this.setName(wrappedFeature.getName() + "*");
 	}
 
 	@Override
 	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
 		
-		FeatureResult<Boolean> result1 = feature1.check(context, env);
+		FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);
 		
 		if (result1!=null && result1.getOutcome().booleanValue()==true) {
 			featureResult = this.generateResult(true);
 		}
 		return featureResult;
 	}
+
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String result = builder.addFeatureVariable(wrappedFeature, "result");
+		
+		builder.append("if (" + result + "!=null && " + result + ".booleanValue()) {");
+		builder.indent();
+		builder.append(		variableName + " = true;");
+		builder.outdent();
+		builder.append("}");
+
+		return true;
+	}
+	public BooleanFeature<T> getWrappedFeature() {
+		return wrappedFeature;
+	}
+
+	public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
+		this.wrappedFeature = wrappedFeature;
+	}
+	
+	
 }

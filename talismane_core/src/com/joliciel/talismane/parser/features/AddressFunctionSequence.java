@@ -30,10 +30,10 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class AddressFunctionSequence extends AbstractAddressFunction {
-	private IntegerFeature<ParseConfiguration> indexFeature;
+public final class AddressFunctionSequence extends AbstractAddressFunction {
+	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
 	
-	public AddressFunctionSequence(IntegerFeature<ParseConfiguration> indexFeature) {
+	public AddressFunctionSequence(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
 		super();
 		this.indexFeature = indexFeature;
 		this.setName("Seq(" + indexFeature.getName() + ")");

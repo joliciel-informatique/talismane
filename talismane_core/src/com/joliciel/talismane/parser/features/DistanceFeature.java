@@ -31,7 +31,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class DistanceFeature extends AbstractParseConfigurationFeature<Integer>
+public final class DistanceFeature extends AbstractParseConfigurationFeature<Integer>
 		implements IntegerFeature<ParseConfigurationWrapper> {
 	private ParserAddressFunction addressFunction1;
 	private ParserAddressFunction addressFunction2;

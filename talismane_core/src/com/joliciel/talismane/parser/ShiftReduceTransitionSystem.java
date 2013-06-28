@@ -77,8 +77,6 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 				targetDependencies.remove(currentDep);
 			
 			transition.apply(configuration);
-			if (LOG.isTraceEnabled())
-				LOG.trace(this.toString());
 			
 		}
 		if (targetDependencies.size()>0) {

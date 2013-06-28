@@ -31,7 +31,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class RegexFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class RegexFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
 	StringFeature<TokenWrapper> regexFeature = null;
 	Pattern pattern = null;
 	

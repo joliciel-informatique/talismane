@@ -29,7 +29,7 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
  * @author Assaf Urieli
  *
  */
-public class InParenthesesFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
+public final class InParenthesesFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
 	@Override
 	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
 		FeatureResult<String> result = null;

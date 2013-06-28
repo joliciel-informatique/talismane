@@ -44,7 +44,7 @@ public interface ParserService {
 
 	public CorpusEventStream getParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures);
 	
-	public NonDeterministicParser getTransitionBasedParser(MachineLearningModel<Transition> jolicielMaxentModel, int beamWidth);
+	public NonDeterministicParser getTransitionBasedParser(MachineLearningModel<Transition> jolicielMaxentModel, int beamWidth, boolean dynamiseFeatures);
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 
 	public ParserEvaluator getParserEvaluator();

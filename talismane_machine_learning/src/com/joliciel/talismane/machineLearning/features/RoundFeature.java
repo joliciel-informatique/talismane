@@ -26,19 +26,19 @@ package com.joliciel.talismane.machineLearning.features;
  */
 class RoundFeature<T> extends AbstractFeature<T, Integer> implements
 		IntegerFeature<T> {
-	private DoubleFeature<T> doubleFeature;
+	private DoubleFeature<T> featureToRound;
 	
-	public RoundFeature(DoubleFeature<T> doubleFeature) {
+	public RoundFeature(DoubleFeature<T> featureToRound) {
 		super();
-		this.doubleFeature = doubleFeature;
-		this.setName(this.doubleFeature.getName());
+		this.featureToRound = featureToRound;
+		this.setName(this.featureToRound.getName());
 	}
 
 	@Override
 	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
 		
-		FeatureResult<Double> doubleResult = doubleFeature.check(context, env);
+		FeatureResult<Double> doubleResult = featureToRound.check(context, env);
 		if (doubleResult!=null) {
 			int intResult = (int) Math.round(doubleResult.getOutcome());
 			featureResult = this.generateResult(intResult);
@@ -46,7 +46,27 @@ class RoundFeature<T> extends AbstractFeature<T, Integer> implements
 		return featureResult;
 	}
 
-	public DoubleFeature<T> getDoubleFeature() {
-		return doubleFeature;
+
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String op = builder.addFeatureVariable(featureToRound, "operand");
+		
+		builder.append("if (" + op + "!=null) {");
+		builder.indent();
+		builder.append(		variableName + " = (int) Math.round(" + op + ");");
+		builder.outdent();
+		builder.append("}");
+		return true;
 	}
+	
+	public DoubleFeature<T> getFeatureToRound() {
+		return featureToRound;
+	}
+
+	public void setFeatureToRound(DoubleFeature<T> featureToRound) {
+		this.featureToRound = featureToRound;
+	}
+
+	
 }

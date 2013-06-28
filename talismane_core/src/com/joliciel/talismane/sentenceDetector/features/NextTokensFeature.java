@@ -30,7 +30,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class NextTokensFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
+public final class NextTokensFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
 	IntegerFeature<PossibleSentenceBoundary> nFeature;
 	
 	public NextTokensFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {

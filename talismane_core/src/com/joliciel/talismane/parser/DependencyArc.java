@@ -46,4 +46,10 @@ public interface DependencyArc extends Comparable<DependencyArc> {
 	 */
 	public String getLabel();
 
+	/**
+	 * The probability associated with this dependency arc.
+	 * @return
+	 */
+	public double getProbability();
+	public void setProbability(double probability);
 }

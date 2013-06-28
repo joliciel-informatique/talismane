@@ -24,4 +24,5 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 interface ParseConfigurationInternal extends ParseConfiguration {
 	public Map<PosTaggedToken, Transition> getDependentTransitionMap();
+	public int getNextDecisionToAdd();
 }

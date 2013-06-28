@@ -19,6 +19,7 @@
 package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -29,7 +30,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class LemmaFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class LemmaFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
 	public LemmaFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -45,13 +46,23 @@ public class LemmaFeature<T> extends AbstractPosTaggedTokenFeature<T,String> imp
 			return null;
 		
 		FeatureResult<String> featureResult = null;
-		LexicalEntry lexicalEntry = null;
-		if (posTaggedToken.getLexicalEntries().size()>0)
-			lexicalEntry = posTaggedToken.getLexicalEntries().iterator().next();
+		LexicalEntry lexicalEntry = posTaggedToken.getLexicalEntry();
 		if (lexicalEntry!=null)
 			featureResult = this.generateResult(lexicalEntry.getLemma());
 		
 		return featureResult;
 	}
 	
+	@Override
+	public boolean addDynamicSourceCode(
+			DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		String address = builder.addFeatureVariable(addressFunction, "address");
+		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getLexicalEntry()!=null) {" );
+		builder.indent();
+		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getLexicalEntry().getLemma();");
+		builder.outdent();
+		builder.append("}");
+		return true;
+	}
 }

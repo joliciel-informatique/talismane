@@ -43,5 +43,9 @@ public class IntegerLiteralFeature<T> extends AbstractFeature<T, Integer> implem
 		return literal;
 	}
 	
-	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		builder.append(variableName + "=" + literal + ";");
+		return true;
+	}
 }

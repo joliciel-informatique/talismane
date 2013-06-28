@@ -30,7 +30,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class NLetterPrefixFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
+public final class NLetterPrefixFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
 	private IntegerFeature<TokenWrapper> nFeature;
 	
 	public NLetterPrefixFeature(IntegerFeature<TokenWrapper> nFeature) {

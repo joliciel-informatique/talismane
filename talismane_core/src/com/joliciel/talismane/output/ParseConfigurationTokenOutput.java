@@ -19,6 +19,7 @@
 package com.joliciel.talismane.output;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
@@ -29,6 +30,7 @@ public final class ParseConfigurationTokenOutput {
 	private PosTag tag;
 	private LexicalEntry lexicalEntry;
 	private ParseConfigurationTokenOutput governor;
+	private DependencyArc arc;
 	private String label;
 	
 	public ParseConfigurationTokenOutput(PosTaggedToken posTaggedToken) {
@@ -59,6 +61,14 @@ public final class ParseConfigurationTokenOutput {
 	}
 	public void setGovernor(ParseConfigurationTokenOutput governor) {
 		this.governor = governor;
+	}
+
+	public DependencyArc getArc() {
+		return arc;
+	}
+
+	public void setArc(DependencyArc arc) {
+		this.arc = arc;
 	}
 
 	public String getLabel() {

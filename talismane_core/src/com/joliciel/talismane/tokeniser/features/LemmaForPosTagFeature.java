@@ -34,7 +34,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public class LemmaForPosTagFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
+public final class LemmaForPosTagFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
 	StringFeature<TokenWrapper>[] posTagCodeFeatures;
 	
 	public LemmaForPosTagFeature(StringFeature<TokenWrapper>... posTagCodeFeatures) {

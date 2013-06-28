@@ -90,4 +90,20 @@ public class MultivaluedExternalResourceFeature<T> extends AbstractStringCollect
 		this.externalResourceFinder = externalResourceFinder;
 	}
 
+	public StringFeature<T> getResourceNameFeature() {
+		return resourceNameFeature;
+	}
+
+	public void setResourceNameFeature(StringFeature<T> resourceNameFeature) {
+		this.resourceNameFeature = resourceNameFeature;
+	}
+
+	public StringFeature<T>[] getKeyElementFeatures() {
+		return keyElementFeatures;
+	}
+
+	public void setKeyElementFeatures(StringFeature<T>[] keyElementFeatures) {
+		this.keyElementFeatures = keyElementFeatures;
+	}
+
 }

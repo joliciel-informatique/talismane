@@ -55,7 +55,22 @@ public class NullIfStringFeature<T> extends AbstractCachableFeature<T,String> im
 		return featureResult;
 		
 	}
+	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		String cond = builder.addFeatureVariable(condition, "condition");
+		
+		builder.append("if (" + cond + "!=null && !" + cond + ") {");
+		builder.indent();
+		String result = 	builder.addFeatureVariable(resultFeature, "result");
+		
+		builder.append(		variableName + " = " + result + ";");
+		builder.outdent();
+		builder.append("}");
 
+		return true;
+	}
+	
 	public BooleanFeature<T> getCondition() {
 		return condition;
 	}
@@ -63,4 +78,13 @@ public class NullIfStringFeature<T> extends AbstractCachableFeature<T,String> im
 	public StringFeature<T> getResultFeature() {
 		return resultFeature;
 	}
+
+	public void setCondition(BooleanFeature<T> condition) {
+		this.condition = condition;
+	}
+
+	public void setResultFeature(StringFeature<T> resultFeature) {
+		this.resultFeature = resultFeature;
+	}
+	
 }

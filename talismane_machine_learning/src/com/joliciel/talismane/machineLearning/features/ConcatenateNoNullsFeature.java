@@ -69,8 +69,31 @@ public class ConcatenateNoNullsFeature<T> extends AbstractCachableFeature<T, Str
 		return featureResult;
 	}
 
+	
+	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
+			String variableName) {
+		
+		String sb = builder.getVarName("sb");
+		builder.append("StringBuilder " + sb + " = new StringBuilder();");
+		boolean firstFeature = true;
+		for (StringFeature<T> stringFeature : stringFeatures) {
+			if (!firstFeature) {
+				builder.append("if (" + sb + "!=null) " + sb + ".append(\"|\");");
+			}
+			String stringFeatureName = builder.addFeatureVariable(stringFeature, "string");
+			
+			builder.append("if (" + stringFeatureName + "==null) " + sb + "=null;");
+			builder.append("if (" + sb + "!=null) " + sb + ".append(" + stringFeatureName + ");");
+			firstFeature = false;
+		}
+		
+		builder.append("if (" + sb + "!=null) " + variableName + " = " + sb + ".toString();");
+		return true;
+	}
+
 	public StringFeature<T>[] getStringFeatures() {
 		return stringFeatures;
 	}
-
 }

@@ -32,7 +32,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {	
+public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {	
 	public FirstWordInSentenceFeature() {
 	}
 	

@@ -36,7 +36,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  * @author Assaf Urieli
  *
  */
-public class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<String> implements StringFeature<TokeniserContext> {
+public final class InsidePatternNgramFeature extends AbstractTokeniserContextFeature<String> implements StringFeature<TokeniserContext> {
 	StringFeature<TokenWrapper> tokenPatternFeature;
 	IntegerFeature<TokeniserContext> testIndexFeature;
 	StringFeature<TokenWrapper> tokenPatternAndIndexFeature;

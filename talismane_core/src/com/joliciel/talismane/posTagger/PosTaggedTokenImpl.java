@@ -32,12 +32,19 @@ import com.joliciel.talismane.tokeniser.TaggedTokenImpl;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
-class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
+final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
 	private List<LexicalEntry> lexicalEntries = null;
+	private LexicalEntry bestLexicalEntry = null;
+	private boolean bestLexicalEntryLoaded = false;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private String conllLemma = null;
+	private String gender = null;
+	private String number = null;
+	private String tense = null;
+	private String person = null;
+	private String possessorNumber = null;
 	
 	PosTaggedTokenImpl(PosTaggedTokenImpl taggedTokenToClone) {
 		super(taggedTokenToClone);
@@ -68,12 +75,35 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 
 	@Override
 	public LexicalEntry getLexicalEntry() {
-		List<LexicalEntry> lexicalEntries = this.getLexicalEntries();
-		LexicalEntry bestLexicalEntry = null;
-		if (lexicalEntries.size()>0) {
-			bestLexicalEntry = lexicalEntries.get(0);
+		if (!this.bestLexicalEntryLoaded) {
+			List<LexicalEntry> lexicalEntries = this.getLexicalEntries();
+			this.bestLexicalEntry = null;
+			if (lexicalEntries.size()>0) {
+				this.bestLexicalEntry = lexicalEntries.get(0);
+				gender = "";
+				for (String oneGender : bestLexicalEntry.getGender())
+					gender += oneGender;
+				if (gender.length()==0) gender = null;
+				number = "";
+				for (String oneNumber : bestLexicalEntry.getNumber())
+					number += oneNumber;
+				if (number.length()==0) number = null;
+				tense = "";
+				for (String oneTense : bestLexicalEntry.getTense())
+					tense += oneTense;
+				if (tense.length()==0) tense = null;
+				person = "";
+				for (String onePerson : bestLexicalEntry.getPerson())
+					person += onePerson;
+				if (person.length()==0) person = null;
+				possessorNumber = "";
+				for (String onePossessorNumber : bestLexicalEntry.getPossessorNumber())
+					possessorNumber += onePossessorNumber;
+				if (possessorNumber.length()==0) possessorNumber = null;
+			}
+			this.bestLexicalEntryLoaded = true;
 		}
-		return bestLexicalEntry;
+		return this.bestLexicalEntry;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -118,4 +148,31 @@ class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedTok
 		}
 		return conllLemma;
 	}
+
+	public String getGender() {
+		this.getLexicalEntry();
+		return gender;
+	}
+
+	public String getNumber() {
+		this.getLexicalEntry();
+		return number;
+	}
+
+	public String getTense() {
+		this.getLexicalEntry();
+		return tense;
+	}
+
+	public String getPerson() {
+		this.getLexicalEntry();
+		return person;
+	}
+
+	public String getPossessorNumber() {
+		this.getLexicalEntry();
+		return possessorNumber;
+	}
+	
+	
 }

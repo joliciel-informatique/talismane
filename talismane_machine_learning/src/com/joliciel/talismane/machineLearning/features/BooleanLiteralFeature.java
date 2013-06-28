@@ -42,4 +42,10 @@ public class BooleanLiteralFeature<T> extends AbstractFeature<T, Boolean> implem
 	public boolean isLiteral() {
 		return literal;
 	}
+	
+	@Override
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
+		builder.append(variableName + "=" + literal + ";");
+		return true;
+	}
 }

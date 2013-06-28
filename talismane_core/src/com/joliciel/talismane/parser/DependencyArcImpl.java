@@ -24,6 +24,7 @@ class DependencyArcImpl implements DependencyArc {
 	private PosTaggedToken head;
 	private PosTaggedToken dependent;
 	private String label;
+	private double probability;
 
 	public DependencyArcImpl(PosTaggedToken head, PosTaggedToken dependent,
 			String label) {
@@ -94,6 +95,14 @@ class DependencyArcImpl implements DependencyArc {
 	@Override
 	public int compareTo(DependencyArc o) {
 		return this.getDependent().getToken().getIndex() - o.getDependent().getToken().getIndex();
+	}
+
+	public double getProbability() {
+		return probability;
+	}
+
+	public void setProbability(double probability) {
+		this.probability = probability;
 	}
 
 }

@@ -25,8 +25,11 @@ import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 
 public interface ParserFeatureService {
 	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors);
-	
+
+	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors, boolean dynamise);
+
 	public List<ParserRule> getRules(List<String> ruleDescriptors);
+	public List<ParserRule> getRules(List<String> ruleDescriptors, boolean dynamise);
 	
 	public ExternalResourceFinder getExternalResourceFinder();
 	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder);

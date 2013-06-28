@@ -31,13 +31,16 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
+import com.joliciel.talismane.machineLearning.features.Dynamiser;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.parser.Transition;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	private static final Log LOG = LogFactory.getLog(ParserFeatureServiceImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserFeatureServiceImpl.class);
 	private FeatureService featureService;
 	private MachineLearningService machineLearningService;
 	private ExternalResourceFinder externalResourceFinder;
@@ -45,18 +48,41 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	@Override
 	public Set<ParseConfigurationFeature<?>> getFeatures(
 			List<String>  featureDescriptors) {
-		Set<ParseConfigurationFeature<?>> parseFeatures = new TreeSet<ParseConfigurationFeature<?>>();
-		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
-		ParserFeatureParser featureParser = this.getParserFeatureParser();
-		for (String featureDescriptor : featureDescriptors) {
-			if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
-				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
-				List<ParseConfigurationFeature<?>> myFeatures = featureParser.parseDescriptor(functionDescriptor);
-				parseFeatures.addAll(myFeatures);
-			}
-		}
-		return parseFeatures;
+		return this.getFeatures(featureDescriptors, false);
 	}
+
+	@Override
+	public Set<ParseConfigurationFeature<?>> getFeatures(
+			List<String> featureDescriptors, boolean dynamise) {
+		MONITOR.startTask("getFeatures");
+		try {
+			Set<ParseConfigurationFeature<?>> parseFeatures = new TreeSet<ParseConfigurationFeature<?>>();
+			FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+			ParserFeatureParser featureParser = this.getParserFeatureParser();
+			
+			if (dynamise) {
+				Dynamiser<ParseConfigurationWrapper> dynamiser = this.getParserFeatureDynamiser();
+				featureParser.setDynamiser(dynamiser);
+			}
+			
+			for (String featureDescriptor : featureDescriptors) {
+				if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+					List<ParseConfigurationFeature<?>> myFeatures = featureParser.parseDescriptor(functionDescriptor);
+					parseFeatures.addAll(myFeatures);
+				}
+			}
+			return parseFeatures;
+		} finally {
+			MONITOR.endTask("getFeatures");
+		}
+	}
+	
+	public Dynamiser<ParseConfigurationWrapper> getParserFeatureDynamiser() {
+		ParserFeatureDynamiser dynamiser = new ParserFeatureDynamiser(ParseConfigurationWrapper.class);
+		return dynamiser;
+	}
+
 
 	public ParserFeatureParser getParserFeatureParser() {
 		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(featureService);
@@ -67,60 +93,76 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	}
 
 	public List<ParserRule> getRules(List<String> ruleDescriptors) {
-		List<ParserRule> rules = new ArrayList<ParserRule>();
-		
-		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
-		ParserFeatureParser parserFeatureParser = this.getParserFeatureParser();
+		return this.getRules(ruleDescriptors, false);
+	}
+	
 
-		for (String ruleDescriptor : ruleDescriptors) {
-			LOG.debug(ruleDescriptor);
-			if (ruleDescriptor.length()>0 && !ruleDescriptor.startsWith("#")) {
-				String[] ruleParts = ruleDescriptor.split("\t");
-				String transitionCode = ruleParts[0];
-				Transition transition = null;
-				boolean negative = false;
-				String descriptor = null;
-				String descriptorName = null;
-				if (ruleParts.length>2) {
-					descriptor = ruleParts[2];
-					descriptorName = ruleParts[1];
-				} else {
-					descriptor = ruleParts[1];
-				}
-				
-				if (transitionCode.length()==0) {
-					if (descriptorName==null) {
-						throw new TalismaneException("Rule without Transition must have a name.");
+	@Override
+	public List<ParserRule> getRules(List<String> ruleDescriptors,
+			boolean dynamise) {
+		MONITOR.startTask("getRules");
+		try {
+			List<ParserRule> rules = new ArrayList<ParserRule>();
+			
+			FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+			ParserFeatureParser parserFeatureParser = this.getParserFeatureParser();
+			
+			if (dynamise) {
+				Dynamiser<ParseConfigurationWrapper> dynamiser = this.getParserFeatureDynamiser();
+				parserFeatureParser.setDynamiser(dynamiser);
+			}
+			
+			for (String ruleDescriptor : ruleDescriptors) {
+				LOG.debug(ruleDescriptor);
+				if (ruleDescriptor.length()>0 && !ruleDescriptor.startsWith("#")) {
+					String[] ruleParts = ruleDescriptor.split("\t");
+					String transitionCode = ruleParts[0];
+					Transition transition = null;
+					boolean negative = false;
+					String descriptor = null;
+					String descriptorName = null;
+					if (ruleParts.length>2) {
+						descriptor = ruleParts[2];
+						descriptorName = ruleParts[1];
+					} else {
+						descriptor = ruleParts[1];
 					}
-				} else {
-					if (transitionCode.startsWith("!")) {
-						negative = true;
-						transitionCode = transitionCode.substring(1);
-					}
-					transition = TalismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
-				}
-
-				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
-				if (descriptorName!=null)
-					functionDescriptor.setDescriptorName(descriptorName);
-				List<ParseConfigurationFeature<?>> myFeatures = parserFeatureParser.parseDescriptor(functionDescriptor);
-				if (transition!=null) {
-					for (ParseConfigurationFeature<?> feature : myFeatures) {
-						if (feature instanceof BooleanFeature) {
-							@SuppressWarnings("unchecked")
-							BooleanFeature<ParseConfigurationWrapper> condition = (BooleanFeature<ParseConfigurationWrapper>) feature;
-							ParserRule rule = this.getParserRule(condition, transition);
-							rule.setNegative(negative);
-							rules.add(rule);
-						} else {
-							throw new TalismaneException("Rule must be based on a boolean feature.");
+					
+					if (transitionCode.length()==0) {
+						if (descriptorName==null) {
+							throw new TalismaneException("Rule without Transition must have a name.");
 						}
-					} // next feature
-				} // is it a rule, or just a descriptor
-			} // proper rule descriptor
-		} // next rule descriptor
-		return rules;
-		
+					} else {
+						if (transitionCode.startsWith("!")) {
+							negative = true;
+							transitionCode = transitionCode.substring(1);
+						}
+						transition = TalismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
+					}
+	
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
+					if (descriptorName!=null)
+						functionDescriptor.setDescriptorName(descriptorName);
+					List<ParseConfigurationFeature<?>> myFeatures = parserFeatureParser.parseDescriptor(functionDescriptor);
+					if (transition!=null) {
+						for (ParseConfigurationFeature<?> feature : myFeatures) {
+							if (feature instanceof BooleanFeature) {
+								@SuppressWarnings("unchecked")
+								BooleanFeature<ParseConfigurationWrapper> condition = (BooleanFeature<ParseConfigurationWrapper>) feature;
+								ParserRule rule = this.getParserRule(condition, transition);
+								rule.setNegative(negative);
+								rules.add(rule);
+							} else {
+								throw new TalismaneException("Rule must be based on a boolean feature.");
+							}
+						} // next feature
+					} // is it a rule, or just a descriptor
+				} // proper rule descriptor
+			} // next rule descriptor
+			return rules;
+		} finally {
+			MONITOR.endTask("getRules");
+		}
 	}
 	
 	public ParserRule getParserRule(

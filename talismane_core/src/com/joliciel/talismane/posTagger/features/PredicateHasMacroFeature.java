@@ -30,7 +30,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class PredicateHasMacroFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
+public final class PredicateHasMacroFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
 	public StringFeature<T> macroNameFeature;
 	
 	public PredicateHasMacroFeature(PosTaggedTokenAddressFunction<T> addressFunction, StringFeature<T> macroNameFeature) {

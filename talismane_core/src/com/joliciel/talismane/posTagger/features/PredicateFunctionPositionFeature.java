@@ -33,7 +33,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-public class PredicateFunctionPositionFeature<T> extends AbstractPosTaggedTokenFeature<T,Integer> implements IntegerFeature<T> {
+public final class PredicateFunctionPositionFeature<T> extends AbstractPosTaggedTokenFeature<T,Integer> implements IntegerFeature<T> {
 	public StringFeature<T> functionNameFeature;
 	
 	public PredicateFunctionPositionFeature(PosTaggedTokenAddressFunction<T> addressFunction, StringFeature<T> functionNameFeature) {

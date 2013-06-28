@@ -21,7 +21,7 @@ package com.joliciel.talismane.parser.features;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.parser.Transition;
 
-class ParserRuleImpl implements ParserRule {
+final class ParserRuleImpl implements ParserRule {
 	private BooleanFeature<ParseConfigurationWrapper> condition;
 	private Transition transition;
 	private boolean negative;

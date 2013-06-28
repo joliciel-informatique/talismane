@@ -33,4 +33,11 @@ public interface FeatureParser<T> {
 	 * @return
 	 */
 	public List<Feature<T, ?>> parse(FunctionDescriptor descriptor);
+	
+	/**
+	 * A feature dynamiser: if provided, features will by dynamised before being returned.
+	 * @return
+	 */
+	public Dynamiser<T> getDynamiser();
+	public void setDynamiser(Dynamiser<T> dynamiser);
 }

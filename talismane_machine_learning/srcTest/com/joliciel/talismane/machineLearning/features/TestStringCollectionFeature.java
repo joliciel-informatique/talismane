@@ -8,15 +8,15 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
-public class TestStringCollectionFeature extends AbstractStringCollectionFeature<TestContext> implements StringCollectionFeature<TestContext> {
+public class TestStringCollectionFeature extends AbstractStringCollectionFeature<String> implements StringCollectionFeature<String> {
 	
-	StringFeature<TestContext>[] stringFeatures;
+	StringFeature<String>[] stringFeatures;
 	
-	public TestStringCollectionFeature(StringFeature<TestContext>... stringFeatures) {
+	public TestStringCollectionFeature(StringFeature<String>... stringFeatures) {
 		this.stringFeatures = stringFeatures;
 		String name = super.getName() + "(";
 		boolean firstFeature = true;
-		for (StringFeature<TestContext> stringFeature : stringFeatures) {
+		for (StringFeature<String> stringFeature : stringFeatures) {
 			if (!firstFeature)
 				name += ",";
 			name += stringFeature.getName();
@@ -28,10 +28,10 @@ public class TestStringCollectionFeature extends AbstractStringCollectionFeature
 
 	@Override
 	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-			TestContext context, RuntimeEnvironment env) {
+			String context, RuntimeEnvironment env) {
 		List<WeightedOutcome<String>> abcList = new ArrayList<WeightedOutcome<String>>();
 		double weight = 1.0;
-		for (StringFeature<TestContext> stringFeature : stringFeatures) {
+		for (StringFeature<String> stringFeature : stringFeatures) {
 			FeatureResult<String> result = stringFeature.check(context, env);
 			
 			abcList.add(new WeightedOutcome<String>(result.getOutcome(), weight));
