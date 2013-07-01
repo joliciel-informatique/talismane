@@ -291,6 +291,10 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						// add another half for an empty token, to differentiate it from regular ones
 						if (token.getStartIndex()==token.getEndIndex())
 							heapIndex += 0.5;
+						
+						// if it's the last token, make sure we end
+						if (token.getIndex()==sequence.getTokenSequence().size()-1)
+							heapIndex = sentenceLength;
 	
 						if (LOG.isTraceEnabled())
 							LOG.trace("Heap index: " + heapIndex);
