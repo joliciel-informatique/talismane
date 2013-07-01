@@ -30,6 +30,8 @@ import java.util.Map.Entry;
  *
  */
 public interface Sentence {
+	public static final String WHITE_SPACE = " \t\\x0B\f\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u202f\u205f\u3000\ufeff";
+	
 	/**
 	 * The sentence text.
 	 * @return
