@@ -68,9 +68,11 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
+		container.addFeatureClass("CurrentPattern", PatternNameFeature.class);
+		container.addFeatureClass("CurrentGroup", PatternGroupNameFeature.class);
 		container.addFeatureClass("PatternOffset", PatternMatchOffsetAddressFunction.class);
-		container.addFeatureClass("PatternWordForm", PatternMatchWordForm.class);
-		container.addFeatureClass("PatternIndexInSentence", PatternMatchIndexInSentence.class);
+		container.addFeatureClass("PatternWordForm", PatternMatchWordFormFeature.class);
+		container.addFeatureClass("PatternIndexInSentence", PatternMatchIndexInSentenceFeature.class);
 		this.tokenFeatureParser.addFeatureClasses(container);
 	}
 	

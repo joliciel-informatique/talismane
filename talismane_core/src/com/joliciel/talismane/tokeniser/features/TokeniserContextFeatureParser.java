@@ -75,8 +75,8 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("InsidePatternNgram", InsidePatternNgramFeature.class);
 		container.addFeatureClass("PatternOffset", PatternOffsetAddressFunction.class);
-		container.addFeatureClass("PatternWordForm", PatternWordForm.class);
-		container.addFeatureClass("PatternIndexInSentence", PatternIndexInSentence.class);
+		container.addFeatureClass("PatternWordForm", PatternWordFormFeature.class);
+		container.addFeatureClass("PatternIndexInSentence", PatternIndexInSentenceFeature.class);
 		container.addFeatureClass("TokeniserPatterns", TokeniserPatternsFeature.class);
 		container.addFeatureClass("TokeniserPatternsAndIndexes", TokeniserPatternsAndIndexesFeature.class);
 		this.tokenFeatureParser.addFeatureClasses(container);
@@ -94,10 +94,10 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 	protected void injectDependencies(Feature feature) {
 		if (feature instanceof InsidePatternNgramFeature) {
 			((InsidePatternNgramFeature) feature).setPatternMap(patternMap);
-		} else if (feature instanceof PatternWordForm) {
-			((PatternWordForm) feature).setPatternMap(patternMap);
-		} else if (feature instanceof PatternIndexInSentence) {
-			((PatternIndexInSentence) feature).setPatternMap(patternMap);
+		} else if (feature instanceof PatternWordFormFeature) {
+			((PatternWordFormFeature) feature).setPatternMap(patternMap);
+		} else if (feature instanceof PatternIndexInSentenceFeature) {
+			((PatternIndexInSentenceFeature) feature).setPatternMap(patternMap);
 		} else if (feature instanceof PatternOffsetAddressFunction) {
 			((PatternOffsetAddressFunction) feature).setPatternMap(patternMap);
 		}

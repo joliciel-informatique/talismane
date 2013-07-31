@@ -86,4 +86,12 @@ public interface TokenPattern {
 	 */
 	public void setName(String name);
 	public String getName();
+	
+	/**
+	 * A name for grouping together several patterns due to take advantage
+	 * of their distributional similarity in features.
+	 * @return
+	 */
+	public String getGroupName();
+	public void setGroupName(String groupName);
 }

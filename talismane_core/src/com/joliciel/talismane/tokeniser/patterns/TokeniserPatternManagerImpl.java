@@ -103,14 +103,22 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 			for (String testPattern : this.testPatterns) {
 				String pattern = testPattern;
 				String name = null;
-				int tabPos = testPattern.indexOf('\t');
-				if (tabPos>0) {
-					name = testPattern.substring(0, tabPos);
-					pattern = testPattern.substring(tabPos+1);
+				String groupName = null;
+				String[] parts = testPattern.split("\t");
+				if (parts.length==2) {
+					name = parts[0];
+					pattern = parts[1];
+				} else if (parts.length==3) {
+					name = parts[0];
+					groupName = parts[1];
+					pattern = parts[2];
 				}
+				
 				TokenPattern parsedPattern = this.getTokeniserPatternService().getTokeniserPattern(pattern, Tokeniser.SEPARATORS);
 				if (name!=null)
 					parsedPattern.setName(name);
+				if (groupName!=null)
+					parsedPattern.setGroupName(groupName);
 				this.parsedTestPatterns.add(parsedPattern);
 			}
 		}

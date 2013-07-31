@@ -35,6 +35,7 @@ class TokenPatternImpl implements TokenPattern {
 	private List<Pattern> parsedPattern = null;
 	private List<Integer> indexesToTest = null;
 	private String name;
+	private String groupName;
 	
 	private TokeniserPatternServiceInternal tokeniserPatternServiceInternal;
 
@@ -212,6 +213,7 @@ class TokenPatternImpl implements TokenPattern {
 				}
 				inGrouping = false;
 			} else if (c=='{') {
+				this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
 				inException = true;
 				currentStart = i+1;
 				currentEnd = i+1;
@@ -322,6 +324,14 @@ class TokenPatternImpl implements TokenPattern {
 
 	public void setName(String name) {
 		this.name = name.replace(' ','_');
+	}
+	
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 
 	@Override

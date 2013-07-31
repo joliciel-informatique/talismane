@@ -20,35 +20,32 @@ package com.joliciel.talismane.tokeniser.features;
 
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
-import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
- * Returns the actual text of the tokens matching the current pattern.
+ * Returns the index of the first token matching this pattern.
  * @author Assaf Urieli
  *
  */
-public final class PatternMatchWordForm extends AbstractCachableFeature<TokenPatternMatch,String> implements StringFeature<TokenPatternMatch> {
-	public PatternMatchWordForm() {
+public final class PatternMatchIndexInSentenceFeature extends AbstractCachableFeature<TokenPatternMatch,Integer> implements IntegerFeature<TokenPatternMatch> {
+	public PatternMatchIndexInSentenceFeature() {
 	}
 	
 	@Override
-	public FeatureResult<String> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
+	public FeatureResult<Integer> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
+		FeatureResult<Integer> result = null;
 		Token token = tokenPatternMatch.getToken();
-		FeatureResult<String> result = null;
 		
-		TokenPattern tokenPattern = tokenPatternMatch.getPattern();
-
-		String unigram = "";
-		for (int i = 0; i<tokenPattern.getTokenCount();i++) {
-			int index = token.getIndexWithWhiteSpace() - tokenPatternMatch.getIndex() + i;
-			Token aToken = token.getTokenSequence().listWithWhiteSpace().get(index);
-			unigram += aToken.getText();
-		}
-		result = this.generateResult(unigram);
+		// note - if a match is found, this is actually the second token in the pattern
+		// therefore, we want the index of the first token in the pattern.
+		int indexWithWhiteSpace = token.getIndexWithWhiteSpace() - tokenPatternMatch.getIndex();
+		Token firstToken = token.getTokenSequence().listWithWhiteSpace().get(indexWithWhiteSpace);
+		int patternIndex = firstToken.getIndex();
+		
+		result = this.generateResult(patternIndex);
 
 		return result;
 	}
