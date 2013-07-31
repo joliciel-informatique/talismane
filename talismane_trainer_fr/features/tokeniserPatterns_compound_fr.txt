@@ -1,0 +1,275 @@
+# tokeniser decision regular expressions
+# default tokeniser decisions for various separators:
+# All other separators are assumed to separate tokens on both sides (IS_SEPARATOR), unless proven otherwise
+IS_NOT_SEPARATOR -_
+IS_SEPARATOR_AFTER '
+IS_SEPARATOR_BEFORE
+# For each pattern below, check if any set of n tokens matches it. If so, all of the separators inside the set are tested further.
+# For more information, see TokeniserPattern
+ellipses	\.\.\.
+dashWithSpaces	PONCTWPatterns	 - 
+dashAfterSpace	PONCTWPatterns -{[^ ]}
+Mr.	\D+\.{[ ,\)/\\]}
+S.A.	NPPatterns	.+\..+
+Quat'z'Arts	(?![cdjlmnstCDJLMNST]\z|qu\z|jusqu\z|puisqu\z|lorsqu\z|aujourd\z|prud\z|quelqu\z).+'.+
+-t-elle	.+-{t-(elle|elles|en|il|ils|on|y)}
+-elle	(?!t\z).+-{(ce|elle|elles|en|il|ils|je|la|le|les|leur|lui|moi|nous|on|toi|tu|vous|y)}
+-t'	.+-{[mt]'}
+1 000	NUMPatterns	\d+ \d+
+1,000	NUMPatterns	\d+,\d+
+1.000	NUMPatterns	\d+\.\d+
+Canal+	NPPatterns	.+\+
+# conjonctions
+# version "cassables" : le premier mot peut appraître avant "que", sans y être attaché
+bien que	CSPatterns	(après|attendu|aussitôt|alors|avant|bien|cependant|considerant|consideré|depuis|encore|maintenant|non|outre|quoi|sans|sinon|suivant|tant) que
+bien que	CSPatterns	(après|attendu|aussitôt|alors|avant|bien|cependant|considerant|consideré|depuis|encore|maintenant|non|outre|quoi|sans|sinon|suivant|tant) qu{'}
+comme si	CSPatterns	(comme|même) si
+comme s	CSPatterns	(comme|même) s{'}
+comme quoi	CSPatterns	comme quoi
+# versions "incassables" : le premier mot ne peut pas apparaître avant "que", sans y être attaché
+parce que	CSNoBreakPatterns	(afin|dès|malgré|parce|pendant|plutôt|pour|pourvu|sauf|selon|sitôt|tandis) que
+parce que	CSNoBreakPatterns	(afin|dès|malgré|parce|pendant|plutôt|pour|pourvu|sauf|selon|sitôt|tandis) qu{'}
+ainsi que	CC	(ainsi|autant|davantage) que
+ainsi que	CC	(ainsi|autant|davantage) qu{'}
+ou bien		CC	ou (alors|bien|encore|même)
+et aussi	CC	et (alors|aussi|encore|même|puis)
+mais aussi	CC	(et|mais) (alors|aussi|encore)
+tout comme	CC	tout comme
+ou bien encore	CC	ou bien encore
+si ce n'est	CC	si ce n'est
+quand bien même	CSPatterns	quand bien même
+dans la mesure où	CSPatterns	dans la mesure où
+une fois	CSPatterns	une fois
+# conjonctions à plus que 2 mots en "que"
+à condition que	CSPatterns	à (condition|mesure|moins|présent) que
+à condition que	CSPatterns	à (condition|mesure|moins|présent) qu{'}
+à telle enseigne que	CSPatterns	à telle enseigne que
+à telle enseigne que	CSPatterns	à telle enseigne qu{'}
+à chaque fois que	CSPatterns	à chaque fois que
+à chaque fois que	CSPatterns	à chaque fois qu{'}
+alors même que	CSPatterns	(alors|avant|de) même que
+alors même que	CSPatterns	(alors|avant|de) même qu{'}
+au fur et à mesure que	CSPatterns	au fur et à mesure que
+au fur et à mesure que	CSPatterns	au fur et à mesure qu{'}
+au même titre que	CSPatterns	au même titre que
+au même titre que	CSPatterns	au même titre qu{'}
+au point que	CSPatterns	au point que
+au point que	CSPatterns	au point qu{'}
+aussi bien que	CSPatterns	aussi bien que
+aussi bien que	CSPatterns	aussi bien qu{'}
+autant dire que	CSPatterns	autant dire que
+autant dire que	CSPatterns	autant dire qu{'}
+c'est à dire que	CSPatterns	c'est[ -]à[ -]dire que
+c'est à dire que	CSPatterns	c'est[ -]à[ -]dire qu{'}
+d'autant plus que	CSPatterns	d'autant plus que
+d'autant plus que	CSPatterns	d'autant plus qu{'}
+d'autant que	CSPatterns	d'autant que
+d'autant que	CSPatterns	d'autant qu{'}
+de manière que	CSPatterns	de (manière|même|plus|sorte) que
+de manière que	CSPatterns	de (manière|même|plus|sorte) qu{'}
+de manière à ce que	CSPatterns	de manière à ce que
+de manière à ce que	CSPatterns	de manière à ce qu{'}
+de telle sorte que	CSPatterns	de telle sorte que
+de telle sorte que	CSPatterns	de telle sorte qu{'}
+du fait que	CSPatterns	du (fait|moment) que
+du fait que	CSPatterns	du (fait|moment) qu{'}
+en ce sens que	CSPatterns	en ce sens que
+en ce sens que	CSPatterns	en ce sens qu{'}
+en même temps que	CSPatterns	en même temps que
+en même temps que	CSPatterns	en même temps qu{'}
+étant donné que	CSPatterns	étant donné que
+étant donné que	CSPatterns	étant donné qu{'}
+dès lors que	CSPatterns	dès lors que
+dès lors que	CSPatterns	dès lors qu{'}
+jusqu'à ce que	CSNoBreakPatterns	jusqu'à ce que
+jusqu'à ce que	CSNoBreakPatterns	jusqu'à ce qu{'}
+le temps que	CSPatterns	le temps que
+le temps que	CSPatterns	le temps qu{'}
+par le fait que	CSPatterns	par le fait que
+par le fait que	CSPatterns	par le fait qu{'}
+pour autant que	CSPatterns	pour (autant|peu) que
+pour autant que	CSPatterns	pour (autant|peu) qu{'}
+pour une fois que	CSPatterns	pour une fois que
+pour une fois que	CSPatterns	pour une fois qu{'}
+quitte à ce que	CSNoBreakPatterns	quitte à ce que
+quitte à ce que	CSNoBreakPatterns	quitte à ce qu{'}
+si bien que	CSPatterns	si (bien|peu) que
+si bien que	CSPatterns	si (bien|peu) qu{'}
+sous prétexte que	CSPatterns	sous (prétexte|réserve) que
+sous prétexte que	CSPatterns	sous (prétexte|réserve) qu{'}
+tant et si bien que	CSPatterns	tant et si bien que
+tant et si bien que	CSPatterns	tant et si bien qu{'}
+une fois que	CSPatterns	(chaque|une|des) fois que
+une fois que	CSPatterns	(chaque|une|des) fois qu{'}
+# prépositions
+à partir de	PPatterns	à (compter|partir) (de|du|des)
+à partir de	PPatterns	à (compter|partir) d{'}
+à cause de	PPatterns	à (base|bord|bout|cause|condition|concurrence|coups|court|défaut|force|moins|propos|hauteur|raison|titre) (de|du|des)
+à cause de	PPatterns	à (base|bord|bout|cause|condition|concurrence|coups|court|défaut|force|moins|propos|hauteur|raison|titre) d{'}
+à savoir	PPatterns	à savoir
+à travers	PPatterns	à travers
+afin de	PInfPatterns	(afin|avant|faute) de
+afin de	PInfPatterns	(afin|avant|faute) d{'}
+au delà de	PPatterns	au[ -](delà|dessous|dessus) (de|du|des)
+au delà de	PPatterns	au[ -](delà|dessous|dessus) d{'}
+au fur et à mesure de	PPatterns	au fur et à mesure (de|du|des)
+au fur et à mesure de	PPatterns	au fur et à mesure d{'}
+au plus fort de	PPatterns	au plus fort (de|du|des)
+au plus fort de	PPatterns	au plus fort d{'}
+autour de	PPatterns	(autour|auprès|hors|lors|loin|près) (de|du|des)
+autour de	PPatterns	(autour|auprès|hors|lors|loin|près) d{'}
+avant même	PPatterns	avant même
+bien avant	PPatterns	bien (avant|après)
+c'est-à-dire	PPatterns	c'est[ -]à[ -]dire
+c/o	PPatterns	c/o
+compte tenu de	PPatterns	compte tenu (de|du|des)
+compte tenu de	PPatterns	compte tenu d{'}
+contrairement à	PPatterns	(comparé|conformément|contraire|contrairement|suite) (à|au|aux)
+d'après	PPatterns	d'après
+d'entre	PPatterns	d'entre
+d'ici	PPatterns	d'ici
+d'ici à	PPatterns	d'ici (à|au|aux)
+d'où	PPatterns	d'où
+de nature à	PPatterns	de (façon|manière|nature) à
+de par	PPatterns	de par
+de part et d{'}autre de	PPatterns	de part et d{'}autre (de|du|des)
+de part et d{'}autre de	PPatterns	de part et d{'}autre d{'}
+de plus en plus de	PPatterns	de plus en plus (de|du|des)
+de plus en plus de	PPatterns	de plus en plus d{'}
+en cas de	PPatterns	en (cas|charge|cours|deçà|dehors|dépit|dessous|fonction|mal|mesure|passe|plus|qualité|raison|regard|termes|train|travers|vertu|vue|voie) (de|du|des)
+en cas de	PPatterns	en (cas|charge|cours|deçà|dehors|dépit|dessous|fonction|mal|mesure|passe|plus|qualité|raison|regard|termes|train|travers|vertu|vue|voie) d{'}
+en proie à	PPatterns	en (butte|proie) (à|au|aux)
+en tant que	PPatterns	en tant (que|qu)
+étant donné	PPatterns	étant donné
+grâce à	PPatterns	(face|grâce|quant) (à|au|aux)
+il y a	PPatterns	il y a
+jusqu'à	PPatterns	jusqu'(à|au|aux|en)
+le temps de	PInfPatterns	le temps de
+le temps de	PInfPatterns	le temps d{'}
+non sans	P non sans
+par rapport à	PPatterns	par rapport (à|au|aux)
+par suite de	PPatterns	par suite (de|du|des)
+par suite de	PPatterns	par suite d{'}
+plutôt que de	PInfPatterns	plutôt que de
+plutôt que de	PInfPatterns	plutôt que d{'}
+pour cause de	PPatterns	pour cause (de|du|des)
+pour cause de	PPatterns	pour cause d{'}
+sans parler de	PPatterns	sans parler (de|du|des)
+sans parler de	PPatterns	sans parler d{'}
+sous forme de	PPatterns	sous (couvert|forme|peine|prétexte|réserve) (de|du|des)
+sous forme de	PPatterns	sous (couvert|forme|peine|prétexte|réserve) d{'}
+sur fond de	PPatterns	sur fond (de|du|des)
+sur fond de	PPatterns	sur fond d{'}
+quitte à	PInfPatterns	(quitte|sauf) à
+tel que	PPatterns	(tel|telle|telles|tels) que
+tel que	PPatterns	(tel|telle|telles|tels) qu{'}
+tout au long de	PPatterns	tout au long (de|du|des)
+tout au long de	PPatterns	tout au long d{'}
+vis-à-vis de	PPatterns	vis-à-vis (de|du|des)
+vis-à-vis de	PPatterns	vis-à-vis d{'}
+y compris	PPatterns	y compris
+# adverbes
+à la fois	ADVPatterns	à la fois
+à nouveau	ADVPatterns	(à|de) nouveau
+à peine	ADVPatterns	à (nouveau|peine)
+à peu près	ADVPatterns	à peu près
+a priori	ADVPatterns	a (contrario|fortiori|priori|posteriori)
+après coup	ADVPatterns	après coup
+au moins	ADVPatterns	au moins
+autrement dit	ADVPatterns	autrement dit
+aujourd'hui	ADVPatterns	aujourd'hui
+beaucoup plus	ADVPatterns	beaucoup (plus|moins)
+bel et bien	ADVPatterns	bel et bien
+bien sûr	ADVPatterns	bien (sûr|entendu)
+bon an mal an	ADVPatterns	bon an mal an
+çà et là	ADVPatterns	çà et là
+ce faisant	ADVPatterns	ce faisant
+cela dit	ADVPatterns	(cela|ceci) (dit|fait|étant|posé)
+cette fois-ci	ADVPatterns	cette fois-ci
+coûte que coûte	ADVPatterns	coûte que coûte
+d'abord	ADVPatterns	d'(abord|emblée)
+d'accord	ADVPatterns	d'accord
+d'ailleurs	ADVPatterns	d'ailleurs
+d'autant	ADVPatterns	d'autant
+d'autant plus	ADVPatterns	d'autant plus
+d'autre part	ADVPatterns	d'(autre|une) part
+d'ores et déjà	ADVPatterns	d'ores et déjà
+de fait	ADVPatterns	de (facto|fait)
+de même	ADVPatterns	de même
+de nouveau	ADVPatterns	de nouveau
+de plus	ADVPatterns	de plus
+de plus en plus	ADVPatterns	de plus en plus
+dès lors	ADVPatterns	dès lors
+du moins	ADVPatterns	du moins
+en fait	ADVPatterns	en (effet|définitive|fait|général|gros|moyenne|outre|parallèle|particulier|partie|plus|privé|revanche)
+en cours	ADVPatterns	en (arrière|avant|commun|continu|cours|direct|moins|plein|pratique|propre|référé|vain|vigueur)
+en tout cas	ADVPatterns	en tout cas
+grosso modo	ADVPatterns	grosso modo
+in extremis	ADVPatterns	in (extremis|fine)
+jusqu'alors	ADVPatterns	jusqu'(alors|ici|là|où)
+jusqu'à présent	ADVPatterns	jusqu'à présent
+jusque-là	ADVPatterns	jusque-là
+le cas échéant	ADVPatterns	le cas échéant
+le plus	ADVPatterns	le plus
+le plus souvent	ADVPatterns	le plus souvent
+manu militari	ADVPatterns	manu militari
+moyennant quoi	ADVPatterns	moyennant quoi
+ne pas	ADVPatterns	ne (pas|plus|jamais|point)
+non seulement	ADVPatterns	non (seulement|pas|plus|moins)
+outre mesure	ADVPatterns	outre mesure
+par ailleurs	ADVPatterns	par (ailleurs|conséquent|contre)
+pas encore	ADVPatterns	pas (encore|moins|même)
+pas du tout	ADVPatterns	pas du tout
+pas pour autant	ADVPatterns	pas pour autant
+pas tout à fait	ADVPatterns	pas tout à fait
+peu à peu	ADVPatterns	peu à peu
+plus ou moins	ADVPatterns	plus ou moins
+pour autant	ADVPatterns	pour autant
+quand même	ADVPatterns	quand même
+qui plus est	ADVPatterns	qui plus est
+tels quels	ADVPatterns	tels quels
+si possible	ADVPatterns	si possible
+sine die	ADVPatterns	sine die
+sine qua non	ADVPatterns	sine qua non
+soit dit en passant	ADVPatterns	soit dit en passant
+somme toute	ADVPatterns	somme toute
+stricto sensu	ADVPatterns	stricto sensu
+tour à tour	ADVPatterns	tour à tour
+tous azimuts	ADVPatterns	tous azimuts
+tous comptes faits	ADVPatterns	tous comptes faits
+tout à fait	ADVPatterns	tout à (fait|coup)
+tout au moins	ADVPatterns	tout au (moins|plus)
+tout à la fois	ADVPatterns	tout à la fois
+tout d{'}abord	ADVPatterns	tout d{'}abord
+tout d{'}un coup	ADVPatterns	tout d{'}un coup
+tout compte fait	ADVPatterns	tout compte fait
+tout de même	ADVPatterns	tout de (même|suite)
+tout juste	ADVPatterns	tout juste
+un peu	ADVPatterns	un peu
+un peu plus	ADVPatterns	un peu (plus|moins)
+vice versa	ADVPatterns	vice versa
+# noms, adjectifs, déterminants, clitiques, pronoms, ...
+celui-ci	PROPatterns	(celui|celle|ceux|celles)-{(ci|là)}
+^celui-ci	(?!celui\z|celle\z|ceux\z|celles\z).+-{(ci|là)}
+bien des	DETPatterns	bien des
+bon nombre de	DETPatterns	bon nombre de
+bon nombre de	DETPatterns	bon nombre d{'}
+chef-d'oeuvre	(chef|chefs|main|mains|maître|maîtres)-d'(oeuvre|oeuvres)
+de la	DETPatterns	de la
+de la	DETPatterns	de l{'}
+d'aucuns	DETPatterns	d'aucuns
+l'on	PROPatterns	l'on
+n'importe quel	DETPatterns	n'importe (quel|quelle|quelles|quels)
+n'importe où	ADVPatterns	n'importe (où|quand)
+plus de	(autant|beaucoup|bien|davantage|plus|moins|nombre) (de|d)
+prud'homme	prud'(homme|hommes|homal|homaux|homale|homales)
+quelqu'un	PROPatterns	quelqu'un
+quelque chose	PROPatterns	quelque chose
+quelque part	ADVPatterns	quelque (part|peu)
+lui même	PROPatterns	(lui|elle|eux|elles) (même|mêmes)
+tout le monde	PROPatterns	tout le monde
+tout un chacun	PROPatterns	tout un chacun
+un peu de	DETPatterns	(un|le) peu de
+un peu plus de	DETPatterns	un peu (plus|moins) (de|d)
+nulle part	ADVPatterns	nulle part
+

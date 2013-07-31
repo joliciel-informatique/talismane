@@ -32,11 +32,11 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  * @author Assaf Urieli
  *
  */
-public final class PatternWordForm extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
+public final class PatternWordFormFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
 	StringFeature<TokenWrapper> tokenPatternFeature;
 	private Map<String,TokenPattern> patternMap;
 
-	public PatternWordForm(StringFeature<TokenWrapper> tokenPatternFeature) {
+	public PatternWordFormFeature(StringFeature<TokenWrapper> tokenPatternFeature) {
 		this.tokenPatternFeature = tokenPatternFeature;
 		this.setName(super.getName() + "(" + this.tokenPatternFeature.getName() + ")");
 	}
