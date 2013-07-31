@@ -24,21 +24,29 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.machineLearning.CorpusEventStream;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
+import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
-class TokeniserPatternServiceImpl implements TokeniserPatternService {
-	TokeniserService tokeniserService;
-	TokenFeatureService tokenFeatureService;
-	FilterService filterService;
-	FeatureService featureService;
+class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
+	private TokeniserService tokeniserService;
+	private TokenFeatureService tokenFeatureService;
+	private FilterService filterService;
+	private FeatureService featureService;
+	private TokenFilterService tokenFilterService;
+	private MachineLearningService machineLearningService;
 
 	@Override
 	public TokeniserPatternManager getPatternManager(List<String> patternDescriptors) {
@@ -48,10 +56,19 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 		return patternManager;
 	}
 
-	public Tokeniser getPatternTokeniser(TokeniserPatternManager patternManager,
+	
+	@Override
+	public TokenPattern getTokeniserPattern(String regexp, Pattern separatorPattern) {
+		TokenPatternImpl pattern = new TokenPatternImpl(regexp, separatorPattern);
+		pattern.setTokeniserPatternServiceInternal(this);
+		return pattern;
+	}
+	
+	@Override
+	public Tokeniser getIntervalPatternTokeniser(TokeniserPatternManager patternManager,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, 
 			DecisionMaker<TokeniserOutcome> decisionMaker, int beamWidth) {
-		PatternTokeniserImpl tokeniser = new PatternTokeniserImpl(patternManager, tokeniserContextFeatures, beamWidth);
+		IntervalPatternTokeniser tokeniser = new IntervalPatternTokeniser(patternManager, tokeniserContextFeatures, beamWidth);
 		tokeniser.setTokeniserPatternService(this);
 		tokeniser.setTokeniserService(this.getTokeniserService());
 		tokeniser.setTokenFeatureService(this.getTokenFeatureService());
@@ -60,7 +77,23 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 		tokeniser.setFeatureService(this.getFeatureService());
 		return tokeniser;
 	}
-	
+
+	@Override
+	public Tokeniser getCompoundPatternTokeniser(
+			TokeniserPatternManager patternManager,
+			Set<TokenPatternMatchFeature<?>> features,
+			DecisionMaker<TokeniserOutcome> decisionMaker, int beamWidth) {
+		CompoundPatternTokeniser tokeniser = new CompoundPatternTokeniser(patternManager, features, beamWidth);
+		tokeniser.setTokeniserPatternService(this);
+		tokeniser.setTokeniserService(this.getTokeniserService());
+		tokeniser.setTokenFeatureService(this.getTokenFeatureService());
+		tokeniser.setFilterService(this.getFilterService());
+		tokeniser.setDecisionMaker(decisionMaker);
+		tokeniser.setFeatureService(this.getFeatureService());
+		return tokeniser;
+
+	}
+
 
 	@Override
 	public Tokeniser getPatternTokeniser(
@@ -72,17 +105,57 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 			}
 		}
 		
-		TokeniserPatternManager tokeniserPatternManager = this.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
-		Set<TokeniserContextFeature<?>> tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
-		Tokeniser tokeniser = this.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
+		TokeniserPatternManager patternManager = this.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
+		
+		PatternTokeniserType patternTokeniserType = PatternTokeniserType.valueOf((String)tokeniserModel.getModelAttributes().get(PatternTokeniserType.class.getSimpleName()));	
+		
+		Tokeniser tokeniser = null;
+		if (patternTokeniserType==PatternTokeniserType.Interval) {
+			Set<TokeniserContextFeature<?>> tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), patternManager.getParsedTestPatterns());
+	
+			tokeniser = this.getIntervalPatternTokeniser(patternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
+		} else {
+			Set<TokenPatternMatchFeature<?>> features = this.getTokenFeatureService().getTokenPatternMatchFeatureSet(tokeniserModel.getFeatureDescriptors());
+			
+			tokeniser = this.getCompoundPatternTokeniser(patternManager, features, tokeniserModel.getDecisionMaker(), beamWidth);
+		}
 		return tokeniser;
 	}
-
 	
 	@Override
-	public TokenPattern getTokeniserPattern(String regexp, Pattern separatorPattern) {
-		TokenPattern pattern = new TokenPatternImpl(regexp, separatorPattern);
-		return pattern;
+	public CorpusEventStream getIntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
+			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, TokeniserPatternManager patternManager) {
+		IntervalPatternEventStream eventStream = new IntervalPatternEventStream(corpusReader, tokeniserContextFeatures);
+	
+		eventStream.setTokenFeatureService(this.getTokenFeatureService());
+		eventStream.setTokeniserPatternService(this);
+		eventStream.setMachineLearningService(this.getMachineLearningService());
+		eventStream.setTokeniserService(this.getTokeniserService());
+		eventStream.setTokeniserPatternManager(patternManager);
+		eventStream.setFilterService(this.getFilterService());
+		eventStream.setTokenFilterService(this.getTokenFilterService());
+		eventStream.setFeatureService(this.getFeatureService());
+		return eventStream;
+	}
+	
+
+	@Override
+	public CorpusEventStream getCompoundPatternEventStream(
+			TokeniserAnnotatedCorpusReader corpusReader,
+			Set<TokenPatternMatchFeature<?>> features,
+			TokeniserPatternManager patternManager) {
+		CompoundPatternEventStream eventStream = new CompoundPatternEventStream(corpusReader, features);
+		
+		eventStream.setTokenFeatureService(this.getTokenFeatureService());
+		eventStream.setTokeniserPatternService(this);
+		eventStream.setMachineLearningService(this.getMachineLearningService());
+		eventStream.setTokeniserService(this.getTokeniserService());
+		eventStream.setTokeniserPatternManager(patternManager);
+		eventStream.setFilterService(this.getFilterService());
+		eventStream.setTokenFilterService(this.getTokenFilterService());
+		eventStream.setFeatureService(this.getFeatureService());
+		return eventStream;
+
 	}
 	
 	public TokeniserService getTokeniserService() {
@@ -117,5 +190,36 @@ class TokeniserPatternServiceImpl implements TokeniserPatternService {
 		this.featureService = featureService;
 	}
 
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+
+	@Override
+	public TokenPatternMatch getTokenPatternMatch(
+			TokenPatternMatchSequence sequence, Token token,
+			TokenPattern pattern, int index) {
+		TokenPatternMatchImpl match = new TokenPatternMatchImpl(sequence, token, pattern, index);
+		return match;
+	}
+
+	@Override
+	public TokenPatternMatchSequence getTokenPatternMatchSequence(
+			TokenPattern tokenPattern, List<Token> tokenSequence) {
+		TokenPatternMatchSequenceImpl sequence = new TokenPatternMatchSequenceImpl(tokenPattern, tokenSequence);
+		return sequence;
+	}
 
 }

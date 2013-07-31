@@ -354,4 +354,16 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		this.withRoot = withRoot;
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Token token : this.listWithWhiteSpace) {
+			sb.append('|');
+			sb.append(token.getOriginalText());
+		}
+		sb.append('|');
+		return sb.toString();
+	}
+	
+	
 }

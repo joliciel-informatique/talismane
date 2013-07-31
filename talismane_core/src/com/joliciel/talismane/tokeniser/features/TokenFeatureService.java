@@ -27,6 +27,8 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 public interface TokenFeatureService {
 	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatureSet(List<String> featureDescriptors,
 			List<TokenPattern> patternList);
+	
+	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatureSet(List<String> featureDescriptors);
 
 	public TokenFeatureParser getTokenFeatureParser();
 	

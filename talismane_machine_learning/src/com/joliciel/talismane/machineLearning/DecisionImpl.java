@@ -25,28 +25,28 @@ import java.util.List;
 class DecisionImpl<T extends Outcome> implements Decision<T> {
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private T outcome;
-	private String name;
+	private String code;
 	private double probability;
 	private double probabilityLog;
 	private boolean probabilityLogCalculated = false;
 	private List<String> authorities = new ArrayList<String>();
 	private boolean statistical = true;
 	
-	public DecisionImpl(String name, double probability) {
-		this.name = name;
+	public DecisionImpl(String code, double probability) {
+		this.code = code;
 		this.probability = probability;
 		this.statistical = true;
 	}
 	
 	public DecisionImpl(T outcome) {
 		this.outcome = outcome;
-		this.name = outcome.getCode();
+		this.code = outcome.getCode();
 		this.probability = 1.0;
 		this.statistical = false;
 	}
 	
 	public String getCode() {
-		return name;
+		return code;
 	}
 
 	public void setProbability(double value) {
@@ -112,7 +112,7 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 
 	@Override
 	public String toString() {
-		return "Decision [" + name
+		return "Decision [" + code
 				+ "," + df.format(probability) + "]";
 	}
 	

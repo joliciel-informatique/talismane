@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -35,12 +36,12 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
  * @author Assaf Urieli
  *
  */
-public final class TokeniserPatternOffsetAddressFunction extends AbstractTokenAddressFunction {
+public final class PatternOffsetAddressFunction extends AbstractTokenAddressFunction {
 	StringFeature<TokenWrapper> tokenPatternFeature;
 	IntegerFeature<TokenWrapper> offsetFeature;
 	private Map<String,TokenPattern> patternMap;
 	
-	public TokeniserPatternOffsetAddressFunction(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokenWrapper> offsetFeature) {
+	public PatternOffsetAddressFunction(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokenWrapper> offsetFeature) {
 		this.tokenPatternFeature = tokenPatternFeature;
 		this.offsetFeature = offsetFeature;
 		this.setName("PatternOffset(" + this.tokenPatternFeature.getName() + "," + this.offsetFeature.getName() + ")");
@@ -53,45 +54,48 @@ public final class TokeniserPatternOffsetAddressFunction extends AbstractTokenAd
 		
 		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
 		if (tokenPatternResult!=null) {
+			// If we have a token pattern, then this is the first token to be tested in that pattern
 			TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
 			int testIndex = tokenPattern.getIndexesToTest().get(0);
 		
-			// Only continue if the current token matched this pattern at this index
 			FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
 			if (offsetResult!=null) {
 				int offset = offsetResult.getOutcome();
+				
+				if (offset==0) {
+					throw new TalismaneException("Cannot do a pattern offset with offset of 0");
+				}
 			
 				Token offsetToken = null;
-				if (offset==0)
-					offsetToken = token;
-				else  {
-					// baseIndex should be the last non-whitespace word in the pattern if offset > 0
-					// or the first non-whitespace word in the pattern if offset < 0
-					int baseIndex = 0;
-					int j = token.getIndexWithWhiteSpace() - testIndex;
-					for (int i=0; i<tokenPattern.getTokenCount(); i++) {
-						if (j>=0&&j<token.getTokenSequence().listWithWhiteSpace().size()) {
-							Token tokenInPattern = token.getTokenSequence().listWithWhiteSpace().get(j);
-							if (!tokenInPattern.isWhiteSpace()) {
-								baseIndex = tokenInPattern.getIndex();
-								if (offset<0) {
-									break;
-								}
+
+				// baseIndex should be the last non-whitespace word in the pattern if offset > 0
+				// or the first non-whitespace word in the pattern if offset < 0
+				int baseIndex = 0;
+				int j = token.getIndexWithWhiteSpace() - testIndex;
+				for (int i=0; i<tokenPattern.getTokenCount(); i++) {
+					if (j>=0&&j<token.getTokenSequence().listWithWhiteSpace().size()) {
+						Token tokenInPattern = token.getTokenSequence().listWithWhiteSpace().get(j);
+						if (!tokenInPattern.isWhiteSpace()) {
+							baseIndex = tokenInPattern.getIndex();
+							if (offset<0) {
+								break;
 							}
 						}
-						j++;
 					}
-	
-					int offsetIndex = baseIndex + offset;
-					if (offsetIndex>=0 && offsetIndex<token.getTokenSequence().size()) {
-						offsetToken = token.getTokenSequence().get(offsetIndex);
-					}
+					j++;
 				}
+
+				int offsetIndex = baseIndex + offset;
+				if (offsetIndex>=0 && offsetIndex<token.getTokenSequence().size()) {
+					offsetToken = token.getTokenSequence().get(offsetIndex);
+				}
+
 				if (offsetToken!=null) {
 					result = this.generateResult(offsetToken);
 				} // we have an offset token
 			} // we have an offset result
 		}
+
 		return result;
 	}
 

@@ -30,6 +30,9 @@ public interface TokeniserEvaluator {
 	 */
 	public void evaluate(
 			TokeniserAnnotatedCorpusReader corpusReader);
-
+	
+	public int getSentenceCount();
+	public void setSentenceCount(int sentenceCount);
+	
 	void addObserver(TokenEvaluationObserver observer);
 }

@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser;
+package com.joliciel.talismane.tokeniser.patterns;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,28 +36,34 @@ import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.tokeniser.TaggedToken;
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
+import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+import com.joliciel.talismane.tokeniser.TokeniserDecisionFactory;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
+import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
-import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * An event stream for tokenising, using patterns to identify intervals that need to be examined.
  * An interval is simply the space between two tokens.
  * This reduces the tokeniser decision to binary decision: separate or join.
+ * Unlike the Compound event stream, we create one event per token interval inside a pattern match.
  * By convention, a feature being tested on a token is assumed to test the interval between the token and the one preceding it.
  * @author Assaf Urieli
  *
  */
-class TokeniserEventStream implements CorpusEventStream {
-    private static final Log LOG = LogFactory.getLog(TokeniserEventStream.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokeniserEventStream.class);
+class IntervalPatternEventStream implements CorpusEventStream {
+    private static final Log LOG = LogFactory.getLog(IntervalPatternEventStream.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternEventStream.class);
     
     private TokenFeatureService tokenFeatureService;
 	private TokenFilterService tokenFilterService;
@@ -78,7 +84,7 @@ class TokeniserEventStream implements CorpusEventStream {
 	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 	private TokenSequenceFilter tokenFilterWrapper = null;
 
-	public TokeniserEventStream(TokeniserAnnotatedCorpusReader corpusReader,
+	public IntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures) {
 		this.corpusReader = corpusReader;
 		this.tokeniserContextFeatures = tokeniserContextFeatures;
@@ -117,8 +123,8 @@ class TokeniserEventStream implements CorpusEventStream {
 					// check if anything matches each pattern
 					Set<Token> patternMatchingTokens = new TreeSet<Token>();
 					for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
-						List<TokenPatternMatch> tokenPatternMatches = parsedPattern.match(tokenSequence);
-						for (TokenPatternMatch tokenPatternMatch : tokenPatternMatches) {
+						List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
+						for (TokenPatternMatchSequence tokenPatternMatch : tokenPatternMatches) {
 							if (LOG.isTraceEnabled())
 								LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatch.getTokenSequence());
 							patternMatchingTokens.addAll(tokenPatternMatch.getTokensToCheck());

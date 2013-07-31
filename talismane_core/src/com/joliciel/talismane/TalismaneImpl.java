@@ -54,6 +54,7 @@ import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
+import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -133,8 +134,10 @@ class TalismaneImpl implements Talismane {
 					throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
 				}
 			} else if (config.getCommand().equals(Command.evaluate)) {
-
-				if (config.getModule().equals(Talismane.Module.PosTagger)) {
+				if (config.getModule().equals(Talismane.Module.Tokeniser)) {
+					TokeniserEvaluator tokeniserEvaluator = config.getTokeniserEvaluator();
+					tokeniserEvaluator.evaluate(config.getTokenCorpusReader());
+				} else if (config.getModule().equals(Talismane.Module.PosTagger)) {
 					PosTaggerEvaluator posTaggerEvaluator = config.getPosTaggerEvaluator();
 					posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());					
 				} else if (config.getModule().equals(Talismane.Module.Parser)) {

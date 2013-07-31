@@ -28,12 +28,14 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TokeniserEvaluatorImpl.class);
 	Tokeniser tokeniser;
+	private int sentenceCount = 0;
 
 	private List<TokenEvaluationObserver> observers = new ArrayList<TokenEvaluationObserver>();
 	
 	@Override
 	public void evaluate(
 			TokeniserAnnotatedCorpusReader corpusReader) {		
+		int sentenceIndex = 0;
 		while (corpusReader.hasNextTokenSequence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
 			String sentence = realSequence.getText();
@@ -43,6 +45,9 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 			for (TokenEvaluationObserver observer : observers) {
 				observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
 			}
+			sentenceIndex++;
+			if (sentenceCount>0 && sentenceIndex==sentenceCount)
+				break;
 		} // next sentence
 		
 		for (TokenEvaluationObserver observer : observers) {
@@ -71,6 +76,13 @@ class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 		this.tokeniser = tokeniser;
 	}
 
+	public int getSentenceCount() {
+		return sentenceCount;
+	}
+
+	public void setSentenceCount(int sentenceCount) {
+		this.sentenceCount = sentenceCount;
+	}
 
 	@Override
 	public void addObserver(TokenEvaluationObserver observer) {

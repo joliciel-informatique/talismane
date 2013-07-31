@@ -470,7 +470,7 @@ public class PosTaggerMaxentRunner {
 					TokeniserPatternManager tokeniserPatternManager =
 						tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get("patterns"));
 					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
-					tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
+					tokeniser = tokeniserPatternService.getIntervalPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
 				
 					List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
 					if (tokenFilterDescriptors!=null) {

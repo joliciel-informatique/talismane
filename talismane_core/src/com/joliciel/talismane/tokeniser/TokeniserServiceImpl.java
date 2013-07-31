@@ -29,10 +29,8 @@ import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
-import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 
 class TokeniserServiceImpl implements TokeniserServiceInternal {
@@ -138,23 +136,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(history);
 		sequence.setTokeniserServiceInternal(this);
 		return sequence;
-	}
-
-
-	@Override
-	public TokeniserEventStream getTokeniserEventStream(TokeniserAnnotatedCorpusReader corpusReader,
-			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, TokeniserPatternManager patternManager) {
-		TokeniserEventStream eventStream = new TokeniserEventStream(corpusReader, tokeniserContextFeatures);
-	
-		eventStream.setTokenFeatureService(this.getTokenFeatureService());
-		eventStream.setTokeniserPatternService(this.getTokeniserPatternService());
-		eventStream.setMachineLearningService(this.getMachineLearningService());
-		eventStream.setTokeniserService(this);
-		eventStream.setTokeniserPatternManager(patternManager);
-		eventStream.setFilterService(this.getFilterService());
-		eventStream.setTokenFilterService(this.getTokenFilterService());
-		eventStream.setFeatureService(this.getFeatureService());
-		return eventStream;
 	}
 
 	public TokenFeatureService getTokenFeatureService() {

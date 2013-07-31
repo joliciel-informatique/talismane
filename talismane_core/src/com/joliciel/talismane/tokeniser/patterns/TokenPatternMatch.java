@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,88 +18,27 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
- * A token sub-sequence matching a particular TokenPattern
- * within a larger token sequence (representing a sentence).
- * @author Assaf Urieli
+ * A single match for a token on a given TokeniserPattern, giving the index of the match.
+ * @author Assaf
  *
  */
-public class TokenPatternMatch {
-	private TokenPattern tokenPattern;
-	private List<Token> tokenSequence;
-	
-	public TokenPatternMatch(TokenPattern tokenPattern,
-			List<Token> tokenSequence) {
-		super();
-		this.tokenPattern = tokenPattern;
-		this.tokenSequence = tokenSequence;
-	}
-
-	/** The pattern that was matched */
-	public TokenPattern getTokenPattern() {
-		return this.tokenPattern;
-	}
+public interface TokenPatternMatch extends TokenWrapper {
+	public Token getToken();
+	public TokenPattern getPattern();
 	
 	/**
-	 * The full token sequence that matched this pattern.
+	 * The index of this pattern match in the sequence containing it.
 	 * @return
 	 */
-	public List<Token> getTokenSequence() {
-		return this.tokenSequence;
-	}
+	public int getIndex();
 	
 	/**
-	 * The list of tokens which need to be tested further.
+	 * The sequence containing this pattern match.
 	 * @return
 	 */
-	public List<Token> getTokensToCheck() {
-		int i = 0; 
-		List<Token> tokensToCheck = new ArrayList<Token>();
-		for (Token token : this.tokenSequence) {
-			if (this.tokenPattern.getIndexesToTest().contains(i))
-				tokensToCheck.add(token);
-			i++;
-		}
-		return tokensToCheck;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((tokenPattern == null) ? 0 : tokenPattern.hashCode());
-		result = prime * result
-				+ ((tokenSequence == null) ? 0 : tokenSequence.get(0).getIndexWithWhiteSpace());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TokenPatternMatch other = (TokenPatternMatch) obj;
-		if (tokenPattern == null) {
-			if (other.tokenPattern != null)
-				return false;
-		} else if (!tokenPattern.equals(other.tokenPattern))
-			return false;
-		if (tokenSequence == null) {
-			if (other.tokenSequence != null)
-				return false;
-		} else if (tokenSequence.get(0).getIndexWithWhiteSpace()!=other.getTokenSequence().get(0).getIndexWithWhiteSpace())
-			return false;
-		return true;
-	}
-	
-	
+	public TokenPatternMatchSequence getSequence();
 }

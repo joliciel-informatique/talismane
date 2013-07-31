@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +35,8 @@ class TokenPatternImpl implements TokenPattern {
 	private List<Pattern> parsedPattern = null;
 	private List<Integer> indexesToTest = null;
 	private String name;
+	
+	private TokeniserPatternServiceInternal tokeniserPatternServiceInternal;
 
 	public TokenPatternImpl(String regexp, Pattern separatorPattern) {
 		this.regexp = regexp;
@@ -69,8 +69,8 @@ class TokenPatternImpl implements TokenPattern {
 	}
 
 	@Override
-	public List<TokenPatternMatch> match(TokenSequence tokenSequence) {
-		List<TokenPatternMatch> tokensToCheck = new ArrayList<TokenPatternMatch>();
+	public List<TokenPatternMatchSequence> match(TokenSequence tokenSequence) {
+		List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
 		int t0 = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 			boolean haveMatch = false;
@@ -108,22 +108,20 @@ class TokenPatternImpl implements TokenPattern {
 				if (lastPattern.pattern().equals("\\s")||lastPattern.pattern().equals(this.separatorPattern.pattern())) {
 					matchingSequence.remove(matchingSequence.size()-1);
 				}
-				TokenPatternMatch tokenPatternMatch = new TokenPatternMatch(this, matchingSequence);
-				tokensToCheck.add(tokenPatternMatch);
-				int i = 0;
+				TokenPatternMatchSequence tokenPatternMatchSequence = this.tokeniserPatternServiceInternal.getTokenPatternMatchSequence(this, matchingSequence);
+				matchingSequences.add(tokenPatternMatchSequence);
 				for (Token aToken : matchingSequence) {
-					TokenMatch tokenMatch = new TokenMatch(this, i);
-					aToken.getMatches().add(tokenMatch);
-					i++;
+					tokenPatternMatchSequence.addMatch(aToken);
 				}
 			}
 			t0++;
 		} // next token
+		
 		if (LOG.isTraceEnabled()) {
-			if (tokensToCheck.size()>0)
-				LOG.trace(this.getName() + ": Tokens to check = " + tokensToCheck);
+			if (matchingSequences.size()>0)
+				LOG.trace(this.getName() + ": matchingSequences = " + matchingSequences);
 		}
-		return tokensToCheck;
+		return matchingSequences;
 	}
 	
 	/**
@@ -172,7 +170,6 @@ class TokenPatternImpl implements TokenPattern {
 		int groupingStart = 0;
 		List<Pattern> parsedPattern = new ArrayList<Pattern>();
 		indexesToTest = new ArrayList<Integer>();
-		Set<Integer> indexesToSkip = new HashSet<Integer>();
 		int currentStart = 0;
 		int currentEnd = 0;
 		for (int i = 0; i < regexp.length(); i++) {
@@ -190,11 +187,9 @@ class TokenPatternImpl implements TokenPattern {
 				} else {
 					// always a separator
 					// either an actual separator, or the patterns \p (all separators) or \s (whitespace)
-					this.addPattern(regexp, currentStart, currentEnd, parsedPattern);
+					this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
 
-					if (inException)
-						indexesToSkip.add(parsedPattern.size());
-					this.addPattern(regexp, i-1, i+1, parsedPattern);
+					this.addPattern(regexp, i-1, i+1, parsedPattern, inException);
 					currentStart = i+1;
 					currentEnd = i+1;
 				}
@@ -207,9 +202,9 @@ class TokenPatternImpl implements TokenPattern {
 			} else if (c==']') {
 				if (separatorGrouping) {
 					if (groupingStart>0) {
-						this.addPattern(regexp, currentStart, groupingStart, parsedPattern);
+						this.addPattern(regexp, currentStart, groupingStart, parsedPattern, inException);
 					}
-					this.addPattern(regexp, groupingStart, i+1, parsedPattern);
+					this.addPattern(regexp, groupingStart, i+1, parsedPattern, inException);
 					currentStart = i+1;
 					currentEnd = i+1;
 				} else {
@@ -218,7 +213,10 @@ class TokenPatternImpl implements TokenPattern {
 				inGrouping = false;
 			} else if (c=='{') {
 				inException = true;
+				currentStart = i+1;
+				currentEnd = i+1;
 			} else if (c=='}') {
+				this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
 				inException = false;
 				currentStart = i+1;
 				currentEnd = i+1;
@@ -230,11 +228,9 @@ class TokenPatternImpl implements TokenPattern {
 					separatorGrouping = true;
 				} else {
 					// a separator
-					this.addPattern(regexp, currentStart, currentEnd, parsedPattern);
+					this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
 	
-					if (inException)
-						indexesToSkip.add(parsedPattern.size());
-					this.addPattern(regexp, i, i+1, parsedPattern);
+					this.addPattern(regexp, i, i+1, parsedPattern, inException);
 					currentStart = i+1;
 					currentEnd = i+1;
 				}
@@ -243,19 +239,12 @@ class TokenPatternImpl implements TokenPattern {
 				currentEnd = i+1;
 			}
 		}
-		this.addPattern(regexp, currentStart, currentEnd, parsedPattern);
-		
-		// We add all tokens here except for the first one
-		// since the interval concerns the interval between a token and the one preceeding it.
-		for (int i=1;i<parsedPattern.size();i++) {
-			if (!indexesToSkip.contains(i))
-				indexesToTest.add(i);
-		}
+		this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
 
 		return parsedPattern;
 	}
 	
-	private void addPattern(String testPattern, int start, int end, List<Pattern> parsedPattern) {
+	private void addPattern(String testPattern, int start, int end, List<Pattern> parsedPattern, boolean inException) {
 		if (start==end)
 			return;
 		
@@ -298,6 +287,13 @@ class TokenPatternImpl implements TokenPattern {
 					regex = "[" + this.getCharacters(c) + "]" + regex.substring(1);
 				}
 			}
+			
+			// We never add the first pattern to the indexesToTest
+			// since the interval concerns the interval between a token and the one preceeding it.
+			if (parsedPattern.size()!=0 && !inException) {
+				indexesToTest.add(parsedPattern.size());
+			}
+			
 			parsedPattern.add(Pattern.compile(regex));
 		}
 	}
@@ -353,6 +349,15 @@ class TokenPatternImpl implements TokenPattern {
 		} else if (!regexp.equals(other.regexp))
 			return false;
 		return true;
+	}
+
+	public TokeniserPatternServiceInternal getTokeniserPatternServiceInternal() {
+		return tokeniserPatternServiceInternal;
+	}
+
+	public void setTokeniserPatternServiceInternal(
+			TokeniserPatternServiceInternal tokeniserPatternServiceInternal) {
+		this.tokeniserPatternServiceInternal = tokeniserPatternServiceInternal;
 	}
 	
 }

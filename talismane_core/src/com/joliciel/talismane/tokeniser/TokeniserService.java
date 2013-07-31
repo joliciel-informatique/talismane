@@ -25,9 +25,7 @@ import java.util.regex.Pattern;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
-import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 public interface TokeniserService {
 	public Token getToken(String string, TokenSequence tokenSequence, int index);
@@ -76,9 +74,6 @@ public interface TokeniserService {
 	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
 			Sentence sentence,
 			int initialCapacity);
-
-	public TokeniserEventStream getTokeniserEventStream(TokeniserAnnotatedCorpusReader corpusReader,
-			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, TokeniserPatternManager patternManager);
 	
 	public DecisionFactory<TokeniserOutcome> getDecisionFactory();
 	

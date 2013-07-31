@@ -36,8 +36,8 @@ import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
 final class TokenImpl implements TokenInternal {
@@ -56,8 +56,8 @@ final class TokenImpl implements TokenInternal {
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 	private boolean separator = false;
 	private boolean whiteSpace = false;
-	private List<TokenMatch> matches = null;
-	private Map<String, List<TokenMatch>> matchesPerPattern = null;
+	private List<TokenPatternMatch> matches = null;
+	private Map<String, List<TokenPatternMatch>> matchesPerPattern = null;
 	private List<TaggedToken<TokeniserOutcome>> atomicDecisions = new ArrayList<TaggedToken<TokeniserOutcome>>();
 	private boolean logged = false;
 	
@@ -205,21 +205,21 @@ final class TokenImpl implements TokenInternal {
 		return whiteSpace;
 	}
 
-	public List<TokenMatch> getMatches() {
+	public List<TokenPatternMatch> getMatches() {
 		if (matches==null)
-			matches = new ArrayList<TokenMatch>();
+			matches = new ArrayList<TokenPatternMatch>();
 		return matches;
 	}
 	
 
 	@Override
-	public List<TokenMatch> getMatches(TokenPattern pattern) {
+	public List<TokenPatternMatch> getMatches(TokenPattern pattern) {
 		if (matchesPerPattern==null) {
-			matchesPerPattern = new HashMap<String, List<TokenMatch>>();
-			for (TokenMatch match : this.getMatches()) {
-				List<TokenMatch> matchesForPattern = matchesPerPattern.get(match.getPattern().getName());
+			matchesPerPattern = new HashMap<String, List<TokenPatternMatch>>();
+			for (TokenPatternMatch match : this.getMatches()) {
+				List<TokenPatternMatch> matchesForPattern = matchesPerPattern.get(match.getPattern().getName());
 				if (matchesForPattern==null) {
-					matchesForPattern = new ArrayList<TokenMatch>();
+					matchesForPattern = new ArrayList<TokenPatternMatch>();
 					matchesPerPattern.put(match.getPattern().getName(), matchesForPattern);
 				}
 				matchesForPattern.add(match);
