@@ -34,9 +34,9 @@ import org.junit.Test;
 
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchImpl;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternImpl;
-import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchSequence;
 
 public class TokeniserPatternImplTest {
 	private static final Log LOG = LogFactory.getLog(TokeniserPatternImplTest.class);
@@ -113,11 +113,11 @@ public class TokeniserPatternImplTest {
 	@Test
 	public void testMatch(@NonStrict final TokenSequence tokenSequence) {
 		final String separators="[\\s\\p{Punct}]";
-		final List<TokenMatch> matches3 = new ArrayList<TokenMatch>();
-		final List<TokenMatch> matches4 = new ArrayList<TokenMatch>();
-		final List<TokenMatch> matches5 = new ArrayList<TokenMatch>();
-		final List<TokenMatch> matches6 = new ArrayList<TokenMatch>();
-		final List<TokenMatch> matches7 = new ArrayList<TokenMatch>();
+		final List<TokenPatternMatchImpl> matches3 = new ArrayList<TokenPatternMatchImpl>();
+		final List<TokenPatternMatchImpl> matches4 = new ArrayList<TokenPatternMatchImpl>();
+		final List<TokenPatternMatchImpl> matches5 = new ArrayList<TokenPatternMatchImpl>();
+		final List<TokenPatternMatchImpl> matches6 = new ArrayList<TokenPatternMatchImpl>();
+		final List<TokenPatternMatchImpl> matches7 = new ArrayList<TokenPatternMatchImpl>();
 		
 		new NonStrictExpectations() {
 			Iterator<Token> i;
@@ -182,7 +182,7 @@ public class TokeniserPatternImplTest {
 		Pattern separatorPattern = Pattern.compile(separators);
 		TokenPatternImpl tokeniserPatternImpl = new TokenPatternImpl(".+'.+", separatorPattern);
 		
-		List<TokenPatternMatch> patternMatches = tokeniserPatternImpl.match(tokenSequence);
+		List<TokenPatternMatchSequence> patternMatches = tokeniserPatternImpl.match(tokenSequence);
 		assertEquals(2, patternMatches.size());
 		
 		List<Token> patternMatch = patternMatches.get(0).getTokenSequence();

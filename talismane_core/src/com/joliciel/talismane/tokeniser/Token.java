@@ -26,7 +26,7 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
-import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
@@ -128,14 +128,14 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * A list of TokeniserPatterns for which this token was matched, and the pattern index at which the match occurred.
 	 * @return
 	 */
-	public List<TokenMatch> getMatches();
+	public List<TokenPatternMatch> getMatches();
 	
 	/**
 	 * Get all matches for a given pattern.
 	 * @param pattern
 	 * @return
 	 */
-	public List<TokenMatch> getMatches(TokenPattern pattern);
+	public List<TokenPatternMatch> getMatches(TokenPattern pattern);
 	
 	/**
 	 * A list of atomic decisions which make up this token.

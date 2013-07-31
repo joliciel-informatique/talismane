@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 	private Map<String, FScoreCalculator<TokeniserOutcome>> taggerFScoreCalculators = new TreeMap<String, FScoreCalculator<TokeniserOutcome>>();
 	private Map<String, List<String>> errorMap = new TreeMap<String, List<String>>();
 	private Writer errorWriter;
+	private File fScoreFile;
 	
 	@Override
 	public void onNextTokenSequence(TokenSequence realSequence,
@@ -95,7 +97,11 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 
 				if (end1>=sentence.length()) end1 = sentence.length()-1;
 				
-				String error = "Guessed " + guessDecision + ", Expected " + realDecision + ". Tokens: " + startString + "[]" + sentence.substring(guessTag.getToken().getStartIndex(), end1);
+				String symbol = "+";
+				if (realDecision==TokeniserOutcome.DOES_SEPARATE)
+					symbol = "-";
+				
+				String error = "Guessed " + guessDecision + ", Expected " + realDecision + ". Tokens: " + startString + "[" + symbol + "]" + sentence.substring(guessTag.getToken().getStartIndex(), end1);
 				LOG.debug(error);
 				for (String authority : guessTag.getDecision().getAuthorities()) {
 					List<String> errors = errorMap.get(authority);
@@ -125,6 +131,10 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 			LOG.debug("###### Tagger " + tagger);
 			FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
 			LOG.debug("###### Tagger " + tagger + ": f-score = " + taggerFScoreCalculator.getTotalFScore());
+		}
+		
+		if (fScoreFile!=null) {
+			fScoreCalculator.writeScoresToCSVFile(fScoreFile);
 		}
 		
 		if (errorWriter!=null) {
@@ -174,6 +184,14 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 
 	public void setErrorWriter(Writer errorWriter) {
 		this.errorWriter = errorWriter;
+	}
+
+	public File getFScoreFile() {
+		return fScoreFile;
+	}
+
+	public void setFScoreFile(File fScoreFile) {
+		this.fScoreFile = fScoreFile;
 	}
 
 	public FScoreCalculator<TokeniserOutcome> getFScoreCalculator() {

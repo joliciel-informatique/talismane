@@ -91,10 +91,13 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
+import com.joliciel.talismane.tokeniser.TokenEvaluationFScoreCalculator;
 import com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
+import com.joliciel.talismane.tokeniser.TokeniserGuessTemplateWriter;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
@@ -133,6 +136,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	
 	private ParserEvaluator parserEvaluator;
 	private PosTaggerEvaluator posTaggerEvaluator;
+	private TokeniserEvaluator tokeniserEvaluator;
 	private ParseComparator parseComparator;
 	private PosTagComparator posTagComparator;
 
@@ -1800,7 +1804,52 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	}
 
 	/**
-	 * Get a pos-tagger evaluator if command=evaluate and endModule=pos-tagger.
+	 * Get a tokeniser evaluator if command=evaluate and endModule=tokeniser.
+	 * @return
+	 */
+	public TokeniserEvaluator getTokeniserEvaluator() {
+		try {
+			if (tokeniserEvaluator==null) {				
+				tokeniserEvaluator = this.getTokeniserService().getTokeniserEvaluator(this.getTokeniser());
+				
+				Writer errorFileWriter = null;
+				File errorFile = new File(this.getOutDir(), this.getBaseName() + ".errors.txt");
+				errorFile.delete();
+				errorFile.createNewFile();
+				errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false),"UTF8"));
+				
+				File fScoreFile = new File(this.getOutDir(), this.getBaseName() + ".fscores.csv");
+
+				TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
+				tokenFScoreCalculator.setErrorWriter(errorFileWriter);
+				tokenFScoreCalculator.setFScoreFile(fScoreFile);
+				tokeniserEvaluator.addObserver(tokenFScoreCalculator);
+
+				Reader templateReader = null;
+				if (templatePath==null) {
+					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(tokeniserTemplateName)));
+				} else {
+					templateReader = new BufferedReader(new FileReader(new File(templatePath)));
+				}
+				
+				File freemarkerFile = new File(this.getOutDir(), this.getBaseName() + "_output.txt");
+				freemarkerFile.delete();
+				freemarkerFile.createNewFile();
+				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),"UTF8"));
+				TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(freemakerFileWriter, templateReader);
+				tokeniserEvaluator.addObserver(templateWriter);
+				
+				tokeniserEvaluator.setSentenceCount(maxSentenceCount);
+			}
+			return tokeniserEvaluator;
+		} catch (Exception e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Get a pos-tagger evaluator if command=evaluate and endModule=posTagger.
 	 * @return
 	 */
 	public PosTaggerEvaluator getPosTaggerEvaluator() {

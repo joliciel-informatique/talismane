@@ -52,12 +52,14 @@ import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
+import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
+import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class TokeniserMaxentRunner {
@@ -108,7 +110,8 @@ public class TokeniserMaxentRunner {
 		double perceptronTolerance = -1;
 		String externalResourcePath = null;
 		File performanceConfigFile = null;
-
+		
+		PatternTokeniserType patternTokeniserType = PatternTokeniserType.Compound;
 
 		for (Entry<String, String> argEntry : argMap.entrySet()) {
 			String argName = argEntry.getKey();
@@ -137,6 +140,8 @@ public class TokeniserMaxentRunner {
 				outDirPath = argValue;
 			else if (argName.equals("tokeniser")) 
 				tokeniserType = argValue;
+			else if (argName.equals("patternTokeniser"))
+				patternTokeniserType = PatternTokeniserType.valueOf(argValue);
 			else if (argName.equals("corpus"))
 				treebankPath = argValue;
 			else if (argName.equals("lexiconDir"))
@@ -310,9 +315,6 @@ public class TokeniserMaxentRunner {
 					LOG.debug(descriptor);
 				}
 				scanner.close();
-				Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(featureDescriptors, tokeniserPatternManager.getParsedTestPatterns());
-	
-				CorpusEventStream tokeniserEventStream = tokeniserService.getTokeniserEventStream(reader, tokeniserContextFeatures, tokeniserPatternManager);
 				
 				Map<String,Object> trainParameters = new HashMap<String, Object>();
 				if (algorithm.equals(MachineLearningAlgorithm.MaxEnt)) {
@@ -345,9 +347,19 @@ public class TokeniserMaxentRunner {
 				descriptors.put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 				descriptors.put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
 				
+				CorpusEventStream tokeniserEventStream = null;
+				
+				if (patternTokeniserType==PatternTokeniserType.Interval) {
+					Set<TokeniserContextFeature<?>> features = tokenFeatureService.getTokeniserContextFeatureSet(featureDescriptors, tokeniserPatternManager.getParsedTestPatterns());			
+					tokeniserEventStream = tokeniserPatternService.getIntervalPatternEventStream(reader, features, tokeniserPatternManager);
+				} else {
+					Set<TokenPatternMatchFeature<?>> features = tokenFeatureService.getTokenPatternMatchFeatureSet(featureDescriptors);			
+					tokeniserEventStream = tokeniserPatternService.getCompoundPatternEventStream(reader, features, tokeniserPatternManager);
+				}
 				MachineLearningModel<TokeniserOutcome> tokeniserModel = trainer.trainModel(tokeniserEventStream, decisionFactory, descriptors);
 				if (externalResourceFinder!=null)
 					tokeniserModel.setExternalResources(externalResourceFinder.getExternalResources());
+				tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), patternTokeniserType.toString());
 				tokeniserModel.persist(tokeniserModelFile);
 	
 			} else if (command.equals("evaluate")) {
@@ -385,19 +397,7 @@ public class TokeniserMaxentRunner {
 						throw new RuntimeException("Missing argument: tokeniserModel");
 					ZipInputStream zis = new ZipInputStream(new FileInputStream(tokeniserModelFilePath));
 					MachineLearningModel<TokeniserOutcome> tokeniserModel = machineLearningService.getModel(zis);
-
-					TokeniserPatternManager tokeniserPatternManager =
-						tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY));
-					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
-
-					if (tokeniserType.equalsIgnoreCase("pattern")) {
-						tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, null, beamWidth);
-					} else if (tokeniserType.equalsIgnoreCase("maxent")) {
-						tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
-						
-					} else {
-						throw new RuntimeException("Unknown tokeniser type: " + tokeniserType);
-					}
+					tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserModel, beamWidth);
 					
 					List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
 					if (tokenFilterDescriptors!=null) {

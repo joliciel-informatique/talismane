@@ -35,6 +35,8 @@ public class TokeniserPatternServiceLocator {
 			tokeniserPatternService.setTokenFeatureService(this.talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService());
 			tokeniserPatternService.setFilterService(this.talismaneServiceLocator.getFilterServiceLocator().getFilterService());
 			tokeniserPatternService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
+			tokeniserPatternService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
+			tokeniserPatternService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return tokeniserPatternService;
 	}

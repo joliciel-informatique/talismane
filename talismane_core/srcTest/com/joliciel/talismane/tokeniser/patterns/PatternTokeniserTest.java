@@ -35,7 +35,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserImpl;
+import com.joliciel.talismane.tokeniser.patterns.IntervalPatternTokeniser;
 
 public class PatternTokeniserTest {
 	private static final Log LOG = LogFactory.getLog(PatternTokeniserTest.class);
@@ -54,7 +54,7 @@ public class PatternTokeniserTest {
 		
 		List<String> tokeniserPatterns = new ArrayList<String>();
 		TokeniserPatternManagerImpl patternManager = new TokeniserPatternManagerImpl(tokeniserPatterns);
-		PatternTokeniserImpl tokeniserImpl = new PatternTokeniserImpl(patternManager, null, 1);
+		IntervalPatternTokeniser tokeniserImpl = new IntervalPatternTokeniser(patternManager, null, 1);
 		tokeniserImpl.setTokeniserService(tokeniserService);
 		tokeniserImpl.setFilterService(filterService);
 		tokeniserImpl.setSeparatorDefaults(separatorDefaults);

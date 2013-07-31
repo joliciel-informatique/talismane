@@ -58,12 +58,16 @@ import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
- * The pattern tokeniser first splits the text into individual tokens based on a list of separators,
+ * The interval pattern tokeniser first splits the text into individual tokens based on a list of separators,
  * each of which is assigned a default value for that separator.
  * 
  * The tokeniser then takes a list of patterns, and for each pattern in the list, tries to match it to a sequence of tokens within the sentence.
- * If a match is found, the final decision for all separators in this sequence is deferred to a TokeniserDecisionMaker.
+ * If a match is found, the final decision for each token interval in this sequence is deferred to a TokeniserDecisionMaker.
  * If not, the default values are retained.
+ * 
+ * Overlapping sequences are handled gracefully: if a given interval is 2nd in sequence A, but 1st in sequence B, it will receive the
+ * n-gram feature from sequence A and a bunch of contextual features from sequence B, and the final decision will be taken based on the
+ * combination of all features. However, this can result in a strange compound that doesn't exist in any pattern nor in the training corpus.
  * 
  * The motivation for this pattern tokeniser is to concentrate training and decisions on difficult cases, rather than blurring the
  * training model with oodles of obvious cases.
@@ -71,9 +75,9 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  *
  */
-class PatternTokeniserImpl implements Tokeniser {
-	private static final Log LOG = LogFactory.getLog(PatternTokeniserImpl.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PatternTokeniserImpl.class);
+class IntervalPatternTokeniser implements Tokeniser {
+	private static final Log LOG = LogFactory.getLog(IntervalPatternTokeniser.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternTokeniser.class);
 
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
@@ -101,7 +105,7 @@ class PatternTokeniserImpl implements Tokeniser {
 	 * Reads separator defaults and test patterns from the default file for this locale.
 	 * @param locale
 	 */
-	public PatternTokeniserImpl(TokeniserPatternManager tokeniserPatternManager,
+	public IntervalPatternTokeniser(TokeniserPatternManager tokeniserPatternManager,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, int beamWidth) {
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
@@ -171,14 +175,12 @@ class PatternTokeniserImpl implements Tokeniser {
 			// For each test pattern, see if anything in the sentence matches it
 			if (this.decisionMaker!=null) {
 				Set<Token> tokensToCheck = new HashSet<Token>();
-				List<TokenPatternMatch> tokenPatternMatches = new ArrayList<TokenPatternMatch>();
 				MONITOR.startTask("pattern matching");
 				try {
 					for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
 						Set<Token> tokensToCheckForThisPattern = new HashSet<Token>();
-						List<TokenPatternMatch> matchesForThisPattern = parsedPattern.match(tokenSequence);
-						for (TokenPatternMatch tokenPatternMatch : matchesForThisPattern) {
-							tokenPatternMatches.add(tokenPatternMatch);
+						List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(tokenSequence);
+						for (TokenPatternMatchSequence tokenPatternMatch : matchesForThisPattern) {
 							if (LOG.isTraceEnabled())
 								tokensToCheckForThisPattern.addAll(tokenPatternMatch.getTokensToCheck());
 							tokensToCheck.addAll(tokenPatternMatch.getTokensToCheck());
@@ -249,7 +251,7 @@ class PatternTokeniserImpl implements Tokeniser {
 								
 								for (Decision<TokeniserOutcome> decision: decisions) {
 									decision.addAuthority(this.getClass().getSimpleName());
-									for (TokenMatch tokenMatch : token.getMatches()) {
+									for (TokenPatternMatch tokenMatch : token.getMatches()) {
 										decision.addAuthority(tokenMatch.getPattern().toString());
 									}
 								}

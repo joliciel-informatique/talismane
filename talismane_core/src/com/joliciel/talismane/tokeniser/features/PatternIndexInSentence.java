@@ -25,7 +25,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
@@ -48,10 +48,11 @@ public final class PatternIndexInSentence extends AbstractTokenFeature<Integer> 
 		FeatureResult<Integer> result = null;
 		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
 		if (tokenPatternResult!=null) {
+			// If we have a token pattern, then this is the first token to be tested in that pattern
 			TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
 
-			TokenMatch theMatch = null;
-			for (TokenMatch tokenMatch : token.getMatches(tokenPattern)) {
+			TokenPatternMatch theMatch = null;
+			for (TokenPatternMatch tokenMatch : token.getMatches(tokenPattern)) {
 				if (tokenMatch.getPattern().equals(tokenPattern)&&tokenMatch.getIndex()==tokenPattern.getIndexesToTest().get(0)) {
 					theMatch = tokenMatch;
 					break;

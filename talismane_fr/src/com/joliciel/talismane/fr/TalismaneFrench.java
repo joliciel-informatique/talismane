@@ -222,7 +222,7 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_fr25_noCutoff.zip";
+		String tokeniserModelName = "ftbTokeniser_compound_1.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 

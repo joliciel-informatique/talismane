@@ -26,7 +26,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
@@ -42,7 +42,7 @@ public final class TokeniserPatternsAndIndexesFeature extends AbstractTokenFeatu
 			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
 		Token token = tokenWrapper.getToken();
 		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-		for (TokenMatch tokenMatch : token.getMatches()) {
+		for (TokenPatternMatch tokenMatch : token.getMatches()) {
 			if (tokenMatch.getIndex()!=tokenMatch.getPattern().getIndexesToTest().get(0)) {
 				resultList.add(new WeightedOutcome<String>(tokenMatch.getPattern().getName() + "¤" + tokenMatch.getIndex(), 1.0));
 			}

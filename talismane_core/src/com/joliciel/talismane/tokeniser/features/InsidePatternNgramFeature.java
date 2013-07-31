@@ -26,7 +26,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
-import com.joliciel.talismane.tokeniser.patterns.TokenMatch;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
@@ -101,7 +101,7 @@ public final class InsidePatternNgramFeature extends AbstractTokeniserContextFea
 
 		if (testIndex>=0 && tokenPattern!=null) {
 			boolean foundMatch = false;
-			for (TokenMatch tokenMatch : tokeniserContext.getToken().getMatches(tokenPattern)) {
+			for (TokenPatternMatch tokenMatch : tokeniserContext.getToken().getMatches(tokenPattern)) {
 				if (tokenMatch.getPattern().equals(tokenPattern)&&tokenMatch.getIndex()==testIndex) {
 					foundMatch = true;
 					break;

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2013 Assaf Urieli
+//Copyright (C) 2012 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,41 +18,35 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
-import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * A StringCollectionFeature returning all of the patterns started by the current token.
+ * Returns the index of the first token matching this pattern.
  * @author Assaf Urieli
  *
  */
-public class TokeniserPatternsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
-
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
-		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-		for (TokenPatternMatch tokenMatch : token.getMatches()) {
-			if (tokenMatch.getIndex()==tokenMatch.getPattern().getIndexesToTest().get(0)) {
-				resultList.add(new WeightedOutcome<String>(tokenMatch.getPattern().getName(), 1.0));
-			}
-		}
-		
-		return this.generateResult(resultList);
+public final class PatternMatchIndexInSentence extends AbstractCachableFeature<TokenPatternMatch,Integer> implements IntegerFeature<TokenPatternMatch> {
+	public PatternMatchIndexInSentence() {
 	}
-
-	@SuppressWarnings("rawtypes")
+	
 	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return StringCollectionFeature.class;
+	public FeatureResult<Integer> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
+		FeatureResult<Integer> result = null;
+		Token token = tokenPatternMatch.getToken();
+		
+		// note - if a match is found, this is actually the second token in the pattern
+		// therefore, we want the index of the first token in the pattern.
+		int indexWithWhiteSpace = token.getIndexWithWhiteSpace() - tokenPatternMatch.getIndex();
+		Token firstToken = token.getTokenSequence().listWithWhiteSpace().get(indexWithWhiteSpace);
+		int patternIndex = firstToken.getIndex();
+		
+		result = this.generateResult(patternIndex);
+
+		return result;
 	}
 }

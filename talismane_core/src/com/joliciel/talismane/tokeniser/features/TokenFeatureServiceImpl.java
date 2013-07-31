@@ -49,6 +49,13 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 		return parser;
 	}
 	
+
+	private TokenPatternMatchFeatureParser getTokenPatternMatchFeatureParser() {
+		TokenPatternMatchFeatureParser parser = new TokenPatternMatchFeatureParser(this.getFeatureService());
+		parser.setTokenFeatureParser(this.getTokenFeatureParser(null));
+		return parser;
+	}
+	
 	@Override
 	public TokenFeatureParser getTokenFeatureParser() {
 		return this.getTokenFeatureParser(null);
@@ -76,6 +83,33 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 				if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 					List<TokeniserContextFeature<?>> myFeatures = tokeniserContextFeatureParser.parseDescriptor(functionDescriptor);
+					MONITOR.startTask("add features");
+					features.addAll(myFeatures);
+					MONITOR.endTask("add features");
+				}
+			}
+		} finally {
+			MONITOR.endTask("findFeatureSet");
+		}
+		return features;
+	}
+	
+
+	@Override
+	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatureSet(
+			List<String> featureDescriptors) {
+		Set<TokenPatternMatchFeature<?>> features = new TreeSet<TokenPatternMatchFeature<?>>();
+
+		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+		TokenPatternMatchFeatureParser featureParser = this.getTokenPatternMatchFeatureParser();
+		featureParser.setExternalResourceFinder(externalResourceFinder);
+		
+		MONITOR.startTask("findFeatureSet");
+		try {
+			for (String featureDescriptor : featureDescriptors) {
+				if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+					List<TokenPatternMatchFeature<?>> myFeatures = featureParser.parseDescriptor(functionDescriptor);
 					MONITOR.startTask("add features");
 					features.addAll(myFeatures);
 					MONITOR.endTask("add features");
@@ -115,5 +149,6 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
+
 
 }

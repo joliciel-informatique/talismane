@@ -16,26 +16,15 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser;
+package com.joliciel.talismane.tokeniser.features;
+
+import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
- * A classification that can be assigned the tokeniser to an interval between two atomic tokens.
+ * A feature which tests a TokenPatternMatch during tokenising.
  * @author Assaf Urieli
  *
  */
-public enum TokeniserOutcome implements TokenTag {
-	/**
-	 * The current interval does not separate the atomic tokens on either side.
-	 */
-	DOES_NOT_SEPARATE,
-	
-	/**
-	 * The current interval separates the atomic tokens on either side.
-	 */
-	DOES_SEPARATE;
-	
-	@Override
-	public String getCode() {
-		return this.name();
-	}
+public interface TokenPatternMatchFeature<Y> extends Feature<TokenPatternMatch,Y> {
 }

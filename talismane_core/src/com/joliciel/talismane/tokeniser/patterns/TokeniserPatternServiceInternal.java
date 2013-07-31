@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,23 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
-/**
- * A single match for a token on a given TokeniserPattern, giving the index of the match.
- * @author Assaf
- *
- */
-public class TokenMatch {
-	private TokenPattern pattern;
-	private int index;
-	public TokenMatch(TokenPattern pattern, int index) {
-		this.pattern = pattern;
-		this.index = index;
-	}
-	public TokenPattern getPattern() {
-		return pattern;
-	}
-	public int getIndex() {
-		return index;
-	}
+import java.util.List;
+
+import com.joliciel.talismane.tokeniser.Token;
+
+public interface TokeniserPatternServiceInternal extends
+		TokeniserPatternService {
+	TokenPatternMatch getTokenPatternMatch(TokenPatternMatchSequence sequence,
+			Token token, TokenPattern pattern, int index);
 	
+	TokenPatternMatchSequence getTokenPatternMatchSequence(TokenPattern tokenPattern,
+			List<Token> tokenSequence);
 }

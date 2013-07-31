@@ -124,7 +124,7 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 					PerceptronEvent event = new PerceptronEvent(line);
 					totalEvents++;
 					
-					// don't normalise unless we calculate the log-likelihood, do avoid mathematical cost of normalising
+					// don't normalise unless we calculate the log-likelihood, to avoid mathematical cost of normalising
 					double[] results = decisionMaker.predict(event.getFeatureIndexes(), event.getFeatureValues(), calculateLogLikelihood);
 					double maxValue = results[0];
 					int predicted = 0;

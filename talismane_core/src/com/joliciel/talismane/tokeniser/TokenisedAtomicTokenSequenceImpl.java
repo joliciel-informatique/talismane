@@ -74,8 +74,10 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 				if (decisionTag.getTag().equals(TokeniserOutcome.DOES_SEPARATE)) {
 					// make separation (add token)
 					if (!isWhiteSpace) {
-						this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);						
+						this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
 						currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
+					} else {
+						this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
 					}
 					currentText = new StringBuilder();
 					currentText.append(token.getText());
@@ -87,8 +89,11 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 				isWhiteSpace = isWhiteSpace && token.isWhiteSpace();
 				currentEnd = token.getEndIndex();
 			}
-			if (!isWhiteSpace)
+			if (!isWhiteSpace) {
 				this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
+			} else {
+				this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
+			}
 			
 			tokenSequence.finalise();
 		}

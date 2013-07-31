@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,26 +16,37 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser;
+package com.joliciel.talismane.tokeniser.patterns;
+
+import java.util.List;
+
+import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * A classification that can be assigned the tokeniser to an interval between two atomic tokens.
+ * A token sub-sequence matching a particular TokenPattern
+ * within a larger token sequence (representing a sentence).
  * @author Assaf Urieli
  *
  */
-public enum TokeniserOutcome implements TokenTag {
+public interface TokenPatternMatchSequence {
+
+	/** The pattern that was matched */
+	public TokenPattern getTokenPattern();
+
 	/**
-	 * The current interval does not separate the atomic tokens on either side.
+	 * The full token sequence that matched this pattern.
+	 * @return
 	 */
-	DOES_NOT_SEPARATE,
-	
+	public List<Token> getTokenSequence();
+
 	/**
-	 * The current interval separates the atomic tokens on either side.
+	 * The list of tokens which need to be tested further.
+	 * @return
 	 */
-	DOES_SEPARATE;
-	
-	@Override
-	public String getCode() {
-		return this.name();
-	}
+	public List<Token> getTokensToCheck();
+
+	public TokenPatternMatch addMatch(Token token);
+
+	public List<TokenPatternMatch> getTokenPatternMatches();
+
 }

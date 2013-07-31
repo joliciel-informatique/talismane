@@ -78,7 +78,7 @@ public interface TokenPattern {
 	 * @param tokenSequence
 	 * @return
 	 */
-	public List<TokenPatternMatch> match(TokenSequence tokenSequence);
+	public List<TokenPatternMatchSequence> match(TokenSequence tokenSequence);
 
 	/**
 	 * This tokeniser pattern's user-friendly name.
