@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser;
 import java.util.List;
 
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
  * A sequence of tokens.
@@ -146,4 +147,12 @@ public interface TokenSequence extends Iterable<Token> {
 	 */
 	public boolean isWithRoot();
 	public void setWithRoot(boolean withRoot);
+	
+	/**
+	 * A PosTagSequence enclosing this token sequence - only useful in tokeniser evaluation,
+	 * when we want to know the pos-tags in the original annotated corpus.
+	 * @return
+	 */
+	public PosTagSequence getPosTagSequence();
+	public void setPosTagSequence(PosTagSequence posTagSequence);
 }

@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
@@ -40,12 +41,15 @@ import com.joliciel.talismane.utils.StringUtils;
  */
 public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver {
 	private static final Log LOG = LogFactory.getLog(TokenEvaluationFScoreCalculator.class);
+	private static final CSVFormatter CSV = new CSVFormatter(4);
 	private static final int NUM_CHARS = 20;
 	private FScoreCalculator<TokeniserOutcome> fScoreCalculator = new FScoreCalculator<TokeniserOutcome>();
 	
 	private Map<String, FScoreCalculator<TokeniserOutcome>> taggerFScoreCalculators = new TreeMap<String, FScoreCalculator<TokeniserOutcome>>();
-	private Map<String, List<String>> errorMap = new TreeMap<String, List<String>>();
+	private Map<String, List<TokeniserErrorRecord>> errorMap = new TreeMap<String, List<TokeniserErrorRecord>>();
 	private Writer errorWriter;
+	private Writer csvErrorWriter;
+	
 	private File fScoreFile;
 	
 	@Override
@@ -85,7 +89,7 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 			TokeniserOutcome guessDecision = guessTag.getTag();
 			boolean realSplit = realSplits.contains(guessTag.getToken().getStartIndex());
 			
-			TokeniserOutcome realDecision = realSplit ? TokeniserOutcome.DOES_SEPARATE : TokeniserOutcome.DOES_NOT_SEPARATE;
+			TokeniserOutcome realDecision = realSplit ? TokeniserOutcome.SEPARATE : TokeniserOutcome.JOIN;
 			
 			if (!realDecision.equals(guessDecision)) {
 				int start1 = guessTag.getToken().getStartIndex() - NUM_CHARS;
@@ -98,18 +102,21 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 				if (end1>=sentence.length()) end1 = sentence.length()-1;
 				
 				String symbol = "+";
-				if (realDecision==TokeniserOutcome.DOES_SEPARATE)
+				if (realDecision==TokeniserOutcome.SEPARATE)
 					symbol = "-";
 				
-				String error = "Guessed " + guessDecision + ", Expected " + realDecision + ". Tokens: " + startString + "[" + symbol + "]" + sentence.substring(guessTag.getToken().getStartIndex(), end1);
-				LOG.debug(error);
+				TokeniserErrorRecord errorRecord = new TokeniserErrorRecord();
+				errorRecord.realDecision = realDecision;
+				errorRecord.guessDecision = guessDecision;
+				errorRecord.context = startString + "[" + symbol + "]" + sentence.substring(guessTag.getToken().getStartIndex(), end1);
+				LOG.debug("guess " + guessDecision + ", real " + realDecision + ", context: " + errorRecord.context);
 				for (String authority : guessTag.getDecision().getAuthorities()) {
-					List<String> errors = errorMap.get(authority);
+					List<TokeniserErrorRecord> errors = errorMap.get(authority);
 					if (errors==null) {
-						errors = new ArrayList<String>();
+						errors = new ArrayList<TokeniserErrorRecord>();
 						errorMap.put(authority, errors);
 					}
-					errors.add(error);
+					errors.add(errorRecord);
 				}
 			}
 			
@@ -156,13 +163,72 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 						errorWriter.write(outcome + " fscore " + (taggerFScoreCalculator.getFScore(outcome)) + "\n");
 					}
 					
-					List<String> errors = errorMap.get(tagger);
+					List<TokeniserErrorRecord> errors = errorMap.get(tagger);
 					if (errors!=null) {
-						for (String error : errors) {
-							errorWriter.write(error + "\n");
+						for (TokeniserErrorRecord errorRecord : errors) {
+							errorWriter.write("guess " + errorRecord.guessDecision + ", real " + errorRecord.realDecision + ", context: " + errorRecord.context + "\n");
 						}
 					}
 					errorWriter.flush();
+				}
+			} catch (IOException ioe) {
+				LogUtils.logError(LOG, ioe);
+				throw new RuntimeException(ioe);
+			} finally {
+				try {
+					errorWriter.close();
+				} catch (IOException ioe) {
+					LogUtils.logError(LOG, ioe);
+					throw new RuntimeException(ioe);
+				}
+			}
+		}
+		
+		if (csvErrorWriter!=null) {
+			try {
+				for (String tagger : taggerFScoreCalculators.keySet()) {
+					FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
+					csvErrorWriter.write(CSV.format("Authority")
+						+ CSV.format("total")
+						+ CSV.format("true+")
+						+ CSV.format("false-")
+						+ CSV.format("false+")
+						+ CSV.format("precis")
+						+ CSV.format("recall")
+						+ CSV.format("fscore")
+						+ "\n");
+					csvErrorWriter.write(CSV.format(tagger)
+							+ CSV.format((taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()))
+							+ CSV.format(taggerFScoreCalculator.getTotalTruePositiveCount())
+							+ CSV.format(taggerFScoreCalculator.getTotalFalseNegativeCount())
+							+ CSV.format(taggerFScoreCalculator.getTotalFalsePositiveCount())
+							+ CSV.format(taggerFScoreCalculator.getTotalPrecision())
+							+ CSV.format(taggerFScoreCalculator.getTotalRecall())
+							+ CSV.format(taggerFScoreCalculator.getTotalFScore())
+							+ "\n");
+					
+					for (TokeniserOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
+						csvErrorWriter.write(CSV.format(outcome.name())
+							+ CSV.format((taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)))
+							+ CSV.format(taggerFScoreCalculator.getTruePositiveCount(outcome))
+							+ CSV.format(taggerFScoreCalculator.getFalseNegativeCount(outcome))
+							+ CSV.format(taggerFScoreCalculator.getFalsePositiveCount(outcome))
+							+ CSV.format(taggerFScoreCalculator.getPrecision(outcome))
+							+ CSV.format(taggerFScoreCalculator.getRecall(outcome))
+							+ CSV.format(taggerFScoreCalculator.getFScore(outcome))
+							+ "\n");
+					}
+					
+					List<TokeniserErrorRecord> errors = errorMap.get(tagger);
+					if (errors!=null) {
+						for (TokeniserErrorRecord errorRecord : errors) {
+							csvErrorWriter.write(CSV.format(errorRecord.guessDecision.name()));
+							csvErrorWriter.write(CSV.format(errorRecord.realDecision.name()));
+							csvErrorWriter.write(CSV.format(errorRecord.context));
+							csvErrorWriter.write("\n");
+						}
+					}
+					csvErrorWriter.flush();
 				}
 			} catch (IOException ioe) {
 				LogUtils.logError(LOG, ioe);
@@ -186,6 +252,14 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 		this.errorWriter = errorWriter;
 	}
 
+	public Writer getCsvErrorWriter() {
+		return csvErrorWriter;
+	}
+
+	public void setCsvErrorWriter(Writer csvErrorWriter) {
+		this.csvErrorWriter = csvErrorWriter;
+	}
+
 	public File getFScoreFile() {
 		return fScoreFile;
 	}
@@ -202,9 +276,9 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 		return taggerFScoreCalculators;
 	}
 
-	public Map<String, List<String>> getErrorMap() {
-		return errorMap;
+	private static final class TokeniserErrorRecord {
+		TokeniserOutcome guessDecision;
+		TokeniserOutcome realDecision;
+		String context;
 	}
-
-	
 }

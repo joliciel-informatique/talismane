@@ -77,7 +77,7 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 	}
 
 	@Override
-	protected void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		// no dependencies to inject
 	}
 	

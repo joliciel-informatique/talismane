@@ -42,22 +42,22 @@ public class TokenisedAtomicTokenSequenceImplTest {
 		};
 		
 		TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] {
-				TokeniserOutcome.DOES_SEPARATE, // Je
-				TokeniserOutcome.DOES_SEPARATE, // _
-				TokeniserOutcome.DOES_SEPARATE, // n
-				TokeniserOutcome.DOES_NOT_SEPARATE, // '
-				TokeniserOutcome.DOES_SEPARATE, // ai
-				TokeniserOutcome.DOES_SEPARATE, // _
-				TokeniserOutcome.DOES_SEPARATE, // pas
-				TokeniserOutcome.DOES_NOT_SEPARATE, // _
-				TokeniserOutcome.DOES_NOT_SEPARATE, // encore
-				TokeniserOutcome.DOES_SEPARATE, // _
-				TokeniserOutcome.DOES_SEPARATE, // l
-				TokeniserOutcome.DOES_NOT_SEPARATE, // '
-				TokeniserOutcome.DOES_SEPARATE, // ourang
-				TokeniserOutcome.DOES_NOT_SEPARATE, // -
-				TokeniserOutcome.DOES_NOT_SEPARATE, // outan
-				TokeniserOutcome.DOES_SEPARATE // .
+				TokeniserOutcome.SEPARATE, // Je
+				TokeniserOutcome.SEPARATE, // _
+				TokeniserOutcome.SEPARATE, // n
+				TokeniserOutcome.JOIN, // '
+				TokeniserOutcome.SEPARATE, // ai
+				TokeniserOutcome.SEPARATE, // _
+				TokeniserOutcome.SEPARATE, // pas
+				TokeniserOutcome.JOIN, // _
+				TokeniserOutcome.JOIN, // encore
+				TokeniserOutcome.SEPARATE, // _
+				TokeniserOutcome.SEPARATE, // l
+				TokeniserOutcome.JOIN, // '
+				TokeniserOutcome.SEPARATE, // ourang
+				TokeniserOutcome.JOIN, // -
+				TokeniserOutcome.JOIN, // outan
+				TokeniserOutcome.SEPARATE // .
 		};
 
 		TokeniserServiceInternal tokeniserService = new TokeniserServiceImpl();

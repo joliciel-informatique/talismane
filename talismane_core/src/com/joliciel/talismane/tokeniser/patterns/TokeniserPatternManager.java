@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
+import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 
 /**
  * The TokeniserPatternManager will read patterns from a list of strings,
@@ -61,4 +63,11 @@ public interface TokeniserPatternManager {
 	 * @return
 	 */
 	public List<TokenPattern> getParsedTestPatterns();
+	
+	/**
+	 * Takes a sequence of atomic tokens and applies default decisions for each separator.
+	 * @param tokenSequence
+	 * @return
+	 */
+	public List<TokeniserOutcome> getDefaultOutcomes(TokenSequence tokenSequence);
 }

@@ -27,12 +27,12 @@ public enum TokeniserOutcome implements TokenTag {
 	/**
 	 * The current interval does not separate the atomic tokens on either side.
 	 */
-	DOES_NOT_SEPARATE,
+	JOIN,
 	
 	/**
 	 * The current interval separates the atomic tokens on either side.
 	 */
-	DOES_SEPARATE;
+	SEPARATE;
 	
 	@Override
 	public String getCode() {

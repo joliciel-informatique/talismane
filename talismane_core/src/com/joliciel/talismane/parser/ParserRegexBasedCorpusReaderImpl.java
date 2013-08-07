@@ -561,10 +561,13 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new HashMap<String, Object>();
+	public Map<String, String> getCharacteristics() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
 
-		attributes.put("maxSentenceCount", this.maxSentenceCount);
+		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
+		attributes.put("crossValidationSize", "" + this.crossValidationSize);
+		attributes.put("includeIndex", "" + this.includeIndex);
+		attributes.put("excludeIndex", "" + this.excludeIndex);
 		attributes.put("transitionSystem", TalismaneSession.getTransitionSystem().getClass().getSimpleName());
 		
 		int i = 0;
@@ -697,13 +700,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	public TokenSequence nextTokenSequence() {
 		TokenSequence tokenSequence = this.nextPosTagSequence().getTokenSequence();
 		return tokenSequence;
-	}
-
-
-	@Override
-	public Map<String, String> getCharacteristics() {
-		Map<String,String> characteristics = new LinkedHashMap<String, String>();
-		return characteristics;
 	}
 
 	@Override

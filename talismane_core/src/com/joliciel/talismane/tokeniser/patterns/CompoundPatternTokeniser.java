@@ -25,9 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +39,6 @@ import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -81,8 +79,6 @@ class CompoundPatternTokeniser implements Tokeniser {
 
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
-	private Map<SeparatorDecision, String> separatorDefaults;
-	private Map<SeparatorDecision, Pattern> separatorDefaultPatterns;
 	private DecisionMaker<TokeniserOutcome> decisionMaker;
 	
 	private TokeniserService tokeniserService;
@@ -169,13 +165,21 @@ class CompoundPatternTokeniser implements Tokeniser {
 			}
 			
 			// Assign each separator its default value
-			List<Decision<TokeniserOutcome>> defaultDecisions = this.makeDefaultDecisions(tokenSequence);
+			List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
+			List<Decision<TokeniserOutcome>> defaultDecisions = new ArrayList<Decision<TokeniserOutcome>>(defaultOutcomes.size());
+			for (TokeniserOutcome outcome : defaultOutcomes) {
+				Decision<TokeniserOutcome> tokeniserDecision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
+				tokeniserDecision.addAuthority("_" + this.getClass().getSimpleName());
+				tokeniserDecision.addAuthority("_" + "DefaultDecision");
+				defaultDecisions.add(tokeniserDecision);
+			}
+			
 			List<TokenisedAtomicTokenSequence> sequences = null;
 			
 			// For each test pattern, see if anything in the sentence matches it
 			if (this.decisionMaker!=null) {
 				List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
-				Map<Token,List<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, List<TokenPatternMatchSequence>>();
+				Map<Token,Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();
 				Map<TokenPatternMatchSequence,TokenPatternMatch> primaryMatchMap = new HashMap<TokenPatternMatchSequence, TokenPatternMatch>();
 				Set<Token> matchedTokens = new HashSet<Token>();
 				
@@ -190,9 +194,9 @@ class CompoundPatternTokeniser implements Tokeniser {
 							TokenPatternMatch primaryMatch = null;
 							Token token = matchSequence.getTokensToCheck().get(0);
 							
-							List<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
+							Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
 							if (matchSequences==null) {
-								matchSequences = new ArrayList<TokenPatternMatchSequence>();
+								matchSequences = new TreeSet<TokenPatternMatchSequence>();
 								tokenMatchSequenceMap.put(token, matchSequences);
 							}
 							matchSequences.add(matchSequence);
@@ -250,9 +254,9 @@ class CompoundPatternTokeniser implements Tokeniser {
 							observer.onAnalyse(match.getToken(), tokenFeatureResults, decisions);
 						
 						for (Decision<TokeniserOutcome> decision: decisions) {
-							decision.addAuthority(this.getClass().getSimpleName());
-							decision.addAuthority(match.getPattern().toString());
-							decision.addAuthority("Patterns");
+							decision.addAuthority("_" + this.getClass().getSimpleName());
+							decision.addAuthority("_" + "Patterns");
+							decision.addAuthority(match.getPattern().getName());
 						}
 					} finally {
 						MONITOR.endTask("make decision");
@@ -265,9 +269,9 @@ class CompoundPatternTokeniser implements Tokeniser {
 				PriorityQueue<TokenisedAtomicTokenSequence> heap = new PriorityQueue<TokenisedAtomicTokenSequence>();
 				TokenisedAtomicTokenSequence emptySequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(sentence, 0);
 				heap.add(emptySequence);
-				int i = 0;
-
-				for (Token token : tokenSequence.listWithWhiteSpace()) {
+				
+				for (int i=0; i<tokenSequence.listWithWhiteSpace().size(); i++) {
+					Token token = tokenSequence.listWithWhiteSpace().get(i);
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("Token : \"" + token.getText() + "\"");
 					}
@@ -275,6 +279,20 @@ class CompoundPatternTokeniser implements Tokeniser {
 					// build a new heap for this iteration
 					PriorityQueue<TokenisedAtomicTokenSequence> previousHeap = heap;
 					heap = new PriorityQueue<TokenisedAtomicTokenSequence>();
+					
+					if (i==0) {
+						// first token is always "separate" from the outside world
+						Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.SEPARATE);
+						decision.addAuthority("_" + this.getClass().getSimpleName());
+						decision.addAuthority("_" + "DefaultDecision");
+						
+						TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
+
+						TokenisedAtomicTokenSequence newSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(emptySequence);
+						newSequence.add(taggedToken);
+						heap.add(newSequence);
+						continue;
+					}
 					
 					// limit the heap breadth to K
 					int maxSequences = previousHeap.size() > this.getBeamWidth() ? this.getBeamWidth() : previousHeap.size();
@@ -288,56 +306,139 @@ class CompoundPatternTokeniser implements Tokeniser {
 								// token already added as part of a sequence introduced by another token
 								heap.add(history);
 							} else if (tokenMatchSequenceMap.containsKey(token)) {
-								for (TokenPatternMatchSequence matchSequence : tokenMatchSequenceMap.get(token)) {
+								// token begins one or more match sequences
+								// these are ordered from shortest to longest (via TreeSet)
+								List<TokenPatternMatchSequence> matchSequences = new ArrayList<TokenPatternMatchSequence>(tokenMatchSequenceMap.get(token));
+								
+								// Since sequences P1..Pn contain each other,
+								// there can be exactly matchSequences.size() consistent solutions
+								// Assume the default is separate
+								// 0: all separate
+								// 1: join P1, separate rest
+								// 2: join P2, separate rest
+								// ...
+								// n: join Pn
+								// We need to add each of these to the heap
+								// by taking the product of all probabilities consistent with each solution
+								// The probabities for each solution are (j=join, s=separate)
+								// All separate: s1 x s2 x ... x sn
+								// P1: j1 x s2 x ... x sn
+								// P2: j1 x j2 x ... x sn
+								// ...
+								// Pn: j1 x j2 x ... x jn
+								// Any solution of the form s1 x j2 would be inconsistent, and is not considered
+								// If Pi and Pj start and end on the exact same token, then the solution for both is
+								// Pi: j1 x ... x ji x jj x sj+1 ... x sn
+								// Pj: j1 x ... x ji x jj x sj+1 ... x sn
+								// Note of course that we're never likely to have more than two Ps here,
+								// but we need a solution for more just to be sure to be sure
+								TokeniserOutcome defaultOutcome = defaultDecisions.get(token.getIndexWithWhiteSpace()).getOutcome();
+								TokeniserOutcome otherOutcome = null;
+								if (defaultOutcome==TokeniserOutcome.SEPARATE)
+									otherOutcome = TokeniserOutcome.JOIN;
+								else
+									otherOutcome = TokeniserOutcome.SEPARATE;
+								
+								double[] decisionProbs = new double[matchSequences.size()+1];
+								for (int k=0; k<decisionProbs.length; k++)
+									decisionProbs[k] = 1;
+								
+								// Note: k0 = default decision (e.g. separate all), k1=first pattern
+								// p1 = first pattern
+								int p=1;
+								int prevEndIndex = -1;
+								for (TokenPatternMatchSequence matchSequence : matchSequences) {
+									int endIndex = matchSequence.getTokensToCheck().get(matchSequence.getTokensToCheck().size()-1).getEndIndex();
 									List<Decision<TokeniserOutcome>> decisions = matchSequenceDecisionMap.get(matchSequence);
-									
 									for (Decision<TokeniserOutcome> decision : decisions) {
-										TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
+										for (int k=0; k<decisionProbs.length; k++) {
+											if (decision.getOutcome()==defaultOutcome) {
+												// e.g. separate in most cases
+												if (k<p && endIndex > prevEndIndex)
+													decisionProbs[k] *= decision.getProbability();
+												else if (k+1<p && endIndex <= prevEndIndex)
+													decisionProbs[k] *= decision.getProbability();
+											} else {
+												// e.g. join in most cases
+												if (k>=p && endIndex > prevEndIndex)
+													decisionProbs[k] *= decision.getProbability();
+												else if (k+1>=p && endIndex <= prevEndIndex)
+													decisionProbs[k] *= decision.getProbability();
+											}
+										} // next k
+									} // next decision (only 2 of these)
+									prevEndIndex = endIndex;
+									p++;
+								}
+								
+								// transform to probability distribution
+								double sumProbs = 0;
+								for (int k=0; k<decisionProbs.length; k++)
+									sumProbs += decisionProbs[k];
+								
+								if (sumProbs>0)
+									for (int k=0; k<decisionProbs.length; k++)
+										decisionProbs[k] /= sumProbs;
+								
+								// Apply default decision
+								// Since this is the default decision for all tokens in the sequence, we don't add the other tokens for now,
+								// so as to allow them
+								// to get examined one at a time, just in case one of them starts its own separate sequence
+								Decision<TokeniserOutcome> defaultDecision = this.tokeniserDecisionFactory.createDecision(defaultOutcome.getCode(), decisionProbs[0]);
+								defaultDecision.addAuthority("_" + this.getClass().getSimpleName());
+								defaultDecision.addAuthority("_" + "Patterns");
+								for (TokenPatternMatchSequence matchSequence : matchSequences) {
+									defaultDecision.addAuthority(matchSequence.getTokenPattern().getName());
+								}
+								
+								TaggedToken<TokeniserOutcome> defaultTaggedToken = this.tokeniserService.getTaggedToken(token, defaultDecision);
+								TokenisedAtomicTokenSequence defaultSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(history);
+								defaultSequence.add(defaultTaggedToken);
+								defaultSequence.addDecision(defaultDecision);
+								heap.add(defaultSequence);
+								
+								// Apply one non-default decision per match sequence
+								for (int k=0; k<matchSequences.size(); k++) {
+									TokenPatternMatchSequence matchSequence = matchSequences.get(k);
+									double prob = decisionProbs[k+1];
+									Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDecision(otherOutcome.getCode(), prob);
+									decision.addAuthority("_" + this.getClass().getSimpleName());
+									decision.addAuthority("_" + "Patterns");
+									decision.addAuthority(matchSequence.getTokenPattern().getName());
+									
+									TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
 
-										TokenisedAtomicTokenSequence newSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(history);
-										newSequence.add(taggedToken);
-										if (decision.isStatistical())
-											newSequence.addDecision(decision);
-										
-										boolean defaultDecision = true;
-										for (Token tokenInSequence : matchSequence.getTokensToCheck()) {
-											if (decision.getOutcome()!=defaultDecisions.get(tokenInSequence.getIndexWithWhiteSpace()).getOutcome()) {
-												defaultDecision = false;
-												break;
-											}
+									TokenisedAtomicTokenSequence newSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(history);
+									newSequence.add(taggedToken);
+									newSequence.addDecision(decision);
+									
+									// The decision is NOT the default decision for all tokens in the sequence, add all other tokens
+									// in this sequence to the solution
+									for (Token tokenInSequence : matchSequence.getTokensToCheck()) {
+										if (tokenInSequence.equals(token)) {
+											continue;
 										}
-										
-										// If the decision is NOT the default decision for all tokens in the sequence, add all other tokens
-										// in this sequence to the solution
-										// If it IS the default decision for all tokens in the sequence, we don't add the other tokens for now, so as to allow them
-										// to get examined one at a time, just in case one of them starts its own separate sequence
-										if (!defaultDecision) {
-											for (Token tokenInSequence : matchSequence.getTokensToCheck()) {
-												if (tokenInSequence.equals(token)) {
-													continue;
-												}
-												Decision<TokeniserOutcome> decisionInSequence = this.tokeniserDecisionFactory.createDefaultDecision(decision.getOutcome());
-												decisionInSequence.addAuthority(this.getClass().getSimpleName());
-												decisionInSequence.addAuthority("DecisionInSequence");
-												decisionInSequence.addAuthority("DecisionInSequence_non_default");
-												decisionInSequence.addAuthority("Patterns");
-												TaggedToken<TokeniserOutcome> taggedTokenInSequence = this.tokeniserService.getTaggedToken(tokenInSequence, decisionInSequence);
-												newSequence.add(taggedTokenInSequence);
-											}
-										}
-										
-										heap.add(newSequence);
-									} // next decision
+										Decision<TokeniserOutcome> decisionInSequence = this.tokeniserDecisionFactory.createDefaultDecision(decision.getOutcome());
+										decisionInSequence.addAuthority("_" + this.getClass().getSimpleName());
+										decisionInSequence.addAuthority("_" + "DecisionInSequence");
+										decisionInSequence.addAuthority("_" + "DecisionInSequence_non_default");
+										decisionInSequence.addAuthority("_" + "Patterns");
+										TaggedToken<TokeniserOutcome> taggedTokenInSequence = this.tokeniserService.getTaggedToken(tokenInSequence, decisionInSequence);
+										newSequence.add(taggedTokenInSequence);
+									}
+									
+									heap.add(newSequence);
+									
 								} // next sequence
 							} else {
 								// token doesn't start match sequence, and hasn't already been added to the current sequence
 								Decision<TokeniserOutcome> decision = defaultDecisions.get(i);
 								if (matchedTokens.contains(token)) {
 									decision = this.tokeniserDecisionFactory.createDefaultDecision(decision.getOutcome());
-									decision.addAuthority(this.getClass().getSimpleName());
-									decision.addAuthority("DecisionInSequence");
-									decision.addAuthority("DecisionInSequence_default");
-									decision.addAuthority("Patterns");
+									decision.addAuthority("_" + this.getClass().getSimpleName());
+									decision.addAuthority("_" + "DecisionInSequence");
+									decision.addAuthority("_" + "DecisionInSequence_default");
+									decision.addAuthority("_" + "Patterns");
 								}
 								TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
 
@@ -350,7 +451,6 @@ class CompoundPatternTokeniser implements Tokeniser {
 					} finally {
 						MONITOR.endTask("heap sort");
 					}
-					i++;
 				} // next token
 				
 				sequences = new ArrayList<TokenisedAtomicTokenSequence>();
@@ -422,90 +522,6 @@ class CompoundPatternTokeniser implements Tokeniser {
 
 	}
 	
-	protected List<Decision<TokeniserOutcome>> makeDefaultDecisions(TokenSequence tokenSequence) {
-		List<Decision<TokeniserOutcome>> defaultDecisions = new ArrayList<Decision<TokeniserOutcome>>();
-		
-		// Assign each separator its default value
-		TokeniserOutcome nextOutcome = TokeniserOutcome.DOES_SEPARATE;
-		for (Token token : tokenSequence.listWithWhiteSpace()) {
-			Decision<TokeniserOutcome> tokeniserDecision = null;
-			
-			if (Tokeniser.SEPARATORS.matcher(token.getText()).matches()) {
-				boolean defaultValueFound = false;
-				TokeniserOutcome outcome = null;
-				for (Entry<SeparatorDecision, Pattern> entry : this.getSeparatorDefaultPatterns().entrySet()) {
-					if (entry.getValue().matcher(token.getText()).matches()) {
-						defaultValueFound = true;
-						SeparatorDecision defaultSeparatorDecision = entry.getKey();
-						switch (defaultSeparatorDecision) {
-						case IS_SEPARATOR:
-							outcome = TokeniserOutcome.DOES_SEPARATE;
-							nextOutcome = TokeniserOutcome.DOES_SEPARATE;
-							break;
-						case IS_NOT_SEPARATOR:
-							outcome = TokeniserOutcome.DOES_NOT_SEPARATE;
-							nextOutcome = TokeniserOutcome.DOES_NOT_SEPARATE;
-							break;
-						case IS_SEPARATOR_BEFORE:
-							outcome = TokeniserOutcome.DOES_SEPARATE;
-							nextOutcome = TokeniserOutcome.DOES_NOT_SEPARATE;
-						case IS_SEPARATOR_AFTER:
-							outcome = TokeniserOutcome.DOES_NOT_SEPARATE;
-							nextOutcome = TokeniserOutcome.DOES_SEPARATE;
-						}
-						break;
-					}
-				}
-				if (!defaultValueFound) {
-					outcome = TokeniserOutcome.DOES_SEPARATE;
-					nextOutcome = TokeniserOutcome.DOES_SEPARATE;
-				}
-				tokeniserDecision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
-			} else {
-				tokeniserDecision = this.tokeniserDecisionFactory.createDefaultDecision(nextOutcome);
-			}
-			tokeniserDecision.addAuthority(this.getClass().getSimpleName());
-			tokeniserDecision.addAuthority("PatternSeparator:DefaultSeparatorDecison");
-			defaultDecisions.add(tokeniserDecision);
-		}
-		return defaultDecisions;
-	}
-	/**
-	 * Default values for various separators.
-	 * All separators not in this map will default to TokeniserDecision.IS_SEPARATOR.
-	 * The Strings should be simple lists of separators for which the TokeniserDecision is the default one.
-	 * @return
-	 */
-	public Map<SeparatorDecision, String> getSeparatorDefaults() {
-		if (this.separatorDefaults==null) {
-			this.setSeparatorDefaults(this.getTokeniserPatternManager().getSeparatorDefaults());
-		}
-		return separatorDefaults;
-	}
-
-	public void setSeparatorDefaults(
-			Map<SeparatorDecision, String> separatorDefaults) {
-		this.separatorDefaults = separatorDefaults;
-	}
-
-	protected Map<SeparatorDecision, Pattern> getSeparatorDefaultPatterns() {
-		if (this.separatorDefaultPatterns==null) {
-			this.separatorDefaultPatterns = new HashMap<SeparatorDecision, Pattern>();
-			for (Entry<SeparatorDecision, String> entry : this.getSeparatorDefaults().entrySet()) {
-				String separators = entry.getValue();
-				StringBuilder sb = new StringBuilder();
-				for (int i=0; i<separators.length(); i++) {
-					char c = separators.charAt(i);
-					sb.append('\\');
-					sb.append(c);
-				}
-				Pattern pattern = Pattern.compile("[" + sb.toString() + "]");
-				this.separatorDefaultPatterns.put(entry.getKey(), pattern);
-			}
-			
-		}
-		return separatorDefaultPatterns;
-	}
 
 	/**
 	 * The test patterns - only token sequences matching these patterns will

@@ -21,12 +21,16 @@ package com.joliciel.talismane.posTagger;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
@@ -40,6 +44,8 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class PosTagRegexBasedCorpusReaderImpl implements
 		PosTagRegexBasedCorpusReader {
+	private static final Log LOG = LogFactory.getLog(PosTagRegexBasedCorpusReaderImpl.class);
+	
 	private String regex = PosTagRegexBasedCorpusReader.DEFAULT_REGEX;
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
 	private static final String POSTAG_PLACEHOLDER = "%POSTAG%";
@@ -55,6 +61,9 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
 	private int sentenceCount = 0;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	private int crossValidationSize = 0;
 
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	
@@ -71,8 +80,8 @@ class PosTagRegexBasedCorpusReaderImpl implements
 			// we've reached the end, do nothing
 		} else {
 			while (posTagSequence==null) {
-				PretokenisedSequence tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
-				List<PosTag> posTags = new ArrayList<PosTag>();
+				PretokenisedSequence tokenSequence = null;
+				List<PosTag> posTags = null;
 				boolean hasLine = false;
 				if (!scanner.hasNextLine())
 					break;
@@ -82,6 +91,30 @@ class PosTagRegexBasedCorpusReaderImpl implements
 					if (line.length()==0) {
 						if (!hasLine)
 							continue;
+						
+						// end of sentence
+						sentenceCount++;
+						LOG.debug("sentenceCount: " + sentenceCount);
+						
+						// check cross-validation
+						if (crossValidationSize>0) {
+							boolean includeMe = true;
+							if (includeIndex>=0) {
+								if (sentenceCount % crossValidationSize != includeIndex) {
+									includeMe = false;
+								}
+							} else if (excludeIndex>=0) {
+								if (sentenceCount % crossValidationSize == excludeIndex) {
+									includeMe = false;
+								}
+							}
+							if (!includeMe) {
+								hasLine = false;
+								tokenSequence = null;
+								posTags = null;
+								continue;
+							}
+						}
 						
 						tokenSequence.cleanSlate();
 						for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
@@ -107,9 +140,14 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	    				for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
 	    					posTagSequenceFilter.apply(posTagSequence);
 	    				}
-						sentenceCount++;
 					} else {
 						hasLine = true;
+						
+						if (tokenSequence==null) {
+							tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+							posTags = new ArrayList<PosTag>();
+						}
+						
 						Matcher matcher = this.getPattern().matcher(line);
 						if (!matcher.matches())
 							throw new TalismaneException("Didn't match pattern on line " + lineNumber);
@@ -239,4 +277,54 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	public void setMaxSentenceCount(int maxSentenceCount) {
 		this.maxSentenceCount = maxSentenceCount;
 	}
+
+	public int getIncludeIndex() {
+		return includeIndex;
+	}
+
+	public void setIncludeIndex(int includeIndex) {
+		this.includeIndex = includeIndex;
+	}
+
+	public int getExcludeIndex() {
+		return excludeIndex;
+	}
+
+	public void setExcludeIndex(int excludeIndex) {
+		this.excludeIndex = excludeIndex;
+	}
+
+	public int getCrossValidationSize() {
+		return crossValidationSize;
+	}
+
+	public void setCrossValidationSize(int crossValidationSize) {
+		this.crossValidationSize = crossValidationSize;
+	}
+
+	@Override
+	public Map<String, String> getCharacteristics() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
+
+		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
+		attributes.put("crossValidationSize", "" + this.crossValidationSize);
+		attributes.put("includeIndex", "" + this.includeIndex);
+		attributes.put("excludeIndex", "" + this.excludeIndex);
+		attributes.put("tagset", TalismaneSession.getPosTagSet().getName());
+		
+		int i = 0;
+		for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
+			attributes.put("TokenSequenceFilter" + i, "" + tokenFilter.getClass().getSimpleName());
+			
+			i++;
+		}
+		i = 0;
+		for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+			attributes.put("PosTagSequenceFilter" + i, "" + posTagSequenceFilter.getClass().getSimpleName());
+			
+			i++;
+		}
+		return attributes;
+	}
+
 }

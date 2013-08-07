@@ -31,23 +31,28 @@ import java.util.regex.Pattern;
  *
  */
 public class CSVFormatter {
-    private static DecimalFormat decFormat;
-    private static DecimalFormat intFormat;
+    private DecimalFormat decFormat;
+    private DecimalFormat intFormat;
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static boolean addQuotesAlwaysLocal = false;
-    private static String csvSeparator = ",";
+    private boolean addQuotesAlways = false;
+    private String csvSeparator = ",";
+    private int decimalPlaces = 4;
     
-	private static Pattern csvSeparators = Pattern.compile("[,\"]");
+	private Pattern csvSeparators = Pattern.compile("[,\"]");
 	private enum TokenType {
 		COMMA, QUOTE, OTHER
 	};
     
-    static {
+    public CSVFormatter(int decimalPlaces) {
+		this();
+		this.setDecimalPlaces(decimalPlaces);
+	}
+
+	public CSVFormatter() {
 	    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
 	    decFormat.applyPattern("0.00");
 	    intFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
 	    intFormat.applyPattern("##0");
-	    
     }
     
     /**
@@ -55,8 +60,8 @@ public class CSVFormatter {
      * @param number
      * @return
      */
-    public static String format(double number) {
-    	if (addQuotesAlwaysLocal)
+    public String format(double number) {
+    	if (addQuotesAlways)
     		return "\"" + decFormat.format(number) + "\"" + csvSeparator;
 		return decFormat.format(number) + csvSeparator;
 	}
@@ -66,8 +71,8 @@ public class CSVFormatter {
      * @param number
      * @return
      */
-    public static String format(float number) {
-    	if (addQuotesAlwaysLocal)
+    public String format(float number) {
+    	if (addQuotesAlways)
     		return "\"" + decFormat.format(number) + "\"" + csvSeparator;
 		return decFormat.format(number) + csvSeparator;
 	}
@@ -77,8 +82,8 @@ public class CSVFormatter {
      * @param number
      * @return
      */
-    public static String format(int number) {
-    	if (addQuotesAlwaysLocal)
+    public String format(int number) {
+    	if (addQuotesAlways)
     		return "\"" + intFormat.format(number) + "\"" + csvSeparator;
 		return intFormat.format(number) + csvSeparator;
 	}
@@ -88,14 +93,14 @@ public class CSVFormatter {
      * @param number
      * @return
      */
-    public static String format(String string) {
+    public String format(String string) {
     	int quotePos = string.indexOf('"');
     	int commaPos = string.indexOf(csvSeparator);
        	int apostrophePos = string.indexOf('\'');
 		if (quotePos>=0) {
 			string = string.replace("\"", "\"\"");
 		}
-		if (quotePos>=0||commaPos>=0||apostrophePos>=0||addQuotesAlwaysLocal)
+		if (quotePos>=0||commaPos>=0||apostrophePos>=0||addQuotesAlways)
 			return "\"" + string + "\"" + csvSeparator;
 		else
 			return string + csvSeparator;
@@ -108,7 +113,7 @@ public class CSVFormatter {
 	 * @param csvLine
 	 * @return
 	 */
-	public static List<String> getCSVCells(String csvLine) {
+	public List<String> getCSVCells(String csvLine) {
 		List<String> cells = new ArrayList<String>();
 		Matcher matcher = csvSeparators.matcher(csvLine);
 		int currentPos = 0;
@@ -157,7 +162,7 @@ public class CSVFormatter {
 	 * @param index
 	 * @return
 	 */
-	public static String getColumnLabel(int index) {
+	public String getColumnLabel(int index) {
 		String columnLabel = "";
 		int result = index / 26;
 		int remainder = index % 26;
@@ -173,22 +178,43 @@ public class CSVFormatter {
 	 * Whether or not to systematically add quotes around all cell contents.
 	 * @param addQuotesAlways
 	 */
-	public static void setAddQuotesAlways(boolean addQuotesAlways) {
-		addQuotesAlwaysLocal = addQuotesAlways;
+	public void setAddQuotesAlways(boolean addQuotesAlways) {
+		this.addQuotesAlways = addQuotesAlways;
 	}
 
 	/**
 	 * The CSV separator to be used (default is a comma).
 	 * @return
 	 */
-	public static String getCsvSeparator() {
+	public String getCsvSeparator() {
 		return csvSeparator;
 	}
 
-	public static void setCsvSeparator(String separator) {
-		csvSeparator = separator;
-		csvSeparators = Pattern.compile("[" + csvSeparator + "\"]");
+	public void setCsvSeparator(String separator) {
+		if (!csvSeparator.equals(separator)) {
+			csvSeparator = separator;
+			csvSeparators = Pattern.compile("[" + csvSeparator + "\"]");
+		}
 	}
 	
+	public void setDecimalPlaces(int decimalPlaces) {
+		if (this.decimalPlaces!=decimalPlaces) {
+			this.decimalPlaces = decimalPlaces;
+			String dfFormat = "0.";
+			for (int i = 0; i<decimalPlaces;i++) {
+				dfFormat += "0";
+			}
+		    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
+		    decFormat.applyPattern(dfFormat);
+		}
+	}
+
+	public int getDecimalPlaces() {
+		return decimalPlaces;
+	}
+
+	public boolean isAddQuotesAlways() {
+		return addQuotesAlways;
+	}
 	
 }

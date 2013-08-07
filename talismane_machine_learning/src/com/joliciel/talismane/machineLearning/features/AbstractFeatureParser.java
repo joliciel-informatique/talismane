@@ -43,7 +43,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  * @param <T>
  */
-public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, FeatureClassContainer {
+public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<T>, FeatureClassContainer {
 	private static final Log LOG = LogFactory.getLog(AbstractFeatureParser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractFeatureParser.class);
 
@@ -454,7 +454,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParser<T>, Feat
 	 * Inject any dependencies required by this feature to function correctly.
 	 * @param feature
 	 */
-	protected abstract void injectDependencies(@SuppressWarnings("rawtypes") Feature feature);
+	public abstract void injectDependencies(@SuppressWarnings("rawtypes") Feature feature);
 	
 	@SuppressWarnings("unchecked")
 	@Override

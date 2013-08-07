@@ -19,8 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.util.List;
-import java.util.Map;
-
+import com.joliciel.talismane.AnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
@@ -29,7 +28,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public interface TokeniserAnnotatedCorpusReader {
+public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	/**
 	 * Is there another sentence to be read?
 	 * @return
@@ -41,12 +40,6 @@ public interface TokeniserAnnotatedCorpusReader {
 	 * @return
 	 */
 	public TokenSequence nextTokenSequence();
-	
-	/**
-	 * Characteristics describing this corpus reader.
-	 * @return
-	 */
-	public Map<String,String> getCharacteristics();
 	
 	/**
 	 * These filters will be applied to each token sequence returned by the corpus prior to being returned.
@@ -72,11 +65,4 @@ public interface TokeniserAnnotatedCorpusReader {
 	 * @return
 	 */
 	public List<TokenFilter> getTokenFilters();
-	
-	/**
-	 * If 0, all sentences will be read - otherwise will only read a certain number of sentences.
-	 * @return
-	 */
-	public int getMaxSentenceCount();
-	public void setMaxSentenceCount(int maxSentenceCount);
 }

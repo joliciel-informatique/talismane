@@ -56,11 +56,4 @@ public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReade
 	public boolean isPredictTransitions();
 	public void setPredictTransitions(boolean predictTransitions);
 
-	public abstract void setCrossValidationSize(int crossValidationSize);
-	public abstract int getCrossValidationSize();
-	public abstract void setExcludeIndex(int excludeIndex);
-	public abstract int getExcludeIndex();
-	public abstract void setIncludeIndex(int includeIndex);
-	public abstract int getIncludeIndex();
-
 }

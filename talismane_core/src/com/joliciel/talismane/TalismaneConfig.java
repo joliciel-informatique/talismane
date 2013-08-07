@@ -91,6 +91,7 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
+import com.joliciel.talismane.tokeniser.TokenEvaluationCorpusWriter;
 import com.joliciel.talismane.tokeniser.TokenEvaluationFScoreCalculator;
 import com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
@@ -484,7 +485,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				posTaggerTemplateName = "posTagger_template_with_location.ftl";
 				parserTemplateName = "parser_conll_template_with_location.ftl";
 			} else if (builtInTemplate.equalsIgnoreCase("with_prob")) {
-				tokeniserTemplateName = "tokeniser_template.ftl";
+				tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
 				posTaggerTemplateName = "posTagger_template_with_prob.ftl";
 				parserTemplateName = "parser_conll_template_with_prob.ftl";
 			} else {
@@ -1385,7 +1386,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		
 			this.tokenCorpusReader = tokenRegexCorpusReader;
 		}
-		tokenCorpusReader.setMaxSentenceCount(maxSentenceCount);
+		this.setCorpusReaderAttributes(tokenCorpusReader);
 
 		this.addTokenCorpusReaderFilters(tokenCorpusReader);
 		return tokenCorpusReader;
@@ -1445,7 +1446,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				posTagRegexBasedCorpusReader.setRegex(this.getInputRegex());
 			posTagCorpusReader = posTagRegexBasedCorpusReader;
 		}
-		posTagCorpusReader.setMaxSentenceCount(maxSentenceCount);
+		this.setCorpusReaderAttributes(posTagCorpusReader);
+
 		this.addPosTagCorpusReaderFilters(posTagCorpusReader);
 		return posTagCorpusReader;
 	}
@@ -1554,20 +1556,20 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				parserRegexCorpusReader.setRegex(this.getInputRegex());
 			this.parserCorpusReader = parserRegexCorpusReader;
 		}
+		this.setCorpusReaderAttributes(parserCorpusReader);
 		this.addParserCorpusReaderFilters(parserCorpusReader);
-		parserCorpusReader.setMaxSentenceCount(maxSentenceCount);
 		
-		if (parserCorpusReader instanceof ParserRegexBasedCorpusReader) {
-			ParserRegexBasedCorpusReader regexBasedReader = (ParserRegexBasedCorpusReader) parserCorpusReader;
-			if (crossValidationSize>0)
-				regexBasedReader.setCrossValidationSize(crossValidationSize);
-			if (includeIndex>=0)
-				regexBasedReader.setIncludeIndex(includeIndex);
-			if (excludeIndex>=0)
-				regexBasedReader.setExcludeIndex(excludeIndex);
-		}
-
 		return parserCorpusReader;
+	}
+	
+	void setCorpusReaderAttributes(AnnotatedCorpusReader corpusReader) {
+		corpusReader.setMaxSentenceCount(maxSentenceCount);
+		if (crossValidationSize>0)
+			corpusReader.setCrossValidationSize(crossValidationSize);
+		if (includeIndex>=0)
+			corpusReader.setIncludeIndex(includeIndex);
+		if (excludeIndex>=0)
+			corpusReader.setExcludeIndex(excludeIndex);
 	}
 	
 
@@ -1813,18 +1815,34 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				tokeniserEvaluator = this.getTokeniserService().getTokeniserEvaluator(this.getTokeniser());
 				
 				Writer errorFileWriter = null;
-				File errorFile = new File(this.getOutDir(), this.getBaseName() + ".errors.txt");
+				File errorFile = new File(this.getOutDir(), this.getBaseName() + ".errorList.txt");
 				errorFile.delete();
 				errorFile.createNewFile();
 				errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false),"UTF8"));
-				
+
+				Writer csvErrorFileWriter = null;
+				File csvErrorFile = new File(this.getOutDir(), this.getBaseName() + ".errors.csv");
+				csvErrorFile.delete();
+				csvErrorFile.createNewFile();
+				csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false),"UTF8"));
+
 				File fScoreFile = new File(this.getOutDir(), this.getBaseName() + ".fscores.csv");
 
 				TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
 				tokenFScoreCalculator.setErrorWriter(errorFileWriter);
+				tokenFScoreCalculator.setCsvErrorWriter(csvErrorFileWriter);
 				tokenFScoreCalculator.setFScoreFile(fScoreFile);
 				tokeniserEvaluator.addObserver(tokenFScoreCalculator);
+				
+				Writer corpusFileWriter = null;
+				File corpusFile = new File(this.getOutDir(), this.getBaseName() + ".corpus.txt");
+				corpusFile.delete();
+				corpusFile.createNewFile();
+				corpusFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(corpusFile, false),"UTF8"));
 
+				TokenEvaluationCorpusWriter corpusWriter = new TokenEvaluationCorpusWriter(corpusFileWriter);
+				tokeniserEvaluator.addObserver(corpusWriter);
+				
 				Reader templateReader = null;
 				if (templatePath==null) {
 					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(tokeniserTemplateName)));

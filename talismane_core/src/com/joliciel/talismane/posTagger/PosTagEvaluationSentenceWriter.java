@@ -38,6 +38,7 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class PosTagEvaluationSentenceWriter implements PosTagEvaluationObserver {
 	private static final Log LOG = LogFactory.getLog(PosTagEvaluationSentenceWriter.class);
+	private static final CSVFormatter CSV = new CSVFormatter();
 	private Writer csvFileWriter;
 	private int guessCount;
 	
@@ -53,11 +54,11 @@ public class PosTagEvaluationSentenceWriter implements PosTagEvaluationObserver 
 		try {
 			for (int i = 0; i<realSequence.size(); i++) {
 				String token =  realSequence.get(i).getToken().getText();
-				csvFileWriter.write(CSVFormatter.format(token));
+				csvFileWriter.write(CSV.format(token));
 			}
 			csvFileWriter.write("\n");
 			for (int i = 0; i<realSequence.size(); i++)
-				csvFileWriter.write(CSVFormatter.format(realSequence.get(i).getTag().getCode()));
+				csvFileWriter.write(CSV.format(realSequence.get(i).getTag().getCode()));
 			csvFileWriter.write("\n");
 			
 			for (int k = 0; k<guessCount; k++) {
@@ -94,11 +95,11 @@ public class PosTagEvaluationSentenceWriter implements PosTagEvaluationObserver 
 						}
 					}
 					if (tokenError) {
-						csvFileWriter.write(CSVFormatter.format("BAD_TOKEN"));
+						csvFileWriter.write(CSV.format("BAD_TOKEN"));
 					} else {
-						csvFileWriter.write(CSVFormatter.format(testToken.getTag().getCode()));
+						csvFileWriter.write(CSV.format(testToken.getTag().getCode()));
 					}
-					probs += CSVFormatter.format(testToken.getDecision().getProbability());
+					probs += CSV.format(testToken.getDecision().getProbability());
 				}
 				csvFileWriter.write("\n");
 				csvFileWriter.write(probs + "\n");

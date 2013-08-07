@@ -22,11 +22,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 class TokeniserPatternManagerImpl implements TokeniserPatternManager {
@@ -36,6 +42,7 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	private TokeniserPatternService tokeniserPatternService;
 	
 	private Map<SeparatorDecision, String> separatorDefaults;
+	private Map<SeparatorDecision, Pattern> separatorDefaultPatterns;
 	private List<String> testPatterns;
 	
 	private List<TokenPattern> parsedTestPatterns;
@@ -141,5 +148,74 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
 	
+	public List<TokeniserOutcome> getDefaultOutcomes(TokenSequence tokenSequence) {
+		List<TokeniserOutcome> defaultOutcomes = new ArrayList<TokeniserOutcome>();
+		
+		// Assign each separator its default value
+		TokeniserOutcome nextOutcome = TokeniserOutcome.SEPARATE;
+		for (Token token : tokenSequence.listWithWhiteSpace()) {
+			
+			TokeniserOutcome outcome = null;
+			if (Tokeniser.SEPARATORS.matcher(token.getText()).matches()) {
+				boolean defaultValueFound = false;
+				for (Entry<SeparatorDecision, Pattern> entry : this.getSeparatorDefaultPatterns().entrySet()) {
+					if (entry.getValue().matcher(token.getText()).matches()) {
+						defaultValueFound = true;
+						SeparatorDecision defaultSeparatorDecision = entry.getKey();
+						switch (defaultSeparatorDecision) {
+						case IS_SEPARATOR:
+							outcome = TokeniserOutcome.SEPARATE;
+							nextOutcome = TokeniserOutcome.SEPARATE;
+							break;
+						case IS_NOT_SEPARATOR:
+							outcome = TokeniserOutcome.JOIN;
+							nextOutcome = TokeniserOutcome.JOIN;
+							break;
+						case IS_SEPARATOR_BEFORE:
+							outcome = TokeniserOutcome.SEPARATE;
+							nextOutcome = TokeniserOutcome.JOIN;
+						case IS_SEPARATOR_AFTER:
+							outcome = TokeniserOutcome.JOIN;
+							nextOutcome = TokeniserOutcome.SEPARATE;
+						}
+						break;
+					}
+				}
+				if (!defaultValueFound) {
+					outcome = TokeniserOutcome.SEPARATE;
+					nextOutcome = TokeniserOutcome.SEPARATE;
+				}
+				defaultOutcomes.add(outcome);
+			} else {
+				defaultOutcomes.add(nextOutcome);
+			}
+
+		}
+		return defaultOutcomes;
+	}
 	
+
+	public void setSeparatorDefaults(
+			Map<SeparatorDecision, String> separatorDefaults) {
+		this.separatorDefaults = separatorDefaults;
+	}
+
+	protected Map<SeparatorDecision, Pattern> getSeparatorDefaultPatterns() {
+		if (this.separatorDefaultPatterns==null) {
+			this.separatorDefaultPatterns = new HashMap<SeparatorDecision, Pattern>();
+			for (Entry<SeparatorDecision, String> entry : this.getSeparatorDefaults().entrySet()) {
+				String separators = entry.getValue();
+				StringBuilder sb = new StringBuilder();
+				for (int i=0; i<separators.length(); i++) {
+					char c = separators.charAt(i);
+					sb.append('\\');
+					sb.append(c);
+				}
+				Pattern pattern = Pattern.compile("[" + sb.toString() + "]");
+				this.separatorDefaultPatterns.put(entry.getKey(), pattern);
+			}
+			
+		}
+		return separatorDefaultPatterns;
+	}
 }

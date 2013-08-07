@@ -49,6 +49,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PerformanceMonitor {
 	private static final Log LOG = LogFactory.getLog(PerformanceMonitor.class);
+	private static final CSVFormatter CSV = new CSVFormatter();
+	
 	private static Deque<Task> tasks = new ArrayDeque<Task>();
 	private static Map<String,TaskStats> taskStatMap = new HashMap<String, TaskStats>();
 	private static DecimalFormat decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
@@ -335,21 +337,21 @@ public class PerformanceMonitor {
 			return;
 		Set<TaskStats> taskStatSet = new TreeSet<TaskStats>(taskStatMap.values());
 		try {
-			csvWriter.write(CSVFormatter.format("name")
-					+ CSVFormatter.format("call count")
-					+ CSVFormatter.format("total time (s)")
-					+ CSVFormatter.format("%")
-					+ CSVFormatter.format("average time (ms)")
-					+ CSVFormatter.format("total time with subtasks (s)")
-					+ CSVFormatter.format("%") + "\n");
+			csvWriter.write(CSV.format("name")
+					+ CSV.format("call count")
+					+ CSV.format("total time (s)")
+					+ CSV.format("%")
+					+ CSV.format("average time (ms)")
+					+ CSV.format("total time with subtasks (s)")
+					+ CSV.format("%") + "\n");
 			for (TaskStats stats : taskStatSet) {
-				csvWriter.write(CSVFormatter.format(stats.name));
-				csvWriter.write(CSVFormatter.format(stats.callCount));
-				csvWriter.write(CSVFormatter.format((double)stats.totalTime / 1000));
-				csvWriter.write(CSVFormatter.format(((double)stats.totalTime / (double) root.totalTime) * 100.0 ));
-				csvWriter.write(CSVFormatter.format(((double)stats.totalTime / (double) stats.callCount) ));
-				csvWriter.write(CSVFormatter.format((double)stats.totalTimeWithSubTasks / 1000));
-				csvWriter.write(CSVFormatter.format(((double)stats.totalTimeWithSubTasks / (double) root.totalTime) * 100.0 ));
+				csvWriter.write(CSV.format(stats.name));
+				csvWriter.write(CSV.format(stats.callCount));
+				csvWriter.write(CSV.format((double)stats.totalTime / 1000));
+				csvWriter.write(CSV.format(((double)stats.totalTime / (double) root.totalTime) * 100.0 ));
+				csvWriter.write(CSV.format(((double)stats.totalTime / (double) stats.callCount) ));
+				csvWriter.write(CSV.format((double)stats.totalTimeWithSubTasks / 1000));
+				csvWriter.write(CSV.format(((double)stats.totalTimeWithSubTasks / (double) root.totalTime) * 100.0 ));
 				csvWriter.write("\n");
 			}
 		} catch (IOException ioe) {

@@ -180,6 +180,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 		if (tokenSequence.getUnderlyingAtomicTokenSequence()!=null) {
 			this.underlyingSolutions.add(tokenSequence.getUnderlyingAtomicTokenSequence());
 		}
+		tokenSequence.setPosTagSequence(this);
 	}
 
 	@Override

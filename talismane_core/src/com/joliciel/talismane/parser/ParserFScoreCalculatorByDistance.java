@@ -41,6 +41,7 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver {
 	private static final Log LOG = LogFactory.getLog(ParserFScoreCalculatorByDistance.class);
+	private static final CSVFormatter CSV = new CSVFormatter();
 	Map<Integer,FScoreCalculator<String>> fscoreByDistanceMap = new TreeMap<Integer, FScoreCalculator<String>>();
 	private boolean labeledEvaluation = true;
 	private boolean hasTokeniser = false;
@@ -153,18 +154,18 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 			}
 			try {
 				try {
-					writer.write(CSVFormatter.format("distance") +
-							CSVFormatter.format("true+") +
-							CSVFormatter.format("false-") +
-							CSVFormatter.format("accuracy") +
-							CSVFormatter.format("above") +
-							CSVFormatter.format("below") + "\n");
+					writer.write(CSV.format("distance") +
+							CSV.format("true+") +
+							CSV.format("false-") +
+							CSV.format("accuracy") +
+							CSV.format("above") +
+							CSV.format("below") + "\n");
 					for (int distance : this.fscoreByDistanceMap.keySet()) {
 						writer.write(distance + ",");
 						FScoreCalculator<String> fScoreCalculator = this.fscoreByDistanceMap.get(distance);
-						writer.write(CSVFormatter.format(fScoreCalculator.getTotalTruePositiveCount()));
-						writer.write(CSVFormatter.format(fScoreCalculator.getTotalFalseNegativeCount()));
-						writer.write(CSVFormatter.format(fScoreCalculator.getTotalFScore()));
+						writer.write(CSV.format(fScoreCalculator.getTotalTruePositiveCount()));
+						writer.write(CSV.format(fScoreCalculator.getTotalFalseNegativeCount()));
+						writer.write(CSV.format(fScoreCalculator.getTotalFScore()));
 						
 						Integer[] aboveBelowMeasures = aboveBelowMap.get(distance);
 						double belowAccuracy = 0;
@@ -174,8 +175,8 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 						if (aboveBelowMeasures[2]>0)
 							aboveAccuracy = (double) aboveBelowMeasures[2] / ((double) aboveBelowMeasures[2] + (double) aboveBelowMeasures[3]);
 						
-						writer.write(CSVFormatter.format(aboveAccuracy));
-						writer.write(CSVFormatter.format(belowAccuracy));
+						writer.write(CSV.format(aboveAccuracy));
+						writer.write(CSV.format(belowAccuracy));
 						writer.write("\n");
 						writer.flush();
 					}

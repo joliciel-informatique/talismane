@@ -71,7 +71,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 				currentAtomicParts.add(decisionTag);
 				Token token = decisionTag.getToken();
 				
-				if (decisionTag.getTag().equals(TokeniserOutcome.DOES_SEPARATE)) {
+				if (decisionTag.getTag().equals(TokeniserOutcome.SEPARATE)) {
 					// make separation (add token)
 					if (!isWhiteSpace) {
 						this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
