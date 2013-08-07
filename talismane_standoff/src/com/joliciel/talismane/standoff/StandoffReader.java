@@ -56,6 +56,9 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private int maxSentenceCount = 0;
 	private int sentenceCount = 0;
 	private int lineNumber = 1;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	private int crossValidationSize = 0;
 	
 	private ParserService parserService;
 	private PosTaggerService posTaggerService;
@@ -235,8 +238,8 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
+	public Map<String, String> getCharacteristics() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
 		return attributes;
 	}
 
@@ -315,4 +318,30 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		public String fromToken;
 		public String toToken;
 	}
+
+	public int getIncludeIndex() {
+		return includeIndex;
+	}
+
+	public void setIncludeIndex(int includeIndex) {
+		this.includeIndex = includeIndex;
+	}
+
+	public int getExcludeIndex() {
+		return excludeIndex;
+	}
+
+	public void setExcludeIndex(int excludeIndex) {
+		this.excludeIndex = excludeIndex;
+	}
+
+	public int getCrossValidationSize() {
+		return crossValidationSize;
+	}
+
+	public void setCrossValidationSize(int crossValidationSize) {
+		this.crossValidationSize = crossValidationSize;
+	}
+	
+	
 }

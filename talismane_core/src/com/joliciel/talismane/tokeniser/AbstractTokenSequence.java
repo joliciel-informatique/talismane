@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.posTagger.PosTagSequence;
 
 abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenSequence, PretokenisedSequence {
 	private static final Log LOG = LogFactory.getLog(AbstractTokenSequence.class);
@@ -25,6 +26,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	private Integer atomicTokenCount = null;
 	private boolean finalised = false;
 	private boolean withRoot = false;
+	private PosTagSequence posTagSequence;
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
 
@@ -333,6 +335,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		tokenSequence.setScoreCalculated(true);
 		tokenSequence.setUnderlyingAtomicTokenSequence(this.getUnderlyingAtomicTokenSequence());
 		tokenSequence.setAtomicTokenCount(this.getAtomicTokenCount());
+		tokenSequence.setPosTagSequence(this.getPosTagSequence());
 		
 		for (Token token : this) {
 			Token clone = token.cloneToken();
@@ -363,6 +366,12 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		}
 		sb.append('|');
 		return sb.toString();
+	}
+	public PosTagSequence getPosTagSequence() {
+		return posTagSequence;
+	}
+	public void setPosTagSequence(PosTagSequence posTagSequence) {
+		this.posTagSequence = posTagSequence;
 	}
 	
 	

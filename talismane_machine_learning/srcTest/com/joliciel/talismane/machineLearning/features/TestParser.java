@@ -50,7 +50,7 @@ final class TestParser extends AbstractFeatureParser<String> {
 	}
 
 	@Override
-	protected void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		
 	}
 

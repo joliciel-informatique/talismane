@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.frenchTreebank.export;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import com.joliciel.frenchTreebank.Sentence;
 import com.joliciel.frenchTreebank.TreebankReader;
@@ -27,9 +27,15 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusRe
 class FrenchTreebankSentenceReader implements SentenceDetectorAnnotatedCorpusReader {
 	TreebankReader treebankReader;
 	
-	Sentence currentSentence = null;
+	Sentence sentence = null;
 	boolean newParagraph = false;
 	int lastTextItemId = 0;
+	
+	private int maxSentenceCount = 0;
+	private int sentenceCount = 0;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	private int crossValidationSize = 0;
 
 	public FrenchTreebankSentenceReader(TreebankReader treebankReader) {
 		this.treebankReader = treebankReader;
@@ -37,30 +43,71 @@ class FrenchTreebankSentenceReader implements SentenceDetectorAnnotatedCorpusRea
 	
 	@Override
 	public boolean hasNextSentence() {
-		return treebankReader.hasNextSentence();
+		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+			// we've reached the end, do nothing
+		} else {
+
+			while (sentence==null) {
+				if (!treebankReader.hasNextSentence()) {
+					break;
+				}
+				
+				sentence = treebankReader.nextSentence();
+				if (sentence.getText().trim().length()==0) {
+					sentence = null;
+					continue;
+				}
+				
+				sentenceCount++;
+				
+				// check cross-validation
+				if (crossValidationSize>0) {
+					boolean includeMe = true;
+					if (includeIndex>=0) {
+						if (sentenceCount % crossValidationSize != includeIndex) {
+							includeMe = false;
+						}
+					} else if (excludeIndex>=0) {
+						if (sentenceCount % crossValidationSize == excludeIndex) {
+							includeMe = false;
+						}
+					}
+					if (!includeMe) {
+						sentence = null;
+						continue;
+					}
+				}
+				
+				if (sentence.getTextItemId()!=lastTextItemId) {
+					newParagraph = true;
+					lastTextItemId = sentence.getTextItemId();
+				} else {
+					newParagraph = false;
+				}
+			}
+		}
+		return sentence !=null;
 	}
 
 	@Override
 	public String nextSentence() {
-		currentSentence = treebankReader.nextSentence();
-		if (currentSentence.getTextItemId()!=lastTextItemId) {
-			newParagraph = true;
-			lastTextItemId = currentSentence.getTextItemId();
-		} else {
-			newParagraph = false;
-		}
-		
-		String text = currentSentence.getText();
+		String text = sentence.getText();
+		sentence = null;
 		return text;
 	}
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String,String> characteristics = new HashMap<String, String>();
+		Map<String,String> characteristics = new LinkedHashMap<String, String>();
 
 		characteristics.put("treebankReader", treebankReader.getClass().getSimpleName());
 		characteristics.putAll(this.treebankReader.getCharacteristics());
 	
+		characteristics.put("maxSentenceCount", "" + this.maxSentenceCount);
+		characteristics.put("crossValidationSize", "" + this.crossValidationSize);
+		characteristics.put("includeIndex", "" + this.includeIndex);
+		characteristics.put("excludeIndex", "" + this.excludeIndex);
+
 		return characteristics;
 	}
 
@@ -68,4 +115,37 @@ class FrenchTreebankSentenceReader implements SentenceDetectorAnnotatedCorpusRea
 		return newParagraph;
 	}
 
+	public int getMaxSentenceCount() {
+		return maxSentenceCount;
+	}
+
+	public void setMaxSentenceCount(int maxSentenceCount) {
+		this.maxSentenceCount = maxSentenceCount;
+	}
+
+	public int getIncludeIndex() {
+		return includeIndex;
+	}
+
+	public void setIncludeIndex(int includeIndex) {
+		this.includeIndex = includeIndex;
+	}
+
+	public int getExcludeIndex() {
+		return excludeIndex;
+	}
+
+	public void setExcludeIndex(int excludeIndex) {
+		this.excludeIndex = excludeIndex;
+	}
+
+	public int getCrossValidationSize() {
+		return crossValidationSize;
+	}
+
+	public void setCrossValidationSize(int crossValidationSize) {
+		this.crossValidationSize = crossValidationSize;
+	}
+
+	
 }

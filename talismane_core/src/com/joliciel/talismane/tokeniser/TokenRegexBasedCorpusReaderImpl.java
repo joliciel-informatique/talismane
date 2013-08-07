@@ -11,6 +11,9 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -21,6 +24,8 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class TokenRegexBasedCorpusReaderImpl implements
 		TokenRegexBasedCorpusReader {
+	private static final Log LOG = LogFactory.getLog(TokenRegexBasedCorpusReaderImpl.class);
+	
 	private String regex = TokenRegexBasedCorpusReader.DEFAULT_REGEX;
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
 	private static final String FILENAME_PLACEHOLDER = "%FILENAME%";
@@ -38,6 +43,9 @@ class TokenRegexBasedCorpusReaderImpl implements
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
 	private int sentenceCount = 0;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	private int crossValidationSize = 0;
 	
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
@@ -62,6 +70,29 @@ class TokenRegexBasedCorpusReaderImpl implements
 						if (!hasLine)
 							continue;
 						
+						// end of sentence
+						sentenceCount++;
+						LOG.debug("sentenceCount: " + sentenceCount);
+						
+						// check cross-validation
+						if (crossValidationSize>0) {
+							boolean includeMe = true;
+							if (includeIndex>=0) {
+								if (sentenceCount % crossValidationSize != includeIndex) {
+									includeMe = false;
+								}
+							} else if (excludeIndex>=0) {
+								if (sentenceCount % crossValidationSize == excludeIndex) {
+									includeMe = false;
+								}
+							}
+							if (!includeMe) {
+								hasLine = false;
+								tokenSequence = null;
+								continue;
+							}
+						}
+						
 						tokenSequence.cleanSlate();
 						
 						// first apply the token filters - which might replace the text of an individual token
@@ -75,7 +106,7 @@ class TokenRegexBasedCorpusReaderImpl implements
 						for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 							tokenFilter.apply(tokenSequence);
 						}
-						sentenceCount++;
+
 						break;
 					} else {
 						hasLine = true;
@@ -199,8 +230,26 @@ class TokenRegexBasedCorpusReaderImpl implements
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String,String> characteristics = new LinkedHashMap<String, String>();
-		return characteristics;
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
+
+		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
+		attributes.put("crossValidationSize", "" + this.crossValidationSize);
+		attributes.put("includeIndex", "" + this.includeIndex);
+		attributes.put("excludeIndex", "" + this.excludeIndex);
+		
+		int i = 0;
+		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+			attributes.put("TokenSequenceFilter" + i, "" + tokenFilter.getClass().getSimpleName());
+			
+			i++;
+		}
+		i = 0;
+		for (TokenFilter tokenFilter : this.tokenFilters) {
+			attributes.put("TokenFilter" + i, "" + tokenFilter.getClass().getSimpleName());
+			
+			i++;
+		}
+		return attributes;
 	}
 
 
@@ -211,4 +260,30 @@ class TokenRegexBasedCorpusReaderImpl implements
 	public void setMaxSentenceCount(int maxSentenceCount) {
 		this.maxSentenceCount = maxSentenceCount;
 	}
+
+	public int getIncludeIndex() {
+		return includeIndex;
+	}
+
+	public void setIncludeIndex(int includeIndex) {
+		this.includeIndex = includeIndex;
+	}
+
+	public int getExcludeIndex() {
+		return excludeIndex;
+	}
+
+	public void setExcludeIndex(int excludeIndex) {
+		this.excludeIndex = excludeIndex;
+	}
+
+	public int getCrossValidationSize() {
+		return crossValidationSize;
+	}
+
+	public void setCrossValidationSize(int crossValidationSize) {
+		this.crossValidationSize = crossValidationSize;
+	}
+	
+	
 }

@@ -24,7 +24,6 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
-import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
  * Returns the actual text of the tokens matching the current pattern.
@@ -37,16 +36,19 @@ public final class PatternMatchWordFormFeature extends AbstractCachableFeature<T
 	
 	@Override
 	public FeatureResult<String> checkInternal(TokenPatternMatch tokenPatternMatch, RuntimeEnvironment env) {
-		Token token = tokenPatternMatch.getToken();
 		FeatureResult<String> result = null;
-		
-		TokenPattern tokenPattern = tokenPatternMatch.getPattern();
 
 		String unigram = "";
-		for (int i = 0; i<tokenPattern.getTokenCount();i++) {
-			int index = token.getIndexWithWhiteSpace() - tokenPatternMatch.getIndex() + i;
-			Token aToken = token.getTokenSequence().listWithWhiteSpace().get(index);
-			unigram += aToken.getText();
+		
+		for (int i=0; i<tokenPatternMatch.getSequence().getTokenSequence().size(); i++) {
+			Token aToken = tokenPatternMatch.getSequence().getTokenSequence().get(i);
+			if (i==0 && tokenPatternMatch.getSequence().getTokenPattern().isSeparatorClass(i))
+				continue;
+			if (i==tokenPatternMatch.getSequence().getTokenSequence().size()-1 && tokenPatternMatch.getSequence().getTokenPattern().isSeparatorClass(i))
+				continue;
+			if (aToken!=null) {
+				unigram += aToken.getText();
+			}
 		}
 		result = this.generateResult(unigram);
 

@@ -52,6 +52,7 @@ public interface TreebankExportService {
 	TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader);
 	TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader, Writer writer);
 	TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader, boolean useCompoundPosTags);
+	TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader, FtbPosTagMapper ftbPosTagMapper, boolean useCompoundPosTags);
 	
 	PosTagAnnotatedCorpusReader getPosTagAnnotatedCorpusReader(TreebankReader treebankReader, FtbPosTagMapper ftbPosTagMapper);
 	PosTagAnnotatedCorpusReader getPosTagAnnotatedCorpusReader(TreebankReader treebankReader, FtbPosTagMapper ftbPosTagMapper, boolean useCompoundPosTags);

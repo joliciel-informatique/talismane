@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import com.joliciel.talismane.tokeniser.Token;
 
-class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence {
+class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence, Comparable<TokenPatternMatchSequence> {
 	private TokenPattern tokenPattern;
 	private List<Token> tokenSequence;
 	private List<Token> tokensToCheck;
@@ -71,10 +71,13 @@ class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence {
 
 	@Override
 	public TokenPatternMatch addMatch(Token token) {
-		TokenPatternMatchImpl match = new TokenPatternMatchImpl(this, token, this.getTokenPattern(), this.tokenPatternMatches.size());
-		token.getMatches().add(match);
-
-		this.tokenPatternMatches.add(match);
+		TokenPatternMatchImpl match = null;
+		if (token!=null) {
+			match = new TokenPatternMatchImpl(this, token, this.getTokenPattern(), this.tokenPatternMatches.size());
+			token.getMatches().add(match);
+	
+			this.tokenPatternMatches.add(match);
+		}
 		return match;
 	}
 	
@@ -90,7 +93,7 @@ class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence {
 		result = prime * result
 				+ ((tokenPattern == null) ? 0 : tokenPattern.hashCode());
 		result = prime * result
-				+ ((tokenSequence == null) ? 0 : tokenSequence.get(0).getIndexWithWhiteSpace());
+				+ ((getTokensToCheck() == null) ? 0 : getTokensToCheck().get(0).getIndexWithWhiteSpace());
 		return result;
 	}
 
@@ -108,10 +111,10 @@ class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence {
 				return false;
 		} else if (!tokenPattern.equals(other.getTokenPattern()))
 			return false;
-		if (tokenSequence == null) {
-			if (other.getTokenSequence() != null)
+		if (getTokensToCheck() == null) {
+			if (other.getTokensToCheck() != null)
 				return false;
-		} else if (tokenSequence.get(0).getIndexWithWhiteSpace()!=other.getTokenSequence().get(0).getIndexWithWhiteSpace())
+		} else if (getTokensToCheck().get(0).getIndexWithWhiteSpace()!=other.getTokensToCheck().get(0).getIndexWithWhiteSpace())
 			return false;
 		return true;
 	}
@@ -119,6 +122,30 @@ class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence {
 	@Override
 	public String toString() {
 		return tokenSequence.toString();
+	}
+
+	@Override
+	public int compareTo(TokenPatternMatchSequence o) {
+		if (this==o)
+			return 0;
+		
+		int startIndex = tokensToCheck.get(0).getStartIndex();
+		int oStartIndex = o.getTokensToCheck().get(0).getStartIndex();
+		
+		if (startIndex!=oStartIndex) {
+			return startIndex - oStartIndex;
+		}
+		int endIndex = tokensToCheck.get(tokensToCheck.size()-1).getEndIndex();
+		int oEndIndex = o.getTokensToCheck().get(o.getTokensToCheck().size()-1).getEndIndex();
+		
+		if (endIndex!=oEndIndex) {
+			return endIndex - oEndIndex;
+		}
+		
+		if (this.getTokenPattern().getRegExp().equals(o.getTokenPattern().getRegExp()))
+			return this.hashCode() - o.hashCode();
+		
+		return this.getTokenPattern().getRegExp().compareTo(o.getTokenPattern().getRegExp());
 	}
 	
 	

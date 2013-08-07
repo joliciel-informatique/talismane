@@ -67,6 +67,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class TalismaneImpl implements Talismane {
 	private static final Log LOG = LogFactory.getLog(TalismaneImpl.class);
+	private static final CSVFormatter CSV = new CSVFormatter();
 
 	private SentenceProcessor sentenceProcessor;
 	private TokenSequenceProcessor tokenSequenceProcessor;
@@ -191,8 +192,8 @@ class TalismaneImpl implements Talismane {
 					csvFile.delete();
 					csvFile.createNewFile();
 					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
-					csvFileWriter.write(CSVFormatter.format("total time")
-							+ CSVFormatter.format(totalTime) + "\n");
+					csvFileWriter.write(CSV.format("total time")
+							+ CSV.format(totalTime) + "\n");
 					csvFileWriter.flush();
 					csvFileWriter.close();
 				} catch (Exception e) {

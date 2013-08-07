@@ -80,6 +80,11 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private TokenSequenceFilter tokenFilterWrapper = null;
 	private int maxSentenceCount = 0;
 	private int sentenceCount = 0;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	private int crossValidationSize = 0;
+	
+	private PosTagSequence currentSentence = null;
 	
 	private boolean useCompoundPosTags = false;
 	
@@ -92,17 +97,40 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
 			return false;
 		} else {
-			return treebankReader.hasNextSentence();
+			while (currentSentence==null) {
+				if (!treebankReader.hasNextSentence()) {
+					break;
+				}
+				
+				currentSentence = this.nextSentenceInternal();
+				
+				sentenceCount++;
+				
+				// check cross-validation
+				if (crossValidationSize>0) {
+					boolean includeMe = true;
+					if (includeIndex>=0) {
+						if (sentenceCount % crossValidationSize != includeIndex) {
+							includeMe = false;
+						}
+					} else if (excludeIndex>=0) {
+						if (sentenceCount % crossValidationSize == excludeIndex) {
+							includeMe = false;
+						}
+					}
+					if (!includeMe) {
+						currentSentence = null;
+						continue;
+					}
+				}
+			}
 		}
+		return currentSentence!=null;
 	}
 	
 	@Override
 	public boolean hasNextTokenSequence() {
-		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
-			return false;
-		} else {
-			return treebankReader.hasNextSentence();
-		}
+		return this.hasNextPosTagSequence();
 	}
 
 	@Override
@@ -110,23 +138,24 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 		if (this.ftbPosTagMapper==null) {
 			throw new RuntimeException("Cannot get next PosTagSequence without PosTagMapper");
 		}
-		List<Integer> tokenSplits = new ArrayList<Integer>();
-		PosTagSequence posTagSequence = this.nextSentenceInternal(tokenSplits);
+		PosTagSequence posTagSequence = currentSentence;
+		currentSentence = null;
 		return posTagSequence;
 	}
 
 	@Override
 	public TokenSequence nextTokenSequence() {
-		List<Integer> tokenSplits = new ArrayList<Integer>();
-		PosTagSequence posTagSequence = this.nextSentenceInternal(tokenSplits);
+		PosTagSequence posTagSequence = currentSentence;
+		currentSentence = null;
 		return posTagSequence.getTokenSequence();
 	}
 	
-	PosTagSequence nextSentenceInternal(List<Integer> tokenSplits) {
+	PosTagSequence nextSentenceInternal() {
 		MONITOR.startTask("nextSentenceInternal");
 		try {
 			Sentence sentence = treebankReader.nextSentence();
 			LOG.debug("Sentence " + sentence.getSentenceNumber());
+			List<Integer> tokenSplits = new ArrayList<Integer>();
 			PosTagSet posTagSet = TalismaneSession.getPosTagSet();
 			
 			String text = sentence.getText();
@@ -320,7 +349,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			}
 	
 			for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
-				LOG.debug("Applying filter: " + tokenSequenceFilter.getClass().getSimpleName());
+				if (LOG.isTraceEnabled())
+					LOG.trace("Applying filter: " + tokenSequenceFilter.getClass().getSimpleName());
 				tokenSequenceFilter.apply(tokenSequence);
 			}
 			
@@ -353,7 +383,9 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			if (useCompoundPosTags) {
 				PosTagSequence newSequence = this.posTaggerService.getPosTagSequence(tokenSequence, allTokens.size() / 2);
 				PosTaggedToken lastPosTaggedToken = null;
+				i = 0;
 				for (PosTaggedToken posTaggedToken : posTagSequence) {
+					boolean removed = false;
 					if (posTaggedToken.getToken().isEmpty()) {
 						String lastWord = "";
 						if (lastPosTaggedToken!=null) lastWord = lastPosTaggedToken.getToken().getOriginalText().toLowerCase();
@@ -367,11 +399,17 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 							}
 							posTaggedToken.setTag(PosTag.NULL_POS_TAG);
 							tokenSequence.removeEmptyToken(posTaggedToken.getToken());
+							removed = true;
+						} else if (i==posTagSequence.size()-1) {
+							// last token in sequence
+							// need to remove it now, since it won't get removed in the next iteration
+							tokenSequence.removeEmptyToken(posTaggedToken.getToken());
+							removed = true;
 						}
 					} else {
 						newSequence.addPosTaggedToken(posTaggedToken);
 					}
-					if (lastPosTaggedToken!=null && lastPosTaggedToken.getToken().isEmpty()&&!lastPosTaggedToken.getTag().equals(PosTag.NULL_POS_TAG)) {
+					if (lastPosTaggedToken!=null && lastPosTaggedToken.getToken().isEmpty()) {
 						String word = posTaggedToken.getToken().getOriginalText().toLowerCase();
 						if (word.equals("duquel")||word.equals("desquels")||word.equals("desquelles")||word.equals("auquel")||word.equals("auxquels")||word.equals("auxquelles")) {
 							posTaggedToken.setTag(posTagSet.getPosTag("P+PRO"));
@@ -389,7 +427,9 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 							tokenSequence.removeEmptyToken(lastPosTaggedToken.getToken());
 						}
 					}
-					lastPosTaggedToken = posTaggedToken;
+					if (!removed)
+						lastPosTaggedToken = posTaggedToken;
+					i++;
 				}
 				posTagSequence = newSequence;
 				tokenSequence.finalise();
@@ -397,7 +437,6 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
 				posTagSequenceFilter.apply(posTagSequence);
 			}
-			sentenceCount++;
 
 			return posTagSequence;
 		} finally {
@@ -530,6 +569,30 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 	public void setUseCompoundPosTags(boolean useCompoundPosTags) {
 		this.useCompoundPosTags = useCompoundPosTags;
+	}
+
+	public int getIncludeIndex() {
+		return includeIndex;
+	}
+
+	public void setIncludeIndex(int includeIndex) {
+		this.includeIndex = includeIndex;
+	}
+
+	public int getExcludeIndex() {
+		return excludeIndex;
+	}
+
+	public void setExcludeIndex(int excludeIndex) {
+		this.excludeIndex = excludeIndex;
+	}
+
+	public int getCrossValidationSize() {
+		return crossValidationSize;
+	}
+
+	public void setCrossValidationSize(int crossValidationSize) {
+		this.crossValidationSize = crossValidationSize;
 	}
 	
 	

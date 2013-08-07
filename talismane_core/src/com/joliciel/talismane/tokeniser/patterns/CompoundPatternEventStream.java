@@ -116,6 +116,8 @@ class CompoundPatternEventStream implements CorpusEventStream {
 					}
 					tokenFilterWrapper.apply(tokenSequence);
 					
+					List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
+					
 					List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
 					
 					// check if anything matches each pattern
@@ -127,6 +129,8 @@ class CompoundPatternEventStream implements CorpusEventStream {
 							
 							// check if entire pattern is separated or joined
 							TokeniserOutcome outcome = null;
+							TokeniserOutcome defaultOutcome = null;
+							boolean haveMismatch = false;
 							TokenPatternMatch tokenPatternMatch = null;
 							for (Token token : tokenPatternMatchSequence.getTokensToCheck()) {
 								if (tokenPatternMatch == null) {
@@ -140,15 +144,22 @@ class CompoundPatternEventStream implements CorpusEventStream {
 								TaggedToken<TokeniserOutcome> taggedToken = currentSentence.get(token.getIndexWithWhiteSpace());
 								if (outcome==null) {
 									outcome = taggedToken.getTag();
-								} else if (outcome!=taggedToken.getTag()) {
-									// not generally expecting this, except in the case of
-									// two imbricated compounds, e.g. "aussi bien que", where
-									// the outer one is separated and the inner one joined
-									LOG.info("incosistent compound tokenisation");
+									defaultOutcome = defaultOutcomes.get(token.getIndexWithWhiteSpace());
+								} else if (taggedToken.getTag()!=outcome) {
+									// this should only happen when two patterns overlap:
+									// e.g. "aussi bien que" and "bien que", or "plutot que" and "plutot que de"
+									// AND the outer pattern is separated, while the inner pattern is joined
+									LOG.debug("Mismatch in pattern: " + tokenPatternMatch + ", " + taggedToken);
+									haveMismatch = true;
 								}
 							}
 							currentPatternMatches.add(tokenPatternMatch);
-							currentOutcomes.add(outcome);
+							
+							if (haveMismatch) {
+								currentOutcomes.add(defaultOutcome);
+							} else {
+								currentOutcomes.add(outcome);
+							}
 							
 						}
 					} // next pattern
@@ -239,9 +250,9 @@ class CompoundPatternEventStream implements CorpusEventStream {
 	public List<TaggedToken<TokeniserOutcome>> getTaggedTokens(TokenSequence tokenSequence, List<Integer> tokenSplits) {
 		List<TaggedToken<TokeniserOutcome>> taggedTokens = new ArrayList<TaggedToken<TokeniserOutcome>>();
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
-			TokeniserOutcome outcome = TokeniserOutcome.DOES_NOT_SEPARATE;
+			TokeniserOutcome outcome = TokeniserOutcome.JOIN;
 			if (tokenSplits.contains(token.getStartIndex()))
-				outcome = TokeniserOutcome.DOES_SEPARATE;
+				outcome = TokeniserOutcome.SEPARATE;
 			Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
 			TaggedToken<TokeniserOutcome> taggedToken = this.getTokeniserService().getTaggedToken(token, decision);
 			taggedTokens.add(taggedToken);

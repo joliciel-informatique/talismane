@@ -229,9 +229,9 @@ class IntervalPatternEventStream implements CorpusEventStream {
 	public List<TaggedToken<TokeniserOutcome>> getTaggedTokens(TokenSequence tokenSequence, List<Integer> tokenSplits) {
 		List<TaggedToken<TokeniserOutcome>> taggedTokens = new ArrayList<TaggedToken<TokeniserOutcome>>();
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
-			TokeniserOutcome outcome = TokeniserOutcome.DOES_NOT_SEPARATE;
+			TokeniserOutcome outcome = TokeniserOutcome.JOIN;
 			if (tokenSplits.contains(token.getStartIndex()))
-				outcome = TokeniserOutcome.DOES_SEPARATE;
+				outcome = TokeniserOutcome.SEPARATE;
 			Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
 			TaggedToken<TokeniserOutcome> taggedToken = this.getTokeniserService().getTaggedToken(token, decision);
 			taggedTokens.add(taggedToken);

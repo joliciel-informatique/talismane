@@ -139,7 +139,7 @@ class ParseEventStream implements CorpusEventStream {
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
 		
-		attributes.putAll(corpusReader.getAttributes());
+		attributes.putAll(corpusReader.getCharacteristics());
 		return attributes;
 	}
 

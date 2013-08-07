@@ -84,9 +84,9 @@ class SimpleTokeniser implements Tokeniser {
 		for (Token token : tokenSequence) {
 			Decision<TokeniserOutcome> decision;
 			if (token.getText().equals("'")) {
-				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.DOES_NOT_SEPARATE);
+				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.JOIN);
 			} else {
-				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.DOES_SEPARATE);
+				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.SEPARATE);
 			}
 			TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserServiceInternal.getTaggedToken(token, decision);
 			taggedTokenSequence.add(taggedToken);

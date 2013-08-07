@@ -112,6 +112,10 @@ public class TokeniserMaxentRunner {
 		File performanceConfigFile = null;
 		
 		PatternTokeniserType patternTokeniserType = PatternTokeniserType.Compound;
+		
+		int crossValidationSize = -1;
+		int includeIndex = -1;
+		int excludeIndex = -1;
 
 		for (Entry<String, String> argEntry : argMap.entrySet()) {
 			String argName = argEntry.getKey();
@@ -168,6 +172,12 @@ public class TokeniserMaxentRunner {
 				externalResourcePath = argValue;
 			else if (argName.equals("performanceConfigFile"))
 				performanceConfigFile = new File(argValue);
+			else if (argName.equals("crossValidationSize"))
+				crossValidationSize = Integer.parseInt(argValue);
+			else if (argName.equals("includeIndex"))
+				includeIndex = Integer.parseInt(argValue);
+			else if (argName.equals("excludeIndex"))
+				excludeIndex = Integer.parseInt(argValue);
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -238,7 +248,14 @@ public class TokeniserMaxentRunner {
 				}
 				treebankReader.setSentenceCount(sentenceCount);
 
-				TokeniserAnnotatedCorpusReader reader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader);
+				TokeniserAnnotatedCorpusReader corpusReader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader);
+				
+				if (crossValidationSize>0)
+					corpusReader.setCrossValidationSize(crossValidationSize);
+				if (includeIndex>=0)
+					corpusReader.setIncludeIndex(includeIndex);
+				if (excludeIndex>=0)
+					corpusReader.setExcludeIndex(excludeIndex);
 				
 				ExternalResourceFinder externalResourceFinder = null;
 				if (externalResourcePath!=null) {
@@ -270,7 +287,7 @@ public class TokeniserMaxentRunner {
 					LOG.debug(descriptor);
 					if (descriptor.length()>0 && !descriptor.startsWith("#")) {
 						TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
-						reader.addTokenFilter(tokenFilter);
+						corpusReader.addTokenFilter(tokenFilter);
 					}
 				}
 				
@@ -289,7 +306,7 @@ public class TokeniserMaxentRunner {
 					LOG.debug(descriptor);
 					if (descriptor.length()>0 && !descriptor.startsWith("#")) {
 						TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-						reader.addTokenSequenceFilter(tokenSequenceFilter);
+						corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
 					}
 				}
 	
@@ -351,10 +368,10 @@ public class TokeniserMaxentRunner {
 				
 				if (patternTokeniserType==PatternTokeniserType.Interval) {
 					Set<TokeniserContextFeature<?>> features = tokenFeatureService.getTokeniserContextFeatureSet(featureDescriptors, tokeniserPatternManager.getParsedTestPatterns());			
-					tokeniserEventStream = tokeniserPatternService.getIntervalPatternEventStream(reader, features, tokeniserPatternManager);
+					tokeniserEventStream = tokeniserPatternService.getIntervalPatternEventStream(corpusReader, features, tokeniserPatternManager);
 				} else {
 					Set<TokenPatternMatchFeature<?>> features = tokenFeatureService.getTokenPatternMatchFeatureSet(featureDescriptors);			
-					tokeniserEventStream = tokeniserPatternService.getCompoundPatternEventStream(reader, features, tokeniserPatternManager);
+					tokeniserEventStream = tokeniserPatternService.getCompoundPatternEventStream(corpusReader, features, tokeniserPatternManager);
 				}
 				MachineLearningModel<TokeniserOutcome> tokeniserModel = trainer.trainModel(tokeniserEventStream, decisionFactory, descriptors);
 				if (externalResourceFinder!=null)

@@ -124,7 +124,7 @@ public class TalismaneFrench extends TalismaneConfig {
 				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper, keepCompoundPosTags);
 				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);
 
-				TokeniserAnnotatedCorpusReader tokenCorpusReader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader, keepCompoundPosTags);
+				TokeniserAnnotatedCorpusReader tokenCorpusReader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader, ftbPosTagMapper, keepCompoundPosTags);
   				config.setTokenCorpusReader(tokenCorpusReader);
   				
   				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
@@ -222,7 +222,7 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_compound_4.zip";
+		String tokeniserModelName = "ftbTokeniser_compound7_cutoff3_all.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 

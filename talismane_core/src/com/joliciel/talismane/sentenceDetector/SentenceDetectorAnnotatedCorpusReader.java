@@ -18,14 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import java.util.Map;
+import com.joliciel.talismane.AnnotatedCorpusReader;
 
 /**
  * An interface for reading sentence splits from a training corpus.
  * @author Assaf Urieli
  *
  */
-public interface SentenceDetectorAnnotatedCorpusReader {
+public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	/**
 	 * Is there another sentence to be read?
 	 * @return
@@ -37,12 +37,6 @@ public interface SentenceDetectorAnnotatedCorpusReader {
 	 * @return
 	 */
 	public String nextSentence();
-	
-	/**
-	 * Characteristics describing this corpus reader.
-	 * @return
-	 */
-	public Map<String,String> getCharacteristics();
 	
 	/**
 	 * Is the last sentence read the start of a new paragraph?

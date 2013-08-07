@@ -57,7 +57,7 @@ public class PatternTokeniserTest {
 		IntervalPatternTokeniser tokeniserImpl = new IntervalPatternTokeniser(patternManager, null, 1);
 		tokeniserImpl.setTokeniserService(tokeniserService);
 		tokeniserImpl.setFilterService(filterService);
-		tokeniserImpl.setSeparatorDefaults(separatorDefaults);
+		patternManager.setSeparatorDefaults(separatorDefaults);
 		List<TokenSequence> tokenSequences = tokeniserImpl.tokenise(sentence);
 		TokenSequence tokenSequence = tokenSequences.get(0);
 		LOG.debug(tokenSequence);

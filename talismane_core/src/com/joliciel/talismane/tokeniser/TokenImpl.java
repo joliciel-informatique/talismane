@@ -59,7 +59,6 @@ final class TokenImpl implements TokenInternal {
 	private List<TokenPatternMatch> matches = null;
 	private Map<String, List<TokenPatternMatch>> matchesPerPattern = null;
 	private List<TaggedToken<TokeniserOutcome>> atomicDecisions = new ArrayList<TaggedToken<TokeniserOutcome>>();
-	private boolean logged = false;
 	
 	private int startIndex = 0;
 	private int endIndex = 0;
@@ -69,6 +68,7 @@ final class TokenImpl implements TokenInternal {
 	private Integer columnNumber = null;
 	
 	private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
+	private double probability = -1;
 	
 	TokenImpl(TokenImpl tokenToClone) {
 		this.text = tokenToClone.text;
@@ -83,7 +83,6 @@ final class TokenImpl implements TokenInternal {
 		this.whiteSpace = tokenToClone.whiteSpace;
 		this.matches = tokenToClone.matches;
 		this.atomicDecisions = tokenToClone.atomicDecisions;
-		this.logged = tokenToClone.logged;
 		this.startIndex = tokenToClone.startIndex;
 		this.endIndex = tokenToClone.endIndex;
 		this.fileName = tokenToClone.fileName;
@@ -243,14 +242,20 @@ final class TokenImpl implements TokenInternal {
 		this.atomicDecisions = atomicDecisions;
 	}
 
-	public boolean isLogged() {
-		return logged;
-	}
 
-	public void setLogged(boolean logged) {
-		this.logged = logged;
+	@Override
+	public double getProbability() {
+		if (probability<0) {
+			probability = 1;
+			if (this.atomicDecisions!=null) {
+				for (TaggedToken<TokeniserOutcome> atomicDecision : atomicDecisions) {
+					probability *= atomicDecision.getDecision().getProbability();
+				}
+			}
+		}
+		return probability;
 	}
-
+	
 	@Override
 	public Token getToken() {
 		return this;
@@ -390,5 +395,6 @@ final class TokenImpl implements TokenInternal {
 			bestEntry = lexicalEntries.get(0);
 		return bestEntry;
 	}
+
 
 }

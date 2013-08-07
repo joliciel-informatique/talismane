@@ -108,7 +108,7 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 	
 	@Override
 	public double getProbability() {
-		double prob = 0;
+		double prob = 1;
 		if (decision!=null)
 			prob = decision.getProbability();
 		return prob;

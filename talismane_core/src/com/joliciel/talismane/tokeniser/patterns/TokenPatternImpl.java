@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
@@ -32,10 +33,13 @@ class TokenPatternImpl implements TokenPattern {
 	private static final Log LOG = LogFactory.getLog(TokenPatternImpl.class);
 	private String regexp;
 	private Pattern separatorPattern = null;
+	private static final Pattern whitespacePattern = Pattern.compile("\\s");
 	private List<Pattern> parsedPattern = null;
-	private List<Integer> indexesToTest = null;
+	private List<Integer> indexesToTest = new ArrayList<Integer>();
+	private List<Boolean> isSeparatorClassList = new ArrayList<Boolean>();
 	private String name;
 	private String groupName;
+	private boolean startsWithSeparatorClass = false;
 	
 	private TokeniserPatternServiceInternal tokeniserPatternServiceInternal;
 
@@ -72,50 +76,71 @@ class TokenPatternImpl implements TokenPattern {
 	@Override
 	public List<TokenPatternMatchSequence> match(TokenSequence tokenSequence) {
 		List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
-		int t0 = 0;
-		for (Token token : tokenSequence.listWithWhiteSpace()) {
+		boolean matchSentenceStart = false;
+		if (this.getParsedPattern().get(0).pattern().equals("\\b")) {
+			matchSentenceStart = true;
+		}
+		boolean matchSentenceEnd = false;
+		if (this.getParsedPattern().get(this.getParsedPattern().size()-1).pattern().equals("\\b")) {
+			matchSentenceEnd = true;
+		}
+		
+		for (int t0=-1; t0<tokenSequence.listWithWhiteSpace().size(); t0++) {
 			boolean haveMatch = false;
 			List<Token> matchingSequence = new ArrayList<Token>();
-			// does the current token match the beginning of the pattern?
-			if (checkTokenForMatch(this.getParsedPattern().get(0), token)) {
-				// potential match, let's follow it through
+			if (t0>=0) {
+				// does the current token match the beginning of the pattern?
+				Token token = tokenSequence.listWithWhiteSpace().get(t0);
+				if (checkTokenForMatch(this.getParsedPattern().get(0), token)) {
+					// potential match, let's follow it through
+					haveMatch = true;		
+					// we match so far, add it to the temp list
+					matchingSequence.add(token);
+				}
+			} else if (matchSentenceStart) {
+				// automatically match start of sentence
 				haveMatch = true;
-
-				// we match so far, add it to the temp list
-				matchingSequence.add(token);
-
+				// add null token to the temp list
+				matchingSequence.add(null);
+			}
+			if (haveMatch) {
 				int p = 1;
 				int t1 = t0+1;
 				while (p<this.getParsedPattern().size() && t1<tokenSequence.listWithWhiteSpace().size()) {
 					Token aToken = tokenSequence.listWithWhiteSpace().get(t1);
-					if (checkTokenForMatch(this.getParsedPattern().get(p), aToken)) {
+					Pattern pattern = this.getParsedPattern().get(p);
+					if (checkTokenForMatch(pattern, aToken)) {
 						// we match so far, add it to the temp list
 						matchingSequence.add(aToken);
-
-						p++;
 					} else {
 						// pattern doesn't match
 						haveMatch = false;
 						break;
 					}
+					p++;
 					t1++;
 				} // next token and parsed pattern
-				// Did we get a full match (or did we hit the end of the sentence first)
-				if (matchingSequence.size()!=this.getParsedPattern().size())
-					haveMatch = false;
-			} // 2nd token had a match
-			if (haveMatch) {
-				Pattern lastPattern = this.getParsedPattern().get(this.getParsedPattern().size()-1);
-				if (lastPattern.pattern().equals("\\s")||lastPattern.pattern().equals(this.separatorPattern.pattern())) {
-					matchingSequence.remove(matchingSequence.size()-1);
+				
+				if (t1==tokenSequence.listWithWhiteSpace().size()
+						&& p==this.getParsedPattern().size()-1
+						&& matchSentenceEnd) {
+					// add a null token representing the sentence end
+					matchingSequence.add(null);
 				}
+				
+				// Did we get a full match (or did we hit the end of the sentence first)
+				if (matchingSequence.size()!=this.getParsedPattern().size()) {
+					haveMatch = false;
+				}
+			} // Current token matched start of pattern, try to match the rest of the pattern
+			
+			if (haveMatch) {
 				TokenPatternMatchSequence tokenPatternMatchSequence = this.tokeniserPatternServiceInternal.getTokenPatternMatchSequence(this, matchingSequence);
 				matchingSequences.add(tokenPatternMatchSequence);
 				for (Token aToken : matchingSequence) {
 					tokenPatternMatchSequence.addMatch(aToken);
 				}
 			}
-			t0++;
 		} // next token
 		
 		if (LOG.isTraceEnabled()) {
@@ -146,12 +171,16 @@ class TokenPatternImpl implements TokenPattern {
 				&& !(regex.startsWith("\\d"))
 				&& !(regex.startsWith("\\s"))
 				&& !(regex.startsWith("\\p"))
+				&& !(regex.startsWith("\\b"))
 				) {
 			// an escaped separator
 			return (regex.substring(1).equals(token.getText()));
 		} else if (regex.length()==1) {
 			// an unescaped separator
 			return (regex.equals(token.getText()));
+		} else if (regex.equals("\\b")) {
+			// \b matches whitespace, sentence start and sentence end
+			return (whitespacePattern.matcher(token.getText()).matches());
 		} else {
 			// a true pattern
 			return (pattern.matcher(token.getText()).matches());
@@ -167,10 +196,11 @@ class TokenPatternImpl implements TokenPattern {
 		boolean inLiteral = false;
 		boolean inException = false;
 		boolean inGrouping = false;
-		boolean separatorGrouping = false;
+		boolean groupingHasLetters = false;
 		int groupingStart = 0;
 		List<Pattern> parsedPattern = new ArrayList<Pattern>();
 		indexesToTest = new ArrayList<Integer>();
+		isSeparatorClassList = new ArrayList<Boolean>();
 		int currentStart = 0;
 		int currentEnd = 0;
 		for (int i = 0; i < regexp.length(); i++) {
@@ -183,13 +213,13 @@ class TokenPatternImpl implements TokenPattern {
 					// \z is included here because we're only expecting it inside negative lookahead
 					currentEnd = i+1;
 				} else if (inGrouping) {
-					separatorGrouping = true;
 					currentEnd = i+1;
 				} else {
 					// always a separator
 					// either an actual separator, or the patterns \p (all separators) or \s (whitespace)
+					// or \b (whitespace/sentence start/sentence end)
 					this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
-
+					
 					this.addPattern(regexp, i-1, i+1, parsedPattern, inException);
 					currentStart = i+1;
 					currentEnd = i+1;
@@ -197,11 +227,11 @@ class TokenPatternImpl implements TokenPattern {
 				inLiteral = false;
 			} else if (c=='[') {
 				inGrouping = true;
-				separatorGrouping = false;
+				groupingHasLetters = false;
 				groupingStart = i;
 				currentEnd = i+1;
 			} else if (c==']') {
-				if (separatorGrouping) {
+				if (!groupingHasLetters) {
 					if (groupingStart>0) {
 						this.addPattern(regexp, currentStart, groupingStart, parsedPattern, inException);
 					}
@@ -225,9 +255,24 @@ class TokenPatternImpl implements TokenPattern {
 			} else if (c=='.' || c=='+' || c=='(' || c=='|' || c==')' || c=='^' || c=='?' || c=='!') {
 				// special meaning characters, not separators
 				currentEnd = i+1;
+			} else if (c=='-') {
+				// either the dash separator, or a character range (e.g. A-Z)
+				if (inGrouping) {
+					// do nothing
+					// we don't know if it's a separator grouping or a character range
+				} else {
+					// a separator
+					this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
+	
+					this.addPattern(regexp, i, i+1, parsedPattern, inException);
+					currentStart = i+1;
+					currentEnd = i+1;
+				}
 			} else if (separatorPattern.matcher("" + c).find()) {
 				if (inGrouping) {
-					separatorGrouping = true;
+					if (groupingHasLetters) {
+						throw new TalismaneException("Cannot mix separators and non-separators in same grouping");
+					}
 				} else {
 					// a separator
 					this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
@@ -238,6 +283,9 @@ class TokenPatternImpl implements TokenPattern {
 				}
 			} else {
 				// any other non-separating character
+				if (inGrouping) {
+					groupingHasLetters = true;
+				}
 				currentEnd = i+1;
 			}
 		}
@@ -256,9 +304,9 @@ class TokenPatternImpl implements TokenPattern {
 			// all separators
 			parsedPattern.add(this.separatorPattern);
 		} else {
-			if (start==0) {
+			if (parsedPattern.size()==0||(parsedPattern.size()==1 && parsedPattern.get(0).pattern().equals("\\b"))) {
 				// automatically add upper-case characters
-				char c = testPattern.charAt(0);
+				char c = testPattern.charAt(start);
 				if (c=='(') {
 					String patternOpening = "(";
 					String patternToSplit = regex.substring(1,regex.indexOf(')'));
@@ -292,7 +340,16 @@ class TokenPatternImpl implements TokenPattern {
 			
 			// We never add the first pattern to the indexesToTest
 			// since the interval concerns the interval between a token and the one preceeding it.
-			if (parsedPattern.size()!=0 && !inException) {
+			
+			boolean isSeparatorClass = regex.equals("\\p") || regex.equals("\\s") || regex.equals("\\b");
+			isSeparatorClassList.add(isSeparatorClass);
+			if (isSeparatorClass && parsedPattern.size()==0)
+				startsWithSeparatorClass = true;
+			
+			if (!(parsedPattern.size()==0
+					|| (parsedPattern.size()==1 && startsWithSeparatorClass)
+					|| inException
+					|| isSeparatorClass)) {
 				indexesToTest.add(parsedPattern.size());
 			}
 			
@@ -317,13 +374,16 @@ class TokenPatternImpl implements TokenPattern {
 	}
 	
 	public String getName() {
-		if (name==null)
-			name=regexp.replace(' ','_');
+		if (name==null) {
+//			name=regexp.replace(' ','_');
+			name=regexp;
+		}
 		return name;
 	}
 
 	public void setName(String name) {
-		this.name = name.replace(' ','_');
+//		this.name = name.replace(' ','_');
+		this.name = name;
 	}
 	
 	public String getGroupName() {
@@ -368,6 +428,12 @@ class TokenPatternImpl implements TokenPattern {
 	public void setTokeniserPatternServiceInternal(
 			TokeniserPatternServiceInternal tokeniserPatternServiceInternal) {
 		this.tokeniserPatternServiceInternal = tokeniserPatternServiceInternal;
+	}
+
+	@Override
+	public boolean isSeparatorClass(int index) {
+		getParsedPattern();
+		return isSeparatorClassList.get(index);
 	}
 	
 }

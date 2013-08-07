@@ -71,13 +71,16 @@ class TreebankXmlReader implements TreebankReader {
 	
     public TreebankXmlReader(File file) {
     	this.file = file;
+    	this.addFiles(file, this.files);
+    }
+    
+    void addFiles(File file, List<File> files) {
     	if (file.isDirectory()) {
     		File[] fileArray = file.listFiles();
     		for (File oneFile : fileArray) {
-    			if (!oneFile.isDirectory()&&oneFile.getName().endsWith(".xml"))
-    				files.add(oneFile);
+    			this.addFiles(oneFile, files);
     		}
-    	} else {
+    	} else if (file.getName().endsWith(".xml")) {
     		files.add(file);
     	}
     }

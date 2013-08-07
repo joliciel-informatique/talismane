@@ -26,11 +26,12 @@ pas encore	pas encore	ADV	advneg	null
 qu'	que	ADV	advneg	null
 # conjonction de coordination
 aussi bien que	aussi bien que	CC	coo	null
+aussi bien qu'	aussi bien que	CC	coo	null
 autant que	autant que	CC	coo	null
 autant qu'	autant que	CC	coo	null
 bref	bref	CC	coo	null
-de même qu'	de même que	CC	coo	null
 de même que	de même que	CC	coo	null
+de même qu'	de même que	CC	coo	null
 même	même	CC	coo	null
 ou même	ou même	CC	coo	null
 pas moins que	pas moins que	CC	coo	null
@@ -60,6 +61,14 @@ que si	que si	CS	csu	null
 quitte à ce que	quitte à ce que	CS	csu	null
 quitte à ce qu'	quitte à ce que	CS	csu	null
 tant	tant	CS	csu	null
+tel que	tel que	CS	csu	null
+telle que	tel que	CS	csu	null
+tels que	tel que	CS	csu	null
+telles que	tel que	CS	csu	null
+tel qu'	tel que	CS	csu	null
+telle qu'	tel que	CS	csu	null
+tels qu'	tel que	CS	csu	null
+telles qu'	tel que	CS	csu	null
 tout comme	tout comme	CS	csu	null
 # clitiques abbrégés
 j'	je	CLS	cln	1s
@@ -1030,12 +1039,8 @@ sur le point de	sur le point de	P	prep	null
 sur le point d'	sur le point de	P	prep	null
 sur la voie de	sur la voie de	P	prep	null
 sur la voie d'	sur la voie de	P	prep	null
-tel que	tel que	P	prep	null
-telle que	tel que	P	prep	null
 tels que	tel que	P	prep	null
 telles que	tel que	P	prep	null
-tel qu'	tel que	P	prep	null
-telle qu'	tel que	P	prep	null
 tels qu'	tel que	P	prep	null
 telles qu'	tel que	P	prep	null
 tout comme	tout comme	P	prep	null

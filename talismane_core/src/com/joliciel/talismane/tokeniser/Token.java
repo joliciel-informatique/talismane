@@ -146,12 +146,10 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 			List<TaggedToken<TokeniserOutcome>> atomicParts);
 	
 	/**
-	 * Have this token's features already been logged once?
-	 * Used to avoid logging a token multiple times during a beam search.
+	 * The probability assigned to this token by the tokeniser.
 	 * @return
 	 */
-	public boolean isLogged();
-	public void setLogged(boolean logged);
+	public double getProbability();
 	
 	/**
 	 * Is this an empty token (without any textual content?)

@@ -85,7 +85,7 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 
 	@SuppressWarnings({ "rawtypes" })
 	@Override
-	protected void injectDependencies(Feature feature) {
+	public void injectDependencies(Feature feature) {
 		// nothing to do
 	}
 	

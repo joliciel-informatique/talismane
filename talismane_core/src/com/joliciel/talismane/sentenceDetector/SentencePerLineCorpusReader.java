@@ -30,6 +30,12 @@ import java.util.Scanner;
  */
 class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
+	private int maxSentenceCount = 0;
+	private int sentenceCount = 0;
+	private int includeIndex = -1;
+	private int excludeIndex = -1;
+	private int crossValidationSize = 0;
+	String sentence = null;
 	
 	public SentencePerLineCorpusReader(Reader reader) {
 		scanner = new Scanner(reader);
@@ -37,23 +43,99 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 	
 	@Override
 	public boolean hasNextSentence() {
-		return scanner.hasNextLine();
+		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+			// we've reached the end, do nothing
+		} else {
+
+			while (sentence==null) {
+				if (!scanner.hasNextLine()) {
+					break;
+				}
+				
+				sentence = scanner.nextLine().trim();
+				if (sentence.length()==0) {
+					sentence = null;
+					continue;
+				}
+				
+				sentenceCount++;
+				
+				// check cross-validation
+				if (crossValidationSize>0) {
+					boolean includeMe = true;
+					if (includeIndex>=0) {
+						if (sentenceCount % crossValidationSize != includeIndex) {
+							includeMe = false;
+						}
+					} else if (excludeIndex>=0) {
+						if (sentenceCount % crossValidationSize == excludeIndex) {
+							includeMe = false;
+						}
+					}
+					if (!includeMe) {
+						sentence = null;
+						continue;
+					}
+				}
+			}
+		}
+		return sentence !=null;
 	}
 
 	@Override
 	public String nextSentence() {
-		return scanner.nextLine();
+		String currentSentence = sentence;
+		sentence = null;
+		return currentSentence;
 	}
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String, String> characteristics = new LinkedHashMap<String, String>();
-		return characteristics;
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
+
+		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
+		attributes.put("crossValidationSize", "" + this.crossValidationSize);
+		attributes.put("includeIndex", "" + this.includeIndex);
+		attributes.put("excludeIndex", "" + this.excludeIndex);
+		
+		return attributes;
 	}
 
 	@Override
 	public boolean isNewParagraph() {
 		return false;
+	}
+
+	public int getMaxSentenceCount() {
+		return maxSentenceCount;
+	}
+
+	public void setMaxSentenceCount(int maxSentenceCount) {
+		this.maxSentenceCount = maxSentenceCount;
+	}
+
+	public int getIncludeIndex() {
+		return includeIndex;
+	}
+
+	public void setIncludeIndex(int includeIndex) {
+		this.includeIndex = includeIndex;
+	}
+
+	public int getExcludeIndex() {
+		return excludeIndex;
+	}
+
+	public void setExcludeIndex(int excludeIndex) {
+		this.excludeIndex = excludeIndex;
+	}
+
+	public int getCrossValidationSize() {
+		return crossValidationSize;
+	}
+
+	public void setCrossValidationSize(int crossValidationSize) {
+		this.crossValidationSize = crossValidationSize;
 	}
 
 }
