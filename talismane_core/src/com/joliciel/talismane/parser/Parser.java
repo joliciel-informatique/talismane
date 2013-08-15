@@ -20,7 +20,7 @@ package com.joliciel.talismane.parser;
 
 import java.util.List;
 
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
@@ -45,7 +45,7 @@ public interface Parser {
 	 */
 	public abstract int getBeamWidth();
 	
-	public void addObserver(AnalysisObserver<Transition> observer);
+	public void addObserver(ClassificationObserver<Transition> observer);
 	
 	/**
 	 * The transition system used by this parser to make parse decisions.

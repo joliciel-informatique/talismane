@@ -46,10 +46,12 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.Talismane.Option;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.MarkerFilterType;
 import com.joliciel.talismane.filters.TextMarkerFilter;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
@@ -64,6 +66,7 @@ import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserFScoreCalculatorByDistance;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
+import com.joliciel.talismane.parser.ParsingConstrainer;
 import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
@@ -125,6 +128,7 @@ import com.joliciel.talismane.utils.LogUtils;
 public abstract class TalismaneConfig implements LanguageSpecificImplementation {
 	private static final Log LOG = LogFactory.getLog(TalismaneConfig.class);
 	private Command command = null;
+	private Option option = null;
 	
 	private Module startModule = null;
 	private Module endModule = null;
@@ -153,9 +157,9 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private PosTagSequenceProcessor posTagSequenceProcessor;
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 	
-	MachineLearningModel<TokeniserOutcome> tokeniserModel = null;
-	private MachineLearningModel<PosTag> posTaggerModel = null;
-	private MachineLearningModel<Transition> parserModel = null;
+	private ClassificationModel<TokeniserOutcome> tokeniserModel = null;
+	private ClassificationModel<PosTag> posTaggerModel = null;
+	private MachineLearningModel parserModel = null;
 
 	private boolean processByDefault = true;
 	private int maxSentenceCount = 0;
@@ -316,6 +320,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					commandString = "analyse";
 				
 				command = Command.valueOf(commandString);
+			} else if (argName.equals("option")) {
+				option = Option.valueOf(argValue);
 			} else if (argName.equals("module")) {
 				if (argValue.equalsIgnoreCase("sentence")||argValue.equalsIgnoreCase("sentenceDetector"))
 					module = Talismane.Module.SentenceDetector;
@@ -1051,11 +1057,11 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		try {
 			if (sentenceDetector==null) {
 				LOG.debug("Getting sentence detector model");
-				MachineLearningModel<SentenceDetectorOutcome> sentenceModel = null;
+				ClassificationModel<SentenceDetectorOutcome> sentenceModel = null;
 				if (sentenceModelFilePath!=null) {
-					sentenceModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
+					sentenceModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
 				} else {
-					sentenceModel = this.getMachineLearningService().getModel(this.getDefaultSentenceModelStream());
+					sentenceModel = this.getMachineLearningService().getClassificationModel(this.getDefaultSentenceModelStream());
 				}
 				sentenceDetector = this.getSentenceDetectorService().getSentenceDetector(sentenceModel);
 			}
@@ -1074,14 +1080,14 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		try {
 			if (tokeniser==null) {
 				LOG.debug("Getting tokeniser model");
-				MachineLearningModel<TokeniserOutcome> tokeniserModel = this.getTokeniserModel();
+				ClassificationModel<TokeniserOutcome> tokeniserModel = this.getTokeniserModel();
 				tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
 	
 				if (includeDetails) {
 					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver<TokeniserOutcome> observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
+					ClassificationObserver<TokeniserOutcome> observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
 					tokeniser.addObserver(observer);
 				}
 				
@@ -1126,13 +1132,13 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		}
 	}
 
-	MachineLearningModel<TokeniserOutcome> getTokeniserModel() {
+	ClassificationModel<TokeniserOutcome> getTokeniserModel() {
 		try {
 			if (tokeniserModel==null) {
 				if (tokeniserModelFilePath!=null) {
-					tokeniserModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
+					tokeniserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
 				} else {
-					tokeniserModel = this.getMachineLearningService().getModel(this.getDefaultTokeniserModelStream());
+					tokeniserModel = this.getMachineLearningService().getClassificationModel(this.getDefaultTokeniserModelStream());
 				}
 			}
 			return tokeniserModel;
@@ -1142,13 +1148,13 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		}
 	}
 	
-	MachineLearningModel<PosTag> getPosTaggerModel() {
+	ClassificationModel<PosTag> getPosTaggerModel() {
 		try {
 			if (posTaggerModel==null) {
 				if (posTaggerModelFilePath!=null) {
-					posTaggerModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
+					posTaggerModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
 				} else {
-					posTaggerModel = this.getMachineLearningService().getModel(this.getDefaultPosTaggerModelStream());
+					posTaggerModel = this.getMachineLearningService().getClassificationModel(this.getDefaultPosTaggerModelStream());
 				}
 			}
 			return posTaggerModel;
@@ -1158,13 +1164,13 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		}
 	}
 	
-	MachineLearningModel<Transition> getParserModel() {
+	MachineLearningModel getParserModel() {
 		try {
 			if (parserModel==null) {
 				if (parserModelFilePath!=null) {
-					parserModel = this.getMachineLearningService().getModel(new ZipInputStream(new FileInputStream(parserModelFilePath)));
+					parserModel = this.getMachineLearningService().getMachineLearningModel(new ZipInputStream(new FileInputStream(parserModelFilePath)));
 				} else {
-					parserModel = this.getMachineLearningService().getModel(this.getDefaultParserModelStream());
+					parserModel = this.getMachineLearningService().getMachineLearningModel(this.getDefaultParserModelStream());
 				}
 			}
 			return parserModel;
@@ -1183,7 +1189,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			if (posTagger==null) {
 				LOG.debug("Getting pos-tagger model");
 				
-				MachineLearningModel<PosTag> posTaggerModel = this.getPosTaggerModel();
+				ClassificationModel<PosTag> posTaggerModel = this.getPosTaggerModel();
 
 				posTagger = this.getPosTaggerService().getPosTagger(posTaggerModel, posTaggerBeamWidth);
 				
@@ -1221,7 +1227,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+					ClassificationObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 					posTagger.addObserver(observer);
 				}
 			}
@@ -1240,18 +1246,20 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		try {
 			if (parser==null) {
 				LOG.debug("Getting parser model");
-				MachineLearningModel<Transition> parserModel = this.getParserModel();
+				MachineLearningModel parserModel = this.getParserModel();
 				
 				parser = this.getParserService().getTransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures);
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
 				parser.setMinFreeMemory(minFreeMemory);
 				parser.setParserRules(this.getParserRules());
 				
-				if (includeDetails) {
+				if (includeDetails && parserModel instanceof ClassificationModel) {
 					String detailsFilePath = this.getBaseName() + "_parser_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver<Transition> observer = parserModel.getDetailedAnalysisObserver(detailsFile);
+					@SuppressWarnings("unchecked")
+					ClassificationModel<Transition> classificationModel = (ClassificationModel<Transition>) parserModel;
+					ClassificationObserver<Transition> observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
 					parser.addObserver(observer);
 				}
 				TalismaneSession.setTransitionSystem(parser.getTransitionSystem());
@@ -1357,14 +1365,22 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	public ParseConfigurationProcessor getParseConfigurationProcessor() {
 		try {
 			if (parseConfigurationProcessor==null && endModule.equals(Module.Parser)) {
-				Reader templateReader = null;
-				if (templatePath==null) {
-					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(parserTemplateName)));
-				} else {
-					templateReader = new BufferedReader(new FileReader(new File(templatePath)));
+				if (option==null) {
+					Reader templateReader = null;
+					if (templatePath==null) {
+						templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(parserTemplateName)));
+					} else {
+						templateReader = new BufferedReader(new FileReader(new File(templatePath)));
+					}
+					FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(this.getWriter(), templateReader);
+					parseConfigurationProcessor = templateWriter;
+				} else if (option.equals(Option.loadParsingConstraints)) {
+					ParsingConstrainer constrainer = this.getParserService().getParsingConstrainer();
+					this.getOutDir();
+					File outFile = new File(outFilePath);
+					constrainer.setFile(outFile);
+					parseConfigurationProcessor = constrainer;
 				}
-				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(this.getWriter(), templateReader);
-				parseConfigurationProcessor = templateWriter;
 			}
 			return parseConfigurationProcessor;
 		} catch (Exception e) {
@@ -1399,7 +1415,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			}
 			
 			if (startModule.equals(Module.PosTagger)) {
-				MachineLearningModel<PosTag> posTaggerModel = this.getPosTaggerModel();
+				ClassificationModel<PosTag> posTaggerModel = this.getPosTaggerModel();
 				
 				List<String> tokenFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
 				if (tokenFilterDescriptors!=null) {
@@ -1467,8 +1483,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	
 	void addPosTagCorpusReaderFilters(PosTagAnnotatedCorpusReader corpusReader) {
 		if (!posTagCorpusReaderFiltersAdded) {
-			MachineLearningModel<?> myTokeniserModel = null;
-			MachineLearningModel<?> myPosTaggerModel = null;
+			MachineLearningModel myTokeniserModel = null;
+			MachineLearningModel myPosTaggerModel = null;
 			if (this.getStartModule().equals(Module.Tokeniser)) {
 				myTokeniserModel = this.getTokeniserModel();
 				myPosTaggerModel = this.getPosTaggerModel();
@@ -1602,9 +1618,9 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 
 	void addParserCorpusReaderFilters(ParserAnnotatedCorpusReader corpusReader) {
 		if (!parserCorpusReaderFiltersAdded) {
-			MachineLearningModel<?> myTokeniserModel = null;
-			MachineLearningModel<?> myPosTaggerModel = null;
-			MachineLearningModel<?> myParserModel = null;
+			MachineLearningModel myTokeniserModel = null;
+			MachineLearningModel myPosTaggerModel = null;
+			MachineLearningModel myParserModel = null;
 			if (this.getStartModule().equals(Module.Tokeniser)) {
 				myTokeniserModel = this.getTokeniserModel();
 				myPosTaggerModel = this.getPosTaggerModel();
@@ -2241,5 +2257,4 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	public void setPerformanceConfigFile(File performanceConfigFile) {
 		this.performanceConfigFile = performanceConfigFile;
 	}
-	
 }

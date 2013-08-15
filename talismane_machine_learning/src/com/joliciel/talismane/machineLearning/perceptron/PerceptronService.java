@@ -18,8 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.perceptron;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.RankingModel;
 
 /**
  * A service for retrieving implementations of the perceptron package.
@@ -28,16 +29,32 @@ import com.joliciel.talismane.machineLearning.Outcome;
  */
 public interface PerceptronService {
 	/**
-	 * Returns a perceptron model trainer.
+	 * Returns a perceptron classification model trainer.
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> PerceptronModelTrainer<T> getPerceptronModelTrainer();
+	public<T extends Outcome> PerceptronClassificationModelTrainer<T> getPerceptronModelTrainer();
 	
 	/**
-	 * Get an "empty" perceptron model.
+	 * Returns a perceptron ranking model trainer.
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> MachineLearningModel<T> getPerceptronModel();
+	public<T> PerceptronRankingModelTrainer<T> getPerceptronRankingModelTrainer();
+	
+	/**
+	 * Get an "empty" perceptron classification model.
+	 * @param <T>
+	 * @return
+	 */
+	public<T extends Outcome> ClassificationModel<T> getPerceptronModel();
+	
+	
+	/**
+	 * Get an "empty" perceptron classification model.
+	 * @param <T>
+	 * @return
+	 */
+	public RankingModel getPerceptronRankingModel();
+
 }

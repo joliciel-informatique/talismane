@@ -18,7 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -57,6 +63,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class ParserRegexBasedCorpusReaderImpl implements
@@ -76,6 +83,9 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private Pattern pattern;
 	private ParseConfiguration configuration = null;
 	private Scanner scanner;
+	private Reader reader;
+	private File file;
+	private Charset charset;
 	
 	private ParserService parserService;
 	private PosTaggerService posTaggerService;
@@ -102,7 +112,20 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	
 	private boolean predictTransitions = true;
 	
+	public ParserRegexBasedCorpusReaderImpl(File file, Charset charset) {
+		try {
+			this.file = file;
+			this.charset = charset;
+			this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
+			this.scanner = new Scanner(reader);
+		} catch (IOException ioe) {
+			LogUtils.logError(LOG, ioe);
+			throw new RuntimeException(ioe);
+		}
+	}
+	
 	public ParserRegexBasedCorpusReaderImpl(Reader reader) {
+		this.reader = reader;
 		this.scanner = new Scanner(reader);
 	}
 
@@ -752,6 +775,25 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	@Override
 	public void setExcludeIndex(int excludeIndex) {
 		this.excludeIndex = excludeIndex;
+	}
+
+	@Override
+	public void rewind() {
+		if (this.file==null) {
+			throw new TalismaneException(this.getClass().getName() + " does not support rewind if not constructed from File");
+		}
+		try {
+			this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
+			this.scanner = new Scanner(reader);
+			configuration = null;
+			
+			sentenceCount = 0;
+			lineNumber = 0;
+			totalSentenceCount = 0;
+		} catch (IOException ioe) {
+			LogUtils.logError(LOG, ioe);
+			throw new RuntimeException(ioe);
+		}
 	}
 
 	

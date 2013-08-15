@@ -26,7 +26,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Outcome;
@@ -56,8 +57,8 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 
 	
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
@@ -65,8 +66,8 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 	}
 
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory,
 			Map<String,List<String>> descriptors) {
 		MaxentModel maxentModel = null;
@@ -90,10 +91,10 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 			throw new RuntimeException(e);
 		}
 		MaximumEntropyModel<T> model = new MaximumEntropyModel<T>(maxentModel, descriptors, decisionFactory);
-		model.addModelAttribute("cutoff", this.getCutoff());
-		model.addModelAttribute("iterations", this.getIterations());
-		model.addModelAttribute("sigma", this.getSigma());
-		model.addModelAttribute("smoothing", this.getSmoothing());
+		model.addModelAttribute("cutoff", "" + this.getCutoff());
+		model.addModelAttribute("iterations", "" + this.getIterations());
+		model.addModelAttribute("sigma", "" + this.getSigma());
+		model.addModelAttribute("smoothing", "" + this.getSmoothing());
 		
 		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
 

@@ -33,7 +33,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	private TokeniserServiceInternal tokeniserServiceInternal;
 	private TokenSequence tokenSequence = null;
 	private List<Decision<TokeniserOutcome>> decisions = new ArrayList<Decision<TokeniserOutcome>>();
-	private List<Solution<?>> underlyingSolutions = new ArrayList<Solution<?>>();
+	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	double score = 1.0;
 	boolean scoreCalculated = false;
@@ -130,7 +130,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	}
 
 	@Override
-	public List<Solution<?>> getUnderlyingSolutions() {
+	public List<Solution> getUnderlyingSolutions() {
 		return underlyingSolutions;
 	}
 

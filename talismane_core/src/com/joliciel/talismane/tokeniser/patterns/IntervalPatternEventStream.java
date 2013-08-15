@@ -29,8 +29,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -61,7 +61,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  *
  */
-class IntervalPatternEventStream implements CorpusEventStream {
+class IntervalPatternEventStream implements ClassificationEventStream {
     private static final Log LOG = LogFactory.getLog(IntervalPatternEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternEventStream.class);
     
@@ -159,8 +159,8 @@ class IntervalPatternEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
+	public Map<String, String> getAttributes() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
 				
@@ -170,10 +170,10 @@ class IntervalPatternEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public CorpusEvent next() {
+	public ClassificationEvent next() {
 		MONITOR.startTask("next");
 		try {
-			CorpusEvent event = null;
+			ClassificationEvent event = null;
 			if (this.hasNext()) {
 				TaggedToken<TokeniserOutcome> taggedToken = tokensToCheck.get(currentIndex++);
 				TokeniserContext context = new TokeniserContext(taggedToken.getToken(), currentHistory);
@@ -197,7 +197,7 @@ class IntervalPatternEventStream implements CorpusEventStream {
 				}
 				
 				String classification = taggedToken.getTag().name();
-				event = this.machineLearningService.getCorpusEvent(tokenFeatureResults, classification);
+				event = this.machineLearningService.getClassificationEvent(tokenFeatureResults, classification);
 				
 				currentHistory.add(taggedToken);
 				if (currentIndex==tokensToCheck.size()) {

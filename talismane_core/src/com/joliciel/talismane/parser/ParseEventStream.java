@@ -27,8 +27,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
@@ -37,11 +37,11 @@ import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
- * An event stream for parse configurations.
+ * A classification event stream for parse configurations.
  * @author Assaf Urieli
  *
  */
-class ParseEventStream implements CorpusEventStream {
+class ParseEventStream implements ClassificationEventStream {
     private static final Log LOG = LogFactory.getLog(ParseEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseEventStream.class);
 
@@ -90,10 +90,10 @@ class ParseEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public CorpusEvent next() {
+	public ClassificationEvent next() {
 		MONITOR.startTask("next");
 		try {
-			CorpusEvent event = null;
+			ClassificationEvent event = null;
 			if (this.hasNext()) {
 				LOG.debug("next event, configuration: " + currentConfiguration.toString());
 		
@@ -116,7 +116,7 @@ class ParseEventStream implements CorpusEventStream {
 				
 				Transition transition = targetConfiguration.getTransitions().get(currentIndex);
 				String classification = transition.getCode();
-				event = this.machineLearningService.getCorpusEvent(parseFeatureResults, classification);
+				event = this.machineLearningService.getClassificationEvent(parseFeatureResults, classification);
 				
 				// apply the transition and up the index
 				currentConfiguration = parserServiceInternal.getConfiguration(currentConfiguration);
@@ -134,8 +134,8 @@ class ParseEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
+	public Map<String, String> getAttributes() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
 		

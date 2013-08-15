@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
-import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
@@ -27,7 +27,7 @@ import com.joliciel.talismane.machineLearning.Outcome;
  * @author Assaf Urieli
  *
  */
-public interface MaxentModelTrainer<T extends Outcome> extends ModelTrainer<T> {
+public interface MaxentModelTrainer<T extends Outcome> extends ClassificationModelTrainer<T> {
 	/**
 	 * A parameter accepted by the maxent model trainer.
 	 * @author Assaf Urieli

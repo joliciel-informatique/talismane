@@ -26,6 +26,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.utils.WeightedOutcome;
+
+/**
+ * Can store parameters for both classification and ranking models.
+ * In the former case, weights are a matrix of feature x label.
+ * In the latter case, weights are a vector of length |features|.
+ * @author Assaf Urieli
+ *
+ */
 class PerceptronModelParameters implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -108,7 +118,7 @@ class PerceptronModelParameters implements Serializable {
 	public double[][] getFeatureWeights() {
 		return featureWeights;
 	}
-	
+
 	public int[] getFeatureCounts() {
 		return featureCounts;
 	}
@@ -123,6 +133,69 @@ class PerceptronModelParameters implements Serializable {
 
 	public List<String> getOutcomes() {
 		return outcomes;
+	}
+	
+
+	/**
+	 * Prepare the feature index list and weight list, based on the feature results provided.
+	 * If a feature is not in the model, leave it out.
+	 * @param featureResults the results to analyse
+	 * @param featureIndexList the list of feature indexes to populate
+	 * @param featureValueList the list of feature values to populate
+	 */
+	public void prepareData(List<FeatureResult<?>> featureResults, List<Integer> featureIndexList, List<Double> featureValueList) {
+		this.prepareData(featureResults, featureIndexList, featureValueList, false);
+	}
+	
+	/**
+	 * Prepare the feature index list and weight list, based on the feature results provided.
+	 * @param featureResults
+	 * @param featureIndexList
+	 * @param featureValueList
+	 * @param create If true and a feature is not in the model, create it. Otherwise leave it out.
+	 */
+	public void prepareData(List<FeatureResult<?>> featureResults, List<Integer> featureIndexList, List<Double> featureValueList, boolean create) {
+		for (FeatureResult<?> featureResult : featureResults) {
+			if (featureResult!=null) {
+				if (featureResult.getOutcome() instanceof List) {
+					@SuppressWarnings("unchecked")
+					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+						String featureName = featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
+						int featureIndex = -1;
+						if (create) {
+							featureIndex = this.getOrCreateFeatureIndex(featureName);
+						} else {
+							featureIndex = this.getFeatureIndex(featureName);
+						}
+						if (featureIndex>=0) {
+							featureIndexList.add(featureIndex);
+							featureValueList.add(stringOutcome.getWeight());
+						}
+					}
+				} else {
+					double value = 1;
+					if (featureResult.getOutcome() instanceof Double)
+					{
+						@SuppressWarnings("unchecked")
+						FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+						value = doubleResult.getOutcome();
+					}
+					String featureName = featureResult.getTrainingName();
+					int featureIndex = -1;
+					if (create) {
+						featureIndex = this.getOrCreateFeatureIndex(featureName);
+					} else {
+						featureIndex = this.getFeatureIndex(featureName);
+					}
+					if (featureIndex>=0) {
+						featureIndexList.add(featureIndex);
+						featureValueList.add(value);
+					}
+
+				}
+			}
+		}
 	}
 	
 }

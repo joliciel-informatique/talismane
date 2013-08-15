@@ -31,7 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -78,7 +78,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	private int beamWidth;
 
-	private List<AnalysisObserver<PosTag>> observers = new ArrayList<AnalysisObserver<PosTag>>();
+	private List<ClassificationObserver<PosTag>> observers = new ArrayList<ClassificationObserver<PosTag>>();
 	
 	/**
 	 * 
@@ -206,7 +206,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						decisions = this.decisionMaker.decide(featureResults);
 						MONITOR.endTask("make decision");
 						
-						for (AnalysisObserver<PosTag> observer : this.observers) {
+						for (ClassificationObserver<PosTag> observer : this.observers) {
 							observer.onAnalyse(token, featureResults, decisions);
 						}
 		
@@ -393,7 +393,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	}
 
 	@Override
-	public void addObserver(AnalysisObserver<PosTag> observer) {
+	public void addObserver(ClassificationObserver<PosTag> observer) {
 		this.observers.add(observer);
 	}
 

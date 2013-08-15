@@ -21,23 +21,23 @@ package com.joliciel.talismane.sentenceDetector;
 import java.io.Reader;
 import java.util.Set;
 
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 
 public interface SentenceDetectorService {
 	
 	public SentenceDetector getSentenceDetector(DecisionMaker<SentenceDetectorOutcome> decisionMaker,
 			Set<SentenceDetectorFeature<?>> features);
-	public SentenceDetector getSentenceDetector(MachineLearningModel<SentenceDetectorOutcome> model);
+	public SentenceDetector getSentenceDetector(ClassificationModel<SentenceDetectorOutcome> model);
 	
 	public SentenceDetectorEvaluator getEvaluator(SentenceDetector sentenceDetector);
 	
 	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text, int index);
 	
-	public CorpusEventStream getSentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader,
+	public ClassificationEventStream getSentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader,
 			Set<SentenceDetectorFeature<?>> features);
 
 	public DecisionFactory<SentenceDetectorOutcome> getDecisionFactory();

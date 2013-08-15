@@ -26,7 +26,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Outcome;
@@ -58,8 +59,8 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 
 	
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
@@ -67,8 +68,8 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 	}
 
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory,
 			Map<String,List<String>> descriptors) {
 		MaxentModel perceptronModel = null;
@@ -90,12 +91,12 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 			throw new RuntimeException(e);
 		}
 		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>(perceptronModel, descriptors, decisionFactory);
-		model.addModelAttribute("cutoff", this.getCutoff());
-		model.addModelAttribute("iterations", this.getIterations());
-		model.addModelAttribute("averaging", this.isUseAverage());
-		model.addModelAttribute("skippedAveraging", this.isUseSkippedAverage());
-		model.addModelAttribute("tolerance", this.getTolerance());
-		model.addModelAttribute("stepSizeDecrease", this.getStepSizeDecrease());
+		model.addModelAttribute("cutoff", "" + this.getCutoff());
+		model.addModelAttribute("iterations", "" + this.getIterations());
+		model.addModelAttribute("averaging", "" + this.isUseAverage());
+		model.addModelAttribute("skippedAveraging", "" + this.isUseSkippedAverage());
+		model.addModelAttribute("tolerance", "" + this.getTolerance());
+		model.addModelAttribute("stepSizeDecrease", "" + this.getStepSizeDecrease());
 		
 		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
 

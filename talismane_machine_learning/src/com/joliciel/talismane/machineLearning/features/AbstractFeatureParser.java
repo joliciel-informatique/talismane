@@ -96,8 +96,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("<=", LessThanOrEqualsOperator.class);
 			this.addFeatureClass("&", AndFeature.class);
 			this.addFeatureClass("|", OrFeature.class);
+			this.addFeatureClass("ConcatWithNulls", ConcatenateWithNullsFeature.class);
 			this.addFeatureClass("Concat", ConcatenateFeature.class);
-			this.addFeatureClass("ConcatNoNulls", ConcatenateNoNullsFeature.class);
 			this.addFeatureClass("And", AndFeature.class);
 			this.addFeatureClass("Or", OrFeature.class);
 			this.addFeatureClass("Not", NotFeature.class);
@@ -113,8 +113,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("OnlyTrue", OnlyTrueFeature.class);
 			this.addFeatureClass("NullToFalse", NullToFalseFeature.class);
 			this.addFeatureClass("Normalise", NormaliseFeature.class);
+			this.addFeatureClass("ToStringAllowNulls", ToStringAllowNullsFeature.class);
 			this.addFeatureClass("ToString", ToStringFeature.class);
-			this.addFeatureClass("ToStringNoNulls", ToStringNoNullsFeature.class);
 			this.addFeatureClass("Truncate", TruncateFeature.class);
 			this.addFeatureClass("Round", RoundFeature.class);
 			this.addFeatureClass("Graduate", GraduateFeature.class);

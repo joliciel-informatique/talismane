@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -128,7 +128,7 @@ class SimpleTokeniser implements Tokeniser {
 		this.preprocessingFilters.add(tokenFilter);
 	}
 	
-	public void addObserver(AnalysisObserver<TokeniserOutcome> observer) {
+	public void addObserver(ClassificationObserver<TokeniserOutcome> observer) {
 		// nothing to do here
 	}
 	

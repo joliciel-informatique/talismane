@@ -18,11 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.joliciel.talismane.machineLearning.AbstractDecisionFactory;
 import com.joliciel.talismane.machineLearning.Decision;
 
 abstract class AbstractTransitionSystem extends AbstractDecisionFactory<Transition> implements TransitionSystem {
-	private static final long serialVersionUID = -8654873067306650539L;
+	private static final long serialVersionUID = 1L;
+
+	private List<String> dependencyLabels = new ArrayList<String>();
 
 	@Override
 	public Decision<Transition> createDecision(String name, double probability) {
@@ -41,5 +46,13 @@ abstract class AbstractTransitionSystem extends AbstractDecisionFactory<Transiti
 	@Override
 	public Transition createOutcome(String code) {
 		return this.getTransitionForCode(code);
+	}
+
+	public List<String> getDependencyLabels() {
+		return dependencyLabels;
+	}
+
+	public void setDependencyLabels(List<String> dependencyLabels) {
+		this.dependencyLabels = dependencyLabels;
 	}
 }

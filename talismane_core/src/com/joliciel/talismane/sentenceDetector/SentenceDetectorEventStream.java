@@ -29,8 +29,8 @@ import java.util.regex.Matcher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
@@ -38,7 +38,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 
-class SentenceDetectorEventStream implements CorpusEventStream {
+class SentenceDetectorEventStream implements ClassificationEventStream {
     private static final Log LOG = LogFactory.getLog(SentenceDetectorEventStream.class);
     
 	private SentenceDetectorAnnotatedCorpusReader corpusReader;
@@ -65,8 +65,8 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public CorpusEvent next() {
-		CorpusEvent event = null;
+	public ClassificationEvent next() {
+		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			int possibleBoundary = possibleBoundaries.get(currentIndex++);
 			
@@ -110,7 +110,7 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 			if (possibleBoundary==realBoundary)
 				classification = SentenceDetectorOutcome.IS_BOUNDARY.name();
 			
-			event = this.machineLearningService.getCorpusEvent(featureResults, classification);
+			event = this.machineLearningService.getClassificationEvent(featureResults, classification);
 			
 			if (currentIndex==possibleBoundaries.size()) {
 				if (currentSentence.endsWith(" "))
@@ -174,8 +174,8 @@ class SentenceDetectorEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
+	public Map<String, String> getAttributes() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
 		

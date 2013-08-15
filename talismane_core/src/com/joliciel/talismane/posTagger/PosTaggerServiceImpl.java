@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
@@ -59,7 +59,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		return posTagger;
 	}
 	
-	public PosTagger getPosTagger(MachineLearningModel<PosTag> posTaggerModel,
+	public PosTagger getPosTagger(ClassificationModel<PosTag> posTaggerModel,
 			int beamWidth) {
 		Collection<ExternalResource> externalResources = posTaggerModel.getExternalResources();
 		if (externalResources!=null) {
@@ -138,7 +138,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 
 
 	@Override
-	public CorpusEventStream getPosTagEventStream(
+	public ClassificationEventStream getPosTagEventStream(
 			PosTagAnnotatedCorpusReader corpusReader,
 			Set<PosTaggerFeature<?>> posTaggerFeatures) {
 		PosTagEventStream eventStream = new PosTagEventStream(corpusReader, posTaggerFeatures);

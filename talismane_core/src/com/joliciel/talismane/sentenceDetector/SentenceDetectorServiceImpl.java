@@ -23,11 +23,11 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.joliciel.talismane.filters.FilterService;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
@@ -63,7 +63,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 
 	@Override
 	public SentenceDetector getSentenceDetector(
-			MachineLearningModel<SentenceDetectorOutcome> sentenceModel) {
+			ClassificationModel<SentenceDetectorOutcome> sentenceModel) {
 		Collection<ExternalResource> externalResources = sentenceModel.getExternalResources();
 		if (externalResources!=null) {
 			for (ExternalResource externalResource : externalResources) {
@@ -103,7 +103,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 
 
 	@Override
-	public CorpusEventStream getSentenceDetectorEventStream(
+	public ClassificationEventStream getSentenceDetectorEventStream(
 			SentenceDetectorAnnotatedCorpusReader corpusReader,
 			Set<SentenceDetectorFeature<?>> features) {
 		SentenceDetectorEventStream eventStream = new SentenceDetectorEventStream(corpusReader, features);

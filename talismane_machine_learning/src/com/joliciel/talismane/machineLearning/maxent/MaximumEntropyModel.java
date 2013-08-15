@@ -27,10 +27,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
+import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.Outcome;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.utils.LogUtils;
 
 import opennlp.model.MaxentModel;
@@ -44,7 +44,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-class MaximumEntropyModel<T extends Outcome> extends AbstractOpenNLPModel<T> implements MachineLearningModel<T> {
+class MaximumEntropyModel<T extends Outcome> extends AbstractOpenNLPModel<T> {
 	private static final Log LOG = LogFactory.getLog(MaximumEntropyModel.class);
 	
 	/**
@@ -69,7 +69,7 @@ class MaximumEntropyModel<T extends Outcome> extends AbstractOpenNLPModel<T> imp
 	}
 
 	@Override
-	public AnalysisObserver<T> getDetailedAnalysisObserver(File file) {
+	public ClassificationObserver<T> getDetailedAnalysisObserver(File file) {
 		MaxentDetailedAnalysisWriter<T> observer = new MaxentDetailedAnalysisWriter<T>(this.getModel(), file);
 		return observer;
 	}

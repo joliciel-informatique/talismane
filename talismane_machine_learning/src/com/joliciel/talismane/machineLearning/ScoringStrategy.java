@@ -29,5 +29,5 @@ public interface ScoringStrategy {
 	 * @param solution
 	 * @return
 	 */
-	public double calculateScore(Solution<?> solution);
+	public double calculateScore(ClassificationSolution<?> solution);
 }

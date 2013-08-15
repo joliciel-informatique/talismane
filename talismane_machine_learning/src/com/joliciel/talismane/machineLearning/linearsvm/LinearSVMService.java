@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.linearsvm;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
@@ -39,5 +39,5 @@ public interface LinearSVMService {
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> MachineLearningModel<T> getLinearSVMModel();
+	public<T extends Outcome> ClassificationModel<T> getLinearSVMModel();
 }

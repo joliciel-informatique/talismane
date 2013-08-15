@@ -68,6 +68,13 @@ public interface Talismane {
 		 */
 		compare
 	}
+	
+	public enum Option {
+		/**
+		 * Load the parsing constraints from a training corpus.
+		 */
+		loadParsingConstraints
+	}
 
 	/**
 	 * Run the {@link Command} specified by {@link TalismaneConfig#getCommand()}.

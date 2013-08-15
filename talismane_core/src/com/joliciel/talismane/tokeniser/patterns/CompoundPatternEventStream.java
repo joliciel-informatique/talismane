@@ -28,8 +28,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -56,7 +56,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * The advantage is that inconsistent compounds become virtually impossible, even lower down on the beam.
  * @author Assaf Urieli
  */
-class CompoundPatternEventStream implements CorpusEventStream {
+class CompoundPatternEventStream implements ClassificationEventStream {
     private static final Log LOG = LogFactory.getLog(CompoundPatternEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternEventStream.class);
     
@@ -180,8 +180,8 @@ class CompoundPatternEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
+	public Map<String, String> getAttributes() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
 				
@@ -191,10 +191,10 @@ class CompoundPatternEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public CorpusEvent next() {
+	public ClassificationEvent next() {
 		MONITOR.startTask("next");
 		try {
-			CorpusEvent event = null;
+			ClassificationEvent event = null;
 			if (this.hasNext()) {
 				TokenPatternMatch tokenPatternMatch = currentPatternMatches.get(currentIndex);
 				TokeniserOutcome outcome = currentOutcomes.get(currentIndex);
@@ -218,7 +218,7 @@ class CompoundPatternEventStream implements CorpusEventStream {
 					MONITOR.endTask("check features");
 				}
 				
-				event = this.machineLearningService.getCorpusEvent(tokenFeatureResults, classification);
+				event = this.machineLearningService.getClassificationEvent(tokenFeatureResults, classification);
 				
 				currentIndex++;
 				if (currentIndex==currentPatternMatches.size()) {

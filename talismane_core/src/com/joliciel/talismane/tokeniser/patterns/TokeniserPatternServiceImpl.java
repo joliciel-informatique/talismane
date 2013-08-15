@@ -24,10 +24,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.FilterService;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.Token;
@@ -97,7 +97,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 
 	@Override
 	public Tokeniser getPatternTokeniser(
-			MachineLearningModel<TokeniserOutcome> tokeniserModel, int beamWidth) {
+			ClassificationModel<TokeniserOutcome> tokeniserModel, int beamWidth) {
 		Collection<ExternalResource> externalResources = tokeniserModel.getExternalResources();
 		if (externalResources!=null) {
 			for (ExternalResource externalResource : externalResources) {
@@ -123,7 +123,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 	}
 	
 	@Override
-	public CorpusEventStream getIntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
+	public ClassificationEventStream getIntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, TokeniserPatternManager patternManager) {
 		IntervalPatternEventStream eventStream = new IntervalPatternEventStream(corpusReader, tokeniserContextFeatures);
 	
@@ -140,7 +140,7 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 	
 
 	@Override
-	public CorpusEventStream getCompoundPatternEventStream(
+	public ClassificationEventStream getCompoundPatternEventStream(
 			TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokenPatternMatchFeature<?>> features,
 			TokeniserPatternManager patternManager) {

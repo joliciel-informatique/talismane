@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -51,7 +51,7 @@ public interface PosTaggerService {
 	 * @return
 	 */
 	public PosTagger getPosTagger(
-			MachineLearningModel<PosTag> model,
+			ClassificationModel<PosTag> model,
 			int beamWidth);
 
 	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger);
@@ -69,7 +69,7 @@ public interface PosTaggerService {
 	PosTag getPosTag(String code, String description,
 			PosTagOpenClassIndicator openClassIndicator);
 	
-	public CorpusEventStream getPosTagEventStream(PosTagAnnotatedCorpusReader corpusReader,
+	public ClassificationEventStream getPosTagEventStream(PosTagAnnotatedCorpusReader corpusReader,
 			Set<PosTaggerFeature<?>> posTaggerFeatures);
 
 	/**

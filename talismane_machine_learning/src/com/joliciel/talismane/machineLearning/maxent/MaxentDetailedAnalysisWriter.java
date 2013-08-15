@@ -34,7 +34,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.ArrayList;
 
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.DoubleFeature;
@@ -50,7 +50,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-class MaxentDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserver<T> {
+class MaxentDetailedAnalysisWriter<T extends Outcome> implements ClassificationObserver<T> {
     private static DecimalFormat decFormat;
 
     private Writer writer;

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
@@ -100,6 +100,6 @@ public interface Tokeniser {
 	 */
 	public void addTokenFilter(TokenFilter filter);
 
-	public void addObserver(AnalysisObserver<TokeniserOutcome> observer);
+	public void addObserver(ClassificationObserver<TokeniserOutcome> observer);
 
 }

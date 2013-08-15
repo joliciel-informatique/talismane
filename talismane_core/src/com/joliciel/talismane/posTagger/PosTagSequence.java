@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import com.joliciel.talismane.machineLearning.Solution;
+import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
@@ -27,7 +27,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<PosTagSequence>, Solution<PosTag> {
+public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<PosTagSequence>, ClassificationSolution<PosTag> {
 	/**
 	 * Get the PosTaggedToken at position n.
 	 * @param index
