@@ -20,20 +20,18 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Converts a non-string feature to a string feature.
- * If the feature result is null, will return the string "null".
+ * If the feature result is null, will return null (rather than the string "null").
  * @author Assaf Urieli
  *
  * @param <T>
  */
 public class ToStringFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
-	private static final String NULL_STRING = "null";
-
 	Feature<T,?> featureToString;
 	
 	public ToStringFeature(Feature<T,?> feature1) {
 		super();
 		this.featureToString = feature1;
-		this.setName("ToString(" + feature1.getName() + ")");
+		this.setName(super.getName() + "(" + feature1.getName() + ")");
 	}
 
 	@Override
@@ -44,12 +42,9 @@ public class ToStringFeature<T> extends AbstractCachableFeature<T, String> imple
 		
 		if (result1!=null) {
 			featureResult = this.generateResult(result1.getOutcome().toString());
-		} else {
-			featureResult = this.generateResult(NULL_STRING);
 		}
 		return featureResult;
 	}
-
 
 	@Override
 	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
@@ -59,10 +54,6 @@ public class ToStringFeature<T> extends AbstractCachableFeature<T, String> imple
 		builder.append("if (" + op + "!=null) {");
 		builder.indent();
 		builder.append(		variableName + " = " + op + ".toString();");
-		builder.outdent();
-		builder.append("} else {");
-		builder.indent();
-		builder.append(		variableName + " = \"" + NULL_STRING + "\";");
 		builder.outdent();
 		builder.append("}");
 		return true;

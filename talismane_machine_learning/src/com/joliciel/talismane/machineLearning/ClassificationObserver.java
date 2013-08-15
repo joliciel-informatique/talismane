@@ -18,28 +18,22 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 
 /**
- * A single classification event in a training or test corpus, combining the results of feature
- * tests and the correct classification.
+ * Makes it possible to observe the decision making procedure
+ * for a given analyser.
  * @author Assaf Urieli
  *
  */
-public interface CorpusEvent {
+public interface ClassificationObserver<T extends Outcome> {
 
-	/**
-	 * The result of testing the various features on this event.
-	 * @return
-	 */
-	public List<FeatureResult<?>> getFeatureResults();
+	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
+			Collection<Decision<T>> outcomes);
 
-	/**
-	 * The correct classification of this event.
-	 * @return
-	 */
-	public String getClassification();
+	public void onTerminate();
 
 }

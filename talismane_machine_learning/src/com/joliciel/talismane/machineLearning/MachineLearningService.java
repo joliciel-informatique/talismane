@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 
 /**
@@ -37,8 +36,17 @@ public interface MachineLearningService {
 	 * @param classification
 	 * @return
 	 */
-	public CorpusEvent getCorpusEvent(List<FeatureResult<?>> featureResults,
+	public ClassificationEvent getClassificationEvent(List<FeatureResult<?>> featureResults,
 			String classification);
+	
+	/**
+	 * Get a RankingEvent corresponding to a particular input and solution.
+	 * @param <T>
+	 * @param input
+	 * @param solution
+	 * @return
+	 */
+	public<T> RankingEvent<T> getRankingEvent(T input, RankingSolution solution);
 	
 	/**
 	 * Get the machine learning model stored in a given ZipInputStream.
@@ -46,16 +54,32 @@ public interface MachineLearningService {
 	 * @param zis the zip input stream
 	 * @return
 	 */
-	public<T extends Outcome> MachineLearningModel<T> getModel(ZipInputStream zis);
+	public MachineLearningModel getMachineLearningModel(ZipInputStream zis);
+
+	/**
+	 * Get the machine learning model stored in a given ZipInputStream.
+	 * @param <T> the outcome type for this model
+	 * @param zis the zip input stream
+	 * @return
+	 */
+	public<T extends Outcome> ClassificationModel<T> getClassificationModel(ZipInputStream zis);
 	
 	/**
-	 * Get a model trainer corresponding to a given outcome type and a given algorithm.
+	 * Get a classification model trainer corresponding to a given outcome type and a given algorithm.
 	 * @param <T>
 	 * @param algorithm
 	 * @return
 	 */
-	public<T extends Outcome> ModelTrainer<T> getModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
+	public<T extends Outcome> ClassificationModelTrainer<T> getClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
 	
+	/**
+	 * Get a ranking model trainer corresponding to a given input type and a given algorithm.
+	 * @param <T>
+	 * @param algorithm
+	 * @return
+	 */
+	public<T> RankingModelTrainer<T> getRankingModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
+
 	/**
 	 * Get a default implementation of the ExternalResourceFinder.
 	 * @return

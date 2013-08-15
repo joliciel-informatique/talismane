@@ -216,25 +216,25 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultSentenceModelStream() {
-		String sentenceModelName = "ftbSentenceDetector_fr3.zip";
+		String sentenceModelName = "ftbSentenceDetector_fr5.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(sentenceModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_compound7_cutoff3_all.zip";
+		String tokeniserModelName = "ftbTokeniser_compound_8_cutoff3.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultPosTaggerModelStream() {
-		String posTaggerModelName = "ftbPosTagger_fr20_cutoff3.zip";
+		String posTaggerModelName = "ftbPosTagger_fr21_cutoff3.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(posTaggerModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultParserModelStream() {
-		String parserModelName = "ftbDep_parser_arcEager_19_cutoff5.zip";
+		String parserModelName = "ftbDep_parser_arcEager_20_cutoff5.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 
@@ -270,7 +270,17 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public TransitionSystem getDefaultTransitionSystem() {
-		return this.getParserService().getArcEagerTransitionSystem();
+		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
+		InputStream inputStream = getInputStreamFromResource("DependencyLabels.txt");
+		Scanner scanner = new Scanner(inputStream, "UTF-8");
+		List<String> dependencyLabels = new ArrayList<String>();
+		while (scanner.hasNextLine()) {
+			String dependencyLabel = scanner.nextLine();
+			if (!dependencyLabel.startsWith("#"))
+				dependencyLabels.add(dependencyLabel);
+		}
+		transitionSystem.setDependencyLabels(dependencyLabels);
+		return transitionSystem;
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class GeometricMeanScoringStrategy implements ScoringStrategy {
 	private static final Log LOG = LogFactory.getLog(GeometricMeanScoringStrategy.class);
 
 	@Override
-	public double calculateScore(Solution<?> solution) {
+	public double calculateScore(ClassificationSolution<?> solution) {
 		double score = 0;
 		if (solution!=null && solution.getDecisions().size()>0) {
 			for (Decision<?> decision : solution.getDecisions())
@@ -56,12 +56,12 @@ public class GeometricMeanScoringStrategy implements ScoringStrategy {
 			LOG.trace(sb.toString());
 		}
 		
-		for (Solution<?> underlyingSolution : solution.getUnderlyingSolutions()) {
+		for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
 			score = score * underlyingSolution.getScore();
 		}
 		
 		if (LOG.isTraceEnabled()) {
-			for (Solution<?> underlyingSolution : solution.getUnderlyingSolutions()) {
+			for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
 				LOG.trace(" * " + underlyingSolution.getScore() + " (" + underlyingSolution.getClass().getSimpleName() + ")");
 			}
 			LOG.trace(" = " + score);

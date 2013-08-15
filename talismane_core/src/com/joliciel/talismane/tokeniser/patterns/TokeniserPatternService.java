@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
@@ -89,7 +89,7 @@ public interface TokeniserPatternService {
 	 * @param beamWidth
 	 * @return
 	 */
-	public Tokeniser getPatternTokeniser(MachineLearningModel<TokeniserOutcome> model, int beamWidth);
+	public Tokeniser getPatternTokeniser(ClassificationModel<TokeniserOutcome> model, int beamWidth);
 
 	/**
 	 * An event stream for tokenising, using patterns to identify intervals that need to be examined.
@@ -99,7 +99,7 @@ public interface TokeniserPatternService {
 	 * By convention, a feature being tested on a token is assumed to test the interval between the token and the one preceding it.
 	 *
 	 */
-	public CorpusEventStream getIntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
+	public ClassificationEventStream getIntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokeniserContextFeature<?>> features, TokeniserPatternManager patternManager);
 
 	/**
@@ -108,7 +108,7 @@ public interface TokeniserPatternService {
 	 * Unlike the Interval stream, we generate one event per pattern match.
 	 * The advantage is that inconsistent compounds become virtually impossible, even lower down on the beam.
 	 */
-	public CorpusEventStream getCompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
+	public ClassificationEventStream getCompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
 			Set<TokenPatternMatchFeature<?>> features, TokeniserPatternManager patternManager);
 
 }

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.DecisionFactory;
@@ -42,4 +43,17 @@ public interface TransitionSystem extends DecisionFactory<Transition> {
 	 * @return
 	 */
 	public Transition getTransitionForCode(String code);
+	
+	/**
+	 * Get all possible transitions for this system.
+	 * @return
+	 */
+	public Set<Transition> getTransitions();
+	
+	/**
+	 * A list of dependency labels for this transition system.
+	 * @return
+	 */
+	public List<String> getDependencyLabels();
+	public void setDependencyLabels(List<String> dependencyLabels);
 }

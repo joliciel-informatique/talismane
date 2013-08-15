@@ -21,7 +21,6 @@ package com.joliciel.talismane.machineLearning.maxent;
 import opennlp.model.MaxentModel;
 
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * An Apache OpenNLP model wrapper interface
@@ -29,7 +28,7 @@ import com.joliciel.talismane.machineLearning.Outcome;
  *
  * @param <T>
  */
-public interface OpenNLPModel<T extends Outcome> extends MachineLearningModel<T> {
+public interface OpenNLPModel extends MachineLearningModel {
 
 	public MaxentModel getModel();
 

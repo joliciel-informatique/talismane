@@ -22,32 +22,24 @@ import java.util.List;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 
-class CorpusEventImpl implements CorpusEvent {
-	private String classification;
-	private List<FeatureResult<?>> featureResults;
+/**
+ * A single classification event in a training or test corpus, combining the results of feature
+ * tests and the correct classification.
+ * @author Assaf Urieli
+ *
+ */
+public interface ClassificationEvent {
 
-	CorpusEventImpl(List<FeatureResult<?>> featureResults,
-			String classification) {
-		super();
-		this.classification = classification;
-		this.featureResults = featureResults;
-	}
-	
 	/**
 	 * The result of testing the various features on this event.
 	 * @return
 	 */
-	@Override
-	public List<FeatureResult<?>> getFeatureResults() {
-		return featureResults;
-	}
-	
+	public List<FeatureResult<?>> getFeatureResults();
+
 	/**
 	 * The correct classification of this event.
 	 * @return
 	 */
-	@Override
-	public String getClassification() {
-		return classification;
-	}
+	public String getClassification();
+
 }

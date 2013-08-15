@@ -54,4 +54,9 @@ public interface ParserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	 */
 	public LexicalEntryReader getLexicalEntryReader();
 	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
+	
+	/**
+	 * Take this reader back to its initial position.
+	 */
+	public void rewind();
 }

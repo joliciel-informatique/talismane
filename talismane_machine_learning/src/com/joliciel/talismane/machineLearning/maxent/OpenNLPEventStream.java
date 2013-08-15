@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import opennlp.model.Event;
 import opennlp.model.EventStream;
 
@@ -34,9 +34,9 @@ import opennlp.model.EventStream;
  *
  */
 class OpenNLPEventStream implements EventStream {
-	private CorpusEventStream corpusEventStream;
+	private ClassificationEventStream corpusEventStream;
 	
-	public OpenNLPEventStream(CorpusEventStream corpusEventStream) {
+	public OpenNLPEventStream(ClassificationEventStream corpusEventStream) {
 		super();
 		this.corpusEventStream = corpusEventStream;
 	}
@@ -45,7 +45,7 @@ class OpenNLPEventStream implements EventStream {
 	public Event next() throws IOException {
 		Event event = null;
 		if (this.corpusEventStream.hasNext()) {
-			CorpusEvent corpusEvent = this.corpusEventStream.next();
+			ClassificationEvent corpusEvent = this.corpusEventStream.next();
 			
 			List<String> contextList = new ArrayList<String>();
 			List<Float> weightList = new ArrayList<Float>();

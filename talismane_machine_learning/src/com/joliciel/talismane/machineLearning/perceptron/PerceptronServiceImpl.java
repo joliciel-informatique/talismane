@@ -18,20 +18,33 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.perceptron;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.RankingModel;
 
 class PerceptronServiceImpl implements PerceptronService {
 
 	@Override
-	public <T extends Outcome> PerceptronModelTrainer<T> getPerceptronModelTrainer() {
-		StructuredPerceptronTrainerImpl<T> trainer = new StructuredPerceptronTrainerImpl<T>();
+	public <T extends Outcome> PerceptronClassificationModelTrainer<T> getPerceptronModelTrainer() {
+		PerceptronClassifactionModelTrainerImpl<T> trainer = new PerceptronClassifactionModelTrainerImpl<T>();
 		return trainer;
 	}
 
 	@Override
-	public <T extends Outcome> MachineLearningModel<T> getPerceptronModel() {
-		PerceptronModel<T> model = new PerceptronModel<T>();
+	public <T extends Outcome> ClassificationModel<T> getPerceptronModel() {
+		PerceptronClassificationModel<T> model = new PerceptronClassificationModel<T>();
+		return model;
+	}
+
+	@Override
+	public <T> PerceptronRankingModelTrainer<T> getPerceptronRankingModelTrainer() {
+		PerceptronRankingModelTrainerImpl<T> trainer = new PerceptronRankingModelTrainerImpl<T>();
+		return trainer;
+	}
+
+	@Override
+	public RankingModel getPerceptronRankingModel() {
+		PerceptronRankingModel model = new PerceptronRankingModel();
 		return model;
 	}
 

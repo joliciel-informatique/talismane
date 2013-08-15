@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -92,7 +92,7 @@ class CompoundPatternTokeniser implements Tokeniser {
 	private Set<TokenPatternMatchFeature<?>> features;
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	
-	private List<AnalysisObserver<TokeniserOutcome>> observers = new ArrayList<AnalysisObserver<TokeniserOutcome>>();
+	private List<ClassificationObserver<TokeniserOutcome>> observers = new ArrayList<ClassificationObserver<TokeniserOutcome>>();
 	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 	
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
@@ -250,7 +250,7 @@ class CompoundPatternTokeniser implements Tokeniser {
 					try {
 						decisions = this.decisionMaker.decide(tokenFeatureResults);
 						
-						for (AnalysisObserver<TokeniserOutcome> observer : this.observers)
+						for (ClassificationObserver<TokeniserOutcome> observer : this.observers)
 							observer.onAnalyse(match.getToken(), tokenFeatureResults, decisions);
 						
 						for (Decision<TokeniserOutcome> decision: decisions) {
@@ -597,7 +597,7 @@ class CompoundPatternTokeniser implements Tokeniser {
 	}
 
 	@Override
-	public void addObserver(AnalysisObserver<TokeniserOutcome> observer) {
+	public void addObserver(ClassificationObserver<TokeniserOutcome> observer) {
 		this.observers.add(observer);
 	}
 	

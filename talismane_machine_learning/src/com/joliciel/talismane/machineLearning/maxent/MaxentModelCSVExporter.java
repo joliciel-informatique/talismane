@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.trainer.fr;
+package com.joliciel.talismane.machineLearning.maxent;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,8 +25,10 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -34,7 +36,6 @@ import java.util.zip.ZipInputStream;
 
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
-import com.joliciel.talismane.machineLearning.maxent.OpenNLPModel;
 
 import opennlp.model.Context;
 import opennlp.model.IndexHashTable;
@@ -45,11 +46,11 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-public class MaxEntModelCSVWriter {
+public class MaxentModelCSVExporter {
 	public static void main(String[] args) throws Exception {
 		String maxentModelFile = null;
 		boolean top100 = false;
-		boolean includeUnigram = false;
+		String excludeListPath = null;
 		
 		for (String arg : args) {
 			int equalsPos = arg.indexOf('=');
@@ -59,8 +60,8 @@ public class MaxEntModelCSVWriter {
 				maxentModelFile = argValue;
 			else if (argName.equals("top100"))
 				top100 = argValue.equals("true");
-			else if (argName.equals("unigram"))
-				includeUnigram = argValue.equals("false");
+			else if (argName.equals("excludeList"))
+				excludeListPath = argValue;
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -68,7 +69,7 @@ public class MaxEntModelCSVWriter {
 		MachineLearningServiceLocator locator = MachineLearningServiceLocator.getInstance();
 		MachineLearningService machineLearningService = locator.getMachineLearningService();
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(maxentModelFile));
-		OpenNLPModel<?> machineLearningModel = (OpenNLPModel<?>) machineLearningService.getModel(zis);
+		OpenNLPModel machineLearningModel = (OpenNLPModel) machineLearningService.getClassificationModel(zis);
 		
 		MaxentModel model = machineLearningModel.getModel();
 		Object[] dataStructures = model.getDataStructures();
@@ -85,6 +86,18 @@ public class MaxEntModelCSVWriter {
 		csvFile.createNewFile();
 		csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
 
+		Set<String> excludeList = null;
+		if (excludeListPath!=null) {
+			excludeList = new HashSet<String>();
+			File excludeListFile = new File(excludeListPath);
+			Scanner excludeListScanner = new Scanner(excludeListFile);
+			while (excludeListScanner.hasNextLine()) {
+				String excludeItem = excludeListScanner.nextLine();
+				if (!excludeItem.startsWith("#"))
+					excludeList.add(excludeItem);
+			}
+		}
+		
 		try {
 			if (top100) {
 				Map<String,Integer> outcomeMap = new TreeMap<String, Integer>();
@@ -149,16 +162,21 @@ public class MaxEntModelCSVWriter {
 				
 				int i = 0;
 				for (String predicate : predicates) {
-					if (!includeUnigram 
-							&& (predicate.startsWith("Unigram")
-							|| predicate.startsWith("FirstWordInCompound")
-							|| predicate.startsWith("LastWordInCompound")
-							|| predicate.startsWith("PrevNextWord")
-							|| predicate.startsWith("NLetterPrefix")
-							|| predicate.startsWith("FirstWordSuffix"))) {
-						i++;
-						continue;
+					if (excludeList!=null) {
+						boolean excludeMe = false;
+						for(String excludeItem : excludeList) {
+							if (predicate.startsWith(excludeItem)) {
+								excludeMe = true;
+								break;
+							}
+						}
+						
+						if (excludeMe) {
+							i++;
+							continue;
+						}
 					}
+					
 					csvFileWriter.write("\"" + predicate + "\",");
 					Context context = modelParameters[i];
 					int[] outcomeIndexes = context.getOutcomes();

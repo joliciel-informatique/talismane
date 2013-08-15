@@ -18,11 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.ftbDep;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -45,12 +42,12 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
     private boolean keepCompoundPosTags = false;
     
 	public FtbDepReader(File ftbDepFile, Charset charset) throws IOException {
-		super(new BufferedReader(new InputStreamReader(new FileInputStream(ftbDepFile), charset)));
+		super(ftbDepFile, charset);
 		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_");
 	}
 
 	public FtbDepReader(File ftbDepFile, String encoding) throws IOException {
-		super(new BufferedReader(new InputStreamReader(new FileInputStream(ftbDepFile), encoding)));
+		super(ftbDepFile, Charset.forName(encoding));
 		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_");
 	}
 

@@ -21,7 +21,7 @@ package com.joliciel.talismane.posTagger;
 import java.util.List;
 import java.util.Set;
 
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
@@ -45,7 +45,7 @@ public interface PosTagger {
 	 * Add an analysis observer to this pos tagger.
 	 * @param observer
 	 */
-	public abstract void addObserver(AnalysisObserver<PosTag> observer);
+	public abstract void addObserver(ClassificationObserver<PosTag> observer);
 
 	public abstract Set<PosTaggerFeature<?>> getPosTaggerFeatures();
 

@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
-import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
@@ -29,7 +29,7 @@ import com.joliciel.talismane.machineLearning.Outcome;
  * @author Assaf Urieli
  *
  */
-public interface OpenNLPPerceptronModelTrainer<T extends Outcome> extends ModelTrainer<T> {
+public interface OpenNLPPerceptronModelTrainer<T extends Outcome> extends ClassificationModelTrainer<T> {
 	/**
 	 * A parameter accepted by the perceptron model trainer.
 	 * @author Assaf Urieli

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,24 +16,24 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning;
+package com.joliciel.talismane.parser;
 
-import java.util.Collection;
-import java.util.List;
+import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.tokeniser.Token;
 
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
+class BufferSizeComparisonStrategy implements ParseComparisonStrategy {
 
-/**
- * Makes it possible to observe the decision making procedure
- * for a given analyser.
- * @author Assaf Urieli
- *
- */
-public interface AnalysisObserver<T extends Outcome> {
-
-	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
-			Collection<Decision<T>> outcomes);
-
-	public void onTerminate();
-
+	@Override
+	public int getComparisonIndex(ParseConfiguration configuration) {
+		int compIndex = (configuration.getPosTagSequence().getTokenSequence().getAtomicTokenCount() + 1);
+		// remove the atomic tokens of each element still to be processed in the buffer
+		for (PosTaggedToken posTaggedToken : configuration.getBuffer()) {
+			Token token = posTaggedToken.getToken();
+			if (token.getAtomicParts().size()==0)
+				compIndex -= 1;
+			else
+				compIndex -= token.getAtomicParts().size();
+		}
+		return compIndex;
+	}
 }

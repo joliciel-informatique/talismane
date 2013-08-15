@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.DoubleFeature;
@@ -45,7 +45,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-class PerceptronDetailedAnalysisWriter<T extends Outcome> implements AnalysisObserver<T> {
+class PerceptronDetailedAnalysisWriter<T extends Outcome> implements ClassificationObserver<T> {
     private static DecimalFormat decFormat;
 
     private Writer writer;
@@ -118,7 +118,7 @@ class PerceptronDetailedAnalysisWriter<T extends Outcome> implements AnalysisObs
 			
 			List<Integer> featureIndexList = new ArrayList<Integer>();
 			List<Double> featureValueList = new ArrayList<Double>();
-			decisionMaker.prepareData(featureResults, featureIndexList, featureValueList);
+			modelParams.prepareData(featureResults, featureIndexList, featureValueList);
 			double[] results = decisionMaker.predict(featureIndexList, featureValueList);
 
 			writer.append("### Outcome totals:\n");

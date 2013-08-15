@@ -342,6 +342,11 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
 	}
+
+	@Override
+	public void rewind() {
+		throw new TalismaneException("rewind operation not supported by " + this.getClass().getName());
+	}
 	
 	
 }

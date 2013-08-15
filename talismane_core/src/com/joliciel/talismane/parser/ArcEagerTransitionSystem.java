@@ -19,6 +19,7 @@
 package com.joliciel.talismane.parser;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,9 +35,10 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 class ArcEagerTransitionSystem extends AbstractTransitionSystem implements TransitionSystem {
-	private static final long serialVersionUID = -7344308319170439498L;
+	private static final long serialVersionUID = 1L;
 	private static final Log LOG = LogFactory.getLog(ArcEagerTransitionSystem.class);
-
+	private transient Set<Transition> transitions = null;
+	
 	@Override
 	public void predictTransitions(ParseConfiguration configuration,
 			Set<DependencyArc> targetDependencies) {
@@ -114,6 +116,20 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 		}
 		
 		return transition;
+	}
+
+	@Override
+	public Set<Transition> getTransitions() {
+		if (transitions==null) {
+			transitions = new TreeSet<Transition>();
+			transitions.add(this.getTransitionForCode("Shift"));
+			transitions.add(this.getTransitionForCode("Reduce"));
+			for (String dependencyLabel : this.getDependencyLabels()) {
+				transitions.add(this.getTransitionForCode("LeftArc[" + dependencyLabel + "]"));
+				transitions.add(this.getTransitionForCode("RightArc[" + dependencyLabel + "]"));
+			}
+		}
+		return transitions;
 	}
 
 

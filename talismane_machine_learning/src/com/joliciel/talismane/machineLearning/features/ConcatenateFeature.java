@@ -20,21 +20,19 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Merges two or more string features by concatenating their results and adding a | in between.
- * Includes the string "null" if any of the results is null.
+ * If any of the results is null, returns a null.
  * @author Assaf Urieli
  *
  * @param <T>
  */
 public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String> implements
 		StringFeature<T> {
-	private static final String NULL_RESULT = "null";
-	
 	StringFeature<T>[] stringFeatures;
 	
 	public ConcatenateFeature(StringFeature<T>... stringFeatures) {
 		super();
 		this.stringFeatures = stringFeatures;
-		String name = "Concat(";
+		String name = "ConcatNoNulls(";
 		boolean firstFeature = true;
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature)
@@ -52,20 +50,26 @@ public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String> im
 		
 		StringBuilder sb = new StringBuilder();
 		boolean firstFeature = true;
+		boolean hasNull = false;
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature)
 				sb.append("|");
 			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result==null)
-				sb.append(NULL_RESULT);
-			else
-				sb.append(result.getOutcome());
+			if (result==null) {
+				hasNull = true;
+				break;
+			}
+			
+			sb.append(result.getOutcome());
 			firstFeature = false;
 		}
 		
-		featureResult = this.generateResult(sb.toString());
+		if (!hasNull)
+			featureResult = this.generateResult(sb.toString());
 		return featureResult;
 	}
+
+	
 	
 	@Override
 	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
@@ -76,27 +80,20 @@ public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String> im
 		boolean firstFeature = true;
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature) {
-				builder.append(sb + ".append(\"|\");");
+				builder.append("if (" + sb + "!=null) " + sb + ".append(\"|\");");
 			}
 			String stringFeatureName = builder.addFeatureVariable(stringFeature, "string");
 			
-			builder.append("if (" + stringFeatureName + "==null)");
-			builder.indent();
-			builder.append(	sb + ".append(\"" + NULL_RESULT + "\");");
-			builder.outdent();
-			builder.append("else");
-			builder.indent();
-			builder.append(	sb + ".append(" + stringFeatureName + ");");
-			builder.outdent();
+			builder.append("if (" + stringFeatureName + "==null) " + sb + "=null;");
+			builder.append("if (" + sb + "!=null) " + sb + ".append(" + stringFeatureName + ");");
 			firstFeature = false;
 		}
 		
-		builder.append(variableName + " = " + sb + ".toString();");
+		builder.append("if (" + sb + "!=null) " + variableName + " = " + sb + ".toString();");
 		return true;
 	}
 
 	public StringFeature<T>[] getStringFeatures() {
 		return stringFeatures;
 	}
-
 }

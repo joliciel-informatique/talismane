@@ -29,18 +29,19 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.TextFileResource;
-import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -62,8 +63,8 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-public class TokeniserMaxentRunner {
-    private static final Log LOG = LogFactory.getLog(TokeniserMaxentRunner.class);
+public class TokeniserTrainer {
+    private static final Log LOG = LogFactory.getLog(TokeniserTrainer.class);
 
 	/**
 	 * @param args
@@ -79,10 +80,10 @@ public class TokeniserMaxentRunner {
 		}
 		
 		@SuppressWarnings("unused")
-		TokeniserMaxentRunner maxentRunner = new TokeniserMaxentRunner(argMap);
+		TokeniserTrainer maxentRunner = new TokeniserTrainer(argMap);
 	}
 
-    public TokeniserMaxentRunner(Map<String,String> argMap) throws Exception {
+    public TokeniserTrainer(Map<String,String> argMap) throws Exception {
     	String command = null;
 		String tokeniserModelFilePath = "";
 		String tokeniserFeatureFilePath = "";
@@ -340,11 +341,11 @@ public class TokeniserMaxentRunner {
 					if (smoothing > 0)
 						trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Smoothing.name(), smoothing);
 				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
 					
 					if (perceptronTolerance>=0)
-						trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
+						trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
 				} else if (algorithm.equals(MachineLearningAlgorithm.LinearSVM)) {
 					trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Cutoff.name(), cutoff);
 					if (solverType!=null)
@@ -355,7 +356,7 @@ public class TokeniserMaxentRunner {
 						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Epsilon.name(), epsilon);
 				}
 
-				ModelTrainer<TokeniserOutcome> trainer = machineLearningService.getModelTrainer(algorithm, trainParameters);
+				ClassificationModelTrainer<TokeniserOutcome> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
 				
 				DecisionFactory<TokeniserOutcome> decisionFactory = tokeniserService.getDecisionFactory();
 				Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
@@ -364,7 +365,7 @@ public class TokeniserMaxentRunner {
 				descriptors.put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 				descriptors.put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
 				
-				CorpusEventStream tokeniserEventStream = null;
+				ClassificationEventStream tokeniserEventStream = null;
 				
 				if (patternTokeniserType==PatternTokeniserType.Interval) {
 					Set<TokeniserContextFeature<?>> features = tokenFeatureService.getTokeniserContextFeatureSet(featureDescriptors, tokeniserPatternManager.getParsedTestPatterns());			
@@ -373,7 +374,7 @@ public class TokeniserMaxentRunner {
 					Set<TokenPatternMatchFeature<?>> features = tokenFeatureService.getTokenPatternMatchFeatureSet(featureDescriptors);			
 					tokeniserEventStream = tokeniserPatternService.getCompoundPatternEventStream(corpusReader, features, tokeniserPatternManager);
 				}
-				MachineLearningModel<TokeniserOutcome> tokeniserModel = trainer.trainModel(tokeniserEventStream, decisionFactory, descriptors);
+				ClassificationModel<TokeniserOutcome> tokeniserModel = trainer.trainModel(tokeniserEventStream, decisionFactory, descriptors);
 				if (externalResourceFinder!=null)
 					tokeniserModel.setExternalResources(externalResourceFinder.getExternalResources());
 				tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), patternTokeniserType.toString());
@@ -413,7 +414,7 @@ public class TokeniserMaxentRunner {
 					if (tokeniserModelFilePath.length()==0)
 						throw new RuntimeException("Missing argument: tokeniserModel");
 					ZipInputStream zis = new ZipInputStream(new FileInputStream(tokeniserModelFilePath));
-					MachineLearningModel<TokeniserOutcome> tokeniserModel = machineLearningService.getModel(zis);
+					ClassificationModel<TokeniserOutcome> tokeniserModel = machineLearningService.getClassificationModel(zis);
 					tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserModel, beamWidth);
 					
 					List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);

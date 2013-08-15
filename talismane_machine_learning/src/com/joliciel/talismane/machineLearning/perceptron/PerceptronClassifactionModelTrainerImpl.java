@@ -33,16 +33,17 @@ import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 
-class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronModelTrainer<T> {
-	private static final Log LOG = LogFactory.getLog(StructuredPerceptronTrainerImpl.class);
+class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements PerceptronClassificationModelTrainer<T> {
+	private static final Log LOG = LogFactory.getLog(PerceptronClassifactionModelTrainerImpl.class);
 	private int iterations = 100;
 	private int cutoff = 0;
 	private double tolerance = 0.0001;
@@ -54,16 +55,16 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 	private PerceptronDecisionMaker<T> decisionMaker;
 	private DecisionFactory<T> decisionFactory;
 	
-	public StructuredPerceptronTrainerImpl() {
+	public PerceptronClassifactionModelTrainerImpl() {
 	}
 	
-	void prepareData(CorpusEventStream eventStream) {
+	void prepareData(ClassificationEventStream eventStream) {
 		try {
 			eventFile = File.createTempFile("events","txt");
 			Writer eventWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(eventFile), "UTF-8"));
 			while (eventStream.hasNext()) {
-				CorpusEvent corpusEvent = eventStream.next();
-				PerceptronEvent event = new PerceptronEvent(corpusEvent, decisionMaker, params);
+				ClassificationEvent corpusEvent = eventStream.next();
+				PerceptronEvent event = new PerceptronEvent(corpusEvent, params);
 				event.write(eventWriter);
 			}
 			eventWriter.flush();
@@ -163,7 +164,7 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 				if (calculateLogLikelihood)
 					LOG.debug("LogLikelihood: " + logLikelihood);
 				
-				// exit if log-likelihood doesn't improve
+				// exit if accuracy hasn't significantly improved in 3 iterations
 				if (Math.abs(accuracy - prevAccuracy1)<tolerance
 						&& Math.abs(accuracy - prevAccuracy2)<tolerance
 						&& Math.abs(accuracy - prevAccuracy3)<tolerance) {
@@ -196,10 +197,10 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 		List<Double> featureValues;
 		int outcomeIndex;
 		
-		public PerceptronEvent(CorpusEvent corpusEvent, PerceptronDecisionMaker<?> decisionMaker, PerceptronModelParameters params) {
+		public PerceptronEvent(ClassificationEvent corpusEvent, PerceptronModelParameters params) {
 			featureIndexes = new ArrayList<Integer>();
 			featureValues = new ArrayList<Double>();
-			decisionMaker.prepareData(corpusEvent.getFeatureResults(), featureIndexes, featureValues, true);
+			params.prepareData(corpusEvent.getFeatureResults(), featureIndexes, featureValues, true);
 			outcomeIndex = params.getOrCreateOutcomeIndex(corpusEvent.getClassification());
 		}
 		
@@ -280,8 +281,8 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 	}
 
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
@@ -289,8 +290,8 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 	}
 
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory,
 			Map<String, List<String>> descriptors) {
 		params = new PerceptronModelParameters();
@@ -298,9 +299,9 @@ class StructuredPerceptronTrainerImpl<T extends Outcome> implements PerceptronMo
 		this.decisionFactory = decisionFactory;
 		this.prepareData(corpusEventStream);
 		this.train();
-		PerceptronModel<T> model = new PerceptronModel<T>(params, descriptors, decisionFactory);
-		model.addModelAttribute("cutoff", this.getCutoff());
-		model.addModelAttribute("iterations", this.getIterations());
+		PerceptronClassificationModel<T> model = new PerceptronClassificationModel<T>(params, descriptors, decisionFactory);
+		model.addModelAttribute("cutoff", "" + this.getCutoff());
+		model.addModelAttribute("iterations", "" + this.getIterations());
 		
 		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
 

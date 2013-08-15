@@ -21,18 +21,18 @@ package com.joliciel.talismane.parser;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -65,8 +65,9 @@ class TransitionBasedParser implements NonDeterministicParser {
 	private FeatureService featureService;
 	private DecisionMaker<Transition> decisionMaker;
 	private TransitionSystem transitionSystem;
+	private ParseComparisonStrategy parseComparisonStrategy = new BufferSizeComparisonStrategy();
 
-	private List<AnalysisObserver<Transition>> observers = new ArrayList<AnalysisObserver<Transition>>();
+	private List<ClassificationObserver<Transition>> observers = new ArrayList<ClassificationObserver<Transition>>();
 	private int maxAnalysisTimePerSentence = 60;
 	private int minFreeMemory = 64;
 	private static final int KILOBYTE = 1024;
@@ -120,7 +121,8 @@ class TransitionBasedParser implements NonDeterministicParser {
 			PriorityQueue<ParseConfiguration> finalHeap = null;
 			while (heaps.size()>0) {
 				Entry<Integer, PriorityQueue<ParseConfiguration>> heapEntry = heaps.pollFirstEntry();
-				PriorityQueue<ParseConfiguration> previousHeap = heapEntry.getValue();
+				PriorityQueue<ParseConfiguration> currentHeap = heapEntry.getValue();
+				int currentHeapIndex = heapEntry.getKey();
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("##### Polling next heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 				}
@@ -131,7 +133,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 				backupHeap = new PriorityQueue<ParseConfiguration>();
 				
 				// we jump out when either (a) all tokens have been attached or (b) we go over the max alloted time
-				ParseConfiguration topConf = previousHeap.peek();
+				ParseConfiguration topConf = currentHeap.peek();
 				if (topConf.isTerminal()) {
 					LOG.trace("Exiting with terminal heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 					finished = true;
@@ -159,11 +161,11 @@ class TransitionBasedParser implements NonDeterministicParser {
 				}
 				
 				// limit the breadth to K
-				int maxSequences = previousHeap.size() > this.beamWidth ? this.beamWidth : previousHeap.size();
+				int maxSequences = currentHeap.size() > this.beamWidth ? this.beamWidth : currentHeap.size();
 				
 				int j=0;
-				while (previousHeap.size()>0) {
-					ParseConfiguration history = previousHeap.poll();
+				while (currentHeap.size()>0) {
+					ParseConfiguration history = currentHeap.poll();
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("### Next configuration on heap " + heapEntry.getKey() + ":");
 						LOG.trace(history.toString());
@@ -173,7 +175,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 					
 					List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
 					
-					// test the positive rules on the current token
+					// test the positive rules on the current configuration
 					boolean ruleApplied = false;
 					if (parserPositiveRules!=null) {
 						MONITOR.startTask("check rules");
@@ -201,7 +203,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 					}
 					
 					if (!ruleApplied) {
-						// test the features on the current token
+						// test the features on the current configuration
 						List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
 						MONITOR.startTask("feature analyse");
 						try {
@@ -230,10 +232,9 @@ class TransitionBasedParser implements NonDeterministicParser {
 						try {
 							decisions = this.decisionMaker.decide(parseFeatureResults);
 							
-							for (AnalysisObserver<Transition> observer : this.observers) {
+							for (ClassificationObserver<Transition> observer : this.observers) {
 								observer.onAnalyse(history, parseFeatureResults, decisions);
 							}
-	
 							
 							List<Decision<Transition>> decisionShortList = new ArrayList<Decision<Transition>>(decisions.size());
 							for (Decision<Transition> decision : decisions) {
@@ -246,7 +247,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 						}
 						
 						// apply the negative rules
-						Set<Transition> eliminatedTransitions = new TreeSet<Transition>();
+						Set<Transition> eliminatedTransitions = new HashSet<Transition>();
 						if (parserNegativeRules!=null) {
 							MONITOR.startTask("check negative rules");
 							try {
@@ -286,10 +287,10 @@ class TransitionBasedParser implements NonDeterministicParser {
 					} // has a positive rule been applied?
 					
 					boolean transitionApplied = false;
-					// add new TaggedTokenSequences to the heap, one for each outcome provided by MaxEnt
+					// add new configuration to the heap, one for each valid transition
 					MONITOR.startTask("heap sort");
 					try {
-						//TODO: why apply all decisions here? Why not just the top N (where N = beamwidth)?
+						// Why apply all decisions here? Why not just the top N (where N = beamwidth)?
 						// Answer: because we're not always adding solutions to the same heap
 						// And yet: a decision here can only do one of two things: process a token (heap+1000), or add a non-processing transition (heap+1)
 						// So, if we've already applied N decisions of each type, we should be able to stop
@@ -305,18 +306,20 @@ class TransitionBasedParser implements NonDeterministicParser {
 									configuration.addDecision(decision);
 								transition.apply(configuration);
 								
-								int heapIndex = configuration.getConfigurationComparisonIndex();
-			
-								PriorityQueue<ParseConfiguration> heap = heaps.get(heapIndex);
-								if (heap==null) {
-									heap = new PriorityQueue<ParseConfiguration>();
-									heaps.put(heapIndex, heap);
+								int nextHeapIndex = parseComparisonStrategy.getComparisonIndex(configuration) * 1000;
+								while (nextHeapIndex<=currentHeapIndex)
+									nextHeapIndex++;
+								
+								PriorityQueue<ParseConfiguration> nextHeap = heaps.get(nextHeapIndex);
+								if (nextHeap==null) {
+									nextHeap = new PriorityQueue<ParseConfiguration>();
+									heaps.put(nextHeapIndex, nextHeap);
 									if (LOG.isTraceEnabled())
-										LOG.trace("Created heap with index: " + heapIndex);
+										LOG.trace("Created heap with index: " + nextHeapIndex);
 								}
-								heap.add(configuration);
+								nextHeap.add(configuration);
 								if (LOG.isTraceEnabled()) {
-									LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + heapIndex + ", total size: " + heap.size());
+									LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + nextHeapIndex + ", total size: " + nextHeap.size());
 								}
 								
 								configuration.clearMemory();
@@ -326,7 +329,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 								// just in case the we run out of both heaps and analyses, we build this backup heap
 								backupHeap.add(history);
 							} // does transition meet pre-conditions?
-						} // next outcome for this token
+						} // next transition
 					} finally {
 						MONITOR.endTask("heap sort");
 					}
@@ -412,7 +415,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public void addObserver(AnalysisObserver<Transition> observer) {
+	public void addObserver(ClassificationObserver<Transition> observer) {
 		this.observers.add(observer);
 	}
 

@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.linearsvm;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Outcome;
 
 class LinearSVMServiceImpl implements LinearSVMService {
@@ -30,7 +30,7 @@ class LinearSVMServiceImpl implements LinearSVMService {
 	}
 
 	@Override
-	public <T extends Outcome> MachineLearningModel<T> getLinearSVMModel() {
+	public <T extends Outcome> ClassificationModel<T> getLinearSVMModel() {
 		LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>();
 		return linearSVMModel;
 	}

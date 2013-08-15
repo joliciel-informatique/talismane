@@ -22,7 +22,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	private boolean scoreCalculated = false;
 	private String string = null;
 	private List<Decision<PosTag>> decisions = new ArrayList<Decision<PosTag>>();
-	private List<Solution<?>> underlyingSolutions = new ArrayList<Solution<?>>();
+	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
@@ -158,7 +158,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	}
 
 	@Override
-	public List<Solution<?>> getUnderlyingSolutions() {
+	public List<Solution> getUnderlyingSolutions() {
 		return this.underlyingSolutions;
 	}
 

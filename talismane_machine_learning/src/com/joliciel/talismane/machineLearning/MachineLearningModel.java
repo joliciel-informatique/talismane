@@ -19,12 +19,13 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * A machine learning model, capable of providing a DecisionMaker, and encapsluating
@@ -33,16 +34,10 @@ import java.util.zip.ZipEntry;
  *
  * @param <T>
  */
-public interface MachineLearningModel<T extends Outcome> {
-	/**
-	 * Machine learning algorithms supported by Talimane.
-	 *
-	 */
-	public enum MachineLearningAlgorithm {
-		MaxEnt,
-		LinearSVM,
-		Perceptron,
-		OpenNLPPerceptron,
+public interface MachineLearningModel {
+	public enum MachineLearningModelType {
+		Classification,
+		Ranking
 	}
 	
 	public static final String FEATURE_DESCRIPTOR_KEY = "feature";
@@ -54,23 +49,30 @@ public interface MachineLearningModel<T extends Outcome> {
 	public void persist(File modelFile);
 
 	/**
-	 * Get the decision maker for this model.
-	 * @return
-	 */
-	public DecisionMaker<T> getDecisionMaker();
-
-	/**
 	 * Get this model's defining attributes.
 	 * @return
 	 */
-	public Map<String, Object> getModelAttributes();
+	public Map<String, String> getModelAttributes();
 
 	/**
 	 * Add a defining attribute to this model.
 	 * @param name
 	 * @param value
 	 */
-	public void addModelAttribute(String name, Object value);
+	public void addModelAttribute(String name, String value);
+	
+	/**
+	 * Get this model's dependencies.
+	 * @return
+	 */
+	public Map<String, Object> getDependencies();
+
+	/**
+	 * Add a dependency to this model.
+	 * @param name
+	 * @param value
+	 */
+	public void addDependency(String name, Serializable dependency);
 
 	/**
 	 * A map of all descriptors required to apply this model to new data.
@@ -83,42 +85,12 @@ public interface MachineLearningModel<T extends Outcome> {
 	 * @return
 	 */
 	public List<String> getFeatureDescriptors();
-	
-	/**
-	 * An observer that will write low-level details of this model's analysis to a file.
-	 * @param file
-	 * @return
-	 */
-	public AnalysisObserver<T> getDetailedAnalysisObserver(File file);
 
 	/**
 	 * The machine learning algorithm implemented by this model.
 	 * @return
 	 */
 	public MachineLearningAlgorithm getAlgorithm();
-
-	/**
-	 * Load this model's internal binary representation from an input stream.
-	 * @param inputStream
-	 */
-	public void loadModelFromStream(InputStream inputStream);
-
-	/**
-	 * Write this model's internal binary representation to an output stream.
-	 * @param outputStream
-	 */
-	public void writeModelToStream(OutputStream outputStream);
-	
-	/**
-	 * The decision factory associated with this model.
-	 */
-	public DecisionFactory<T> getDecisionFactory();
-	public void setDecisionFactory(DecisionFactory<T> decisionFactory);
-	
-	/**
-	 * Loads data from the input stream that is specific to this model type.
-	 */
-	public void loadDataFromStream(InputStream inputStream, ZipEntry zipEntry);
 	
 	/**
 	 * External resources used by this model.
@@ -128,4 +100,18 @@ public interface MachineLearningModel<T extends Outcome> {
 	public void setExternalResources(Collection<ExternalResource> externalResources);
 	
 	public ExternalResourceFinder getExternalResourceFinder();
+	
+	/**
+	 * Load some aspect of this model from a zip entry.
+	 * @param zis
+	 * @param ze
+	 * @throws IOException
+	 * @return true if entry loaded, false otherwise
+	 */
+	boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException;
+	
+	/**
+	 * Called when load from a zip file has been completed.
+	 */
+	public void onLoadComplete();
 }

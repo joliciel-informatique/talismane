@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
@@ -39,7 +39,7 @@ public interface MaxentService {
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> MachineLearningModel<T> getMaxentModel();
+	public<T extends Outcome> ClassificationModel<T> getMaxentModel();
 	
 	/**
 	 * Returns a perceptron model trainer.
@@ -53,5 +53,5 @@ public interface MaxentService {
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> MachineLearningModel<T> getPerceptronModel();
+	public<T extends Outcome> ClassificationModel<T> getPerceptronModel();
 }

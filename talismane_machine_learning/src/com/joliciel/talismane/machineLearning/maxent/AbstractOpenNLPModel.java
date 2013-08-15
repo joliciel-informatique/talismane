@@ -27,11 +27,10 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
+import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.Outcome;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import opennlp.model.MaxentModel;
 
 /**
@@ -43,7 +42,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractMachineLearningModel<T> implements MachineLearningModel<T>, OpenNLPModel<T> {
+abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractClassificationModel<T> implements OpenNLPModel {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(AbstractOpenNLPModel.class);
 	private MaxentModel model;
@@ -83,8 +82,8 @@ abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractMachineLe
 	}
 
 	@Override
-	public void loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
-		// no model-specific data
+	public boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
+		return false;
 	}
 
 	@Override

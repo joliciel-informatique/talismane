@@ -19,9 +19,6 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -29,7 +26,6 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentService;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
@@ -48,14 +44,14 @@ class ModelFactory {
 	private MaxentService maxentService;
 	private LinearSVMService linearSVMService;
 	
-	@SuppressWarnings("unchecked")
-	public<T extends Outcome> MachineLearningModel<T> getModel(ZipInputStream zis) {
+	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) {
 		try {
-			MachineLearningModel<T> machineLearningModel = null;
+			MachineLearningModel machineLearningModel = null;
 			ZipEntry ze = zis.getNextEntry();
 			if (!ze.getName().equals("algorithm.txt")) {
 				throw new JolicielException("Expected algorithm.txt as first entry in zip. Was: " + ze.getName());
 			}
+			
 			// note: assuming the model type will always be the first entry
 			Scanner typeScanner = new Scanner(zis, "UTF-8");
 			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
@@ -80,71 +76,24 @@ class ModelFactory {
 			case Perceptron:
 				machineLearningModel = perceptronService.getPerceptronModel();
 				break;
+			case PerceptronRanking:
+				machineLearningModel = perceptronService.getPerceptronRankingModel();
+				break;
 			case OpenNLPPerceptron:
 				machineLearningModel = maxentService.getPerceptronModel();
 				break;
 			default:
 				throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
 			}
-
+			
 		    while ((ze = zis.getNextEntry()) != null) {
 		    	LOG.debug(ze.getName());
-		    	if (ze.getName().equals("model.bin")) {
-		    	    machineLearningModel.loadModelFromStream(zis);
-		    	} else if (ze.getName().equals("decisionFactory.obj")) {
-		    		ObjectInputStream in = new ObjectInputStream(zis);
-					try {
-						DecisionFactory<T> decisionFactory = (DecisionFactory<T>) in.readObject();
-			    		machineLearningModel.setDecisionFactory(decisionFactory);
-					} catch (ClassNotFoundException e) {
-						LogUtils.logError(LOG, e);
-						throw new RuntimeException(e);
-					}
-		    	} else if (ze.getName().equals("externalResources.obj")) {
-		    		ObjectInputStream in = new ObjectInputStream(zis);
-					try {
-						List<ExternalResource> externalResources = (List<ExternalResource>) in.readObject();
-			    		machineLearningModel.setExternalResources(externalResources);
-					} catch (ClassNotFoundException e) {
-						LogUtils.logError(LOG, e);
-						throw new RuntimeException(e);
-					}
-		    	} else if (ze.getName().endsWith("_descriptors.txt")) {
-		    		String key = ze.getName().substring(0, ze.getName().length() - "_descriptors.txt".length());
-		    		Scanner scanner = new Scanner(zis, "UTF-8");
-		    		List<String> descriptorList = new ArrayList<String>();
-		    		while (scanner.hasNextLine()) {
-		    			String descriptor = scanner.nextLine();
-		    			descriptorList.add(descriptor);
-		    		}
-		    		machineLearningModel.getDescriptors().put(key, descriptorList);
-		    	} else if (ze.getName().equals("attributes.txt")) {
-		    		Scanner scanner = new Scanner(zis, "UTF-8");
-		    		while (scanner.hasNextLine()) {
-		    			String line = scanner.nextLine();
-		    			if (line.length()>0) {	
-			    			String[] parts = line.split("\t");
-			    			String name = parts[0];
-			    			if (parts.length>2) {
-			    				List<String> collection = new ArrayList<String>();
-			    				for (int i = 1; i<parts.length; i++) {
-			    					collection.add(parts[i]);
-			    				}
-			    				machineLearningModel.addModelAttribute(name, collection);
-			    			} else {
-			    				String value = "";
-			    				if (parts.length>1)
-			    					value = parts[1];
-			    				machineLearningModel.addModelAttribute(name, value);
-			    			}
-		    			}
-		    		}
-		    	} else {
-		    		machineLearningModel.loadDataFromStream(zis, ze);
-		    	}
+		    	machineLearningModel.loadZipEntry(zis, ze);
 		    } // next zip entry
-
-		    return machineLearningModel;
+		    
+		    machineLearningModel.onLoadComplete();
+		    
+			return machineLearningModel;
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
 			throw new RuntimeException(ioe);
@@ -156,6 +105,7 @@ class ModelFactory {
 			}
 		}
 	}
+	
 
 	public MaxentService getMaxentService() {
 		return maxentService;

@@ -20,19 +20,21 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Merges two or more string features by concatenating their results and adding a | in between.
- * If any of the results is null, returns a null.
+ * Includes the string "null" if any of the results is null.
  * @author Assaf Urieli
  *
  * @param <T>
  */
-public class ConcatenateNoNullsFeature<T> extends AbstractCachableFeature<T, String> implements
+public class ConcatenateWithNullsFeature<T> extends AbstractCachableFeature<T, String> implements
 		StringFeature<T> {
+	private static final String NULL_RESULT = "null";
+	
 	StringFeature<T>[] stringFeatures;
 	
-	public ConcatenateNoNullsFeature(StringFeature<T>... stringFeatures) {
+	public ConcatenateWithNullsFeature(StringFeature<T>... stringFeatures) {
 		super();
 		this.stringFeatures = stringFeatures;
-		String name = "ConcatNoNulls(";
+		String name = "Concat(";
 		boolean firstFeature = true;
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature)
@@ -50,26 +52,20 @@ public class ConcatenateNoNullsFeature<T> extends AbstractCachableFeature<T, Str
 		
 		StringBuilder sb = new StringBuilder();
 		boolean firstFeature = true;
-		boolean hasNull = false;
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature)
 				sb.append("|");
 			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result==null) {
-				hasNull = true;
-				break;
-			}
-			
-			sb.append(result.getOutcome());
+			if (result==null)
+				sb.append(NULL_RESULT);
+			else
+				sb.append(result.getOutcome());
 			firstFeature = false;
 		}
 		
-		if (!hasNull)
-			featureResult = this.generateResult(sb.toString());
+		featureResult = this.generateResult(sb.toString());
 		return featureResult;
 	}
-
-	
 	
 	@Override
 	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
@@ -80,20 +76,27 @@ public class ConcatenateNoNullsFeature<T> extends AbstractCachableFeature<T, Str
 		boolean firstFeature = true;
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature) {
-				builder.append("if (" + sb + "!=null) " + sb + ".append(\"|\");");
+				builder.append(sb + ".append(\"|\");");
 			}
 			String stringFeatureName = builder.addFeatureVariable(stringFeature, "string");
 			
-			builder.append("if (" + stringFeatureName + "==null) " + sb + "=null;");
-			builder.append("if (" + sb + "!=null) " + sb + ".append(" + stringFeatureName + ");");
+			builder.append("if (" + stringFeatureName + "==null)");
+			builder.indent();
+			builder.append(	sb + ".append(\"" + NULL_RESULT + "\");");
+			builder.outdent();
+			builder.append("else");
+			builder.indent();
+			builder.append(	sb + ".append(" + stringFeatureName + ");");
+			builder.outdent();
 			firstFeature = false;
 		}
 		
-		builder.append("if (" + sb + "!=null) " + variableName + " = " + sb + ".toString();");
+		builder.append(variableName + " = " + sb + ".toString();");
 		return true;
 	}
 
 	public StringFeature<T>[] getStringFeatures() {
 		return stringFeatures;
 	}
+
 }

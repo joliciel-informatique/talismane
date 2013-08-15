@@ -37,18 +37,19 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.TextFileResource;
-import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.TransitionSystem;
@@ -82,8 +83,8 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-public class PosTaggerMaxentRunner {
-    private static final Log LOG = LogFactory.getLog(PosTaggerMaxentRunner.class);
+public class PosTaggerTrainer {
+    private static final Log LOG = LogFactory.getLog(PosTaggerTrainer.class);
 
 	/**
 	 * @param args
@@ -99,10 +100,10 @@ public class PosTaggerMaxentRunner {
 		}
 		
 		@SuppressWarnings("unused")
-		PosTaggerMaxentRunner maxentRunner = new PosTaggerMaxentRunner(argMap);
+		PosTaggerTrainer maxentRunner = new PosTaggerTrainer(argMap);
 	}
 
-    public PosTaggerMaxentRunner(Map<String,String> argMap) throws Exception {
+    public PosTaggerTrainer(Map<String,String> argMap) throws Exception {
 		String command = null;
 
 		String corpusType = "ftb";
@@ -419,18 +420,18 @@ public class PosTaggerMaxentRunner {
 					}
 				}
 				
-				CorpusEventStream posTagEventStream = posTaggerService.getPosTagEventStream(corpusReader, posTaggerFeatures);
+				ClassificationEventStream posTagEventStream = posTaggerService.getPosTagEventStream(corpusReader, posTaggerFeatures);
 				
 				Map<String,Object> trainParameters = new HashMap<String, Object>();
 				if (algorithm.equals(MachineLearningAlgorithm.MaxEnt)) {
 					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Iterations.name(), iterations);
 					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Cutoff.name(), cutoff);
 				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
 					
 					if (perceptronTolerance>=0)
-						trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
+						trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
 				} else if (algorithm.equals(MachineLearningAlgorithm.LinearSVM)) {
 					trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Cutoff.name(), cutoff);
 					if (solverType!=null)
@@ -441,7 +442,7 @@ public class PosTaggerMaxentRunner {
 						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Epsilon.name(), epsilon);
 				}
 				
-				ModelTrainer<PosTag> trainer = machineLearningService.getModelTrainer(algorithm, trainParameters);
+				ClassificationModelTrainer<PosTag> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
 
 				Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 				descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
@@ -449,7 +450,7 @@ public class PosTaggerMaxentRunner {
 				descriptors.put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
 				descriptors.put(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPreprocessingFilterDescriptors);
 				descriptors.put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
-				MachineLearningModel<PosTag> posTaggerModel = trainer.trainModel(posTagEventStream, posTagSet, descriptors);			
+				ClassificationModel<PosTag> posTaggerModel = trainer.trainModel(posTagEventStream, posTagSet, descriptors);			
 				if (externalResourceFinder!=null)
 					posTaggerModel.setExternalResources(externalResourceFinder.getExternalResources());
 				posTaggerModel.persist(modelFile);
@@ -461,12 +462,12 @@ public class PosTaggerMaxentRunner {
 					throw new RuntimeException("Missing argument: outdir");
 				
 				ZipInputStream zis = new ZipInputStream(new FileInputStream(posTaggerModelFilePath));
-				MachineLearningModel<PosTag> posTaggerModel = machineLearningService.getModel(zis);
+				ClassificationModel<PosTag> posTaggerModel = machineLearningService.getClassificationModel(zis);
 				
 				Tokeniser tokeniser = null;
 				if (tokeniserModelFilePath.length()>0) {
 					ZipInputStream tokeniserZis = new ZipInputStream(new FileInputStream(posTaggerModelFilePath));
-					MachineLearningModel<TokeniserOutcome> tokeniserModel = machineLearningService.getModel(tokeniserZis);
+					ClassificationModel<TokeniserOutcome> tokeniserModel = machineLearningService.getClassificationModel(tokeniserZis);
 					TokeniserPatternManager tokeniserPatternManager =
 						tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get("patterns"));
 					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
@@ -571,7 +572,7 @@ public class PosTaggerMaxentRunner {
 					String detailsFilePath = modelName + "_posTagger_details.txt";
 					File detailsFile = new File(outDir, detailsFilePath);
 					detailsFile.delete();
-					AnalysisObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+					ClassificationObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 					posTagger.addObserver(observer);
 				}
 				

@@ -37,19 +37,18 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 
 import de.bwaldvogel.liblinear.Model;
 
-class LinearSVMModel<T extends Outcome> extends AbstractMachineLearningModel<T> implements
-		MachineLearningModel<T> {
+class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
 	private static final Log LOG = LogFactory.getLog(LinearSVMModel.class);
 	private Model model;
 	Map<String, Integer> featureIndexMap = null;
@@ -82,7 +81,7 @@ class LinearSVMModel<T extends Outcome> extends AbstractMachineLearningModel<T> 
 	}
 
 	@Override
-	public AnalysisObserver<T> getDetailedAnalysisObserver(File file) {
+	public ClassificationObserver<T> getDetailedAnalysisObserver(File file) {
 		throw new JolicielException("No detailed analysis observer currently available for linear SVM.");
 	}
 
@@ -146,8 +145,9 @@ class LinearSVMModel<T extends Outcome> extends AbstractMachineLearningModel<T> 
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
+	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
 		try {
+			boolean loaded = true;
 			if (zipEntry.getName().equals("featureIndexMap.obj")) {
 	    		ObjectInputStream in = new ObjectInputStream(inputStream);
 				featureIndexMap = (Map<String, Integer>) in.readObject();
@@ -155,8 +155,9 @@ class LinearSVMModel<T extends Outcome> extends AbstractMachineLearningModel<T> 
 	    		ObjectInputStream in = new ObjectInputStream(inputStream);
 				outcomes = (List<String>) in.readObject();
 	    	} else {
-	    		throw new JolicielException("Unknown model component: " + zipEntry.getName());
+	    		loaded = false;
 	    	}
+			return loaded;
 		} catch (ClassNotFoundException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

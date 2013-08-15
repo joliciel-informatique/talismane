@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.Solution;
+import com.joliciel.talismane.machineLearning.ClassificationSolution;
+import com.joliciel.talismane.machineLearning.RankingSolution;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.parser.features.ParseConfigurationWrapper;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -34,7 +35,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * as well as the stack and buffer indicating the pos-tagged tokens already visited and not yet visited.
  * @author Assaf Urieli
  */
-public interface ParseConfiguration extends Comparable<ParseConfiguration>, Solution<Transition>, ParseConfigurationWrapper, HasFeatureCache {
+public interface ParseConfiguration extends Comparable<ParseConfiguration>, ClassificationSolution<Transition>, RankingSolution, ParseConfigurationWrapper, HasFeatureCache {
 	/**
 	 * Get the PosTag Sequence on which this ParseSequence is based.
 	 * @return
@@ -42,9 +43,10 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Solu
 	public PosTagSequence getPosTagSequence();
 	
 	/**
-	 * The geometric mean of parse decisions, multiplied by the score of the pos-tag sequence.
+	 * This parse configuration's score.
 	 */
 	public double getScore();
+	public void setScore(double score);
 	
 	/**
 	 * The list of transitions which generated the present parse configuration.
@@ -86,14 +88,7 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Solu
 	 * @return
 	 */
 	public boolean isTerminal();
-	
-	/**
-	 * An index allowing us to compare this configuration with
-	 * other configurations having the same index.
-	 * @return
-	 */
-	public int getConfigurationComparisonIndex();
-	
+
 	/**
 	 * Get the head of a given pos-tagged token in the current set of dependencies,
 	 * or null if none exists.

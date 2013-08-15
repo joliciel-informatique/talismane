@@ -27,8 +27,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
@@ -43,7 +43,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  *
  */
-class PosTagEventStream implements CorpusEventStream {
+class PosTagEventStream implements ClassificationEventStream {
     private static final Log LOG = LogFactory.getLog(PosTagEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagEventStream.class);
 
@@ -89,10 +89,10 @@ class PosTagEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public CorpusEvent next() {
+	public ClassificationEvent next() {
 		MONITOR.startTask("next");
 		try {
-			CorpusEvent event = null;
+			ClassificationEvent event = null;
 			if (this.hasNext()) {
 				PosTaggedToken taggedToken = currentSentence.get(currentIndex++);
 				String classification = taggedToken.getTag().getCode();
@@ -125,7 +125,7 @@ class PosTagEventStream implements CorpusEventStream {
 						LOG.trace(result.toString());
 					}
 				}			
-				event = machineLearningService.getCorpusEvent(posTagFeatureResults, classification);
+				event = machineLearningService.getClassificationEvent(posTagFeatureResults, classification);
 				
 				currentHistory.addPosTaggedToken(taggedToken);
 				if (currentIndex==currentSentence.size()) {
@@ -157,8 +157,8 @@ class PosTagEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		Map<String,Object> attributes = new LinkedHashMap<String, Object>();
+	public Map<String, String> getAttributes() {
+		Map<String,String> attributes = new LinkedHashMap<String, String>();
 		attributes.put("eventStream", this.getClass().getSimpleName());		
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
 		

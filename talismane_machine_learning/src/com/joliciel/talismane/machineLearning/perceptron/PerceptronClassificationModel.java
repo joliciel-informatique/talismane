@@ -32,21 +32,22 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
-import com.joliciel.talismane.machineLearning.AnalysisObserver;
+import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
+import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.utils.LogUtils;
 
-class PerceptronModel<T extends Outcome> extends AbstractMachineLearningModel<T> {
-	private static final Log LOG = LogFactory.getLog(PerceptronModel.class);
+class PerceptronClassificationModel<T extends Outcome> extends AbstractClassificationModel<T> {
+	private static final Log LOG = LogFactory.getLog(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker<T> decisionMaker;
 	
-	PerceptronModel() { }
+	PerceptronClassificationModel() { }
 	
-	public PerceptronModel(PerceptronModelParameters params,
+	public PerceptronClassificationModel(PerceptronModelParameters params,
 			Map<String, List<String>> descriptors,
 			DecisionFactory<T> decisionFactory) {
 		this.params = params;
@@ -63,7 +64,7 @@ class PerceptronModel<T extends Outcome> extends AbstractMachineLearningModel<T>
 	}
 
 	@Override
-	public AnalysisObserver<T> getDetailedAnalysisObserver(File file) {
+	public ClassificationObserver<T> getDetailedAnalysisObserver(File file) {
 		return new PerceptronDetailedAnalysisWriter<T>(decisionMaker, file);
 	}
 
@@ -100,8 +101,8 @@ class PerceptronModel<T extends Outcome> extends AbstractMachineLearningModel<T>
 	}
 
 	@Override
-	public void loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
-		// nothing to do
+	public boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
+		return false;
 	}
 
 	@Override

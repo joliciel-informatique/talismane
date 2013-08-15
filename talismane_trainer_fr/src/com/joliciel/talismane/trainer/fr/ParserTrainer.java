@@ -31,17 +31,21 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningModelType;
+import com.joliciel.talismane.machineLearning.Ranker;
+import com.joliciel.talismane.machineLearning.RankingEventStream;
+import com.joliciel.talismane.machineLearning.RankingModelTrainer;
 import com.joliciel.talismane.machineLearning.TextFileResource;
-import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.ModelTrainer;
+import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseEvaluationFScoreCalculator;
 import com.joliciel.talismane.parser.ParseEvaluationGuessTemplateWriter;
@@ -49,11 +53,13 @@ import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParserServiceLocator;
+import com.joliciel.talismane.parser.ParsingConstrainer;
 import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
+import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -68,9 +74,9 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-public class ParserMaxentRunner {
-    private static final Log LOG = LogFactory.getLog(ParserMaxentRunner.class);
-
+public class ParserTrainer {
+    private static final Log LOG = LogFactory.getLog(ParserTrainer.class);
+    
 	/**
 	 * @param args
 	 */
@@ -85,10 +91,10 @@ public class ParserMaxentRunner {
 		}
 		
 		@SuppressWarnings("unused")
-		ParserMaxentRunner maxentRunner = new ParserMaxentRunner(argMap);
+		ParserTrainer maxentRunner = new ParserTrainer(argMap);
 	}
 
-    public ParserMaxentRunner(Map<String,String> argMap) throws Exception {
+    public ParserTrainer(Map<String,String> argMap) throws Exception {
     	String command = null;
 
 		String parserModelFilePath = "";
@@ -100,7 +106,7 @@ public class ParserMaxentRunner {
 		int sentenceCount = 0;
 		String outDirPath = "";
 		String lexiconDirPath = "";
-		int beamWidth = 10;
+		int beamWidth = 1;
 		boolean includeSentences = false;
 		String transitionSystemStr = "ShiftReduce";
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
@@ -118,6 +124,8 @@ public class ParserMaxentRunner {
 		String posTaggerPreProcessingFilterPath = "";
 		String posTaggerPostProcessingFilterPath = "";
 		String externalResourcePath = null;
+		String dependencyLabelPath = null;
+		String parsingConstrainerPath = null;
 		
 		int crossValidationSize = -1;
 		int includeIndex = -1;
@@ -156,6 +164,10 @@ public class ParserMaxentRunner {
 				includeSentences = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("transitionSystem"))
 				transitionSystemStr = argValue;
+			else if (argName.equals("dependencyLabels"))
+				dependencyLabelPath = argValue;
+			else if (argName.equals("parsingConstrainer"))
+				parsingConstrainerPath = argValue;
 			else if (argName.equals("algorithm"))
 				algorithm = MachineLearningAlgorithm.valueOf(argValue);
 			else if (argName.equals("linearSVMSolver"))
@@ -269,11 +281,13 @@ public class ParserMaxentRunner {
 				corpusReader.setIncludeIndex(includeIndex);
 			if (excludeIndex>=0)
 				corpusReader.setExcludeIndex(excludeIndex);
-
 			
 			if (command.equals("train")) {
 				if (parserFeatureFilePath.length()==0)
 					throw new RuntimeException("Missing argument: parserFeatures");
+				if (dependencyLabelPath==null)
+					throw new RuntimeException("Missing argument: dependencyLabels");
+				
 				
 				ExternalResourceFinder externalResourceFinder = null;
 				if (externalResourcePath!=null) {
@@ -292,7 +306,7 @@ public class ParserMaxentRunner {
 						externalResourceFinder.addExternalResource(textFileResource);
 					}
 				}
-				
+					
 				File parserFeatureFile = new File(parserFeatureFilePath);
 				Scanner scanner = new Scanner(parserFeatureFile);
 				List<String> featureDescriptors = new ArrayList<String>();
@@ -386,6 +400,16 @@ public class ParserMaxentRunner {
 					}
 				}
 				
+				
+				File dependencyLabelFile = new File(dependencyLabelPath);
+				Scanner depLabelScanner = new Scanner(dependencyLabelFile);
+				List<String> dependencyLabels = new ArrayList<String>();
+				while (depLabelScanner.hasNextLine()) {
+					String dependencyLabel = depLabelScanner.nextLine();
+					if (!dependencyLabel.startsWith("#"))
+						dependencyLabels.add(dependencyLabel);
+				}
+
 				TransitionSystem transitionSystem = null;
 				if (transitionSystemStr.equalsIgnoreCase("ShiftReduce")) {
 					transitionSystem = parserService.getShiftReduceTransitionSystem();
@@ -394,21 +418,20 @@ public class ParserMaxentRunner {
 				} else {
 					throw new TalismaneException("Unknown transition system: " + transitionSystemStr);
 				}
+				transitionSystem.setDependencyLabels(dependencyLabels);
 				TalismaneSession.setTransitionSystem(transitionSystem);
-
-				CorpusEventStream parseEventStream = parserService.getParseEventStream(corpusReader, parseFeatures);
 				
 				Map<String,Object> trainParameters = new HashMap<String, Object>();
-				if (algorithm.equals(MachineLearningAlgorithm.MaxEnt)) {
+				if (algorithm==MachineLearningAlgorithm.MaxEnt) {
 					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Iterations.name(), iterations);
 					trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Cutoff.name(), cutoff);
-				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
-					trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
+				} else if (algorithm==MachineLearningAlgorithm.Perceptron || algorithm==MachineLearningAlgorithm.PerceptronRanking) {
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
 					
 					if (perceptronTolerance>=0)
-						trainParameters.put(PerceptronModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
-				} else if (algorithm.equals(MachineLearningAlgorithm.LinearSVM)) {
+						trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
+				} else if (algorithm==MachineLearningAlgorithm.LinearSVM) {
 					trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Cutoff.name(), cutoff);
 					if (solverType!=null)
 						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.SolverType.name(), solverType);
@@ -418,8 +441,6 @@ public class ParserMaxentRunner {
 						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Epsilon.name(), epsilon);
 				}
 
-				ModelTrainer<Transition> trainer = machineLearningService.getModelTrainer(algorithm, trainParameters);
-				
 				Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 				descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				descriptors.put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
@@ -427,7 +448,25 @@ public class ParserMaxentRunner {
 				descriptors.put(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPreProcessingFilterDescriptors);
 				descriptors.put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
 
-				MachineLearningModel<Transition> parserModel = trainer.trainModel(parseEventStream, transitionSystem, descriptors);
+				MachineLearningModel parserModel = null;
+				if (algorithm.getModelType()==MachineLearningModelType.Classification) {
+					ClassificationEventStream parseEventStream = parserService.getParseEventStream(corpusReader, parseFeatures);
+					ClassificationModelTrainer<Transition> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
+
+					parserModel = trainer.trainModel(parseEventStream, transitionSystem, descriptors);
+				} else if (algorithm.getModelType()==MachineLearningModelType.Ranking) {
+					if (parsingConstrainerPath==null) {
+						throw new RuntimeException("Missing argument: parsingConstrainer");
+					}
+					RankingEventStream<PosTagSequence> parseEventStream = parserService.getGlobalParseEventStream(corpusReader, parseFeatures);
+					RankingModelTrainer<PosTagSequence> trainer = machineLearningService.getRankingModelTrainer(algorithm, trainParameters);
+					ParsingConstrainer parsingConstrainer = parserService.getParsingConstrainer(new File(parsingConstrainerPath));
+					Ranker<PosTagSequence> ranker = parserService.getRanker(parsingConstrainer, parseFeatures, beamWidth);
+					parserModel = trainer.trainModel(parseEventStream, ranker, descriptors);
+					parserModel.addDependency(ParsingConstrainer.class.getSimpleName(), parsingConstrainer);
+				} else {
+					throw new TalismaneException("Unknown model type: " + algorithm.getModelType());
+				}
 				if (externalResourceFinder!=null)
 					parserModel.setExternalResources(externalResourceFinder.getExternalResources());
 				parserModel.persist(parserModelFile);
@@ -439,7 +478,7 @@ public class ParserMaxentRunner {
 				outDir.mkdirs();
 
 				ZipInputStream zis = new ZipInputStream(new FileInputStream(parserModelFilePath));
-				MachineLearningModel<Transition> parserModel = machineLearningService.getModel(zis);
+				MachineLearningModel parserModel = machineLearningService.getMachineLearningModel(zis);
 
 				List<String> tokenFilterDescriptors = parserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
 				if (tokenFilterDescriptors!=null) {

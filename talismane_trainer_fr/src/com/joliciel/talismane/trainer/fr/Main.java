@@ -57,16 +57,16 @@ public class Main {
 		
 		if (trainerName.equalsIgnoreCase("sentenceDetector")) {
 			@SuppressWarnings("unused")
-			SentenceDetectorMaxentRunner maxentRunner = new SentenceDetectorMaxentRunner(argMap);
+			SentenceDetectorTrainer maxentRunner = new SentenceDetectorTrainer(argMap);
 		} else if (trainerName.equalsIgnoreCase("tokeniser")) {
 			@SuppressWarnings("unused")
-			TokeniserMaxentRunner maxentRunner = new TokeniserMaxentRunner(argMap);
+			TokeniserTrainer maxentRunner = new TokeniserTrainer(argMap);
 		} else if (trainerName.equalsIgnoreCase("posTagger")) {
 			@SuppressWarnings("unused")
-			PosTaggerMaxentRunner maxentRunner = new PosTaggerMaxentRunner(argMap);
+			PosTaggerTrainer maxentRunner = new PosTaggerTrainer(argMap);
 		} else if (trainerName.equalsIgnoreCase("parser")) {
 			@SuppressWarnings("unused")
-			ParserMaxentRunner maxentRunner = new ParserMaxentRunner(argMap);
+			ParserTrainer maxentRunner = new ParserTrainer(argMap);
 		} else {
 			throw new TalismaneException("Unknown trainer: " + trainerName);
 		}

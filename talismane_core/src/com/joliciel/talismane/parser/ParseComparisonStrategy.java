@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,31 +16,13 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning;
-
-import java.util.Map;
+package com.joliciel.talismane.parser;
 
 /**
- * An interface for reading corpus events from a training or test corpus.
+ * The strategy for deciding which parses need to be compared with each other.
  * @author Assaf Urieli
  *
  */
-public interface CorpusEventStream {
-	/**
-	 * Does this event reader have any more events to read?
-	 * @return
-	 */
-	public boolean hasNext();
-	
-	/**
-	 * The next event to read.
-	 * @return
-	 */
-	public CorpusEvent next();
-	
-	/**
-	 * Get the attributes defining this event stream.
-	 * @return
-	 */
-	public Map<String,Object> getAttributes();
+public interface ParseComparisonStrategy {
+	public int getComparisonIndex(ParseConfiguration configuration);
 }

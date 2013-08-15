@@ -28,8 +28,9 @@ import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.CorpusEvent;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.ClassificationEvent;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Outcome;
@@ -56,8 +57,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	private LinearSVMSolverType solverType = LinearSVMSolverType.L2R_LR;
 
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
@@ -65,8 +66,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	}
 
 	@Override
-	public MachineLearningModel<T> trainModel(
-			CorpusEventStream corpusEventStream,
+	public ClassificationModel<T> trainModel(
+			ClassificationEventStream corpusEventStream,
 			DecisionFactory<T> decisionFactory,
 			Map<String, List<String>> descriptors) {
 		MONITOR.startTask("trainModel");
@@ -92,7 +93,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			List<Integer> outcomeList = new ArrayList<Integer>();
 			
 			while (corpusEventStream.hasNext()) {
-				CorpusEvent corpusEvent = corpusEventStream.next();
+				ClassificationEvent corpusEvent = corpusEventStream.next();
 				Integer outcomeIndex = outcomeIndexMap.get(corpusEvent.getClassification());
 				if (outcomeIndex==null) {
 					outcomeIndex = currentOutcomeIndex++;
@@ -207,10 +208,10 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				outcomes.add(outcome);
 			
 			linearSVMModel.setOutcomes(outcomes);
-			linearSVMModel.addModelAttribute("solver", this.getSolverType());
-			linearSVMModel.addModelAttribute("cutoff", this.getCutoff());
-			linearSVMModel.addModelAttribute("c", this.getConstraintViolationCost());
-			linearSVMModel.addModelAttribute("eps", this.getEpsilon());
+			linearSVMModel.addModelAttribute("solver", this.getSolverType().name());
+			linearSVMModel.addModelAttribute("cutoff", "" + this.getCutoff());
+			linearSVMModel.addModelAttribute("c", "" + this.getConstraintViolationCost());
+			linearSVMModel.addModelAttribute("eps", "" + this.getEpsilon());
 			
 			linearSVMModel.getModelAttributes().putAll(corpusEventStream.getAttributes());
 	

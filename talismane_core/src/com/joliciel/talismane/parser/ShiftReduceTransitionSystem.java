@@ -19,6 +19,7 @@
 package com.joliciel.talismane.parser;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,13 +28,14 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The standard Shift-Reduce transition system, as described in Nivre 2009 Dependency Parsing, Chapter 3.
+ * The arc-standard Shift-Reduce transition system, as described in Nivre 2009 Dependency Parsing, Chapter 3.
  * @author Assaf Urieli
  *
  */
 class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 	private static final long serialVersionUID = -6536246443810297657L;
 	private static final Log LOG = LogFactory.getLog(ShiftReduceTransitionSystem.class);
+	private transient Set<Transition> transitions = null;
 
 	@Override
 	public void predictTransitions(ParseConfiguration configuration,
@@ -103,6 +105,19 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 		}
 		
 		return transition;
+	}
+	
+	@Override
+	public Set<Transition> getTransitions() {
+		if (transitions==null) {
+			transitions = new TreeSet<Transition>();
+			transitions.add(this.getTransitionForCode("Shift"));
+			for (String dependencyLabel : this.getDependencyLabels()) {
+				transitions.add(this.getTransitionForCode("LeftArc[" + dependencyLabel + "]"));
+				transitions.add(this.getTransitionForCode("RightArc[" + dependencyLabel + "]"));
+			}
+		}
+		return transitions;
 	}
 
 }

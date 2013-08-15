@@ -1,15 +1,22 @@
 package com.joliciel.talismane.parser;
 
+import java.io.File;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.machineLearning.CorpusEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
+import com.joliciel.talismane.machineLearning.FeatureWeightVector;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.Ranker;
+import com.joliciel.talismane.machineLearning.RankingEventStream;
+import com.joliciel.talismane.machineLearning.RankingModel;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
@@ -60,7 +67,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public CorpusEventStream getParseEventStream(
+	public ClassificationEventStream getParseEventStream(
 			ParserAnnotatedCorpusReader corpusReader,
 			Set<ParseConfigurationFeature<?>> parseFeatures) {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
@@ -69,6 +76,19 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		eventStream.setFeatureService(this.getFeatureService());
 		return eventStream;
 	}
+	
+
+	@Override
+	public RankingEventStream<PosTagSequence> getGlobalParseEventStream(
+			ParserAnnotatedCorpusReader corpusReader,
+			Set<ParseConfigurationFeature<?>> parseFeatures) {
+		ParseGlobalEventStream eventStream = new ParseGlobalEventStream(corpusReader, parseFeatures);
+		eventStream.setParserServiceInternal(this);
+		eventStream.setMachineLearningService(this.getMachineLearningService());
+		eventStream.setFeatureService(this.getFeatureService());
+		return eventStream;
+	}
+	
 
 	@Override
 	public ParserEvaluator getParserEvaluator() {
@@ -91,7 +111,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(
-			MachineLearningModel<Transition> model, int beamWidth, boolean dynamiseFeatures) {
+			MachineLearningModel model, int beamWidth, boolean dynamiseFeatures) {
 		Collection<ExternalResource> externalResources = model.getExternalResources();
 		if (externalResources!=null) {
 			for (ExternalResource externalResource : externalResources) {
@@ -99,7 +119,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			}
 		}
 		
-		DecisionMaker<Transition> decisionMaker = model.getDecisionMaker();
 		TransitionSystem transitionSystem = null;
 		String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
 		if (transitionSystemClassName.equalsIgnoreCase("ShiftReduceTransitionSystem")) {
@@ -112,7 +131,22 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		
 		Set<ParseConfigurationFeature<?>> parseFeatures = this.getParseFeatureService().getFeatures(model.getFeatureDescriptors(), dynamiseFeatures);
 
-		return this.getTransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
+		NonDeterministicParser parser = null;
+		if (model instanceof ClassificationModel) {
+			@SuppressWarnings("unchecked")
+			ClassificationModel<Transition> classificationModel = (ClassificationModel<Transition>) model;
+			DecisionMaker<Transition> decisionMaker = classificationModel.getDecisionMaker();
+
+			parser = this.getTransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
+		} else if (model instanceof RankingModel) {
+			RankingModel rankingModel = (RankingModel) model;
+			FeatureWeightVector featureWeightVector = rankingModel.getFeatureWeightVector();
+			ParsingConstrainer parsingConstrainer = (ParsingConstrainer) model.getDependencies().get(ParsingConstrainer.class.getSimpleName());
+			parser = this.getTransitionBasedGlobalLearningParser(featureWeightVector, parsingConstrainer, parseFeatures, beamWidth);
+		} else {
+			throw new TalismaneException("Unknown parser model type: " + model.getClass().getSimpleName());
+		}
+		return parser;
 	}
 
 	public ParserFeatureService getParseFeatureService() {
@@ -140,6 +174,19 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
 	}
+	
+
+	@Override
+	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(File file,
+			Charset charset) {
+		ParserRegexBasedCorpusReaderImpl corpusReader = new ParserRegexBasedCorpusReaderImpl(file, charset);
+		corpusReader.setParserService(this);
+		corpusReader.setPosTaggerService(this.getPosTaggerService());
+		corpusReader.setTokeniserService(this.getTokeniserService());
+		corpusReader.setTokenFilterService(this.getTokenFilterService());
+		return corpusReader;
+	}
+
 
 	public PosTaggerService getPosTaggerService() {
 		return posTaggerService;
@@ -189,6 +236,42 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
 	}
-	
+
+	@Override
+	public ParsingConstrainer getParsingConstrainer() {
+		ParsingConstrainerImpl constrainer = new ParsingConstrainerImpl();
+		constrainer.setParseServiceInternal(this);
+		return constrainer;
+	}
+
+	@Override
+	public ParsingConstrainer getParsingConstrainer(File file) {
+		ParsingConstrainer constrainer = ParsingConstrainerImpl.loadFromFile(file);
+		return constrainer;
+	}
+
+	@Override
+	public Ranker<PosTagSequence> getRanker(
+			ParsingConstrainer parsingConstrainer,
+			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+		TransitionBasedGlobalLearningParser parser = new TransitionBasedGlobalLearningParser(parsingConstrainer, parseFeatures, beamWidth);
+		parser.setParserServiceInternal(this);
+		parser.setFeatureService(this.getFeatureService());
+		// if training, don't set a maximum time per sentence
+		parser.setMaxAnalysisTimePerSentence(0);
+		return parser;
+	}
+
+	@Override
+	public NonDeterministicParser getTransitionBasedGlobalLearningParser(
+			FeatureWeightVector featureWeightVector,
+			ParsingConstrainer parsingConstrainer,
+			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+		TransitionBasedGlobalLearningParser parser = new TransitionBasedGlobalLearningParser(featureWeightVector, parsingConstrainer, parseFeatures, beamWidth);
+		parser.setParserServiceInternal(this);
+		parser.setFeatureService(this.getFeatureService());
+		return parser;
+	}
+
 	
 }

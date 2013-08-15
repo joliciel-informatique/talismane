@@ -16,34 +16,13 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.perceptron;
+package com.joliciel.talismane.machineLearning;
 
-import com.joliciel.talismane.machineLearning.ModelTrainer;
-import com.joliciel.talismane.machineLearning.Outcome;
-
-public interface PerceptronModelTrainer<T extends Outcome> extends ModelTrainer<T> {
-	/**
-	 * A parameter accepted by the perceptron model trainer.
-	 * @author Assaf Urieli
-	 *
-	 */
-	public enum PerceptronModelParameter {
-		Iterations(Integer.class),
-		Cutoff(Integer.class),
-		Tolerance(Double.class);
-		
-		private Class<?> parameterType;
-		private PerceptronModelParameter(Class<?> parameterType) {
-			this.parameterType = parameterType;
-		}
-		public Class<?> getParameterType() {
-			return parameterType;
-		}
-	}
-	/**
-	 * The number of training iterations to run.
-	 * @return
-	 */
-	public int getIterations();
-	public void setIterations(int iterations);
+/**
+ * A machine learning model used for solution ranking.
+ * @author Assaf Urieli
+ *
+ */
+public interface RankingModel extends MachineLearningModel {
+	public FeatureWeightVector getFeatureWeightVector();
 }

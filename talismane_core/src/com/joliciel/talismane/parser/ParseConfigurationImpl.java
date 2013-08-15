@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.RankingSolution;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -43,7 +44,6 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
-import com.joliciel.talismane.tokeniser.Token;
 
 final class ParseConfigurationImpl implements ParseConfigurationInternal {
     @SuppressWarnings("unused")
@@ -51,7 +51,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5934683538208892981L;
+	private static final long serialVersionUID = 1L;
 	
 	private PosTagSequence posTagSequence;
 	private double score;
@@ -66,17 +66,18 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private Map<PosTaggedToken,Transition> dependentTransitionMap = new HashMap<PosTaggedToken, Transition>();
 	
 	private ParserServiceInternal parserServiceInternal;
-	private boolean comparisonIndexCalculated = false;
-	private int configurationComparisonIndex = 0;
 	
 	private DependencyNode parseTree = null;
 	
 	private List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
 	private int nextDecisionToAdd = 0;
-	private List<Solution<?>> underlyingSolutions = new ArrayList<Solution<?>>();
+	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
+	private List<List<FeatureResult<?>>> incrementalFeatureResults = new ArrayList<List<FeatureResult<?>>>();
+
+	private Map<String,FeatureResult<?>> featureCache = new HashMap<String, FeatureResult<?>>();
 	
-	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+	private long createDate = System.currentTimeMillis();
 
 	public ParseConfigurationImpl(PosTagSequence posTagSequence) {
 		super();
@@ -125,6 +126,11 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		return score;
 	}
 
+	public void setScore(double score) {
+		this.score = score;
+		this.scoreCalculated = true;
+	}
+
 	@Override
 	public Deque<PosTaggedToken> getBuffer() {
 		return this.buffer;
@@ -138,13 +144,17 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	
 	@Override
 	public int compareTo(ParseConfiguration o) {
-		if (this.getScore()<o.getScore()) {
-			return 1;
-		} else if (this.getScore()>o.getScore()) {
-			return -1;
-		} else {
+		// order by descending score if possible, otherwise by create date, otherwise by hash code
+		if (this==o)
 			return 0;
-		}
+		else if (this.getScore()<o.getScore())
+			return 1;
+		else if (this.getScore()>o.getScore())
+			return -1;
+		else if (o instanceof ParseConfigurationInternal)
+			return new Long(((ParseConfigurationInternal) o).getCreateDate() - this.getCreateDate()).intValue();
+		else
+			return o.hashCode() - this.hashCode();
 	}
 
 	@Override
@@ -172,48 +182,6 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		}
 		return realDependencies;
 	}
-
-	@Override
-	public int getConfigurationComparisonIndex() {
-		if (!comparisonIndexCalculated) {
-			configurationComparisonIndex = (this.getPosTagSequence().getTokenSequence().getAtomicTokenCount() + 1) * 1000;
-			// if the buffer's empty, this is a terminal configuration, and needs to be given the full token count
-			if (this.buffer.size()>0) {
-				// remove the atomic tokens of each element still to be processed in the buffer
-				for (PosTaggedToken posTaggedToken : this.buffer) {
-					Token token = posTaggedToken.getToken();
-					if (token.getAtomicParts().size()==0)
-						configurationComparisonIndex -= 1000;
-					else
-						configurationComparisonIndex -= (token.getAtomicParts().size() * 1000);
-				}
-				
-				// remove the atomic tokens of each element still to be processed in the stack
-				for (PosTaggedToken posTaggedToken : this.stack) {
-					Token token = posTaggedToken.getToken();
-					if (token.getAtomicParts().size()==0)
-						configurationComparisonIndex -= 1000;
-					else
-						configurationComparisonIndex -= (token.getAtomicParts().size() * 1000);
-				}
-				
-				// For transitions that don't affect the total count of buffer+stack
-				// add a small amount, to ensure the configuration
-				// after the transition gets compared with a new set of configurations
-				// and not the same set
-				for (int i = this.transitions.size()-1; i>=0; i--) {
-					Transition transition = this.transitions.get(i);
-					if (transition.doesReduce())
-						break;
-					else
-						configurationComparisonIndex += 1;
-				}
-			} // is the buffer empty?
-			comparisonIndexCalculated = true;
-		}
-		return configurationComparisonIndex;
-	}
-
 
 	@Override
 	public PosTaggedToken getHead(PosTaggedToken dependent) {
@@ -418,7 +386,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	}
 
 	@Override
-	public List<Solution<?>> getUnderlyingSolutions() {
+	public List<Solution> getUnderlyingSolutions() {
 		return underlyingSolutions;
 	}
 
@@ -441,8 +409,8 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		FeatureResult<Y> result = null;
 		
 		String key = feature.getName() + env.getKey();
-		if (this.featureResults.containsKey(key)) {
-			result = (FeatureResult<Y>) this.featureResults.get(key);
+		if (this.featureCache.containsKey(key)) {
+			result = (FeatureResult<Y>) this.featureCache.get(key);
 		}
 		return result;
 	}
@@ -451,7 +419,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	public <T, Y> void putResultInCache(Feature<T, Y> feature,
 			FeatureResult<Y> featureResult, RuntimeEnvironment env) {
 		String key = feature.getName() + env.getKey();
-		this.featureResults.put(key, featureResult);	
+		this.featureCache.put(key, featureResult);	
 	}
 
 	@Override
@@ -472,6 +440,44 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 
 	public int getNextDecisionToAdd() {
 		return nextDecisionToAdd;
+	}
+
+	@Override
+	public List<List<FeatureResult<?>>> getIncrementalFeatureResults() {
+		return incrementalFeatureResults;
+	}
+
+	@Override
+	public boolean canReach(RankingSolution correctSolution) {
+		if (correctSolution instanceof ParseConfiguration) {
+			ParseConfiguration configuration = (ParseConfiguration) correctSolution;
+			if (configuration.getTransitions().size()<this.getTransitions().size()) {
+				return false;
+			}
+			for (int i=0; i<this.getTransitions().size(); i++) {
+				Transition myTransition = this.getTransitions().get(i);
+				Transition hisTransition = configuration.getTransitions().get(i);
+				if (!myTransition.getCode().equals(hisTransition.getCode())) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public long getCreateDate() {
+		return createDate;
+	}
+
+	@Override
+	public List<String> getIncrementalOutcomes() {
+		List<String> outcomes = new ArrayList<String>();
+		for (Transition transition : this.transitions) {
+			outcomes.add(transition.getCode());
+		}
+		return outcomes;
 	}
 	
 	

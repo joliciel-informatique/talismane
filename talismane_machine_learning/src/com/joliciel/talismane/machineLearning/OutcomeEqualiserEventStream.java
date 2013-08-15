@@ -33,22 +33,22 @@ import java.util.Set;
  * @author Assaf Urieli
  *
  */
-public class OutcomeEqualiserEventStream implements CorpusEventStream {
+public class OutcomeEqualiserEventStream implements ClassificationEventStream {
 	
-	CorpusEventStream originalEventStream = null;
-	List<CorpusEvent> eventList = null;
+	ClassificationEventStream originalEventStream = null;
+	List<ClassificationEvent> eventList = null;
 	int eventIndex = 0;
 	double multiple = 1;
 	
-	public OutcomeEqualiserEventStream(CorpusEventStream originalEventStream, double multiple) {
+	public OutcomeEqualiserEventStream(ClassificationEventStream originalEventStream, double multiple) {
 		super();
 		this.originalEventStream = originalEventStream;
 		this.multiple = multiple;
 	}
 
 	@Override
-	public CorpusEvent next() {
-		CorpusEvent event = eventList.get(eventIndex);
+	public ClassificationEvent next() {
+		ClassificationEvent event = eventList.get(eventIndex);
 		eventIndex++;
 		return event;
 	}
@@ -61,13 +61,13 @@ public class OutcomeEqualiserEventStream implements CorpusEventStream {
 
 	void initialiseStream() {
 		if (eventList==null) {
-			Map<String,List<CorpusEvent>> eventOutcomeMap = new HashMap<String, List<CorpusEvent>>();
+			Map<String,List<ClassificationEvent>> eventOutcomeMap = new HashMap<String, List<ClassificationEvent>>();
 			while (originalEventStream.hasNext())
 			{
-				CorpusEvent event = originalEventStream.next();
-				List<CorpusEvent> eventsPerOutcome = eventOutcomeMap.get(event.getClassification());
+				ClassificationEvent event = originalEventStream.next();
+				List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(event.getClassification());
 				if (eventsPerOutcome==null) {
-					eventsPerOutcome = new ArrayList<CorpusEvent>();
+					eventsPerOutcome = new ArrayList<ClassificationEvent>();
 					eventOutcomeMap.put(event.getClassification(), eventsPerOutcome);
 				}
 				eventsPerOutcome.add(event);
@@ -85,14 +85,14 @@ public class OutcomeEqualiserEventStream implements CorpusEventStream {
 			
 			Random random = new Random(new Date().getTime());
 
-			eventList = new ArrayList<CorpusEvent>();
+			eventList = new ArrayList<ClassificationEvent>();
 			eventList.addAll(eventOutcomeMap.get(minOutcome));
 			
 			int maxSize = (int) ((double)minSize * multiple);
 			for (String outcome : eventOutcomeMap.keySet()) {
 				if (outcome.equals(minOutcome))
 					continue;
-				List<CorpusEvent> eventsPerOutcome = eventOutcomeMap.get(outcome);
+				List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(outcome);
 				if (eventsPerOutcome.size()<=maxSize)
 					eventList.addAll(eventsPerOutcome);
 				else {
@@ -105,7 +105,7 @@ public class OutcomeEqualiserEventStream implements CorpusEventStream {
 							index = random.nextInt(eventsPerOutcome.size());
 						usedUp.add(index);
 						
-						CorpusEvent event = eventsPerOutcome.get(index);
+						ClassificationEvent event = eventsPerOutcome.get(index);
 						eventList.add(event);
 					} // next randomly selected event
 				}
@@ -114,7 +114,7 @@ public class OutcomeEqualiserEventStream implements CorpusEventStream {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
+	public Map<String, String> getAttributes() {
 		return originalEventStream.getAttributes();
 	}
 }
