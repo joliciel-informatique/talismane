@@ -34,7 +34,8 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	private TokenSequence tokenSequence = null;
 	private List<Decision<TokeniserOutcome>> decisions = new ArrayList<Decision<TokeniserOutcome>>();
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
-	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
+	@SuppressWarnings("rawtypes")
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy<TokeniserOutcome>();
 	double score = 1.0;
 	boolean scoreCalculated = false;
 	
@@ -139,14 +140,16 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 		this.decisions.add(decision);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public ScoringStrategy getScoringStrategy() {
 		return scoringStrategy;
 	}
 
-	public void setScoringStrategy(ScoringStrategy scoringStrategy) {
+	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
 		this.scoringStrategy = scoringStrategy;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public double getScore() {
 		if (!scoreCalculated) {

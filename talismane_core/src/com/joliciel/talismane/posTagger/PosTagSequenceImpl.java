@@ -23,7 +23,8 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	private String string = null;
 	private List<Decision<PosTag>> decisions = new ArrayList<Decision<PosTag>>();
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
-	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
+	@SuppressWarnings("rawtypes")
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy<PosTag>();
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	
@@ -58,6 +59,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 		this.decisions = new ArrayList<Decision<PosTag>>(clone.getDecisions());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public double getScore() {
 		if (!scoreCalculated) {
@@ -167,11 +169,12 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 		this.decisions.add(decision);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public ScoringStrategy getScoringStrategy() {
 		return scoringStrategy;
 	}
 
-	public void setScoringStrategy(ScoringStrategy scoringStrategy) {
+	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
 		this.scoringStrategy = scoringStrategy;
 	}
 

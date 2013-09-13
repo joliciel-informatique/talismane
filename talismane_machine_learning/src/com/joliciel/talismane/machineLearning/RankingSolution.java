@@ -48,4 +48,11 @@ public interface RankingSolution extends Solution {
 	 * @return
 	 */
 	public boolean canReach(RankingSolution correctSolution);
+	
+	/**
+	 * The ranking score of this solution.
+	 * @return
+	 */
+	public double getRankingScore();
+	public void setRankingScore(double rankingScore);
 }

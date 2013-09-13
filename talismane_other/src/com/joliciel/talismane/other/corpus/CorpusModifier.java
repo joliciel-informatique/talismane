@@ -1,0 +1,109 @@
+///////////////////////////////////////////////////////////////////////////////
+//Copyright (C) 2013 Assaf Urieli
+//
+//This file is part of Talismane.
+//
+//Talismane is free software: you can redistribute it and/or modify
+//it under the terms of the GNU Affero General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//Talismane is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU Affero General Public License for more details.
+//
+//You should have received a copy of the GNU Affero General Public License
+//along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
+//////////////////////////////////////////////////////////////////////////////
+package com.joliciel.talismane.other.corpus;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.joliciel.talismane.parser.DependencyArc;
+import com.joliciel.talismane.parser.ParseConfiguration;
+import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+
+/**
+ * Modifies a corpus in simple ways, by replacing labels with other ones, or removing dependencies.<br/>
+ * The input file has the following format:<br/>
+ * GOV\tDEP\tLABEL\tACTION\tNEWLABEL<br/>
+ * Where GOV is the governor's pos-tag, or * for any.<br/>
+ * DEP is the dependent's pos-tag, or * for any<br/>
+ * LABEL is the current label, or * for any<br/>
+ * ACTION is either Replace or Remove<br/>
+ * NEWLABEL is a new label, only required if action is Replace.<br/>
+ * Any line starting with # is ignored.
+ * @author Assaf Urieli
+ *
+ */
+public class CorpusModifier implements ParseConfigurationProcessor {
+	ParseConfigurationProcessor wrappedProcessor = null;
+	private List<ModifyCommand> commands = new ArrayList<ModifyCommand>();
+	private enum ModifyCommandType {
+		Remove,
+		Replace
+	}
+	private static final String WILDCARD = "*";
+	
+	public CorpusModifier(ParseConfigurationProcessor wrappedProcessor, List<String> commandList) {
+		super();
+		this.wrappedProcessor = wrappedProcessor;
+		for (String command : commandList) {
+			if (!command.startsWith("#")) {
+				ModifyCommand modifyCommand = new ModifyCommand();
+				String[] parts = command.split("\t");
+				modifyCommand.governor = parts[0];
+				modifyCommand.dependent = parts[1];
+				modifyCommand.label = parts[2];
+				modifyCommand.command = ModifyCommandType.valueOf(parts[3]);
+				if (modifyCommand.command==ModifyCommandType.Replace) {
+					modifyCommand.newLabel = parts[4];
+				}
+				commands.add(modifyCommand);
+			}
+		}
+	}
+
+	@Override
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+		
+		List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
+		for (DependencyArc arc : arcs) {
+			for (ModifyCommand command : commands) {
+				boolean applyCommand=true;
+				if (!command.governor.equals(WILDCARD)&&!command.governor.equals(arc.getHead().getTag().getCode())) {
+					applyCommand = false;
+				}
+				if (!command.dependent.equals(WILDCARD)&&!command.dependent.equals(arc.getDependent().getTag().getCode())) {
+					applyCommand = false;
+				}
+				if (!command.label.equals(WILDCARD)&&!command.label.equals(arc.getLabel())) {
+					applyCommand = false;
+				}
+
+				if (applyCommand) {
+					parseConfiguration.getDependencies().remove(arc);
+					parseConfiguration.addDependency(arc.getHead(), arc.getDependent(), command.newLabel, null);
+				}
+			}
+		}
+		parseConfiguration.clearMemory();
+		this.wrappedProcessor.onNextParseConfiguration(parseConfiguration);
+	}
+
+	@Override
+	public void onCompleteParse() {
+		this.wrappedProcessor.onCompleteParse();
+	}
+	
+	private static final class ModifyCommand {
+		public String governor;
+		public String dependent;
+		public String label;
+		public ModifyCommandType command;
+		public String newLabel;
+	}
+
+}

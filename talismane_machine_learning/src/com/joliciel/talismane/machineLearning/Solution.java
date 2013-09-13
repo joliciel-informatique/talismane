@@ -3,7 +3,6 @@ package com.joliciel.talismane.machineLearning;
 import java.util.List;
 
 public interface Solution {
-
 	/**
 	 * This solution's total score.
 	 */
@@ -17,5 +16,12 @@ public interface Solution {
 	 */
 	public List<Solution> getUnderlyingSolutions();
 
-
+	
+	/**
+	 * Get the scoring strategy for this solution.
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public ScoringStrategy getScoringStrategy();
+	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy);
 }

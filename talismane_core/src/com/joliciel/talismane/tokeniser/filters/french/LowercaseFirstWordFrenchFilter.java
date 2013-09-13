@@ -53,9 +53,9 @@ public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
 		String word1 = "";
 		String word2 = "";
 		
-		if (tokenSequence.size()>0) word0 = tokenSequence.get(startIndex).getText();
-		if (tokenSequence.size()>1) word1 = tokenSequence.get(startIndex+1).getText();
-		if (tokenSequence.size()>2) word2 = tokenSequence.get(startIndex+2).getText();
+		if (tokenSequence.size()>startIndex) word0 = tokenSequence.get(startIndex).getText();
+		if (tokenSequence.size()>startIndex+1) word1 = tokenSequence.get(startIndex+1).getText();
+		if (tokenSequence.size()>startIndex+2) word2 = tokenSequence.get(startIndex+2).getText();
 
 		boolean word0IsInteger = false;
 		try {

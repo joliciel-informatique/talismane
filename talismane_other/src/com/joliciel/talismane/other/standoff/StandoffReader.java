@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.standoff;
+package com.joliciel.talismane.other.standoff;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +34,7 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
@@ -77,6 +78,8 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	
 	private Map<String, StandoffToken> tokenMap = new HashMap<String, StandoffReader.StandoffToken>();
 	private Map<String, StandoffRelation> relationMap = new HashMap<String, StandoffReader.StandoffRelation>();
+	private Map<String, StandoffRelation> idRelationMap = new HashMap<String, StandoffReader.StandoffRelation>();
+	private Map<String, String> notes = new HashMap<String, String>();
 	
 	private List<List<StandoffToken>> sentences = new ArrayList<List<StandoffReader.StandoffToken>>();
 
@@ -117,6 +120,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 			} else if (line.startsWith("R")) {
 				
 				String[] parts = line.split("[\\t :]");
+				String id = parts[0];
 				String label = parts[1];
 				String headId = parts[3];
 				String dependentId = parts[5];
@@ -124,7 +128,24 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 				relation.fromToken = headId;
 				relation.toToken = dependentId;
 				relation.label = label;
+				idRelationMap.put(id, relation);
 				relationMap.put(dependentId, relation);
+			} else if (line.startsWith("#")) {
+				String[] parts = line.split("\t");
+				String itemId = parts[1].substring("AnnotatorNotes ".length());
+				String note = parts[2];
+				notes.put(itemId, note);
+			}
+		}
+		
+		for (String itemId : notes.keySet()) {
+			String comment = notes.get(itemId);
+			if (itemId.startsWith("R")) {
+				StandoffRelation relation = idRelationMap.get(itemId);
+				relation.comment = comment;
+			} else {
+				StandoffToken token = tokenMap.get(itemId);
+				token.comment = comment;
 			}
 		}
 		
@@ -162,6 +183,8 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 					if (LOG.isTraceEnabled()) {
 						LOG.trace(posTaggedToken.toString());
 					}
+					
+					posTaggedToken.setComment(standoffToken.comment);
 					
 					posTagSequence.addPosTaggedToken(posTaggedToken);
 					idTokenMap.put(standoffToken.id, posTaggedToken);
@@ -202,7 +225,8 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 						if (dependent==null) {
 							throw new TalismaneException("No token found for dependent id: " + relation.toToken);
 						}
-						configuration.addDependency(head, dependent, relation.label, null);
+						DependencyArc arc = configuration.addDependency(head, dependent, relation.label, null);
+						arc.setComment(relation.comment);
 					}
 				}
 	
@@ -311,12 +335,14 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		public PosTag posTag;
 		public String text;
 		public String id;
+		public String comment = "";
 	}
 	
 	private static final class StandoffRelation {
 		public String label;
 		public String fromToken;
 		public String toToken;
+		public String comment = "";
 	}
 
 	public int getIncludeIndex() {

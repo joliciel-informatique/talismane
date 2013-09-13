@@ -1,5 +1,3 @@
-# Function library
-	IsMonthName	Word("janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre","jan.","jan","fév.","fév","avr.","avr","juil.","juil","juill.","juill","sept.","sept","oct.","oct","nov.","nov","déc.","déc")
 ###### CONSTRAINTS ######
 !ADVWH	Not(LexiconPosTag("ADVWH"))
 !CC	Not(LexiconPosTag("CC"))
@@ -32,4 +30,6 @@
 ###### Token patterns ######
 NPP	Word("EntitéNomméeURL")
 NPP	Word("EntitéNomméeAdresseMail")
+P	Word("i.e.")
+P	Word("e.g.")
 PONCT	Regex("[\.\?\!]+")

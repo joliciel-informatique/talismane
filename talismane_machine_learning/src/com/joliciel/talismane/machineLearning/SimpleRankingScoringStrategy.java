@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,15 +16,16 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser;
+package com.joliciel.talismane.machineLearning;
 
-import java.util.Map;
-import java.util.Set;
-
-import com.joliciel.talismane.posTagger.PosTaggedToken;
-
-interface ParseConfigurationInternal extends ParseConfiguration {
-	public Map<PosTaggedToken, Transition> getDependentTransitionMap();
-	public long getCreateDate();
-	public Set<DependencyArc> getDependenciesInternal();
+/**
+ * Returns the ranking score previously assigned without further manipulation.
+ * @author Assaf Urieli
+ *
+ */
+public class SimpleRankingScoringStrategy implements ScoringStrategy<RankingSolution> {
+	@Override
+	public double calculateScore(RankingSolution solution) {
+		return solution.getRankingScore();
+	}
 }

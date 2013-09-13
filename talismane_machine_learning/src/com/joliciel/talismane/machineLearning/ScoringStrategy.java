@@ -23,11 +23,11 @@ package com.joliciel.talismane.machineLearning;
  * @author Assaf Urieli
  *
  */
-public interface ScoringStrategy {
+public interface ScoringStrategy<T extends Solution> {
 	/**
 	 * Calculate the score of a given solution.
 	 * @param solution
 	 * @return
 	 */
-	public double calculateScore(ClassificationSolution<?> solution);
+	public double calculateScore(T solution);
 }

@@ -39,12 +39,14 @@ import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.ftbDep.FtbDepReader;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.other.Extensions;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
@@ -85,6 +87,9 @@ public class TalismaneFrench extends TalismaneConfig {
     		argsMap.remove("keepCompoundPosTags");
     	}
     	
+    	Extensions extensions = new Extensions();
+    	extensions.pluckParameters(argsMap);
+    	
     	TalismaneFrench config = new TalismaneFrench(argsMap);
     	if (config.getCommand()==null)
     		return;
@@ -93,8 +98,10 @@ public class TalismaneFrench extends TalismaneConfig {
     		if (corpusReaderType.equals("ftbDep")) {
     			File inputFile = new File(config.getInFilePath());
     			FtbDepReader ftbDepReader = new FtbDepReader(inputFile, config.getInputCharset());
-
+    			
     			ftbDepReader.setKeepCompoundPosTags(keepCompoundPosTags);
+    			ftbDepReader.setPredictTransitions(config.isPredictTransitions());
+    			
 	  			config.setParserCorpusReader(ftbDepReader);
 				config.setPosTagCorpusReader(ftbDepReader);
 				config.setTokenCorpusReader(ftbDepReader);
@@ -129,12 +136,16 @@ public class TalismaneFrench extends TalismaneConfig {
   				
   				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
   				config.setSentenceCorpusReader(sentenceCorpusReader);
+	  		} else {
+	  			throw new TalismaneException("Unknown corpusReader: " + corpusReaderType);
 	  		}
     	}
     	
     	TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
     	TalismaneService talismaneService = talismaneServiceLocator.getTalismaneService();
     	Talismane talismane = talismaneService.getTalismane();
+    	
+    	extensions.prepareCommand(config, talismane);
     	
     	talismane.runCommand(config);
 	}
@@ -216,25 +227,25 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultSentenceModelStream() {
-		String sentenceModelName = "ftbSentenceDetector_fr5.zip";
+		String sentenceModelName = "ftbAll_SentenceDetector_baseline1.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(sentenceModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		String tokeniserModelName = "ftbTokeniser_compound_8_cutoff3.zip";
+		String tokeniserModelName = "ftbAll_tokeniser_baseline2_cutoff3.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(tokeniserModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultPosTaggerModelStream() {
-		String posTaggerModelName = "ftbPosTagger_fr21_cutoff3.zip";
+		String posTaggerModelName = "ftbAll_PosTagger_baseline2_cutoff7.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(posTaggerModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultParserModelStream() {
-		String parserModelName = "ftbDep_parser_arcEager_20_cutoff5.zip";
+		String parserModelName = "ftbDepAll_parser_arcEager_22_Cutoff7.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 

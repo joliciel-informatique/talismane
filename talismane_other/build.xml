@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="jar" name="talismane-standoff">
+<project default="jar" name="talismane-other">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required -->
     <import file="../ant/global.xml"/>
@@ -37,7 +37,6 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 			<!-- build output path -->
 			<pathelement location="${classes}"/>
@@ -51,7 +50,6 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 		</path>
 	</target>
@@ -93,45 +91,9 @@
 	    </manifestclasspath>
 		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}">
 			<manifest>
-	    		<attribute name="Main-Class" value="com.joliciel.talismane.fr.TalismaneFrench"/>
+	    		<!--<attribute name="Main-Class" value="com.joliciel.talismane.fr.TalismaneFrench"/>-->
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
-		<zip destfile="${dist}/${project}-${talismane.version}.zip">
-			<fileset file="${dist}/${project}-${talismane.version}.jar" />
-			<fileset dir="${dist}">
-				<include name="lib/*.jar" />
-				<include name="talismane-utils-${talismane.version}.jar" />
-				<include name="talismane-machineLearning-${talismane.version}.jar" />
-				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-fr-${talismane.version}.jar" />
-			</fileset>
-		</zip>
 	</target>
-		
-	<target name="one-jar" depends="jar">
-        <!-- Construct the One-JAR file -->   
-        <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
-        	<manifest>
-        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.standoff.Main" />
-        	</manifest>
-            <main>
-                <!-- Construct main.jar from classes and source code -->
-                <fileset dir="${classes}"/>
-            </main>
-            <lib>
-		<fileset dir="${sharedLib}">
-			<include name="**/*.jar" />
-		</fileset>
-		<fileset dir="${dist}">
-			<include name="talismane-utils-${talismane.version}.jar" />
-			<include name="talismane-machineLearning-${talismane.version}.jar" />
-			<include name="talismane-core-${talismane.version}.jar" />
-			<include name="talismane-lefff-${talismane.version}.jar" />
-			<include name="talismane-fr-${talismane.version}.jar" />
-		</fileset>
-            </lib>
-        </one-jar>
-    </target>
 </project>

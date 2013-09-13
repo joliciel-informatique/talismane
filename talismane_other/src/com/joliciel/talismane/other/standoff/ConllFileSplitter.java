@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.standoff;
+package com.joliciel.talismane.other.standoff;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,8 +24,17 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.util.Map;
 import java.util.Scanner;
 
+import com.joliciel.talismane.TalismaneConfig;
+import com.joliciel.talismane.TalismaneException;
+
+/**
+ * Class for splitting a CoNNL file into lots of smaller files.
+ * @author Assaf Urieli
+ *
+ */
 public class ConllFileSplitter {
 	private static DecimalFormat df = new DecimalFormat("000");
 	
@@ -56,7 +65,7 @@ public class ConllFileSplitter {
 					hasSentence = true;
 					sentenceCount++;
 				}
-				if (writer==null || sentenceCount % 20==1) {
+				if (writer==null || sentenceCount % 20==0) {
 					if (writer!=null) {
 						writer.flush();
 						writer.close();
@@ -79,4 +88,23 @@ public class ConllFileSplitter {
 		}
 	}
 
+	public static void main(String[] args) throws Exception {
+    	Map<String,String> innerArgs = TalismaneConfig.convertArgs(args);
+		String filePath = null;
+		if (innerArgs.containsKey("inFile"))
+			filePath = innerArgs.get("inFile");
+		else
+			throw new TalismaneException("Missing option: inFile");
+		
+		int startIndex = 1;
+		if (innerArgs.containsKey("startIndex"))  {
+			startIndex = Integer.parseInt(innerArgs.get("startIndex"));
+		}
+		
+		String encoding = "UTF-8";
+		if (innerArgs.containsKey("encoding"))
+			encoding = innerArgs.get("encoding");
+		ConllFileSplitter splitter = new ConllFileSplitter();
+		splitter.split(filePath, startIndex, encoding);
+	}
 }

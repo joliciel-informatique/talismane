@@ -96,6 +96,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("<=", LessThanOrEqualsOperator.class);
 			this.addFeatureClass("&", AndFeature.class);
 			this.addFeatureClass("|", OrFeature.class);
+			this.addFeatureClass("||", ConcatenateFeature.class);
 			this.addFeatureClass("ConcatWithNulls", ConcatenateWithNullsFeature.class);
 			this.addFeatureClass("Concat", ConcatenateFeature.class);
 			this.addFeatureClass("And", AndFeature.class);
@@ -262,6 +263,9 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 										StringCollectionFeature<T> stringCollectionFeature = (StringCollectionFeature<T>) oneArgument;
 										StringCollectionFeatureProxy<T> proxy = new StringCollectionFeatureProxy<T>(stringCollectionFeature);
 										oneArgument = proxy;
+									}
+									if (!clazz.isAssignableFrom(oneArgument.getClass())) {
+										throw new FeatureSyntaxException("Mismatched array types: " + clazz.getSimpleName() + ", " + oneArgument.getClass().getSimpleName(), descriptor, topLevelDescriptor);
 									}
 									argumentArray[j++] = oneArgument;
 								} // next argument
@@ -556,6 +560,14 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 						Feature<T,?> wrappedFeature = ((FeatureWrapper<T,?>) feature).getWrappedFeature();
 						wrappedFeature.setName(featureName);
 						feature = wrappedFeature;
+					}
+					// now, if this is a top-level wrapper for a string-collection feature, set the wrapped feature's name
+					// this allows us to use the same string-collection feature twice with two different names,
+					// thus making them not equal to each other, which means we can override the default
+					// behaviour and induce a cross-product between the two
+					if (feature instanceof StringCollectionFeatureProxy) {
+						StringCollectionFeature<?> stringCollectionFeature = ((StringCollectionFeatureProxy<?>)feature).getStringCollectionFeature();
+						stringCollectionFeature.setName(featureName);
 					}
 				} // exactly one feature returned
 			} // has a descriptor name

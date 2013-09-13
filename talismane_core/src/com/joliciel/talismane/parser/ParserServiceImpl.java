@@ -254,22 +254,21 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public Ranker<PosTagSequence> getRanker(
 			ParsingConstrainer parsingConstrainer,
 			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
-		TransitionBasedGlobalLearningParser parser = new TransitionBasedGlobalLearningParser(parsingConstrainer, parseFeatures, beamWidth);
-		parser.setParserServiceInternal(this);
-		parser.setFeatureService(this.getFeatureService());
+		TransitionBasedGlobalLearningParser parser = this.getTransitionBasedGlobalLearningParser(null, parsingConstrainer, parseFeatures, beamWidth);
 		// if training, don't set a maximum time per sentence
 		parser.setMaxAnalysisTimePerSentence(0);
 		return parser;
 	}
 
 	@Override
-	public NonDeterministicParser getTransitionBasedGlobalLearningParser(
+	public TransitionBasedGlobalLearningParser getTransitionBasedGlobalLearningParser(
 			FeatureWeightVector featureWeightVector,
 			ParsingConstrainer parsingConstrainer,
 			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		TransitionBasedGlobalLearningParser parser = new TransitionBasedGlobalLearningParser(featureWeightVector, parsingConstrainer, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
 		parser.setFeatureService(this.getFeatureService());
+		parser.setMachineLearningService(this.getMachineLearningService());
 		return parser;
 	}
 

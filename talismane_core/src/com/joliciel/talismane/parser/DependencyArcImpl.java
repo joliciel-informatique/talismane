@@ -24,6 +24,7 @@ class DependencyArcImpl implements DependencyArc {
 	private PosTaggedToken head;
 	private PosTaggedToken dependent;
 	private String label;
+	private String comment = "";
 	private double probability;
 
 	public DependencyArcImpl(PosTaggedToken head, PosTaggedToken dependent,
@@ -105,4 +106,11 @@ class DependencyArcImpl implements DependencyArc {
 		this.probability = probability;
 	}
 
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 }

@@ -30,10 +30,12 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class TokenIndexFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper>  {	
+
 	public TokenIndexFeature() {
 	}
 	
 	public TokenIndexFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+		this();
 		this.setAddressFunction(addressFunction);
 	}
 	

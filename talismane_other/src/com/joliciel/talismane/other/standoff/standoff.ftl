@@ -2,6 +2,7 @@
 [#assign tIndex=tokenCount+1]
 [#assign rIndex=relationCount+1]
 [#assign cIndex=(sentenceCount * 6) + characterCount]
+[#assign commentIndex = 1]
 [#list sentence as unit]
 [#if unit.token.index==0]
 T${tIndex?c}	ROOT ${cIndex?c} ${(cIndex+4)?c}	ROOT
@@ -12,9 +13,17 @@ T${tIndex?c}	${unit.tag.code?replace("+","_")} ${(cIndex + unit.token.startIndex
 [#else]
 T${tIndex?c}	${unit.tag.code?replace("+","_")} ${(cIndex + unit.token.startIndex+5)?c} ${(cIndex +unit.token.endIndex+5)?c}	${unit.token.originalText}
 [/#if]
+[#if unit.token.comment?length>0]
+#${commentIndex}	AnnotatorNotes T${tIndex?c}	${unit.token.comment}
+[#assign commentIndex=commentIndex+1]
+[/#if]
 [#assign tIndex=tIndex+1]
 [/#list]
 [#list dependencies as arc]
 R${rIndex?c}	[#if arc.label??][#if arc.label?length==0]null[#else]${arc.label}[/#if][#else]null[/#if] Arg1:T${(tokenCount + arc.head.token.index+1)?c} Arg2:T${(tokenCount + arc.dependent.token.index+1)?c}
+[#if arc.comment?length>0]
+#${commentIndex}	AnnotatorNotes R${rIndex?c}	${arc.comment}
+[#assign commentIndex=commentIndex+1]
+[/#if]
 [#assign rIndex=rIndex+1]
 [/#list]

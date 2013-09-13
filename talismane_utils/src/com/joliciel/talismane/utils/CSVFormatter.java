@@ -175,6 +175,48 @@ public class CSVFormatter {
 	}
 	
 	/**
+	 * Get the zero-based column index corresponding to a particular label, e.g. BB=(26*2)+2-1=54-1=53.
+	 * @param label
+	 * @return
+	 */
+	public int getColumnIndex(String label) {
+		int result=0;
+		int multiplier = 1;
+		for (int i=label.length()-1; i>=0; i--) {
+			char c = label.charAt(i);
+			if (c>='A' && c<='Z') {
+				int pos = ALPHABET.indexOf(c) + 1;
+				result += pos * multiplier;
+				multiplier *= 26;
+			}
+		}
+		result -= 1;
+		return result;
+	}
+	
+	/**
+	 * Get the zero-based row index corresponding to a particular label, e.g. BB19 = 18
+	 * @param label
+	 * @return
+	 */
+	public int getRowIndex(String label){
+		int result = 0;
+		int multiplier = 1;
+		for (int i=label.length()-1; i>=0; i--) {
+			char c = label.charAt(i);
+			if (c>='0' && c<='9') {
+				int digit = c - '0';
+				result += digit * multiplier;
+				multiplier *= 10;
+			} else {
+				break;
+			}
+		}
+		result -=1;
+		return result;
+	}
+	
+	/**
 	 * Whether or not to systematically add quotes around all cell contents.
 	 * @param addQuotesAlways
 	 */

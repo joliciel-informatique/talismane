@@ -101,7 +101,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 			} else if (parts.length==3) {
 				filter = this.getTokenRegexFilter(parts[1], parts[2]);
 			} else {
-				throw new TalismaneException("Wrong number of arguments for " + TokenRegexFilter.class.getSimpleName() + ". Expected 2 or 3, but was " + parts.length);
+				throw new TalismaneException("Wrong number of arguments for " + TokenRegexFilter.class.getSimpleName() + ". Expected 3 or 4, but was " + parts.length);
 			}
 		} else {
 			throw new TalismaneException("Unknown TokenFilter: " + parts[0]);

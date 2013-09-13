@@ -46,7 +46,6 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	 * This parse configuration's score.
 	 */
 	public double getScore();
-	public void setScore(double score);
 	
 	/**
 	 * The list of transitions which generated the present parse configuration.
@@ -117,6 +116,14 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	 * @return
 	 */
 	public List<PosTaggedToken> getDependents(PosTaggedToken head);
+	
+	/**
+	 * Get all dependents from left-to-rigth for a given head and given dependency label.
+	 * @param head
+	 * @param label
+	 * @return
+	 */
+	public List<PosTaggedToken> getDependents(PosTaggedToken head, String label);
 	
 	/**
 	 * Get the transition which generated the dependency arc provided.
