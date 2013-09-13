@@ -50,6 +50,7 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		container.addFeatureClass("Buffer", AddressFunctionBuffer.class);
 		container.addFeatureClass("Dep", AddressFunctionDep.class);
 		container.addFeatureClass("DependencyLabel", DependencyLabelFeature.class);
+		container.addFeatureClass("DependencyLabelSet", DependencyLabelSetFeature.class);
 		container.addFeatureClass("DependentCountIf", DependentCountIf.class);
 		container.addFeatureClass("Distance", DistanceFeature.class);
 		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
@@ -60,6 +61,8 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		container.addFeatureClass("RDep", AddressFunctionRDep.class);
 		container.addFeatureClass("Seq", AddressFunctionSequence.class);
 		container.addFeatureClass("Stack", AddressFunctionStack.class);
+		container.addFeatureClass("Valency", ValencyFeature.class);
+		container.addFeatureClass("Valency", ValencyByLabelFeature.class);
 		
 		PosTagFeatureParser.addPosTaggedTokenFeatureClasses(container);
 

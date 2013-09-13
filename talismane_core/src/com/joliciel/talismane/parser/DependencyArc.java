@@ -52,4 +52,11 @@ public interface DependencyArc extends Comparable<DependencyArc> {
 	 */
 	public double getProbability();
 	public void setProbability(double probability);
+	
+	/**
+	 * A comment regarding this depenency arc annotation.
+	 * @return
+	 */
+	public String getComment();
+	public void setComment(String comment);
 }

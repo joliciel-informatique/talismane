@@ -85,4 +85,13 @@ public interface MachineLearningService {
 	 * @return
 	 */
 	public ExternalResourceFinder getExternalResourceFinder();
+	
+	/**
+	 * Create a decision as though it were made by a statistical engine.
+	 * @param <T>
+	 * @param outcome
+	 * @param probability
+	 * @return
+	 */
+	public <T extends Outcome> Decision<T> createDecision(T outcome, double probability);
 }

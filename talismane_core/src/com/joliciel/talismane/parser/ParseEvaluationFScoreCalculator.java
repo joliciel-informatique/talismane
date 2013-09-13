@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -51,23 +52,30 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 			List<ParseConfiguration> guessedConfigurations) {
 		PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();		
 		ParseConfiguration bestGuess = guessedConfigurations.get(0);
+		int mismatchedTokens = 0;
 		for (PosTaggedToken posTaggedToken : posTagSequence) {
 			if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
 				DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
 				
 				DependencyArc guessedArc = null;
 
+				boolean foundToken = false;
 				for (PosTaggedToken guessedToken : bestGuess.getPosTagSequence()) {
 					if (guessedToken.getToken().getStartIndex()==posTaggedToken.getToken().getStartIndex()) {
 						if (guessedToken.getToken().isEmpty()&&!posTaggedToken.getToken().isEmpty())
 							continue;
 						if (!guessedToken.getToken().isEmpty()&&posTaggedToken.getToken().isEmpty())
 							continue;
+						foundToken = true;
 						guessedArc = bestGuess.getGoverningDependency(guessedToken);
 						break;
 					}
 				}
-
+				
+				if (!foundToken) {
+					LOG.info("Mismatched token :" + posTaggedToken.getToken().getText() + ", index " + posTaggedToken.getToken().getIndex());
+					mismatchedTokens+=1;
+				}
 				
 				String realLabel = realArc==null ? "noHead" : labeledEvaluation ? realArc.getLabel() : "head";
 				String guessedLabel = guessedArc==null ? "noHead" : labeledEvaluation ? guessedArc.getLabel() : "head";
@@ -96,8 +104,13 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 						fscoreCalculator.increment(realLabel, "wrongHeadWrongLabel");
 					}
 					
-				}
-			}
+				} // have one of the arcs
+			} // is root tag?
+		} // next pos-tagged token
+		
+		if ((double) mismatchedTokens / (double) posTagSequence.size() > 0.5) {
+			// more than half of the tokens mismatched?
+			throw new TalismaneException("Too many mismatched tokens in sentence: " + posTagSequence.getTokenSequence().getSentence().getText());
 		}
 	}
 

@@ -24,9 +24,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneException;
+
 
 class ParseComparatorImpl implements ParseComparator {
-	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(ParseComparatorImpl.class);
 	private int sentenceCount = 0;
 	
@@ -42,6 +43,18 @@ class ParseComparatorImpl implements ParseComparator {
 			ParseConfiguration guessConfiguaration = evaluationCorpusReader.nextConfiguration();
 			List<ParseConfiguration> guessConfigurations = new ArrayList<ParseConfiguration>();
 			guessConfigurations.add(guessConfiguaration);
+			
+			double realLength = realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
+			double guessedLength = guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
+			
+			double ratio = realLength > guessedLength ? guessedLength / realLength : realLength / guessedLength;
+			if (ratio < 0.9) {
+				LOG.info("Mismatched sentences");
+				LOG.info(realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText());
+				LOG.info(guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText());
+				
+				throw new TalismaneException("Mismatched sentences");
+			}
 			
 			for (ParseEvaluationObserver observer : this.observers) {
 				observer.onNextParseConfiguration(realConfiguration, guessConfigurations);

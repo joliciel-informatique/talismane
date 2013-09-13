@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,12 +26,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * An arc-eager Shift-Reduce transition system, as described in Nivre 2009 Dependency Parsing, Chapter 3,
  * in which right-depedencies are attached as soon as possible, rather than waiting until all left-dependencies
  * have been attached.
+ * We allow for corpora with unattached nodes, by applying the reduce transition, rather than artificially attaching
+ * these nodes to the root, which could incur non-projectivity.
  * @author Assaf Urieli
  *
  */
@@ -45,6 +49,9 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 		LOG.debug("predictTransitions");
 		LOG.debug(configuration.toString());
 		LOG.debug(targetDependencies);
+		
+		Set<PosTaggedToken> ungovernedTokens = new HashSet<PosTaggedToken>();
+		
 		while (!configuration.getBuffer().isEmpty()) {
 			PosTaggedToken stackHead = configuration.getStack().peek();
 			PosTaggedToken bufferHead = configuration.getBuffer().peekFirst();
@@ -59,7 +66,11 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 				}
 				
 				if (arc.getHead().equals(stackHead)&&arc.getDependent().equals(bufferHead)) {
-					transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+					if (stackHead.getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel()==null || arc.getLabel().length()==0)) {
+						ungovernedTokens.add(bufferHead);
+					} else {
+						transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+					}
 					currentDep = arc;
 					break;
 				}
@@ -67,8 +78,9 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 			
 			if (transition==null) {
 				boolean stackHeadHasGovernor = configuration.getHead(stackHead)!=null;
+				boolean stackHeadUngoverned = ungovernedTokens.contains(stackHead);
 				boolean stackHeadHasDependents = false;
-				if (stackHeadHasGovernor) {
+				if (stackHeadHasGovernor || stackHeadUngoverned) {
 					for (DependencyArc arc : targetDependencies) {
 						if (arc.getHead().equals(stackHead)) {
 							stackHeadHasDependents = true;
@@ -77,7 +89,7 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 					}
 				}
 	
-				if (stackHeadHasGovernor && !stackHeadHasDependents) {
+				if ((stackHeadHasGovernor || stackHeadUngoverned) && !stackHeadHasDependents) {
 					transition = this.getTransitionForCode("Reduce");
 				}
 			}

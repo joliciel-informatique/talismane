@@ -45,6 +45,7 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	private String tense = null;
 	private String person = null;
 	private String possessorNumber = null;
+	private String comment = "";
 	
 	PosTaggedTokenImpl(PosTaggedTokenImpl taggedTokenToClone) {
 		super(taggedTokenToClone);
@@ -172,6 +173,14 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public String getPossessorNumber() {
 		this.getLexicalEntry();
 		return possessorNumber;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 	
 	

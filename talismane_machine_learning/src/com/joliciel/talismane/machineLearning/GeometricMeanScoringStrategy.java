@@ -26,11 +26,11 @@ import org.apache.commons.logging.LogFactory;
  * @author Assaf Urieli
  *
  */
-public class GeometricMeanScoringStrategy implements ScoringStrategy {
+public class GeometricMeanScoringStrategy<T extends Outcome> implements ScoringStrategy<ClassificationSolution<T>> {
 	private static final Log LOG = LogFactory.getLog(GeometricMeanScoringStrategy.class);
 
 	@Override
-	public double calculateScore(ClassificationSolution<?> solution) {
+	public double calculateScore(ClassificationSolution<T> solution) {
 		double score = 0;
 		if (solution!=null && solution.getDecisions().size()>0) {
 			for (Decision<?> decision : solution.getDecisions())

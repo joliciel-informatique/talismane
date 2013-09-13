@@ -89,4 +89,11 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * @return
 	 */
 	public String getPossessorNumber();
+	
+	/**
+	 * A comment regarding this pos-tag annotation.
+	 * @return
+	 */
+	public String getComment();
+	public void setComment(String comment);
 }

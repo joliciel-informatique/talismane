@@ -424,6 +424,41 @@ public class FScoreCalculator<E> {
 			throw new RuntimeException(ioe);
 		}
 	}
+	/**
+	 * The total accuracy for this confusion matrix.
+	 * @return
+	 */
+	public double getAccuracy() {
+		double totalCount = (double) testCount;
+		double totalAccuracy = (double) totalTruePositiveCount / totalCount;
+		return totalAccuracy;
+	}
+	
+	/**
+	 * Return Cohen's kappa for this confusion matrix.
+	 * @return
+	 */
+	public double getKappa() {
+		double totalCount = (double) testCount;
+		double totalAccuracy = (double) totalTruePositiveCount / totalCount;
+		
+		// random accuracy is the sum of products for marginal accuracies for each label
+		double randomAccuracy = 0.0;
+		for (E outcome : outcomeSet) {
+			Integer truePositiveCountObj = truePositiveCounts.get(outcome);
+			Integer falsePositiveCountObj = falsePositiveCounts.get(outcome);
+			Integer falseNegativeCountObj = falseNegativeCounts.get(outcome);
+			double truePositiveCount = truePositiveCountObj!=null ? truePositiveCountObj.doubleValue() : 0.0;
+			double falsePositiveCount = falsePositiveCountObj!=null ? falsePositiveCountObj.doubleValue() : 0.0;
+			double falseNegativeCount = falseNegativeCountObj!=null ? falseNegativeCountObj.doubleValue() : 0.0;
+			double marginalRandomAccuracy = ((truePositiveCount + falsePositiveCount) / totalCount)
+				* ((truePositiveCount + falseNegativeCount) / totalCount);
+			randomAccuracy += marginalRandomAccuracy;
+		}
+		
+		double kappa = (totalAccuracy - randomAccuracy) / (1 - randomAccuracy);
+		return kappa;
+	}
 	
 	public void writeScoresToCSV(Writer fscoreFileWriter) {
 		try {
@@ -492,6 +527,29 @@ public class FScoreCalculator<E> {
 			fscoreFileWriter.write(CSV.format((totalRecallSum/outcomeSet.size())*100));
 			fscoreFileWriter.write(CSV.format((totalFscoreSum/outcomeSet.size())*100));
 			fscoreFileWriter.write("\n");
+			
+			fscoreFileWriter.write(CSV.format("ACCURACY"));
+			for (E outcome : outcomeSet) {
+				outcome.hashCode();
+				fscoreFileWriter.write(CSV.format(""));
+			}
+			fscoreFileWriter.write(CSV.format(""));
+			fscoreFileWriter.write(CSV.format(""));
+			fscoreFileWriter.write(CSV.format(""));
+			fscoreFileWriter.write(CSV.format(this.getAccuracy()*100));
+			fscoreFileWriter.write("\n");
+
+			fscoreFileWriter.write(CSV.format("KAPPA"));
+			for (E outcome : outcomeSet) {
+				outcome.hashCode();
+				fscoreFileWriter.write(CSV.format(""));
+			}
+			fscoreFileWriter.write(CSV.format(""));
+			fscoreFileWriter.write(CSV.format(""));
+			fscoreFileWriter.write(CSV.format(""));
+			fscoreFileWriter.write(CSV.format(this.getKappa()*100));
+			fscoreFileWriter.write("\n");
+
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}

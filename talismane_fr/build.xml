@@ -37,6 +37,7 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
+				<include name="talismane-other-${talismane.version}.jar" />
 				<include name="talismane-ftbDep-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 			</fileset>
@@ -52,6 +53,7 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
+				<include name="talismane-other-${talismane.version}.jar" />
 				<include name="talismane-ftbDep-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 			</fileset>
@@ -107,6 +109,7 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
+				<include name="talismane-other-${talismane.version}.jar" />
 				<include name="talismane-ftbDep-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 			</fileset>
@@ -132,6 +135,7 @@
 			<include name="talismane-machineLearning-${talismane.version}.jar" />
 			<include name="talismane-core-${talismane.version}.jar" />
 			<include name="talismane-lefff-${talismane.version}.jar" />
+			<include name="talismane-other-${talismane.version}.jar" />
 			<include name="talismane-ftbDep-${talismane.version}.jar" />
 			<include name="talismane-ftb-${talismane.version}.jar" />
 		</fileset>

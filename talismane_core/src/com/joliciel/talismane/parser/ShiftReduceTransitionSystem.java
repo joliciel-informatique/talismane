@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,10 +26,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The arc-standard Shift-Reduce transition system, as described in Nivre 2009 Dependency Parsing, Chapter 3.
+ * The arc-standard Shift-Reduce transition system, as described in Nivre 2009 Dependency Parsing, Chapter 3,
+ * augmented with an explicit Reduce transition to allow for corpora with unattached nodes: artificially attaching these nodes
+ * to the root node could induce non-projectivity.
  * @author Assaf Urieli
  *
  */
@@ -43,6 +47,7 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 		LOG.debug("predictTransitions");
 		LOG.debug(configuration.toString());
 		LOG.debug(targetDependencies);
+		Set<PosTaggedToken> ungovernedTokens = new HashSet<PosTaggedToken>();
 		while (!configuration.getBuffer().isEmpty()) {
 			PosTaggedToken stackHead = configuration.getStack().peek();
 			PosTaggedToken bufferHead = configuration.getBuffer().peekFirst();
@@ -65,7 +70,11 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 						}
 					}
 					if (!dependentHasDependents) {
-						transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+						if (stackHead.getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel()==null || arc.getLabel().length()==0)) {
+							ungovernedTokens.add(bufferHead);
+						} else {
+							transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+						}
 						currentDep = arc;
 						break;
 					}
@@ -73,7 +82,12 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 
 			}
 			if (transition==null) {
-				transition =  this.getTransitionForCode("Shift");
+				boolean stackHeadUngoverned = ungovernedTokens.contains(stackHead);
+				if (stackHeadUngoverned) {
+					transition =  this.getTransitionForCode("Reduce");
+				} else {
+					transition =  this.getTransitionForCode("Shift");
+				}
 			}
 			if (currentDep!=null)
 				targetDependencies.remove(currentDep);
@@ -100,6 +114,8 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 			transition = new RightArcTransition(label);
 		} else if (code.startsWith("Shift")) {
 			transition = new ShiftTransition();
+		} else if (code.startsWith("Reduce")) {
+			transition = new ReduceTransition();
 		} else {
 			throw new TalismaneException("Unknown transition name: " + code);
 		}

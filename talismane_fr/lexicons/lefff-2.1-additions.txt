@@ -808,11 +808,17 @@ au bénéfice de	au bénéfice de	P	prep	null
 au bénéfice d'	au bénéfice de	P	prep	null
 au-delà de	au-delà de	P	prep	null
 au-delà d'	au-delà de	P	prep	null
+au delà de	au-delà de	P	prep	null
+au delà d'	au-delà de	P	prep	null
 àu-delà de	àu-delà de	P	prep	null
 au-dessous de	au-dessous de	P	prep	null
 au-dessous d'	au-dessous de	P	prep	null
+au dessous de	au-dessous de	P	prep	null
+au dessous d'	au-dessous de	P	prep	null
 au-dessus de	au-dessus de	P	prep	null
 au-dessus d'	au-dessus de	P	prep	null
+au dessus de	au-dessus de	P	prep	null
+au dessus d'	au-dessus de	P	prep	null
 au coeur de	au coeur de	P	prep	null
 au coeur d'	au coeur de	P	prep	null
 au début de	au début de	P	prep	null
@@ -922,6 +928,7 @@ de préférence à	de préférence à	P	prep	null
 de type	de type	P	prep	null
 du fait de	du fait de	P	prep	null
 du fait d'	du fait de	P	prep	null
+e.g.	e.g.	P	prep	null
 en avance sur	en avance sur	P	prep	null
 en baisse de	en baisse de	P	prep	null
 en baisse d'	en baisse de	P	prep	null
@@ -979,6 +986,7 @@ environ	environ	P	prep	null
 exception faite de	exception faite de	P	prep	null
 exception faite d'	exception faite de	P	prep	null
 fin	fin	P	prep	null
+i.e.	i.e.	P	prep	null
 le temps de	le temps de	P	prep	null
 le temps d'	le temps de	P	prep	null
 moins de	moins de	P	prep	null
@@ -1039,6 +1047,10 @@ sur le point de	sur le point de	P	prep	null
 sur le point d'	sur le point de	P	prep	null
 sur la voie de	sur la voie de	P	prep	null
 sur la voie d'	sur la voie de	P	prep	null
+tel que	tel que	P	prep	null
+telle que	tel que	P	prep	null
+tel qu'	tel que	P	prep	null
+telle qu'	tel que	P	prep	null
 tels que	tel que	P	prep	null
 telles que	tel que	P	prep	null
 tels qu'	tel que	P	prep	null
@@ -1073,7 +1085,11 @@ d'aucuns	d'aucuns	PRO	pro	p
 tout un chacun	tout un chacun	PRO	pro	s
 beaucoup	beaucoup	PRO	pro	p
 quoi que ce soit	quoi que ce soit	PRO	pro	null
-n'importe quoi	n'importe quoi	PRO	pro	null
+n'importe laquelle	n'importe lequel	PRO	pro	fs
+n'importe lequel	n'importe lequel	PRO	pro	ms
+n'importe lequels	n'importe lequel	PRO	pro	mp
+n'importe lequelles	n'importe lequel	PRO	pro	fp
+n'importe quoi	n'importe quoi	PRO	pro	s
 nombreux	nombreux	PRO	pro	p
 d'autres	d'autres	PRO	pro	p
 n'importe laquelle	n'importe laquelle	PRO	pro	fs
@@ -1082,26 +1098,56 @@ n'importe lequels	n'importe lequels	PRO	pro	mp
 n'importe lequelles	n'importe lequelles	PRO	pro	fp
 aucuns	aucuns	PRO	pro	mp
 rien du tout	rien du tout	PRO	pro	null
+# pronoms précédé systématiquement par le/la/les
+leur	leur	PRO	pro	s_P3p
+leurs	leur	PRO	pro	p_P3p
+mien	mien	PRO	pro	ms_P1s
+mienne	mien	PRO	pro	fs_P1s
+miennes	mien	PRO	pro	fp_P1s
+miens	mien	PRO	pro	mp_P1s
+nôtre	nôtre	PRO	pro	s_P1p
+nôtres	nôtre	PRO	pro	p_P1p
+sien	sien	PRO	pro	ms_P3s
+sienne	sien	PRO	pro	fs_P3s
+siennes	sien	PRO	pro	fp_P3s
+siens	sien	PRO	pro	mp_P3s
+tien	tien	PRO	pro	ms_P2s
+tienne	tien	PRO	pro	fs_P2s
+tiennes	tien	PRO	pro	fp_P2s
+tiens	tien	PRO	pro	mp_P2s
+unes	un	PRO	pro	fp
+uns	un	PRO	pro	mp
+vôtre	vôtre	PRO	pro	s_P2p
+vôtres	vôtre	PRO	pro	p_P2p
 # Nouvelles catégories fermées de pronoms
 #ppers = pronom personnel
 moi	moi	PRO	ppers	1s
 moi-même	moi-même	PRO	ppers	1s
+moi même	moi-même	PRO	ppers	1s
 toi	toi	PRO	ppers	2s
 toi-même	toi-même	PRO	ppers	2s
+toi même	toi-même	PRO	ppers	2s
 lui	lui	PRO	ppers	3ms
 lui-même	lui-même	PRO	ppers	3ms
+lui même	lui-même	PRO	ppers	3ms
 elle	elle	PRO	ppers	3fs
 elle-même	elle-même	PRO	ppers	3fs
+elle même	elle-même	PRO	ppers	3fs
 nous	nous	PRO	ppers	1p
 nous-mêmes	nous-mêmes	PRO	ppers	1p
+nous mêmes	nous-mêmes	PRO	ppers	1p
 vous	vous	PRO	ppers	2p
 vous-mêmes	vous-mêmes	PRO	ppers	2p
+vous mêmes	vous-mêmes	PRO	ppers	2p
 eux	eux	PRO	ppers	3mp
 eux-mêmes	eux-mêmes	PRO	ppers	3mp
+eux mêmes	eux-mêmes	PRO	ppers	3mp
 elles	elles	PRO	ppers	3fp
 elles-mêmes	elles-mêmes	PRO	ppers	3fp
+elles mêmes	elles-mêmes	PRO	ppers	3fp
 soi	soi	PRO	ppers	s
 soi-même	soi-même	PRO	ppers	s
+soi même	soi-même	PRO	ppers	s
 -moi	moi	PRO	ppers	1s
 -toi	toi	PRO	ppers	2s
 -lui	lui	PRO	ppers	3ms
@@ -1115,15 +1161,23 @@ soi-même	soi-même	PRO	ppers	s
 celui	celui	PRO	pdem	ms
 celui-ci	celui-ci	PRO	pdem	ms
 celui-là	celui-là	PRO	pdem	ms
+celui ci	celui-ci	PRO	pdem	ms
+celui là	celui-là	PRO	pdem	ms
 celle	celle	PRO	pdem	fs
 celle-ci	celle-ci	PRO	pdem	fs
 celle-là	celle-là	PRO	pdem	fs
+celle ci	celle-ci	PRO	pdem	fs
+celle là	celle-là	PRO	pdem	fs
 ceux	ceux	PRO	pdem	mp
 ceux-ci	ceux-ci	PRO	pdem	mp
 ceux-là	ceux-là	PRO	pdem	mp
+ceux ci	ceux-ci	PRO	pdem	mp
+ceux là	ceux-là	PRO	pdem	mp
 celles	celles	PRO	pdem	fp
 celles-ci	celles-ci	PRO	pdem	fp
 celles-là	celles-là	PRO	pdem	fp
+celles ci	celles-ci	PRO	pdem	fp
+celles là	celles-là	PRO	pdem	fp
 ce	ce	PRO	pdem	null
 -ce	ce	PRO	pdem	null
 c'	ce	PRO	pdem	null
@@ -1218,6 +1272,7 @@ cela dit	cela dit	ADV	adv	null
 cela fait	cela fait	ADV	adv	null
 cela posé	cela posé	ADV	adv	null
 cette fois-ci	cette fois-ci	ADV	adv	null
+cette fois ci	cette fois-ci	ADV	adv	null
 coûte que coûte	coûte que coûte	ADV	adv	null
 comme si de rien n'était	comme si de rien n'était	ADV	adv	null
 comme tout un chacun	comme tout un chacun	ADV	adv	null
@@ -1307,6 +1362,7 @@ jusqu'alors	jusqu'alors	ADV	adv	null
 jusqu'ici	jusqu'ici	ADV	adv	null
 jusqu'où	jusqu'où	ADV	adv	null
 jusque-là	jusque-là	ADV	adv	null
+jusque là	jusque-là	ADV	adv	null
 là encore	là encore	ADV	adv	null
 la veille	la veille	ADV	adv	null
 le cas échéant	le cas échéant	ADV	adv	null

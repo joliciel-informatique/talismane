@@ -19,11 +19,12 @@
 package com.joliciel.talismane.parser;
 
 import java.util.Map;
+import java.util.Set;
 
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 interface ParseConfigurationInternal extends ParseConfiguration {
 	public Map<PosTaggedToken, Transition> getDependentTransitionMap();
-	public int getNextDecisionToAdd();
 	public long getCreateDate();
+	public Set<DependencyArc> getDependenciesInternal();
 }

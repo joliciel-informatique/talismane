@@ -77,10 +77,9 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 	
 	public String getTrainingOutcome(String outcome) {
 		String string = outcome;
-		string = string.replace("_", "&und;");
-		string = string.replace(' ', '_');
-		string = string.replace("=", "&eq;");
-		string = string.replace("\n", "&nl;");
+		string = string.replace(' ', '·');
+		string = string.replace('=', '≈');
+		string = string.replace('\n', '¬');
 		return string;
 	}
 }

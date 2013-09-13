@@ -222,6 +222,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private List<TokenFilter> tokenFilters = null;
 	private List<TokenSequenceFilter> posTaggerPreProcessingFilters = null;
 	private boolean includeDistanceFScores = false;
+	private boolean predictTransitions = true;
 	
 	private MarkerFilterType newlineMarker = MarkerFilterType.SENTENCE_BREAK;
 	private int blockSize = 1000;
@@ -460,6 +461,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				excludeIndex = Integer.parseInt(argValue);
 			else if (argName.equals("dynamiseFeatures"))
 				dynamiseFeatures = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("predictTransitions"))
+				predictTransitions = argValue.equalsIgnoreCase("true");
 			else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -494,6 +497,9 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
 				posTaggerTemplateName = "posTagger_template_with_prob.ftl";
 				parserTemplateName = "parser_conll_template_with_prob.ftl";
+			} else if (builtInTemplate.equalsIgnoreCase("with_comments")) {
+				posTaggerTemplateName = "posTagger_template_with_comments.ftl";
+				parserTemplateName = "parser_conll_template_with_comments.ftl";
 			} else {
 				throw new TalismaneException("Unknown builtInTemplate: " + builtInTemplate);
 			}
@@ -1380,6 +1386,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					File outFile = new File(outFilePath);
 					constrainer.setFile(outFile);
 					parseConfigurationProcessor = constrainer;
+				} else {
+					throw new TalismaneException("Unknown option: " + option.toString());
 				}
 			}
 			return parseConfigurationProcessor;
@@ -1570,8 +1578,10 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			ParserRegexBasedCorpusReader parserRegexCorpusReader = this.getParserService().getRegexBasedCorpusReader(this.getReader());
 			if (this.getInputRegex()!=null)
 				parserRegexCorpusReader.setRegex(this.getInputRegex());
+			parserRegexCorpusReader.setPredictTransitions(predictTransitions);
 			this.parserCorpusReader = parserRegexCorpusReader;
 		}
+		
 		this.setCorpusReaderAttributes(parserCorpusReader);
 		this.addParserCorpusReaderFilters(parserCorpusReader);
 		
@@ -1594,6 +1604,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			ParserRegexBasedCorpusReader parserRegexCorpusReader = this.getParserService().getRegexBasedCorpusReader(this.getEvaluationReader());
 			if (this.getEvaluationRegex()!=null)
 				parserRegexCorpusReader.setRegex(this.getEvaluationRegex());
+			parserRegexCorpusReader.setPredictTransitions(predictTransitions);
+
 			this.parserEvaluationCorpusReader = parserRegexCorpusReader;
 		}
 		this.addParserCorpusReaderFilters(parserEvaluationCorpusReader);
@@ -2257,4 +2269,18 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	public void setPerformanceConfigFile(File performanceConfigFile) {
 		this.performanceConfigFile = performanceConfigFile;
 	}
+
+	/**
+	 * Should the parser corpus reader predict the transitions or not?
+	 * @return
+	 */
+	public boolean isPredictTransitions() {
+		return predictTransitions;
+	}
+
+	public void setPredictTransitions(boolean predictTransitions) {
+		this.predictTransitions = predictTransitions;
+	}
+	
+	
 }

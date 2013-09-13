@@ -21,8 +21,10 @@ package com.joliciel.talismane.parser;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -32,9 +34,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
+import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.FeatureWeightVector;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.Ranker;
 import com.joliciel.talismane.machineLearning.RankingSolution;
+import com.joliciel.talismane.machineLearning.SimpleRankingScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -64,6 +69,8 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 	
 	private ParserServiceInternal parserServiceInternal;
 	private FeatureService featureService;
+	private MachineLearningService machineLearningService;
+	
 	private FeatureWeightVector featureWeightVector;
 	private ParsingConstrainer parsingConstrainer;
 	private ParseComparisonStrategy parseComparisonStrategy = new TransitionCountComparisonStrategy();
@@ -128,7 +135,8 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 			for (PosTagSequence posTagSequence : posTagSequences) {
 				// add an initial ParseConfiguration for each postag sequence
 				ParseConfiguration initialConfiguration = this.getParserServiceInternal().getInitialConfiguration(posTagSequence);
-				initialConfiguration.setScore(0.0);
+				initialConfiguration.setScoringStrategy(new SimpleRankingScoringStrategy());
+				initialConfiguration.setRankingScore(0.0);
 				heap0.add(initialConfiguration);
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("Adding initial posTagSequence: " + posTagSequence);
@@ -162,7 +170,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 				long analysisTime = (new Date()).getTime() - startTime;
 				if (maxAnalysisTimePerSentence > 0 && analysisTime > maxAnalysisTimeMilliseconds) {
 					LOG.info("Parse tree analysis took too long for sentence: " + tokenSequence.getText());
-					LOG.info("Breaking out after " +  maxAnalysisTimePerSentence + " seconds.");
+					LOG.info("Breaking out after " + maxAnalysisTimePerSentence + " seconds.");
 					finished = true;
 				}
 				
@@ -311,13 +319,16 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 						// add solutions to the heap, one per valid transition
 						MONITOR.startTask("heap sort");
 						try {
+							Map<Transition,Double> deltaScorePerTransition = new HashMap<Transition, Double>();
+							double absoluteMax = 1;
+							
 							for (Transition transition : transitions) {
 								if (LOG.isTraceEnabled()) {
 									LOG.trace("Applying transition: " + transition.getCode());
 								}
 								ParseConfiguration configuration = this.parserServiceInternal.getConfiguration(history);
 								transition.apply(configuration);
-								configuration.setScore(history.getScore());
+								configuration.setRankingScore(history.getRankingScore());
 								configuration.getIncrementalFeatureResults().addAll(history.getIncrementalFeatureResults());
 								
 								// test the features on the new configuration
@@ -344,14 +355,17 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 									}
 									configuration.getIncrementalFeatureResults().add(featureResults);
 									if (LOG.isTraceEnabled()) {
-										LOG.trace("Score = " + configuration.getScore() + " + " + scoreDelta + " = " + (configuration.getScore() + scoreDelta));
+										LOG.trace("Score = " + configuration.getRankingScore() + " + " + scoreDelta + " = " + (configuration.getRankingScore() + scoreDelta));
 									}
-									configuration.setScore(configuration.getScore() + scoreDelta);
+									configuration.setRankingScore(configuration.getRankingScore() + scoreDelta);
+									deltaScorePerTransition.put(transition, scoreDelta);
+									if (Math.abs(scoreDelta)>absoluteMax)
+										absoluteMax = Math.abs(scoreDelta);
 									
-
 								} finally {
 									MONITOR.endTask("feature analyse");
 								}
+								
 								
 								int nextHeapIndex = parseComparisonStrategy.getComparisonIndex(configuration) * 1000;
 								while (nextHeapIndex<=currentHeapIndex)
@@ -371,6 +385,31 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 								
 								configuration.clearMemory();
 							} // next transition
+							
+							// Create a probability distribution of transitions
+							// normalise probabilities for each transition via normalised exponential
+							// e^(x/absmax)/sum(e^(x/absmax))
+							// where x/absmax is in [-1,1]
+							// e^(x/absmax) is in [1/e,e]
+
+							double total = 0.0;
+							for (Transition transition : deltaScorePerTransition.keySet()) {
+								double deltaScore = deltaScorePerTransition.get(transition);
+								deltaScore = Math.exp(deltaScore/absoluteMax);
+								deltaScorePerTransition.put(transition, deltaScore);
+								total += deltaScore;
+							}
+
+							for (Transition transition : deltaScorePerTransition.keySet()) {
+								double probability = deltaScorePerTransition.get(transition);
+								probability /= total;
+								Decision<Transition> decision = machineLearningService.createDecision(transition, probability);
+								transition.setDecision(decision);
+								if (LOG.isTraceEnabled()) {
+									LOG.trace("Transition: " + transition.getCode() + ", Prob: " + probability);
+								}
+							}
+							
 						} finally {
 							MONITOR.endTask("heap sort");
 						}
@@ -509,6 +548,15 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 
 	public FeatureWeightVector getFeatureWeightVector() {
 		return featureWeightVector;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

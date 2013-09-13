@@ -38,11 +38,4 @@ public interface ClassificationSolution<T extends Outcome> extends Solution {
 	 * @param decision
 	 */
 	public void addDecision(Decision<T> decision);
-	
-	/**
-	 * Get the scoring strategy for this solution.
-	 * @return
-	 */
-	public ScoringStrategy getScoringStrategy();
-	public void setScoringStrategy(ScoringStrategy scoringStrategy);
 }

@@ -116,5 +116,11 @@ class MachineLearningServiceImpl implements MachineLearningService {
 		return event;
 	}
 
+	@Override
+	public <T extends Outcome> Decision<T> createDecision(T outcome, double probability) {
+		DecisionImpl<T> decision = new DecisionImpl<T>(outcome.getCode(), probability);
+		decision.setOutcome(outcome);
+		return decision;
+	}
 
 }

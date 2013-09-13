@@ -55,14 +55,17 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	
 	private PosTagSequence posTagSequence;
 	private double score;
+	private double rankingScore;
 	private boolean scoreCalculated = false;
 	private Deque<PosTaggedToken> buffer;
 	private Deque<PosTaggedToken> stack;
 	private List<Transition> transitions;
 	private Set<DependencyArc> dependencies;
 	private Map<PosTaggedToken,DependencyArc> governingDependencyMap = null;
-	private Map<PosTaggedToken, Set<PosTaggedToken>> leftDependentMap = null;
-	private Map<PosTaggedToken, Set<PosTaggedToken>> rightDependentMap = null;
+	private Map<PosTaggedToken, List<PosTaggedToken>> leftDependentMap = null;
+	private Map<PosTaggedToken, List<PosTaggedToken>> rightDependentMap = null;
+	private Map<PosTaggedToken, List<PosTaggedToken>> dependentMap = null;
+	private Map<PosTaggedToken, Map<String,List<PosTaggedToken>>> dependentByLabelMap = null;
 	private Map<PosTaggedToken,Transition> dependentTransitionMap = new HashMap<PosTaggedToken, Transition>();
 	
 	private ParserServiceInternal parserServiceInternal;
@@ -70,9 +73,10 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private DependencyNode parseTree = null;
 	
 	private List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
-	private int nextDecisionToAdd = 0;
+	private boolean arcProbsCalculated = false;
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
-	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
+	@SuppressWarnings("rawtypes")
+	private ScoringStrategy scoringStrategy;
 	private List<List<FeatureResult<?>>> incrementalFeatureResults = new ArrayList<List<FeatureResult<?>>>();
 
 	private Map<String,FeatureResult<?>> featureCache = new HashMap<String, FeatureResult<?>>();
@@ -95,12 +99,14 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		
 		this.dependencies = new TreeSet<DependencyArc>();
 		this.transitions = new ArrayList<Transition>();
+		this.scoringStrategy = new GeometricMeanScoringStrategy<Transition>();
 	}
 	
 	public ParseConfigurationImpl(ParseConfiguration history) {
 		super();
+		ParseConfigurationInternal iHistory = (ParseConfigurationInternal) history;
 		this.transitions = new ArrayList<Transition>(history.getTransitions());
-		this.dependencies = new TreeSet<DependencyArc>(history.getDependencies());
+		this.dependencies = new TreeSet<DependencyArc>(iHistory.getDependenciesInternal());
 		this.posTagSequence = history.getPosTagSequence();
 		posTagSequence.prependRoot();
 		this.underlyingSolutions.add(this.posTagSequence);
@@ -109,7 +115,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.dependentTransitionMap = new HashMap<PosTaggedToken, Transition>(((ParseConfigurationInternal)history).getDependentTransitionMap());
 		
 		this.decisions = new ArrayList<Decision<Transition>>(history.getDecisions());
-		this.nextDecisionToAdd = ((ParseConfigurationInternal)history).getNextDecisionToAdd();
+		this.scoringStrategy = history.getScoringStrategy();
 	}
 		
 	@Override
@@ -117,6 +123,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		return this.posTagSequence;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public double getScore() {
 		if (!scoreCalculated) {
@@ -126,9 +133,12 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		return score;
 	}
 
-	public void setScore(double score) {
-		this.score = score;
-		this.scoreCalculated = true;
+	public double getRankingScore() {
+		return rankingScore;
+	}
+
+	public void setRankingScore(double rankingScore) {
+		this.rankingScore = rankingScore;
 	}
 
 	@Override
@@ -152,7 +162,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		else if (this.getScore()>o.getScore())
 			return -1;
 		else if (o instanceof ParseConfigurationInternal)
-			return new Long(((ParseConfigurationInternal) o).getCreateDate() - this.getCreateDate()).intValue();
+			return new Long(this.getCreateDate() - ((ParseConfigurationInternal) o).getCreateDate()).intValue();
 		else
 			return o.hashCode() - this.hashCode();
 	}
@@ -166,7 +176,36 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		return transitions;
 	}
 
+	public Set<DependencyArc> getDependenciesInternal() {
+		return dependencies;
+	}
+	
 	public Set<DependencyArc> getDependencies() {
+		if (!this.arcProbsCalculated) {
+			this.updateDependencyMaps();
+			int currentDecision=0;
+			for (PosTaggedToken posTaggedToken : this.getPosTagSequence()) {
+				DependencyArc arc = this.governingDependencyMap.get(posTaggedToken);
+				if (arc!=null) {
+					// we assign this arc a probability
+					// since several transitions (e.g. shift, reduce) could have occurred prior to adding a dependency
+					// the probability will be the product of these transitions
+					Transition transition = this.dependentTransitionMap.get(posTaggedToken);
+					double probLog = 0.0;
+					for (int i=currentDecision; i<this.decisions.size();i++) {
+						Decision<Transition> decision = decisions.get(i);
+						probLog += decision.getProbabilityLog();
+						if (decision.getOutcome().equals(transition)) {
+							currentDecision=i+1;
+							break;
+						}
+					}
+					arc.setProbability(Math.exp(probLog));
+				}
+			}
+			this.arcProbsCalculated = true;
+		}
+		
 		return dependencies;
 	}
 	
@@ -210,47 +249,56 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	@Override
 	public List<PosTaggedToken> getLeftDependents(PosTaggedToken head) {
 		this.updateDependencyMaps();
-		Set<PosTaggedToken> dependents = this.leftDependentMap.get(head);
-		List<PosTaggedToken> dependentList = new ArrayList<PosTaggedToken>();
-		if (dependents!=null)
-			dependentList.addAll(dependents);
-		return dependentList;
+		List<PosTaggedToken> dependents = this.leftDependentMap.get(head);
+		return dependents;
 	}
 	
 	@Override
 	public List<PosTaggedToken> getRightDependents(PosTaggedToken head) {
 		this.updateDependencyMaps();
-		Set<PosTaggedToken> dependents = this.rightDependentMap.get(head);
-		List<PosTaggedToken> dependentList = new ArrayList<PosTaggedToken>();
-		if (dependents!=null)
-			dependentList.addAll(dependents);
-		return dependentList;
+		List<PosTaggedToken> dependents = this.rightDependentMap.get(head);
+		return dependents;
 	}
 
 	
 	@Override
 	public List<PosTaggedToken> getDependents(PosTaggedToken head) {
 		this.updateDependencyMaps();
-		Set<PosTaggedToken> dependents = new TreeSet<PosTaggedToken>();
-		dependents.addAll(this.getLeftDependents(head));
-		dependents.addAll(this.getRightDependents(head));
-		List<PosTaggedToken> dependentList = new ArrayList<PosTaggedToken>(dependents);
+		List<PosTaggedToken> dependentList = this.dependentMap.get(head);
 		return dependentList;
+	}
+	
+	public List<PosTaggedToken> getDependents(PosTaggedToken head, String label) {
+		this.updateDependencyMaps();
+		List<PosTaggedToken> deps = null;
+		Map<String,List<PosTaggedToken>> labelMap = this.dependentByLabelMap.get(head);
+		if (labelMap!=null) {
+			deps = labelMap.get(label);
+		}
+		if (deps==null)
+			deps = new ArrayList<PosTaggedToken>(0);
+		return deps;
 	}
 
 	void updateDependencyMaps() {
 		if (this.governingDependencyMap==null) {
 			this.governingDependencyMap = new HashMap<PosTaggedToken, DependencyArc>();
-			this.rightDependentMap = new HashMap<PosTaggedToken, Set<PosTaggedToken>>();
-			this.leftDependentMap = new HashMap<PosTaggedToken, Set<PosTaggedToken>>();
+			this.rightDependentMap = new HashMap<PosTaggedToken, List<PosTaggedToken>>();
+			this.leftDependentMap = new HashMap<PosTaggedToken, List<PosTaggedToken>>();
+			this.dependentMap = new HashMap<PosTaggedToken, List<PosTaggedToken>>();
+			this.dependentByLabelMap = new HashMap<PosTaggedToken, Map<String,List<PosTaggedToken>>>();
+			
+			Map<PosTaggedToken, Set<PosTaggedToken>> leftDependentSetMap = new HashMap<PosTaggedToken, Set<PosTaggedToken>>();
+			Map<PosTaggedToken, Set<PosTaggedToken>> rightDependentSetMap = new HashMap<PosTaggedToken, Set<PosTaggedToken>>();
+			Map<PosTaggedToken, Map<String,Set<PosTaggedToken>>> dependentSetByLabelMap = new HashMap<PosTaggedToken, Map<String,Set<PosTaggedToken>>>();
 			
 			for (DependencyArc arc : this.dependencies) {
 				this.governingDependencyMap.put(arc.getDependent(), arc);
 				Map<PosTaggedToken, Set<PosTaggedToken>> dependentMap = null;
 				if (arc.getDependent().getToken().getIndex()<arc.getHead().getToken().getIndex())
-					dependentMap = this.leftDependentMap;
+					dependentMap = leftDependentSetMap;
 				else
-					dependentMap = this.rightDependentMap;
+					dependentMap = rightDependentSetMap;
 				
 				Set<PosTaggedToken> dependents = dependentMap.get(arc.getHead());
 				if (dependents==null) {
@@ -258,6 +306,56 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 					dependentMap.put(arc.getHead(), dependents);
 				}
 				dependents.add(arc.getDependent());
+				
+				Map<String,Set<PosTaggedToken>> labelMap = dependentSetByLabelMap.get(arc.getHead());
+				if (labelMap==null) {
+					labelMap = new HashMap<String, Set<PosTaggedToken>>();
+					dependentSetByLabelMap.put(arc.getHead(), labelMap);
+				}
+				
+				Set<PosTaggedToken> dependentsByLabel = labelMap.get(arc.getLabel());
+				if (dependentsByLabel==null) {
+					dependentsByLabel = new TreeSet<PosTaggedToken>(new PosTaggedTokenLeftToRightComparator());
+					labelMap.put(arc.getLabel(), dependentsByLabel);
+				}
+				dependentsByLabel.add(arc.getDependent());
+			}
+			
+			for (PosTaggedToken head : leftDependentSetMap.keySet()) {
+				List<PosTaggedToken> leftDeps = new ArrayList<PosTaggedToken>(leftDependentSetMap.get(head));
+				this.leftDependentMap.put(head, leftDeps);
+			}
+			
+			for (PosTaggedToken head : rightDependentSetMap.keySet()) {
+				List<PosTaggedToken> rightDeps = new ArrayList<PosTaggedToken>(rightDependentSetMap.get(head));
+				this.rightDependentMap.put(head, rightDeps);
+			}
+
+			for (PosTaggedToken head : this.getPosTagSequence()) {
+				List<PosTaggedToken> leftDeps = this.leftDependentMap.get(head);
+				if (leftDeps==null) {
+					leftDeps = new ArrayList<PosTaggedToken>(0);
+					this.leftDependentMap.put(head, leftDeps);
+				}
+				List<PosTaggedToken> rightDeps = this.rightDependentMap.get(head);
+				if (rightDeps==null) {
+					rightDeps = new ArrayList<PosTaggedToken>(0);
+					this.rightDependentMap.put(head, rightDeps);
+				}
+				List<PosTaggedToken> allDeps = new ArrayList<PosTaggedToken>(leftDeps.size() + rightDeps.size());
+				allDeps.addAll(leftDeps);
+				allDeps.addAll(rightDeps);
+				this.dependentMap.put(head, allDeps);
+			}
+			
+			for (PosTaggedToken head : dependentSetByLabelMap.keySet()) {
+				Map<String,Set<PosTaggedToken>> depSetMap = dependentSetByLabelMap.get(head);
+				Map<String,List<PosTaggedToken>> labelMap = new HashMap<String, List<PosTaggedToken>>(depSetMap.size());
+				this.dependentByLabelMap.put(head, labelMap);
+				for (String label : depSetMap.keySet()) {
+					List<PosTaggedToken> deps = new ArrayList<PosTaggedToken>(depSetMap.get(label));
+					labelMap.put(label, deps);
+				}
 			}
 		}
 	}
@@ -268,20 +366,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		DependencyArc arc = this.parserServiceInternal.getDependencyArc(head, dependent, label);
 		this.addDependency(arc);
 		this.dependentTransitionMap.put(dependent, transition);
-		
-		// we assign this arc a probability
-		// since several transitions (e.g. shift, reduce) could have occurred prior to adding a dependency
-		// the probability will be the product of these transitions
-		double probLog = 0.0;
-		int decisionCount = 0;
-		for (int i=nextDecisionToAdd; i<this.decisions.size(); i++) {
-			probLog += decisions.get(i).getProbabilityLog();
-			decisionCount++;
-		}
-		if (decisionCount>0) {
-			nextDecisionToAdd = this.decisions.size();
-			arc.setProbability(Math.exp(probLog));
-		}
+
 		return arc;
 	}
 	
@@ -295,22 +380,8 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		}
 		
 		this.dependencies.add(arc);
-		
-		if (this.governingDependencyMap!=null) {
-			this.governingDependencyMap.put(arc.getDependent(), arc);
-			Map<PosTaggedToken, Set<PosTaggedToken>> dependentMap = null;
-			if (arc.getDependent().getToken().getIndex()<arc.getHead().getToken().getIndex())
-				dependentMap = this.leftDependentMap;
-			else
-				dependentMap = this.rightDependentMap;
-			
-			Set<PosTaggedToken> dependents = dependentMap.get(arc.getHead());
-			if (dependents==null) {
-				dependents = new TreeSet<PosTaggedToken>(new PosTaggedTokenLeftToRightComparator());
-				dependentMap.put(arc.getHead(), dependents);
-			}
-			dependents.add(arc.getDependent());
-		}
+		// force update of dependency maps
+		this.governingDependencyMap=null;
 	}
 
 	public ParserServiceInternal getParserServiceInternal() {
@@ -395,11 +466,12 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.decisions.add(decision);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public ScoringStrategy getScoringStrategy() {
 		return scoringStrategy;
 	}
 
-	public void setScoringStrategy(ScoringStrategy scoringStrategy) {
+	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
 		this.scoringStrategy = scoringStrategy;
 	}
 
@@ -436,10 +508,6 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	@Override
 	public Sentence getSentence() {
 		return this.getPosTagSequence().getTokenSequence().getSentence();
-	}
-
-	public int getNextDecisionToAdd() {
-		return nextDecisionToAdd;
 	}
 
 	@Override
@@ -479,6 +547,4 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		}
 		return outcomes;
 	}
-	
-	
 }
