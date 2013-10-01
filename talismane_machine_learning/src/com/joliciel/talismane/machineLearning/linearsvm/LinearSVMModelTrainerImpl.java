@@ -51,7 +51,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	private static final Log LOG = LogFactory.getLog(LinearSVMModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LinearSVMModelTrainerImpl.class);
 	
-	private int cutoff = 5;
+	private int cutoff = 1;
 	private double constraintViolationCost = 1.0;
 	private double epsilon = 0.01;
 	private LinearSVMSolverType solverType = LinearSVMSolverType.L2R_LR;

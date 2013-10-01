@@ -16,21 +16,11 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning;
+package com.joliciel.talismane.machineLearning.perceptron;
 
-/**
- * Returns the ranking score previously assigned without further manipulation.
- * @author Assaf Urieli
- *
- */
-public class SimpleRankingScoringStrategy implements ScoringStrategy<RankingSolution> {
-	@Override
-	public double calculateScore(RankingSolution solution) {
-		return solution.getRankingScore();
-	}
+import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.Outcome;
 
-	@Override
-	public boolean isAdditive() {
-		return true;
-	}
+public interface PerceptronModelTrainerObserver<T extends Outcome> {
+	public void onNextModel(ClassificationModel<T> model, int iterations);
 }

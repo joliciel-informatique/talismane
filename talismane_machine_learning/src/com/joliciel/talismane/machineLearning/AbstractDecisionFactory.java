@@ -28,6 +28,15 @@ public abstract class AbstractDecisionFactory<T extends Outcome> implements Deci
 	private static final long serialVersionUID = 19238305543958986L;
 
 	@Override
+	public Decision<T> createDecision(String name, double score,
+			double probability) {
+		DecisionImpl<T> decision = new DecisionImpl<T>(name, probability);
+		decision.setOutcome(this.createOutcome(name));
+		decision.setScore(score);
+		return decision;
+	}
+
+	@Override
 	public Decision<T> createDecision(String name, double probability) {
 		DecisionImpl<T> decision = new DecisionImpl<T>(name, probability);
 		decision.setOutcome(this.createOutcome(name));

@@ -19,12 +19,12 @@
 package com.joliciel.talismane.trainer.fr;
 
 import java.io.FileInputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 
 public class Main {
@@ -34,15 +34,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		Map<String, String> argMap = new HashMap<String, String>();
-		
-		for (String arg : args) {
-			int equalsPos = arg.indexOf('=');
-			String argName = arg.substring(0, equalsPos);
-			String argValue = arg.substring(equalsPos+1);
-			argMap.put(argName, argValue);
-		}
-		
+		Map<String, String> argMap = TalismaneConfig.convertArgs(args);
 
 		String logConfigPath = argMap.get("logConfigFile");
 		if (logConfigPath!=null) {

@@ -36,7 +36,7 @@ public class CSVFormatter {
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private boolean addQuotesAlways = false;
     private String csvSeparator = ",";
-    private int decimalPlaces = 4;
+    private int decimalPlaces = 2;
     
 	private Pattern csvSeparators = Pattern.compile("[,\"]");
 	private enum TokenType {

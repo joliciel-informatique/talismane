@@ -33,6 +33,13 @@ public interface DecisionFactory<T extends Outcome> extends Serializable {
 	public Decision<T> createDecision(String name, double probability);
 	
 	/**
+	 * Create the decision corresponding to a particular name.
+	 * This decision will be considered statistical.
+	 */
+	public Decision<T> createDecision(String name, double score, double probability);
+
+	
+	/**
 	 * Create a default decision with a probability of 1.0, for a given outcome T.
 	 * This decision will not be considered statistical.
 	 * @param defaultDecision

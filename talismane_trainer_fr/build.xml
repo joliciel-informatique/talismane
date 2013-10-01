@@ -33,6 +33,19 @@
 			<!-- build output path -->
 			<pathelement location="${classes}"/>
 		</path>
+		<path id="classpath.jar">
+			<fileset dir="${dist}/lib">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${dist}">
+				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
+				<include name="talismane-core-${talismane.version}.jar" />
+				<include name="talismane-lefff-${talismane.version}.jar" />
+				<include name="talismane-ftb-${talismane.version}.jar" />
+				<include name="talismane-ftbDep-${talismane.version}.jar" />
+			</fileset>
+		</path>
 		<mkdir dir="${build}" />
 		<mkdir dir="${classes}" />
 		<mkdir dir="${doc}" />
@@ -69,9 +82,29 @@
 	    <tag name="todo" scope="all" description="To do:"/>
 	  </javadoc>
 	</target>
-		
+	
 	<target name="jar" depends="compile">
-		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}" />
+	    <manifestclasspath property="jar.classpath" jarfile="${dist}/${project}-${talismane.version}.jar">
+	      <classpath refid="classpath.jar"/>
+	    </manifestclasspath>
+		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}">
+			<manifest>
+	    		<attribute name="Main-Class" value="com.joliciel.talismane.trainer.fr.Main"/>
+	    		<attribute name="Class-Path" value="${jar.classpath}"/>
+	    	</manifest>
+		</jar>
+		<zip destfile="${dist}/${project}-${talismane.version}.zip">
+			<fileset file="${dist}/${project}-${talismane.version}.jar" />
+			<fileset dir="${dist}">
+				<include name="lib/*.jar" />
+				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
+				<include name="talismane-core-${talismane.version}.jar" />
+				<include name="talismane-lefff-${talismane.version}.jar" />
+				<include name="talismane-ftb-${talismane.version}.jar" />
+				<include name="talismane-ftbDep-${talismane.version}.jar" />
+			</fileset>
+		</zip>
 	</target>
 		
 	<target name="one-jar" depends="jar">

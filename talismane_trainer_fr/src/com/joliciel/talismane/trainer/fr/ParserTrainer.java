@@ -1,15 +1,11 @@
 package com.joliciel.talismane.trainer.fr;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,13 +14,11 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.zip.ZipInputStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.ftbDep.FtbDepReader;
-import com.joliciel.talismane.Talismane;
+import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
@@ -32,6 +26,7 @@ import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
@@ -44,13 +39,13 @@ import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainerObserver;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronServiceLocator;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.parser.NonDeterministicParser;
-import com.joliciel.talismane.parser.ParseEvaluationFScoreCalculator;
-import com.joliciel.talismane.parser.ParseEvaluationGuessTemplateWriter;
-import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
-import com.joliciel.talismane.parser.ParserEvaluator;
+import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
+import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.ParsingConstrainer;
@@ -65,7 +60,6 @@ import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
@@ -81,14 +75,7 @@ public class ParserTrainer {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		Map<String, String> argMap = new HashMap<String, String>();
-		
-		for (String arg : args) {
-			int equalsPos = arg.indexOf('=');
-			String argName = arg.substring(0, equalsPos);
-			String argValue = arg.substring(equalsPos+1);
-			argMap.put(argName, argValue);
-		}
+		Map<String, String> argMap = TalismaneConfig.convertArgs(args);
 		
 		@SuppressWarnings("unused")
 		ParserTrainer maxentRunner = new ParserTrainer(argMap);
@@ -96,6 +83,8 @@ public class ParserTrainer {
 
     public ParserTrainer(Map<String,String> argMap) throws Exception {
     	String command = null;
+
+		String corpusType = "ftbDep";
 
 		String parserModelFilePath = "";
 		String parserFeatureFilePath = "";
@@ -107,17 +96,15 @@ public class ParserTrainer {
 		String outDirPath = "";
 		String lexiconDirPath = "";
 		int beamWidth = 1;
-		boolean includeSentences = false;
 		String transitionSystemStr = "ShiftReduce";
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-		
-		int outputGuessCount = 0;
-		int maxParseAnalysisTime = 60;
 		
 		double constraintViolationCost = -1;
 		double epsilon = -1;
 		LinearSVMSolverType solverType = null;
 		double perceptronTolerance = -1;
+		boolean averageAtIntervals = false;
+		List<Integer> perceptronObservationPoints = null;
 		
 		String tokenFilterPath = "";
 		String tokenSequenceFilterPath = "";
@@ -132,6 +119,7 @@ public class ParserTrainer {
 		int excludeIndex = -1;
 
 		File performanceConfigFile = null;
+		String excludeFileName = null;
 
 		boolean keepCompoundPosTags = false;
 
@@ -160,8 +148,6 @@ public class ParserTrainer {
 				lexiconDirPath = argValue;
 			else if (argName.equals("beamWidth"))
 				beamWidth = Integer.parseInt(argValue);
-			else if (argName.equals("includeSentences"))
-				includeSentences = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("transitionSystem"))
 				transitionSystemStr = argValue;
 			else if (argName.equals("dependencyLabels"))
@@ -186,10 +172,6 @@ public class ParserTrainer {
 				posTaggerPreProcessingFilterPath = argValue;
 			else if (argName.equals("posTaggerPostProcessingFilters"))
 				posTaggerPostProcessingFilterPath = argValue;
-			else if (argName.equals("outputGuessCount"))
-				outputGuessCount = Integer.parseInt(argValue);
-			else if (argName.equals("maxParseAnalysisTime"))
-				maxParseAnalysisTime = Integer.parseInt(argValue);
 			else if (argName.equals("keepCompoundPosTags"))
 				keepCompoundPosTags = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("externalResources"))
@@ -202,6 +184,18 @@ public class ParserTrainer {
 				includeIndex = Integer.parseInt(argValue);
 			else if (argName.equals("excludeIndex"))
 				excludeIndex = Integer.parseInt(argValue);
+			else if (argName.equals("averageAtIntervals"))
+				averageAtIntervals = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronObservationPoints")) {
+				String[] points = argValue.split(",");
+				perceptronObservationPoints = new ArrayList<Integer>();
+				for (String point : points)
+					perceptronObservationPoints.add(Integer.parseInt(point));
+			}
+			else if (argName.equals("excludeFile"))
+				excludeFileName = argValue;
+			else if (argName.equals("corpusReader"))
+				corpusType = argValue;
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -212,14 +206,12 @@ public class ParserTrainer {
 		if (lexiconDirPath.length()==0) {
 			throw new RuntimeException("Missing argument: lexiconDir");
 		}
-		String modelPath = "";
-		String modelName = "";
-		if (parserModelFilePath.indexOf('/')>=0) {
-			modelPath = parserModelFilePath.substring(0, parserModelFilePath.lastIndexOf('/')+1);
-			modelName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1, parserModelFilePath.indexOf('.'));
-		} else {
-			modelName = parserModelFilePath.substring(0, parserModelFilePath.indexOf('.'));
-		}
+		
+		File modelFile = new File(parserModelFilePath);
+		File modelDir = modelFile.getParentFile();
+		modelDir.mkdirs();
+		
+		String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 		
 		long startTime = new Date().getTime();
 		PerformanceMonitor.start(performanceConfigFile);
@@ -260,20 +252,29 @@ public class ParserTrainer {
 			if (corpusFilePath.length()==0)
 				throw new RuntimeException("Missing argument: corpus");
 
-			String modelDirPath = parserModelFilePath.substring(0, parserModelFilePath.lastIndexOf("/"));
-			File modelDir = new File(modelDirPath);
-			modelDir.mkdirs();
-			
-			File parserModelFile = new File(parserModelFilePath);
-			
 			File corpusFile = new File(corpusFilePath);
 
-			FtbDepReader corpusReader = new FtbDepReader(corpusFile, "UTF-8");
+			ParserAnnotatedCorpusReader corpusReader = null;
+			if (corpusType.equals("ftbDep")) {
+				FtbDepReader ftbDepReader = new FtbDepReader(corpusFile, "UTF-8");
+				ftbDepReader.setParserService(parserService);
+				ftbDepReader.setPosTaggerService(posTaggerService);
+				ftbDepReader.setTokeniserService(tokeniserService);
+				ftbDepReader.setKeepCompoundPosTags(keepCompoundPosTags);
+				ftbDepReader.setPredictTransitions(true);
+				
+				corpusReader = ftbDepReader;
+	  		} else if (corpusType.equals("conll")) {
+    			ParserRegexBasedCorpusReader conllReader = parserService.getRegexBasedCorpusReader(corpusFile, Charset.forName("UTF-8"));
+    			conllReader.setPredictTransitions(true);
+    			conllReader.setExcludeFileName(excludeFileName);
+				
+				corpusReader = conllReader;
+			} else {
+				throw new RuntimeException("Unknown corpusReader: " + corpusType);
+			}
 			corpusReader.setMaxSentenceCount(sentenceCount);
-			corpusReader.setParserService(parserService);
-			corpusReader.setPosTaggerService(posTaggerService);
-			corpusReader.setTokeniserService(tokeniserService);
-			corpusReader.setKeepCompoundPosTags(keepCompoundPosTags);
+
 			
 			if (crossValidationSize>0)
 				corpusReader.setCrossValidationSize(crossValidationSize);
@@ -428,6 +429,7 @@ public class ParserTrainer {
 				} else if (algorithm==MachineLearningAlgorithm.Perceptron || algorithm==MachineLearningAlgorithm.PerceptronRanking) {
 					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
 					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.AverageAtIntervals.name(), averageAtIntervals);
 					
 					if (perceptronTolerance>=0)
 						trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
@@ -449,11 +451,24 @@ public class ParserTrainer {
 				descriptors.put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
 
 				MachineLearningModel parserModel = null;
+				boolean needToPersist = true;
 				if (algorithm.getModelType()==MachineLearningModelType.Classification) {
 					ClassificationEventStream parseEventStream = parserService.getParseEventStream(corpusReader, parseFeatures);
-					ClassificationModelTrainer<Transition> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
-
-					parserModel = trainer.trainModel(parseEventStream, transitionSystem, descriptors);
+					if (perceptronObservationPoints==null) {
+						ClassificationModelTrainer<Transition> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
+	
+						parserModel = trainer.trainModel(parseEventStream, transitionSystem, descriptors);
+					} else {
+						if (algorithm!=MachineLearningAlgorithm.Perceptron)
+							throw new RuntimeException("Incompatible argument perceptronTrainingInterval with algorithm " + algorithm);
+						PerceptronServiceLocator perceptronServiceLocator = PerceptronServiceLocator.getInstance();
+						PerceptronService perceptronService = perceptronServiceLocator.getPerceptronService();
+						PerceptronClassificationModelTrainer<Transition> trainer = perceptronService.getPerceptronModelTrainer();
+						trainer.setParameters(trainParameters);
+						PerceptronModelTrainerObserver<Transition> observer = new ParserPerceptronModelPersister(modelDir, modelName, externalResourceFinder);
+						trainer.trainModelsWithObserver(parseEventStream, transitionSystem, descriptors, observer, perceptronObservationPoints);
+						needToPersist = false;
+					}
 				} else if (algorithm.getModelType()==MachineLearningModelType.Ranking) {
 					if (parsingConstrainerPath==null) {
 						throw new RuntimeException("Missing argument: parsingConstrainer");
@@ -467,106 +482,12 @@ public class ParserTrainer {
 				} else {
 					throw new TalismaneException("Unknown model type: " + algorithm.getModelType());
 				}
-				if (externalResourceFinder!=null)
-					parserModel.setExternalResources(externalResourceFinder.getExternalResources());
-				parserModel.persist(parserModelFile);
-			} else if (command.equals("evaluate")) {
-				if (outDirPath.length()==0)
-					throw new RuntimeException("Missing argument: outdir");
-
-				File outDir = new File(outDirPath);
-				outDir.mkdirs();
-
-				ZipInputStream zis = new ZipInputStream(new FileInputStream(parserModelFilePath));
-				MachineLearningModel parserModel = machineLearningService.getMachineLearningModel(zis);
-
-				List<String> tokenFilterDescriptors = parserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
-				if (tokenFilterDescriptors!=null) {
-					List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-					for (String descriptor : tokenFilterDescriptors) {
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
-							tokenFilters.add(tokenFilter);
-						}
-					}
-					TokenSequenceFilter tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(tokenFilters);
-					corpusReader.addTokenSequenceFilter(tokenFilterWrapper);
+				
+				if (needToPersist) {
+					if (externalResourceFinder!=null)
+						parserModel.setExternalResources(externalResourceFinder.getExternalResources());
+					parserModel.persist(modelFile);
 				}
-				
-				List<String> tokenSequenceFilterDescriptors = parserModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
-				if (tokenSequenceFilterDescriptors!=null) {
-					for (String descriptor : tokenSequenceFilterDescriptors) {
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-							corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
-						}
-					}
-				}
-				
-				List<String> posTaggerPreProcessingFilters = parserModel.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-				if (posTaggerPreProcessingFilters!=null) {
-					for (String descriptor : posTaggerPreProcessingFilters) {
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-							corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
-						}
-					}
-				}
-				
-				List<String> posTaggerPostProcessingFilters = parserModel.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-				if (posTaggerPostProcessingFilters!=null) {
-					for (String descriptor : posTaggerPostProcessingFilters) {
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							PosTagSequenceFilter posTagSequenceFilter = posTagFilterService.getPosTagSequenceFilter(descriptor);
-							corpusReader.addPosTagSequenceFilter(posTagSequenceFilter);
-						}
-					}
-				}
-				
-				NonDeterministicParser parser = parserService.getTransitionBasedParser(parserModel, beamWidth, false);
-				TalismaneSession.setTransitionSystem(parser.getTransitionSystem());
-				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
-				
-				ParserEvaluator evaluator = parserService.getParserEvaluator();
-				evaluator.setParser(parser);
-				
-				if (includeSentences) {
-					File csvFile = new File(outDir, modelName + "_sentences.csv");
-					csvFile.delete();
-					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
-					int guessCount = 1;
-					if (outputGuessCount>0)
-						guessCount = outputGuessCount;
-					else
-						guessCount = parser.getBeamWidth();
-
-					ParseEvaluationSentenceWriter sentenceWriter = new ParseEvaluationSentenceWriter(csvFileWriter, guessCount);
-					evaluator.addObserver(sentenceWriter);
-				}
-
-				ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator();
-				parseFScoreCalculator.setLabeledEvaluation(true);
-				evaluator.addObserver(parseFScoreCalculator);
-				
-				Reader templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource("parser_conll_template.ftl")));
-				
-				File freemarkerFile = new File(outDir, modelName + "_output.txt");
-				freemarkerFile.delete();
-				freemarkerFile.createNewFile();
-				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),"UTF8"));
-				ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(freemakerFileWriter, templateReader);
-				evaluator.addObserver(templateWriter);
-				
-
-				evaluator.evaluate(corpusReader);
-				
-				FScoreCalculator<String> fscoreCalculator = parseFScoreCalculator.getFscoreCalculator();
-				LOG.debug(fscoreCalculator.getTotalFScore());
-				
-				File fscoreFile = new File(outDir, modelName + "_fscores.csv");
-				fscoreCalculator.writeScoresToCSVFile(fscoreFile);
-
 			}
 			
 		} catch (Exception e) {
@@ -584,7 +505,7 @@ public class ParserTrainer {
 		
 					csvFile = new File(outDir, modelName + "_performance.csv");
 				} else {
-					csvFile = new File(modelPath + modelName + "_performance.csv");
+					csvFile = new File(modelDir, modelName + "_performance.csv");
 				}
 				csvFile.delete();
 
@@ -599,11 +520,28 @@ public class ParserTrainer {
 		}
 	}
 	
+    private static final class ParserPerceptronModelPersister implements PerceptronModelTrainerObserver<Transition> {
+    	File outDir;
+    	ExternalResourceFinder externalResourceFinder;
+    	String baseName;
+    	
+		public ParserPerceptronModelPersister(File outDir, String baseName,
+				ExternalResourceFinder externalResourceFinder) {
+			super();
+			this.outDir = outDir;
+			this.baseName = baseName;
+			this.externalResourceFinder = externalResourceFinder;
+		}
 
-	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "/com/joliciel/talismane/output/" + resource;
-		InputStream inputStream = Talismane.class.getResourceAsStream(path); 
-		
-		return inputStream;
-	}
+		@Override
+		public void onNextModel(ClassificationModel<Transition> model,
+				int iterations) {
+			this.outDir.mkdirs();
+			File parserModelFile = new File(outDir, baseName + "_i" + iterations + ".zip");
+			if (externalResourceFinder!=null)
+				model.setExternalResources(externalResourceFinder.getExternalResources());
+			LOG.info("Writing model " + parserModelFile.getName());
+			model.persist(parserModelFile);
+		}
+    }
 }

@@ -29,9 +29,11 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 	private static final Log LOG = LogFactory.getLog(PosTaggerEvaluatorImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTaggerEvaluatorImpl.class);
 
 	private PosTagger posTagger;
 	private Tokeniser tokeniser;
@@ -59,7 +61,13 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 			PosTagSequence guessedSequence = null;
 			
 			if (this.tokeniser!=null) {
-				tokenSequences = tokeniser.tokenise(tokenSequence.getText());
+				MONITOR.startTask("tokenise");
+				try {
+					tokenSequences = tokeniser.tokenise(tokenSequence.getText());
+				} finally {
+					MONITOR.endTask("tokenise");
+				}
+				
 				tokenSequence = tokenSequences.get(0);
 				if (!propagateBeam) {
 					tokenSequences = new ArrayList<TokenSequence>();
@@ -72,10 +80,19 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 			
 			if (posTagger instanceof NonDeterministicPosTagger) {
 				NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-				guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+				MONITOR.startTask("posTag");
+				try {
+					guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+				} finally {
+					MONITOR.endTask("posTag");
+				}
 				guessedSequence = guessedSequences.get(0);
 			} else {
-				guessedSequence = posTagger.tagSentence(tokenSequence);
+				try {
+					guessedSequence = posTagger.tagSentence(tokenSequence);
+				} finally {
+					MONITOR.endTask("posTag");
+				}
 			}
 			
 			if (LOG.isDebugEnabled()) {
@@ -105,16 +122,28 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 				}
 				LOG.debug(stringBuilder.toString());
 			}
-			for (PosTagEvaluationObserver observer : this.observers) {
-				observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
+			
+			MONITOR.startTask("observe");
+			try {
+				for (PosTagEvaluationObserver observer : this.observers) {
+					observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
+				}
+			} finally {
+				MONITOR.endTask("observe");
 			}
+			
 			sentenceIndex++;
 			if (sentenceCount>0 && sentenceIndex==sentenceCount)
 				break;
 		} // next sentence
 		
-		for (PosTagEvaluationObserver observer : this.observers) {
-			observer.onEvaluationComplete();
+		MONITOR.startTask("onEvaluationComplete");
+		try {
+			for (PosTagEvaluationObserver observer : this.observers) {
+				observer.onEvaluationComplete();
+			}
+		} finally {
+			MONITOR.endTask("onEvaluationComplete");
 		}
 	}
 

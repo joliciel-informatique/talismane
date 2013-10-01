@@ -23,7 +23,6 @@ import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.RankingModel;
 
 class PerceptronServiceImpl implements PerceptronService {
-
 	@Override
 	public <T extends Outcome> PerceptronClassificationModelTrainer<T> getPerceptronModelTrainer() {
 		PerceptronClassifactionModelTrainerImpl<T> trainer = new PerceptronClassifactionModelTrainerImpl<T>();
@@ -47,6 +46,4 @@ class PerceptronServiceImpl implements PerceptronService {
 		PerceptronRankingModel model = new PerceptronRankingModel();
 		return model;
 	}
-
-
 }

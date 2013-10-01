@@ -28,9 +28,11 @@ import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 /**
  * Modifies a corpus in simple ways, by replacing labels with other ones, or removing dependencies.<br/>
  * The input file has the following format:<br/>
- * GOV\tDEP\tLABEL\tACTION\tNEWLABEL<br/>
- * Where GOV is the governor's pos-tag, or * for any.<br/>
- * DEP is the dependent's pos-tag, or * for any<br/>
+ * GOVPOS\tGOV\tDEPPOS\tDEP\tLABEL\tACTION\tNEWLABEL<br/>
+ * Where GOVPOS is the governor's pos-tag, or * for any.<br/>
+ * GOV is the governor's word form, or * for any.<br/>
+ * DEPPOS is the dependent's pos-tag, or * for any<br/>
+ * DEP is the dependent's word form, or * for any<br/>
  * LABEL is the current label, or * for any<br/>
  * ACTION is either Replace or Remove<br/>
  * NEWLABEL is a new label, only required if action is Replace.<br/>
@@ -85,7 +87,8 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 
 				if (applyCommand) {
 					parseConfiguration.getDependencies().remove(arc);
-					parseConfiguration.addDependency(arc.getHead(), arc.getDependent(), command.newLabel, null);
+					if (command.command==ModifyCommandType.Replace)
+						parseConfiguration.addDependency(arc.getHead(), arc.getDependent(), command.newLabel, null);
 				}
 			}
 		}

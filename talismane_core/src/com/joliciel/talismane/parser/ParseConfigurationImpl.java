@@ -46,7 +46,6 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
 
 final class ParseConfigurationImpl implements ParseConfigurationInternal {
-    @SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(ParseConfigurationImpl.class);
 	/**
 	 * 
@@ -57,6 +56,8 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private double score;
 	private double rankingScore;
 	private boolean scoreCalculated = false;
+	private boolean useGeometricMeanForProbs = true;
+	
 	private Deque<PosTaggedToken> buffer;
 	private Deque<PosTaggedToken> stack;
 	private List<Transition> transitions;
@@ -73,7 +74,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private DependencyNode parseTree = null;
 	
 	private List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
-	private boolean arcProbsCalculated = false;
+	private int lastProbApplied = 0;
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	@SuppressWarnings("rawtypes")
 	private ScoringStrategy scoringStrategy;
@@ -115,6 +116,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.dependentTransitionMap = new HashMap<PosTaggedToken, Transition>(((ParseConfigurationInternal)history).getDependentTransitionMap());
 		
 		this.decisions = new ArrayList<Decision<Transition>>(history.getDecisions());
+		this.lastProbApplied = (((ParseConfigurationInternal)history).getLastProbApplied());
 		this.scoringStrategy = history.getScoringStrategy();
 	}
 		
@@ -181,31 +183,6 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	}
 	
 	public Set<DependencyArc> getDependencies() {
-		if (!this.arcProbsCalculated) {
-			this.updateDependencyMaps();
-			int currentDecision=0;
-			for (PosTaggedToken posTaggedToken : this.getPosTagSequence()) {
-				DependencyArc arc = this.governingDependencyMap.get(posTaggedToken);
-				if (arc!=null) {
-					// we assign this arc a probability
-					// since several transitions (e.g. shift, reduce) could have occurred prior to adding a dependency
-					// the probability will be the product of these transitions
-					Transition transition = this.dependentTransitionMap.get(posTaggedToken);
-					double probLog = 0.0;
-					for (int i=currentDecision; i<this.decisions.size();i++) {
-						Decision<Transition> decision = decisions.get(i);
-						probLog += decision.getProbabilityLog();
-						if (decision.getOutcome().equals(transition)) {
-							currentDecision=i+1;
-							break;
-						}
-					}
-					arc.setProbability(Math.exp(probLog));
-				}
-			}
-			this.arcProbsCalculated = true;
-		}
-		
 		return dependencies;
 	}
 	
@@ -366,7 +343,33 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		DependencyArc arc = this.parserServiceInternal.getDependencyArc(head, dependent, label);
 		this.addDependency(arc);
 		this.dependentTransitionMap.put(dependent, transition);
+		
+		// calculate probability based on decisions
+		if (LOG.isTraceEnabled())
+			LOG.trace("Prob for " + arc.toString());
 
+		double probLog = 0.0;
+		int numDecisions = 0;
+		for (int i=lastProbApplied; i<this.decisions.size();i++) {
+			Decision<Transition> decision = decisions.get(i);
+			probLog += decision.getProbabilityLog();
+			if (LOG.isTraceEnabled()) {
+				LOG.trace(decision.getOutcome() + ", *= " + decision.getProbability());
+			}
+			numDecisions++;
+		}
+		
+		if (useGeometricMeanForProbs) {
+			if (numDecisions>0)
+				probLog /= numDecisions;
+		}
+		
+		arc.setProbability(Math.exp(probLog));
+		this.lastProbApplied = this.decisions.size();
+		
+		if (LOG.isTraceEnabled())
+			LOG.trace("prob=" + arc.getProbability());
+		
 		return arc;
 	}
 	
@@ -547,4 +550,23 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		}
 		return outcomes;
 	}
+
+	/**
+	 * True: use a geometric mean when calculating individual arc probabilities
+	 * (which multiply the probabilities for the transitions since the last arc was added).
+	 * False: use the simple product. Default is true.
+	 * @return
+	 */
+	public boolean isUseGeometricMeanForProbs() {
+		return useGeometricMeanForProbs;
+	}
+
+	public void setUseGeometricMeanForProbs(boolean useGeometricMeanForProbs) {
+		this.useGeometricMeanForProbs = useGeometricMeanForProbs;
+	}
+
+	public int getLastProbApplied() {
+		return lastProbApplied;
+	}
+
 }

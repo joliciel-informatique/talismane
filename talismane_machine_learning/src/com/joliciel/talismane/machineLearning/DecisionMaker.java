@@ -31,4 +31,6 @@ public interface DecisionMaker<T extends Outcome> {
 	
 	public DecisionFactory<T> getDecisionFactory();
 	public void setDecisionFactory(DecisionFactory<T> decisionFactory);
+	
+	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy();
 }

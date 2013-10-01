@@ -24,6 +24,7 @@ import com.joliciel.frenchTreebank.TreebankServiceLocator;
 import com.joliciel.frenchTreebank.TreebankSubSet;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
+import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -55,14 +56,7 @@ public class SentenceDetectorTrainer {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		Map<String, String> argMap = new HashMap<String, String>();
-		
-		for (String arg : args) {
-			int equalsPos = arg.indexOf('=');
-			String argName = arg.substring(0, equalsPos);
-			String argValue = arg.substring(equalsPos+1);
-			argMap.put(argName, argValue);
-		}
+		Map<String, String> argMap = TalismaneConfig.convertArgs(args);
 		
 		@SuppressWarnings("unused")
 		SentenceDetectorTrainer maxentRunner = new SentenceDetectorTrainer(argMap);

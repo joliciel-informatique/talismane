@@ -558,6 +558,15 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
+
+	public ParseComparisonStrategy getParseComparisonStrategy() {
+		return parseComparisonStrategy;
+	}
+
+	public void setParseComparisonStrategy(
+			ParseComparisonStrategy parseComparisonStrategy) {
+		this.parseComparisonStrategy = parseComparisonStrategy;
+	}
 	
 	
 }

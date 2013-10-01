@@ -31,10 +31,12 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class ParserEvaluatorImpl implements ParserEvaluator {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(ParserEvaluatorImpl.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserEvaluatorImpl.class);
 	private Parser parser;
 	private PosTagger posTagger;
 	private Tokeniser tokeniser;
@@ -59,7 +61,12 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 				
 				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
 				
-				tokenSequences = tokeniser.tokenise(sentence);
+				MONITOR.startTask("tokenise");
+				try {
+					tokenSequences = tokeniser.tokenise(sentence);
+				} finally {
+					MONITOR.endTask("tokenise");
+				}
 				
 				if (!propagateBeam) {
 					TokenSequence tokenSequence = tokenSequences.get(0);
@@ -76,7 +83,12 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 			if (posTagger!=null) {
 				if (posTagger instanceof NonDeterministicPosTagger) {
 					NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-					posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+					MONITOR.startTask("posTag");
+					try {
+						posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+					} finally {
+						MONITOR.endTask("posTag");
+					}
 					if (!propagateBeam) {
 						PosTagSequence posTagSequence = posTagSequences.get(0);
 						posTagSequences = new ArrayList<PosTagSequence>();
@@ -84,7 +96,13 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 					}
 				} else {
 					posTagSequences = new ArrayList<PosTagSequence>();
-					PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
+					PosTagSequence posTagSequence = null;
+					MONITOR.startTask("posTag");
+					try {
+						posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
+					} finally {
+						MONITOR.endTask("posTag");
+					}
 					posTagSequences.add(posTagSequence);
 				}
 			} else {
@@ -96,25 +114,46 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 			List<ParseConfiguration> guessedConfigurations = null;
 			if (parser instanceof NonDeterministicParser) {
 				NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
-				guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
+				MONITOR.startTask("parse");
+				try {
+					guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
+				} finally {
+					MONITOR.endTask("parse");
+				}
 			} else {
-				ParseConfiguration bestGuess = parser.parseSentence(posTagSequences.get(0));
+				ParseConfiguration bestGuess = null;
+				MONITOR.startTask("parse");
+				try {
+					bestGuess = parser.parseSentence(posTagSequences.get(0));
+				} finally {
+					MONITOR.endTask("parse");
+				}
 				guessedConfigurations = new ArrayList<ParseConfiguration>();
 				guessedConfigurations.add(bestGuess);
 			}
 			
-			for (ParseEvaluationObserver observer : this.observers) {
-				observer.onNextParseConfiguration(realConfiguration, guessedConfigurations);
+			MONITOR.startTask("observe");
+			try {
+				for (ParseEvaluationObserver observer : this.observers) {
+					observer.onNextParseConfiguration(realConfiguration, guessedConfigurations);
+				}
+			} finally {
+				MONITOR.endTask("observe");
 			}
+			
 			sentenceIndex++;
 			if (sentenceCount>0 && sentenceIndex==sentenceCount)
 				break;
 		} // next sentence
 		
-		for (ParseEvaluationObserver observer : this.observers) {
-			observer.onEvaluationComplete();
+		MONITOR.startTask("onEvaluationComplete");
+		try {
+			for (ParseEvaluationObserver observer : this.observers) {
+				observer.onEvaluationComplete();
+			}
+		} finally {
+			MONITOR.endTask("onEvaluationComplete");
 		}
-
 	}
 
 	public Parser getParser() {

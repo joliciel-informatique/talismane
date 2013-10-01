@@ -30,4 +30,12 @@ public interface ScoringStrategy<T extends Solution> {
 	 * @return
 	 */
 	public double calculateScore(T solution);
+	
+	/**
+	 * Is this scoring strategy additive (e.g. perceptrons)
+	 * if not, it must be multiplicative (e.g. probabilities)
+	 * @return
+	 */
+	public boolean isAdditive();
+	
 }

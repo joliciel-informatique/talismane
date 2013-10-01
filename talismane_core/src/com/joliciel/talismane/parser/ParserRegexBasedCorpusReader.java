@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+
 /**
  * A corpus reader that expects one pos-tagged token with dependency info per line,
  * and analyses the line content based on a regex supplied during construction.
@@ -35,7 +38,7 @@ package com.joliciel.talismane.parser;
  * @author Assaf Urieli
  *
  */
-public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader {
+public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader, PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader {
 	/**
 	 * The default regex (if none is set) - corresponds to the CONLL format.
 	 */
@@ -55,5 +58,12 @@ public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReade
 	 */
 	public boolean isPredictTransitions();
 	public void setPredictTransitions(boolean predictTransitions);
+	
+	/**
+	 * If the reader is opened based on a directory, the name of a file to exclude when training.
+	 * @return
+	 */
+	public String getExcludeFileName();
+	public void setExcludeFileName(String excludeFileName);
 
 }

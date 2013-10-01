@@ -105,4 +105,5 @@ public interface LanguageSpecificImplementation {
 	public ZipInputStream getDefaultParserModelStream();
 	
 	public PosTaggerLexicon getLexicon();
+	public PosTaggerLexicon getDefaultLexicon();
 }

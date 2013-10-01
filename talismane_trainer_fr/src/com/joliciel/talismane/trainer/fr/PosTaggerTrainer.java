@@ -1,25 +1,19 @@
 package com.joliciel.talismane.trainer.fr;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.Map.Entry;
-import java.util.zip.ZipInputStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,13 +25,12 @@ import com.joliciel.frenchTreebank.export.FtbPosTagMapper;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.ftbDep.FtbDepReader;
-import com.joliciel.talismane.Talismane;
+import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
-import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
@@ -50,36 +43,26 @@ import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainerObserver;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronServiceLocator;
+import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.TransitionSystem;
-import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTagEvaluationFScoreCalculator;
-import com.joliciel.talismane.posTagger.PosTagEvaluationSentenceWriter;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
-import com.joliciel.talismane.posTagger.PosTagger;
-import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
-import com.joliciel.talismane.posTagger.PosTaggerGuessTemplateWriter;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
-import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.stats.FScoreCalculator;
-import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
-import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
-import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -90,15 +73,8 @@ public class PosTaggerTrainer {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		Map<String, String> argMap = new HashMap<String, String>();
-		
-		for (String arg : args) {
-			int equalsPos = arg.indexOf('=');
-			String argName = arg.substring(0, equalsPos);
-			String argValue = arg.substring(equalsPos+1);
-			argMap.put(argName, argValue);
-		}
-		
+		Map<String, String> argMap = TalismaneConfig.convertArgs(args);
+
 		@SuppressWarnings("unused")
 		PosTaggerTrainer maxentRunner = new PosTaggerTrainer(argMap);
 	}
@@ -108,38 +84,32 @@ public class PosTaggerTrainer {
 
 		String corpusType = "ftb";
 		String posTaggerModelFilePath = "";
-		String tokeniserModelFilePath = "";
 		String posTaggerFeatureFilePath = "";
-		String posTaggerRuleFilePath = "";
 		String tokenFilterPath = "";
 		String tokenSequenceFilterPath = "";
 		String posTaggerPreProcessingFilterPath = "";
 		String posTaggerPostProcessingFilterPath = "";
-		String outDirPath = "";
 		int iterations = 0;
 		int cutoff = 0;
 		int sentenceCount = 0;
 		int startSentence = 0;
-		int beamWidth = 10;
-		boolean propagateBeam = true;
 		String posTagSetPath = "";
 		String posTagMapPath = "";
 		String corpusPath = "";
 		String lexiconDirPath = "";
-		boolean includeDetails = false;
-		boolean includeSentences = true;
-		String suffix = "";
 
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-		int outputGuessCount = 0;
 		
 		double constraintViolationCost = -1;
 		double epsilon = -1;
 		LinearSVMSolverType solverType = null;
 		double perceptronTolerance = -1;
+		boolean averageAtIntervals = false;
+		List<Integer> perceptronObservationPoints = null;
 
 		boolean useCompoundPosTags = false;
 		String externalResourcePath = null;
+		String excludeFileName = null;
 		
 		File performanceConfigFile = null;
 
@@ -152,8 +122,6 @@ public class PosTaggerTrainer {
 				posTaggerModelFilePath = argValue;
 			else if (argName.equals("posTaggerFeatures")) 
 				posTaggerFeatureFilePath = argValue;
-			else if (argName.equals("posTaggerRules")) 
-				posTaggerRuleFilePath = argValue;
 			else if (argName.equals("tokenFilters"))
 				tokenFilterPath = argValue;
 			else if (argName.equals("tokenSequenceFilters"))
@@ -170,26 +138,14 @@ public class PosTaggerTrainer {
 				corpusPath = argValue;
 			else if (argName.equals("lexiconDir"))
 				lexiconDirPath = argValue;
-			else if (argName.equals("tokeniserModel")) 
-				tokeniserModelFilePath = argValue;
 			else if (argName.equals("iterations"))
 				iterations = Integer.parseInt(argValue);
 			else if (argName.equals("cutoff"))
 				cutoff = Integer.parseInt(argValue);
-			else if (argName.equals("outdir")) 
-				outDirPath = argValue;
 			else if (argName.equals("sentenceCount"))
 				sentenceCount = Integer.parseInt(argValue);
 			else if (argName.equals("startSentence"))
 				startSentence = Integer.parseInt(argValue);
-			else if (argName.equals("beamWidth"))
-				beamWidth = Integer.parseInt(argValue);
-			else if (argName.equals("propagateBeam"))
-				propagateBeam = argValue.equals("true");
-			else if (argName.equals("includeSentences"))
-				includeSentences = argValue.equalsIgnoreCase("true");
-			else if (argName.equals("includeDetails"))
-				includeDetails = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("algorithm"))
 				algorithm = MachineLearningAlgorithm.valueOf(argValue);
 			else if (argName.equals("linearSVMSolver"))
@@ -200,22 +156,36 @@ public class PosTaggerTrainer {
 				epsilon = Double.parseDouble(argValue);
 			else if (argName.equals("perceptronTolerance"))
 				perceptronTolerance = Double.parseDouble(argValue);
-			else if (argName.equals("outputGuessCount"))
-				outputGuessCount = Integer.parseInt(argValue);
 			else if (argName.equals("corpusReader"))
 				corpusType = argValue;
-			else if (argName.equals("suffix"))
-				suffix = argValue;
 			else if (argName.equals("useCompoundPosTags"))
 				useCompoundPosTags = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("externalResources"))
 				externalResourcePath = argValue;
 			else if (argName.equals("performanceConfigFile"))
 				performanceConfigFile = new File(argValue);
+			else if (argName.equals("averageAtIntervals"))
+				averageAtIntervals = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("perceptronObservationPoints")) {
+				String[] points = argValue.split(",");
+				perceptronObservationPoints = new ArrayList<Integer>();
+				for (String point : points)
+					perceptronObservationPoints.add(Integer.parseInt(point));
+			}
+			else if (argName.equals("excludeFile"))
+				excludeFileName = argValue;
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
 		
+		File modelFile = new File(posTaggerModelFilePath);
+		File modelDir = modelFile.getParentFile();
+		modelDir.mkdirs();
+		
+		String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
+
+		
+		long startTime = new Date().getTime();
 		PerformanceMonitor.start(performanceConfigFile);
 		try {
 
@@ -245,8 +215,6 @@ public class PosTaggerTrainer {
 	        
         	TalismaneSession.setLexicon(lexiconChain);
 	 
-	        TokenFeatureService tokenFeatureService = talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService();
-	        TokeniserPatternService tokeniserPatternService = talismaneServiceLocator.getTokenPatternServiceLocator().getTokeniserPatternService();
 	        TokenFilterService tokenFilterService = talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService();
 	        TokeniserServiceLocator tokeniserServiceLocator = talismaneServiceLocator.getTokeniserServiceLocator();
 	        TokeniserService tokeniserService = tokeniserServiceLocator.getTokeniserService();
@@ -266,6 +234,10 @@ public class PosTaggerTrainer {
 			
 			MachineLearningService machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
 
+			// doesn't really matter which transition system, we're just reading postags
+			TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
+			TalismaneSession.setTransitionSystem(transitionSystem);
+
 			PosTagAnnotatedCorpusReader corpusReader = null;
 			if (corpusType.equals("ftb")) {
 				TreebankReader treebankReader = null;
@@ -284,16 +256,21 @@ public class PosTaggerTrainer {
 			} else if (corpusType.equals("ftbDep")) {
 				File corpusFile = new File(corpusPath);
 				FtbDepReader ftbDepReader = new FtbDepReader(corpusFile, "UTF-8");
-				ftbDepReader.setMaxSentenceCount(sentenceCount);
 				ftbDepReader.setParserService(parserService);
 				ftbDepReader.setPosTaggerService(posTaggerService);
 				ftbDepReader.setTokeniserService(tokeniserService);
 				ftbDepReader.setKeepCompoundPosTags(useCompoundPosTags);
+				ftbDepReader.setPredictTransitions(false);
 				
-				// doesn't really matter which transition system, we're just reading postags
-				TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
-				TalismaneSession.setTransitionSystem(transitionSystem);
 				corpusReader = ftbDepReader;
+	  		} else if (corpusType.equals("conll")) {
+    			File inputFile = new File(corpusPath);
+    			
+    			ParserRegexBasedCorpusReader conllReader = parserService.getRegexBasedCorpusReader(inputFile, Charset.forName("UTF-8"));
+    			conllReader.setPredictTransitions(false);
+    			conllReader.setExcludeFileName(excludeFileName);
+				
+				corpusReader = conllReader;
 			} else {
 				throw new RuntimeException("Unknown corpusReader: " + corpusType);
 			}
@@ -306,11 +283,6 @@ public class PosTaggerTrainer {
 					throw new RuntimeException("Missing argument: posTaggerFeatures");
 				if (posTagMapPath.length()==0)
 					throw new RuntimeException("Missing argument: posTagMap");
-
-				String modelDirPath = posTaggerModelFilePath.substring(0, posTaggerModelFilePath.lastIndexOf("/"));
-				File modelDir = new File(modelDirPath);
-				modelDir.mkdirs();
-				File modelFile = new File(posTaggerModelFilePath);
 				
 				ExternalResourceFinder externalResourceFinder = null;
 				if (externalResourcePath!=null) {
@@ -429,6 +401,7 @@ public class PosTaggerTrainer {
 				} else if (algorithm.equals(MachineLearningAlgorithm.Perceptron)) {
 					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
 					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
+					trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.AverageAtIntervals.name(), averageAtIntervals);
 					
 					if (perceptronTolerance>=0)
 						trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);					
@@ -442,188 +415,31 @@ public class PosTaggerTrainer {
 						trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Epsilon.name(), epsilon);
 				}
 				
-				ClassificationModelTrainer<PosTag> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
-
 				Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 				descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				descriptors.put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 				descriptors.put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
 				descriptors.put(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPreprocessingFilterDescriptors);
 				descriptors.put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
-				ClassificationModel<PosTag> posTaggerModel = trainer.trainModel(posTagEventStream, posTagSet, descriptors);			
-				if (externalResourceFinder!=null)
-					posTaggerModel.setExternalResources(externalResourceFinder.getExternalResources());
-				posTaggerModel.persist(modelFile);
 
-			} else if (command.equals("evaluate")) {
-				if (posTaggerModelFilePath.length()==0)
-					throw new RuntimeException("Missing argument: posTaggerModel");
-				if (outDirPath.length()==0)
-					throw new RuntimeException("Missing argument: outdir");
-				
-				ZipInputStream zis = new ZipInputStream(new FileInputStream(posTaggerModelFilePath));
-				ClassificationModel<PosTag> posTaggerModel = machineLearningService.getClassificationModel(zis);
-				
-				Tokeniser tokeniser = null;
-				if (tokeniserModelFilePath.length()>0) {
-					ZipInputStream tokeniserZis = new ZipInputStream(new FileInputStream(posTaggerModelFilePath));
-					ClassificationModel<TokeniserOutcome> tokeniserModel = machineLearningService.getClassificationModel(tokeniserZis);
-					TokeniserPatternManager tokeniserPatternManager =
-						tokeniserPatternService.getPatternManager(tokeniserModel.getDescriptors().get("patterns"));
-					Set<TokeniserContextFeature<?>> tokeniserContextFeatures = tokenFeatureService.getTokeniserContextFeatureSet(tokeniserModel.getFeatureDescriptors(), tokeniserPatternManager.getParsedTestPatterns());
-					tokeniser = tokeniserPatternService.getIntervalPatternTokeniser(tokeniserPatternManager, tokeniserContextFeatures, tokeniserModel.getDecisionMaker(), beamWidth);
-				
-					List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
-					if (tokenFilterDescriptors!=null) {
-						for (String descriptor : tokenFilterDescriptors) {
-							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
-								tokeniser.addTokenFilter(tokenFilter);
-							}
-						}
-					}
+				if (perceptronObservationPoints==null) {
+					ClassificationModelTrainer<PosTag> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
 
-					List<String> tokenSequenceFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
-					if (tokenSequenceFilterDescriptors!=null) {
-						for (String descriptor : tokenSequenceFilterDescriptors) {
-							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-								tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
-							}
-						}
-					}
-				}
-					
-//				Set<String> unknownWords = treebankService.findUnknownWords(trainingSection, testSection);
-				Set<String> unknownWords = new TreeSet<String>();
-				String modelName = posTaggerModelFilePath.substring(posTaggerModelFilePath.lastIndexOf('/')+1, posTaggerModelFilePath.indexOf('.'));
-				File outDir = new File(outDirPath);
-				outDir.mkdirs();
-
-				FScoreCalculator<String> fScoreCalculator = null;
-				
-				Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(posTaggerModel.getFeatureDescriptors());
-				
-				PosTagger posTagger = posTaggerService.getPosTagger(posTaggerFeatures, posTaggerModel.getDecisionMaker(), beamWidth);
-				
-				if (tokeniser==null) {
-					// add these filters to the reader as if the tokeniser applied them
-					List<String> tokenFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
-					if (tokenFilterDescriptors!=null) {
-						List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-						for (String descriptor : tokenFilterDescriptors) {
-							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
-								tokenFilters.add(tokenFilter);
-							}
-						}
-						TokenSequenceFilter tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(tokenFilters);
-						corpusReader.addTokenSequenceFilter(tokenFilterWrapper);
-					}
-					
-					List<String> tokenSequenceFilterDescriptors = posTaggerModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
-					if (tokenSequenceFilterDescriptors!=null) {
-						for (String descriptor : tokenSequenceFilterDescriptors) {
-							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-								corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
-							}
-						}
-					}
-				}
-				
-				List<String> posTaggerPreprocessingFilters = posTaggerModel.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-				if (posTaggerPreprocessingFilters!=null) {
-					for (String descriptor : posTaggerPreprocessingFilters) {
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-							corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
-							posTagger.addPreProcessingFilter(tokenSequenceFilter);
-						}
-					}
-				}
-				
-
-				List<String> posTaggerPostProcessingFilters = posTaggerModel.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-				if (posTaggerPostProcessingFilters!=null) {
-					for (String descriptor : posTaggerPostProcessingFilters) {
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							PosTagSequenceFilter posTagSequenceFilter = posTagFilterService.getPosTagSequenceFilter(descriptor);
-							corpusReader.addPosTagSequenceFilter(posTagSequenceFilter);
-							posTagger.addPostProcessingFilter(posTagSequenceFilter);
-						}
-					}
+					ClassificationModel<PosTag> posTaggerModel = trainer.trainModel(posTagEventStream, posTagSet, descriptors);			
+					if (externalResourceFinder!=null)
+						posTaggerModel.setExternalResources(externalResourceFinder.getExternalResources());
+					posTaggerModel.persist(modelFile);
+				} else {
+					if (algorithm!=MachineLearningAlgorithm.Perceptron)
+						throw new RuntimeException("Incompatible argument perceptronTrainingInterval with algorithm " + algorithm);
+					PerceptronServiceLocator perceptronServiceLocator = PerceptronServiceLocator.getInstance();
+					PerceptronService perceptronService = perceptronServiceLocator.getPerceptronService();
+					PerceptronClassificationModelTrainer<PosTag> trainer = perceptronService.getPerceptronModelTrainer();
+					trainer.setParameters(trainParameters);
+					PerceptronModelTrainerObserver<PosTag> observer = new PosTaggerPerceptronModelPersister(modelDir, modelName, externalResourceFinder);
+					trainer.trainModelsWithObserver(posTagEventStream, posTagSet, descriptors, observer, perceptronObservationPoints);
 				}
 
-				if (posTaggerRuleFilePath.length()>0) {
-					File posTaggerRuleFile = new File(posTaggerRuleFilePath);
-					Scanner scanner = new Scanner(posTaggerRuleFile);
-					List<String> ruleDescriptors = new ArrayList<String>();
-					while (scanner.hasNextLine()) {
-						String ruleDescriptor = scanner.nextLine();
-						ruleDescriptors.add(ruleDescriptor);
-						LOG.debug(ruleDescriptor);
-					}
-					List<PosTaggerRule> rules = posTaggerFeatureService.getRules(ruleDescriptors);
-					posTagger.setPosTaggerRules(rules);
-				}
-
-				if (includeDetails) {
-					String detailsFilePath = modelName + "_posTagger_details.txt";
-					File detailsFile = new File(outDir, detailsFilePath);
-					detailsFile.delete();
-					ClassificationObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
-					posTagger.addObserver(observer);
-				}
-				
-				PosTaggerEvaluator evaluator = posTaggerService.getPosTaggerEvaluator(posTagger);
-				
-				if (includeSentences) {
-					File csvFile = new File(outDir, modelName + "_sentences" + suffix + ".csv");
-					csvFile.delete();
-					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
-					int guessCount = 1;
-					if (outputGuessCount>0)
-						guessCount = outputGuessCount;
-					else if (posTagger instanceof NonDeterministicPosTagger)
-						guessCount = ((NonDeterministicPosTagger) posTagger).getBeamWidth();
-					
-					PosTagEvaluationSentenceWriter sentenceWriter = new PosTagEvaluationSentenceWriter(csvFileWriter, guessCount);
-					evaluator.addObserver(sentenceWriter);
-				}
-				
-				PosTagEvaluationFScoreCalculator posTagFScoreCalculator = new PosTagEvaluationFScoreCalculator();
-				posTagFScoreCalculator.setUnknownWords(unknownWords);
-				evaluator.addObserver(posTagFScoreCalculator);
-
-				File freemarkerFile = new File(outDir, modelName + suffix + ".output.txt");
-				freemarkerFile.delete();
-				freemarkerFile.createNewFile();
-				Reader templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource("posTagger_template.ftl")));
-				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),"UTF8"));
-				PosTaggerGuessTemplateWriter templateWriter = new PosTaggerGuessTemplateWriter(freemakerFileWriter, templateReader);
-				evaluator.addObserver(templateWriter);
-				
-				if (tokeniser!=null) {
-					evaluator.setTokeniser(tokeniser);
-				}
-				evaluator.setPropagateBeam(propagateBeam);
-				
-				evaluator.evaluate(corpusReader);
-				
-				fScoreCalculator = posTagFScoreCalculator.getFScoreCalculator();
-				
-				double unknownLexiconFScore = posTagFScoreCalculator.getFscoreUnknownInLexicon().getTotalFScore();
-				LOG.debug("F-score for words unknown in lexicon " + posTaggerModelFilePath + ": " + unknownLexiconFScore);
-				double unknownCorpusFScore = posTagFScoreCalculator.getFscoreUnknownInCorpus().getTotalFScore();
-				LOG.debug("F-score for words unknown in corpus " + posTaggerModelFilePath + ": " + unknownCorpusFScore);
-				
-				double fscore = fScoreCalculator.getTotalFScore();
-				LOG.debug("F-score for " + posTaggerModelFilePath + ": " + fscore);
-				
-				File fscoreFile = new File(outDir, modelName + suffix + ".fscores.csv");
-				fScoreCalculator.writeScoresToCSVFile(fscoreFile);
 			}
 			
 		} catch (Exception e) {
@@ -631,13 +447,45 @@ public class PosTaggerTrainer {
 			throw e;
 		} finally {
 			PerformanceMonitor.end();
+
+			if (PerformanceMonitor.isActivated()) {
+				Writer csvFileWriter = null;
+				File csvFile = new File(modelDir, modelName + "_performance.csv");
+				csvFile.delete();
+
+				csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+				PerformanceMonitor.writePerformanceCSV(csvFileWriter);
+				csvFileWriter.flush();
+				csvFileWriter.close();
+			}
+			long endTime = new Date().getTime();
+			long totalTime = endTime - startTime;
+			LOG.info("Total time: " + totalTime);
 		}
 	}
 	
-	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "/com/joliciel/talismane/output/" + resource;
-		InputStream inputStream = Talismane.class.getResourceAsStream(path); 
-		
-		return inputStream;
-	}
+    private static final class PosTaggerPerceptronModelPersister implements PerceptronModelTrainerObserver<PosTag> {
+    	File outDir;
+    	ExternalResourceFinder externalResourceFinder;
+    	String baseName;
+    	
+		public PosTaggerPerceptronModelPersister(File outDir, String baseName,
+				ExternalResourceFinder externalResourceFinder) {
+			super();
+			this.outDir = outDir;
+			this.baseName = baseName;
+			this.externalResourceFinder = externalResourceFinder;
+		}
+
+		@Override
+		public void onNextModel(ClassificationModel<PosTag> model,
+				int iterations) {
+			this.outDir.mkdirs();
+			File posTaggerModelFile = new File(outDir, baseName + "_i" + iterations + ".zip");
+			if (externalResourceFinder!=null)
+				model.setExternalResources(externalResourceFinder.getExternalResources());
+			LOG.info("Writing model " + posTaggerModelFile.getName());
+			model.persist(posTaggerModelFile);
+		}
+    }
 }

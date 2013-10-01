@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2013 Assaf Urieli
+//Copyright (C) 2012 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,19 +18,27 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
+
 /**
- * Returns the ranking score previously assigned without further manipulation.
+ * A class storing session-wide reference data.
  * @author Assaf Urieli
  *
  */
-public class SimpleRankingScoringStrategy implements ScoringStrategy<RankingSolution> {
-	@Override
-	public double calculateScore(RankingSolution solution) {
-		return solution.getRankingScore();
+public class MachineLearningSession {
+	private static ThreadLocal<PerceptronScoring> perceptronScoringHolder = new ThreadLocal<PerceptronScoring>();
+	
+	public static PerceptronScoring getPerceptronScoring() {
+		PerceptronScoring scoring = perceptronScoringHolder.get();
+		if (scoring==null) {
+			scoring = PerceptronScoring.normalisedExponential;
+			setPerceptronScoring(scoring);
+		}
+		return scoring;
 	}
-
-	@Override
-	public boolean isAdditive() {
-		return true;
+	
+	public static void setPerceptronScoring(PerceptronScoring scoring) {
+		perceptronScoringHolder.set(scoring);
 	}
+	
 }

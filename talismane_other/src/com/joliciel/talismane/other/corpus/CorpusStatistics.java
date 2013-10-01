@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -153,10 +154,17 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 				avgSyntaxDepthStats.addValue(avgSyntaxDepthForSentenceStats.getMean());
 		}
 		
+		// we cheat a little bit by only allowing each arc to count once
+		// there could be a situation where there are two independent non-projective arcs
+		// crossing the same mother arc, but we prefer here to underestimate,
+		// as this phenomenon is quite rare.
+		Set<DependencyArc> nonProjectiveArcs = new HashSet<DependencyArc>();
 		int i = 0;
 		for (DependencyArc arc : parseConfiguration.getDependencies()) {
 			i++;
 			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel()==null||arc.getLabel().length()==0))
+				continue;
+			if (nonProjectiveArcs.contains(arc))
 				continue;
 			
 			int headIndex = arc.getHead().getToken().getIndex();
@@ -170,14 +178,27 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 					continue;
 				if (otherArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && (otherArc.getLabel()==null||otherArc.getLabel().length()==0))
 					continue;
+				if (nonProjectiveArcs.contains(otherArc))
+					continue;
+				
 				int headIndex2 = otherArc.getHead().getToken().getIndex();
 				int depIndex2 = otherArc.getDependent().getToken().getIndex();
 				int startIndex2 = headIndex2 < depIndex2 ? headIndex2 : depIndex2;
 				int endIndex2 = headIndex2 >= depIndex2 ? headIndex2 : depIndex2;
+				boolean nonProjective = false;
 				if (startIndex2<startIndex && endIndex2>startIndex && endIndex2<endIndex) {
-					nonProjectiveCount++;
+					nonProjective = true;
 				} else if (startIndex2>startIndex && startIndex2<endIndex && endIndex2>endIndex) {
+					nonProjective = true;
+				}
+				if (nonProjective) {
+					nonProjectiveArcs.add(arc);
+					nonProjectiveArcs.add(otherArc);
 					nonProjectiveCount++;
+					LOG.debug("Non-projective arcs in sentence: " + parseConfiguration.getSentence().getText());
+					LOG.debug(arc.toString());
+					LOG.debug(otherArc.toString());
+					break;
 				}
 			}
 		}

@@ -18,7 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -45,13 +46,27 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 	public void predictTransitions(ParseConfiguration configuration,
 			Set<DependencyArc> targetDependencies) {
 		LOG.debug("predictTransitions");
-		LOG.debug(configuration.toString());
+		LOG.debug(configuration.getSentence().getText());
+		LOG.debug(configuration);
 		LOG.debug(targetDependencies);
-		Set<PosTaggedToken> ungovernedTokens = new HashSet<PosTaggedToken>();
+		
+		Map<PosTaggedToken,DependencyArc> ungovernedTokens = new HashMap<PosTaggedToken,DependencyArc>();
+		
+		for (DependencyArc arc : targetDependencies) {
+			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG)&& (arc.getLabel()==null || arc.getLabel().length()==0)) {
+				ungovernedTokens.put(arc.getDependent(), arc);
+			}
+		}
+		
 		while (!configuration.getBuffer().isEmpty()) {
 			PosTaggedToken stackHead = configuration.getStack().peek();
 			PosTaggedToken bufferHead = configuration.getBuffer().peekFirst();
 			
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("S0: " + stackHead);
+				LOG.trace("B0: " + bufferHead);
+			}
+
 			Transition transition = null;
 			DependencyArc currentDep = null;
 			for (DependencyArc arc : targetDependencies) {
@@ -70,11 +85,8 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 						}
 					}
 					if (!dependentHasDependents) {
-						if (stackHead.getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel()==null || arc.getLabel().length()==0)) {
-							ungovernedTokens.add(bufferHead);
-						} else {
-							transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
-						}
+						transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+
 						currentDep = arc;
 						break;
 					}
@@ -82,9 +94,11 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 
 			}
 			if (transition==null) {
-				boolean stackHeadUngoverned = ungovernedTokens.contains(stackHead);
+				boolean stackHeadUngoverned = ungovernedTokens.containsKey(stackHead);
 				if (stackHeadUngoverned) {
-					transition =  this.getTransitionForCode("Reduce");
+					// ungoverned punctuation only
+					transition = this.getTransitionForCode("ForceReduce");
+					currentDep = ungovernedTokens.get(stackHead);
 				} else {
 					transition =  this.getTransitionForCode("Shift");
 				}
@@ -94,6 +108,11 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 			
 			transition.apply(configuration);
 			
+			
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Transition: " + transition);
+				LOG.trace("Configuration: " + configuration);
+			}
 		}
 		if (targetDependencies.size()>0) {
 			throw new RuntimeException("Wasn't able to predict: " + targetDependencies);
@@ -114,8 +133,8 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 			transition = new RightArcTransition(label);
 		} else if (code.startsWith("Shift")) {
 			transition = new ShiftTransition();
-		} else if (code.startsWith("Reduce")) {
-			transition = new ReduceTransition();
+		} else if (code.startsWith("ForceReduce")) {
+			transition = new ForceReduceTransition();
 		} else {
 			throw new TalismaneException("Unknown transition name: " + code);
 		}

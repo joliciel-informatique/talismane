@@ -26,6 +26,7 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private T outcome;
 	private String code;
+	private double score;
 	private double probability;
 	private double probabilityLog;
 	private boolean probabilityLogCalculated = false;
@@ -64,6 +65,14 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 
 	void setOutcome(T outcome) {
 		this.outcome = outcome;
+	}
+
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
 	}
 
 	public double getProbability() {

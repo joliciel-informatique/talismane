@@ -22,49 +22,51 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Takes the geometric mean of the individual decision scores, and multiplies it by the scores of underlying solutions.
+ * For perceptrons and other additive score methods.
+ * Simply adds all of the scores for individual decisions,
+ * and divides by the number of decisions.
  * @author Assaf Urieli
  *
  */
-public class GeometricMeanScoringStrategy<T extends Outcome> implements ScoringStrategy<ClassificationSolution<T>> {
-	private static final Log LOG = LogFactory.getLog(GeometricMeanScoringStrategy.class);
+public class AdditiveScoringStrategy<T extends Outcome> implements ScoringStrategy<ClassificationSolution<T>> {
+	private static final Log LOG = LogFactory.getLog(AdditiveScoringStrategy.class);
 
 	@Override
 	public double calculateScore(ClassificationSolution<T> solution) {
 		double score = 0;
 		if (solution!=null && solution.getDecisions().size()>0) {
 			for (Decision<?> decision : solution.getDecisions())
-				score += decision.getProbabilityLog();
-
-			score = score / solution.getDecisions().size();
+				score += decision.getScore();
+			score /= solution.getDecisions().size();
 		}
-		score = Math.exp(score);
 		
 		if (LOG.isTraceEnabled()) {
-			LOG.trace("Score for solution: " + solution.getClass().getSimpleName());
-			LOG.trace(solution.toString());
-			StringBuilder sb = new StringBuilder();
-			for (Decision<?> decision : solution.getDecisions()) {
-				sb.append(" * ");
-				sb.append(decision.getProbability());
+			if (solution!=null) {
+				LOG.trace("Score for solution: " + solution.getClass().getSimpleName());
+				LOG.trace(solution.toString());
+				StringBuilder sb = new StringBuilder();
+				for (Decision<?> decision : solution.getDecisions()) {
+					sb.append(" + ");
+					sb.append(decision.getScore());
+				}
+				sb.append(" / ");
+				sb.append(solution.getDecisions().size());
+				sb.append(" = ");
+				sb.append(score);
+	
+				LOG.trace(sb.toString());
 			}
-			sb.append(" root ");
-			sb.append(solution.getDecisions().size());
-			sb.append(" = ");
-			sb.append(score);
-
-			LOG.trace(sb.toString());
 		}
 		
 		for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
-			if (!underlyingSolution.getScoringStrategy().isAdditive())
-				score = score * underlyingSolution.getScore();
+			if (solution.getScoringStrategy().isAdditive())
+				score += underlyingSolution.getScore();
 		}
 		
 		if (LOG.isTraceEnabled()) {
 			for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
-				if (!underlyingSolution.getScoringStrategy().isAdditive())
-					LOG.trace(" * " + underlyingSolution.getScore() + " (" + underlyingSolution.getClass().getSimpleName() + ")");
+				if (solution.getScoringStrategy().isAdditive())
+					LOG.trace(" + " + underlyingSolution.getScore() + " (" + underlyingSolution.getClass().getSimpleName() + ")");
 			}
 			LOG.trace(" = " + score);
 		}
@@ -74,7 +76,7 @@ public class GeometricMeanScoringStrategy<T extends Outcome> implements ScoringS
 
 	@Override
 	public boolean isAdditive() {
-		return false;
+		return true;
 	}
 
 }

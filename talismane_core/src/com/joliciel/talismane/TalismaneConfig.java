@@ -50,17 +50,24 @@ import com.joliciel.talismane.Talismane.Option;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.MarkerFilterType;
 import com.joliciel.talismane.filters.TextMarkerFilter;
+import com.joliciel.talismane.lexicon.LexiconChain;
+import com.joliciel.talismane.lexicon.LexiconDeserializer;
+import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.MachineLearningSession;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParseComparator;
+import com.joliciel.talismane.parser.ParseComparisonStrategy;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.ParseEvaluationFScoreCalculator;
 import com.joliciel.talismane.parser.ParseEvaluationGuessTemplateWriter;
 import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
 import com.joliciel.talismane.parser.Parser;
+import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserFScoreCalculatorByDistance;
@@ -198,6 +205,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private String posTaggerPreProcessingFilterPath = null;
 	private String templatePath = null;
 	private String evaluationFilePath = null;
+	
+	private String lexiconDirPath = null;
 
 	private String sentenceTemplateName = "sentence_template.ftl";
 	private String tokeniserTemplateName = "tokeniser_template.ftl";
@@ -222,7 +231,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private List<TokenFilter> tokenFilters = null;
 	private List<TokenSequenceFilter> posTaggerPreProcessingFilters = null;
 	private boolean includeDistanceFScores = false;
-	private boolean predictTransitions = true;
+	private boolean predictTransitions = false;
 	
 	private MarkerFilterType newlineMarker = MarkerFilterType.SENTENCE_BREAK;
 	private int blockSize = 1000;
@@ -251,6 +260,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private PosTagFilterService posTagFilterService;
 	
 	private File performanceConfigFile;
+	private ParseComparisonStrategyType parseComparisonStrategyType;
 	
 	public TalismaneConfig(String[] args) throws Exception {
 		TalismaneSession.setImplementation(this);
@@ -272,6 +282,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			int equalsPos = arg.indexOf('=');
 			String argName = arg.substring(0, equalsPos);
 			String argValue = arg.substring(equalsPos+1);
+			if (argMap.containsKey(argName))
+				throw new TalismaneException("Duplicate command-line argument: " + argName);
 			argMap.put(argName, argValue);
 		}
 		return argMap;
@@ -364,9 +376,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				outDirPath = argValue;
 			else if (argName.equals("template")) 
 				templatePath = argValue;
-			else if (argName.equals("builtInTemplate")) {
+			else if (argName.equals("builtInTemplate"))
 				builtInTemplate = argValue;
-			}
 			else if (argName.equals("encoding")) {
 				if (inputEncoding!=null || outputEncoding !=null)
 					throw new TalismaneException("The parameter 'encoding' cannot be used with 'inputEncoding' or 'outputEncoding'");
@@ -463,7 +474,14 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				dynamiseFeatures = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("predictTransitions"))
 				predictTransitions = argValue.equalsIgnoreCase("true");
-			else {
+			else if (argName.equals("lexiconDir")) 
+				lexiconDirPath = argValue;
+			else if (argName.equals("perceptronScoring")) {
+				PerceptronScoring perceptronScoring = PerceptronScoring.valueOf(argValue);
+				MachineLearningSession.setPerceptronScoring(perceptronScoring);
+			} else if (argName.equals("parseComparisonStrategy")) {
+				parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(argValue);
+			} else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
 			}
@@ -1258,6 +1276,10 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
 				parser.setMinFreeMemory(minFreeMemory);
 				parser.setParserRules(this.getParserRules());
+				if (parseComparisonStrategyType!=null) {
+					ParseComparisonStrategy parseComparisonStrategy = parserService.getParseComparisonStrategy(parseComparisonStrategyType);
+					parser.setParseComparisonStrategy(parseComparisonStrategy);
+				}
 				
 				if (includeDetails && parserModel instanceof ClassificationModel) {
 					String detailsFilePath = this.getBaseName() + "_parser_details.txt";
@@ -1985,32 +2007,32 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			baseName = "Talismane";
 			if (outFilePath!=null) {
 				if (outFilePath.indexOf('.')>0)
-					baseName = outFilePath.substring(outFilePath.lastIndexOf('/')+1, outFilePath.indexOf('.'));
+					baseName = outFilePath.substring(outFilePath.lastIndexOf('/')+1, outFilePath.lastIndexOf('.'));
 				else
 					baseName = outFilePath.substring(outFilePath.lastIndexOf('/')+1);
 			} else if (inFilePath!=null) {
 				if (inFilePath.indexOf('.')>0)
-					baseName = inFilePath.substring(inFilePath.lastIndexOf('/')+1, inFilePath.indexOf('.'));
+					baseName = inFilePath.substring(inFilePath.lastIndexOf('/')+1, inFilePath.lastIndexOf('.'));
 				else
 					baseName = inFilePath.substring(inFilePath.lastIndexOf('/')+1);
 			} else if (sentenceModelFilePath!=null && module.equals(Talismane.Module.SentenceDetector)||endModule.equals(Talismane.Module.SentenceDetector)) {
 				if (sentenceModelFilePath.indexOf('.')>0)
-					baseName = sentenceModelFilePath.substring(sentenceModelFilePath.lastIndexOf('/')+1, sentenceModelFilePath.indexOf('.'));
+					baseName = sentenceModelFilePath.substring(sentenceModelFilePath.lastIndexOf('/')+1, sentenceModelFilePath.lastIndexOf('.'));
 				else
 					baseName = sentenceModelFilePath.substring(sentenceModelFilePath.lastIndexOf('/')+1);
 			} else if (tokeniserModelFilePath!=null && (module.equals(Talismane.Module.Tokeniser)||endModule.equals(Talismane.Module.Tokeniser))) {
 				if (tokeniserModelFilePath.indexOf('.')>0)
-					baseName = tokeniserModelFilePath.substring(tokeniserModelFilePath.lastIndexOf('/')+1, tokeniserModelFilePath.indexOf('.'));
+					baseName = tokeniserModelFilePath.substring(tokeniserModelFilePath.lastIndexOf('/')+1, tokeniserModelFilePath.lastIndexOf('.'));
 				else
 					baseName = tokeniserModelFilePath.substring(tokeniserModelFilePath.lastIndexOf('/')+1);
 			} else if (posTaggerModelFilePath!=null && (module.equals(Talismane.Module.PosTagger)||endModule.equals(Talismane.Module.PosTagger))) {
 				if (posTaggerModelFilePath.indexOf('.')>0)
-					baseName = posTaggerModelFilePath.substring(posTaggerModelFilePath.lastIndexOf('/')+1, posTaggerModelFilePath.indexOf('.'));
+					baseName = posTaggerModelFilePath.substring(posTaggerModelFilePath.lastIndexOf('/')+1, posTaggerModelFilePath.lastIndexOf('.'));
 				else
 					baseName = posTaggerModelFilePath.substring(posTaggerModelFilePath.lastIndexOf('/')+1);
 			} else if (parserModelFilePath!=null && (module.equals(Talismane.Module.Parser)||endModule.equals(Talismane.Module.Parser))) {
 				if (parserModelFilePath.indexOf('.')>0)
-					baseName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1, parserModelFilePath.indexOf('.'));
+					baseName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1, parserModelFilePath.lastIndexOf('.'));
 				else
 					baseName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1);
 			}
@@ -2282,5 +2304,26 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		this.predictTransitions = predictTransitions;
 	}
 	
+	public PosTaggerLexicon getLexicon() {
+		PosTaggerLexicon lexicon = this.getDefaultLexicon();
+		if (this.lexiconDirPath!=null) {
+			LexiconChain lexiconChain = null;
+			if (lexicon instanceof LexiconChain) {
+				lexiconChain = (LexiconChain) lexicon;
+			} else {
+				lexiconChain = new LexiconChain();
+				lexiconChain.addLexicon(lexicon);
+			}
+			File lexiconDir = new File(lexiconDirPath);
+			LexiconDeserializer lexiconDeserializer = new LexiconDeserializer();
+			List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconDir);
+			for (PosTaggerLexicon oneLexicon : lexicons) {
+				lexiconChain.addLexicon(oneLexicon);
+			}
+			
+			lexicon = lexiconChain;
+		}
+		return lexicon;
+	}
 	
 }

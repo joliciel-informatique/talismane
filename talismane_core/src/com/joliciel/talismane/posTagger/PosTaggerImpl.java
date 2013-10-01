@@ -118,6 +118,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			for (TokenSequence tokenSequence : tokenSequences) {
 				// add an empty PosTagSequence for each token sequence
 				PosTagSequence emptySequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, 0);
+				emptySequence.setScoringStrategy(decisionMaker.getDefaultScoringStrategy());
 				heap0.add(emptySequence);
 			}
 			heaps.put(0.0, heap0);
