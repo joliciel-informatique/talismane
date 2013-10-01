@@ -68,6 +68,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 class TalismaneImpl implements Talismane {
 	private static final Log LOG = LogFactory.getLog(TalismaneImpl.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TalismaneImpl.class);
 
 	private SentenceProcessor sentenceProcessor;
 	private TokenSequenceProcessor tokenSequenceProcessor;
@@ -104,48 +105,95 @@ class TalismaneImpl implements Talismane {
 				this.setParseConfigurationProcessor(config.getParseConfigurationProcessor());
 			
 			if (config.getCommand().equals(Command.analyse)) {
-				this.analyse(config);
+				MONITOR.startTask("analyse");
+				try {
+					this.analyse(config);
+				} finally {
+					MONITOR.endTask("analyse");
+				}
 			} else if (config.getCommand().equals(Command.process)) {
-				if (config.getModule().equals(Talismane.Module.Tokeniser)) {
-					if (this.getTokenSequenceProcessor()==null)
-						throw new TalismaneException("Cannot process tokeniser output without a token sequence processor!");
-					while (config.getTokenCorpusReader().hasNextTokenSequence()) {
-						TokenSequence tokenSequence = config.getTokenCorpusReader().nextTokenSequence();
-						this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence);
-					}
-				} else if (config.getModule().equals(Talismane.Module.PosTagger)) {
-					if (this.getPosTagSequenceProcessor()==null)
-						throw new TalismaneException("Cannot process pos-tagger output without a pos-tag sequence processor!");
-					while (config.getPosTagCorpusReader().hasNextPosTagSequence()) {
-						PosTagSequence posTagSequence = config.getPosTagCorpusReader().nextPosTagSequence();
-						this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence);
-					}
-				} else if (config.getModule().equals(Talismane.Module.Parser)) {
-					if (this.getParseConfigurationProcessor()==null)
-						throw new TalismaneException("Cannot process parser output without a parse configuration processor!");
-					try {
-						while (config.getParserCorpusReader().hasNextConfiguration()) {
-							ParseConfiguration parseConfiguration = config.getParserCorpusReader().nextConfiguration();
-							this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration);
+				MONITOR.startTask("process");
+				try {
+					if (config.getModule().equals(Talismane.Module.Tokeniser)) {
+						if (this.getTokenSequenceProcessor()==null)
+							throw new TalismaneException("Cannot process tokeniser output without a token sequence processor!");
+						
+						while (config.getTokenCorpusReader().hasNextTokenSequence()) {
+							TokenSequence tokenSequence = config.getTokenCorpusReader().nextTokenSequence();
+							MONITOR.startTask("processTokenSequence");
+							try {
+								this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence);
+							} finally {
+								MONITOR.endTask("processTokenSequence");
+							}
 						}
-					} finally {
-						this.getParseConfigurationProcessor().onCompleteParse();
+					} else if (config.getModule().equals(Talismane.Module.PosTagger)) {
+						if (this.getPosTagSequenceProcessor()==null)
+							throw new TalismaneException("Cannot process pos-tagger output without a pos-tag sequence processor!");
+						
+						while (config.getPosTagCorpusReader().hasNextPosTagSequence()) {
+							PosTagSequence posTagSequence = config.getPosTagCorpusReader().nextPosTagSequence();
+							MONITOR.startTask("processPosTagSequence");
+							try {
+								this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence);
+							} finally {
+								MONITOR.endTask("processPosTagSequence");
+							}
+						}
+					} else if (config.getModule().equals(Talismane.Module.Parser)) {
+						if (this.getParseConfigurationProcessor()==null)
+							throw new TalismaneException("Cannot process parser output without a parse configuration processor!");
+						try {
+							while (config.getParserCorpusReader().hasNextConfiguration()) {
+								ParseConfiguration parseConfiguration = config.getParserCorpusReader().nextConfiguration();
+								MONITOR.startTask("processParseConfiguration");
+								try {
+									this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration);
+								} finally {
+									MONITOR.endTask("processParseConfiguration");
+								}
+							}
+						} finally {
+							this.getParseConfigurationProcessor().onCompleteParse();
+						}
+					} else {
+						throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
 					}
-				} else {
-					throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
+				} finally {
+					MONITOR.endTask("process");
 				}
 			} else if (config.getCommand().equals(Command.evaluate)) {
-				if (config.getModule().equals(Talismane.Module.Tokeniser)) {
-					TokeniserEvaluator tokeniserEvaluator = config.getTokeniserEvaluator();
-					tokeniserEvaluator.evaluate(config.getTokenCorpusReader());
-				} else if (config.getModule().equals(Talismane.Module.PosTagger)) {
-					PosTaggerEvaluator posTaggerEvaluator = config.getPosTaggerEvaluator();
-					posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());					
-				} else if (config.getModule().equals(Talismane.Module.Parser)) {
-					ParserEvaluator parserEvaluator = config.getParserEvaluator();
-					parserEvaluator.evaluate(config.getParserCorpusReader());
-				} else {
-					throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
+				MONITOR.startTask("evaluate");
+				try {
+					if (config.getModule().equals(Talismane.Module.Tokeniser)) {
+						TokeniserEvaluator tokeniserEvaluator = config.getTokeniserEvaluator();
+						MONITOR.startTask("tokeniserEvaluate");
+						try {
+							tokeniserEvaluator.evaluate(config.getTokenCorpusReader());
+						} finally {
+							MONITOR.endTask("tokeniserEvaluate");
+						}
+					} else if (config.getModule().equals(Talismane.Module.PosTagger)) {
+						PosTaggerEvaluator posTaggerEvaluator = config.getPosTaggerEvaluator();
+						MONITOR.startTask("posTaggerEvaluate");
+						try {
+							posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());
+						} finally {
+							MONITOR.endTask("posTaggerEvaluate");
+						}
+					} else if (config.getModule().equals(Talismane.Module.Parser)) {
+						ParserEvaluator parserEvaluator = config.getParserEvaluator();
+						MONITOR.startTask("parserEvaluate");
+						try {
+							parserEvaluator.evaluate(config.getParserCorpusReader());
+						} finally {
+							MONITOR.endTask("parserEvaluate");
+						}
+					} else {
+						throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
+					}
+				} finally {
+					MONITOR.endTask("evaluate");
 				}
 			} else if (config.getCommand().equals(Command.compare)) {
 				if (config.getModule().equals(Talismane.Module.PosTagger)) {

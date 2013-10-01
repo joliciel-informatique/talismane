@@ -30,9 +30,8 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * Can store parameters for both classification and ranking models.
- * In the former case, weights are a matrix of feature x label.
- * In the latter case, weights are a vector of length |features|.
+ * Perceptron classification model parameters.
+ * Weights are a matrix of feature x label.
  * @author Assaf Urieli
  *
  */
@@ -49,6 +48,26 @@ class PerceptronModelParameters implements Serializable {
 	private int[] featureCounts;
 	
 	public PerceptronModelParameters() { }
+	
+	public PerceptronModelParameters clone() {
+		PerceptronModelParameters params = new PerceptronModelParameters(this);
+		return params;
+	}
+	
+	private PerceptronModelParameters(PerceptronModelParameters params) {
+		// need to perform deep clone for feature weights
+		this.featureWeights = new double[params.getFeatureWeights().length][];
+		for (int i=0; i<params.getFeatureWeights().length; i++) {
+			this.featureWeights[i] = params.getFeatureWeights()[i].clone();
+		}
+		// all the rest can be a shallow copy since it won't change
+		this.outcomeIndexes = params.getOutcomeIndexes();
+		this.featureIndexes = params.getFeatureIndexes();
+		this.featureCounts = params.getFeatureCounts();
+		this.outcomes = params.getOutcomes();
+		this.featureCount = params.getFeatureCount();
+		this.outcomeCount = params.getOutcomeCount();
+	}
 	
 	
 	public int[] initialise(PerceptronModelParameters oldParams, int cutoff) {
@@ -135,6 +154,14 @@ class PerceptronModelParameters implements Serializable {
 		return outcomes;
 	}
 	
+
+	public TObjectIntMap<String> getOutcomeIndexes() {
+		return outcomeIndexes;
+	}
+
+	public TObjectIntMap<String> getFeatureIndexes() {
+		return featureIndexes;
+	}
 
 	/**
 	 * Prepare the feature index list and weight list, based on the feature results provided.

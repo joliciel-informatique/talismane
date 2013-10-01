@@ -26,10 +26,13 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
@@ -44,6 +47,7 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	private Model model;
 	Map<String, Integer> featureIndexMap = null;
 	List<String> outcomes = null;
+	private transient ScoringStrategy<ClassificationSolution<T>> scoringStrategy = null;
 	
 	public LinearSVMDecisionMaker(Model model,
 			Map<String, Integer> featureIndexMap,
@@ -96,9 +100,11 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 				FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
 				for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
 					Integer index = featureIndexMap.get(featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
-					double value = stringOutcome.getWeight();
-					FeatureNode featureNode = new FeatureNode(index.intValue(), value);
-					featureList.add(featureNode);
+					if (index!=null) {
+						double value = stringOutcome.getWeight();
+						FeatureNode featureNode = new FeatureNode(index.intValue(), value);
+						featureList.add(featureNode);
+					}
 				}
 			} else {
 				double value = 1.0;
@@ -127,5 +133,10 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		this.decisionFactory = decisionFactory;
 	}
 
-	
+	@Override
+	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy() {
+		if (scoringStrategy==null)
+			scoringStrategy = new GeometricMeanScoringStrategy<T>();
+		return scoringStrategy;
+	}
 }

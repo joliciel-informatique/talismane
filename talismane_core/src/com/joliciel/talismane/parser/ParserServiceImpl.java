@@ -18,6 +18,7 @@ import com.joliciel.talismane.machineLearning.Ranker;
 import com.joliciel.talismane.machineLearning.RankingEventStream;
 import com.joliciel.talismane.machineLearning.RankingModel;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
+import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -270,6 +271,21 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		parser.setFeatureService(this.getFeatureService());
 		parser.setMachineLearningService(this.getMachineLearningService());
 		return parser;
+	}
+
+	@Override
+	public ParseComparisonStrategy getParseComparisonStrategy(
+			ParseComparisonStrategyType type) {
+		switch (type) {
+		case transitionCount:
+			return new TransitionCountComparisonStrategy();
+		case bufferSize:
+			return new BufferSizeComparisonStrategy();
+		case stackAndBufferSize:
+			return new StackAndBufferSizeComparsionStrategy();
+		default:
+			throw new TalismaneException("Unknown parse comparison strategy: " + type);
+		}
 	}
 
 	

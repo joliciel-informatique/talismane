@@ -18,7 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.perceptron;
 
+import java.util.List;
+import java.util.Map;
+
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
+import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.Outcome;
 
 public interface PerceptronClassificationModelTrainer<T extends Outcome> extends ClassificationModelTrainer<T> {
@@ -30,7 +35,8 @@ public interface PerceptronClassificationModelTrainer<T extends Outcome> extends
 	public enum PerceptronModelParameter {
 		Iterations(Integer.class),
 		Cutoff(Integer.class),
-		Tolerance(Double.class);
+		Tolerance(Double.class),
+		AverageAtIntervals(Boolean.class);
 		
 		private Class<?> parameterType;
 		private PerceptronModelParameter(Class<?> parameterType) {
@@ -41,9 +47,16 @@ public interface PerceptronClassificationModelTrainer<T extends Outcome> extends
 		}
 	}
 	/**
-	 * The number of training iterations to run.
+	 * The maximum number of training iterations to run.
 	 * @return
 	 */
 	public int getIterations();
 	public void setIterations(int iterations);
+	
+	
+	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory,
+			Map<String, List<String>> descriptors, PerceptronModelTrainerObserver<T> observer, List<Integer> observationPoints);
+	
+	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory,
+			List<String> featureDescriptors, PerceptronModelTrainerObserver<T> observer, List<Integer> observationPoints);
 }

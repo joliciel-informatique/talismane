@@ -46,14 +46,18 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 	private static final Log LOG = LogFactory.getLog(PerceptronClassifactionModelTrainerImpl.class);
 	private int iterations = 100;
 	private int cutoff = 0;
-	private double tolerance = 0.0001;
-	private boolean calculateLogLikelihood = false;
+	private double tolerance = 1e-5;
 	
 	private double[][] totalFeatureWeights;
 	private PerceptronModelParameters params;
 	private File eventFile;
 	private PerceptronDecisionMaker<T> decisionMaker;
 	private DecisionFactory<T> decisionFactory;
+	private Map<String, List<String>> descriptors;
+	private ClassificationEventStream corpusEventStream;
+	private PerceptronModelTrainerObserver<T> observer;
+	private List<Integer> observationPoints;
+	private boolean averageAtIntervals = false;
 	
 	public PerceptronClassifactionModelTrainerImpl() {
 	}
@@ -61,6 +65,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 	void prepareData(ClassificationEventStream eventStream) {
 		try {
 			eventFile = File.createTempFile("events","txt");
+			eventFile.deleteOnExit();
 			Writer eventWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(eventFile), "UTF-8"));
 			while (eventStream.hasNext()) {
 				ClassificationEvent corpusEvent = eventStream.next();
@@ -72,6 +77,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 			
 			if (cutoff>1) {
 				params.initialiseCounts();
+				File originalEventFile = eventFile;
 				Scanner scanner = new Scanner(eventFile, "UTF-8");
 				while (scanner.hasNextLine()) {
 					String line = scanner.nextLine();
@@ -82,11 +88,26 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				}
 				scanner.close();
 				
+				if (LOG.isDebugEnabled()) {
+					int[] cutoffCounts = new int[21];
+					for (int count : params.getFeatureCounts()) {
+						for (int i=1;i<21;i++) {
+							if (count>=i) {
+								cutoffCounts[i]++;
+							}
+						}
+					}
+					LOG.debug("Feature counts:");
+					for (int i=1;i<21;i++) {
+						LOG.debug("Cutoff " + i + ": " + cutoffCounts[i]);
+					}
+				}
 				PerceptronModelParameters cutoffParams = new PerceptronModelParameters();
 				int[] newIndexes = cutoffParams.initialise(params, cutoff);
 				decisionMaker = new PerceptronDecisionMaker<T>(cutoffParams, decisionFactory);
 				scanner = new Scanner(eventFile, "UTF-8");
 				eventFile = File.createTempFile("eventsCutoff","txt");
+				eventFile.deleteOnExit();
 				Writer eventCutoffWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(eventFile), "UTF-8"));
 				while (scanner.hasNextLine()) {
 					String line = scanner.nextLine();
@@ -97,6 +118,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				eventCutoffWriter.flush();
 				eventCutoffWriter.close();
 				params = cutoffParams;
+				originalEventFile.delete();
 			}
 			
 			params.initialiseWeights();
@@ -112,12 +134,12 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 			double prevAccuracy1 = 0.0;
 			double prevAccuracy2 = 0.0;
 			double prevAccuracy3 = 0.0;
-			int actualIterations = 1;
-			for (int i = 0; i<iterations; i++) {
-				LOG.debug("Iteration " + (i+1));
+			int i = 0;
+			int averagingCount = 0;
+			for (i = 1; i<=iterations; i++) {
+				LOG.debug("Iteration " + i);
 				int totalErrors = 0;
 				int totalEvents = 0;
-				double logLikelihood = 0.0;
 				
 				Scanner scanner = new Scanner(eventFile, "UTF-8");
 				while (scanner.hasNextLine()) {
@@ -126,7 +148,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 					totalEvents++;
 					
 					// don't normalise unless we calculate the log-likelihood, to avoid mathematical cost of normalising
-					double[] results = decisionMaker.predict(event.getFeatureIndexes(), event.getFeatureValues(), calculateLogLikelihood);
+					double[] results = decisionMaker.predict(event.getFeatureIndexes(), event.getFeatureValues());
 					double maxValue = results[0];
 					int predicted = 0;
 					for (int j=1;j<results.length;j++) {
@@ -137,8 +159,6 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 					}
 					
 					int actual = event.getOutcomeIndex();
-					if (calculateLogLikelihood)
-						logLikelihood += Math.log(results[actual] + 0.0001);
 					
 					if (actual!=predicted) {
 						for (int j=0; j<event.getFeatureIndexes().size(); j++) {
@@ -151,28 +171,52 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				} // next event
 				
 				// Add feature weights for this iteration
-				for (int j=0;j<params.getFeatureWeights().length;j++) {
-					double[] totalClassWeights = totalFeatureWeights[j];
-					double[] classWeights = params.getFeatureWeights()[j];
-					for (int k=0;k<params.getOutcomeCount();k++) {
-						totalClassWeights[k] += classWeights[k];
+				boolean addAverage = true;
+				if (this.isAverageAtIntervals()) {
+					if (i<=20||i==25||i==36||i==49||i==64||i==81||i==100||i==121||i==144||i==169||i==196) {
+						addAverage = true;
+						LOG.debug("Averaging at iteration: " + i);
+					} else
+						addAverage = false;
+				}
+				
+				if (addAverage) {
+					for (int j=0;j<params.getFeatureWeights().length;j++) {
+						double[] totalClassWeights = totalFeatureWeights[j];
+						double[] classWeights = params.getFeatureWeights()[j];
+						for (int k=0;k<params.getOutcomeCount();k++) {
+							totalClassWeights[k] += classWeights[k];
+						}
 					}
+					averagingCount++;
+				}
+								
+				if (observer!=null && observationPoints.contains(i)) {
+					PerceptronModelParameters cloneParams = params.clone();
+					// average the weights for this model
+					for (int j=0;j<cloneParams.getFeatureWeights().length;j++) {
+						double[] totalClassWeights = totalFeatureWeights[j];
+						double[] classWeights = cloneParams.getFeatureWeights()[j];
+						for (int k=0;k<cloneParams.getOutcomeCount();k++) {	
+							classWeights[k] = totalClassWeights[k] / averagingCount;
+						}
+					}
+					ClassificationModel<T> model = this.getModel(cloneParams, i);
+					observer.onNextModel(model, i);
+					cloneParams = null;
 				}
 				
 				double accuracy = (double) (totalEvents - totalErrors) / (double) totalEvents;
 				LOG.debug("Accuracy: " + accuracy);
-				if (calculateLogLikelihood)
-					LOG.debug("LogLikelihood: " + logLikelihood);
 				
-				// exit if accuracy hasn't significantly improved in 3 iterations
+				// exit if accuracy hasn't significantly changed in 3 iterations
 				if (Math.abs(accuracy - prevAccuracy1)<tolerance
 						&& Math.abs(accuracy - prevAccuracy2)<tolerance
 						&& Math.abs(accuracy - prevAccuracy3)<tolerance) {
-					LOG.info("Accuracy change < " + tolerance + " for 3 iterations: exiting after " + actualIterations + " iterations");
+					LOG.info("Accuracy change < " + tolerance + " for 3 iterations: exiting after " + i + " iterations");
 					break;
 				}
 				
-				actualIterations++;
 				prevAccuracy3 = prevAccuracy2;
 				prevAccuracy2 = prevAccuracy1;
 				prevAccuracy1 = accuracy;
@@ -183,9 +227,10 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				double[] totalClassWeights = totalFeatureWeights[j];
 				double[] classWeights = params.getFeatureWeights()[j];
 				for (int k=0;k<params.getOutcomeCount();k++) {	
-					classWeights[k] = totalClassWeights[k] / actualIterations;
+					classWeights[k] = totalClassWeights[k] / averagingCount;
 				}
 			}
+
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -280,6 +325,50 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 		this.tolerance = tolerance;
 	}
 
+	/**
+	 * If true, will only average for iterations <= 20 and then for all
+	 * perfect squares (25, 36, 49, 64, 81, 100, etc.).
+	 * @return
+	 */
+	public boolean isAverageAtIntervals() {
+		return averageAtIntervals;
+	}
+
+	public void setAverageAtIntervals(boolean averageAtIntervals) {
+		this.averageAtIntervals = averageAtIntervals;
+	}
+
+	@Override
+	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream,
+			DecisionFactory<T> decisionFactory, List<String> featureDescriptors,
+			PerceptronModelTrainerObserver<T> observer,
+			List<Integer> observationPoints) {
+		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
+		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+		this.trainModelsWithObserver(corpusEventStream, decisionFactory, descriptors, observer, observationPoints);
+	}
+	
+	@Override
+	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream,
+			DecisionFactory<T> decisionFactory, Map<String, List<String>> descriptors,
+			PerceptronModelTrainerObserver<T> observer,
+			List<Integer> observationPoints) {
+		params = new PerceptronModelParameters();
+		decisionMaker = new PerceptronDecisionMaker<T>(params, decisionFactory);
+		this.decisionFactory = decisionFactory;
+		this.descriptors = descriptors;
+		this.observer = observer;
+		this.observationPoints = observationPoints;
+		this.corpusEventStream = corpusEventStream;
+		this.prepareData(corpusEventStream);
+		this.train();
+		
+		if (this.eventFile!=null) {
+			this.eventFile.delete();
+		}
+
+	}
+	
 	@Override
 	public ClassificationModel<T> trainModel(
 			ClassificationEventStream corpusEventStream,
@@ -297,17 +386,29 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 		params = new PerceptronModelParameters();
 		decisionMaker = new PerceptronDecisionMaker<T>(params, decisionFactory);
 		this.decisionFactory = decisionFactory;
+		this.descriptors = descriptors;
+		this.corpusEventStream = corpusEventStream;
 		this.prepareData(corpusEventStream);
 		this.train();
+		ClassificationModel<T> model = this.getModel(params, this.getIterations());
+
+		if (this.eventFile!=null)
+			this.eventFile.delete();
+		
+		return model;		
+	}
+	
+	ClassificationModel<T> getModel(PerceptronModelParameters params, int iterations) {
 		PerceptronClassificationModel<T> model = new PerceptronClassificationModel<T>(params, descriptors, decisionFactory);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
-		model.addModelAttribute("iterations", "" + this.getIterations());
+		model.addModelAttribute("iterations", "" + iterations);
+		model.addModelAttribute("tolerance", "" + this.getTolerance());
+		model.addModelAttribute("averageAtIntervals", "" + this.isAverageAtIntervals());
 		
 		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
 
 		return model;		
 	}
-
 
 	@Override
 	public void setParameters(Map<String, Object> parameters) {
@@ -328,19 +429,13 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				case Tolerance:
 					this.setTolerance((Double)value);
 					break;
+				case AverageAtIntervals:
+					this.setAverageAtIntervals((Boolean)value);
+					break;
 				default:
 					throw new JolicielException("Unknown parameter type: " + modelParameter);
 				}
 			}
 		}
 	}
-
-	public boolean isCalculateLogLikelihood() {
-		return calculateLogLikelihood;
-	}
-
-	public void setCalculateLogLikelihood(boolean calculateLogLikelihood) {
-		this.calculateLogLikelihood = calculateLogLikelihood;
-	}
-
 }

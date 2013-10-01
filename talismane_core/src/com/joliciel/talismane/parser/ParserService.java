@@ -29,6 +29,7 @@ import com.joliciel.talismane.machineLearning.FeatureWeightVector;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Ranker;
 import com.joliciel.talismane.machineLearning.RankingEventStream;
+import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -123,4 +124,6 @@ public interface ParserService {
 	 * @return
 	 */
 	public ParsingConstrainer getParsingConstrainer(File file);
+	
+	public ParseComparisonStrategy getParseComparisonStrategy(ParseComparisonStrategyType type);
 }

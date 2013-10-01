@@ -110,6 +110,7 @@ class TransitionBasedParser implements NonDeterministicParser {
 			for (PosTagSequence posTagSequence : posTagSequences) {
 				// add an initial ParseConfiguration for each postag sequence
 				ParseConfiguration initialConfiguration = this.getParserServiceInternal().getInitialConfiguration(posTagSequence);
+				initialConfiguration.setScoringStrategy(decisionMaker.getDefaultScoringStrategy());
 				heap0.add(initialConfiguration);
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("Adding initial posTagSequence: " + posTagSequence);
@@ -473,6 +474,17 @@ class TransitionBasedParser implements NonDeterministicParser {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+
+	public ParseComparisonStrategy getParseComparisonStrategy() {
+		return parseComparisonStrategy;
+	}
+
+
+	public void setParseComparisonStrategy(
+			ParseComparisonStrategy parseComparisonStrategy) {
+		this.parseComparisonStrategy = parseComparisonStrategy;
 	}
 	
 	

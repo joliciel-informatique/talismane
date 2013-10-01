@@ -41,7 +41,7 @@ public class ConllFileSplitter {
 	/**
 	 * @param args
 	 */
-	public void split(String filePath, int startIndex, String encoding) throws Exception {
+	public void split(String filePath, int startIndex, int sentencesPerFile, String encoding) throws Exception {
 		String fileBase = filePath;
 		if (filePath.indexOf('.')>0)
 			fileBase = filePath.substring(0,filePath.lastIndexOf('.'));
@@ -65,7 +65,7 @@ public class ConllFileSplitter {
 					hasSentence = true;
 					sentenceCount++;
 				}
-				if (writer==null || sentenceCount % 20==0) {
+				if (writer==null || sentenceCount % sentencesPerFile==0) {
 					if (writer!=null) {
 						writer.flush();
 						writer.close();
@@ -101,10 +101,15 @@ public class ConllFileSplitter {
 			startIndex = Integer.parseInt(innerArgs.get("startIndex"));
 		}
 		
+		int sentencesPerFile = 20;
+		if (innerArgs.containsKey("sentencesPerFile"))  {
+			sentencesPerFile = Integer.parseInt(innerArgs.get("sentencesPerFile"));
+		}
+		
 		String encoding = "UTF-8";
 		if (innerArgs.containsKey("encoding"))
 			encoding = innerArgs.get("encoding");
 		ConllFileSplitter splitter = new ConllFileSplitter();
-		splitter.split(filePath, startIndex, encoding);
+		splitter.split(filePath, startIndex, sentencesPerFile, encoding);
 	}
 }

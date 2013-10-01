@@ -30,6 +30,13 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
  *
  */
 public interface Parser {
+	
+	public enum ParseComparisonStrategyType {
+		transitionCount,
+		bufferSize,
+		stackAndBufferSize
+	}
+	
 	/**
 	 * Analyse a pos-tag sequence,
 	 * and return the most likely parse configuration for the sentence.
@@ -80,4 +87,8 @@ public interface Parser {
 	 */
 	public List<ParserRule> getParserRules();
 	public void setParserRules(List<ParserRule> parserRules);
+	
+	public ParseComparisonStrategy getParseComparisonStrategy();
+	public void setParseComparisonStrategy(
+			ParseComparisonStrategy parseComparisonStrategy);
 }

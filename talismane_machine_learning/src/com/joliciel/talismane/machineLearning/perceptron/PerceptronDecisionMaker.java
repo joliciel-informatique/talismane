@@ -22,15 +22,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import com.joliciel.talismane.machineLearning.AdditiveScoringStrategy;
+import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.MachineLearningSession;
 import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
+import com.joliciel.talismane.utils.JolicielException;
 
 class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	private DecisionFactory<T> decisionFactory;
 	private PerceptronModelParameters modelParameters;
+	private transient ScoringStrategy<ClassificationSolution<T>> scoringStrategy = null;
+	private transient PerceptronScoring perceptronScoring = null;
 	
 	public PerceptronDecisionMaker(PerceptronModelParameters params, DecisionFactory<T> decisionFactory) {
 		super();
@@ -45,12 +54,58 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		modelParameters.prepareData(featureResults, featureIndexList, featureValueList);
 		
 		double[] results = this.predict(featureIndexList, featureValueList);
+		double[] probs = new double[results.length];
+		
+		if (this.getPerceptronScoring()==PerceptronScoring.normalisedExponential) {
+			//e^(x/absmax)/sum(e^(x/absmax))
+			// where x/absmax is in [-1,1]
+			// e^(x/absmax) is in [1/e,e]
+			double absoluteMax = 1;
+			for (int i=0;i<results.length;i++) {
+				if (Math.abs(results[i]) > absoluteMax)
+					absoluteMax = Math.abs(results[i]);
+			}
+			
+			double total = 0.0;
+			for (int i=0;i<results.length;i++) {
+				probs[i] = Math.exp(results[i]/absoluteMax);
+				total += probs[i];
+			}
+
+			for (int i=0;i<probs.length;i++) {
+				probs[i] /= total;
+			}
+		} else {
+			// make all results >= 1
+			double min = Double.MAX_VALUE;
+			for (int i=0;i<results.length;i++) {
+				if (results[i] < min)
+					min = results[i];
+			}
+			
+			if (min<0) {
+				for (int i=0; i<results.length;i++) {
+					probs[i] = (results[i] - min) + 1;
+				}
+			}
+			
+			// then divide by total to get a probability distribution
+			double total = 0.0;
+			for (int i=0;i<probs.length;i++) {
+				total += probs[i];
+			}				
+			
+			for (int i=0;i<probs.length;i++) {
+				probs[i] /= total;
+			}				
+		}
 		
 		int i = 0;
 		TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
 		for (String outcome : modelParameters.getOutcomes()) {
-			Decision<T> decision = this.decisionFactory.createDecision(outcome, results[i++]);
+			Decision<T> decision = this.decisionFactory.createDecision(outcome, results[i], probs[i]);
 			outcomeSet.add(decision);
+			i++;
 		}
 
 		List<Decision<T>> decisions = new ArrayList<Decision<T>>(outcomeSet);
@@ -60,10 +115,6 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	}
 
 	public double[] predict(List<Integer> featureIndexList, List<Double> featureValueList) {
-		return this.predict(featureIndexList, featureValueList, true);
-	}
-	
-	public double[] predict(List<Integer> featureIndexList, List<Double> featureValueList, boolean normalise) {
 		double[] results = new double[modelParameters.getOutcomeCount()];
 		for (int i=0; i<featureIndexList.size();i++) {
 			int featureIndex = featureIndexList.get(i);
@@ -75,29 +126,7 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 				results[j] += value * weight;
 			}			
 		}
-
-		if (normalise) {
-			//e^(x/absmax)/sum(e^(x/absmax))
-			// where x/absmax is in [-1,1]
-			// e^(x/absmax) is in [1/e,e]
-			
-			double absoluteMax = 1;
-
-			for (int i=0;i<results.length;i++) {
-				if (Math.abs(results[i]) > absoluteMax)
-					absoluteMax = Math.abs(results[i]);
-			}
-
-			double total = 0.0;
-			for (int i=0;i<results.length;i++) {
-				results[i] = Math.exp(results[i]/absoluteMax);
-				total += results[i];
-			}
-
-			for (int i=0;i<results.length;i++) {
-				results[i] /= total;
-			}
-		}
+		
 		return results;
 	}
 	
@@ -115,5 +144,28 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		return modelParameters;
 	}
 
+	@Override
+	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy() {
+		if (scoringStrategy==null) {
+			if (this.getPerceptronScoring()==PerceptronScoring.normalisedLinear) {
+				scoringStrategy = new GeometricMeanScoringStrategy<T>();
+			} else if (this.getPerceptronScoring()==PerceptronScoring.normalisedExponential) {
+				scoringStrategy = new GeometricMeanScoringStrategy<T>();
+			} else if (this.getPerceptronScoring()==PerceptronScoring.additive) {
+				scoringStrategy = new AdditiveScoringStrategy<T>();
+			} else {
+				throw new JolicielException("Unknown perceptron scoring strategy: " + this.getPerceptronScoring());
+			}
+		}
+		return scoringStrategy;
+	}
+
+	public PerceptronScoring getPerceptronScoring() {
+		if (perceptronScoring==null) {
+			perceptronScoring = MachineLearningSession.getPerceptronScoring();
+		}
+		return perceptronScoring;
+	}
+	
 	
 }

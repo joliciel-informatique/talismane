@@ -39,6 +39,12 @@ public interface Decision<T extends Outcome> extends Comparable<Decision<T>> {
 	public T getOutcome();
 	
 	/**
+	 * The decision's raw score, for additive scoring systems (e.g. perceptrons).
+	 * @return
+	 */
+	public double getScore();
+	
+	/**
 	 * This decision's probability.
 	 * @return
 	 */

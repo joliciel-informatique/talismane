@@ -27,4 +27,5 @@ interface ParseConfigurationInternal extends ParseConfiguration {
 	public Map<PosTaggedToken, Transition> getDependentTransitionMap();
 	public long getCreateDate();
 	public Set<DependencyArc> getDependenciesInternal();
+	public int getLastProbApplied();
 }

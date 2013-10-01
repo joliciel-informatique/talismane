@@ -76,6 +76,7 @@ public interface Talismane {
 		loadParsingConstraints
 	}
 
+
 	/**
 	 * Run the {@link Command} specified by {@link TalismaneConfig#getCommand()}.
 	 * @param config a holder for all of the configuration options for this command.

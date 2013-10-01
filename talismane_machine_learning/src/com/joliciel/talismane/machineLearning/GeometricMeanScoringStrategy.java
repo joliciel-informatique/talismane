@@ -57,17 +57,24 @@ public class GeometricMeanScoringStrategy<T extends Outcome> implements ScoringS
 		}
 		
 		for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
-			score = score * underlyingSolution.getScore();
+			if (!underlyingSolution.getScoringStrategy().isAdditive())
+				score = score * underlyingSolution.getScore();
 		}
 		
 		if (LOG.isTraceEnabled()) {
 			for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
-				LOG.trace(" * " + underlyingSolution.getScore() + " (" + underlyingSolution.getClass().getSimpleName() + ")");
+				if (!underlyingSolution.getScoringStrategy().isAdditive())
+					LOG.trace(" * " + underlyingSolution.getScore() + " (" + underlyingSolution.getClass().getSimpleName() + ")");
 			}
 			LOG.trace(" = " + score);
 		}
 
 		return score;
+	}
+
+	@Override
+	public boolean isAdditive() {
+		return false;
 	}
 
 }

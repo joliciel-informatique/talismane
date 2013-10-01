@@ -47,7 +47,6 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -57,7 +56,6 @@ import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
@@ -67,7 +65,7 @@ import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class ParserRegexBasedCorpusReaderImpl implements
-		ParserRegexBasedCorpusReader, PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader {
+		ParserRegexBasedCorpusReader {
     private static final Log LOG = LogFactory.getLog(ParserRegexBasedCorpusReaderImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserRegexBasedCorpusReaderImpl.class);
 	private String regex = ParserRegexBasedCorpusReader.DEFAULT_REGEX;
@@ -85,8 +83,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private Pattern pattern;
 	private ParseConfiguration configuration = null;
 	private Scanner scanner;
-	private Reader reader;
-	private File file;
+	private File corpusLocation;
 	private Charset charset;
 	
 	private ParserService parserService;
@@ -101,6 +98,10 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
 	private int totalSentenceCount = 0;
+	private String excludeFileName = null;
+	private List<File> files;
+	private int currentFileIndex = 0;
+	private boolean needsToReturnBlankLine = false;
 
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
@@ -114,20 +115,12 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	
 	private boolean predictTransitions = true;
 	
-	public ParserRegexBasedCorpusReaderImpl(File file, Charset charset) {
-		try {
-			this.file = file;
-			this.charset = charset;
-			this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
-			this.scanner = new Scanner(reader);
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		}
+	public ParserRegexBasedCorpusReaderImpl(File corpusLocation, Charset charset) {
+		this.corpusLocation = corpusLocation;
+		this.charset = charset;
 	}
 	
 	public ParserRegexBasedCorpusReaderImpl(Reader reader) {
-		this.reader = reader;
 		this.scanner = new Scanner(reader);
 	}
 
@@ -142,18 +135,18 @@ public class ParserRegexBasedCorpusReaderImpl implements
 					List<ParseDataLine> dataLines = new ArrayList<ParseDataLine>();
 					List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
 					boolean hasLine = false;
-					if (!scanner.hasNextLine())
+					if (!this.hasNextLine())
 						break;
 					
 					int sentenceStartLineNumber = lineNumber;
 					while (configuration==null) {
 						// break out when there's no next line & nothing in the buffer to process
-						if (!scanner.hasNextLine() && !hasLine)
+						if (!this.hasNextLine() && !hasLine)
 							break;
 						
 						String line = "";
-						if (scanner.hasNextLine())
-							line = scanner.nextLine().replace("\r", "");
+						if (this.hasNextLine())
+							line = this.nextLine().replace("\r", "");
 						
 						lineNumber++;
 						if (line.trim().length()==0) {
@@ -162,7 +155,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							
 							// end of sentence
 							totalSentenceCount++;
-							LOG.debug("totalSentenceCount: " + totalSentenceCount);
+							if (LOG.isTraceEnabled())
+								LOG.trace("totalSentenceCount: " + totalSentenceCount);
 							
 							// check cross-validation
 							if (crossValidationSize>0) {
@@ -209,7 +203,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										token.setLineNumber(dataLine.getOriginalLineNumber());
 										token.setColumnNumber(dataLine.getOriginalColumnNumber());
 									}
-									LOG.debug("Sentence " + sentenceCount + ": " + tokenSequence.getText());
+									LOG.debug("Sentence " + (sentenceCount+1) + ": " + tokenSequence.getText());
 									
 									tokenSequence.cleanSlate();
 									
@@ -390,10 +384,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 					}
 				} // is configuration still null?
 			} // have we reached the max sentence count?
-			
-			if (configuration==null) {
-				scanner.close();
-			}
 			
 			return configuration!=null;
 		} finally {
@@ -700,6 +690,76 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		return pattern;
 	}
 
+
+	private boolean hasNextLine() {
+		try {
+			if (needsToReturnBlankLine)
+				return true;
+			
+			if (this.scanner==null && currentFileIndex==0) {
+				if (corpusLocation.isDirectory()) {
+					File[] theFiles = corpusLocation.listFiles();
+					files = new ArrayList<File>();
+					for (File file : theFiles) {
+						if (!file.getName().equals(excludeFileName)) {
+							files.add(file);
+						}
+					}
+					Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(files.get(0)), charset));
+					this.scanner = new Scanner(reader);
+				} else {
+					Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(corpusLocation), charset));
+					this.scanner = new Scanner(reader);
+				}
+				currentFileIndex++;
+			}
+			
+			while (this.scanner!=null) {
+				if (this.scanner.hasNextLine())
+					return true;
+				
+				needsToReturnBlankLine = true;
+				
+				this.scanner=null;
+				if (files!=null) {
+					if (currentFileIndex<files.size()) {
+						Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(files.get(currentFileIndex)), charset));
+						this.scanner = new Scanner(reader);
+						currentFileIndex++;
+					}
+				}
+			}
+			
+			return false;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private String nextLine() {
+		if (needsToReturnBlankLine) {
+			needsToReturnBlankLine = false;
+			return "";
+		}
+		return this.scanner.nextLine();
+	}
+	
+	@Override
+	public void rewind() {
+		if (this.corpusLocation==null) {
+			throw new TalismaneException(this.getClass().getName() + " does not support rewind if not constructed from File");
+		}
+
+		this.scanner = null;
+		this.currentFileIndex = 0;
+		configuration = null;
+		
+		sentenceCount = 0;
+		lineNumber = 0;
+		totalSentenceCount = 0;
+	}
+
 	public void setRegex(String regex) {
 		this.regex = regex;
 	}
@@ -813,23 +873,12 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		this.excludeIndex = excludeIndex;
 	}
 
-	@Override
-	public void rewind() {
-		if (this.file==null) {
-			throw new TalismaneException(this.getClass().getName() + " does not support rewind if not constructed from File");
-		}
-		try {
-			this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
-			this.scanner = new Scanner(reader);
-			configuration = null;
-			
-			sentenceCount = 0;
-			lineNumber = 0;
-			totalSentenceCount = 0;
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		}
+	public String getExcludeFileName() {
+		return excludeFileName;
+	}
+
+	public void setExcludeFileName(String excludeFileName) {
+		this.excludeFileName = excludeFileName;
 	}
 
 	

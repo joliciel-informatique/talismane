@@ -28,4 +28,9 @@ public class SimpleRankingScoringStrategy implements ScoringStrategy<RankingSolu
 	public double calculateScore(RankingSolution solution) {
 		return solution.getRankingScore();
 	}
+
+	@Override
+	public boolean isAdditive() {
+		return true;
+	}
 }

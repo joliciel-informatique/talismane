@@ -22,10 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
@@ -34,6 +37,7 @@ import opennlp.model.MaxentModel;
 class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	private MaxentModel model;
 	private DecisionFactory<T> decisionFactory;
+	private transient ScoringStrategy<ClassificationSolution<T>> scoringStrategy = null;
 	
 	public OpenNLPDecisionMaker(MaxentModel model) {
 		super();
@@ -109,5 +113,13 @@ class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 	@Override
 	public void setDecisionFactory(DecisionFactory<T> decisionFactory) {
 		this.decisionFactory = decisionFactory;
+	}
+	
+
+	@Override
+	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy() {
+		if (scoringStrategy==null)
+			scoringStrategy = new GeometricMeanScoringStrategy<T>();
+		return scoringStrategy;
 	}
 }

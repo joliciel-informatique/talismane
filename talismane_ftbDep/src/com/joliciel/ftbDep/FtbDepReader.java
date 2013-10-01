@@ -43,12 +43,11 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
     
 	public FtbDepReader(File ftbDepFile, Charset charset) throws IOException {
 		super(ftbDepFile, charset);
-		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_");
+		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t.*\\t.*");
 	}
 
 	public FtbDepReader(File ftbDepFile, String encoding) throws IOException {
-		super(ftbDepFile, Charset.forName(encoding));
-		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_");
+		this(ftbDepFile, Charset.forName(encoding));
 	}
 
 
