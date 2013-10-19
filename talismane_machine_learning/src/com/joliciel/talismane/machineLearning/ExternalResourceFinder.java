@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -26,9 +27,15 @@ import java.util.Collection;
  *
  */
 public interface ExternalResourceFinder {
-	public ExternalResource getExternalResource(String name);
+	/**
+	 * Add external resources located in a file or directory.
+	 * @param file
+	 */
+	public void addExternalResources(File file);
 	
-	public void addExternalResource(ExternalResource externalResource);
+	public ExternalResource<?> getExternalResource(String name);
 	
-	public Collection<ExternalResource> getExternalResources();
+	public void addExternalResource(ExternalResource<?> externalResource);
+	
+	public Collection<ExternalResource<?>> getExternalResources();
 }

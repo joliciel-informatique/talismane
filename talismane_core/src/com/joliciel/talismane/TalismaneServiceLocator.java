@@ -85,6 +85,8 @@ public class TalismaneServiceLocator {
     		talismaneService.setParserService(this.getParserServiceLocator().getParserService());
     		talismaneService.setPosTaggerService(this.getPosTaggerServiceLocator().getPosTaggerService());
     		talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
+    		talismaneService.setMachineLearningService(this.getMachineLearningServiceLocator().getMachineLearningService());
+    		talismaneService.setSentenceDetectorService(this.getSentenceDetectorServiceLocator().getSentenceDetectorService());
     	}
     	return this.talismaneService;
     }

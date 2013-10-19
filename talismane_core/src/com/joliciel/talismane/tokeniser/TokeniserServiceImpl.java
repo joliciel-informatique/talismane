@@ -31,6 +31,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 
 class TokeniserServiceImpl implements TokeniserServiceInternal {
@@ -83,6 +84,13 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	@Override
 	public PretokenisedSequence getEmptyPretokenisedSequence() {
 		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService);
+		tokenSequence.setTokeniserServiceInternal(this);
+		return tokenSequence;
+	}
+	
+	@Override
+	public PretokenisedSequence getEmptyPretokenisedSequence(String sentenceText) {
+		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService, sentenceText);
 		tokenSequence.setTokeniserServiceInternal(this);
 		return tokenSequence;
 	}
@@ -207,6 +215,16 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+	@Override
+	public TokenComparator getTokenComparator(
+			TokeniserAnnotatedCorpusReader referenceCorpusReader,
+			TokeniserAnnotatedCorpusReader evaluationCorpusReader,
+			TokeniserPatternManager tokeniserPatternManager) {
+		TokenComparatorImpl tokenComparator = new TokenComparatorImpl(referenceCorpusReader, evaluationCorpusReader, tokeniserPatternManager);
+		tokenComparator.setTokeniserServiceInternal(this);
+		return tokenComparator;
 	}
 
 

@@ -39,12 +39,12 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("AndRange", AndRangeFeature.class);
-		container.addFeatureClass("BackwardLookup", BackwardLookupFeature.class);
 		container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
+		container.addFeatureClass("CountIf", CountIfFeature.class);
 		container.addFeatureClass("FirstWordInCompound", FirstWordInCompoundFeature.class);
 		container.addFeatureClass("FirstWordInSentence", FirstWordInSentenceFeature.class);
-		container.addFeatureClass("ForwardLookup", ForwardLookupFeature.class);
 		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
+		container.addFeatureClass("Has", HasFeature.class);
 		container.addFeatureClass("HasClosedClassesOnly", HasClosedClassesOnlyFeature.class);
 		container.addFeatureClass("LastWordInCompound", LastWordInCompoundFeature.class);
 		container.addFeatureClass("LastWordInSentence", LastWordInSentenceFeature.class);
@@ -60,6 +60,7 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		container.addFeatureClass("OrRange", OrRangeFeature.class);
 		container.addFeatureClass("PosTagSet", PosTagSetFeature.class);
 		container.addFeatureClass("Regex", RegexFeature.class);
+		container.addFeatureClass("TokenAt", TokenAtAddressFunction.class);
 		container.addFeatureClass("TokenIndex", TokenIndexFeature.class);
 		container.addFeatureClass("UnknownWord", UnknownWordFeature.class);
 		container.addFeatureClass("Word", WordFeature.class);

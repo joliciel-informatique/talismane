@@ -42,6 +42,7 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 	private boolean hasTokeniser = false;
 	private boolean hasPosTagger = false;
 	private File fscoreFile;
+	private String skipLabel = null;
 	
 	public ParseEvaluationFScoreCalculator() {}
 	public ParseEvaluationFScoreCalculator(File fscoreFile) {
@@ -153,5 +154,10 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 		this.hasPosTagger = hasPosTagger;
 	}
 	
-	
+	public String getSkipLabel() {
+		return skipLabel;
+	}
+	public void setSkipLabel(String skipLabel) {
+		this.skipLabel = skipLabel;
+	}
 }

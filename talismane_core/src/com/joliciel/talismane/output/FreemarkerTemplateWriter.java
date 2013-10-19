@@ -106,6 +106,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	public void onNextPosTagSequence(PosTagSequence posTagSequence) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", posTagSequence);
+		model.put("text", posTagSequence.getTokenSequence().getText());
 		model.put("LOG", LOG);
 		this.process(model);
 	}
@@ -114,6 +115,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	public void onNextTokenSequence(TokenSequence tokenSequence) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", tokenSequence);
+		model.put("text", tokenSequence.getText());
 		model.put("LOG", LOG);
 		this.process(model);
 	}
@@ -128,6 +130,11 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 
 	@Override
 	public void onCompleteParse() {
+		// nothing to do here
+	}
+
+	@Override
+	public void onCompleteAnalysis() {
 		// nothing to do here
 	}
 }

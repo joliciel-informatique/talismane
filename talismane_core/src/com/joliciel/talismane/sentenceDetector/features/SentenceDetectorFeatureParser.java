@@ -123,4 +123,10 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 			Feature<PossibleSentenceBoundary, ?> originalArgument) {
 		return null;
 	}
+
+	@Override
+	public Feature<PossibleSentenceBoundary, ?> convertFeatureCustomType(
+			Feature<PossibleSentenceBoundary, ?> feature) {
+		return null;
+	}
 }

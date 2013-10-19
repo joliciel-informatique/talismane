@@ -1,7 +1,10 @@
 package com.joliciel.talismane.lexicon;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +40,8 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 		super();
 
 		try {
-			Scanner scanner = new Scanner(file, "UTF-8");
+			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
+
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				if (line.length()>0 && !line.startsWith("#")) {

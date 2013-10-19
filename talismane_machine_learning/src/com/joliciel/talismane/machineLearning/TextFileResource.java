@@ -20,7 +20,6 @@ package com.joliciel.talismane.machineLearning;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,29 +36,25 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * An external resource read from a text file.<br/>
  * The default name will be the filename.<br/>
  * If a line starts with the string "Name: ", the default name will be replaced by this name.<br/>
- * If a line starts with the string "Multivalued: true", the resource will be considered multivalued with weights.<br/>
+ * If a line starts with the string "Multivalued: true", an exception gets thrown.<br/>
  * All lines starting with # are skipped.<br/>
  * Any other line will be broken up by tabs:<br/>
- * For multi-valued resources, the second-to-last tab is the class, the last tab is the weight.<br/>
- * For normal resources, the last tab is the class.<br/>
- * All previous tabs are considered to be key components.<br/>
- * The same set of key components can have multiple classes with different weights.<br/>
+ * One tab per key component, and the last tab is the class.<br/>
  * @author Assaf Urieli
  *
  */
-public class TextFileResource implements ExternalResource {
-	private static final long serialVersionUID = -6588854532682308236L;
+public class TextFileResource implements ExternalResource<String> {
+	private static final long serialVersionUID = 1L;
 	private static final Log LOG = LogFactory.getLog(TextFileResource.class);
 	Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
 	Map<String, String> resultMap = new HashMap<String, String>();
 	
 	private String name;
-	private boolean multivalued = false;
 	
 	public TextFileResource(File file) {
 		try {
 			this.name = file.getName();
-			this.multivalued = false;
+
 			Scanner scanner = new Scanner(file);
 			int numParts = -1;
 			int i=1;
@@ -74,7 +69,9 @@ public class TextFileResource implements ExternalResource {
 						continue;
 					}
 					if (parts.length==1 && line.startsWith("Multivalued: ")) {
-						this.multivalued = line.substring("Multivalued: ".length()).equalsIgnoreCase("true");
+						boolean multivalued = line.substring("Multivalued: ".length()).equalsIgnoreCase("true");
+						if (multivalued)
+							throw new JolicielException("Did not expect multivalued resource");
 						i++;
 						continue;
 					}
@@ -82,29 +79,14 @@ public class TextFileResource implements ExternalResource {
 					if (parts.length!=numParts)
 						throw new JolicielException("Wrong number of elements on line " + i + " in file: " + file.getName() );
 
-					if (multivalued) {
-						for (int j=0; j<numParts-2; j++) {
-							sb.append(parts[j]);
-							sb.append("|");
-						}
-						String key = sb.toString();
-						List<WeightedOutcome<String>> resultList = resultsMap.get(key);
-						if (resultList==null) {
-							resultList = new ArrayList<WeightedOutcome<String>>(1);
-							resultsMap.put(key, resultList);
-						}
-						String outcome = parts[numParts-2];
-						double weight = Double.parseDouble(parts[numParts-1]);
-						resultList.add(new WeightedOutcome<String>(outcome, weight));
-					} else {
-						for (int j=0; j<numParts-1; j++) {
-							sb.append(parts[j]);
-							sb.append("|");
-						}
-						String key = sb.toString();
-						String value = parts[numParts-1];
-						resultMap.put(key, value);
+					for (int j=0; j<numParts-1; j++) {
+						sb.append(parts[j]);
+						sb.append("|");
 					}
+					String key = sb.toString();
+					String value = parts[numParts-1];
+					resultMap.put(key, value);
+
 				}
 				i++;
 			}
@@ -112,26 +94,6 @@ public class TextFileResource implements ExternalResource {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-	}
-	@Override
-	public List<WeightedOutcome<String>> getResults(List<String> keyElements) {
-		StringBuilder sb = new StringBuilder();
-		for (String keyElement : keyElements) {
-			sb.append(keyElement);
-			sb.append("|");
-		}
-		String key = sb.toString();
-		List<WeightedOutcome<String>> resultList = null;
-		if (multivalued) {
-			resultList = resultsMap.get(key);
-		} else {
-			String result = resultMap.get(key);
-			if (result!=null) {
-				resultList = new ArrayList<WeightedOutcome<String>>();
-				resultList.add(new WeightedOutcome<String>(result, 1.0));
-			}
-		}
-		return resultList;
 	}
 	
 	@Override
@@ -142,15 +104,8 @@ public class TextFileResource implements ExternalResource {
 			sb.append("|");
 		}
 		String key = sb.toString();
-		String result = null;
-		if (multivalued) {
-			List<WeightedOutcome<String>> resultList = resultsMap.get(key);
-			if (resultList!=null && resultList.size()>0) {
-				result = resultList.get(0).getOutcome();
-			}
-		} else {
-			result = resultMap.get(key);
-		}
+		String result = resultMap.get(key);
+
 		return result;
 	}
 	
@@ -159,11 +114,6 @@ public class TextFileResource implements ExternalResource {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	@Override
-	public boolean isMultivalued() {
-		return this.multivalued;
 	}
 
 }

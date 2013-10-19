@@ -145,6 +145,15 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						LOG.trace("#### Next history ( " + heapEntry.getKey() + "): " + history.toString());
 						LOG.trace("Prob: " + df.format(history.getScore()));
 						LOG.trace("Token: " + token.getText());
+						
+						StringBuilder sb = new StringBuilder();
+						for (Token oneToken : history.getTokenSequence().listWithWhiteSpace()) {
+							if (oneToken.equals(token))
+								sb.append("[" + oneToken + "]");
+							else
+								sb.append(oneToken);
+						}
+						LOG.trace(sb.toString());
 					}
 					
 					PosTaggerContext context = this.getPosTaggerFeatureService().getContext(token, history);
@@ -421,6 +430,10 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		return posTaggerFeatures;
 	}
 	
+	public void setPosTaggerFeatures(Set<PosTaggerFeature<?>> posTaggerFeatures) {
+		this.posTaggerFeatures = posTaggerFeatures;
+	}
+
 	public List<TokenSequenceFilter> getPreProcessingFilters() {
 		return preProcessingFilters;
 	}

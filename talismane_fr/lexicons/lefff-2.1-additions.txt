@@ -4,6 +4,25 @@
 # Either closed category words that can be open
 # Or new closed category words
 ############################################################
+# Correct lemmas for qu', d', etc.
+# Not including l' for now, since that would require saying the lemma for le, la, les, l' is "le"
+qu'	que	PROREL	prel	null
+qu'	que	PROWH	pri	null
+qu'	que	ADV	advneg	null
+qu'	que	CS	csu	null
+d'	de	DET	det	p
+d'	de	P	prep	null
+n'	ne	ADV	advneg	null
+s'	se	CLR	clr	3
+s'	si	CS	csu	null
+m'	me	CLR	clr	1s
+m'	me	CLO	cla	1s
+m'	me	CLO	cld	1s
+t'	te	CLR	clr	2s
+t'	te	CLO	cla	2s
+t'	te	CLO	cld	2s
+t'	tu	CLS	cln	2s
+j'	je	CLS	cln	1s
 # adverbes intérrogatifs/exclamatoire
 #combien/que/comme je suis content de te voir !
 à quel point	à quel point	ADV	adv	null
@@ -12,7 +31,6 @@ que	que	ADV	advex	null
 qu'	que	ADV	advex	null
 comme	comme	ADV	advex	null
 # adverbes négatifs
-n'	ne	ADV	advneg	null
 ne	ne	ADV	advneg	null
 ne pas	ne pas	ADV	advneg	null
 ne plus	ne plus	ADV	advneg	null
@@ -23,7 +41,6 @@ non seulement	non seulement	ADV	advneg	null
 nulle part	nulle part	ADV	advneg	null
 pas du tout	pas du tout	ADV	advneg	null
 pas encore	pas encore	ADV	advneg	null
-qu'	que	ADV	advneg	null
 # conjonction de coordination
 aussi bien que	aussi bien que	CC	coo	null
 aussi bien qu'	aussi bien que	CC	coo	null
@@ -1462,3 +1479,12 @@ en vente	en vente	ADJ	adj	null
 mal à l'aise	mal à l'aise	ADJ	adj	null
 #permettre la classification de "il y a" en verbe en cas de mauvaise tokenisation
 il y a	il y a	V	null	P3s
+#Missing verbs
+convaincu	convaincre	VPP	v	Kms
+convaincue	convaincre	VPP	v	Kfs
+convaincus	convaincre	VPP	v	Kmp
+convaincues	convaincre	VPP	v	Kfp
+convaincu	convaincre	ADJ	adj	ms
+convaincue	convaincre	ADJ	adj	fs
+convaincus	convaincre	ADJ	adj	mp
+convaincues	convaincre	ADJ	adj	fp

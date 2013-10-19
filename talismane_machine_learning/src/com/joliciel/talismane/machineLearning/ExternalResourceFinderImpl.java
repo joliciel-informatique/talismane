@@ -18,24 +18,76 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.joliciel.talismane.utils.LogUtils;
 
 class ExternalResourceFinderImpl implements ExternalResourceFinder {
-	private Map<String,ExternalResource> resourceMap = new HashMap<String, ExternalResource>();
+	private static final Log LOG = LogFactory.getLog(ExternalResourceFinderImpl.class);
+	private Map<String,ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
 	
 	@Override
-	public ExternalResource getExternalResource(String name) {
+	public ExternalResource<?> getExternalResource(String name) {
 		return this.resourceMap.get(name);
 	}
 	
-	public void addExternalResource(ExternalResource externalResource) {
+	public void addExternalResource(ExternalResource<?> externalResource) {
+		LOG.debug("Adding resource with name: " + externalResource.getName());
 		this.resourceMap.put(externalResource.getName(), externalResource);
 	}
 
 	@Override
-	public Collection<ExternalResource> getExternalResources() {
+	public Collection<ExternalResource<?>> getExternalResources() {
 		return resourceMap.values();
+	}
+
+	@Override
+	public void addExternalResources(File externalResourceFile) {
+		try {
+			if (externalResourceFile.isDirectory()) {
+				File[] files = externalResourceFile.listFiles();
+				for (File resourceFile : files) {
+					LOG.debug("Reading " + resourceFile.getName());
+					if (resourceFile.getName().endsWith(".zip")) {
+						ZipInputStream zis = new ZipInputStream(new FileInputStream(resourceFile));
+						zis.getNextEntry();
+						ObjectInputStream ois = new ObjectInputStream(zis);
+						ExternalResource<?> externalResource = (ExternalResource<?>) ois.readObject();
+						this.addExternalResource(externalResource);
+					} else {
+						TextFileResource textFileResource = new TextFileResource(resourceFile);
+						this.addExternalResource(textFileResource);
+					}
+				}
+			} else {
+				LOG.debug("Reading " + externalResourceFile.getName());
+				if (externalResourceFile.getName().endsWith(".zip")) {
+					ZipInputStream zis = new ZipInputStream(new FileInputStream(externalResourceFile));
+					zis.getNextEntry();
+					ObjectInputStream ois = new ObjectInputStream(zis);
+					ExternalResource<?> externalResource = (ExternalResource<?>) ois.readObject();
+					this.addExternalResource(externalResource);
+				} else {
+					TextFileResource textFileResource = new TextFileResource(externalResourceFile);
+					this.addExternalResource(textFileResource);
+				}
+			}
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (ClassNotFoundException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 }

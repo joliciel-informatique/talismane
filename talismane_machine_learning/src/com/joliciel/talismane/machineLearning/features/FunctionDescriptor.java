@@ -47,12 +47,19 @@ public interface FunctionDescriptor {
 	public List<FunctionDescriptor> getArguments();
 	
 	/**
-	 * Add an argument to this descriptor.
+	 * Add an argument to this descriptor (at the end of the argument list).
 	 * If the argument is a FunctionDescriptor, will get added as is.
 	 * Otherwise, will get added as FunctionDescriptor wrapper to the argument provided.
 	 * @param argument
 	 */
 	public void addArgument(Object argument);
+	
+	/**
+	 * Like addArgument(Object), but adds the argument at a particular index.
+	 * @param index
+	 * @param argument
+	 */
+	public void addArgument(int index, Object argument);
 	
 	/**
 	 * When this function descriptor describes an object, rather

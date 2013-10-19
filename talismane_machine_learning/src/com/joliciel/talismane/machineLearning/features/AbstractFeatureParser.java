@@ -81,9 +81,9 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("*", MultiplyOperator.class);
 			this.addFeatureClass("/", DivideOperator.class);
 			this.addFeatureClass("%", ModuloOperator.class);
+			this.addFeatureClass("==", EqualsOperatorForString.class);
 			this.addFeatureClass("==", EqualsOperatorForInteger.class);
 			this.addFeatureClass("==", EqualsOperatorForDouble.class);
-			this.addFeatureClass("==", EqualsOperatorForString.class);
 			this.addFeatureClass("==", EqualsOperatorForBoolean.class);
 			this.addFeatureClass("!=", NotEqualsOperator.class);
 			this.addFeatureClass(">", GreaterThanIntegerOperator.class);
@@ -94,23 +94,30 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("<", LessThanOperator.class);
 			this.addFeatureClass("<=", LessThanOrEqualsIntegerOperator.class);
 			this.addFeatureClass("<=", LessThanOrEqualsOperator.class);
-			this.addFeatureClass("&", AndFeature.class);
-			this.addFeatureClass("|", OrFeature.class);
+			this.addFeatureClass("&", AndFeatureAllowNulls.class);
+			this.addFeatureClass("&&", AndFeature.class);
+			this.addFeatureClass("|", OrFeatureAllowNulls.class);
 			this.addFeatureClass("||", ConcatenateFeature.class);
+			this.addFeatureClass("||", OrFeature.class);
 			this.addFeatureClass("ConcatWithNulls", ConcatenateWithNullsFeature.class);
 			this.addFeatureClass("Concat", ConcatenateFeature.class);
 			this.addFeatureClass("And", AndFeature.class);
+			this.addFeatureClass("AndAllowNulls", AndFeatureAllowNulls.class);
 			this.addFeatureClass("Or", OrFeature.class);
+			this.addFeatureClass("OrAllowNulls", OrFeatureAllowNulls.class);
 			this.addFeatureClass("Not", NotFeature.class);
 			this.addFeatureClass("IsNull", IsNullFeature.class);
+			this.addFeatureClass("IfThenElse", IfThenElseStringFeature.class);
 			this.addFeatureClass("IfThenElse", IfThenElseIntegerFeature.class);
 			this.addFeatureClass("IfThenElse", IfThenElseDoubleFeature.class);
-			this.addFeatureClass("IfThenElse", IfThenElseStringFeature.class);
 			this.addFeatureClass("IfThenElse", IfThenElseBooleanFeature.class);
+			this.addFeatureClass("IfThenElse", IfThenElseGenericFeature.class);
+			this.addFeatureClass("InSet", StringInSetFeature.class);
+			this.addFeatureClass("NullIf", NullIfStringFeature.class);
 			this.addFeatureClass("NullIf", NullIfIntegerFeature.class);
 			this.addFeatureClass("NullIf", NullIfDoubleFeature.class);
-			this.addFeatureClass("NullIf", NullIfStringFeature.class);
 			this.addFeatureClass("NullIf", NullIfBooleanFeature.class);
+			this.addFeatureClass("NullIf", NullIfGenericFeature.class);
 			this.addFeatureClass("OnlyTrue", OnlyTrueFeature.class);
 			this.addFeatureClass("NullToFalse", NullToFalseFeature.class);
 			this.addFeatureClass("Normalise", NormaliseFeature.class);
@@ -122,6 +129,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("Inverse", InverseFeature.class);
 			this.addFeatureClass("Integer", IntegerLiteralFeatureWrapper.class);
 			this.addFeatureClass("ExternalResource", ExternalResourceFeature.class);
+			this.addFeatureClass("ExternalResourceDouble", ExternalResourceDoubleFeature.class);
 			this.addFeatureClass("MultivaluedExternalResource", MultivaluedExternalResourceFeature.class);
 			this.addFeatureClasses(this);
 		}
@@ -386,6 +394,13 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 					@SuppressWarnings("unchecked")
 					ExternalResourceFeature<T> externalResourceFeature = (ExternalResourceFeature<T>) genericFeature;
 					externalResourceFeature.setExternalResourceFinder(this.getExternalResourceFinder());
+				} else if (genericFeature instanceof ExternalResourceDoubleFeature) {
+					if (this.getExternalResourceFinder()==null) {
+						throw new JolicielException("No external resource finder set.");
+					}
+					@SuppressWarnings("unchecked")
+					ExternalResourceDoubleFeature<T> externalResourceFeature = (ExternalResourceDoubleFeature<T>) genericFeature;
+					externalResourceFeature.setExternalResourceFinder(this.getExternalResourceFinder());
 				} else if (genericFeature instanceof MultivaluedExternalResourceFeature) {
 					if (this.getExternalResourceFinder()==null) {
 						throw new JolicielException("No external resource finder set.");
@@ -450,9 +465,21 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			convertedFeature = new DoubleFeatureWrapper(feature);
 		} else if (feature.getFeatureType().equals(IntegerFeature.class) && !(feature instanceof IntegerFeature)) {
 			convertedFeature = new IntegerFeatureWrapper(feature);
+		} else {
+			convertedFeature = this.convertFeatureCustomType(feature);
+			if (convertedFeature==null)
+				convertedFeature = feature;
 		}
 		return convertedFeature;
 	}
+	
+	/**
+	 * Add the feature return-type interface if required,
+	 * so that the feature can be used as an argument for features requiring this return type.
+	 * @param feature
+	 * @return
+	 */
+	public abstract Feature<T, ?> convertFeatureCustomType(Feature<T,?> feature);
 	
 	/**
 	 * Inject any dependencies required by this feature to function correctly.
@@ -645,7 +672,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		for (FunctionDescriptor modifiedDescriptor : modifiedDescriptors) {
 			String functionName = modifiedDescriptor.getFunctionName();
 			// check if this is a named feature with parameters
-			if (namedFeaturesWithParameters.containsKey(functionName)) {
+			while (namedFeaturesWithParameters.containsKey(functionName)) {
 				// replace the parameters by the arguments provided
 				NamedFeatureWithParameters namedFeature = namedFeaturesWithParameters.get(functionName);
 				if (namedFeature.getParameterNames().size()!=modifiedDescriptor.getArguments().size()) {
@@ -789,12 +816,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			return this.feature.check(context, env);
 		}
 
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Class<? extends Feature> getFeatureType() {
-			return feature.getFeatureType();
-		}
-
 		@Override
 		public Feature<T, String> getWrappedFeature() {
 			return feature;
@@ -813,12 +834,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		@Override
 		public FeatureResult<Boolean> check(T context, RuntimeEnvironment env) {
 			return this.feature.check(context, env);
-		}
-
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Class<? extends Feature> getFeatureType() {
-			return feature.getFeatureType();
 		}
 
 		@Override
@@ -840,12 +855,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			return this.feature.check(context, env);
 		}
 
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Class<? extends Feature> getFeatureType() {
-			return feature.getFeatureType();
-		}
-
 		@Override
 		public Feature<T, Double> getWrappedFeature() {
 			return feature;
@@ -864,13 +873,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 			return this.feature.check(context, env);
 		}
-
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Class<? extends Feature> getFeatureType() {
-			return feature.getFeatureType();
-		}
-
+		
 		@Override
 		public Feature<T, Integer> getWrappedFeature() {
 			return feature;

@@ -106,4 +106,7 @@ public interface PosTaggerService {
 	 * @return
 	 */
 	PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
+	
+	PosTagSequenceProcessor getPosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures,
+			Set<String> testWords, File file);
 }

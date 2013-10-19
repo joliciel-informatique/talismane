@@ -166,5 +166,11 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		return null;
 	}
 
+	@Override
+	public Feature<TokeniserContext, ?> convertFeatureCustomType(
+			Feature<TokeniserContext, ?> feature) {
+		return null;
+	}
+
 	
 }

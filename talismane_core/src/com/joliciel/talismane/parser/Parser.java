@@ -19,8 +19,10 @@
 package com.joliciel.talismane.parser;
 
 import java.util.List;
+import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
+import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
@@ -32,9 +34,22 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 public interface Parser {
 	
 	public enum ParseComparisonStrategyType {
+		/**
+		 * Comparison based on number of transitions applied.
+		 */
 		transitionCount,
+		/**
+		 * Comparison based on number of elements remaining on the buffer.
+		 */
 		bufferSize,
-		stackAndBufferSize
+		/**
+		 * Comparison based on number of elements remaining on both the stack and the buffer.
+		 */
+		stackAndBufferSize,
+		/**
+		 * Comparison based on number of dependencies created.
+		 */
+		dependencyCount
 	}
 	
 	/**
@@ -91,4 +106,9 @@ public interface Parser {
 	public ParseComparisonStrategy getParseComparisonStrategy();
 	public void setParseComparisonStrategy(
 			ParseComparisonStrategy parseComparisonStrategy);
+
+
+	public abstract void setParseFeatures(Set<ParseConfigurationFeature<?>> parseFeatures);
+
+	public abstract Set<ParseConfigurationFeature<?>> getParseFeatures();
 }

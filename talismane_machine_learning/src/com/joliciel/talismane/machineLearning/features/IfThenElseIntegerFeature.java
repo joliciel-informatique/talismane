@@ -19,7 +19,7 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Mimics an in-then-else structure - if condition is true return thenFeature result, else retunr elseFeature result.
+ * Mimics an in-then-else structure - if condition is true return thenFeature result, else return elseFeature result.
  * @author Assaf Urieli
  *
  * @param <T>

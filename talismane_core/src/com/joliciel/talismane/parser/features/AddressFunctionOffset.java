@@ -23,6 +23,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
@@ -33,10 +34,10 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class AddressFunctionOffset extends AbstractAddressFunction {
-	private ParserAddressFunction addressFunction;
+	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	private IntegerFeature<ParseConfigurationWrapper> offsetFeature;
 	
-	public AddressFunctionOffset(ParserAddressFunction addressFunction, IntegerFeature<ParseConfigurationWrapper> offsetFeature) {
+	public AddressFunctionOffset(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, IntegerFeature<ParseConfigurationWrapper> offsetFeature) {
 		super();
 		this.addressFunction = addressFunction;
 		this.offsetFeature = offsetFeature;
@@ -47,7 +48,7 @@ public final class AddressFunctionOffset extends AbstractAddressFunction {
 	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> offsetResult = offsetFeature.check(configuration, env);
 		if (addressResult!=null && offsetResult!=null) {
 			int offset = offsetResult.getOutcome();

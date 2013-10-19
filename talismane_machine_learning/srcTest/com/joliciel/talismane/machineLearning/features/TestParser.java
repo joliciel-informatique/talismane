@@ -66,4 +66,10 @@ final class TestParser extends AbstractFeatureParser<String> {
 		return null;
 	}
 
+	@Override
+	public Feature<String, ?> convertFeatureCustomType(
+			Feature<String, ?> feature) {
+		return null;
+	}
+
 }

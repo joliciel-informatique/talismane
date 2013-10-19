@@ -1,8 +1,11 @@
 package com.joliciel.talismane.trainer.fr;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -34,7 +37,6 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearni
 import com.joliciel.talismane.machineLearning.Ranker;
 import com.joliciel.talismane.machineLearning.RankingEventStream;
 import com.joliciel.talismane.machineLearning.RankingModelTrainer;
-import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
@@ -252,9 +254,11 @@ public class ParserTrainer {
 			if (corpusFilePath.length()==0)
 				throw new RuntimeException("Missing argument: corpus");
 
-			File corpusFile = new File(corpusFilePath);
-
 			ParserAnnotatedCorpusReader corpusReader = null;
+			File corpusFile = new File(corpusFilePath);
+			if (!corpusFile.exists())
+				throw new TalismaneException("Training corpus not found: " + corpusFilePath);
+
 			if (corpusType.equals("ftbDep")) {
 				FtbDepReader ftbDepReader = new FtbDepReader(corpusFile, "UTF-8");
 				ftbDepReader.setParserService(parserService);
@@ -294,22 +298,11 @@ public class ParserTrainer {
 				if (externalResourcePath!=null) {
 					externalResourceFinder = parserFeatureService.getExternalResourceFinder();
 					File externalResourceFile = new File (externalResourcePath);
-					if (externalResourceFile.isDirectory()) {
-						File[] files = externalResourceFile.listFiles();
-						for (File resourceFile : files) {
-							LOG.debug("Reading " + resourceFile.getName());
-							TextFileResource textFileResource = new TextFileResource(resourceFile);
-							externalResourceFinder.addExternalResource(textFileResource);
-						}
-					} else {
-						LOG.debug("Reading " + externalResourceFile.getName());
-						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
-						externalResourceFinder.addExternalResource(textFileResource);
-					}
+					externalResourceFinder.addExternalResources(externalResourceFile);
 				}
 					
 				File parserFeatureFile = new File(parserFeatureFilePath);
-				Scanner scanner = new Scanner(parserFeatureFile);
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(parserFeatureFile), "UTF-8")));
 				List<String> featureDescriptors = new ArrayList<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -324,7 +317,7 @@ public class ParserTrainer {
 				if (tokenFilterPath!=null && tokenFilterPath.length()>0) {
 					LOG.debug("From: " + tokenFilterPath);
 					File tokenFilterFile = new File(tokenFilterPath);
-					Scanner tokenFilterScanner = new Scanner(tokenFilterFile);
+					Scanner tokenFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokenFilterFile), "UTF-8")));
 					while (tokenFilterScanner.hasNextLine()) {
 						String descriptor = tokenFilterScanner.nextLine();
 						tokenFilterDescriptors.add(descriptor);
@@ -348,7 +341,7 @@ public class ParserTrainer {
 				if (tokenSequenceFilterPath!=null && tokenSequenceFilterPath.length()>0) {
 					LOG.debug("From: " + tokenSequenceFilterPath);
 					File tokenSequenceFilterFile = new File(tokenSequenceFilterPath);
-					Scanner tokenSequenceFilterScanner = new Scanner(tokenSequenceFilterFile);
+					Scanner tokenSequenceFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokenSequenceFilterFile), "UTF-8")));
 					while (tokenSequenceFilterScanner.hasNextLine()) {
 						String descriptor = tokenSequenceFilterScanner.nextLine();
 						tokenSequenceFilterDescriptors.add(descriptor);
@@ -367,7 +360,7 @@ public class ParserTrainer {
 				if (posTaggerPreProcessingFilterPath!=null && posTaggerPreProcessingFilterPath.length()>0) {
 					LOG.debug("From: " + posTaggerPreProcessingFilterPath);
 					File posTaggerPreprocessingFilterFile = new File(posTaggerPreProcessingFilterPath);
-					Scanner posTaggerPreprocessingFilterScanner = new Scanner(posTaggerPreprocessingFilterFile);
+					Scanner posTaggerPreprocessingFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerPreprocessingFilterFile), "UTF-8")));
 					while (posTaggerPreprocessingFilterScanner.hasNextLine()) {
 						String descriptor = posTaggerPreprocessingFilterScanner.nextLine();
 						posTaggerPreProcessingFilterDescriptors.add(descriptor);
@@ -386,7 +379,7 @@ public class ParserTrainer {
 				if (posTaggerPostProcessingFilterPath!=null && posTaggerPostProcessingFilterPath.length()>0) {
 					LOG.debug("From: " + posTaggerPostProcessingFilterPath);
 					File posTaggerPostProcessingFilterFile = new File(posTaggerPostProcessingFilterPath);
-					Scanner posTaggerPostProcessingFilterScanner = new Scanner(posTaggerPostProcessingFilterFile);
+					Scanner posTaggerPostProcessingFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerPostProcessingFilterFile), "UTF-8")));
 					while (posTaggerPostProcessingFilterScanner.hasNextLine()) {
 						String descriptor = posTaggerPostProcessingFilterScanner.nextLine();
 						posTaggerPostProcessingFilterDescriptors.add(descriptor);
@@ -403,7 +396,7 @@ public class ParserTrainer {
 				
 				
 				File dependencyLabelFile = new File(dependencyLabelPath);
-				Scanner depLabelScanner = new Scanner(dependencyLabelFile);
+				Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(dependencyLabelFile), "UTF-8")));
 				List<String> dependencyLabels = new ArrayList<String>();
 				while (depLabelScanner.hasNextLine()) {
 					String dependencyLabel = depLabelScanner.nextLine();

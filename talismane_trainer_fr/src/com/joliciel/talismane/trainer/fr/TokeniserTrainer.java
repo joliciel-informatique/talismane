@@ -1,11 +1,6 @@
 package com.joliciel.talismane.trainer.fr;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,18 +8,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.zip.ZipInputStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.frenchTreebank.TreebankReader;
-import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.TreebankServiceLocator;
-import com.joliciel.frenchTreebank.TreebankSubSet;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.talismane.TalismaneConfig;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexiconChain;
@@ -38,7 +30,6 @@ import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
@@ -46,11 +37,7 @@ import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificatio
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
-import com.joliciel.talismane.stats.FScoreCalculator;
-import com.joliciel.talismane.tokeniser.TokenEvaluationFScoreCalculator;
-import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
-import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
@@ -86,15 +73,10 @@ public class TokeniserTrainer {
 		String tokenSequenceFilterPath = "";
 		String lexiconDirPath = "";
 		String treebankPath = "";
-		String outDirPath = "";
-		String tokeniserType = "maxent";
 		int sentenceCount = 0;
-		int beamWidth = 10;
-		int startSentence = 0;
 		String posTagSetPath = "";
 		String sentenceNumber = "";
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-		
 		
 		int iterations = 0;
 		int cutoff = 0;
@@ -135,10 +117,6 @@ public class TokeniserTrainer {
 				cutoff = Integer.parseInt(argValue);
 			else if (argName.equals("smoothing"))
 				smoothing = Double.parseDouble(argValue);
-			else if (argName.equals("outdir")) 
-				outDirPath = argValue;
-			else if (argName.equals("tokeniser")) 
-				tokeniserType = argValue;
 			else if (argName.equals("patternTokeniser"))
 				patternTokeniserType = PatternTokeniserType.valueOf(argValue);
 			else if (argName.equals("corpus"))
@@ -147,12 +125,8 @@ public class TokeniserTrainer {
 				lexiconDirPath = argValue;
 			else if (argName.equals("sentenceCount"))
 				sentenceCount = Integer.parseInt(argValue);
-			else if (argName.equals("startSentence"))
-				startSentence = Integer.parseInt(argValue);
 			else if (argName.equals("sentence"))
 				sentenceNumber = argValue;
-			else if (argName.equals("beamWidth"))
-				beamWidth = Integer.parseInt(argValue);
 			else if (argName.equals("algorithm"))
 				algorithm = MachineLearningAlgorithm.valueOf(argValue);
 			else if (argName.equals("linearSVMSolver"))
@@ -192,7 +166,6 @@ public class TokeniserTrainer {
 			PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetFile);
 			
 	       	TalismaneSession.setPosTagSet(posTagSet);
-	        
 			
 			File lexiconDir = new File(lexiconDirPath);
 			LexiconDeserializer lexiconDeserializer = new LexiconDeserializer();
@@ -213,7 +186,6 @@ public class TokeniserTrainer {
 			if (treebankPath.length()==0)
 				treebankServiceLocator.setDataSourcePropertiesFile("jdbc-ftb.properties");
 	
-			TreebankService treebankService = treebankServiceLocator.getTreebankService();
 	        TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
 	        TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
 
@@ -234,13 +206,12 @@ public class TokeniserTrainer {
 				
 				TreebankReader treebankReader = null;
 				
-				if (treebankPath.length()>0) {
-					File treebankFile = new File(treebankPath);
-					treebankReader = treebankUploadService.getXmlReader(treebankFile, sentenceNumber);
-				} else {
-					TreebankSubSet testSection = TreebankSubSet.TRAINING;
-					treebankReader = treebankService.getDatabaseReader(testSection, startSentence);
-				}
+				File corpusFile = new File(treebankPath);
+				if (!corpusFile.exists())
+					throw new TalismaneException("Training corpus not found: " + treebankPath);
+
+				treebankReader = treebankUploadService.getXmlReader(corpusFile, sentenceNumber);
+
 				treebankReader.setSentenceCount(sentenceCount);
 
 				TokeniserAnnotatedCorpusReader corpusReader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader);
@@ -256,16 +227,7 @@ public class TokeniserTrainer {
 				if (externalResourcePath!=null) {
 					externalResourceFinder = tokenFeatureService.getExternalResourceFinder();
 					File externalResourceFile = new File (externalResourcePath);
-					if (externalResourceFile.isDirectory()) {
-						File[] files = externalResourceFile.listFiles();
-						for (File resourceFile : files) {
-							TextFileResource textFileResource = new TextFileResource(resourceFile);
-							externalResourceFinder.addExternalResource(textFileResource);
-						}
-					} else {
-						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
-						externalResourceFinder.addExternalResource(textFileResource);
-					}
+					externalResourceFinder.addExternalResources(externalResourceFile);
 				}
 				List<String> tokenFilterDescriptors = new ArrayList<String>();
 				if (tokenFilterPath!=null && tokenFilterPath.length()>0) {
@@ -374,80 +336,6 @@ public class TokeniserTrainer {
 				tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), patternTokeniserType.toString());
 				tokeniserModel.persist(tokeniserModelFile);
 	
-			} else if (command.equals("evaluate")) {
-				TreebankReader treebankReader = null;
-				
-				if (treebankPath.length()>0) {
-					File treebankFile = new File(treebankPath);
-					treebankReader = treebankUploadService.getXmlReader(treebankFile, sentenceNumber);
-				} else {
-					TreebankSubSet testSection = TreebankSubSet.DEV;
-					treebankReader = treebankService.getDatabaseReader(testSection, startSentence);
-				}
-				treebankReader.setSentenceCount(sentenceCount);				
-				TokeniserAnnotatedCorpusReader reader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader);
-					
-				File outDir = new File(outDirPath);
-				outDir.mkdirs();
-				
-				Writer errorFileWriter = null;
-				String filebase = "results";
-				if (tokeniserModelFilePath.length()>0)
-					filebase = tokeniserModelFilePath.substring(tokeniserModelFilePath.lastIndexOf('/'));
-				File errorFile = new File(outDir, filebase + ".errors.txt");
-				errorFile.delete();
-				errorFile.createNewFile();
-				errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false),"UTF8"));
-				
-				FScoreCalculator<TokeniserOutcome> fScoreCalculator = null;
-
-				Tokeniser tokeniser = null;
-				if (tokeniserType.equalsIgnoreCase("simple")) {
-					tokeniser = tokeniserService.getSimpleTokeniser();
-				} else {
-					if (tokeniserModelFilePath.length()==0)
-						throw new RuntimeException("Missing argument: tokeniserModel");
-					ZipInputStream zis = new ZipInputStream(new FileInputStream(tokeniserModelFilePath));
-					ClassificationModel<TokeniserOutcome> tokeniserModel = machineLearningService.getClassificationModel(zis);
-					tokeniser = tokeniserPatternService.getPatternTokeniser(tokeniserModel, beamWidth);
-					
-					List<String> tokenFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
-					if (tokenFilterDescriptors!=null) {
-						for (String descriptor : tokenFilterDescriptors) {
-							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TokenFilter tokenFilter = tokenFilterService.getTokenFilter(descriptor);
-								tokeniser.addTokenFilter(tokenFilter);
-								reader.addTokenFilter(tokenFilter);
-							}
-						}
-					}
-
-					List<String> tokenSequenceFilterDescriptors = tokeniserModel.getDescriptors().get(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
-					if (tokenSequenceFilterDescriptors!=null) {
-						for (String descriptor : tokenSequenceFilterDescriptors) {
-							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-								TokenSequenceFilter tokenSequenceFilter = tokenFilterService.getTokenSequenceFilter(descriptor);
-								tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
-								reader.addTokenSequenceFilter(tokenSequenceFilter);
-							}
-						}
-					}
-				}
-				
-				TokeniserEvaluator evaluator = tokeniserService.getTokeniserEvaluator(tokeniser);
-				
-				TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
-				tokenFScoreCalculator.setErrorWriter(errorFileWriter);
-				evaluator.addObserver(tokenFScoreCalculator);
-				evaluator.evaluate(reader);
-				
-				fScoreCalculator = tokenFScoreCalculator.getFScoreCalculator();
-				double fscore = fScoreCalculator.getTotalFScore();
-				LOG.debug("F-score for " + tokeniserModelFilePath + ": " + fscore);
-
-				
-				File fscoreFile = new File(outDir, filebase + ".fscores.csv");
-				fScoreCalculator.writeScoresToCSVFile(fscoreFile);	
 			}
 		} finally {
 			PerformanceMonitor.end();

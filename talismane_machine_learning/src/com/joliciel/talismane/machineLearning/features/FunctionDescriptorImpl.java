@@ -54,7 +54,7 @@ class FunctionDescriptorImpl implements FunctionDescriptor {
 	}
 
 	@Override
-	public void addArgument(Object argument) {
+	public void addArgument(int index, Object argument) {
 		if (argument == null)
 			throw new RuntimeException("Cannot add a null argument!");
 		
@@ -64,12 +64,20 @@ class FunctionDescriptorImpl implements FunctionDescriptor {
 		else
 			argumentFunction = this.featureServiceInternal.getFunctionDescriptorForObject(argument);
 		
-		arguments.add(argumentFunction);
+		if (index<0)
+			arguments.add(argumentFunction);
+		else
+			arguments.add(index, argumentFunction);
 		
 		if (LOG.isTraceEnabled())
 			LOG.trace("Add argument: " + this.toString());
 		
 		((FunctionDescriptorImpl)argumentFunction).setParent(this);
+	}
+	
+	@Override
+	public void addArgument(Object argument) {
+		this.addArgument(-1, argument);
 	}
 
 	@Override

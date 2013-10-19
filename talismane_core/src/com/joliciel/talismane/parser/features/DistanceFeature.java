@@ -21,8 +21,8 @@ package com.joliciel.talismane.parser.features;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
@@ -33,11 +33,11 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  */
 public final class DistanceFeature extends AbstractParseConfigurationFeature<Integer>
 		implements IntegerFeature<ParseConfigurationWrapper> {
-	private ParserAddressFunction addressFunction1;
-	private ParserAddressFunction addressFunction2;
+	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1;
+	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2;
 	
-	public DistanceFeature(ParserAddressFunction addressFunction1,
-			ParserAddressFunction addressFunction2) {
+	public DistanceFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1,
+			PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2) {
 		super();
 		this.addressFunction1 = addressFunction1;
 		this.addressFunction2 = addressFunction2;
@@ -48,9 +48,8 @@ public final class DistanceFeature extends AbstractParseConfigurationFeature<Int
 
 	@Override
 	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		FeatureResult<PosTaggedTokenWrapper> tokenResult1 = addressFunction1.check(configuration, env);
-		FeatureResult<PosTaggedTokenWrapper> tokenResult2 = addressFunction2.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult1 = addressFunction1.check(wrapper, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult2 = addressFunction2.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult1!=null && tokenResult2!=null) {
 			PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome().getPosTaggedToken();

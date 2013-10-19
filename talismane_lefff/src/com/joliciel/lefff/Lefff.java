@@ -23,12 +23,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PredicateArgument;
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -134,9 +137,16 @@ public class Lefff {
         	}
       
         	for (String testWord : testWords) {
+        		Set<PosTag> possiblePosTags = memoryBase.findPossiblePosTags(testWord);
+	        	LOG.debug("##### PosTags for '" + testWord + "': " + possiblePosTags.size());
+	        	int i=1;
+	        	for (PosTag posTag : possiblePosTags) {
+	        		LOG.debug("### PosTag " + (i++) + ":" + posTag);
+	        	}
+       		
 	        	List<? extends LexicalEntry> entriesForWord = memoryBase.getEntries(testWord);
 	        	LOG.debug("##### Entries for '" + testWord + "': " + entriesForWord.size());
-	        	int i = 1;
+	        	i = 1;
 	        	for (LexicalEntry entry : entriesForWord) {
 	        		LOG.debug("### Entry " + (i++) + ":" + entry.getWord());
 	        		LOG.debug("Category " + entry.getCategory());

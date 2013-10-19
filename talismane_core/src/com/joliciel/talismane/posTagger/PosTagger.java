@@ -48,6 +48,7 @@ public interface PosTagger {
 	public abstract void addObserver(ClassificationObserver<PosTag> observer);
 
 	public abstract Set<PosTaggerFeature<?>> getPosTaggerFeatures();
+	public void setPosTaggerFeatures(Set<PosTaggerFeature<?>> posTaggerFeatures);
 
 	public abstract void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
 

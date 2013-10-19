@@ -28,8 +28,7 @@ public interface TokenComparator {
 	 * Evaluate the evaluation corpus against the reference corpus.
 	 * @param reader for reading manually tagged tokens from a corpus
 	 */
-	public void evaluate(TokeniserAnnotatedCorpusReader referenceCorpusReader,
-			TokeniserAnnotatedCorpusReader evaluationCorpusReader);
+	public void compare();
 
 	public abstract void addObserver(TokenEvaluationObserver observer);
 

@@ -71,7 +71,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  *
  */
-class IntervalPatternTokeniser implements Tokeniser {
+class IntervalPatternTokeniser implements PatternTokeniser {
 	private static final Log LOG = LogFactory.getLog(IntervalPatternTokeniser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternTokeniser.class);
 

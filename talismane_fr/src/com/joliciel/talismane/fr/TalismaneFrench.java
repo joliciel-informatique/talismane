@@ -235,7 +235,7 @@ public class TalismaneFrench extends TalismaneConfig {
 			lexicon = deserializer.deserializeLexiconFile(ois);
 			lexiconChain.addLexicon(lexicon);
 	
-			lexiconPath = "/com/joliciel/talismane/fr/resources/lefffCC.zip";
+			lexiconPath = "/com/joliciel/talismane/fr/resources/lefff.zip";
 			ZipInputStream zis = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
 			lexicon = deserializer.deserializeLexiconFile(zis);
 			lexiconChain.addLexicon(lexicon);

@@ -26,7 +26,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * Applies a posTaggerFeature to a particular pos-tagged token in the current history.
+ * Returns a pos-tagged token in the current history, at a position relative to the current token.
  * @author Assaf Urieli
  */
 public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggerContext> {

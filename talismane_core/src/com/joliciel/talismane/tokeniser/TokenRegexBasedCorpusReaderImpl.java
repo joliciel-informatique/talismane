@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
@@ -49,6 +50,8 @@ class TokenRegexBasedCorpusReaderImpl implements
 	
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
+	
+	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 	
 	public TokenRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
@@ -112,7 +115,11 @@ class TokenRegexBasedCorpusReaderImpl implements
 						hasLine = true;
 						
 						if (tokenSequence==null) {
-							tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+							if (sentenceReader!=null && sentenceReader.hasNextSentence()) {
+								tokenSequence = tokeniserService.getEmptyPretokenisedSequence(sentenceReader.nextSentence());
+							} else {
+								tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+							}
 						}
 						
 						Matcher matcher = this.getPattern().matcher(line);
@@ -283,6 +290,15 @@ class TokenRegexBasedCorpusReaderImpl implements
 
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
+	}
+
+	public SentenceDetectorAnnotatedCorpusReader getSentenceReader() {
+		return sentenceReader;
+	}
+
+	public void setSentenceReader(
+			SentenceDetectorAnnotatedCorpusReader sentenceReader) {
+		this.sentenceReader = sentenceReader;
 	}
 	
 	

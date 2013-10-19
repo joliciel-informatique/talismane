@@ -35,9 +35,7 @@ final class ParserFeatureDynamiser extends
 			Feature<ParseConfigurationWrapper, ?> feature) {
 		Class<?> outcomeType = null;
 		
-		if (feature.getFeatureType().equals(ParserAddressFunction.class)) {
-			outcomeType = PosTaggedTokenWrapper.class;
-		} else if (feature.getFeatureType().equals(PosTaggedTokenAddressFunction.class)) {
+		if (feature.getFeatureType().equals(PosTaggedTokenAddressFunction.class)) {
 			outcomeType = PosTaggedTokenWrapper.class;
 		}
 		

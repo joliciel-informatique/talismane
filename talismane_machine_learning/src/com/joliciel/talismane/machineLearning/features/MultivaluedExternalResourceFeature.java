@@ -59,7 +59,8 @@ public class MultivaluedExternalResourceFeature<T> extends AbstractStringCollect
 		if (resourceNameResult!=null) {
 			String resourceName = resourceNameResult.getOutcome();
 		
-			ExternalResource externalResource = externalResourceFinder.getExternalResource(resourceName);
+			@SuppressWarnings("unchecked")
+			ExternalResource<List<WeightedOutcome<String>>> externalResource = (ExternalResource<List<WeightedOutcome<String>>>) externalResourceFinder.getExternalResource(resourceName);
 			if (externalResource==null) {
 				throw new JolicielException("External resource not found: " + resourceName);
 			}
@@ -73,7 +74,7 @@ public class MultivaluedExternalResourceFeature<T> extends AbstractStringCollect
 				String keyElement = keyElementResult.getOutcome();
 				keyElements.add(keyElement);
 			}
-			List<WeightedOutcome<String>> outcomes = externalResource.getResults(keyElements);
+			List<WeightedOutcome<String>> outcomes = externalResource.getResult(keyElements);
 			if (outcomes!=null && outcomes.size()>0)
 				result = this.generateResult(outcomes);
 		}

@@ -59,7 +59,8 @@ public class ExternalResourceFeature<T> extends AbstractCachableFeature<T, Strin
 		if (resourceNameResult!=null) {
 			String resourceName = resourceNameResult.getOutcome();
 		
-			ExternalResource externalResource = externalResourceFinder.getExternalResource(resourceName);
+			@SuppressWarnings("unchecked")
+			ExternalResource<String> externalResource = (ExternalResource<String>) externalResourceFinder.getExternalResource(resourceName);
 			if (externalResource==null) {
 				throw new JolicielException("External resource not found: " + resourceName);
 			}

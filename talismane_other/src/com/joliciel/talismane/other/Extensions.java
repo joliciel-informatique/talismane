@@ -21,6 +21,7 @@ package com.joliciel.talismane.other;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -146,7 +147,8 @@ public class Extensions {
 				
 				List<String> corpusRules = new ArrayList<String>();
 				File corpusRulesFile = new File(corpusRulesPath);
-				Scanner scanner = new Scanner(corpusRulesFile, "UTF-8");
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(corpusRulesFile), "UTF-8")));
+
 				while (scanner.hasNextLine()) {
 					corpusRules.add(scanner.nextLine());
 				}

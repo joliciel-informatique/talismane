@@ -47,6 +47,7 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 	private boolean hasTokeniser = false;
 	private boolean hasPosTagger = false;
 	private Writer writer = null;
+	private String skipLabel = null;
 	
 	public ParserFScoreCalculatorByDistance() {}
 	public ParserFScoreCalculatorByDistance(Writer writer) {
@@ -95,6 +96,9 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 				realLabel = "noHead";
 			if (guessedArc!=null && guessedArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && guessedLabel.equals("noLabel"))
 				guessedLabel = "noHead";
+			
+			if (realLabel.equals(skipLabel))
+				return;
 			
 			if (realArc==null || guessedArc==null) {
 				fscoreCalculator.increment(realLabel, guessedLabel);
@@ -165,7 +169,7 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 						FScoreCalculator<String> fScoreCalculator = this.fscoreByDistanceMap.get(distance);
 						writer.write(CSV.format(fScoreCalculator.getTotalTruePositiveCount()));
 						writer.write(CSV.format(fScoreCalculator.getTotalFalseNegativeCount()));
-						writer.write(CSV.format(fScoreCalculator.getTotalFScore()));
+						writer.write(CSV.format(fScoreCalculator.getTotalFScore() * 100.0));
 						
 						Integer[] aboveBelowMeasures = aboveBelowMap.get(distance);
 						double belowAccuracy = 0;
@@ -175,8 +179,8 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 						if (aboveBelowMeasures[2]>0)
 							aboveAccuracy = (double) aboveBelowMeasures[2] / ((double) aboveBelowMeasures[2] + (double) aboveBelowMeasures[3]);
 						
-						writer.write(CSV.format(aboveAccuracy));
-						writer.write(CSV.format(belowAccuracy));
+						writer.write(CSV.format(aboveAccuracy * 100.0));
+						writer.write(CSV.format(belowAccuracy * 100.0));
 						writer.write("\n");
 						writer.flush();
 					}
@@ -205,6 +209,12 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 
 	public void setHasPosTagger(boolean hasPosTagger) {
 		this.hasPosTagger = hasPosTagger;
+	}
+	public String getSkipLabel() {
+		return skipLabel;
+	}
+	public void setSkipLabel(String skipLabel) {
+		this.skipLabel = skipLabel;
 	}
 	
 }
