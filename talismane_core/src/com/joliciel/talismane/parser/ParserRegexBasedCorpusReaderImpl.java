@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -699,6 +700,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			if (this.scanner==null && currentFileIndex==0) {
 				if (corpusLocation.isDirectory()) {
 					File[] theFiles = corpusLocation.listFiles();
+					Arrays.sort(theFiles);
 					files = new ArrayList<File>();
 					for (File file : theFiles) {
 						if (!file.getName().equals(excludeFileName)) {

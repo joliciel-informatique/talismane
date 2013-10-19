@@ -1,8 +1,11 @@
 package com.joliciel.talismane.trainer.fr;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -18,14 +21,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.frenchTreebank.TreebankReader;
-import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.TreebankServiceLocator;
-import com.joliciel.frenchTreebank.TreebankSubSet;
 import com.joliciel.frenchTreebank.export.FtbPosTagMapper;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.ftbDep.FtbDepReader;
 import com.joliciel.talismane.TalismaneConfig;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexiconChain;
@@ -38,7 +40,6 @@ import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
@@ -92,7 +93,6 @@ public class PosTaggerTrainer {
 		int iterations = 0;
 		int cutoff = 0;
 		int sentenceCount = 0;
-		int startSentence = 0;
 		String posTagSetPath = "";
 		String posTagMapPath = "";
 		String corpusPath = "";
@@ -144,8 +144,6 @@ public class PosTaggerTrainer {
 				cutoff = Integer.parseInt(argValue);
 			else if (argName.equals("sentenceCount"))
 				sentenceCount = Integer.parseInt(argValue);
-			else if (argName.equals("startSentence"))
-				startSentence = Integer.parseInt(argValue);
 			else if (argName.equals("algorithm"))
 				algorithm = MachineLearningAlgorithm.valueOf(argValue);
 			else if (argName.equals("linearSVMSolver"))
@@ -228,7 +226,6 @@ public class PosTaggerTrainer {
 			if (corpusPath.length()==0)
 				treebankServiceLocator.setDataSourcePropertiesFile("jdbc-ftb.properties");
 	        
-			TreebankService treebankService = treebankServiceLocator.getTreebankService();
 	        TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
 			TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
 			
@@ -239,22 +236,19 @@ public class PosTaggerTrainer {
 			TalismaneSession.setTransitionSystem(transitionSystem);
 
 			PosTagAnnotatedCorpusReader corpusReader = null;
+			File corpusFile = new File(corpusPath);
+			if (!corpusFile.exists())
+				throw new TalismaneException("Training corpus not found: " + corpusPath);
+			
 			if (corpusType.equals("ftb")) {
 				TreebankReader treebankReader = null;
 				
-				if (corpusPath.length()>0) {
-					File treebankFile = new File(corpusPath);
-					treebankReader = treebankUploadService.getXmlReader(treebankFile);
-				} else {
-					TreebankSubSet trainingSet = TreebankSubSet.TRAINING;
-					treebankReader = treebankService.getDatabaseReader(trainingSet, startSentence);
-				}
+				treebankReader = treebankUploadService.getXmlReader(corpusFile);
 				
 				File posTagMapFile = new File(posTagMapPath);
 				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(posTagMapFile, posTagSet);
 				corpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper, useCompoundPosTags);
 			} else if (corpusType.equals("ftbDep")) {
-				File corpusFile = new File(corpusPath);
 				FtbDepReader ftbDepReader = new FtbDepReader(corpusFile, "UTF-8");
 				ftbDepReader.setParserService(parserService);
 				ftbDepReader.setPosTaggerService(posTaggerService);
@@ -264,9 +258,7 @@ public class PosTaggerTrainer {
 				
 				corpusReader = ftbDepReader;
 	  		} else if (corpusType.equals("conll")) {
-    			File inputFile = new File(corpusPath);
-    			
-    			ParserRegexBasedCorpusReader conllReader = parserService.getRegexBasedCorpusReader(inputFile, Charset.forName("UTF-8"));
+    			ParserRegexBasedCorpusReader conllReader = parserService.getRegexBasedCorpusReader(corpusFile, Charset.forName("UTF-8"));
     			conllReader.setPredictTransitions(false);
     			conllReader.setExcludeFileName(excludeFileName);
 				
@@ -288,19 +280,11 @@ public class PosTaggerTrainer {
 				if (externalResourcePath!=null) {
 					externalResourceFinder = posTaggerFeatureService.getExternalResourceFinder();
 					File externalResourceFile = new File (externalResourcePath);
-					if (externalResourceFile.isDirectory()) {
-						File[] files = externalResourceFile.listFiles();
-						for (File resourceFile : files) {
-							TextFileResource textFileResource = new TextFileResource(resourceFile);
-							externalResourceFinder.addExternalResource(textFileResource);
-						}
-					} else {
-						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
-						externalResourceFinder.addExternalResource(textFileResource);
-					}
+					externalResourceFinder.addExternalResources(externalResourceFile);
 				}
 				File posTaggerTokenFeatureFile = new File(posTaggerFeatureFilePath);
-				Scanner scanner = new Scanner(posTaggerTokenFeatureFile);
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerTokenFeatureFile), "UTF-8")));
+//				Scanner scanner = new Scanner(posTaggerTokenFeatureFile, "UTF-8");
 				List<String> featureDescriptors = new ArrayList<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -308,7 +292,7 @@ public class PosTaggerTrainer {
 					LOG.debug(descriptor);
 				}
 				Set<PosTaggerFeature<?>> posTaggerFeatures = posTaggerFeatureService.getFeatureSet(featureDescriptors);
-			
+				
 				
 				List<String> tokenFilterDescriptors = new ArrayList<String>();
 				if (tokenFilterPath!=null && tokenFilterPath.length()>0) {

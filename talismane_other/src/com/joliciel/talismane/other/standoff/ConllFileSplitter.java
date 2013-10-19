@@ -18,9 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.other.standoff;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
@@ -46,7 +49,8 @@ public class ConllFileSplitter {
 		if (filePath.indexOf('.')>0)
 			fileBase = filePath.substring(0,filePath.lastIndexOf('.'));
 		File file = new File(filePath);
-		Scanner scanner = new Scanner(file, encoding);
+		Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding)));
+
 		boolean hasSentence = false;
 		int currentFileIndex = startIndex;
 		

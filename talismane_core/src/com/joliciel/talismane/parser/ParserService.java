@@ -126,4 +126,7 @@ public interface ParserService {
 	public ParsingConstrainer getParsingConstrainer(File file);
 	
 	public ParseComparisonStrategy getParseComparisonStrategy(ParseComparisonStrategyType type);
+
+	public ParseConfigurationProcessor getParseFeatureTester(
+			Set<ParseConfigurationFeature<?>> parserFeatures, File file);
 }

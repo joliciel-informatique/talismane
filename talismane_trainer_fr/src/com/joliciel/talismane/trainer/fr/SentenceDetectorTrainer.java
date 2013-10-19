@@ -33,7 +33,6 @@ import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.TextFileResource;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
@@ -165,16 +164,7 @@ public class SentenceDetectorTrainer {
 				if (externalResourcePath!=null) {
 					externalResourceFinder = sentenceDetectorFeatureService.getExternalResourceFinder();
 					File externalResourceFile = new File (externalResourcePath);
-					if (externalResourceFile.isDirectory()) {
-						File[] files = externalResourceFile.listFiles();
-						for (File resourceFile : files) {
-							TextFileResource textFileResource = new TextFileResource(resourceFile);
-							externalResourceFinder.addExternalResource(textFileResource);
-						}
-					} else {
-						TextFileResource textFileResource = new TextFileResource(externalResourceFile);
-						externalResourceFinder.addExternalResource(textFileResource);
-					}
+					externalResourceFinder.addExternalResources(externalResourceFile);
 				}
 				
 				File sentenceFeatureFile = new File(sentenceFeatureFilePath);

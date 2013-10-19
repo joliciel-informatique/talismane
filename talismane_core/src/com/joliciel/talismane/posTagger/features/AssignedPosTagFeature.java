@@ -34,6 +34,10 @@ public final class AssignedPosTagFeature<T> extends AbstractPosTaggedTokenFeatur
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
 	}
+	
+	public AssignedPosTagFeature() {
+		super(new ItsMeAddressFunction<T>());
+	}
 
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {

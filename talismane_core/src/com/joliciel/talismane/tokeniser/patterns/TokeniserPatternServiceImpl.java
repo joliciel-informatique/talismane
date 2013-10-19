@@ -98,9 +98,9 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 	@Override
 	public Tokeniser getPatternTokeniser(
 			ClassificationModel<TokeniserOutcome> tokeniserModel, int beamWidth) {
-		Collection<ExternalResource> externalResources = tokeniserModel.getExternalResources();
+		Collection<ExternalResource<?>> externalResources = tokeniserModel.getExternalResources();
 		if (externalResources!=null) {
-			for (ExternalResource externalResource : externalResources) {
+			for (ExternalResource<?> externalResource : externalResources) {
 				this.getTokenFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}

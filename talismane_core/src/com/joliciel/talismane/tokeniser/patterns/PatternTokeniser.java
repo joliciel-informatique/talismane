@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2013 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,14 +16,10 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.parser.features;
+package com.joliciel.talismane.tokeniser.patterns;
 
-import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
+import com.joliciel.talismane.tokeniser.Tokeniser;
 
-/**
- * A function that, given a parse configuration, returns a pos-tagged token within the configuration.
- * @author Assaf Urieli
- *
- */
-public interface ParserAddressFunction extends PosTaggedTokenAddressFunction<ParseConfigurationWrapper> {
+public interface PatternTokeniser extends Tokeniser {
+	public TokeniserPatternManager getTokeniserPatternManager();
 }

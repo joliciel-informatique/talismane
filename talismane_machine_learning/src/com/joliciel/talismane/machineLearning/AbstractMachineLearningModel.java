@@ -55,7 +55,7 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	private Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 	private Map<String, String> modelAttributes = new TreeMap<String, String>();
 	private Map<String, Object> dependencies = new HashMap<String, Object>();
-	private Collection<ExternalResource> externalResources;
+	private Collection<ExternalResource<?>> externalResources;
 	private ExternalResourceFinder externalResourceFinder;
 	
 	@Override
@@ -134,7 +134,7 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
     		ObjectInputStream in = new ObjectInputStream(zis);
 			try {
 				@SuppressWarnings("unchecked")
-				List<ExternalResource> externalResources = (List<ExternalResource>) in.readObject();
+				List<ExternalResource<?>> externalResources = (List<ExternalResource<?>>) in.readObject();
 				this.setExternalResources(externalResources);
 			} catch (ClassNotFoundException e) {
 				LogUtils.logError(LOG, e);
@@ -220,18 +220,18 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 		return this.descriptors.get(MachineLearningModel.FEATURE_DESCRIPTOR_KEY);
 	}
 
-	public Collection<ExternalResource> getExternalResources() {
+	public Collection<ExternalResource<?>> getExternalResources() {
 		return externalResources;
 	}
 
-	public void setExternalResources(Collection<ExternalResource> externalResources) {
-		this.externalResources = new ArrayList<ExternalResource>(externalResources);
+	public void setExternalResources(Collection<ExternalResource<?>> externalResources) {
+		this.externalResources = new ArrayList<ExternalResource<?>>(externalResources);
 	}
 
 	public ExternalResourceFinder getExternalResourceFinder() {
 		if (externalResourceFinder==null) {
 			externalResourceFinder = new ExternalResourceFinderImpl();
-			for (ExternalResource resource : this.externalResources) {
+			for (ExternalResource<?> resource : this.externalResources) {
 				externalResourceFinder.addExternalResource(resource);
 			}
 		}

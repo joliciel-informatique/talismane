@@ -18,15 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
-import java.util.List;
-
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
-import com.joliciel.talismane.machineLearning.features.IntegerLiteralFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
@@ -34,11 +32,11 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class DependentCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-	private ParserAddressFunction addressFunction;
+public final class DependencyCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
+	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
 	
-	public DependentCountIf(ParserAddressFunction addressFunction,
+	public DependencyCountIf(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
 			BooleanFeature<ParseConfigurationAddress> criterion) {
 		super();
 		this.addressFunction = addressFunction;
@@ -49,16 +47,15 @@ public final class DependentCountIf extends AbstractParseConfigurationFeature<In
 	@Override
 	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();		
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult!=null) {
 			PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
 			int countMatching = 0;
-			List<PosTaggedToken> dependents = configuration.getDependents(posTaggedToken);
-			for (int i=0; i<dependents.size(); i++) {
-				IntegerFeature<ParseConfigurationWrapper> indexFeature = new IntegerLiteralFeature<ParseConfigurationWrapper>(i);
-				ParserAddressFunction depFunction = new AddressFunctionDep(addressFunction, indexFeature);
-				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(configuration, depFunction, env);
+			for (PosTaggedToken dependent : configuration.getDependents(posTaggedToken)) {
+				ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
+				parseConfigurationAddress.setParseConfiguration(configuration);
+				parseConfigurationAddress.setPosTaggedToken(dependent);
 				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
 				if (criterionResult!=null && criterionResult.getOutcome())
 					countMatching++;

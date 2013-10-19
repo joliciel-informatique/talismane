@@ -21,15 +21,13 @@ package com.joliciel.talismane.machineLearning;
 import java.io.Serializable;
 import java.util.List;
 
-import com.joliciel.talismane.utils.WeightedOutcome;
-
 /**
  * An external resource which returns a (possibly empty) list of weighted classes matching
  * a list of key elements.
  * @author Assaf Urieli
  *
  */
-public interface ExternalResource extends Serializable {
+public interface ExternalResource<T> extends Serializable {
 	/**
 	 * A unique name for this resource.
 	 * @return
@@ -42,21 +40,5 @@ public interface ExternalResource extends Serializable {
 	 * @param keyElements
 	 * @return
 	 */
-	public String getResult(List<String> keyElements);
-
-	/**
-	 * Return the weighted classes corresponding the the key elements provided.
-	 * The list can be empty or null if no classes are found.
-	 * If not {@link #isMultivalued()}, returns the single class with a weight of 1.
-	 * @param keyElements
-	 * @return
-	 */
-	public List<WeightedOutcome<String>> getResults(List<String> keyElements);
-	
-	/**
-	 * Can there be more than one class per key.
-	 * @return
-	 */
-	public boolean isMultivalued();
-
+	public T getResult(List<String> keyElements);
 }

@@ -61,9 +61,9 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	
 	public PosTagger getPosTagger(ClassificationModel<PosTag> posTaggerModel,
 			int beamWidth) {
-		Collection<ExternalResource> externalResources = posTaggerModel.getExternalResources();
+		Collection<ExternalResource<?>> externalResources = posTaggerModel.getExternalResources();
 		if (externalResources!=null) {
-			for (ExternalResource externalResource : externalResources) {
+			for (ExternalResource<?> externalResource : externalResources) {
 				this.getPosTaggerFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}
@@ -197,6 +197,17 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+	@Override
+	public PosTagSequenceProcessor getPosTagFeatureTester(
+			Set<PosTaggerFeature<?>> posTaggerFeatures, Set<String> testWords,
+			File file) {
+		PosTagFeatureTester tester = new PosTagFeatureTester(posTaggerFeatures, testWords, file);
+		tester.setFeatureService(this.getFeatureService());
+		tester.setPosTaggerFeatureService(this.getPosTaggerFeatureService());
+		tester.setPosTaggerService(this);
+		return tester;
 	}
 
 	

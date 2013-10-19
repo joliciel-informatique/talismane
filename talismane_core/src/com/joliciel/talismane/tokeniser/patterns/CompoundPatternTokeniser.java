@@ -73,7 +73,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  *
  */
-class CompoundPatternTokeniser implements Tokeniser {
+class CompoundPatternTokeniser implements PatternTokeniser {
 	private static final Log LOG = LogFactory.getLog(CompoundPatternTokeniser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternTokeniser.class);
 

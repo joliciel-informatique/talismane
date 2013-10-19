@@ -23,6 +23,7 @@ import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
@@ -31,9 +32,9 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-	private ParserAddressFunction addressFunction;
+	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	
-	public ValencyFeature(ParserAddressFunction addressFunction) {
+	public ValencyFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		super();
 		this.addressFunction = addressFunction;
 		this.setName(super.getName() + "(" + this.addressFunction.getName() + ")");
@@ -42,7 +43,7 @@ public final class ValencyFeature extends AbstractParseConfigurationFeature<Inte
 	@Override
 	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();		
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult!=null) {
 			PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();

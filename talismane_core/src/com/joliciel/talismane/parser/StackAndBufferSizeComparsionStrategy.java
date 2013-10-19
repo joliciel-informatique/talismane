@@ -21,6 +21,11 @@ package com.joliciel.talismane.parser;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 
+/**
+ * Comparsion based on number of elements remaining on the stack and the buffer.
+ * @author Assaf Urieli
+ *
+ */
 class StackAndBufferSizeComparsionStrategy implements
 		ParseComparisonStrategy {
 

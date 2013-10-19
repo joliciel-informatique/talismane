@@ -61,7 +61,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem,
 			Set<ParseConfigurationFeature<?>> parseFeatures,
 			int beamWidth) {
-		TransitionBasedParser parser = new TransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
+		TransitionBasedParserImpl parser = new TransitionBasedParserImpl(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
 		parser.setFeatureService(this.getFeatureService());
 		return parser;
@@ -113,9 +113,9 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(
 			MachineLearningModel model, int beamWidth, boolean dynamiseFeatures) {
-		Collection<ExternalResource> externalResources = model.getExternalResources();
+		Collection<ExternalResource<?>> externalResources = model.getExternalResources();
 		if (externalResources!=null) {
-			for (ExternalResource externalResource : externalResources) {
+			for (ExternalResource<?> externalResource : externalResources) {
 				this.getParseFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}
@@ -283,9 +283,20 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			return new BufferSizeComparisonStrategy();
 		case stackAndBufferSize:
 			return new StackAndBufferSizeComparsionStrategy();
+		case dependencyCount:
+			return new DependencyCountComparisonStrategy();
 		default:
 			throw new TalismaneException("Unknown parse comparison strategy: " + type);
 		}
+	}
+
+	@Override
+	public ParseConfigurationProcessor getParseFeatureTester(
+			Set<ParseConfigurationFeature<?>> parserFeatures, File file) {
+		ParseFeatureTester tester = new ParseFeatureTester(parserFeatures, file);
+		tester.setFeatureService(this.getFeatureService());
+		tester.setParserServiceInternal(this);
+		return tester;
 	}
 
 	

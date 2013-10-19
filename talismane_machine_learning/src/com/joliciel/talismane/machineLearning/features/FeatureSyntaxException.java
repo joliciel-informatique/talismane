@@ -31,7 +31,7 @@ public class FeatureSyntaxException extends JolicielException {
 	private FunctionDescriptor topLevelDescriptor;
 	
 	public FeatureSyntaxException(String message, FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
-		super(message + ": " + descriptor.toString() + " in top-level descriptor: " + topLevelDescriptor.toString());
+		super(message + ": " + descriptor.toString() + " in top-level descriptor: " + topLevelDescriptor.getDescriptorName());
 		this.descriptor = descriptor;
 		this.topLevelDescriptor = topLevelDescriptor;
 	}

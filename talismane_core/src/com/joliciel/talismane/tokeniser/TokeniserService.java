@@ -26,6 +26,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 public interface TokeniserService {
 	public Token getToken(String string, TokenSequence tokenSequence, int index);
@@ -58,10 +59,14 @@ public interface TokeniserService {
 	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, Set<TokenPlaceholder> placeholders);
 
 	public PretokenisedSequence getEmptyPretokenisedSequence();
+	public PretokenisedSequence getEmptyPretokenisedSequence(String sentenceText);
 	
 	public Tokeniser getSimpleTokeniser();
 	
 	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser);
+	public TokenComparator getTokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader,
+			TokeniserAnnotatedCorpusReader evaluationCorpusReader,
+			TokeniserPatternManager tokeniserPatternManager);
 	
 	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision<T> decision);
 	

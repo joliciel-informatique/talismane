@@ -28,8 +28,7 @@ import com.joliciel.talismane.tokeniser.Token;
 /**
  * Tests all tokens within a certain range for a certain criterion,
  * and returns true only if all of them satisfy the criterion.<br/>
- * If (start&gt;end) will return null.<br/>
- * Start or end are relative to the current token's index.
+ * Start and end are absolute indexes.<br/>
  * If either refer to a postion outside of the token sequence, will test all valid tokens only.<br/>
  * If no tokens are tested, will return null.<br/>
  * If any test returns null, will return null.<br/>
@@ -64,10 +63,8 @@ public final class AndRangeFeature extends AbstractTokenFeature<Boolean> impleme
 		FeatureResult<Integer> startResult = startFeature.check(innerWrapper, env);
 		FeatureResult<Integer> endResult = endFeature.check(innerWrapper, env);
 		if (startResult!=null && endResult!=null) {
-			int relativeStart = startResult.getOutcome();
-			int relativeEnd = endResult.getOutcome();
-			int start = token.getIndex() + relativeStart;
-			int end = token.getIndex() + relativeEnd;
+			int start = startResult.getOutcome();
+			int end = endResult.getOutcome();
 			if (start<0) start = 0;
 			if (end>token.getTokenSequence().size()-1) end = token.getTokenSequence().size()-1;
 			if (start<=end) {
@@ -85,9 +82,8 @@ public final class AndRangeFeature extends AbstractTokenFeature<Boolean> impleme
 				if (result!=null) {
 					featureResult = this.generateResult(result);
 				}
-			} // start <= end
-		} // have a start and end result
-
+			}
+		}
 		return featureResult;
 	}
 }

@@ -18,14 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.stats;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -53,7 +55,7 @@ public class FScoreCalculator<E> {
 	Map<E,Integer> falsePositiveCounts = new HashMap<E, Integer>();
 	Map<E,Integer> falseNegativeCounts = new HashMap<E, Integer>();
 	
-	Set<E> outcomeSet = new HashSet<E>();
+	Set<E> outcomeSet = new TreeSet<E>();
 	
 	Map<E,Double> precisions = new HashMap<E, Double>();
 	Map<E,Double> recalls = new HashMap<E, Double>();
@@ -579,7 +581,8 @@ public class FScoreCalculator<E> {
 					int index = Integer.parseInt(file.getName().substring(prefix.length(),prefix.length()+1));
 					Map<String,FScoreStats> statsMap = new HashMap<String, FScoreCalculator.FScoreStats>();
 					fileStatsMap.put(index, statsMap);
-					Scanner scanner = new Scanner(file, "UTF-8");
+					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
+
 					boolean firstLine = true;
 					int truePositivePos = -1;
 					

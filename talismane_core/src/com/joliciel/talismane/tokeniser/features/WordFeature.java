@@ -26,7 +26,6 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns true if token word is any one of the words provided.<br/>
- * Important: returns null (NOT false) if the the token word is not one of the words provided.
  * @author Assaf Urieli
  *
  */
@@ -70,8 +69,7 @@ public final class WordFeature extends AbstractTokenFeature<Boolean> implements 
 				}
 			}
 		}
-		if (matches)
-			result = this.generateResult(matches);
+		result = this.generateResult(matches);
 		
 		return result;
 	}

@@ -39,6 +39,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceHolder;
 import com.joliciel.talismane.filters.TextMarker;
 import com.joliciel.talismane.filters.TextMarkerFilter;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -51,7 +52,9 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
+import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
@@ -75,10 +78,12 @@ class TalismaneImpl implements Talismane {
 	private PosTagSequenceProcessor posTagSequenceProcessor;
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 	
+	private SentenceDetectorService sentenceDetectorService;
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private FilterService filterService;
+	private MachineLearningService machineLearningService;
 	
 	private boolean stopOnError = true;
 
@@ -131,14 +136,18 @@ class TalismaneImpl implements Talismane {
 						if (this.getPosTagSequenceProcessor()==null)
 							throw new TalismaneException("Cannot process pos-tagger output without a pos-tag sequence processor!");
 						
-						while (config.getPosTagCorpusReader().hasNextPosTagSequence()) {
-							PosTagSequence posTagSequence = config.getPosTagCorpusReader().nextPosTagSequence();
-							MONITOR.startTask("processPosTagSequence");
-							try {
-								this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence);
-							} finally {
-								MONITOR.endTask("processPosTagSequence");
+						try {
+							while (config.getPosTagCorpusReader().hasNextPosTagSequence()) {
+								PosTagSequence posTagSequence = config.getPosTagCorpusReader().nextPosTagSequence();
+								MONITOR.startTask("processPosTagSequence");
+								try {
+									this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence);
+								} finally {
+									MONITOR.endTask("processPosTagSequence");
+								}
 							}
+						} finally {
+							this.getPosTagSequenceProcessor().onCompleteAnalysis();
 						}
 					} else if (config.getModule().equals(Talismane.Module.Parser)) {
 						if (this.getParseConfigurationProcessor()==null)
@@ -196,7 +205,10 @@ class TalismaneImpl implements Talismane {
 					MONITOR.endTask("evaluate");
 				}
 			} else if (config.getCommand().equals(Command.compare)) {
-				if (config.getModule().equals(Talismane.Module.PosTagger)) {
+				if (config.getModule().equals(Talismane.Module.Tokeniser)) {
+					TokenComparator tokenComparator = config.getTokenComparator();
+					tokenComparator.compare();
+				} else if (config.getModule().equals(Talismane.Module.PosTagger)) {
 					PosTagComparator posTagComparator = config.getPosTagComparator();
 					posTagComparator.evaluate(config.getPosTagCorpusReader(), config.getPosTagEvaluationCorpusReader());
 				} else if (config.getModule().equals(Talismane.Module.Parser)) {
@@ -541,6 +553,27 @@ class TalismaneImpl implements Talismane {
 
 		}
 	}
+	
+	public void train(TalismaneConfig config) {
+		switch (config.getModule()) {
+		case SentenceDetector:
+//			ClassificationModelTrainer<SentenceDetectorOutcome> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
+//			
+//			DecisionFactory<SentenceDetectorOutcome> decisionFactory = sentenceDetectorService.getDecisionFactory();
+//			ClassificationModel<SentenceDetectorOutcome> sentenceModel = trainer.trainModel(tokeniserEventStream, decisionFactory, featureDescriptors);
+//			if (externalResourceFinder!=null)
+//				sentenceModel.setExternalResources(externalResourceFinder.getExternalResources());
+//			sentenceModel.persist(sentenceModelFile);
+
+			break;
+		case Tokeniser:
+			break;
+		case PosTagger:
+			break;
+		case Parser:
+			break;
+		}
+	}
 
 	@Override
 	public SentenceProcessor getSentenceProcessor() {
@@ -617,6 +650,24 @@ class TalismaneImpl implements Talismane {
 		this.filterService = filterService;
 	}
 
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+
+	public SentenceDetectorService getSentenceDetectorService() {
+		return sentenceDetectorService;
+	}
+
+	public void setSentenceDetectorService(
+			SentenceDetectorService sentenceDetectorService) {
+		this.sentenceDetectorService = sentenceDetectorService;
+	}
 
 	public boolean isStopOnError() {
 		return stopOnError;

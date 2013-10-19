@@ -24,6 +24,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
@@ -32,10 +33,10 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class ValencyByLabelFeature extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-	private ParserAddressFunction addressFunction;
+	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	private StringFeature<ParseConfigurationWrapper> dependencyLabelFeature;
 	
-	public ValencyByLabelFeature(ParserAddressFunction addressFunction, StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
+	public ValencyByLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
 		super();
 		this.addressFunction = addressFunction;
 		this.dependencyLabelFeature = dependencyLabelFeature;
@@ -45,10 +46,10 @@ public final class ValencyByLabelFeature extends AbstractParseConfigurationFeatu
 	@Override
 	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();		
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(configuration, env);
+		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
 		if (tokenResult!=null) {
-			FeatureResult<String> depLabelResult = dependencyLabelFeature.check(configuration, env);
+			FeatureResult<String> depLabelResult = dependencyLabelFeature.check(wrapper, env);
 			if (depLabelResult!=null) {
 				PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
 				String label = depLabelResult.getOutcome();
@@ -59,11 +60,11 @@ public final class ValencyByLabelFeature extends AbstractParseConfigurationFeatu
 		return featureResult;
 	}
 
-	public ParserAddressFunction getAddressFunction() {
+	public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
 		return addressFunction;
 	}
 
-	public void setAddressFunction(ParserAddressFunction addressFunction) {
+	public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		this.addressFunction = addressFunction;
 	}
 

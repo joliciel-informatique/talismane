@@ -27,6 +27,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	private boolean finalised = false;
 	private boolean withRoot = false;
 	private PosTagSequence posTagSequence;
+	protected boolean textProvided = false;
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
 
@@ -221,7 +222,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		
 		if (this.size()==0) {
 			// do nothing
-		} else {
+		} else if (!textProvided) {
 			//TODO: language-specific - e.g. French takes space before :, ? and !, English doesn't
 			// Double quotes are tricky because they could be opening or closing quotations. Most of the time we can simply 
 			// count quotes, but not if there's a sentence break inside a quotation.
@@ -255,10 +256,42 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			this.text = "";
 		
 		TokenInternal token = this.getTokeniserServiceInternal().getTokenInternal(string, this, this.size());
-		token.setStartIndex(this.getText().length());
-		token.setEndIndex(this.getText().length() + string.length());
-		this.setText(this.getText() + string);
-		this.getSentence().setText(this.getText());
+		
+		if (this.textProvided) {
+			int currentIndex = 0;
+			if (this.size()>0)
+				currentIndex = this.get(this.size()-1).getEndIndex();
+			int j=0;
+			TokenInternal whiteSpace = null;
+			for (int i=currentIndex; i<this.text.length(); i++) {
+				char c = text.charAt(i);
+				if (Character.isWhitespace(c)) {
+					whiteSpace = this.getTokeniserServiceInternal().getTokenInternal(" ", this, this.size());
+					whiteSpace.setStartIndex(currentIndex+j);
+					whiteSpace.setEndIndex(whiteSpace.getStartIndex()+1);
+					this.listWithWhiteSpace().add(whiteSpace);
+				} else {
+					break;
+				}
+				j++;
+			}
+			if (whiteSpace!=null) {
+				token.setStartIndex(whiteSpace.getEndIndex());
+				token.setEndIndex(whiteSpace.getEndIndex() + string.length());
+			} else {
+				token.setStartIndex(currentIndex);
+				token.setEndIndex(currentIndex + string.length());
+			}
+			if (!text.substring(token.getStartIndex(), token.getEndIndex()).equals(string)) {
+				throw new TalismaneException("Add token failed: Expected '" + string + "' but was '" + text.substring(token.getStartIndex(), token.getEndIndex()) + "' in sentence: " + text);
+			}
+			
+		} else {
+			token.setStartIndex(this.getText().length());
+			token.setEndIndex(this.getText().length() + string.length());
+			this.setText(this.getText() + string);
+			this.getSentence().setText(this.getText());
+		}
 
 		this.listWithWhiteSpace().add(token);
 		
@@ -290,8 +323,8 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		if (!emptyToken.isEmpty()) {
 			throw new TalismaneException("Can only remove empty tokens from token sequence.");
 		}
-		if (LOG.isDebugEnabled())
-			LOG.debug("Removing empty token at position " + emptyToken.getStartIndex() + ": " + emptyToken);
+		if (LOG.isTraceEnabled())
+			LOG.trace("Removing empty token at position " + emptyToken.getStartIndex() + ": " + emptyToken);
 		this.remove(emptyToken);
 		this.listWithWhiteSpace.remove(emptyToken);
 		this.markModified();

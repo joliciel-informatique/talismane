@@ -51,6 +51,10 @@ public interface Talismane {
 	 */
 	public enum Command {
 		/**
+		 * Train a model using a corpus, a feature set, a classifier + parameters, etc.
+		 */
+		train,
+		/**
 		 * Analyse a corpus and add annotations.
 		 */
 		analyse,
@@ -73,7 +77,15 @@ public interface Talismane {
 		/**
 		 * Load the parsing constraints from a training corpus.
 		 */
-		loadParsingConstraints
+		loadParsingConstraints,
+		/**
+		 * Test pos-tag features on a subset of words in the training set.
+		 */
+		posTagFeatureTester,
+		/**
+		 * Test parse features on the training set.
+		 */
+		parseFeatureTester
 	}
 
 

@@ -18,8 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,9 +51,9 @@ final class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements Pos
 	public PosTagSetImpl(File file) {
 		Scanner scanner = null;
 		try {
-			scanner = new Scanner(file, "UTF-8");
+			scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
 			this.load(scanner);
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}

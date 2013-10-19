@@ -19,7 +19,6 @@
 package com.joliciel.talismane.tokeniser.features;
 
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
@@ -28,17 +27,17 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns the first token preceding this one which matches a certain criterion, or null if no such token is found.<br/>
- * If a start offset is provided as a second argument (must be &lt;=0), will start looking at this offset.<br/>
- * If an end offset is provided as a third argument (must be &lt;=0), will continue until the end offset and then stop.<br/>
- * Note that, by default, it doesn't look at the current token (e.g. default start offset = -1) - to include the current
- * token, set start offset = 0.<br/>
+ * The user may optionally provide absolute indexes to limit the search.
+ * By default, the start index is the current token index-1, and the end index is 0.<br/>
+ * If start index &lt; end index, returns null.
  * @author Assaf Urieli
  *
  */
 public final class BackwardSearchFeature extends AbstractTokenAddressFunction {
 	private BooleanFeature<TokenWrapper> criterion;
-	private IntegerFeature<TokenWrapper> startOffsetFeature = null;
-	private IntegerFeature<TokenWrapper> endOffsetFeature = null;
+	private BooleanFeature<TokenWrapper> stopCriterion;
+	private IntegerFeature<TokenWrapper> startIndexFeature = null;
+	private IntegerFeature<TokenWrapper> endIndexFeature = null;
 	
 	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion) {
 		this.criterion = criterion;
@@ -50,25 +49,39 @@ public final class BackwardSearchFeature extends AbstractTokenAddressFunction {
 		this.setAddressFunction(addressFunction);
 	}
 
-	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature) {
+	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature) {
 		this.criterion = criterion;
-		this.startOffsetFeature = startOffsetFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startOffsetFeature.getName() + ")");
+		this.startIndexFeature = startIndexFeature;
+		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
 	}
 	
-	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature) {
-		this(criterion, startOffsetFeature);
+	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature) {
+		this(criterion, startIndexFeature);
 		this.setAddressFunction(addressFunction);
 	}
 
-	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature, IntegerFeature<TokenWrapper> endOffsetFeature) {
+	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
 		this.criterion = criterion;
-		this.startOffsetFeature = startOffsetFeature;
-		this.setName(super.getName() + "(" + criterion.getName() + "," + startOffsetFeature.getName() + "," + endOffsetFeature.getName() + ")");
+		this.startIndexFeature = startIndexFeature;
+		this.endIndexFeature = endIndexFeature;
+		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
 	}
 	
-	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startOffsetFeature, IntegerFeature<TokenWrapper> endOffsetFeature) {
-		this(criterion, startOffsetFeature, endOffsetFeature);
+	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
+		this(criterion, startIndexFeature, endIndexFeature);
+		this.setAddressFunction(addressFunction);
+	}
+
+	public BackwardSearchFeature(BooleanFeature<TokenWrapper> criterion, BooleanFeature<TokenWrapper> stopCriterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
+		this.criterion = criterion;
+		this.stopCriterion = stopCriterion;
+		this.startIndexFeature = startIndexFeature;
+		this.endIndexFeature = endIndexFeature;
+		this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
+	}
+	
+	public BackwardSearchFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion, BooleanFeature<TokenWrapper> stopCriterion, IntegerFeature<TokenWrapper> startIndexFeature, IntegerFeature<TokenWrapper> endIndexFeature) {
+		this(criterion, stopCriterion, startIndexFeature, endIndexFeature);
 		this.setAddressFunction(addressFunction);
 	}
 
@@ -82,44 +95,52 @@ public final class BackwardSearchFeature extends AbstractTokenAddressFunction {
 		
 		FeatureResult<TokenWrapper> featureResult = null;
 		
-		int startOffset = -1;
-		int endOffset = 0 - token.getTokenSequence().size();
 		
-		if (startOffsetFeature!=null) {
-			FeatureResult<Integer> startOffsetResult = startOffsetFeature.check(innerWrapper, env);
-			if (startOffsetResult!=null) {
-				startOffset = startOffsetResult.getOutcome();
+		int startIndex = token.getIndex()- 1;
+		int endIndex = 0;
+		
+		if (startIndexFeature!=null) {
+			FeatureResult<Integer> startIndexResult = startIndexFeature.check(innerWrapper, env);
+			if (startIndexResult!=null) {
+				startIndex = startIndexResult.getOutcome();
 			} else {
-				return featureResult;
+				return null;
 			}
 		}
 		
-		if (endOffsetFeature!=null) {
-			FeatureResult<Integer> endOffsetResult = endOffsetFeature.check(innerWrapper, env);
-			if (endOffsetResult!=null) {
-				endOffset = endOffsetResult.getOutcome();
+		if (endIndexFeature!=null) {
+			FeatureResult<Integer> endIndexResult = endIndexFeature.check(innerWrapper, env);
+			if (endIndexResult!=null) {
+				endIndex = endIndexResult.getOutcome();
 			} else {
-				return featureResult;
+				return null;
 			}
 		}
+
+		if (startIndex<0) 
+			return null;
+		if (endIndex>=token.getTokenSequence().size()) 
+			return null;
 		
-		int index = token.getIndex();
+		if (endIndex>startIndex)
+			return null;
 		
-		if (startOffset>0) 
-			throw new TalismaneException("For BackwardLookup, start offset must be <= 0");
-		if (endOffset>0) 
-			throw new TalismaneException("For BackwardLookup, end offset must be <= 0");
-		
-		if (endOffset>startOffset)
-			return featureResult;
+		if (startIndex>=token.getTokenSequence().size())
+			startIndex = token.getTokenSequence().size()-1;
 		
 		Token matchingToken = null;
-		for (int i=index+startOffset; i>=0 && i>=index+endOffset; i--) {
+		for (int i=startIndex; i>=0 && i>=endIndex; i--) {
 			Token oneToken = token.getTokenSequence().get(i);
 			FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
 			if (criterionResult!=null && criterionResult.getOutcome()) {
 				matchingToken = oneToken;
 				break;
+			}
+			if (stopCriterion!=null) {
+				FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(oneToken, env);
+				if (stopCriterionResult!=null && stopCriterionResult.getOutcome()) {
+					break;
+				}
 			}
 		}
 		if (matchingToken!=null) {

@@ -567,6 +567,14 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 			ParseComparisonStrategy parseComparisonStrategy) {
 		this.parseComparisonStrategy = parseComparisonStrategy;
 	}
+
+	public Set<ParseConfigurationFeature<?>> getParseFeatures() {
+		return parseFeatures;
+	}
+
+	public void setParseFeatures(Set<ParseConfigurationFeature<?>> parseFeatures) {
+		this.parseFeatures = parseFeatures;
+	}
 	
 	
 }

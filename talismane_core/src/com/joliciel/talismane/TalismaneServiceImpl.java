@@ -19,8 +19,10 @@
 package com.joliciel.talismane;
 
 import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 class TalismaneServiceImpl implements TalismaneService {
@@ -29,6 +31,8 @@ class TalismaneServiceImpl implements TalismaneService {
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private FilterService filterService;
+	private MachineLearningService machineLearningService;
+	private SentenceDetectorService sentenceDetectorService;
 
 	@Override
 	public Talismane getTalismane() {
@@ -37,6 +41,8 @@ class TalismaneServiceImpl implements TalismaneService {
 		talismane.setParserService(this.getParserService());
 		talismane.setPosTaggerService(this.getPosTaggerService());
 		talismane.setTokeniserService(this.getTokeniserService());
+		talismane.setMachineLearningService(this.getMachineLearningService());
+		talismane.setSentenceDetectorService(this.getSentenceDetectorService());
 		return talismane;
 	}
 
@@ -70,6 +76,24 @@ class TalismaneServiceImpl implements TalismaneService {
 
 	public void setFilterService(FilterService filterService) {
 		this.filterService = filterService;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+
+	public SentenceDetectorService getSentenceDetectorService() {
+		return sentenceDetectorService;
+	}
+
+	public void setSentenceDetectorService(
+			SentenceDetectorService sentenceDetectorService) {
+		this.sentenceDetectorService = sentenceDetectorService;
 	}
 
 }

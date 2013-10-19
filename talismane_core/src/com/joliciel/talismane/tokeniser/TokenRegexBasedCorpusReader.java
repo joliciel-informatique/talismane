@@ -1,5 +1,7 @@
 package com.joliciel.talismane.tokeniser;
 
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+
 /**
  * A corpus reader that expects one token per line,
  * and analyses the line content based on a regex.<br/>
@@ -25,5 +27,13 @@ public interface TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusRea
 	 */
 	public String getRegex();
 	public void setRegex(String regex);
+	
+	/**
+	 * If provided, will assign sentences with the original white space to the token sequences.
+	 * @return
+	 */
+	public SentenceDetectorAnnotatedCorpusReader getSentenceReader();
+	public void setSentenceReader(
+			SentenceDetectorAnnotatedCorpusReader sentenceReader);
 
 }

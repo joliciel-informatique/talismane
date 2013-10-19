@@ -64,9 +64,9 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	@Override
 	public SentenceDetector getSentenceDetector(
 			ClassificationModel<SentenceDetectorOutcome> sentenceModel) {
-		Collection<ExternalResource> externalResources = sentenceModel.getExternalResources();
+		Collection<ExternalResource<?>> externalResources = sentenceModel.getExternalResources();
 		if (externalResources!=null) {
-			for (ExternalResource externalResource : externalResources) {
+			for (ExternalResource<?> externalResource : externalResources) {
 				this.getSentenceDetectorFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}

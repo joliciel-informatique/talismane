@@ -140,5 +140,11 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 		return null;
 	}
 
+	@Override
+	public Feature<TokenPatternMatch, ?> convertFeatureCustomType(
+			Feature<TokenPatternMatch, ?> feature) {
+		return null;
+	}
+
 	
 }

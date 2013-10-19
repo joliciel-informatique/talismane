@@ -35,6 +35,10 @@ public final class LemmaFeature<T> extends AbstractPosTaggedTokenFeature<T,Strin
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
 	}
+	
+	public LemmaFeature() {
+		super(new ItsMeAddressFunction<T>());
+	}
 
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {

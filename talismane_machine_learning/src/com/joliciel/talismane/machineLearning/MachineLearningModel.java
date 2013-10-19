@@ -96,8 +96,8 @@ public interface MachineLearningModel {
 	 * External resources used by this model.
 	 * @return
 	 */
-	public Collection<ExternalResource> getExternalResources();
-	public void setExternalResources(Collection<ExternalResource> externalResources);
+	public Collection<ExternalResource<?>> getExternalResources();
+	public void setExternalResources(Collection<ExternalResource<?>> externalResources);
 	
 	public ExternalResourceFinder getExternalResourceFinder();
 	

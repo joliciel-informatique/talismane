@@ -70,4 +70,12 @@ final class PosTaggerContextImpl implements PosTaggerContext, HasFeatureCache {
 		String key = feature.getName() + env.getKey();
 		this.featureResults.put(key, featureResult);	
 	}
+
+	@Override
+	public String toString() {
+		return "PosTaggerContext [token=" + token + ", history=" + history
+				+ "]";
+	}
+	
+	
 }

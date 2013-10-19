@@ -121,6 +121,11 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 	public void setTopLevelFeature(boolean topLevelFeature) {
 		this.topLevelFeature = topLevelFeature;
 	}
+
+	@Override
+	public String toString() {
+		return this.getName();
+	}
 	
 	
 }

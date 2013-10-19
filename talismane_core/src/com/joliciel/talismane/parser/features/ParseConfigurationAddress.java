@@ -24,6 +24,7 @@ import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
@@ -35,7 +36,7 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  */
 public final class ParseConfigurationAddress implements ParseConfigurationWrapper, PosTaggedTokenWrapper, TokenWrapper, HasFeatureCache {
 	private ParseConfiguration parseConfiguration;
-	private ParserAddressFunction addressFunction;
+	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	private PosTaggedToken posTaggedToken = null;
 	private boolean posTaggedTokenRetrieved = false;
 	private RuntimeEnvironment env;
@@ -45,7 +46,7 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 	}
 	
 	public ParseConfigurationAddress(ParseConfiguration parseConfiguration,
-			ParserAddressFunction addressFunction, RuntimeEnvironment env) {
+			PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, RuntimeEnvironment env) {
 		super();
 		this.parseConfiguration = parseConfiguration;
 		this.addressFunction = addressFunction;
@@ -54,7 +55,7 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 	public ParseConfiguration getParseConfiguration() {
 		return parseConfiguration;
 	}
-	public ParserAddressFunction getAddressFunction() {
+	public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
 		return addressFunction;
 	}
 	
@@ -62,7 +63,7 @@ public final class ParseConfigurationAddress implements ParseConfigurationWrappe
 		this.parseConfiguration = parseConfiguration;
 	}
 
-	public void setAddressFunction(ParserAddressFunction addressFunction) {
+	public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		this.addressFunction = addressFunction;
 	}
 

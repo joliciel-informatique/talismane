@@ -18,10 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.perceptron;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -78,7 +81,8 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 			if (cutoff>1) {
 				params.initialiseCounts();
 				File originalEventFile = eventFile;
-				Scanner scanner = new Scanner(eventFile, "UTF-8");
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(eventFile), "UTF-8")));
+
 				while (scanner.hasNextLine()) {
 					String line = scanner.nextLine();
 					PerceptronEvent event = new PerceptronEvent(line);
@@ -105,7 +109,8 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				PerceptronModelParameters cutoffParams = new PerceptronModelParameters();
 				int[] newIndexes = cutoffParams.initialise(params, cutoff);
 				decisionMaker = new PerceptronDecisionMaker<T>(cutoffParams, decisionFactory);
-				scanner = new Scanner(eventFile, "UTF-8");
+				scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(eventFile), "UTF-8")));
+
 				eventFile = File.createTempFile("eventsCutoff","txt");
 				eventFile.deleteOnExit();
 				Writer eventCutoffWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(eventFile), "UTF-8"));
@@ -141,7 +146,8 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				int totalErrors = 0;
 				int totalEvents = 0;
 				
-				Scanner scanner = new Scanner(eventFile, "UTF-8");
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(eventFile), "UTF-8")));
+
 				while (scanner.hasNextLine()) {
 					String line = scanner.nextLine();
 					PerceptronEvent event = new PerceptronEvent(line);

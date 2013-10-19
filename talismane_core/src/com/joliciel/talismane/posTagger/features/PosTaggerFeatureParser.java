@@ -43,10 +43,10 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  * @author Assaf Urieli
  *
  */
-public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
+public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
 	TokenFeatureParser tokenFeatureParser;
 
-	public PosTagFeatureParser(FeatureService featureService) {
+	public PosTaggerFeatureParser(FeatureService featureService) {
 		super(featureService);
 	}	
 
@@ -54,7 +54,11 @@ public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext>
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("Ngram", NgramFeature.class);
 		container.addFeatureClass("History", PosTaggerHistoryAddressFunction.class);
-		PosTagFeatureParser.addPosTaggedTokenFeatureClasses(container);
+		container.addFeatureClass("HistoryAbs", HistoryAbsoluteAddressFunction.class);
+		container.addFeatureClass("HistoryCountIf", HistoryCountIfFeature.class);
+		container.addFeatureClass("HistoryHas", HistoryHasFeature.class);
+		container.addFeatureClass("HistorySearch", HistorySearchFeature.class);
+		PosTaggerFeatureParser.addPosTaggedTokenFeatureClasses(container);
 		this.tokenFeatureParser.addFeatureClasses(container);
 	}
 	
@@ -64,6 +68,7 @@ public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext>
 	 */
 	public static void addPosTaggedTokenFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("PosTag", AssignedPosTagFeature.class);
+		container.addFeatureClass("PosTagIn", AssignedPosTagInFeature.class);
 		container.addFeatureClass("LexicalForm", WordFormFeature.class);
 		container.addFeatureClass("Lemma", LemmaFeature.class);
 		container.addFeatureClass("Morphology", MorphologyFeature.class);
@@ -75,12 +80,14 @@ public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext>
 		container.addFeatureClass("SubCategory", LexicalSubCategoryFeature.class);
 		container.addFeatureClass("PossessorNumber", PossessorNumberFeature.class);
 		container.addFeatureClass("Index", TokenIndexFeature.class);
+		container.addFeatureClass("WordForm", WordFormFeature.class);
 		container.addFeatureClass("PredicateHasFunction", PredicateHasFunctionFeature.class);
 		container.addFeatureClass("PredicateFunctionHasRealisation", PredicateFunctionHasRealisationFeature.class);
 		container.addFeatureClass("PredicateFunctionIsOptional", PredicateFunctionIsOptionalFeature.class);
 		container.addFeatureClass("PredicateFunctionPosition", PredicateFunctionPositionFeature.class);
 		container.addFeatureClass("PredicateHasMacro", PredicateHasMacroFeature.class);		
 		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);		
+		container.addFeatureClass("TokenHas", HistoryHasFeature.class);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -149,6 +156,13 @@ public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext>
 		public Class<? extends Feature> getFeatureType() {
 			return wrappedFeature.getFeatureType();
 		}
+
+		@Override
+		public String toString() {
+			return wrappedFeature.toString();
+		}
+		
+		
 	}
 	
 	private class PosTaggerBooleanFeatureWrapper extends PosTaggerFeatureWrapper<Boolean> implements BooleanFeature<PosTaggerContext> {
@@ -205,10 +219,23 @@ public class PosTagFeatureParser extends AbstractFeatureParser<PosTaggerContext>
 		return null;
 	}
 	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Feature<PosTaggerContext, ?> convertFeatureCustomType(
+			Feature<PosTaggerContext, ?> feature) {
+		Feature<PosTaggerContext, ?> convertedFeature = feature;
+		if (feature.getFeatureType().equals(PosTaggedTokenAddressFunction.class) && !(feature instanceof PosTaggedTokenAddressFunction)) {
+			convertedFeature = new PosTaggedTokenAddressFunctionWrapper<PosTaggerContext>((Feature<PosTaggerContext, PosTaggedTokenWrapper>) feature);
+		}
+		return convertedFeature;
+	}
+	
 	private static final class TokenAddressFunctionWrapper extends AbstractFeature<PosTaggerContext,TokenWrapper> implements TokenAddressFunction<PosTaggerContext> {
 		PosTaggedTokenAddressFunction<PosTaggerContext> posTaggedTokenAddressFunction = null;
 		public TokenAddressFunctionWrapper(PosTaggedTokenAddressFunction<PosTaggerContext> posTaggedTokenAddressFunction) {
 			this.posTaggedTokenAddressFunction = posTaggedTokenAddressFunction;
+			this.setName(this.posTaggedTokenAddressFunction.getName());
 		}
 		
 		@Override
