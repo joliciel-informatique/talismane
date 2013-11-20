@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import gnu.trove.iterator.TObjectDoubleIterator;
 import gnu.trove.map.TObjectDoubleMap;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
@@ -77,6 +78,14 @@ public class SparseStringMatrixResource implements ExternalResource<Double> {
 		return value;
 	}
 
+	public TObjectDoubleIterator<String> getInnerKeys(String key) {
+		TObjectDoubleMap<String> row = matrix.get(key);
+		if (row!=null) {
+			return row.iterator();
+		}
+		return null;
+	}
+	
 	public String getName() {
 		return name;
 	}

@@ -35,7 +35,8 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * If an end index is provided as a third argument, will continue until the end index.<br/>
  * All indexes must be &lt;= the current history size, otherwise only valid indexes will be looked at.<br/>
  * If start index &gt;= end index, will look backwards, otherwise will look forwards.<br/>
- * A stopCriterion 
+ * A stopCriterion can be provided, in which case the search will stop as soon as the stop criterion is hit. In this case, the find criterion is always checked before the stop criterion.<br/>
+ * The user can indicate whether to find the first or the last occurrence (default is first).<br/>
  * @author Assaf Urieli
  *
  */
@@ -64,18 +65,18 @@ public final class TokenSearchFeature extends AbstractAddressFunction implements
 	
 	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature, BooleanFeature<ParseConfigurationWrapper> findFirstFeature) {
 		this.criterion = criterion;
-		this.findFirstFeature = findFirstFeature;
 		this.startIndexFeature = startIndexFeature;
 		this.endIndexFeature = endIndexFeature;
+		this.findFirstFeature = findFirstFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + "," + findFirstFeature.getName() + ")");
 	}
 
 	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature, BooleanFeature<ParseConfigurationWrapper> findFirstFeature) {
 		this.criterion = criterion;
 		this.stopCriterion = stopCriterion;
-		this.findFirstFeature = findFirstFeature;
 		this.startIndexFeature = startIndexFeature;
 		this.endIndexFeature = endIndexFeature;
+		this.findFirstFeature = findFirstFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + "," + findFirstFeature.getName() + ")");
 	}
 

@@ -1,0 +1,331 @@
+-ce	ce	CLS	cln	null
+-elle	elle	CLS	cls	3fs
+-elles	elles	CLS	cls	3fp
+-en	en	CLO	clg	null
+-en	en	CLO	cll	null
+-il	il	CLS	cls	3ms
+-ils	ils	CLS	cls	3mp
+-je	je	CLS	cls	1s
+-la	la	CLO	cla	3fs
+-le	le	CLO	cla	3ms
+-les	les	CLO	cla	3p
+-leur	leur	CLO	cld	3p
+-lui	lui	CLO	cld	3s
+-m'	me	CLO	cld	1s
+-moi	moi	CLO	cla	1s
+-moi	moi	CLO	cld	1s
+-nous	nous	CLO	cla	1p
+-nous	nous	CLO	cld	1p
+-nous	nous	CLS	cls	1p
+-on	on	CLS	cls	3s
+-t'	te	CLO	cld	2s
+-t-elle	t-elle	CLS	cls	3fs
+-t-elles	t-elles	CLS	cls	3fp
+-t-en	t-en	CLO	cll	null
+-t-il	t-il	CLS	cls	3ms
+-t-ils	t-ils	CLS	cls	3mp
+-t-on	t-on	CLS	cls	3s
+-t-y	t-y	CLO	cld	null
+-toi	toi	CLO	cla	2s
+-toi	toi	CLO	cld	2s
+-tu	tu	CLS	cls	2s
+-vous	vous	CLO	cla	2p
+-vous	vous	CLO	cld	2p
+-vous	vous	CLS	cls	2p
+-vs	vous	CLO	cla	2p
+-vs	vous	CLO	cld	2p
+-vs	vous	CLS	cls	2p
+-y	y	CLO	cld	null
+-y	y	CLO	cll	null
+c'	ce	CLS	cls	s
+ce	ce	CLS	cln	null
+ch'	je	CLS	cls	1s
+elle	elle	CLS	cls	3fs
+elles	elles	CLS	cls	3fp
+en	en	CLO	clg	null
+en	en	CLO	cll	null
+il	il	CLS	cls	3ms
+ils	ils	CLS	cls	3mp
+j'	je	CLS	cls	1s
+je	je	CLS	cls	1s
+l'	l'	CLO	cla	3s
+l'on	l'on	CLS	cls	3s
+la	la	CLO	cla	3fs
+le	le	CLO	cla	3ms
+les	les	CLO	cla	3p
+leur	leur	CLO	cld	3p
+lui	lui	CLO	cld	3s
+m'	me	CLO	cla	1s
+m'	me	CLO	cld	1s
+m'	me	CLR	clr	1s
+me	me	CLO	cla	1s
+me	me	CLO	cld	1s
+me	me	CLR	clr	1s
+moi	moi	CLO	cla	1s
+moi	moi	CLO	cld	1s
+nous	nous	CLO	cla	1p
+nous	nous	CLO	cld	1p
+nous	nous	CLS	cls	1p
+nous	nous	CLR	clr	1p
+on	on	CLS	cls	3s
+s'	se	CLR	clr	3p
+s'	se	CLR	clr	3s
+se	se	CLR	clr	3p
+se	se	CLR	clr	3s
+t'	te	CLO	cla	2s
+t'	te	CLO	cld	2s
+t'	tu	CLS	cls	2s
+t'	te	CLR	clr	2s
+te	te	CLO	cla	2s
+te	te	CLO	cld	2s
+te	te	CLR	clr	2s
+toi	toi	CLO	cla	2s
+toi	toi	CLO	cld	2s
+tu	tu	CLS	cls	2s
+vous	vous	CLO	cla	2p
+vous	vous	CLO	cld	2p
+vous	vous	CLS	cls	2p
+vous	vous	CLR	clr	2p
+vs	vs	CLO	cla	2p
+vs	vs	CLO	cld	2p
+vs	vs	CLS	cls	2p
+vs	vs	CLR	clr	2p
+y	y	CLO	cld	null
+y	y	CLO	cll	null
+ç'	ça	PRO	pro	s
+ça	ça	PRO	pro	s
+aucun	aucun	PRO	pro	ms
+aucune	aucun	PRO	pro	fs
+auquel	auquel	PRO	pro	ms
+autre	autre	PRO	pro	fs
+autre	autre	PRO	pro	ms
+autre chose	autre chose	PRO	pro	ms
+autres	autres	PRO	pro	fp
+autres	autres	PRO	pro	mp
+autrui	autrui	PRO	pro	fs
+autrui	autrui	PRO	pro	ms
+auxquelles	auquel	PRO	pro	fp
+auxquels	auquel	PRO	pro	mp
+beaucoup	beaucoup	PRO	pro	fp
+beaucoup	beaucoup	PRO	pro	mp
+bien d'autre	bien d'autre	PRO	pro	fs
+bien d'autre	bien d'autre	PRO	pro	ms
+bien d'autres	bien d'autre	PRO	pro	fp
+bien d'autres	bien d'autre	PRO	pro	mp
+ceci	ceci	PRO	pro	ms
+cela	cela	PRO	pro	ms
+celle	celle	PRO	pro	fs
+celle-ci	celle-ci	PRO	pro	fs
+celle-là	celle-là	PRO	pro	fs
+celles	celle	PRO	pro	fp
+celles-ci	celles-ci	PRO	pro	fp
+celles-là	celles-là	PRO	pro	fp
+celui	celui	PRO	pro	ms
+celui-ci	celui-ci	PRO	pro	ms
+celui-là	celui-là	PRO	pro	ms
+certain	certain	PRO	pro	ms
+certaine	certain	PRO	pro	fs
+certaines	certain	PRO	pro	fp
+certains	certain	PRO	pro	mp
+ceux	ceux	PRO	pro	mp
+ceux-ci	ceux-ci	PRO	pro	mp
+ceux-là	ceux-là	PRO	pro	mp
+chacun	chacun	PRO	pro	ms
+chacune	chacun	PRO	pro	fs
+combien	combien	PRO	pro	fp
+combien	combien	PRO	pro	fs
+combien	combien	PRO	pro	mp
+combien	combien	PRO	pro	ms
+d'aucuns	d'aucuns	PRO	pro	fp
+d'aucuns	d'aucuns	PRO	pro	mp
+d'autres	d'autre	PRO	pro	fp
+d'autres	d'autre	PRO	pro	mp
+elle	elle	PRO	pro	3fs
+elle-même	elle-même	PRO	pro	3fs
+elles	elles	PRO	pro	3fp
+elles-même	elles-même	PRO	pro	3fp
+elles-mêmes	elles-mêmes	PRO	pro	3fp
+et quelques	et quelque	PRO	pro	fp
+et quelques	et quelque	PRO	pro	mp
+eux	eux	PRO	pro	3mp
+eux-même	eux-même	PRO	pro	3mp
+eux-mêmes	eux-mêmes	PRO	pro	3mp
+grand'chose	grand-chose	PRO	pro	ms
+grand-chose	grand-chose	PRO	pro	ms
+je ne sais qui	je ne sais qui	PRO	pro	fs
+je ne sais qui	je ne sais qui	PRO	pro	ms
+je ne sais quoi	je ne sais quoi	PRO	pro	fs
+je ne sais quoi	je ne sais quoi	PRO	pro	ms
+l'autre	l'autre	PRO	pro	fs
+l'autre	l'autre	PRO	pro	ms
+l'un	l'un	PRO	pro	ms
+l'un et l'autre	l'un et l'autre	PRO	pro	mp
+l'un ou l'autre	l'un ou l'autre	PRO	pro	mp
+l'une	l'un	PRO	pro	fs
+l'une et l'autre	l'une et l'autre	PRO	pro	fp
+l'une ou l'autre	l'une ou l'autre	PRO	pro	fp
+la leur	le leur	PRO	pro	3fs
+la mienne	le  mien	PRO	pro	1fs
+la nôtre	le nôtre	PRO	pro	1fs
+la plupart	la plupart	PRO	pro	mp
+la sienne	le sien	PRO	pro	3fs
+la tienne	le tien	PRO	pro	2fs
+la vôtre	le vôtre	PRO	pro	2fs
+laquelle	lequel	PRO	pro	fs
+le leur	le leur	PRO	pro	3ms
+le mien	le  mien	PRO	pro	1ms
+le nôtre	le nôtre	PRO	pro	1ms
+le sien	le sien	PRO	pro	3ms
+le tien	le tien	PRO	pro	2ms
+le vôtre	le vôtre	PRO	pro	2ms
+lequel	lequel	PRO	pro	ms
+les autres	l'autre	PRO	pro	fp
+les autres	l'autre	PRO	pro	mp
+les leurs	le leur	PRO	pro	3fp
+les leurs	le leur	PRO	pro	3mp
+les miennes	le mien	PRO	pro	1fp
+les miens	le  mien	PRO	pro	1mp
+les nôtres	le nôtre	PRO	pro	1fp
+les nôtres	le nôtre	PRO	pro	1mp
+les siennes	le sien	PRO	pro	3fp
+les siens	le sien	PRO	pro	3mp
+les tiennes	le tien	PRO	pro	2fp
+les tiens	le tien	PRO	pro	2mp
+les unes	les unes	PRO	pro	fp
+les uns	les uns	PRO	pro	mp
+les vôtres	le vôtre	PRO	pro	2fp
+les vôtres	le vôtre	PRO	pro	2mp
+lesquelles	lequel	PRO	pro	fp
+lesquels	lequel	PRO	pro	mp
+lui	lui	PRO	pro	3fs
+lui	lui	PRO	pro	3ms
+lui-même	lui-même	PRO	pro	3ms
+moi	moi	PRO	pro	1fs
+moi	moi	PRO	pro	1ms
+moi-même	moi-même	PRO	pro	1s
+n'importe laquelle	n'importe lequel	PRO	pro	fs
+n'importe lequel	n'importe lequel	PRO	pro	ms
+n'importe lesquelles	n'importe lequel	PRO	pro	fp
+n'importe lesquels	n'importe lequel	PRO	pro	mp
+n'importe nawak	n'importe nawak	PRO	pro	ms
+n'importe où	n'importe où	PRO	pro	s
+n'importe qui	n'importe qui	PRO	pro	fs
+n'importe qui	n'importe qui	PRO	pro	ms
+n'importe quoi	n'importe quoi	PRO	pro	fs
+n'importe quoi	n'importe quoi	PRO	pro	ms
+ni l'un ni l'autre	ni l'un ni l'autre	PRO	pro	mp
+ni l'une ni l'autre	ni l'une ni l'autre	PRO	pro	fp
+nous	nous	PRO	pro	1fp
+nous	nous	PRO	pro	1mp
+nous-même	nous-même	PRO	pro	1fp
+nous-mêmes	nous-mêmes	PRO	pro	1fp
+nul	nul	PRO	pro	ms
+nulle	nul	PRO	pro	fs
+nulles	nul	PRO	pro	fp
+nuls	nuls	PRO	pro	mp
+on ne sais qui	on ne sais qui	PRO	pro	fs
+on ne sais qui	on ne sais qui	PRO	pro	ms
+on ne sais quoi	on ne sais quoi	PRO	pro	fs
+on ne sais quoi	on ne sais quoi	PRO	pro	ms
+pas grand-chose	pas grand-chose	PRO	pro	fs
+pas un	pas un	PRO	pro	ms
+pas une	pas un	PRO	pro	fs
+personne	personne	PRO	pro	fs
+personne	personne	PRO	pro	ms
+peu de chose	peu de chose	PRO	pro	fs
+plus d'un	plus d'un	PRO	pro	ms
+plus d'une	plus d'un	PRO	pro	fs
+plusieurs	plusieurs	PRO	pro	fp
+plusieurs	plusieurs	PRO	pro	mp
+qqc	quelque chose	PRO	pro	ms
+qqch	quelque chose	PRO	pro	ms
+qqchose	quelque chose	PRO	pro	ms
+qqn	quelqu'un	PRO	pro	ms
+que dalle	que dalle	PRO	pro	ms
+que pouic	que pouic	PRO	pro	ms
+quelqu'un	quelqu'un	PRO	pro	ms
+quelqu'une	quelqu'un	PRO	pro	fs
+quelqu'une	quelqu'une	PRO	pro	fs
+quelque chose	quelque chose	PRO	pro	ms
+quelques-unes	quelqu'un	PRO	pro	fp
+quelques-unes	quelques-unes	PRO	pro	fp
+quelques-uns	quelqu'un	PRO	pro	mp
+quelques-uns	quelques-uns	PRO	pro	fp
+qui de droit	qui de droit	PRO	pro	ms
+qui que ce soit	qui que ce soit	PRO	pro	fs
+qui que ce soit	qui que ce soit	PRO	pro	ms
+quiconque	quiconque	PRO	pro	fs
+quiconque	quiconque	PRO	pro	ms
+rien	rien	PRO	pro	ms
+soi	soi	PRO	pro	3fs
+soi	soi	PRO	pro	3ms
+soi-même	soi-même	PRO	pro	3fs
+soi-même	soi-même	PRO	pro	3ms
+tel	tel	PRO	pro	ms
+tel et tel	tel et tel	PRO	pro	ms
+tel ou tel	tel ou tel	PRO	pro	ms
+telle	tel	PRO	pro	fs
+telle et telle	telle et telle	PRO	pro	fs
+telle ou telle	telle ou telle	PRO	pro	fs
+telles	telles	PRO	pro	fp
+telles et telles	telles et telles	PRO	pro	fp
+telles ou telles	telles ou telles	PRO	pro	fp
+tels	tels	PRO	pro	mp
+tels et tels	tels et tels	PRO	pro	mp
+tels ou tels	tels ou tels	PRO	pro	mp
+toi	toi	PRO	pro	2fs
+toi	toi	PRO	pro	2ms
+toi-même	toi-même	PRO	pro	2fs
+toi-même	toi-même	PRO	pro	2ms
+tous	tout	PRO	pro	mp
+tout	tout	PRO	pro	ms
+tout le monde	tout le monde	PRO	pro	ms
+tout un chacun	tout un chacun	PRO	pro	ms
+toute	tout	PRO	pro	fs
+toutes	tout	PRO	pro	fp
+un	un	PRO	pro	ms
+un autre	un autre	PRO	pro	ms
+un tel	untel	PRO	pro	ms
+une	un	PRO	pro	fs
+une	une	PRO	pro	fs
+une autre	un autre	PRO	pro	fs
+une bonne	un bon	PRO	pro	fs
+une telle	untel	PRO	pro	fs
+unes	unes	PRO	pro	fp
+unetelle	untel	PRO	pro	fs
+uns	uns	PRO	pro	mp
+untel	untel	PRO	pro	ms
+vous	vous	PRO	pro	2fp
+vous	vous	PRO	pro	2mp
+vous-même	vous-même	PRO	pro	2mp
+vous-mêmes	vous-mêmes	PRO	pro	2mp
+combien	combien	ADVWH	advwh	null
+comment	comment	ADVWH	advwh	null
+dont	dont	PROREL	prel	null
+laquelle	lequel	PROREL	prel	fs
+laquelle	lequel	PROWH	pri	fs
+lequel	lequel	PROREL	prel	ms
+lequel	lequel	PROWH	pri	ms
+lesquelles	lequel	PROREL	prel	fp
+lesquelles	lequel	PROWH	pri	fp
+lesquels	lequel	PROREL	prel	mp
+lesquels	lequel	PROWH	pri	fp
+n'	ne	ADV	advneg	null
+ne	ne	ADV	advneg	null
+où	où	PROREL	prel	null
+où	où	ADVWH	advwh	null
+pkoi	pourquoi	ADVWH	advwh	null
+pourquoi	pourquoi	ADVWH	advwh	null
+qu'	que	PROREL	prel	null
+qu'	que	PROWH	pri	null
+quand	quand	ADVWH	advwh	null
+que	que	PROREL	prel	null
+que	que	PROWH	pri	null
+quel	quel	DETWH	detwh	ms
+quelle	quel	DETWH	detwh	fs
+quelles	quel	DETWH	detwh	fp
+quels	quel	DETWH	detwh	mp
+qui	qui	PROREL	prel	s
+qui	qui	PROWH	pri	s
+quoi	quoi	PROREL	prel	null
+quoi	quoi	PROWH	pri	null

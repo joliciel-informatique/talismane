@@ -103,7 +103,10 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 		rootDescriptor = pop(context);
 		this.handleEmpty(rootDescriptor);
 		if (rootDescriptor.getArguments().size()!=1) {
-			throw new DescriptorSyntaxException("Need exactly one top-level function per descriptor", context.text, -1);
+			throw new DescriptorSyntaxException("Need exactly one top-level function per descriptor in " + descriptorName
+					+ ", have " + rootDescriptor.getArguments().size()
+					+ ", 1st argument: " + (rootDescriptor.getArguments().size()>0 ? rootDescriptor.getArguments().get(0).toString() : "none")
+					, context.text, -1);
 		}
 		
 		FunctionDescriptor descriptor = rootDescriptor.getArguments().get(0);

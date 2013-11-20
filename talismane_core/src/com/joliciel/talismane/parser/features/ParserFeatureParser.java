@@ -48,23 +48,26 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
+		container.addFeatureClass("AncestorSearch", AncestorSearchFeature.class);
 		container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
 		container.addFeatureClass("BetweenCountIf", BetweenCountIf.class);
 		container.addFeatureClass("Buffer", AddressFunctionBuffer.class);
 		container.addFeatureClass("Dep", AddressFunctionDep.class);
 		container.addFeatureClass("DepCountIf", DependencyCountIf.class);
 		container.addFeatureClass("DepLabel", DependencyLabelFeature.class);
+		container.addFeatureClass("DependencyLabel", DependencyLabelFeature.class);
 		container.addFeatureClass("DepLabelSet", DependencyLabelSetFeature.class);
 		container.addFeatureClass("DepSearch", DependencySearchFeature.class);
 		container.addFeatureClass("Distance", DistanceFeature.class);
 		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
 		container.addFeatureClass("Head", AddressFunctionHead.class);
-		container.addFeatureClass("ImplicitAddress", ImplicitAddressFeature.class);
 		container.addFeatureClass("LDep", AddressFunctionLDep.class);
 		container.addFeatureClass("Offset", AddressFunctionOffset.class);
+		container.addFeatureClass("Placeholder", ImplicitAddressFeature.class);
 		container.addFeatureClass("RDep", AddressFunctionRDep.class);
 		container.addFeatureClass("Seq", AddressFunctionSequence.class);
 		container.addFeatureClass("Stack", AddressFunctionStack.class);
+		container.addFeatureClass("StackSearch", StackSearchFeature.class);
 		container.addFeatureClass("TokenSearch", TokenSearchFeature.class);
 		container.addFeatureClass("Valency", ValencyFeature.class);
 		container.addFeatureClass("Valency", ValencyByLabelFeature.class);

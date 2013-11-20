@@ -31,6 +31,9 @@ que	que	ADV	advex	null
 qu'	que	ADV	advex	null
 comme	comme	ADV	advex	null
 # adverbes négatifs
+guère	guère	ADV	advneg	null
+jamais	jamais	ADV	advneg	null
+jamais plus	jamais plus	ADV	advneg	null
 ne	ne	ADV	advneg	null
 ne pas	ne pas	ADV	advneg	null
 ne plus	ne plus	ADV	advneg	null
@@ -39,8 +42,15 @@ non pas	non pas	ADV	advneg	null
 non plus	non plus	ADV	advneg	null
 non seulement	non seulement	ADV	advneg	null
 nulle part	nulle part	ADV	advneg	null
+nullement	nullement	ADV	advneg	null
+pas	pas	ADV	advneg	null
 pas du tout	pas du tout	ADV	advneg	null
 pas encore	pas encore	ADV	advneg	null
+plus	plus	ADV	advneg	null
+plus jamais	plus jamais	ADV	advneg	null
+point	point	ADV	advneg	null
+qu'	que	ADV	advneg	null
+que	que	ADV	advneg	null
 # conjonction de coordination
 aussi bien que	aussi bien que	CC	coo	null
 aussi bien qu'	aussi bien que	CC	coo	null
@@ -1488,3 +1498,14 @@ convaincu	convaincre	ADJ	adj	ms
 convaincue	convaincre	ADJ	adj	fs
 convaincus	convaincre	ADJ	adj	mp
 convaincues	convaincre	ADJ	adj	fp
+# open categories for closed category words
+donc	donc	ADV	adv	null
+autre	autre	ADJ	adj	s
+autres	autres	ADJ	adj	p
+peut-être	peut-être	ADV	adv	null
+rendez-vous	rendez-vous	NC	nc	m
+avant	avant	ADV	adv	null
+arrière	arrière	ADV	adv	null
+avant	avant	ADJ	adj	null
+arrière	arrière	ADJ	adj	null
+partie	partie	NC	nc	fs

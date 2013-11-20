@@ -25,6 +25,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Create a dependency where Buffer[0] depends on Stack[0], and push Buffer[0] to the top of the stack.
+ * Example: in "eat apple", create a "object" dependency obj(eat,apple), and pushes "apple" to the top of stack.
  * @author Assaf Urieli
  *
  */

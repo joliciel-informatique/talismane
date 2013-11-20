@@ -24,3 +24,5 @@ p_obj
 ponct
 root
 suj
+prep
+sub

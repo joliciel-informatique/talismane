@@ -51,6 +51,8 @@ public interface LefffService {
 	public LefffLoader getLefffLoader();
 
 	public Map<String, List<LexicalEntry>> findEntryMap();
+
+	public Map<String, List<LexicalEntry>> findEntryMap(List<String> categories);
 	
 	public LexicalEntryMorphologyReader getLexicalEntryMorphologyReader();
 }

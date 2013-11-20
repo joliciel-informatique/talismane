@@ -41,8 +41,8 @@ public class LefffMemoryLoader {
     private static final Log LOG = LogFactory.getLog(LefffMemoryLoader.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LefffMemoryLoader.class);
     
-	public LefffMemoryBase loadMemoryBaseFromDatabase(LefffService lefffService, Map<PosTagSet,LefffPosTagMapper> posTagMappers) {		
-		Map<String,List<LexicalEntry>> entryMap = lefffService.findEntryMap();
+	public LefffMemoryBase loadMemoryBaseFromDatabase(LefffService lefffService, Map<PosTagSet,LefffPosTagMapper> posTagMappers, List<String> categories) {		
+		Map<String,List<LexicalEntry>> entryMap = lefffService.findEntryMap(categories);
 		LefffMemoryBase memoryBase = new LefffMemoryBaseImpl(entryMap, posTagMappers);
 		return memoryBase;
 	}

@@ -19,6 +19,7 @@
 package com.joliciel.talismane.parser.features;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -66,7 +67,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 			}
 			
 			for (String featureDescriptor : featureDescriptors) {
-				if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
+				if (featureDescriptor.trim().length()>0 && !featureDescriptor.startsWith("#")) {
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 					List<ParseConfigurationFeature<?>> myFeatures = featureParser.parseDescriptor(functionDescriptor);
 					parseFeatures.addAll(myFeatures);
@@ -114,10 +115,11 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 			
 			for (String ruleDescriptor : ruleDescriptors) {
 				LOG.debug(ruleDescriptor);
-				if (ruleDescriptor.length()>0 && !ruleDescriptor.startsWith("#")) {
+				if (ruleDescriptor.trim().length()>0 && !ruleDescriptor.startsWith("#")) {
 					String[] ruleParts = ruleDescriptor.split("\t");
 					String transitionCode = ruleParts[0];
 					Transition transition = null;
+					Set<Transition> transitions = null;
 					boolean negative = false;
 					String descriptor = null;
 					String descriptorName = null;
@@ -135,11 +137,20 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 					} else {
 						if (transitionCode.startsWith("!")) {
 							negative = true;
-							transitionCode = transitionCode.substring(1);
+							String[] transitionCodes = transitionCode.substring(1).split(";");
+							transitions = new HashSet<Transition>();
+							for (String code : transitionCodes) {
+								Transition oneTransition = TalismaneSession.getTransitionSystem().getTransitionForCode(code);
+								transitions.add(oneTransition);
+							}
+							transition = transitions.iterator().next();
+						} else {
+						
+							transition = TalismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
+					
 						}
-						transition = TalismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
-					}
 	
+					}
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
 					if (descriptorName!=null)
 						functionDescriptor.setDescriptorName(descriptorName);
@@ -149,9 +160,16 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 							if (feature instanceof BooleanFeature) {
 								@SuppressWarnings("unchecked")
 								BooleanFeature<ParseConfigurationWrapper> condition = (BooleanFeature<ParseConfigurationWrapper>) feature;
-								ParserRule rule = this.getParserRule(condition, transition);
-								rule.setNegative(negative);
-								rules.add(rule);
+								
+								if (negative) {
+									ParserRule rule = this.getParserRule(condition, transitions);
+									rule.setNegative(true);
+									rules.add(rule);
+								} else {
+									ParserRule rule = this.getParserRule(condition, transition);
+									rule.setNegative(false);
+									rules.add(rule);
+								}
 							} else {
 								throw new TalismaneException("Rule must be based on a boolean feature.");
 							}
@@ -169,6 +187,14 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 			BooleanFeature<ParseConfigurationWrapper> condition,
 			Transition transition) {
 		ParserRule parserRule = new ParserRuleImpl(condition, transition);
+		return parserRule;
+	}
+	
+
+	public ParserRule getParserRule(
+			BooleanFeature<ParseConfigurationWrapper> condition,
+			Set<Transition> transitions) {
+		ParserRule parserRule = new ParserRuleImpl(condition, transitions);
 		return parserRule;
 	}
 

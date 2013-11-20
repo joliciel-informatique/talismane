@@ -112,7 +112,7 @@ public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
 							firstChars  = new char[] {'i', 'î', 'ï'};
 							break;
 						case 'C':
-							firstChars = new char[] {'ç', 'c'};
+							firstChars = new char[] {'c', 'ç'};
 							break;
 						default:
 							firstChars = new char[] {Character.toLowerCase(firstChar)};
@@ -135,7 +135,7 @@ public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter {
 				} // next word starts with an upper-case
 				lowerCaseNextWord = false;
 			} // should we lower-case the next word?
-			if (token.getText().equals("\"")||token.getText().equals("...")||token.getText().equals(":")||token.getText().equals(";")) {
+			if (token.getText().equals("\"")||token.getText().equals("...")||token.getText().equals(":")||token.getText().equals(";")||token.getText().equals("(")) {
 				lowerCaseNextWord = true;
 			}
 		} // next token

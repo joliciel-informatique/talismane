@@ -19,6 +19,8 @@
 !NC	HasClosedClassesOnly()
 !ADJ	HasClosedClassesOnly()
 !ADV	HasClosedClassesOnly()
+!PREF	HasClosedClassesOnly()
+!PREF	Not(Regex(".+\-"))
 !V	HasClosedClassesOnly()
 !VIMP	HasClosedClassesOnly()
 !VINF	HasClosedClassesOnly()

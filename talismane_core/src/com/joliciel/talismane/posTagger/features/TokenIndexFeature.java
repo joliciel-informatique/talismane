@@ -36,6 +36,10 @@ public final class TokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T,
 		this.setAddressFunction(addressFunction);
 	}
 
+	public TokenIndexFeature() {
+		super(new ItsMeAddressFunction<T>());
+	}
+	
 	@Override
 	public FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);

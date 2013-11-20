@@ -2,8 +2,9 @@
 # Only main grammatical categories, no morphological information.
 # Verb moods, WH- subcategories.
 # No verb tenses (except for participles, which are grouped with "moods").
+# Removed ADJWH as it seems identical to DETWH (quel). Added PREF as its found in corpora.
 # @author Assaf Urieli
-Crabbé et Candito 2008
+SPMRL 2013
 fr
 ADJ	adjectif	OPEN
 ADV	adverbe	OPEN
@@ -19,11 +20,11 @@ ET	mot étranger	OPEN
 I	interjection	OPEN
 NC	nom commun	OPEN
 NPP	nom propre	OPEN
-null	null	CLOSED
 P	prépostion	CLOSED
 P+D	préposition+déterminant	CLOSED
 P+PRO	préposition+pronom	CLOSED
 PONCT	ponctuation	CLOSED
+PREF	préfixe	OPEN
 PRO	pronom	CLOSED
 PROREL	pronom rélatif	CLOSED
 PROWH	pronom intérrogatif	CLOSED

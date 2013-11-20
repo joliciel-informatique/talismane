@@ -86,7 +86,7 @@ public class ParserTrainer {
     public ParserTrainer(Map<String,String> argMap) throws Exception {
     	String command = null;
 
-		String corpusType = "ftbDep";
+		String corpusType = "conll";
 
 		String parserModelFilePath = "";
 		String parserFeatureFilePath = "";
@@ -122,6 +122,8 @@ public class ParserTrainer {
 
 		File performanceConfigFile = null;
 		String excludeFileName = null;
+		String inputRegex = null;
+		String inputPatternFilePath = null;
 
 		boolean keepCompoundPosTags = false;
 
@@ -198,6 +200,10 @@ public class ParserTrainer {
 				excludeFileName = argValue;
 			else if (argName.equals("corpusReader"))
 				corpusType = argValue;
+			else if (argName.equals("inputPatternFile"))
+				inputPatternFilePath = argValue;
+			else if (argName.equals("inputPattern"))
+				inputRegex = argValue;
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -272,7 +278,22 @@ public class ParserTrainer {
     			ParserRegexBasedCorpusReader conllReader = parserService.getRegexBasedCorpusReader(corpusFile, Charset.forName("UTF-8"));
     			conllReader.setPredictTransitions(true);
     			conllReader.setExcludeFileName(excludeFileName);
-				
+    			
+    			if (inputRegex==null && inputPatternFilePath!=null && inputPatternFilePath.length()>0) {
+    				Scanner inputPatternScanner = null;
+    				File inputPatternFile = new File(inputPatternFilePath);
+    				inputPatternScanner = new Scanner(inputPatternFile);
+    				if (inputPatternScanner.hasNextLine()) {
+    					inputRegex = inputPatternScanner.nextLine();
+    				}
+    				inputPatternScanner.close();
+    				if (inputRegex==null)
+    					throw new TalismaneException("No input pattern found in " + inputPatternFilePath);
+    			}
+    			
+    			if (inputRegex!=null)
+    				conllReader.setRegex(inputRegex);
+ 				
 				corpusReader = conllReader;
 			} else {
 				throw new RuntimeException("Unknown corpusReader: " + corpusType);

@@ -100,12 +100,6 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 			}
 			
 			this.persistOtherEntries(zos);
-			
-			this.writeDataToStream(zos);
-			
-			zos.putNextEntry(new ZipEntry("model.bin"));
-			this.writeModelToStream(zos);
-			zos.flush();
 
 			if (this.externalResources!=null) {
 				zos.putNextEntry(new ZipEntry("externalResources.obj"));
@@ -119,6 +113,11 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 			}
 			
 			this.writeDataToStream(zos);
+			
+			zos.putNextEntry(new ZipEntry("model.bin"));
+			this.writeModelToStream(zos);
+			zos.flush();
+
 			zos.close();
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
