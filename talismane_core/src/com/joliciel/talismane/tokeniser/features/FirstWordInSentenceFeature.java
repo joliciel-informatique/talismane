@@ -87,9 +87,9 @@ public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boole
 				startIndex = 3;
 			}
 			firstWord = (token.getIndex()==startIndex);
-			
-			result = this.generateResult(firstWord);
 		} // have token
+		
+		result = this.generateResult(firstWord);
 		
 		return result;
 	}

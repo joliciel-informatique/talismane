@@ -691,7 +691,7 @@ class LefffDaoImpl implements LefffDao {
 	}
 
 	@Override
-	public Map<String, List<LexicalEntry>> findEntryMap() {
+	public Map<String, List<LexicalEntry>> findEntryMap(List<String> categories) {
 		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
         String sql = "SELECT " + SELECT_ENTRY + "," + SELECT_WORD + "," + SELECT_LEMMA + "," +
         	SELECT_CATEGORY + "," + SELECT_PREDICATE + "," + SELECT_ATTRIBUTE +
@@ -701,10 +701,19 @@ class LefffDaoImpl implements LefffDao {
         	" INNER JOIN lef_category ON entry_category_id = category_id" +
         	" INNER JOIN lef_predicate ON entry_predicate_id = predicate_id" +
         	" INNER JOIN lef_attribute ON entry_morph_id = attribute_id" +
-        	" WHERE entry_status < 3" +
+        	" WHERE entry_status < 3";
+        
+        if (categories!=null && categories.size()>0) {
+        	sql += " AND category_code in (:categoryCodes)";
+        }
+        
+        sql +=
         	" ORDER BY entry_status, entry_id";
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
        
+        if (categories!=null && categories.size()>0) {
+        	paramSource.addValue("categoryCodes", categories);
+        }
         LOG.info(sql);
         LefffDaoImpl.LogParameters(paramSource);
         double requiredCapacity = 500000;

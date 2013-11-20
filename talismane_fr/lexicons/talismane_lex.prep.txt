@@ -1,0 +1,378 @@
+à	à	P	prep	null
+à côté d'	à côté de	P	prep	null
+à côté de	à côté de	P	prep	null
+à cause d'	à cause de	P	prep	null
+à cause de	à cause de	P	prep	null
+à défaut d'	à défaut de	P	prep	null
+à défaut de	à défaut de	P	prep	null
+à force d'	à force de	P	prep	null
+à force de	à force de	P	prep	null
+à hauteur d'	à hauteur de	P	prep	null
+à hauteur de	à hauteur de	P	prep	null
+à l'égard d'	à l'égard de	P	prep	null
+à l'égard de	à l'égard de	P	prep	null
+à l'aune d'	à l'aune de	P	prep	null
+à l'aune de	à l'aune de	P	prep	null
+à l'encontre d'	à l'encontre de	P	prep	null
+à l'encontre de	à l'encontre de	P	prep	null
+à l'instar d'	à l'instar de	P	prep	null
+à l'instar de	à l'instar de	P	prep	null
+à l'insu d'	à l'insu de	P	prep	null
+à l'insu de	à l'insu de	P	prep	null
+à même	à même	P	prep	null
+à même d'	à même de	P	prep	null
+à même de	à même de	P	prep	null
+à moins d'	à moins de	P	prep	null
+à moins de	à moins de	P	prep	null
+à partir d'	à partir de	P	prep	null
+à partir de	à partir de	P	prep	null
+à proportion d'	à proportion de	P	prep	null
+à proportion de	à proportion de	P	prep	null
+à propos d'	à propos de	P	prep	null
+à propos de	à propos de	P	prep	null
+à raison d'	à raison de	P	prep	null
+à raison de	à raison de	P	prep	null
+à travers	à travers	P	prep	null
+@	@	P	prep	null
+afin d'	afin de	P	prep	null
+afin de	afin de	P	prep	null
+après	après	P	prep	null
+apr.	apr.	P	prep	null
+attendu	attendu	P	prep	null
+au beau milieu d'	au beau milieu de	P	prep	null
+au beau milieu de	au beau milieu de	P	prep	null
+au bord d'	au bord de	P	prep	null
+au bord de	au bord de	P	prep	null
+au bout d'	au bout de	P	prep	null
+au bout de	au bout de	P	prep	null
+au côté d'	au côté de	P	prep	null
+au côté de	au côté de	P	prep	null
+au centre d'	au centre de	P	prep	null
+au centre de	au centre de	P	prep	null
+au comble d'	au comble de	P	prep	null
+au comble de	au comble de	P	prep	null
+au cours d'	au cours de	P	prep	null
+au cours de	au cours de	P	prep	null
+au dehors d'	au dehors de	P	prep	null
+au dehors de	au dehors de	P	prep	null
+au delà d'	au delà de	P	prep	null
+au delà de	au delà de	P	prep	null
+au dessous d'	au dessous de	P	prep	null
+au dessous de	au dessous de	P	prep	null
+au devant d'	au devant de	P	prep	null
+au devant de	au devant de	P	prep	null
+au fond d'	au fond de	P	prep	null
+au fond de	au fond de	P	prep	null
+au fur et à mesure d'	au fur et à mesure de	P	prep	null
+au fur et à mesure de	au fur et à mesure de	P	prep	null
+au gré d'	au gré de	P	prep	null
+au gré de	au gré de	P	prep	null
+au grand dam d'	au grand dam de	P	prep	null
+au grand dam de	au grand dam de	P	prep	null
+au large d'	au large de	P	prep	null
+au large de	au large de	P	prep	null
+au lieu d'	au lieu de	P	prep	null
+au lieu de	au lieu de	P	prep	null
+au long d'	au long de	P	prep	null
+au long de	au long de	P	prep	null
+au milieu d'	au milieu de	P	prep	null
+au milieu de	au milieu de	P	prep	null
+au moment d'	au moment de	P	prep	null
+au moment de	au moment de	P	prep	null
+au moyen d'	au moyen de	P	prep	null
+au moyen de	au moyen de	P	prep	null
+au nom d'	au nom de	P	prep	null
+au nom de	au nom de	P	prep	null
+au point d'	au point de	P	prep	null
+au point de	au point de	P	prep	null
+au prorata d'	au prorata de	P	prep	null
+au prorata de	au prorata de	P	prep	null
+au ras d'	au ras de	P	prep	null
+au ras de	au ras de	P	prep	null
+au sein d'	au sein de	P	prep	null
+au sein de	au sein de	P	prep	null
+au sortir d'	au sortir de	P	prep	null
+au sortir de	au sortir de	P	prep	null
+au sujet d'	au sujet de	P	prep	null
+au sujet de	au sujet de	P	prep	null
+au terme d'	au terme de	P	prep	null
+au terme de	au terme de	P	prep	null
+au tréfonds d'	au tréfonds de	P	prep	null
+au tréfonds de	au tréfonds de	P	prep	null
+au travers d'	au travers de	P	prep	null
+au travers de	au travers de	P	prep	null
+au vu d'	au vu de	P	prep	null
+au vu de	au vu de	P	prep	null
+au vu et au su d'	au vu et au su de	P	prep	null
+au vu et au su de	au vu et au su de	P	prep	null
+au-delà d'	au-delà de	P	prep	null
+au-delà de	au-delà de	P	prep	null
+au-dessous d'	au-dessous de	P	prep	null
+au-dessous de	au-dessous de	P	prep	null
+au-dessus d'	au-dessus de	P	prep	null
+au-dessus de	au-dessus de	P	prep	null
+au-devant d'	au-devant de	P	prep	null
+au-devant de	au-devant de	P	prep	null
+auprès d'	auprès de	P	prep	null
+auprès de	auprès de	P	prep	null
+autour d'	autour de	P	prep	null
+autour de	autour de	P	prep	null
+aux bons soins d'	aux bons soins de	P	prep	null
+aux bons soins de	aux bons soins de	P	prep	null
+aux confins d'	aux confins de	P	prep	null
+aux confins de	aux confins de	P	prep	null
+aux dépens d'	aux dépens de	P	prep	null
+aux dépens de	aux dépens de	P	prep	null
+av.	avant	P	prep	null
+avant	avant	P	prep	null
+avant d'	avant de	P	prep	null
+avant de	avant de	P	prep	null
+avant même d'	avant même de	P	prep	null
+avant même de	avant même de	P	prep	null
+avant que d'	avant que de	P	prep	null
+avant que de	avant que de	P	prep	null
+avec	avec	P	prep	null
+avt	avant	P	prep	null
+c/	contre	P	prep	null
+ca	circa	P	prep	null
+ca.	circa	P	prep	null
+cause d'	cause de	P	prep	null
+cause de	cause de	P	prep	null
+cf	cf	P	prep	null
+cf.	cf.	P	prep	null
+chez	chez	P	prep	null
+ci-devant	ci-devant	P	prep	null
+circa	circa	P	prep	null
+comme	comme	P	prep	null
+conf.	conf.	P	prep	null
+confer	confer	P	prep	null
+contre	contre	P	prep	null
+dès	dès	P	prep	null
+dès avant	dès avant	P	prep	null
+d'	de	P	prep	null
+d'après	d'après	P	prep	null
+d'avis d'	d'avis de	P	prep	null
+d'avis de	d'avis de	P	prep	null
+d'entre	d'entre	P	prep	null
+d'ici	d'ici	P	prep	null
+d'ici à	d'ici à	P	prep	null
+d'où	d'où	p	prep	null
+dans	dans	P	prep	null
+de	de	P	prep	null
+de chez	de chez	P	prep	null
+de derrière	de derrière	P	prep	null
+de l'ordre d'	de l'ordre de	P	prep	null
+de l'ordre de	de l'ordre de	P	prep	null
+de manière à	de manière à	P	prep	null
+de par	de par	P	prep	null
+de part et d'autre d'	de part et d'autre de	P	prep	null
+de part et d'autre de	de part et d'autre de	P	prep	null
+de près	de près	P	prep	null
+depuis	depuis	P	prep	null
+derrière	derrière	P	prep	null
+dessous	dessous	P	prep	null
+dessus	dessus	P	prep	null
+devant	devant	P	prep	null
+devers	devers	P	prep	null
+dixit	dixit	P	prep	null
+du côté d'	du côté de	P	prep	null
+du côté de	du côté de	P	prep	null
+durant	durant	P	prep	null
+en	en	P	prep	null
+en âge d'	en âge de	P	prep	null
+en âge de	en âge de	P	prep	null
+en absence d'	en absence de	P	prep	null
+en absence de	en absence de	P	prep	null
+en accord avec	en accord avec	P	prep	null
+en amont d'	en amont de	P	prep	null
+en amont de	en amont de	P	prep	null
+en arrière d'	en arrière de	P	prep	null
+en arrière de	en arrière de	P	prep	null
+en aval d'	en aval de	P	prep	null
+en aval de	en aval de	P	prep	null
+en avant d'	en avant de	P	prep	null
+en avant de	en avant de	P	prep	null
+en cas d'	en cas de	P	prep	null
+en cas de	en cas de	P	prep	null
+en contrebas d'	en contrebas de	P	prep	null
+en contrebas de	en contrebas de	P	prep	null
+en début d'	en début de	P	prep	null
+en début de	en début de	P	prep	null
+en dépit d'	en dépit de	P	prep	null
+en dépit de	en dépit de	P	prep	null
+en deçà d'	en deçà de	P	prep	null
+en deçà de	en deçà de	P	prep	null
+en dedans d'	en dedans de	P	prep	null
+en dedans de	en dedans de	P	prep	null
+en dehors d'	en dehors de	P	prep	null
+en dehors de	en dehors de	P	prep	null
+en delà d'	en delà de	P	prep	null
+en delà de	en delà de	P	prep	null
+en-dessous	en dessous	P	prep	null
+en dessous	en dessous	P	prep	null
+en-dessous d'	en dessous de	P	prep	null
+en-dessous de	en dessous de	P	prep	null
+en dessous d'	en dessous de	P	prep	null
+en dessous de	en dessous de	P	prep	null
+en face d'	en face de	P	prep	null
+en face de	en face de	P	prep	null
+en fait d'	en fait de	P	prep	null
+en fait de	en fait de	P	prep	null
+en faveur d'	en faveur de	P	prep	null
+en faveur de	en faveur de	P	prep	null
+en fin d'	en fin de	P	prep	null
+en fin de	en fin de	P	prep	null
+en guise d'	en guise de	P	prep	null
+en guise de	en guise de	P	prep	null
+en haut d'	en haut de	P	prep	null
+en haut de	en haut de	P	prep	null
+en hommage à	en hommage à	P	prep	null
+en instance d'	en instance de	P	prep	null
+en instance de	en instance de	P	prep	null
+en manière d'	en manière de	P	prep	null
+en manière de	en manière de	P	prep	null
+en manque d'	en manque de	P	prep	null
+en manque de	en manque de	P	prep	null
+en milieu d'	en milieu de	P	prep	null
+en milieu de	en milieu de	P	prep	null
+en outre d'	en outre de	P	prep	null
+en outre de	en outre de	P	prep	null
+en perte d'	en perte de	P	prep	null
+en perte de	en perte de	P	prep	null
+en plein	en plein	P	prep	null
+en plein centre d'	en plein centre de	P	prep	null
+en plein centre de	en plein centre de	P	prep	null
+en plein dans	en plein dans	P	prep	null
+en plein sur	en plein sur	P	prep	null
+en plus d'	en plus de	P	prep	null
+en plus de	en plus de	P	prep	null
+en proie à	en proie à	P	prep	null
+en quête d'	en quête de	P	prep	null
+en quête de	en quête de	P	prep	null
+en règlement d'	en règlement de	P	prep	null
+en règlement de	en règlement de	P	prep	null
+en raison d'	en raison de	P	prep	null
+en raison de	en raison de	P	prep	null
+en regard d'	en regard de	P	prep	null
+en regard de	en regard de	P	prep	null
+en relation avec	en relation avec	P	prep	null
+en signe d'	en signe de	P	prep	null
+en signe de	en signe de	P	prep	null
+en tant qu'	en tant qu'	P	prep	null
+en tant que	en tant que	P	prep	null
+en terme d'	en terme de	P	prep	null
+en terme de	en terme de	P	prep	null
+en termes d'	en termes de	P	prep	null
+en termes de	en termes de	P	prep	null
+en train d'	en train de	P	prep	null
+en train de	en train de	P	prep	null
+en vertu d'	en vertu de	P	prep	null
+en vertu de	en vertu de	P	prep	null
+en voie d'	en voie de	P	prep	null
+en voie de	en voie de	P	prep	null
+en-deçà d'	en-deçà de	P	prep	null
+en-deçà de	en-deçà de	P	prep	null
+entre	entre	P	prep	null
+envers	envers	P	prep	null
+eu égard à	eu égard à	P	prep	null
+excepté	excepté	P	prep	null
+face à	face à	P	prep	null
+faute d'	faute de	P	prep	null
+faute de	faute de	P	prep	null
+grâce à	grâce à	P	prep	null
+hormis	hormis	P	prep	null
+hors	hors	P	prep	null
+hors d'	hors de	P	prep	null
+hors de	hors de	P	prep	null
+il y a	il y a	P	prep	null
+jusqu'à	jusqu'à	P	prep	null
+jusqu'	jusqu'	P	prep	null
+jusqu'	jusque	P	prep	null
+jusqu'en	jusqu'en	P	prep	null
+jusqu'où	jusqu'où	P	prep	null
+jusque	jusque	P	prep	null
+le long d'	le long de	P	prep	null
+le long de	le long de	P	prep	null
+loin d'	loin de	P	prep	null
+loin de	loin de	P	prep	null
+lors d'	lors de	P	prep	null
+lors de	lors de	P	prep	null
+malgré	malgré	P	prep	null
+moyennant	moyennant	P	prep	null
+non sans	non sans	P	prep	null
+nonobstant	nonobstant	P	prep	null
+outre	outre	P	prep	null
+par	par	P	prep	null
+par égard à	par égard à	P	prep	null
+par égard pour	par égard pour	P	prep	null
+par delà	par delà	P	prep	null
+par devers	par devers	P	prep	null
+par rapport à	par rapport à	P	prep	null
+par-delà	par-delà	P	prep	null
+par-dessous	par-dessous	P	prep	null
+par-dessus	par-dessus	P	prep	null
+par-devant	par-devant	P	prep	null
+parmi	parmi	P	prep	null
+passé	passé	P	prep	null
+pdt	pendant	P	prep	null
+pendant	pendant	P	prep	null
+peu d'	peu de	P	prep	null
+peu de	peu de	P	prep	null
+plein	plein	P	prep	null
+plein d'	plein de	P	prep	null
+plein de	plein de	P	prep	null
+plus d'	plus de	P	prep	null
+plus de	plus de	P	prep	null
+plutôt que d'	plutôt que de	P	prep	null
+plutôt que de	plutôt que de	P	prep	null
+pour	pour	P	prep	null
+pour cause d'	pour cause de	P	prep	null
+pour cause de	pour cause de	P	prep	null
+pour comble d'	pour comble de	P	prep	null
+pour comble de	pour comble de	P	prep	null
+près d'	près de	P	prep	null
+près de	près de	P	prep	null
+pr	pr	P	prep	null
+proche d'	proche de	P	prep	null
+proche de	proche de	P	prep	null
+question	question	P	prep	null
+s/s	sous	P	prep	null
+sans	sans	P	prep	null
+sauf	sauf	P	prep	null
+sauf à	sauf à	P	prep	null
+selon	selon	P	prep	null
+si près d'	si près de	P	prep	null
+si près de	si près de	P	prep	null
+sous	sous	P	prep	null
+sous l'effet d'	sous l'effet de	P	prep	null
+sous l'effet de	sous l'effet de	P	prep	null
+sous le coup d'	sous le coup de	P	prep	null
+sous le coup de	sous le coup de	P	prep	null
+suite à	suite à	P	prep	null
+suivant	suivant	P	prep	null
+sur	sur	P	prep	null
+tandis	tandis	P	prep	null
+tout au bout d'	tout au bout de	P	prep	null
+tout au bout de	tout au bout de	P	prep	null
+tout au long d'	tout au long de	P	prep	null
+tout au long de	tout au long de	P	prep	null
+tout en haut d'	tout en haut de	P	prep	null
+tout en haut de	tout en haut de	P	prep	null
+tout plein d'	tout plein de	P	prep	null
+tout plein de	tout plein de	P	prep	null
+tout près d'	tout près de	P	prep	null
+tout près de	tout près de	P	prep	null
+vers	vers	P	prep	null
+versus	versus	P	prep	null
+via	via	P	prep	null
+vis-à-vis	vis-à-vis	P	prep	null
+vis-à-vis d'	vis-à-vis de	P	prep	null
+vis-à-vis de	vis-à-vis de	P	prep	null
+vis à vis d'	vis-à-vis de	P	prep	null
+vis à vis de	vis-à-vis de	P	prep	null
+voici	voici	P	prep	null
+voilà	voilà	P	prep	null
+vs	versus	P	prep	null
+vs.	versus	P	prep	null
+vu	vu	P	prep	null
+y compris	y compris	P	prep	null

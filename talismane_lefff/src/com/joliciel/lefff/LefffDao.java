@@ -59,7 +59,7 @@ interface LefffDao {
 	public Word loadWord(String text);
 
 	public Predicate loadPredicate(String text);
-	public Map<String, List<LexicalEntry>> findEntryMap();
+	public Map<String, List<LexicalEntry>> findEntryMap(List<String> categories);
 	
     public void setLefffServiceInternal(LefffServiceInternal lefffServiceInternal);
 	

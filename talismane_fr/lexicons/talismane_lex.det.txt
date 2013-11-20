@@ -1,0 +1,169 @@
+assez d'	assez de	DET	det	null
+assez de	assez de	DET	det	null
+assez de la	assez de la	DET	det	mp
+assez des	assez des	DET	det	p
+assez du	assez du	DET	det	ms
+aucun	aucun	DET	det	ms
+aucune	aucune	DET	det	fs
+autant d'	autant de	DET	det	null
+autant de	autant de	DET	det	null
+autant de la	autant de la	DET	det	mp
+autant des	autant des	DET	det	p
+autant du	autant du	DET	det	ms
+bcp de	beaucoup de	DET	det	null
+beaucoup d'	beaucoup de	DET	det	null
+beaucoup de	beaucoup de	DET	det	null
+bien de	bien de	DET	det	null
+bien de la	bien de	DET	det	fs
+bien des	bien de	DET	det	p
+bien du	bien de	DET	det	ms
+bon nombre d'	bon nombre de	DET	det	p
+bon nombre de	bon nombre de	DET	det	p
+ce	ce	DET	det	ms
+certaines	certain	DET	det	fp
+certains	certain	DET	det	mp
+ces	ces	DET	det	p
+cet	cet	DET	det	ms
+cette	cette	DET	det	fs
+cette putain de	cette putain de	DET	det	fs
+chaque	chaque	DET	det	s
+combien d'	combien de	DET	det	null
+combien de	combien de	DET	det	null
+combien de la	combien de la	DET	det	mp
+combien des	combien des	DET	det	p
+combien du	combien du	DET	det	ms
+ct'	ct'	DET	det	null
+d'	d'	DET	det	p
+de	de	DET	det	p
+de drôle de	de drôle de	DET	det	p
+de la	de la	DET	det	fs
+de telles	de telles	DET	det	fp
+de tels	de tels	DET	det	mp
+des	des	DET	det	p
+des drôle de	des drôle de	DET	det	p
+des telles	des telles	DET	det	fp
+des tels	des tels	DET	det	mp
+dieu sait quel	dieu sait quel	DET	det	ms
+dieu sait quelle	dieu sait quelle	DET	det	fs
+dieu sait quelles	dieu sait quelles	DET	det	fp
+dieu sait quels	dieu sait quels	DET	det	mp
+différentes	différent	DET	det	fp
+différents	différent	DET	det	mp
+diverses	divers	DET	det	fp
+divers	divers	DET	det	mp
+du	du	DET	det	ms
+je ne sais quelles	je ne sais quel	DET	det	ms
+je ne sais quelle	je ne sais quel	DET	det	fs
+je ne sais quels	je ne sais quel	DET	det	fp
+je ne sais quel	je ne sais quel	DET	det	mp
+l'	l'	DET	det	s
+la	la	DET	det	fs
+la plupart de la	la plupart de la	DET	det	mp
+la plupart des	la plupart des	DET	det	p
+la plupart du	la plupart du	DET	det	ms
+ladite	ladite	DET	det	fs
+le	le	DET	det	ms
+le moins d'	le moins de	DET	det	null
+le moins de	le moins de	DET	det	null
+le plus d'	le plus de	DET	det	null
+le plus de	le plus de	DET	det	null
+ledit	ledit	DET	det	ms
+les	les	DET	det	p
+lesdites	lesdites	DET	det	fp
+lesdits	lesdits	DET	det	mp
+leur	leur	DET	det	s_P3p
+leurs	leurs	DET	det	p_P3p
+ma	ma	DET	det	fs_P1s
+maintes	maint	DET	det	fp
+mainte	maint	DET	det	fs
+maints	maint	DET	det	mp
+maint	maint	DET	det	ms
+mes	mes	DET	det	p_P1s
+moins d'	moins de	DET	det	null
+moins de	moins de	DET	det	null
+moins de la	moins de la	DET	det	mp
+moins des	moins des	DET	det	p
+moins du	moins du	DET	det	ms
+mon	mon	DET	det	s_P1s
+moultes	moult	DET	det	fp
+moulte	moult	DET	det	fs
+moults	moult	DET	det	mp
+moult	moult	DET	det	ms
+n'importe quel	n'importe quel	DET	det	ms
+n'importe quelle	n'importe quelle	DET	det	fs
+n'importe quelles	n'importe quelles	DET	det	fp
+n'importe quels	n'importe quels	DET	det	mp
+nombre d'	nombre de	DET	det	p
+nombre de	nombre de	DET	det	p
+nos	nos	DET	det	p_P1p
+notre	notre	DET	det	s_P1p
+nulle	nul	DET	det	fs
+nul	nul	DET	det	ms
+on ne sais quelles	on ne sais quel	DET	det	fp
+on ne sais quelle	on ne sais quel	DET	det	fs
+on ne sais quels	on ne sais quel	DET	det	mp
+on ne sais quel	on ne sais quel	DET	det	ms
+pas d'	pas de	DET	det	null
+pas de	pas de	DET	det	null
+pas mal d'	pas mal de	DET	det	null
+pas mal de	pas mal de	DET	det	null
+pas mal de la	pas mal de la	DET	det	mp
+pas mal des	pas mal des	DET	det	p
+pas mal du	pas mal du	DET	det	ms
+plein d'	plein de	DET	det	null
+plein de	plein de	DET	det	null
+plus d'	plus de	DET	det	null
+plus de	plus de	DET	det	null
+plus de la	plus de la	DET	det	mp
+plus des	plus des	DET	det	p
+plus du	plus du	DET	det	ms
+plusieurs	plusieurs	DET	det	p
+qq	quelque	DET	det	null
+qqes	quelque	DET	det	p
+qqs	quelque	DET	det	p
+quantité d'	quantité de	DET	det	p
+quantité de	quantité de	DET	det	p
+quelqu'	quelque	DET	det	s
+quelque	quelque	DET	det	s
+quelques	quelques	DET	det	p
+sa	sa	DET	det	fs_P3s
+ses	ses	DET	det	p_P3s
+son	son	DET	det	s_P3s
+ta	ta	DET	det	fs_P2s
+tant d'	tant de	DET	det	null
+tant de	tant de	DET	det	null
+tant de la	tant de la	DET	det	mp
+tant des	tant des	DET	det	p
+tant du	tant du	DET	det	ms
+tel	tel	DET	det	ms
+tel et tel	tel et tel	DET	det	ms
+tel ou tel	tel ou tel	DET	det	ms
+telle	telle	DET	det	fs
+telle et telle	telle et telle	DET	det	fs
+telle ou telle	telle ou telle	DET	det	fs
+telles	telles	DET	det	fp
+telles et telles	telles et telles	DET	det	fp
+telles ou telles	telles ou telles	DET	det	fp
+tels	tels	DET	det	mp
+tels et tels	tels et tels	DET	det	mp
+tels ou tels	tels ou tels	DET	det	mp
+tes	tes	DET	det	p_P2s
+ton	ton	DET	det	s_P2s
+tous	tous	DET	det	mp
+tout	tout	DET	det	ms
+toute	toute	DET	det	fs
+toutes	toutes	DET	det	fp
+un	un	DET	det	ms
+un drôle de	un drôle de	DET	det	ms
+un peu d'	un peu de	DET	det	null
+un peu de	un peu de	DET	det	null
+un peu de la	un peu de la	DET	det	mp
+un peu des	un peu des	DET	det	p
+un peu du	un peu du	DET	det	ms
+un tel	un tel	DET	det	ms
+une	une	DET	det	fs
+une drôle de	une drôle de	DET	det	fs
+une telle	une telle	DET	det	fs
+vos	vos	DET	det	p_P2p
+vot'	votre	DET	det	s_P2p
+votre	votre	DET	det	s_P2p

@@ -137,7 +137,7 @@ public class TalismaneFrench extends TalismaneConfig {
   				
   				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
   				config.setSentenceCorpusReader(sentenceCorpusReader);
-	  		} else if (corpusReaderType.equals("conll")) {
+	  		} else if (corpusReaderType.equals("conll") || corpusReaderType.equals("spmrl")) {
     			File inputFile = new File(config.getInFilePath());
     			
     			ParserRegexBasedCorpusReader corpusReader = config.getParserService().getRegexBasedCorpusReader(inputFile, config.getInputCharset());
@@ -148,6 +148,10 @@ public class TalismaneFrench extends TalismaneConfig {
 				config.setPosTagCorpusReader(corpusReader);
 				config.setTokenCorpusReader(corpusReader);
 				
+				if (corpusReaderType.equals("spmrl")) {
+					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
+				}
+ 				
 				if (config.getCommand().equals(Command.compare)) {
 					File evaluationFile = new File(config.getEvaluationFilePath());
 	    			ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(evaluationFile, config.getInputCharset());
@@ -193,7 +197,7 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public Scanner getDefaultPosTagSetScanner() {
-		InputStream posTagInputStream = getInputStreamFromResource("CrabbeCanditoTagsetOriginal.txt");
+		InputStream posTagInputStream = getInputStreamFromResource("talismaneTagset.txt");
 		return new Scanner(posTagInputStream, "UTF-8");
 	}
 	
@@ -220,22 +224,42 @@ public class TalismaneFrench extends TalismaneConfig {
 			
 			LexiconDeserializer deserializer = new LexiconDeserializer();
 			
-			String lexiconPath = "/com/joliciel/talismane/fr/resources/lefff-2.1-additions.obj";
+			String lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.additions.obj";
 			ObjectInputStream ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
 			PosTaggerLexicon lexicon = deserializer.deserializeLexiconFile(ois);
 			lexiconChain.addLexicon(lexicon);
 	
-			lexiconPath = "/com/joliciel/talismane/fr/resources/lefff-2.1-specialCats-ftbDep.obj";
+			lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.agglutinates.obj";
 			ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
 			lexicon = deserializer.deserializeLexiconFile(ois);
 			lexiconChain.addLexicon(lexicon);
 			
-			lexiconPath = "/com/joliciel/talismane/fr/resources/lefff-2.1-car-CC.obj";
+			lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.conj.obj";
+			ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
+			lexicon = deserializer.deserializeLexiconFile(ois);
+			lexiconChain.addLexicon(lexicon);
+			
+			lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.det.obj";
+			ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
+			lexicon = deserializer.deserializeLexiconFile(ois);
+			lexiconChain.addLexicon(lexicon);
+			
+			lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.ponct.obj";
+			ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
+			lexicon = deserializer.deserializeLexiconFile(ois);
+			lexiconChain.addLexicon(lexicon);
+			
+			lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.prep.obj";
+			ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
+			lexicon = deserializer.deserializeLexiconFile(ois);
+			lexiconChain.addLexicon(lexicon);
+			
+			lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.pro.obj";
 			ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
 			lexicon = deserializer.deserializeLexiconFile(ois);
 			lexiconChain.addLexicon(lexicon);
 	
-			lexiconPath = "/com/joliciel/talismane/fr/resources/lefff.zip";
+			lexiconPath = "/com/joliciel/talismane/fr/resources/lefffOpenTalismane.zip";
 			ZipInputStream zis = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
 			lexicon = deserializer.deserializeLexiconFile(zis);
 			lexiconChain.addLexicon(lexicon);
@@ -262,13 +286,13 @@ public class TalismaneFrench extends TalismaneConfig {
 
 	@Override
 	public ZipInputStream getDefaultPosTaggerModelStream() {
-		String posTaggerModelName = "postag_ftbDepTrain_maxent_i200_cut10.zip";
+		String posTaggerModelName = "postag_spmrlAll_maxent_i200_cut10_v2.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(posTaggerModelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultParserModelStream() {
-		String parserModelName = "parser_ftbDepTrain_maxent_i100_cut7.zip";
+		String parserModelName = "parser_spmrl_all_maxent_i100_cutoff7_v1.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 
@@ -305,7 +329,7 @@ public class TalismaneFrench extends TalismaneConfig {
 	@Override
 	public TransitionSystem getDefaultTransitionSystem() {
 		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
-		InputStream inputStream = getInputStreamFromResource("DependencyLabels.txt");
+		InputStream inputStream = getInputStreamFromResource("talismaneDependencyLabels.txt");
 		Scanner scanner = new Scanner(inputStream, "UTF-8");
 		List<String> dependencyLabels = new ArrayList<String>();
 		while (scanner.hasNextLine()) {

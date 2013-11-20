@@ -366,8 +366,15 @@ class LefffServiceImpl implements LefffServiceInternal {
 
 	@Override
 	public Map<String, List<LexicalEntry>> findEntryMap() {
-		return this.lefffDao.findEntryMap();
+		return this.lefffDao.findEntryMap(null);
 	}
+	
+
+	@Override
+	public Map<String, List<LexicalEntry>> findEntryMap(List<String> categories) {
+		return this.lefffDao.findEntryMap(categories);
+	}
+
 
 
 	@Override

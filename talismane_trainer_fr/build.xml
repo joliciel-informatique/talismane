@@ -29,6 +29,7 @@
 				<include name="talismane-lefff-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 				<include name="talismane-ftbDep-${talismane.version}.jar" />
+				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 			<!-- build output path -->
 			<pathelement location="${classes}"/>
@@ -44,6 +45,7 @@
 				<include name="talismane-lefff-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 				<include name="talismane-ftbDep-${talismane.version}.jar" />
+				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 		</path>
 		<mkdir dir="${build}" />
@@ -93,18 +95,6 @@
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
-		<zip destfile="${dist}/${project}-${talismane.version}.zip">
-			<fileset file="${dist}/${project}-${talismane.version}.jar" />
-			<fileset dir="${dist}">
-				<include name="lib/*.jar" />
-				<include name="talismane-utils-${talismane.version}.jar" />
-				<include name="talismane-machineLearning-${talismane.version}.jar" />
-				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-ftb-${talismane.version}.jar" />
-				<include name="talismane-ftbDep-${talismane.version}.jar" />
-			</fileset>
-		</zip>
 	</target>
 		
 	<target name="one-jar" depends="jar">
@@ -128,6 +118,7 @@
 					<include name="talismane-lefff-${talismane.version}.jar" />
 					<include name="talismane-ftb-${talismane.version}.jar" />
 					<include name="talismane-ftbDep-${talismane.version}.jar" />
+					<include name="talismane-fr-${talismane.version}.jar" />
 				</fileset>
             </lib>
         </one-jar>

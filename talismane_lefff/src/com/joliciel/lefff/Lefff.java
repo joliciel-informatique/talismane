@@ -19,6 +19,7 @@
 package com.joliciel.lefff;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +52,7 @@ public class Lefff {
         String posTagSetPath = "";
         String posTagMapPath = "";
         String word = null;
+        List<String> categories = null;
         int startLine = -1;
         int stopLine = -1;
         
@@ -77,6 +79,13 @@ public class Lefff {
 				posTagMapPath = argValue;
 			else if (argName.equals("word"))
 				word = argValue;
+			else if (argName.equals("categories")) {
+				String[] parts = argValue.split(",");
+				categories = new ArrayList<String>();
+				for (String part : parts) {
+					categories.add(part);
+				}
+			}
 			else
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
@@ -119,7 +128,7 @@ public class Lefff {
 			posTagMappers.put(posTagSet, posTagMapper);
 			
         	LefffMemoryLoader loader = new LefffMemoryLoader();
-        	LefffMemoryBase memoryBase = loader.loadMemoryBaseFromDatabase(lefffService, posTagMappers);
+        	LefffMemoryBase memoryBase = loader.loadMemoryBaseFromDatabase(lefffService, posTagMappers, categories);
         	File memoryBaseFile = new File(memoryBaseFilePath);
         	memoryBaseFile.delete();
         	loader.serializeMemoryBase(memoryBase, memoryBaseFile);

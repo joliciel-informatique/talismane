@@ -58,6 +58,7 @@ import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -89,6 +90,7 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagComparator;
 import com.joliciel.talismane.posTagger.PosTagEvaluationFScoreCalculator;
+import com.joliciel.talismane.posTagger.PosTagEvaluationLexicalCoverageTester;
 import com.joliciel.talismane.posTagger.PosTagEvaluationSentenceWriter;
 import com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
@@ -220,9 +222,9 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private String templatePath = null;
 	private String evaluationFilePath = null;
 	private String sentenceReaderPath = null;
-	private String externalResourcePath = null;
 	
 	private String lexiconDirPath = null;
+	private boolean replaceLexicon = false;
 
 	private String sentenceTemplateName = "sentence_template.ftl";
 	private String tokeniserTemplateName = "tokeniser_template.ftl";
@@ -251,6 +253,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private List<TokenSequenceFilter> posTaggerPreProcessingFilters = null;
 	private boolean includeDistanceFScores = false;
 	private boolean predictTransitions = false;
+	private boolean posTaggerRulesReplace = false;
+	private boolean parserRulesReplace = false;
 	
 	private MarkerFilterType newlineMarker = MarkerFilterType.SENTENCE_BREAK;
 	private int blockSize = 1000;
@@ -284,6 +288,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	
 	private File performanceConfigFile;
 	private ParseComparisonStrategyType parseComparisonStrategyType;
+	private boolean includeLexiconCoverage = false;
 	
 	public TalismaneConfig(String[] args) throws Exception {
 		TalismaneSession.setImplementation(this);
@@ -344,7 +349,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		String builtInTemplate = null;
 		
 		String posTagSetPath = null;
-
+		String externalResourcePath = null;
 		String transitionSystemStr = null;
 		
 		for (Entry<String,String> arg : args.entrySet()) {
@@ -435,11 +440,21 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				evaluationPatternFilePath = argValue;
 			else if (argName.equals("evaluationPattern"))
 				evaluationRegex = argValue;
-			else if (argName.equals("posTaggerRules"))
-				posTaggerRuleFilePath = argValue;
-			else if (argName.equals("parserRules"))
-				parserRuleFilePath = argValue;
-			else if (argName.equals("posTagSet"))
+			else if (argName.equals("posTaggerRules")) {
+				if (argValue.startsWith("replace:")) {
+					posTaggerRulesReplace = true;
+					posTaggerRuleFilePath = argValue.substring("replace:".length());
+				} else {
+					posTaggerRuleFilePath = argValue;
+				}
+			}else if (argName.equals("parserRules")) {
+				if (argValue.startsWith("replace:")) {
+					parserRulesReplace = true;
+					parserRuleFilePath = argValue.substring("replace:".length());
+				} else {
+					parserRuleFilePath = argValue;
+				}
+			} else if (argName.equals("posTagSet"))
 				posTagSetPath = argValue;
 			else if (argName.equals("textFilters"))
 				textFiltersPath = argValue;
@@ -497,9 +512,14 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				dynamiseFeatures = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("predictTransitions"))
 				predictTransitions = argValue.equalsIgnoreCase("true");
-			else if (argName.equals("lexiconDir")) 
-				lexiconDirPath = argValue;
-			else if (argName.equals("perceptronScoring")) {
+			else if (argName.equals("lexiconDir")) {
+				if (argValue.startsWith("replace:")) {
+					replaceLexicon = true;
+					lexiconDirPath = argValue.substring("replace:".length());
+				} else {
+					lexiconDirPath = argValue;
+				}
+			} else if (argName.equals("perceptronScoring")) {
 				PerceptronScoring perceptronScoring = PerceptronScoring.valueOf(argValue);
 				MachineLearningSession.setPerceptronScoring(perceptronScoring);
 			} else if (argName.equals("parseComparisonStrategy")) {
@@ -521,6 +541,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				testWords = new HashSet<String>();
 				for (String part : parts)
 					testWords.add(part);
+			} else if (argName.equals("includeLexiconCoverage")) {
+				includeLexiconCoverage = argValue.equalsIgnoreCase("true");
 			} else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -604,6 +626,22 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			TalismaneSession.setTransitionSystem(transitionSystem);
 		}
 
+		if (externalResourcePath!=null) {
+			ExternalResourceFinder externalResourceFinder = this.getMachineLearningService().getExternalResourceFinder();
+			File externalResourceFile = new File (externalResourcePath);
+			externalResourceFinder.addExternalResources(externalResourceFile);
+			
+			ExternalResourceFinder parserResourceFinder = this.getParserFeatureService().getExternalResourceFinder();
+			ExternalResourceFinder posTaggerResourceFinder = this.getPosTaggerFeatureService().getExternalResourceFinder();
+			ExternalResourceFinder tokeniserResourceFinder = this.getTokenFeatureService().getExternalResourceFinder();
+			ExternalResourceFinder sentenceResourceFinder = this.getSentenceDetectorFeatureService().getExternalResourceFinder();
+			for (ExternalResource<?> externalResource : externalResourceFinder.getExternalResources()) {
+				parserResourceFinder.addExternalResource(externalResource);
+				posTaggerResourceFinder.addExternalResource(externalResource);
+				tokeniserResourceFinder.addExternalResource(externalResource);
+				sentenceResourceFinder.addExternalResource(externalResource);
+			}
+		}
 	}
 
 	/**
@@ -849,6 +887,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				for (int i=0; i<=1; i++) {
 					Scanner rulesScanner = null;
 					if (i==0) {
+						if (posTaggerRulesReplace)
+							continue;
 						rulesScanner = this.getDefaultPosTaggerRulesScanner();
 					} else {
 						if (posTaggerRuleFilePath!=null && posTaggerRuleFilePath.length()>0) {
@@ -893,6 +933,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					for (int i=0; i<=1; i++) {
 						Scanner rulesScanner = null;
 						if (i==0) {
+							if (parserRulesReplace)
+								continue;
 							rulesScanner = this.getDefaultParserRulesScanner();
 						} else {
 							if (parserRuleFilePath!=null && parserRuleFilePath.length()>0) {
@@ -1244,20 +1286,12 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-	}
-	
+	}	
 
 	public Set<PosTaggerFeature<?>> getPosTaggerFeatures() {
 		if (posTaggerFeatures==null) {
 			try {
 				if (posTaggerFeaturePath!=null) {
-					ExternalResourceFinder externalResourceFinder = null;
-					if (externalResourcePath!=null) {
-						externalResourceFinder = this.getPosTaggerFeatureService().getExternalResourceFinder();
-						File externalResourceFile = new File (externalResourcePath);
-						externalResourceFinder.addExternalResources(externalResourceFile);
-					}
-					
 					LOG.debug("Found setting to change pos-tagger features");
 					File posTaggerFeatureFile = new File(posTaggerFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerFeatureFile), this.getInputCharset())));
@@ -1395,13 +1429,6 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 		if (parserFeatures==null) {
 			try {
 				if (parserFeaturePath!=null) {
-					ExternalResourceFinder externalResourceFinder = null;
-					if (externalResourcePath!=null) {
-						externalResourceFinder = this.getParserFeatureService().getExternalResourceFinder();
-						File externalResourceFile = new File (externalResourcePath);
-						externalResourceFinder.addExternalResources(externalResourceFile);
-					}
-					
 					LOG.debug("Found setting to change parser features");
 					File parserFeatureFile = new File(parserFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(parserFeatureFile), this.getInputCharset())));
@@ -1535,7 +1562,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 					constrainer.setFile(outFile);
 					parseConfigurationProcessor = constrainer;
 				} else if (option.equals(Option.parseFeatureTester)) {
-					File file = new File(this.getOutDir(), this.getBaseName() + suffix + "_featureTest.txt");
+					File file = new File(this.getOutDir(), this.getBaseName() + "_featureTest.txt");
 					parseConfigurationProcessor = this.getParserService().getParseFeatureTester(this.getParserFeatures(), file);
 				} else {
 					throw new TalismaneException("Unknown option: " + option.toString());
@@ -2124,7 +2151,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	public PosTaggerEvaluator getPosTaggerEvaluator() {
 		try {
 			if (posTaggerEvaluator==null) {				
-				posTaggerEvaluator = posTaggerService.getPosTaggerEvaluator(this.getPosTagger());
+				posTaggerEvaluator = this.getPosTaggerService().getPosTaggerEvaluator(this.getPosTagger());
 				
 				if (startModule.equals(Module.Tokeniser)) {
 					posTaggerEvaluator.setTokeniser(this.getTokeniser());
@@ -2164,6 +2191,12 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),"UTF8"));
 				PosTaggerGuessTemplateWriter templateWriter = new PosTaggerGuessTemplateWriter(freemakerFileWriter, templateReader);
 				posTaggerEvaluator.addObserver(templateWriter);
+				
+				if (includeLexiconCoverage) {
+					File lexiconCoverageFile = new File(this.getOutDir(), this.getBaseName() + ".unknown.csv");
+					PosTagEvaluationLexicalCoverageTester lexiconCoverageTester = new PosTagEvaluationLexicalCoverageTester(lexiconCoverageFile);
+					posTaggerEvaluator.addObserver(lexiconCoverageTester);
+				}
 				
 				posTaggerEvaluator.setPropagateBeam(propagateBeam);
 				posTaggerEvaluator.setSentenceCount(maxSentenceCount);
@@ -2506,14 +2539,21 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	}
 	
 	public PosTaggerLexicon getLexicon() {
-		PosTaggerLexicon lexicon = this.getDefaultLexicon();
+		PosTaggerLexicon lexicon = null;
+		
 		if (this.lexiconDirPath!=null) {
 			LexiconChain lexiconChain = null;
-			if (lexicon instanceof LexiconChain) {
-				lexiconChain = (LexiconChain) lexicon;
-			} else {
+			
+			if (replaceLexicon) {
 				lexiconChain = new LexiconChain();
-				lexiconChain.addLexicon(lexicon);
+			} else {
+				lexicon = this.getDefaultLexicon();
+				if (lexicon instanceof LexiconChain) {
+					lexiconChain = (LexiconChain) lexicon;
+				} else {
+					lexiconChain = new LexiconChain();
+					lexiconChain.addLexicon(lexicon);
+				}
 			}
 			File lexiconDir = new File(lexiconDirPath);
 			LexiconDeserializer lexiconDeserializer = new LexiconDeserializer();
@@ -2523,6 +2563,8 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			}
 			
 			lexicon = lexiconChain;
+		} else {
+			lexicon = this.getDefaultLexicon();
 		}
 		return lexicon;
 	}

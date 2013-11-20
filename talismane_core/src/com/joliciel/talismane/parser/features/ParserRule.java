@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import java.util.Set;
+
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.parser.Transition;
 
@@ -42,6 +44,12 @@ public interface ParserRule {
 	 * @return
 	 */
 	public Transition getTransition();
+	
+	/**
+	 * The transitions to eliminate if the condition evaluates to true.
+	 * @return
+	 */
+	public Set<Transition> getTransitions();
 	
 	/**
 	 * Is this rule a negative rule or not.

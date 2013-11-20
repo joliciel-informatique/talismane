@@ -26,7 +26,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Create a dependency where Stack[0] depends on Buffer[0], and pop Stack[0].
- * Example: in "the fish", create a "determinant" dependency (fish,the,det), and pop "the".
+ * Example: in "the fish", create a "determinant" dependency det(fish,the), and pop "the".
  * @author Assaf Urieli
  *
  */

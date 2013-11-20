@@ -30,6 +30,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -43,13 +44,19 @@ public class LexiconDeserializer {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LexiconDeserializer.class);
 	
 	public List<PosTaggerLexicon> deserializeLexicons(File lexiconDir) {
+		if (!lexiconDir.exists())
+			throw new TalismaneException("Lexicon dir does not exist: " + lexiconDir.getPath());
 		File[] inFiles = lexiconDir.listFiles();
+		
 		List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
-		for (File inFile : inFiles) {
-			PosTaggerLexicon lexicon = this.deserializeLexiconFile(inFile);
-			if (lexicon.getPosTagSet()==null)
-				lexicon.setPosTagSet(TalismaneSession.getPosTagSet());
-			lexicons.add(lexicon);
+		
+		if (inFiles!=null) {
+			for (File inFile : inFiles) {
+				PosTaggerLexicon lexicon = this.deserializeLexiconFile(inFile);
+				if (lexicon.getPosTagSet()==null)
+					lexicon.setPosTagSet(TalismaneSession.getPosTagSet());
+				lexicons.add(lexicon);
+			}
 		}
 		return lexicons;
 	}

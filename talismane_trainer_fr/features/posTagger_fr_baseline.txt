@@ -1,3 +1,4 @@
+IfThenElseNull(X,Y)	NullIf(Not(X),Y)
 LemmaOrWord(X)	IfThenElse(IsNull(Lemma(X)),LexicalForm(X),Lemma(X))
 
 # one token features (custom)
@@ -30,8 +31,8 @@ P0	LexiconPosTagsForString(IfThenElse(UnknownWord&NullToFalse(ContainsSpace),Fir
 Pf1	LexiconPosTags(Offset(1))
 Pf2()	LexiconPosTags(Offset(2))
 Lb1	LemmaOrWord(History(-1))
-Lb2()	LemmaOrWord(History(-1))
-L0	P0 || LemmaForPosTag(LexiconPosTags())
+Lb2()	LemmaOrWord(History(-2))
+L0	P0 || LemmaForPosTag(P0)
 Lf1	Pf1 || LemmaForPosTag(Offset(1), LexiconPosTags(Offset(1)))
 Lf2()	Pf2 || LemmaForPosTag(Offset(2), LexiconPosTags(Offset(2)))
 A0	LexiconAllPosTags()
@@ -39,8 +40,11 @@ Af1	LexiconAllPosTags(Offset(1))
 Af2()	LexiconAllPosTags(Offset(2))
 U0	ToString(OnlyTrue(UnknownWord()))
 Uf1	ToString(OnlyTrue(UnknownWord(Offset(1))))
+1stb1()	ToString(OnlyTrue(FirstWordInSentence(Offset(-1))))
 
 # two token features
+1sb1_Pb1	1stb1 || Pb1
+1sb1_Lb1	1stb1 || Lb1
 Pb2_Pb1	Pb2 || Pb1
 Pb2_Lb1	Pb2 || Lb1
 Lb2_Lb1	Lb2 || Lb1
@@ -65,6 +69,8 @@ U0_Af1	U0 || Af1
 U0_Uf1	U0 || Uf1
 
 # three token features
+1stb1_Pb1_W0	1stb1 || Pb1 || W0
+1stb1_Lb1_W0	1stb1 || Lb1 || W0
 Pb2_Pb1_W0	Pb2 || Pb1 || W0
 Pb2_Lb1_W0	Pb2 || Lb1 || W0
 Lb2_Lb1_W0	Lb2 || Lb1 || W0

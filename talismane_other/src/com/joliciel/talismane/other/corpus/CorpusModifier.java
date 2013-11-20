@@ -56,12 +56,14 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 			if (!command.startsWith("#")) {
 				ModifyCommand modifyCommand = new ModifyCommand();
 				String[] parts = command.split("\t");
-				modifyCommand.governor = parts[0];
-				modifyCommand.dependent = parts[1];
-				modifyCommand.label = parts[2];
-				modifyCommand.command = ModifyCommandType.valueOf(parts[3]);
+				modifyCommand.govPosTag = parts[0];
+				modifyCommand.governor = parts[1];
+				modifyCommand.depPosTag = parts[2];
+				modifyCommand.dependent = parts[3];
+				modifyCommand.label = parts[4];
+				modifyCommand.command = ModifyCommandType.valueOf(parts[5]);
 				if (modifyCommand.command==ModifyCommandType.Replace) {
-					modifyCommand.newLabel = parts[4];
+					modifyCommand.newLabel = parts[6];
 				}
 				commands.add(modifyCommand);
 			}
@@ -75,10 +77,16 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 		for (DependencyArc arc : arcs) {
 			for (ModifyCommand command : commands) {
 				boolean applyCommand=true;
-				if (!command.governor.equals(WILDCARD)&&!command.governor.equals(arc.getHead().getTag().getCode())) {
+				if (!command.govPosTag.equals(WILDCARD)&&!command.govPosTag.equals(arc.getHead().getTag().getCode())) {
 					applyCommand = false;
 				}
-				if (!command.dependent.equals(WILDCARD)&&!command.dependent.equals(arc.getDependent().getTag().getCode())) {
+				if (!command.governor.equals(WILDCARD)&&!command.governor.equals(arc.getHead().getToken().getOriginalText().toLowerCase())) {
+					applyCommand = false;
+				}
+				if (!command.depPosTag.equals(WILDCARD)&&!command.depPosTag.equals(arc.getDependent().getTag().getCode())) {
+					applyCommand = false;
+				}
+				if (!command.dependent.equals(WILDCARD)&&!command.dependent.equals(arc.getDependent().getToken().getOriginalText().toLowerCase())) {
 					applyCommand = false;
 				}
 				if (!command.label.equals(WILDCARD)&&!command.label.equals(arc.getLabel())) {
@@ -104,6 +112,8 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 	private static final class ModifyCommand {
 		public String governor;
 		public String dependent;
+		public String govPosTag;
+		public String depPosTag;
 		public String label;
 		public ModifyCommandType command;
 		public String newLabel;

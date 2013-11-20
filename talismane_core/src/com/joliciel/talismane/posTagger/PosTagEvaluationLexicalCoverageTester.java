@@ -1,0 +1,125 @@
+///////////////////////////////////////////////////////////////////////////////
+//Copyright (C) 2013 Assaf Urieli
+//
+//This file is part of Talismane.
+//
+//Talismane is free software: you can redistribute it and/or modify
+//it under the terms of the GNU Affero General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//Talismane is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU Affero General Public License for more details.
+//
+//You should have received a copy of the GNU Affero General Public License
+//along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
+//////////////////////////////////////////////////////////////////////////////
+package com.joliciel.talismane.posTagger;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.tokeniser.TaggedToken;
+import com.joliciel.talismane.utils.CSVFormatter;
+import com.joliciel.talismane.utils.LogUtils;
+
+/**
+ * An observer for testing lexicon coverage of the corpus.
+ * @author Assaf Urieli
+ *
+ */
+public class PosTagEvaluationLexicalCoverageTester implements
+		PosTagEvaluationObserver {
+	private static final Log LOG = LogFactory.getLog(PosTagEvaluationLexicalCoverageTester.class);
+	private static final CSVFormatter CSV = new CSVFormatter();
+	private FScoreCalculator<String> fscoreUnknownInLexicon = new FScoreCalculator<String>();
+
+	Map<String,Integer> unknownWords = new TreeMap<String,Integer>();
+	Set<String> knownWords = new HashSet<String>();
+	Set<String> closedCategoryMismatches = new HashSet<String>();
+
+	int knownWordCount;
+	int unknownWordCount;
+	
+	private File fScoreFile;
+	
+	public PosTagEvaluationLexicalCoverageTester() { }
+	
+	public PosTagEvaluationLexicalCoverageTester(File fScoreFile) {
+		super();
+		this.fScoreFile = fScoreFile;
+	}
+	
+	@Override
+	public void onNextPosTagSequence(PosTagSequence realSequence,
+			List<PosTagSequence> guessedSequences) {
+		PosTagSequence guessedSequence = guessedSequences.get(0);
+		
+		for (int i = 0; i<realSequence.size(); i++) {
+			TaggedToken<PosTag> realToken = realSequence.get(i);
+			TaggedToken<PosTag> testToken = guessedSequence.get(i);
+			
+			boolean tokenUnknown = realToken.getToken().getPossiblePosTags()!=null&&realToken.getToken().getPossiblePosTags().size()==0;
+			if (tokenUnknown) {
+				fscoreUnknownInLexicon.increment(realToken.getTag().getCode(), testToken.getTag().getCode());
+				unknownWordCount++;
+				Integer countObj = unknownWords.get(realToken.getTag() + "|" + realToken.getToken().getText());
+				int count = countObj==null ? 0 : countObj.intValue();
+				unknownWords.put(realToken.getTag() + "|" + realToken.getToken().getText(), count+1);
+			} else {
+				knownWordCount++;
+				knownWords.add(realToken.getToken().getText());
+			}
+			
+			if (realToken.getTag().getOpenClassIndicator()==PosTagOpenClassIndicator.CLOSED
+					&& !realToken.getToken().getPossiblePosTags().contains(realToken.getTag())) {
+				closedCategoryMismatches.add(realToken.getTag() + "|" + realToken.getToken().getText());
+			}
+		}
+	}
+
+	@Override
+	public void onEvaluationComplete() {
+		try {
+			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fScoreFile), "UTF-8"));
+			fscoreUnknownInLexicon.writeScoresToCSV(writer);
+			
+			writer.write("\n");
+			writer.write(CSV.format("Known") + CSV.format(knownWordCount) + CSV.format((double) knownWordCount / (double)(knownWordCount + unknownWordCount) * 100.0 ) + "\n");
+			writer.write(CSV.format("Unknown") + CSV.format(unknownWordCount) + CSV.format((double) unknownWordCount / (double)(knownWordCount + unknownWordCount) * 100.0 ) + "\n");
+			writer.write(CSV.format("Unique known") + CSV.format(knownWords.size()) + CSV.format((double) knownWords.size() / (double)(knownWords.size() + unknownWords.size()) * 100.0 ) + "\n");
+			writer.write(CSV.format("Unique unknown") + CSV.format(unknownWords.size()) + CSV.format((double) unknownWords.size() / (double)(knownWords.size() + unknownWords.size()) * 100.0 ) + "\n");
+			writer.write("\n");
+			writer.write("Missing closed tags\n");
+			for (String closedTagMismatch : closedCategoryMismatches) {
+				writer.write(CSV.format(closedTagMismatch) + "\n");
+			}
+			writer.write("\n");
+			writer.write("Unknown words\n");
+			for (String unknownWord : unknownWords.keySet()) {
+				writer.write(CSV.format(unknownWord) + CSV.format(unknownWords.get(unknownWord)) + "\n");
+			}
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+
+}

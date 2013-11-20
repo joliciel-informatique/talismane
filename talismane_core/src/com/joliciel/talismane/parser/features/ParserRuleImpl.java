@@ -18,12 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import java.util.Set;
+
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.parser.Transition;
 
 final class ParserRuleImpl implements ParserRule {
 	private BooleanFeature<ParseConfigurationWrapper> condition;
 	private Transition transition;
+	private Set<Transition> transitions;
 	private boolean negative;
 	
 	public ParserRuleImpl(BooleanFeature<ParseConfigurationWrapper> condition,
@@ -32,6 +35,16 @@ final class ParserRuleImpl implements ParserRule {
 		this.condition = condition;
 		this.transition = transition;
 	}
+	
+	
+	public ParserRuleImpl(BooleanFeature<ParseConfigurationWrapper> condition,
+			Set<Transition> transitions) {
+		super();
+		this.condition = condition;
+		this.transitions = transitions;
+		this.transition = transitions.iterator().next();
+	}
+	
 	public BooleanFeature<ParseConfigurationWrapper> getCondition() {
 		return condition;
 	}
@@ -45,5 +58,17 @@ final class ParserRuleImpl implements ParserRule {
 	public void setNegative(boolean negative) {
 		this.negative = negative;
 	}
+	@Override
+	public String toString() {
+		return "ParserRule: " + (negative ? "!" : "") + this.transition.getCode() + ": " + this.condition.getName();
+	}
+	
+	public Set<Transition> getTransitions() {
+		return transitions;
+	}
+	public void setTransitions(Set<Transition> transitions) {
+		this.transitions = transitions;
+	}
+	
 
 }

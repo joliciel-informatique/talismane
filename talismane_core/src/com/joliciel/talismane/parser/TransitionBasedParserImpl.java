@@ -54,8 +54,9 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class TransitionBasedParserImpl implements TransitionBasedParser {
 	private static final Log LOG = LogFactory.getLog(TransitionBasedParserImpl.class);
+	private static final Log LOG_FEATURES = LogFactory.getLog(TransitionBasedParserImpl.class.getName() + ".features");
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TransitionBasedParserImpl.class);
-	private static final double MIN_PROB_TO_STORE = 0.001;
+	private static final double MIN_PROB_TO_STORE = 0.0001;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private int beamWidth = 1;
 	private boolean earlyStop = false;
@@ -191,7 +192,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						try {
 							for (ParserRule rule : parserPositiveRules) {
 								if (LOG.isTraceEnabled()) {
-									LOG.trace("Checking rule: " + rule.getCondition().getName());
+									LOG.trace("Checking rule: " + rule.toString());
 								}
 								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
@@ -227,9 +228,9 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 									MONITOR.endTask(feature.getName());
 								}
 							}
-							if (LOG.isTraceEnabled()) {
+							if (LOG_FEATURES.isTraceEnabled()) {
 								for (FeatureResult<?> featureResult : parseFeatureResults) {
-									LOG.trace(featureResult.toString());
+									LOG_FEATURES.trace(featureResult.toString());
 								}
 							}
 						} finally {
@@ -262,14 +263,15 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 							try {
 								for (ParserRule rule : parserNegativeRules) {
 									if (LOG.isTraceEnabled()) {
-										LOG.trace("Checking negative rule: " + rule.getCondition().getName());
+										LOG.trace("Checking negative rule: " + rule.toString());
 									}
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 									FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
 									if (ruleResult!=null && ruleResult.getOutcome()) {
-										eliminatedTransitions.add(rule.getTransition());
+										eliminatedTransitions.addAll(rule.getTransitions());
 										if (LOG.isTraceEnabled()) {
-											LOG.trace("Rule applies. Eliminating transition: " + rule.getTransition().getCode());
+											for (Transition eliminatedTransition : rule.getTransitions())
+												LOG.trace("Rule applies. Eliminating transition: " + eliminatedTransition.getCode());
 										}
 									}
 								}
