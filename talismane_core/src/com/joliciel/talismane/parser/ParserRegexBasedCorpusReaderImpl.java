@@ -698,7 +698,9 @@ public class ParserRegexBasedCorpusReaderImpl implements
 				return true;
 			
 			if (this.scanner==null && currentFileIndex==0) {
-				if (corpusLocation.isDirectory()) {
+				if (corpusLocation==null) {
+					return false;
+				} else if (corpusLocation.isDirectory()) {
 					File[] theFiles = corpusLocation.listFiles();
 					Arrays.sort(theFiles);
 					files = new ArrayList<File>();
@@ -721,8 +723,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 					return true;
 				
 				needsToReturnBlankLine = true;
-				
 				this.scanner=null;
+				
 				if (files!=null) {
 					if (currentFileIndex<files.size()) {
 						Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(files.get(currentFileIndex)), charset));

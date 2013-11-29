@@ -1,0 +1,36 @@
+# TagSet based on Crabbé and Candito, 2008, as best one for French dependency parsing.
+# Only main grammatical categories, no morphological information.
+# Verb moods, WH- subcategories.
+# No verb tenses (except for participles, which are grouped with "moods").
+# Removed ADJWH as it seems identical to DETWH (quel). Added PREF as its found in corpora.
+# @author Assaf Urieli
+SPMRL 2013
+fr
+ADJ	adjectif	OPEN
+ADV	adverbe	OPEN
+ADVWH	adverbe intérrogatif	CLOSED
+CC	conjonction de coordination	CLOSED
+CLO	clitique objet	CLOSED
+CLR	clitique réflexif	CLOSED
+CLS	clitique sujet	CLOSED
+CS	conjonction de subordination	CLOSED
+DET	déteriminant	CLOSED
+DETWH	déterminant intérrogatif	CLOSED
+ET	mot étranger	OPEN
+I	interjection	OPEN
+NC	nom commun	OPEN
+NPP	nom propre	OPEN
+P	prépostion	CLOSED
+P+D	préposition+déterminant	CLOSED
+P+PRO	préposition+pronom	CLOSED
+PONCT	ponctuation	CLOSED
+PREF	préfixe	OPEN
+PRO	pronom	CLOSED
+PROREL	pronom rélatif	CLOSED
+PROWH	pronom intérrogatif	CLOSED
+V	verbe indicatif	OPEN
+VIMP	verbe impératif	OPEN
+VINF	verbe infinitif	OPEN
+VPP	verbe participe passé	OPEN
+VPR	verbe participe présent	OPEN
+VS	verbe subjonctif	OPEN

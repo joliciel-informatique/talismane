@@ -46,6 +46,10 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 				String line = scanner.nextLine();
 				if (line.length()>0 && !line.startsWith("#")) {
 					LexicalEntry lexicalEntry = reader.readEntry(line);
+					
+					// make sure it's a known pos-tag
+					TalismaneSession.getPosTagSet().getPosTag(lexicalEntry.getCategory());
+					
 					List<LexicalEntry> entries = entryMap.get(lexicalEntry.getWord());
 					if (entries==null) {
 						entries = new ArrayList<LexicalEntry>();

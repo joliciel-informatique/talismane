@@ -450,7 +450,8 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	@Override
 	public DependencyNode getDetachedDependencyNode(
 			PosTaggedToken posTaggedToken) {
-		DependencyNode node = this.parserServiceInternal.getDependencyNode(posTaggedToken, "", this);
+		DependencyArc arc = this.getGoverningDependency(posTaggedToken);
+		DependencyNode node = this.parserServiceInternal.getDependencyNode(posTaggedToken, arc.getLabel(), this);
 		return node;
 	}
 

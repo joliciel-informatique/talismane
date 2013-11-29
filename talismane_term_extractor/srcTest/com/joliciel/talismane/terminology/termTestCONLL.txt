@@ -1,0 +1,18 @@
+1	Le	le	DET	det	ms	3	det	_	_
+2	petit	petit	ADJ	adj	ms	3	mod	_	_
+3	chat	chat	NC	nc	ms	16	suj	_	_
+4	noir	noir	ADJ	adj	ms	3	mod	_	_
+5	et	et	CC	coo	null	4	coord	_	_
+6	blanc	blanc	ADJ	adj	ms	5	dep_coord	_	_
+7	de	de	P	prep	null	3	dep	_	_
+8	la	la	DET	det	fs	9	det	_	_
+9	grand-mère	grand-mère	NC	nc	fs	7	prep	_	_
+10	maternelle	maternel	ADJ	adj	fs	9	mod	_	_
+11	de	de	P	prep	null	9	dep	_	_
+12	sa	sa	DET	det	fs_P3s	14	det	_	_
+13	deuxième	deuxième	ADJ	adj	s	14	mod	_	_
+14	femme	femme	NC	nc	fs	11	prep	_	_
+15	a	avoir	V	v	P3s	16	aux_tps	_	_
+16	disparu	disparaître	VPP	v	Kms	0	root	_	_
+17	.	.	PONCT	poncts	null	16	ponct	_	_
+
