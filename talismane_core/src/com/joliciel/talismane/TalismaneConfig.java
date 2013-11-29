@@ -270,6 +270,7 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 	private boolean parserCorpusReaderFiltersAdded = false;
 	private boolean posTagCorpusReaderFiltersAdded = false;
 	private boolean tokenCorpusReaderFiltersAdded = false;
+	private boolean parserCorpusReaderDecorated = false;
 	
 	private TalismaneServiceLocator talismaneServiceLocator = null;
 	private PosTaggerService posTaggerService;
@@ -1787,8 +1788,11 @@ public abstract class TalismaneConfig implements LanguageSpecificImplementation 
 			this.parserCorpusReader = parserRegexCorpusReader;
 		}
 		
-		this.setCorpusReaderAttributes(parserCorpusReader);
-		this.addParserCorpusReaderFilters(parserCorpusReader);
+		if (!parserCorpusReaderDecorated) {
+			this.setCorpusReaderAttributes(parserCorpusReader);
+			this.addParserCorpusReaderFilters(parserCorpusReader);
+			parserCorpusReaderDecorated = true;
+		}
 		
 		return parserCorpusReader;
 	}

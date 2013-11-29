@@ -96,4 +96,10 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 */
 	public String getComment();
 	public void setComment(String comment);
+	
+	/**
+	 * This token's index in the containing sentence.
+	 * @return
+	 */
+	public int getIndex();
 }

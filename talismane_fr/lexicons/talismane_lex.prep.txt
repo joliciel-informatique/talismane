@@ -156,7 +156,7 @@ d'avis de	d'avis de	P	prep	null
 d'entre	d'entre	P	prep	null
 d'ici	d'ici	P	prep	null
 d'ici à	d'ici à	P	prep	null
-d'où	d'où	p	prep	null
+d'où	d'où	P	prep	null
 dans	dans	P	prep	null
 de	de	P	prep	null
 de chez	de chez	P	prep	null

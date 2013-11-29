@@ -182,6 +182,11 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
+
+	@Override
+	public int getIndex() {
+		return this.getToken().getIndex();
+	}
 	
 	
 }

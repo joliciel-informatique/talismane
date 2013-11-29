@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.List;
 import java.util.Set;
 
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
@@ -99,10 +97,10 @@ public interface DependencyNode {
 	 * In French, for example, a preposition and its object would thus be a single layer of depth, equivalent to
 	 * a single adjective when modifying a noun.
 	 * A determinent would not add to its governor's depth.
-	 * @param zeroDepthPosTags pos-tags which shouldn't be counted for depth calculation
+	 * @param zeroDepthLabels labels which shouldn't be counted for depth calculation
 	 * @return
 	 */
-	public int getPerceivedDepth(Set<PosTag> zeroDepthPosTags);
+	public int getPerceivedDepth(Set<String> zeroDepthLabels);
 	
 	/**
 	 * Removes a node (and all of its children) from this dependency node's tree, wherever it may be located.
@@ -110,23 +108,6 @@ public interface DependencyNode {
 	 * @returns true if the node was removed.
 	 */
 	public boolean removeNode(DependencyNode node);
-	
-	/**
-	 * Get this dependency node's terminological "heads",
-	 * where each head is equivalent to the current node minus a single detachable leaf.
-	 * @param includeChildren set of postags which should always be considered, together with their direct children, as a single detachable leaf, e.g. prepositions
-	 * @param includeWithParent set of postags which should always be considered as a single detachable leaf with their parent, e.g. determinants
-	 * @return
-	 */
-	public List<DependencyNode> getHeads(Set<PosTag> includeChildren, Set<PosTag> includeWithParent);
-
-	/**
-	 * A list of all detachable leaf nodes for the current dependency node.
-	 * @param includeChildren
-	 * @param includeWithParent
-	 * @return
-	 */
-	public List<DependencyNode> getDetachableLeaves(Set<PosTag> includeChildren, Set<PosTag> includeWithParent);
 	
 	/**
 	 * The first token comprising this dependency node, if viewed in linear order within a sentence.
@@ -139,4 +120,12 @@ public interface DependencyNode {
 	 * @return
 	 */
 	public PosTaggedToken getLastToken();
+	
+	/**
+	 * Return true if this node is contiguous, false if it contains gaps.
+	 * @return
+	 */
+	public boolean isContiguous();
+
+	public void setDirty();
 }

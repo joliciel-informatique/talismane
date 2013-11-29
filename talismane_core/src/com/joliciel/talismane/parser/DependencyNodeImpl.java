@@ -1,13 +1,11 @@
 package com.joliciel.talismane.parser;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
 
 class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	private PosTaggedToken token;
@@ -16,6 +14,8 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	private Set<DependencyNode> dependents = new TreeSet<DependencyNode>();
 	private ParseConfiguration parseConfiguration;
 	private ParserServiceInternal parserServiceInternal;
+	private String string = null;
+	private Boolean contiguous = null;
 	
 	DependencyNodeImpl(PosTaggedToken token, String label,
 			ParseConfiguration parseConfiguration) {
@@ -54,12 +54,14 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 		DependencyNode node = this.getParserServiceInternal().getDependencyNode(dependent, arc.getLabel(), this.parseConfiguration);
 		this.getDependents().add(node);
 		node.setParent(this);
+		this.setDirty();
 		return node;
 	}
 
 	@Override
 	public void addDependent(DependencyNode dependent) {
 		this.getDependents().add(dependent);
+		this.setDirty();
 	}
 
 	public void autoPopulate() {
@@ -97,20 +99,32 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 	}
 
 	@Override
-	public String toString() {
-		String string = this.getPosTaggedToken().getToken().getOriginalText();
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
 
-		boolean firstDependent = true;
-		string += "(";
-		for (DependencyNode dependent : this.dependents) {
-			if (firstDependent) {
-				firstDependent = false;
-			} else {
-				string += ", ";
+	@Override
+	public boolean equals(Object obj) {
+		return this.toString().equals(obj.toString());
+	}
+
+	@Override
+	public String toString() {
+		if (string==null) {
+			string = this.getPosTaggedToken().getToken().getOriginalText();
+	
+			boolean firstDependent = true;
+			string += "(";
+			for (DependencyNode dependent : this.dependents) {
+				if (firstDependent) {
+					firstDependent = false;
+				} else {
+					string += ", ";
+				}
+				string += dependent.toString();
 			}
-			string += dependent.toString();
+			string += ")";
 		}
-		string += ")";
 		return string;
 	}
 
@@ -128,13 +142,14 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 		return depth;
 	}
 
-	public int getPerceivedDepth(Set<PosTag> zeroDepthPosTags) {
+	public int getPerceivedDepth(Set<String> zeroDepthLabels) {
 		int depth = 1;
-		if (zeroDepthPosTags.contains(this.getPosTaggedToken().getTag()))
+
+		if (zeroDepthLabels.contains(this.getLabel()))
 			depth = 0;
 		int maxDepth = 0;
 		for (DependencyNode dependent : this.getDependents()) {
-			int dependentDepth = dependent.getPerceivedDepth(zeroDepthPosTags);
+			int dependentDepth = dependent.getPerceivedDepth(zeroDepthLabels);
 			if (dependentDepth > maxDepth) {
 				maxDepth = dependentDepth;
 			}
@@ -143,43 +158,11 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 		return depth;
 	}
 	
-	public List<DependencyNode> getHeads(Set<PosTag> includeChildren, Set<PosTag> includeWithParent) {
-		List<DependencyNode> heads = new ArrayList<DependencyNode>();
-		if (this.dependents.size()==0)
-			return heads;
-		List<DependencyNode> detachableLeaves = this.getDetachableLeaves(includeChildren, includeWithParent);
-		if (detachableLeaves.size()==0)
-			return heads;
-		for (DependencyNode detachableDependent : detachableLeaves) {
-			DependencyNode head = this.cloneNode();
-			head.removeNode(detachableDependent);
-			heads.add(head);
-		}
-		
-		return heads;
-	}
-	
-	public List<DependencyNode> getDetachableLeaves(Set<PosTag> includeChildren, Set<PosTag> includeWithParent) {
-		List<DependencyNode> detachableLeaves = new ArrayList<DependencyNode>();
-		
-		boolean includesChildren = includeChildren.contains(this.getPosTaggedToken().getTag());
-		for (DependencyNode dependent : this.getDependents()) {
-			List<DependencyNode> myDetachableLeaves = dependent.getDetachableLeaves(includeChildren, includeWithParent);
-			if (myDetachableLeaves.size()==0) {
-				boolean detachable = !includesChildren && !(includeWithParent.contains(dependent.getPosTaggedToken().getTag()));
-				if (detachable)
-					detachableLeaves.add(dependent);
-			} else {
-				detachableLeaves.addAll(myDetachableLeaves);
-			}
-		}
-		return detachableLeaves;
-	}
-
 	@Override
 	public boolean removeNode(DependencyNode node) {
 		if (this.getDependents().contains(node)) {
 			this.getDependents().remove(node);
+			this.setDirty();
 			return true;
 		}
 		for (DependencyNode dependent : this.getDependents()) {
@@ -213,4 +196,43 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 		}
 		return lastToken;
 	}
+
+	@Override
+	public boolean isContiguous() {
+		if (contiguous==null) {
+			Set<PosTaggedToken> tokens = new TreeSet<PosTaggedToken>(new PosTaggedTokenLeftToRightComparator());
+			this.getAllNodes(tokens);
+			int currentIndex = -1;
+			contiguous = true;
+			for (PosTaggedToken token : tokens) {
+				if (currentIndex<0) {
+					currentIndex = token.getIndex();
+				} else if (token.getIndex()==currentIndex+1) {
+					currentIndex++;
+				} else {
+					contiguous = false;
+					break;
+				}
+			}
+		}
+		return contiguous.booleanValue();
+	}
+	
+	public void getAllNodes(Set<PosTaggedToken> posTaggedTokens) {
+		posTaggedTokens.add(this.token);
+		for (DependencyNode dependent : this.getDependents()) {
+			((DependencyNodeImpl) dependent).getAllNodes(posTaggedTokens);
+		}
+	}
+
+	@Override
+	public void setDirty() {
+		this.string = null;
+		this.contiguous = null;
+		if (this.parent!=null) {
+			this.parent.setDirty();
+		}
+	}
+	
+	
 }

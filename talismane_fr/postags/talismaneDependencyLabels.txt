@@ -1,0 +1,28 @@
+# Dependency labels for French.
+# From Marie Candito and Benoît Crabbé and Mathieu Falco
+# Dépendances syntaxiques de surface pour le français
+# May, 2011
+# http://alpage.inria.fr/statgram/frdep/Publications/FTB-GuideDepSurface.pdf
+aff
+a_obj
+arg
+ato
+ats
+aux_caus
+aux_pass
+aux_tps
+comp
+coord
+de_obj
+dep
+dep_coord
+det
+mod
+mod_rel
+obj
+p_obj
+ponct
+root
+suj
+prep
+sub
