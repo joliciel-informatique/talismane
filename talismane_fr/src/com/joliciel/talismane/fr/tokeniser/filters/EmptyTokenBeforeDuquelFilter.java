@@ -1,4 +1,4 @@
-package com.joliciel.talismane.tokeniser.filters.french;
+package com.joliciel.talismane.fr.tokeniser.filters;
 
 import java.util.List;
 import java.util.ArrayList;

@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.ftbDep;
+package com.joliciel.talismane.fr;
 
 import java.io.File;
 import java.io.IOException;

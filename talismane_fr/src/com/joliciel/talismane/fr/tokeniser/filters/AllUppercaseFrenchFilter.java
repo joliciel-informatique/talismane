@@ -16,11 +16,10 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser.filters.french;
+package com.joliciel.talismane.fr.tokeniser.filters;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -31,27 +30,30 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
- * Looks for a series of 2+ words in all upper-case, and transforms them into lower-case.
+ * Looks for words in all upper-case, and transforms them into lower-case.
  * @author Assaf Urieli
  *
  */
-public class UpperCaseSeriesFrenchFilter implements TokenSequenceFilter {
-
+public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
 	private static final String[] upperCaseEndWordArray = new String[] { "SARL", "SA", "EURL" };
+	
+	/**
+	 * No more than 1000 different lowercase words to check per single uppercase word.
+	 */
+	private static final int MAX_WORD_ATTEMPTS = 1000;
 	
 	private Set<String> upperCaseEndWords;
 	
-	public UpperCaseSeriesFrenchFilter() {
+	public AllUppercaseFrenchFilter() {
 		super();
 	}
 
 	@Override
 	public void apply(TokenSequence tokenSequence) {
-		List<Token> upperCaseSequence = new ArrayList<Token>();
 		for (Token token : tokenSequence) {
 			String word = token.getText();
 			
-			if (word.length()==0)
+			if (word.length()<=1)
 				continue;
 			
 			boolean hasLowerCase = false;
@@ -68,45 +70,73 @@ public class UpperCaseSeriesFrenchFilter implements TokenSequenceFilter {
 			}
 			
 			if (hasUpperCase&&!hasLowerCase) {
-				upperCaseSequence.add(token);
-			} else if (!hasLowerCase) {
-				// do nothing, might be punctuation or number in middle of upper case sequence
-			} else {
-				if (upperCaseSequence.size()>1) {
-					this.checkSequence(upperCaseSequence);
-				}
-				upperCaseSequence.clear();
+				this.checkSequence(token);
 			}
 		} // next token
-		if (upperCaseSequence.size()>1) {
-			this.checkSequence(upperCaseSequence);
+	}
+
+	void checkSequence(Token token) {
+		if (this.getUpperCaseEndWords().contains(token.getText()))
+			return;
+		
+		List<String> possibleWords = getPossibleWords(token.getText());
+		for (String possibleWord : possibleWords) {
+			Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(possibleWord);
+			if (posTags.size()>0) {
+				token.setText(possibleWord);
+				break;
+			}
 		}
 	}
 
-	void checkSequence(List<Token> upperCaseSequence) {
-		String lastWord = upperCaseSequence.get(upperCaseSequence.size()-1).getText();
-		if (this.getUpperCaseEndWords().contains(lastWord))
-			return;
-		
-		for (Token token : upperCaseSequence) {
-			boolean foundWord = false;
-			List<String> possibleWords = AllUppercaseFrenchFilter.getPossibleWords(token.getText());
-			for (String possibleWord : possibleWords) {
-				Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(possibleWord);
-				if (posTags.size()>0) {
-					token.setText(possibleWord);
-					foundWord = true;
+	
+	static List<String> getPossibleWords(String word) {
+		List<char[]> possibleChars = new ArrayList<char[]>();
+		for (int i = 0; i<word.length();i++) {
+			char c = word.charAt(i);
+			char[] lowerCaseChars = null;
+			switch (c) {
+				case 'E':
+					lowerCaseChars = new char[] {'e', 'é', 'ê', 'è', 'ë'};
 					break;
-				}
+				case 'A':
+					lowerCaseChars = new char[] {'à', 'a', 'â'};
+					break;
+				case 'O':
+					lowerCaseChars  = new char[] {'o', 'ô'};
+					break;
+				case 'I':
+					lowerCaseChars  = new char[] {'i', 'î', 'ï'};
+					break;
+				case 'U':
+					lowerCaseChars = new char[] {'u', 'ù', 'û'};
+					break;
+				case 'C':
+					lowerCaseChars = new char[] {'ç', 'c'};
+					break;
+				default:
+					lowerCaseChars = new char[] {Character.toLowerCase(c)};
+					break;
 			}
-			if (!foundWord) {
-				if (token.getText().length()>0) {
-					String text = token.getText().toLowerCase(Locale.FRENCH);
-					text = token.getText().substring(0,1) + text.substring(1);
-					token.setText(text);
-				}
-			}
+			possibleChars.add(lowerCaseChars);
 		}
+		
+		List<String> possibleWords = new ArrayList<String>();
+		possibleWords.add("");
+		for (int i=0;i<word.length();i++) {
+			char[] lowerCaseChars = possibleChars.get(i);
+			if (possibleWords.size()>=MAX_WORD_ATTEMPTS) {
+				lowerCaseChars = new char[] { possibleChars.get(i)[0] };
+			}
+			List<String> newPossibleWords = new ArrayList<String>();
+			for (String possibleWord : possibleWords) {
+				for (char c : lowerCaseChars) {
+					newPossibleWords.add(possibleWord + c);
+				}
+			}
+			possibleWords = newPossibleWords;
+		}
+		return possibleWords;
 	}
 
 	public Set<String> getUpperCaseEndWords() {

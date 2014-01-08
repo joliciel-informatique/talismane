@@ -23,5 +23,18 @@ package com.joliciel.talismane;
  * @author Assaf Urieli
  *
  */
-public interface TalismaneService {
+interface TalismaneServiceInternal extends TalismaneService {
+	/**
+	 * Return a Talismane processor.
+	 * @param config
+	 * @return
+	 */
+	Talismane getTalismane(TalismaneConfig config);
+	
+	/**
+	 * Returna Talismane Server.
+	 * @param config
+	 * @return
+	 */
+	TalismaneServer getTalismaneServer(TalismaneConfig config);
 }

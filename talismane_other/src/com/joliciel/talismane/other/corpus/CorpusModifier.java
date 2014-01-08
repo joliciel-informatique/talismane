@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.other.corpus;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		
 		List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
 		for (DependencyArc arc : arcs) {
@@ -101,7 +102,7 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 			}
 		}
 		parseConfiguration.clearMemory();
-		this.wrappedProcessor.onNextParseConfiguration(parseConfiguration);
+		this.wrappedProcessor.onNextParseConfiguration(parseConfiguration, writer);
 	}
 
 	@Override

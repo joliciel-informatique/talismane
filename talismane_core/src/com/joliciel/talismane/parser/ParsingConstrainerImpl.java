@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -95,7 +96,7 @@ class ParsingConstrainerImpl implements ParsingConstrainer {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {		
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {		
 		ParseConfiguration currentConfiguration = parseServiceInternal.getInitialConfiguration(parseConfiguration.getPosTagSequence());
 		for (int i=0; i<parseConfiguration.getTransitions().size(); i++) {
 			String key = this.getKey(currentConfiguration);

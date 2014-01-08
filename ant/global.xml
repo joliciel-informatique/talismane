@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
 <project> 
-    <property name="talismane.version" value="1.7.5b"/>
-    <property name="talismane.terminology.version" value="1.0.0b"/>
+    <property name="talismane.version" value="1.8.0b"/>
 </project>

@@ -85,7 +85,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 	private transient File serializationFile;
 	
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		sentenceCount++;
 		sentenceLengthStats.addValue(parseConfiguration.getPosTagSequence().size());
 		

@@ -36,25 +36,31 @@ import com.joliciel.frenchTreebank.TreebankServiceLocator;
 import com.joliciel.frenchTreebank.export.FtbPosTagMapper;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
-import com.joliciel.ftbDep.FtbDepReader;
+import com.joliciel.talismane.LanguageSpecificImplementation;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.Talismane.Command;
+import com.joliciel.talismane.fr.tokeniser.filters.AllUppercaseFrenchFilter;
+import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
+import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
+import com.joliciel.talismane.fr.tokeniser.filters.LowercaseFirstWordFrenchFilter;
+import com.joliciel.talismane.fr.tokeniser.filters.UpperCaseSeriesFrenchFilter;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.other.Extensions;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
+import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
+import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.french.AllUppercaseFrenchFilter;
 import com.joliciel.talismane.utils.LogUtils;
 
 /**
@@ -62,21 +68,36 @@ import com.joliciel.talismane.utils.LogUtils;
  * @author Assaf Urieli
  *
  */
-public class TalismaneFrench extends TalismaneConfig {
+public class TalismaneFrench implements LanguageSpecificImplementation {
 	private static final Log LOG = LogFactory.getLog(TalismaneFrench.class);
+	private TalismaneServiceLocator talismaneServiceLocator = null;
+	private PosTaggerService posTaggerService;
+	private ParserService parserService;
+	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 
+	private enum CorpusFormat {
+		/** CoNLL-X format */
+		conll,
+		/** French Treebank XML reader */
+		ftb,
+		/** French Treebank converted to dependencies */
+		ftbDep,
+		/** SPMRL format */
+		spmrl
+	}
+	
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
     	Map<String,String> argsMap = TalismaneConfig.convertArgs(args);
-    	String corpusReaderType = null;
+    	CorpusFormat corpusReaderType = null;
     	String treebankDirPath = null;
 		boolean keepCompoundPosTags = true;
 
     	if (argsMap.containsKey("corpusReader")) {
-    		corpusReaderType = argsMap.get("corpusReader");
+    		corpusReaderType = CorpusFormat.valueOf(argsMap.get("corpusReader"));
     		argsMap.remove("corpusReader");
     	}
     	if (argsMap.containsKey("treebankDir")) {
@@ -91,12 +112,14 @@ public class TalismaneFrench extends TalismaneConfig {
     	Extensions extensions = new Extensions();
     	extensions.pluckParameters(argsMap);
     	
-    	TalismaneFrench config = new TalismaneFrench(argsMap);
+    	TalismaneFrench talismaneFrench = new TalismaneFrench();
+    	
+    	TalismaneConfig config = new TalismaneConfig(argsMap, talismaneFrench);
     	if (config.getCommand()==null)
     		return;
     	
     	if (corpusReaderType!=null) {
-    		if (corpusReaderType.equals("ftbDep")) {
+    		if (corpusReaderType==CorpusFormat.ftbDep) {
     			File inputFile = new File(config.getInFilePath());
     			FtbDepReader ftbDepReader = new FtbDepReader(inputFile, config.getInputCharset());
     			
@@ -114,7 +137,7 @@ public class TalismaneFrench extends TalismaneConfig {
 		  			config.setParserEvaluationCorpusReader(ftbDepEvaluationReader);
 					config.setPosTagEvaluationCorpusReader(ftbDepEvaluationReader);
 				}
-	  		} else if (corpusReaderType.equals("ftb")) {
+	  		} else if (corpusReaderType==CorpusFormat.ftb) {
 	  			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 	  			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
 	  			TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
@@ -123,12 +146,12 @@ public class TalismaneFrench extends TalismaneConfig {
 				TreebankReader treebankReader = treebankUploadService.getXmlReader(treebankFile);
 	  			
 				// we prepare both the tokeniser and pos-tag readers, just in case they are needed
-	  			InputStream posTagMapStream = config.getDefaultPosTagMapFromStream();
+	  			InputStream posTagMapStream = talismaneFrench.getDefaultPosTagMapFromStream();
 	  			Scanner scanner = new Scanner(posTagMapStream,"UTF-8");
 	  			List<String> descriptors = new ArrayList<String>();
 	  			while (scanner.hasNextLine())
 	  				descriptors.add(scanner.nextLine());
-				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, config.getDefaultPosTagSet());
+				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneFrench.getDefaultPosTagSet());
 				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper, keepCompoundPosTags);
 				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);
 
@@ -137,7 +160,7 @@ public class TalismaneFrench extends TalismaneConfig {
   				
   				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
   				config.setSentenceCorpusReader(sentenceCorpusReader);
-	  		} else if (corpusReaderType.equals("conll") || corpusReaderType.equals("spmrl")) {
+	  		} else if (corpusReaderType==CorpusFormat.conll || corpusReaderType==CorpusFormat.spmrl) {
     			File inputFile = new File(config.getInFilePath());
     			
     			ParserRegexBasedCorpusReader corpusReader = config.getParserService().getRegexBasedCorpusReader(inputFile, config.getInputCharset());
@@ -148,7 +171,7 @@ public class TalismaneFrench extends TalismaneConfig {
 				config.setPosTagCorpusReader(corpusReader);
 				config.setTokenCorpusReader(corpusReader);
 				
-				if (corpusReaderType.equals("spmrl")) {
+				if (corpusReaderType==CorpusFormat.spmrl) {
 					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
 				}
  				
@@ -162,24 +185,17 @@ public class TalismaneFrench extends TalismaneConfig {
 	  			throw new TalismaneException("Unknown corpusReader: " + corpusReaderType);
 	  		}
     	}
-    	
-    	TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
-    	TalismaneService talismaneService = talismaneServiceLocator.getTalismaneService();
-    	Talismane talismane = talismaneService.getTalismane();
+    	Talismane talismane = config.getTalismane();
     	
     	extensions.prepareCommand(config, talismane);
     	
-    	talismane.runCommand(config);
+    	talismane.process();
 	}
 
-	public TalismaneFrench(Map<String, String> args) throws Exception {
-		super(args);
+	public TalismaneFrench() {
+		talismaneServiceLocator = TalismaneServiceLocator.getInstance();
 	}
-
-	public TalismaneFrench(String[] args) throws Exception {
-		super(args);
-	}
-
+	
 	private static ZipInputStream getZipInputStreamFromResource(String resource) {
 		InputStream inputStream = getInputStreamFromResource(resource);
 		ZipInputStream zis = new ZipInputStream(inputStream);
@@ -296,14 +312,9 @@ public class TalismaneFrench extends TalismaneConfig {
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 
-	@Override
-	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
-		return tokenFilters;
-	}
 
 	@Override
-	public List<TokenSequenceFilter> getDefaultPosTaggerPreProcessingFilters() {
+	public List<TokenSequenceFilter> getDefaultTokenSequenceFilters() {
 		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
 		tokenFilters.add(new AllUppercaseFrenchFilter());
 		return tokenFilters;
@@ -342,9 +353,52 @@ public class TalismaneFrench extends TalismaneConfig {
 	}
 
 	@Override
-	public List<PosTagSequenceFilter> getPosTaggerPostProcessingFilters() {
+	public List<PosTagSequenceFilter> getDefaultPosTagSequenceFilters() {
 		List<PosTagSequenceFilter> filters = new ArrayList<PosTagSequenceFilter>();
 		return filters;
 	}
 
+
+	@Override
+	public PosTagSet getDefaultPosTagSet() {
+		Scanner posTagSetScanner = this.getDefaultPosTagSetScanner();
+		PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
+		return posTagSet;
+	}
+	
+
+	public PosTaggerService getPosTaggerService() {
+		if (posTaggerService==null) {
+			posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
+		}
+		return posTaggerService;
+	}
+
+	public void setPosTaggerService(PosTaggerService posTaggerService) {
+		this.posTaggerService = posTaggerService;
+	}
+
+	public ParserService getParserService() {
+		if (parserService==null) {
+			parserService = talismaneServiceLocator.getParserServiceLocator().getParserService();
+		}
+		return parserService;
+	}
+
+	public void setParserService(ParserService parserService) {
+		this.parserService = parserService;
+	}
+
+	@Override
+	public List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters() {
+		if (availableTokenSequenceFilters==null) {
+			availableTokenSequenceFilters = new ArrayList<Class<? extends TokenSequenceFilter>>();
+			availableTokenSequenceFilters.add(EmptyTokenAfterDuFilter.class);
+			availableTokenSequenceFilters.add(EmptyTokenBeforeDuquelFilter.class);
+			availableTokenSequenceFilters.add(LowercaseFirstWordFrenchFilter.class);
+			availableTokenSequenceFilters.add(UpperCaseSeriesFrenchFilter.class);
+			availableTokenSequenceFilters.add(AllUppercaseFrenchFilter.class);
+		}
+		return availableTokenSequenceFilters;
+	}
 }

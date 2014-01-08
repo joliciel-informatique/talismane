@@ -46,17 +46,15 @@ import freemarker.template.TemplateException;
 
 public class StandoffWriter implements ParseConfigurationProcessor {
 	private static final Log LOG = LogFactory.getLog(StandoffWriter.class);
-	private Writer writer;
 	private Template template;
 	private int sentenceCount = 0;
 	private int tokenCount = 0;
 	private int relationCount = 0;
 	private int characterCount = 0;
 
-	public StandoffWriter(Writer writer) {
+	public StandoffWriter() {
 		super();
 		try {
-			this.writer = writer;
 			Configuration cfg = new Configuration();
 			cfg.setCacheStorage(new NullCacheStorage());
 			cfg.setObjectWrapper(new DefaultObjectWrapper());
@@ -70,7 +68,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 		}
 	}
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);
@@ -87,7 +85,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 			}
 		}
 		model.put("dependencies", dependencies);
-		this.process(model);
+		this.process(model, writer);
 		tokenCount += parseConfiguration.getPosTagSequence().size();
 
 		relationCount += dependencies.size();
@@ -96,7 +94,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 	}
 
 
-	void process(Map<String,Object> model) {
+	void process(Map<String,Object> model, Writer writer) {
 		try {
 			template.process(model, writer);
 			writer.flush();

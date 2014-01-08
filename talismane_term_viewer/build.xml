@@ -38,7 +38,7 @@
 			</fileset>
 			<fileset dir="${dist}">
 				<include name="talismane-utils-${talismane.version}.jar" />
-   				<include name="talismane-term-extractor-${talismane.terminology.version}.jar" />
+   				<include name="talismane-term-extractor-${talismane.version}.jar" />
 			</fileset>
 			<!--
 			<fileset dir="C:\Program Files\Java\jdk1.7.0_09\jre\lib">
@@ -54,7 +54,7 @@
 			</fileset>
 			<fileset dir="${dist}">
 				<include name="talismane-utils-${talismane.version}.jar" />
-	   			<include name="talismane-term-extractor-${talismane.terminology.version}.jar" />
+	   			<include name="talismane-term-extractor-${talismane.version}.jar" />
 			</fileset>
 		</path>
 		<mkdir dir="${build}" />
@@ -98,7 +98,7 @@
         <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"      
                 uri="javafx:com.sun.javafx.tools.ant"
                 classpath=".:../ant/ant-javafx.jar"/>
-        <fx:jar destfile="${dist}/${project}-${talismane.terminology.version}.jar">
+        <fx:jar destfile="${dist}/${project}-${talismane.version}.jar">
 		    <!-- Details about application -->
 		    <fx:application name="Talismane Terminology Viewer"
 		            mainClass="com.joliciel.talismane.terminology.viewer.TerminologyViewer"/>
@@ -109,7 +109,7 @@
 					<include name="lib/*.jar" />
 				</fx:fileset>
 				<fx:fileset dir="${dist}" includes="talismane-utils-${talismane.version}.jar" />
-				<fx:fileset dir="${dist}" includes="talismane-term-extractor-${talismane.terminology.version}.jar" />
+				<fx:fileset dir="${dist}" includes="talismane-term-extractor-${talismane.version}.jar" />
 		    </fx:resources>
 		            
 		    <!-- What to include into result jar file?
@@ -126,13 +126,13 @@
 	
 	<!--
 	<target name="jar" depends="compile">
-		<jar jarfile="${dist}/${project}-${talismane.terminology.version}.jar" basedir="${classes}" />
+		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}" />
 	</target>
 	-->
 
 	<target name="one-jar" depends="jar">
         <!-- Construct the One-JAR file -->   
-        <one-jar destfile="${dist}/${project}-${talismane.terminology.version}-allDeps.jar">
+        <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
         	<manifest>
         		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.terminology.viewer.TerminologyViewer" />
         	</manifest>
@@ -145,7 +145,7 @@
 					<include name="**/*.jar" />
 				</fileset>
     			<fileset dir="${dist}">
-    				<include name="talismane-term-extractor-${talismane.terminology.version}.jar" />
+    				<include name="talismane-term-extractor-${talismane.version}.jar" />
     			</fileset>
 
             </lib>

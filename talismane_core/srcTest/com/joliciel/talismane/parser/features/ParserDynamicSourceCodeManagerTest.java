@@ -65,7 +65,7 @@ public class ParserDynamicSourceCodeManagerTest {
 		Feature<ParseConfigurationWrapper,?> newFeature = builder.getFeature();
 		assertTrue(StringFeature.class.isAssignableFrom(newFeature.getClass()));
 		
-		descriptorString = "ConcatNoNulls(PosTag(Stack[0]),PosTag(Buffer[0]))";
+		descriptorString = "Concat(PosTag(Stack[0]),PosTag(Buffer[0]))";
 		descriptor = descriptorParser.parseDescriptor(descriptorString);
 		feature = featureParser.parse(descriptor).get(0);
 		

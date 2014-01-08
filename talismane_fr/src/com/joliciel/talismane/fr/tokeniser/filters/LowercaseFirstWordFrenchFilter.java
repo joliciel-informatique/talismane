@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser.filters.french;
+package com.joliciel.talismane.fr.tokeniser.filters;
 
 import java.util.HashSet;
 import java.util.Set;

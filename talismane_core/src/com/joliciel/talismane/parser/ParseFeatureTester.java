@@ -60,7 +60,7 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 
 		ParseConfiguration currentConfiguration = parserServiceInternal.getInitialConfiguration(parseConfiguration.getPosTagSequence());
 		
