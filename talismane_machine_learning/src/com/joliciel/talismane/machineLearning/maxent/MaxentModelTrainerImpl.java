@@ -30,14 +30,14 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.maxent.custom.GISTrainer;
+import com.joliciel.talismane.machineLearning.maxent.custom.TwoPassRealValueDataIndexer;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-import opennlp.maxent.GISTrainer;
 import opennlp.model.DataIndexer;
 import opennlp.model.EventStream;
 import opennlp.model.MaxentModel;
-import opennlp.model.TwoPassRealValueDataIndexer;
 
 /**
  * A class for training and persisting Maxent Models.
@@ -102,20 +102,24 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 		return model;
 	}
 
-	public int getIterations() {
+	@Override
+    public int getIterations() {
 		return iterations;
 	}
 
 
-	public void setIterations(int iterations) {
+	@Override
+    public void setIterations(int iterations) {
 		this.iterations = iterations;
 	}
 
-	public int getCutoff() {
+	@Override
+    public int getCutoff() {
 		return cutoff;
 	}
 
-	public void setCutoff(int cutoff) {
+	@Override
+    public void setCutoff(int cutoff) {
 		this.cutoff = cutoff;
 	}
 
@@ -123,11 +127,13 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 	 * Sigma for Gaussian smoothing on maxent training.
 	 * @return
 	 */
-	public double getSigma() {
+	@Override
+    public double getSigma() {
 		return sigma;
 	}
 
-	public void setSigma(double sigma) {
+	@Override
+    public void setSigma(double sigma) {
 		this.sigma = sigma;
 	}
 
@@ -135,11 +141,13 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 	 * Additive smoothing parameter during maxent training.
 	 * @return
 	 */
-	public double getSmoothing() {
+	@Override
+    public double getSmoothing() {
 		return smoothing;
 	}
 
-	public void setSmoothing(double smoothing) {
+	@Override
+    public void setSmoothing(double smoothing) {
 		this.smoothing = smoothing;
 	}
 
