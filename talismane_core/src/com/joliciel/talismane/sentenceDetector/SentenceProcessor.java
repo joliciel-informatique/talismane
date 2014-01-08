@@ -18,11 +18,18 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.Writer;
+
 /**
  * Any class that can process sentences found by a sentence detector.
  * @author Assaf Urieli
  *
  */
 public interface SentenceProcessor {
-	public void process(String sentence);
+	/**
+	 * Process the next sentence, outputting to the writer provided.
+	 * @param sentence
+	 * @param writer
+	 */
+	public void onNextSentence(String sentence, Writer writer);
 }

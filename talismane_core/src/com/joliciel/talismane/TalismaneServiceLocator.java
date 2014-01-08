@@ -77,8 +77,8 @@ public class TalismaneServiceLocator {
     	}
     	return instance;
     }
-	
-    public TalismaneService getTalismaneService() {
+    
+    TalismaneServiceInternal getTalismaneServiceInternal() {
     	if (this.talismaneService == null) {
     		this.talismaneService = new TalismaneServiceImpl();
     		talismaneService.setFilterService(this.getFilterServiceLocator().getFilterService());
@@ -89,6 +89,10 @@ public class TalismaneServiceLocator {
     		talismaneService.setSentenceDetectorService(this.getSentenceDetectorServiceLocator().getSentenceDetectorService());
     	}
     	return this.talismaneService;
+    }
+
+    public TalismaneService getTalismaneService() {
+    	return this.getTalismaneServiceInternal();
     }
 
 	public PosTaggerFeatureServiceLocator getPosTaggerFeatureServiceLocator() {

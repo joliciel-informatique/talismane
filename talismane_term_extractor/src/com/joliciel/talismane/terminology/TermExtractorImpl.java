@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.terminology;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,7 +67,7 @@ class TermExtractorImpl implements TermExtractor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		MONITOR.startTask("onNextParseConfiguration");
 		try {
 			for (TermObserver termObserver : termObservers) {

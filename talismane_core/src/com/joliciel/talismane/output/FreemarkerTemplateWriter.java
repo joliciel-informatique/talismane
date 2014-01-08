@@ -49,17 +49,15 @@ import freemarker.template.TemplateException;
  */
 public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, PosTagSequenceProcessor, TokenSequenceProcessor, SentenceProcessor {
 	private static final Log LOG = LogFactory.getLog(FreemarkerTemplateWriter.class);
-	private Writer writer;
 	private Template template;
 	private int sentenceCount = 0;
 	private int tokenCount = 0;
 	private int relationCount = 0;
 	private int characterCount = 0;
 	
-	public FreemarkerTemplateWriter(Writer writer, Reader templateReader) {
+	public FreemarkerTemplateWriter(Reader templateReader) {
 		super();
 		try {
-			this.writer = writer;
 			Configuration cfg = new Configuration();
 			cfg.setCacheStorage(new NullCacheStorage());
 			cfg.setObjectWrapper(new DefaultObjectWrapper());
@@ -71,7 +69,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 		}
 	}
 	
-	void process(Map<String,Object> model) {
+	void process(Map<String,Object> model, Writer writer) {
 		try {
 			template.process(model, writer);
 			writer.flush();
@@ -85,7 +83,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);
@@ -95,7 +93,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 		model.put("sentenceCount", sentenceCount);
 		model.put("characterCount", characterCount);
 		model.put("LOG", LOG);
-		this.process(model);
+		this.process(model, writer);
 		tokenCount += parseConfiguration.getPosTagSequence().size();
 		relationCount += parseConfiguration.getRealDependencies().size();
 		characterCount += parseConfiguration.getSentence().getText().length();
@@ -103,29 +101,29 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 	
 	@Override
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) {
+	public void onNextPosTagSequence(PosTagSequence posTagSequence, Writer writer) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", posTagSequence);
 		model.put("text", posTagSequence.getTokenSequence().getText());
 		model.put("LOG", LOG);
-		this.process(model);
+		this.process(model, writer);
 	}
 
 	@Override
-	public void onNextTokenSequence(TokenSequence tokenSequence) {
+	public void onNextTokenSequence(TokenSequence tokenSequence, Writer writer) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", tokenSequence);
 		model.put("text", tokenSequence.getText());
 		model.put("LOG", LOG);
-		this.process(model);
+		this.process(model, writer);
 	}
 
 	@Override
-	public void process(String sentence) {
+	public void onNextSentence(String sentence, Writer writer) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", sentence);
 		model.put("LOG", LOG);
-		this.process(model);
+		this.process(model, writer);
 	}
 
 	@Override

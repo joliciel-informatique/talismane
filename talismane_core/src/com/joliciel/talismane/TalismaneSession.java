@@ -30,25 +30,28 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  *
  */
 public class TalismaneSession {
-	private static LanguageSpecificImplementation implementation = null;
-	
 	private static ThreadLocal<Locale> localeHolder = new ThreadLocal<Locale>();
 	private static ThreadLocal<PosTagSet> posTagSetHolder = new ThreadLocal<PosTagSet>();
 	private static ThreadLocal<PosTaggerLexicon> lexiconHolder = new ThreadLocal<PosTaggerLexicon>();
 	private static ThreadLocal<TransitionSystem> transitionSystemHolder = new ThreadLocal<TransitionSystem>();
+	private static ThreadLocal<LanguageSpecificImplementation> implementationHolder = new ThreadLocal<LanguageSpecificImplementation>();
 	
 	public static void setImplementation(LanguageSpecificImplementation implementation) {
-		TalismaneSession.implementation = implementation;
+		implementationHolder.set(implementation);
 	}
-
+	public static LanguageSpecificImplementation getImplementation() {
+		LanguageSpecificImplementation implementation = implementationHolder.get();
+		return implementation;
+	}
+	
 	public static void setPosTagSet(PosTagSet posTagSet) {
 		posTagSetHolder.set(posTagSet);
 	}
 	
 	public static PosTagSet getPosTagSet() {
 		PosTagSet posTagSet = posTagSetHolder.get();
-		if (posTagSet==null && implementation!=null) {
-			posTagSet = implementation.getDefaultPosTagSet();
+		if (posTagSet==null && implementationHolder.get()!=null) {
+			posTagSet = implementationHolder.get().getDefaultPosTagSet();
 			TalismaneSession.setPosTagSet(posTagSet);
 		}
 		return posTagSet;
@@ -60,8 +63,8 @@ public class TalismaneSession {
 	
 	public static TransitionSystem getTransitionSystem() {
 		TransitionSystem transitionSystem = transitionSystemHolder.get();
-		if (transitionSystem==null && implementation!=null) {
-			transitionSystem = implementation.getDefaultTransitionSystem();
+		if (transitionSystem==null && implementationHolder.get()!=null) {
+			transitionSystem = implementationHolder.get().getDefaultTransitionSystem();
 			TalismaneSession.setTransitionSystem(transitionSystem);
 		}
 		return transitionSystem;
@@ -73,8 +76,8 @@ public class TalismaneSession {
 	
 	public static PosTaggerLexicon getLexicon() {
 		PosTaggerLexicon lexicon = lexiconHolder.get();
-		if (lexicon==null && implementation!=null) {
-			lexicon = implementation.getLexicon();
+		if (lexicon==null && implementationHolder.get()!=null) {
+			lexicon = implementationHolder.get().getDefaultLexicon();
 			TalismaneSession.setLexicon(lexicon);
 		}
 		return lexicon;

@@ -32,15 +32,17 @@ import com.joliciel.talismane.output.FreemarkerTemplateWriter;
  */
 public class PosTaggerGuessTemplateWriter implements PosTagEvaluationObserver {
 	FreemarkerTemplateWriter freemarkerTemplateWriter;
+	Writer writer;
 	
 	public PosTaggerGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(writer, templateReader);
+		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
+		this.writer = writer;
 	}
 
 	@Override
 	public void onNextPosTagSequence(PosTagSequence realSequence,
 			List<PosTagSequence> guessedSequences) {
-		freemarkerTemplateWriter.onNextPosTagSequence(guessedSequences.get(0));
+		freemarkerTemplateWriter.onNextPosTagSequence(guessedSequences.get(0), writer);
 	}
 
 	@Override

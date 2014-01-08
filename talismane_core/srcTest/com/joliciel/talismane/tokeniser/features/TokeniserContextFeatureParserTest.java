@@ -29,13 +29,13 @@ import org.junit.Test;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.machineLearning.features.AndFeature;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
-import com.joliciel.talismane.machineLearning.features.ConcatenateWithNullsFeature;
+import com.joliciel.talismane.machineLearning.features.ConcatenateFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
-import com.joliciel.talismane.machineLearning.features.OrFeature;
+import com.joliciel.talismane.machineLearning.features.OrFeatureAllowNulls;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 
 public class TokeniserContextFeatureParserTest {
@@ -104,10 +104,10 @@ public class TokeniserContextFeatureParserTest {
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
 		assertEquals(1, features.size());
 		Feature<TokeniserContext,?> feature = features.get(0);
-		assertTrue(feature instanceof ConcatenateWithNullsFeature);
+		assertEquals(ConcatenateFeature.class.getSimpleName(), feature.getClass().getSimpleName());
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		StringFeature<TokenWrapper>[] stringFeatures = ((ConcatenateWithNullsFeature)feature).getStringFeatures();
+		StringFeature<TokenWrapper>[] stringFeatures = ((ConcatenateFeature)feature).getStringFeatures();
 		assertEquals(3, stringFeatures.length);
 		
 		assertTrue(stringFeatures[0] instanceof WordFormFeature);
@@ -158,7 +158,7 @@ public class TokeniserContextFeatureParserTest {
 		if (feature instanceof FeatureWrapper)
 			feature = ((FeatureWrapper<TokeniserContext,?>) feature).getWrappedFeature();
 		LOG.debug(feature.getClass());
-		assertTrue(feature instanceof OrFeature);
+		assertEquals(OrFeatureAllowNulls.class.getSimpleName(), feature.getClass().getSimpleName());
 
 
 	}

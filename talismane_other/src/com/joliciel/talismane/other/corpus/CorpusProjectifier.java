@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.other.corpus;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		
 		List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
 		
@@ -107,7 +108,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
 			arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
 			pair = this.getNextPair(arcs);
 		}
-		this.wrappedProcessor.onNextParseConfiguration(parseConfiguration);
+		this.wrappedProcessor.onNextParseConfiguration(parseConfiguration, writer);
 	}
 	
 	private NonProjectivePair getNextPair(List<DependencyArc> arcs) {

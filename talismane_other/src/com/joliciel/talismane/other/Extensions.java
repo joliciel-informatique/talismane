@@ -105,12 +105,12 @@ public class Extensions {
 				return;
 			
 			if (command.equals(ExtendedCommand.toStandoff)) {
-				StandoffWriter standoffWriter = new StandoffWriter(config.getWriter());
+				StandoffWriter standoffWriter = new StandoffWriter();
 				talismane.setParseConfigurationProcessor(standoffWriter);
 			} else if (command.equals(ExtendedCommand.toStandoffSentences)) {
 				InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoffSentences.ftl"); 
 				Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
-				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(config.getWriter(), templateReader);
+				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
 				
 				talismane.setParseConfigurationProcessor(templateWriter);
 			} else if (command.equals(ExtendedCommand.fromStandoff)) {			

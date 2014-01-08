@@ -24,12 +24,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.LanguageSpecificImplementation;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.tokeniser.filters.french.AllUppercaseFrenchFilter;
-import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenAfterDuFilter;
-import com.joliciel.talismane.tokeniser.filters.french.EmptyTokenBeforeDuquelFilter;
-import com.joliciel.talismane.tokeniser.filters.french.LowercaseFirstWordFrenchFilter;
-import com.joliciel.talismane.tokeniser.filters.french.UpperCaseSeriesFrenchFilter;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.LogUtils;
 
 class TokenFilterServiceImpl implements TokenFilterServiceInternal {
@@ -64,11 +61,8 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	public TokenSequenceFilter getTokenSequenceFilter(String descriptor) {
 		TokenSequenceFilter filter = null;
 		List<Class<? extends TokenSequenceFilter>> classes = new ArrayList<Class<? extends TokenSequenceFilter>>();
-		classes.add(EmptyTokenAfterDuFilter.class);
-		classes.add(EmptyTokenBeforeDuquelFilter.class);
-		classes.add(LowercaseFirstWordFrenchFilter.class);
-		classes.add(UpperCaseSeriesFrenchFilter.class);
-		classes.add(AllUppercaseFrenchFilter.class);
+		LanguageSpecificImplementation implementation = TalismaneSession.getImplementation();
+		classes.addAll(implementation.getAvailableTokenSequenceFilters());
 		
 		for (Class<? extends TokenSequenceFilter> clazz : classes) {
 			if (descriptor.equals(clazz.getSimpleName())) {

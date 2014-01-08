@@ -33,15 +33,17 @@ import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 public class ParseEvaluationGuessTemplateWriter implements
 		ParseEvaluationObserver {
 	FreemarkerTemplateWriter freemarkerTemplateWriter;
+	Writer writer;
 	
 	public ParseEvaluationGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(writer, templateReader);
+		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
+		this.writer = writer;
 	}
 	
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration realConfiguration,
 			List<ParseConfiguration> guessedConfigurations) {
-		freemarkerTemplateWriter.onNextParseConfiguration(guessedConfigurations.get(0));
+		freemarkerTemplateWriter.onNextParseConfiguration(guessedConfigurations.get(0), writer);
 	}
 
 	@Override

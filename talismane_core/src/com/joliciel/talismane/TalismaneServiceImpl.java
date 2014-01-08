@@ -25,7 +25,7 @@ import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
-class TalismaneServiceImpl implements TalismaneService {
+class TalismaneServiceImpl implements TalismaneServiceInternal {
 	
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
@@ -35,8 +35,8 @@ class TalismaneServiceImpl implements TalismaneService {
 	private SentenceDetectorService sentenceDetectorService;
 
 	@Override
-	public Talismane getTalismane() {
-		TalismaneImpl talismane = new TalismaneImpl();
+	public Talismane getTalismane(TalismaneConfig config) {
+		TalismaneImpl talismane = new TalismaneImpl(config);
 		talismane.setFilterService(this.getFilterService());
 		talismane.setParserService(this.getParserService());
 		talismane.setPosTaggerService(this.getPosTaggerService());
@@ -44,6 +44,13 @@ class TalismaneServiceImpl implements TalismaneService {
 		talismane.setMachineLearningService(this.getMachineLearningService());
 		talismane.setSentenceDetectorService(this.getSentenceDetectorService());
 		return talismane;
+	}
+
+	@Override
+	public TalismaneServer getTalismaneServer(TalismaneConfig config) {
+		TalismaneServerImpl talismaneServer = new TalismaneServerImpl(config);
+		talismaneServer.setTalismaneService(this);
+		return talismaneServer;
 	}
 
 	public TokeniserService getTokeniserService() {

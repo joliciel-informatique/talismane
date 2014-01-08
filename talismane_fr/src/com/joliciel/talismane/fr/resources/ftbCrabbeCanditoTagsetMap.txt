@@ -161,9 +161,9 @@ N	P	ms	NPP
 N	P	ms ms	NPP
 N	P	null	NPP
 N	P	s	NPP
-null	null	null	null
+null	null	null	ADV
 P	null	null	P
-PC	null	null	null
+PC	null	null	ADV
 PONCT	S	null	PONCT
 PONCT	W	null	PONCT
 PREF	null	null	ADV

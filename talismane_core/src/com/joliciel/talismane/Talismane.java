@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.Reader;
+import java.io.Writer;
+
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
@@ -88,13 +91,22 @@ public interface Talismane {
 		parseFeatureTester
 	}
 
+	public enum Mode {
+		/**
+		 * Command line mode, reading from standard in or file, and writing to standard out or file.
+		 */
+		normal,
+		/**
+		 * Server listening on port, and processing input as it comes.
+		 */
+		server
+	}
 
 	/**
 	 * Run the {@link Command} specified by {@link TalismaneConfig#getCommand()}.
-	 * @param config a holder for all of the configuration options for this command.
 	 * @throws Exception
 	 */
-	public abstract void runCommand(TalismaneConfig config);
+	public abstract void process();
 
 	/**
 	 * The sentence processor to be used if the end-module is the sentence processor.
@@ -134,4 +146,18 @@ public interface Talismane {
 	 */
 	public boolean isStopOnError();
 	public void setStopOnError(boolean stopOnError);
+	
+	/**
+	 * The reader to be used for input by this instance of Talismane.
+	 * @return
+	 */
+	public Reader getReader();
+	public void setReader(Reader reader);
+	
+	/**
+	 * The writer to be used for output by this instance of Talismane.
+	 * @return
+	 */
+	public Writer getWriter();
+	public void setWriter(Writer writer);
 }

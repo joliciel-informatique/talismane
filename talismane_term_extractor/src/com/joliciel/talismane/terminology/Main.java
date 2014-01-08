@@ -39,8 +39,6 @@ import org.apache.log4j.PropertyConfigurator;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.fr.TalismaneFrench;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -111,8 +109,6 @@ public class Main {
 			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance();
 			TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
 			TerminologyBase terminologyBase = null;
-			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
-			TalismaneService talismaneService = talismaneServiceLocator.getTalismaneService();
 			
 			if (projectCode==null)
 				throw new TalismaneException("Required argument: projectCode");
@@ -133,10 +129,11 @@ public class Main {
 					innerArgs.put("command", "process");
 				}
 				
-				TalismaneFrench talismaneFrench = new TalismaneFrench(innerArgs);
+				TalismaneFrench talismaneFrench = new TalismaneFrench();
+				TalismaneConfig config = new TalismaneConfig(innerArgs, talismaneFrench);
 
 				PosTagSet tagSet = TalismaneSession.getPosTagSet();
-				Charset outputCharset = talismaneFrench.getOutputCharset();
+				Charset outputCharset = config.getOutputCharset();
 
 				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase);
 				termExtractor.setMaxDepth(depth);
@@ -162,9 +159,9 @@ public class Main {
 					termExtractor.addTermObserver(termAnalysisWriter);
 				}
 
-				Talismane talismane = talismaneService.getTalismane();
+				Talismane talismane = config.getTalismane();
 				talismane.setParseConfigurationProcessor(termExtractor);
-				talismane.runCommand(talismaneFrench);
+				talismane.process();
 			} else if (command.equals(Command.list)) {
 
 				List<Term> terms = terminologyBase.getTermsByFrequency(2);

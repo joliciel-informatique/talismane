@@ -105,17 +105,17 @@
 	</target>
 
 	<target name="jar" depends="compile">
-	    <manifestclasspath property="jar.classpath" jarfile="${dist}/${project}-${talismane.terminology.version}.jar">
+	    <manifestclasspath property="jar.classpath" jarfile="${dist}/${project}-${talismane.version}.jar">
 	      <classpath refid="classpath.jar"/>
 	    </manifestclasspath>
-		<jar jarfile="${dist}/${project}-${talismane.terminology.version}.jar" basedir="${classes}">
+		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}">
 			<manifest>
 	    		<attribute name="Main-Class" value="com.joliciel.talismane.terminology.Main"/>
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
-		<zip destfile="${dist}/${project}-${talismane.terminology.version}.zip">
-			<fileset file="${dist}/${project}-${talismane.terminology.version}.jar" />
+		<zip destfile="${dist}/${project}-${talismane.version}.zip">
+			<fileset file="${dist}/${project}-${talismane.version}.jar" />
 			<fileset dir="${dist}">
 				<include name="lib/*.jar" />
 			</fileset>
@@ -131,7 +131,7 @@
 
 	<target name="one-jar" depends="jar">
         <!-- Construct the One-JAR file -->   
-        <one-jar destfile="${dist}/${project}-${talismane.terminology.version}-allDeps.jar">
+        <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
         	<manifest>
         		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.terminology.Main" />
         	</manifest>

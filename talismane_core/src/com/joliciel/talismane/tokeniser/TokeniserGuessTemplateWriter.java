@@ -32,9 +32,11 @@ import com.joliciel.talismane.output.FreemarkerTemplateWriter;
  */
 public class TokeniserGuessTemplateWriter implements TokenEvaluationObserver {
 	FreemarkerTemplateWriter freemarkerTemplateWriter;
+	Writer writer;
 	
 	public TokeniserGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(writer, templateReader);
+		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
+		this.writer = writer;
 	}
 
 	@Override
@@ -45,7 +47,7 @@ public class TokeniserGuessTemplateWriter implements TokenEvaluationObserver {
 	@Override
 	public void onNextTokenSequence(TokenSequence realSequence,
 			List<TokenisedAtomicTokenSequence> guessedAtomicSequences) {
-		freemarkerTemplateWriter.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence());
+		freemarkerTemplateWriter.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence(), writer);
 	}
 
 
