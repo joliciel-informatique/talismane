@@ -209,7 +209,10 @@ class LefffEntryImpl extends EntityImpl implements LefffEntryInternal, Comparabl
 			this.lemma = this.getLefffLemma().getText();
 			this.lemmaComplement = this.getLefffLemma().getComplement();
 			this.category = this.getLefffCategory().getCode();
-			this.predicate = this.getLefffPredicate().getText();
+			if (this.getLefffPredicate()!=null)
+				this.predicate = this.getLefffPredicate().getText();
+			else
+				this.predicate = "";
 			this.subCategory = "";
 			gender = new ArrayList<String>();
 			number = new ArrayList<String>();

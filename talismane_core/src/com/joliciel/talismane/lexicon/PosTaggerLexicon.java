@@ -72,4 +72,11 @@ public interface PosTaggerLexicon extends Lexicon {
 	 */
 	public abstract PosTagSet getPosTagSet();
 	public abstract void setPosTagSet(PosTagSet posTagSet);
+	
+	/**
+	 * The PosTagMapper to use when selecting the possible pos-tags for a given lexical entry.
+	 * @return
+	 */
+	public PosTagMapper getPosTagMapper();
+	public void setPosTagMapper(PosTagMapper posTagMapper);
 }

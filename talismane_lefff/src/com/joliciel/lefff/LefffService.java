@@ -22,14 +22,17 @@ package com.joliciel.lefff;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
+import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.posTagger.PosTagSet;
 
 public interface LefffService {
-	public LefffPosTagMapper getPosTagMapper(File file, PosTagSet posTagSet);
-	public LefffPosTagMapper getPosTagMapper(List<String> descriptors, PosTagSet posTagSet);
+	public PosTagMapper getPosTagMapper(File file, PosTagSet posTagSet);
+	public PosTagMapper getPosTagMapper(Scanner scanner, PosTagSet posTagSet);
+	public PosTagMapper getPosTagMapper(List<String> descriptors, PosTagSet posTagSet);
 	
     /**
      * Get an empty entry for saving.
@@ -49,6 +52,7 @@ public interface LefffService {
     public Attribute loadAttribute(int attributeId);
 
 	public LefffLoader getLefffLoader();
+	public LefffLoader getLefff3Loader();
 
 	public Map<String, List<LexicalEntry>> findEntryMap();
 

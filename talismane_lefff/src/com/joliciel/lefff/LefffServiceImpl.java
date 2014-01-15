@@ -21,11 +21,14 @@ package com.joliciel.lefff;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
+import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.ObjectCache;
 
@@ -62,22 +65,29 @@ class LefffServiceImpl implements LefffServiceInternal {
     }
     
     public Attribute loadOrCreateAttribute(String attributeCode, String attributeValue) {
-        if (attributeCode==null || attributeCode.length()==0)
-            return null;
-        Attribute attribute = null;
-        String key = attributeCode + "|" + attributeValue;
-        try {
-            attribute = this.loadAttribute(attributeCode, attributeValue);
-        } catch (EntityNotFoundException enfe) {
-            AttributeInternal newAttribute = this.newAttribute();
-            newAttribute.setCode(attributeCode);
-            newAttribute.setValue(attributeValue);
-            newAttribute.save();
-            attribute = newAttribute;
-            this.objectCache.putEntity(Attribute.class, key, attribute);
-        }
-        return attribute;
+    	return this.loadOrCreateAttribute(attributeCode, attributeValue, false);
     }
+
+	@Override
+	public Attribute loadOrCreateAttribute(String attributeCode,
+			String attributeValue, boolean morphological) {
+	       if (attributeCode==null || attributeCode.length()==0)
+	            return null;
+	        Attribute attribute = null;
+	        String key = attributeCode + "|" + attributeValue;
+	        try {
+	            attribute = this.loadAttribute(attributeCode, attributeValue);
+	        } catch (EntityNotFoundException enfe) {
+	            AttributeInternal newAttribute = this.newAttribute();
+	            newAttribute.setCode(attributeCode);
+	            newAttribute.setValue(attributeValue);
+	            newAttribute.setMorphological(morphological);
+	            newAttribute.save();
+	            attribute = newAttribute;
+	            this.objectCache.putEntity(Attribute.class, key, attribute);
+	        }
+	        return attribute;
+	}
     
     public Category loadCategory(int categoryId) {
         Category category = (Category) this.objectCache.getEntity(Category.class, categoryId);
@@ -244,9 +254,10 @@ class LefffServiceImpl implements LefffServiceInternal {
         return lefffDao;
     }
 
-    public void setLefffDao(LefffDao treebankDao) {
-        this.lefffDao = treebankDao;
-        this.lefffDao.setLefffServiceInternal(this);
+    public void setLefffDao(LefffDao lefffDao) {
+        this.lefffDao = lefffDao;
+        if (lefffDao!=null)
+        	this.lefffDao.setLefffServiceInternal(this);
     }
 
     public ObjectCache getObjectCache() {
@@ -357,6 +368,14 @@ class LefffServiceImpl implements LefffServiceInternal {
 		}
 		return lefffLoader;
 	}
+	
+
+	public LefffLoader getLefff3Loader() {
+		Lefff3LoaderImpl lefffLoader = new Lefff3LoaderImpl();
+		lefffLoader.setLefffServiceInternal(this);
+		
+		return lefffLoader;
+	}
 
 	@Override
 	public void saveCategory(CategoryInternal category) {
@@ -378,15 +397,21 @@ class LefffServiceImpl implements LefffServiceInternal {
 
 
 	@Override
-	public LefffPosTagMapper getPosTagMapper(File file, PosTagSet posTagSet) {
-		LefffPosTagMapperImpl posTagMapper = new LefffPosTagMapperImpl(file, posTagSet);
+	public PosTagMapper getPosTagMapper(File file, PosTagSet posTagSet) {
+		LefffPosTagMapper posTagMapper = new LefffPosTagMapper(file, posTagSet);
+		return posTagMapper;
+	}
+	
+	@Override
+	public PosTagMapper getPosTagMapper(Scanner scanner, PosTagSet posTagSet) {
+		LefffPosTagMapper posTagMapper = new LefffPosTagMapper(scanner, posTagSet);
 		return posTagMapper;
 	}
 
 	@Override
-	public LefffPosTagMapper getPosTagMapper(List<String> descriptors,
+	public PosTagMapper getPosTagMapper(List<String> descriptors,
 			PosTagSet posTagSet) {
-		LefffPosTagMapperImpl posTagMapper = new LefffPosTagMapperImpl(descriptors, posTagSet);
+		LefffPosTagMapper posTagMapper = new LefffPosTagMapper(descriptors, posTagSet);
 		return posTagMapper;
 	}
 
@@ -395,6 +420,19 @@ class LefffServiceImpl implements LefffServiceInternal {
 		LefffEntryMorphologyReader reader = new LefffEntryMorphologyReader();
 		return reader;
 	}
+
+	@Override
+	public LefffEntryInternal loadOrCreateEntry(Word word, Lemma lemma,
+			Category category) {
+		LefffEntryInternal entry = this.getLefffDao().findEntry(word, lemma, category);
+		if (entry==null)
+			entry = this.newEntryInternal();
+		entry.setCategory(category);
+		entry.setWord(word);
+		entry.setLemma(lemma);
+		return entry;
+	}
+
     
     
 }

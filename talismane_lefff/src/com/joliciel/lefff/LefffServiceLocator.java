@@ -35,7 +35,18 @@ public class LefffServiceLocator {
     private String dataSourcePropertiesFile;
     private Properties dataSourceProperties;
     private LefffServiceImpl lefffService;
+    private LefffDao lefffDao;
     private PosTagSet posTagSet;
+    private static LefffServiceLocator instance;
+    
+    private LefffServiceLocator() { }
+    
+    public static LefffServiceLocator getInstance() {
+    	if (instance==null) {
+    		instance = new LefffServiceLocator();
+    	}
+    	return instance;
+    }
     
     public String getDataSourcePropertiesFile() {
         return dataSourcePropertiesFile;
@@ -49,13 +60,23 @@ public class LefffServiceLocator {
         if (this.lefffService == null) {
             lefffService = new LefffServiceImpl();
             ObjectCache objectCache = new SimpleObjectCache();
-            LefffDaoImpl lefffDao = new LefffDaoImpl();
-            lefffDao.setDataSource(this.getDataSource());
             lefffService.setObjectCache(objectCache);
-            lefffService.setLefffDao(lefffDao);
+            lefffService.setLefffDao(this.getLefffDao());
         }
         
         return lefffService;
+    }
+    
+    
+    LefffDao getLefffDao() {
+    	if (this.lefffDao==null) {
+	    	if (this.dataSourcePropertiesFile!=null) {
+	    		LefffDaoImpl lefffDaoImpl = new LefffDaoImpl();
+	    		lefffDaoImpl.setDataSource(this.getDataSource());
+	    		this.lefffDao = lefffDaoImpl;
+	    	}
+    	}
+        return lefffDao;
     }
     
     private Properties getDataSourceProperties() {

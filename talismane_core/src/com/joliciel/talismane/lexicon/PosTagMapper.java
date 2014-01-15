@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2014 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -16,14 +16,19 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.lefff;
+package com.joliciel.talismane.lexicon;
 
-import java.io.Serializable;
+import java.util.Set;
 
+import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTagSet;
 
-public interface Attribute extends Entity, Serializable {
-	public String getCode();
-	public String getValue();
-	public boolean isMorphological();
-	public void setMorphological(boolean morphological);
+/**
+ * Used to retrieve a set of pos-tags for a given lexical entry.
+ * @author Assaf Urieli
+ *
+ */
+public interface PosTagMapper {
+	public PosTagSet getPosTagSet();
+	public Set<PosTag> getPosTags(LexicalEntry lexicalEntry);
 }

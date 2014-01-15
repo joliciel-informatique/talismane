@@ -14,8 +14,7 @@
 		<property name="prettyName" value="Talismane for French" />
 		<property name="sharedLib" value="../lib"/>
 		<property name="terminologyLib" value="../libTerminology"/>
-		<property name="dist" value="../distTerminology"/>
-		<property name="talismaneDist" value="../dist"/>
+		<property name="dist" value="../dist"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
 		<property name="classes" location="${build}/classes" />
@@ -29,15 +28,6 @@
 				<include name="**/*.jar" />
 			</fileset>
 		</copy>
-		<copy todir="${dist}">
-			<fileset dir="${talismaneDist}">
-				<include name="talismane-utils-${talismane.version}.jar" />
-				<include name="talismane-machineLearning-${talismane.version}.jar" />
-				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-fr-${talismane.version}.jar" />
-			</fileset>
-		</copy>
 		<path id="classpath">
 			<fileset dir="${sharedLib}">
 				<include name="**/*.jar" />
@@ -45,7 +35,7 @@
 			<fileset dir="${terminologyLib}">
 				<include name="**/*.jar" />
 			</fileset>
-			<fileset dir="${talismaneDist}">
+			<fileset dir="${dist}">
 				<include name="talismane-utils-${talismane.version}.jar" />
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
@@ -140,16 +130,16 @@
                 <fileset dir="${classes}"/>
             </main>
             <lib>
-				<fileset dir="${sharedLib}">
-					<include name="**/*.jar" />
-				</fileset>
-    			<fileset dir="${talismaneDist}">
-    				<include name="talismane-utils-${talismane.version}.jar" />
-    				<include name="talismane-machineLearning-${talismane.version}.jar" />
-    				<include name="talismane-core-${talismane.version}.jar" />
-    				<include name="talismane-lefff-${talismane.version}.jar" />
-    				<include name="talismane-fr-${talismane.version}.jar" />
-    			</fileset>
+		<fileset dir="${sharedLib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${dist}">
+			<include name="talismane-utils-${talismane.version}.jar" />
+			<include name="talismane-machineLearning-${talismane.version}.jar" />
+			<include name="talismane-core-${talismane.version}.jar" />
+			<include name="talismane-lefff-${talismane.version}.jar" />
+			<include name="talismane-fr-${talismane.version}.jar" />
+		</fileset>
 
             </lib>
         </one-jar>
