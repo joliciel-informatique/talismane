@@ -25,4 +25,5 @@ public interface Attribute extends Entity, Serializable {
 	public String getCode();
 	public String getValue();
 	public boolean isMorphological();
+	public void setMorphological(boolean morphological);
 }

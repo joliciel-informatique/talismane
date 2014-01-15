@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -40,7 +41,8 @@ public class GraceLexicon implements PosTaggerLexicon, Serializable {
 	Map<String,List<LexicalEntry>> entryMap = new HashMap<String, List<LexicalEntry>>();
 	Map<String,List<LexicalEntry>> lemmaEntryMap = new HashMap<String, List<LexicalEntry>>();
 	PosTagSet posTagSet;
-	Map<String,PosTag> posTagMap;
+	PosTagMapper posTagMapper;
+	private Map<String,PosTag> posTagMap;
 
 	@Override
 	public List<LexicalEntry> getEntries(String word) {
@@ -88,8 +90,7 @@ public class GraceLexicon implements PosTaggerLexicon, Serializable {
 		List<LexicalEntry> entries = this.getEntries(word);
 		Set<PosTag> posTags = new TreeSet<PosTag>();
 		for (LexicalEntry entry : entries) {
-			PosTag posTag = posTagMap.get(entry.getMorphology());
-			posTags.add(posTag);
+			posTags.addAll(this.getPosTagMapper().getPosTags(entry));
 		}
 		
 		return posTags;
@@ -101,9 +102,9 @@ public class GraceLexicon implements PosTaggerLexicon, Serializable {
 		List<LexicalEntry> entriesToReturn = new ArrayList<LexicalEntry>();
 		
 		for (LexicalEntry entry : entries) {
-			PosTag myPosTag = posTagMap.get(entry.getMorphology());
+			Set<PosTag> posTags = this.getPosTagMapper().getPosTags(entry);
 
-			if (posTag.equals(myPosTag)) {
+			if (posTags.contains(posTag)) {
 				entriesToReturn.add(entry);
 			}
 		}
@@ -117,9 +118,9 @@ public class GraceLexicon implements PosTaggerLexicon, Serializable {
 		Set<LexicalEntry> entriesToReturn = new TreeSet<LexicalEntry>();
 
 		for (LexicalEntry entry : entries) {
-			PosTag myPosTag = posTagMap.get(entry.getMorphology());
+			Set<PosTag> posTags = this.getPosTagMapper().getPosTags(entry);
 
-			if (posTag.equals(myPosTag)) {
+			if (posTags.contains(posTag)) {
 				entriesToReturn.add(entry);
 			}
 		}
@@ -160,4 +161,17 @@ public class GraceLexicon implements PosTaggerLexicon, Serializable {
 		}
 		entries.add(entry);
 	}
+
+	public PosTagMapper getPosTagMapper() {
+		if (posTagMapper==null) {
+			posTagMapper = new GracePosTagMapper(posTagSet, posTagMap);
+		}
+		return posTagMapper;
+	}
+
+	public void setPosTagMapper(PosTagMapper posTagMapper) {
+		this.posTagMapper = posTagMapper;
+	}
+	
+	
 } 

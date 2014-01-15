@@ -14,8 +14,7 @@
 		<property name="prettyName" value="Talismane for French" />
 		<property name="sharedLib" value="../lib"/>
 		<property name="terminologyLib" value="../libTerminology"/>
-		<property name="dist" value="../distTerminology"/>
-		<property name="talismaneDist" value="../dist"/>
+		<property name="dist" value="../dist"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
 		<property name="classes" location="${build}/classes" />

@@ -112,4 +112,19 @@ public class LexiconChain implements PosTaggerLexicon {
 	public void addLexicon(PosTaggerLexicon lexicon) {
 		this.lexicons.add(lexicon);
 	}
+
+	@Override
+	public PosTagMapper getPosTagMapper() {
+		if (this.lexicons.size()>0) {
+			PosTaggerLexicon lexicon = this.lexicons.get(0);
+			return lexicon.getPosTagMapper();
+		}
+		return null;
+	}
+
+	@Override
+	public void setPosTagMapper(PosTagMapper posTagMapper) {
+		for (PosTaggerLexicon lexicon : lexicons)
+			lexicon.setPosTagMapper(posTagMapper);
+	}
 }

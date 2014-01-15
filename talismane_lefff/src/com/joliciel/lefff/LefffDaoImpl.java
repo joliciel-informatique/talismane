@@ -40,6 +40,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryStatus;
 import com.joliciel.talismane.utils.DaoUtils;
+import com.joliciel.talismane.utils.DaoUtils.LogLevel;
 
 class LefffDaoImpl implements LefffDao {
     private static final Log LOG = LogFactory.getLog(LefffDaoImpl.class);
@@ -109,7 +110,8 @@ class LefffDaoImpl implements LefffDao {
         return attributes;
 	}
 
-    public void saveAttribute(AttributeInternal attribute) {
+
+	public void saveAttribute(AttributeInternal attribute) {
         NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
         paramSource.addValue("attribute_code", attribute.getCode());
@@ -588,6 +590,32 @@ class LefffDaoImpl implements LefffDao {
         }
         return entry;
 	}
+	
+
+    @Override
+	public LefffEntryInternal findEntry(Word word, Lemma lemma,
+			Category category) {
+		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
+        String sql = "SELECT " + SELECT_ENTRY + " FROM lef_entry" +
+        		" WHERE entry_word_id = :word_id" +
+        		" AND entry_lemma_id = :lemma_id" +
+        		" AND entry_category_id = :category_id" +
+        		" ORDER BY entry_id";
+        MapSqlParameterSource paramSource = new MapSqlParameterSource();
+        paramSource.addValue("word_id", word.getId());
+        paramSource.addValue("lemma_id", lemma.getId());
+        paramSource.addValue("category_id", category.getId());
+       
+        LOG.info(sql);
+        LefffDaoImpl.LogParameters(paramSource);
+        @SuppressWarnings("unchecked")
+		List<LefffEntryInternal> entries = jt.query(sql, paramSource, new EntryMapper(this.getLefffServiceInternal()));
+       
+        LefffEntryInternal entry = null;
+        if (entries.size()>0)
+        	entry = entries.get(0);
+        return entry;
+	}
 
 	@Override
 	public void saveEntry(LefffEntryInternal entry) {
@@ -692,6 +720,8 @@ class LefffDaoImpl implements LefffDao {
 
 	@Override
 	public Map<String, List<LexicalEntry>> findEntryMap(List<String> categories) {
+		int version = 3;
+		
 		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
         String sql = "SELECT " + SELECT_ENTRY + "," + SELECT_WORD + "," + SELECT_LEMMA + "," +
         	SELECT_CATEGORY + "," + SELECT_PREDICATE + "," + SELECT_ATTRIBUTE +
@@ -699,13 +729,22 @@ class LefffDaoImpl implements LefffDao {
         	" INNER JOIN lef_word ON entry_word_id = word_id" +
         	" INNER JOIN lef_lemma ON entry_lemma_id = lemma_id" +
         	" INNER JOIN lef_category ON entry_category_id = category_id" +
-        	" INNER JOIN lef_predicate ON entry_predicate_id = predicate_id" +
-        	" INNER JOIN lef_attribute ON entry_morph_id = attribute_id" +
-        	" WHERE entry_status < 3";
+        	" LEFT OUTER JOIN lef_predicate ON entry_predicate_id = predicate_id";
+        
+        // allow multiple morphological attributes as separate entries in version 3+
+        if (version<3)
+        	sql += " INNER JOIN lef_attribute ON entry_morph_id = attribute_id";
+        else
+        	sql += " INNER JOIN lef_entry_attribute ON entry_id = entatt_entry_id" +
+        			" INNER JOIN lef_attribute ON entatt_attribute_id = attribute_id";
+        
+        sql += " WHERE entry_status < 3" +
+        		" AND attribute_morph = true";
         
         if (categories!=null && categories.size()>0) {
         	sql += " AND category_code in (:categoryCodes)";
         }
+
         
         sql +=
         	" ORDER BY entry_status, entry_id";
@@ -716,7 +755,7 @@ class LefffDaoImpl implements LefffDao {
         }
         LOG.info(sql);
         LefffDaoImpl.LogParameters(paramSource);
-        double requiredCapacity = 500000;
+        double requiredCapacity = 560000;
         Map<String, List<LexicalEntry>> entryMap = new HashMap<String, List<LexicalEntry>>(((int) Math.ceil(requiredCapacity / 0.75)));
         EntryMapper entryMapper = new EntryMapper( this.lefffServiceInternal);
         WordMapper wordMapper = new WordMapper(this.lefffServiceInternal);
@@ -744,13 +783,16 @@ class LefffDaoImpl implements LefffDao {
         	}
         	entry.setCategory(category);
         	
+        	
         	int predicateId = rowSet.getInt("predicate_id");
-        	Predicate predicate = predicateMap.get(predicateId);
-        	if (predicate==null) {
-        		predicate = predicateMapper.mapRow(rowSet);
-        		predicateMap.put(predicateId, predicate);
+        	if (predicateId!=0) {
+	        	Predicate predicate = predicateMap.get(predicateId);
+	        	if (predicate==null) {
+	        		predicate = predicateMapper.mapRow(rowSet);
+	        		predicateMap.put(predicateId, predicate);
+	        	}
+	        	entry.setPredicate(predicate);
         	}
-        	entry.setPredicate(predicate);
         	
         	int lemmaId = rowSet.getInt("lemma_id");
         	Lemma lemma = lemmaMap.get(lemmaId);
@@ -786,6 +828,6 @@ class LefffDaoImpl implements LefffDao {
 	
     @SuppressWarnings("unchecked")
     public static void LogParameters(MapSqlParameterSource paramSource) {
-       DaoUtils.LogParameters(paramSource.getValues());
+       DaoUtils.LogParameters(paramSource.getValues(), LogLevel.TRACE);
     }
 }

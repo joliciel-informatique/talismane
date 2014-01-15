@@ -32,7 +32,8 @@ interface LefffServiceInternal extends LefffService {
      * Load existing attribute or create a new one if non-existent.
      */
     public Attribute loadOrCreateAttribute(String attributeCode, String attributeValue);
-
+	public Attribute loadOrCreateAttribute(String attributeCode, String attributeValue,
+			boolean morphological);
     /**
      * Load existing category or create a new one if non-existent.
      */
@@ -72,5 +73,8 @@ interface LefffServiceInternal extends LefffService {
 
     public List<Attribute> findAttributes(LefffEntryInternal entry);
 	public LefffEntryInternal newEntryInternal();
+
+	
+	public LefffEntryInternal loadOrCreateEntry(Word word, Lemma lemma, Category category);
 
 }

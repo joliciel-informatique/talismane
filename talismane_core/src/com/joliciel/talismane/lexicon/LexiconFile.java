@@ -35,6 +35,7 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 	Map<String,List<LexicalEntry>> entryMap = new HashMap<String, List<LexicalEntry>>();
 	Map<String,List<LexicalEntry>> lemmaEntryMap = new HashMap<String, List<LexicalEntry>>();
 	PosTagSet posTagSet;
+	PosTagMapper posTagMapper;
 	
 	public LexiconFile(LexicalEntryReader reader, File file) {
 		super();
@@ -158,6 +159,14 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 
 	public void setPosTagSet(PosTagSet posTagSet) {
 		this.posTagSet = posTagSet;
+	}
+
+	public PosTagMapper getPosTagMapper() {
+		return posTagMapper;
+	}
+
+	public void setPosTagMapper(PosTagMapper posTagMapper) {
+		this.posTagMapper = posTagMapper;
 	}
 
 }

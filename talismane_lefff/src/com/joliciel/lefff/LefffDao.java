@@ -25,7 +25,8 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 
 interface LefffDao {
     public LefffEntry loadEntry(int entryId);
-    
+	public LefffEntryInternal findEntry(Word word, Lemma lemma, Category category);
+   
     public Word loadWord(int wordId);
 
     public Lemma loadLemma(int lemmaId);

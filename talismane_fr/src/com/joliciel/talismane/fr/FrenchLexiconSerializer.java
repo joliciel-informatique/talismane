@@ -40,7 +40,7 @@ public class FrenchLexiconSerializer extends LexiconSerializer {
 	}
 
 	public FrenchLexiconSerializer() {
-		LefffServiceLocator lefffServiceLocator = new LefffServiceLocator();
+		LefffServiceLocator lefffServiceLocator = LefffServiceLocator.getInstance();
 		LefffService lefffService = lefffServiceLocator.getLefffService();
 		morphologyReader = lefffService.getLexicalEntryMorphologyReader();
 	}

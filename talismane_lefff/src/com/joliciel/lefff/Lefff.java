@@ -21,7 +21,6 @@ package com.joliciel.lefff;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +30,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.lexicon.PosTagMapper;
+import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.lexicon.PredicateArgument;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -48,10 +49,13 @@ public class Lefff {
         String command = args[0];
        
         String memoryBaseFilePath = "";
+
         String lefffFilePath = "";
         String posTagSetPath = "";
         String posTagMapPath = "";
         String word = null;
+        int version = 3;
+        
         List<String> categories = null;
         int startLine = -1;
         int stopLine = -1;
@@ -79,6 +83,8 @@ public class Lefff {
 				posTagMapPath = argValue;
 			else if (argName.equals("word"))
 				word = argValue;
+			else if (argName.equals("version"))
+				version = Integer.parseInt(argValue);
 			else if (argName.equals("categories")) {
 				String[] parts = argValue.split(",");
 				categories = new ArrayList<String>();
@@ -90,7 +96,7 @@ public class Lefff {
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
 		
-        final LefffServiceLocator locator = new LefffServiceLocator();
+        final LefffServiceLocator locator = LefffServiceLocator.getInstance();
         locator.setDataSourcePropertiesFile("jdbc-live.properties");
         
         TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
@@ -100,7 +106,11 @@ public class Lefff {
         if (command.equals("load")) {
         	if (lefffFilePath.length()==0)
         		throw new RuntimeException("Required argument: lefffFile");
-            final LefffLoader loader = lefffService.getLefffLoader();
+        	LefffLoader loader = null;
+        	if (version==3)
+        		loader = lefffService.getLefff3Loader();
+        	else
+        		loader = lefffService.getLefffLoader();
             File file = new File(lefffFilePath);
             if (startLine>0)
             	loader.setStartLine(startLine);
@@ -111,35 +121,34 @@ public class Lefff {
         } else if (command.equals("serialiseBase")) {
            	if (memoryBaseFilePath.length()==0)
         		throw new RuntimeException("Required argument: memoryBase");
+			
+    		Map<String,List<LexicalEntry>> entryMap = lefffService.findEntryMap(categories);
+    		LefffMemoryBase memoryBase = new LefffMemoryBase(entryMap);
+        	File memoryBaseFile = new File(memoryBaseFilePath);
+        	memoryBaseFile.delete();
+        	memoryBase.serialize(memoryBaseFile);
+        } else if (command.equals("deserialiseBase")) {
+           	if (memoryBaseFilePath.length()==0)
+        		throw new RuntimeException("Required argument: memoryBase");
           	if (posTagSetPath.length()==0)
         		throw new RuntimeException("Required argument: posTagSet");
          	if (posTagMapPath.length()==0)
         		throw new RuntimeException("Required argument: posTagMap");
 
+        	File memoryBaseFile = new File(memoryBaseFilePath);
+        	PosTaggerLexicon memoryBase = LefffMemoryBase.deserializeMemoryBase(memoryBaseFile);
+        	
 	        PosTaggerServiceLocator posTaggerServiceLocator = talismaneServiceLocator.getPosTaggerServiceLocator();
 	        PosTaggerService posTaggerService = posTaggerServiceLocator.getPosTaggerService();
 	        File posTagSetFile = new File(posTagSetPath);
 			PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetFile);
 
 			File posTagMapFile = new File(posTagMapPath);
-			LefffPosTagMapper posTagMapper = lefffService.getPosTagMapper(posTagMapFile, posTagSet);
+			PosTagMapper posTagMapper = lefffService.getPosTagMapper(posTagMapFile, posTagSet);
 			
-			Map<PosTagSet, LefffPosTagMapper> posTagMappers = new HashMap<PosTagSet, LefffPosTagMapper>();
-			posTagMappers.put(posTagSet, posTagMapper);
-			
-        	LefffMemoryLoader loader = new LefffMemoryLoader();
-        	LefffMemoryBase memoryBase = loader.loadMemoryBaseFromDatabase(lefffService, posTagMappers, categories);
-        	File memoryBaseFile = new File(memoryBaseFilePath);
-        	memoryBaseFile.delete();
-        	loader.serializeMemoryBase(memoryBase, memoryBaseFile);
-        } else if (command.equals("deserialiseBase")) {
-           	if (memoryBaseFilePath.length()==0)
-        		throw new RuntimeException("Required argument: memoryBase");
+			memoryBase.setPosTagSet(posTagSet);
+			memoryBase.setPosTagMapper(posTagMapper);
 
-           	LefffMemoryLoader loader = new LefffMemoryLoader();
-        	File memoryBaseFile = new File(memoryBaseFilePath);
-        	LefffMemoryBase memoryBase = loader.deserializeMemoryBase(memoryBaseFile);
-        	
         	String[] testWords = new String[] {"avoir"};
         	if (word!=null) {
         		testWords = word.split(",");
