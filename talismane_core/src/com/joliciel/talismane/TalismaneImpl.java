@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2014 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -603,6 +603,23 @@ class TalismaneImpl implements Talismane {
 							}
 							if (config.getMaxSentenceCount()>0 && sentenceCount>=config.getMaxSentenceCount()) {
 								finished = true;
+							}
+							
+							// If we have any leftover original text segments, copy them over
+							// they are necessarily at position 0 - since otherwise they would
+							// have gotten added to the leftover sentence. The only case where
+							// there isn't a leftover sentence is the case where the sentenceHolder
+							// boundary happens to be a sentence boundary, hence position 0.
+							if (prevSentenceHolder.getOriginalTextSegments().size()>0) {
+								StringBuilder segmentsToInsert = new StringBuilder();
+								for (String originalTextSegment : prevSentenceHolder.getOriginalTextSegments().values()) {
+									segmentsToInsert.append(originalTextSegment);
+								}
+								String originalTextSegment0 = sentenceHolder.getOriginalTextSegments().get(0);
+								if (originalTextSegment0==null)
+									originalTextSegment0 = "";
+								segmentsToInsert.append(originalTextSegment0);
+								sentenceHolder.getOriginalTextSegments().put(0, segmentsToInsert.toString());
 							}
 						}
 						prevSentenceHolder = sentenceHolder;

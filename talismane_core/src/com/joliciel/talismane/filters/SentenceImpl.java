@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2014 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -71,6 +71,11 @@ class SentenceImpl implements Sentence {
 	@Override
 	public Map<Integer, String> getOriginalTextSegments() {
 		return this.originalTextSegments;
+	}
+
+	void setOriginalTextSegments(
+			TreeMap<Integer, String> originalTextSegments) {
+		this.originalTextSegments = originalTextSegments;
 	}
 
 	public List<Integer> getOriginalIndexes() {

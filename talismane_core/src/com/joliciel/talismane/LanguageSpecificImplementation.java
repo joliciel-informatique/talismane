@@ -1,4 +1,4 @@
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2014 Joliciel Informatique
 package com.joliciel.talismane;
 
 import java.util.List;
