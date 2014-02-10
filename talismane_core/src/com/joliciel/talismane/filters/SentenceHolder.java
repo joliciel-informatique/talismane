@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2014 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -32,6 +32,8 @@ public interface SentenceHolder extends Sentence {
 	/**
 	 * Based on the sentence boundaries added, return all the sentences produced by this sentence holder.
 	 * If there is any text left over, the last sentence will be marked as not complete.
+	 * After this is called, {@link #getOriginalTextSegments()} will only return leftover original text segments
+	 * that have not yet been assigned to sentences in the current list.
 	 * @param leftOverText an incomplete sentence returned by the previous sentence holder.
 	 * @return
 	 */

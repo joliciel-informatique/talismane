@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Assaf Urieli
+//Copyright (C) 2014 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -21,7 +21,7 @@ package com.joliciel.talismane;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.util.Locale;
@@ -73,33 +73,8 @@ class TalismaneServerThread extends Thread {
     		TalismaneSession.setTransitionSystem(transitionSystem);
     		TalismaneSession.setImplementation(implementation);
     		
-	        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-	        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-	        
-//	        String inputLine;
-//            while ((inputLine = in.readLine()) != null) {
-//            	if (inputLine.equals("exit"))
-//            		break;
-//            	if (inputLine.equals("shutdown")) {
-//            		server.setListening(false);
-//            		break;
-//            	}
-//                out.println("Reply: " + inputLine);
-//            }
-            
-//            int r;
-//            String response = "";
-//            while ((r = in.read()) != -1) {
-//            	char c = (char) r;
-//            	response += c;
-//            	if (response.length()>10) {
-//            		LOG.debug(response);
-//            		out.println("Reply: " + response);
-//                   	out.println("");
-//                   	response = "";
-//            	}
-//             }
-            
+	        OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), config.getOutputCharset());
+	        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), config.getInputCharset()));
             
 	        Talismane talismane = talismaneService.getTalismane(config);
 	        talismane.setParseConfigurationProcessor(this.server.getParseConfigurationProcessor());

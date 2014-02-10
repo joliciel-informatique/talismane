@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2014 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,6 +68,8 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 				LOG.trace("haveLeftOvers? " + lastSentenceBoundary + " < " + (this.getText().length()-1) + " = " + haveLeftOvers);
 			}
 		}
+		
+		int lastOriginalTextInsertionProcessed = -1;
 		
 		List<Integer> allBoundaries = new ArrayList<Integer>(this.sentenceBoundaries);
 		if (haveLeftOvers)
@@ -130,9 +133,11 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 					if (appendLetter)
 						sentence.addOriginalIndex(this.getOriginalIndexes().get(i));
 					
-					if (this.getOriginalTextSegments().containsKey(i))
+					if (this.getOriginalTextSegments().containsKey(i)) {
 						sentence.getOriginalTextSegments().put(sb.length(), this.getOriginalTextSegments().get(i));
-	
+						lastOriginalTextInsertionProcessed = i;
+					}
+					
 					i++;
 				}
 				
@@ -156,6 +161,15 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 			sentences.add(sentence);
 			currentIndex = sentenceBoundary + 1;
 		}
+		
+		// remove any original text segments already processed
+		TreeMap<Integer, String> leftoverOriginalTextSegments = new TreeMap<Integer, String>();
+		for (int i : this.getOriginalTextSegments().keySet()) {
+			if (i > lastOriginalTextInsertionProcessed) {
+				leftoverOriginalTextSegments.put(i, this.getOriginalTextSegments().get(i));
+			}
+		}
+		this.setOriginalTextSegments(leftoverOriginalTextSegments);
 		
 		return sentences;
 	}

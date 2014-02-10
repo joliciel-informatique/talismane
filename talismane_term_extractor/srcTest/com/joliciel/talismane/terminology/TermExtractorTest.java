@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2012 Assaf Urieli
+//Copyright (C) 2014 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -76,7 +76,7 @@ public class TermExtractorTest {
 		TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
 		TalismaneSession.setTransitionSystem(transitionSystem);
 		
-		LefffServiceLocator lefffLocator = new LefffServiceLocator();
+		LefffServiceLocator lefffLocator = LefffServiceLocator.getInstance();
 		LefffService lefffService = lefffLocator.getLefffService();
 		LexicalEntryMorphologyReader lefffMorphologyReader = lefffService.getLexicalEntryMorphologyReader();
 		
