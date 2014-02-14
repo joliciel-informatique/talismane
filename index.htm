@@ -186,7 +186,7 @@ You are free to copy, distribute and transmit the work, and to adapt the work un
 
 <h2>How to cite Talismane?</h2>
 <p>To cite Talismane, please use the following publication:</p>
-<div class="reference">Urieli, Assaf et Tanguy, Ludovic (2013). L’apport du faisceau dans l’analyse syntaxique en dépendances par transitions : études de cas avec l’analyseur Talismane. <i>Conférence sur le traitement  automatique des langues naturelles (TALN'13).</i> Les Sables d'Olonne, France.</div>
+<div class="reference">Assaf Urieli. Robust French syntax analysis: reconciling statistical methods and linguistic knowledge in the Talismane toolkit. PhD thesis, Université de Toulouse II le Mirail, 2013.</div>
 
 <h2>Typographic conventions</h2>
 <p>Various typographic conventions will be used in the present document.</p>
@@ -695,7 +695,7 @@ For example, the following filter would replace all e-mail addresses by the word
 <pre>[postag|!postag]\t[boolean feature]</pre>
 <p>Where \t is that tab character. A ! before the postag implies a negative rule (or constraint). The boolean feature syntax is described in greater detail in the <a href="#syntax">Feature definition syntax</a> section below. The rules used by the default French implementation of Talismane can be found in the <tt>talismane_fr</tt> project, at <tt>src/com/joliciel/talismane/fr/resources/posTaggerConstraints_fr.txt</tt>.</p>
 
-<p>Negative rules, or <b>constraints</b>, are typically used around closed classes. The following constrint, for example, does not allow the pos-tagger to classify a word as a subordinating conjunction if it isn't listed in the lexicon as a subordinating conjunction:</p>
+<p>Negative rules, or <b>constraints</b>, are typically used around closed classes. The following constraint, for example, does not allow the pos-tagger to classify a word as a subordinating conjunction if it isn't listed in the lexicon as a subordinating conjunction:</p>
 <pre>!CS	Not(LexiconPosTag("CS"))</pre>
 <p>Alternatively, the following constraint ensures that a word which is listed only under closed classes in the lexicon (such as "le" in French) should never be classified as a common noun:</p>
 <pre>!NC	HasClosedClassesOnly()</pre>
@@ -1035,7 +1035,7 @@ PrevVerbLemma	ConcatNoNulls(CurrentPattern,LemmaForPosTag(BackwardSearch(Pattern
 <li>retraining the pos-tagger's statistical model</li>
 <li>possibly, rewriting parser features to refer to the new set of postags</li>
 <li>retraining the parser's statistical model</li>
-<p>The pos-tagger is currently the only module to allow for rules that bypass the statistical model. Writing a new set of rules is described <a href="#rulesFile">here</a>.</p>
+<p>The pos-tagger allows for rules that bypass the statistical model. Writing a new set of rules is described <a href="#rulesFile">here</a>.</p>
 
 <h4>Specific feature functions available to the pos-tagger</h4>
 <p>Pos-tagger rules and features can include any functions defined by the tokeniser, except for those that are specific to patterns. In this case, functions will be applied to the tokens found by the tokeniser (whereas the tokeniser applied them to atomic tokens). In addition, the pos-tagger defines the following pos-tagger specific functions:</p>
