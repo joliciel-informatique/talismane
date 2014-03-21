@@ -32,6 +32,7 @@
 à propos de	à propos de	P	prep	null
 à raison d'	à raison de	P	prep	null
 à raison de	à raison de	P	prep	null
+à savoir	à savoir	P	prep	null
 à travers	à travers	P	prep	null
 @	@	P	prep	null
 afin d'	afin de	P	prep	null

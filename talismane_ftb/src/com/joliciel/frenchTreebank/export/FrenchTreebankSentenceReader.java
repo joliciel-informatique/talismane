@@ -32,6 +32,7 @@ class FrenchTreebankSentenceReader implements SentenceDetectorAnnotatedCorpusRea
 	int lastTextItemId = 0;
 	
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
@@ -58,11 +59,10 @@ class FrenchTreebankSentenceReader implements SentenceDetectorAnnotatedCorpusRea
 					continue;
 				}
 				
-				sentenceCount++;
-				
+				boolean includeMe = true;
+
 				// check cross-validation
 				if (crossValidationSize>0) {
-					boolean includeMe = true;
 					if (includeIndex>=0) {
 						if (sentenceCount % crossValidationSize != includeIndex) {
 							includeMe = false;
@@ -72,11 +72,19 @@ class FrenchTreebankSentenceReader implements SentenceDetectorAnnotatedCorpusRea
 							includeMe = false;
 						}
 					}
-					if (!includeMe) {
-						sentence = null;
-						continue;
-					}
 				}
+				
+				if (startSentence>sentenceCount) {
+					includeMe = false;
+				}
+				
+				sentenceCount++;
+				
+				if (!includeMe) {
+					sentence = null;
+					continue;
+				}
+
 				
 				if (sentence.getTextItemId()!=lastTextItemId) {
 					newParagraph = true;
@@ -145,6 +153,14 @@ class FrenchTreebankSentenceReader implements SentenceDetectorAnnotatedCorpusRea
 
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
+	}
+
+	public int getStartSentence() {
+		return startSentence;
+	}
+
+	public void setStartSentence(int startSentence) {
+		this.startSentence = startSentence;
 	}
 
 	

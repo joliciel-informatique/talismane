@@ -31,6 +31,7 @@ import java.util.Scanner;
 class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
@@ -58,11 +59,10 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 					continue;
 				}
 				
-				sentenceCount++;
+				boolean includeMe = true;
 				
 				// check cross-validation
 				if (crossValidationSize>0) {
-					boolean includeMe = true;
 					if (includeIndex>=0) {
 						if (sentenceCount % crossValidationSize != includeIndex) {
 							includeMe = false;
@@ -72,11 +72,19 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 							includeMe = false;
 						}
 					}
-					if (!includeMe) {
-						sentence = null;
-						continue;
-					}
 				}
+				
+				if (startSentence>sentenceCount) {
+					includeMe = false;
+				}
+
+				sentenceCount++;
+				
+				if (!includeMe) {
+					sentence = null;
+					continue;
+				}
+
 			}
 		}
 		return sentence !=null;
@@ -136,6 +144,14 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
+	}
+
+	public int getStartSentence() {
+		return startSentence;
+	}
+
+	public void setStartSentence(int startSentence) {
+		this.startSentence = startSentence;
 	}
 
 }

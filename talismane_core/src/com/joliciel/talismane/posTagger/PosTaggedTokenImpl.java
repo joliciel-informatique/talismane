@@ -46,6 +46,7 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	private String person = null;
 	private String possessorNumber = null;
 	private String comment = "";
+	private PosTagSequence posTagSequence;
 	
 	PosTaggedTokenImpl(PosTaggedTokenImpl taggedTokenToClone) {
 		super(taggedTokenToClone);
@@ -187,6 +188,17 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public int getIndex() {
 		return this.getToken().getIndex();
 	}
-	
-	
+
+	public PosTagSequence getPosTagSequence() {
+		return posTagSequence;
+	}
+
+	public void setPosTagSequence(PosTagSequence posTagSequence) {
+		this.posTagSequence = posTagSequence;
+	}
+
+	@Override
+	public PosTagSequence getHistory() {
+		return this.posTagSequence;
+	}
 }

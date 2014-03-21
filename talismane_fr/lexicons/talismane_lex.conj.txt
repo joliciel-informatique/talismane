@@ -11,7 +11,6 @@
 à présent qu'	à présent que	CS	csu	null
 à présent que	à présent que	CS	csu	null
 à savoir	à savoir	CC	coo	null
-à savoir	à savoir	CS	csu	null
 à supposer qu'	à supposer que	CS	csu	null
 à supposer que	à supposer que	CS	csu	null
 à tel point qu'	à tel point que	CS	csu	null

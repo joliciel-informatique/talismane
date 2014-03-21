@@ -111,7 +111,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("IfThenElse", IfThenElseIntegerFeature.class);
 			this.addFeatureClass("IfThenElse", IfThenElseDoubleFeature.class);
 			this.addFeatureClass("IfThenElse", IfThenElseBooleanFeature.class);
-			this.addFeatureClass("IfThenElse", IfThenElseGenericFeature.class);
 			this.addFeatureClass("InSet", StringInSetFeature.class);
 			this.addFeatureClass("Integer", IntegerLiteralFeatureWrapper.class);
 			this.addFeatureClass("Inverse", InverseFeature.class);
@@ -123,7 +122,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("NullIf", NullIfIntegerFeature.class);
 			this.addFeatureClass("NullIf", NullIfDoubleFeature.class);
 			this.addFeatureClass("NullIf", NullIfBooleanFeature.class);
-			this.addFeatureClass("NullIf", NullIfGenericFeature.class);
 			this.addFeatureClass("NullToFalse", NullToFalseFeature.class);
 			this.addFeatureClass("OnlyTrue", OnlyTrueFeature.class);
 			this.addFeatureClass("Or", OrFeature.class);
@@ -133,7 +131,12 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			this.addFeatureClass("ToString", ToStringFeature.class);
 			this.addFeatureClass("ToStringAllowNulls", ToStringAllowNullsFeature.class);
 			this.addFeatureClass("Truncate", TruncateFeature.class);
+			
 			this.addFeatureClasses(this);
+			
+			this.addFeatureClass("IfThenElse", IfThenElseGenericFeature.class);
+			this.addFeatureClass("NullIf", NullIfGenericFeature.class);
+			
 		}
 	}
 

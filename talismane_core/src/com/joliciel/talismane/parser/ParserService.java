@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser;
 
 import java.io.File;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Set;
 
@@ -117,6 +118,12 @@ public interface ParserService {
 	 * @return
 	 */
 	public ParsingConstrainer getParsingConstrainer();
+	
+	/**
+	 * Writes the list of transitions that were actually applied, one at a time.
+	 * @return
+	 */
+	public ParseConfigurationProcessor getTransitionLogWriter(Writer csvFileWriter);
 	
 	/**
 	 * Get a parsing constrainer from a file where it was previously serialised.

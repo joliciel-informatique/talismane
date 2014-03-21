@@ -79,6 +79,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private TreebankReader treebankReader;
 	private TokenSequenceFilter tokenFilterWrapper = null;
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
@@ -103,12 +104,10 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 				}
 				
 				currentSentence = this.nextSentenceInternal();
-				
-				sentenceCount++;
-				
+				boolean includeMe = true;
+			
 				// check cross-validation
 				if (crossValidationSize>0) {
-					boolean includeMe = true;
 					if (includeIndex>=0) {
 						if (sentenceCount % crossValidationSize != includeIndex) {
 							includeMe = false;
@@ -118,11 +117,19 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 							includeMe = false;
 						}
 					}
-					if (!includeMe) {
-						currentSentence = null;
-						continue;
-					}
 				}
+				
+				if (startSentence>sentenceCount) {
+					includeMe = false;
+				}
+
+				sentenceCount++;
+
+				if (!includeMe) {
+					currentSentence = null;
+					continue;
+				}
+
 			}
 		}
 		return currentSentence!=null;
@@ -593,6 +600,14 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
+	}
+
+	public int getStartSentence() {
+		return startSentence;
+	}
+
+	public void setStartSentence(int startSentence) {
+		this.startSentence = startSentence;
 	}
 	
 	

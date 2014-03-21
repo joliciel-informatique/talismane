@@ -36,7 +36,7 @@
 	</target>
 		
 	<target name="compile" depends="init">
-		<javac srcdir="${src}" destdir="${classes}" deprecation="on" debug="on" encoding="utf-8" source="1.6" target="1.6">
+		<javac srcdir="${src}" destdir="${classes}" deprecation="on" debug="on" encoding="utf-8" source="1.7" target="1.7" includeantruntime="false">
 			<classpath><path refid="classpath" /></classpath>
 		</javac>
 		<copy todir="${classes}">

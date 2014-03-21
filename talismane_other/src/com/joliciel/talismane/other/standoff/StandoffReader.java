@@ -55,6 +55,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 public class StandoffReader implements ParserAnnotatedCorpusReader {
     private static final Log LOG = LogFactory.getLog(StandoffReader.class);
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int lineNumber = 1;
 	private int includeIndex = -1;
@@ -372,6 +373,14 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	@Override
 	public void rewind() {
 		throw new TalismaneException("rewind operation not supported by " + this.getClass().getName());
+	}
+
+	public int getStartSentence() {
+		return startSentence;
+	}
+
+	public void setStartSentence(int startSentence) {
+		this.startSentence = startSentence;
 	}
 	
 	
