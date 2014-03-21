@@ -68,11 +68,11 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 			StringBuilder sb = new StringBuilder();
 			for (PosTaggedToken taggedToken : currentConfiguration.getPosTagSequence()) {
 				if (taggedToken.equals(currentConfiguration.getStack().getFirst())) {
-					sb.append(" #[" + taggedToken.getToken().getOriginalText() + "/" + taggedToken.getTag().toString() + "]#");
+					sb.append(" #[" + taggedToken.getToken().getOriginalText().replace(' ','_') + "/" + taggedToken.getTag().toString() + "]#");
 				} else if (taggedToken.equals(currentConfiguration.getBuffer().getFirst())) {
-					sb.append(" #[" + taggedToken.getToken().getOriginalText() + "/" + taggedToken.getTag().toString() + "]#");
+					sb.append(" #[" + taggedToken.getToken().getOriginalText().replace(' ','_') + "/" + taggedToken.getTag().toString() + "]#");
 				} else {
-					sb.append(" " + taggedToken.getToken().getOriginalText() + "/" + taggedToken.getTag().toString());
+					sb.append(" " + taggedToken.getToken().getOriginalText().replace(' ','_') + "/" + taggedToken.getTag().toString());
 				}
 			}
 			

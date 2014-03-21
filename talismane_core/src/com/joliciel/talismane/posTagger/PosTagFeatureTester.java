@@ -57,12 +57,12 @@ class PosTagFeatureTester implements PosTagSequenceProcessor {
 				boolean foundToken = false;
 				for (PosTaggedToken taggedToken : posTagSequence) {
 					if (taggedToken.equals(posTaggedToken)) {
-						sb.append(" [" + taggedToken.getToken().getOriginalText() + "/" + taggedToken.getTag().toString() + "]");
+						sb.append(" [" + taggedToken.getToken().getOriginalText().replace(' ','_') + "/" + taggedToken.getTag().toString() + "]");
 						foundToken = true;
 					} else if (foundToken) {
-						sb.append(" " + taggedToken.getToken().getOriginalText());
+						sb.append(" " + taggedToken.getToken().getOriginalText().replace(' ','_'));
 					} else {
-						sb.append(" " + taggedToken.getToken().getOriginalText() + "/" + taggedToken.getTag().toString());
+						sb.append(" " + taggedToken.getToken().getOriginalText().replace(' ','_') + "/" + taggedToken.getTag().toString());
 					}
 				}
 				LOG.debug(sb.toString());

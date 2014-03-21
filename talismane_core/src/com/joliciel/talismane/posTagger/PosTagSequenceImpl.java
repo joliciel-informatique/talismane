@@ -122,6 +122,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 			Decision<PosTag> rootDecision = posTagSet.createDefaultDecision(PosTag.ROOT_POS_TAG);
 			rootToken = this.posTaggerServiceInternal.getPosTaggedToken(emptyToken, rootDecision);
 			this.add(0, rootToken);
+			rootToken.setPosTagSequence(this);
 		}
 		this.string = null;
 		return rootToken;
@@ -189,6 +190,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	@Override
 	public void addPosTaggedToken(PosTaggedToken posTaggedToken) {
 		this.add(posTaggedToken);
+		posTaggedToken.setPosTagSequence(this);
 		this.string = null;
 	}
 

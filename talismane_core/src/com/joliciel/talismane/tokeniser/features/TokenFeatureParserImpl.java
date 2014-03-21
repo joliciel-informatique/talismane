@@ -46,6 +46,7 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
 		container.addFeatureClass("Has", HasFeature.class);
 		container.addFeatureClass("HasClosedClassesOnly", HasClosedClassesOnlyFeature.class);
+		container.addFeatureClass("IfThenElse", IfThenElseTokenAddressFeature.class);
 		container.addFeatureClass("LastWordInCompound", LastWordInCompoundFeature.class);
 		container.addFeatureClass("LastWordInSentence", LastWordInSentenceFeature.class);
 		container.addFeatureClass("LemmaForPosTag", LemmaForPosTagFeature.class);

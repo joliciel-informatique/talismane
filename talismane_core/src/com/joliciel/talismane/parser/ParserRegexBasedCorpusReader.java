@@ -42,7 +42,7 @@ public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReade
 	/**
 	 * The default regex (if none is set) - corresponds to the CONLL format.
 	 */
-	public static final String DEFAULT_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%\\t_\\t_";
+	public static final String DEFAULT_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%\\t.*\\t.*";
 	
 	/**
 	 * The regex used to find the various data items.

@@ -47,6 +47,8 @@ class TalismaneServerImpl implements TalismaneServer {
 	
 	public TalismaneServerImpl(TalismaneConfig config) {
 		this.config = config;
+		
+		this.port = config.getPort();
 	}
 
 	@Override

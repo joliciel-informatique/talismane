@@ -180,11 +180,23 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
 				}
  				
+				if (config.getInputRegex()!=null) {
+					corpusReader.setRegex(config.getInputRegex());
+				}
+				
 				if (config.getCommand().equals(Command.compare)) {
 					File evaluationFile = new File(config.getEvaluationFilePath());
 	    			ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(evaluationFile, config.getInputCharset());
 		  			config.setParserEvaluationCorpusReader(evaluationReader);
 					config.setPosTagEvaluationCorpusReader(evaluationReader);
+					
+					if (corpusReaderType==CorpusFormat.spmrl) {
+						evaluationReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
+					}
+	 				
+					if (config.getInputRegex()!=null) {
+						evaluationReader.setRegex(config.getInputRegex());
+					}
 				}
 	  		} else {
 	  			throw new TalismaneException("Unknown corpusReader: " + corpusReaderType);

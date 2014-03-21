@@ -2,6 +2,7 @@ package com.joliciel.talismane.parser;
 
 import java.io.File;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
@@ -297,6 +298,14 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		tester.setFeatureService(this.getFeatureService());
 		tester.setParserServiceInternal(this);
 		return tester;
+	}
+
+	@Override
+	public ParseConfigurationProcessor getTransitionLogWriter(
+			Writer csvFileWriter) {
+		TransitionLogWriter processor = new TransitionLogWriter(csvFileWriter);
+		processor.setParserServiceInternal(this);
+		return processor;
 	}
 
 	

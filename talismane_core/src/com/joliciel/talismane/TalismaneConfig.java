@@ -77,9 +77,11 @@ import com.joliciel.talismane.parser.ParseComparisonStrategy;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.ParseEvaluationFScoreCalculator;
 import com.joliciel.talismane.parser.ParseEvaluationGuessTemplateWriter;
+import com.joliciel.talismane.parser.ParseEvaluationObserverImpl;
 import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
+import com.joliciel.talismane.parser.ParseConfigurationProcessorChain;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserFScoreCalculatorByDistance;
@@ -197,6 +199,7 @@ public class TalismaneConfig {
 
 	private boolean processByDefault = true;
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int beamWidth = 1;
 	private boolean propagateBeam = true;
 	private boolean includeDetails = false;	
@@ -259,6 +262,7 @@ public class TalismaneConfig {
 	private boolean labeledEvaluation = true;
 	private boolean dynamiseFeatures = false;
 	private String skipLabel = null;
+	private Set<String> errorLabels = null;
 	
 	private List<PosTaggerRule> posTaggerRules = null;
 	private List<ParserRule> parserRules = null;
@@ -269,6 +273,7 @@ public class TalismaneConfig {
 	private List<TokenSequenceFilter> tokenSequenceFilters = null;
 	private List<PosTagSequenceFilter> posTaggerPostProcessingFilters = null;
 	private boolean includeDistanceFScores = false;
+	private boolean includeTransitionLog = false;
 	private boolean predictTransitions = false;
 	private boolean posTaggerRulesReplace = false;
 	private boolean parserRulesReplace = false;
@@ -314,6 +319,9 @@ public class TalismaneConfig {
 	private File performanceConfigFile;
 	private ParseComparisonStrategyType parseComparisonStrategyType;
 	private boolean includeLexiconCoverage = false;
+	
+	// server parameters
+	private int port = 7272;
 	
 	// training parameters
 	int iterations = 0;
@@ -527,6 +535,8 @@ public class TalismaneConfig {
 				transitionSystemStr = argValue;
 			else if (argName.equals("sentenceCount"))
 				maxSentenceCount = Integer.parseInt(argValue);
+			else if (argName.equals("startSentence"))
+				startSentence = Integer.parseInt(argValue);
 			else if (argName.equals("endBlockCharCode"))
 				endBlockCharacter = (char) Integer.parseInt(argValue);
 			else if (argName.equals("outputGuesses"))
@@ -537,6 +547,8 @@ public class TalismaneConfig {
 				suffix = argValue;
 			else if (argName.equals("includeDistanceFScores"))
 				includeDistanceFScores = argValue.equalsIgnoreCase("true");
+			else if (argName.equals("includeTransitionLog"))
+				includeTransitionLog = argValue.equalsIgnoreCase("true");
 			else if (argName.equals("evaluationFile"))
 				evaluationFilePath = argValue;
 			else if (argName.equals("labeledEvaluation"))
@@ -577,6 +589,12 @@ public class TalismaneConfig {
 				sentenceReaderPath = argValue;
 			} else if (argName.equals("skipLabel")) {
 				skipLabel = argValue;
+			} else if (argName.equals("errorLabels")) {
+				errorLabels = new HashSet<String>();
+				String[] labels = argValue.split(",");
+				for (String label : labels) {
+					errorLabels.add(label);
+				}
 			} else if (argName.equals("earlyStop")) {
 				earlyStop = argValue.equalsIgnoreCase("true");
 			} else if (argName.equals("sentenceFeatures")) {
@@ -629,6 +647,8 @@ public class TalismaneConfig {
 				patternTokeniserType = PatternTokeniserType.valueOf(argValue);
 			else if (argName.equals("excludeFile")) {
 				excludeFileName = argValue;
+			} else if (argName.equals("port")) {
+				port = Integer.parseInt(argValue);
 			} else {
 				System.out.println("Unknown argument: " + argName);
 				throw new RuntimeException("Unknown argument: " + argName);
@@ -1871,6 +1891,21 @@ public class TalismaneConfig {
 				} else {
 					throw new TalismaneException("Unknown option: " + option.toString());
 				}
+				
+				if (includeTransitionLog) {
+					ParseConfigurationProcessorChain chain = new ParseConfigurationProcessorChain();
+					chain.addProcessor(parseConfigurationProcessor);
+					
+					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_transitions.csv");
+					csvFile.delete();
+					csvFile.createNewFile();
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					ParseConfigurationProcessor transitionLogWriter = this.getParserService().getTransitionLogWriter(csvFileWriter);
+					
+					chain.addProcessor(transitionLogWriter);
+					
+					parseConfigurationProcessor = chain;
+				}
 			}
 			return parseConfigurationProcessor;
 		} catch (Exception e) {
@@ -2106,6 +2141,7 @@ public class TalismaneConfig {
 	
 	void setCorpusReaderAttributes(AnnotatedCorpusReader corpusReader) {
 		corpusReader.setMaxSentenceCount(maxSentenceCount);
+		corpusReader.setStartSentence(startSentence);
 		if (crossValidationSize>0)
 			corpusReader.setCrossValidationSize(crossValidationSize);
 		if (includeIndex>=0)
@@ -2284,7 +2320,7 @@ public class TalismaneConfig {
 				}
 				
 				if (includeDistanceFScores) {
-					File csvFile = new File(this.getOutDir(), this.getBaseName() + ".distances.csv");
+					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_distances.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
 					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
@@ -2292,6 +2328,19 @@ public class TalismaneConfig {
 					calculator.setLabeledEvaluation(this.labeledEvaluation);
 					calculator.setSkipLabel(skipLabel);
 					parserEvaluator.addObserver(calculator);
+				}
+				
+				if (includeTransitionLog) {
+					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_transitions.csv");
+					csvFile.delete();
+					csvFile.createNewFile();
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					ParseConfigurationProcessor transitionLogWriter = this.getParserService().getTransitionLogWriter(csvFileWriter);
+					ParseEvaluationObserverImpl observer = new ParseEvaluationObserverImpl(transitionLogWriter);
+					observer.setWriter(csvFileWriter);
+					if (this.errorLabels!=null)
+						observer.setErrorLabels(errorLabels);
+					parserEvaluator.addObserver(observer);
 				}
 				
 				Reader templateReader = null;
@@ -2947,6 +2996,22 @@ public class TalismaneConfig {
 
 	public PatternTokeniserType getPatternTokeniserType() {
 		return patternTokeniserType;
+	}
+
+	/**
+	 * The port where the Talismane Server should listen.
+	 * @return
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	/**
+	 * The first sentence index to process.
+	 * @return
+	 */
+	public int getStartSentence() {
+		return startSentence;
 	}
 
 }

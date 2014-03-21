@@ -23,6 +23,7 @@ import java.util.List;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
+import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 
 /**
@@ -30,7 +31,7 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
  * @author Assaf Urieli
  *
  */
-public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapper, HasFeatureCache {
+public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapper, HasFeatureCache, PosTaggerContext {
 	/**
 	 * The "best" lexical entry for this token/postag combination if one exists, or null otherwise.
 	 */
@@ -102,4 +103,11 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * @return
 	 */
 	public int getIndex();
+	
+	/**
+	 * The sequence containing this pos-tagged token.
+	 * @return
+	 */
+	public PosTagSequence getPosTagSequence();
+	public void setPosTagSequence(PosTagSequence posTagSequence);
 }

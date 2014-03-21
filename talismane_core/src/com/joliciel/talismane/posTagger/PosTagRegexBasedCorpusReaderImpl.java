@@ -60,6 +60,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
@@ -93,12 +94,11 @@ class PosTagRegexBasedCorpusReaderImpl implements
 							continue;
 						
 						// end of sentence
-						sentenceCount++;
-						LOG.debug("sentenceCount: " + sentenceCount);
 						
+						boolean includeMe = true;
+
 						// check cross-validation
 						if (crossValidationSize>0) {
-							boolean includeMe = true;
 							if (includeIndex>=0) {
 								if (sentenceCount % crossValidationSize != includeIndex) {
 									includeMe = false;
@@ -108,14 +108,22 @@ class PosTagRegexBasedCorpusReaderImpl implements
 									includeMe = false;
 								}
 							}
-							if (!includeMe) {
-								hasLine = false;
-								tokenSequence = null;
-								posTags = null;
-								continue;
-							}
 						}
 						
+						if (startSentence>sentenceCount) {
+							includeMe = false;
+						}
+
+						sentenceCount++;
+						LOG.debug("sentenceCount: " + sentenceCount);
+						
+						if (!includeMe) {
+							hasLine = false;
+							tokenSequence = null;
+							posTags = null;
+							continue;
+						}
+
 						tokenSequence.cleanSlate();
 						for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
 							tokenFilter.apply(tokenSequence);
@@ -327,4 +335,13 @@ class PosTagRegexBasedCorpusReaderImpl implements
 		return attributes;
 	}
 
+	public int getStartSentence() {
+		return startSentence;
+	}
+
+	public void setStartSentence(int startSentence) {
+		this.startSentence = startSentence;
+	}
+
+	
 }

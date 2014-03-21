@@ -29,6 +29,13 @@ public interface AnnotatedCorpusReader {
 	public void setMaxSentenceCount(int maxSentenceCount);
 	
 	/**
+	 * The index of the first sentence to process.
+	 * @return
+	 */
+	public int getStartSentence();
+	public void setStartSentence(int startSentence);
+	
+	/**
 	 * The number of cross-validation segments for this corpus.
 	 * -1 means no cross-validation.
 	 * @param crossValidationSize

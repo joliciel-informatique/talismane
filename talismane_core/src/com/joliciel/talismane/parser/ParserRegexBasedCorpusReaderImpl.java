@@ -93,6 +93,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private TokenFilterService tokenFilterService;
 	
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int lineNumber = 0;
 	private int crossValidationSize = -1;
@@ -154,14 +155,11 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							if (!hasLine)
 								continue;
 							
-							// end of sentence
-							totalSentenceCount++;
-							if (LOG.isTraceEnabled())
-								LOG.trace("totalSentenceCount: " + totalSentenceCount);
-							
+							// end of sentence							
+
 							// check cross-validation
+							boolean includeMe = true;
 							if (crossValidationSize>0) {
-								boolean includeMe = true;
 								if (includeIndex>=0) {
 									if (totalSentenceCount % crossValidationSize != includeIndex) {
 										includeMe = false;
@@ -171,13 +169,23 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										includeMe = false;
 									}
 								}
-								if (!includeMe) {
-									dataLines = new ArrayList<ParseDataLine>();
-									lexicalEntries = new ArrayList<LexicalEntry>();
-									hasLine = false;
-									continue;
-								}
 							}
+							
+							if (startSentence>totalSentenceCount) {
+								includeMe = false;
+							}
+							
+							totalSentenceCount++;
+							if (LOG.isTraceEnabled())
+								LOG.trace("totalSentenceCount: " + totalSentenceCount);
+
+							if (!includeMe) {
+								dataLines = new ArrayList<ParseDataLine>();
+								lexicalEntries = new ArrayList<LexicalEntry>();
+								hasLine = false;
+								continue;
+							}
+							
 							
 							// construct the configuration
 							if (dataLines.size()>0) {
@@ -193,7 +201,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 								
 								if (!badConfig) {
 									PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
-	
+									
 									int maxIndex = 0;
 									for (ParseDataLine dataLine : dataLines) {
 										Token token = tokenSequence.addToken(dataLine.getWord());
@@ -204,7 +212,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										token.setLineNumber(dataLine.getOriginalLineNumber());
 										token.setColumnNumber(dataLine.getOriginalColumnNumber());
 									}
-									LOG.debug("Sentence " + (sentenceCount+1) + ": " + tokenSequence.getText());
+									LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount-1) + "): " + tokenSequence.getText());
 									
 									tokenSequence.cleanSlate();
 									
@@ -883,6 +891,14 @@ public class ParserRegexBasedCorpusReaderImpl implements
 
 	public void setExcludeFileName(String excludeFileName) {
 		this.excludeFileName = excludeFileName;
+	}
+
+	public int getStartSentence() {
+		return startSentence;
+	}
+
+	public void setStartSentence(int startSentence) {
+		this.startSentence = startSentence;
 	}
 
 	

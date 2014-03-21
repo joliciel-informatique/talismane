@@ -28,24 +28,32 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns true if the token has a lexical entry for the PosTag provided.
+ * Returns true if the token has a lexical entry for any one of the PosTags provided.
  * @author Assaf Urieli
  *
  */
 public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	StringFeature<TokenWrapper> posTagFeature;
+	StringFeature<TokenWrapper>[] posTagFeatures;
 	
 	/**
 	 * 
 	 * @param posTag the PosTag we're testing for
 	 */
-	public LexiconPosTagFeature(StringFeature<TokenWrapper> posTagFeature) {
-		this.posTagFeature = posTagFeature;
-		this.setName(super.getName() + "(" + this.posTagFeature.getName() + ")");
+	public LexiconPosTagFeature(StringFeature<TokenWrapper>... posTagFeatures) {
+		this.posTagFeatures = posTagFeatures;
+		String name = super.getName() + "(";
+		boolean first = true;
+		for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
+			if (!first) name += ",";
+			name += posTagFeature.getName();
+			first = false;
+		}
+		name += ")";
+		this.setName(name);
 	}
 	
-	public LexiconPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> posTagFeature) {
-		this(posTagFeature);
+	public LexiconPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... posTagFeatures) {
+		this(posTagFeatures);
 		this.setAddressFunction(addressFunction);
 	}
 
@@ -58,12 +66,20 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> im
 		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 
-		FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
-		if (posTagResult!=null) {
-			PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
-			boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
-			result = this.generateResult(hasPosTag);
+		boolean matches = false;
+		for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
+			FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
+			if (posTagResult!=null) {
+				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+				boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
+				if (hasPosTag) {
+					matches = true;
+					break;
+				}
+			}
 		}
+		
+		result = this.generateResult(matches);
 		
 		return result;
 	}

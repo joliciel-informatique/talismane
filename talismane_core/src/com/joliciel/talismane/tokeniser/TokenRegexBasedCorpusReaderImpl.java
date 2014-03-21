@@ -43,6 +43,7 @@ class TokenRegexBasedCorpusReaderImpl implements
 	
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
+	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
@@ -74,12 +75,11 @@ class TokenRegexBasedCorpusReaderImpl implements
 							continue;
 						
 						// end of sentence
-						sentenceCount++;
-						LOG.debug("sentenceCount: " + sentenceCount);
-						
+
+						boolean includeMe = true;
+
 						// check cross-validation
 						if (crossValidationSize>0) {
-							boolean includeMe = true;
 							if (includeIndex>=0) {
 								if (sentenceCount % crossValidationSize != includeIndex) {
 									includeMe = false;
@@ -89,13 +89,21 @@ class TokenRegexBasedCorpusReaderImpl implements
 									includeMe = false;
 								}
 							}
-							if (!includeMe) {
-								hasLine = false;
-								tokenSequence = null;
-								continue;
-							}
 						}
 						
+						if (startSentence>sentenceCount) {
+							includeMe = false;
+						}
+						
+						sentenceCount++;
+						LOG.debug("sentenceCount: " + sentenceCount);
+
+						if (!includeMe) {
+							hasLine = false;
+							tokenSequence = null;
+							continue;
+						}
+
 						tokenSequence.cleanSlate();
 						
 						// first apply the token filters - which might replace the text of an individual token
@@ -299,6 +307,14 @@ class TokenRegexBasedCorpusReaderImpl implements
 	public void setSentenceReader(
 			SentenceDetectorAnnotatedCorpusReader sentenceReader) {
 		this.sentenceReader = sentenceReader;
+	}
+
+	public int getStartSentence() {
+		return startSentence;
+	}
+
+	public void setStartSentence(int startSentence) {
+		this.startSentence = startSentence;
 	}
 	
 	
