@@ -33,6 +33,10 @@ public final class ParseConfigurationTokenOutput {
 	private DependencyArc arc;
 	private String label;
 	
+	private ParseConfigurationTokenOutput nonProjectiveGovernor;
+	private DependencyArc nonProjectiveArc;
+	private String nonProjectiveLabel;
+	
 	public ParseConfigurationTokenOutput(PosTaggedToken posTaggedToken) {
 		this.posTaggedToken = posTaggedToken;
 		this.token = posTaggedToken.getToken();
@@ -77,4 +81,31 @@ public final class ParseConfigurationTokenOutput {
 	public void setLabel(String label) {
 		this.label = label;
 	}
+
+	public ParseConfigurationTokenOutput getNonProjectiveGovernor() {
+		return nonProjectiveGovernor;
+	}
+
+	public void setNonProjectiveGovernor(
+			ParseConfigurationTokenOutput nonProjectiveGovernor) {
+		this.nonProjectiveGovernor = nonProjectiveGovernor;
+	}
+
+	public DependencyArc getNonProjectiveArc() {
+		return nonProjectiveArc;
+	}
+
+	public void setNonProjectiveArc(DependencyArc nonProjectiveArc) {
+		this.nonProjectiveArc = nonProjectiveArc;
+	}
+
+	public String getNonProjectiveLabel() {
+		return nonProjectiveLabel;
+	}
+
+	public void setNonProjectiveLabel(String nonProjectiveLabel) {
+		this.nonProjectiveLabel = nonProjectiveLabel;
+	}
+	
+	
 }

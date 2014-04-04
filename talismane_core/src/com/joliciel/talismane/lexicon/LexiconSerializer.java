@@ -22,14 +22,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.utils.LogUtils;
 
 /**
@@ -41,24 +42,28 @@ public abstract class LexiconSerializer {
 	private static final Log LOG = LogFactory.getLog(LexiconSerializer.class);
 
 	public void serializeLexicons(String[] args) {
+		Map<String,String> argMap = TalismaneConfig.convertArgs(args);
+		this.serializeLexicons(argMap);
+	}
+	
+	public void serializeLexicons(Map<String,String> argMap) {
 		try {
 			String lexiconDirPath = "";
 			String outDirPath = "";
-			String posTagSetPath = "";
-			String lexiconPatternPath = "";
+			String lexiconPatternPath = null;
+			String regex = null;
 
-			for (String arg : args) {
-				int equalsPos = arg.indexOf('=');
-				String argName = arg.substring(0, equalsPos);
-				String argValue = arg.substring(equalsPos+1);
+			for (Entry<String, String> entry : argMap.entrySet()) {
+				String argName = entry.getKey();
+				String argValue = entry.getValue();
 				if (argName.equals("lexiconDir"))
 					lexiconDirPath = argValue;
 				else if (argName.equals("outDir"))
 					outDirPath = argValue;
-				else if (argName.equals("posTagSet"))
-					posTagSetPath = argValue;
 				else if (argName.equals("lexiconPattern"))
 					lexiconPatternPath = argValue;
+				else if (argName.equals("regex"))
+					regex = argValue;
 				else
 					throw new RuntimeException("Unknown argument: " + argName);
 			}
@@ -67,49 +72,43 @@ public abstract class LexiconSerializer {
 				throw new RuntimeException("Missing argument: lexiconDir");
 			if (outDirPath.length()==0)
 				throw new RuntimeException("Missing argument: outDir");
-			if (posTagSetPath.length()==0)
-				throw new RuntimeException("Missing argument: posTagSet");
-			if (lexiconPatternPath.length()==0)
-				throw new RuntimeException("Missing argument: lexiconPattern");
+			if (lexiconPatternPath==null && regex==null)
+				throw new RuntimeException("Missing argument: lexiconPattern or regex");
 
 			File outDir = new File(outDirPath);
 			outDir.mkdirs();
 
-			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
-
-			PosTaggerService posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
-			File posTagSetFile = new File(posTagSetPath);
-			PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetFile);
-
-			TalismaneSession.setPosTagSet(posTagSet);
-
 			File lexiconDir = new File(lexiconDirPath);
 			File[] lexiconFiles = lexiconDir.listFiles();
 
-			File lexiconPatternFile = new File(lexiconPatternPath);
-			Scanner lexiconPatternScanner = new Scanner(lexiconPatternFile);
-			String regex = null;
-			if (lexiconPatternScanner.hasNextLine()) {
-				regex = lexiconPatternScanner.nextLine();
+			if (regex==null) {
+				File lexiconPatternFile = new File(lexiconPatternPath);
+				Scanner lexiconPatternScanner = new Scanner(lexiconPatternFile);
+				if (lexiconPatternScanner.hasNextLine()) {
+					regex = lexiconPatternScanner.nextLine();
+				}
 			}
+			
 			RegexLexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(this.getMorphologyReader());
 			lexicalEntryReader.setRegex(regex);
 			for (File inFile : lexiconFiles) {
 				LOG.debug("Serializing: " + inFile.getName());
 				LexiconFile lexiconFile = new LexiconFile(lexicalEntryReader, inFile);
-				lexiconFile.setPosTagSet(posTagSet);
 
 				FileOutputStream fos = null;
+				ZipOutputStream zos = null;
 				ObjectOutputStream out = null;
 				String fileNameBase = inFile.getName();
 				if (fileNameBase.indexOf('.')>=0) {
 					fileNameBase = fileNameBase.substring(0, fileNameBase.lastIndexOf('.'));
 
-					File outFile = new File(outDir, fileNameBase + ".obj");
+					File outFile = new File(outDir, fileNameBase + ".zip");
 					try
 					{
 						fos = new FileOutputStream(outFile);
-						out = new ObjectOutputStream(fos);
+						zos = new ZipOutputStream(fos);
+						zos.putNextEntry(new ZipEntry(fileNameBase + ".obj"));
+						out = new ObjectOutputStream(zos);
 
 						try {
 							out.writeObject(lexiconFile);

@@ -70,4 +70,10 @@ public interface TokeniserPatternManager {
 	 * @return
 	 */
 	public List<TokeniserOutcome> getDefaultOutcomes(TokenSequence tokenSequence);
+	
+	/**
+	 * The full list of descriptors used to construct this pattern manager.
+	 * @return
+	 */
+	public List<String> getDescriptors();
 }

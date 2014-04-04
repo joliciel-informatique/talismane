@@ -83,6 +83,8 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.Pattern
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
 
 /**
  * The default implementation for the Talismane interface.
@@ -134,6 +136,9 @@ class TalismaneImpl implements Talismane {
 			if (this.getParseConfigurationProcessor()==null)
 				this.setParseConfigurationProcessor(config.getParseConfigurationProcessor());
 			
+			// kick-off writer creation if required
+			this.getWriter();
+			
 			switch (config.getCommand()) {
 			case analyse:
 				MONITOR.startTask("analyse");
@@ -183,6 +188,9 @@ class TalismaneImpl implements Talismane {
 						if (this.getParseConfigurationProcessor()==null)
 							throw new TalismaneException("Cannot process parser output without a parse configuration processor!");
 						try {
+							if (config.getParserCorpusReader() instanceof CurrentFileObserver && config.getReader() instanceof CurrentFileProvider)
+								((CurrentFileProvider) config.getReader()).addCurrentFileObserver((CurrentFileObserver) config.getParserCorpusReader());
+							
 							while (config.getParserCorpusReader().hasNextConfiguration()) {
 								ParseConfiguration parseConfiguration = config.getParserCorpusReader().nextConfiguration();
 								MONITOR.startTask("processParseConfiguration");
@@ -470,6 +478,10 @@ class TalismaneImpl implements Talismane {
 			PosTagSequence posTagSequence = null;
 			
 			RollingSentenceProcessor rollingSentenceProcessor = this.getFilterService().getRollingSentenceProcessor(config.getFileName(), config.isProcessByDefault());
+			if (this.getReader() instanceof CurrentFileProvider) {
+				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingSentenceProcessor);
+			}
+			
 			Sentence leftover = null;
 			if (config.getStartModule().equals(Module.SentenceDetector)||config.getStartModule().equals(Module.Tokeniser)) {
 				// prime the sentence detector with two text segments, to ensure everything gets processed

@@ -44,6 +44,7 @@ import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.Talismane.Command;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.fr.tokeniser.filters.AllUppercaseFrenchFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
@@ -118,6 +119,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
     	extensions.pluckParameters(argsMap);
     	
     	TalismaneFrench talismaneFrench = new TalismaneFrench();
+    	TalismaneSession.setLinguisticRules(new FrenchRules());
     	
     	TalismaneConfig config = new TalismaneConfig(argsMap, talismaneFrench);
     	if (config.getCommand()==null)
@@ -134,6 +136,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	  			config.setParserCorpusReader(ftbDepReader);
 				config.setPosTagCorpusReader(ftbDepReader);
 				config.setTokenCorpusReader(ftbDepReader);
+				config.setSentenceCorpusReader(ftbDepReader);
 				
 				if (config.getCommand().equals(Command.compare)) {
 					File evaluationFile = new File(config.getEvaluationFilePath());
@@ -175,6 +178,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	  			config.setParserCorpusReader(corpusReader);
 				config.setPosTagCorpusReader(corpusReader);
 				config.setTokenCorpusReader(corpusReader);
+				config.setSentenceCorpusReader(corpusReader);
 				
 				if (corpusReaderType==CorpusFormat.spmrl) {
 					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
@@ -364,13 +368,16 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	@Override
 	public TransitionSystem getDefaultTransitionSystem() {
 		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
-		InputStream inputStream = getInputStreamFromResource("talismaneDependencyLabels.txt");
+		InputStream inputStream = getInputStreamFromResource("pennDependencyLabels.txt");
 		Scanner scanner = new Scanner(inputStream, "UTF-8");
 		List<String> dependencyLabels = new ArrayList<String>();
 		while (scanner.hasNextLine()) {
 			String dependencyLabel = scanner.nextLine();
-			if (!dependencyLabel.startsWith("#"))
+			if (!dependencyLabel.startsWith("#")) {
+				if (dependencyLabel.indexOf('\t')>0)
+					dependencyLabel = dependencyLabel.substring(0, dependencyLabel.indexOf('\t'));
 				dependencyLabels.add(dependencyLabel);
+			}
 		}
 		transitionSystem.setDependencyLabels(dependencyLabels);
 		return transitionSystem;

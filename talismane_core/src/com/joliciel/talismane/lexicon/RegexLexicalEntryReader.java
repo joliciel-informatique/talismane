@@ -32,9 +32,9 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
  * The regex needs to contain the following five capturing groups, indicated by the following strings:<br/>
  * <li>%TOKEN%: the token - note that we assume CoNLL formatting (with underscores for spaces and for empty tokens). The sequence &amp;und; should be used for true underscores.</li>
  * <li>%LEMMA%: the lemma - note that we assume CoNLL formatting (with underscores for spaces and for missing lemmas)</li>
- * <li>%POSTAG%: the token's pos-tag</li>
+ * <li>%POSTAG%: the token's pos-tag - optional, since this might be read from the %MORPH% string.</li>
  * <li>%MORPH%: the token's morphology.<br/>
- * The placeholders will be replaced by (.+) meaning no empty strings allowed.
+ * The placeholders, except for %MORPH%, will be replaced by (.+) meaning no empty strings allowed.
  * @author Assaf Urieli
  *
  */
@@ -55,15 +55,18 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 		if (!matcher.matches())
 			throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line: " + line);
 		
-		if (matcher.groupCount()!=4) {
-			throw new TalismaneException("Expected 4 matches (but found " + matcher.groupCount() + ") on line:" + line);
+		if (matcher.groupCount()!=placeholderIndexMap.size()) {
+			throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line:" + line);
 		}
 		
 		String token =  matcher.group(placeholderIndexMap.get("%TOKEN%"));
 		token = CoNLLFormatter.fromCoNLL(token);
 		String lemma =  matcher.group(placeholderIndexMap.get("%LEMMA%"));
 		lemma = CoNLLFormatter.fromCoNLL(lemma);
-		String postag = matcher.group(placeholderIndexMap.get("%POSTAG%"));
+		String postag = "";
+		if (placeholderIndexMap.get("%POSTAG%")!=null)
+			postag = matcher.group(placeholderIndexMap.get("%POSTAG%"));
+		
 		String morphology = matcher.group(placeholderIndexMap.get("%MORPH%"));
 		
 		LexicalEntry lexicalEntry = this.morphologyReader.readEntry(token, lemma, postag, morphology);
@@ -81,8 +84,6 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 				throw new TalismaneException("The regex must contain the string \"%LEMMA%\"");
 
 			int posTagPos = regex.indexOf("%POSTAG%");
-			if (posTagPos<0)
-				throw new TalismaneException("The regex must contain the string \"%POSTAG%\"");
 
 			int morphPos = regex.indexOf("%MORPH%");
 			if (morphPos<0)
@@ -92,7 +93,8 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 			Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
 			placeholderMap.put(tokenPos, "%TOKEN%");
 			placeholderMap.put(lemmaPos, "%LEMMA%");
-			placeholderMap.put(posTagPos, "%POSTAG%");
+			if (posTagPos>=0)
+				placeholderMap.put(posTagPos, "%POSTAG%");
 			placeholderMap.put(morphPos, "%MORPH%");
 			
 			int i = 1;
@@ -103,7 +105,12 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 			String regexWithGroups = regex.replace("%TOKEN%", "(.+)");
 			regexWithGroups = regexWithGroups.replace("%LEMMA%", "(.+)");
 			regexWithGroups = regexWithGroups.replace("%POSTAG%", "(.+)");
-			regexWithGroups = regexWithGroups.replace("%MORPH%", "(.+)");
+			
+			if (posTagPos>=0)
+				regexWithGroups = regexWithGroups.replace("%MORPH%", "(.*)");
+			else 
+				regexWithGroups = regexWithGroups.replace("%MORPH%", "(.+)");
+			
 			this.pattern = Pattern.compile(regexWithGroups);
 		}
 		return pattern;

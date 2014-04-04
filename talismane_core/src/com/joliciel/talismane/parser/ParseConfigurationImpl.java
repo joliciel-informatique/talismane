@@ -61,6 +61,8 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private Deque<PosTaggedToken> buffer;
 	private Deque<PosTaggedToken> stack;
 	private List<Transition> transitions;
+	
+	// Projective dependency information
 	private Set<DependencyArc> dependencies;
 	private Map<PosTaggedToken,DependencyArc> governingDependencyMap = null;
 	private Map<PosTaggedToken, List<PosTaggedToken>> leftDependentMap = null;
@@ -69,6 +71,9 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private Map<PosTaggedToken, Map<String,List<PosTaggedToken>>> dependentByLabelMap = null;
 	private Map<PosTaggedToken,Transition> dependentTransitionMap = new HashMap<PosTaggedToken, Transition>();
 	
+	// Non-projective equivalents to above
+	private Set<DependencyArc> dependenciesNonProj;
+
 	private ParserServiceInternal parserServiceInternal;
 	
 	private DependencyNode parseTree = null;
@@ -184,6 +189,13 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	
 	public Set<DependencyArc> getDependencies() {
 		return dependencies;
+	}
+
+	@Override
+	public Set<DependencyArc> getNonProjectiveDependencies() {
+		if (dependenciesNonProj==null)
+			return dependencies;
+		return dependenciesNonProj;
 	}
 	
 	public Set<DependencyArc> getRealDependencies() {
@@ -387,6 +399,26 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.governingDependencyMap=null;
 	}
 
+	@Override
+	public DependencyArc addManualNonProjectiveDependency(PosTaggedToken head,
+			PosTaggedToken dependent, String label) {
+		DependencyArc arc = this.parserServiceInternal.getDependencyArc(head, dependent, label);
+		PosTaggedToken ancestor = arc.getHead();
+		while (ancestor!=null) {
+			if (ancestor.equals(arc.getDependent())) {
+				throw new CircularDependencyException(this, arc.getHead(), arc.getDependent());
+			}
+			ancestor = this.getHead(ancestor);
+		}
+		
+		if (this.dependenciesNonProj==null)
+			this.dependenciesNonProj = new TreeSet<DependencyArc>();
+		this.dependenciesNonProj.add(arc);
+
+		return arc;
+	}
+
+
 	public ParserServiceInternal getParserServiceInternal() {
 		return parserServiceInternal;
 	}
@@ -569,5 +601,6 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	public int getLastProbApplied() {
 		return lastProbApplied;
 	}
+
 
 }

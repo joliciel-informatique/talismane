@@ -19,6 +19,7 @@
 package com.joliciel.talismane.parser;
 
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 
 /**
@@ -38,7 +39,8 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
  * @author Assaf Urieli
  *
  */
-public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader, PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader {
+public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader,
+	PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader, SentenceDetectorAnnotatedCorpusReader {
 	/**
 	 * The default regex (if none is set) - corresponds to the CONLL format.
 	 */

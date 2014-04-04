@@ -1,0 +1,38 @@
+TALISMANE
+
+Talismane is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Talismane is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with Talismane.  If not, see http://www.gnu.org/licenses/.
+
+The pre-packaged French deployment of Talimane is distributed with the following
+resources:
+
+FRENCH TREEBANK
+A set of models based on the French Treebank:
+http://www.llf.cnrs.fr/Gens/Abeille/French-Treebank-fr.php
+
+These models may be used for research purposes provided that you have a license for the French Treebank.
+For licensing questions please contact anne.abeille@linguist.jussieu.fr 
+
+LEFFF
+A lexicon derived from the LeFFF lexicon:
+http://www.labri.fr/perso/clement/lefff/
+
+The lexicon was derived using the talismane_lefff package.
+
+LeFFF is available under the Lesser General Public License For Linguistic Resources:
+http://www.labri.fr/perso/clement/lefff/licence-LGPLLR.html
+
+
+
+
+

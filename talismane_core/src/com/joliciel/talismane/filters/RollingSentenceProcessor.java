@@ -20,13 +20,15 @@ package com.joliciel.talismane.filters;
 
 import java.util.Set;
 
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+
 /**
  * A raw text processor which processes text block by block, applies text markers,
  * and returns SentenceHolders. These sentence holders will then be used
  * to detect the actual sentences.
  * @author Assaf Urieli
  */
-public interface RollingSentenceProcessor {
+public interface RollingSentenceProcessor extends CurrentFileObserver {
 	/**
 	 * Adds a segment of original text, and the textMarkers corresponding it.
 	 * @param segment the next segment of original text

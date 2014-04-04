@@ -47,6 +47,12 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
 		List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
 		
 		NonProjectivePair pair = this.getNextPair(arcs);
+		if (pair!=null) {
+			// have non projective dependencies - set up initial non-projective set so that it stays untouched
+			for (DependencyArc arc : arcs) {
+				parseConfiguration.addManualNonProjectiveDependency(arc.getHead(), arc.getDependent(), arc.getLabel());
+			}
+		}
 		while (pair!=null) {
 			PosTaggedToken newHead1 = null;
 			PosTaggedToken parent1 = parseConfiguration.getHead(pair.arc1.getHead());

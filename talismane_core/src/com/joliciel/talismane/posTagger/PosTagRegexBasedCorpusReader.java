@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+
 /**
  * A corpus reader that expects one pos-tagged token per line,
  * and analyses the line content based on a regex supplied during construction.<br/>
@@ -32,7 +35,7 @@ package com.joliciel.talismane.posTagger;
  * @author Assaf Urieli
  *
  */
-public interface PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
+public interface PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader, SentenceDetectorAnnotatedCorpusReader {
 	/**
 	 * The default regex (if none is set).
 	 */

@@ -58,7 +58,15 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	 * @return
 	 */
 	public Set<DependencyArc> getDependencies();
-	
+
+	/**
+	 * A set of potentially non-projective dependency arcs defined by the current configuration,
+	 * typically because they were read from a manually annotated corpus.
+	 * If non such manual dependency arcs were read, will return the standard set of dependencies.
+	 * @return
+	 */
+	public Set<DependencyArc> getNonProjectiveDependencies();
+
 	/**
 	 * Add the given dependency to the current configuration.
 	 * @param head
@@ -69,6 +77,20 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	 */
 	public DependencyArc addDependency(PosTaggedToken head, PosTaggedToken dependent,
 			String label, Transition transition);
+	
+	/**
+	 * Add the given dependency to the current configuration's non-projective dependency set.
+	 * This should only be used when reading a previously annotated corpus,
+	 * to indicate the projective and non-projective governor for a given token.
+	 * If the transition system is capable of producing its own non-projective dependencies
+	 * there should be no need to distinguish between projective and non-projective.
+	 * @param head
+	 * @param dependent
+	 * @param label
+	 * @return
+	 */
+	public DependencyArc addManualNonProjectiveDependency(PosTaggedToken head, PosTaggedToken dependent,
+			String label);
 	
 	/**
 	 * A buffer of pos-tagged tokens that have not yet been processed.

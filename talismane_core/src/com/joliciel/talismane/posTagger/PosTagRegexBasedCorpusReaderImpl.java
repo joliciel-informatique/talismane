@@ -38,7 +38,10 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
@@ -55,8 +58,10 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	private Pattern pattern;
 	private Scanner scanner;
 	private PosTagSequence posTagSequence = null;
-	private List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
+	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
+	private TokenSequenceFilter tokenFilterWrapper = null;
 
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
@@ -70,6 +75,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TokeniserService tokeniserService;
+	private TokenFilterService tokenFilterService;
 	
 	public PosTagRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
@@ -125,7 +131,15 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						}
 
 						tokenSequence.cleanSlate();
-						for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
+						
+						// first apply the token filters - which might replace the text of an individual token
+						// with something else
+						if (tokenFilterWrapper==null) {
+							tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
+						}
+						tokenFilterWrapper.apply(tokenSequence);
+
+						for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 							tokenFilter.apply(tokenSequence);
 						}
 						
@@ -202,7 +216,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 
 	@Override
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.tokenFilters.add(tokenFilter);
+		this.tokenSequenceFilters.add(tokenFilter);
 	}
 	
 	@Override
@@ -321,7 +335,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 		attributes.put("tagset", TalismaneSession.getPosTagSet().getName());
 		
 		int i = 0;
-		for (TokenSequenceFilter tokenFilter : this.tokenFilters) {
+		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 			attributes.put("TokenSequenceFilter" + i, "" + tokenFilter.getClass().getSimpleName());
 			
 			i++;
@@ -341,6 +355,55 @@ class PosTagRegexBasedCorpusReaderImpl implements
 
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
+	}
+
+	@Override
+	public boolean hasNextTokenSequence() {
+		return this.hasNextPosTagSequence();
+	}
+
+	@Override
+	public TokenSequence nextTokenSequence() {
+		TokenSequence tokenSequence = this.nextPosTagSequence().getTokenSequence();
+		return tokenSequence;
+	}
+
+	@Override
+	public void addTokenFilter(TokenFilter tokenFilter) {
+		this.tokenFilters.add(tokenFilter);
+	}
+
+	@Override
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
+		return tokenSequenceFilters;
+	}
+
+	@Override
+	public List<TokenFilter> getTokenFilters() {
+		return tokenFilters;
+	}
+
+	@Override
+	public boolean hasNextSentence() {
+		return this.hasNextPosTagSequence();
+	}
+
+	@Override
+	public String nextSentence() {
+		return this.nextTokenSequence().getText();
+	}
+
+	@Override
+	public boolean isNewParagraph() {
+		return false;
+	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
 	}
 
 	

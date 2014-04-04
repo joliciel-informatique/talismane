@@ -27,6 +27,7 @@
 		<subant target="one-jar">
 			<fileset dir=".">
 				<include name="talismane_fr/build.xml"/>
+				<include name="talismane_en/build.xml"/>
 			</fileset>
 		</subant>
 		<subant target="one-jar">
@@ -67,6 +68,7 @@
 		<subant target="clean">
 			<fileset dir=".">
 				<include name="talismane_fr/build.xml"/>
+				<include name="talismane_en/build.xml"/>
 			</fileset>
 		</subant>
 		<subant target="clean">
