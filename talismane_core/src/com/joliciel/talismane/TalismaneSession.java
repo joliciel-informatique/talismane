@@ -35,6 +35,7 @@ public class TalismaneSession {
 	private static ThreadLocal<PosTaggerLexicon> lexiconHolder = new ThreadLocal<PosTaggerLexicon>();
 	private static ThreadLocal<TransitionSystem> transitionSystemHolder = new ThreadLocal<TransitionSystem>();
 	private static ThreadLocal<LanguageSpecificImplementation> implementationHolder = new ThreadLocal<LanguageSpecificImplementation>();
+	private static ThreadLocal<LinguisticRules> linguisticRulesHolder = new ThreadLocal<LinguisticRules>();
 	
 	public static void setImplementation(LanguageSpecificImplementation implementation) {
 		implementationHolder.set(implementation);
@@ -94,4 +95,14 @@ public class TalismaneSession {
 		localeHolder.set(locale);
 	}
 	
+	
+	public static void setLinguisticRules(LinguisticRules rules) {
+		linguisticRulesHolder.set(rules);
+	}
+	public static LinguisticRules getLinguisticRules() {
+		LinguisticRules rules = linguisticRulesHolder.get();
+		return rules;
+	}
+	
+
 }

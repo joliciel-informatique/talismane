@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,19 +38,26 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 	PosTagSet posTagSet;
 	PosTagMapper posTagMapper;
 	
-	public LexiconFile(LexicalEntryReader reader, File file) {
+	public LexiconFile(LexicalEntryReader reader, File file) throws IOException {
+		this(reader, new FileInputStream(file));
+	}
+	
+	public LexiconFile(LexicalEntryReader reader, InputStream inputStream) {
 		super();
 
 		try {
-			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
+			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(inputStream, "UTF-8")));
 
+			int entryCount = 0;
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				if (line.length()>0 && !line.startsWith("#")) {
 					LexicalEntry lexicalEntry = reader.readEntry(line);
+					entryCount++;
 					
-					// make sure it's a known pos-tag
-					TalismaneSession.getPosTagSet().getPosTag(lexicalEntry.getCategory());
+					if (entryCount % 1000 == 0) {
+						LOG.debug("Read " + entryCount + " entries");
+					}
 					
 					List<LexicalEntry> entries = entryMap.get(lexicalEntry.getWord());
 					if (entries==null) {
@@ -66,6 +74,7 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 					entriesForLemma.add(lexicalEntry);
 				}
 			}
+			LOG.debug("Read " + entryCount + " entries");
 			scanner.close();
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
@@ -98,8 +107,12 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 		List<LexicalEntry> entries = this.getEntries(word);
 		PosTagSet posTagSet = TalismaneSession.getPosTagSet();
 		for (LexicalEntry entry : entries) {
-			PosTag posTag = posTagSet.getPosTag(entry.getCategory());
-			posTags.add(posTag);
+			if (this.getPosTagMapper()==null) {
+				PosTag posTag = posTagSet.getPosTag(entry.getCategory());
+				posTags.add(posTag);
+			} else {
+				posTags.addAll(posTagMapper.getPosTags(entry));
+			}
 		}
 		return posTags;
 	}
@@ -109,8 +122,14 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 		List<LexicalEntry> entries = this.getEntries(word);
 		List<LexicalEntry> entriesForPosTag = new ArrayList<LexicalEntry>();
 		for (LexicalEntry entry : entries) {
-			if (posTag.getCode().equals(entry.getCategory())) {
-				entriesForPosTag.add(entry);
+			if (posTagMapper==null) {
+				if (posTag.getCode().equals(entry.getCategory())) {
+					entriesForPosTag.add(entry);
+				}
+			} else {
+				Set<PosTag> posTags = posTagMapper.getPosTags(entry);
+				if (posTags.contains(posTag))
+					entriesForPosTag.add(entry);
 			}
 		}
 		return entriesForPosTag;
@@ -122,8 +141,14 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 		List<LexicalEntry> entries = this.getEntriesForLemma(lemma, complement);
 		List<LexicalEntry> entriesForPosTag = new ArrayList<LexicalEntry>();
 		for (LexicalEntry entry : entries) {
-			if (posTag.getCode().equals(entry.getCategory())) {
-				entriesForPosTag.add(entry);
+			if (posTagMapper==null) {
+				if (posTag.getCode().equals(entry.getCategory())) {
+					entriesForPosTag.add(entry);
+				}
+			} else {
+				Set<PosTag> posTags = posTagMapper.getPosTags(entry);
+				if (posTags.contains(posTag))
+					entriesForPosTag.add(entry);
 			}
 		}
 		return entriesForPosTag;

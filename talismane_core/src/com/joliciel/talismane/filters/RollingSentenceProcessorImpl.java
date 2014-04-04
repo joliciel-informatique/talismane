@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -40,7 +41,6 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	private int leftoverNewline = 0;
 	private String fileName = "";
 	private static final int NUM_CHARS = 30;
-
 	
 	private FilterService filterService;
 	
@@ -289,6 +289,13 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 
 	public void setFilterService(FilterService filterService) {
 		this.filterService = filterService;
+	}
+
+	@Override
+	public void onNextFile(File file) {
+		this.fileName = file.getPath();
+		this.lineNumber = 2;
+		this.originalTextIndex = 0;
 	}
 
 	

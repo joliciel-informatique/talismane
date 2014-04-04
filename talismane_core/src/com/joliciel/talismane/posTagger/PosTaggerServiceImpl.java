@@ -37,6 +37,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerFeatureService posTaggerFeatureService;
@@ -44,6 +45,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	TokeniserService tokeniserService;
 	MachineLearningService machineLearningService;
 	FeatureService featureService;
+	TokenFilterService tokenFilterService;
 
 	@Override
 	public PosTagger getPosTagger(
@@ -173,6 +175,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagRegexBasedCorpusReaderImpl corpusReader = new PosTagRegexBasedCorpusReaderImpl(reader);
 		corpusReader.setPosTaggerServiceInternal(this);
 		corpusReader.setTokeniserService(this.getTokeniserService());
+		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
 	}
 
@@ -208,6 +211,14 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		tester.setPosTaggerFeatureService(this.getPosTaggerFeatureService());
 		tester.setPosTaggerService(this);
 		return tester;
+	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
 	}
 
 	

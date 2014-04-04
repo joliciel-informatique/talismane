@@ -8,7 +8,9 @@ import java.util.ListIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
@@ -223,26 +225,15 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		if (this.size()==0) {
 			// do nothing
 		} else if (!textProvided) {
-			//TODO: language-specific - e.g. French takes space before :, ? and !, English doesn't
-			// Double quotes are tricky because they could be opening or closing quotations. Most of the time we can simply 
-			// count quotes, but not if there's a sentence break inside a quotation.
-			// Single quotes are tricky, as they can be apostrophes or actual quotes
+			// check if a space should be added before this token
 			String lastTokenText = this.get(this.size()-1).getText();
-			if (lastTokenText.endsWith("'") || lastTokenText.endsWith("’") || lastTokenText.equals("“")
-					|| lastTokenText.equals("(") || lastTokenText.equals("[")
-					|| lastTokenText.equals("{")) {
-				// do nothing
-			} else if (tokenText.equals(".")||tokenText.equals(",")||tokenText.equals(")")||tokenText.equals("]")||tokenText.equals("}")||tokenText.equals("”")) {
-				// do nothing
-			} else if ((lastTokenText.endsWith(".") || lastTokenText.equals("?") || lastTokenText.equals("!"))
-					&& (tokenText.equals("\""))) {
-				// do nothing
-			} else if (tokenText.equals("")) {
-				// do nothing for empty tokens
-			} else {
-				// add a space
+			LinguisticRules rules = TalismaneSession.getLinguisticRules();
+			if (rules==null)
+				throw new TalismaneException("Linguistic rules have not been set.");
+			
+			if (rules.shouldAddSpace(lastTokenText, tokenText))
 				this.addTokenInternal(" ");
-			}
+			
 		}
 		token = this.addTokenInternal(tokenText);
 

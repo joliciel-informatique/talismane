@@ -84,6 +84,9 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("Outputting: " + parseConfiguration.toString());
+		}
 		Map<String,Object> model = new HashMap<String, Object>();
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);

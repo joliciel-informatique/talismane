@@ -43,6 +43,7 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	
 	private Map<SeparatorDecision, String> separatorDefaults;
 	private Map<SeparatorDecision, Pattern> separatorDefaultPatterns;
+	private List<String> descriptors;
 	private List<String> testPatterns;
 	
 	private List<TokenPattern> parsedTestPatterns;
@@ -52,6 +53,7 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	 * @param locale
 	 */
 	public TokeniserPatternManagerImpl (List<String> patternDescriptors) {
+		this.descriptors = patternDescriptors;
 		this.configure(patternDescriptors);
 	}
 
@@ -218,4 +220,10 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 		}
 		return separatorDefaultPatterns;
 	}
+
+	public List<String> getDescriptors() {
+		return descriptors;
+	}
+	
+	
 }

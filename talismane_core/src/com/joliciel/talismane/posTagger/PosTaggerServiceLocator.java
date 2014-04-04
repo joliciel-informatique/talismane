@@ -36,6 +36,7 @@ public class PosTaggerServiceLocator {
 			posTaggerService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
 			posTaggerService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 			posTaggerService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
+			posTaggerService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
 		}
 		return posTaggerService;
 	}

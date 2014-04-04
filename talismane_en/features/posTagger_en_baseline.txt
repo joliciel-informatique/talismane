@@ -1,0 +1,87 @@
+IfThenElseNull(X,Y)	NullIf(Not(X),Y)
+LemmaOrWord(X)	IfThenElse(IsNull(Lemma(X)),LexicalForm(X),Lemma(X))
+
+# one token features (custom)
+First	OnlyTrue(FirstWordInSentence())
+Last	OnlyTrue(LastWordInSentence())
+ContainsSpace	OnlyTrue(Regex(".+ .+"))
+ContainsPeriod	OnlyTrue(Regex(".*[^.]\.[^.].*"))
+EndsWithPeriod	OnlyTrue(Regex("(.*[^.])\."))
+ContainsHyphen	OnlyTrue(Regex(".+\-.+"))
+ContainsNumber	OnlyTrue(Regex(".*\d.*"))
+FirstLetterCapsSimple	OnlyTrue(Regex("[A-Z].*"))
+FirstLetterCaps	OnlyTrue(Regex("[A-Z][^A-Z].*"))
+FirstWordInCompoundOrWord	IfThenElse(ContainsSpace(),FirstWordInCompound(),WordForm())
+LastWordInCompound()
+IsNumeric	OnlyTrue(Regex("\d+(,\d+)?"))
+AllCaps	OnlyTrue(Regex("[A-Z '\-]+") & Regex(".*[A-Z][A-Z].*"))
+Pref	NLetterPrefix(IndexRange(2,5))
+Suf	NLetterSuffix(IndexRange(2,5))
+
+# one token features
+Wb2()	WordForm(Offset(-2))
+Wb1	WordForm(Offset(-1))
+W0	WordForm()
+Wf1	WordForm(Offset(1))
+Wf2()	WordForm(Offset(2))
+Pb2()	PosTag(History(-2))
+Pb1	PosTag(History(-1))
+P0prime	LexiconPosTags()
+P0	LexiconPosTagsForString(IfThenElse(UnknownWord&NullToFalse(ContainsSpace),FirstWordInCompound,WordForm))
+Pf1	LexiconPosTags(Offset(1))
+Pf2()	LexiconPosTags(Offset(2))
+Lb1	LemmaOrWord(History(-1))
+Lb2()	LemmaOrWord(History(-2))
+L0	P0 || LemmaForPosTag(P0)
+Lf1	Pf1 || LemmaForPosTag(Offset(1), LexiconPosTags(Offset(1)))
+Lf2()	Pf2 || LemmaForPosTag(Offset(2), LexiconPosTags(Offset(2)))
+A0	LexiconAllPosTags()
+Af1	LexiconAllPosTags(Offset(1))
+Af2()	LexiconAllPosTags(Offset(2))
+U0	ToString(OnlyTrue(UnknownWord()))
+Uf1	ToString(OnlyTrue(UnknownWord(Offset(1))))
+1stb1()	ToString(OnlyTrue(FirstWordInSentence(Offset(-1))))
+
+# two token features
+1sb1_Pb1	1stb1 || Pb1
+1sb1_Lb1	1stb1 || Lb1
+Pb2_Pb1	Pb2 || Pb1
+Pb2_Lb1	Pb2 || Lb1
+Lb2_Lb1	Lb2 || Lb1
+Lb2_Pb1	Lb2 || Pb1
+
+Pb1_W0	Pb1 || W0
+Pb1_U0	Pb1 || U0
+Lb1_W0	Lb1 || W0
+Lb1_U0	Lb1 || U0
+1st_W0	ToString(First) || W0
+1st_P0	ToString(First) || P0
+
+W0_Wf1	W0 || Wf1
+W0_Pf1	W0 || Pf1
+W0_Lf1	W0 || Lf1
+W0_Af1	W0 || Af1
+W0_Uf1	W0 || Uf1
+U0_Wf1	U0 || Wf1
+U0_Pf1	U0 || Pf1
+U0_Lf1	U0 || Lf1
+U0_Af1	U0 || Af1
+U0_Uf1	U0 || Uf1
+
+# three token features
+1stb1_Pb1_W0	1stb1 || Pb1 || W0
+1stb1_Lb1_W0	1stb1 || Lb1 || W0
+Pb2_Pb1_W0	Pb2 || Pb1 || W0
+Pb2_Lb1_W0	Pb2 || Lb1 || W0
+Lb2_Lb1_W0	Lb2 || Lb1 || W0
+Lb2_Pb1_W0	Lb2 || Pb1 || W0
+Pb1_W0_Wf1	Pb1 || W0 || Wf1
+Pb1_W0_Pf1	Pb1 || W0 || Pf1
+Pb1_W0_Lf1	Pb1 || W0 || Lf1
+Lb1_W0_Wf1	Lb1 || W0 || Wf1
+Lb1_W0_Pf1	Lb1 || W0 || Pf1
+Lb1_W0_Lf1	Lb1 || W0 || Lf1
+W0_Wf1_Wf2	W0 || Wf1 || Wf2
+W0_Wf1_Af2	W0 || Wf1 || Af2
+W0_Af1_Wf2	W0 || Af1 || Wf2
+W0_Af1_Af2	W0 || Af1 || Af2

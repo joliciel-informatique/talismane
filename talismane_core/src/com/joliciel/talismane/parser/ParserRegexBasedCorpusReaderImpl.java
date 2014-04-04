@@ -64,9 +64,10 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
 
 public class ParserRegexBasedCorpusReaderImpl implements
-		ParserRegexBasedCorpusReader {
+		ParserRegexBasedCorpusReader, CurrentFileObserver {
     private static final Log LOG = LogFactory.getLog(ParserRegexBasedCorpusReaderImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserRegexBasedCorpusReaderImpl.class);
 	private String regex = ParserRegexBasedCorpusReader.DEFAULT_REGEX;
@@ -74,6 +75,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
 	private static final String GOVERNOR_PLACEHOLDER = "%GOVERNOR%";
 	private static final String LABEL_PLACEHOLDER = "%LABEL%";
+	private static final String NON_PROJ_GOVERNOR_PLACEHOLDER = "%NON_PROJ_GOVERNOR%";
+	private static final String NON_PROJ_LABEL_PLACEHOLDER = "%NON_PROJ_LABEL%";
 	private static final String POSTAG_PLACEHOLDER = "%POSTAG%";
 	private static final String FILENAME_PLACEHOLDER = "%FILENAME%";
 	private static final String ROW_PLACEHOLDER = "%ROW%";
@@ -104,6 +107,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private List<File> files;
 	private int currentFileIndex = 0;
 	private boolean needsToReturnBlankLine = false;
+	private File currentFile;
 
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
@@ -292,7 +296,11 @@ public class ParserRegexBasedCorpusReaderImpl implements
 					    				try {
 					    					posTag = posTagSet.getPosTag(dataLine.getPosTagCode());
 					    				} catch (UnknownPosTagException upte) {
-					    					throw new TalismaneException("Unknown posTag on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
+					    					String fileName = "";
+					    					if (currentFile!=null)
+					    						fileName = currentFile.getPath();
+					    					
+					    					throw new TalismaneException("Unknown posTag, " + fileName + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
 					    				}
 										Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(posTag);
 										PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
@@ -342,6 +350,28 @@ public class ParserRegexBasedCorpusReaderImpl implements
 											configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
 										}
 									}
+									
+									// Add manual non-projective dependencies, if there are any
+									if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
+										Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
+										if (LOG.isTraceEnabled())
+											LOG.trace("Non projective dependencies: ");
+										
+										for (ParseDataLine dataLine : dataLines) {
+											PosTaggedToken head = idTokenMap.get(dataLine.getNonProjectiveGovernorIndex());
+											PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
+											DependencyArc nonProjArc = this.getParserService().getDependencyArc(head, dependent, dataLine.getNonProjectiveLabel());
+											if (LOG.isTraceEnabled())
+												LOG.trace(nonProjArc);
+											nonProjDeps.add(nonProjArc);
+											nonProjArc.setComment(dataLine.getDependencyComment());
+										}
+										
+										for (DependencyArc nonProjArc : nonProjDeps) {
+											configuration.addManualNonProjectiveDependency(nonProjArc.getHead(), nonProjArc.getDependent(), nonProjArc.getLabel());
+										}
+									}
+									
 									sentenceCount++;
 								} // is the configuration a valid one
 							} // have we data lines?
@@ -372,6 +402,17 @@ public class ParserRegexBasedCorpusReaderImpl implements
 							dataLine.setPosTagCode(posTagCode);
 							dataLine.setDependencyLabel(depLabel);
 							dataLine.setGovernorIndex(governorIndex);
+							if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
+								int nonProjectiveGovernorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(NON_PROJ_GOVERNOR_PLACEHOLDER)));
+								dataLine.setNonProjectiveGovernorIndex(nonProjectiveGovernorIndex);
+							}
+							if (placeholderIndexMap.containsKey(NON_PROJ_LABEL_PLACEHOLDER)) {
+								String nonProjLabel = matcher.group(placeholderIndexMap.get(NON_PROJ_LABEL_PLACEHOLDER));
+								if (nonProjLabel.equals("_"))
+									nonProjLabel = "";
+								dataLine.setNonProjectiveLabel(nonProjLabel);
+							}
+							
 							if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
 								dataLine.setOriginalFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
 							if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
@@ -467,6 +508,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		private String posTagCode = "";
 		private int governorIndex;
 		private String dependencyLabel = "";
+		private int nonProjectiveGovernorIndex;
+		private String nonProjectiveLabel = "";
 		private Token token;
 		private String originalFileName = "";
 		private int originalLineNumber = 0;
@@ -583,8 +626,25 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			this.dependencyComment = dependencyComment;
 		}
 
+		
+		public int getNonProjectiveGovernorIndex() {
+			return nonProjectiveGovernorIndex;
+		}
+
+		public void setNonProjectiveGovernorIndex(int nonProjectiveGovernorIndex) {
+			this.nonProjectiveGovernorIndex = nonProjectiveGovernorIndex;
+		}
+
+		public String getNonProjectiveLabel() {
+			return nonProjectiveLabel;
+		}
+
+		public void setNonProjectiveLabel(String nonProjectiveLabel) {
+			this.nonProjectiveLabel = nonProjectiveLabel;
+		}
+
 		public String toString() {
-			String string = lineNumber + ": " + index + "," + word + "," + posTagCode + "," + governorIndex + "," + dependencyLabel;
+			String string = lineNumber + ": " + index + "," + word + "," + posTagCode + "," + nonProjectiveGovernorIndex + "," + nonProjectiveLabel + "," + governorIndex + "," + dependencyLabel;
 			return string;
 		}
 	}
@@ -655,6 +715,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			if (governorPos<0)
 				throw new TalismaneException("The regex must contain the string \"" + GOVERNOR_PLACEHOLDER + "\"");
 			
+			int nonProjGovernorPos = regex.indexOf(NON_PROJ_GOVERNOR_PLACEHOLDER);
+			int nonProjLabelPos = regex.indexOf(NON_PROJ_LABEL_PLACEHOLDER);
 			int filenamePos = regex.indexOf(FILENAME_PLACEHOLDER);
 			int rowNumberPos = regex.indexOf(ROW_PLACEHOLDER);
 			int columnNumberPos = regex.indexOf(COLUMN_PLACEHOLDER);
@@ -667,6 +729,10 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			placeholderMap.put(posTagPos, POSTAG_PLACEHOLDER);
 			placeholderMap.put(labelPos, LABEL_PLACEHOLDER);
 			placeholderMap.put(governorPos, GOVERNOR_PLACEHOLDER);
+			if (nonProjGovernorPos>=0)
+				placeholderMap.put(nonProjGovernorPos, NON_PROJ_GOVERNOR_PLACEHOLDER);
+			if (nonProjLabelPos>=0)
+				placeholderMap.put(nonProjLabelPos, NON_PROJ_LABEL_PLACEHOLDER);
 			if (filenamePos>=0)
 				placeholderMap.put(filenamePos, FILENAME_PLACEHOLDER);
 			if (rowNumberPos>=0)
@@ -688,6 +754,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.*)");
 			regexWithGroups = regexWithGroups.replace(GOVERNOR_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(NON_PROJ_LABEL_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(NON_PROJ_GOVERNOR_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
@@ -709,15 +777,11 @@ public class ParserRegexBasedCorpusReaderImpl implements
 				if (corpusLocation==null) {
 					return false;
 				} else if (corpusLocation.isDirectory()) {
-					File[] theFiles = corpusLocation.listFiles();
-					Arrays.sort(theFiles);
 					files = new ArrayList<File>();
-					for (File file : theFiles) {
-						if (!file.getName().equals(excludeFileName)) {
-							files.add(file);
-						}
-					}
-					Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(files.get(0)), charset));
+					this.addFiles(corpusLocation, files);
+					File file = files.get(0);
+					this.onNextFile(file);
+					Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
 					this.scanner = new Scanner(reader);
 				} else {
 					Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(corpusLocation), charset));
@@ -735,7 +799,9 @@ public class ParserRegexBasedCorpusReaderImpl implements
 				
 				if (files!=null) {
 					if (currentFileIndex<files.size()) {
-						Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(files.get(currentFileIndex)), charset));
+						File file = files.get(currentFileIndex);
+						this.onNextFile(file);
+						Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
 						this.scanner = new Scanner(reader);
 						currentFileIndex++;
 					}
@@ -746,6 +812,19 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
+		}
+	}
+	
+	private void addFiles(File directory, List<File> files) {
+		File[] theFiles = directory.listFiles();
+		Arrays.sort(theFiles);
+		for (File file : theFiles) {
+			if (!file.getName().equals(excludeFileName)) {
+				if (file.isDirectory())
+					this.addFiles(file, files);
+				else
+					files.add(file);
+			}
 		}
 	}
 	
@@ -833,6 +912,22 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		return tokenSequence;
 	}
 
+
+	@Override
+	public boolean hasNextSentence() {
+		return this.hasNextConfiguration();
+	}
+
+	@Override
+	public String nextSentence() {
+		return this.nextTokenSequence().getText();
+	}
+
+	@Override
+	public boolean isNewParagraph() {
+		return false;
+	}
+
 	@Override
 	public List<TokenSequenceFilter> getTokenSequenceFilters() {
 		return this.tokenSequenceFilters;
@@ -901,5 +996,10 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		this.startSentence = startSentence;
 	}
 
+	@Override
+	public void onNextFile(File file) {
+		currentFile = file;
+		lineNumber = 0;
+	}
 	
 }
