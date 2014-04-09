@@ -47,4 +47,14 @@ public interface TokenPlaceholder {
 	 * @return
 	 */
 	String getRegex();
+	
+	
+	/**
+	 * Can this placeholder represent a sentence boundary (at its last character that is)?
+	 * @return
+	 */
+	public boolean isPossibleSentenceBoundary();
+
+	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
+
 }

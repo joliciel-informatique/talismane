@@ -70,6 +70,7 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
@@ -215,6 +216,19 @@ class TalismaneImpl implements Talismane {
 				MONITOR.startTask("evaluate");
 				try {
 					switch (config.getModule()) {
+					case SentenceDetector:
+						SentenceDetectorEvaluator sentenceDetectorEvaluator = config.getSentenceDetectorEvaluator();
+						MONITOR.startTask("sentenceDetectorEvaluate");
+						try {
+							File sentenceErrorFile = new File(config.getOutDir(), config.getBaseName() + "_errors.txt");
+							Writer sentenceErrorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false),"UTF8"));
+							sentenceDetectorEvaluator.evaluate(config.getSentenceCorpusReader(), sentenceErrorWriter);
+							sentenceErrorWriter.flush();
+							sentenceErrorWriter.close();
+						} finally {
+							MONITOR.endTask("sentenceDetectorEvaluate");
+						}
+						break;
 					case Tokeniser:
 						TokeniserEvaluator tokeniserEvaluator = config.getTokeniserEvaluator();
 						MONITOR.startTask("tokeniserEvaluate");

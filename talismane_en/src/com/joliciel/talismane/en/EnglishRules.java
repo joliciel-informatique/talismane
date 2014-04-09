@@ -38,7 +38,7 @@ class EnglishRules implements LinguisticRules {
 				||currentToken.equals(",")||currentToken.equals(")")||currentToken.equals("]")
 				||currentToken.equals("}")||currentToken.equals("”") || currentToken.equals("/")) {
 			// do nothing
-		} else if (currentToken.equals("'s")||currentToken.equals("'re")
+		} else if (currentToken.equals("'s")||currentToken.equals("'re")||currentToken.equals("'ll")
 				||currentToken.equals("'m")||currentToken.equals("'d")||currentToken.equals("'ve")||currentToken.equals("n't")) {
 			// do nothing, as in dog's, we're, I'm, don't
 		} else if (currentToken.equals("")) {

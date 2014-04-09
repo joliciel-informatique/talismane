@@ -19,7 +19,9 @@
 package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,15 +46,15 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	}
 
 	@Override
-	public TokenFilter getTokenRegexFilter(String regex,
+	public TokenRegexFilter getTokenRegexFilter(String regex,
 			String replacement) {
 		return this.getTokenRegexFilter(regex, 0, replacement);
 	}
 
 	@Override
-	public TokenFilter getTokenRegexFilter(String regex,
+	public TokenRegexFilter getTokenRegexFilter(String regex,
 			int groupIndex, String replacement) {
-		TokenRegexFilter filter = new TokenRegexFilter(regex, groupIndex, replacement);
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl(regex, groupIndex, replacement);
 		filter.setTokeniserFilterService(this);
 		return filter;
 	}
@@ -87,15 +89,33 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 
 	@Override
 	public TokenFilter getTokenFilter(String descriptor) {
-		TokenFilter filter = null;
+		TokenRegexFilter filter = null;
 		String[] parts = descriptor.split("\t");
-		if (parts[0].equals(TokenRegexFilter.class.getSimpleName())) {
+		String className = parts[0];
+		Map<String,String> parameterMap = new HashMap<String, String>();
+		if (className.indexOf('(')>0) {
+			String parameters = className.substring(className.indexOf('(')+1, className.indexOf(')'));
+			className = className.substring(0, className.indexOf('('));
+			String[] paramArray = parameters.split(",");
+			for (String paramEntry : paramArray) {
+				String paramName = paramEntry.substring(0, paramEntry.indexOf('='));
+				String paramValue = paramEntry.substring(paramEntry.indexOf('=')+1);
+				parameterMap.put(paramName, paramValue);
+			}
+		}
+		if (className.equals(TokenRegexFilter.class.getSimpleName())) {
 			if (parts.length==4) {
 				filter = this.getTokenRegexFilter(parts[1], Integer.parseInt(parts[2]), parts[3]);
 			} else if (parts.length==3) {
 				filter = this.getTokenRegexFilter(parts[1], parts[2]);
 			} else {
 				throw new TalismaneException("Wrong number of arguments for " + TokenRegexFilter.class.getSimpleName() + ". Expected 3 or 4, but was " + parts.length);
+			}
+			
+			for (String paramName : parameterMap.keySet()) {
+				if (paramName.equals("possibleSentenceBoundary")) {
+					filter.setPossibleSentenceBoundary(Boolean.valueOf(parameterMap.get(paramName)));
+				}
 			}
 		} else {
 			throw new TalismaneException("Unknown TokenFilter: " + parts[0]);

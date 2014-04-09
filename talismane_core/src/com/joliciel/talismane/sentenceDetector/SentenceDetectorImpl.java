@@ -81,11 +81,16 @@ class SentenceDetectorImpl implements SentenceDetector {
 			List<Integer> guessedBoundaries = new ArrayList<Integer>();
 			
 			while (matcher.find()) {
-				// only add possible boundaries if they're not inside a placeholder
+				// Only add possible boundaries if they're not inside a placeholder
+				// Note that we allow boundaries at the last position of the placeholder (placeholder.getEndIndex()-1)
 				boolean inPlaceholder = false;
 				int position = prevText.length() + matcher.start();
 				for (TokenPlaceholder placeholder : placeholderMap.values()) {
-					if (placeholder.getStartIndex()<=position && position<placeholder.getEndIndex()) {
+					int endPos = placeholder.getEndIndex();
+					if (placeholder.isPossibleSentenceBoundary()) {
+						endPos -= 1;
+					}
+					if (placeholder.getStartIndex()<=position && position<endPos) {
 						inPlaceholder = true;
 						break;
 					}

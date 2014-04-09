@@ -345,6 +345,8 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	public List<TokenSequenceFilter> getDefaultTokenSequenceFilters() {
 		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
 		tokenFilters.add(new AllUppercaseFrenchFilter());
+		tokenFilters.add(new UpperCaseSeriesFrenchFilter());
+		tokenFilters.add(new LowercaseFirstWordFrenchFilter());
 		return tokenFilters;
 	}
 

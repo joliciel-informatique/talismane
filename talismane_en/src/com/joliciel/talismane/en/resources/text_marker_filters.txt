@@ -7,4 +7,6 @@ RegexMarkerFilter	REPLACE	[“”„‟″‴]	"
 RegexMarkerFilter	REPLACE	[‘’]	'
 RegexMarkerFilter	REPLACE	(« )|«	"
 RegexMarkerFilter	REPLACE	( »)|»	"
+RegexMarkerFilter	REPLACE	``	"
+RegexMarkerFilter	REPLACE	''	"
 RegexMarkerFilter	REPLACE	[‒–—―]	 - 

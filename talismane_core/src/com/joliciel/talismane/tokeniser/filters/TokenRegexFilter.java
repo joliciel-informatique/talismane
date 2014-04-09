@@ -18,78 +18,39 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+/**
+ * A token filter which recognises a token based on a regular expression.
+ * The regular expression can also give context, with the actual token identified by a group in the regex.
+ * Also, the token filter can optionally replace the token contents by a replacement, which can use the $1, $2, etc. notation
+ * to represent the content of different groups in the original match.
+ * @author Assaf Urieli
+ *
+ */
+public interface TokenRegexFilter extends TokenFilter {
+	/**
+	 * The regex to recognise.
+	 * @return
+	 */
+	public String getRegex();
 
-import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.utils.RegexUtils;
+	/**
+	 * The replacement to replace it with.
+	 * @return
+	 */
+	public String getReplacement();
 
-class TokenRegexFilter implements TokenFilter {
-	private String regex;
-	private Pattern pattern;
-	private String replacement;
-	private int groupIndex;
+	/**
+	 * The group index to tokenise and replace within the regex.
+	 * @return
+	 */
+	public int getGroupIndex();
 	
-	private TokenFilterServiceInternal tokeniserFilterService;
-	
-	public TokenRegexFilter(String regex, String replacement) {
-		this(regex, 0, replacement);
-	}
-	
-	public TokenRegexFilter(String regex, int groupIndex, String replacement) {
-		super();
-		if (regex==null || regex.length()==0)
-			throw new TalismaneException("Cannot use an empty regex for a filter");
-		this.regex = regex;
-		this.groupIndex = groupIndex;
-		this.pattern = Pattern.compile(regex);
-		this.replacement = replacement;
-	}
+	/**
+	 * Can this regex represent a sentence boundary (at its last character that is)?
+	 * @return
+	 */
+	public boolean isPossibleSentenceBoundary();
 
-	@Override
-	public Set<TokenPlaceholder> apply(String text) {
-		Set<TokenPlaceholder> placeholders = new HashSet<TokenPlaceholder>();
-		
-		Matcher matcher = pattern.matcher(text);
-		int lastStart = -1;
-		while (matcher.find()) {
-			int start = matcher.start(groupIndex);
-			if (start>lastStart) {
-				int end = matcher.end(groupIndex);
-				String newText = RegexUtils.getReplacement(replacement, text, matcher);
-				TokenPlaceholder placeholder = this.tokeniserFilterService.getTokenPlaceholder(start, end, newText, regex);
-				placeholders.add(placeholder);
-			}
-			lastStart = start;
-		}
-		
-		return placeholders;
-	}
+	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
 
-	public String getRegex() {
-		return regex;
-	}
-
-	public String getReplacement() {
-		return replacement;
-	}
-
-	public TokenFilterServiceInternal getTokeniserFilterService() {
-		return tokeniserFilterService;
-	}
-
-	public void setTokeniserFilterService(
-			TokenFilterServiceInternal tokeniserFilterService) {
-		this.tokeniserFilterService = tokeniserFilterService;
-	}
-
-	@Override
-	public String toString() {
-		return "TokenRegexFilter [regex=" + regex + ", replacement="
-				+ replacement + "]";
-	}
-	
-	
 }

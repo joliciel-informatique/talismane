@@ -30,7 +30,7 @@ public interface TokenFilterService {
 	 * @param replacement
 	 * @return
 	 */
-	public TokenFilter getTokenRegexFilter(String regex, String replacement);
+	public TokenRegexFilter getTokenRegexFilter(String regex, String replacement);
 	
 	/**
 	 * Get a token filter that applies a regex to a given text, and marks an matches found
@@ -44,7 +44,7 @@ public interface TokenFilterService {
 	 * @param replacement the text to be assigned to this token - can refer to groups in the regex via standard $1, $2 usage
 	 * @return
 	 */
-	public TokenFilter getTokenRegexFilter(String regex, int groupIndex, String replacement);
+	public TokenRegexFilter getTokenRegexFilter(String regex, int groupIndex, String replacement);
 	
 	/**
 	 * Gets a TokenSequenceFilter corresponding to a given descriptor.
