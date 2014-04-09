@@ -23,6 +23,7 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 	private int endIndex;
 	private String replacement;
 	private String regex;
+	private boolean possibleSentenceBoundary;
 	
 	public TokenPlaceholderImpl() {
 	}
@@ -90,4 +91,14 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 	public void setRegex(String regex) {
 		this.regex = regex;
 	}
+
+	public boolean isPossibleSentenceBoundary() {
+		return possibleSentenceBoundary;
+	}
+
+	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary) {
+		this.possibleSentenceBoundary = possibleSentenceBoundary;
+	}
+	
+	
 }

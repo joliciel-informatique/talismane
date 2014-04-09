@@ -41,18 +41,25 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 				for (PosTaggedToken refToken : refConfiguration.getPosTagSequence()) {
 					if (i!=0) {
 						DependencyArc refArc = refConfiguration.getGoverningDependency(refToken);
-						PosTaggedToken guessToken = guessConfiguration.getPosTagSequence().get(i);
-						if (errorLabels.contains(refArc.getLabel())) {
-							DependencyArc guessedArc = guessConfiguration.getGoverningDependency(guessToken);
-							if (!guessedArc.getLabel().equals(refArc.getLabel())
-									|| guessedArc.getHead().getIndex()!=refArc.getHead().getIndex()) {
-								refTokensToExplain.add(refToken);
-								refTokensToHighlight.add(refArc.getHead());
-								guessTokensToExplain.add(guessToken);
-								guessTokensToHighlight.add(guessedArc.getHead());
-								includeMe = true;
+						if (refArc!=null) {
+							PosTaggedToken guessToken = guessConfiguration.getPosTagSequence().get(i);
+							if (errorLabels.contains(refArc.getLabel())) {
+								DependencyArc guessArc = guessConfiguration.getGoverningDependency(guessToken);
+								if (guessArc==null
+										|| !refArc.getLabel().equals(guessArc.getLabel())
+										|| (refArc.getHead()==null && guessArc.getHead()!=null)
+										|| (refArc.getHead()!=null && guessArc.getHead()==null)
+										|| refArc.getHead().getIndex() != guessArc.getHead().getIndex()) {
+									refTokensToExplain.add(refToken);
+									if (refArc.getHead()!=null)
+										refTokensToHighlight.add(refArc.getHead());
+									guessTokensToExplain.add(guessToken);
+									if (guessArc!=null && guessArc.getHead()!=null)
+										guessTokensToHighlight.add(guessArc.getHead());
+									includeMe = true;
+								}
 							}
-						}
+						} // have refArc
 					}
 					i++;
 				}
@@ -61,7 +68,10 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 				for (PosTaggedToken refToken : refConfiguration.getPosTagSequence()) {
 					if (refTokensToExplain.contains(refToken)) {
 						DependencyArc refArc = refConfiguration.getGoverningDependency(refToken);
-						refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + "|Gov" + refArc.getHead().getIndex() + "|" + refArc.getLabel() + "# ");					
+						if (refArc==null)
+							refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + "|Gov0|null# ");					
+						else
+							refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + "|Gov" + (refArc.getHead()==null? 0 : refArc.getHead().getIndex()) + "|" + refArc.getLabel() + "# ");					
 					} else if (refTokensToHighlight.contains(refToken)) {
 						refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + "# ");										
 					} else {
@@ -72,7 +82,10 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 				for (PosTaggedToken guessToken : guessConfiguration.getPosTagSequence()) {
 					if (guessTokensToExplain.contains(guessToken)) {
 						DependencyArc guessArc = guessConfiguration.getGoverningDependency(guessToken);
-						guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|" + guessToken.getIndex() + "|Gov" + guessArc.getHead().getIndex() + "|" + guessArc.getLabel() + "# ");					
+						if (guessArc==null)
+							guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|" + guessToken.getIndex() + "|Gov0|null# ");					
+						else
+							guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|" + guessToken.getIndex() + "|Gov" + (guessArc.getHead()==null? 0 : guessArc.getHead().getIndex()) + "|" + guessArc.getLabel() + "# ");					
 					} else if (guessTokensToHighlight.contains(guessToken)) {
 						guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|" + guessToken.getIndex() + "# ");										
 					} else {

@@ -14,7 +14,7 @@ public class PreTokeniserRegexFilterTest {
 	@Test
 	public void testApply() {
 		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
-		TokenRegexFilter filter = new TokenRegexFilter("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b", "Email");
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b", "Email");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		String text = "My address is joe.schmoe@test.com.";
 		Set<TokenPlaceholder> placeholders = filter.apply(text);
@@ -29,7 +29,7 @@ public class PreTokeniserRegexFilterTest {
 	@Test
 	public void testApplyWithDollars() {
 		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
-		TokenRegexFilter filter = new TokenRegexFilter("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b", "\\$Email$2:$1");
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b", "\\$Email$2:$1");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		String text = "My address is joe.schmoe@test.com.";
 		Set<TokenPlaceholder> placeholders = filter.apply(text);

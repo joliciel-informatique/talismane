@@ -203,32 +203,35 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 
 	@Override
 	public ZipInputStream getDefaultSentenceModelStream() {
-		return null;
+		String modelName = "sentence_penn_train_baseline_maxent_cut5.zip";
+		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultTokeniserModelStream() {
-		return null;
+		String modelName = "tokeniser_penn_train_baseline_maxent_cut5.zip";
+		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultPosTaggerModelStream() {
-		return null;
+		String modelName = "posTagger_penn_train_baseline_maxent_cut5.zip";
+		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
 	}
 
 	@Override
 	public ZipInputStream getDefaultParserModelStream() {
-		return null;
+		String modelName = "parser_penn_train_baseline_maxent_cut10.zip";
+		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
 	}
 
 
 	@Override
 	public List<TokenSequenceFilter> getDefaultTokenSequenceFilters() {
-		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
-		tokenFilters.add(new AllUppercaseEnglishFilter());
-		tokenFilters.add(new LowercaseFirstWordEnglishFilter());
-		tokenFilters.add(new UpperCaseSeriesEnglishFilter());
-		return tokenFilters;
+		List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
+		tokenSequenceFilters.add(new LowercaseFirstWordEnglishFilter());
+		tokenSequenceFilters.add(new UpperCaseSeriesEnglishFilter());
+		return tokenSequenceFilters;
 	}
 
 	@Override
