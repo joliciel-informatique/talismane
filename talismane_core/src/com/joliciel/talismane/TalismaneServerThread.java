@@ -37,6 +37,8 @@ import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 /**
  * A server that processes the text which is sent on a socket.
  * The assumption is that the text should be handled as a single independent block.
+ * If the text consists of the command "@SHUTDOWN", the thread will instruct the TalismaneServer which created it to shut down
+ * as soon as all current threads are finished processing.
  * @author Assaf Urieli
  *
  */
@@ -58,6 +60,7 @@ class TalismaneServerThread extends Thread {
         this.server = server;
         this.socket = socket;
         this.config = config;
+        // get thread-local variables out of the parent thread's TalismaneSession
         this.locale = TalismaneSession.getLocale();
         this.posTagSet = TalismaneSession.getPosTagSet();
         this.lexicon = TalismaneSession.getLexicon();
@@ -67,6 +70,7 @@ class TalismaneServerThread extends Thread {
      
     public void run() {
     	try {
+    		// Assign thread-local variables into the child thread's TalismaneSession
     		TalismaneSession.setLocale(locale);
     		TalismaneSession.setLexicon(lexicon);
     		TalismaneSession.setPosTagSet(posTagSet);
@@ -77,16 +81,21 @@ class TalismaneServerThread extends Thread {
 	        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), config.getInputCharset()));
             
 	        Talismane talismane = talismaneService.getTalismane(config);
+	        // Set the various processors from the server, in case they were set to override the default
 	        talismane.setParseConfigurationProcessor(this.server.getParseConfigurationProcessor());
 	        talismane.setPosTagSequenceProcessor(this.server.getPosTagSequenceProcessor());
 	        talismane.setTokenSequenceProcessor(this.server.getTokenSequenceProcessor());
-	        talismane.setSentenceProcessor(this.server.getSentenceProcessor());
+
+	        // For the sentence processor, wrap it in a processor that checks for a shut down command
+	        SentenceProcessor sentenceProcessor = this.server.getSentenceProcessor();
+	        if (sentenceProcessor==null)
+	        	sentenceProcessor = config.getSentenceProcessor();
+	        ShutDownListener listener = new ShutDownListener(this.server, sentenceProcessor);
+	        talismane.setSentenceProcessor(listener);
+	        
 	        talismane.setStopOnError(this.server.isStopOnError());
 	        talismane.setReader(in);
 	        talismane.setWriter(out);
-	        
-	        ShutDownListener listener = new ShutDownListener(this.server, config.getSentenceProcessor());
-	        talismane.setSentenceProcessor(listener);
 	        
 	        talismane.process();
 	        
