@@ -421,7 +421,7 @@ class TalismaneImpl implements Talismane {
 			
 			long endTime = new Date().getTime();
 			long totalTime = endTime - startTime;
-			LOG.info("Total time: " + totalTime);
+			LOG.info("Total time for Talismane.process(): " + totalTime);
 			
 			if (config.isLogStats()) {
 				try {
@@ -766,27 +766,6 @@ class TalismaneImpl implements Talismane {
 				throw new RuntimeException(ioe2);
 			}
 
-		}
-	}
-	
-	public void train(TalismaneConfig config) {
-		switch (config.getModule()) {
-		case SentenceDetector:
-//			ClassificationModelTrainer<SentenceDetectorOutcome> trainer = machineLearningService.getClassificationModelTrainer(algorithm, trainParameters);
-//			
-//			DecisionFactory<SentenceDetectorOutcome> decisionFactory = sentenceDetectorService.getDecisionFactory();
-//			ClassificationModel<SentenceDetectorOutcome> sentenceModel = trainer.trainModel(tokeniserEventStream, decisionFactory, featureDescriptors);
-//			if (externalResourceFinder!=null)
-//				sentenceModel.setExternalResources(externalResourceFinder.getExternalResources());
-//			sentenceModel.persist(sentenceModelFile);
-
-			break;
-		case Tokeniser:
-			break;
-		case PosTagger:
-			break;
-		case Parser:
-			break;
 		}
 	}
 

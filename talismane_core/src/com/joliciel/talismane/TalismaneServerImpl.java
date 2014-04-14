@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.ServerSocket;
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -53,13 +55,39 @@ class TalismaneServerImpl implements TalismaneServer {
 
 	@Override
 	public void process() {
-        try {
+		long startTime = new Date().getTime();
+		ServerSocket serverSocket = null;
+		
+		try {        	
+        	LOG.info("Starting server - loading shared resources...");
         	// ping the lexicon to load it
         	TalismaneSession.getLexicon();
-        	LOG.debug("Starting server");
         	
-            ServerSocket serverSocket = new ServerSocket(port);
-            while (listening) {
+        	// ping the models to load them
+			if (config.needsSentenceDetector()) {
+				if (config.getSentenceDetector()==null) {
+					throw new TalismaneException("Sentence detector not provided.");
+				}
+			}
+			if (config.needsTokeniser()) {
+				if (config.getTokeniser()==null) {
+					throw new TalismaneException("Tokeniser not provided.");
+				}
+			}
+			if (config.needsPosTagger()) {
+				if (config.getPosTagger()==null) {
+					throw new TalismaneException("Pos-tagger not provided.");
+				}
+			}
+			if (config.needsParser()) {
+				if (config.getParser()==null) {
+					throw new TalismaneException("Parser not provided.");
+				}
+			}
+        	
+            serverSocket = new ServerSocket(port);
+           	LOG.info("Server started. Waiting for clients...");
+           	while (listening) {
             	TalismaneServerThread thread = new TalismaneServerThread(this, config, serverSocket.accept());
             	thread.setTalismaneService(this.getTalismaneService());
                 thread.start();
@@ -67,6 +95,19 @@ class TalismaneServerImpl implements TalismaneServer {
         } catch (IOException e) {
             LogUtils.logError(LOG, e);
             throw new RuntimeException(e);
+        } finally {
+        	if (serverSocket!=null && !serverSocket.isClosed()) {
+        		try {
+					serverSocket.close();
+				} catch (IOException e) {
+		            LogUtils.logError(LOG, e);
+		            throw new RuntimeException(e);
+				}
+        	}
+        	LOG.info("Server shut down.");
+			long endTime = new Date().getTime();
+			long totalTime = endTime - startTime;
+			LOG.info("Total server run time (ms): " + totalTime);
         }
 	}
 	

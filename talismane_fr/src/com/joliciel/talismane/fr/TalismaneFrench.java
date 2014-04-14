@@ -370,7 +370,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	@Override
 	public TransitionSystem getDefaultTransitionSystem() {
 		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
-		InputStream inputStream = getInputStreamFromResource("pennDependencyLabels.txt");
+		InputStream inputStream = getInputStreamFromResource("talismaneDependencyLabels.txt");
 		Scanner scanner = new Scanner(inputStream, "UTF-8");
 		List<String> dependencyLabels = new ArrayList<String>();
 		while (scanner.hasNextLine()) {
