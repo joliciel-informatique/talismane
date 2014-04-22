@@ -118,4 +118,12 @@ public interface Sentence {
 	 */
 	String getFileName();
 	void setFileName(String fileName);
+	
+	/**
+	 * The line number on which this sentence started, when reading from a previously analysed corpus (one token per line).
+	 * @return
+	 */
+	public int getStartLineNumber();
+	public void setStartLineNumber(int startLineNumber);
+
 }

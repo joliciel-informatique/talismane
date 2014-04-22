@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
@@ -30,8 +32,10 @@ import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.io.DirectoryReader;
 
 /**
  * Used to serialize a set of lexicon files found in a given directory.
@@ -48,8 +52,9 @@ public abstract class LexiconSerializer {
 	
 	public void serializeLexicons(Map<String,String> argMap) {
 		try {
-			String lexiconDirPath = "";
-			String outDirPath = "";
+			String lexiconDirPath = null;
+			String outDirPath = null;
+			String outFilePath = null;
 			String lexiconPatternPath = null;
 			String regex = null;
 
@@ -58,6 +63,8 @@ public abstract class LexiconSerializer {
 				String argValue = entry.getValue();
 				if (argName.equals("lexiconDir"))
 					lexiconDirPath = argValue;
+				else if (argName.equals("outFile"))
+					outFilePath = argValue;
 				else if (argName.equals("outDir"))
 					outDirPath = argValue;
 				else if (argName.equals("lexiconPattern"))
@@ -68,15 +75,23 @@ public abstract class LexiconSerializer {
 					throw new RuntimeException("Unknown argument: " + argName);
 			}
 
-			if (lexiconDirPath.length()==0)
+			if (lexiconDirPath==null)
 				throw new RuntimeException("Missing argument: lexiconDir");
-			if (outDirPath.length()==0)
-				throw new RuntimeException("Missing argument: outDir");
+			if (outDirPath==null && outFilePath==null)
+				throw new RuntimeException("Missing argument: outDir or outFile");
 			if (lexiconPatternPath==null && regex==null)
 				throw new RuntimeException("Missing argument: lexiconPattern or regex");
 
-			File outDir = new File(outDirPath);
-			outDir.mkdirs();
+			File outFile = null;
+			File outDir = null;
+			if (outFilePath!=null) {
+				outFile = new File(outFilePath);
+				outDir = outFile.getParentFile();
+			} else {
+				outDir = new File(outDirPath);
+			}
+			if (outDir!=null)
+				outDir.mkdirs();
 
 			File lexiconDir = new File(lexiconDirPath);
 			File[] lexiconFiles = lexiconDir.listFiles();
@@ -91,38 +106,54 @@ public abstract class LexiconSerializer {
 			
 			RegexLexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(this.getMorphologyReader());
 			lexicalEntryReader.setRegex(regex);
-			for (File inFile : lexiconFiles) {
-				LOG.debug("Serializing: " + inFile.getName());
-				LexiconFile lexiconFile = new LexiconFile(lexicalEntryReader, inFile);
+			
+			if (outFile!=null) {
+				DirectoryReader directoryReader = new DirectoryReader(lexiconDir, StandardCharsets.UTF_8);
+				directoryReader.setEndOfFileString("\n");
+				LOG.debug("Serializing: " + lexiconDir.getName());
+				LexiconFile lexiconFile = new LexiconFile(lexicalEntryReader, directoryReader);
 
-				FileOutputStream fos = null;
-				ZipOutputStream zos = null;
-				ObjectOutputStream out = null;
-				String fileNameBase = inFile.getName();
-				if (fileNameBase.indexOf('.')>=0) {
+				String fileNameBase = outFile.getName();
+				if (fileNameBase.indexOf('.')>=0)
 					fileNameBase = fileNameBase.substring(0, fileNameBase.lastIndexOf('.'));
-
-					File outFile = new File(outDir, fileNameBase + ".zip");
-					try
-					{
-						fos = new FileOutputStream(outFile);
-						zos = new ZipOutputStream(fos);
-						zos.putNextEntry(new ZipEntry(fileNameBase + ".obj"));
-						out = new ObjectOutputStream(zos);
-
-						try {
-							out.writeObject(lexiconFile);
-						} finally {
-							out.flush();
-							out.close();
-						}
-					} catch(IOException ioe) {
-						throw new RuntimeException(ioe);
-					}
+				this.serializeLexicon(outFile, fileNameBase, lexiconFile);				
+			} else {
+				for (File inFile : lexiconFiles) {
+					LOG.debug("Serializing: " + inFile.getName());
+					LexiconFile lexiconFile = new LexiconFile(lexicalEntryReader, inFile);
+	
+					String fileNameBase = inFile.getName();
+					if (fileNameBase.indexOf('.')>=0)
+						fileNameBase = fileNameBase.substring(0, fileNameBase.lastIndexOf('.'));
+	
+					outFile = new File(outDir, fileNameBase + ".zip");
+					this.serializeLexicon(outFile, fileNameBase, lexiconFile);
 				}
 			}
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
+			throw new RuntimeException(ioe);
+		}
+	}
+	
+	private void serializeLexicon(File outFile, String fileNameBase, LexiconFile lexiconFile) {
+		FileOutputStream fos = null;
+		ZipOutputStream zos = null;
+		ObjectOutputStream out = null;
+		try
+		{
+			fos = new FileOutputStream(outFile);
+			zos = new ZipOutputStream(fos);
+			zos.putNextEntry(new ZipEntry(fileNameBase + ".obj"));
+			out = new ObjectOutputStream(zos);
+
+			try {
+				out.writeObject(lexiconFile);
+			} finally {
+				out.flush();
+				out.close();
+			}
+		} catch(IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
 	}

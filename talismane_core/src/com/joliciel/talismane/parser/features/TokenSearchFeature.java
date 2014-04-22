@@ -37,6 +37,8 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * If start index &gt;= end index, will look backwards, otherwise will look forwards.<br/>
  * A stopCriterion can be provided, in which case the search will stop as soon as the stop criterion is hit. In this case, the find criterion is always checked before the stop criterion.<br/>
  * The user can indicate whether to find the first or the last occurrence (default is first).<br/>
+ * The user can indicate a set of skip criteria, which indicate portions of the sentence to be skipped.
+ * These are organised in pairs, where the first item in the pair indicates start skip, and the second item in the pair indicates end skip.
  * @author Assaf Urieli
  *
  */
@@ -46,6 +48,7 @@ public final class TokenSearchFeature extends AbstractAddressFunction implements
 	private BooleanFeature<ParseConfigurationWrapper> findFirstFeature;
 	private IntegerFeature<ParseConfigurationWrapper> startIndexFeature = null;
 	private IntegerFeature<ParseConfigurationWrapper> endIndexFeature = null;
+	private BooleanFeature<PosTaggedTokenWrapper>[] skipCriteria;
 
 	
 	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature) {
@@ -79,6 +82,31 @@ public final class TokenSearchFeature extends AbstractAddressFunction implements
 		this.findFirstFeature = findFirstFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + "," + findFirstFeature.getName() + ")");
 	}
+	
+	/**
+	 * 
+	 * @param criterion
+	 * @param stopCriterion
+	 * @param startIndexFeature
+	 * @param endIndexFeature
+	 * @param findFirstFeature
+	 * @param skipCriteria need to be provided in pairs, each pair indicates where to start skipping and where to end skipping (e.g. open parentheses and close parentheses)
+	 */
+	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature, BooleanFeature<ParseConfigurationWrapper> findFirstFeature, BooleanFeature<PosTaggedTokenWrapper> ... skipCriteria) {
+		this.criterion = criterion;
+		this.stopCriterion = stopCriterion;
+		this.startIndexFeature = startIndexFeature;
+		this.endIndexFeature = endIndexFeature;
+		this.findFirstFeature = findFirstFeature;
+		this.skipCriteria = skipCriteria;
+		String name = super.getName() + "(" + criterion.getName() + "," + stopCriterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + "," + findFirstFeature.getName();
+		for (BooleanFeature<PosTaggedTokenWrapper> skipCriterion : skipCriteria) {
+			name += "," + skipCriterion.getName();
+		}
+		name += ")";
+		this.setName(name);
+	}
+
 
 	@Override
 	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper context, RuntimeEnvironment env) {
@@ -134,23 +162,53 @@ public final class TokenSearchFeature extends AbstractAddressFunction implements
 
 		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
 		parseConfigurationAddress.setParseConfiguration(context.getParseConfiguration());
-
+		
+		int currentSkip = -1;
 		for (int i=startIndex; (step<0 && i>=0 && i>=endIndex) || (step>0 && i<posTagSequence.size() && i<=endIndex); i+=step) {
 			PosTaggedToken oneToken = posTagSequence.get(i);
 			parseConfigurationAddress.setPosTaggedToken(oneToken);
 
-			FeatureResult<Boolean> criterionResult = this.criterion.check(parseConfigurationAddress, env);
-			if (criterionResult!=null && criterionResult.getOutcome()) {
-				matchingToken = oneToken;
-				if (findFirst)
-					break;
-			}
-			if (stopCriterion!=null) {
-				FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(parseConfigurationAddress, env);
-				if (stopCriterionResult!=null && stopCriterionResult.getOutcome()) {
-					break;
+			if (currentSkip<0) {
+				FeatureResult<Boolean> criterionResult = this.criterion.check(parseConfigurationAddress, env);
+				if (criterionResult!=null && criterionResult.getOutcome()) {
+					matchingToken = oneToken;
+					if (findFirst)
+						break;
 				}
 			}
+			
+			boolean endSkip = false;
+			if (skipCriteria!=null && skipCriteria.length>0) {
+				if (currentSkip<0) {
+					for (int j=0; j<skipCriteria.length; j+=2) {
+						BooleanFeature<PosTaggedTokenWrapper> skipCriterion = skipCriteria[j];
+						FeatureResult<Boolean> skipResult = skipCriterion.check(parseConfigurationAddress, env);
+						if (skipResult!=null && skipResult.getOutcome()) {
+							currentSkip = j;
+							break;
+						}
+					}
+				} else {
+					int j = currentSkip+1;
+					BooleanFeature<PosTaggedTokenWrapper> endSkipCriterion = skipCriteria[j];
+					FeatureResult<Boolean> endSkipResult = endSkipCriterion.check(parseConfigurationAddress, env);
+					if (endSkipResult!=null && endSkipResult.getOutcome()) {
+						endSkip = true;
+					}
+				}
+			}
+			
+			if (currentSkip<0) {
+				if (stopCriterion!=null) {
+					FeatureResult<Boolean> stopCriterionResult = this.stopCriterion.check(parseConfigurationAddress, env);
+					if (stopCriterionResult!=null && stopCriterionResult.getOutcome()) {
+						break;
+					}
+				}
+			}
+			
+			if (endSkip)
+				currentSkip = -1;
 		}
 		if (matchingToken!=null) {
 			featureResult = this.generateResult(matchingToken);

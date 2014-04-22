@@ -37,6 +37,7 @@ class SentenceImpl implements Sentence {
 	private boolean complete = true;
 	TreeMap<Integer, Integer> newlines = new TreeMap<Integer, Integer>();
 	private String fileName = "";
+	private int startLineNumber = -1;
 	
 	@Override
 	public String getText() {
@@ -139,4 +140,13 @@ class SentenceImpl implements Sentence {
 		return "SentenceImpl [text=" + text + "]";
 	}
 
+	public int getStartLineNumber() {
+		return startLineNumber;
+	}
+
+	public void setStartLineNumber(int startLineNumber) {
+		this.startLineNumber = startLineNumber;
+	}
+
+	
 }

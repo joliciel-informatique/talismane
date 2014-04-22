@@ -87,7 +87,8 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
 
 	@Override
 	public void close() throws IOException {
-		this.reader.close();
+		if (this.reader!=null)
+			this.reader.close();
 	}
 
 
