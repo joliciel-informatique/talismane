@@ -3,6 +3,6 @@
 [#if token.precedingRawOutput??]
 ${token.precedingRawOutput}
 [/#if]
-${token.index?c}	${token.textForCoNLL}
+${(token.index+1)?c}	${token.textForCoNLL}
 [/#list]
 

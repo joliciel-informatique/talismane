@@ -175,7 +175,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 								}
 							}
 							
-							if (startSentence>totalSentenceCount) {
+							if (totalSentenceCount<startSentence) {
 								includeMe = false;
 							}
 							
@@ -216,7 +216,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										token.setLineNumber(dataLine.getOriginalLineNumber());
 										token.setColumnNumber(dataLine.getOriginalColumnNumber());
 									}
-									LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount-1) + "): " + tokenSequence.getText());
+									LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount-1) + ") (Line " + (sentenceStartLineNumber+1) + "): " + tokenSequence.getText());
 									
 									tokenSequence.cleanSlate();
 									
@@ -283,6 +283,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 											LOG.trace(dataLine.toString());
 										}
 									}
+									
+									tokenSequence.getSentence().setStartLineNumber(sentenceStartLineNumber+1);
 									
 									PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, tokenSequence.size());
 									Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
@@ -378,57 +380,59 @@ public class ParserRegexBasedCorpusReaderImpl implements
 						} else {
 							// add a token to the current sentence
 							hasLine = true;
-							Matcher matcher = this.getPattern().matcher(line);
-							if (!matcher.matches())
-								throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
-							
-							if (matcher.groupCount()!=placeholderIndexMap.size()) {
-								throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
-							}
-							
-							int index = Integer.parseInt(matcher.group(placeholderIndexMap.get(INDEX_PLACEHOLDER)));
-							String rawWord =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-							String word = this.readWord(rawWord);
-							String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
-							String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
-							if (depLabel.equals("_"))
-								depLabel = "";
-							int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(GOVERNOR_PLACEHOLDER)));
-							
-							ParseDataLine dataLine = new ParseDataLine();
-							dataLine.setLineNumber(this.lineNumber);
-							dataLine.setIndex(index);
-							dataLine.setWord(word);
-							dataLine.setPosTagCode(posTagCode);
-							dataLine.setDependencyLabel(depLabel);
-							dataLine.setGovernorIndex(governorIndex);
-							if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
-								int nonProjectiveGovernorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(NON_PROJ_GOVERNOR_PLACEHOLDER)));
-								dataLine.setNonProjectiveGovernorIndex(nonProjectiveGovernorIndex);
-							}
-							if (placeholderIndexMap.containsKey(NON_PROJ_LABEL_PLACEHOLDER)) {
-								String nonProjLabel = matcher.group(placeholderIndexMap.get(NON_PROJ_LABEL_PLACEHOLDER));
-								if (nonProjLabel.equals("_"))
-									nonProjLabel = "";
-								dataLine.setNonProjectiveLabel(nonProjLabel);
-							}
-							
-							if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
-								dataLine.setOriginalFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
-							if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
-								dataLine.setOriginalLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
-							if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
-								dataLine.setOriginalColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
-							if (placeholderIndexMap.containsKey(POSTAG_COMMENT_PLACEHOLDER))
-								dataLine.setPosTagComment(matcher.group(placeholderIndexMap.get(POSTAG_COMMENT_PLACEHOLDER)));
-							if (placeholderIndexMap.containsKey(DEP_COMMENT_PLACEHOLDER))
-								dataLine.setDependencyComment(matcher.group(placeholderIndexMap.get(DEP_COMMENT_PLACEHOLDER)));
-							
-							dataLines.add(dataLine);
-							
-							if (this.lexicalEntryReader!=null) {
-								LexicalEntry lexicalEntry = this.lexicalEntryReader.readEntry(line);
-								lexicalEntries.add(lexicalEntry);
+							if (totalSentenceCount>=startSentence) {
+								Matcher matcher = this.getPattern().matcher(line);
+								if (!matcher.matches())
+									throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
+								
+								if (matcher.groupCount()!=placeholderIndexMap.size()) {
+									throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+								}
+								
+								int index = Integer.parseInt(matcher.group(placeholderIndexMap.get(INDEX_PLACEHOLDER)));
+								String rawWord =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+								String word = this.readWord(rawWord);
+								String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
+								String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
+								if (depLabel.equals("_"))
+									depLabel = "";
+								int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(GOVERNOR_PLACEHOLDER)));
+								
+								ParseDataLine dataLine = new ParseDataLine();
+								dataLine.setLineNumber(this.lineNumber);
+								dataLine.setIndex(index);
+								dataLine.setWord(word);
+								dataLine.setPosTagCode(posTagCode);
+								dataLine.setDependencyLabel(depLabel);
+								dataLine.setGovernorIndex(governorIndex);
+								if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
+									int nonProjectiveGovernorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(NON_PROJ_GOVERNOR_PLACEHOLDER)));
+									dataLine.setNonProjectiveGovernorIndex(nonProjectiveGovernorIndex);
+								}
+								if (placeholderIndexMap.containsKey(NON_PROJ_LABEL_PLACEHOLDER)) {
+									String nonProjLabel = matcher.group(placeholderIndexMap.get(NON_PROJ_LABEL_PLACEHOLDER));
+									if (nonProjLabel.equals("_"))
+										nonProjLabel = "";
+									dataLine.setNonProjectiveLabel(nonProjLabel);
+								}
+								
+								if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER)) 
+									dataLine.setOriginalFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+								if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER)) 
+									dataLine.setOriginalLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+								if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
+									dataLine.setOriginalColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
+								if (placeholderIndexMap.containsKey(POSTAG_COMMENT_PLACEHOLDER))
+									dataLine.setPosTagComment(matcher.group(placeholderIndexMap.get(POSTAG_COMMENT_PLACEHOLDER)));
+								if (placeholderIndexMap.containsKey(DEP_COMMENT_PLACEHOLDER))
+									dataLine.setDependencyComment(matcher.group(placeholderIndexMap.get(DEP_COMMENT_PLACEHOLDER)));
+								
+								dataLines.add(dataLine);
+								
+								if (this.lexicalEntryReader!=null) {
+									LexicalEntry lexicalEntry = this.lexicalEntryReader.readEntry(line);
+									lexicalEntries.add(lexicalEntry);
+								}
 							}
 						}
 					}

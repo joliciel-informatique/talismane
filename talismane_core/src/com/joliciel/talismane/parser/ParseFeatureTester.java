@@ -76,6 +76,8 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 				}
 			}
 			
+			sb.append(" ## Line: " + parseConfiguration.getSentence().getStartLineNumber());
+			
 			if (LOG.isTraceEnabled())
 				LOG.trace(sb.toString());
 			
