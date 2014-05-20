@@ -43,6 +43,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.other.corpus.CorpusProjectifier;
 import com.joliciel.talismane.other.corpus.CorpusStatistics;
 import com.joliciel.talismane.other.corpus.CorpusModifier;
+import com.joliciel.talismane.other.corpus.PosTaggerStatistics;
 import com.joliciel.talismane.other.standoff.StandoffReader;
 import com.joliciel.talismane.other.standoff.StandoffWriter;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
@@ -61,6 +62,7 @@ public class Extensions {
 		fromStandoff,
 		splitConllFile,
 		corpusStatistics,
+		posTaggerStatistics,
 		modifyCorpus,
 		projectify
 	}
@@ -85,7 +87,7 @@ public class Extensions {
     			command = ExtendedCommand.valueOf(args.get("command"));
     			args.remove("command");
     			args.put("command", "process");
-    			args.put("module", "parse");
+//    			args.put("module", "parse");
     		} catch (IllegalArgumentException iae)  {
     			// do nothing
     		}
@@ -126,7 +128,7 @@ public class Extensions {
 					stats.setReferenceWords(referenceStats.getWords());
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
-	
+				
 				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
@@ -141,6 +143,27 @@ public class Extensions {
 				corpusReader.setPredictTransitions(false);
 				
 				talismane.setParseConfigurationProcessor(stats);
+			} else if (command.equals(ExtendedCommand.posTaggerStatistics)) {
+				PosTaggerStatistics stats = new PosTaggerStatistics();
+				
+				if (referenceStatsPath!=null) {
+					File referenceStatsFile = new File(referenceStatsPath);
+					PosTaggerStatistics referenceStats = PosTaggerStatistics.loadFromFile(referenceStatsFile);
+					stats.setReferenceWords(referenceStats.getWords());
+					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
+				}
+				
+				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
+				csvFile.delete();
+				csvFile.createNewFile();
+				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+				stats.setWriter(csvFileWriter);
+				
+				File serializationFile = new File(config.getOutDir(), config.getBaseName() + "_stats.zip");
+				serializationFile.delete();
+				stats.setSerializationFile(serializationFile);
+				
+				talismane.setPosTagSequenceProcessor(stats);
 			} else if (command.equals(ExtendedCommand.modifyCorpus)) {
 				if (corpusRulesPath==null)
 					throw new TalismaneException("corpusRules is required for modifyCorpus command");

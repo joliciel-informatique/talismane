@@ -328,6 +328,7 @@ public class TalismaneConfig {
 	private File performanceConfigFile;
 	private ParseComparisonStrategyType parseComparisonStrategyType;
 	private boolean includeLexiconCoverage = false;
+	private boolean includeUnknownWordResults = false;
 	
 	// server parameters
 	private int port = 7272;
@@ -647,6 +648,8 @@ public class TalismaneConfig {
 					testWords.add(part);
 			} else if (argName.equals("includeLexiconCoverage")) {
 				includeLexiconCoverage = argValue.equalsIgnoreCase("true");
+			} else if (argName.equals("includeUnknownWordResults")) {
+				includeUnknownWordResults = argValue.equalsIgnoreCase("true");
 			}
 			else if (argName.equals("iterations"))
 				iterations = Integer.parseInt(argValue);
@@ -2543,9 +2546,16 @@ public class TalismaneConfig {
 					posTaggerEvaluator.addObserver(sentenceWriter);
 				}
 				
-				File fscoreFile = new File(this.getOutDir(), this.getBaseName() + ".fscores.csv");
+				File fscoreFile = new File(this.getOutDir(), this.getBaseName() + "_fscores.csv");
 
 				PosTagEvaluationFScoreCalculator posTagFScoreCalculator = new PosTagEvaluationFScoreCalculator(fscoreFile);
+				if (includeUnknownWordResults) {
+					File fscoreUnknownWordFile = new File(this.getOutDir(), this.getBaseName() + "_unknown.csv");
+					posTagFScoreCalculator.setFScoreUnknownInLexiconFile(fscoreUnknownWordFile);
+					File fscoreKnownWordFile = new File(this.getOutDir(), this.getBaseName() + "_known.csv");
+					posTagFScoreCalculator.setFScoreKnownInLexiconFile(fscoreKnownWordFile);
+				}
+				
 				posTaggerEvaluator.addObserver(posTagFScoreCalculator);
 				
 				Reader templateReader = null;

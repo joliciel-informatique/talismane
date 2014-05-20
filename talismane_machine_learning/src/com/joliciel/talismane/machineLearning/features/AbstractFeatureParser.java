@@ -752,8 +752,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 					topLevelFeature = true;
 				} else if (featureGroups.containsKey(functionName)) {
 					features.addAll(featureGroups.get(functionName));
-				} else if (parsedFeatures.containsKey(descriptor.toString())) {
-					features.addAll(parsedFeatures.get(descriptor.toString()));
+				} else if (parsedFeatures.containsKey(modifiedDescriptor.toString())) {
+					features.addAll(parsedFeatures.get(modifiedDescriptor.toString()));
 				} else {
 					@SuppressWarnings("rawtypes")
 					List<Class<? extends Feature>> featureClasses = this.featureClasses.get(functionName);
@@ -777,7 +777,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 					} else {
 						throw new FeatureSyntaxException("Unknown function: " + functionName, descriptor, topLevelDescriptor);
 					} // have feature classes for this function name
-					parsedFeatures.put(descriptor.toString(), features);
+					parsedFeatures.put(modifiedDescriptor.toString(), features);
 				} // is a named feature
 			} // next modified descriptor
 			

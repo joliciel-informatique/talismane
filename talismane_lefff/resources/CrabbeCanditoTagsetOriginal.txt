@@ -23,7 +23,7 @@ null	null	CLOSED
 P	prépostion	CLOSED
 P+D	préposition+déterminant	CLOSED
 P+PRO	préposition+pronom	CLOSED
-PONCT	ponctuation	CLOSED
+PONCT	ponctuation	PUNCTUATION
 PRO	pronom	CLOSED
 PROREL	pronom rélatif	CLOSED
 PROWH	pronom intérrogatif	CLOSED
