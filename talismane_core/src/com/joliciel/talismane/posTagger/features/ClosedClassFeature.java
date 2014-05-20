@@ -46,7 +46,7 @@ public final class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T
 			return null;
 		
 		FeatureResult<Boolean> featureResult = null;
-		boolean isClosedClass = posTaggedToken.getTag().getOpenClassIndicator().equals(PosTagOpenClassIndicator.CLOSED);
+		boolean isClosedClass = posTaggedToken.getTag().getOpenClassIndicator().isClosed();
 		featureResult = this.generateResult(isClosedClass);
 		
 		return featureResult;

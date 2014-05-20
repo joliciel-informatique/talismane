@@ -86,7 +86,7 @@ public class PosTagEvaluationLexicalCoverageTester implements
 				knownWords.add(realToken.getToken().getText());
 			}
 			
-			if (realToken.getTag().getOpenClassIndicator()==PosTagOpenClassIndicator.CLOSED
+			if (realToken.getTag().getOpenClassIndicator().isClosed()
 					&& !realToken.getToken().getPossiblePosTags().contains(realToken.getTag())) {
 				closedCategoryMismatches.add(realToken.getTag() + "|" + realToken.getToken().getText());
 			}

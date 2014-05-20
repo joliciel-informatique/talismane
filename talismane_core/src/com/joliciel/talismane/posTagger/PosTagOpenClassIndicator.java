@@ -26,7 +26,8 @@ package com.joliciel.talismane.posTagger;
  */
 public enum PosTagOpenClassIndicator {
 	OPEN(0),
-	CLOSED(1);
+	CLOSED(1),
+	PUNCTUATION(2);
 	
 	int id;
 	
@@ -44,5 +45,12 @@ public enum PosTagOpenClassIndicator {
 
 	public int getId() {
 		return id;
+	}
+	
+	public boolean isClosed() {
+		if (this==OPEN)
+			return false;
+		else
+			return true;
 	}
 }

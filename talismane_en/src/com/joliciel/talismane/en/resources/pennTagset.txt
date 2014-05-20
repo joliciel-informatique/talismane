@@ -38,4 +38,4 @@ WP	Wh-pronoun	CLOSED
 WP$	Possessive wh-pronoun	CLOSED
 WRB	Wh-adverb	CLOSED
 # Added this for punctuation
-P	Punctuation	CLOSED
+P	Punctuation	PUNCTUATION

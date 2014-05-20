@@ -26,7 +26,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.Writer;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -41,10 +40,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.parser.DependencyArc;
-import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
+import com.joliciel.talismane.posTagger.PosTagSequence;
+import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
+import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.utils.CSVFormatter;
@@ -55,27 +55,28 @@ import com.joliciel.talismane.utils.LogUtils;
  * @author Assaf Urieli
  *
  */
-public class CorpusStatistics implements ParseConfigurationProcessor, Serializable {
+public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializable {
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(CorpusStatistics.class);
+	private static final Log LOG = LogFactory.getLog(PosTaggerStatistics.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	
 	private Set<String> words = new TreeSet<String>();
 	private Set<String> lowerCaseWords = new TreeSet<String>();
 	private Map<String,Integer> posTagCounts = new TreeMap<String,Integer>();
-	private Map<String,Integer> depLabelCounts = new TreeMap<String, Integer>();
 	private int tokenCount;
 	private int unknownTokenCount;
 	private int alphanumericCount;
 	private int unknownAlphanumericCount;
+	private int unknownInLexiconCount;
+	private int unknownAlphaInLexiconCount;
 	private int sentenceCount;
-	private int nonProjectiveCount;
-	private int totalDepCount;
+	private int openClassCount;
+	private int openClassUnknownInRefCorpus;
+	private int openClassUnknownInLexicon;
+	private int closedClassCount;
+	private int closedClassUnknownInRefCorpus;
+	private int closedClassUnknownInLexicon;
 	private DescriptiveStatistics sentenceLengthStats = new DescriptiveStatistics();
-	private DescriptiveStatistics syntaxDepthStats = new DescriptiveStatistics();
-	private DescriptiveStatistics maxSyntaxDepthStats = new DescriptiveStatistics();
-	private DescriptiveStatistics avgSyntaxDepthStats = new DescriptiveStatistics();
-	private DescriptiveStatistics syntaxDistanceStats = new DescriptiveStatistics();
 	
 	private Pattern alphanumeric = Pattern.compile("[a-zA-Z0-9àáçéèëêïîíöôóòüûú]");
 	
@@ -85,30 +86,59 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 	private transient File serializationFile;
 	
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
+	public void onNextPosTagSequence(PosTagSequence posTagSequence,
+			Writer writer) {
 		sentenceCount++;
-		sentenceLengthStats.addValue(parseConfiguration.getPosTagSequence().size());
+		sentenceLengthStats.addValue(posTagSequence.size());
 		
-		for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
+		for (PosTaggedToken posTaggedToken : posTagSequence) {
 			if (posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG))
 				continue;
 			
 			Token token = posTaggedToken.getToken();
+
+			
+			boolean knownInRefCorpus = false;
+			boolean knownInLexicon = false;
+			if (token.getPossiblePosTags().size()>0)
+				knownInLexicon = true;
 			
 			String word = token.getOriginalText();
 			words.add(word);
-			if (referenceWords!=null) {
-				if (!referenceWords.contains(word))
-					unknownTokenCount++;
+			
+			if (referenceWords!=null)
+				if (referenceWords.contains(word))
+					knownInRefCorpus = true;
+			
+			if (!knownInLexicon) {
+				unknownInLexiconCount++;
 			}
+			if (posTaggedToken.getTag().getOpenClassIndicator()==PosTagOpenClassIndicator.CLOSED) {
+				closedClassCount++;
+				if (!knownInRefCorpus)
+					closedClassUnknownInRefCorpus++;
+				if (!knownInLexicon)
+					closedClassUnknownInLexicon++;
+			} else if (posTaggedToken.getTag().getOpenClassIndicator()==PosTagOpenClassIndicator.OPEN) {
+				openClassCount++;
+				if (!knownInRefCorpus)
+					openClassUnknownInRefCorpus++;
+				if (!knownInLexicon)
+					openClassUnknownInLexicon++;
+			}
+			
+			if (!knownInRefCorpus)
+				unknownTokenCount++;
+			
 			if (alphanumeric.matcher(token.getOriginalText()).find()) {
 				String lowercase = word.toLowerCase(TalismaneSession.getLocale());
 				lowerCaseWords.add(lowercase);
 				alphanumericCount++;
-				if (referenceLowercaseWords!=null) {
-					if (!referenceLowercaseWords.contains(lowercase))
-						unknownAlphanumericCount++;
-				}
+				if (!knownInRefCorpus)
+					unknownAlphanumericCount++;
+				
+				if (!knownInLexicon)
+					unknownAlphaInLexiconCount++;
 			}
 			
 			tokenCount++;
@@ -119,95 +149,19 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 			posTagCounts.put(posTaggedToken.getTag().getCode(), count);
 		}
 		
-		int maxDepth = 0;
-		DescriptiveStatistics avgSyntaxDepthForSentenceStats = new DescriptiveStatistics();
-		for (DependencyArc arc : parseConfiguration.getDependencies()) {
-			Integer countObj = depLabelCounts.get(arc.getLabel());
-			int count = countObj==null ? 0 : countObj.intValue();
-			count++;
-			depLabelCounts.put(arc.getLabel(), count);
-			totalDepCount++;
-						
-			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel()==null||arc.getLabel().length()==0)) {
-				// do nothing for unattached stuff (e.g. punctuation)
-			} else if (arc.getLabel().equals("ponct")) {
-				// do nothing for punctuation
-			} else {
-				int depth = 0;
-				DependencyArc theArc = arc;
-				while (theArc!=null && !theArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG)) {
-					theArc = parseConfiguration.getGoverningDependency(theArc.getHead());
-					depth++;
-				}
-				if (depth>maxDepth)
-					maxDepth = depth;
-
-				syntaxDepthStats.addValue(depth);
-				avgSyntaxDepthForSentenceStats.addValue(depth);
-				
-				int distance = Math.abs(arc.getHead().getToken().getIndex() - arc.getDependent().getToken().getIndex());
-				syntaxDistanceStats.addValue(distance);
-			}
-			
-			maxSyntaxDepthStats.addValue(maxDepth);
-			if (avgSyntaxDepthForSentenceStats.getN()>0)
-				avgSyntaxDepthStats.addValue(avgSyntaxDepthForSentenceStats.getMean());
-		}
-		
-		// we cheat a little bit by only allowing each arc to count once
-		// there could be a situation where there are two independent non-projective arcs
-		// crossing the same mother arc, but we prefer here to underestimate,
-		// as this phenomenon is quite rare.
-		Set<DependencyArc> nonProjectiveArcs = new HashSet<DependencyArc>();
-		int i = 0;
-		for (DependencyArc arc : parseConfiguration.getDependencies()) {
-			i++;
-			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel()==null||arc.getLabel().length()==0))
-				continue;
-			if (nonProjectiveArcs.contains(arc))
-				continue;
-			
-			int headIndex = arc.getHead().getToken().getIndex();
-			int depIndex = arc.getDependent().getToken().getIndex();
-			int startIndex = headIndex < depIndex ? headIndex : depIndex;
-			int endIndex = headIndex >= depIndex ? headIndex : depIndex;
-			int j=0;
-			for (DependencyArc otherArc : parseConfiguration.getDependencies()) {
-				j++;
-				if (j<=i)
-					continue;
-				if (otherArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && (otherArc.getLabel()==null||otherArc.getLabel().length()==0))
-					continue;
-				if (nonProjectiveArcs.contains(otherArc))
-					continue;
-				
-				int headIndex2 = otherArc.getHead().getToken().getIndex();
-				int depIndex2 = otherArc.getDependent().getToken().getIndex();
-				int startIndex2 = headIndex2 < depIndex2 ? headIndex2 : depIndex2;
-				int endIndex2 = headIndex2 >= depIndex2 ? headIndex2 : depIndex2;
-				boolean nonProjective = false;
-				if (startIndex2<startIndex && endIndex2>startIndex && endIndex2<endIndex) {
-					nonProjective = true;
-				} else if (startIndex2>startIndex && startIndex2<endIndex && endIndex2>endIndex) {
-					nonProjective = true;
-				}
-				if (nonProjective) {
-					nonProjectiveArcs.add(arc);
-					nonProjectiveArcs.add(otherArc);
-					nonProjectiveCount++;
-					LOG.debug("Non-projective arcs in sentence: " + parseConfiguration.getSentence().getText());
-					LOG.debug(arc.toString());
-					LOG.debug(otherArc.toString());
-					break;
-				}
-			}
-		}
 	}
 
 	@Override
-	public void onCompleteParse() {
+	public void onCompleteAnalysis() {
 		try {
 			if (writer!=null) {
+				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+				for (PosTag posTag : posTagSet.getTags()) {
+					if (!posTagCounts.containsKey(posTag.getCode())) {
+						posTagCounts.put(posTag.getCode(), 0);
+					}
+				}
+				
 				double unknownLexiconPercent = 1;
 				if (referenceWords!=null) {
 					int unknownLexiconCount = 0;
@@ -230,44 +184,47 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 				writer.write(CSV.format("sentenceCount") + CSV.format(sentenceCount) + "\n");
 				writer.write(CSV.format("sentenceLengthMean") + CSV.format(sentenceLengthStats.getMean()) + "\n");
 				writer.write(CSV.format("sentenceLengthStdDev") + CSV.format(sentenceLengthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("tokenLexiconSize") + CSV.format(words.size()) + "\n");
-				writer.write(CSV.format("tokenLexiconUnknown") + CSV.format(unknownLexiconPercent * 100.0) + "\n");
+				writer.write(CSV.format("lexiconSize") + CSV.format(words.size()) + "\n");
+				writer.write(CSV.format("lexiconUnknownInRefCorpus") + CSV.format(unknownLexiconPercent * 100.0) + "\n");
 				writer.write(CSV.format("tokenCount") + CSV.format(tokenCount) + "\n");
 				
 				double unknownTokenPercent = ((double) unknownTokenCount / (double) tokenCount) * 100.0;
-				writer.write(CSV.format("tokenUnknown") + CSV.format(unknownTokenPercent) + "\n");
-
+				writer.write(CSV.format("tokenUnknownInRefCorpus") + CSV.format(unknownTokenPercent) + "\n");
+				
+				double unknownInLexiconPercent = ((double) unknownInLexiconCount / (double) tokenCount) * 100.0;
+				writer.write(CSV.format("tokenUnknownInRefLexicon") + CSV.format(unknownInLexiconPercent) + "\n");
+				
 				writer.write(CSV.format("lowercaseLexiconSize") + CSV.format(lowerCaseWords.size()) + "\n");
-				writer.write(CSV.format("lowercaseLexiconUnknown") + CSV.format(unknownLowercaseLexiconPercent * 100.0) + "\n");
+				writer.write(CSV.format("lowercaseLexiconUnknownInRefCorpus") + CSV.format(unknownLowercaseLexiconPercent * 100.0) + "\n");
 				writer.write(CSV.format("alphanumericCount") + CSV.format(alphanumericCount) + "\n");
 				
 				double unknownAlphanumericPercent = ((double) unknownAlphanumericCount / (double) alphanumericCount) * 100.0;
-				writer.write(CSV.format("alphanumericUnknown") + CSV.format(unknownAlphanumericPercent) + "\n");
+				writer.write(CSV.format("alphaUnknownInRefCorpus") + CSV.format(unknownAlphanumericPercent) + "\n");
 
-				writer.write(CSV.format("syntaxDepthMean") + CSV.format(syntaxDepthStats.getMean()) + "\n");
-				writer.write(CSV.format("syntaxDepthStdDev") + CSV.format(syntaxDepthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("maxSyntaxDepthMean") + CSV.format(maxSyntaxDepthStats.getMean()) + "\n");
-				writer.write(CSV.format("maxSyntaxDepthStdDev") + CSV.format(maxSyntaxDepthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("sentAvgSyntaxDepthMean") + CSV.format(avgSyntaxDepthStats.getMean()) + "\n");
-				writer.write(CSV.format("sentAvgSyntaxDepthStdDev") + CSV.format(avgSyntaxDepthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("syntaxDistanceMean") + CSV.format(syntaxDistanceStats.getMean()) + "\n");
-				writer.write(CSV.format("syntaxDistanceStdDev") + CSV.format(syntaxDistanceStats.getStandardDeviation()) + "\n");
+				double unknownAlphaInLexiconPercent = ((double) unknownAlphaInLexiconCount / (double) alphanumericCount) * 100.0;
+				writer.write(CSV.format("alphaUnknownInRefLexicon") + CSV.format(unknownAlphaInLexiconPercent) + "\n");
 
-				double nonProjectivePercent = ((double) nonProjectiveCount / (double) totalDepCount) * 100.0;
-				writer.write(CSV.format("nonProjectiveCount") + CSV.format(nonProjectiveCount) + "\n");
-				writer.write(CSV.format("nonProjectivePercent") + CSV.format(nonProjectivePercent) + "\n");
-				writer.write(CSV.format("PosTagCounts") + "\n");
+				writer.write(CSV.format("openClassCount") + CSV.format(openClassCount) + "\n");
 				
+				double openClassUnknownPercent = ((double) openClassUnknownInRefCorpus / (double) openClassCount) * 100.0;
+				writer.write(CSV.format("openClassUnknownInRefCorpus") + CSV.format(openClassUnknownPercent) + "\n");
+
+				double openClassUnknownInLexiconPercent = ((double) openClassUnknownInLexicon / (double) openClassCount) * 100.0;
+				writer.write(CSV.format("openClassUnknownInRefLexicon") + CSV.format(openClassUnknownInLexiconPercent) + "\n");
+				
+				writer.write(CSV.format("closedClassCount") + CSV.format(closedClassCount) + "\n");
+				
+				double closedClassUnknownPercent = ((double) closedClassUnknownInRefCorpus / (double) closedClassCount) * 100.0;
+				writer.write(CSV.format("closedClassUnknownInRefCorpus") + CSV.format(closedClassUnknownPercent) + "\n");
+
+				double closedClassUnknownInLexiconPercent = ((double) closedClassUnknownInLexicon / (double) closedClassCount) * 100.0;
+				writer.write(CSV.format("closedClassUnknownInRefLexicon") + CSV.format(closedClassUnknownInLexiconPercent) + "\n");
+
 				for (String posTag : posTagCounts.keySet()) {
 					int count = posTagCounts.get(posTag);
 					writer.write(CSV.format(posTag) + CSV.format(count) + CSV.format(((double) count / (double) tokenCount)* 100.0) + "\n");
 				}
 				
-				writer.write(CSV.format("DepLabelCounts") + "\n");
-				for (String depLabel : depLabelCounts.keySet()) {
-					int count = depLabelCounts.get(depLabel);
-					writer.write(CSV.format(depLabel) + CSV.format(count) + CSV.format(((double) count / (double) totalDepCount)* 100.0) + "\n");
-				}
 				writer.flush();
 				writer.close();
 			}
@@ -292,14 +249,14 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 	}
 
 
-	public static CorpusStatistics loadFromFile(File inFile) {
+	public static PosTaggerStatistics loadFromFile(File inFile) {
 		try {
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
 			zis.getNextEntry();
 			ObjectInputStream in = new ObjectInputStream(zis);
-			CorpusStatistics stats = null;
+			PosTaggerStatistics stats = null;
 			try {
-				stats = (CorpusStatistics) in.readObject();
+				stats = (PosTaggerStatistics) in.readObject();
 			} catch (ClassNotFoundException e) {
 				LogUtils.logError(LOG, e);
 				throw new RuntimeException(e);
@@ -344,10 +301,6 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 
 	public Map<String, Integer> getPosTagCounts() {
 		return posTagCounts;
-	}
-
-	public Map<String, Integer> getDepLabelCounts() {
-		return depLabelCounts;
 	}
 
 	public int getWordCount() {

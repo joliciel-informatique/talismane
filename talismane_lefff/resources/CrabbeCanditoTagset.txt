@@ -22,7 +22,7 @@ NC	nom commun	OPEN
 NPP	nom propre	OPEN
 null	null	CLOSED
 P	prépostion	CLOSED
-PONCT	ponctuation	CLOSED
+PONCT	ponctuation	PUNCTUATION
 PRO	pronom	CLOSED
 PROREL	pronom rélatif	CLOSED
 PROWH	pronom intérrogatif	CLOSED

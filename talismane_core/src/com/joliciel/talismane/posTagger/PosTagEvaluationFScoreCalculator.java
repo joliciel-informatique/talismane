@@ -39,9 +39,12 @@ public class PosTagEvaluationFScoreCalculator implements
 	private FScoreCalculator<String> fScoreCalculator = new FScoreCalculator<String>();
 	private FScoreCalculator<String> fscoreUnknownInCorpus = new FScoreCalculator<String>();
 	private FScoreCalculator<String> fscoreUnknownInLexicon = new FScoreCalculator<String>();
+	private FScoreCalculator<String> fscoreKnownInLexicon = new FScoreCalculator<String>();
 	
 	private Set<String> unknownWords;
 	private File fScoreFile;
+	private File fScoreUnknownInLexiconFile;
+	private File fScoreKnownInLexiconFile;
 	
 	public PosTagEvaluationFScoreCalculator() { }
 	
@@ -106,8 +109,11 @@ public class PosTagEvaluationFScoreCalculator implements
 				result = "TOKEN_ERROR";
 			
 			fScoreCalculator.increment(realToken.getTag().getCode(), result);
-			if (testToken.getToken().getPossiblePosTags()!=null&&testToken.getToken().getPossiblePosTags().size()==0)
+			if (testToken.getToken().getPossiblePosTags()==null||testToken.getToken().getPossiblePosTags().size()==0)
 				fscoreUnknownInLexicon.increment(realToken.getTag().getCode(), result);
+			else
+				fscoreKnownInLexicon.increment(realToken.getTag().getCode(), result);
+			
 			if (unknownWords!=null&&unknownWords.contains(testToken.getToken().getText()))
 				fscoreUnknownInCorpus.increment(realToken.getTag().getCode(), result);
 		}
@@ -149,11 +155,35 @@ public class PosTagEvaluationFScoreCalculator implements
 		this.unknownWords = unknownWords;
 	}
 
+	
+	public File getFScoreUnknownInLexiconFile() {
+		return fScoreUnknownInLexiconFile;
+	}
+
+	public void setFScoreUnknownInLexiconFile(File fScoreUnknownInLexiconFile) {
+		this.fScoreUnknownInLexiconFile = fScoreUnknownInLexiconFile;
+	}
+
+
+	public File getFScoreKnownInLexiconFile() {
+		return fScoreKnownInLexiconFile;
+	}
+
+	public void setFScoreKnownInLexiconFile(File fScoreKnownInLexiconFile) {
+		this.fScoreKnownInLexiconFile = fScoreKnownInLexiconFile;
+	}
+
 	@Override
 	public void onEvaluationComplete() {
 		fScoreCalculator.getTotalFScore();
 		if (fScoreFile!=null) {
 			fScoreCalculator.writeScoresToCSVFile(fScoreFile);
+		}
+		if (fScoreUnknownInLexiconFile!=null) {
+			fscoreUnknownInLexicon.writeScoresToCSVFile(fScoreUnknownInLexiconFile);
+		}
+		if (fScoreKnownInLexiconFile!=null) {
+			fscoreKnownInLexicon.writeScoresToCSVFile(fScoreKnownInLexiconFile);
 		}
 	}
 }

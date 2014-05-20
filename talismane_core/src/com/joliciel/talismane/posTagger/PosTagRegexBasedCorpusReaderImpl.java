@@ -174,8 +174,8 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						if (!matcher.matches())
 							throw new TalismaneException("Didn't match pattern on line " + lineNumber);
 						
-						if (matcher.groupCount()!=placeholderIndexMap.size()) {
-							throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+						if (matcher.groupCount()<placeholderIndexMap.size()) {
+							throw new TalismaneException("Expected at least " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
 						}
 						
 						String word =  matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
@@ -253,11 +253,11 @@ class PosTagRegexBasedCorpusReaderImpl implements
 				placeholderIndexMap.put(placeholderName, i++);
 			}
 			
-			String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*)");
-			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
+			String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*?)");
+			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+?)");
+			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+?)");
+			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+?)");
+			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+?)");
 			
 			this.pattern = Pattern.compile(regexWithGroups);
 		}

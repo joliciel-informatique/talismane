@@ -22,7 +22,6 @@ package com.joliciel.talismane.tokeniser.features;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 
@@ -57,7 +56,7 @@ public final class HasClosedClassesOnlyFeature extends AbstractTokenFeature<Bool
 			hasClosedClassesOnly = true;
 		
 		for (PosTag posTag : token.getPossiblePosTags()) {
-			if (!posTag.getOpenClassIndicator().equals(PosTagOpenClassIndicator.CLOSED)) {
+			if (!posTag.getOpenClassIndicator().isClosed()) {
 				hasClosedClassesOnly = false;
 				break;
 			}
