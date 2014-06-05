@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Various generic utilities for use with Strings.
  * @author Assaf Urieli
@@ -30,5 +33,23 @@ public class StringUtils {
 
 	public static String padLeft(String s, int n) {
 	    return String.format("%1$" + n + "s", s);  
+	}
+	
+
+	public static Map<String, String> convertArgs(String[] args) {
+		Map<String,String> argMap = new HashMap<String, String>();
+		for (String arg : args) {
+			int equalsPos = arg.indexOf('=');
+			if (equalsPos<0) {
+				throw new RuntimeException("Argument " + arg + " has no value");
+			}
+				
+			String argName = arg.substring(0, equalsPos);
+			String argValue = arg.substring(equalsPos+1);
+			if (argMap.containsKey(argName))
+				throw new RuntimeException("Duplicate command-line argument: " + argName);
+			argMap.put(argName, argValue);
+		}
+		return argMap;
 	}
 }

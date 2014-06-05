@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.joliciel.frenchTreebank.TreebankReader;
 import com.joliciel.frenchTreebank.TreebankService;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
@@ -39,6 +40,7 @@ class TreebankExportServiceImpl implements TreebankExportService {
 	private PosTaggerService posTaggerService;
 	private FilterService filterService;
 	private TokenFilterService tokenFilterService;
+	private TalismaneService talismaneService;
 
 	public TreebankService getTreebankService() {
 		return treebankService;
@@ -77,6 +79,7 @@ class TreebankExportServiceImpl implements TreebankExportService {
 		reader.setPosTaggerService(posTaggerService);
 		reader.setFilterService(filterService);
 		reader.setTokenFilterService(tokenFilterService);
+		reader.setTalismaneService(talismaneService);
     	reader.setIgnoreCase(false);
 		return reader;
 	}
@@ -157,6 +160,14 @@ class TreebankExportServiceImpl implements TreebankExportService {
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 

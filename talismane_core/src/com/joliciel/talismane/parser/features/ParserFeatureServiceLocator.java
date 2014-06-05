@@ -31,6 +31,7 @@ public class ParserFeatureServiceLocator {
 	public ParserFeatureService getParserFeatureService() {
 		if (parserFeatureService==null) {
 			parserFeatureService = new ParserFeatureServiceImpl();
+			parserFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 			parserFeatureService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 			parserFeatureService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}

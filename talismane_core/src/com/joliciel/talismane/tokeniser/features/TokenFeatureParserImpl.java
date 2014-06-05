@@ -20,6 +20,10 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
@@ -27,6 +31,8 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class TokenFeatureParserImpl implements TokenFeatureParser {
 	private FeatureService featureService;
+	private TalismaneService talismaneService;
+	
 	private List<TokenPattern> patternList;
 
 	public TokenFeatureParserImpl(FeatureService featureService) {
@@ -100,6 +106,21 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+	@Override
+	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+		if (feature instanceof NeedsTalismaneSession) {
+			((NeedsTalismaneSession)feature).setTalismaneSession(talismaneService.getTalismaneSession());
+		}
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 	
 	

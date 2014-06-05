@@ -18,10 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.util.Map;
+
 /**
  * A service for returning top-level talismane objects.
  * @author Assaf Urieli
  *
  */
 public interface TalismaneService {
+	public TalismaneSession getTalismaneSession();
+	
+	public TalismaneConfig getTalismaneConfig(String[] args, LanguageSpecificImplementation implementation);
+	public TalismaneConfig getTalismaneConfig(Map<String,String> args, LanguageSpecificImplementation implementation);
 }

@@ -84,7 +84,7 @@ public class FrenchTreebank {
 				throw new RuntimeException("Unknown argument: " + argName);
 		}
 		
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		
 		TreebankServiceLocator locator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
 		

@@ -27,13 +27,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.LanguageSpecificImplementation;
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.utils.LogUtils;
 
 class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	private static final Log LOG = LogFactory.getLog(TokenFilterServiceImpl.class);
-
+	
+	private TalismaneService talismaneService;
+	
 	@Override
 	public TokenPlaceholder getTokenPlaceholder(int startIndex, int endIndex,
 			String replacement, String regex) {
@@ -63,7 +66,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	public TokenSequenceFilter getTokenSequenceFilter(String descriptor) {
 		TokenSequenceFilter filter = null;
 		List<Class<? extends TokenSequenceFilter>> classes = new ArrayList<Class<? extends TokenSequenceFilter>>();
-		LanguageSpecificImplementation implementation = TalismaneSession.getImplementation();
+		LanguageSpecificImplementation implementation = talismaneService.getTalismaneSession().getImplementation();
 		classes.addAll(implementation.getAvailableTokenSequenceFilters());
 		
 		for (Class<? extends TokenSequenceFilter> clazz : classes) {
@@ -78,6 +81,10 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 					throw new RuntimeException(e);
 				}
 			}
+		}
+		
+		if (filter instanceof NeedsTalismaneSession) {
+			((NeedsTalismaneSession)filter).setTalismaneSession(this.talismaneService.getTalismaneSession());
 		}
 		
 		if (filter==null) {
@@ -128,6 +135,14 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 			List<TokenFilter> tokenFilters) {
 		TokenFilterWrapper wrapper = new TokenFilterWrapper(tokenFilters);
 		return wrapper;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 	
 

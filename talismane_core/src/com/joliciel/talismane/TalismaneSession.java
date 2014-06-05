@@ -29,80 +29,30 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  * @author Assaf Urieli
  *
  */
-public class TalismaneSession {
-	private static ThreadLocal<Locale> localeHolder = new ThreadLocal<Locale>();
-	private static ThreadLocal<PosTagSet> posTagSetHolder = new ThreadLocal<PosTagSet>();
-	private static ThreadLocal<PosTaggerLexicon> lexiconHolder = new ThreadLocal<PosTaggerLexicon>();
-	private static ThreadLocal<TransitionSystem> transitionSystemHolder = new ThreadLocal<TransitionSystem>();
-	private static ThreadLocal<LanguageSpecificImplementation> implementationHolder = new ThreadLocal<LanguageSpecificImplementation>();
-	private static ThreadLocal<LinguisticRules> linguisticRulesHolder = new ThreadLocal<LinguisticRules>();
-	
-	public static void setImplementation(LanguageSpecificImplementation implementation) {
-		implementationHolder.set(implementation);
-	}
-	public static LanguageSpecificImplementation getImplementation() {
-		LanguageSpecificImplementation implementation = implementationHolder.get();
-		return implementation;
-	}
-	
-	public static void setPosTagSet(PosTagSet posTagSet) {
-		posTagSetHolder.set(posTagSet);
-	}
-	
-	public static PosTagSet getPosTagSet() {
-		PosTagSet posTagSet = posTagSetHolder.get();
-		if (posTagSet==null && implementationHolder.get()!=null) {
-			posTagSet = implementationHolder.get().getDefaultPosTagSet();
-			TalismaneSession.setPosTagSet(posTagSet);
-		}
-		return posTagSet;
-	}
-	
-	public static void setTransitionSystem(TransitionSystem transitionSystem) {
-		transitionSystemHolder.set(transitionSystem);
-	}
-	
-	public static TransitionSystem getTransitionSystem() {
-		TransitionSystem transitionSystem = transitionSystemHolder.get();
-		if (transitionSystem==null && implementationHolder.get()!=null) {
-			transitionSystem = implementationHolder.get().getDefaultTransitionSystem();
-			TalismaneSession.setTransitionSystem(transitionSystem);
-		}
-		return transitionSystem;
-	}
-	
-	public static void setLexicon(PosTaggerLexicon lexicon) {
-		lexiconHolder.set(lexicon);
-	}
-	
-	public static PosTaggerLexicon getLexicon() {
-		PosTaggerLexicon lexicon = lexiconHolder.get();
-		if (lexicon==null && implementationHolder.get()!=null) {
-			lexicon = implementationHolder.get().getDefaultLexicon();
-			TalismaneSession.setLexicon(lexicon);
-		}
-		return lexicon;
-	}
-	
-	public static Locale getLocale() {
-		PosTagSet posTagSet = TalismaneSession.getPosTagSet();
-		if (posTagSet!=null)
-			return posTagSet.getLocale();
-		return localeHolder.get();
-	}
-	
-	public static void setLocale(Locale locale) {
-		localeHolder.set(locale);
-	}
-	
-	
-	public static void setLinguisticRules(LinguisticRules rules) {
-		linguisticRulesHolder.set(rules);
-	}
-	public static LinguisticRules getLinguisticRules() {
-		LinguisticRules rules = linguisticRulesHolder.get();
-		return rules;
-	}
-	
+public interface TalismaneSession {
+
+	public LanguageSpecificImplementation getImplementation();
+
+	public void setImplementation(LanguageSpecificImplementation implementation);
+
+	public PosTagSet getPosTagSet();
+
+	public void setPosTagSet(PosTagSet posTagSet);
+
+	public TransitionSystem getTransitionSystem();
+
+	public void setTransitionSystem(TransitionSystem transitionSystem);
+
+	public PosTaggerLexicon getLexicon();
+
+	public void setLexicon(PosTaggerLexicon lexicon);
+
+	public Locale getLocale();
+
+	public void setLocale(Locale locale);
+
+	public LinguisticRules getLinguisticRules();
+
+	public void setLinguisticRules(LinguisticRules linguisticRules);
 
 }

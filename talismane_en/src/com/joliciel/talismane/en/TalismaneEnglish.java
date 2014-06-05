@@ -33,9 +33,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.LanguageSpecificImplementation;
+import com.joliciel.talismane.LinguisticRules;
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.TalismaneSession;
@@ -55,6 +58,7 @@ import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.StringUtils;
 
 /**
  * The default English implementation of Talismane.
@@ -67,6 +71,9 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	private TalismaneServiceLocator talismaneServiceLocator = null;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
+	private TalismaneService talismaneService;
+	private TalismaneSession talismaneSession;
+	
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 
 	private enum CorpusFormat {
@@ -79,7 +86,7 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-    	Map<String,String> argsMap = TalismaneConfig.convertArgs(args);
+    	Map<String,String> argsMap = StringUtils.convertArgs(args);
     	CorpusFormat corpusReaderType = null;
     	
     	if (argsMap.containsKey("corpusReader")) {
@@ -90,15 +97,23 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
     	Extensions extensions = new Extensions();
     	extensions.pluckParameters(argsMap);
     	
-    	TalismaneEnglish talismaneFrench = new TalismaneEnglish();
-    	TalismaneSession.setLinguisticRules(new EnglishRules());
-    	TalismaneConfig config = new TalismaneConfig(argsMap, talismaneFrench);
+    	String sessionId = "";
+       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+       	TalismaneService talismaneService = locator.getTalismaneService();
+    	TalismaneEnglish talismaneEnglish = new TalismaneEnglish(sessionId);
+
+    	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, talismaneEnglish);
     	if (config.getCommand()==null)
     		return;
     	
     	if (corpusReaderType!=null) {
     		if (corpusReaderType==CorpusFormat.pennDep) {
     			PennDepReader corpusReader = new PennDepReader(config.getReader());
+    			corpusReader.setParserService(config.getParserService());
+    			corpusReader.setPosTaggerService(config.getPosTaggerService());
+    			corpusReader.setTokeniserService(config.getTokeniserService());
+    			corpusReader.setTokenFilterService(config.getTokenFilterService());
+    			corpusReader.setTalismaneService(config.getTalismaneService());
     			
     			corpusReader.setPredictTransitions(config.isPredictTransitions());
     			
@@ -136,8 +151,8 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
     	talismane.process();
 	}
 
-	public TalismaneEnglish() {
-		talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+	public TalismaneEnglish(String sessionId) {
+		talismaneServiceLocator = TalismaneServiceLocator.getInstance(sessionId);
 	}
 	
 	private static ZipInputStream getZipInputStreamFromResource(String resource) {
@@ -178,15 +193,14 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	public PosTaggerLexicon getDefaultLexicon() {
 		try {
 			PosTagSet posTagSet = this.getDefaultPosTagSet();
-			TalismaneSession.setPosTagSet(posTagSet);
+			this.getTalismaneSession().setPosTagSet(posTagSet);
 			
 			InputStream posTagMapStream = this.getDefaultPosTagMapFromStream();
 			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTagMapStream, "UTF-8")));
 			
 			PosTagMapper posTagMapper = new DefaultPosTagMapper(scanner, posTagSet);
-
 			
-			LexiconDeserializer deserializer = new LexiconDeserializer();
+			LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
 			
 			ZipInputStream zis = getZipInputStreamFromResource("dela-en.zip");
 
@@ -231,6 +245,13 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 		List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 		tokenSequenceFilters.add(new LowercaseFirstWordEnglishFilter());
 		tokenSequenceFilters.add(new UpperCaseSeriesEnglishFilter());
+		
+		for (TokenSequenceFilter filter : tokenSequenceFilters) {
+			if (filter instanceof NeedsTalismaneSession) {
+				((NeedsTalismaneSession) filter).setTalismaneSession(this.getTalismaneSession());
+			}
+		}
+		
 		return tokenSequenceFilters;
 	}
 
@@ -314,6 +335,32 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 			availableTokenSequenceFilters.add(UpperCaseSeriesEnglishFilter.class);
 			availableTokenSequenceFilters.add(AllUppercaseEnglishFilter.class);
 		}
+
 		return availableTokenSequenceFilters;
 	}
+
+	public TalismaneService getTalismaneService() {
+		if (talismaneService==null) {
+			this.setTalismaneService(talismaneServiceLocator.getTalismaneService());
+		}
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+		this.talismaneSession = talismaneService.getTalismaneSession();
+	}
+
+	@Override
+	public LinguisticRules getDefaultLinguisticRules() {
+		return new EnglishRules();
+	}
+
+	public TalismaneSession getTalismaneSession() {
+		if (talismaneSession==null) {
+			talismaneSession = this.getTalismaneService().getTalismaneSession();
+		}
+		return talismaneSession;
+	}
+	
 }

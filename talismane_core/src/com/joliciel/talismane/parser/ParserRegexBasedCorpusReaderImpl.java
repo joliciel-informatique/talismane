@@ -42,7 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
@@ -90,6 +90,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private File corpusLocation;
 	private Charset charset;
 	
+	private TalismaneService talismaneService;
 	private ParserService parserService;
 	private PosTaggerService posTaggerService;
 	private TokeniserService tokeniserService;
@@ -117,7 +118,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	
 	private LexicalEntryReader lexicalEntryReader;
-	private TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+	private TalismaneSession talismaneSession;
 	
 	private boolean predictTransitions = true;
 	
@@ -290,7 +291,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
 									int i = 0;
 									int lexicalEntryIndex = 0;
-									PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+									PosTagSet posTagSet = talismaneSession.getPosTagSet();
 									for (ParseDataLine dataLine : dataLines) {
 										Token token = tokenSequence.get(i);
 										
@@ -345,7 +346,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									
 									configuration = this.getParserService().getInitialConfiguration(posTagSequence);
 									if (this.predictTransitions) {
-										TransitionSystem transitionSystem = TalismaneSession.getTransitionSystem();
+										TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
 										transitionSystem.predictTransitions(configuration, dependencies);
 									} else {
 										for (DependencyArc arc : dependencies) {
@@ -474,8 +475,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	}
 
 	public PosTaggerService getPosTaggerService() {
-		if (posTaggerService==null)
-			posTaggerService = locator.getPosTaggerServiceLocator().getPosTaggerService();
 		return posTaggerService;
 	}
 
@@ -484,8 +483,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	}
 	
 	public TokeniserService getTokeniserService() {
-		if (tokeniserService==null)
-			tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		return tokeniserService;
 	}
 
@@ -494,9 +491,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	}
 
 	public ParserService getParserService() {
-		if (parserService==null)
-			parserService = locator.getParserServiceLocator().getParserService();
-		
 		return parserService;
 	}
 
@@ -681,7 +675,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		attributes.put("crossValidationSize", "" + this.crossValidationSize);
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
-		attributes.put("transitionSystem", TalismaneSession.getTransitionSystem().getClass().getSimpleName());
+		attributes.put("transitionSystem", talismaneSession.getTransitionSystem().getClass().getSimpleName());
 		
 		int i = 0;
 		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
@@ -876,9 +870,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	
 
 	public TokenFilterService getTokenFilterService() {
-		if (this.tokenFilterService==null) {
-			this.tokenFilterService = locator.getTokenFilterServiceLocator().getTokenFilterService();
-		}
 		return tokenFilterService;
 	}
 
@@ -1005,5 +996,15 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		currentFile = file;
 		lineNumber = 0;
 	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+		this.talismaneSession = talismaneService.getTalismaneSession();
+	}
+	
 	
 }

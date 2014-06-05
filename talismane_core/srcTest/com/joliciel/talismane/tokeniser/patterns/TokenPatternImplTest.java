@@ -330,7 +330,7 @@ public class TokenPatternImplTest {
 
 	@Test
 	public void testMatch2(@NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 		
@@ -353,7 +353,7 @@ public class TokenPatternImplTest {
 
 	@Test
 	public void testMatch3(@NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 		
@@ -380,7 +380,7 @@ public class TokenPatternImplTest {
 	
 	@Test
 	public void testMatch4(@NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 		

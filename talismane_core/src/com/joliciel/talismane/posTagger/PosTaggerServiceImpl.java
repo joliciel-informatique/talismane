@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -46,6 +47,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	MachineLearningService machineLearningService;
 	FeatureService featureService;
 	TokenFilterService tokenFilterService;
+	TalismaneService talismaneService;
 
 	@Override
 	public PosTagger getPosTagger(
@@ -57,6 +59,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);
 		posTagger.setFeatureService(this.featureService);
+		posTagger.setTalismaneService(this.getTalismaneService());
 		
 		return posTagger;
 	}
@@ -86,6 +89,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	public PosTagSequence getPosTagSequence(PosTagSequence history) {
 		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(history);
 		posTagSequence.setPosTaggerServiceInternal(this);
+		posTagSequence.setTalismaneService(this.getTalismaneService());
 		return posTagSequence;
 	}
 
@@ -94,6 +98,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 			int initialCapacity) {
 		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(tokenSequence, initialCapacity);
 		posTagSequence.setPosTaggerServiceInternal(this);
+		posTagSequence.setTalismaneService(this.getTalismaneService());
 		return posTagSequence;
 
 	}
@@ -101,6 +106,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTaggedToken getPosTaggedToken(Token token, Decision<PosTag> decision) {
 		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, decision);
+		posTaggedToken.setTalismaneService(this.getTalismaneService());
 		return posTaggedToken;
 	}
 	
@@ -174,6 +180,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	public PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
 		PosTagRegexBasedCorpusReaderImpl corpusReader = new PosTagRegexBasedCorpusReaderImpl(reader);
 		corpusReader.setPosTaggerServiceInternal(this);
+		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
@@ -219,6 +226,14 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 	

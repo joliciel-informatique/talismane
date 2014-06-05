@@ -18,25 +18,43 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.util.Map;
+
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.ParserService;
+import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
+import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
+import com.joliciel.talismane.utils.StringUtils;
 
 class TalismaneServiceImpl implements TalismaneServiceInternal {
-	
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private FilterService filterService;
 	private MachineLearningService machineLearningService;
 	private SentenceDetectorService sentenceDetectorService;
+	private ParserFeatureService parserFeatureService;
+	private PosTaggerFeatureService posTaggerFeatureService;
+	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
+	private TokenFeatureService tokenFeatureService;
+	private TokenFilterService tokenFilterService;
+	private TokeniserPatternService tokeniserPatternService;
+	
+	private TalismaneSession talismaneSession;
+	
 
 	@Override
 	public Talismane getTalismane(TalismaneConfig config) {
 		TalismaneImpl talismane = new TalismaneImpl(config);
+		talismane.setTalismaneService(this);
 		talismane.setFilterService(this.getFilterService());
 		talismane.setParserService(this.getParserService());
 		talismane.setPosTaggerService(this.getPosTaggerService());
@@ -103,4 +121,92 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		this.sentenceDetectorService = sentenceDetectorService;
 	}
 
+
+	public TalismaneSession getTalismaneSession() {
+		if (talismaneSession==null) {
+			talismaneSession = new TalismaneSessionImpl();
+		}
+		return talismaneSession;
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(String[] args,
+			LanguageSpecificImplementation implementation) {
+		Map<String, String> argMap = StringUtils.convertArgs(args);
+		return this.getTalismaneConfig(argMap, implementation);
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
+			LanguageSpecificImplementation implementation) {
+		TalismaneConfigImpl config = new TalismaneConfigImpl(implementation);
+		config.setTalismaneService(this);
+		config.setFilterService(filterService);
+		config.setMachineLearningService(machineLearningService);
+		config.setParserFeatureService(parserFeatureService);
+		config.setParserService(parserService);
+		config.setPosTaggerFeatureService(posTaggerFeatureService);
+		config.setPosTaggerService(posTaggerService);
+		config.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
+		config.setSentenceDetectorService(sentenceDetectorService);
+		config.setTokenFeatureService(tokenFeatureService);
+		config.setTokenFilterService(tokenFilterService);
+		config.setTokeniserPatternService(tokeniserPatternService);
+		config.setTokeniserService(tokeniserService);
+		config.loadParameters(args);
+		return config;
+	}
+
+	public ParserFeatureService getParserFeatureService() {
+		return parserFeatureService;
+	}
+
+	public void setParserFeatureService(ParserFeatureService parserFeatureService) {
+		this.parserFeatureService = parserFeatureService;
+	}
+
+	public PosTaggerFeatureService getPosTaggerFeatureService() {
+		return posTaggerFeatureService;
+	}
+
+	public void setPosTaggerFeatureService(
+			PosTaggerFeatureService posTaggerFeatureService) {
+		this.posTaggerFeatureService = posTaggerFeatureService;
+	}
+
+	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
+		return sentenceDetectorFeatureService;
+	}
+
+	public void setSentenceDetectorFeatureService(
+			SentenceDetectorFeatureService sentenceDetectorFeatureService) {
+		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
+	}
+
+	public TokenFeatureService getTokenFeatureService() {
+		return tokenFeatureService;
+	}
+
+	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
+		this.tokenFeatureService = tokenFeatureService;
+	}
+
+	public TokenFilterService getTokenFilterService() {
+		return tokenFilterService;
+	}
+
+	public void setTokenFilterService(TokenFilterService tokenFilterService) {
+		this.tokenFilterService = tokenFilterService;
+	}
+
+	public TokeniserPatternService getTokeniserPatternService() {
+		return tokeniserPatternService;
+	}
+
+	public void setTokeniserPatternService(
+			TokeniserPatternService tokeniserPatternService) {
+		this.tokeniserPatternService = tokeniserPatternService;
+	}
+
+	
 }

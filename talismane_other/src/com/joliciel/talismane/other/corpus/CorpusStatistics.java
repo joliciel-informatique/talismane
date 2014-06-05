@@ -84,6 +84,13 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 	private transient Writer writer;
 	private transient File serializationFile;
 	
+	private TalismaneSession talismaneSession;
+	
+	public CorpusStatistics(TalismaneSession talismaneSession) {
+		super();
+		this.talismaneSession = talismaneSession;
+	}
+
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		sentenceCount++;
@@ -102,7 +109,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 					unknownTokenCount++;
 			}
 			if (alphanumeric.matcher(token.getOriginalText()).find()) {
-				String lowercase = word.toLowerCase(TalismaneSession.getLocale());
+				String lowercase = word.toLowerCase(talismaneSession.getLocale());
 				lowerCaseWords.add(lowercase);
 				alphanumericCount++;
 				if (referenceLowercaseWords!=null) {

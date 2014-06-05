@@ -31,6 +31,7 @@ public class PosTaggerFeatureServiceLocator {
 	public PosTaggerFeatureService getPosTaggerFeatureService() {
 		if (posTaggerFeatureService==null) {
 			posTaggerFeatureService = new PosTaggerFeatureServiceImpl();
+			posTaggerFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 			posTaggerFeatureService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 			posTaggerFeatureService.setTokenFeatureService(this.talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService());
 			posTaggerFeatureService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());

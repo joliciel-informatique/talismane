@@ -32,21 +32,20 @@ import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
-import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.StringUtils;
 import com.joliciel.talismane.utils.io.DirectoryReader;
 
 /**
  * Used to serialize a set of lexicon files found in a given directory.
- * @author Assaf
+ * @author Assaf Urieli
  *
  */
 public abstract class LexiconSerializer {
 	private static final Log LOG = LogFactory.getLog(LexiconSerializer.class);
 
 	public void serializeLexicons(String[] args) {
-		Map<String,String> argMap = TalismaneConfig.convertArgs(args);
+		Map<String,String> argMap = StringUtils.convertArgs(args);
 		this.serializeLexicons(argMap);
 	}
 	

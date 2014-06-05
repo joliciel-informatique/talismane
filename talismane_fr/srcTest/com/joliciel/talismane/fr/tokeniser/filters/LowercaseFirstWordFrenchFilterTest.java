@@ -24,9 +24,10 @@ public class LowercaseFirstWordFrenchFilterTest {
 
 	@Test
 	public void testApply(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexicon(lexiconService);
+		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
+		talismaneSession.setLexicon(lexiconService);
 		new NonStrictExpectations() {
 			PosTag posTagCLS;
 			{
@@ -40,6 +41,7 @@ public class LowercaseFirstWordFrenchFilterTest {
 		};
 		
 		LowercaseFirstWordFrenchFilter filter = new LowercaseFirstWordFrenchFilter();
+		filter.setTalismaneSession(talismaneSession);
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile(" "));
 		filter.apply(tokenSequence);
 		
@@ -50,9 +52,10 @@ public class LowercaseFirstWordFrenchFilterTest {
 
 	@Test
 	public void testApplyNotInLexicon(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexicon(lexiconService);
+		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
+		talismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			{
@@ -64,6 +67,7 @@ public class LowercaseFirstWordFrenchFilterTest {
 		};
 		
 		LowercaseFirstWordFrenchFilter filter = new LowercaseFirstWordFrenchFilter();
+		filter.setTalismaneSession(talismaneSession);
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile(" "));
 		filter.apply(tokenSequence);
 		

@@ -33,7 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
@@ -73,6 +73,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	
+	private TalismaneService talismaneService;
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
@@ -145,7 +146,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						
 						posTagSequence = posTaggerServiceInternal.getPosTagSequence(tokenSequence, tokenSequence.size());
 						int i = 0;
-						PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+						PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
 	    				for (PosTag posTag : posTags) {
 	    					Token token = tokenSequence.get(i++);
 	    					if (tokenSequence.getTokensAdded().contains(token)) {
@@ -189,7 +190,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
 							token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
 						
-	    				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+	    				PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
 	    				PosTag posTag = null;
 	    				try {
 	    					posTag = posTagSet.getPosTag(posTagCode);
@@ -332,7 +333,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 		attributes.put("crossValidationSize", "" + this.crossValidationSize);
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
-		attributes.put("tagset", TalismaneSession.getPosTagSet().getName());
+		attributes.put("tagset", talismaneService.getTalismaneSession().getPosTagSet().getName());
 		
 		int i = 0;
 		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
@@ -404,6 +405,14 @@ class PosTagRegexBasedCorpusReaderImpl implements
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 	

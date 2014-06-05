@@ -85,6 +85,14 @@ public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializabl
 	private transient Writer writer;
 	private transient File serializationFile;
 	
+	
+	private TalismaneSession talismaneSession;
+	
+	public PosTaggerStatistics(TalismaneSession talismaneSession) {
+		super();
+		this.talismaneSession = talismaneSession;
+	}
+	
 	@Override
 	public void onNextPosTagSequence(PosTagSequence posTagSequence,
 			Writer writer) {
@@ -131,7 +139,7 @@ public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializabl
 				unknownTokenCount++;
 			
 			if (alphanumeric.matcher(token.getOriginalText()).find()) {
-				String lowercase = word.toLowerCase(TalismaneSession.getLocale());
+				String lowercase = word.toLowerCase(talismaneSession.getLocale());
 				lowerCaseWords.add(lowercase);
 				alphanumericCount++;
 				if (!knownInRefCorpus)
@@ -155,7 +163,7 @@ public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializabl
 	public void onCompleteAnalysis() {
 		try {
 			if (writer!=null) {
-				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+				PosTagSet posTagSet = talismaneSession.getPosTagSet();
 				for (PosTag posTag : posTagSet.getTags()) {
 					if (!posTagCounts.containsKey(posTag.getCode())) {
 						posTagCounts.put(posTag.getCode(), 0);

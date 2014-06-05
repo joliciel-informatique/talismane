@@ -24,14 +24,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
-import java.util.Locale;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.lexicon.PosTaggerLexicon;
-import com.joliciel.talismane.parser.TransitionSystem;
-import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 
 /**
@@ -49,34 +44,16 @@ class TalismaneServerThread extends Thread {
     private TalismaneServer server = null;
     private TalismaneConfig config = null;
     private TalismaneServiceInternal talismaneService;
-	private Locale locale;
-	private PosTagSet posTagSet;
-	private PosTaggerLexicon lexicon;
-	private TransitionSystem transitionSystem;
-	private LanguageSpecificImplementation implementation;
     
     public TalismaneServerThread(TalismaneServer server, TalismaneConfig config, Socket socket) {
         super("TalismaneServerThread");
         this.server = server;
         this.socket = socket;
         this.config = config;
-        // get thread-local variables out of the parent thread's TalismaneSession
-        this.locale = TalismaneSession.getLocale();
-        this.posTagSet = TalismaneSession.getPosTagSet();
-        this.lexicon = TalismaneSession.getLexicon();
-        this.transitionSystem = TalismaneSession.getTransitionSystem();
-        this.implementation = TalismaneSession.getImplementation();
     }
      
     public void run() {
     	try {
-    		// Assign thread-local variables into the child thread's TalismaneSession
-    		TalismaneSession.setLocale(locale);
-    		TalismaneSession.setLexicon(lexicon);
-    		TalismaneSession.setPosTagSet(posTagSet);
-    		TalismaneSession.setTransitionSystem(transitionSystem);
-    		TalismaneSession.setImplementation(implementation);
-    		
 	        OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), config.getOutputCharset());
 	        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), config.getInputCharset()));
             

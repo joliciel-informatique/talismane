@@ -19,6 +19,7 @@
 package com.joliciel.talismane.tokeniser.features;
 
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -32,8 +33,11 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>
+	implements BooleanFeature<TokenWrapper>, NeedsTalismaneSession {
 	StringFeature<TokenWrapper>[] posTagFeatures;
+	
+	TalismaneSession talismaneSession;
 	
 	/**
 	 * 
@@ -70,7 +74,7 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> im
 		for (StringFeature<TokenWrapper> posTagFeature : posTagFeatures) {
 			FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
 			if (posTagResult!=null) {
-				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+				PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
 				boolean hasPosTag = (token.getPossiblePosTags().contains(posTag));
 				if (hasPosTag) {
 					matches = true;
@@ -84,4 +88,13 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean> im
 		return result;
 	}
 
+	@Override
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	@Override
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
 }

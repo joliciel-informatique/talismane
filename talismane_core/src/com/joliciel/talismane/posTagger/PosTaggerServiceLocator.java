@@ -31,6 +31,7 @@ public class PosTaggerServiceLocator {
 	public PosTaggerService getPosTaggerService() {
 		if (posTaggerService==null) {
 			posTaggerService = new PosTaggerServiceImpl();
+			posTaggerService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 			posTaggerService.setPosTaggerFeatureService(this.talismaneServiceLocator.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService());
 			posTaggerService.setPosTaggerService(this.talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService());
 			posTaggerService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());

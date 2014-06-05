@@ -30,6 +30,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.PerformanceMonitor;
@@ -43,6 +44,12 @@ public class LexiconDeserializer {
 	private static final Log LOG = LogFactory.getLog(LexiconDeserializer.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LexiconDeserializer.class);
 	
+	private TalismaneSession talismaneSession;
+	
+	public LexiconDeserializer(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
+	
 	public List<PosTaggerLexicon> deserializeLexicons(File lexiconDir) {
 		if (!lexiconDir.exists())
 			throw new TalismaneException("Lexicon dir does not exist: " + lexiconDir.getPath());
@@ -54,7 +61,7 @@ public class LexiconDeserializer {
 			for (File inFile : inFiles) {
 				PosTaggerLexicon lexicon = this.deserializeLexiconFile(inFile);
 				if (lexicon.getPosTagSet()==null)
-					lexicon.setPosTagSet(TalismaneSession.getPosTagSet());
+					lexicon.setPosTagSet(talismaneSession.getPosTagSet());
 				lexicons.add(lexicon);
 			}
 		}
@@ -90,6 +97,7 @@ public class LexiconDeserializer {
 				throw new RuntimeException(cnfe);
 			}
 			
+			
 			return lexicon;
 		} finally {
 			MONITOR.endTask("deserializeLexiconFile(File)");
@@ -118,6 +126,9 @@ public class LexiconDeserializer {
 				throw new RuntimeException(cnfe);
 			}
 	
+			if (lexicon instanceof NeedsTalismaneSession)
+				((NeedsTalismaneSession) lexicon).setTalismaneSession(talismaneSession);
+			
 			return lexicon;
 		} finally {
 			MONITOR.endTask("deserializeLexiconFile(ZipInputStream)");

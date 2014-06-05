@@ -40,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.other.corpus.CorpusProjectifier;
 import com.joliciel.talismane.other.corpus.CorpusStatistics;
 import com.joliciel.talismane.other.corpus.CorpusModifier;
@@ -106,6 +107,8 @@ public class Extensions {
 			if (command==null)
 				return;
 			
+			TalismaneSession talismaneSession = config.getTalismaneService().getTalismaneSession();
+			
 			if (command.equals(ExtendedCommand.toStandoff)) {
 				StandoffWriter standoffWriter = new StandoffWriter();
 				talismane.setParseConfigurationProcessor(standoffWriter);
@@ -117,10 +120,15 @@ public class Extensions {
 				talismane.setParseConfigurationProcessor(templateWriter);
 			} else if (command.equals(ExtendedCommand.fromStandoff)) {			
 				Scanner scanner = new Scanner(config.getReader());
-				StandoffReader standoffReader = new StandoffReader(scanner);
+				StandoffReader standoffReader = new StandoffReader(talismaneSession, scanner);
+				standoffReader.setParserService(config.getParserService());
+				standoffReader.setPosTaggerService(config.getPosTaggerService());
+				standoffReader.setTokeniserService(config.getTokeniserService());
+				standoffReader.setTokenFilterService(config.getTokenFilterService());
+
 				config.setParserCorpusReader(standoffReader);
 			} else if (command.equals(ExtendedCommand.corpusStatistics)) {
-				CorpusStatistics stats = new CorpusStatistics();
+				CorpusStatistics stats = new CorpusStatistics(talismaneSession);
 				
 				if (referenceStatsPath!=null) {
 					File referenceStatsFile = new File(referenceStatsPath);
@@ -144,7 +152,7 @@ public class Extensions {
 				
 				talismane.setParseConfigurationProcessor(stats);
 			} else if (command.equals(ExtendedCommand.posTaggerStatistics)) {
-				PosTaggerStatistics stats = new PosTaggerStatistics();
+				PosTaggerStatistics stats = new PosTaggerStatistics(talismaneSession);
 				
 				if (referenceStatsPath!=null) {
 					File referenceStatsFile = new File(referenceStatsPath);

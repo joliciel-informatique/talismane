@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.Set;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -34,9 +35,12 @@ import com.joliciel.talismane.posTagger.PosTag;
  * @author Assaf Urieli
  *
  */
-public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean>
+	implements BooleanFeature<TokenWrapper>, NeedsTalismaneSession {
 	private StringFeature<TokenWrapper> posTagFeature;
 	private StringFeature<TokenWrapper> wordToCheckFeature;
+	
+	TalismaneSession talismaneSession;
 	
 	/**
 	 * 
@@ -65,9 +69,9 @@ public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Bo
 		if (wordToCheckResult!=null) {
 			FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
 			if (posTagResult!=null) {
-				PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+				PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
 				String wordToCheck = wordToCheckResult.getOutcome();
-				PosTaggerLexicon lexicon = TalismaneSession.getLexicon();
+				PosTaggerLexicon lexicon = talismaneSession.getLexicon();
 				Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
 				boolean hasPosTag = (posTags.contains(posTag));
 				result = this.generateResult(hasPosTag);
@@ -77,4 +81,13 @@ public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Bo
 		return result;
 	}
 
+	@Override
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	@Override
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
 }

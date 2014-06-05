@@ -50,7 +50,7 @@ public class ParserDynamicSourceCodeManagerTest {
 	
 	@Test
 	public void testGetBuilder() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		ParserFeatureServiceLocator parserFeatureServiceLocator = talismaneServiceLocator.getParserFeatureServiceLocator();
 		ParserFeatureServiceImpl parserFeatureService = (ParserFeatureServiceImpl) parserFeatureServiceLocator.getParserFeatureService();
 		String descriptorString = "PosTag(Stack[0])";

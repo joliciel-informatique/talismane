@@ -36,6 +36,7 @@ public class FrenchLexiconSerializer extends LexiconSerializer {
 	 */
 	public static void main(String[] args) {
 		FrenchLexiconSerializer instance = new FrenchLexiconSerializer();
+		
 		instance.serializeLexicons(args);
 	}
 

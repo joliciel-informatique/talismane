@@ -22,6 +22,8 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -35,6 +37,8 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
 	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
+	private TalismaneService talismaneService;
+	
 	private List<LexicalEntry> lexicalEntries = null;
 	private LexicalEntry bestLexicalEntry = null;
 	private boolean bestLexicalEntryLoaded = false;
@@ -61,7 +65,8 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	@Override
 	public List<LexicalEntry> getLexicalEntries() {
 		if (lexicalEntries==null) {
-			lexicalEntries = TalismaneSession.getLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
+			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+			lexicalEntries = talismaneSession.getLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
 		}
 		return lexicalEntries;
 	}
@@ -142,11 +147,30 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public String getLemmaForCoNLL() {
 		if (conllLemma==null) {
 			String lemma = "";
-			LexicalEntry lexicalEntry = this.getLexicalEntry();
-			if (lexicalEntry!=null) {
-				lemma = lexicalEntry.getLemma();
+			if (this.getToken().getText().equals(this.getToken().getOriginalText())) {
+				LexicalEntry lexicalEntry = this.getLexicalEntry();
+				if (lexicalEntry!=null) {
+					lemma = lexicalEntry.getLemma();
+				}
+			} else {
+				TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+				LexicalEntry lexicalEntry = null;
+				List<LexicalEntry> entries = talismaneSession.getLexicon().findLexicalEntries(this.getToken().getOriginalText(), this.getTag());
+				if (entries.size()>0)
+					lexicalEntry = entries.get(0);
+				if (lexicalEntry==null) {
+					entries = talismaneSession.getLexicon().findLexicalEntries(this.getToken().getOriginalText().toLowerCase(talismaneSession.getLocale()), this.getTag());
+					if (entries.size()>0)
+						lexicalEntry = entries.get(0);				
+				}
+				if (lexicalEntry==null)
+					lexicalEntry = this.getLexicalEntry();
+
+				if (lexicalEntry!=null)
+					lemma = lexicalEntry.getLemma();
 			}
 			conllLemma = CoNLLFormatter.toCoNLL(lemma);
+
 		}
 		return conllLemma;
 	}
@@ -201,4 +225,14 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public PosTagSequence getHistory() {
 		return this.posTagSequence;
 	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+	}
+	
+	
 }

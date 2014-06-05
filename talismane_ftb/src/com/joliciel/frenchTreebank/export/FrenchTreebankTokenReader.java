@@ -35,6 +35,7 @@ import com.joliciel.frenchTreebank.Sentence;
 import com.joliciel.frenchTreebank.TreebankReader;
 import com.joliciel.frenchTreebank.TreebankService;
 import com.joliciel.frenchTreebank.util.CSVFormatter;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -69,6 +70,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private PosTaggerService posTaggerService;
 	private FilterService filterService;
 	private TokenFilterService tokenFilterService;
+	private TalismaneService talismaneService;
 	
 	private FtbPosTagMapper ftbPosTagMapper;
 	private Writer csvFileErrorWriter = null;
@@ -163,7 +165,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			Sentence sentence = treebankReader.nextSentence();
 			LOG.debug("Sentence " + sentence.getSentenceNumber());
 			List<Integer> tokenSplits = new ArrayList<Integer>();
-			PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+			PosTagSet posTagSet = talismaneSession.getPosTagSet();
 			
 			String text = sentence.getText();
 			// get rid of duplicate white space
@@ -608,6 +611,14 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 	
 	

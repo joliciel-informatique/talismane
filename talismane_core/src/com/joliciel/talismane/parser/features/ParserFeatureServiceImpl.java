@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -44,6 +44,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserFeatureServiceImpl.class);
 	private FeatureService featureService;
 	private MachineLearningService machineLearningService;
+	private TalismaneService talismaneService;
 	private ExternalResourceFinder externalResourceFinder;
 	
 	@Override
@@ -88,6 +89,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	public ParserFeatureParser getParserFeatureParser() {
 		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(featureService);
 		parserFeatureParser.setParserFeatureServiceInternal(this);
+		parserFeatureParser.setTalismaneService(this.getTalismaneService());
 		parserFeatureParser.setExternalResourceFinder(externalResourceFinder);
 		
 		return parserFeatureParser;
@@ -140,14 +142,12 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 							String[] transitionCodes = transitionCode.substring(1).split(";");
 							transitions = new HashSet<Transition>();
 							for (String code : transitionCodes) {
-								Transition oneTransition = TalismaneSession.getTransitionSystem().getTransitionForCode(code);
+								Transition oneTransition = talismaneService.getTalismaneSession().getTransitionSystem().getTransitionForCode(code);
 								transitions.add(oneTransition);
 							}
 							transition = transitions.iterator().next();
 						} else {
-						
-							transition = TalismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
-					
+							transition = talismaneService.getTalismaneSession().getTransitionSystem().getTransitionForCode(transitionCode);
 						}
 	
 					}
@@ -225,6 +225,14 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 }

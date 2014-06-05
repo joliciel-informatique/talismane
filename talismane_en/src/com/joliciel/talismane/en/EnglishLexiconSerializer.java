@@ -20,10 +20,10 @@ package com.joliciel.talismane.en;
 
 import java.util.Map;
 
-import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.lexicon.DefaultMorphologyReader;
 import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
+import com.joliciel.talismane.utils.StringUtils;
 
 public class EnglishLexiconSerializer extends LexiconSerializer {
 	LexicalEntryMorphologyReader morphologyReader = new DefaultMorphologyReader();
@@ -38,9 +38,10 @@ public class EnglishLexiconSerializer extends LexiconSerializer {
 	 */
 	public static void main(String[] args) {
 		EnglishLexiconSerializer instance = new EnglishLexiconSerializer();
-		Map<String,String> argMap = TalismaneConfig.convertArgs(args);
+		Map<String,String> argMap = StringUtils.convertArgs(args);
 		if (!argMap.containsKey("lexiconPattern") && !argMap.containsKey("regex"))
 			argMap.put("regex", "%TOKEN%\\t%LEMMA%\\t%POSTAG%\\t%MORPH%");
+		
 		instance.serializeLexicons(argMap);
 	}
 

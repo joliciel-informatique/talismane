@@ -42,7 +42,7 @@ public class PatternTokeniserTest {
 	
 	@Test
 	public void testTokenise() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		TokeniserServiceLocator tokeniserServiceLocator = talismaneServiceLocator.getTokeniserServiceLocator();
 		TokeniserService tokeniserService = tokeniserServiceLocator.getTokeniserService();
 		FilterService filterService = talismaneServiceLocator.getFilterServiceLocator().getFilterService();

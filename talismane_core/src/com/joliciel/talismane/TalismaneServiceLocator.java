@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -65,18 +68,21 @@ public class TalismaneServiceLocator {
 	private FilterServiceLocator filterServiceLocator;
 	private LexiconServiceLocator lexiconServiceLocator;
 	
-    private static TalismaneServiceLocator instance = null;
-
-    private TalismaneServiceLocator() {
-    	
-    }
-    
-    public static TalismaneServiceLocator getInstance() {
-    	if (instance==null) {
-    		instance = new TalismaneServiceLocator();
-    	}
-    	return instance;
-    }
+	private static Map<String, TalismaneServiceLocator> instances = new HashMap<String, TalismaneServiceLocator>();
+	private String sessionId;
+	
+	private TalismaneServiceLocator(String sessionId) {
+		this.sessionId = sessionId;
+	}
+	
+	public static TalismaneServiceLocator getInstance(String sessionId) {
+		TalismaneServiceLocator instance = instances.get(sessionId);
+		if (instance==null) {
+			instance = new TalismaneServiceLocator(sessionId);
+			instances.put(sessionId, instance);
+		}
+		return instance;
+	}
     
     TalismaneServiceInternal getTalismaneServiceInternal() {
     	if (this.talismaneService == null) {
@@ -87,6 +93,12 @@ public class TalismaneServiceLocator {
     		talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
     		talismaneService.setMachineLearningService(this.getMachineLearningServiceLocator().getMachineLearningService());
     		talismaneService.setSentenceDetectorService(this.getSentenceDetectorServiceLocator().getSentenceDetectorService());
+    		talismaneService.setParserFeatureService(this.getParserFeatureServiceLocator().getParserFeatureService());
+    		talismaneService.setPosTaggerFeatureService(this.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService());
+    		talismaneService.setSentenceDetectorFeatureService(this.getSentenceDetectorFeatureServiceLocator().getSentenceDetectorFeatureService());
+    		talismaneService.setTokenFeatureService(this.getTokenFeatureServiceLocator().getTokenFeatureService());
+    		talismaneService.setTokenFilterService(this.getTokenFilterServiceLocator().getTokenFilterService());
+    		talismaneService.setTokeniserPatternService(this.getTokenPatternServiceLocator().getTokeniserPatternService());
     	}
     	return this.talismaneService;
     }
@@ -207,5 +219,9 @@ public class TalismaneServiceLocator {
 		if (this.lexiconServiceLocator==null)
 			this.lexiconServiceLocator = new LexiconServiceLocator(this);
 		return lexiconServiceLocator;
+	}
+
+	public String getSessionId() {
+		return sessionId;
 	}
 }

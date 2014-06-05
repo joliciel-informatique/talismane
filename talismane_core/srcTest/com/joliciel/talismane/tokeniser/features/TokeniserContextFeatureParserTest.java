@@ -43,7 +43,7 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseAndFeature() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
 		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
 		
@@ -68,7 +68,7 @@ public class TokeniserContextFeatureParserTest {
 	
 	@Test
 	public void testParseWordFeature() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
 		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
 		
@@ -92,7 +92,7 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseConcatenateFeature() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
 		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
 		
@@ -119,7 +119,7 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testNamedFeatures() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
 		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
 		
@@ -144,7 +144,7 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testOrOperator() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
 		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
 		

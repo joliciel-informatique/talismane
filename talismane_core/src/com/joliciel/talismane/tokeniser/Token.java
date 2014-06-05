@@ -219,4 +219,11 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * The "best" lexical entry for this token/postag combination if one exists, or null otherwise.
 	 */
 	public LexicalEntry getLexicalEntry(PosTag posTag);
+	
+	/**
+	 * Any attributes assigned to this token (e.g. telling downstream systems not to stem this token
+	 * in a search index, in the case of a recognised acronym).
+	 * @return
+	 */
+	Set<String> getAttributes();
 }

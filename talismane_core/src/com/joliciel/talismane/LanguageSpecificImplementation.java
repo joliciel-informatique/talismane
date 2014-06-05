@@ -22,6 +22,12 @@ public interface LanguageSpecificImplementation {
 	 * @return
 	 */
 	public TransitionSystem getDefaultTransitionSystem();
+	
+	/**
+	 * The default linguistic rules for this language.
+	 * @return
+	 */
+	public LinguisticRules getDefaultLinguisticRules();
 
 	/**
 	 * Return a scanner containing the default text marker filter descriptors.

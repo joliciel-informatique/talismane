@@ -25,6 +25,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
@@ -39,6 +40,7 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokenFeatureServiceImpl.class);
 
 	private FeatureService featureService;
+	private TalismaneService talismaneService;
 	private MachineLearningService machineLearningService;
 	private ExternalResourceFinder externalResourceFinder;
 
@@ -63,6 +65,7 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	
 	public TokenFeatureParser getTokenFeatureParser(List<TokenPattern> patternList) {
 		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl(this.getFeatureService());
+		tokenFeatureParser.setTalismaneService(this.getTalismaneService());
 		tokenFeatureParser.setPatternList(patternList);
 		return tokenFeatureParser;
 	}
@@ -148,6 +151,16 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 

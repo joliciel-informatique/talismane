@@ -39,9 +39,12 @@ import org.apache.log4j.PropertyConfigurator;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.fr.TalismaneFrench;
 import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.utils.StringUtils;
 
 public class Main {
 	private static final Log LOG = LogFactory.getLog(Main.class);
@@ -60,8 +63,7 @@ public class Main {
 		String databasePropertiesPath = null;
 		String projectCode = null;
 
-		
-		Map<String, String> argMap = TalismaneConfig.convertArgs(args);
+		Map<String, String> argMap = StringUtils.convertArgs(args);
 
 		String logConfigPath = argMap.get("logConfigFile");
 		if (logConfigPath!=null) {
@@ -129,10 +131,15 @@ public class Main {
 					innerArgs.put("command", "process");
 				}
 				
-				TalismaneFrench talismaneFrench = new TalismaneFrench();
-				TalismaneConfig config = new TalismaneConfig(innerArgs, talismaneFrench);
+				String sessionId = "";
+		       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+		       	TalismaneService talismaneService = locator.getTalismaneService();
+		    	TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+		    	TalismaneFrench talismaneFrench = new TalismaneFrench(sessionId);
+		    	
+		    	TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, talismaneFrench);
 
-				PosTagSet tagSet = TalismaneSession.getPosTagSet();
+				PosTagSet tagSet = talismaneSession.getPosTagSet();
 				Charset outputCharset = config.getOutputCharset();
 
 				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase);

@@ -195,7 +195,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-		// no dependencies to inject
+		this.tokenFeatureParser.injectDependencies(feature);
 	}
 
 	@Override
