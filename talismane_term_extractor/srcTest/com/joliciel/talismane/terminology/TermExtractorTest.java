@@ -40,6 +40,7 @@ import static org.junit.Assert.*;
 
 import com.joliciel.lefff.LefffService;
 import com.joliciel.lefff.LefffServiceLocator;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
@@ -67,14 +68,16 @@ public class TermExtractorTest {
 		InputStream configurationInputStream = getClass().getResourceAsStream("termTestCONLL.txt"); 
 		Reader configurationReader = new BufferedReader(new InputStreamReader(configurationInputStream, "UTF-8"));
 		
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
+		TalismaneService talismaneService = locator.getTalismaneService();
 		PosTaggerService posTaggerService = locator.getPosTaggerServiceLocator().getPosTaggerService();
 		PosTagSet tagSet = posTaggerService.getPosTagSet(tagsetScanner);
-		TalismaneSession.setPosTagSet(tagSet);
+		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+		talismaneSession.setPosTagSet(tagSet);
 		
 		ParserService parserService = locator.getParserServiceLocator().getParserService();
 		TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
-		TalismaneSession.setTransitionSystem(transitionSystem);
+		talismaneSession.setTransitionSystem(transitionSystem);
 		
 		LefffServiceLocator lefffLocator = LefffServiceLocator.getInstance();
 		LefffService lefffService = lefffLocator.getLefffService();

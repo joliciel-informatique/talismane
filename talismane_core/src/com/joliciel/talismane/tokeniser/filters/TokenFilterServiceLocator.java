@@ -31,6 +31,7 @@ public class TokenFilterServiceLocator {
 	public TokenFilterService getTokenFilterService() {
 		if (tokenFilterService==null) {
 			tokenFilterService = new TokenFilterServiceImpl();
+			tokenFilterService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 		}
 		return tokenFilterService;
 	}

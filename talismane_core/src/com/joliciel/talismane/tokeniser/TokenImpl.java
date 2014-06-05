@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -69,6 +69,9 @@ final class TokenImpl implements TokenInternal {
 	
 	private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
 	private double probability = -1;
+	private Set<String> attributes;
+	
+	private TalismaneService talismaneService;
 	
 	TokenImpl(TokenImpl tokenToClone) {
 		this.text = tokenToClone.text;
@@ -88,6 +91,7 @@ final class TokenImpl implements TokenInternal {
 		this.fileName = tokenToClone.fileName;
 		this.lineNumber = tokenToClone.lineNumber;
 		this.columnNumber = tokenToClone.columnNumber;
+		this.attributes = tokenToClone.attributes;
 	}
 	
 	TokenImpl(String text, TokenSequence tokenSequence) {
@@ -144,7 +148,7 @@ final class TokenImpl implements TokenInternal {
 	@Override
 	public Set<PosTag> getPossiblePosTags() {
 		if (possiblePosTags==null) {
-			possiblePosTags = TalismaneSession.getLexicon().findPossiblePosTags(this.getText());
+			possiblePosTags = talismaneService.getTalismaneSession().getLexicon().findPossiblePosTags(this.getText());
 		}
 		
 		return possiblePosTags;
@@ -387,13 +391,25 @@ final class TokenImpl implements TokenInternal {
 		}
 		List<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
 		if (lexicalEntries==null) {
-			lexicalEntries = TalismaneSession.getLexicon().findLexicalEntries(this.getText(), posTag);
+			lexicalEntries = talismaneService.getTalismaneSession().getLexicon().findLexicalEntries(this.getText(), posTag);
 			this.lexicalEntryMap.put(posTag, lexicalEntries);
 		}
 		LexicalEntry bestEntry = null;
 		if (lexicalEntries.size()>0)
 			bestEntry = lexicalEntries.get(0);
 		return bestEntry;
+	}
+
+	public Set<String> getAttributes() {
+		return attributes;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 

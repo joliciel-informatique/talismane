@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
@@ -34,8 +35,10 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
+public class AllUppercaseFrenchFilter implements TokenSequenceFilter, NeedsTalismaneSession {
 	private static final String[] upperCaseEndWordArray = new String[] { "SARL", "SA", "EURL" };
+	
+	private TalismaneSession talismaneSession;
 	
 	/**
 	 * No more than 1000 different lowercase words to check per single uppercase word.
@@ -81,7 +84,7 @@ public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
 		
 		List<String> possibleWords = getPossibleWords(token.getText());
 		for (String possibleWord : possibleWords) {
-			Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(possibleWord);
+			Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(possibleWord);
 			if (posTags.size()>0) {
 				token.setText(possibleWord);
 				break;
@@ -152,4 +155,13 @@ public class AllUppercaseFrenchFilter implements TokenSequenceFilter {
 		this.upperCaseEndWords = upperCaseEndWords;
 	}
 
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
+
+	
 }

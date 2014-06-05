@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
@@ -27,6 +27,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy<PosTag>();
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
+	private TalismaneService talismaneService;
 	
 	PosTagSequenceImpl(TokenSequence tokenSequence) {
 		super();
@@ -118,7 +119,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 			tokenSequence.setWithRoot(true);
 			tokenSequence.finalise();
 			
-			PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+			PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
 			Decision<PosTag> rootDecision = posTagSet.createDefaultDecision(PosTag.ROOT_POS_TAG);
 			rootToken = this.posTaggerServiceInternal.getPosTaggedToken(emptyToken, rootDecision);
 			this.add(0, rootToken);
@@ -242,6 +243,14 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	public PosTagSequence clonePosTagSequence() {
 		PosTagSequence clone = new PosTagSequenceImpl(this, true);
 		return clone;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 	
 	

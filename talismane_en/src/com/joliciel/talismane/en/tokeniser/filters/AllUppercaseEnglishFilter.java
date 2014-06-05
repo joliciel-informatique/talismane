@@ -21,6 +21,7 @@ package com.joliciel.talismane.en.tokeniser.filters;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
@@ -32,10 +33,12 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public class AllUppercaseEnglishFilter implements TokenSequenceFilter {
+public class AllUppercaseEnglishFilter implements TokenSequenceFilter, NeedsTalismaneSession {
 	private static final String[] upperCaseEndWordArray = new String[] { "USA", "UK" };
 	
 	private Set<String> upperCaseEndWords;
+	
+	TalismaneSession talismaneSession;
 	
 	public AllUppercaseEnglishFilter() {
 		super();
@@ -73,7 +76,7 @@ public class AllUppercaseEnglishFilter implements TokenSequenceFilter {
 			return;
 		
 		String word = token.getText().toLowerCase();
-		Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(word);
+		Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(word);
 		if (posTags.size()>0) {
 			token.setText(word);
 		}
@@ -93,4 +96,11 @@ public class AllUppercaseEnglishFilter implements TokenSequenceFilter {
 		this.upperCaseEndWords = upperCaseEndWords;
 	}
 
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
 }

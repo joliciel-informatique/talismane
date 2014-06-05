@@ -30,8 +30,8 @@ import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Scanner;
 
-import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.utils.StringUtils;
 
 /**
  * Class for splitting a CoNNL file into lots of smaller files.
@@ -93,7 +93,7 @@ public class ConllFileSplitter {
 	}
 
 	public static void main(String[] args) throws Exception {
-    	Map<String,String> innerArgs = TalismaneConfig.convertArgs(args);
+    	Map<String,String> innerArgs = StringUtils.convertArgs(args);
 		String filePath = null;
 		if (innerArgs.containsKey("inFile"))
 			filePath = innerArgs.get("inFile");

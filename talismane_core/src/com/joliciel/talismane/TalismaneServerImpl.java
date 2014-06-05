@@ -36,16 +36,17 @@ import com.joliciel.talismane.utils.LogUtils;
 class TalismaneServerImpl implements TalismaneServer {
 	private static final Log LOG = LogFactory.getLog(TalismaneServerImpl.class);
 	private int port = 7272;
-	boolean listening = true;
-	TalismaneConfig config = null;
-	TalismaneServiceInternal talismaneService;
-	SentenceProcessor sentenceProcessor;
-	TokenSequenceProcessor tokenSequenceProcessor;
-	PosTagSequenceProcessor posTagSequenceProcessor;
-	ParseConfigurationProcessor parseConfigurationProcessor;
-	boolean stopOnError = false;
-	Reader reader;
-	Writer writer;
+	private boolean listening = true;
+	private TalismaneConfig config = null;
+	private TalismaneServiceInternal talismaneService;
+	private SentenceProcessor sentenceProcessor;
+	private TokenSequenceProcessor tokenSequenceProcessor;
+	private PosTagSequenceProcessor posTagSequenceProcessor;
+	private ParseConfigurationProcessor parseConfigurationProcessor;
+	private boolean stopOnError = false;
+	private Reader reader;
+	private Writer writer;
+	private TalismaneSession talismaneSession = null;
 	
 	public TalismaneServerImpl(TalismaneConfig config) {
 		this.config = config;
@@ -61,7 +62,7 @@ class TalismaneServerImpl implements TalismaneServer {
 		try {        	
         	LOG.info("Starting server - loading shared resources...");
         	// ping the lexicon to load it
-        	TalismaneSession.getLexicon();
+        	talismaneSession.getLexicon();
         	
         	// ping the models to load them
 			if (config.needsSentenceDetector()) {
@@ -145,6 +146,7 @@ class TalismaneServerImpl implements TalismaneServer {
 
 	public void setTalismaneService(TalismaneServiceInternal talismaneService) {
 		this.talismaneService = talismaneService;
+		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
 
 	public SentenceProcessor getSentenceProcessor() {
@@ -206,6 +208,4 @@ class TalismaneServerImpl implements TalismaneServer {
 		this.writer = writer;
 	}
 
-
-	
 }

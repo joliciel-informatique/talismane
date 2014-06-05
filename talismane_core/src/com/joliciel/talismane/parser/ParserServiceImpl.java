@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -29,6 +30,7 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 public class ParserServiceImpl implements ParserServiceInternal {
+	TalismaneService talismaneService;
 	ParserFeatureService parseFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
@@ -64,6 +66,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			int beamWidth) {
 		TransitionBasedParserImpl parser = new TransitionBasedParserImpl(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
+		parser.setTalismaneService(this.getTalismaneService());
 		parser.setFeatureService(this.getFeatureService());
 		return parser;
 	}
@@ -171,6 +174,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
 		ParserRegexBasedCorpusReaderImpl corpusReader = new ParserRegexBasedCorpusReaderImpl(reader);
 		corpusReader.setParserService(this);
+		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
@@ -183,6 +187,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			Charset charset) {
 		ParserRegexBasedCorpusReaderImpl corpusReader = new ParserRegexBasedCorpusReaderImpl(file, charset);
 		corpusReader.setParserService(this);
+		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
@@ -243,6 +248,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public ParsingConstrainer getParsingConstrainer() {
 		ParsingConstrainerImpl constrainer = new ParsingConstrainerImpl();
 		constrainer.setParseServiceInternal(this);
+		constrainer.setTalismaneService(this.getTalismaneService());
 		return constrainer;
 	}
 
@@ -306,6 +312,14 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		TransitionLogWriter processor = new TransitionLogWriter(csvFileWriter);
 		processor.setParserServiceInternal(this);
 		return processor;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 	

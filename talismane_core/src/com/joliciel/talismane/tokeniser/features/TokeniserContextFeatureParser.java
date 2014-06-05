@@ -92,6 +92,8 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void injectDependencies(Feature feature) {
+		this.tokenFeatureParser.injectDependencies(feature);
+
 		if (feature instanceof InsidePatternNgramFeature) {
 			((InsidePatternNgramFeature) feature).setPatternMap(patternMap);
 		} else if (feature instanceof PatternWordFormFeature) {

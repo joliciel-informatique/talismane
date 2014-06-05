@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -64,10 +65,13 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
 	
 	private ParserServiceInternal parserServiceInternal;
+	private TalismaneService talismaneService;
 	private FeatureService featureService;
 	private DecisionMaker<Transition> decisionMaker;
 	private TransitionSystem transitionSystem;
 	private ParseComparisonStrategy parseComparisonStrategy = new BufferSizeComparisonStrategy();
+	
+	private TalismaneSession talismaneSession;
 
 	private List<ClassificationObserver<Transition>> observers = new ArrayList<ClassificationObserver<Transition>>();
 	private int maxAnalysisTimePerSentence = 60;
@@ -197,7 +201,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
 								if (ruleResult!=null && ruleResult.getOutcome()) {
-									Decision<Transition> positiveRuleDecision = TalismaneSession.getTransitionSystem().createDefaultDecision(rule.getTransition());
+									Decision<Transition> positiveRuleDecision = talismaneSession.getTransitionSystem().createDefaultDecision(rule.getTransition());
 									decisions.add(positiveRuleDecision);
 									positiveRuleDecision.addAuthority(rule.getCondition().getName());
 									ruleApplied = true;
@@ -483,48 +487,48 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		return parserRules;
 	}
 
-
 	public FeatureService getFeatureService() {
 		return featureService;
 	}
-
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
 	}
 
-
 	public ParseComparisonStrategy getParseComparisonStrategy() {
 		return parseComparisonStrategy;
 	}
-
 
 	public void setParseComparisonStrategy(
 			ParseComparisonStrategy parseComparisonStrategy) {
 		this.parseComparisonStrategy = parseComparisonStrategy;
 	}
 
-
 	public boolean isEarlyStop() {
 		return earlyStop;
 	}
 
-
 	public void setEarlyStop(boolean earlyStop) {
 		this.earlyStop = earlyStop;
 	}
-
 
 	@Override
 	public Set<ParseConfigurationFeature<?>> getParseFeatures() {
 		return parseFeatures;
 	}
 
-
 	@Override
 	public void setParseFeatures(Set<ParseConfigurationFeature<?>> parseFeatures) {
 		this.parseFeatures = parseFeatures;
 	}
 	
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+		this.talismaneSession = talismaneService.getTalismaneSession();
+	}
 	
 }

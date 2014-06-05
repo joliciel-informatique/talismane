@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
@@ -35,4 +36,5 @@ public interface TokenFeatureParser {
 
 	public void setPatternList(List<TokenPattern> patternList);
 
+	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature);
 }

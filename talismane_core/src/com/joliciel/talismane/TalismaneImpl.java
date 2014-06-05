@@ -103,12 +103,15 @@ class TalismaneImpl implements Talismane {
 	private PosTagSequenceProcessor posTagSequenceProcessor;
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 	
+	private TalismaneService talismaneService;
 	private SentenceDetectorService sentenceDetectorService;
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private FilterService filterService;
 	private MachineLearningService machineLearningService;
+	
+	private TalismaneSession talismaneSession;
 	
 	private boolean stopOnError = true;
 
@@ -126,7 +129,7 @@ class TalismaneImpl implements Talismane {
 		try {
 			if (!config.getCommand().equals(Command.process)) {
 				// force a lexicon read at the start, so that it doesn't skew performance monitoring downstream
-				TalismaneSession.getLexicon();
+				talismaneSession.getLexicon();
 			}
 			if (this.getSentenceProcessor()==null)
 				this.setSentenceProcessor(config.getSentenceProcessor());
@@ -325,7 +328,7 @@ class TalismaneImpl implements Talismane {
 						if (config.getPerceptronObservationPoints()==null) {
 							ClassificationModelTrainer<PosTag> trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
 	
-							ClassificationModel<PosTag> posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), TalismaneSession.getPosTagSet(), config.getDescriptors());			
+							ClassificationModel<PosTag> posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), talismaneSession.getPosTagSet(), config.getDescriptors());			
 							if (config.getExternalResourceFinder()!=null)
 								posTaggerModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
 							posTaggerModel.persist(modelFile);
@@ -340,7 +343,7 @@ class TalismaneImpl implements Talismane {
 							
 							String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 							PerceptronModelTrainerObserver<PosTag> observer = new PosTaggerPerceptronModelPersister(modelDir, modelName, config.getExternalResourceFinder());
-							trainer.trainModelsWithObserver(config.getClassificationEventStream(), TalismaneSession.getPosTagSet(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
+							trainer.trainModelsWithObserver(config.getClassificationEventStream(), talismaneSession.getPosTagSet(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
 						}
 						break;
 					}
@@ -355,7 +358,7 @@ class TalismaneImpl implements Talismane {
 							if (config.getPerceptronObservationPoints()==null) {
 								ClassificationModelTrainer<Transition> trainer = this.getMachineLearningService().getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
 			
-								parserModel = trainer.trainModel(config.getClassificationEventStream(), TalismaneSession.getTransitionSystem(), config.getDescriptors());
+								parserModel = trainer.trainModel(config.getClassificationEventStream(), talismaneSession.getTransitionSystem(), config.getDescriptors());
 							} else {
 								if (config.getAlgorithm()!=MachineLearningAlgorithm.Perceptron)
 									throw new RuntimeException("Incompatible argument perceptronTrainingInterval with algorithm " + config.getAlgorithm());
@@ -367,7 +370,7 @@ class TalismaneImpl implements Talismane {
 								String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 	
 								PerceptronModelTrainerObserver<Transition> observer = new ParserPerceptronModelPersister(modelDir, modelName, config.getExternalResourceFinder());
-								trainer.trainModelsWithObserver(config.getClassificationEventStream(), TalismaneSession.getTransitionSystem(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
+								trainer.trainModelsWithObserver(config.getClassificationEventStream(), talismaneSession.getTransitionSystem(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
 								needToPersist = false;
 							}
 						} else if (config.getAlgorithm().getModelType()==MachineLearningModelType.Ranking) {
@@ -752,6 +755,16 @@ class TalismaneImpl implements Talismane {
 		    			needToProcess = posTagSequence!=null;
 	    		} // next sentence
 			} // next character
+		    
+		    // Check if there's any leftover output to output!
+		    if (prevSentenceHolder.getOriginalTextSegments().size()>0) {
+		    	for (String segment : prevSentenceHolder.getOriginalTextSegments().values()) {
+		    		this.getWriter().append(segment);
+		    	}
+		    }
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		} finally {
 			if (this.getParseConfigurationProcessor()!=null) {
 				this.getParseConfigurationProcessor().onCompleteParse();
@@ -810,6 +823,16 @@ class TalismaneImpl implements Talismane {
 	public void setParseConfigurationProcessor(
 			ParseConfigurationProcessor parseConfigurationProcessor) {
 		this.parseConfigurationProcessor = parseConfigurationProcessor;
+	}
+
+	
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
 
 	public TokeniserService getTokeniserService() {

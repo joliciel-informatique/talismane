@@ -27,10 +27,10 @@ import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 
 /**
- * An interface for processing a Reader from {@link TalismaneConfig#getReader()} 
- * and writing the analysis result to a Writer from {@link TalismaneConfig#getWriter()}.<br/>
- * The output format is determined by the processor corresponding to {@link TalismaneConfig#getEndModule()}.<br/>
- * This is accomplished by calling {@link #runCommand(TalismaneConfig)}, and passing it all the configuration options.<br/>
+ * An interface for processing a Reader from {@link TalismaneConfigImpl#getReader()} 
+ * and writing the analysis result to a Writer from {@link TalismaneConfigImpl#getWriter()}.<br/>
+ * The output format is determined by the processor corresponding to {@link TalismaneConfigImpl#getEndModule()}.<br/>
+ * This is accomplished by calling {@link #runCommand(TalismaneConfigImpl)}, and passing it all the configuration options.<br/>
  * @author Assaf Urieli
  *
  */
@@ -103,7 +103,7 @@ public interface Talismane {
 	}
 
 	/**
-	 * Run the {@link Command} specified by {@link TalismaneConfig#getCommand()}.
+	 * Run the {@link Command} specified by {@link TalismaneConfigImpl#getCommand()}.
 	 * @throws Exception
 	 */
 	public abstract void process();

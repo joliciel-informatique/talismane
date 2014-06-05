@@ -30,7 +30,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -70,8 +69,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
 	
-	private TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
-	
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
@@ -83,9 +80,12 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private Map<String, String> notes = new HashMap<String, String>();
 	
 	private List<List<StandoffToken>> sentences = new ArrayList<List<StandoffReader.StandoffToken>>();
-
-	public StandoffReader(Scanner scanner) {
-		PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+	
+	private TalismaneSession talismaneSession;
+	
+	public StandoffReader(TalismaneSession talismaneSession, Scanner scanner) {
+		this.talismaneSession = talismaneSession;
+		PosTagSet posTagSet = talismaneSession.getPosTagSet();
 		
 		Map<Integer,StandoffToken> sortedTokens = new TreeMap<Integer, StandoffReader.StandoffToken>();
 		while (scanner.hasNextLine()) {
@@ -173,7 +173,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 				PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
 				PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, tokenSequence.size());
 				Map<String,PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
-				PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+				PosTagSet posTagSet = talismaneSession.getPosTagSet();
 				
 				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
 				
@@ -290,9 +290,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 
 	public TokenFilterService getTokenFilterService() {
-		if (this.tokenFilterService==null) {
-			this.tokenFilterService = locator.getTokenFilterServiceLocator().getTokenFilterService();
-		}
 		return tokenFilterService;
 	}
 
@@ -302,8 +299,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	}
 
 	public PosTaggerService getPosTaggerService() {
-		if (posTaggerService==null)
-			posTaggerService = locator.getPosTaggerServiceLocator().getPosTaggerService();
 		return posTaggerService;
 	}
 
@@ -312,8 +307,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	}
 	
 	public TokeniserService getTokeniserService() {
-		if (tokeniserService==null)
-			tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		return tokeniserService;
 	}
 
@@ -322,9 +315,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	}
 
 	public ParserService getParserService() {
-		if (parserService==null)
-			parserService = locator.getParserServiceLocator().getParserService();
-		
 		return parserService;
 	}
 

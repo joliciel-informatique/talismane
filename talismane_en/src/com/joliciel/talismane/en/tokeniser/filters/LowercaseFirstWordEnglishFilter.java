@@ -21,6 +21,7 @@ package com.joliciel.talismane.en.tokeniser.filters;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
@@ -33,9 +34,11 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public class LowercaseFirstWordEnglishFilter implements TokenSequenceFilter {
+public class LowercaseFirstWordEnglishFilter implements TokenSequenceFilter, NeedsTalismaneSession {
 	private static String[] openingPunctuationArray = new String[] {"\"", "-", "--", "—", "*", "(", "•", "[", "{", "``" };
 	private Set<String> openingPunctuation;
+	
+	TalismaneSession talismaneSession;
 	public LowercaseFirstWordEnglishFilter() {
 		super();
 		openingPunctuation = new HashSet<String>();
@@ -99,7 +102,7 @@ public class LowercaseFirstWordEnglishFilter implements TokenSequenceFilter {
 				if (Character.isUpperCase(firstChar)) {
 					
 					String newWord = Character.toLowerCase(firstChar) + token.getText().substring(1);
-					Set<PosTag> posTags = TalismaneSession.getLexicon().findPossiblePosTags(newWord);
+					Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(newWord);
 					if (posTags.size()>0) {
 						token.setText(newWord);
 					}
@@ -110,5 +113,13 @@ public class LowercaseFirstWordEnglishFilter implements TokenSequenceFilter {
 				lowerCaseNextWord = true;
 			}
 		} // next token
+	}
+
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 	}
 }

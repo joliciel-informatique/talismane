@@ -19,6 +19,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -30,11 +31,12 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  * @author Assaf Urieli
  *
  */
-public class LexiconFile implements PosTaggerLexicon, Serializable {
+public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalismaneSession {
 	private static final long serialVersionUID = -1288465773172734665L;
 	private static final Log LOG = LogFactory.getLog(LexiconFile.class);
 	Map<String,List<LexicalEntry>> entryMap = new HashMap<String, List<LexicalEntry>>();
 	Map<String,List<LexicalEntry>> lemmaEntryMap = new HashMap<String, List<LexicalEntry>>();
+	TalismaneSession talismaneSession;
 	PosTagSet posTagSet;
 	PosTagMapper posTagMapper;
 
@@ -48,7 +50,7 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 	
 	public LexiconFile(LexicalEntryReader reader, Reader fileReader) {
 		super();
-
+		
 		Scanner scanner = new Scanner(fileReader);
 
 		int entryCount = 0;
@@ -104,7 +106,7 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 		// Using TreeSet as set must be ordered
 		Set<PosTag> posTags = new TreeSet<PosTag>();
 		List<LexicalEntry> entries = this.getEntries(word);
-		PosTagSet posTagSet = TalismaneSession.getPosTagSet();
+		PosTagSet posTagSet = this.getPosTagSet();
 		for (LexicalEntry entry : entries) {
 			if (this.getPosTagMapper()==null) {
 				PosTag posTag = posTagSet.getPosTag(entry.getCategory());
@@ -175,8 +177,8 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 	}
 
 	public PosTagSet getPosTagSet() {
-		if (posTagSet==null) {
-			posTagSet = TalismaneSession.getPosTagSet();
+		if (posTagSet==null && talismaneSession!=null) {
+			posTagSet = talismaneSession.getPosTagSet();
 		}
 		return posTagSet;
 	}
@@ -191,6 +193,14 @@ public class LexiconFile implements PosTaggerLexicon, Serializable {
 
 	public void setPosTagMapper(PosTagMapper posTagMapper) {
 		this.posTagMapper = posTagMapper;
+	}
+
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 	}
 
 }

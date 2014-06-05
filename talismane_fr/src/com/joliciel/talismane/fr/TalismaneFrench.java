@@ -39,9 +39,12 @@ import com.joliciel.frenchTreebank.upload.TreebankUploadService;
 import com.joliciel.lefff.LefffService;
 import com.joliciel.lefff.LefffServiceLocator;
 import com.joliciel.talismane.LanguageSpecificImplementation;
+import com.joliciel.talismane.LinguisticRules;
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.TalismaneSession;
@@ -66,6 +69,7 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusRe
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.StringUtils;
 
 /**
  * The default French implementation of Talismane.
@@ -75,6 +79,8 @@ import com.joliciel.talismane.utils.LogUtils;
 public class TalismaneFrench implements LanguageSpecificImplementation {
 	private static final Log LOG = LogFactory.getLog(TalismaneFrench.class);
 	private TalismaneServiceLocator talismaneServiceLocator = null;
+	private TalismaneService talismaneService;
+	private TalismaneSession talismaneSession;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private LefffServiceLocator lefffServiceLocator;
@@ -97,7 +103,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-    	Map<String,String> argsMap = TalismaneConfig.convertArgs(args);
+    	Map<String,String> argsMap = StringUtils.convertArgs(args);
     	CorpusFormat corpusReaderType = null;
     	String treebankDirPath = null;
 		boolean keepCompoundPosTags = true;
@@ -118,10 +124,12 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
     	Extensions extensions = new Extensions();
     	extensions.pluckParameters(argsMap);
     	
-    	TalismaneFrench talismaneFrench = new TalismaneFrench();
-    	TalismaneSession.setLinguisticRules(new FrenchRules());
+    	String sessionId = "";
+       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+       	TalismaneService talismaneService = locator.getTalismaneService();
+    	TalismaneFrench talismaneFrench = new TalismaneFrench(sessionId);
     	
-    	TalismaneConfig config = new TalismaneConfig(argsMap, talismaneFrench);
+    	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, talismaneFrench);
     	if (config.getCommand()==null)
     		return;
     	
@@ -129,6 +137,11 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
     		if (corpusReaderType==CorpusFormat.ftbDep) {
     			File inputFile = new File(config.getInFilePath());
     			FtbDepReader ftbDepReader = new FtbDepReader(inputFile, config.getInputCharset());
+    			ftbDepReader.setParserService(config.getParserService());
+    			ftbDepReader.setPosTaggerService(config.getPosTaggerService());
+    			ftbDepReader.setTokeniserService(config.getTokeniserService());
+    			ftbDepReader.setTokenFilterService(config.getTokenFilterService());
+    			ftbDepReader.setTalismaneService(config.getTalismaneService());
     			
     			ftbDepReader.setKeepCompoundPosTags(keepCompoundPosTags);
     			ftbDepReader.setPredictTransitions(config.isPredictTransitions());
@@ -146,8 +159,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 					config.setPosTagEvaluationCorpusReader(ftbDepEvaluationReader);
 				}
 	  		} else if (corpusReaderType==CorpusFormat.ftb) {
-	  			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
-	  			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneServiceLocator);
+	  			TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(locator);
 	  			TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
 				TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
 	  			File treebankFile = new File(treebankDirPath);
@@ -213,8 +225,8 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
     	talismane.process();
 	}
 
-	public TalismaneFrench() {
-		talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+	public TalismaneFrench(String sessionId) {
+		talismaneServiceLocator = TalismaneServiceLocator.getInstance(sessionId);
 		lefffServiceLocator = LefffServiceLocator.getInstance();
 	}
 	
@@ -260,7 +272,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 		try {
 			LexiconChain lexiconChain = new LexiconChain();
 			
-			LexiconDeserializer deserializer = new LexiconDeserializer();
+			LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
 			
 			String lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.additions.obj";
 			ObjectInputStream ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
@@ -336,7 +348,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 
 	@Override
 	public ZipInputStream getDefaultParserModelStream() {
-		String parserModelName = "parser_spmrl_all_maxent_i100_cutoff7_v1.zip";
+		String parserModelName = "parser_spmrl_all_maxent_i200_cutoff7_v2.zip";
 		return TalismaneFrench.getZipInputStreamFromResource(parserModelName);
 	}
 
@@ -344,9 +356,14 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	@Override
 	public List<TokenSequenceFilter> getDefaultTokenSequenceFilters() {
 		List<TokenSequenceFilter> tokenFilters = new ArrayList<TokenSequenceFilter>();
-		tokenFilters.add(new AllUppercaseFrenchFilter());
 		tokenFilters.add(new UpperCaseSeriesFrenchFilter());
 		tokenFilters.add(new LowercaseFirstWordFrenchFilter());
+		
+		for (TokenSequenceFilter filter : tokenFilters) {
+			if (filter instanceof NeedsTalismaneSession) {
+				((NeedsTalismaneSession) filter).setTalismaneSession(this.getTalismaneSession());
+			}
+		}
 		return tokenFilters;
 	}
 
@@ -445,4 +462,30 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 		}
 		return availableTokenSequenceFilters;
 	}
+	
+
+	public TalismaneService getTalismaneService() {
+		if (talismaneService==null) {
+			this.setTalismaneService(talismaneServiceLocator.getTalismaneService());
+		}
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+		this.talismaneSession = talismaneService.getTalismaneSession();
+	}
+
+	@Override
+	public LinguisticRules getDefaultLinguisticRules() {
+		return new FrenchRules();
+	}
+
+	public TalismaneSession getTalismaneSession() {
+		if (talismaneSession==null) {
+			talismaneSession = this.getTalismaneService().getTalismaneSession();
+		}
+		return talismaneSession;
+	}
+	
 }

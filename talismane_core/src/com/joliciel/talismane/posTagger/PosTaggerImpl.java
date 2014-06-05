@@ -30,7 +30,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -62,6 +62,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private static final double MIN_PROB_TO_STORE = 0.001;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
+	private TalismaneService talismaneService;
 	private PosTaggerService posTaggerService;
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
@@ -100,6 +101,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	public List<PosTagSequence> tagSentence(List<TokenSequence> tokenSequences) {
 		MONITOR.startTask("tagSentence");
 		try {
+			PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
+			
 			MONITOR.startTask("apply filters");
 			try {
 				for (TokenSequence tokenSequence : tokenSequences) {
@@ -171,7 +174,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
 								if (ruleResult!=null && ruleResult.getOutcome()) {
-									Decision<PosTag> positiveRuleDecision = TalismaneSession.getPosTagSet().createDefaultDecision(rule.getTag());
+									Decision<PosTag> positiveRuleDecision = posTagSet.createDefaultDecision(rule.getTag());
 									decisions.add(positiveRuleDecision);
 									positiveRuleDecision.addAuthority(rule.getCondition().getName());
 									ruleApplied = true;
@@ -464,6 +467,14 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 	
 }

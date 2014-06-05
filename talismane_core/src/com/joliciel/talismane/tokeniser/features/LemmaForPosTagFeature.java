@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -34,8 +35,11 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class LemmaForPosTagFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
+public final class LemmaForPosTagFeature extends AbstractTokenFeature<String>
+	implements StringFeature<TokenWrapper>, NeedsTalismaneSession {
 	StringFeature<TokenWrapper>[] posTagCodeFeatures;
+	
+	TalismaneSession talismaneSession;
 	
 	public LemmaForPosTagFeature(StringFeature<TokenWrapper>... posTagCodeFeatures) {
 		super();
@@ -74,7 +78,7 @@ public final class LemmaForPosTagFeature extends AbstractTokenFeature<String> im
 		}
 		
 		for (String posTagCode : posTagCodes) {
-			PosTag posTag = TalismaneSession.getPosTagSet().getPosTag(posTagCode);
+			PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagCode);
 			
 			LexicalEntry lexicalEntry = token.getLexicalEntry(posTag);
 			if (lexicalEntry!=null) {
@@ -85,5 +89,14 @@ public final class LemmaForPosTagFeature extends AbstractTokenFeature<String> im
 
 		return featureResult;
 	}
-	
+
+	@Override
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	@Override
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
 }

@@ -21,6 +21,8 @@ package com.joliciel.talismane.parser.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -41,6 +43,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
 
 class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrapper> {
 	private ParserFeatureServiceInternal parserFeatureServiceInternal;
+	private TalismaneService talismaneService;
 	
 	public ParserFeatureParser(FeatureService featureService) {
 		super(featureService);
@@ -202,7 +205,9 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-		// no dependencies to inject
+		if (feature instanceof NeedsTalismaneSession) {
+			((NeedsTalismaneSession)feature).setTalismaneSession(talismaneService.getTalismaneSession());
+		}
 	}
 
 	@Override
@@ -229,6 +234,12 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 
 		return convertedFeature;
 	}
-	
-	
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+	}
 }

@@ -37,6 +37,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -46,6 +47,7 @@ class ParsingConstrainerImpl implements ParsingConstrainer {
 
 	private Map<String,Set<String>> possibleTransitionMap = new HashMap<String, Set<String>>();
 	private TransitionSystem transitionSystem;
+	private transient TalismaneService talismaneService;
 	private transient ParserServiceInternal parseServiceInternal;
 	private transient File file;
 	
@@ -95,6 +97,14 @@ class ParsingConstrainerImpl implements ParsingConstrainer {
 		this.parseServiceInternal = parseServiceInternal;
 	}
 
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+	}
+
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {		
 		ParseConfiguration currentConfiguration = parseServiceInternal.getInitialConfiguration(parseConfiguration.getPosTagSequence());
@@ -117,8 +127,10 @@ class ParsingConstrainerImpl implements ParsingConstrainer {
 
 	@Override
 	public void onCompleteParse() {
-		if (this.transitionSystem==null)
-			this.transitionSystem = TalismaneSession.getTransitionSystem();
+		if (this.transitionSystem==null) {
+			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+			this.transitionSystem = talismaneSession.getTransitionSystem();
+		}
 		
 		if (this.file!=null) {
 			try {

@@ -20,6 +20,8 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractStringCollectionFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -32,17 +34,29 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public final class DependencyLabelSetFeature extends AbstractStringCollectionFeature<ParseConfigurationWrapper> {
-
+public final class DependencyLabelSetFeature extends AbstractStringCollectionFeature<ParseConfigurationWrapper> 
+	implements NeedsTalismaneSession
+{
+	private TalismaneSession talismaneSession;
+	
+	
 	@Override
 	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
 			ParseConfigurationWrapper context, RuntimeEnvironment env) {
-		TransitionSystem transitionSystem = TalismaneSession.getTransitionSystem();
+		TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
 		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
 		for (String label : transitionSystem.getDependencyLabels()) {
 			resultList.add(new WeightedOutcome<String>(label, 1.0));
 		}
 		return this.generateResult(resultList);
+	}
+
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 	}
 
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -37,8 +38,11 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
+public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>
+	implements StringCollectionFeature<TokenWrapper>, NeedsTalismaneSession {
 	private StringFeature<TokenWrapper> wordToCheckFeature;
+	
+	TalismaneSession talismaneSession;
 
 	public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {
 		this.wordToCheckFeature = wordToCheckFeature;
@@ -63,7 +67,7 @@ public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<L
 		if (wordToCheckResult!=null) {
 			String wordToCheck = wordToCheckResult.getOutcome();
 			List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-			PosTaggerLexicon lexicon = TalismaneSession.getLexicon();
+			PosTaggerLexicon lexicon = talismaneSession.getLexicon();
 			Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
 	
 			for (PosTag posTag : posTags) {
@@ -81,5 +85,15 @@ public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<L
 	@Override
 	public Class<? extends Feature> getFeatureType() {
 		return StringCollectionFeature.class;
+	}
+
+	@Override
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	@Override
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 	}
 }

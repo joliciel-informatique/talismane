@@ -24,9 +24,10 @@ public class UpperCaseSeriesFilterTest {
 
 	@Test
 	public void testApply(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexicon(lexiconService);
+		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
+		talismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -42,6 +43,7 @@ public class UpperCaseSeriesFilterTest {
 		};
 		
 		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		filter.setTalismaneSession(talismaneSession);
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
@@ -54,9 +56,10 @@ public class UpperCaseSeriesFilterTest {
 
 	@Test
 	public void testApplyWordNotInLexicon(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexicon(lexiconService);
+		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
+		talismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -71,6 +74,7 @@ public class UpperCaseSeriesFilterTest {
 		};
 		
 		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		filter.setTalismaneSession(talismaneSession);
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
@@ -83,9 +87,10 @@ public class UpperCaseSeriesFilterTest {
 
 	@Test
 	public void testApplyNumberInMiddle(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexicon(lexiconService);
+		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
+		talismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -101,6 +106,7 @@ public class UpperCaseSeriesFilterTest {
 		};
 		
 		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		filter.setTalismaneSession(talismaneSession);
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
@@ -113,9 +119,10 @@ public class UpperCaseSeriesFilterTest {
 
 	@Test
 	public void testApplyLowercaseInMiddle(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexicon(lexiconService);
+		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
+		talismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -131,6 +138,7 @@ public class UpperCaseSeriesFilterTest {
 		};
 		
 		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		filter.setTalismaneSession(talismaneSession);
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		
@@ -142,9 +150,10 @@ public class UpperCaseSeriesFilterTest {
 	
 	@Test
 	public void testApplyWithSARL(@NonStrict final PosTaggerLexicon lexiconService, @NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance();
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
-		TalismaneSession.setLexicon(lexiconService);
+		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
+		talismaneSession.setLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -160,6 +169,7 @@ public class UpperCaseSeriesFilterTest {
 		};
 		
 		UpperCaseSeriesFrenchFilter filter = new UpperCaseSeriesFrenchFilter();
+		filter.setTalismaneSession(talismaneSession);
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Pattern.compile("[ .]"));
 		filter.apply(tokenSequence);
 		

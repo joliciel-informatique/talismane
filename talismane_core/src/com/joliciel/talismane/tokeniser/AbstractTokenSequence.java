@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
@@ -32,6 +32,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	protected boolean textProvided = false;
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
+	private TalismaneService talismaneService;
 
 	public AbstractTokenSequence() {}
 	public AbstractTokenSequence(Sentence sentence) {
@@ -227,7 +228,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		} else if (!textProvided) {
 			// check if a space should be added before this token
 			String lastTokenText = this.get(this.size()-1).getText();
-			LinguisticRules rules = TalismaneSession.getLinguisticRules();
+			LinguisticRules rules = talismaneService.getTalismaneSession().getLinguisticRules();
 			if (rules==null)
 				throw new TalismaneException("Linguistic rules have not been set.");
 			
@@ -396,6 +397,12 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 	public void setPosTagSequence(PosTagSequence posTagSequence) {
 		this.posTagSequence = posTagSequence;
+	}
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 	
 	

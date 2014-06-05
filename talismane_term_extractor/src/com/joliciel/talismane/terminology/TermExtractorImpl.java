@@ -29,7 +29,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.DependencyNode;
@@ -55,6 +55,9 @@ class TermExtractorImpl implements TermExtractor {
 	private String outFilePath = null;
 	
 	private TerminologyService terminologyService;
+	private TalismaneService talismaneService;
+	private PosTaggerLexicon lexicon;
+	
 	private TerminologyBase terminologyBase;
 	private Set<String> zeroDepthLabels;
 	private List<TermObserver> termObservers = new ArrayList<TermObserver>();
@@ -185,7 +188,7 @@ class TermExtractorImpl implements TermExtractor {
 			int numDependents = dependents.size();
 			if (!(posTagCode.equals("P") || posTagCode.equals("CC") || posTagCode.equals("CS") || posTagCode.equals("PONCT")|| posTagCode.equals("P+D"))
 					&& !(numDependents>0 && (posTagCode.equals("VPR")))) {
-				myExpansions.add(new Expansion(kernel));
+				myExpansions.add(new Expansion(lexicon, kernel));
 			}
 			
 			// add the various dependents one at a time, until we hit a dependent that shouldn't be included
@@ -234,7 +237,7 @@ class TermExtractorImpl implements TermExtractor {
 							int perceivedDepth = newNode.getPerceivedDepth(this.getZeroDepthLabels());
 							
 							if (perceivedDepth<=this.getMaxDepth()) {
-								Expansion expansion = new Expansion(newNode);
+								Expansion expansion = new Expansion(lexicon, newNode);
 								myExpansions.add(expansion);
 							}
 							
@@ -268,7 +271,7 @@ class TermExtractorImpl implements TermExtractor {
 								if (newNode.isContiguous()) {
 									int perceivedDepth = newNode.getPerceivedDepth(this.getZeroDepthLabels());
 									if (perceivedDepth<=this.getMaxDepth()) {
-										Expansion expansion = new Expansion(newNode);										
+										Expansion expansion = new Expansion(lexicon, newNode);										
 										myExpansions.add(expansion);
 									}
 									biggestRightNode = rightExpansion.getNode();
@@ -321,14 +324,14 @@ class TermExtractorImpl implements TermExtractor {
 	public static class Expansion {
 		String string = null;
 		DependencyNode node = null;
-		PosTaggerLexicon lexiconService;
+		PosTaggerLexicon lexicon;
 		List<Expansion> children = null;
 		List<Expansion> parents = null;
 		
-		public Expansion(DependencyNode node) {
+		public Expansion(PosTaggerLexicon lexicon, DependencyNode node) {
 			super();
 			this.node = node;
-			this.lexiconService = TalismaneSession.getLexicon();
+			this.lexicon = lexicon;
 		}
 		
 		public List<Expansion> getChildren() {
@@ -339,14 +342,14 @@ class TermExtractorImpl implements TermExtractor {
 					if (posTagCode.equals("P") || posTagCode.equals("P+D")) {
 						if (child.getDependents().size()>0) {
 							DependencyNode realChild = child.getDependents().iterator().next().cloneNode();
-							Expansion realChildExpansion = new Expansion(realChild);
+							Expansion realChildExpansion = new Expansion(lexicon, realChild);
 							if (realChildExpansion.display()!=null && realChildExpansion.display().length()>0)
-								children.add(new Expansion(realChild));
+								children.add(new Expansion(lexicon, realChild));
 						}
 					} else if (posTagCode.equals("NC") || posTagCode.equals("NPP")) {
-						Expansion childExpansion = new Expansion(child);
+						Expansion childExpansion = new Expansion(lexicon, child);
 						if (childExpansion.display()!=null && childExpansion.display().length()>0)
-							children.add(new Expansion(child));
+							children.add(new Expansion(lexicon, child));
 					}
 				}
 			}
@@ -368,12 +371,12 @@ class TermExtractorImpl implements TermExtractor {
 				if (leftDependents.size()>0) {
 					DependencyNode leftParent = node.cloneNode();
 					leftParent.removeNode(leftDependents.get(0));
-					parents.add(new Expansion(leftParent));
+					parents.add(new Expansion(lexicon, leftParent));
 				}
 				if (rightDependents.size()>0) {
 					DependencyNode rightParent = node.cloneNode();
 					rightParent.removeNode(rightDependents.get(rightDependents.size()-1));
-					parents.add(new Expansion(rightParent));
+					parents.add(new Expansion(lexicon, rightParent));
 				}
 			}
 			return parents;
@@ -432,7 +435,7 @@ class TermExtractorImpl implements TermExtractor {
 					tokenText = currentToken.getOriginalText();
 
 				if (nounIsPlural && posTaggedToken.equals(startNode.getPosTaggedToken())) {
-					List<? extends LexicalEntry> singularEntries = lexiconService.getEntriesMatchingCriteria(headNounEntry, node.getPosTaggedToken().getTag(), null, "s");
+					List<? extends LexicalEntry> singularEntries = lexicon.getEntriesMatchingCriteria(headNounEntry, node.getPosTaggedToken().getTag(), null, "s");
 					LexicalEntry singularEntry = null;
 					if (singularEntries.size()>0)
 						singularEntry = singularEntries.get(0);
@@ -443,7 +446,7 @@ class TermExtractorImpl implements TermExtractor {
 						(posTaggedToken.getTag().getCode().equals("ADJ")||posTaggedToken.getTag().getCode().equals("VPP"))) {
 					LexicalEntry pluralEntry = posTaggedToken.getLexicalEntry();
 					if (pluralEntry!=null && !pluralEntry.getNumber().contains("s")) {
-						List<? extends LexicalEntry> singularEntries = lexiconService.getEntriesMatchingCriteria(pluralEntry, posTaggedToken.getTag(), headNounGender, "s");
+						List<? extends LexicalEntry> singularEntries = lexicon.getEntriesMatchingCriteria(pluralEntry, posTaggedToken.getTag(), headNounGender, "s");
 						LexicalEntry singularEntry = null;
 						if (singularEntries.size()>0)
 							singularEntry = singularEntries.get(0);
@@ -572,6 +575,15 @@ class TermExtractorImpl implements TermExtractor {
 
 	public void setTerminologyService(TerminologyService terminologyService) {
 		this.terminologyService = terminologyService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+		this.lexicon = talismaneService.getTalismaneSession().getLexicon();
 	}
 	
 }

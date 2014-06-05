@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -41,6 +41,7 @@ import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 
 public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
     private static final Log LOG = LogFactory.getLog(PosTaggerFeatureServiceImpl.class);
+    private TalismaneService talismaneService;
 	private FeatureService featureService;
 	private TokenFeatureService tokenFeatureService;
 	private MachineLearningService machineLearningService;
@@ -101,7 +102,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 						negative = true;
 						posTagCode = posTagCode.substring(1);
 					}
-					posTag = TalismaneSession.getPosTagSet().getPosTag(posTagCode);
+					posTag = talismaneService.getTalismaneSession().getPosTagSet().getPosTag(posTagCode);
 				}
 
 				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
@@ -175,6 +176,14 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 

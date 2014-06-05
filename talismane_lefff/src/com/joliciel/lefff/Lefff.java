@@ -99,7 +99,7 @@ public class Lefff {
         final LefffServiceLocator locator = LefffServiceLocator.getInstance();
         locator.setDataSourcePropertiesFile("jdbc-live.properties");
         
-        TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance();
+        TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
         
         
         final LefffService lefffService = locator.getLefffService();

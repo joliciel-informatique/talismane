@@ -31,6 +31,7 @@ public class ParserServiceLocator {
 	public ParserService getParserService() {
 		if (parserService==null) {
 			parserService = new ParserServiceImpl();
+			parserService.setTalismaneService(this.talismaneServiceLocator.getTalismaneService());
 			parserService.setParseFeatureService(this.talismaneServiceLocator.getParserFeatureServiceLocator().getParserFeatureService());
 			parserService.setPosTaggerService(this.talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService());
 			parserService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
