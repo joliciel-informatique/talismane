@@ -537,5 +537,17 @@ public interface TalismaneConfig {
 	 * @return
 	 */
 	public int getStartSentence();
+	
+	/**
+	 * Preload any lexicons or models required for this processing.
+	 */
+	public void preloadResources();
+	
+	/**
+	 * A base directory from which all relative path names will be read.
+	 * @return
+	 */
+	public File getBaseDir();
+	public void setBaseDir(File baseDir);
 
 }

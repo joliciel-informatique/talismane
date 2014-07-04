@@ -51,7 +51,9 @@ class SentenceImpl implements Sentence {
 	public int getOriginalIndex(int index) {
 		if (originalIndexes==null)
 			return -1;
-		if (index>=originalIndexes.size())
+		if (index==originalIndexes.size())
+			return originalIndexes.get(index-1)+1;
+		if (index>originalIndexes.size())
 			return -1;
 		return originalIndexes.get(index);
 	}

@@ -19,6 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -69,7 +70,7 @@ final class TokenImpl implements TokenInternal {
 	
 	private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
 	private double probability = -1;
-	private Set<String> attributes;
+	private Set<String> attributes = new HashSet<String>();
 	
 	private TalismaneService talismaneService;
 	
