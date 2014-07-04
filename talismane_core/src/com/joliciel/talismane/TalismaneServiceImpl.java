@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.File;
 import java.util.Map;
 
 import com.joliciel.talismane.filters.FilterService;
@@ -32,7 +33,6 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
-import com.joliciel.talismane.utils.StringUtils;
 
 class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokeniserService tokeniserService;
@@ -130,14 +130,13 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(String[] args,
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
 			LanguageSpecificImplementation implementation) {
-		Map<String, String> argMap = StringUtils.convertArgs(args);
-		return this.getTalismaneConfig(argMap, implementation);
+		return this.getTalismaneConfig(args, null, implementation);
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir,
 			LanguageSpecificImplementation implementation) {
 		TalismaneConfigImpl config = new TalismaneConfigImpl(implementation);
 		config.setTalismaneService(this);
@@ -153,6 +152,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setTokenFilterService(tokenFilterService);
 		config.setTokeniserPatternService(tokeniserPatternService);
 		config.setTokeniserService(tokeniserService);
+		config.setBaseDir(baseDir);
 		config.loadParameters(args);
 		return config;
 	}

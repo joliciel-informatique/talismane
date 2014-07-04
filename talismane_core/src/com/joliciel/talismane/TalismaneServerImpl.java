@@ -46,7 +46,6 @@ class TalismaneServerImpl implements TalismaneServer {
 	private boolean stopOnError = false;
 	private Reader reader;
 	private Writer writer;
-	private TalismaneSession talismaneSession = null;
 	
 	public TalismaneServerImpl(TalismaneConfig config) {
 		this.config = config;
@@ -60,31 +59,8 @@ class TalismaneServerImpl implements TalismaneServer {
 		ServerSocket serverSocket = null;
 		
 		try {        	
-        	LOG.info("Starting server - loading shared resources...");
-        	// ping the lexicon to load it
-        	talismaneSession.getLexicon();
-        	
-        	// ping the models to load them
-			if (config.needsSentenceDetector()) {
-				if (config.getSentenceDetector()==null) {
-					throw new TalismaneException("Sentence detector not provided.");
-				}
-			}
-			if (config.needsTokeniser()) {
-				if (config.getTokeniser()==null) {
-					throw new TalismaneException("Tokeniser not provided.");
-				}
-			}
-			if (config.needsPosTagger()) {
-				if (config.getPosTagger()==null) {
-					throw new TalismaneException("Pos-tagger not provided.");
-				}
-			}
-			if (config.needsParser()) {
-				if (config.getParser()==null) {
-					throw new TalismaneException("Parser not provided.");
-				}
-			}
+        	LOG.info("Starting server...");
+        	config.preloadResources();
         	
             serverSocket = new ServerSocket(port);
            	LOG.info("Server started. Waiting for clients...");
@@ -146,7 +122,6 @@ class TalismaneServerImpl implements TalismaneServer {
 
 	public void setTalismaneService(TalismaneServiceInternal talismaneService) {
 		this.talismaneService = talismaneService;
-		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
 
 	public SentenceProcessor getSentenceProcessor() {

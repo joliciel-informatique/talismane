@@ -291,12 +291,14 @@ class TokenPatternImpl implements TokenPattern {
 		}
 		this.addPattern(regexp, currentStart, currentEnd, parsedPattern, inException);
 
-		int i = 0;
-		LOG.debug("Parsed " + regexp);
-		for (Pattern pattern : parsedPattern) {
-			boolean test = indexesToTest.contains(i);
-			LOG.debug("Added " + pattern.pattern() + " Test? " + test);
-			i++;
+		if (LOG.isTraceEnabled()) {
+			int i = 0;
+			LOG.trace("Parsed " + regexp);
+			for (Pattern pattern : parsedPattern) {
+				boolean test = indexesToTest.contains(i);
+				LOG.trace("Added " + pattern.pattern() + " Test? " + test);
+				i++;
+			}
 		}
 		return parsedPattern;
 	}

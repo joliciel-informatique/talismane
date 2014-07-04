@@ -3,12 +3,15 @@ package com.joliciel.talismane;
 
 import java.util.List;
 import java.util.Scanner;
-import java.util.zip.ZipInputStream;
-
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.parser.TransitionSystem;
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -80,28 +83,28 @@ public interface LanguageSpecificImplementation {
 	public Scanner getDefaultParserRulesScanner();
 
 	/**
-	 * Return a ZipInputStream containing the default sentence model for this language.
+	 * The default sentence model for this language.
 	 * @return
 	 */
-	public ZipInputStream getDefaultSentenceModelStream();
+	public ClassificationModel<SentenceDetectorOutcome> getDefaultSentenceModel();
 
 	/**
-	 * Return a ZipInputStream containing the default tokeniser model for this language.
+	 * The default tokeniser model for this language.
 	 * @return
 	 */
-	public ZipInputStream getDefaultTokeniserModelStream();
+	public ClassificationModel<TokeniserOutcome> getDefaultTokeniserModel();
 
 	/**
-	 * Return a ZipInputStream containing the default pos-tagger model for this language.
+	 * The default pos-tagger model for this language.
 	 * @return
 	 */
-	public ZipInputStream getDefaultPosTaggerModelStream();
+	public ClassificationModel<PosTag> getDefaultPosTaggerModel();
 
 	/**
-	 * Return a ZipInputStream containing the default parser model for this language.
+	 * The default parser model for this language.
 	 * @return
 	 */
-	public ZipInputStream getDefaultParserModelStream();
+	public MachineLearningModel getDefaultParserModel();
 	
 	/**
 	 * Returns the default lexicon for this language.

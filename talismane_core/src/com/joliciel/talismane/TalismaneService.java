@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -28,6 +29,8 @@ import java.util.Map;
 public interface TalismaneService {
 	public TalismaneSession getTalismaneSession();
 	
-	public TalismaneConfig getTalismaneConfig(String[] args, LanguageSpecificImplementation implementation);
 	public TalismaneConfig getTalismaneConfig(Map<String,String> args, LanguageSpecificImplementation implementation);
+	
+	public TalismaneConfig getTalismaneConfig(Map<String,String> args, File baseDir, LanguageSpecificImplementation implementation);
+
 }

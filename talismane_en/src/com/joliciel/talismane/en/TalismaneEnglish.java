@@ -49,13 +49,19 @@ import com.joliciel.talismane.lexicon.DefaultPosTagMapper;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.other.Extensions;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.TransitionSystem;
+import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
+import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -71,10 +77,17 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	private TalismaneServiceLocator talismaneServiceLocator = null;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
+	private MachineLearningService machineLearningService;
 	private TalismaneService talismaneService;
 	private TalismaneSession talismaneSession;
 	
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
+	
+	private static ClassificationModel<SentenceDetectorOutcome> sentenceModel;
+	private static ClassificationModel<TokeniserOutcome> tokeniserModel;
+	private static ClassificationModel<PosTag> posTaggerModel;
+	private static MachineLearningModel parserModel;
+	private static PosTaggerLexicon lexicon;
 
 	private enum CorpusFormat {
 		/** Penn-To-Dependency CoNLL-X format */
@@ -192,22 +205,23 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	@Override
 	public PosTaggerLexicon getDefaultLexicon() {
 		try {
-			PosTagSet posTagSet = this.getDefaultPosTagSet();
-			this.getTalismaneSession().setPosTagSet(posTagSet);
-			
-			InputStream posTagMapStream = this.getDefaultPosTagMapFromStream();
-			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTagMapStream, "UTF-8")));
-			
-			PosTagMapper posTagMapper = new DefaultPosTagMapper(scanner, posTagSet);
-			
-			LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
-			
-			ZipInputStream zis = getZipInputStreamFromResource("dela-en.zip");
-
-			PosTaggerLexicon lexicon = deserializer.deserializeLexiconFile(zis);
-			lexicon.setPosTagSet(posTagSet);
-			lexicon.setPosTagMapper(posTagMapper);
-			
+			if (lexicon==null) {
+				PosTagSet posTagSet = this.getDefaultPosTagSet();
+				this.getTalismaneSession().setPosTagSet(posTagSet);
+				
+				InputStream posTagMapStream = this.getDefaultPosTagMapFromStream();
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTagMapStream, "UTF-8")));
+				
+				PosTagMapper posTagMapper = new DefaultPosTagMapper(scanner, posTagSet);
+				
+				LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
+				
+				ZipInputStream zis = getZipInputStreamFromResource("dela-en.zip");
+	
+				lexicon = deserializer.deserializeLexiconFile(zis);
+				lexicon.setPosTagSet(posTagSet);
+				lexicon.setPosTagMapper(posTagMapper);
+			}
 			return lexicon;
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
@@ -216,29 +230,44 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	}
 
 	@Override
-	public ZipInputStream getDefaultSentenceModelStream() {
-		String modelName = "sentence_penn_train_baseline_maxent_cut5.zip";
-		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
+	public ClassificationModel<SentenceDetectorOutcome> getDefaultSentenceModel() {
+		if (sentenceModel==null) {
+			String sentenceModelName = "sentence_penn_train_baseline_maxent_cut5.zip";
+			ZipInputStream zis = TalismaneEnglish.getZipInputStreamFromResource(sentenceModelName);
+			sentenceModel = this.getMachineLearningService().getClassificationModel(zis);
+		}
+		return sentenceModel;
 	}
 
 	@Override
-	public ZipInputStream getDefaultTokeniserModelStream() {
-		String modelName = "tokeniser_penn_train_baseline_maxent_cut5.zip";
-		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
+	public ClassificationModel<TokeniserOutcome> getDefaultTokeniserModel() {
+		if (tokeniserModel==null) {
+			String tokeniserModelName = "tokeniser_penn_train_baseline_maxent_cut5.zip";
+			ZipInputStream zis = TalismaneEnglish.getZipInputStreamFromResource(tokeniserModelName);
+			tokeniserModel = this.getMachineLearningService().getClassificationModel(zis);
+		}
+		return tokeniserModel;
 	}
 
 	@Override
-	public ZipInputStream getDefaultPosTaggerModelStream() {
-		String modelName = "posTagger_penn_train_baseline_maxent_cut5.zip";
-		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
+	public ClassificationModel<PosTag> getDefaultPosTaggerModel() {
+		if (posTaggerModel==null) {
+			String posTaggerModelName = "posTagger_penn_train_baseline_maxent_cut5.zip";
+			ZipInputStream zis = TalismaneEnglish.getZipInputStreamFromResource(posTaggerModelName);
+			posTaggerModel = this.getMachineLearningService().getClassificationModel(zis);
+		}
+		return posTaggerModel;
 	}
 
 	@Override
-	public ZipInputStream getDefaultParserModelStream() {
-		String modelName = "parser_penn_train_baseline_maxent_cut10.zip";
-		return TalismaneEnglish.getZipInputStreamFromResource(modelName);
+	public MachineLearningModel getDefaultParserModel() {
+		if (parserModel==null) {
+			String parserModelName = "parser_penn_train_baseline_maxent_cut10.zip";
+			ZipInputStream zis = TalismaneEnglish.getZipInputStreamFromResource(parserModelName);
+			parserModel = this.getMachineLearningService().getMachineLearningModel(zis);
+		}
+		return parserModel;
 	}
-
 
 	@Override
 	public List<TokenSequenceFilter> getDefaultTokenSequenceFilters() {
@@ -363,4 +392,15 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 		return talismaneSession;
 	}
 	
+	public MachineLearningService getMachineLearningService() {
+		if (machineLearningService==null) {
+			machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
+		}
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
 }

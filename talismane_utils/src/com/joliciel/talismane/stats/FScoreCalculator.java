@@ -431,6 +431,7 @@ public class FScoreCalculator<E> {
 	 * @return
 	 */
 	public double getAccuracy() {
+		this.evaluate();
 		double totalCount = (double) testCount;
 		double totalAccuracy = (double) totalTruePositiveCount / totalCount;
 		return totalAccuracy;
@@ -441,6 +442,7 @@ public class FScoreCalculator<E> {
 	 * @return
 	 */
 	public double getKappa() {
+		this.evaluate();
 		double totalCount = (double) testCount;
 		double totalAccuracy = (double) totalTruePositiveCount / totalCount;
 		
