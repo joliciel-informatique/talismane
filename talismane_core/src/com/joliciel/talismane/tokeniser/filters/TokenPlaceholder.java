@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.Map;
+
 /**
  * A place-holder that will be replaced by a proper token when tokenising.
  * @author Assaf Urieli
@@ -54,7 +56,14 @@ public interface TokenPlaceholder {
 	 * @return
 	 */
 	public boolean isPossibleSentenceBoundary();
-
 	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
+	
+	/**
+	 * Set of attributes to be assigned to tokens recognised by this regex filter.
+	 * @return
+	 */
+	Map<String,String> getAttributes();
+	public void addAttribute(String key, String value);
+
 
 }

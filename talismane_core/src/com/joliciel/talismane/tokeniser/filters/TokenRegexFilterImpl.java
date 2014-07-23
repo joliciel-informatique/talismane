@@ -18,7 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +34,13 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 	private String replacement;
 	private int groupIndex;
 	private boolean possibleSentenceBoundary = true;
+	private Map<String,String> attributes = new HashMap<String,String>();
 	
 	private TokenFilterServiceInternal tokeniserFilterService;
+	
+	public TokenRegexFilterImpl(String regex) {
+		this(regex, 0, null);
+	}
 	
 	public TokenRegexFilterImpl(String regex, String replacement) {
 		this(regex, 0, replacement);
@@ -62,6 +69,8 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 				String newText = RegexUtils.getReplacement(replacement, text, matcher);
 				TokenPlaceholder placeholder = this.tokeniserFilterService.getTokenPlaceholder(start, end, newText, regex);
 				placeholder.setPossibleSentenceBoundary(this.possibleSentenceBoundary);
+				for (String key : attributes.keySet())
+					placeholder.addAttribute(key, attributes.get(key));
 				placeholders.add(placeholder);
 			}
 			lastStart = start;
@@ -108,6 +117,19 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 	public int getGroupIndex() {
 		return groupIndex;
 	}
-	
+
+	public void setGroupIndex(int groupIndex) {
+		this.groupIndex = groupIndex;
+	}
+
+	@Override
+	public Map<String,String> getAttributes() {
+		return attributes;
+	}
+
+	@Override
+	public void addAttribute(String key, String value) {
+		attributes.put(key, value);
+	}
 	
 }

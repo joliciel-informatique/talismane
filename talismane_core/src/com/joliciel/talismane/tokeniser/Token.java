@@ -225,5 +225,6 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * in a search index, in the case of a recognised acronym).
 	 * @return
 	 */
-	Set<String> getAttributes();
+	Map<String,String> getAttributes();
+	public void addAttribute(String key, String value);
 }

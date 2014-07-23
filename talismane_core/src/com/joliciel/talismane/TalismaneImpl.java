@@ -127,10 +127,6 @@ class TalismaneImpl implements Talismane {
 
 		PerformanceMonitor.start(config.getPerformanceConfigFile());
 		try {
-			if (!config.getCommand().equals(Command.process)) {
-				// force a lexicon read at the start, so that it doesn't skew performance monitoring downstream
-				talismaneSession.getLexicon();
-			}
 			if (this.getSentenceProcessor()==null)
 				this.setSentenceProcessor(config.getSentenceProcessor());
 			if (this.getTokenSequenceProcessor()==null)

@@ -18,13 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class TokenPlaceholderImpl implements TokenPlaceholder {
 	private int startIndex;
 	private int endIndex;
 	private String replacement;
 	private String regex;
 	private boolean possibleSentenceBoundary;
-	
+	private Map<String,String> attributes = new HashMap<String,String>();
+
 	public TokenPlaceholderImpl() {
 	}
 	
@@ -100,5 +104,13 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 		this.possibleSentenceBoundary = possibleSentenceBoundary;
 	}
 	
-	
+	@Override
+	public Map<String,String> getAttributes() {
+		return attributes;
+	}
+
+	@Override
+	public void addAttribute(String key, String value) {
+		attributes.put(key, value);
+	}
 }

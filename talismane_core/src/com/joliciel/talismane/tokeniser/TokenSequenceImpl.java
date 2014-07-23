@@ -83,9 +83,11 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 				if (placeholder.getReplacement()!=null)
 					token.setText(placeholder.getReplacement());
 				
-				if (separatorPattern.matcher(token.getText()).matches()) {
+				for (String key : placeholder.getAttributes().keySet())
+					token.addAttribute(key, placeholder.getAttributes().get(key));
+				
+				if (separatorPattern.matcher(token.getText()).matches())
 					token.setSeparator(true);
-				}
 				
 				// skip until after the placeholder
 				i = placeholder.getEndIndex()-1;

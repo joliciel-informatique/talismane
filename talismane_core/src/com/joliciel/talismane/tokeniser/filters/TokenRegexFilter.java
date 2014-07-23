@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.Map;
+
 /**
  * A token filter which recognises a token based on a regular expression.
  * The regular expression can also give context, with the actual token identified by a group in the regex.
@@ -44,13 +46,19 @@ public interface TokenRegexFilter extends TokenFilter {
 	 * @return
 	 */
 	public int getGroupIndex();
+	public void setGroupIndex(int groupIndex);
 	
 	/**
 	 * Can this regex represent a sentence boundary (at its last character that is)?
 	 * @return
 	 */
 	public boolean isPossibleSentenceBoundary();
-
 	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
-
+	
+	/**
+	 * Set of attributes to be assigned to tokens recognised by this regex filter.
+	 * @return
+	 */
+	Map<String,String> getAttributes();
+	public void addAttribute(String key, String value);
 }

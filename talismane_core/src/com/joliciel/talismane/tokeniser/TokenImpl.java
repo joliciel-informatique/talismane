@@ -19,7 +19,6 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,7 +58,7 @@ final class TokenImpl implements TokenInternal {
 	private boolean whiteSpace = false;
 	private List<TokenPatternMatch> matches = null;
 	private Map<String, List<TokenPatternMatch>> matchesPerPattern = null;
-	private List<TaggedToken<TokeniserOutcome>> atomicDecisions = new ArrayList<TaggedToken<TokeniserOutcome>>();
+	private List<TaggedToken<TokeniserOutcome>> atomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
 	
 	private int startIndex = 0;
 	private int endIndex = 0;
@@ -70,7 +69,7 @@ final class TokenImpl implements TokenInternal {
 	
 	private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
 	private double probability = -1;
-	private Set<String> attributes = new HashSet<String>();
+	private Map<String,String> attributes = new HashMap<String,String>();
 	
 	private TalismaneService talismaneService;
 	
@@ -86,7 +85,7 @@ final class TokenImpl implements TokenInternal {
 		this.separator = tokenToClone.separator;
 		this.whiteSpace = tokenToClone.whiteSpace;
 		this.matches = tokenToClone.matches;
-		this.atomicDecisions = tokenToClone.atomicDecisions;
+		this.atomicParts = tokenToClone.atomicParts;
 		this.startIndex = tokenToClone.startIndex;
 		this.endIndex = tokenToClone.endIndex;
 		this.fileName = tokenToClone.fileName;
@@ -239,12 +238,31 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public List<TaggedToken<TokeniserOutcome>> getAtomicParts() {
-		return atomicDecisions;
+		return atomicParts;
 	}
 
 	public void setAtomicParts(
-			List<TaggedToken<TokeniserOutcome>> atomicDecisions) {
-		this.atomicDecisions = atomicDecisions;
+			List<TaggedToken<TokeniserOutcome>> atomicParts) {
+		this.atomicParts = atomicParts;
+		// add attributes assigned to the atomic part if there's only a single non-whitespace part
+		if (atomicParts!=null) {
+			int nonWhitespacePartCount = 0;
+			int attributeCount = 0;
+			for (TaggedToken<TokeniserOutcome> atomicPart : atomicParts) {
+				if (!atomicPart.getToken().isWhiteSpace()) {
+					nonWhitespacePartCount++;
+					attributeCount += atomicPart.getToken().getAttributes().size();
+				}
+			}
+			if (nonWhitespacePartCount>0 && attributeCount>0) {
+				for (TaggedToken<TokeniserOutcome> atomicPart : atomicParts) {
+					if (!atomicPart.getToken().isWhiteSpace()) {
+						for (String key : atomicPart.getToken().getAttributes().keySet())
+							this.addAttribute(key, atomicPart.getToken().getAttributes().get(key));
+					}
+				}
+			}
+		}
 	}
 
 
@@ -252,8 +270,8 @@ final class TokenImpl implements TokenInternal {
 	public double getProbability() {
 		if (probability<0) {
 			probability = 1;
-			if (this.atomicDecisions!=null) {
-				for (TaggedToken<TokeniserOutcome> atomicDecision : atomicDecisions) {
+			if (this.atomicParts!=null) {
+				for (TaggedToken<TokeniserOutcome> atomicDecision : atomicParts) {
 					probability *= atomicDecision.getDecision().getProbability();
 				}
 			}
@@ -401,10 +419,16 @@ final class TokenImpl implements TokenInternal {
 		return bestEntry;
 	}
 
-	public Set<String> getAttributes() {
+	@Override
+	public Map<String,String> getAttributes() {
 		return attributes;
 	}
 
+	@Override
+	public void addAttribute(String key, String value) {
+		attributes.put(key, value);
+	}
+	
 	public TalismaneService getTalismaneService() {
 		return talismaneService;
 	}

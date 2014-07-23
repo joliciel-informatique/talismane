@@ -25,6 +25,13 @@ public interface TokenFilterService {
 	public static final String TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY = "token_sequence_filter";
 	
 	/**
+	 * Like {@link #getTokenRegexFilter(String, int, String)}, but the group defaults to 0, and a null replacement.
+	 * @param regex
+	 * @return
+	 */
+	public TokenRegexFilter getTokenRegexFilter(String regex);
+	
+	/**
 	 * Like {@link #getTokenRegexFilter(String, int, String)}, but the group defaults to 0.
 	 * @param regex
 	 * @param replacement

@@ -18,8 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,25 +33,28 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 
 /**
- * A simplistic implementation of a Tokenizer, using general purpose heuristics for the tokenizing.
+ * A simplistic implementation of a Tokenizer, using only TokenFilters and default decisions.
  * @author Assaf Urieli
  *
  */
 class SimpleTokeniser implements Tokeniser {
-	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(SimpleTokeniser.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(SimpleTokeniser.class);
 	
-	private TokeniserServiceInternal tokeniserServiceInternal;
+	private TokeniserServiceInternal tokeniserService;
 	private FilterService filterService;
-	private List<TokenSequenceFilter> preprocessingFilters = new ArrayList<TokenSequenceFilter>();
 	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
-
-	private List<TokenFilter> preTokeniserFilters = new ArrayList<TokenFilter>();
 	
+	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
+	
+	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+
 	@Override
 	public List<TokenSequence> tokenise(String text) {
 		Sentence sentence = filterService.getSentence();
@@ -74,42 +81,81 @@ class SimpleTokeniser implements Tokeniser {
 	
 	@Override
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
-		// Initially, separate the sentence into tokens using the separators provided
-		TokenSequence tokenSequence = this.tokeniserServiceInternal.getTokenSequence(sentence, Tokeniser.SEPARATORS);
-		TokenisedAtomicTokenSequence taggedTokenSequence = this.tokeniserServiceInternal.getTokenisedAtomicTokenSequence(sentence, tokenSequence.size());
+		MONITOR.startTask("tokeniseWithDecisions");
+		try {
+			// apply any pre-tokenisation decisions via filters
+			// we only want one placeholder per start index - the first one that gets added
+			Map<Integer,TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
+			for (TokenFilter tokenFilter : this.tokenFilters) {
+				Set<TokenPlaceholder> myPlaceholders = tokenFilter.apply(sentence.getText());
+				for (TokenPlaceholder placeholder : myPlaceholders) {
+					if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
+						placeholderMap.put(placeholder.getStartIndex(), placeholder);
+					}
+				}
+				if (LOG.isTraceEnabled()) {
+					if (myPlaceholders.size()>0) {
+						LOG.trace("TokenFilter: " + tokenFilter);
+						LOG.trace("placeholders: " + myPlaceholders);
+					}
+				}
+			}
+			
+			Set<TokenPlaceholder> placeholders = new HashSet<TokenPlaceholder>(placeholderMap.values());
+			
+			// Initially, separate the sentence into tokens using the separators provided
+			TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS, placeholders);
+			
+			// apply any pre-processing filters that have been added
+			for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+				tokenSequenceFilter.apply(tokenSequence);
+			}
+			
+			List<TokenisedAtomicTokenSequence> sequences = null;
 
-		for (TokenSequenceFilter filter : preprocessingFilters)
-			filter.apply(tokenSequence);
-		
-		for (Token token : tokenSequence) {
-			Decision<TokeniserOutcome> decision;
-			if (token.getText().equals("'")) {
-				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.JOIN);
-			} else {
-				decision = tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.SEPARATE);
+			sequences = new ArrayList<TokenisedAtomicTokenSequence>();
+			TokenisedAtomicTokenSequence defaultSequence = tokeniserService.getTokenisedAtomicTokenSequence(sentence, 0);
+			for (Token token : tokenSequence.listWithWhiteSpace()) {
+				Decision<TokeniserOutcome> tokeniserDecision = this.tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.SEPARATE);
+				TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, tokeniserDecision);
+				defaultSequence.add(taggedToken);
 			}
-			TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserServiceInternal.getTaggedToken(token, decision);
-			taggedTokenSequence.add(taggedToken);
-		}
-		
-		List<TokenisedAtomicTokenSequence> sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-		sequences.add(taggedTokenSequence);
-		
-		for (TokenisedAtomicTokenSequence sequence : sequences) {
-			TokenSequence newTokenSequence = sequence.inferTokenSequence();
-			for (TokenSequenceFilter tokenFilter : this.preprocessingFilters) {
-				tokenFilter.apply(newTokenSequence);
+			sequences.add(defaultSequence);
+			
+			LOG.debug("####Final token sequences:");
+			int j=1;
+			for (TokenisedAtomicTokenSequence sequence : sequences) {
+				TokenSequence newTokenSequence = sequence.inferTokenSequence();
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Token sequence " + (j++));
+					LOG.debug("Atomic sequence: " + sequence);
+					LOG.debug("Resulting sequence: " + newTokenSequence);
+				}
+				// need to re-apply the pre-processing filters, because the tokens are all new
+				// Question: why can't we conserve the initial tokens when they haven't changed at all?
+				// Answer: because the tokenSequence and index in the sequence is referenced by the token.
+				// Question: should we create a separate class, Token and TokenInSequence,
+				// one with index & sequence access & one without?
+				for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+					tokenSequenceFilter.apply(newTokenSequence);
+				}
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("After filters: " + newTokenSequence);
+				}
 			}
+	
+			return sequences;
+		} finally {
+			MONITOR.endTask("tokeniseWithDecisions");
 		}
-		return sequences;
 	}
 	
 	public TokeniserServiceInternal getTokeniserServiceInternal() {
-		return tokeniserServiceInternal;
+		return tokeniserService;
 	}
 	public void setTokeniserServiceInternal(
 			TokeniserServiceInternal tokeniserServiceInternal) {
-		this.tokeniserServiceInternal = tokeniserServiceInternal;
+		this.tokeniserService = tokeniserServiceInternal;
 	}
 	
 	/**
@@ -117,15 +163,15 @@ class SimpleTokeniser implements Tokeniser {
 	 * @return
 	 */
 	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		return preprocessingFilters;
+		return tokenSequenceFilters;
 	}
 
-	public void setTokenSequenceFilters(List<TokenSequenceFilter> tokenFilters) {
-		this.preprocessingFilters = tokenFilters;
+	public void setTokenSequenceFilters(List<TokenSequenceFilter> tokenSequenceFilters) {
+		this.tokenSequenceFilters = tokenSequenceFilters;
 	}
 	
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.preprocessingFilters.add(tokenFilter);
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter) {
+		this.tokenSequenceFilters.add(tokenSequenceFilter);
 	}
 	
 	public void addObserver(ClassificationObserver<TokeniserOutcome> observer) {
@@ -133,11 +179,11 @@ class SimpleTokeniser implements Tokeniser {
 	}
 	
 	public List<TokenFilter> getTokenFilters() {
-		return preTokeniserFilters;
+		return tokenFilters;
 	}
 
 	public void addTokenFilter(TokenFilter filter) {
-		this.preTokeniserFilters.add(filter);
+		this.tokenFilters.add(filter);
 	}
 
 	public FilterService getFilterService() {

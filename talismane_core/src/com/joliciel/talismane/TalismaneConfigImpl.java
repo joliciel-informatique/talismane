@@ -128,6 +128,7 @@ import com.joliciel.talismane.tokeniser.TokenEvaluationObserver;
 import com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.tokeniser.Tokeniser.TokeniserType;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserGuessTemplateWriter;
@@ -288,6 +289,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private Set<ParseConfigurationFeature<?>> parserFeatures;
 	private TokeniserPatternManager tokeniserPatternManager;
 	private ClassificationEventStream classificationEventStream;
+	private TokeniserType tokeniserType = TokeniserType.pattern;
 	private PatternTokeniserType patternTokeniserType = PatternTokeniserType.Compound;
 
 	private boolean parserCorpusReaderFiltersAdded = false;
@@ -339,6 +341,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	TalismaneSession talismaneSession = null;
 	
 	File baseDir = null;
+	
+	boolean preloadLexicon = true;
 	
 	public TalismaneConfigImpl(LanguageSpecificImplementation implementation) {
 		this.implementation = implementation;
@@ -638,12 +642,17 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					for (String point : points)
 						perceptronObservationPoints.add(Integer.parseInt(point));
 				}
+				else if (argName.equals("tokeniserType")) {
+					tokeniserType = TokeniserType.valueOf(argValue);
+				}
 				else if (argName.equals("patternTokeniser"))
 					patternTokeniserType = PatternTokeniserType.valueOf(argValue);
 				else if (argName.equals("excludeFile")) {
 					excludeFileName = argValue;
 				} else if (argName.equals("port")) {
 					port = Integer.parseInt(argValue);
+				} else if (argName.equals("preloadLexicon")) {
+					preloadLexicon = argValue.equalsIgnoreCase("true");
 				} else {
 					System.out.println("Unknown argument: " + argName);
 					throw new RuntimeException("Unknown argument: " + argName);
@@ -1474,16 +1483,22 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public Tokeniser getTokeniser() {
 		try {
 			if (tokeniser==null) {
-				LOG.debug("Getting tokeniser model");
-				ClassificationModel<TokeniserOutcome> tokeniserModel = this.getTokeniserModel();
-				tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
-	
-				if (includeDetails) {
-					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
-					File detailsFile = new File(this.getOutDir(), detailsFilePath);
-					detailsFile.delete();
-					ClassificationObserver<TokeniserOutcome> observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
-					tokeniser.addObserver(observer);
+				if (tokeniserType==TokeniserType.simple) {
+					tokeniser = this.getTokeniserService().getSimpleTokeniser();
+				} else if (tokeniserType==TokeniserType.pattern) {
+					LOG.debug("Getting tokeniser model");
+					ClassificationModel<TokeniserOutcome> tokeniserModel = this.getTokeniserModel();
+					tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
+		
+					if (includeDetails) {
+						String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
+						File detailsFile = new File(this.getOutDir(), detailsFilePath);
+						detailsFile.delete();
+						ClassificationObserver<TokeniserOutcome> observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
+						tokeniser.addObserver(observer);
+					}
+				} else {
+					throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
 				}
 				
 				for (TokenFilter tokenFilter : this.getTokenFilters()) {
@@ -3076,13 +3091,16 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		return startSentence;
 	}
 
+
 	@Override
 	public void preloadResources() {
     	LOG.info("Loading shared resources...");
     	
-    	LOG.info("Loading lexicon");
-    	// ping the lexicon to load it
-    	talismaneSession.getLexicon();
+    	if (preloadLexicon) {
+	    	LOG.info("Loading lexicon");
+	    	// ping the lexicon to load it
+	    	talismaneSession.getLexicon();
+    	}
     	
     	// ping the models to load them
 		if (this.needsSentenceDetector()) {
