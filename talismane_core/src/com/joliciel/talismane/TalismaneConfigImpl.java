@@ -1212,7 +1212,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (inputRegex==null && inputPatternFilePath!=null && inputPatternFilePath.length()>0) {
 				Scanner inputPatternScanner = null;
 				File inputPatternFile = this.getFile(inputPatternFilePath);
-				inputPatternScanner = new Scanner(inputPatternFile);
+				inputPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(inputPatternFile), this.getInputCharset().name())));
 				if (inputPatternScanner.hasNextLine()) {
 					inputRegex = inputPatternScanner.nextLine();
 				}
@@ -1238,7 +1238,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (evaluationPatternFilePath!=null && evaluationPatternFilePath.length()>0) {
 					Scanner evaluationPatternScanner = null;
 					File evaluationPatternFile = this.getFile(evaluationPatternFilePath);
-					evaluationPatternScanner = new Scanner(evaluationPatternFile);
+					evaluationPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(evaluationPatternFile), this.getInputCharset().name())));
 					if (evaluationPatternScanner.hasNextLine()) {
 						evaluationRegex = evaluationPatternScanner.nextLine();
 					}
@@ -1416,7 +1416,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						if (tokenFiltersPath!=null && tokenFiltersPath.length()>0) {
 							LOG.debug("From: " + tokenFiltersPath);
 							File tokenFilterFile = this.getFile(tokenFiltersPath);
-							tokenFilterScanner = new Scanner(tokenFilterFile);
+							tokenFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokenFilterFile), this.getInputCharset())));
 						}
 					} else {
 						if (!tokenFiltersReplace) {
