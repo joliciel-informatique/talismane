@@ -54,14 +54,15 @@ class ParseEventStream implements ClassificationEventStream {
 	ParserServiceInternal parserServiceInternal;
 	MachineLearningService machineLearningService;
 	FeatureService featureService;
-
+	
 	int currentIndex;
+	int eventCount;
 	
 	ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
 		this.corpusReader = corpusReader;
 		this.parseFeatures = parseFeatures;
 	}
-
+	
 	@Override
 	public boolean hasNext() {
 		MONITOR.startTask("hasNext");
@@ -95,7 +96,8 @@ class ParseEventStream implements ClassificationEventStream {
 		try {
 			ClassificationEvent event = null;
 			if (this.hasNext()) {
-				LOG.debug("next event, configuration: " + currentConfiguration.toString());
+				eventCount++;
+				LOG.debug("Event " + eventCount + ": " + currentConfiguration.toString());
 		
 				List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
 				for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {

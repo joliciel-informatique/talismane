@@ -33,6 +33,8 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  *
  */
 public interface Tokeniser {
+	public static enum TokeniserType { simple, pattern };
+	
 	/**
 	 * A list of possible separators for tokens.
 	 */

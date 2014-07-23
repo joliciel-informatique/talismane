@@ -22,7 +22,7 @@ import java.util.Set;
 
 /**
  * A filter that takes raw text, and finds tokens in the text (which are indicated by placeholders).<br/>
- * Note that, in addition to indicating tokens,
+ * Note that, in addition to indicating tokens, it is possible to stipulate that
  * a sentence boundary will never be detected inside a placeholder.<br/>
  * Note that the tokeniser might still join the "atomic tokens" defined by the token filter
  * into larger tokens.

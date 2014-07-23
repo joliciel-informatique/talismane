@@ -48,6 +48,12 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		return placeholder;
 	}
 
+
+	@Override
+	public TokenRegexFilter getTokenRegexFilter(String regex) {
+		return this.getTokenRegexFilter(regex, 0, null);
+	}
+	
 	@Override
 	public TokenRegexFilter getTokenRegexFilter(String regex,
 			String replacement) {
@@ -68,6 +74,8 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		List<Class<? extends TokenSequenceFilter>> classes = new ArrayList<Class<? extends TokenSequenceFilter>>();
 		LanguageSpecificImplementation implementation = talismaneService.getTalismaneSession().getImplementation();
 		classes.addAll(implementation.getAvailableTokenSequenceFilters());
+		classes.add(LowercaseFilter.class);
+		classes.add(DiacriticRemover.class);
 		
 		for (Class<? extends TokenSequenceFilter> clazz : classes) {
 			if (descriptor.equals(clazz.getSimpleName())) {
@@ -115,13 +123,20 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 				filter = this.getTokenRegexFilter(parts[1], Integer.parseInt(parts[2]), parts[3]);
 			} else if (parts.length==3) {
 				filter = this.getTokenRegexFilter(parts[1], parts[2]);
+			} else if (parts.length==2) {
+				filter = this.getTokenRegexFilter(parts[1]);
 			} else {
-				throw new TalismaneException("Wrong number of arguments for " + TokenRegexFilter.class.getSimpleName() + ". Expected 3 or 4, but was " + parts.length);
+				throw new TalismaneException("Wrong number of arguments for " + TokenRegexFilter.class.getSimpleName() + ". Expected 2, 3 or 4, but was " + parts.length);
 			}
 			
 			for (String paramName : parameterMap.keySet()) {
+				String paramValue = parameterMap.get(paramName);
 				if (paramName.equals("possibleSentenceBoundary")) {
-					filter.setPossibleSentenceBoundary(Boolean.valueOf(parameterMap.get(paramName)));
+					filter.setPossibleSentenceBoundary(Boolean.valueOf(paramValue));
+				} else if (paramName.equals("group")) {
+					filter.setGroupIndex(Integer.parseInt(paramValue));
+				} else {
+					throw new TalismaneException("Unknown parameter: " + paramName);
 				}
 			}
 		} else {
