@@ -52,7 +52,7 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 			throw new TalismaneException("Cannot use an empty regex for a filter");
 		this.regex = regex;
 		this.groupIndex = groupIndex;
-		this.pattern = Pattern.compile(regex);
+		this.pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
 		this.replacement = replacement;
 	}
 

@@ -133,7 +133,7 @@ public class TokenPatternImplTest {
 	@Test
 	public void testGetParsedPattern() {
 		final String separators="[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
+		Pattern separatorPattern = Pattern.compile(separators, Pattern.UNICODE_CHARACTER_CLASS);
 		
 		List<String> testPatterns = new ArrayList<String>();
 		testPatterns.add(".+'.+");
@@ -269,7 +269,7 @@ public class TokenPatternImplTest {
 			}
 		};
 		
-		Pattern separatorPattern = Pattern.compile(separators);
+		Pattern separatorPattern = Pattern.compile(separators, Pattern.UNICODE_CHARACTER_CLASS);
 		TokenPatternImpl tokeniserPatternImpl = new TokenPatternImpl(".+'.+", separatorPattern);
 		tokeniserPatternImpl.setTokeniserPatternServiceInternal(tokeniserPatternService);
 		

@@ -260,7 +260,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+?)");
 			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+?)");
 			
-			this.pattern = Pattern.compile(regexWithGroups);
+			this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
 		}
 		return pattern;
 	}

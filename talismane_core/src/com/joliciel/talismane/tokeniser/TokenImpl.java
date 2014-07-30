@@ -43,7 +43,7 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 final class TokenImpl implements TokenInternal {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TokenImpl.class);
-	private static Pattern whiteSpacePattern = Pattern.compile("[\\s\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u202f\u205f\u3000\ufeff]+");
+	private static Pattern whiteSpacePattern = Pattern.compile("[\\s\ufeff]+", Pattern.UNICODE_CHARACTER_CLASS);
 
 	private String text;
 	private String originalText;
@@ -244,25 +244,6 @@ final class TokenImpl implements TokenInternal {
 	public void setAtomicParts(
 			List<TaggedToken<TokeniserOutcome>> atomicParts) {
 		this.atomicParts = atomicParts;
-		// add attributes assigned to the atomic part if there's only a single non-whitespace part
-		if (atomicParts!=null) {
-			int nonWhitespacePartCount = 0;
-			int attributeCount = 0;
-			for (TaggedToken<TokeniserOutcome> atomicPart : atomicParts) {
-				if (!atomicPart.getToken().isWhiteSpace()) {
-					nonWhitespacePartCount++;
-					attributeCount += atomicPart.getToken().getAttributes().size();
-				}
-			}
-			if (nonWhitespacePartCount>0 && attributeCount>0) {
-				for (TaggedToken<TokeniserOutcome> atomicPart : atomicParts) {
-					if (!atomicPart.getToken().isWhiteSpace()) {
-						for (String key : atomicPart.getToken().getAttributes().keySet())
-							this.addAttribute(key, atomicPart.getToken().getAttributes().get(key));
-					}
-				}
-			}
-		}
 	}
 
 

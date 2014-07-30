@@ -111,7 +111,7 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 			else 
 				regexWithGroups = regexWithGroups.replace("%MORPH%", "(.+)");
 			
-			this.pattern = Pattern.compile(regexWithGroups);
+			this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
 		}
 		return pattern;
 	}

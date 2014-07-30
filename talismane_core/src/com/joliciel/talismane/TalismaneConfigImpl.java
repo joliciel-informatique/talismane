@@ -1279,20 +1279,28 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				// get rid of duplicate white-space always
 				this.addTextMarkerFilter(this.getFilterService().getDuplicateWhiteSpaceFilter());
 	
-				for (int i=0; i<=1; i++) {
+				List<String> paths = new ArrayList<String>();
+				if (textFiltersPath!=null && textFiltersPath.length()>0) {
+					LOG.debug("textFiltersPath: " + textFiltersPath);
+					String[] parts = textFiltersPath.split(";");
+					for (String part : parts)
+						paths.add(part);
+				}
+				if (!textFiltersReplace) {
+					// default text filter path
+					paths.add("");
+				}
+				
+				for (String path : paths) {
 					LOG.debug("Text marker filters");
 					Scanner textFilterScanner = null;
-					if (i==0) {
-						if (textFiltersPath!=null && textFiltersPath.length()>0) {
-							LOG.debug("From: " + textFiltersPath);
-							File textFilterFile = this.getFile(textFiltersPath);
-							textFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(textFilterFile), this.getInputCharset().name())));
-						}
+					if (path.length()>0) {
+						LOG.debug("From: " + path);
+						File textFilterFile = this.getFile(path);
+						textFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(textFilterFile), this.getInputCharset().name())));
 					} else {
-						if (!textFiltersReplace) {
-							LOG.debug("From default");
-							textFilterScanner = this.implementation.getDefaultTextMarkerFiltersScanner();
-						}
+						LOG.debug("From default");
+						textFilterScanner = this.implementation.getDefaultTextMarkerFiltersScanner();
 					}
 					if (textFilterScanner!=null) {
 						while (textFilterScanner.hasNextLine()) {
@@ -1409,21 +1417,31 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (tokenFilters==null) {
 				List<String> tokenFilterDescriptors = new ArrayList<String>();
 				tokenFilters = new ArrayList<TokenFilter>();
-				for (int i=0; i<=1; i++) {
+				
+				List<String> paths = new ArrayList<String>();
+				if (tokenFiltersPath!=null && tokenFiltersPath.length()>0) {
+					LOG.debug("tokenFiltersPath: " + tokenFiltersPath);
+					String[] parts = tokenFiltersPath.split(";");
+					for (String part : parts)
+						paths.add(part);
+				}
+				if (!tokenFiltersReplace) {
+					// default token filters
+					paths.add("");
+				}
+				
+				for (String path : paths) {
 					LOG.debug("Token filters");
 					Scanner tokenFilterScanner = null;
-					if (i==0) {
-						if (tokenFiltersPath!=null && tokenFiltersPath.length()>0) {
-							LOG.debug("From: " + tokenFiltersPath);
-							File tokenFilterFile = this.getFile(tokenFiltersPath);
-							tokenFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokenFilterFile), this.getInputCharset())));
-						}
+					if (path.length()>0) {
+						LOG.debug("From: " + path);
+						File tokenFilterFile = this.getFile(path);
+						tokenFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokenFilterFile), this.getInputCharset())));
 					} else {
-						if (!tokenFiltersReplace) {
-							LOG.debug("From default");
-							tokenFilterScanner = this.implementation.getDefaultTokenFiltersScanner();
-						}
+						LOG.debug("From default");
+						tokenFilterScanner = this.implementation.getDefaultTokenFiltersScanner();
 					}
+					
 					if (tokenFilterScanner!=null) {
 						while (tokenFilterScanner.hasNextLine()) {
 							String descriptor = tokenFilterScanner.nextLine();

@@ -136,7 +136,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 				} else if (paramName.equals("group")) {
 					filter.setGroupIndex(Integer.parseInt(paramValue));
 				} else {
-					throw new TalismaneException("Unknown parameter: " + paramName);
+					filter.addAttribute(paramName, paramValue);
 				}
 			}
 		} else {

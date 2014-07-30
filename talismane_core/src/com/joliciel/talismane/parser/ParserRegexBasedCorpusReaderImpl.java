@@ -760,7 +760,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			regexWithGroups = regexWithGroups.replace(POSTAG_COMMENT_PLACEHOLDER, "(.*)");
 			regexWithGroups = regexWithGroups.replace(DEP_COMMENT_PLACEHOLDER, "(.*)");
 			
-			this.pattern = Pattern.compile(regexWithGroups);
+			this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
 		}
 		return pattern;
 	}
