@@ -213,7 +213,7 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 					sb.append('\\');
 					sb.append(c);
 				}
-				Pattern pattern = Pattern.compile("[" + sb.toString() + "]");
+				Pattern pattern = Pattern.compile("[" + sb.toString() + "]", Pattern.UNICODE_CHARACTER_CLASS);
 				this.separatorDefaultPatterns.put(entry.getKey(), pattern);
 			}
 			

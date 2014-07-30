@@ -34,9 +34,9 @@ import org.apache.commons.logging.LogFactory;
 class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 	private static final Log LOG = LogFactory.getLog(SentenceHolderImpl.class);
 	private TreeSet<Integer> sentenceBoundaries = new TreeSet<Integer>();
-	private static final Pattern duplicateWhiteSpacePattern = Pattern.compile("[" + Sentence.WHITE_SPACE + "\n\r]{2,}");
-	private static final Pattern openingWhiteSpacePattern = Pattern.compile("\\A([" + Sentence.WHITE_SPACE + "\n\r]+)");
-	private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "\n\r]+)\\z");
+	private static final Pattern duplicateWhiteSpacePattern = Pattern.compile("[" + Sentence.WHITE_SPACE + "\n\r]{2,}", Pattern.UNICODE_CHARACTER_CLASS);
+	private static final Pattern openingWhiteSpacePattern = Pattern.compile("\\A([" + Sentence.WHITE_SPACE + "\n\r]+)", Pattern.UNICODE_CHARACTER_CLASS);
+	private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "\n\r]+)\\z", Pattern.UNICODE_CHARACTER_CLASS);
 
 	private FilterService filterService;
 	

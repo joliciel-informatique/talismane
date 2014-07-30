@@ -80,7 +80,7 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	
 	private void initialise(String regex, int groupIndex) {
 		this.regex = regex;
-		this.pattern = Pattern.compile(regex);
+		this.pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
 		if (groupIndex<0) {
 			throw new TalismaneException("Cannot have a group index < 0: " + groupIndex);
 		}

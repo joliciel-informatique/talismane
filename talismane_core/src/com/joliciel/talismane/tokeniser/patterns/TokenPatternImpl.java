@@ -33,7 +33,7 @@ class TokenPatternImpl implements TokenPattern {
 	private static final Log LOG = LogFactory.getLog(TokenPatternImpl.class);
 	private String regexp;
 	private Pattern separatorPattern = null;
-	private static final Pattern whitespacePattern = Pattern.compile("\\s");
+	private static final Pattern whitespacePattern = Pattern.compile("\\s", Pattern.UNICODE_CHARACTER_CLASS);
 	private List<Pattern> parsedPattern = null;
 	private List<Integer> indexesToTest = new ArrayList<Integer>();
 	private List<Boolean> isSeparatorClassList = new ArrayList<Boolean>();
@@ -362,7 +362,7 @@ class TokenPatternImpl implements TokenPattern {
 				indexesToTest.add(parsedPattern.size());
 			}
 			
-			parsedPattern.add(Pattern.compile(regex));
+			parsedPattern.add(Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS));
 		}
 	}
 	

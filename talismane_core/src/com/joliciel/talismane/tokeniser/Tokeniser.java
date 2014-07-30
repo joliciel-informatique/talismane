@@ -38,7 +38,7 @@ public interface Tokeniser {
 	/**
 	 * A list of possible separators for tokens.
 	 */
-	public static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}«»_‒–—―‛“”„‟′″‴‹›‘’‚*\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u202f\u205f\u3000\ufeff]");
+	public static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}«»_‒–—―‛“”„‟′″‴‹›‘’‚*\ufeff]", Pattern.UNICODE_CHARACTER_CLASS);
 	
 	/**
 	 * Tokenise a given sentence. More specifically, return up to N most likely tokeniser decision sequences,
