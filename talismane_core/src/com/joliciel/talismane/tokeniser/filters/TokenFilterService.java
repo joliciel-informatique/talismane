@@ -20,6 +20,8 @@ package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.List;
 
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+
 public interface TokenFilterService {
 	public static final String TOKEN_FILTER_DESCRIPTOR_KEY = "token_filter";
 	public static final String TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY = "token_sequence_filter";
@@ -77,4 +79,8 @@ public interface TokenFilterService {
 	 * @return
 	 */
 	public TokenSequenceFilter getTokenSequenceFilter(List<TokenFilter> tokenFilters);
+	
+	public ExternalResourceFinder getExternalResourceFinder();
+	public void setExternalResourceFinder(
+			ExternalResourceFinder externalResourceFinder);
 }

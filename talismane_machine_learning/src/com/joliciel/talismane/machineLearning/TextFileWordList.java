@@ -23,9 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
@@ -33,63 +32,43 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * An external resource read from a text file.<br/>
+ * An external word list read from a text file.<br/>
+ * The first line must be "Type: WordList", otherwise an exception gets thrown.<br/>
  * The default name will be the filename.<br/>
  * If a line starts with the string "Name: ", the default name will be replaced by this name.<br/>
- * If a line starts with the string "Multivalued: true", an exception gets thrown.<br/>
  * All lines starting with # are skipped.<br/>
- * Any other line will be broken up by tabs:<br/>
- * One tab per key component, and the last tab is the class.<br/>
+ * All other lines contain words.
  * @author Assaf Urieli
  *
  */
-public class TextFileResource implements ExternalResource<String> {
+public class TextFileWordList implements ExternalWordList {
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(TextFileResource.class);
-	Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
-	Map<String, String> resultMap = new HashMap<String, String>();
+	private static final Log LOG = LogFactory.getLog(TextFileWordList.class);
+	List<String> wordList = new ArrayList<String>();
 	
 	private String name;
 	
-	public TextFileResource(File file) {
+	public TextFileWordList(File file) {
 		try {
 			this.name = file.getName();
 
 			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
-			int numParts = -1;
 			int i=1;
+			String firstLine = scanner.nextLine();
+			if (!firstLine.equals("Type: WordList")) {
+				throw new JolicielException("A word list file must start with \"Type: WordList\"");
+			}
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				if (line.length()>0 && !line.startsWith("#")) {
-					StringBuilder sb = new StringBuilder();
-					String[] parts = line.split("\t");
-					if (parts.length==1 && line.startsWith("Name: ")) {
+					if (line.startsWith("Name: ")) {
 						this.name = line.substring("Name: ".length());
 						i++;
 						continue;
 					}
-					if (parts.length==1 && line.startsWith("Multivalued: ")) {
-						boolean multivalued = line.substring("Multivalued: ".length()).equalsIgnoreCase("true");
-						if (multivalued)
-							throw new JolicielException("Did not expect multivalued resource");
-						i++;
-						continue;
-					}
-					if (numParts<0) numParts = parts.length;
-					if (parts.length!=numParts)
-						throw new JolicielException("Wrong number of elements on line " + i + " in file: " + file.getName() );
-
-					for (int j=0; j<numParts-1; j++) {
-						sb.append(parts[j]);
-						sb.append("|");
-					}
-					String key = sb.toString();
-					String value = parts[numParts-1];
-					resultMap.put(key, value);
-
+					wordList.add(line);
 				}
 				i++;
 			}
@@ -99,24 +78,16 @@ public class TextFileResource implements ExternalResource<String> {
 		}
 	}
 	
-	@Override
-	public String getResult(List<String> keyElements) {
-		StringBuilder sb = new StringBuilder();
-		for (String keyElement : keyElements) {
-			sb.append(keyElement);
-			sb.append("|");
-		}
-		String key = sb.toString();
-		String result = resultMap.get(key);
-
-		return result;
-	}
-	
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public List<String> getWordList() {
+		return wordList;
 	}
 
 }

@@ -30,12 +30,16 @@ import com.joliciel.talismane.LanguageSpecificImplementation;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.LogUtils;
 
 class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	private static final Log LOG = LogFactory.getLog(TokenFilterServiceImpl.class);
 	
 	private TalismaneService talismaneService;
+	private MachineLearningService machineLearningService;
+	private ExternalResourceFinder externalResourceFinder;
 	
 	@Override
 	public TokenPlaceholder getTokenPlaceholder(int startIndex, int endIndex,
@@ -65,6 +69,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 			int groupIndex, String replacement) {
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl(regex, groupIndex, replacement);
 		filter.setTokeniserFilterService(this);
+		filter.setExternalResourceFinder(this.getExternalResourceFinder());
 		return filter;
 	}
 
@@ -160,5 +165,24 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		this.talismaneService = talismaneService;
 	}
 	
+	public ExternalResourceFinder getExternalResourceFinder() {
+		if (this.externalResourceFinder==null) {
+			this.externalResourceFinder = this.machineLearningService.getExternalResourceFinder();
+		}
+		return externalResourceFinder;
+	}
 
+	public void setExternalResourceFinder(
+			ExternalResourceFinder externalResourceFinder) {
+		this.externalResourceFinder = externalResourceFinder;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
 }

@@ -62,6 +62,7 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.ExternalWordList;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -804,7 +805,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 			if (externalResourcePath!=null) {
 				externalResourceFinder = this.getMachineLearningService().getExternalResourceFinder();
-				File externalResourceFile = new File (externalResourcePath);
+				File externalResourceFile = this.getFile(externalResourcePath);
 				externalResourceFinder.addExternalResources(externalResourceFile);
 				
 				ExternalResourceFinder parserResourceFinder = this.getParserFeatureService().getExternalResourceFinder();
@@ -816,6 +817,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					posTaggerResourceFinder.addExternalResource(externalResource);
 					tokeniserResourceFinder.addExternalResource(externalResource);
 					sentenceResourceFinder.addExternalResource(externalResource);
+				}
+				
+				ExternalResourceFinder tokenFilterResourceFinder = this.getTokenFilterService().getExternalResourceFinder();
+				for (ExternalWordList externalWordList : externalResourceFinder.getExternalWordLists()) {
+					tokenFilterResourceFinder.addExternalWordList(externalWordList);
 				}
 			}
 		} catch (IOException e) {
