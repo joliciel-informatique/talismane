@@ -22,9 +22,11 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * An external resource which returns a (possibly empty) list of weighted classes matching
- * a list of key elements.
+ * An external resource which returns something (T) matching
+ * a list of key elements. The something could be a class (String), a value (Double),
+ * a List of Strings (multi-classes), etc.
  * @author Assaf Urieli
+ * @param T the something that is returned.
  *
  */
 public interface ExternalResource<T> extends Serializable {

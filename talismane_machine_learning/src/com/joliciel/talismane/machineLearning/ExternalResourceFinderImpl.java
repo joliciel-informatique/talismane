@@ -18,13 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +38,7 @@ import com.joliciel.talismane.utils.LogUtils;
 class ExternalResourceFinderImpl implements ExternalResourceFinder {
 	private static final Log LOG = LogFactory.getLog(ExternalResourceFinderImpl.class);
 	private Map<String,ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
+	private Map<String,ExternalWordList> wordListMap = new HashMap<String, ExternalWordList>();
 	
 	@Override
 	public ExternalResource<?> getExternalResource(String name) {
@@ -57,30 +61,10 @@ class ExternalResourceFinderImpl implements ExternalResourceFinder {
 			if (externalResourceFile.isDirectory()) {
 				File[] files = externalResourceFile.listFiles();
 				for (File resourceFile : files) {
-					LOG.debug("Reading " + resourceFile.getName());
-					if (resourceFile.getName().endsWith(".zip")) {
-						ZipInputStream zis = new ZipInputStream(new FileInputStream(resourceFile));
-						zis.getNextEntry();
-						ObjectInputStream ois = new ObjectInputStream(zis);
-						ExternalResource<?> externalResource = (ExternalResource<?>) ois.readObject();
-						this.addExternalResource(externalResource);
-					} else {
-						TextFileResource textFileResource = new TextFileResource(resourceFile);
-						this.addExternalResource(textFileResource);
-					}
+					this.addExternalResourceFromFile(resourceFile);
 				}
 			} else {
-				LOG.debug("Reading " + externalResourceFile.getName());
-				if (externalResourceFile.getName().endsWith(".zip")) {
-					ZipInputStream zis = new ZipInputStream(new FileInputStream(externalResourceFile));
-					zis.getNextEntry();
-					ObjectInputStream ois = new ObjectInputStream(zis);
-					ExternalResource<?> externalResource = (ExternalResource<?>) ois.readObject();
-					this.addExternalResource(externalResource);
-				} else {
-					TextFileResource textFileResource = new TextFileResource(externalResourceFile);
-					this.addExternalResource(textFileResource);
-				}
+				this.addExternalResourceFromFile(externalResourceFile);
 			}
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
@@ -89,5 +73,54 @@ class ExternalResourceFinderImpl implements ExternalResourceFinder {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private void addExternalResourceFromFile(File externalResourceFile) throws IOException, ClassNotFoundException {
+		LOG.debug("Reading " + externalResourceFile.getName());
+		if (externalResourceFile.getName().endsWith(".zip")) {
+			ZipInputStream zis = new ZipInputStream(new FileInputStream(externalResourceFile));
+			zis.getNextEntry();
+			ObjectInputStream ois = new ObjectInputStream(zis);
+			Object resourceObject = ois.readObject();
+			if (resourceObject instanceof ExternalResource) {
+				ExternalResource<?> externalResource = (ExternalResource<?>) resourceObject;
+				this.addExternalResource(externalResource);
+			} else if (resourceObject instanceof ExternalWordList) {
+				ExternalWordList externalWordList = (ExternalWordList) resourceObject;
+				this.addExternalWordList(externalWordList);
+			}
+		} else {
+			boolean wordList = false;
+			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(externalResourceFile), "UTF-8")));
+			if (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if (line.startsWith("Type: WordList")) {
+					wordList = true;
+				}
+			}
+			if (wordList) {
+				TextFileWordList textFileWordList = new TextFileWordList(externalResourceFile);
+				this.addExternalWordList(textFileWordList);
+			} else {
+				TextFileResource textFileResource = new TextFileResource(externalResourceFile);
+				this.addExternalResource(textFileResource);
+			}
+		}
+	}
+
+	@Override
+	public ExternalWordList getExternalWordList(String name) {
+		return this.wordListMap.get(name);
+	}
+
+	@Override
+	public void addExternalWordList(ExternalWordList externalWordList) {
+		LOG.debug("Adding word list with name: " + externalWordList.getName());
+		this.wordListMap.put(externalWordList.getName(), externalWordList);
+	}
+
+	@Override
+	public Collection<ExternalWordList> getExternalWordLists() {
+		return wordListMap.values();
 	}
 }

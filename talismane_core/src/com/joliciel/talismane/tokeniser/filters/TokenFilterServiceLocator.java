@@ -32,6 +32,7 @@ public class TokenFilterServiceLocator {
 		if (tokenFilterService==null) {
 			tokenFilterService = new TokenFilterServiceImpl();
 			tokenFilterService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
+			tokenFilterService.setMachineLearningService(talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return tokenFilterService;
 	}

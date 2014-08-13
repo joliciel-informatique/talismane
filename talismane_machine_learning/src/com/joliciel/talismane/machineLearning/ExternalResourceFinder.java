@@ -38,4 +38,10 @@ public interface ExternalResourceFinder {
 	public void addExternalResource(ExternalResource<?> externalResource);
 	
 	public Collection<ExternalResource<?>> getExternalResources();
+	
+	public ExternalWordList	getExternalWordList(String name);
+	
+	public void addExternalWordList(ExternalWordList externalWordList);
+	
+	public Collection<ExternalWordList> getExternalWordLists();
 }
