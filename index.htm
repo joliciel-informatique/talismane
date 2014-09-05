@@ -110,10 +110,9 @@
 <div style="width:800px;">
 <div align="center"><img src="pics/TalismaneLogo300px.png" width="300px"/></div>
 <div class="mainTitle">Talismane User's Manual</div>
-<div align="center">Version 1.5.3b</div>
+<div align="center">Version 1.8.6b</div>
 <br/>
 <div align="center"><b>Assaf Urieli</b> - CLLE-ERSS: CNRS & University of Toulouse. <tt>assaf.urieli@univ-tlse2.fr</tt></div>
-<div align="center"><b>Jean-Philippe Fauconnier</b> - IRIT: CNRS & University of Toulouse. <tt>jean-philippe.fauconnier@irit.fr</tt></div>
 <br/>
 <br/>
 <div align="center"><a href="http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html" target="_parent">Back to Talismane home page...</a></div>
@@ -146,7 +145,7 @@
 <p>More details on Talismane Sentence Detector configuration and usage can be found <a href="#sentenceDetector">here</a>.</p>
 
 <h2>Tokeniser</h2>
-<p>A <b>token</b> is a single syntaxic unit. While the vast majority of tokens are simply words, there can be exceptions: for example, in English, the two words "of course" form a single token, while in French, the single word "au" is composed of two tokens, "à" and "le". The Talismane Tokeniser takes a sentence as input, and transforms it into a sequence of tokens as output. It combines a pattern-based approach with a statistical approach. The patterns are language specific, and ensure that only areas where any doubt exists concerning the tokenisation are actually tested statistically.</p>
+<p>A <b>token</b> is a single syntaxic unit. While the vast majority of tokens are simply words, there can be exceptions: for example, in English, the two words "of course" form a single token, while in French, the single word "au" is composed of two tokens, "à" and "le". The Talismane Tokeniser takes a sentence as input, and transforms it into a sequence of tokens as output. It combines a pattern-based approach with (optionally) a statistical approach. The patterns are language specific, and ensure that only areas where any doubt exists concerning the tokenisation are actually tested statistically.</p>
 <p>The default French implementation thus comes with a list of patterns for French. The statistical model was trained using a modified version of the <a href="#ftb">French Treebank</a> [Abeillé and Clément, 2003]. This modified version  includes specific tokenising decisions about each pattern-matching sequence in the treebank, which don't necessarily match the French Treebank's initial decision on what consists in a "compound word".</p>
 <p>More details on Talismane Tokeniser configuration and usage can be found <a href="#tokeniser">here</a>.</p>
 
@@ -187,6 +186,13 @@ You are free to copy, distribute and transmit the work, and to adapt the work un
 <h2>How to cite Talismane?</h2>
 <p>To cite Talismane, please use the following publication:</p>
 <div class="reference">Assaf Urieli. Robust French syntax analysis: reconciling statistical methods and linguistic knowledge in the Talismane toolkit. PhD thesis, Université de Toulouse II le Mirail, 2013.</div>
+<p>You may use the following bibtex:</p>
+<pre>@phdthesis{Urieli2013Talismane,
+  title={Robust French syntax analysis: reconciling statistical methods and linguistic knowledge in the Talismane toolkit},
+  author={Urieli, Assaf},
+  year={2013},
+  school={Universit{\'e} de Toulouse II le Mirail}
+}</pre>
 
 <h2>Typographic conventions</h2>
 <p>Various typographic conventions will be used in the present document.</p>
@@ -201,13 +207,13 @@ user@computer:~$ command</pre>
 <h1>Basic usage</h1>
 
 <h2>Installation</h2>
-<li>Talismane requires Java version 6 or higher. Various versions of the Java JDK are available <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>.
+<li>Talismane requires Java version 7 or higher. Various versions of the Java JDK are available <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>.
 In order to check your Java version, type:</li>
 <pre class="shell">
 java -version</pre>
 
 <h3>From a precompiled executable</h3>
-<p>The simplest way to use Talismane is by downloading the pre-compiled executable. The latest stable Talismane suite is on the CLLE-ERSS REDAC site at: <a href="http://redac.univ-tlse2.fr/applications/talismane.html">http://redac.univ-tlse2.fr/applications/talismane.html</a>.</p>
+<p>The simplest way to use Talismane is by downloading the pre-compiled executable in the GitHub releases section.</p>
 <li>Assuming you want to use Talismane to pos-tag or parse French texts, simply download the latest version of the default French implementation, <tt>talismane-fr-<i>version</i>-allDeps.jar</tt> from the website above.</li>
 <li>Place the jar file in a directory of your choice, here <tt>Talismane</tt>:</li>
 <pre class="shell">
@@ -217,7 +223,7 @@ cd Talismane</pre>
 <li>In the same directory create a file, <tt>test.txt</tt>, containing the text "Les poules du couvent couvent."</li>
 <li>Attempt to pos-tag this file using <b>talismane-fr-<i>version</i>-allDeps.jar</b>:</li>
 <pre class="shell">
-java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse endModule=postag inFile=test.txt outFile=output.txt</pre>
+java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse endModule=postag inFile=test.txt outFile=output.txt</pre>
 <li>Check that the file <tt>output.txt</tt> was generated, and that is contains the pos-tagged text.</li>
 
 <h3>From the sources using Git</h3>
@@ -233,10 +239,8 @@ git clone https://github.com/urieli/Talismane</pre>
 ant -version</pre>
 <li>Next, if <tt>Ant</tt> is correctly installed, go to the Talismane folder and generate the jar. On Linux, issue the following command:</li>
 <pre class="shell">
-ant -lib ant/</pre>
-<li>On Windows, issue the following command:</li>
-<pre class="shell">
-ant -lib=ant</pre>
+ant clean
+ant jar</pre>
 <li>Check that the <b>talismane-fr-<i>version</i>.jar</b> file has been generated in the <tt>dist</tt> directory.</li>
 <pre class="shell">
 cd dist
@@ -244,7 +248,7 @@ ls</pre>
 <li>In the <tt>dist</tt> directory, create a file, <tt>test.txt</tt>, containing the text "Les poules du couvent couvent."</li>
 <li>Attempt to pos-tag this file using <b>talismane-fr-<i>version</i>-allDeps.jar</b>:</li>
 <pre class="shell">
-java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse endModule=postag inFile=test.txt outFile=output.txt</pre>
+java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse endModule=postag inFile=test.txt outFile=output.txt</pre>
 <li>Check that the file <tt>output.txt</tt> was generated in the <tt>dist</tt> directory, and that is contains the pos-tagged text.</li>
 
 <h2>Quick start</h2>
@@ -254,7 +258,7 @@ java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse endM
 <p>First, you will parse a French sentence.</p>
 <p>Talismane can either work with input and/or output files, or directly from the shell using the standard streams <a href="http://en.wikipedia.org/wiki/Standard_streams">STDIN and STDOUT</a>.</p>
 <pre class="shell">
-echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse
+echo "Les poules du couvent couvent." | java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse
 1       Les     les     DET     det     n=p     2       det     _       _
 2       poules  poule   NC      nc      g=f|n=p 5       suj     _       _
 3       du      de      P+D     P+D     g=m|n=s 2       dep     _       _
@@ -263,23 +267,23 @@ echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>vers
 6       .       .       PONCT   PONCT   _       5       ponct   _       _</pre>
 
 <div class="alert">
-<b>Memory management</b>: in order to increase execution speed, Talismane first loads all lexical resources into memory. For the default French implementation, at least <tt>1Gb</tt> of runtime memory needs to be allocated to the java executable. Hence the addition of the parameter <b>-Xmx1024M</b>.
+<b>Memory management</b>: in order to increase execution speed, Talismane first loads all lexical resources into memory. For the default French implementation, at least <tt>1Gb</tt> of runtime memory needs to be allocated to the java executable. Hence the addition of the parameter <b>-Xmx1G</b>.
 </div>
 
 <h4>stdin and stdout</h4>
 <p>Whether or not Talismane uses stdin and stdout depends on the inclusion of the arguments <b>inFile</b> and <b>outFile</b>.</p>
 <p>The following command takes a text file as entry, <tt>test.txt</tt>, and outputs the result into the current shell.</p>
 <pre class="shell">
-java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse inFile=test.txt </pre>
+java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse inFile=test.txt </pre>
 <p>Conversely, the following command takes the value of <tt>echo</tt> command as input, processes it, and stores the result in <tt>output.txt</tt>.</p>
 <pre class="shell">
-echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse outFile=output.txt</pre>
+echo "Les poules du couvent couvent." | java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse outFile=output.txt</pre>
 <p>This command has an identical result to the previous command, but uses <a href="http://en.wikibooks.org/wiki/Bourne_Shell_Scripting/Files_and_streams">stream redirection</a> to write the output to the file <tt>output.txt</tt>:</p>
 <pre class="shell">
-echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse > output.txt</pre>
+echo "Les poules du couvent couvent." | java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse > output.txt</pre>
 <p>Finally, this command reads the sentences from one file, and writes the parsed result to another:</p>
 <pre class="shell">
-java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse inFile=test.txt outFile=output.txt</pre>
+java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse inFile=test.txt outFile=output.txt</pre>
 
 <div class="alert">
 <b>File management</b>: if inFile is specified, it must actually exist on the file system. On the other hand, outFile need not exist. If it does exist, the existing outFile will be deleted, and replaced by a new one.
@@ -292,7 +296,7 @@ java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse inFi
 
 <p>For example, the following command allows us to recuperate the <b>2nd</b> column (the token) and the <b>4th</b> column (the postag) from the parser's default output:</p>
 <pre class="shell">
-echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse | cut -f2,4
+echo "Les poules du couvent couvent." | java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse | cut -f2,4
 Les       DET
 poules    NC
 du        P+D
@@ -302,10 +306,10 @@ couvent   V
 
 <p>While this command replaces <tt>DET</tt> by <tt>DETERMINANT</tt>.</p>
 <pre class="shell">
-echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse | perl -pe 's/DET/DETERMINANT/g</pre>
+echo "Les poules du couvent couvent." | java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse | perl -pe 's/DET/DETERMINANT/g</pre>
 <p>Finally, this command gives the total number of tokens and sentences processed:</p>
 <pre class="shell">
-echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse | perl -pe 'END{print "tokens:$i\nsentences:$p\n"} if (/^\r$/) {$p++} else {$i++}'</pre>
+echo "Les poules du couvent couvent." | java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse | perl -pe 'END{print "tokens:$i\nsentences:$p\n"} if (/^\r$/) {$p++} else {$i++}'</pre>
 
 <a name="arguments"></a>
 <h3>Arguments</h3>
@@ -315,10 +319,13 @@ echo "Les poules du couvent couvent." | java -Xmx1024M -jar talismane-fr-<i>vers
 <li><tt>command=evaluate</tt>: allows the user to evaluate Talismane's performance on a text that has been manually annotated. This advanced usage is described in the section on <a href="#auto-evaluation">auto-evaluation</a>, below.</li>
 <li><tt>command=process</tt>: simply use Talismane to read an annotated file and process it in a way defined by sub-classes. By default, the file will simply be outputted again. The input/output format can be changed to transform from one format to another.</li>
 <li><tt>command=compare</tt>: similar to the <tt>evaluate</tt> command, but uses one annotated file as a "reference", and another annotated file as an "evaluation". This advanced usage is described in the section on <a href="#auto-evaluation">auto-evaluation</a>, below.</li>
+<li><tt>command=train</tt>: used to train a new model from a training corpus. This advanced usage is described in the section on <a href="#training">training</a>, below.</li>
+
 <p>In all operating modes, various additional arguments can be used to modify Talismane's behaviour. Details on these arguments are provided in the following sections.</p>
 
 <h4>Arguments shared by all modes</h4>
-<li><b>inFile</b>: the input file to be processed. If not specified, <tt>stdin</tt> will be used as input.</li>
+<li><b>inFile</b>: the input file to be processed. If neither <tt>inFile</tt> nor <tt>inDir</tt> are specified, <tt>stdin</tt> will be used as input.</li>
+<li><b>inDir</b>: An alternative to <tt>inFile</tt> specifying all of the files recursively found in a given directory. Talismane will process them one by one in alphabetical order. In modes, such as analysis, generating an output file, there will be a separate output file per input file, using the same file name prefix, and keeping the same recursive directory tree in <tt>outDir</tt>.</li>
 <li><b>startModule/endModule</b>: the variables <tt>startModule</tt> and <tt>endModule</tt> designate the sequence of operations to perform on the input data. The options are <tt>sentence</tt>, <tt>tokenise</tt>, <tt>postag</tt> and <tt>parse</tt>. For example, if you start with text that has already been separated into one sentence per line, and you want to tokenise and pos-tag these sentences, you would choose <tt>startModule=tokenise</tt> and <tt>endModule=postag</tt>. By default, the <tt>startModule</tt> is <tt>sentence</tt> (break up raw text into sentences) and the <tt>endModule</tt> is <tt>parse</tt> (generate a dependency tree for each sentence).
 Note that, if you choose a start module other than <tt>sentence</tt>, a certain default data format is assumed for the input file. This default data format can be overridden by using the optional <tt>inputPatternFile</tt> argument described in the section on <a href="#inputTemplate">input templates</a>.</li>
 <li><b>module</b>: A shortcut for indicating that the <tt>startModule</tt> and <tt>endModule</tt> are the same. Often used for evaluation, when evaluating a single module only.</li>
@@ -330,15 +337,21 @@ Note that, if you choose a start module other than <tt>sentence</tt>, a certain 
 <li><b>logStats</b>: if "true", log the total time (in milliseconds) to a CSV file in the output directory.</li>
 <li><b>logConfigFile</b>: allows the user to specify a <a href="http://logging.apache.org/log4j/2.x/manual/configuration.html">log4j configuration file</a> that will override the default log4j config file included in the JARs.</li>
 <li><b>performanceConfigFile</b>: allows the user to monitor performance, using a performance configuration file. See <a href="#performanceMonitoring">performance monitoring</a> below.</li>
+<li><b>lexiconDir</b>: a directory containing lexicons to be used by Talismane for all lexicon-based functionality (various features, rules and filters). This can replace the built-in lexicon for the current language by prefixing the directory path with the string "replace:".</li>
+<li><b>externalResources</b>: a path to a directory or file containing external resources (other than the lexicon). These can either be word lists, described in the section on <a href="#tokenFilters">token filters</a>, or external resources for features, described in the section on <a href="#externalResources">External Resources</a>. Note that external resources loaded when training will automatically be included with the training model, so there is no need to specify them again when analysing.</li>
+<li><b>dependencyLabels</b>: for languages without a default set of dependency labels, a path to a file containing these labels, as a simple newline-separated list.</li>
 
 <h4>Arguments shared by analysis and process mode</h4>
 <li><b>outFile</b>: the path to the output file. If not specified, <tt>stdout</tt> will be used for output. If the file already exists, it will first be deleted.</li>
 <li><b>template</b>: designates the path of a <a href="http://freemarker.sourceforge.net/">Freemarker</a> template file to be used for formatting Talismane's output. If not provided, there is a default internal template for each endModule type. More details can be found in the section on <a href="#outputTemplate">output templates</a>.</li>
-<li><b>builtInTemplate</b>: one of the available built-in templates for output - currently the only available template is <tt>with_location</tt>, which adds token location information (file name, row, column) to the standard output templates.</li>
+<li><b>builtInTemplate</b>: one of the available built-in templates for output. Three built-in templates are currently available: <tt>with_location</tt>, which adds token location information (file name, row, column) to the standard CoNLL-X output templates, <tt>with_prob</tt>, which adds tokeniser, pos-tagger and parser probabilities to the standard CoNLL-X output templates, and <tt>with_comments</tt>, which preserves any comments read from the annotated input file in the annotated output file.</li>
+<li><b>mode</b>: <tt>normal</tt> or <tt>server</tt>. The default is <tt>normal</tt>. If server mode is specified, Talismane runs in as a server in a client/server application, listening on a socket. For more details, see <a href="#serverMode">Running Talismane in Server mode</a>.</li>
+<li><b>port</b>: If running Talismane in <tt>server</tt> mode, the port on which Talismane listens. The default is 7272.</li>
 
 <h4>Arguments used by analysis mode only</h4>
-<li><b>textFilters</b>: a path to a file containing various filters (generally regular-expression based) used to mark sections of the input data for processing or skipping. Other marks are available as well (e.g. output as raw text, insert a sentence break, etc.). More information can be found in the section on <a href="#filters">text filters</a>.</li>
-<li><b>tokenFilters</b>: a path to a file containing various filters (generally regular-expression based) used to mark parts of the input data that should be processed as single tokens (e.g. URLs). More information can be found in the section on <a href="#tokenFilters">token filters</a>.</li>
+<li><b>textFilters</b>: a path to a file containing descriptors for various filters (generally regular-expression based) used to mark sections of the input data for processing or skipping. Other marks are available as well (e.g. output as raw text, insert a sentence break, etc.). More information can be found in the section on <a href="#filters">text filters</a>.</li>
+<li><b>tokenFilters</b>: a path to a file containing descriptors for various filters (generally regular-expression based) used to mark parts of the input data that should be processed as single tokens (e.g. URLs). More information can be found in the section on <a href="#tokenFilters">token filters</a>.</li>
+<li><b>tokenSequenceFilters</b>: a path to a file containing descriptors for various filters used to transform the token sequence as a whole after tokenisation. More information can be found in the section on <a href="#tokenSequenceFilters">token sequence filters</a>.</li>
 <li><b>processByDefault</b>: if true, the input file/stream will be processed by default (and text marker filters can be used to indicate sections to be skipped). If false, the input file/stream will NOT be processed by default (and text marker filters cna be used to indicate sections to be processed). More details on text maker filters can be found in the section on <a href="#filters">text maker filters</a>. The default is "true".</li>
 <li><b>newline</b>: how to handle newlines in the document. Either <tt>SENTENCE_BREAK</tt>, <tt>SPACE</tt> or <tt>NONE</tt>. If <tt>SENTENCE_BREAK</tt>, newlines are skipped and replaced by a sentence break (the default behaviour). If <tt>SPACE</tt>, newlines are skipped and replaced by a space. If <tt>NONE</tt>, Talismane does nothing to newlines - the user will have to handle them via text marker filters. The default is <tt>SENTENCE_BREAK</tt>.</li>
 <li><b>fileName</b>: the file name to be tagged against each token during analysis - especially useful if <tt>stdin</tt> is used instead of <tt>inFile</tt>.</li>
@@ -348,10 +361,17 @@ and the next block prior to sentence detection, in order to ensure that a filter
 It is not legal to have a filter which matches text greater than a block size, since this could result in a filter which stops analysis but doesn't start it again correctly,
 or vice versa. Block size can be increased if really big filters are really required. Default is 1000.</li>
 
-<h4>Arguments used by evaluate mode only</h4>
+<h4>Arguments used by process mode only</h4>
+<li><b>option</b>: various processing options included in Talismane by default. These are: <tt>posTagFeatureTester</tt> and <tt>parseFeatureTester</tt>. These options allow you to test a certain feature set on an annotated corpus, and see what results the features produce on a per-outcome basis. For more details, see <a href="#featureTesting">Feature Testing</a>.</li>
+<li><b>testWords</b>: the words to test when testing pos-tagger features. For more details, see <a href="#featureTesting">Feature Testing</a>.</li>
+
+<h4>Arguments used by evaluate, train, compare and process modes</h4>
 <li><b>crossValidationSize</b>: the number of parts to use for a cross-validation.</li>
 <li><b>includeIndex</b>: if crossValidationSize&gt;0, the index of the sentence to include, if we start counting at 0 and reset at zero after reaching the crossValidationSize. Typically used for evaluation only.</li>
 <li><b>excludeIndex</b>:  if crossValidationSize&gt;0, the index of the sentence to exclude, if we start counting at 0 and reset at zero after reaching the crossValidationSize. Typically used for training only.</li>
+<li><b>startSentence</b>: the first sentence to process, with the first sentence in the corpus getting index 1.</li>
+<li><b>sentenceCount</b>: the maximum number of sentences to process.</li>
+<li><b>predictTransitions</b>: true|false. Should an attempt be made to the predict the transitions that led to the sentence in an annotated corpus, or should dependencies simply be added with null transitions. The default is <tt>true</tt> if the end module is the parser. However, this needs to be set to <tt>false</tt> if not required, or if the annotated corpus contains any non-projective arcs, since Talismane cannot currently predict them. The value must be <tt>true</tt> for training.</li>
 
 <h4>Arguments shared by evaluate and compare modes</h4>
 <li><b>outDir</b>: The path to the output directory. When auto-evaluation is complete, this directory will contain two files: <tt><i>inFileName</i>.fscores.csv</tt>, a confusion matrix showing the error counts for each possible classification, and <tt><i>inFileName</i>_sentences.csv</tt>, containing the full set of evaluated sentences. More details are available in the section on <a href="#auto-evaluation-output">auto-evaluation output</a>.</li>
@@ -359,8 +379,8 @@ or vice versa. Block size can be increased if really big filters are really requ
 
 <h4>Arguments shared by analyse and evaluate modes</h4>
 <li><b>includeDetails</b>: enables the user to obtain a very detailed analysis on how Talismane obtained the results it displays. More information can be found in the section on <a href="#includeDetails">detailed analysis output</a>.</li>
-<li><b>posTaggerRules</b>: a path to a file containing a set of rules that systematically override decisions made by the pos-tagger's statistical model. More information can be found in the section on <a href="#rules">pos-tagger rules</a>.</li>
-<li><b>parserRules</b>: a path to a file containing a set of rules that systematically override decisions made by the parser's statistical model. More information can be found in the section on <a href="#rules">parser rules</a>.</li>
+<li><b>posTaggerRules</b>: a path to a file containing a set of rules that systematically override decisions made by the pos-tagger's statistical model. These can either augment or replace the default rules for a given language. More information can be found in the section on <a href="#rules">pos-tagger rules</a>.</li>
+<li><b>parserRules</b>: a path to a file containing a set of rules that systematically override decisions made by the parser's statistical model. These can either augment or replace the default rules for a given language. More information can be found in the section on <a href="#rules">parser rules</a>.</li>
 <li><b>sentenceModel, tokeniserModel, posTaggerModel, parserModel</b>: enables the user to override the default statistical model included with the default implementation, with another model. This is very advanced functionality, as it assumes the user has been able to train the model using Talismane's training interface. More information can be found in the section on <a href="#training">training a new model</a>.</li>
 <li><b>posTagSet</b>: enables the user to override the default tagset used by Talismane. For very advanced usage only, as changing the tagset implies using a statistical model that has been trained against the new tagset using Talismane's training interface.</li>
 <li><b>beamWidth</b>: the beam width to apply to the pos-tagger and parser. The default is 1.</li>
@@ -374,11 +394,15 @@ or vice versa. Block size can be increased if really big filters are really requ
 Will be ignored is set to 0.<br/>
 If analysis jumps out because of free memory descends below this limit,
 there will be a parse-forest instead of a parse-tree, with several nodes left unattached. Default is 64k.</li>
+<li><b>includeTransitionLog</b>: If <tt>true</tt>, will write a file (ending with "_transitions.csv") which lists the full transition sequence applied by Talismane.</li>
 
-<h4>Arguments used by the compare module only</h4>
+<h4>Arguments used by the compare mode only</h4>
 <li><b>evaluationFile</b>: wherease <tt>inFile</tt> refers to the reference file, <tt>evaluationFile</tt> refers to the file to be evaluated compared to this reference</li>
 <li><b>evaluationPatternFile</b>: like <tt>inputPatternFile</tt> for the evaluation file, if a different pattern is required. Default: get value from <tt>inputPatternFile</tt>.</li>
 <li><b>evaluationPattern</b>: like <tt>inputPattern</tt> for the evaluation file, if a different pattern is required. Default: get value from <tt>inputPattern</tt>.</li>
+
+<h4>Arguments used by the train mode only</h4>
+<p>There are many arguments used by the <tt>train</tt> mode only, including training algorithm parameters. These are described in more detail in the section on <a href="#trainingParameters">Training parameters</a>.</p>
 
 <h2>Default configuration</h2>
 <h3>Introduction</h3>
@@ -595,7 +619,7 @@ In this case, you would set the <tt>startModule</tt> argument to <tt>tokeniser</
 <a name="filters"></a>
 <h2>Filtering the input: text marker filters</h2>
 <p>Many input texts have sections that need to be parsed and other sections that should be skipped or replaced. For example, in XML, it may only be necessary to parse text contained between certain tags, and to skip certain tags inside that text.</p>
-<p>The simplest way to do this is by applying regular expression filters to the raw text, using the <tt>textFilters</tt> argument.</p>
+<p>The simplest way to do this is by applying regular expression filters to the raw text, using the <tt>textFilters</tt> argument. The indicated text marker filters will either precede the default filters for a given language, or replace them. In the latter case, the file path should be preceded with the string "replace:".</p>
 <p>The <tt>textFilters</tt> file has the following tab-delimited format per line:</p>
 <pre><i>FilterType</i>	<i>Markers</i>	<i>Regex</i>	<i>GroupNumber*</i>	<i>Replacement</i></pre>
 <p>The meaning of these fields is given below:</p>
@@ -667,23 +691,44 @@ RegexMarkerFilter SPACE	[^-\r\n](\r\n|[\r\n])	1</pre>
 <li>To stop outputting raw text when we reach the XML tag <tt>&lt;/marker&gt;</tt>:</li>
 <pre>RegexMarkerFilter	START,OUTPUT_STOP	&lt;/marker&gt;</pre>
 
-<a name="filters"></a>
+<a name="tokenFilters"></a>
 <h2>Token filters</h2>
 <p>Unlike text filters, token filters are used to mark certain portions of the text as "indissociable", and optionally to replace them with a replacement text when performing analysis. These portions will never be broken up into several different tokens. The tokeniser may still join them with other atomic tokens to create larger tokens containing them.</p>
 <p>For example, the user may wish to indicate that e-mail addresses are indissociable, and to replace them by the word "EmailAddress" for analysis. He may then wish to indicate that EmailAddress should always be treated as a proper noun, using a pos-tagger rule.</p>
-<p>Token filters are provided to Talismane in a configuration file using the <tt>tokenFilters</tt> command-line parameter. Lines beginning with a # will be skipped. Other lines will have the following format:</p>
-<pre><i>FilterType</i>	<i>Regex</i>	<i>GroupNumber*</i>	<i>Replacement*</i></pre>
+<p>Token filters are provided to Talismane in a configuration file using the <tt>tokenFilters</tt> command-line parameter. The indicated token filters will either precede the default filters for a given language, or replace them. In the latter case, the file path should be preceded with the string "replace:". Lines beginning with a # will be skipped. Other lines will have the following format:</p>
+<pre><i>FilterType</i>	<i>Regex</i>	<i>Replacement*</i></pre>
 <p>The meaning of these fields is given below:</p>
-<li><b>FilterType:</b> currently the only allowable value is TokenRegexFilter</li>
+<li><b>FilterType:</b> currently the only allowable value is TokenRegexFilter</li>. Optionally, the filter type can be followed by a comma-delimited series of arguments inside parentheses.</li>
 <li><b>Regex:</b> the regular expression to be found in the text. This follows the <a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">standard Java format</a>.</li>
-<li><b>GroupNumber*:</b> the group number within the regular expression, that indicates the actual text to be marked for tokenising.
+<li><b>Replacement:</b> The replacement for this token, when analaysing. Like in Java Patterns, can include placeholders $1, $2, etc., which get filled in from the groups in the regex.</li>
+
+<p>For example, the following filter would replace all e-mail addresses by the word EmailAddress:</p>
+<pre>TokenRegexFilter	\b([\w.%-]+@[-.\w]+\.[A-Za-z]{2,4})\b	EmailAddress</pre>
+
+<p>As mentioned above, token filters can include a list of arguments. These are comma-delimited inside parentheses.
+The following arguments are predefined:</p>
+<li><b>possibleSentenceBoundary</b>: true|false. Default is <tt>true</tt>. If <tt>false</tt>, the token cannot contain a sentence boundary. Useful for marking certain periods as non-boundaries.</li>
+<li><b>group</b>: the group number within the regular expression, that indicates the actual text to be marked for tokenising.
 This is useful when some context is required to determine which text needs to be marked, but the context itself should not be marked.
 More information about groups can be found <a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">in the Groups and Capturing section of the Java Pattern class</a>. By default, the entire regex is marked.</li>
-<li><b>Replacement:</b> The replacement for this token, when analaysing. Like in Java Patterns, can include placeholders $1, $2, etc., which get filled in from the groups in the regex.</li>
-<br/>
 
-For example, the following filter would replace all e-mail addresses by the word EmailAddress:
-<pre>TokenRegexFilter	\b([\w.%-]+@[-.\w]+\.[A-Za-z]{2,4})\b	EmailAddress</pre>
+<p>Additional arguments are arbitrary and application specific values. For example:</p>
+<pre>TokenRegexFilter(group=2,featureType=name,language=en)	\b(\p{WordList(FrenchNames,true)}) +([A-Z]\p{Alpha}+)\b</pre>
+<p>In the above case, we indicate that the token defined by group 2 of the expression should be given the attributes <tt>featureType=name</tt> and <tt>language=en</tt>. These attributes are meaningless to Talismane: but they can be read from Token.getAttributes() for downstream applications.</p>
+
+<p>Note in the above example the <tt>\p{WordList(FrenchNames,true)}</tt> in the regular expression. Token filters can include a word list in a regular expression, which is read from a newline-delimited file. The word list must be included in the external resources directory. Regarding this file, the first line must be "Type: WordList", otherwise an exception gets thrown. The default name will be the filename. If a line starts with the string "Name: ", the default name will be replaced by this name. All lines starting with # are skipped. All other lines contain words.</p>
+
+<p>The <tt>\p{WordList(<i>name</i>,<i>diacriticsOptional</i>*,<i>uppercaseOptional</i>*)}</tt> command transforms this file into part of a regex. This will be a pipe-delimited list of words. Take a list containing "Chloé", "Marcel", "Joëlle" and "Édouard". By default, this will be transformed into <tt>Chloé|Marcel|Joëlle|Édouard</tt>. If <tt>diacriticsOptional=true</tt>, diacritics will not be required, and we get <tt>Chlo[ée]|Marcel|Jo[ëe]lle|[ÉE]douard</tt>. If <tt>uppercaseOptional=true</tt>, upper-case characters are not required, and we get <tt>[Cc]hloé|[Mm]arcel|[Jj]oëlle|[Éé]douard</tt>. If both are true, we get <tt>[Cc]hlo[ée]|[Mm]arcel|[Jj]o[ëe]lle|[ÉéEe]douard</tt>.</p>
+
+<a name="tokenSequenceFilters"></a>
+<h2>Token sequence filters</h2>
+<p>Token sequence filters are applied to a token sequence as a whole, after tokenisation and before pos-tagging. The most common usage is to modify the token text in order to normalise it in some way. Talismane includes various pre-defined filters:</p>
+<li><b>LowercaseFilter</b>: change the text to lower-case</li>
+<li><b>DiacriticRemover</b>: remove all diacritics</li>
+<p>The following additional filters are available for French:</p>
+<li><b>AllUppercaseFrenchFilter</b>: Looks for words in all upper-case, and transforms them into lower-case if they're found in the lexicon, unless they're on a stop-list.</li>
+<li><b>LowercaseFirstWordFrenchFilter</b>: Transforms a word into lower-case if it is a known word in the lexicon, and if it is at the start of a sentence or just following a quote.</li>
+<li><b>UpperCaseSeriesFrenchFilter</b>: Looks for a series of 2+ words in all upper-case, and transforms them into lower-case if they're found in the lexicon, unless they're on a stop-list.</li>
 
 <a name="rulesFile"></a>
 <h2>Modifying the rules</h2>
@@ -691,7 +736,7 @@ For example, the following filter would replace all e-mail addresses by the word
 <div class="info">Rules files can also include "templates" (see feature syntax below). If templates are included, the template name must be preceded by a tab (but no postag/transitionCode)</div>
 
 <h3>Pos-tagger rules</h3>
-<p>Pos-tagger rules are configured using the <tt>posTaggerRules</tt> argument, which points at a file containing the rules. The file format is as follows:</p>
+<p>Pos-tagger rules are configured using the <tt>posTaggerRules</tt> argument, which points at a file containing the rules. If the rules are meant to replace the default rules for a given language, the file path in the option should be preceded by the string "replace:". Otherwise, they will be applied prior to the default rules. The file format is as follows:</p>
 <pre>[postag|!postag]\t[boolean feature]</pre>
 <p>Where \t is that tab character. A ! before the postag implies a negative rule (or constraint). The boolean feature syntax is described in greater detail in the <a href="#syntax">Feature definition syntax</a> section below. The rules used by the default French implementation of Talismane can be found in the <tt>talismane_fr</tt> project, at <tt>src/com/joliciel/talismane/fr/resources/posTaggerConstraints_fr.txt</tt>.</p>
 
@@ -704,9 +749,9 @@ For example, the following filter would replace all e-mail addresses by the word
 <pre>ADJ	PosTag(History(-1))=="DET" & Word("deux","trois","quatre","cinq","six","sept","huit","neuf","dix") & LexiconPosTag(Offset(1),"NC")</pre>
 
 <h3>Parser rules</h3>
-<p>Parser rules are configured using the <tt>parserRules</tt> argument, which points at a file containing the rules. The file format is as follows:</p>
+<p>Parser rules are configured using the <tt>parserRules</tt> argument, which points at a file containing the rules. If the rules are meant to replace the default rules for a given language, the file path in the option should be preceded by the string "replace:". Otherwise, they will be applied prior to the default rules. The file format is as follows:</p>
 <pre>[transitionCode|!transitionCode]\t[boolean feature]</pre>
-<p>Where \t is the tab character. A ! before the transition code implies a negative rule (or constraint). The boolean feature syntax is described in greater detail in the <a href="#syntax">Feature definition syntax</a> section below.</p>
+<p>Where \t is the tab character. A ! before the transition code implies a negative rule (or constraint). The boolean feature syntax is described in greater detail in the <a href="#syntax">Feature definition syntax</a> section below. Note that negative rules can indicate multiple transition codes in the same rule, by separating the transition codes with semicolons.</p>
 <p>Positive parser rules should be used with extreme caution, as they may easily degrade parser performance or even force the parser to abandon parsing mid-way.</p>
 <p>For example, a user may wish to automatically attach a punctuation mark to its first potential governor, so as to avoid cluttering the beam with useless punctuation attachment options.</p>
 <p>A first attempt might be:</p>
@@ -1264,7 +1309,7 @@ PairGroup_V	ConcatNoNulls(LexicalisedVerbPair(), PairGroup())</pre>
 <h4>Looking inside the black box</h4>
 <p>Still, Talismane does provide a way of reviewing the exact mathematics behind any specific decision made during analysis, through the argument <tt>includeDetails=true</tt>, which creates a file containing all of the mathematical details: the feature results returned for each context, the weight and value for each feature, and the final probability distribution. The command would look like:</p>
 <pre class="shell">
-java -Xmx1024M -jar talismane-fr-<i>version</i>.jar command=analyse inFile=corpus.txt outFile=postag_corpus.txt encoding=UTF-8 includeDetails=true</pre>
+java -Xmx1G -jar talismane-fr-<i>version</i>.jar command=analyse inFile=corpus.txt outFile=postag_corpus.txt encoding=UTF-8 includeDetails=true</pre>
 <div class="info"><b>Warning:</b> even for a very small analysis, the file produced can be huge - typically a few megabytes for just one sentence. A user running this command for anything more than a simple sentence is likely to drown in a sea of details.</div>
 
 <a name="auto-evaluation"></a>
@@ -1295,7 +1340,7 @@ Bonsoir. Afin de ne pas raconter n'importe quoi, l'insertion de gène d'une mêm
 
 <p>Next, we need to get Talismane to analyse this corpus automatically, assigning pos-tags to the tokens. The pos-tagged corpus will be stored in a file called <tt>pre_postag_corpus.txt</tt>, as follows:</p>
 <pre>
-java -Xmx1024M -jar talismane-fr-<i>version</i>.jar command=analyse startModule=sentence endModule=postag inFile=corpus.txt outFile=pre_postag_corpus.txt encoding=UTF-8</pre>
+java -Xmx1G -jar talismane-fr-<i>version</i>.jar command=analyse startModule=sentence endModule=postag inFile=corpus.txt outFile=pre_postag_corpus.txt encoding=UTF-8</pre>
 
 <p>Note that the auto-evaluation is currently performed on the pos-tags only, and not on the lemmas and additional morpho-syntaxic information provided by the glossary.
 The user may wish to correct the pos-tags only, in which case he can perform a Unix cut on the file to get rid of the additional columns as follows:</p>
@@ -1322,7 +1367,7 @@ sur	P
 <h4>Evaluating the corrected corpus</h4>
 <p>We can now use Talismane to auto-evaluate its performance on the manually corrected <tt>postag_corpus.txt</tt> file, as follows:</p>
 <pre class="shell">
-java -Xmx1024M -jar talismane-fr-<i>version</i>.jar command=evaluate module=postag inFile=postag_corpus.txt outDir=eval/ encoding=UTF-8 inputPatternFile=posTagCapture.txt</pre>
+java -Xmx1G -jar talismane-fr-<i>version</i>.jar command=evaluate module=postag inFile=postag_corpus.txt outDir=eval/ encoding=UTF-8 inputPatternFile=posTagCapture.txt</pre>
 <p>If the user has cut the file to keep only two columns, <tt>posTagCapture.txt</tt> would look like:</p>
 <pre>TOKEN\tPOSTAG</pre>
 <p>Otherwise, if the user has kept the original default pos-tagger output, <tt>posTagCapture.txt</tt> would look like:</p>
@@ -1366,11 +1411,12 @@ find corpus_csv/ -iname "*.csv" -exec csv2ods.pl '{}' \;</pre>
 <a name="training"></a>
 <h2>Training a new statistical model</h2>
 <p>Information on how to write implementations of new training corpus readers or new lexicon readers is beyond the scope of the present user's manual. More details on the Java code and interfaces may be found in the project JavaDoc, to which you will find a reference on <a href="http://w3.erss.univ-tlse2.fr/textes/pagespersos/urieli">Assaf Urieli's home page</a> in the CLLE-ERSS laboratory.</p>
-<p>However, a user with a license to use the <a href="#ftb">French Treebank</a> corpus may wish to define new feature files and train a new model using the built-in reader for the French Treebank. This is done using the <tt>talismane-trainer-fr-<i>version</i>.jar</tt> file.</p>
+<p>However, a user with a license to use the <a href="#ftb">French Treebank</a> corpus may wish to define new feature files and train a new model using the built-in reader for the French Treebank. This is done using the <tt>train</tt> command.</p>
 
 <div class="alert"><b>Modified training corpus:</b> Note that the sentence detector and tokeniser currently assume that the XML files of the original French Treebank have been modified to include a <tt>&lt;sentence&gt;</tt> tag immediately following the <tt>&lt;SENT&gt;</tt> tag for each sentence. This <tt>sentence</tt> tag needs to contain the original full sentence text. Anybody wishing to get a copy of this modified corpus for non-commercial purposes can write <a href="http://w3.erss.univ-tlse2.fr:8080/index.jsp?perso=urieli&subURL=index.html">Assaf Urieli</a>. A copy will be provided on proof that the user has an original French Treebank license.</div>
 <div class="info"><b>Training corpus directory structure:</b> The training corpus should be separated by the user into training and evaluation subsets. In our case, we took 80% for training, 10% for dev, and 10% for test. This is done simply by creating <tt>training</tt>, <tt>dev</tt> and <tt>test</tt> sub-directories under a parent <tt>treebank</tt> directory, and placing the xml files into these sub-directories.</div>
 
+<a name="trainingParameters"></a>
 <h3>Generic training parameters</h3>
 <p>Some training parameters are shared by all of the various training modules. These are listed below.</p>
 <table border="1">
@@ -1411,96 +1457,53 @@ find corpus_csv/ -iname "*.csv" -exec csv2ods.pl '{}' \;</pre>
 <h3>Training and evaluating a new Sentence Detector model</h3>
 <p>To train a new sentence detector model, the command would be something like:</p>
 <pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=sentenceDetector command=train treebank=treebank/training sentenceModel=sentenceDetectorModel.zip iterations=200 cutoff=5 sentenceFeatures=sentenceDetectorFeatures.txt</pre>
+java -Xmx4G -jar talismane-fr-<i>version</i>-allDeps.jar command=train module=sentenceDetector corpusReader=ftb treebankDir=data/treebank/training sentenceModel=data/models/sentenceDetector/sentenceModel1.zip iterations=200 cutoff=5 sentenceFeatures=features/sentenceDetector_fr_baseline.txt</pre>
 <p>The parameters are as follows:</p>
 <table border="1">
 <tr><th>Parameter</th><th>Description</th></tr>
 <tr><td>sentenceModel</td><td>a path to the file where the new statistical model should be stored - MUST be a zip file</td></tr>
 <tr><td>sentenceFeatures</td><td>a path to the file containing the sentence detector feature descriptors</td></tr>
-<tr><td>corpus</td><td>a directory containing the training subset of modified XML files from the French Treebank corpus (see <a href="#training">note above</a>)</td></tr>
+<tr><td>treebankDir</td><td>a directory containing the training subset of modified XML files from the French Treebank corpus (see <a href="#training">note above</a>)</td></tr>
 </table>
-<p>To evaluate the new sentence detector model, the command would be something like:</p>
-<pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=sentenceDetector command=evaluate sentenceModel=sentenceDetectorModel.zip treebank=treebank/dev outDir=output</pre>
-<p>The parameters are as follows:</p>
-<table border="1">
-<tr><th>Parameter</th><th>Description</th></tr>
-<tr><td>sentenceModel</td><td>a path to the file where the new statistical model was previously stored by the train command</td></tr>
-<tr><td>outdir</td><td>a path where to write the output files of the evaluation</td></tr>
-<tr><td>corpus</td><td>a directory containing the evaluation subset of modified XML files from the French Treebank corpus (see <a href="#training">note above</a>)</td></tr>
-</table>
-<p>The evaluation will produce a file <tt><i>model_name</i>_errors.txt</tt>, listing the precision, recall, f-score and errors for each possible sentence boundary type, as well as the total accuracy.</p>
 
 <h3>Training and evaluating a new Tokeniser model</h3>
 <p>To train a new tokeniser model, the command would be something like:</p>
 <pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=tokeniser command=train tokeniserModel=tokeniserModel.zip tokeniserFeatures=tokeniserFeatures.txt tokeniserPatterns=tokeniserPatterns.txt iterations=200 cutoff=5 treebank=treebank/training posTagSet=resources/CrabbeCanditoTagset.txt lefff=resources/lefff.zip</pre>
+java -Xmx4G -jar talismane-fr-<i>version</i>-allDeps.jar command=train module=tokeniser tokeniserModel=data/models/tokeniser/ftbTokeniser1.zip tokeniserFeatures=features/tokeniser_fr_baseline.txt tokeniserPatterns=features/tokeniserPatterns_fr.txt iterations=100 cutoff=0 corpusReader=ftb treebankDir=data/treebank/training lexiconDir=data/lexiconsSpmrl</pre>
 <p>The parameters are as follows:</p>
 <table border="1">
 <tr><th>Parameter</th><th>Description</th><th>Git Location</th></tr>
 <tr><td>tokeniserModel</td><td>a path to the file where the new statistical model should be stored - MUST be a zip file</td><td>&nbsp;</td></tr>
 <tr><td>tokeniserFeatures</td><td>a path to the file containing the tokeniser feature descriptors</td><td><tt>talismane_trainer_fr/features</tt></td></tr>
 <tr><td>tokeniserPatterns</td><td>a path to the file containing the tokeniser patterns</td><td><tt>talismane_trainer_fr/features</tt></td></tr>
-<tr><td>corpus</td><td>a directory containing the training subset of modified XML files from the French Treebank corpus (see <a href="#training">note above</a>)</td><td>&nbsp;</td></tr>
-<tr><td>posTagSet</td><td>a path to the file containing the posTagSet to be use. It is required by the Tokeniser for certain features, such as <tt>LexiconPosTag</tt></td><td><tt>talismane_trainer_fr/postags</tt></td></tr>
+<tr><td>treebankDir</td><td>a directory containing the training subset of modified XML files from the French Treebank corpus (see <a href="#training">note above</a>)</td><td>&nbsp;</td></tr>
 <tr><td>lexiconDir</td><td>a path to the directory containing a serialised digitised version of any lexicons being used for training.</td><td>&nbsp;</td></tr>
 <tr><td><tt>talismane_trainer_fr/resources<tr><td>tokenFilters</td><td>a path to a file containing any token filters to apply to the token reader before training this tokeniser model. These will automatically be applied before analysing any text with this model.</td><td><tt>talismane_trainer_fr/token_filters.txt</tt></td></tr>
 <tr><td>tokenSequenceFilters</td><td>a path to a file containing any token sequence filters to apply to the token reader before training this tokeniser model. These will automatically be applied before analysing any text with this model.</td><td><tt>talismane_trainer_fr/token_sequence_filters.txt</tt></td></tr>
 </tt></td></tr>
 </table>
-<p>To evaluate the new tokeniser model, the command would be something like:</p>
-<pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=tokeniser command=evaluate tokeniserModel=tokeniserModel.zip treebank=treebank/dev outdir=output posTagSet=resources/CrabbeCanditoTagset.txt lefff=resources/lefff.zip beamWidth=10</pre>
-<p>The parameters are as follows:</p>
-<table border="1">
-<tr><th>Parameter</th><th>Description</th><th>Git Location</th></tr>
-<tr><td>tokeniserModel</td><td>a path to the file where the new statistical model was previously stored by the train command</td><td>&nbsp;</td></tr>
-<tr><td>outdir</td><td>a path where to write the output files of the evaluation</td><td>&nbsp;</td></tr>
-<tr><td>corpus</td><td>a directory containing the evaluation subset of modified XML files from the French Treebank corpus (see <a href="#training">note above</a>)</td><td>&nbsp;</td></tr>
-<tr><td>posTagSet</td><td>as in training, above</td><td><tt>talismane_trainer_fr/postags</tt></td></tr>
-<tr><td>lexiconDir</td><td>a path to the directory containing a serialised digitised version of any lexicons being used for evaluation.</td>
-<tr><td>beamWidth</td><td>the beam search beam width for this analysis</td><td>&nbsp;</td></tr>
-</table>
-<p>The evaluation will produce a file <tt><i>model_name</i>_errors.txt</tt>, listing the precision, recall, f-score and actual errors for each pattern, for all patterns tested by the statistical model, and for the all tokens (including default decisions). It will also produce a (fairly meaningless) confusion matrix giving total counts, precision, recall and f-score for the binary labels DOES_SEPARATE and DOES_NOT_SEPARATE (but which includes the millions of default decisions for tokens that were not even submitted to the statistical model).</p>
 
 <h3>Training and evaluating a new Pos-Tagger model</h3>
 <p>To train a new pos-tagger model, the command would be something like:</p>
 <pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=posTagger command=train posTaggerModel=posTaggerModel.zip posTaggerFeatures=features/posTaggerFeatures.txt iterations=200 cutoff=5 treebank=treebank/training posTagSet=postags/CrabbeCanditoTagset.txt posTagMap=postags/ftbCrabbeCanditoTagsetMap.txt lefff=resources/lefff.zip</pre>
+java -Xmx4G -jar talismane-fr-<i>version</i>-allDeps.jar command=train module=posTagger posTaggerModel=data/models/posTagger/ftbPosTagger_test1.zip posTaggerFeatures=features/posTagger_fr_baseline.txt iterations=100 corpusReader=ftb treebankDir=data/treebank/training lexiconDir=data/lexiconsSpmrl</pre>
 <p>The parameters are as follows:</p>
 <table border="1">
 <tr><th>Parameter</th><th>Description</th><th>Git Location</th></tr>
 <tr><td>posTaggerModel</td><td>a path to the file where the new statistical model should be stored - MUST be a zip file</td><td>&nbsp;</td></tr>
 <tr><td>posTaggerFeatures</td><td>a path to the file containing the pos-tagger feature descriptors</td><td><tt>talismane_trainer_fr/features</td></tt></tr>
-<tr><td>corpus</td><td>a directory containing the training subset of XML files from the French Treebank corpus. For the Pos-Tagger files can be the original FTB files.</td><td>&nbsp;</td></tr>
+<tr><td>treebankDir</td><td>a directory containing the training subset of XML files from the French Treebank corpus. For the Pos-Tagger files can be the original FTB files.</td><td>&nbsp;</td></tr>
 <tr><td>posTagSet</td><td>a path to the file containing the posTagSet to be used</td><td><tt>talismane_trainer_fr/postags</tt></td></tr>
 <tr><td>posTagMap</td><td>a path to the file containing the mapping from FTB morpho-syntaxic labels to the selected tagset</td><td><tt>talismane_trainer_fr/postags</tt></td></tr>
 <tr><td>lexiconDir</td><td>a path to the directory containing a serialised digitised version of any lexicons being used for training.</td><td>&nbsp;</td></tr>
 <tr><td>tokenFilters</td><td>a path to a file containing any token filters to apply to the token reader before training this pos-tag model. These will only be applied if this pos-tag model is applied directly, without any tokeniser.</td><td><tt>talismane_trainer_fr/token_filters.txt</tt></td></tr>
 <tr><td>tokenSequenceFilters</td><td>a path to a file containing any token sequence filters to apply to the token reader before training this pos-tag model. These will only be applied if this pos-tag model is applied directly, without any tokeniser.</td><td><tt>talismane_trainer_fr/token_sequence_filters.txt</tt></td></tr>
-<tr><td>posTaggerPreprocessingFilters</td><td>a path to a file containing any token sequence filters to apply before training this pos-tag model. These will typically add empty tokens where required. These will automatically be applied before analysing any text with this model.</td><td><tt>talismane_trainer_fr/posTagger_preprocessing_filters.txt</tt></td></tr>
 </table>
-<p>To evaluate the new pos-tagger model, the command would be something like:</p>
-<pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=posTagger command=evaluate posTaggerModel=posTaggerModel.zip posTaggerRules=features/posTaggerConstraints_fr.txt treebank=treebank/dev outdir=output posTagSet=postags/CrabbeCanditoTagset.txt posTagMap=postags/ftbCrabbeCanditoTagsetMap.txt lefff=resources/lefff.zip beamWidth=10</pre>
-<p>The parameters are as follows:</p>
-<table border="1">
-<tr><th>Parameter</th><th>Description</th><th>Git Location</th></tr>
-<tr><td>posTaggerModel</td><td>a path to the file where the new statistical model was previously stored by the train command</td><td>&nbsp;</td></tr>
-<tr><td>posTaggerRules</td><td>a path to the file containing any rules to be applied to the current analysis</td><td><tt>talismane_trainer_fr/features</tt></td></tr>
-<tr><td>outdir</td><td>a path where to write the output files of the evaluation</td><td>&nbsp;</td></tr>
-<tr><td>corpus</td><td>a directory containing the evaluation subset of XML files from the French Treebank corpus. For the Pos-Tagger files can be the original FTB files.</td><td>&nbsp;</td></tr>
-<tr><td>posTagSet</td><td>as in training, above</td><td><tt>talismane_trainer_fr/postags</tt></td></tr>
-<tr><td>posTagMap</td><td>as in training, above</td><td><tt>talismane_trainer_fr/postags</tt></td></tr>
-<tr><td>lexiconDir</td><td>a path to the directory containing a serialised digitised version of any lexicons being used for evaluation.</td>
-<tr><td>beamWidth</td><td>the beam search beam width for this analysis</td><td>&nbsp;</td></tr>
-</table>
-<p>The evaluation will produce a file <tt><i>model_name</i>.fscores.csv</tt> containing a confusion matrix and the precision, recall, f-score and error counts for each pos-tag. It will also produce a file, <tt><i>model_name</i>.sentences.csv</tt>, containing all of the sentences evaluated, the correct pos-tag, and the guessed pos-tags from the <i>n</i> evaluations made by the beam search, along with their probabilities.</p>
 
 <h3>Training and evaluating a new Parser model</h3>
 <p>To train a new parser model, the command would be something like:</p>
 <pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=parser train command=train parserModel=parserModel.zip parserFeatures=parserFeatures.txt corpus=resources/CanditoFTBDep/ftb6_1.conll iterations=100 cutoff=5 posTagSet=resources/CrabbeCanditoTagset.txt lefff=resources/lefff.zip</pre>
+java -Xmx4G -jar talismane-fr-<i>version</i>-allDeps.jar command=train module=parser parserModel=data/models/parser/parser1.zip parserFeatures=features/parser_fr_baseline.txt inFile=data/spmrl/spmrl.French.gold.conll lexiconDir=data/lexiconsSpmrl transitionSystem=ArcEager dependencyLabels=data/spmrl/spmrlDependencyLabels.txt  algorithm=LinearSVM linearSVMEpsilon=0.01 linearSVMCost=0.25 cutoff=1 corpusReader=spmrl </pre>
 <p>The parameters are as follows:</p>
 <table border="1">
 <tr><th>Parameter</th><th>Description</th><th>Git Location</th></tr>
@@ -1516,20 +1519,6 @@ java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=pars
 <tr><td>posTaggerPreprocessingFilters</td><td>a path to a file containing any token sequence filters to apply before training this parser model. These will typically add empty tokens where required. These will only be applied if this pos-tag model is applied directly, without any pos-tagger.</td><td><tt>talismane_trainer_fr/posTagger_preprocessing_filters.txt</tt></td></tr>
 </tt></td></tr>
 </table>
-<p>To evaluate the new parser model, the command would be something like:</p>
-<pre class="shell">
-java -Xmx4000M -jar talismane-trainer-fr-<i>version</i>-allDeps.jar trainer=parser command=evaluate parserModel=parserModel.zip corpus=resources/CanditoFTBDep/ftb6_2.conll outdir=output posTagSet=resources/CrabbeCanditoTagset.txt posTagMap=resources/ftbCrabbeCanditoTagsetMap.txt lefff=resources/lefff.zip beamWidth=10</pre>
-<p>The parameters are as follows:</p>
-<table border="1">
-<tr><th>Parameter</th><th>Description</th><th>Git Location</th></tr>
-<tr><td>parserModel</td><td>a path to the file where the new statistical model was previously stored by the train command</td><td>&nbsp;</td></tr>
-<tr><td>outdir</td><td>a path where to write the output files of the evaluation</td><td>&nbsp;</td></tr>
-<tr><td>corpus</td><td>an evaluation corpus file from the dependency treebank corpus created by [Candito et al, 2010]</td><td>&nbsp;</td></tr>
-<tr><td>posTagSet</td><td>as in training, above</td><td><tt>talismane_trainer_fr/postags</tt></td></tr>
-<tr><td>lexiconDir</td><td>a path to the directory containing a serialised digitised version of any lexicons being used for evaluation.</td>
-<tr><td>beamWidth</td><td>the beam search beam width for this analysis</td><td>&nbsp;</td></tr>
-</table>
-<p>The evaluation will produce a file <tt><i>model_name</i>.fscores.csv</tt> containing a confusion matrix and the precision, recall, f-score and error counts for each dependency label. It will also produce a file, <tt><i>model_name</i>.sentences.csv</tt>, containing all of the sentences evaluated, the correct governor and dependency label, and the guessed governors and dependency labels from the <i>n</i> evaluations made by the beam search, along with their probabilities.</p>
 
 <a name="externalResources"></a>
 <h2>Custom external resources</h2>
@@ -1592,6 +1581,96 @@ talismane.monitor.com.joliciel.talismane.parser.features.BetweenCountIf=true
 </pre>
 <p>In this file, we tell Talismane to switch on monitoring, but <b>not</b> to start monitoring by default. Monitoring will only be applied to any classes in the <tt>com.joliciel.talismane.lexicon</tt> and <tt>com.joliciel.talismane.lexicon.parser</tt> packages and sub-packages, with the exception of the <tt>com.joliciel.talismane.parser.features</tt> sub-package, but switched on again for the feature <tt>com.joliciel.talismane.parser.features.BetweenCountIf</tt>.</p>
 <p>The result is a CSV file given total performance per class, and performance when we removed any monitored sub-classes.</p>
+
+
+<a name="featureTesting"></a>
+<h2>Feature testing</h2>
+<p>While designing feature set for specific purposes, you may want to test your features on an annotated corpus to see the results they provide.
+Talismane provides the possibility of doing this in process mode, by applying one of the pre-programmed options.
+
+<h3>Pos-tagger feature testing</h3>
+<p>Pos-tagger feature testing is applied by choosing <tt>command=process</tt> and <tt>option=posTagFeatureTester</tt>, with <tt>module=postag</tt>. Currently, pos-tag feature testing needs to apply to a pre-defined set of words, indicated using the <tt>testWords</tt> option with a comma-separated list of words. The features to test are indicated by the <tt>posTaggerFeatures</tt> option. The test results are written to the directory indicated by the <tt>outDir</tt> option.</p>
+<p>For example:</p>
+<pre class="shell">java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=process option=posTagFeatureTester module=postag inFile=data/spmrl/train.French.gold.conll posTaggerFeatures=data/features/targeted/test1.txt testWords=que;qu' outDir=data/features/targeted externalResources=data/features/targeted/externalResources  suffix=_Test1</pre>
+<p>The above command will generate a file in the <tt>outDir</tt> directory, giving the feature results by feature name, feature result, and annotated corpus pos-tag.</p>
+
+<h3>Parser feature testing</h3>
+<p>Parser feature testing is applied by choosing <tt>command=process</tt> and <tt>option=parseFeatureTester</tt> with <tt>module=parser</tt> and <tt>predictTransitions=true</tt>. The features to test are indicated by the <tt>parserFeatures</tt> option. The test results are written to the directory indicated by the <tt>outDir</tt> option.</p>
+<p>For example:</p>
+<pre class="shell">java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=process option=parseFeatureTester module=parser inFile=data/spmrl/test.French.gold.conll  parserFeatures=data/features/parserTarget/test1.txt outDir=data/features/parserTarget/results/ predictTransitions=true suffix=_Test1</pre>
+<p>The above command will generate a file in the <tt>outDir</tt> directory, giving the feature results by feature name, feature result, and annotated corpus parsing transition.</p>
+
+<a name="serverMode"></a>
+<h2>Running Talismane is Server mode</h2>
+<p>It is possible to run Talismane as a server in a client/server application by using the <tt>mode=server</tt> option, in which case Talismane will listen on a port indicated by the <tt>port</tt> option (7272 by default). This can be used for analysis and processing. Note that in order to indicate to the Talismane server that it needs to process the text sent immediately (rather than waiting for a certain "block" of characters), the client needs to send three end-of-block characters (\f by default, can be changed using the <tt>endBlockCharCode</tt> option). If you are processing small blocks of text at a time, this can be much more efficient, since memory-greedy resources (e.g. lexicons and models) are preloaded at server start-up.</p>
+
+<p>Launching Talismane as a server looks something like this:</p>
+<pre class="shell">java -Xmx1G -jar talismane-fr-<i>version</i>-allDeps.jar command=analyse mode=server encoding=UTF-8 port=7171</pre>
+
+<p>A typical client that interacts with this server would look like this:</>
+<pre>
+package com.joliciel.test.talismaneClient;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.nio.charset.Charset;
+
+public class TalismaneClient {
+  public static void main(String[] args) throws IOException {
+
+    if (args.length != 2) {
+      System.err.println(
+          "Usage: java EchoClient <host name> <port number>");
+      System.exit(1);
+    }
+
+    String hostName = args[0];
+    int portNumber = Integer.parseInt(args[1]);
+
+    // open socket to server
+    Socket socket = new Socket(hostName, portNumber);
+    OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
+
+    BufferedReader stdIn =
+      new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+    String fromServer;
+    String fromUser;
+
+    // Get next input from the user, ending with a blank line
+    String input = "\f";
+    while ((fromUser = stdIn.readLine()) != null) {
+      System.out.println("Client: " + fromUser);
+      if (fromUser.length()==0)
+        break;
+      input += fromUser + "\n";
+    }
+    
+    // end input with three end-of-block characters to indicate the input is finished
+    input += "\f\f\f";
+    
+    // Send user input to the server
+    out.write(input);
+    out.flush();
+
+    // Display output from server
+    while ((fromServer = in.readLine()) != null) {
+      System.out.println("Server: " + fromServer);
+    }
+
+    socket.close();
+  }
+}
+</pre>
+
+<p>Note that server mode can use any of the analysis options available in normal mode. Thus, you can indicate the start and end modules, as well as various filter files (text filters, token filters), etc.</p>
+
+<h1>Acknowledgements</h1>
+<p>A special thanks to <b>Jean-Philippe Fauconnier</b>, who helped write the first version of this user manual.</p>
 
 <h1>References</h1>
 <li>Abeillé A. and Clément L., <i>Building a Treebank for French</i>, in TreeBanks, Springer, 2003.</li>
