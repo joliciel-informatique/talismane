@@ -38,6 +38,7 @@ public class TreebankExportServiceLocator {
 			treebankUploadService.setPosTaggerService(treebankServiceLocator.getPosTaggerService());
 			treebankUploadService.setFilterService(treebankServiceLocator.getFilterService());
 			treebankUploadService.setTokenFilterService(treebankServiceLocator.getTokenFilterService());
+			treebankUploadService.setTalismaneService(treebankServiceLocator.getTalismaneService());
 		}
 		return treebankUploadService;
 	}  

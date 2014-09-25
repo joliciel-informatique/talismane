@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -54,6 +55,12 @@ import com.joliciel.talismane.Talismane.Option;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.MarkerFilterType;
 import com.joliciel.talismane.filters.TextMarkerFilter;
+import com.joliciel.talismane.languageDetector.LanguageDetector;
+import com.joliciel.talismane.languageDetector.LanguageDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
+import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
+import com.joliciel.talismane.languageDetector.LanguageDetectorService;
+import com.joliciel.talismane.languageDetector.LanguageOutcome;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -160,6 +167,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private Module endModule = null;
 	private Module module = null;
 	
+	private LanguageDetector languageDetector;
 	private SentenceDetector sentenceDetector;
 	private Tokeniser tokeniser;
 	private PosTagger posTagger;
@@ -180,7 +188,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private PosTagAnnotatedCorpusReader posTagEvaluationCorpusReader = null;
 	private TokeniserAnnotatedCorpusReader tokenEvaluationCorpusReader = null;
 	private SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = null;
+	private LanguageDetectorAnnotatedCorpusReader languageCorpusReader = null;
 
+	private LanguageDetectorProcessor languageDetectorProcessor;
 	private SentenceProcessor sentenceProcessor;
 	private TokenSequenceProcessor tokenSequenceProcessor;
 	private PosTagSequenceProcessor posTagSequenceProcessor;
@@ -225,6 +235,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private String posTaggerModelFilePath = null;
 	private String tokeniserModelFilePath = null;
 	private String sentenceModelFilePath = null;
+	private String languageModelFilePath = null;
 	private String textFiltersPath = null;
 	private String tokenFiltersPath = null;
 	private String tokenSequenceFilterPath = null;
@@ -237,6 +248,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private String tokeniserFeaturePath = null;
 	private String tokeniserPatternFilePath = null;
 	private String sentenceFeaturePath = null;
+	private String languageFeaturePath = null;
+	private String languageCorpusMapPath = null;
 	
 	private String lexiconDirPath = null;
 	private boolean replaceLexicon = false;
@@ -283,6 +296,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private int excludeIndex = -1;
 	
 	private Set<String> testWords = null;
+	private Set<LanguageDetectorFeature<?>> languageFeatures;
 	private Set<SentenceDetectorFeature<?>> sentenceFeatures;
 	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
 	private Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
@@ -312,6 +326,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private TokenFeatureService tokenFeatureService;
 	private TokeniserService tokeniserService;
 	private PosTagFilterService posTagFilterService;
+	private LanguageDetectorService languageDetectorService;
 	
 	private File performanceConfigFile;
 	private ParseComparisonStrategyType parseComparisonStrategyType;
@@ -344,6 +359,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	File baseDir = null;
 	
 	boolean preloadLexicon = true;
+	
+	Locale locale = null;
 	
 	public TalismaneConfigImpl(LanguageSpecificImplementation implementation) {
 		this.implementation = implementation;
@@ -407,6 +424,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						module = Talismane.Module.PosTagger;
 					else if (argValue.equalsIgnoreCase("parse")||argValue.equalsIgnoreCase("parser"))
 						module = Talismane.Module.Parser;
+					else if (argValue.equalsIgnoreCase("language")||argValue.equalsIgnoreCase("languageDetector"))
+						module = Talismane.Module.LanguageDetector;
 					else
 						throw new TalismaneException("Unknown module: " + argValue);
 				} else if (argName.equals("startModule")) {
@@ -461,6 +480,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					propagateBeam = argValue.equalsIgnoreCase("true");
 				else if (argName.equals("beamWidth"))
 					beamWidth = Integer.parseInt(argValue);
+				else if (argName.equals("languageModel"))
+					languageModelFilePath = argValue;
 				else if (argName.equals("sentenceModel"))
 					sentenceModelFilePath = argValue;
 				else if (argName.equals("tokeniserModel"))
@@ -595,6 +616,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					}
 				} else if (argName.equals("earlyStop")) {
 					earlyStop = argValue.equalsIgnoreCase("true");
+				} else if (argName.equals("languageFeatures")) {
+					languageFeaturePath = argValue;
 				} else if (argName.equals("sentenceFeatures")) {
 					sentenceFeaturePath = argValue;
 				} else if (argName.equals("tokeniserFeatures")) {
@@ -654,6 +677,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					port = Integer.parseInt(argValue);
 				} else if (argName.equals("preloadLexicon")) {
 					preloadLexicon = argValue.equalsIgnoreCase("true");
+				} else if (argName.equals("locale")) {
+					locale = Locale.forLanguageTag(argValue);
+				} else if (argName.equals("languageCorpusMap")) {
+					languageCorpusMapPath = argValue;
 				} else {
 					System.out.println("Unknown argument: " + argName);
 					throw new RuntimeException("Unknown argument: " + argName);
@@ -680,7 +707,14 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				module = endModule;
 			
 			if (command==Command.train) {
-				if (module==Module.SentenceDetector) {
+				if (module==Module.LanguageDetector) {
+					if (languageModelFilePath==null)
+						throw new TalismaneException("languageModel is required when training a language detector model");
+					if (languageCorpusMapPath==null)
+						throw new TalismaneException("languageCorpusMap is required when training a language detector model");
+					if (languageFeaturePath==null)
+						throw new TalismaneException("languageFeatures is required when training a language detector model");
+				} else if (module==Module.SentenceDetector) {
 					if (sentenceModelFilePath==null)
 						throw new TalismaneException("sentenceModel is required when training a sentence detector model");
 					if (sentenceFeaturePath==null)
@@ -1476,6 +1510,30 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	}
 
 	/**
+	 * The language detector to use for analysis.
+	 * @return
+	 */
+	@Override
+	public LanguageDetector getLanguageDetector() {
+		try {
+			if (languageDetector==null) {
+				LOG.debug("Getting language detector model");
+				ClassificationModel<LanguageOutcome> languageModel = null;
+				if (languageModelFilePath!=null) {
+					languageModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(languageModelFilePath)));
+				} else {
+					throw new TalismaneException("Cannot detect languages with languageModel");
+				}
+				languageDetector = this.getLanguageDetectorService().getLanguageDetector(languageModel);
+			}
+			return languageDetector;
+		} catch (Exception e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * The sentence detector to use for analysis.
 	 * @return
 	 */
@@ -1620,6 +1678,31 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	}
 	
 	@Override
+	public Set<LanguageDetectorFeature<?>> getLanguageDetectorFeatures() {
+		if (languageFeatures==null) {
+			try {
+				if (languageFeaturePath!=null) {
+					LOG.debug("Found setting to change language detector features");
+					File languageFeatureFile = this.getFile(languageFeaturePath);
+					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(languageFeatureFile), this.getInputCharset())));
+					List<String> featureDescriptors = new ArrayList<String>();
+					while (scanner.hasNextLine()) {
+						String descriptor = scanner.nextLine();
+						featureDescriptors.add(descriptor);
+						LOG.debug(descriptor);
+					}
+					languageFeatures = this.getLanguageDetectorService().getFeatureSet(featureDescriptors);
+					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+				}
+			} catch (Exception e) {
+				LogUtils.logError(LOG, e);
+				throw new RuntimeException(e);
+			}
+		}
+		return languageFeatures;
+	}
+	
+	@Override
 	public Set<SentenceDetectorFeature<?>> getSentenceDetectorFeatures() {
 		if (sentenceFeatures==null) {
 			try {
@@ -1725,6 +1808,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public ClassificationEventStream getClassificationEventStream() {
 		if (this.classificationEventStream==null) {
 			switch (this.getModule()) {
+			case LanguageDetector:
+				classificationEventStream = this.getLanguageDetectorService().getLanguageDetectorEventStream(this.getLanguageCorpusReader(), this.getLanguageDetectorFeatures());
+				break;
 			case SentenceDetector:
 				classificationEventStream = this.getSentenceDetectorService().getSentenceDetectorEventStream(this.getSentenceCorpusReader(), this.getSentenceDetectorFeatures());
 				break;
@@ -2704,6 +2790,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					baseName = inFilePath.substring(inFilePath.lastIndexOf('/')+1, inFilePath.lastIndexOf('.'));
 				else
 					baseName = inFilePath.substring(inFilePath.lastIndexOf('/')+1);
+			} else if (languageModelFilePath!=null && module.equals(Talismane.Module.LanguageDetector)||endModule.equals(Talismane.Module.LanguageDetector)) {
+				if (languageModelFilePath.indexOf('.')>0)
+					baseName = languageModelFilePath.substring(languageModelFilePath.lastIndexOf('/')+1, languageModelFilePath.lastIndexOf('.'));
+				else
+					baseName = languageModelFilePath.substring(languageModelFilePath.lastIndexOf('/')+1);
 			} else if (sentenceModelFilePath!=null && module.equals(Talismane.Module.SentenceDetector)||endModule.equals(Talismane.Module.SentenceDetector)) {
 				if (sentenceModelFilePath.indexOf('.')>0)
 					baseName = sentenceModelFilePath.substring(sentenceModelFilePath.lastIndexOf('/')+1, sentenceModelFilePath.lastIndexOf('.'));
@@ -2796,6 +2887,17 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public void setSentenceDetectorService(
 			SentenceDetectorService sentenceDetectorService) {
 		this.sentenceDetectorService = sentenceDetectorService;
+	}
+
+	
+	
+	public LanguageDetectorService getLanguageDetectorService() {
+		return languageDetectorService;
+	}
+
+	public void setLanguageDetectorService(
+			LanguageDetectorService languageDetectorService) {
+		this.languageDetectorService = languageDetectorService;
 	}
 
 	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
@@ -2907,6 +3009,33 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public boolean isLogStats() {
 		return logStats;
+	}
+
+	public LanguageDetectorAnnotatedCorpusReader getLanguageCorpusReader() {
+		try {
+			if (languageCorpusReader==null) {
+				File languageCorpusMapFile = this.getFile(languageCorpusMapPath);
+				Scanner languageCorpusMapScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(languageCorpusMapFile), this.getInputCharset().name())));
+				
+				Map<Locale, Reader> languageMap = new HashMap<Locale, Reader>();
+				while (languageCorpusMapScanner.hasNextLine()) {
+					String line = languageCorpusMapScanner.nextLine();
+					String[] parts = line.split("\t");
+					Locale locale = Locale.forLanguageTag(parts[0]);
+					String corpusPath = parts[1];
+					File corpusFile = this.getFile(corpusPath);
+					Reader corpusReader = new BufferedReader(new InputStreamReader(new FileInputStream(corpusFile), this.getInputCharset().name()));
+					languageMap.put(locale, corpusReader);
+				}
+				languageCorpusMapScanner.close();
+				languageCorpusReader = this.getLanguageDetectorService().getDefaultReader(languageMap);
+			}
+			this.setCorpusReaderAttributes(languageCorpusReader);
+			return languageCorpusReader;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -3087,6 +3216,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		return sentenceModelFilePath;
 	}
 
+	public String getLanguageModelFilePath() {
+		return languageModelFilePath;
+	}
+
 	@Override
 	public String getParserModelFilePath() {
 		return parserModelFilePath;
@@ -3168,4 +3301,35 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		}
 		return file;
 	}
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	public String getLanguageCorpusMapPath() {
+		return languageCorpusMapPath;
+	}
+
+	public void setLanguageCorpusMapPath(String languageCorpusMapPath) {
+		this.languageCorpusMapPath = languageCorpusMapPath;
+	}
+
+	@Override
+	public LanguageDetectorProcessor getLanguageDetectorProcessor() {
+		if (this.languageDetectorProcessor == null) {
+			this.languageDetectorProcessor = this.getLanguageDetectorService().getDefaultLanguageDetectorProcessor(this.getWriter());
+		}
+		return this.languageDetectorProcessor;
+	}
+
+	public void setLanguageDetectorProcessor(
+			LanguageDetectorProcessor languageDetectorProcessor) {
+		this.languageDetectorProcessor = languageDetectorProcessor;
+	}
+	
+	
 }

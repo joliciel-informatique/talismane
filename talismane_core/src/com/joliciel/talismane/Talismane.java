@@ -21,6 +21,7 @@ package com.joliciel.talismane;
 import java.io.Reader;
 import java.io.Writer;
 
+import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
@@ -42,6 +43,7 @@ public interface Talismane {
 	 *
 	 */
 	public enum Module {
+		LanguageDetector,
 		SentenceDetector,
 		Tokeniser,
 		PosTagger,
@@ -110,7 +112,15 @@ public interface Talismane {
 	public abstract void process();
 
 	/**
-	 * The sentence processor to be used if the end-module is the sentence processor.
+	 * The language detector processor to be used if the end-module is the language detector.
+	 * @return
+	 */
+	public LanguageDetectorProcessor getLanguageDetectorProcessor();
+	public void setLanguageDetectorProcessor(
+			LanguageDetectorProcessor languageDetectorProcessor);
+	
+	/**
+	 * The sentence processor to be used if the end-module is the sentence detector.
 	 * @return
 	 */
 	public SentenceProcessor getSentenceProcessor();

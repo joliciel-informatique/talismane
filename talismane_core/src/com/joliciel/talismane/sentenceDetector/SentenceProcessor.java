@@ -20,6 +20,8 @@ package com.joliciel.talismane.sentenceDetector;
 
 import java.io.Writer;
 
+import com.joliciel.talismane.filters.Sentence;
+
 /**
  * Any class that can process sentences found by a sentence detector.
  * @author Assaf Urieli
@@ -31,5 +33,5 @@ public interface SentenceProcessor {
 	 * @param sentence
 	 * @param writer
 	 */
-	public void onNextSentence(String sentence, Writer writer);
+	public void onNextSentence(Sentence sentence, Writer writer);
 }

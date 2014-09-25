@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.Map;
 
 import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.languageDetector.LanguageDetectorService;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
@@ -47,6 +48,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokenFeatureService tokenFeatureService;
 	private TokenFilterService tokenFilterService;
 	private TokeniserPatternService tokeniserPatternService;
+	private LanguageDetectorService languageDetectorService;
 	
 	private TalismaneSession talismaneSession;
 	
@@ -61,6 +63,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		talismane.setTokeniserService(this.getTokeniserService());
 		talismane.setMachineLearningService(this.getMachineLearningService());
 		talismane.setSentenceDetectorService(this.getSentenceDetectorService());
+		talismane.setLanguageDetectorService(this.getLanguageDetectorService());
 		return talismane;
 	}
 
@@ -152,6 +155,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setTokenFilterService(tokenFilterService);
 		config.setTokeniserPatternService(tokeniserPatternService);
 		config.setTokeniserService(tokeniserService);
+		config.setLanguageDetectorService(languageDetectorService);
 		config.setBaseDir(baseDir);
 		config.loadParameters(args);
 		return config;
@@ -206,6 +210,15 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	public void setTokeniserPatternService(
 			TokeniserPatternService tokeniserPatternService) {
 		this.tokeniserPatternService = tokeniserPatternService;
+	}
+
+	public LanguageDetectorService getLanguageDetectorService() {
+		return languageDetectorService;
+	}
+
+	public void setLanguageDetectorService(
+			LanguageDetectorService languageDetectorService) {
+		this.languageDetectorService = languageDetectorService;
 	}
 
 	

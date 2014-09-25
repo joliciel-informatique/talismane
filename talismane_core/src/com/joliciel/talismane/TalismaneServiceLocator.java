@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.filters.FilterServiceLocator;
+import com.joliciel.talismane.languageDetector.LanguageDetectorServiceLocator;
 import com.joliciel.talismane.lexicon.LexiconServiceLocator;
 import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
@@ -67,6 +68,7 @@ public class TalismaneServiceLocator {
 	private MaxentServiceLocator maxentServiceLocator;
 	private FilterServiceLocator filterServiceLocator;
 	private LexiconServiceLocator lexiconServiceLocator;
+	private LanguageDetectorServiceLocator languageDetectorServiceLocator;
 	
 	private static Map<String, TalismaneServiceLocator> instances = new HashMap<String, TalismaneServiceLocator>();
 	private String sessionId;
@@ -99,6 +101,7 @@ public class TalismaneServiceLocator {
     		talismaneService.setTokenFeatureService(this.getTokenFeatureServiceLocator().getTokenFeatureService());
     		talismaneService.setTokenFilterService(this.getTokenFilterServiceLocator().getTokenFilterService());
     		talismaneService.setTokeniserPatternService(this.getTokenPatternServiceLocator().getTokeniserPatternService());
+    		talismaneService.setLanguageDetectorService(this.getLanguageDetectorServiceLocator().getLanguageDetectorService());
     	}
     	return this.talismaneService;
     }
@@ -142,6 +145,13 @@ public class TalismaneServiceLocator {
 			this.sentenceDetectorServiceLocator = new SentenceDetectorServiceLocator(this);
 		}
 		return sentenceDetectorServiceLocator;
+	}
+	
+	public LanguageDetectorServiceLocator getLanguageDetectorServiceLocator() {
+		if (this.languageDetectorServiceLocator==null) {
+			this.languageDetectorServiceLocator = new LanguageDetectorServiceLocator(this);
+		}
+		return languageDetectorServiceLocator;
 	}
 
 	public SentenceDetectorFeatureServiceLocator getSentenceDetectorFeatureServiceLocator() {

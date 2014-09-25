@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -122,7 +123,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 
 	@Override
-	public void onNextSentence(String sentence, Writer writer) {
+	public void onNextSentence(Sentence sentence, Writer writer) {
 		Map<String,Object> model = new HashMap<String, Object>();
 		model.put("sentence", sentence);
 		model.put("LOG", LOG);

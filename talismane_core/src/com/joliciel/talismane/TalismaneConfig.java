@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +15,10 @@ import com.joliciel.talismane.Talismane.Mode;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.TextMarkerFilter;
+import com.joliciel.talismane.languageDetector.LanguageDetector;
+import com.joliciel.talismane.languageDetector.LanguageDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
+import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
@@ -259,6 +264,12 @@ public interface TalismaneConfig {
 	public void setTokenFilters(List<TokenFilter> tokenFilters);
 
 	/**
+	 * The language detector to use for analysis.
+	 * @return
+	 */
+	public LanguageDetector getLanguageDetector();
+	
+	/**
 	 * The sentence detector to use for analysis.
 	 * @return
 	 */
@@ -272,6 +283,8 @@ public interface TalismaneConfig {
 
 	public TokeniserPatternManager getTokeniserPatternManager();
 
+	public Set<LanguageDetectorFeature<?>> getLanguageDetectorFeatures();
+	
 	public Set<SentenceDetectorFeature<?>> getSentenceDetectorFeatures();
 
 	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatures();
@@ -308,6 +321,14 @@ public interface TalismaneConfig {
 	public int getMaxParseAnalysisTime();
 
 	public void setMaxParseAnalysisTime(int maxParseAnalysisTime);
+
+	/**
+	 * A language detector processor to process language detector output.
+	 * @return
+	 */
+	public LanguageDetectorProcessor getLanguageDetectorProcessor();
+	public void setLanguageDetectorProcessor(
+			LanguageDetectorProcessor languageDetectorProcessor);
 
 	/**
 	 * A sentence processor to process sentences that have been read.
@@ -523,6 +544,10 @@ public interface TalismaneConfig {
 	public String getSentenceModelFilePath();
 
 	public String getParserModelFilePath();
+	
+	public LanguageDetectorAnnotatedCorpusReader getLanguageCorpusReader();
+
+	public String getLanguageModelFilePath();
 
 	public PatternTokeniserType getPatternTokeniserType();
 
@@ -549,5 +574,21 @@ public interface TalismaneConfig {
 	 */
 	public File getBaseDir();
 	public void setBaseDir(File baseDir);
+	
+	/**
+	 * The locale indicated for this configuration.
+	 * @return
+	 */
+	public Locale getLocale();
+	public void setLocale(Locale locale);
+	
+	public String getLanguageCorpusMapPath();
+	
+	/**
+	 * The language corpus map file must be a tab-delimited file, with the language tag, followed by a tab, followed by the path to the corpus
+	 * for this language.
+	 * @param languageCorpusMapPath
+	 */
+	public void setLanguageCorpusMapPath(String languageCorpusMapPath);
 
 }

@@ -27,6 +27,7 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
@@ -39,6 +40,7 @@ class TalismaneServerImpl implements TalismaneServer {
 	private boolean listening = true;
 	private TalismaneConfig config = null;
 	private TalismaneServiceInternal talismaneService;
+	private LanguageDetectorProcessor languageDetectorProcessor;
 	private SentenceProcessor sentenceProcessor;
 	private TokenSequenceProcessor tokenSequenceProcessor;
 	private PosTagSequenceProcessor posTagSequenceProcessor;
@@ -182,5 +184,15 @@ class TalismaneServerImpl implements TalismaneServer {
 	public void setWriter(Writer writer) {
 		this.writer = writer;
 	}
+
+	public LanguageDetectorProcessor getLanguageDetectorProcessor() {
+		return languageDetectorProcessor;
+	}
+
+	public void setLanguageDetectorProcessor(
+			LanguageDetectorProcessor languageDetectorProcessor) {
+		this.languageDetectorProcessor = languageDetectorProcessor;
+	}
+
 
 }

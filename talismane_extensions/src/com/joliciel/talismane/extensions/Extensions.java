@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.other;
+package com.joliciel.talismane.extensions;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -41,12 +41,12 @@ import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.other.corpus.CorpusProjectifier;
-import com.joliciel.talismane.other.corpus.CorpusStatistics;
-import com.joliciel.talismane.other.corpus.CorpusModifier;
-import com.joliciel.talismane.other.corpus.PosTaggerStatistics;
-import com.joliciel.talismane.other.standoff.StandoffReader;
-import com.joliciel.talismane.other.standoff.StandoffWriter;
+import com.joliciel.talismane.extensions.corpus.CorpusModifier;
+import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
+import com.joliciel.talismane.extensions.corpus.CorpusStatistics;
+import com.joliciel.talismane.extensions.corpus.PosTaggerStatistics;
+import com.joliciel.talismane.extensions.standoff.StandoffReader;
+import com.joliciel.talismane.extensions.standoff.StandoffWriter;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;

@@ -244,8 +244,12 @@ class RegexMarkerFilter implements TextMarkerFilter {
 			}
 		} // next match
 		
-		if (textMarkers.size()>0)
-			LOG.debug("Added markers: " + textMarkers);
+		if (textMarkers.size()>0) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("For regex: " + this.regex);
+				LOG.debug("Added markers: " + textMarkers);
+			}
+		}
 		return textMarkers;
 	}
 	
