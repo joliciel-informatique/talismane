@@ -1,3 +1,3 @@
 [#ftl]
-${sentence}
+${sentence.text}
 

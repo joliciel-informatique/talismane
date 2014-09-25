@@ -31,12 +31,12 @@ class EnglishRules implements LinguisticRules {
 		boolean result = false;
 		if (previousToken.equals("``") || previousToken.equals("“")
 				|| previousToken.equals("(") || previousToken.equals("[")
-				|| previousToken.equals("{") || previousToken.equals("/")) {
+				|| previousToken.equals("{") || previousToken.equals("/")|| previousToken.equals("$")) {
 			// do nothing
 		} else if (currentToken.equals(".")||currentToken.equals("?")||currentToken.equals("!")
 				||currentToken.equals(";")||currentToken.equals("''")||currentToken.equals(":")
 				||currentToken.equals(",")||currentToken.equals(")")||currentToken.equals("]")
-				||currentToken.equals("}")||currentToken.equals("”") || currentToken.equals("/")) {
+				||currentToken.equals("}")||currentToken.equals("”") || currentToken.equals("/")|| currentToken.equals("%")) {
 			// do nothing
 		} else if (currentToken.equals("'s")||currentToken.equals("'re")||currentToken.equals("'ll")
 				||currentToken.equals("'m")||currentToken.equals("'d")||currentToken.equals("'ve")||currentToken.equals("n't")) {

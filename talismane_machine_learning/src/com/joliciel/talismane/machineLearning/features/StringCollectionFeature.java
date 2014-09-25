@@ -24,11 +24,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
  * A feature that returns a collection of strings, each potentially with a weight.
- * Because this can return multiple results at runtime, it is only applicable to contexts
- * implementing HasRuntimeCollectionSupport.
  * @author Assaf Urieli
- *
- * @param <T> must implement HasRuntimeCollectionSupport, will cause runtime error otherwise
  */
 public interface StringCollectionFeature<T> extends Feature<T, List<WeightedOutcome<String>>> {
 

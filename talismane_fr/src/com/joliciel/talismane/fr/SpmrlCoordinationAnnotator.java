@@ -122,7 +122,9 @@ public class SpmrlCoordinationAnnotator {
 		
 		int lineCount = 0;
 		
-		ConllLine rootLine = new ConllLine("0\tROOT\tROOT\tROOT\troot\troot\t-1\troot\t-1\troot", -1);
+		String rootLineString = "0\tROOT\tROOT\tROOT\troot\troot\t-1\troot\t-1\troot";
+
+		ConllLine rootLine = new ConllLine(rootLineString, -1);
 		List<ConllLine> refLines = new ArrayList<ConllLine>();
 		refLines.add(rootLine);
 		
@@ -453,7 +455,7 @@ public class SpmrlCoordinationAnnotator {
 	
 	private static final class ConllLine {
 		public ConllLine(String line, int lineNumber) {
-			String[] parts = line.split("\t");
+			String[] parts = line.split("\t", -1);
 			index = Integer.parseInt(parts[0]);
 			word = parts[1];
 			lemma = parts[2];
@@ -465,7 +467,12 @@ public class SpmrlCoordinationAnnotator {
 			nonProjectiveGovernor = Integer.parseInt(parts[6]);
 			nonProjectiveLabel = parts[7];
 			governor = Integer.parseInt(parts[8]);
-			label = parts[9];
+			if (parts.length>=10)
+				label = parts[9];
+
+			for (int i=10; i<parts.length; i++) {
+				extras += "\t" + parts[i];
+			}
 
 			this.lineNumber = lineNumber;
 		}
@@ -479,12 +486,13 @@ public class SpmrlCoordinationAnnotator {
 		int nonProjectiveGovernor;
 		String nonProjectiveLabel;
 		int governor;
-		String label;
+		String label = "";
+		String extras = "";
 
 		int lineNumber;
 		
 		public String toString() {
-			return index + "\t" + word + "\t" + lemma + "\t" + cat + "\t" + posTag + "\t" + morphology + "\t" + nonProjectiveGovernor + "\t" + nonProjectiveLabel + "\t" + governor + "\t" + label;
+			return index + "\t" + word + "\t" + lemma + "\t" + cat + "\t" + posTag + "\t" + morphology + "\t" + nonProjectiveGovernor + "\t" + nonProjectiveLabel + "\t" + governor + "\t" + label + extras;
 		}
 	}
 }

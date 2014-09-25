@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.other.corpus;
+package com.joliciel.talismane.extensions.corpus;
 
 import java.io.File;
 import java.io.FileInputStream;

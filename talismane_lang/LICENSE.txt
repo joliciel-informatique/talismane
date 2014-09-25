@@ -1,0 +1,37 @@
+TALISMANE
+
+Talismane is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Talismane is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with Talismane.  If not, see http://www.gnu.org/licenses/.
+
+The pre-packaged French deployment of Talimane is distributed with the following
+resources:
+
+PENN TREEBANK
+A set of models based on the Penn Treebank:
+http://www.cis.upenn.edu/~treebank/
+
+These models can be used for research purposes provided that you have a license for the Penn Treebank. If you want to use them for commercial applications, please contact the Linguistic Data Consortium to find out which conditions apply.
+
+DELA
+A lexicon derived from the Dela lexicon:
+http://infolingu.univ-mlv.fr/DonneesLinguistiques/Dictionnaires/telechargement.html
+
+The derived version is visible in the lexicons directory.
+
+Dela is available under the Lesser General Public License For Linguistic Resources:
+http://infolingu.univ-mlv.fr/DonneesLinguistiques/Lexiques-Grammaires/lgpllr.html
+
+
+
+
+

@@ -28,6 +28,7 @@ import com.joliciel.frenchTreebank.export.TreebankExportServiceLocator;
 import com.joliciel.frenchTreebank.search.SearchService;
 import com.joliciel.frenchTreebank.search.SearchServiceImpl;
 import com.joliciel.frenchTreebank.upload.TreebankUploadServiceLocator;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
@@ -51,6 +52,7 @@ public class TreebankServiceLocator {
     private PosTaggerService posTaggerService;
     private FilterService filterService;
     private TokenFilterService tokenFilterService;
+    private TalismaneService talismaneService;
     
     private static TreebankServiceLocator instance = null;
     
@@ -59,6 +61,7 @@ public class TreebankServiceLocator {
     	this.posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
     	this.filterService = talismaneServiceLocator.getFilterServiceLocator().getFilterService();
     	this.tokenFilterService = talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService();
+    	this.talismaneService = talismaneServiceLocator.getTalismaneService();
     }
     
     public static TreebankServiceLocator getInstance(TalismaneServiceLocator talismaneServiceLocator) {
@@ -163,6 +166,10 @@ public class TreebankServiceLocator {
 
 	public TokenFilterService getTokenFilterService() {
 		return tokenFilterService;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
 	}
 
 

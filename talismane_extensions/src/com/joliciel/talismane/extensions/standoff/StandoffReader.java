@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.other.standoff;
+package com.joliciel.talismane.extensions.standoff;
 
 import java.util.ArrayList;
 import java.util.HashMap;

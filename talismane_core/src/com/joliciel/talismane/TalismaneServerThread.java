@@ -27,6 +27,7 @@ import java.net.Socket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 
 /**
@@ -92,8 +93,8 @@ class TalismaneServerThread extends Thread {
     	}
     	
 		@Override
-		public void onNextSentence(String sentence, Writer writer) {
-        	if (sentence.equals("@SHUTDOWN")) {
+		public void onNextSentence(Sentence sentence, Writer writer) {
+        	if (sentence.getText().equals("@SHUTDOWN")) {
         		server.setListening(false);
         	} else {
         		if (wrappedProcessor!=null)

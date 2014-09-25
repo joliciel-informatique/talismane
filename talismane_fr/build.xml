@@ -9,7 +9,7 @@
 		<echo message="try targets jar, etc." />
 	</target>
 	
-	<target name="init" description="Initializes properties that are used by other targets.">
+	<target name="init" description="Initializes properties that are used by extensions targets.">
 		<property name="project" value="${ant.project.name}" />
 		<property name="prettyName" value="Talismane for French" />
 		<property name="sharedLib" value="../lib"/>
@@ -37,7 +37,7 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-other-${talismane.version}.jar" />
+				<include name="talismane-extensions-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 			</fileset>
 			<!-- build output path -->
@@ -52,7 +52,7 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-other-${talismane.version}.jar" />
+				<include name="talismane-extensions-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 			</fileset>
 		</path>
@@ -107,7 +107,7 @@
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
 				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-other-${talismane.version}.jar" />
+				<include name="talismane-extensions-${talismane.version}.jar" />
 				<include name="talismane-ftb-${talismane.version}.jar" />
 			</fileset>
 		</zip>
@@ -132,7 +132,7 @@
 			<include name="talismane-machineLearning-${talismane.version}.jar" />
 			<include name="talismane-core-${talismane.version}.jar" />
 			<include name="talismane-lefff-${talismane.version}.jar" />
-			<include name="talismane-other-${talismane.version}.jar" />
+			<include name="talismane-extensions-${talismane.version}.jar" />
 			<include name="talismane-ftb-${talismane.version}.jar" />
 		</fileset>
             </lib>

@@ -29,17 +29,17 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 
 /**
  * A Lexical Entry reader based on a regex.<br/>
- * The regex needs to contain the following five capturing groups, indicated by the following strings:<br/>
- * <li>%TOKEN%: the token - note that we assume CoNLL formatting (with underscores for spaces and for empty tokens). The sequence &amp;und; should be used for true underscores.</li>
- * <li>%LEMMA%: the lemma - note that we assume CoNLL formatting (with underscores for spaces and for missing lemmas)</li>
+ * The regex needs to contain the following four capturing groups, indicated by the following strings:<br/>
+ * <li>%TOKEN%: the token</li>
+ * <li>%LEMMA%: the lemma</li>
  * <li>%POSTAG%: the token's pos-tag - optional, since this might be read from the %MORPH% string.</li>
- * <li>%MORPH%: the token's morphology.<br/>
+ * <li>%MORPH%: the token's morphology - optional, but either %POSTAG% or %MORPH% are required.<li/>
  * The placeholders, except for %MORPH%, will be replaced by (.+) meaning no empty strings allowed.
  * @author Assaf Urieli
  *
  */
 public class RegexLexicalEntryReader implements LexicalEntryReader {
-	private static final String DEFAULT_REGEX = ".*\\t%TOKEN%\\t%LEMMA%\\t%POSTAG%\\t.*\\t%MORPH%\\t.*\\t.*\\t_\\t_";;
+	private static final String DEFAULT_REGEX = "%TOKEN%\\t%LEMMA%\\t%POSTAG%\\t%MORPH%";;
 	private Pattern pattern;
 	private String regex = DEFAULT_REGEX;
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
@@ -67,7 +67,9 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 		if (placeholderIndexMap.get("%POSTAG%")!=null)
 			postag = matcher.group(placeholderIndexMap.get("%POSTAG%"));
 		
-		String morphology = matcher.group(placeholderIndexMap.get("%MORPH%"));
+		String morphology = "";
+		if (placeholderIndexMap.get("%MORPH%")!=null)
+			morphology = matcher.group(placeholderIndexMap.get("%MORPH%"));
 		
 		LexicalEntry lexicalEntry = this.morphologyReader.readEntry(token, lemma, postag, morphology);
 		return lexicalEntry;
@@ -86,16 +88,14 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 			int posTagPos = regex.indexOf("%POSTAG%");
 
 			int morphPos = regex.indexOf("%MORPH%");
-			if (morphPos<0)
-				throw new TalismaneException("The regex must contain the string \"%MORPH%\"");
-			
 			
 			Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
 			placeholderMap.put(tokenPos, "%TOKEN%");
 			placeholderMap.put(lemmaPos, "%LEMMA%");
 			if (posTagPos>=0)
 				placeholderMap.put(posTagPos, "%POSTAG%");
-			placeholderMap.put(morphPos, "%MORPH%");
+			if (morphPos>=0)
+				placeholderMap.put(morphPos, "%MORPH%");
 			
 			int i = 1;
 			for (String placeholderName : placeholderMap.values()) {

@@ -42,9 +42,9 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader,
 	PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader, SentenceDetectorAnnotatedCorpusReader {
 	/**
-	 * The default regex (if none is set) - corresponds to the CONLL format.
+	 * The default regex (if none is set) - corresponds to the CONLL format with the pos-tag at column 4 rather than 5.
 	 */
-	public static final String DEFAULT_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%\\t.*\\t.*";
+	public static final String DEFAULT_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t%NON_PROJ_GOVERNOR%\\t%NON_PROJ_LABEL%\\t%GOVERNOR%\\t%LABEL%";
 	
 	/**
 	 * The regex used to find the various data items.

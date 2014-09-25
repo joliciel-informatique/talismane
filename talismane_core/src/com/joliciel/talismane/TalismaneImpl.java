@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.logging.Log;
@@ -40,6 +41,10 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceHolder;
 import com.joliciel.talismane.filters.TextMarker;
 import com.joliciel.talismane.filters.TextMarkerFilter;
+import com.joliciel.talismane.languageDetector.LanguageDetector;
+import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
+import com.joliciel.talismane.languageDetector.LanguageDetectorService;
+import com.joliciel.talismane.languageDetector.LanguageOutcome;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
@@ -84,6 +89,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.Pattern
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
+import com.joliciel.talismane.utils.WeightedOutcome;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
 
@@ -98,6 +104,7 @@ class TalismaneImpl implements Talismane {
 
 	private Reader reader;
 	private Writer writer;
+	private LanguageDetectorProcessor languageDetectorProcessor;
 	private SentenceProcessor sentenceProcessor;
 	private TokenSequenceProcessor tokenSequenceProcessor;
 	private PosTagSequenceProcessor posTagSequenceProcessor;
@@ -110,6 +117,7 @@ class TalismaneImpl implements Talismane {
 	private ParserService parserService;
 	private FilterService filterService;
 	private MachineLearningService machineLearningService;
+	private LanguageDetectorService languageDetectorService;
 	
 	private TalismaneSession talismaneSession;
 	
@@ -127,6 +135,8 @@ class TalismaneImpl implements Talismane {
 
 		PerformanceMonitor.start(config.getPerformanceConfigFile());
 		try {
+			if (this.getLanguageDetectorProcessor()==null)
+				this.setLanguageDetectorProcessor(config.getLanguageDetectorProcessor());
 			if (this.getSentenceProcessor()==null)
 				this.setSentenceProcessor(config.getSentenceProcessor());
 			if (this.getTokenSequenceProcessor()==null)
@@ -143,7 +153,26 @@ class TalismaneImpl implements Talismane {
 			case analyse:
 				MONITOR.startTask("analyse");
 				try {
-					this.analyse(config);
+					switch (config.getModule()) {
+					case LanguageDetector:
+						LanguageDetector languageDetector = config.getLanguageDetector();
+						if (this.getLanguageDetectorProcessor()==null)
+							throw new TalismaneException("Cannot analyse language detector output without a language detector processor!");
+						
+						while (config.getSentenceCorpusReader().hasNextSentence()) {
+							String sentence = config.getSentenceCorpusReader().nextSentence();
+							MONITOR.startTask("processLanguages");
+							try {
+								List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
+								this.getLanguageDetectorProcessor().onNextText(sentence, results, this.getWriter());
+							} finally {
+								MONITOR.endTask("processLanguages");
+							}
+						}
+						break;
+					default:
+						this.analyse(config);						
+					}
 				} finally {
 					MONITOR.endTask("analyse");
 				}
@@ -152,6 +181,21 @@ class TalismaneImpl implements Talismane {
 				MONITOR.startTask("process");
 				try {
 					switch (config.getModule()) {
+					case SentenceDetector:
+						if (this.getSentenceProcessor()==null)
+							throw new TalismaneException("Cannot process sentence detector output without a sentence processor!");
+						
+						while (config.getSentenceCorpusReader().hasNextSentence()) {
+							String text = config.getSentenceCorpusReader().nextSentence();
+							Sentence sentence = this.filterService.getSentence(text);
+							MONITOR.startTask("processSentence");
+							try {
+								this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
+							} finally {
+								MONITOR.endTask("processSentence");
+							}
+						}
+						break;
 					case Tokeniser:
 						if (this.getTokenSequenceProcessor()==null)
 							throw new TalismaneException("Cannot process tokeniser output without a token sequence processor!");
@@ -289,6 +333,20 @@ class TalismaneImpl implements Talismane {
 				MONITOR.startTask("train");
 				try {
 					switch (config.getModule()) {
+					case LanguageDetector: {
+						File modelFile = new File(config.getLanguageModelFilePath());
+						File modelDir = modelFile.getParentFile();
+						modelDir.mkdirs();
+						
+						ClassificationModelTrainer<LanguageOutcome> trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
+						
+						DecisionFactory<LanguageOutcome> decisionFactory = this.getLanguageDetectorService().getDecisionFactory();
+						ClassificationModel<LanguageOutcome> languageModel = trainer.trainModel(config.getClassificationEventStream(), decisionFactory, config.getDescriptors());
+						if (config.getExternalResourceFinder()!=null)
+							languageModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
+						languageModel.persist(modelFile);
+						break;
+					}
 					case SentenceDetector: {
 						File modelFile = new File(config.getSentenceModelFilePath());
 						File modelDir = modelFile.getParentFile();
@@ -679,7 +737,7 @@ class TalismaneImpl implements Talismane {
 		    			sentence = sentences.poll();
 		    			LOG.debug("Sentence: " + sentence);
 		    			if (this.getSentenceProcessor()!=null)
-		    				this.getSentenceProcessor().onNextSentence(sentence.getText(), this.getWriter());
+		    				this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
 	    			} // need to read next sentence
 	    			
 	    			List<TokenSequence> tokenSequences = null;
@@ -776,6 +834,16 @@ class TalismaneImpl implements Talismane {
 			}
 
 		}
+	}
+
+	
+	public LanguageDetectorProcessor getLanguageDetectorProcessor() {
+		return languageDetectorProcessor;
+	}
+
+	public void setLanguageDetectorProcessor(
+			LanguageDetectorProcessor languageDetectorProcessor) {
+		this.languageDetectorProcessor = languageDetectorProcessor;
 	}
 
 	@Override
@@ -959,4 +1027,15 @@ class TalismaneImpl implements Talismane {
 			model.persist(parserModelFile);
 		}
     }
+
+	public LanguageDetectorService getLanguageDetectorService() {
+		return languageDetectorService;
+	}
+
+	public void setLanguageDetectorService(
+			LanguageDetectorService languageDetectorService) {
+		this.languageDetectorService = languageDetectorService;
+	}
+    
+    
 }
