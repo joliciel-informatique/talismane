@@ -215,7 +215,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 						}
 					}
 				} finally {
-					MONITOR.endTask("pattern matching");
+					MONITOR.endTask();
 				}
 				
 				// we want to create the n most likely token sequences
@@ -242,7 +242,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 							}
 						}
 					} finally {
-						MONITOR.endTask("analyse features");
+						MONITOR.endTask();
 					}
 					
 					List<Decision<TokeniserOutcome>> decisions = null;
@@ -259,7 +259,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 							decision.addAuthority(match.getPattern().getName());
 						}
 					} finally {
-						MONITOR.endTask("make decision");
+						MONITOR.endTask();
 					}
 					
 					matchSequenceDecisionMap.put(matchSequence, decisions);
@@ -449,7 +449,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 		
 						} // next sequence in the old heap
 					} finally {
-						MONITOR.endTask("heap sort");
+						MONITOR.endTask();
 					}
 				} // next token
 				
@@ -496,7 +496,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 	
 			return sequences;
 		} finally {
-			MONITOR.endTask("tokeniseWithDecisions");
+			MONITOR.endTask();
 		}
 	}
 	

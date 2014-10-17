@@ -146,7 +146,7 @@ class SimpleTokeniser implements Tokeniser {
 	
 			return sequences;
 		} finally {
-			MONITOR.endTask("tokeniseWithDecisions");
+			MONITOR.endTask();
 		}
 	}
 	

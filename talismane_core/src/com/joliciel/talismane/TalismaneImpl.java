@@ -166,7 +166,7 @@ class TalismaneImpl implements Talismane {
 								List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
 								this.getLanguageDetectorProcessor().onNextText(sentence, results, this.getWriter());
 							} finally {
-								MONITOR.endTask("processLanguages");
+								MONITOR.endTask();
 							}
 						}
 						break;
@@ -174,7 +174,7 @@ class TalismaneImpl implements Talismane {
 						this.analyse(config);						
 					}
 				} finally {
-					MONITOR.endTask("analyse");
+					MONITOR.endTask();
 				}
 				break;
 			case process:
@@ -192,7 +192,7 @@ class TalismaneImpl implements Talismane {
 							try {
 								this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
 							} finally {
-								MONITOR.endTask("processSentence");
+								MONITOR.endTask();
 							}
 						}
 						break;
@@ -206,7 +206,7 @@ class TalismaneImpl implements Talismane {
 							try {
 								this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence, this.getWriter());
 							} finally {
-								MONITOR.endTask("processTokenSequence");
+								MONITOR.endTask();
 							}
 						}
 						break;
@@ -221,7 +221,7 @@ class TalismaneImpl implements Talismane {
 								try {
 									this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence, this.getWriter());
 								} finally {
-									MONITOR.endTask("processPosTagSequence");
+									MONITOR.endTask();
 								}
 							}
 						} finally {
@@ -241,7 +241,7 @@ class TalismaneImpl implements Talismane {
 								try {
 									this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration, this.getWriter());
 								} finally {
-									MONITOR.endTask("processParseConfiguration");
+									MONITOR.endTask();
 								}
 							}
 						} finally {
@@ -252,7 +252,7 @@ class TalismaneImpl implements Talismane {
 						throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
 					}
 				} finally {
-					MONITOR.endTask("process");
+					MONITOR.endTask();
 				}
 				break;
 			case evaluate:
@@ -269,7 +269,7 @@ class TalismaneImpl implements Talismane {
 							sentenceErrorWriter.flush();
 							sentenceErrorWriter.close();
 						} finally {
-							MONITOR.endTask("sentenceDetectorEvaluate");
+							MONITOR.endTask();
 						}
 						break;
 					case Tokeniser:
@@ -278,7 +278,7 @@ class TalismaneImpl implements Talismane {
 						try {
 							tokeniserEvaluator.evaluate(config.getTokenCorpusReader());
 						} finally {
-							MONITOR.endTask("tokeniserEvaluate");
+							MONITOR.endTask();
 						}
 						break;
 					case PosTagger:
@@ -287,7 +287,7 @@ class TalismaneImpl implements Talismane {
 						try {
 							posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());
 						} finally {
-							MONITOR.endTask("posTaggerEvaluate");
+							MONITOR.endTask();
 						}
 						break;
 					case Parser:
@@ -296,14 +296,14 @@ class TalismaneImpl implements Talismane {
 						try {
 							parserEvaluator.evaluate(config.getParserCorpusReader());
 						} finally {
-							MONITOR.endTask("parserEvaluate");
+							MONITOR.endTask();
 						}
 						break;
 					default:
 						throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
 					}
 				} finally {
-					MONITOR.endTask("evaluate");
+					MONITOR.endTask();
 				}
 				break;
 			case compare:
@@ -326,7 +326,7 @@ class TalismaneImpl implements Talismane {
 						throw new TalismaneException("Command 'compare' does not yet support module: " + config.getModule());
 					}
 				} finally {
-					MONITOR.endTask("compare");
+					MONITOR.endTask();
 				}
 				break;
 			case train:
@@ -448,7 +448,7 @@ class TalismaneImpl implements Talismane {
 						throw new TalismaneException("Command 'train' does not yet support module: " + config.getModule());
 					}
 				} finally {
-					MONITOR.endTask("train");
+					MONITOR.endTask();
 				}
 				break;
 			default:

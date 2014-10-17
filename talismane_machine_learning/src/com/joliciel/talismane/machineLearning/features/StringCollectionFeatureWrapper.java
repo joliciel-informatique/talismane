@@ -71,7 +71,7 @@ class StringCollectionFeatureWrapper<T> extends AbstractMonitorableFeature<T,Lis
 					collectionResultList.add(collectionResults);
 			}
 		} finally {
-			MONITOR.endTask("collection results");
+			MONITOR.endTask();
 		}
 		
 		if (collectionResultList.size()>0) {
@@ -98,7 +98,7 @@ class StringCollectionFeatureWrapper<T> extends AbstractMonitorableFeature<T,Lis
 					crossProduct = newCrossProduct;
 				}
 			} finally {
-				MONITOR.endTask("cross product");
+				MONITOR.endTask();
 			}
 			
 			// Test the wrapped feature for each set of collection results in the cross-product
@@ -133,11 +133,11 @@ class StringCollectionFeatureWrapper<T> extends AbstractMonitorableFeature<T,Lis
 							}
 						}
 					} finally {
-						MONITOR.endTask("build final list");
+						MONITOR.endTask();
 					}
 				}
 			} finally {
-				MONITOR.endTask("test wrapped feature");
+				MONITOR.endTask();
 			}
 			if (finalList.size()>0)
 				finalResult = this.generateResult(finalList);

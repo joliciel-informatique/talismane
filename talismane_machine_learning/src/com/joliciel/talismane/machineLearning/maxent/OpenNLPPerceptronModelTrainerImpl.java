@@ -85,7 +85,7 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 			try {
 				perceptronModel =  trainer.trainModel(iterations, dataIndexer, cutoff, useAverage);
 			} finally {
-				MONITOR.endTask("train");
+				MONITOR.endTask();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

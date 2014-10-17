@@ -32,6 +32,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  *
  */
 public class EmptyLexicon implements PosTaggerLexicon {
+	private static final long serialVersionUID = 1L;
 	PosTagSet posTagSet;
 	PosTagMapper posTagMapper;
 
@@ -82,6 +83,11 @@ public class EmptyLexicon implements PosTaggerLexicon {
 
 	public void setPosTagMapper(PosTagMapper posTagMapper) {
 		this.posTagMapper = posTagMapper;
+	}
+
+	@Override
+	public String getName() {
+		return this.getClass().getSimpleName();
 	}
 
 

@@ -1,18 +1,12 @@
 package com.joliciel.talismane.lexicon;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import gnu.trove.map.hash.THashMap;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,62 +19,121 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 
 /**
- * A lexicon contained in a file.
- * Assumes that the lexical entry categories are already set to pos-tag codes for the current
- * posTagSet.
+ * <p>A lexicon contained in a text file with one line per entry.</p>
+ * <p>All empty lines are lines starting with a # will be ignored.</p>
+ * <p>All other lines are assumed to be lexicon entries, to be interpreted using the provided LexiconEntryReader</p>
+ * 
+ * <p>If the posTagMapper is null, assumes that the lexical entry categories are already set to pos-tag codes for the current
+ * posTagSet.</p>
  * @author Assaf Urieli
  *
  */
 public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalismaneSession {
-	private static final long serialVersionUID = -1288465773172734665L;
+	private static final long serialVersionUID = 2L;
 	private static final Log LOG = LogFactory.getLog(LexiconFile.class);
-	Map<String,List<LexicalEntry>> entryMap = new HashMap<String, List<LexicalEntry>>();
-	Map<String,List<LexicalEntry>> lemmaEntryMap = new HashMap<String, List<LexicalEntry>>();
-	TalismaneSession talismaneSession;
-	PosTagSet posTagSet;
-	PosTagMapper posTagMapper;
-
-	public LexiconFile(LexicalEntryReader reader, File file) throws IOException {
-		this(reader, new FileInputStream(file));
-	}
-
-	public LexiconFile(LexicalEntryReader reader, InputStream inputStream) throws IOException {
-		this(reader, new BufferedReader(new InputStreamReader(inputStream, "UTF-8")));
+	private Map<String,List<LexicalEntry>> entryMap = new THashMap<String, List<LexicalEntry>>();
+	private Map<String,List<LexicalEntry>> lemmaEntryMap = new THashMap<String, List<LexicalEntry>>();
+	private TalismaneSession talismaneSession;
+	private PosTagSet posTagSet;
+	private PosTagMapper posTagMapper;
+	private String name;
+	private transient LexicalEntryReader reader = null;
+	private transient List<List<String>> exclusions;
+	private transient List<String> exclusionAttributes;
+	private transient Set<String> categories;
+	
+	private static final int INITIAL_CAPACITY = 1000;
+	private Map<LexicalAttribute,Map<String,Byte>> attributeStringToByteMap = new THashMap<LexicalAttribute, Map<String,Byte>>(INITIAL_CAPACITY, 0.75f);
+	private Map<LexicalAttribute,Map<Byte,String>> attributeByteToStringMap = new THashMap<LexicalAttribute, Map<Byte,String>>(INITIAL_CAPACITY, 0.75f);
+	private Map<String,LexicalAttribute> nameToAttributeMap = new THashMap<String, LexicalAttribute>();
+	private int otherAttributeIndex = 0;
+	
+	public LexiconFile(String name, RegexLexicalEntryReader reader) {
+		this.name = name;
+		this.reader = reader;
+		reader.setLexiconFile(this);
 	}
 	
-	public LexiconFile(LexicalEntryReader reader, Reader fileReader) {
-		super();
-		
-		Scanner scanner = new Scanner(fileReader);
-
-		int entryCount = 0;
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.length()>0 && !line.startsWith("#")) {
-				LexicalEntry lexicalEntry = reader.readEntry(line);
-				entryCount++;
-				
-				if (entryCount % 1000 == 0) {
-					LOG.debug("Read " + entryCount + " entries");
+	public void load() {
+		Map<String, List<List<String>>> exclusionMap = null;
+		if (this.exclusions!=null) {
+			exclusionMap = new HashMap<String, List<List<String>>>();
+			for (List<String> exclusion : exclusions) {
+				List<List<String>> myExclusions = exclusionMap.get(exclusion.get(0));
+				if (myExclusions==null) {
+					myExclusions = new ArrayList<List<String>>();
+					exclusionMap.put(exclusion.get(0), myExclusions);
 				}
-				
-				List<LexicalEntry> entries = entryMap.get(lexicalEntry.getWord());
-				if (entries==null) {
-					entries = new ArrayList<LexicalEntry>();
-					entryMap.put(lexicalEntry.getWord(), entries);
-				}
-				entries.add(lexicalEntry);
-				String key = lexicalEntry.getLemma() + "|" + lexicalEntry.getLemmaComplement();
-				List<LexicalEntry> entriesForLemma = lemmaEntryMap.get(key);
-				if (entriesForLemma==null) {
-					entriesForLemma = new ArrayList<LexicalEntry>();
-					lemmaEntryMap.put(key, entriesForLemma);
-				}
-				entriesForLemma.add(lexicalEntry);
+				myExclusions.add(exclusion);
 			}
 		}
+		int entryCount = 0;
+		int categoryExcludeCount = 0;
+		int exclusionCount = 0;
+		int addedCount = 0;
+		while (reader.hasNextLexicalEntry()) {
+			LexicalEntry lexicalEntry = reader.nextLexicalEntry();
+			
+			entryCount++;
+			
+			if (entryCount % 1000 == 0) {
+				LOG.debug("Read " + entryCount + " entries");
+			}
+			
+			if (this.categories!=null) {
+				if (!this.categories.contains(lexicalEntry.getCategory())) {
+					categoryExcludeCount++;
+					continue;
+				}
+			}
+			
+			boolean exclude = false;
+			if (exclusionMap!=null && this.exclusionAttributes!=null) {
+				String firstAttribute = this.exclusionAttributes.get(0);
+				String myFirstAttribute = lexicalEntry.getAttribute(firstAttribute);
+				if (exclusionMap.containsKey(myFirstAttribute)) {
+					for (List<String> exclusion : exclusionMap.get(myFirstAttribute)) {
+						boolean foundExclusion = true;
+						for (int i=1; i<this.exclusionAttributes.size(); i++) {
+							if (!exclusion.get(i).equals(lexicalEntry.getAttribute(this.exclusionAttributes.get(i)))) {
+								foundExclusion = false;
+								break;
+							}
+						} // next attribute in exclusion
+						if (foundExclusion) {
+							exclude = true;
+							break;
+						} // do we have a match
+					} // next exclusion
+				} // first attribute is on exclusion map
+			} // have exclusions
+			
+			if (exclude) {
+				LOG.debug("Excluding " + lexicalEntry.toString());
+				exclusionCount++;
+				continue;
+			}
+
+			addedCount++;
+			List<LexicalEntry> entries = entryMap.get(lexicalEntry.getWord());
+			if (entries==null) {
+				entries = new ArrayList<LexicalEntry>();
+				entryMap.put(lexicalEntry.getWord(), entries);
+			}
+			entries.add(lexicalEntry);
+			String key = lexicalEntry.getLemma() + "|" + lexicalEntry.getLemmaComplement();
+			List<LexicalEntry> entriesForLemma = lemmaEntryMap.get(key);
+			if (entriesForLemma==null) {
+				entriesForLemma = new ArrayList<LexicalEntry>();
+				lemmaEntryMap.put(key, entriesForLemma);
+			}
+			entriesForLemma.add(lexicalEntry);
+		}
+		
 		LOG.debug("Read " + entryCount + " entries");
-		scanner.close();
+		LOG.debug("Skipped " + categoryExcludeCount + " entries for categories");
+		LOG.debug("Skipped " + exclusionCount + " entries for exclusions");
+		LOG.debug("Added " + addedCount + " entries");
 	}
 
 	@Override
@@ -203,4 +256,103 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 		this.talismaneSession = talismaneSession;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public List<List<String>> getExclusions() {
+		return exclusions;
+	}
+
+	/**
+	 * A list of specific items to exclude when loading the lexicon.
+	 * Each internal list is a list of attributes, all of which must match for the provided
+	 * {@link #getExclusionAttributes()} for the entry to get excluded.
+	 * @return
+	 */
+	public void setExclusions(List<List<String>> exclusions) {
+		this.exclusions = exclusions;
+	}
+
+	public List<String> getExclusionAttributes() {
+		return exclusionAttributes;
+	}
+
+	/**
+	 * A list of attributes to match based on the exclusion list in
+	 * {@link #getExclusions()}.
+	 * @param exclusionAttributes
+	 */
+	public void setExclusionAttributes(List<String> exclusionAttributes) {
+		this.exclusionAttributes = exclusionAttributes;
+	}
+
+	/**
+	 * A set of categories to include when loading.
+	 * If null, all categories are loaded.
+	 * @return
+	 */
+	public Set<String> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Set<String> categories) {
+		this.categories = categories;
+	}
+	
+	public byte getOrCreateAttributeCode(LexicalAttribute attribute, String value) {
+		Map<String,Byte> attributeCodes = attributeStringToByteMap.get(attribute);
+		Map<Byte,String> attributeValues = attributeByteToStringMap.get(attribute);
+		byte code = 0;
+		if (attributeCodes==null) {
+			attributeCodes = new THashMap<String, Byte>();
+			attributeStringToByteMap.put(attribute, attributeCodes);
+			attributeValues = new THashMap<Byte, String>();
+			attributeByteToStringMap.put(attribute, attributeValues);
+			
+		}
+		
+		Byte codeObj = attributeCodes.get(value);
+		code = codeObj==null ? 0 : codeObj.byteValue();
+		
+		if (code==0) {
+			code = (byte) (attributeCodes.size()+1);
+			attributeCodes.put(value, code);
+			attributeValues.put(code, value);
+		}
+		
+		return code;
+	}
+	
+	public byte getAttributeCode(LexicalAttribute attribute, String value) {
+		Map<String,Byte> attributeCodes = attributeStringToByteMap.get(attribute);
+		byte code = 0;
+		if (attributeCodes!=null) {
+			Byte codeObj = attributeCodes.get(value);
+			code = codeObj==null ? 0 : codeObj.byteValue();
+		}
+		return code;
+	}
+	
+	public String getAttributeValue(LexicalAttribute attribute, byte code) {
+		Map<Byte,String> attributeValues = attributeByteToStringMap.get(attribute);
+		String value = null;
+		if (attributeValues!=null) {
+			value = attributeValues.get(code);
+		}
+		if (value==null)
+			value = "";
+		return value;
+	}
+	
+	public LexicalAttribute getAttributeForName(String name) {
+		LexicalAttribute attribute = this.nameToAttributeMap.get(name);
+		if (attribute==null) {
+			otherAttributeIndex++;
+			attribute = LexicalAttribute.valueOf("OtherAttribute" + otherAttributeIndex);
+			nameToAttributeMap.put(name, attribute);
+		}
+		return attribute;
+	}
+	
 }

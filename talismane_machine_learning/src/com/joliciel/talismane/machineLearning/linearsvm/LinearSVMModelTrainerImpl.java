@@ -193,7 +193,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			try {
 				model = Linear.train(problem, parameter);
 			} finally {
-				MONITOR.endTask("train");
+				MONITOR.endTask();
 			}
 			
 			LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>(model, descriptors, decisionFactory);
@@ -217,7 +217,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	
 			return linearSVMModel;
 		} finally {
-			MONITOR.endTask("trainModel");
+			MONITOR.endTask();
 		}
 	}
 

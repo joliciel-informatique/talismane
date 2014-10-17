@@ -442,7 +442,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			
 			return configuration!=null;
 		} finally {
-			MONITOR.endTask("hasNextConfiguration");
+			MONITOR.endTask();
 		}
 	}
 

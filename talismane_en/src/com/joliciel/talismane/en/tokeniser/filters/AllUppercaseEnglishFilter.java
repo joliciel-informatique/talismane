@@ -76,7 +76,7 @@ public class AllUppercaseEnglishFilter implements TokenSequenceFilter, NeedsTali
 			return;
 		
 		String word = token.getText().toLowerCase();
-		Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(word);
+		Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(word);
 		if (posTags.size()>0) {
 			token.setText(word);
 		}

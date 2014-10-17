@@ -65,7 +65,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 				try {
 					tokenSequences = tokeniser.tokenise(sentence);
 				} finally {
-					MONITOR.endTask("tokenise");
+					MONITOR.endTask();
 				}
 				
 				if (!propagateBeam) {
@@ -87,7 +87,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 					try {
 						posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
 					} finally {
-						MONITOR.endTask("posTag");
+						MONITOR.endTask();
 					}
 					if (!propagateBeam) {
 						PosTagSequence posTagSequence = posTagSequences.get(0);
@@ -101,7 +101,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 					try {
 						posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
 					} finally {
-						MONITOR.endTask("posTag");
+						MONITOR.endTask();
 					}
 					posTagSequences.add(posTagSequence);
 				}
@@ -118,7 +118,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 				try {
 					guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
 				} finally {
-					MONITOR.endTask("parse");
+					MONITOR.endTask();
 				}
 			} else {
 				ParseConfiguration bestGuess = null;
@@ -126,7 +126,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 				try {
 					bestGuess = parser.parseSentence(posTagSequences.get(0));
 				} finally {
-					MONITOR.endTask("parse");
+					MONITOR.endTask();
 				}
 				guessedConfigurations = new ArrayList<ParseConfiguration>();
 				guessedConfigurations.add(bestGuess);
@@ -138,7 +138,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 					observer.onNextParseConfiguration(realConfiguration, guessedConfigurations);
 				}
 			} finally {
-				MONITOR.endTask("observe");
+				MONITOR.endTask();
 			}
 			
 			sentenceIndex++;
@@ -152,7 +152,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 				observer.onEvaluationComplete();
 			}
 		} finally {
-			MONITOR.endTask("onEvaluationComplete");
+			MONITOR.endTask();
 		}
 	}
 

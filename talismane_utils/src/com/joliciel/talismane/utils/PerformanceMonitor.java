@@ -18,9 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayDeque;
@@ -60,10 +63,12 @@ public class PerformanceMonitor {
 	private static Map<String,Boolean> activeMonitors = new HashMap<String, Boolean>();
 	private static Map<String,PerformanceMonitor> monitors = new HashMap<String, PerformanceMonitor>();
 	private static PerformanceMonitor rootMonitor = null;
+	private static String filePath = null;
 	
 	private static final String ACTIVE_PREFIX = "talismane.monitor.";
 	private static final String ALL_ACTIVE = "talismane.monitoring.activated";
 	private static final String DEFAULT_ACTIVE = "talismane.monitoring.default";
+	private static final String FILE_PATH = "talismane.monitoring.file";
 	
 	private String name;
 	private String simpleName;
@@ -93,6 +98,8 @@ public class PerformanceMonitor {
 				} else if (key.equals(DEFAULT_ACTIVE)) {
 					boolean active = props.getProperty(key).equalsIgnoreCase("true");
 					defaultActive = active;
+				} else if (key.equals(FILE_PATH)) {
+					filePath = props.getProperty(key);
 				} else if (key.startsWith(ACTIVE_PREFIX)) {
 					String name = key.substring(ACTIVE_PREFIX.length());
 					boolean active = props.getProperty(key).equalsIgnoreCase("true");
@@ -200,19 +207,15 @@ public class PerformanceMonitor {
 	
 	/**
 	 * Indicates that a particular task is ending.
-	 * Must correspond to a startTask for the same task.
 	 * It's safest to place this in the finally block of a try block starting immediately after the corresponding startTask.
 	 * @param name
 	 */
-	public void endTask(String taskName) {
+	public void endTask() {
 		if (!active)
 			return;
-		String localName = this.simpleName + "." + taskName;
 		Task task = tasks.pop();
-		if (!task.name.equals(localName)) {
-			LOG.error("Mismatched task start and end: " + task.name + ", " + localName);
-			return;
-		}
+		String localName = task.name;
+
 		long duration = System.currentTimeMillis() - task.startTime;
 
 		task.totalTime += duration;
@@ -240,12 +243,28 @@ public class PerformanceMonitor {
 	public static void end() {
 		if (!activated)
 			return;
-		rootMonitor.endTask("root");
+		rootMonitor.endTask();
 		if (root.totalTime==0) {
 			long duration = System.currentTimeMillis() - root.startTime;
 			root.totalTime = duration;
 		}
 		logPerformance(root, 0, root, root.totalTime);
+		
+		if (filePath!=null) {
+			try {
+				Writer csvFileWriter = null;
+				File csvFile = new File(filePath);
+				
+				csvFile.delete();
+				csvFile.createNewFile();
+				csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+				PerformanceMonitor.writePerformanceCSV(csvFileWriter);
+				csvFileWriter.flush();
+				csvFileWriter.close();
+			} catch (Exception e) {
+				LogUtils.logError(LOG, e);
+			}
+		}
 	}
 	
 	static void logPerformance(Task task, int depth, Task parent, long rootTotalTime) {
@@ -374,6 +393,4 @@ public class PerformanceMonitor {
 	public static void setActivated(boolean active) {
 		PerformanceMonitor.activated = active;
 	}
-	
-	
 }

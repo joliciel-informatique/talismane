@@ -66,7 +66,7 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 
 			return wrappedFeatures;
 		} finally {
-			MONITOR.endTask("parseDescriptor");
+			MONITOR.endTask();
 		}
 	}
 

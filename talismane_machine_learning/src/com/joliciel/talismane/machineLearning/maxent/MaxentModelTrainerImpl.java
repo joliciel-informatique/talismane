@@ -85,7 +85,7 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 			try {
 				maxentModel =  trainer.trainModel(iterations, dataIndexer, cutoff);
 			} finally {
-				MONITOR.endTask("train");
+				MONITOR.endTask();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

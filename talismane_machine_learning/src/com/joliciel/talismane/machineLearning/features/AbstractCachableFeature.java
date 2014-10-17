@@ -42,7 +42,7 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 			try {
 				featureResult = this.checkInternal(context, env);
 			} finally {
-				monitor.endTask("check");
+				monitor.endTask();
 			}
 			this.putInCache(context, featureResult, env);
 		} else if (featureResult.getOutcome()==null) {

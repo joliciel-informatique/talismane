@@ -1,0 +1,37 @@
+# Dela to Talismane tagset mapping
+Category	Number	Tense	Person
+adj				JJ
+adj	singular			JJ
+adverb				RB
+conj				CC
+conjs				IN
+det				DT
+det	plural			DT
+det	singular			DT
+noun				NN
+noun	plural			NNS
+noun	singular			NN
+proper				NNP
+proper	plural			NNPS
+proper	singular			NNP
+prep				IN
+pronoun				PRP
+pronoun	plural			PRP
+pronoun	plural		1	PRP
+pronoun	plural		2	PRP
+pronoun	plural		3	PRP
+pronoun	singular			PRP
+pronoun	singular		1	PRP
+pronoun	singular		2	PRP
+pronoun	singular		3	PRP
+verb		gerondif		VBG
+verb		ind		VBP
+verb		inf		VB
+verb	plural	ind	1	VBP
+verb	plural	ind	2	VBP
+verb	plural	ind	3	VBP
+verb		ppast		VBN
+verb	singular	ind	1	VBD
+verb	singular	ind	1	VBP
+verb	singular	ind	2	VBP
+verb	singular	ind	3	VBZ

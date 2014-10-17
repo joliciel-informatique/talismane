@@ -18,11 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.en;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +43,7 @@ import com.joliciel.talismane.en.tokeniser.filters.AllUppercaseEnglishFilter;
 import com.joliciel.talismane.en.tokeniser.filters.LowercaseFirstWordEnglishFilter;
 import com.joliciel.talismane.en.tokeniser.filters.UpperCaseSeriesEnglishFilter;
 import com.joliciel.talismane.extensions.Extensions;
-import com.joliciel.talismane.lexicon.DefaultPosTagMapper;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
-import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
@@ -63,7 +58,6 @@ import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -87,7 +81,7 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	private static ClassificationModel<TokeniserOutcome> tokeniserModel;
 	private static ClassificationModel<PosTag> posTaggerModel;
 	private static MachineLearningModel parserModel;
-	private static PosTaggerLexicon lexicon;
+	private static List<PosTaggerLexicon> lexicons;
 
 	private enum CorpusFormat {
 		/** Penn-To-Dependency CoNLL-X format */
@@ -203,30 +197,13 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 
 
 	@Override
-	public PosTaggerLexicon getDefaultLexicon() {
-		try {
-			if (lexicon==null) {
-				PosTagSet posTagSet = this.getDefaultPosTagSet();
-				this.getTalismaneSession().setPosTagSet(posTagSet);
-				
-				InputStream posTagMapStream = this.getDefaultPosTagMapFromStream();
-				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTagMapStream, "UTF-8")));
-				
-				PosTagMapper posTagMapper = new DefaultPosTagMapper(scanner, posTagSet);
-				
-				LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
-				
-				ZipInputStream zis = getZipInputStreamFromResource("dela-en.zip");
-	
-				lexicon = deserializer.deserializeLexiconFile(zis);
-				lexicon.setPosTagSet(posTagSet);
-				lexicon.setPosTagMapper(posTagMapper);
-			}
-			return lexicon;
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
+	public List<PosTaggerLexicon> getDefaultLexicons() {
+		if (lexicons==null) {
+			LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
+			ZipInputStream zis = getZipInputStreamFromResource("lexicons_en.zip");
+			lexicons = deserializer.deserializeLexicons(zis);
 		}
+		return lexicons;
 	}
 
 	@Override
@@ -294,11 +271,6 @@ public class TalismaneEnglish implements LanguageSpecificImplementation {
 	public Scanner getDefaultTokenFiltersScanner() {
 		InputStream inputStream = getInputStreamFromResource("token_filters.txt");
 		return new Scanner(inputStream, "UTF-8");
-	}
-	
-	public InputStream getDefaultPosTagMapFromStream() {
-		InputStream inputStream = getInputStreamFromResource("delaPennPosTagMap.txt");
-		return inputStream;
 	}
 
 	@Override

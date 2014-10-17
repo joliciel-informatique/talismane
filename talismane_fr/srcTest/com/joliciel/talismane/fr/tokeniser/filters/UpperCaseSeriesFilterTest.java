@@ -27,7 +27,7 @@ public class UpperCaseSeriesFilterTest {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
-		talismaneSession.setLexicon(lexiconService);
+		talismaneSession.addLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -59,7 +59,7 @@ public class UpperCaseSeriesFilterTest {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
-		talismaneSession.setLexicon(lexiconService);
+		talismaneSession.addLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -90,7 +90,7 @@ public class UpperCaseSeriesFilterTest {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
-		talismaneSession.setLexicon(lexiconService);
+		talismaneSession.addLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -122,7 +122,7 @@ public class UpperCaseSeriesFilterTest {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
-		talismaneSession.setLexicon(lexiconService);
+		talismaneSession.addLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;
@@ -153,7 +153,7 @@ public class UpperCaseSeriesFilterTest {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
-		talismaneSession.setLexicon(lexiconService);
+		talismaneSession.addLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			PosTag posTagNC;

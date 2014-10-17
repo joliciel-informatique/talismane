@@ -84,7 +84,7 @@ public class AllUppercaseFrenchFilter implements TokenSequenceFilter, NeedsTalis
 		
 		List<String> possibleWords = getPossibleWords(token.getText());
 		for (String possibleWord : possibleWords) {
-			Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(possibleWord);
+			Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(possibleWord);
 			if (posTags.size()>0) {
 				token.setText(possibleWord);
 				break;

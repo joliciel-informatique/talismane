@@ -92,7 +92,7 @@ class LanguageDetectorImpl implements LanguageDetector {
 			
 			return results;
 		} finally {
-			MONITOR.endTask("detectLanguages");
+			MONITOR.endTask();
 		}
 	}
 	

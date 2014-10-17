@@ -71,7 +71,7 @@ public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Bo
 			if (posTagResult!=null) {
 				PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
 				String wordToCheck = wordToCheckResult.getOutcome();
-				PosTaggerLexicon lexicon = talismaneSession.getLexicon();
+				PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
 				Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
 				boolean hasPosTag = (posTags.contains(posTag));
 				result = this.generateResult(hasPosTag);

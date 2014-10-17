@@ -80,11 +80,11 @@ class PosTagFeatureTester implements PosTagSequenceProcessor {
 							if (featureResult!=null)
 								posTagFeatureResults.add(featureResult);
 						} finally {
-							MONITOR.endTask(posTaggerFeature.getCollectionName());
+							MONITOR.endTask();
 						}
 					}
 				} finally {
-					MONITOR.endTask("check features");					
+					MONITOR.endTask();					
 				}
 				
 				if (LOG.isTraceEnabled()) {

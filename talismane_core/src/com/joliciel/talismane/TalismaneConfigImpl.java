@@ -61,7 +61,6 @@ import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
 import com.joliciel.talismane.languageDetector.LanguageOutcome;
-import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -251,7 +250,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private String languageFeaturePath = null;
 	private String languageCorpusMapPath = null;
 	
-	private String lexiconDirPath = null;
+	private String lexiconPath = null;
 	private boolean replaceLexicon = false;
 
 	private String sentenceTemplateName = "sentence_template.ftl";
@@ -592,12 +591,12 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					dynamiseFeatures = argValue.equalsIgnoreCase("true");
 				else if (argName.equals("predictTransitions"))
 					predictTransitions = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("lexiconDir")) {
+				else if (argName.equals("lexicon")) {
 					if (argValue.startsWith("replace:")) {
 						replaceLexicon = true;
-						lexiconDirPath = argValue.substring("replace:".length());
+						lexiconPath = argValue.substring("replace:".length());
 					} else {
-						lexiconDirPath = argValue;
+						lexiconPath = argValue;
 					}
 				} else if (argName.equals("perceptronScoring")) {
 					PerceptronScoring perceptronScoring = PerceptronScoring.valueOf(argValue);
@@ -810,31 +809,22 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				talismaneSession.setTransitionSystem(transitionSystem);
 			}
 			
-			if (this.lexiconDirPath!=null) {
-				PosTaggerLexicon lexicon = null;
-				LexiconChain lexiconChain = null;
+			if (this.lexiconPath!=null) {				
+				File lexiconFile = this.getFile(lexiconPath);
+				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
+				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
+				for (PosTaggerLexicon oneLexicon : lexicons) {
+					talismaneSession.addLexicon(oneLexicon);
+				}
 				
-				if (replaceLexicon) {
-					lexiconChain = new LexiconChain();
-				} else {
-					lexicon = this.implementation.getDefaultLexicon();
-					if (lexicon instanceof LexiconChain) {
-						lexiconChain = (LexiconChain) lexicon;
-					} else {
-						lexiconChain = new LexiconChain();
-						lexiconChain.addLexicon(lexicon);
+				if (!replaceLexicon) {
+					List<PosTaggerLexicon> defaultLexicons = this.implementation.getDefaultLexicons();
+					if (defaultLexicons!=null) {
+						for (PosTaggerLexicon oneLexicon : defaultLexicons) {
+							talismaneSession.addLexicon(oneLexicon);
+						}
 					}
 				}
-				File lexiconDir = this.getFile(lexiconDirPath);
-				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
-				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconDir);
-				for (PosTaggerLexicon oneLexicon : lexicons) {
-					lexiconChain.addLexicon(oneLexicon);
-				}
-				
-				lexicon = lexiconChain;
-	
-				talismaneSession.setLexicon(lexicon);
 			}
 	
 			if (externalResourcePath!=null) {
@@ -3256,7 +3246,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
     	if (preloadLexicon) {
 	    	LOG.info("Loading lexicon");
 	    	// ping the lexicon to load it
-	    	talismaneSession.getLexicon();
+	    	talismaneSession.getMergedLexicon();
     	}
     	
     	// ping the models to load them

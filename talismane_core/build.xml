@@ -1,5 +1,6 @@
 <project name="talismane-core" default="jar" basedir=".">
     <import file="../ant/global.xml"/>
+    <import file="../ant/one-jar-ant-task.xml"/>
 	
 	<target name="about">
 		<echo message="try targets jar, etc." />
@@ -25,6 +26,15 @@
 			<!-- build output path -->
 			<pathelement location="${classes}"/>
 		</path>
+		<path id="classpath.jar">
+			<fileset dir="${dist}/lib">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${dist}">
+				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
+			</fileset>
+		</path>
 		<mkdir dir="${build}" />
 		<mkdir dir="${classes}" />
 		<mkdir dir="${doc}" />
@@ -47,8 +57,38 @@
 	</target>
 
 	<target name="jar" depends="compile">
-		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}" />
+	    <manifestclasspath property="jar.classpath" jarfile="${dist}/${project}-${talismane.version}.jar">
+	      <classpath refid="classpath.jar"/>
+	    </manifestclasspath>
+		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}">
+			<manifest>
+	    		<attribute name="Main-Class" value="com.joliciel.talismane.TalismaneMain"/>
+	    		<attribute name="Class-Path" value="${jar.classpath}"/>
+	    	</manifest>
+		</jar>
 	</target>
+	
+	<target name="one-jar" depends="jar">
+        <!-- Construct the One-JAR file -->   
+        <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
+        	<manifest>
+        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.TalismaneMain" />
+        	</manifest>
+            <main>
+                <!-- Construct main.jar from classes and source code -->
+                <fileset dir="${classes}"/>
+            </main>
+            <lib>
+				<fileset dir="${sharedLib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dist}">
+					<include name="talismane-utils-${talismane.version}.jar" />
+					<include name="talismane-machineLearning-${talismane.version}.jar" />
+				</fileset>
+            </lib>
+        </one-jar>
+    </target>
 	
 	<target name="javadoc" depends="compile">
 	  <javadoc packagenames="com.joliciel.*"
@@ -61,7 +101,7 @@
 	           use="true"
 	           windowtitle="${prettyName} API">
 	    <doctitle><![CDATA[<h1>Talismane Core API</h1>]]></doctitle>
-	    <bottom><![CDATA[<i>Copyright &#169; 2012 Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
+	    <bottom><![CDATA[<i>Copyright &#169; 2014 Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
 	    <tag name="todo" scope="all" description="To do:"/>
 	  </javadoc>
 	</target>

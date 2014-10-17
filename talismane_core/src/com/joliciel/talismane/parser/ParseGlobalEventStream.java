@@ -77,7 +77,7 @@ class ParseGlobalEventStream implements RankingEventStream<PosTagSequence> {
 			}
 			return targetConfiguration!=null;
 		} finally {
-			MONITOR.endTask("hasNext");
+			MONITOR.endTask();
 		}
 	}
 
@@ -104,7 +104,7 @@ class ParseGlobalEventStream implements RankingEventStream<PosTagSequence> {
 			}
 			return event;
 		} finally {
-			MONITOR.endTask("next");
+			MONITOR.endTask();
 		}
 	}
 	
@@ -122,7 +122,7 @@ class ParseGlobalEventStream implements RankingEventStream<PosTagSequence> {
 					}
 				}	
 			} finally {
-				MONITOR.endTask(parseFeature.getName());
+				MONITOR.endTask();
 			}
 		}
 		return featureResults;

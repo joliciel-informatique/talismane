@@ -38,14 +38,10 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import com.joliciel.lefff.LefffService;
-import com.joliciel.lefff.LefffServiceLocator;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.lexicon.LexicalEntryMorphologyReader;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
-import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
@@ -79,11 +75,8 @@ public class TermExtractorTest {
 		TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
 		talismaneSession.setTransitionSystem(transitionSystem);
 		
-		LefffServiceLocator lefffLocator = LefffServiceLocator.getInstance();
-		LefffService lefffService = lefffLocator.getLefffService();
-		LexicalEntryMorphologyReader lefffMorphologyReader = lefffService.getLexicalEntryMorphologyReader();
-		
-		LexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(lefffMorphologyReader);
+		//TODO: read morpholigical info from export
+		LexicalEntryReader lexicalEntryReader = null;
 		
 		ParserAnnotatedCorpusReader corpusReader = parserService.getRegexBasedCorpusReader(configurationReader);
 		corpusReader.setLexicalEntryReader(lexicalEntryReader);

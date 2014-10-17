@@ -1,0 +1,9 @@
+### Regex for the Dela text format
+Word	^([^\t]+)\t
+Lemma	^[^\t]+\t([^\t]+)\t
+Category	^[^\t]+\t[^\t]+\t([^\t]+)\t
+Morphology	^[^\t]+\t[^\t]+\t[^\t]+\t([^\t]+)$
+Gender	\bgender=([^\|]+)\b
+Number	\bnumber=([^\|]+)\b
+Tense	\btense=([^\|]+)\b
+Person	\bperson=([^\|]+)\b

@@ -156,7 +156,7 @@ class TreebankXmlReader implements TreebankReader {
 	    	}
 			return sentenceClosed;
 		} finally {
-			MONITOR.endTask("hasNextSentence");
+			MONITOR.endTask();
 		}
 	}
     

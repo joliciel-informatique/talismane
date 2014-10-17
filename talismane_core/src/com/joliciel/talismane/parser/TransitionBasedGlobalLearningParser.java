@@ -263,7 +263,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 								}
 							}
 						} finally {
-							MONITOR.endTask("check rules");
+							MONITOR.endTask();
 						}
 					}
 					
@@ -303,7 +303,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 									transitions.removeAll(eliminatedTransitions);
 								}
 							} finally {
-								MONITOR.endTask("check negative rules");
+								MONITOR.endTask();
 							}
 						}
 					} // has a positive rule been applied?
@@ -350,7 +350,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 												}
 											}
 										} finally {
-											MONITOR.endTask(feature.getName());
+											MONITOR.endTask();
 										}
 									}
 									configuration.getIncrementalFeatureResults().add(featureResults);
@@ -363,7 +363,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 										absoluteMax = Math.abs(scoreDelta);
 									
 								} finally {
-									MONITOR.endTask("feature analyse");
+									MONITOR.endTask();
 								}
 								
 								
@@ -411,7 +411,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 							}
 							
 						} finally {
-							MONITOR.endTask("heap sort");
+							MONITOR.endTask();
 						}
 					} // have we any transitions?
 					
@@ -465,7 +465,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 			}
 			return bestConfigurations;
 		} finally {
-			MONITOR.endTask("parseSentence");
+			MONITOR.endTask();
 		}
 	}
 

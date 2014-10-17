@@ -18,8 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
+import com.joliciel.talismane.lexicon.EmptyLexicon;
+import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -28,7 +32,8 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 class TalismaneSessionImpl implements TalismaneSession {
 	private Locale locale;
 	private PosTagSet posTagSet;
-	private PosTaggerLexicon lexicon;
+	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
+	private PosTaggerLexicon mergedLexicon;
 	private TransitionSystem transitionSystem;
 	private LanguageSpecificImplementation implementation;
 	private LinguisticRules linguisticRules;
@@ -73,17 +78,21 @@ class TalismaneSessionImpl implements TalismaneSession {
 	}
 	
 	@Override
-	public PosTaggerLexicon getLexicon() {
-		if (lexicon==null && implementation!=null) {
-			lexicon = implementation.getDefaultLexicon();
-			this.setLexicon(lexicon);
+	public List<PosTaggerLexicon> getLexicons() {
+		if (lexicons.size()==0 && implementation!=null) {
+			List<PosTaggerLexicon> defaultLexicons = implementation.getDefaultLexicons();
+			if (defaultLexicons!=null) {
+				for (PosTaggerLexicon lexicon : defaultLexicons)
+					this.addLexicon(lexicon);
+			}
 		}
-		return lexicon;
+		
+		return lexicons;
 	}
 
 	@Override
-	public void setLexicon(PosTaggerLexicon lexicon) {
-		this.lexicon = lexicon;
+	public void addLexicon(PosTaggerLexicon lexicon) {
+		this.lexicons.add(lexicon);
 	}
 	
 	@Override
@@ -110,6 +119,25 @@ class TalismaneSessionImpl implements TalismaneSession {
 	@Override
 	public void setLinguisticRules(LinguisticRules linguisticRules) {
 		this.linguisticRules = linguisticRules;
+	}
+
+	@Override
+	public PosTaggerLexicon getMergedLexicon() {
+		if (mergedLexicon==null) {
+			List<PosTaggerLexicon> lexicons = this.getLexicons();
+			if (lexicons.size()==0)
+				mergedLexicon = new EmptyLexicon();
+			else if (lexicons.size()==1)
+				mergedLexicon = lexicons.get(0);
+			else {
+				LexiconChain lexiconChain = new LexiconChain();
+				for (PosTaggerLexicon lexicon : lexicons) {
+					lexiconChain.addLexicon(lexicon);
+				}
+				mergedLexicon = lexiconChain;
+			}
+		}
+		return mergedLexicon;
 	}
 	
 }

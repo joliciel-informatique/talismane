@@ -18,144 +18,299 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
-import java.nio.charset.StandardCharsets;
-
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
-import com.joliciel.talismane.utils.io.DirectoryReader;
 
 /**
- * Used to serialize a set of lexicon files found in a given directory.
+ * <p>Given a set of lexicons described in a properties file, serializes them into a zip file,
+ * using regex descriptors to read lexical attributes from the files.</p>
+ * <p>The structure of the properties file is as follows:</p>
+ * <ul>
+ * <li><b>lexicons</b>: comma-delimited list of lexicon names, indicating how each lexicon will be referred to within Talismane</li>
+ * <li><b><i>lexiconName</i>.file</b>: the file containing the actual lexicon, assumed to be contained in the same directory as the properties file.
+ * The lexicon file structure is described in {@link LexiconFile}.</li>
+ * <li><b><i>lexiconName</i>.regex</b>: the file containing the various regex patterns used to extract lexical attributes from the lexicon,
+ * as described in {@link RegexLexicalEntryReader}.</li>
+ * <li><b><i>lexiconName</i>.posTagMap</b>: optional - the file containing the PosTagMap for the lexicon, as described in {@link DefaultPosTagMapper}.</li>
+ * <li><b><i>lexiconName</i>.categories</b>: optional - if included, limits the categories that will be loaded to this list.</li>
+ * <li><b><i>lexiconName</i>.exclusions</b>: optional - if included, reads a set of exclusions from an exclusion file,
+ * where the first row is the list of tab-delimited attribute names to be examined, and the remaining rows are attribute values.
+ * If for a given entry all values match, the entry is excluded.</li>
+ * <li><b><i>lexiconName</i>.encoding</b>: optional - if included, the lexicon file is read using the provided encoding.
+ * If not, it is read in UTF-8. All other files are assumed to be in UTF-8.</li>
+ * </ul>
+ * <p>The order of lexicons is important, as entries will be searched for in the order provided.</p>
+ * 
+ * @see LexiconFile
+ * @see RegexLexicalEntryReader
+ * @see DefaultPosTagMapper
  * @author Assaf Urieli
  *
  */
-public abstract class LexiconSerializer {
+public class LexiconSerializer {
 	private static final Log LOG = LogFactory.getLog(LexiconSerializer.class);
-
+	
+	/**
+	 * For arguments, see {@link #serializeLexicons(Map)}.
+	 * @param args
+	 */
 	public void serializeLexicons(String[] args) {
 		Map<String,String> argMap = StringUtils.convertArgs(args);
 		this.serializeLexicons(argMap);
 	}
 	
+	/**
+	 * <p>The following arguments are read from the map:</p>
+	 * <ul>
+	 * <li><b>lexiconProps</b>: the lexicon properties file</li>
+	 * <li><b>outFile</b>: the path to the zip file to be created</li>
+	 * <li><b>posTagSet</b>: the path to the PosTagSet descriptor file, as described in {@link PosTagSet}</li>
+	 * <li><b>encoding</b>: the encoding used to read configuration files. If not supplied, the default encoding will be used.
+	 * Note that the encoding for the actual lexicon files can be overridden in the lexicon properties file.</li>
+	 * </ul>
+	 * <p>All arguments are mandatory.</p>
+	 * @param argMap
+	 */
 	public void serializeLexicons(Map<String,String> argMap) {
 		try {
-			String lexiconDirPath = null;
-			String outDirPath = null;
+			String lexiconPropsPath = null;
 			String outFilePath = null;
-			String lexiconPatternPath = null;
-			String regex = null;
+			String posTagSetPath = null;
+			String defaultEncoding = null;
 
 			for (Entry<String, String> entry : argMap.entrySet()) {
 				String argName = entry.getKey();
 				String argValue = entry.getValue();
-				if (argName.equals("lexiconDir"))
-					lexiconDirPath = argValue;
+				if (argName.equals("lexiconProps"))
+					lexiconPropsPath = argValue;
 				else if (argName.equals("outFile"))
 					outFilePath = argValue;
-				else if (argName.equals("outDir"))
-					outDirPath = argValue;
-				else if (argName.equals("lexiconPattern"))
-					lexiconPatternPath = argValue;
-				else if (argName.equals("regex"))
-					regex = argValue;
+				else if (argName.equals("posTagSet"))
+					posTagSetPath = argValue;
+				else if (argName.equals("encoding"))
+					defaultEncoding = argValue;
 				else
 					throw new RuntimeException("Unknown argument: " + argName);
 			}
 
-			if (lexiconDirPath==null)
-				throw new RuntimeException("Missing argument: lexiconDir");
-			if (outDirPath==null && outFilePath==null)
-				throw new RuntimeException("Missing argument: outDir or outFile");
-			if (lexiconPatternPath==null && regex==null)
-				throw new RuntimeException("Missing argument: lexiconPattern or regex");
+			if (lexiconPropsPath==null)
+				throw new RuntimeException("Missing argument: lexiconProps");
+			if (outFilePath==null)
+				throw new RuntimeException("Missing argument: outFile");
+			if (posTagSetPath==null)
+				throw new RuntimeException("Missing argument: posTagSet");
 
 			File outFile = null;
 			File outDir = null;
 			if (outFilePath!=null) {
 				outFile = new File(outFilePath);
 				outDir = outFile.getParentFile();
-			} else {
-				outDir = new File(outDirPath);
 			}
 			if (outDir!=null)
 				outDir.mkdirs();
 
-			File lexiconDir = new File(lexiconDirPath);
-			File[] lexiconFiles = lexiconDir.listFiles();
+			FileOutputStream fos = new FileOutputStream(outFile);
+			ZipOutputStream zos = new ZipOutputStream(fos);
 
-			if (regex==null) {
-				File lexiconPatternFile = new File(lexiconPatternPath);
-				Scanner lexiconPatternScanner = new Scanner(lexiconPatternFile);
-				if (lexiconPatternScanner.hasNextLine()) {
-					regex = lexiconPatternScanner.nextLine();
+			File lexiconPropertiesFile = new File(lexiconPropsPath);
+			File lexiconDir = lexiconPropertiesFile.getParentFile();
+			
+			Charset defaultCharset = Charset.defaultCharset();
+			if (defaultEncoding!=null)
+				defaultCharset = Charset.forName(defaultEncoding);
+
+			zos.putNextEntry(new ZipEntry("lexicon.properties"));
+			Writer writer = new BufferedWriter(new OutputStreamWriter(zos, "UTF-8"));
+			Scanner lexiconPropsScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPropertiesFile), "UTF-8")));
+			while (lexiconPropsScanner.hasNextLine()) {
+				String line = lexiconPropsScanner.nextLine();
+				writer.write(line + "\n");
+			}
+			writer.flush();
+			zos.flush();
+
+			Map<String,String> properties = StringUtils.getArgMap(lexiconPropertiesFile);
+
+			String[] lexiconList= properties.get("lexicons").split(",");
+
+			List<String> knownPropertyList = Arrays.asList("file", "regex", "posTagMap", "categories", "exclusions", "encoding");
+			Set<String> knownProperties = new HashSet<String>(knownPropertyList);
+			for (String property : properties.keySet()) {
+				if (property.equals("lexicons")) {
+					// nothing to do
+				} else {
+					boolean foundLexicon = false;
+					for (String lexiconName : lexiconList) {
+						if (property.startsWith(lexiconName + ".")) {
+							foundLexicon = true;
+							String remainder = property.substring(lexiconName.length()+1);
+							if (!knownProperties.contains(remainder)) {
+								throw new TalismaneException("Unknown property: " + property);
+							}
+						}
+						if (foundLexicon)
+							break;
+					}
+					if (!foundLexicon)
+						throw new TalismaneException("Unknown lexicon in property: " + property);
 				}
 			}
 			
-			RegexLexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(this.getMorphologyReader());
-			lexicalEntryReader.setRegex(regex);
+			File posTagSetFile = new File(posTagSetPath);
+			Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTagSetFile), defaultCharset)));
 			
-			if (outFile!=null) {
-				DirectoryReader directoryReader = new DirectoryReader(lexiconDir, StandardCharsets.UTF_8);
-				directoryReader.setEndOfFileString("\n");
-				LOG.debug("Serializing: " + lexiconDir.getName());
-				LexiconFile lexiconFile = new LexiconFile(lexicalEntryReader, directoryReader);
-
-				String fileNameBase = outFile.getName();
-				if (fileNameBase.indexOf('.')>=0)
-					fileNameBase = fileNameBase.substring(0, fileNameBase.lastIndexOf('.'));
-				this.serializeLexicon(outFile, fileNameBase, lexiconFile);				
-			} else {
-				for (File inFile : lexiconFiles) {
-					LOG.debug("Serializing: " + inFile.getName());
-					LexiconFile lexiconFile = new LexiconFile(lexicalEntryReader, inFile);
-	
-					String fileNameBase = inFile.getName();
-					if (fileNameBase.indexOf('.')>=0)
-						fileNameBase = fileNameBase.substring(0, fileNameBase.lastIndexOf('.'));
-	
-					outFile = new File(outDir, fileNameBase + ".zip");
-					this.serializeLexicon(outFile, fileNameBase, lexiconFile);
+			TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
+			PosTaggerService posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
+			PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetScanner);
+			
+			for (String lexiconName : lexiconList) {
+				LOG.debug("Lexicon: " + lexiconName);
+				String lexiconFilePath = properties.get(lexiconName + ".file");
+				String lexiconRegexPath = properties.get(lexiconName + ".regex");
+				String lexiconPosTagMapPath = properties.get(lexiconName + ".posTagMap");
+				String lexiconExclusionPath = properties.get(lexiconName + ".exclusions");
+				String categoryString = properties.get(lexiconName + ".categories");
+				String lexiconEncoding = properties.get(lexiconName + ".encoding");
+				
+				File lexiconRegexFile = new File(lexiconDir, lexiconRegexPath);
+				Scanner regexScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconRegexFile), defaultCharset)));
+				
+				File lexiconInputFile = new File(lexiconDir, lexiconFilePath);
+				InputStream inputStream = new FileInputStream(lexiconInputFile);
+				if (lexiconInputFile.getName().endsWith(".zip")) {
+					ZipInputStream zis = new ZipInputStream(inputStream);
+					zis.getNextEntry();
+					inputStream = zis;
 				}
+				
+				Charset lexiconCharset = defaultCharset;
+				if (lexiconEncoding!=null)
+					lexiconCharset = Charset.forName(lexiconEncoding);
+				
+				Reader reader = new BufferedReader(new InputStreamReader(inputStream, lexiconCharset));
+				Scanner lexiconScanner = new Scanner(reader);
+				
+				RegexLexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(regexScanner, lexiconScanner);
+				
+				regexScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconRegexFile), defaultCharset)));
+				zos.putNextEntry(new ZipEntry(lexiconName + "_regex.txt"));
+				while (regexScanner.hasNextLine()) {
+					String line = regexScanner.nextLine();
+					writer.write(line + "\n");
+				}
+				writer.flush();
+				zos.flush();
+
+				Set<String> categories = null;
+				if (categoryString!=null) {
+					categories = new HashSet<String>();
+					String[] cats = categoryString.split(",");
+					for (String cat : cats)
+						categories.add(cat);
+				}
+				
+				List<String> exclusionAttributes = null;
+				List<List<String>> exclusions = null;
+				if (lexiconExclusionPath!=null) {
+					exclusions = new ArrayList<List<String>>();
+					File lexiconExclusionFile = new File(lexiconDir, lexiconExclusionPath);
+					Scanner exclusionScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconExclusionFile), defaultCharset)));
+					while (exclusionScanner.hasNextLine()) {
+						String line = exclusionScanner.nextLine();
+						if (line.length()==0 || line.startsWith("#"))
+							continue;
+						String[] parts = line.split("\t");
+						if (exclusionAttributes==null) {
+							exclusionAttributes = new ArrayList<String>();
+							for (String part : parts) {
+								exclusionAttributes.add(part);
+							}
+						} else {
+							List<String> exclusion = new ArrayList<String>();
+							for (String part : parts) {
+								exclusion.add(part);
+							}
+							exclusions.add(exclusion);
+						}
+					}
+				}
+				
+				LOG.debug("Serializing: " + lexiconFilePath);
+				
+				
+				LexiconFile lexiconFile = new LexiconFile(lexiconName, lexicalEntryReader);
+				if (categories!=null)
+					lexiconFile.setCategories(categories);
+				if (exclusionAttributes!=null)
+					lexiconFile.setExclusionAttributes(exclusionAttributes);
+				if (exclusions!=null)
+					lexiconFile.setExclusions(exclusions);
+				
+				lexiconFile.load();
+				inputStream.close();
+				lexiconFile.setPosTagSet(posTagSet);
+				
+				if (lexiconPosTagMapPath!=null) {
+					File lexiconPosTagMapFile = new File(lexiconDir, lexiconPosTagMapPath);
+					Scanner posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPosTagMapFile), defaultCharset)));
+					PosTagMapper posTagMapper = new DefaultPosTagMapper(posTagMapScanner, posTagSet);
+					lexiconFile.setPosTagMapper(posTagMapper);
+					
+					posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPosTagMapFile), defaultCharset)));
+					zos.putNextEntry(new ZipEntry(lexiconName + "_posTagMap.txt"));
+					while (posTagMapScanner.hasNextLine()) {
+						String line = posTagMapScanner.nextLine();
+						writer.write(line + "\n");
+					}
+					writer.flush();
+					zos.flush();
+				}
+				
+				zos.putNextEntry(new ZipEntry(lexiconName + ".obj"));
+				ObjectOutputStream out = new ObjectOutputStream(zos);
+				try {
+					out.writeObject(lexiconFile);
+				} finally {
+					out.flush();
+				}
+				zos.flush();
 			}
+			writer.close();
+			zos.close();
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
 			throw new RuntimeException(ioe);
 		}
 	}
-	
-	private void serializeLexicon(File outFile, String fileNameBase, LexiconFile lexiconFile) {
-		FileOutputStream fos = null;
-		ZipOutputStream zos = null;
-		ObjectOutputStream out = null;
-		try
-		{
-			fos = new FileOutputStream(outFile);
-			zos = new ZipOutputStream(fos);
-			zos.putNextEntry(new ZipEntry(fileNameBase + ".obj"));
-			out = new ObjectOutputStream(zos);
-
-			try {
-				out.writeObject(lexiconFile);
-			} finally {
-				out.flush();
-				out.close();
-			}
-		} catch(IOException ioe) {
-			throw new RuntimeException(ioe);
-		}
-	}
-	
-	protected abstract LexicalEntryMorphologyReader getMorphologyReader();
 }

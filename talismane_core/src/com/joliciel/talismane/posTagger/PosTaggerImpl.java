@@ -111,7 +111,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					}
 				}
 			} finally {
-				MONITOR.endTask("apply filters");
+				MONITOR.endTask();
 			}
 			int sentenceLength = tokenSequences.get(0).getText().length();
 			
@@ -185,7 +185,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								}
 							}
 						} finally {
-							MONITOR.endTask("check rules");
+							MONITOR.endTask();
 						}
 					}
 					
@@ -202,7 +202,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 									if (featureResult!=null)
 										featureResults.add(featureResult);
 								} finally {
-									MONITOR.endTask(posTaggerFeature.getCollectionName());
+									MONITOR.endTask();
 								}
 							}
 							if (LOG.isTraceEnabled()) {
@@ -211,13 +211,16 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								}
 							}	
 						} finally {
-							MONITOR.endTask("analyse features");
+							MONITOR.endTask();
 						}
 						
 						// evaluate the feature results using the maxent model
 						MONITOR.startTask("make decision");
-						decisions = this.decisionMaker.decide(featureResults);
-						MONITOR.endTask("make decision");
+						try {
+							decisions = this.decisionMaker.decide(featureResults);
+						} finally {
+							MONITOR.endTask();
+						}
 						
 						for (ClassificationObserver<PosTag> observer : this.observers) {
 							observer.onAnalyse(token, featureResults, decisions);
@@ -258,7 +261,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 									}
 								}
 							} finally {
-								MONITOR.endTask("check negative rules");
+								MONITOR.endTask();
 							}
 						}
 						
@@ -284,7 +287,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								decisions = decisionShortList;
 							}
 						} finally {
-							MONITOR.endTask("apply constraints");		
+							MONITOR.endTask();		
 						}
 					} // has a rule been applied?
 					
@@ -319,7 +322,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						}
 						heap.add(sequence);
 					} // next outcome for this token
-					MONITOR.endTask("heap sort");
+					MONITOR.endTask();
 				} // next history		
 			} // next atomic index
 			// return the best sequence on the heap
@@ -350,7 +353,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			
 			return sequences;
 		} finally {
-			MONITOR.endTask("tagSentence");
+			MONITOR.endTask();
 		}
 	}
 

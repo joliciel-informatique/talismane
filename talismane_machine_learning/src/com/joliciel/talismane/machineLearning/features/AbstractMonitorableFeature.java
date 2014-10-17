@@ -39,7 +39,7 @@ public abstract class AbstractMonitorableFeature<T,Y> extends AbstractFeature<T,
 		try {
 			return this.checkInternal(context, env);
 		} finally {
-			monitor.endTask("check");
+			monitor.endTask();
 		}
 	}
 

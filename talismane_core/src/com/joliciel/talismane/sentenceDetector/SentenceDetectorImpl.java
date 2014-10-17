@@ -136,7 +136,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 			
 			return guessedBoundaries;
 		} finally {
-			MONITOR.endTask("detectSentences");
+			MONITOR.endTask();
 		}
 	}
 	

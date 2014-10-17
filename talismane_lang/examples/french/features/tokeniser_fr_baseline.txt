@@ -1,0 +1,107 @@
+CurrentGroup
+CurrentPattern
+PatternWordForm
+
+Wb1()	FeatureGroup1	WordForm(PatternOffset(-1))
+Wf1()	FeatureGroup1	WordForm(PatternOffset(1))
+Wb2()	WordForm(PatternOffset(-2))
+Wf2()	WordForm(PatternOffset(2))
+
+Pb1()	FeatureGroup1	LexiconPosTags(PatternOffset(-1))
+Pf1()	FeatureGroup1	LexiconPosTags(PatternOffset(1))
+Pb2()	LexiconPosTags(PatternOffset(-2))
+Pf2()	LexiconPosTags(PatternOffset(2))
+
+Lb1()	FeatureGroup1	Pb1 || LemmaForPosTag(PatternOffset(-1), LexiconPosTags(PatternOffset(-1)))
+Lf1()	FeatureGroup1	Pf1 || LemmaForPosTag(PatternOffset(1), LexiconPosTags(PatternOffset(1)))
+Lb2()	Pb2 || LemmaForPosTag(PatternOffset(-2), LexiconPosTags(PatternOffset(-2)))
+Lf2()	Pf2 || LemmaForPosTag(PatternOffset(2), LexiconPosTags(PatternOffset(2)))
+
+Ub1()	FeatureGroup1	ToString(OnlyTrue(UnknownWord(PatternOffset(-1))))
+Uf1()	FeatureGroup1	ToString(OnlyTrue(UnknownWord(PatternOffset(1))))
+Ub2()	ToString(OnlyTrue(UnknownWord(PatternOffset(-2))))
+Uf2()	ToString(OnlyTrue(UnknownWord(PatternOffset(2))))
+
+Ab1()	FeatureGroup1	LexiconAllPosTags(PatternOffset(-1))
+Af1()	FeatureGroup1	LexiconAllPosTags(PatternOffset(1))
+Ab2()	LexiconAllPosTags(PatternOffset(-2))
+Af2()	LexiconAllPosTags(PatternOffset(2))
+
+1st()	FeatureGroup1	ToString(OnlyTrue(PatternIndexInSentence()==0))
+1st_PATw()	FeatureGroup1	PatternWordForm() || ToString(OnlyTrue(PatternIndexInSentence()==0))
+1stPunct()	FeatureGroup1	ToString(PatternIndexInSentence()==0 | NullToFalse(LexiconPosTag(PatternOffset(-1),"PONCT")))
+
+Wb2_Wb1()	FeatureGroup1	Wb2 || Wb1
+Wf1_Wf2()	FeatureGroup1	Wf1 || Wf2
+
+Pb2_Pb1()	FeatureGroup1	Pb2 || Pb1
+Pf1_Pf2()	FeatureGroup1	Pf1 || Pf2
+
+Lb2_Lb1()	FeatureGroup1	Lb2 || Lb1
+Lf1_Lf2()	FeatureGroup1	Lf1 || Lf2
+
+Ab2_Ab1()	FeatureGroup1	Ab2 || Ab1
+Af1_Af2()	FeatureGroup1	Af1 || Af2
+
+Wb2_Pb1()	FeatureGroup1	Wb2 || Pb1
+Wf1_Pf2()	FeatureGroup1	Wf1 || Pf2
+
+Wb2_Lb1()	FeatureGroup1	Wb2 || Lb1
+Wf1_Lf2()	FeatureGroup1	Wf1 || Lf2
+
+Wb2_Ub1()	FeatureGroup1	Wb2 || Ub1
+Wf1_Uf2()	FeatureGroup1	Wf1 || Uf2
+
+Wb2_Ab1()	FeatureGroup1	Wb2 || Ab1
+Wf1_Af2()	FeatureGroup1	Wf1 || Af2
+
+Pb2_Wb1()	FeatureGroup1	Pb2 || Wb1
+Pf1_Wf2()	FeatureGroup1	Pf1 || Wf2
+
+Pb2_Lb1()	FeatureGroup1	Pb2 || Lb1
+Pf1_Lf2()	FeatureGroup1	Pf1 || Lf2
+
+Pb2_Ub1()	FeatureGroup1	Pb2 || Ub1
+Pf1_Uf2()	FeatureGroup1	Pf1 || Uf2
+
+Pb2_Ab1()	FeatureGroup1	Pb2 || Ab1
+Pf1_Af2()	FeatureGroup1	Pf1 || Af2
+
+Lb2_Wb1()	FeatureGroup1	Lb2 || Wb1
+Lf1_Wf2()	FeatureGroup1	Lf1 || Wf2
+
+Lb2_Pb1()	FeatureGroup1	Lb2 || Pb1
+Lf1_Pf2()	FeatureGroup1	Lf1 || Pf2
+
+Lb2_Ub1()	FeatureGroup1	Lb2 || Ub1
+Lf1_Uf2()	FeatureGroup1	Lf1 || Uf2
+
+Lb2_Ab1()	FeatureGroup1	Lb2 || Ab1
+Lf1_Af2()	FeatureGroup1	Lf1 || Af2
+
+Ub2_Wb1()	FeatureGroup1	Ub2 || Wb1
+Uf1_Wf2()	FeatureGroup1	Uf1 || Wf2
+
+Ub2_Pb1()	FeatureGroup1	Ub2 || Pb1
+Uf1_Pf2()	FeatureGroup1	Uf1 || Pf2
+
+Ub2_Lb1()	FeatureGroup1	Ub2 || Lb1
+Uf1_Lf2()	FeatureGroup1	Uf1 || Lf2
+
+Ub2_Ab1()	FeatureGroup1	Ub2 || Ab1
+Uf1_Af2()	FeatureGroup1	Uf1 || Af2
+
+Ab2_Wb1()	FeatureGroup1	Ab2 || Wb1
+Af1_Wf2()	FeatureGroup1	Af1 || Wf2
+
+Ab2_Pb1()	FeatureGroup1	Ab2 || Pb1
+Af1_Pf2()	FeatureGroup1	Af1 || Pf2
+
+Ab2_Lb1()	FeatureGroup1	Ab2 || Lb1
+Af1_Lf2()	FeatureGroup1	Af1 || Lf2
+
+Ab2_Ub1()	FeatureGroup1	Ab2 || Ub1
+Af1_Uf2()	FeatureGroup1	Af1 || Uf2
+
+FeatureGroup_P	CurrentPattern || FeatureGroup1()
+#FeatureGroup_G	CurrentGroup || FeatureGroup1()

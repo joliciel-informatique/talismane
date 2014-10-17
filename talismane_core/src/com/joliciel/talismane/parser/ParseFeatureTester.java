@@ -94,7 +94,7 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 						}
 					}	
 				} finally {
-					MONITOR.endTask(parseFeature.getName());
+					MONITOR.endTask();
 				}
 			}
 			

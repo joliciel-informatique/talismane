@@ -18,8 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Various generic utilities for use with Strings.
@@ -27,6 +35,7 @@ import java.util.Map;
  *
  */
 public class StringUtils {
+	private static final Log LOG = LogFactory.getLog(StringUtils.class);
 	public static String padRight(String s, int n) {
 	     return String.format("%1$-" + n + "s", s);  
 	}
@@ -51,5 +60,70 @@ public class StringUtils {
 			argMap.put(argName, argValue);
 		}
 		return argMap;
+	}
+	
+	/**
+	 * Get a map of strings from a path pointing at a properties file.
+	 */
+	public static Map<String,String> getArgMap(String propertiesPath) {
+		File propsFile = new File(propertiesPath);
+		return getArgMap(propsFile);
+	}
+	
+	/**
+	 * Get a map of strings from a properties file.
+	 */
+	public static Map<String,String> getArgMap(File propsFile) {
+		try {
+			FileInputStream propsInputStream = new FileInputStream(propsFile);
+			Properties props = new Properties();
+			props.load(propsInputStream);
+			
+			return getArgMap(props);
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Get a map of strings from Properties.
+	 */
+	public static Map<String,String> getArgMap(Properties props) {
+		Map<String,String> argMap = new HashMap<String, String>();
+		for (String propertyName : props.stringPropertyNames()) {
+			argMap.put(propertyName, props.getProperty(propertyName));
+		}
+		return argMap;
+	}
+	
+	/**
+	 * Get a map of strings from Properties, for any properties beginning with a certain prefix.
+	 * The prefix will be removed from the property keys.
+	 */
+	public static Map<String,String> getArgMap(Properties props, String prefix) {
+		Map<String,String> argMap = new HashMap<String, String>();
+		for (String propertyName : props.stringPropertyNames()) {
+			if (propertyName.startsWith(prefix))
+				argMap.put(propertyName.substring(prefix.length()), props.getProperty(propertyName));
+		}
+		return argMap;
+	}
+	
+	public static String readerToString(Reader reader) {
+		try {
+			char[] chars = new char[1024];
+			StringBuilder sb = new StringBuilder();
+			int numChars;
+	
+			while ((numChars = reader.read(chars, 0, chars.length)) > 0) {
+				sb.append(chars, 0, numChars);
+			}
+	
+			return sb.toString();
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -450,7 +450,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 			return posTagSequence;
 		} finally {
-			MONITOR.endTask("nextSentenceInternal");
+			MONITOR.endTask();
 		}
 	}
 	

@@ -175,7 +175,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 			
 			return currentPatternMatches!=null;
 		} finally {
-			MONITOR.endTask("hasNext");
+			MONITOR.endTask();
 		}
 	}
 
@@ -215,7 +215,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 						}
 					}
 				} finally {
-					MONITOR.endTask("check features");
+					MONITOR.endTask();
 				}
 				
 				event = this.machineLearningService.getClassificationEvent(tokenFeatureResults, classification);
@@ -227,7 +227,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 			}
 			return event;
 		} finally {
-			MONITOR.endTask("next");
+			MONITOR.endTask();
 		}
 	}
 

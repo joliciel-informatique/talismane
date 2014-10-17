@@ -148,7 +148,7 @@ final class TokenImpl implements TokenInternal {
 	@Override
 	public Set<PosTag> getPossiblePosTags() {
 		if (possiblePosTags==null) {
-			possiblePosTags = talismaneService.getTalismaneSession().getLexicon().findPossiblePosTags(this.getText());
+			possiblePosTags = talismaneService.getTalismaneSession().getMergedLexicon().findPossiblePosTags(this.getText());
 		}
 		
 		return possiblePosTags;
@@ -391,7 +391,7 @@ final class TokenImpl implements TokenInternal {
 		}
 		List<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
 		if (lexicalEntries==null) {
-			lexicalEntries = talismaneService.getTalismaneSession().getLexicon().findLexicalEntries(this.getText(), posTag);
+			lexicalEntries = talismaneService.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getText(), posTag);
 			this.lexicalEntryMap.put(posTag, lexicalEntries);
 		}
 		LexicalEntry bestEntry = null;

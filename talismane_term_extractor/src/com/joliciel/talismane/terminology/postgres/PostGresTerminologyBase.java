@@ -130,7 +130,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 
 			return terms;
 		} finally {
-			MONITOR.endTask("getTerms");
+			MONITOR.endTask();
 		}
 	}
 	
@@ -210,7 +210,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 
 			return terms;
 		} finally {
-			MONITOR.endTask("getTermsByFrequency");
+			MONITOR.endTask();
 		}
 	}
 	
@@ -236,7 +236,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 			return terms;
 
 		} finally {
-			MONITOR.endTask("getTermsByText");
+			MONITOR.endTask();
 		}
 	}
 	
@@ -263,7 +263,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 			return terms;
 
 		} finally {
-			MONITOR.endTask("getMarkedTerms");
+			MONITOR.endTask();
 		}
 	}
 
@@ -284,7 +284,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 			}
 			return term;
 		} finally {
-			MONITOR.endTask("getTerm");
+			MONITOR.endTask();
 		}
 	}
 
@@ -302,7 +302,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 			this.saveHeads(termInternal);
 
 		} finally {
-			MONITOR.endTask("storeTerm");
+			MONITOR.endTask();
 		}
 	}
 
@@ -312,7 +312,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 		try {
 			this.saveContext((PostGresContext)context);
 		} finally {
-			MONITOR.endTask("storeContext");
+			MONITOR.endTask();
 		}
 	}
 
@@ -322,7 +322,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 		try {
 			// nothing to do here, not being transactional about it
 		} finally {
-			MONITOR.endTask("commit");
+			MONITOR.endTask();
 		}
 	}
 
@@ -349,7 +349,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 	        termSet.addAll(terms);
 			return termSet;
 		} finally {
-			MONITOR.endTask("getHeads");
+			MONITOR.endTask();
 		}
 	}
 
@@ -376,7 +376,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 	        termSet.addAll(terms);
 			return termSet;
 		} finally {
-			MONITOR.endTask("getExpansions");
+			MONITOR.endTask();
 		}
 	}
 
@@ -405,7 +405,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 	        termSet.addAll(terms);
 			return termSet;
 		} finally {
-			MONITOR.endTask("getHeads");
+			MONITOR.endTask();
 		}
 	}
 
@@ -429,7 +429,7 @@ public class PostGresTerminologyBase implements TerminologyBase {
 
 			return contexts;
 		} finally {
-			MONITOR.endTask("getContexts");
+			MONITOR.endTask();
 		}
 	}
 

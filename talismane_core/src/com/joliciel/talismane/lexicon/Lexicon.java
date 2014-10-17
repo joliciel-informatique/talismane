@@ -1,5 +1,6 @@
 package com.joliciel.talismane.lexicon;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -7,7 +8,13 @@ import java.util.List;
  * @author Assaf Urieli
  *
  */
-public interface Lexicon {
+public interface Lexicon extends Serializable {
+	/**
+	 * This lexicon's name, for use in features.
+	 * @return
+	 */
+	public String getName();
+	
 	/**
 	 * Return all lexical entries for a given word.
 	 * @param name

@@ -1,84 +1,68 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="jar" name="talismane-all">
-    <import file="ant/global.xml"/>
-	<target name="jar">
-		<subant target="jar">
+	<import file="ant/global.xml"/>
+    
+	<target name="init" description="Initializes properties that are used by other targets.">
+		<property name="dist" value="dist"/>
+	</target>
+	
+	<target name="clean" depends="init">
+		<delete dir="${dist}"/>
+		<subant target="clean">
 			<fileset dir=".">
 				<include name="talismane_utils/build.xml"/>
-			</fileset>
-		</subant>
-		<subant target="jar">
-			<fileset dir=".">
 				<include name="talismane_machine_learning/build.xml"/>
-			</fileset>
-		</subant>
-		<subant target="jar">
-			<fileset dir=".">
 				<include name="talismane_core/build.xml"/>
-			</fileset>
-		</subant>
-		<subant target="jar">
-			<fileset dir=".">
-				<include name="talismane_lefff/build.xml"/>
 				<include name="talismane_ftb/build.xml"/>
 				<include name="talismane_extensions/build.xml"/>
-			</fileset>
-		</subant>
-		<subant target="one-jar">
-			<fileset dir=".">
 				<include name="talismane_lang/build.xml"/>
 				<include name="talismane_fr/build.xml"/>
 				<include name="talismane_en/build.xml"/>
-			</fileset>
-		</subant>
-		<subant target="one-jar">
-			<fileset dir=".">
 				<include name="talismane_term_extractor/build.xml"/>
-			</fileset>
-		</subant>
-		<subant target="one-jar">
-			<fileset dir=".">
 				<include name="talismane_term_viewer/build.xml"/>
 			</fileset>
 		</subant>
 	</target>
 	
-	<target name="clean">
-		<subant target="clean">
+	<target name="jar" depends="init">
+		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_utils/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="clean">
+		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_machine_learning/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="clean">
+		<subant target="one-jar">
 			<fileset dir=".">
 				<include name="talismane_core/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="clean">
+		<subant target="jar">
 			<fileset dir=".">
-				<include name="talismane_lefff/build.xml"/>
 				<include name="talismane_ftb/build.xml"/>
 				<include name="talismane_extensions/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="clean">
+		<subant target="one-jar">
 			<fileset dir=".">
 				<include name="talismane_lang/build.xml"/>
+			</fileset>
+		</subant>
+		<subant target="one-jar">
+			<fileset dir=".">
 				<include name="talismane_fr/build.xml"/>
 				<include name="talismane_en/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="clean">
+		<subant target="one-jar">
 			<fileset dir=".">
 				<include name="talismane_term_extractor/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="clean">
+		<subant target="one-jar">
 			<fileset dir=".">
 				<include name="talismane_term_viewer/build.xml"/>
 			</fileset>
