@@ -32,8 +32,9 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  *
  */
 public class LexiconChain implements PosTaggerLexicon {
-	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
-	
+	private static final long serialVersionUID = 1L;
+	private String name = null;
+	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();	
 	
 	@Override
 	public List<LexicalEntry> getEntries(String word) {
@@ -127,4 +128,20 @@ public class LexiconChain implements PosTaggerLexicon {
 		for (PosTaggerLexicon lexicon : lexicons)
 			lexicon.setPosTagMapper(posTagMapper);
 	}
+
+	@Override
+	public String getName() {
+		if (this.name==null) {
+			this.name = "LexiconChain";
+			for (PosTaggerLexicon lexicon : lexicons)
+				this.name += "|" + lexicon.getName();
+		}
+		return name;
+	}
+
+	public List<PosTaggerLexicon> getLexicons() {
+		return lexicons;
+	}
+	
+	
 }

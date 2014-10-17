@@ -86,7 +86,7 @@ class ParseEventStream implements ClassificationEventStream {
 			}
 			return targetConfiguration!=null;
 		} finally {
-			MONITOR.endTask("hasNext");
+			MONITOR.endTask();
 		}
 	}
 
@@ -112,7 +112,7 @@ class ParseEventStream implements ClassificationEventStream {
 							}
 						}	
 					} finally {
-						MONITOR.endTask(parseFeature.getName());
+						MONITOR.endTask();
 					}
 				}
 				
@@ -131,7 +131,7 @@ class ParseEventStream implements ClassificationEventStream {
 			}
 			return event;
 		} finally {
-			MONITOR.endTask("next");
+			MONITOR.endTask();
 		}
 	}
 

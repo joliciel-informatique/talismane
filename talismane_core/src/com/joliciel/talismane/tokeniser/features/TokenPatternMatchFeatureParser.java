@@ -61,7 +61,7 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 
 			return wrappedFeatures;
 		} finally {
-			MONITOR.endTask("parseDescriptor");
+			MONITOR.endTask();
 		}
 	}
 

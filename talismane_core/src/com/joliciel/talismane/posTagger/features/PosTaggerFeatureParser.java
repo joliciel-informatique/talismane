@@ -80,12 +80,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		container.addFeatureClass("SubCategory", LexicalSubCategoryFeature.class);
 		container.addFeatureClass("PossessorNumber", PossessorNumberFeature.class);
 		container.addFeatureClass("Index", TokenIndexFeature.class);
-		container.addFeatureClass("WordForm", WordFormFeature.class);
-		container.addFeatureClass("PredicateHasFunction", PredicateHasFunctionFeature.class);
-		container.addFeatureClass("PredicateFunctionHasRealisation", PredicateFunctionHasRealisationFeature.class);
-		container.addFeatureClass("PredicateFunctionIsOptional", PredicateFunctionIsOptionalFeature.class);
-		container.addFeatureClass("PredicateFunctionPosition", PredicateFunctionPositionFeature.class);
-		container.addFeatureClass("PredicateHasMacro", PredicateHasMacroFeature.class);		
+		container.addFeatureClass("WordForm", WordFormFeature.class);	
 		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);		
 		container.addFeatureClass("TokenHas", HistoryHasFeature.class);
 	}

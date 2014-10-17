@@ -107,10 +107,11 @@ public interface LanguageSpecificImplementation {
 	public MachineLearningModel getDefaultParserModel();
 	
 	/**
-	 * Returns the default lexicon for this language.
+	 * Returns the default lexicons for this language,
+	 * already in the correct order.
 	 * @return
 	 */
-	public PosTaggerLexicon getDefaultLexicon();
+	public List<PosTaggerLexicon> getDefaultLexicons();
 	
 	/**
 	 * Returns a list of TokenSequenceFilters available for this language.

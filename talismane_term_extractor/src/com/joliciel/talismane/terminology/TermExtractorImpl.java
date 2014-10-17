@@ -90,7 +90,7 @@ class TermExtractorImpl implements TermExtractor {
 				this.getExpansionStrings(noun, parseConfiguration, 0, expansionsPerNoun);
 			} // next noun head
 		} finally {
-			MONITOR.endTask("onNextParseConfiguration");
+			MONITOR.endTask();
 		}
 	}
 	
@@ -101,7 +101,7 @@ class TermExtractorImpl implements TermExtractor {
 		try {
 			expansions = this.getExpansions(noun, parseConfiguration, 0, expansionsPerNoun);
 		} finally {
-			MONITOR.endTask("find expansions");
+			MONITOR.endTask();
 		}
 		MONITOR.startTask("find phrases");
 		try {
@@ -157,7 +157,7 @@ class TermExtractorImpl implements TermExtractor {
 			}
 			return nounPhrases;
 		} finally {
-			MONITOR.endTask("find phrases");
+			MONITOR.endTask();
 		}
 	}
 	
@@ -583,7 +583,7 @@ class TermExtractorImpl implements TermExtractor {
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
-		this.lexicon = talismaneService.getTalismaneSession().getLexicon();
+		this.lexicon = talismaneService.getTalismaneSession().getMergedLexicon();
 	}
 	
 }

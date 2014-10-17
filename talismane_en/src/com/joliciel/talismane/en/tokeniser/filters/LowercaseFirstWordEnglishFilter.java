@@ -102,7 +102,7 @@ public class LowercaseFirstWordEnglishFilter implements TokenSequenceFilter, Nee
 				if (Character.isUpperCase(firstChar)) {
 					
 					String newWord = Character.toLowerCase(firstChar) + token.getText().substring(1);
-					Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(newWord);
+					Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(newWord);
 					if (posTags.size()>0) {
 						token.setText(newWord);
 					}

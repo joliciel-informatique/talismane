@@ -87,12 +87,15 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 					List<TokeniserContextFeature<?>> myFeatures = tokeniserContextFeatureParser.parseDescriptor(functionDescriptor);
 					MONITOR.startTask("add features");
-					features.addAll(myFeatures);
-					MONITOR.endTask("add features");
+					try {
+						features.addAll(myFeatures);
+					} finally {
+						MONITOR.endTask();
+					}
 				}
 			}
 		} finally {
-			MONITOR.endTask("findFeatureSet");
+			MONITOR.endTask();
 		}
 		return features;
 	}
@@ -114,12 +117,15 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 					List<TokenPatternMatchFeature<?>> myFeatures = featureParser.parseDescriptor(functionDescriptor);
 					MONITOR.startTask("add features");
-					features.addAll(myFeatures);
-					MONITOR.endTask("add features");
+					try {
+						features.addAll(myFeatures);
+					} finally {
+						MONITOR.endTask();
+					}
 				}
 			}
 		} finally {
-			MONITOR.endTask("findFeatureSet");
+			MONITOR.endTask();
 		}
 		return features;
 	}

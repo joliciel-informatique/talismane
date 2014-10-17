@@ -133,8 +133,10 @@ public class TalismaneGeneric implements LanguageSpecificImplementation {
 
 
 	@Override
-	public PosTaggerLexicon getDefaultLexicon() {
-		return new EmptyLexicon();
+	public List<PosTaggerLexicon> getDefaultLexicons() {
+		List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
+		lexicons.add(new EmptyLexicon());
+		return lexicons;
 	}
 
 	@Override

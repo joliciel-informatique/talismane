@@ -123,7 +123,7 @@ public class LowercaseFirstWordFrenchFilter implements TokenSequenceFilter, Need
 					boolean foundWord = false;
 					for (char c : firstChars) {
 						String newWord = c + token.getText().substring(1);
-						Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(newWord);
+						Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(newWord);
 						if (posTags.size()>0) {
 							token.setText(newWord);
 							foundWord = true;

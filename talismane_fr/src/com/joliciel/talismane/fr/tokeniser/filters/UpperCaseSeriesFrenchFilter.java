@@ -94,7 +94,7 @@ public class UpperCaseSeriesFrenchFilter implements TokenSequenceFilter, NeedsTa
 			boolean foundWord = false;
 			List<String> possibleWords = AllUppercaseFrenchFilter.getPossibleWords(token.getText());
 			for (String possibleWord : possibleWords) {
-				Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(possibleWord);
+				Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(possibleWord);
 				if (posTags.size()>0) {
 					token.setText(possibleWord);
 					foundWord = true;

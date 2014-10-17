@@ -84,7 +84,7 @@ class PosTagEventStream implements ClassificationEventStream {
 			}
 			return currentSentence!=null;
 		} finally {
-			MONITOR.endTask("hasNext");
+			MONITOR.endTask();
 		}
 	}
 
@@ -112,11 +112,11 @@ class PosTagEventStream implements ClassificationEventStream {
 							if (featureResult!=null)
 								posTagFeatureResults.add(featureResult);
 						} finally {
-							MONITOR.endTask(posTaggerFeature.getCollectionName());
+							MONITOR.endTask();
 						}
 					}
 				} finally {
-					MONITOR.endTask("check features");					
+					MONITOR.endTask();					
 				}
 				
 				if (LOG.isTraceEnabled()) {
@@ -134,7 +134,7 @@ class PosTagEventStream implements ClassificationEventStream {
 			}
 			return event;
 		} finally {
-			MONITOR.endTask("next");
+			MONITOR.endTask();
 		}
 
 	}

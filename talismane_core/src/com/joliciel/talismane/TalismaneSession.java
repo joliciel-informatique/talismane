@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.util.List;
 import java.util.Locale;
 
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -32,27 +33,31 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 public interface TalismaneSession {
 
 	public LanguageSpecificImplementation getImplementation();
-
 	public void setImplementation(LanguageSpecificImplementation implementation);
 
 	public PosTagSet getPosTagSet();
-
 	public void setPosTagSet(PosTagSet posTagSet);
 
 	public TransitionSystem getTransitionSystem();
-
 	public void setTransitionSystem(TransitionSystem transitionSystem);
 
-	public PosTaggerLexicon getLexicon();
-
-	public void setLexicon(PosTaggerLexicon lexicon);
+	/**
+	 * A list of lexicons setup for the current session.
+	 * @return
+	 */
+	public List<PosTaggerLexicon> getLexicons();
+	public void addLexicon(PosTaggerLexicon lexicon);
+	
+	/**
+	 * Get a lexicon which merges all of the lexicons added, prioritised in the order in which they were added.
+	 * @return
+	 */
+	public PosTaggerLexicon getMergedLexicon();
 
 	public Locale getLocale();
-
 	public void setLocale(Locale locale);
 
 	public LinguisticRules getLinguisticRules();
-
 	public void setLinguisticRules(LinguisticRules linguisticRules);
 
 }

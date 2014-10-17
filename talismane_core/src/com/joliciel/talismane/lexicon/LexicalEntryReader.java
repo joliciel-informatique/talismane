@@ -19,16 +19,28 @@
 package com.joliciel.talismane.lexicon;
 
 /**
- * Reads lexical entries from lines of text - useful to extract lexical entries from 
- * an annotated corpus without relying on an external lexicon.
+ * Reads lexical entries from any source whatsoever.
  * @author Assaf Urieli
  *
  */
 public interface LexicalEntryReader {
 	/**
-	 * Read a lexical entry out of a particular line of text.
+	 * Are there any more lexical entries to be read.
+	 * @return
+	 */
+	public boolean hasNextLexicalEntry();
+	
+	/**
+	 * Return the next lexical entry read.
 	 * @param line
 	 * @return
 	 */
-	public LexicalEntry readEntry(String line);
+	public LexicalEntry nextLexicalEntry();
+	
+	/**
+	 * Read a lexical entry directly from a block of text.
+	 * @param text
+	 * @return
+	 */
+	public LexicalEntry readEntry(String text);
 }

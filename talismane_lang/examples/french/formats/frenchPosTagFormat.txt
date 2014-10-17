@@ -1,0 +1,1 @@
+\d+\t%TOKEN%\t.*?\t%POSTAG%(\t.*)*

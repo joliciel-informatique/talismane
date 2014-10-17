@@ -83,7 +83,9 @@ final class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements Pos
 			LOG.debug(descriptor);
 			if (descriptor.startsWith("#")) {
 				continue;
-			} else if (!nameFound) {
+			}
+			
+			if (!nameFound) {
 				this.name = descriptor;
 				nameFound = true;
 			} else if (!localeFound) {

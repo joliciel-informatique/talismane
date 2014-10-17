@@ -39,7 +39,6 @@
 				<include name="talismane-utils-${talismane.version}.jar" />
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-lefff-${talismane.version}.jar" />
 				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 			<!-- build output path -->
@@ -53,7 +52,6 @@
 				<include name="talismane-utils-${talismane.version}.jar" />
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-lefff-${talismane.version}.jar" />
 				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 		</path>
@@ -104,19 +102,6 @@
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
-		<zip destfile="${dist}/${project}-${talismane.version}.zip">
-			<fileset file="${dist}/${project}-${talismane.version}.jar" />
-			<fileset dir="${dist}">
-				<include name="lib/*.jar" />
-			</fileset>
-			<fileset dir="${dist}">
-				<include name="talismane-utils-${talismane.version}.jar" />
-				<include name="talismane-machineLearning-${talismane.version}.jar" />
-				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-lefff-${talismane.version}.jar" />
-				<include name="talismane-fr-${talismane.version}.jar" />
-			</fileset>
-		</zip>
 	</target>
 
 	<target name="one-jar" depends="jar">
@@ -137,7 +122,6 @@
 			<include name="talismane-utils-${talismane.version}.jar" />
 			<include name="talismane-machineLearning-${talismane.version}.jar" />
 			<include name="talismane-core-${talismane.version}.jar" />
-			<include name="talismane-lefff-${talismane.version}.jar" />
 			<include name="talismane-fr-${talismane.version}.jar" />
 		</fileset>
 

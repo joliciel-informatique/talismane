@@ -212,7 +212,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								}
 							}
 						} finally {
-							MONITOR.endTask("check rules");
+							MONITOR.endTask();
 						}
 					}
 					
@@ -229,7 +229,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 									if (featureResult!=null)
 										parseFeatureResults.add(featureResult);
 								} finally {
-									MONITOR.endTask(feature.getName());
+									MONITOR.endTask();
 								}
 							}
 							if (LOG_FEATURES.isTraceEnabled()) {
@@ -238,7 +238,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								}
 							}
 						} finally {
-							MONITOR.endTask("feature analyse");
+							MONITOR.endTask();
 						}
 						
 						// evaluate the feature results using the decision maker
@@ -257,7 +257,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 							}
 							decisions = decisionShortList;
 						} finally {
-							MONITOR.endTask("make decision");
+							MONITOR.endTask();
 						}
 						
 						// apply the negative rules
@@ -296,7 +296,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 									}
 								}
 							} finally {
-								MONITOR.endTask("check negative rules");
+								MONITOR.endTask();
 							}
 						}
 					} // has a positive rule been applied?
@@ -353,7 +353,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 							} // does transition meet pre-conditions?
 						} // next transition
 					} finally {
-						MONITOR.endTask("heap sort");
+						MONITOR.endTask();
 					}
 					
 					if (transitionApplied) {
@@ -419,7 +419,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 			}
 			return bestConfigurations;
 		} finally {
-			MONITOR.endTask("parseSentence");
+			MONITOR.endTask();
 		}
 	}
 

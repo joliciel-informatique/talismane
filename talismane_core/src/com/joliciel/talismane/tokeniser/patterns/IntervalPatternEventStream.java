@@ -154,7 +154,7 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 			
 			return tokensToCheck!=null;
 		} finally {
-			MONITOR.endTask("hasNext");
+			MONITOR.endTask();
 		}
 	}
 
@@ -193,7 +193,7 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 						}
 					}
 				} finally {
-					MONITOR.endTask("check features");
+					MONITOR.endTask();
 				}
 				
 				String classification = taggedToken.getTag().name();
@@ -206,7 +206,7 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 			}
 			return event;
 		} finally {
-			MONITOR.endTask("next");
+			MONITOR.endTask();
 		}
 	}
 

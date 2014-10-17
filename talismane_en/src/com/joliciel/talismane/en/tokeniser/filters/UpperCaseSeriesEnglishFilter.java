@@ -103,7 +103,7 @@ public class UpperCaseSeriesEnglishFilter implements TokenSequenceFilter, NeedsT
 		for (Token token : upperCaseSequence) {
 			String lowercaseWord = token.getText().toLowerCase(Locale.ENGLISH);
 
-			Set<PosTag> posTags = talismaneSession.getLexicon().findPossiblePosTags(lowercaseWord);
+			Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(lowercaseWord);
 			if (posTags.size()>0) {
 				token.setText(lowercaseWord);
 			} else {

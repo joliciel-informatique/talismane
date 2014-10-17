@@ -80,7 +80,7 @@
 	           use="true"
 	           windowtitle="${prettyName} API">
 	    <doctitle><![CDATA[<h1>Talismane for English API</h1>]]></doctitle>
-	    <bottom><![CDATA[<i>Copyright &#169; 2012 Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
+	    <bottom><![CDATA[<i>Copyright &#169; 2014 Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
 	    <tag name="todo" scope="all" description="To do:"/>
 	  </javadoc>
 	</target>
@@ -95,16 +95,6 @@
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
-		<zip destfile="${dist}/${project}-${talismane.version}.zip">
-			<fileset file="${dist}/${project}-${talismane.version}.jar" />
-			<fileset dir="${dist}">
-				<include name="lib/*.jar" />
-				<include name="talismane-utils-${talismane.version}.jar" />
-				<include name="talismane-machineLearning-${talismane.version}.jar" />
-				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-extensions-${talismane.version}.jar" />
-			</fileset>
-		</zip>
 	</target>
 		
 	<target name="one-jar" depends="jar">

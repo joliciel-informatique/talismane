@@ -18,15 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A single lexical entry for a given string.
  * @author Assaf Urieli
  *
  */
-public interface LexicalEntry {
+public interface LexicalEntry extends Serializable {
 	/**
 	 * The original text of this entry.
 	 * @return
@@ -59,34 +59,6 @@ public interface LexicalEntry {
 	public String getSubCategory();
 	
 	/**
-	 * This entry's predicate structure, when available.
-	 * @return
-	 */
-	public String getPredicate();
-	
-	/**
-	 * A list of predicate arguments (where the order is typically significant)
-	 * forming this lexical entry's predicate-argument structure.
-	 * @return
-	 */
-	public List<PredicateArgument> getPredicateArguments();
-	
-	/**
-	 * Returns the predicate argument corresponding to a particular function name,
-	 * or null if not found.
-	 * @param name
-	 * @return
-	 */
-	public PredicateArgument getPredicateArgument(String functionName);
-	
-	/**
-	 * A set of so-called "macros" describing more abstract aspects of the predicate, 
-	 * e.g. impersonal construction, passive construction, etc.
-	 * @return
-	 */
-	public Set<String> getPredicateMacros();
-	
-	/**
 	 * A list of possible (language-specific) genders for this entry.
 	 * In French, this will include entries such as "masculine", "feminine".
 	 * @return
@@ -101,10 +73,22 @@ public interface LexicalEntry {
 	public List<String> getNumber();
 	
 	/**
-	 * A list of possible (language-specific) tenses/moods for this entry, when the entry is a verb.
+	 * A list of possible (language-specific) tenses for this entry, when the entry is a verb.
 	 * @return
 	 */
 	public List<String> getTense();
+	
+	/**
+	 * A list of possible (language-specific) moods for this entry, when the entry is a verb.
+	 * @return
+	 */
+	public List<String> getMood();
+	
+	/**
+	 * A list of possible (language-specific) aspects for this entry, when the entry is a verb.
+	 * @return
+	 */
+	public List<String> getAspect();
 	
 	/**
 	 * A list of possible persons for this entry.
@@ -121,18 +105,19 @@ public interface LexicalEntry {
 	public List<String> getPossessorNumber();
 	
 	/**
-	 * A string representation of all of the morpho-syntaxic information combined
-	 * (gender, number, tense, person, possessor number).
+	 * A list of possible (language-specific) grammatical cases for this entry,
+	 * for languages with case markers, e.g. Nominative, Accusative, Genitive, Dative, etc.
+	 * @return
+	 */
+	public List<String> getCase();
+	
+	/**
+	 * The original string representation of morpho-syntaxic information
+	 * (e.g. gender, number, tense, person, possessor number),
+	 * often existing in some condensed form in lexicons.
 	 * @return
 	 */
 	public String getMorphology();
-	
-	/**
-	 * Status of this lexical entry, in the case of homographs with different lemmas
-	 * within the same grammatical category.
-	 * @return
-	 */
-	public LexicalEntryStatus getStatus();
 	
 	/**
 	 * A string representation of all of the morpho-syntaxic information combined
@@ -140,4 +125,17 @@ public interface LexicalEntry {
 	 * @return
 	 */
 	public String getMorphologyForCoNLL();
+	
+	/**
+	 * Get any other attribute for this lexical entry.
+	 * @param attribute
+	 * @return
+	 */
+	public String getAttribute(String attribute);
+	
+	/**
+	 * The name of the lexicon which contained this entry.
+	 * @return
+	 */
+	public String getLexiconName();
 }

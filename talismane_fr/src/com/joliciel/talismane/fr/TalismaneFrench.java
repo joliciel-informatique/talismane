@@ -19,9 +19,7 @@
 package com.joliciel.talismane.fr;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +34,7 @@ import com.joliciel.frenchTreebank.TreebankServiceLocator;
 import com.joliciel.frenchTreebank.export.FtbPosTagMapper;
 import com.joliciel.frenchTreebank.export.TreebankExportService;
 import com.joliciel.frenchTreebank.upload.TreebankUploadService;
-import com.joliciel.lefff.LefffService;
-import com.joliciel.lefff.LefffServiceLocator;
+
 import com.joliciel.talismane.LanguageSpecificImplementation;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.NeedsTalismaneSession;
@@ -54,9 +51,7 @@ import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.LowercaseFirstWordFrenchFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.UpperCaseSeriesFrenchFilter;
-import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
-import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
@@ -74,7 +69,6 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -90,15 +84,13 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private MachineLearningService machineLearningService;
-	private LefffServiceLocator lefffServiceLocator;
-	private LefffService lefffService;
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 	
 	private static ClassificationModel<SentenceDetectorOutcome> sentenceModel;
 	private static ClassificationModel<TokeniserOutcome> tokeniserModel;
 	private static ClassificationModel<PosTag> posTaggerModel;
 	private static MachineLearningModel parserModel;
-	private static PosTaggerLexicon lexicon;
+	private static List<PosTaggerLexicon> lexicons;
 
 	private enum CorpusFormat {
 		/** CoNLL-X format */
@@ -179,7 +171,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 				TreebankReader treebankReader = treebankUploadService.getXmlReader(treebankFile);
 	  			
 				// we prepare both the tokeniser and pos-tag readers, just in case they are needed
-	  			InputStream posTagMapStream = talismaneFrench.getDefaultPosTagMapFromStream();
+	  			InputStream posTagMapStream = talismaneFrench.getFtbPosTagMapFromStream();
 	  			Scanner scanner = new Scanner(posTagMapStream,"UTF-8");
 	  			List<String> descriptors = new ArrayList<String>();
 	  			while (scanner.hasNextLine())
@@ -240,7 +232,6 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 
 	public TalismaneFrench(String sessionId) {
 		talismaneServiceLocator = TalismaneServiceLocator.getInstance(sessionId);
-		lefffServiceLocator = LefffServiceLocator.getInstance();
 	}
 	
 	private static ZipInputStream getZipInputStreamFromResource(String resource) {
@@ -281,67 +272,13 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 
 
 	@Override
-	public PosTaggerLexicon getDefaultLexicon() {
-		try {
-			if (lexicon==null) {
-				LexiconChain lexiconChain = new LexiconChain();
-				
-				LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
-				
-				String lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.additions.obj";
-				ObjectInputStream ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				PosTaggerLexicon oneLex = deserializer.deserializeLexiconFile(ois);
-				lexiconChain.addLexicon(oneLex);
-		
-				lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.agglutinates.obj";
-				ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				oneLex = deserializer.deserializeLexiconFile(ois);
-				lexiconChain.addLexicon(oneLex);
-				
-				lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.conj.obj";
-				ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				oneLex = deserializer.deserializeLexiconFile(ois);
-				lexiconChain.addLexicon(oneLex);
-				
-				lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.det.obj";
-				ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				oneLex = deserializer.deserializeLexiconFile(ois);
-				lexiconChain.addLexicon(oneLex);
-				
-				lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.ponct.obj";
-				ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				oneLex = deserializer.deserializeLexiconFile(ois);
-				lexiconChain.addLexicon(oneLex);
-				
-				lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.prep.obj";
-				ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				oneLex = deserializer.deserializeLexiconFile(ois);
-				lexiconChain.addLexicon(oneLex);
-				
-				lexiconPath = "/com/joliciel/talismane/fr/resources/talismane_lex.pro.obj";
-				ois = new ObjectInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				oneLex = deserializer.deserializeLexiconFile(ois);
-				lexiconChain.addLexicon(oneLex);
-		
-				lexiconPath = "/com/joliciel/talismane/fr/resources/lefff3OpenTalismane.zip";
-				ZipInputStream zis = new ZipInputStream(TalismaneFrench.class.getResourceAsStream(lexiconPath)); 
-				oneLex = deserializer.deserializeLexiconFile(zis);
-				
-				String posTagMapperName = "lefff3TalismanePosTagMap.txt";
-				InputStream posTagMapperStream = getInputStreamFromResource(posTagMapperName);
-				Scanner scanner = new Scanner(posTagMapperStream, "UTF-8");
-				PosTagMapper posTagMapper = this.getLefffService().getPosTagMapper(scanner, this.getDefaultPosTagSet());
-				oneLex.setPosTagMapper(posTagMapper);
-				lexiconChain.addLexicon(oneLex);
-		
-				lexiconChain.setPosTagSet(this.getDefaultPosTagSet());
-				lexicon = lexiconChain;
-			}
-			return lexicon;
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
+	public List<PosTaggerLexicon> getDefaultLexicons() {
+		if (lexicons==null) {
+			LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
+			ZipInputStream zis = getZipInputStreamFromResource("lexicons_fr.zip");
+			lexicons = deserializer.deserializeLexicons(zis);
 		}
+		return lexicons;
 	}
 
 
@@ -411,7 +348,7 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 		return new Scanner(inputStream, "UTF-8");
 	}
 	
-	public InputStream getDefaultPosTagMapFromStream() {
+	public InputStream getFtbPosTagMapFromStream() {
 		InputStream inputStream = getInputStreamFromResource("ftbCrabbeCanditoTagsetMap.txt");
 		return inputStream;
 	}
@@ -469,17 +406,6 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 
 	public void setParserService(ParserService parserService) {
 		this.parserService = parserService;
-	}
-
-	public LefffService getLefffService() {
-		if (lefffService==null) {
-			lefffService = lefffServiceLocator.getLefffService();
-		}
-		return lefffService;
-	}
-
-	public void setLefffService(LefffService lefffService) {
-		this.lefffService = lefffService;
 	}
 
 	@Override

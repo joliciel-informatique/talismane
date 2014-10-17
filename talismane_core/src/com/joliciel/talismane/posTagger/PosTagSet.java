@@ -25,7 +25,27 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 
 /**
- * A tag set to be used for pos tagging.
+ * <p>A tag set to be used for pos tagging.
+ * The default format for reading a PosTagSet from a file is as follows:</p>
+ * <p>All lines starting with # are ignored.
+ * The first line read is the PosTagSet name.
+ * The second line read is the PosTagSet locale.</p>
+ * All further lines are postags, in a tab delimited format shown below:</p>
+ * <pre>PosTag	description	PosTagOpenClassIndicator</pre>
+ * <p>For example:</p>
+ * <pre>
+ * # Example of a PosTagSet file
+ * Talismane 2013
+ * fr
+ * ADJ	adjectif	OPEN
+ * ADV	adverbe	OPEN
+ * ADVWH	adverbe intérrogatif	CLOSED
+ * CC	conjonction de coordination	CLOSED
+ * PONCT	ponctuation	PUNCTUATION
+ * </pre>
+ * 
+ * @see PosTag
+ * @see PosTagOpenClassIndicator
  * @author Assaf Urieli
  *
  */

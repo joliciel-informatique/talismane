@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import com.joliciel.talismane.posTagger.PosTag;
@@ -28,7 +29,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  * @author Assaf Urieli
  *
  */
-public interface PosTagMapper {
+public interface PosTagMapper extends Serializable {
 	public PosTagSet getPosTagSet();
 	public Set<PosTag> getPosTags(LexicalEntry lexicalEntry);
 }

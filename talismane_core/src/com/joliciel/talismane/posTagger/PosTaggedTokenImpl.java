@@ -66,7 +66,7 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public List<LexicalEntry> getLexicalEntries() {
 		if (lexicalEntries==null) {
 			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
-			lexicalEntries = talismaneSession.getLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
+			lexicalEntries = talismaneSession.getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
 		}
 		return lexicalEntries;
 	}
@@ -155,11 +155,11 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 			} else {
 				TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 				LexicalEntry lexicalEntry = null;
-				List<LexicalEntry> entries = talismaneSession.getLexicon().findLexicalEntries(this.getToken().getOriginalText(), this.getTag());
+				List<LexicalEntry> entries = talismaneSession.getMergedLexicon().findLexicalEntries(this.getToken().getOriginalText(), this.getTag());
 				if (entries.size()>0)
 					lexicalEntry = entries.get(0);
 				if (lexicalEntry==null) {
-					entries = talismaneSession.getLexicon().findLexicalEntries(this.getToken().getOriginalText().toLowerCase(talismaneSession.getLocale()), this.getTag());
+					entries = talismaneSession.getMergedLexicon().findLexicalEntries(this.getToken().getOriginalText().toLowerCase(talismaneSession.getLocale()), this.getTag());
 					if (entries.size()>0)
 						lexicalEntry = entries.get(0);				
 				}

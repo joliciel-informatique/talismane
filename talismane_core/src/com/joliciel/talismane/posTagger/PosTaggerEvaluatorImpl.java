@@ -65,7 +65,7 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 				try {
 					tokenSequences = tokeniser.tokenise(tokenSequence.getText());
 				} finally {
-					MONITOR.endTask("tokenise");
+					MONITOR.endTask();
 				}
 				
 				tokenSequence = tokenSequences.get(0);
@@ -84,14 +84,15 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 				try {
 					guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
 				} finally {
-					MONITOR.endTask("posTag");
+					MONITOR.endTask();
 				}
 				guessedSequence = guessedSequences.get(0);
 			} else {
+				MONITOR.startTask("posTag");
 				try {
 					guessedSequence = posTagger.tagSentence(tokenSequence);
 				} finally {
-					MONITOR.endTask("posTag");
+					MONITOR.endTask();
 				}
 			}
 			
@@ -129,7 +130,7 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 					observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
 				}
 			} finally {
-				MONITOR.endTask("observe");
+				MONITOR.endTask();
 			}
 			
 			sentenceIndex++;
@@ -143,7 +144,7 @@ class PosTaggerEvaluatorImpl implements PosTaggerEvaluator {
 				observer.onEvaluationComplete();
 			}
 		} finally {
-			MONITOR.endTask("onEvaluationComplete");
+			MONITOR.endTask();
 		}
 	}
 

@@ -1,2 +1,0 @@
-%TOKEN%\t%LEMMA%\t%POSTAG%\t.*\t%MORPH%
-

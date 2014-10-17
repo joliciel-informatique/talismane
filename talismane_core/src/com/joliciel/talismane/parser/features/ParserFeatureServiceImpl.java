@@ -76,7 +76,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 			}
 			return parseFeatures;
 		} finally {
-			MONITOR.endTask("getFeatures");
+			MONITOR.endTask();
 		}
 	}
 	
@@ -179,7 +179,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 			} // next rule descriptor
 			return rules;
 		} finally {
-			MONITOR.endTask("getRules");
+			MONITOR.endTask();
 		}
 	}
 	

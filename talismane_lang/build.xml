@@ -11,13 +11,14 @@
 	
 	<target name="init" description="Initializes properties that are used by extensions targets.">
 		<property name="project" value="${ant.project.name}" />
-		<property name="prettyName" value="Talismane for English" />
+		<property name="prettyName" value="Talismane trainer/analyser" />
 		<property name="sharedLib" value="../lib"/>
 		<property name="dist" value="../dist"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
 		<property name="classes" location="${build}/classes" />
 		<property name="doc" location="${build}/doc" />
+		<property name="examples" location="examples" />
 		<mkdir dir="${build}" />
 		<mkdir dir="${classes}" />
 		<mkdir dir="${doc}" />
@@ -95,16 +96,10 @@
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
-		<zip destfile="${dist}/${project}-${talismane.version}.zip">
-			<fileset file="${dist}/${project}-${talismane.version}.jar" />
-			<fileset dir="${dist}">
-				<include name="lib/*.jar" />
-				<include name="talismane-utils-${talismane.version}.jar" />
-				<include name="talismane-machineLearning-${talismane.version}.jar" />
-				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-extensions-${talismane.version}.jar" />
+		<copy todir="${dist}/examples">
+			<fileset dir="${examples}">
 			</fileset>
-		</zip>
+		</copy>
 	</target>
 		
 	<target name="one-jar" depends="jar">

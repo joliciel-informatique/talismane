@@ -194,7 +194,7 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 						}
 					}
 				} finally {
-					MONITOR.endTask("pattern matching");
+					MONITOR.endTask();
 				}
 				
 				// we want to create the n most likely token sequences
@@ -240,7 +240,7 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 									}
 								}
 							} finally {
-								MONITOR.endTask("analyse features");
+								MONITOR.endTask();
 							}
 							
 							MONITOR.startTask("make decision");
@@ -257,7 +257,7 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 									}
 								}
 							} finally {
-								MONITOR.endTask("make decision");
+								MONITOR.endTask();
 							}
 						} else {
 							decisions = new ArrayList<Decision<TokeniserOutcome>>();
@@ -276,7 +276,7 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 								heap.add(tokenisedSequence);
 							}
 						} finally {
-							MONITOR.endTask("heap sort");
+							MONITOR.endTask();
 						}
 	
 					} // next sequence in the old heap
@@ -326,7 +326,7 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 	
 			return sequences;
 		} finally {
-			MONITOR.endTask("tokeniseWithDecisions");
+			MONITOR.endTask();
 		}
 	}
 

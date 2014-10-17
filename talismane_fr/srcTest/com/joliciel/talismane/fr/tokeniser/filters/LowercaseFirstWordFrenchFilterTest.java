@@ -27,7 +27,7 @@ public class LowercaseFirstWordFrenchFilterTest {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
-		talismaneSession.setLexicon(lexiconService);
+		talismaneSession.addLexicon(lexiconService);
 		new NonStrictExpectations() {
 			PosTag posTagCLS;
 			{
@@ -55,7 +55,7 @@ public class LowercaseFirstWordFrenchFilterTest {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
 		TalismaneSession talismaneSession = locator.getTalismaneService().getTalismaneSession();
-		talismaneSession.setLexicon(lexiconService);
+		talismaneSession.addLexicon(lexiconService);
 		
 		new NonStrictExpectations() {
 			{
