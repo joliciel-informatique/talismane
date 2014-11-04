@@ -36,7 +36,8 @@ public interface LinearSVMModelTrainer<T extends Outcome> extends Classification
 		ConstraintViolationCost(Double.class),
 		Epsilon(Double.class),
 		Cutoff(Integer.class),
-		SolverType(LinearSVMSolverType.class)
+		SolverType(LinearSVMSolverType.class),
+		OneVsRest(Boolean.class)
 		;
 		
 		private Class<?> parameterType;

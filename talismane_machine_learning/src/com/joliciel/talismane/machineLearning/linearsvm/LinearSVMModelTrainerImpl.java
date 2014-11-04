@@ -18,11 +18,19 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.linearsvm;
 
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectIntProcedure;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
@@ -55,7 +63,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	private double constraintViolationCost = 1.0;
 	private double epsilon = 0.01;
 	private LinearSVMSolverType solverType = LinearSVMSolverType.L2R_LR;
-
+	private boolean oneVsRest = false;
+	
 	@Override
 	public ClassificationModel<T> trainModel(
 			ClassificationEventStream corpusEventStream,
@@ -85,17 +94,17 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			int maxFeatureCount = 0;
 			CountingInfo countingInfo = new CountingInfo();
 			
-			Map<String, Integer> featureIndexMap = new HashMap<String, Integer>();
-			Map<Integer, Integer> featureCountMap = new HashMap<Integer, Integer>();
-			Map<String, Integer> outcomeIndexMap = new HashMap<String, Integer>();
+			TObjectIntMap<String> featureIndexMap = new TObjectIntHashMap<String>(1000, 0.75f, -1);
+			TIntIntMap featureCountMap = new TIntIntHashMap();
+			TObjectIntMap<String> outcomeIndexMap = new TObjectIntHashMap<String>(100, 0.75f, -1);
 			
 			List<Feature[]> fullFeatureList = new ArrayList<Feature[]>();
-			List<Integer> outcomeList = new ArrayList<Integer>();
+			TIntList outcomeList = new TIntArrayList();
 			
 			while (corpusEventStream.hasNext()) {
 				ClassificationEvent corpusEvent = corpusEventStream.next();
-				Integer outcomeIndex = outcomeIndexMap.get(corpusEvent.getClassification());
-				if (outcomeIndex==null) {
+				int outcomeIndex = outcomeIndexMap.get(corpusEvent.getClassification());
+				if (outcomeIndex<0) {
 					outcomeIndex = currentOutcomeIndex++;
 					outcomeIndexMap.put(corpusEvent.getClassification(), outcomeIndex);
 				}
@@ -108,7 +117,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 						for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
 							String featureName = featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
 							double value = stringOutcome.getWeight();
-							this.addFeatureResult(featureName, value, featureList, featureIndexMap, featureCountMap, outcomeIndexMap, countingInfo);
+							this.addFeatureResult(featureName, value, featureList, featureIndexMap, featureCountMap, countingInfo);
 						}
 	
 					} else {
@@ -119,7 +128,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 							FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
 							value = doubleResult.getOutcome().doubleValue();
 						}
-						this.addFeatureResult(featureResult.getTrainingName(), value, featureList, featureIndexMap, featureCountMap, outcomeIndexMap, countingInfo);
+						this.addFeatureResult(featureResult.getTrainingName(), value, featureList, featureIndexMap, featureCountMap, countingInfo);
 					}
 				}
 				if (featureList.size()>maxFeatureCount)
@@ -135,17 +144,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				fullFeatureList.add(featureArray);
 				numEvents++;
 			}
-			
-			Problem problem = new Problem();
-			
-	//		problem.l = ... // number of training examples
-	//		problem.n = ... // number of features
-	//		problem.x = ... // feature nodes - note: must be ordered by index
-	//		problem.y = ... // target values
-	
-			problem.l = numEvents; // number of training examples
-			problem.n = countingInfo.currentFeatureIndex; // number of features
-			
+						
 			Feature[][] featureMatrix = new Feature[numEvents][];
 			int i = 0;
 			for (Feature[] featureArray : fullFeatureList) {
@@ -156,6 +155,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			
 			LOG.debug("Event count: " + numEvents);
 			LOG.debug("Feature count: " + featureIndexMap.size());
+			
 			// apply the cutoff
 			if (cutoff>1) {
 				LOG.debug("Feature count (after cutoff): " + countingInfo.featureCountOverCutoff);
@@ -179,43 +179,115 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				}
 			}
 			
-			problem.x = featureMatrix; // feature nodes
+			final String[] outcomeArray2 = new String[outcomeIndexMap.size()];
+			outcomeIndexMap.forEachEntry(new TObjectIntProcedure<String>() {
+				@Override
+				public boolean execute(String key, int value) {
+					outcomeArray2[value] = key;
+					return true;
+				}
+			});
 			
-			double[] outcomeArray = new double[numEvents];
-			i = 0;
-			for (Integer outcome : outcomeList)
-				outcomeArray[i++] = outcome;
-			problem.y = outcomeArray;
-	
-			Parameter parameter = new Parameter(solver, this.constraintViolationCost, this.epsilon);
-			Model model = null;
-			MONITOR.startTask("train");
-			try {
-				model = Linear.train(problem, parameter);
-			} finally {
-				MONITOR.endTask();
-			}
-			
-			LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>(model, descriptors, decisionFactory);
-			linearSVMModel.setFeatureIndexMap(featureIndexMap);
-			
-			String[] outcomeArray2 = new String[outcomeIndexMap.size()];
-			for (Entry<String,Integer> outcomeMapEntry : outcomeIndexMap.entrySet()) {
-				outcomeArray2[outcomeMapEntry.getValue()] = outcomeMapEntry.getKey();
-			}
 			List<String> outcomes = new ArrayList<String>(outcomeIndexMap.size());
 			for (String outcome : outcomeArray2)
 				outcomes.add(outcome);
-			
-			linearSVMModel.setOutcomes(outcomes);
-			linearSVMModel.addModelAttribute("solver", this.getSolverType().name());
-			linearSVMModel.addModelAttribute("cutoff", "" + this.getCutoff());
-			linearSVMModel.addModelAttribute("c", "" + this.getConstraintViolationCost());
-			linearSVMModel.addModelAttribute("eps", "" + this.getEpsilon());
-			
-			linearSVMModel.getModelAttributes().putAll(corpusEventStream.getAttributes());
+
+			if (oneVsRest) {
+				LinearSVMOneVsRestModel<T> linearSVMModel = new LinearSVMOneVsRestModel<T>(descriptors, decisionFactory);
+				linearSVMModel.setFeatureIndexMap(featureIndexMap);
+				
+				linearSVMModel.setOutcomes(outcomes);
+				linearSVMModel.addModelAttribute("solver", this.getSolverType().name());
+				linearSVMModel.addModelAttribute("cutoff", "" + this.getCutoff());
+				linearSVMModel.addModelAttribute("c", "" + this.getConstraintViolationCost());
+				linearSVMModel.addModelAttribute("eps", "" + this.getEpsilon());
+				linearSVMModel.addModelAttribute("oneVsRest", "" + this.isOneVsRest());
+				
+				linearSVMModel.getModelAttributes().putAll(corpusEventStream.getAttributes());
+				// build one 1-vs-All model per outcome
+				for (int j=0; j<outcomes.size(); j++) {
+					String outcome = outcomes.get(j);
+					LOG.info("Building model for outcome: " + outcome);
+					double[] outcomeArray = new double[numEvents];
+					i = 0;
+					TIntIterator outcomeIterator = outcomeList.iterator();
+					int myOutcomeCount = 0;
+					while (outcomeIterator.hasNext()) {
+						int originalOutcome = outcomeIterator.next();
+						int myOutcome = (originalOutcome==j ? 0 : 1);
+						if (myOutcome==0) myOutcomeCount++;
+						outcomeArray[i++] = myOutcome;
+					}
+					
+					LOG.debug("Found " + myOutcomeCount + " out of " + numEvents + " outcomes of type: " + outcome);
+					
+					Problem problem = new Problem();
+					
+					//		problem.l = ... // number of training examples
+					//		problem.n = ... // number of features
+					//		problem.x = ... // feature nodes - note: must be ordered by index
+					//		problem.y = ... // target values
+					
+					problem.l = numEvents; // number of training examples
+					problem.n = countingInfo.currentFeatureIndex; // number of features
+					problem.x = featureMatrix; // feature nodes - note: must be ordered by index
+					problem.y = outcomeArray; // target values
+					
+					Parameter parameter = new Parameter(solver, this.constraintViolationCost, this.epsilon);
+					Model model = null;
+					MONITOR.startTask("train");
+					try {
+						model = Linear.train(problem, parameter);
+					} finally {
+						MONITOR.endTask();
+					}
+					
+					linearSVMModel.addModel(model);
+				}
+				
+				return linearSVMModel;
+			} else {
+				double[] outcomeArray = new double[numEvents];
+				i = 0;
+				TIntIterator outcomeIterator = outcomeList.iterator();
+				while (outcomeIterator.hasNext())
+					outcomeArray[i++] = outcomeIterator.next();
 	
-			return linearSVMModel;
+				Problem problem = new Problem();
+				
+				//		problem.l = ... // number of training examples
+				//		problem.n = ... // number of features
+				//		problem.x = ... // feature nodes - note: must be ordered by index
+				//		problem.y = ... // target values
+				
+				problem.l = numEvents; // number of training examples
+				problem.n = countingInfo.currentFeatureIndex; // number of features
+				problem.x = featureMatrix; // feature nodes - note: must be ordered by index
+				problem.y = outcomeArray; // target values
+		
+				Parameter parameter = new Parameter(solver, this.constraintViolationCost, this.epsilon);
+				Model model = null;
+				MONITOR.startTask("train");
+				try {
+					model = Linear.train(problem, parameter);
+				} finally {
+					MONITOR.endTask();
+				}
+				
+				LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>(model, descriptors, decisionFactory);
+				linearSVMModel.setFeatureIndexMap(featureIndexMap);
+								
+				linearSVMModel.setOutcomes(outcomes);
+				linearSVMModel.addModelAttribute("solver", this.getSolverType().name());
+				linearSVMModel.addModelAttribute("cutoff", "" + this.getCutoff());
+				linearSVMModel.addModelAttribute("c", "" + this.getConstraintViolationCost());
+				linearSVMModel.addModelAttribute("eps", "" + this.getEpsilon());
+				linearSVMModel.addModelAttribute("oneVsRest", "" + this.isOneVsRest());
+				
+				linearSVMModel.getModelAttributes().putAll(corpusEventStream.getAttributes());
+		
+				return linearSVMModel;
+			}
 		} finally {
 			MONITOR.endTask();
 		}
@@ -223,30 +295,25 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 
 	void addFeatureResult(String featureName, double value,
 			Map<Integer,Feature> featureList,
-			Map<String, Integer> featureIndexMap,
-			Map<Integer, Integer> featureCountMap,
-			Map<String, Integer> outcomeIndexMap,
+			TObjectIntMap<String> featureIndexMap,
+			TIntIntMap featureCountMap,
 			CountingInfo countingInfo) {
-		Integer featureIndex = featureIndexMap.get(featureName);
-		if (featureIndex==null) {
+		
+		int featureIndex = featureIndexMap.get(featureName);
+		if (featureIndex<0) {
 			featureIndex = countingInfo.currentFeatureIndex++;
 			featureIndexMap.put(featureName, featureIndex);
 		}
 		
 		if (cutoff>1) {
-			Integer featureCountObj = featureCountMap.get(featureIndex);
-			int featureCount = 0;
-			if (featureCountObj!=null) {
-				featureCount = featureCountObj.intValue();
-			}
-			featureCount = featureCount + 1;
+			int featureCount = featureCountMap.get(featureIndex)+1;
 			if (featureCount==cutoff)
 				countingInfo.featureCountOverCutoff++;
 			featureCountMap.put(featureIndex, featureCount);
 		}
 
-		FeatureNode featureNode = new FeatureNode(featureIndex.intValue(), value);
-		featureList.put(featureIndex.intValue(),featureNode);		
+		FeatureNode featureNode = new FeatureNode(featureIndex, value);
+		featureList.put(featureIndex,featureNode);		
 	}
 	
 	private static class CountingInfo {
@@ -286,6 +353,15 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 		this.solverType = solverType;
 	}
 
+	
+	public boolean isOneVsRest() {
+		return oneVsRest;
+	}
+
+	public void setOneVsRest(boolean oneVsRest) {
+		this.oneVsRest = oneVsRest;
+	}
+
 	@Override
 	public void setParameters(Map<String, Object> parameters) {
 		if (parameters!=null) {
@@ -307,6 +383,9 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					break;
 				case SolverType:
 					this.setSolverType((LinearSVMSolverType)value);
+					break;
+				case OneVsRest:
+					this.setOneVsRest((Boolean) value);
 					break;
 				default:
 					throw new JolicielException("Unknown parameter type: " + modelParameter);

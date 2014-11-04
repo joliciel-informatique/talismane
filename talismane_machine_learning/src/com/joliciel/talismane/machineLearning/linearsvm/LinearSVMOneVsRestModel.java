@@ -31,9 +31,11 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
@@ -51,34 +53,37 @@ import com.joliciel.talismane.utils.io.UnclosableWriter;
 
 import de.bwaldvogel.liblinear.Model;
 
-class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
-	private static final Log LOG = LogFactory.getLog(LinearSVMModel.class);
-	private Model model;
+class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationModel<T> {
+	private static final Log LOG = LogFactory.getLog(LinearSVMOneVsRestModel.class);
+	private List<Model> models = new ArrayList<Model>();
 	TObjectIntMap<String> featureIndexMap = null;
 	List<String> outcomes = null;
 	
 	/**
 	 * Default constructor for factory.
 	 */
-	LinearSVMModel() {}
+	LinearSVMOneVsRestModel() {}
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 * @param model
 	 * @param featureDescriptors
 	 */
-	LinearSVMModel(Model model,
+	LinearSVMOneVsRestModel(
 			Map<String,List<String>> descriptors,
 			DecisionFactory<T> decisionFactory) {
 		super();
-		this.model = model;
 		this.setDescriptors(descriptors);
 		this.setDecisionFactory(decisionFactory);
 	}
 	
+	public void addModel(Model model) {
+		this.models.add(model);
+	}
+	
 	@Override
 	public DecisionMaker<T> getDecisionMaker() {
-		LinearSVMDecisionMaker<T> decisionMaker = new LinearSVMDecisionMaker<T>(model, this.featureIndexMap, this.outcomes);
+		LinearSVMOneVsRestDecisionMaker<T> decisionMaker = new LinearSVMOneVsRestDecisionMaker<T>(models, this.featureIndexMap, this.outcomes);
 		decisionMaker.setDecisionFactory(this.getDecisionFactory());
 		return decisionMaker;
 	}
@@ -91,9 +96,20 @@ class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
 	@Override
 	public void writeModelToStream(OutputStream outputStream) {
 		try {
-			Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
-			Writer unclosableWriter = new UnclosableWriter(writer);
-			model.save(unclosableWriter);
+			ZipOutputStream zos = new ZipOutputStream(outputStream);
+			zos.setLevel(ZipOutputStream.STORED);
+			int i = 0;
+			for (Model model : models) {
+				LOG.debug("Writing model " + i + " for outcome " + outcomes.get(i));
+				ZipEntry zipEntry = new ZipEntry("model" + i);
+				i++;
+				zos.putNextEntry(zipEntry);
+				Writer writer = new OutputStreamWriter(zos, "UTF-8");
+				Writer unclosableWriter = new UnclosableWriter(writer);
+				model.save(unclosableWriter);
+				zos.closeEntry();
+				zos.flush();
+			}
 		} catch (UnsupportedEncodingException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -107,8 +123,15 @@ class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
 	public void loadModelFromStream(InputStream inputStream) {
 		// load model or use it directly
 		try {
-			Reader reader = new InputStreamReader(inputStream, "UTF-8");
-			model = Model.load(reader);
+			models = new ArrayList<Model>();
+			ZipInputStream zis = new ZipInputStream(inputStream);
+			ZipEntry zipEntry = null;
+			while ((zipEntry = zis.getNextEntry())!=null) {
+				LOG.debug("Reading " + zipEntry.getName());
+				Reader reader = new InputStreamReader(zis, "UTF-8");
+				Model model = Model.load(reader);
+				models.add(model);
+			}
 		} catch (UnsupportedEncodingException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -120,7 +143,7 @@ class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
 
 	@Override
 	public MachineLearningAlgorithm getAlgorithm() {
-		return MachineLearningAlgorithm.LinearSVM;
+		return MachineLearningAlgorithm.LinearSVMOneVsRest;
 	}
 
 	/**

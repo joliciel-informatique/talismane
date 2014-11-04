@@ -35,5 +35,11 @@ class LinearSVMServiceImpl implements LinearSVMService {
 		return linearSVMModel;
 	}
 
+	@Override
+	public <T extends Outcome> ClassificationModel<T> getLinearSVMOneVsRestModel() {
+		LinearSVMOneVsRestModel<T> linearSVMModel = new LinearSVMOneVsRestModel<T>();
+		return linearSVMModel;
+	}
+
 
 }

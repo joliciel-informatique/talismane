@@ -73,6 +73,9 @@ class ModelFactory {
 			case LinearSVM:
 				machineLearningModel = linearSVMService.getLinearSVMModel();
 				break;
+			case LinearSVMOneVsRest:
+				machineLearningModel = linearSVMService.getLinearSVMOneVsRestModel();
+				break;
 			case Perceptron:
 				machineLearningModel = perceptronService.getPerceptronModel();
 				break;
