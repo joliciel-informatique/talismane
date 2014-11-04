@@ -40,4 +40,11 @@ public interface LinearSVMService {
 	 * @return
 	 */
 	public<T extends Outcome> ClassificationModel<T> getLinearSVMModel();
+	
+	/**
+	 * Get an "empty" linear SVM model.
+	 * @param <T>
+	 * @return
+	 */
+	public<T extends Outcome> ClassificationModel<T> getLinearSVMOneVsRestModel();
 }

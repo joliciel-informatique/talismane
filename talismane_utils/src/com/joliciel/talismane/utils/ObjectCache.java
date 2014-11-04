@@ -30,7 +30,7 @@ public interface ObjectCache {
 	 * @param id
 	 * @return the entity if in the cache, or null otherwise.
 	 */
-    public Object getEntity(Class<? extends Object> clazz, Object id);
+    public<T> T getEntity(Class<T> clazz, Object id);
     
     /**
      * Put the entity in the cache corresponding to a given Class and id.
@@ -38,14 +38,14 @@ public interface ObjectCache {
      * @param id
      * @param entity
      */
-    public void putEntity(Class<? extends Object> clazz, Object id, Object entity);
+    public<T> void putEntity(Class<T> clazz, Object id, T entity);
     
     /**
      * Remove the entity from the cache corresponding to a given Class and id.
      * @param clazz
      * @param id
      */
-    public void removeEntity(Class<? extends Object> clazz, Object id);
+    public<T> void removeEntity(Class<T> clazz, Object id);
     
     /**
      * If the Class and id provided already have an entity in the cache, return it,
@@ -55,7 +55,7 @@ public interface ObjectCache {
      * @param entity
      * @return
      */
-    public Object getOrPutEntity(Class<? extends Object> clazz, Object id, Object entity);
+    public<T> T getOrPutEntity(Class<T> clazz, Object id, T entity);
     
     /**
      * Clear all entities out of the cache.

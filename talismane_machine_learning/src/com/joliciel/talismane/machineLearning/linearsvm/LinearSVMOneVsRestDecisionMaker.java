@@ -39,19 +39,19 @@ import de.bwaldvogel.liblinear.Feature;
 import de.bwaldvogel.liblinear.Linear;
 import de.bwaldvogel.liblinear.Model;
 
-class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
-	private static final Log LOG = LogFactory.getLog(LinearSVMDecisionMaker.class);
+class LinearSVMOneVsRestDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
+	private static final Log LOG = LogFactory.getLog(LinearSVMOneVsRestDecisionMaker.class);
 	private DecisionFactory<T> decisionFactory;
-	private Model model;
+	private List<Model> models;
 	TObjectIntMap<String> featureIndexMap = null;
 	List<String> outcomes = null;
 	private transient ScoringStrategy<ClassificationSolution<T>> scoringStrategy = null;
 	
-	public LinearSVMDecisionMaker(Model model,
+	public LinearSVMOneVsRestDecisionMaker(List<Model> models,
 			TObjectIntMap<String> featureIndexMap,
 			List<String> outcomes) {
 		super();
-		this.model = model;
+		this.models = models;
 		this.featureIndexMap = featureIndexMap;
 		this.outcomes = outcomes;
 	}
@@ -75,19 +75,18 @@ class LinearSVMDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 			Feature[] instance = new Feature[1];
 			instance = featureList.toArray(instance);
 			
-			double[] probabilities = new double[model.getLabels().length];
-			Linear.predictProbability(model, instance, probabilities);
-	
 			TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
-			for (int i = 0; i<model.getLabels().length; i++) {
-				Decision<T> decision = decisionFactory.createDecision(outcomes.get(i), probabilities[i]);
+			
+			for (Model model : models) {
+				double[] probabilities = new double[2];
+				Linear.predictProbability(model, instance, probabilities);
+				
+				Decision<T> decision = decisionFactory.createDecision(outcomes.get(0), probabilities[0]);
 				outcomeSet.add(decision);
 			}
 			decisions = new ArrayList<Decision<T>>(outcomeSet);
 		}
-
 		return decisions;
-
 	}
 
 	public DecisionFactory<T> getDecisionFactory() {
