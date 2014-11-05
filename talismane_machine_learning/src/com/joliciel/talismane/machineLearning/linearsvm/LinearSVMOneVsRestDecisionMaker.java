@@ -77,12 +77,17 @@ class LinearSVMOneVsRestDecisionMaker<T extends Outcome> implements DecisionMake
 			
 			TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
 			
+			int i=0;
 			for (Model model : models) {
+				int myLabel = 0;
+				for (int j=0; j<model.getLabels().length; j++)
+					if (model.getLabels()[j]==0) myLabel=j;
 				double[] probabilities = new double[2];
 				Linear.predictProbability(model, instance, probabilities);
 				
-				Decision<T> decision = decisionFactory.createDecision(outcomes.get(0), probabilities[0]);
+				Decision<T> decision = decisionFactory.createDecision(outcomes.get(i), probabilities[myLabel]);
 				outcomeSet.add(decision);
+				i++;
 			}
 			decisions = new ArrayList<Decision<T>>(outcomeSet);
 		}

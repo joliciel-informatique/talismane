@@ -22,10 +22,14 @@ import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -193,10 +197,51 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				outcomes.add(outcome);
 
 			if (oneVsRest) {
+				// find outcomes representing multiple classes
+				TIntSet multiClassOutcomes = new TIntHashSet();
+				TIntObjectMap<TIntSet> outcomeComponentMap = new TIntObjectHashMap<TIntSet>();
+				List<String> atomicOutcomes = new ArrayList<String>();
+				TObjectIntMap<String> atomicOutcomeIndexes = new TObjectIntHashMap<String>();
+				TIntIntMap oldIndexNewIndexMap = new TIntIntHashMap();
+				for (int j=0; j<outcomes.size(); j++) {
+					String outcome = outcomes.get(j);
+					if (outcome.indexOf('\t')<0) {
+						int newIndex = atomicOutcomes.size();
+						atomicOutcomeIndexes.put(outcome, newIndex);
+						oldIndexNewIndexMap.put(j, newIndex);
+						atomicOutcomes.add(outcome);
+					}
+				}
+				for (int j=0; j<outcomes.size(); j++) {
+					String outcome = outcomes.get(j);
+					if (outcome.indexOf('\t')>=0) {
+						multiClassOutcomes.add(j);
+						TIntSet myComponentOutcomes = new TIntHashSet();
+						outcomeComponentMap.put(j, myComponentOutcomes);
+						String[] parts = outcome.split("\t", -1);
+						for (String part : parts) {
+							int outcomeIndex = outcomeIndexMap.get(part);
+							int newIndex = 0;
+							if (outcomeIndex<0) {
+								outcomeIndex = currentOutcomeIndex++;
+								outcomeIndexMap.put(part, outcomeIndex);
+								newIndex = atomicOutcomes.size();
+								atomicOutcomeIndexes.put(part, newIndex);
+								oldIndexNewIndexMap.put(outcomeIndex, newIndex);
+								atomicOutcomes.add(part);
+							} else {
+								newIndex = oldIndexNewIndexMap.get(outcomeIndex);
+							}
+							myComponentOutcomes.add(newIndex);
+						}
+						
+					}
+				}
+				
 				LinearSVMOneVsRestModel<T> linearSVMModel = new LinearSVMOneVsRestModel<T>(descriptors, decisionFactory);
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 				
-				linearSVMModel.setOutcomes(outcomes);
+				linearSVMModel.setOutcomes(atomicOutcomes);
 				linearSVMModel.addModelAttribute("solver", this.getSolverType().name());
 				linearSVMModel.addModelAttribute("cutoff", "" + this.getCutoff());
 				linearSVMModel.addModelAttribute("c", "" + this.getConstraintViolationCost());
@@ -205,16 +250,24 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				
 				linearSVMModel.getModelAttributes().putAll(corpusEventStream.getAttributes());
 				// build one 1-vs-All model per outcome
-				for (int j=0; j<outcomes.size(); j++) {
-					String outcome = outcomes.get(j);
+				for (int j=0; j<atomicOutcomes.size(); j++) {
+					String outcome = atomicOutcomes.get(j);
 					LOG.info("Building model for outcome: " + outcome);
 					double[] outcomeArray = new double[numEvents];
 					i = 0;
 					TIntIterator outcomeIterator = outcomeList.iterator();
 					int myOutcomeCount = 0;
 					while (outcomeIterator.hasNext()) {
-						int originalOutcome = outcomeIterator.next();
-						int myOutcome = (originalOutcome==j ? 0 : 1);
+						boolean isMyOutcome = false;
+						int originalOutcomeIndex = outcomeIterator.next();
+						if (multiClassOutcomes.contains(originalOutcomeIndex)) {
+							if (outcomeComponentMap.get(originalOutcomeIndex).contains(j))
+								isMyOutcome = true;
+						} else {
+							if (oldIndexNewIndexMap.get(originalOutcomeIndex)==j)
+								isMyOutcome = true;
+						}
+						int myOutcome = (isMyOutcome ? 0 : 1);
 						if (myOutcome==0) myOutcomeCount++;
 						outcomeArray[i++] = myOutcome;
 					}

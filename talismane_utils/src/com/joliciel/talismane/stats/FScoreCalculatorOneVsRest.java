@@ -39,19 +39,33 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 	
 	private Map<E,FScoreCalculator<Boolean>> fScoreCalculators = new TreeMap<E, FScoreCalculator<Boolean>>();
 	
+	private int eventCount = 0;
+	private Map<E,Integer> outcomeCounts = new TreeMap<E, Integer>();
+	
+	public void nextEvent() {
+		eventCount++;
+	}
+	
 	public void increment(E outcome, boolean expected, boolean guessed) {
 		FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
 		if (fScoreCalculator==null) {
-			fScoreCalculator = new FScoreCalculator<Boolean>();
+			fScoreCalculator = new FScoreCalculator<Boolean>(outcome.toString());
 			fScoreCalculators.put(outcome, fScoreCalculator);
 		}
 		fScoreCalculator.increment(expected, guessed);
+		if (expected) {
+			if (!outcomeCounts.containsKey(outcome))
+				outcomeCounts.put(outcome, 0);
+			int count = outcomeCounts.get(outcome);
+			outcomeCounts.put(outcome, count+1);
+		}
 	}
 	
 	public void writeScoresToCSV(Writer fscoreFileWriter) {
 		try {
 			fscoreFileWriter.write(CSV.format("outcome"));
-			fscoreFileWriter.write(CSV.format("true+")
+			fscoreFileWriter.write(CSV.format("count")
+					+ CSV.format("true+")
 					+ CSV.format("false+")
 					+ CSV.format("false-")
 					+ CSV.format("precision")
@@ -64,6 +78,10 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 			for (E outcome : fScoreCalculators.keySet()) {
 				fscoreFileWriter.write(CSV.format(outcome.toString()));
 				FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
+				if (!outcomeCounts.containsKey(outcome))
+					outcomeCounts.put(outcome, 0);
+				
+				fscoreFileWriter.write(CSV.format(outcomeCounts.get(outcome)));			
 				fscoreFileWriter.write(CSV.format(fScoreCalculator.getTruePositiveCount(true)));
 				fscoreFileWriter.write(CSV.format(fScoreCalculator.getFalsePositiveCount(true)));
 				fscoreFileWriter.write(CSV.format(fScoreCalculator.getFalseNegativeCount(true)));
@@ -74,6 +92,11 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 				fscoreFileWriter.write("\n");
 				fscoreFileWriter.flush();
 			}
+			
+			fscoreFileWriter.write(CSV.format("TOTAL"));
+			fscoreFileWriter.write(CSV.format(eventCount));
+			fscoreFileWriter.write("\n");
+			fscoreFileWriter.flush();
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
 			throw new RuntimeException(ioe);
