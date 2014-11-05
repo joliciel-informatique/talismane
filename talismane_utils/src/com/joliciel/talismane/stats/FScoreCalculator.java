@@ -70,7 +70,7 @@ public class FScoreCalculator<E> {
 	int totalFalsePositiveCount = 0;
 	int totalFalseNegativeCount = 0;
 	
-	boolean updatedSinceLastEval = false;
+	boolean updatedSinceLastEval = true;
 	
 	Object label = null;
 	
@@ -310,7 +310,10 @@ public class FScoreCalculator<E> {
 	 */
 	public double getPrecision(E outcome) {
 		this.evaluate();
-		return precisions.get(outcome);
+		if (precisions.containsKey(outcome))
+			return precisions.get(outcome);
+		else
+			return Double.NaN;
 	}
 	
 	/**
@@ -329,7 +332,10 @@ public class FScoreCalculator<E> {
 	 */
 	public double getRecall(E outcome) {
 		this.evaluate();
-		return recalls.get(outcome);
+		if (recalls.containsKey(outcome))
+			return recalls.get(outcome);
+		else
+			return Double.NaN;
 	}
 	
 	/**
@@ -348,7 +354,10 @@ public class FScoreCalculator<E> {
 	 */
 	public double getFScore(E outcome) {
 		this.evaluate();
-		return fScores.get(outcome);
+		if (fScores.containsKey(outcome))
+			return fScores.get(outcome);
+		else
+			return Double.NaN;
 	}
 	
 	
