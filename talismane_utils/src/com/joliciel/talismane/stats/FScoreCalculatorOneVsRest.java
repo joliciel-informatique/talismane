@@ -29,6 +29,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -75,27 +77,70 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 					);
 			fscoreFileWriter.write("\n");
 			
+			DescriptiveStatistics precisionStats = new DescriptiveStatistics();
+			DescriptiveStatistics recallStats = new DescriptiveStatistics();
+			DescriptiveStatistics fScoreStats = new DescriptiveStatistics();
+			
+			DescriptiveStatistics precisionWeightedStats = new DescriptiveStatistics();
+			DescriptiveStatistics recallWeightedStats = new DescriptiveStatistics();
+			DescriptiveStatistics fScoreWeightedStats = new DescriptiveStatistics();
+			
 			for (E outcome : fScoreCalculators.keySet()) {
 				fscoreFileWriter.write(CSV.format(outcome.toString()));
 				FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
 				if (!outcomeCounts.containsKey(outcome))
 					outcomeCounts.put(outcome, 0);
 				
-				fscoreFileWriter.write(CSV.format(outcomeCounts.get(outcome)));			
+				int count = outcomeCounts.get(outcome);
+				fscoreFileWriter.write(CSV.format(count));			
 				fscoreFileWriter.write(CSV.format(fScoreCalculator.getTruePositiveCount(true)));
 				fscoreFileWriter.write(CSV.format(fScoreCalculator.getFalsePositiveCount(true)));
 				fscoreFileWriter.write(CSV.format(fScoreCalculator.getFalseNegativeCount(true)));
-				fscoreFileWriter.write(CSV.format(fScoreCalculator.getPrecision(true)));
-				fscoreFileWriter.write(CSV.format(fScoreCalculator.getRecall(true)));
-				fscoreFileWriter.write(CSV.format(fScoreCalculator.getFScore(true)));
-				fscoreFileWriter.write(CSV.format(fScoreCalculator.getAccuracy()));
+				fscoreFileWriter.write(CSV.format(fScoreCalculator.getPrecision(true)*100));
+				fscoreFileWriter.write(CSV.format(fScoreCalculator.getRecall(true)*100));
+				fscoreFileWriter.write(CSV.format(fScoreCalculator.getFScore(true)*100));
+				fscoreFileWriter.write(CSV.format(fScoreCalculator.getAccuracy()*100));
 				fscoreFileWriter.write("\n");
 				fscoreFileWriter.flush();
+				
+				if (count>0) {
+					precisionStats.addValue(fScoreCalculator.getPrecision(true)*100);
+					recallStats.addValue(fScoreCalculator.getRecall(true)*100);
+					fScoreStats.addValue(fScoreCalculator.getFScore(true)*100);
+				}
+				for (int i=0; i<count; i++) {
+					precisionWeightedStats.addValue(fScoreCalculator.getPrecision(true)*100);
+					recallWeightedStats.addValue(fScoreCalculator.getRecall(true)*100);
+					fScoreWeightedStats.addValue(fScoreCalculator.getFScore(true)*100);
+				}
 			}
 			
 			fscoreFileWriter.write(CSV.format("TOTAL"));
 			fscoreFileWriter.write(CSV.format(eventCount));
 			fscoreFileWriter.write("\n");
+			
+			fscoreFileWriter.write(CSV.format("WEIGHTED AVERAGE"));
+			fscoreFileWriter.write(CSV.format("")
+					+ CSV.format("")
+					+ CSV.format("")
+					+ CSV.format("")
+					+ CSV.format(precisionWeightedStats.getMean())
+					+ CSV.format(recallWeightedStats.getMean())
+					+ CSV.format(fScoreWeightedStats.getMean())
+					);
+			fscoreFileWriter.write("\n");
+
+			fscoreFileWriter.write(CSV.format("AVERAGE"));
+			fscoreFileWriter.write(CSV.format("")
+					+ CSV.format("")
+					+ CSV.format("")
+					+ CSV.format("")
+					+ CSV.format(precisionStats.getMean())
+					+ CSV.format(recallStats.getMean())
+					+ CSV.format(fScoreStats.getMean())
+					);
+			fscoreFileWriter.write("\n");
+			
 			fscoreFileWriter.flush();
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);

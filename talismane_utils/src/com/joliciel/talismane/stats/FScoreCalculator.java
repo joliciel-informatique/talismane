@@ -36,7 +36,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.JolicielException;
@@ -313,7 +313,7 @@ public class FScoreCalculator<E> {
 		if (precisions.containsKey(outcome))
 			return precisions.get(outcome);
 		else
-			return Double.NaN;
+			return 0;
 	}
 	
 	/**
@@ -335,7 +335,7 @@ public class FScoreCalculator<E> {
 		if (recalls.containsKey(outcome))
 			return recalls.get(outcome);
 		else
-			return Double.NaN;
+			return 0;
 	}
 	
 	/**
@@ -357,7 +357,7 @@ public class FScoreCalculator<E> {
 		if (fScores.containsKey(outcome))
 			return fScores.get(outcome);
 		else
-			return Double.NaN;
+			return 0;
 	}
 	
 	

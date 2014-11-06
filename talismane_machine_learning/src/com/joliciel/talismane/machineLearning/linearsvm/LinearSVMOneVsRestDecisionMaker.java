@@ -81,7 +81,7 @@ class LinearSVMOneVsRestDecisionMaker<T extends Outcome> implements DecisionMake
 			for (Model model : models) {
 				int myLabel = 0;
 				for (int j=0; j<model.getLabels().length; j++)
-					if (model.getLabels()[j]==0) myLabel=j;
+					if (model.getLabels()[j]==1) myLabel=j;
 				double[] probabilities = new double[2];
 				Linear.predictProbability(model, instance, probabilities);
 				

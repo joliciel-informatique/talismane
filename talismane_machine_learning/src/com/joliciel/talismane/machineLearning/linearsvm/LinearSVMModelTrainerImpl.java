@@ -68,6 +68,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	private double epsilon = 0.01;
 	private LinearSVMSolverType solverType = LinearSVMSolverType.L2R_LR;
 	private boolean oneVsRest = false;
+	private boolean balanceEventCounts = false;
 	
 	@Override
 	public ClassificationModel<T> trainModel(
@@ -147,6 +148,9 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				}
 				fullFeatureList.add(featureArray);
 				numEvents++;
+				if (numEvents % 1000 == 0) {
+					LOG.debug("Processed " + numEvents + " events.");
+				}
 			}
 						
 			Feature[][] featureMatrix = new Feature[numEvents][];
@@ -203,6 +207,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				List<String> atomicOutcomes = new ArrayList<String>();
 				TObjectIntMap<String> atomicOutcomeIndexes = new TObjectIntHashMap<String>();
 				TIntIntMap oldIndexNewIndexMap = new TIntIntHashMap();
+				
+				// store all atomic outcomes in one data structures
 				for (int j=0; j<outcomes.size(); j++) {
 					String outcome = outcomes.get(j);
 					if (outcome.indexOf('\t')<0) {
@@ -212,6 +218,9 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 						atomicOutcomes.add(outcome);
 					}
 				}
+				
+				// process all compound outcomes and store their components
+				// when required, add their components to the atomic outcome data structures
 				for (int j=0; j<outcomes.size(); j++) {
 					String outcome = outcomes.get(j);
 					if (outcome.indexOf('\t')>=0) {
@@ -253,6 +262,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				for (int j=0; j<atomicOutcomes.size(); j++) {
 					String outcome = atomicOutcomes.get(j);
 					LOG.info("Building model for outcome: " + outcome);
+					
+					// create an outcome array with 1 for the current outcome and 0 for all others
 					double[] outcomeArray = new double[numEvents];
 					i = 0;
 					TIntIterator outcomeIterator = outcomeList.iterator();
@@ -267,12 +278,44 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 							if (oldIndexNewIndexMap.get(originalOutcomeIndex)==j)
 								isMyOutcome = true;
 						}
-						int myOutcome = (isMyOutcome ? 0 : 1);
-						if (myOutcome==0) myOutcomeCount++;
+						int myOutcome = (isMyOutcome ? 1 : 0);
+						if (myOutcome==1) myOutcomeCount++;
 						outcomeArray[i++] = myOutcome;
 					}
 					
 					LOG.debug("Found " + myOutcomeCount + " out of " + numEvents + " outcomes of type: " + outcome);
+					
+					double[] myOutcomeArray = outcomeArray;
+					Feature[][] myFeatureMatrix = featureMatrix;
+					if (balanceEventCounts) {
+						// we start with the truncated proportion of false events to true events
+						// we want these approximately balanced
+						// we only balance up, never balance down
+						int otherCount = numEvents - myOutcomeCount;
+						int proportion = otherCount / myOutcomeCount;
+						if (proportion > 1) {
+							LOG.debug("Balancing events for " + outcome + " by " + proportion);
+							int newSize = otherCount + myOutcomeCount * proportion;
+							myOutcomeArray = new double[newSize];
+							myFeatureMatrix = new Feature[newSize][];
+							int l=0;
+							for (int k=0; k<outcomeArray.length; k++) {
+								double myOutcome = outcomeArray[k];
+								Feature[] myFeatures = featureMatrix[k];
+								if (myOutcome==0) {
+									myOutcomeArray[l] = myOutcome;
+									myFeatureMatrix[l] = myFeatures;
+									l++;
+								} else {
+									for (int m=0; m<proportion; m++) {
+										myOutcomeArray[l] = myOutcome;
+										myFeatureMatrix[l] = myFeatures;
+										l++;
+									}
+								} // is it the right outcome or not?
+							} // next outcome in original array
+						} // requires balancing?
+					} // balance event counts?
 					
 					Problem problem = new Problem();
 					
@@ -283,8 +326,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					
 					problem.l = numEvents; // number of training examples
 					problem.n = countingInfo.currentFeatureIndex; // number of features
-					problem.x = featureMatrix; // feature nodes - note: must be ordered by index
-					problem.y = outcomeArray; // target values
+					problem.x = myFeatureMatrix; // feature nodes - note: must be ordered by index
+					problem.y = myOutcomeArray; // target values
 					
 					Parameter parameter = new Parameter(solver, this.constraintViolationCost, this.epsilon);
 					Model model = null;
@@ -406,13 +449,24 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 		this.solverType = solverType;
 	}
 
-	
+	@Override
 	public boolean isOneVsRest() {
 		return oneVsRest;
 	}
 
+	@Override
 	public void setOneVsRest(boolean oneVsRest) {
 		this.oneVsRest = oneVsRest;
+	}
+	
+	@Override
+	public boolean isBalanceEventCounts() {
+		return balanceEventCounts;
+	}
+
+	@Override
+	public void setBalanceEventCounts(boolean balanceEventCounts) {
+		this.balanceEventCounts = balanceEventCounts;
 	}
 
 	@Override
@@ -439,6 +493,9 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					break;
 				case OneVsRest:
 					this.setOneVsRest((Boolean) value);
+					break;
+				case BalanceEventCounts:
+					this.setBalanceEventCounts((Boolean) value);
 					break;
 				default:
 					throw new JolicielException("Unknown parameter type: " + modelParameter);

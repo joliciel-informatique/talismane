@@ -33,11 +33,31 @@ public interface LinearSVMModelTrainer<T extends Outcome> extends Classification
 	 *
 	 */
 	public enum LinearSVMModelParameter {
+		/**
+		 * Linear SVM parameter C.
+		 */
 		ConstraintViolationCost(Double.class),
+		/**
+		 * Linear SVM parameter epsilon.
+		 */
 		Epsilon(Double.class),
+		/**
+		 * In how many distinct events should a feature appear in order to get included in the model?
+		 */
 		Cutoff(Integer.class),
+		/**
+		 * Linear SVM solver type, selected from {@link LinearSVMSolverType}.
+		 */
 		SolverType(LinearSVMSolverType.class),
-		OneVsRest(Boolean.class)
+		/**
+		 * Should we train multiple models, one per class, as one vs. rest models ?
+		 * */
+		OneVsRest(Boolean.class),
+		/**
+		 * If one vs. rest is used, should we balance the event counts so that the current outcome events
+		 * are approximately proportional to the other outcome events?
+		 */
+		BalanceEventCounts(Boolean.class)
 		;
 		
 		private Class<?> parameterType;
@@ -92,4 +112,17 @@ public interface LinearSVMModelTrainer<T extends Outcome> extends Classification
 	 */
 	public LinearSVMSolverType getSolverType();
 	public void setSolverType(LinearSVMSolverType solverType);
+	
+	/**
+	 * Should we train multiple models, one per class, as one vs. rest models ?
+	 * */
+	public boolean isOneVsRest();
+	public void setOneVsRest(boolean oneVsRest);
+
+	/**
+	 * If one vs. rest is used, should we balance the event counts so that the current outcome events
+	 * are approximately proportional to the other outcome events?
+	 */
+	public boolean isBalanceEventCounts();
+	public void setBalanceEventCounts(boolean balanceEventCounts);
 }
