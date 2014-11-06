@@ -25,7 +25,7 @@ class LinearSVMServiceImpl implements LinearSVMService {
 
 	@Override
 	public <T extends Outcome> LinearSVMModelTrainer<T> getLinearSVMModelTrainer() {
-		LinearSVMModelTrainerImpl<T> linearSVMModelTrainer = new LinearSVMModelTrainerImpl<T>();
+		LinearSVMModelTrainer<T> linearSVMModelTrainer = new LinearSVMModelTrainerImpl<T>();
 		return linearSVMModelTrainer;
 	}
 
