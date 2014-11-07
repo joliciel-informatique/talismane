@@ -26,6 +26,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -44,6 +46,7 @@ class PerceptronClassificationModel<T extends Outcome> extends AbstractClassific
 	private static final Log LOG = LogFactory.getLog(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker<T> decisionMaker;
+	private transient Set<String> outcomeNames = null;
 	
 	PerceptronClassificationModel() { }
 	
@@ -110,4 +113,11 @@ class PerceptronClassificationModel<T extends Outcome> extends AbstractClassific
 		// nothing to do
 	}
 
+	@Override
+	public Set<String> getOutcomeNames() {
+		if (this.outcomeNames==null) {
+			this.outcomeNames = new TreeSet<String>(this.params.getOutcomes());
+		}
+		return this.outcomeNames;
+	}
 }

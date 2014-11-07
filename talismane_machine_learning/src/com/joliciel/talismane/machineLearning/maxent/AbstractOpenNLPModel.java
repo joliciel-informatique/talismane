@@ -21,6 +21,8 @@ package com.joliciel.talismane.machineLearning.maxent;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -46,6 +48,7 @@ abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractClassific
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(AbstractOpenNLPModel.class);
 	private MaxentModel model;
+	private transient Set<String> outcomeNames = null;
 	
 	/**
 	 * Default constructor for factory.
@@ -91,5 +94,14 @@ abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractClassific
 		// no model-specific data
 	}
 
-	
+	@Override
+	public Set<String> getOutcomeNames() {
+		if (outcomeNames==null) {
+			outcomeNames = new TreeSet<String>();
+			for (int i=0; i<this.model.getNumOutcomes(); i++) {
+				outcomeNames.add(this.model.getOutcome(i));
+			}
+		}
+		return outcomeNames;
+	}
 }

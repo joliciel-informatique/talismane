@@ -33,6 +33,8 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -54,8 +56,9 @@ import de.bwaldvogel.liblinear.Model;
 class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
 	private static final Log LOG = LogFactory.getLog(LinearSVMModel.class);
 	private Model model;
-	TObjectIntMap<String> featureIndexMap = null;
-	List<String> outcomes = null;
+	private TObjectIntMap<String> featureIndexMap = null;
+	private List<String> outcomes = null;
+	private transient Set<String> outcomeNames = null;
 	
 	/**
 	 * Default constructor for factory.
@@ -199,6 +202,14 @@ class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
 			throw new RuntimeException(e);
 		}
 		
+	}
+
+	@Override
+	public Set<String> getOutcomeNames() {
+		if (this.outcomeNames==null) {
+			this.outcomeNames = new TreeSet<String>(this.outcomes);
+		}
+		return this.outcomeNames;
 	}
 
 }

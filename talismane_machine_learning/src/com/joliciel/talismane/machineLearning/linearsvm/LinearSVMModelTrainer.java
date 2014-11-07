@@ -23,6 +23,8 @@ import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * Trains a Linear SVM machine learning model for a given CorpusEventStream.
+ * Note: if the same feature is encountered multiple times in a feature vector, the value fed to the trainer
+ * will be the sum of values for all of the feature occurrences.
  * @author Assaf Urieli
  *
  */

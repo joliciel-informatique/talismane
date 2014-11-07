@@ -34,6 +34,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -56,8 +58,9 @@ import de.bwaldvogel.liblinear.Model;
 class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationModel<T> {
 	private static final Log LOG = LogFactory.getLog(LinearSVMOneVsRestModel.class);
 	private List<Model> models = new ArrayList<Model>();
-	TObjectIntMap<String> featureIndexMap = null;
-	List<String> outcomes = null;
+	private TObjectIntMap<String> featureIndexMap = null;
+	private List<String> outcomes = null;
+	private transient Set<String> outcomeNames = null;
 	
 	/**
 	 * Default constructor for factory.
@@ -224,4 +227,11 @@ class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationM
 		
 	}
 
+	@Override
+	public Set<String> getOutcomeNames() {
+		if (this.outcomeNames==null) {
+			this.outcomeNames = new TreeSet<String>(this.outcomes);
+		}
+		return this.outcomeNames;
+	}
 }

@@ -18,15 +18,23 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Trains a machine learning classification model for a given CorpusEventStream.
+ * Trains multiple models instead of a single model.
+ * This allows us to collect features a single time, and process them many times,
+ * in cases where feature collection is a costly activity.
+ * In order to avoid keeping all models in memory, models will be directly written to disk
+ * in a given directory.
  * @author Assaf Urieli
  *
+ * @param <T>
  */
-public interface ClassificationModelTrainer<T extends Outcome> {
+public interface ClassificationMultiModelTrainer<T extends Outcome> extends
+		ClassificationModelTrainer<T> {
+
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
 	 * @param corpusEventStream the event stream containing the events to be used for training
@@ -34,7 +42,7 @@ public interface ClassificationModelTrainer<T extends Outcome> {
 	 * @param featureDescriptors the feature descriptors required to apply this model to new data.
 	 * @return
 	 */
-	public ClassificationModel<T> trainModel(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, List<String> featureDescriptors);
+	public void trainModels(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, List<String> featureDescriptors);
 
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
@@ -43,19 +51,18 @@ public interface ClassificationModelTrainer<T extends Outcome> {
 	 * @param descriptors all of the descriptors required to perform analysis using this model (e.g. feature descriptors, etc.)
 	 * @return
 	 */
-	public ClassificationModel<T> trainModel(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, Map<String,List<String>> descriptors);
+	public void trainModels(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, Map<String,List<String>> descriptors);
 
-	/**
-	 * Statistical cutoff for feature inclusion: features must appear at least this many times to be included in the model.
-	 * Note that for numeric features, any value > 0 counts as 1 occurrence for cutoff purposes.
-	 * @return
-	 */
-	public int getCutoff();
-	public void setCutoff(int cutoff);
-	
 	/**
 	 * Set parameters for this trainer type.
 	 * @param parameters
 	 */
-	public void setParameters(Map<String,Object> parameters);
+	public void setParameterSets(List<Map<String,Object>> parameterSets);
+	
+	/**
+	 * The directory where models should be written.
+	 * @param outDir
+	 */
+	public void setOutDir(File outDir);
+	public File getOutDir();
 }
