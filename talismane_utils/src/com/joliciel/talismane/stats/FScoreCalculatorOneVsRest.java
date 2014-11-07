@@ -48,6 +48,16 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 		eventCount++;
 	}
 	
+	DescriptiveStatistics precisionStats = null;
+	DescriptiveStatistics recallStats = null;
+	DescriptiveStatistics fScoreStats = null;
+	
+	DescriptiveStatistics precisionWeightedStats = null;
+	DescriptiveStatistics recallWeightedStats = null;
+	DescriptiveStatistics fScoreWeightedStats = null;
+	
+	private boolean calculated = false;
+	
 	public void increment(E outcome, boolean expected, boolean guessed) {
 		FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
 		if (fScoreCalculator==null) {
@@ -61,10 +71,80 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 			int count = outcomeCounts.get(outcome);
 			outcomeCounts.put(outcome, count+1);
 		}
+		this.calculated = false;
+	}
+	
+	
+	public double getPrecisionMean() {
+		this.calculate();
+		return precisionStats.getMean();
+	}
+
+
+	public double getRecallMean() {
+		this.calculate();
+		return recallStats.getMean();
+	}
+
+
+	public double getFScoreMean() {
+		this.calculate();
+		return fScoreStats.getMean();
+	}
+
+
+	public double getPrecisionWeightedMean() {
+		this.calculate();
+		return precisionWeightedStats.getMean();
+	}
+
+
+	public double getRecallWeightedMean() {
+		this.calculate();
+		return recallWeightedStats.getMean();
+	}
+
+
+	public double getFScoreWeightedMean() {
+		this.calculate();
+		return fScoreWeightedStats.getMean();
+	}
+
+	private void calculate() {
+		if (!this.calculated) {
+			precisionStats = new DescriptiveStatistics();
+			recallStats = new DescriptiveStatistics();
+			fScoreStats = new DescriptiveStatistics();
+			
+			precisionWeightedStats = new DescriptiveStatistics();
+			recallWeightedStats = new DescriptiveStatistics();
+			fScoreWeightedStats = new DescriptiveStatistics();
+
+			for (E outcome : fScoreCalculators.keySet()) {
+				if (!outcomeCounts.containsKey(outcome))
+					outcomeCounts.put(outcome, 0);
+				
+				int count = outcomeCounts.get(outcome);
+				FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
+				if (count>0) {
+					precisionStats.addValue(fScoreCalculator.getPrecision(true));
+					recallStats.addValue(fScoreCalculator.getRecall(true));
+					fScoreStats.addValue(fScoreCalculator.getFScore(true));
+				}
+				for (int i=0; i<count; i++) {
+					precisionWeightedStats.addValue(fScoreCalculator.getPrecision(true));
+					recallWeightedStats.addValue(fScoreCalculator.getRecall(true));
+					fScoreWeightedStats.addValue(fScoreCalculator.getFScore(true));
+				}
+			}	
+			this.calculated = true;
+		}
 	}
 	
 	public void writeScoresToCSV(Writer fscoreFileWriter) {
 		try {
+			this.calculate();
+			
 			fscoreFileWriter.write(CSV.format("outcome"));
 			fscoreFileWriter.write(CSV.format("count")
 					+ CSV.format("true+")
@@ -77,19 +157,9 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 					);
 			fscoreFileWriter.write("\n");
 			
-			DescriptiveStatistics precisionStats = new DescriptiveStatistics();
-			DescriptiveStatistics recallStats = new DescriptiveStatistics();
-			DescriptiveStatistics fScoreStats = new DescriptiveStatistics();
-			
-			DescriptiveStatistics precisionWeightedStats = new DescriptiveStatistics();
-			DescriptiveStatistics recallWeightedStats = new DescriptiveStatistics();
-			DescriptiveStatistics fScoreWeightedStats = new DescriptiveStatistics();
-			
 			for (E outcome : fScoreCalculators.keySet()) {
 				fscoreFileWriter.write(CSV.format(outcome.toString()));
 				FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
-				if (!outcomeCounts.containsKey(outcome))
-					outcomeCounts.put(outcome, 0);
 				
 				int count = outcomeCounts.get(outcome);
 				fscoreFileWriter.write(CSV.format(count));			
@@ -102,17 +172,6 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 				fscoreFileWriter.write(CSV.format(fScoreCalculator.getAccuracy()*100));
 				fscoreFileWriter.write("\n");
 				fscoreFileWriter.flush();
-				
-				if (count>0) {
-					precisionStats.addValue(fScoreCalculator.getPrecision(true)*100);
-					recallStats.addValue(fScoreCalculator.getRecall(true)*100);
-					fScoreStats.addValue(fScoreCalculator.getFScore(true)*100);
-				}
-				for (int i=0; i<count; i++) {
-					precisionWeightedStats.addValue(fScoreCalculator.getPrecision(true)*100);
-					recallWeightedStats.addValue(fScoreCalculator.getRecall(true)*100);
-					fScoreWeightedStats.addValue(fScoreCalculator.getFScore(true)*100);
-				}
 			}
 			
 			fscoreFileWriter.write(CSV.format("TOTAL"));
@@ -124,9 +183,9 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 					+ CSV.format("")
 					+ CSV.format("")
 					+ CSV.format("")
-					+ CSV.format(precisionWeightedStats.getMean())
-					+ CSV.format(recallWeightedStats.getMean())
-					+ CSV.format(fScoreWeightedStats.getMean())
+					+ CSV.format(this.getPrecisionWeightedMean()*100)
+					+ CSV.format(this.getRecallWeightedMean()*100)
+					+ CSV.format(this.getFScoreWeightedMean()*100)
 					);
 			fscoreFileWriter.write("\n");
 
@@ -135,9 +194,9 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 					+ CSV.format("")
 					+ CSV.format("")
 					+ CSV.format("")
-					+ CSV.format(precisionStats.getMean())
-					+ CSV.format(recallStats.getMean())
-					+ CSV.format(fScoreStats.getMean())
+					+ CSV.format(this.getPrecisionMean()*100)
+					+ CSV.format(this.getRecallMean()*100)
+					+ CSV.format(this.getFScoreMean()*100)
 					);
 			fscoreFileWriter.write("\n");
 			

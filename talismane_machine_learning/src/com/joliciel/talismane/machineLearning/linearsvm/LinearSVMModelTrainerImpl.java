@@ -31,6 +31,7 @@ import gnu.trove.procedure.TObjectIntProcedure;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationMultiModelTrainer;
 import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Outcome;
@@ -59,7 +61,7 @@ import de.bwaldvogel.liblinear.Parameter;
 import de.bwaldvogel.liblinear.Problem;
 import de.bwaldvogel.liblinear.SolverType;
 
-class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrainer<T> {
+class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrainer<T>, ClassificationMultiModelTrainer<T> {
 	private static final Log LOG = LogFactory.getLog(LinearSVMModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LinearSVMModelTrainerImpl.class);
 	
@@ -69,6 +71,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	private LinearSVMSolverType solverType = LinearSVMSolverType.L2R_LR;
 	private boolean oneVsRest = false;
 	private boolean balanceEventCounts = false;
+	private File outDir = null;
+	private List<Map<String, Object>> parameterSets;
 	
 	@Override
 	public ClassificationModel<T> trainModel(
@@ -94,80 +98,19 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			if (!solver.isLogisticRegressionSolver())
 				throw new JolicielException("To get a probability distribution of outcomes, only logistic regression solvers are supported.");
 				
-			int numEvents = 0;
-			int currentOutcomeIndex = 0;
-			int maxFeatureCount = 0;
+			TObjectIntMap<String> featureIndexMap = new TObjectIntHashMap<String>(1000, 0.75f, -1);
+			TObjectIntMap<String> outcomeIndexMap = new TObjectIntHashMap<String>(100, 0.75f, -1);		
+			TIntList outcomeList = new TIntArrayList();
+			TIntIntMap featureCountMap = new TIntIntHashMap();
+
 			CountingInfo countingInfo = new CountingInfo();
 			
-			TObjectIntMap<String> featureIndexMap = new TObjectIntHashMap<String>(1000, 0.75f, -1);
-			TIntIntMap featureCountMap = new TIntIntHashMap();
-			TObjectIntMap<String> outcomeIndexMap = new TObjectIntHashMap<String>(100, 0.75f, -1);
-			
-			List<Feature[]> fullFeatureList = new ArrayList<Feature[]>();
-			TIntList outcomeList = new TIntArrayList();
-			
-			while (corpusEventStream.hasNext()) {
-				ClassificationEvent corpusEvent = corpusEventStream.next();
-				int outcomeIndex = outcomeIndexMap.get(corpusEvent.getClassification());
-				if (outcomeIndex<0) {
-					outcomeIndex = currentOutcomeIndex++;
-					outcomeIndexMap.put(corpusEvent.getClassification(), outcomeIndex);
-				}
-				outcomeList.add(outcomeIndex);
-				Map<Integer,Feature> featureList = new TreeMap<Integer,Feature>();
-				for (FeatureResult<?> featureResult : corpusEvent.getFeatureResults()) {
-					if (featureResult.getOutcome() instanceof List) {
-						@SuppressWarnings("unchecked")
-						FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
-						for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
-							String featureName = featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
-							double value = stringOutcome.getWeight();
-							this.addFeatureResult(featureName, value, featureList, featureIndexMap, featureCountMap, countingInfo);
-						}
-	
-					} else {
-						double value = 1.0;
-						if (featureResult.getOutcome() instanceof Double)
-						{
-							@SuppressWarnings("unchecked")
-							FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
-							value = doubleResult.getOutcome().doubleValue();
-						}
-						this.addFeatureResult(featureResult.getTrainingName(), value, featureList, featureIndexMap, featureCountMap, countingInfo);
-					}
-				}
-				if (featureList.size()>maxFeatureCount)
-					maxFeatureCount = featureList.size();
-				
-				// convert to array immediately, to avoid double storage
-				int j = 0;
-				Feature[] featureArray = new Feature[featureList.size()];
-				for (Feature feature : featureList.values()) {
-					featureArray[j] = feature;
-					j++;
-				}
-				fullFeatureList.add(featureArray);
-				numEvents++;
-				if (numEvents % 1000 == 0) {
-					LOG.debug("Processed " + numEvents + " events.");
-				}
-			}
-						
-			Feature[][] featureMatrix = new Feature[numEvents][];
-			int i = 0;
-			for (Feature[] featureArray : fullFeatureList) {
-				featureMatrix[i] = featureArray;
-				i++;
-			}
-			fullFeatureList = null;
-			
-			LOG.debug("Event count: " + numEvents);
-			LOG.debug("Feature count: " + featureIndexMap.size());
+			Feature[][] featureMatrix = this.getFeatureMatrix(corpusEventStream, featureIndexMap, outcomeIndexMap, outcomeList, featureCountMap, countingInfo);
 			
 			// apply the cutoff
 			if (cutoff>1) {
 				LOG.debug("Feature count (after cutoff): " + countingInfo.featureCountOverCutoff);
-				for (i=0; i<featureMatrix.length; i++) {
+				for (int i=0; i<featureMatrix.length; i++) {
 					Feature[] featureArray = featureMatrix[i];
 					List<Feature> featureList = new ArrayList<Feature>(featureArray.length);
 					for (int j=0; j<featureArray.length; j++) {
@@ -232,7 +175,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 							int outcomeIndex = outcomeIndexMap.get(part);
 							int newIndex = 0;
 							if (outcomeIndex<0) {
-								outcomeIndex = currentOutcomeIndex++;
+								outcomeIndex = countingInfo.currentOutcomeIndex++;
 								outcomeIndexMap.put(part, outcomeIndex);
 								newIndex = atomicOutcomes.size();
 								atomicOutcomeIndexes.put(part, newIndex);
@@ -264,8 +207,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					LOG.info("Building model for outcome: " + outcome);
 					
 					// create an outcome array with 1 for the current outcome and 0 for all others
-					double[] outcomeArray = new double[numEvents];
-					i = 0;
+					double[] outcomeArray = new double[countingInfo.numEvents];
+					int i = 0;
 					TIntIterator outcomeIterator = outcomeList.iterator();
 					int myOutcomeCount = 0;
 					while (outcomeIterator.hasNext()) {
@@ -283,7 +226,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 						outcomeArray[i++] = myOutcome;
 					}
 					
-					LOG.debug("Found " + myOutcomeCount + " out of " + numEvents + " outcomes of type: " + outcome);
+					LOG.debug("Found " + myOutcomeCount + " out of " + countingInfo.numEvents + " outcomes of type: " + outcome);
 					
 					double[] myOutcomeArray = outcomeArray;
 					Feature[][] myFeatureMatrix = featureMatrix;
@@ -291,7 +234,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 						// we start with the truncated proportion of false events to true events
 						// we want these approximately balanced
 						// we only balance up, never balance down
-						int otherCount = numEvents - myOutcomeCount;
+						int otherCount = countingInfo.numEvents - myOutcomeCount;
 						int proportion = otherCount / myOutcomeCount;
 						if (proportion > 1) {
 							LOG.debug("Balancing events for " + outcome + " by " + proportion);
@@ -324,7 +267,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					//		problem.x = ... // feature nodes - note: must be ordered by index
 					//		problem.y = ... // target values
 					
-					problem.l = numEvents; // number of training examples
+					problem.l = countingInfo.numEvents; // number of training examples
 					problem.n = countingInfo.currentFeatureIndex; // number of features
 					problem.x = myFeatureMatrix; // feature nodes - note: must be ordered by index
 					problem.y = myOutcomeArray; // target values
@@ -343,8 +286,8 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				
 				return linearSVMModel;
 			} else {
-				double[] outcomeArray = new double[numEvents];
-				i = 0;
+				double[] outcomeArray = new double[countingInfo.numEvents];
+				int i = 0;
 				TIntIterator outcomeIterator = outcomeList.iterator();
 				while (outcomeIterator.hasNext())
 					outcomeArray[i++] = outcomeIterator.next();
@@ -356,7 +299,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 				//		problem.x = ... // feature nodes - note: must be ordered by index
 				//		problem.y = ... // target values
 				
-				problem.l = numEvents; // number of training examples
+				problem.l = countingInfo.numEvents; // number of training examples
 				problem.n = countingInfo.currentFeatureIndex; // number of features
 				problem.x = featureMatrix; // feature nodes - note: must be ordered by index
 				problem.y = outcomeArray; // target values
@@ -389,6 +332,77 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 		}
 	}
 
+	private Feature[][] getFeatureMatrix(ClassificationEventStream corpusEventStream,
+			TObjectIntMap<String> featureIndexMap,
+			TObjectIntMap<String> outcomeIndexMap,
+			TIntList outcomeList,
+			TIntIntMap featureCountMap,
+			CountingInfo countingInfo
+			) {
+		int maxFeatureCount = 0;
+				
+		List<Feature[]> fullFeatureList = new ArrayList<Feature[]>();
+		
+		while (corpusEventStream.hasNext()) {
+			ClassificationEvent corpusEvent = corpusEventStream.next();
+			int outcomeIndex = outcomeIndexMap.get(corpusEvent.getClassification());
+			if (outcomeIndex<0) {
+				outcomeIndex = countingInfo.currentOutcomeIndex++;
+				outcomeIndexMap.put(corpusEvent.getClassification(), outcomeIndex);
+			}
+			outcomeList.add(outcomeIndex);
+			Map<Integer,Feature> featureList = new TreeMap<Integer,Feature>();
+			for (FeatureResult<?> featureResult : corpusEvent.getFeatureResults()) {
+				if (featureResult.getOutcome() instanceof List) {
+					@SuppressWarnings("unchecked")
+					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+						String featureName = featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
+						double value = stringOutcome.getWeight();
+						this.addFeatureResult(featureName, value, featureList, featureIndexMap, featureCountMap, countingInfo);
+					}
+
+				} else {
+					double value = 1.0;
+					if (featureResult.getOutcome() instanceof Double)
+					{
+						@SuppressWarnings("unchecked")
+						FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+						value = doubleResult.getOutcome().doubleValue();
+					}
+					this.addFeatureResult(featureResult.getTrainingName(), value, featureList, featureIndexMap, featureCountMap, countingInfo);
+				}
+			}
+			if (featureList.size()>maxFeatureCount)
+				maxFeatureCount = featureList.size();
+			
+			// convert to array immediately, to avoid double storage
+			int j = 0;
+			Feature[] featureArray = new Feature[featureList.size()];
+			for (Feature feature : featureList.values()) {
+				featureArray[j] = feature;
+				j++;
+			}
+			fullFeatureList.add(featureArray);
+			countingInfo.numEvents++;
+			if (countingInfo.numEvents % 1000 == 0) {
+				LOG.debug("Processed " + countingInfo.numEvents + " events.");
+			}
+		}
+					
+		Feature[][] featureMatrix = new Feature[countingInfo.numEvents][];
+		int i = 0;
+		for (Feature[] featureArray : fullFeatureList) {
+			featureMatrix[i] = featureArray;
+			i++;
+		}
+		fullFeatureList = null;
+		
+		LOG.debug("Event count: " + countingInfo.numEvents);
+		LOG.debug("Feature count: " + featureIndexMap.size());	
+		return featureMatrix;
+	}
+	
 	void addFeatureResult(String featureName, double value,
 			Map<Integer,Feature> featureList,
 			TObjectIntMap<String> featureIndexMap,
@@ -408,13 +422,22 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 			featureCountMap.put(featureIndex, featureCount);
 		}
 
-		FeatureNode featureNode = new FeatureNode(featureIndex, value);
-		featureList.put(featureIndex,featureNode);		
+		// if the same feature is added multiple times, we sum the values
+		Feature feature = featureList.get(featureIndex);
+		if (feature==null) {
+			FeatureNode featureNode = new FeatureNode(featureIndex, value);
+			featureList.put(featureIndex,featureNode);
+		} else {
+			FeatureNode featureNode = (FeatureNode) feature;
+			featureNode.setValue(featureNode.getValue() + value);
+		}
 	}
 	
 	private static class CountingInfo {
 		public int currentFeatureIndex = 1;
+		public int currentOutcomeIndex = 0;
 		public int featureCountOverCutoff = 0;
+		public int numEvents = 0;
 	}
 	
 	public int getCutoff() {
@@ -504,6 +527,35 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 		}
 	}
 
+	@Override
+	public void trainModels(ClassificationEventStream corpusEventStream,
+			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
+		// TODO Auto-generated method stub
+		
+	}
 
+	@Override
+	public void trainModels(ClassificationEventStream corpusEventStream,
+			DecisionFactory<T> decisionFactory,
+			Map<String, List<String>> descriptors) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public List<Map<String, Object>> getParameterSets() {
+		return parameterSets;
+	}
+
+	public void setParameterSets(List<Map<String, Object>> parameterSets) {
+		this.parameterSets = parameterSets;
+	}
+
+	public File getOutDir() {
+		return outDir;
+	}
+
+	public void setOutDir(File outDir) {
+		this.outDir = outDir;
+	}
 
 }

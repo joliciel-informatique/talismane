@@ -19,6 +19,7 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * A machine learning model for classification.
@@ -48,4 +49,9 @@ public interface ClassificationModel<T extends Outcome> extends MachineLearningM
 	 */
 	public ClassificationObserver<T> getDetailedAnalysisObserver(File file);
 
+	/**
+	 * A set of possible outcomes for this model.
+	 * @return
+	 */
+	public Set<String> getOutcomeNames();
 }
