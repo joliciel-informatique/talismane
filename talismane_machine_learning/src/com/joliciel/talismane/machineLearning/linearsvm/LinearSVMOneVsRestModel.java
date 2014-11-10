@@ -234,4 +234,10 @@ class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationM
 		}
 		return this.outcomeNames;
 	}
+
+	public List<Model> getModels() {
+		return models;
+	}
+	
+	
 }

@@ -59,11 +59,7 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 	private boolean calculated = false;
 	
 	public void increment(E outcome, boolean expected, boolean guessed) {
-		FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
-		if (fScoreCalculator==null) {
-			fScoreCalculator = new FScoreCalculator<Boolean>(outcome.toString());
-			fScoreCalculators.put(outcome, fScoreCalculator);
-		}
+		FScoreCalculator<Boolean> fScoreCalculator = this.getFScoreCalculator(outcome);
 		fScoreCalculator.increment(expected, guessed);
 		if (expected) {
 			if (!outcomeCounts.containsKey(outcome))
@@ -74,6 +70,14 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 		this.calculated = false;
 	}
 	
+	public FScoreCalculator<Boolean> getFScoreCalculator(E outcome) {
+		FScoreCalculator<Boolean> fScoreCalculator = fScoreCalculators.get(outcome);
+		if (fScoreCalculator==null) {
+			fScoreCalculator = new FScoreCalculator<Boolean>(outcome.toString());
+			fScoreCalculators.put(outcome, fScoreCalculator);
+		}
+		return fScoreCalculator;
+	}
 	
 	public double getPrecisionMean() {
 		this.calculate();
