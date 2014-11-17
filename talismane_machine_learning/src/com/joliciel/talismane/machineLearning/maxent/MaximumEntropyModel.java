@@ -59,8 +59,9 @@ class MaximumEntropyModel<T extends Outcome> extends AbstractOpenNLPModel<T> {
 	 */
 	MaximumEntropyModel(MaxentModel model,
 			Map<String,List<String>> descriptors,
-			DecisionFactory<T> decisionFactory) {
-		super(model, descriptors, decisionFactory);
+			DecisionFactory<T> decisionFactory,
+			Map<String,Object> trainingParameters) {
+		super(model, descriptors, decisionFactory, trainingParameters);
 	}
 	
 	@Override

@@ -61,6 +61,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 	private PerceptronModelTrainerObserver<T> observer;
 	private List<Integer> observationPoints;
 	private boolean averageAtIntervals = false;
+	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	public PerceptronClassifactionModelTrainerImpl() {
 	}
@@ -405,7 +406,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 	}
 	
 	ClassificationModel<T> getModel(PerceptronModelParameters params, int iterations) {
-		PerceptronClassificationModel<T> model = new PerceptronClassificationModel<T>(params, descriptors, decisionFactory);
+		PerceptronClassificationModel<T> model = new PerceptronClassificationModel<T>(params, descriptors, decisionFactory, this.trainingParameters);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + iterations);
 		model.addModelAttribute("tolerance", "" + this.getTolerance());
@@ -419,6 +420,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 	@Override
 	public void setParameters(Map<String, Object> parameters) {
 		if (parameters!=null) {
+			this.trainingParameters = parameters;
 			for (String parameter : parameters.keySet()) {
 				PerceptronModelParameter modelParameter = PerceptronModelParameter.valueOf(parameter);
 				Object value = parameters.get(parameter);

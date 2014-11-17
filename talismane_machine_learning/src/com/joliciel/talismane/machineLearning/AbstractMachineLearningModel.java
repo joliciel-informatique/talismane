@@ -57,6 +57,7 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	private Map<String, Object> dependencies = new HashMap<String, Object>();
 	private Collection<ExternalResource<?>> externalResources;
 	private ExternalResourceFinder externalResourceFinder;
+	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	@Override
 	public final void persist(File modelFile) {
@@ -86,6 +87,15 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				writer.write(name + "\t" + value + "\n");				
 				writer.flush();
 			}
+			
+			zos.putNextEntry(new ZipEntry("trainingParameters.obj"));
+			ObjectOutputStream trainingOos = new ObjectOutputStream(zos);
+			try {
+				trainingOos.writeObject(this.getTrainingParameters());
+			} finally {
+				trainingOos.flush();
+			}
+			zos.flush();
 			
 			for (String name : this.dependencies.keySet()) {
 				Object dependency = this.dependencies.get(name);
@@ -135,6 +145,16 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				@SuppressWarnings("unchecked")
 				List<ExternalResource<?>> externalResources = (List<ExternalResource<?>>) in.readObject();
 				this.setExternalResources(externalResources);
+			} catch (ClassNotFoundException e) {
+				LogUtils.logError(LOG, e);
+				throw new RuntimeException(e);
+			}
+    	} else if (ze.getName().equals("trainingParameters.obj")) {
+       		ObjectInputStream in = new ObjectInputStream(zis);
+			try {
+				@SuppressWarnings("unchecked")
+				Map<String,Object> trainingParameters = (Map<String,Object>) in.readObject();
+				this.setTrainingParameters(trainingParameters);
 			} catch (ClassNotFoundException e) {
 				LogUtils.logError(LOG, e);
 				throw new RuntimeException(e);
@@ -253,6 +273,14 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	 * Loads data from the input stream that is specific to this model type.
 	 */
 	protected abstract boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry);
+
+	public Map<String, Object> getTrainingParameters() {
+		return trainingParameters;
+	}
+
+	public void setTrainingParameters(Map<String, Object> trainingParameters) {
+		this.trainingParameters = trainingParameters;
+	}
 
 	@Override
 	public void onLoadComplete() { }

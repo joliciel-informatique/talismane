@@ -73,6 +73,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	private boolean balanceEventCounts = false;
 	private File outDir = null;
 	private List<Map<String, Object>> parameterSets;
+	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	@Override
 	public ClassificationModel<T> trainModel(
@@ -190,7 +191,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					}
 				}
 				
-				LinearSVMOneVsRestModel<T> linearSVMModel = new LinearSVMOneVsRestModel<T>(descriptors, decisionFactory);
+				LinearSVMOneVsRestModel<T> linearSVMModel = new LinearSVMOneVsRestModel<T>(descriptors, decisionFactory, this.trainingParameters);
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 				
 				linearSVMModel.setOutcomes(atomicOutcomes);
@@ -313,7 +314,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					MONITOR.endTask();
 				}
 				
-				LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>(model, descriptors, decisionFactory);
+				LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>(model, descriptors, decisionFactory, this.trainingParameters);
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 								
 				linearSVMModel.setOutcomes(outcomes);
@@ -495,6 +496,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	@Override
 	public void setParameters(Map<String, Object> parameters) {
 		if (parameters!=null) {
+			this.trainingParameters = parameters;
 			for (String parameter : parameters.keySet()) {
 				LinearSVMModelParameter modelParameter = LinearSVMModelParameter.valueOf(parameter);
 				Object value = parameters.get(parameter);

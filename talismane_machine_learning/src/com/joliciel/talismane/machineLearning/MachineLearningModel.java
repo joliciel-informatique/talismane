@@ -114,4 +114,10 @@ public interface MachineLearningModel {
 	 * Called when load from a zip file has been completed.
 	 */
 	public void onLoadComplete();
+	
+	/**
+	 * The training parameters used to train this model.
+	 * @return
+	 */
+	public Map<String,Object> getTrainingParameters();
 }

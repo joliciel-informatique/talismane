@@ -57,6 +57,7 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 	private boolean useAverage = false;
 	private boolean useSkippedAverage = false;
 
+	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	@Override
 	public ClassificationModel<T> trainModel(
@@ -90,7 +91,7 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>(perceptronModel, descriptors, decisionFactory);
+		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>(perceptronModel, descriptors, decisionFactory, this.trainingParameters);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + this.getIterations());
 		model.addModelAttribute("averaging", "" + this.isUseAverage());
@@ -155,6 +156,7 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 	@Override
 	public void setParameters(Map<String, Object> parameters) {
 		if (parameters!=null) {
+			this.trainingParameters = parameters;
 			for (String parameter : parameters.keySet()) {
 				OpenNLPPerceptronModelParameter modelParameter = OpenNLPPerceptronModelParameter.valueOf(parameter);
 				Object value = parameters.get(parameter);

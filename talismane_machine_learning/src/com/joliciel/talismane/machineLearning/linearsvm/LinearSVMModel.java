@@ -72,11 +72,13 @@ class LinearSVMModel<T extends Outcome> extends AbstractClassificationModel<T> {
 	 */
 	LinearSVMModel(Model model,
 			Map<String,List<String>> descriptors,
-			DecisionFactory<T> decisionFactory) {
+			DecisionFactory<T> decisionFactory,
+			Map<String,Object> trainingParameters) {
 		super();
 		this.model = model;
 		this.setDescriptors(descriptors);
 		this.setDecisionFactory(decisionFactory);
+		this.setTrainingParameters(trainingParameters);
 	}
 	
 	@Override
