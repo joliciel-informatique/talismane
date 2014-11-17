@@ -54,6 +54,7 @@ class ModelTrainerFactory {
 			modelTrainer = maxentModelTrainer;
 			break;
 		case LinearSVM:
+		case LinearSVMOneVsRest:
 			LinearSVMModelTrainer<T> linearSVMModelTrainer = linearSVMService.getLinearSVMModelTrainer();
 			modelTrainer = linearSVMModelTrainer;
 			break;

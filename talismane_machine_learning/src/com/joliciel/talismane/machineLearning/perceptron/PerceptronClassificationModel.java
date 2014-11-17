@@ -52,10 +52,12 @@ class PerceptronClassificationModel<T extends Outcome> extends AbstractClassific
 	
 	public PerceptronClassificationModel(PerceptronModelParameters params,
 			Map<String, List<String>> descriptors,
-			DecisionFactory<T> decisionFactory) {
+			DecisionFactory<T> decisionFactory,
+			Map<String,Object> trainingParameters) {
 		this.params = params;
 		this.setDecisionFactory(decisionFactory);
 		this.setDescriptors(descriptors);
+		this.setTrainingParameters(trainingParameters);
 	}
 
 	@Override

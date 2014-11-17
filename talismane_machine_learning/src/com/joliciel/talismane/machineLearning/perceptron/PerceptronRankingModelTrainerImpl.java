@@ -47,6 +47,7 @@ class PerceptronRankingModelTrainerImpl<T> implements PerceptronRankingModelTrai
 	private final TIntDoubleMap totalFeatureWeights = new TIntDoubleHashMap(1000, 0.7f, -1, 0.0);
 	private PerceptronRankingModelParameters params = new PerceptronRankingModelParameters();
 
+	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	public PerceptronRankingModelTrainerImpl() {
 	}
@@ -201,7 +202,7 @@ class PerceptronRankingModelTrainerImpl<T> implements PerceptronRankingModelTrai
 			Map<String, List<String>> descriptors) {
 		this.prepareData(corpusEventStream);
 		this.train(corpusEventStream, ranker);
-		PerceptronRankingModel model = new PerceptronRankingModel(params, descriptors);
+		PerceptronRankingModel model = new PerceptronRankingModel(params, descriptors, this.trainingParameters);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + this.getIterations());
 		
@@ -214,6 +215,7 @@ class PerceptronRankingModelTrainerImpl<T> implements PerceptronRankingModelTrai
 	@Override
 	public void setParameters(Map<String, Object> parameters) {
 		if (parameters!=null) {
+			this.trainingParameters = parameters;
 			for (String parameter : parameters.keySet()) {
 				PerceptronModelParameter modelParameter = PerceptronModelParameter.valueOf(parameter);
 				Object value = parameters.get(parameter);

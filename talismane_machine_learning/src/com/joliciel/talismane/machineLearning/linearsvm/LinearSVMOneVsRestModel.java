@@ -74,10 +74,12 @@ class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationM
 	 */
 	LinearSVMOneVsRestModel(
 			Map<String,List<String>> descriptors,
-			DecisionFactory<T> decisionFactory) {
+			DecisionFactory<T> decisionFactory,
+			Map<String,Object> trainingParameters) {
 		super();
 		this.setDescriptors(descriptors);
 		this.setDecisionFactory(decisionFactory);
+		this.setTrainingParameters(trainingParameters);
 	}
 	
 	public void addModel(Model model) {

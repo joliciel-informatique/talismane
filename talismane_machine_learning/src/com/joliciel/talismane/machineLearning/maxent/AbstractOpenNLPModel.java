@@ -62,11 +62,13 @@ abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractClassific
 	 */
 	AbstractOpenNLPModel(MaxentModel model,
 			Map<String,List<String>> descriptors,
-			DecisionFactory<T> decisionFactory) {
+			DecisionFactory<T> decisionFactory,
+			Map<String,Object> trainingParameters) {
 		super();
 		this.model = model;
 		this.setDescriptors(descriptors);
 		this.setDecisionFactory(decisionFactory);
+		this.setTrainingParameters(trainingParameters);
 	}
 
 	@Override

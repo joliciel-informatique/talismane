@@ -24,9 +24,11 @@ public class PerceptronRankingModel extends AbstractMachineLearningModel impleme
 	PerceptronRankingModel() { }
 	
 	public PerceptronRankingModel(PerceptronRankingModelParameters params,
-			Map<String, List<String>> descriptors) {
+			Map<String, List<String>> descriptors,
+			Map<String,Object> trainingParameters) {
 		this.params = params;
 		this.setDescriptors(descriptors);
+		this.setTrainingParameters(trainingParameters);
 		this.addDependency("FeatureWeightVector", params);
 	}
 	

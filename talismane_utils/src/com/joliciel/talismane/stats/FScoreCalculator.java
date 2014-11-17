@@ -145,17 +145,17 @@ public class FScoreCalculator<E> {
 			fScores = new HashMap<E, Double>();
 
 			for (E outcome : outcomeSet) {
-				LOG.debug("Outcome: " + outcome);
+				LOG.trace("Outcome: " + outcome);
 				Integer truePositiveCountObj = truePositiveCounts.get(outcome);
 				Integer falsePositiveCountObj = falsePositiveCounts.get(outcome);
 				Integer falseNegativeCountObj = falseNegativeCounts.get(outcome);
 				double truePositiveCount = truePositiveCountObj!=null ? truePositiveCountObj.doubleValue() : 0.0;
 				double falsePositiveCount = falsePositiveCountObj!=null ? falsePositiveCountObj.doubleValue() : 0.0;
 				double falseNegativeCount = falseNegativeCountObj!=null ? falseNegativeCountObj.doubleValue() : 0.0;
-				LOG.debug("truePositiveCount: " + truePositiveCount);
-				LOG.debug("falsePositiveCount: " + falsePositiveCount);
+				LOG.trace("truePositiveCount: " + truePositiveCount);
+				LOG.trace("falsePositiveCount: " + falsePositiveCount);
 				if (LOG.isTraceEnabled()) {
-					LOG.debug("False positives: ");
+					LOG.trace("False positives: ");
 					Map<E,Integer> pairCounts = falsePositives.get(outcome);
 					if (pairCounts != null) {
 						for (E guessed : pairCounts.keySet()) {
@@ -165,9 +165,9 @@ public class FScoreCalculator<E> {
 					}
 				}
 				
-				LOG.debug("falseNegativeCount " + falseNegativeCount);
+				LOG.trace("falseNegativeCount " + falseNegativeCount);
 				if (LOG.isTraceEnabled()) {
-					LOG.debug("False negatives: ");
+					LOG.trace("False negatives: ");
 					Map<E,Integer> pairCounts = falseNegatives.get(outcome);
 					if (pairCounts != null) {
 						for (E expected : pairCounts.keySet()) {
@@ -187,9 +187,9 @@ public class FScoreCalculator<E> {
 					recall = truePositiveCount / (truePositiveCount + falseNegativeCount);
 				if (precision + recall > 0)
 					fScore = (2 * precision * recall) / (precision + recall);
-				LOG.debug("Precision: " + precision);
-				LOG.debug("Recall: " + recall);
-				LOG.debug("F-score " + fScore);
+				LOG.trace("Precision: " + precision);
+				LOG.trace("Recall: " + recall);
+				LOG.trace("F-score " + fScore);
 				
 				precisions.put(outcome, precision);
 				recalls.put(outcome, recall);

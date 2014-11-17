@@ -55,6 +55,7 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 	private double sigma = 0;
 	private double smoothing = 0;
 
+	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	@Override
 	public ClassificationModel<T> trainModel(
@@ -90,7 +91,7 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		MaximumEntropyModel<T> model = new MaximumEntropyModel<T>(maxentModel, descriptors, decisionFactory);
+		MaximumEntropyModel<T> model = new MaximumEntropyModel<T>(maxentModel, descriptors, decisionFactory, this.trainingParameters);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + this.getIterations());
 		model.addModelAttribute("sigma", "" + this.getSigma());
@@ -145,6 +146,7 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 	@Override
 	public void setParameters(Map<String, Object> parameters) {
 		if (parameters!=null) {
+			this.trainingParameters = parameters;
 			for (String parameter : parameters.keySet()) {
 				MaxentModelParameter modelParameter = MaxentModelParameter.valueOf(parameter);
 				Object value = parameters.get(parameter);
