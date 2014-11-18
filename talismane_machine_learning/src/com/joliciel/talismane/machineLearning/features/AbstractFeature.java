@@ -76,6 +76,8 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 	}
 
 	protected final FeatureResult<Y> generateResult(Y outcome) {
+		if (outcome==null)
+			return null;
 		return new FeatureResultImpl<Y>(this, outcome);
 	}
 
