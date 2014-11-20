@@ -53,7 +53,7 @@ import com.joliciel.talismane.utils.LogUtils;
 public abstract class AbstractMachineLearningModel implements MachineLearningModel {
 	private static final Log LOG = LogFactory.getLog(AbstractMachineLearningModel.class);
 	private Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
-	private Map<String, String> modelAttributes = new TreeMap<String, String>();
+	private Map<String, Object> modelAttributes = new TreeMap<String, Object>();
 	private Map<String, Object> dependencies = new HashMap<String, Object>();
 	private Collection<ExternalResource<?>> externalResources;
 	private ExternalResourceFinder externalResourceFinder;
@@ -81,12 +81,14 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				
 			}
 			
-			zos.putNextEntry(new ZipEntry("attributes.txt"));
-			for (String name : this.modelAttributes.keySet()) {
-				String value = this.modelAttributes.get(name);
-				writer.write(name + "\t" + value + "\n");				
-				writer.flush();
+			zos.putNextEntry(new ZipEntry("attributes.obj"));
+			ObjectOutputStream attributesOos = new ObjectOutputStream(zos);
+			try {
+				attributesOos.writeObject(this.getModelAttributes());
+			} finally {
+				attributesOos.flush();
 			}
+			zos.flush();
 			
 			zos.putNextEntry(new ZipEntry("trainingParameters.obj"));
 			ObjectOutputStream trainingOos = new ObjectOutputStream(zos);
@@ -178,7 +180,18 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				LogUtils.logError(LOG, e);
 				throw new RuntimeException(e);
 			}
+		} else if (ze.getName().equals("attributes.obj")) {
+      		ObjectInputStream in = new ObjectInputStream(zis);
+			try {
+				@SuppressWarnings("unchecked")
+				Map<String,Object> attributes = (Map<String,Object>) in.readObject();
+				this.setModelAttributes(attributes);
+			} catch (ClassNotFoundException e) {
+				LogUtils.logError(LOG, e);
+				throw new RuntimeException(e);
+			}
 		} else if (ze.getName().equals("attributes.txt")) {
+			// for backwards compatibility, when attributes where always strings
     		Scanner scanner = new Scanner(zis, "UTF-8");
     		while (scanner.hasNextLine()) {
     			String line = scanner.nextLine();
@@ -211,10 +224,10 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	public void setDescriptors(Map<String, List<String>> descriptors) {
 		this.descriptors = descriptors;
 	}
-	public Map<String, String> getModelAttributes() {
+	public Map<String, Object> getModelAttributes() {
 		return modelAttributes;
 	}
-	public void setModelAttributes(Map<String, String> modelAttributes) {
+	public void setModelAttributes(Map<String, Object> modelAttributes) {
 		this.modelAttributes = modelAttributes;
 	}
 
@@ -230,7 +243,7 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	}
 
 	@Override
-	public void addModelAttribute(String name, String value) {
+	public void addModelAttribute(String name, Object value) {
 		this.modelAttributes.put(name, value);
 	}
 

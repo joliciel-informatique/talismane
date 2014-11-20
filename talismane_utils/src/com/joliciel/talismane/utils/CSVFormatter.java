@@ -89,6 +89,17 @@ public class CSVFormatter {
 	}
     
     /**
+     * Format a boolean for inclusion in a CSV.
+     * @param number
+     * @return
+     */
+    public String format(boolean bool) {
+    	if (addQuotesAlways)
+    		return "\"" + bool + "\"" + csvSeparator;
+		return bool + csvSeparator;
+	}  
+    
+    /**
      * Format a String for inclusion in a CSV.
      * @param number
      * @return
