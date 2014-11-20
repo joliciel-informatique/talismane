@@ -52,14 +52,14 @@ public interface MachineLearningModel {
 	 * Get this model's defining attributes.
 	 * @return
 	 */
-	public Map<String, String> getModelAttributes();
+	public Map<String, Object> getModelAttributes();
 
 	/**
 	 * Add a defining attribute to this model.
 	 * @param name
 	 * @param value
 	 */
-	public void addModelAttribute(String name, String value);
+	public void addModelAttribute(String name, Object value);
 	
 	/**
 	 * Get this model's dependencies.

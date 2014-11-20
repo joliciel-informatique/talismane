@@ -139,7 +139,7 @@ public class FScoreCalculator<E> {
 	
 	void evaluate() {
 		if (updatedSinceLastEval) {
-			LOG.info("###F-score calculations " + (label==null? "" : " for " + label.toString()));
+			LOG.debug("###F-score calculations " + (label==null? "" : " for " + label.toString()));
 			precisions = new HashMap<E, Double>();
 			recalls = new HashMap<E, Double>();
 			fScores = new HashMap<E, Double>();
@@ -201,13 +201,13 @@ public class FScoreCalculator<E> {
 			totalPrecision = (double) totalTruePositiveCount / ((double) totalTruePositiveCount + (double) totalFalsePositiveCount);
 			totalRecall = (double) totalTruePositiveCount / ((double) totalTruePositiveCount + (double) totalFalseNegativeCount);
 			totalFScore = (2 * totalPrecision * totalRecall) / (totalPrecision + totalRecall);
-			LOG.info("Total tests: " + testCount);
-			LOG.info("Total true positives: " + totalTruePositiveCount);
-			LOG.info("Total false positives: " + totalFalsePositiveCount);
-			LOG.info("Total false negatives: " + totalFalseNegativeCount);
-			LOG.info("Total precision: " + totalPrecision);
-			LOG.info("Total recall: " + totalRecall);
-			LOG.info("Total f-score: " + totalFScore);
+			LOG.debug("Total tests: " + testCount);
+			LOG.debug("Total true positives: " + totalTruePositiveCount);
+			LOG.debug("Total false positives: " + totalFalsePositiveCount);
+			LOG.debug("Total false negatives: " + totalFalseNegativeCount);
+			LOG.debug("Total precision: " + totalPrecision);
+			LOG.debug("Total recall: " + totalRecall);
+			LOG.debug("Total f-score: " + totalFScore);
 			
 			updatedSinceLastEval = false;
 		}
