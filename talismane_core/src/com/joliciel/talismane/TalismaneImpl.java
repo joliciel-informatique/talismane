@@ -478,7 +478,7 @@ class TalismaneImpl implements Talismane {
 			
 			long endTime = new Date().getTime();
 			long totalTime = endTime - startTime;
-			LOG.info("Total time for Talismane.process(): " + totalTime);
+			LOG.debug("Total time for Talismane.process(): " + totalTime);
 			
 			if (config.isLogStats()) {
 				try {
