@@ -153,12 +153,21 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 				String wordListName = params[0];
 				boolean uppercaseOptional=false;
 				boolean diacriticsOptional=false;
-				if (params.length>1)
-					diacriticsOptional = params[1].equalsIgnoreCase("true");
-				if (params.length>2)
-					uppercaseOptional = params[2].equalsIgnoreCase("true");
+				boolean lowercaseOptional=false;
+				boolean firstParam = true;
+				for(String param : params) {
+					if (firstParam) { /* word list name */ }
+					else if (param.equals("diacriticsOptional")) diacriticsOptional = true;
+					else if (param.equals("uppercaseOptional")) uppercaseOptional = true;
+					else if (param.equals("lowercaseOptional")) lowercaseOptional = true;
+					else throw new TalismaneException("Unknown parameter in word list " + matcher.group(1) + ": " + param);
+					firstParam = false;
+				}
 				
 				ExternalWordList wordList = externalResourceFinder.getExternalWordList(wordListName);
+				if (wordList==null)
+					throw new TalismaneException("Unknown word list: " + wordListName);
+				
 				StringBuilder sb = new StringBuilder();
 
 				boolean firstWord = true;
@@ -170,11 +179,14 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 						String wordNoDiacritics = Normalizer.normalize(word, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 						String wordLowercase = word.toLowerCase(Locale.ENGLISH);
 						String wordLowercaseNoDiacritics = Normalizer.normalize(wordLowercase, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+						String wordUppercase = wordNoDiacritics.toUpperCase(Locale.ENGLISH);
 						
 						boolean needsGrouping = false;
 						if (uppercaseOptional && !word.equals(wordLowercase))
 							needsGrouping = true;
 						if (diacriticsOptional && !word.equals(wordNoDiacritics))
+							needsGrouping = true;
+						if (lowercaseOptional && !word.equals(wordUppercase))
 							needsGrouping = true;
 						if (needsGrouping) {
 							for (int i=0; i<word.length(); i++) {
@@ -185,21 +197,24 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 									grouped = true;
 								if (diacriticsOptional && c!=wordNoDiacritics.charAt(i))
 									grouped = true;
+								if (lowercaseOptional && c!=wordUppercase.charAt(i))
+									grouped = true;
 								
 								if (!grouped)
 									sb.append(c);
 								else {
 									sb.append("[");
-									sb.append(c);
-									if (uppercaseOptional && c!=wordLowercase.charAt(i))
-										sb.append(wordLowercase.charAt(i));
-									if (diacriticsOptional && c!=wordNoDiacritics.charAt(i) && wordLowercase.charAt(i)!=wordNoDiacritics.charAt(i))
-										sb.append(wordNoDiacritics.charAt(i));
-									if (uppercaseOptional && diacriticsOptional && c!=wordLowercaseNoDiacritics.charAt(i)
-											&& wordLowercase.charAt(i)!=wordLowercaseNoDiacritics.charAt(i)
-											&& wordNoDiacritics.charAt(i)!=wordLowercaseNoDiacritics.charAt(i))
-										sb.append(wordLowercaseNoDiacritics.charAt(i));
+									String group = "" + c;
+									if (uppercaseOptional && group.indexOf(wordLowercase.charAt(i))<0)
+										group += (wordLowercase.charAt(i));
+									if (lowercaseOptional && group.indexOf(wordUppercase.charAt(i))<0)
+										group += (wordUppercase.charAt(i));
+									if (diacriticsOptional && group.indexOf(wordNoDiacritics.charAt(i))<0)
+										group += (wordNoDiacritics.charAt(i));
+									if (uppercaseOptional && diacriticsOptional && group.indexOf(wordLowercaseNoDiacritics.charAt(i))<0)
+										group += (wordLowercaseNoDiacritics.charAt(i));
 									
+									sb.append(group);
 									sb.append("]");
 								} // does this letter need grouping?
 							} // next letter

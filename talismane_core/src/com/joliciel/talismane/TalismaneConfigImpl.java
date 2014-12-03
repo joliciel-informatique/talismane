@@ -829,8 +829,22 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 			if (externalResourcePath!=null) {
 				externalResourceFinder = this.getMachineLearningService().getExternalResourceFinder();
-				File externalResourceFile = this.getFile(externalResourcePath);
-				externalResourceFinder.addExternalResources(externalResourceFile);
+				
+				List<String> paths = new ArrayList<String>();
+				if (externalResourcePath!=null && externalResourcePath.length()>0) {
+					LOG.info("externalResourcePath: " + externalResourcePath);
+					String[] parts = externalResourcePath.split(";");
+					for (String part : parts)
+						paths.add(part);
+				}
+				
+				for (String path : paths) {
+					LOG.info("Reading external resources from " + path);
+					if (path.length()>0) {
+						File externalResourceFile = this.getFile(path);
+						externalResourceFinder.addExternalResources(externalResourceFile);
+					}
+				}
 				
 				ExternalResourceFinder parserResourceFinder = this.getParserFeatureService().getExternalResourceFinder();
 				ExternalResourceFinder posTaggerResourceFinder = this.getPosTaggerFeatureService().getExternalResourceFinder();
