@@ -681,7 +681,7 @@ RegexMarkerFilter	SKIP	&lt;/b&gt;</pre>
 <pre>RegexMarkerFilter SKIP,SENTENCE_BREAK	(\r\n|[\r\n]){2}	0
 RegexMarkerFilter SPACE	[^-\r\n](\r\n|[\r\n])	1</pre>
 <li>To replace any occurrence of <tt>&amp;eacute;</tt> by é:</li>
-<pre>RegexMarkerFilter	REPLACE	&eacute;	é</pre>
+<pre>RegexMarkerFilter	REPLACE	&amp;eacute;	é</pre>
 <li>To start processing when we reach the XML tag <tt>&lt;text&gt;</tt>:</li>
 <pre>RegexMarkerFilter	START	&lt;text&gt;</pre>
 <li>To stop processing when we reach the XML tag <tt>&lt;/text&gt;</tt>:</li>
