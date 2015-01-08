@@ -51,8 +51,10 @@ import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.LowercaseFirstWordFrenchFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.UpperCaseSeriesFrenchFilter;
+import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -458,5 +460,10 @@ public class TalismaneFrench implements LanguageSpecificImplementation {
 		this.machineLearningService = machineLearningService;
 	}
 
-	
+	public LexicalEntryReader getDefaultConllLexicalEntryReader() {
+		InputStream inputStream = getInputStreamFromResource("talismane_conll_morph_regex.txt");
+		Scanner regexScanner = new Scanner(inputStream, "UTF-8");
+		LexicalEntryReader reader = new RegexLexicalEntryReader(regexScanner);
+		return reader;
+	}
 }

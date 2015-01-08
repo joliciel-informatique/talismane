@@ -779,7 +779,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (posTagSetPath!=null) {
 				File posTagSetFile = this.getFile(posTagSetPath);
 				Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTagSetFile), this.getInputCharset().name())));
-	
+				
 				PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
 				talismaneSession.setPosTagSet(posTagSet);
 			}
@@ -1041,17 +1041,21 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (inFilePath!=null) {
 				try {
 					File inFile = this.getFile(inFilePath);
-					if (inFile.isDirectory()) {
+					if (!inFile.exists())
+						throw new TalismaneException("inFile does not exist: " + inFilePath);
+					if (inFile.isDirectory())
 						throw new TalismaneException("inFile must be a file, not a directory - use inDir instead: " + inFilePath);
-					} else {
-						this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile), this.getInputCharset()));
-					}
+					
+					this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile), this.getInputCharset()));
+					
 				} catch (FileNotFoundException fnfe) {
 					LogUtils.logError(LOG, fnfe);
 					throw new RuntimeException(fnfe);
 				}
 			} else if (inDirPath!=null) {
 				File inDir = this.getFile(inDirPath);
+				if (!inDir.exists())
+					throw new TalismaneException("inDir does not exist: " + inDirPath);
 				if (inDir.isDirectory()) {
 					DirectoryReader directoryReader = new DirectoryReader(inDir, this.getInputCharset());
 					if (this.command == Command.analyse) {
@@ -1405,7 +1409,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (!tokenSequenceFiltersReplace)
 					tokenSequenceFilters.addAll(this.implementation.getDefaultTokenSequenceFilters());
 				
-				this.getDescriptors().put(TokenFilterService.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
+				this.getDescriptors().put(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
 			}
 			return tokenSequenceFilters;
 		} catch (Exception e) {

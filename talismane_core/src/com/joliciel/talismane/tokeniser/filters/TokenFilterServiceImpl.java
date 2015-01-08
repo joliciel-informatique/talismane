@@ -81,6 +81,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		classes.addAll(implementation.getAvailableTokenSequenceFilters());
 		classes.add(LowercaseFilter.class);
 		classes.add(DiacriticRemover.class);
+		classes.add(LowercaseKnownFirstWordFilter.class);
 		
 		for (Class<? extends TokenSequenceFilter> clazz : classes) {
 			if (descriptor.equals(clazz.getSimpleName())) {

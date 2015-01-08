@@ -69,6 +69,8 @@ import com.joliciel.talismane.utils.StringUtils;
  * If for a given entry all values match, the entry is excluded.</li>
  * <li><b><i>lexiconName</i>.encoding</b>: optional - if included, the lexicon file is read using the provided encoding.
  * If not, it is read in UTF-8. All other files are assumed to be in UTF-8.</li>
+ * <li><b><i>lexiconName</i>.uniqueKey</b>: optional - a comma-delimited list of {@link LexicalAttribute}. If included,
+ * defines lexical entry uniqueness: only one entry with a given combination of these attributes will be added, and others will be skipped</li>
  * </ul>
  * <p>The order of lexicons is important, as entries will be searched for in the order provided.</p>
  * 
@@ -164,7 +166,7 @@ public class LexiconSerializer {
 
 			String[] lexiconList= properties.get("lexicons").split(",");
 
-			List<String> knownPropertyList = Arrays.asList("file", "regex", "posTagMap", "categories", "exclusions", "encoding");
+			List<String> knownPropertyList = Arrays.asList("file", "regex", "posTagMap", "categories", "exclusions", "encoding", "uniqueKey");
 			Set<String> knownProperties = new HashSet<String>(knownPropertyList);
 			for (String property : properties.keySet()) {
 				if (property.equals("lexicons")) {
@@ -202,6 +204,7 @@ public class LexiconSerializer {
 				String lexiconExclusionPath = properties.get(lexiconName + ".exclusions");
 				String categoryString = properties.get(lexiconName + ".categories");
 				String lexiconEncoding = properties.get(lexiconName + ".encoding");
+				String lexiconUniqueKey = properties.get(lexiconName + ".uniqueKey");
 				
 				File lexiconRegexFile = new File(lexiconDir, lexiconRegexPath);
 				Scanner regexScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconRegexFile), defaultCharset)));
@@ -221,7 +224,7 @@ public class LexiconSerializer {
 				Reader reader = new BufferedReader(new InputStreamReader(inputStream, lexiconCharset));
 				Scanner lexiconScanner = new Scanner(reader);
 				
-				RegexLexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(regexScanner, lexiconScanner);
+				RegexLexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(regexScanner);
 				
 				regexScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconRegexFile), defaultCharset)));
 				zos.putNextEntry(new ZipEntry(lexiconName + "_regex.txt"));
@@ -266,16 +269,31 @@ public class LexiconSerializer {
 					}
 				}
 				
+				List<LexicalAttribute> uniqueAttributes = null;
+				if (lexiconUniqueKey!=null) {
+					uniqueAttributes = new ArrayList<LexicalAttribute>();
+					String[] uniqueKeyElements = lexiconUniqueKey.split(",");
+					for (String uniqueKeyElement : uniqueKeyElements) {
+						try {
+							LexicalAttribute attribute = LexicalAttribute.valueOf(uniqueKeyElement);
+							uniqueAttributes.add(attribute);
+						} catch (IllegalArgumentException  e) {
+							throw new TalismaneException("Unknown attribute in " + lexiconName + ".uniqueKey: " + uniqueKeyElement);
+						}
+					}
+				}
+				
 				LOG.debug("Serializing: " + lexiconFilePath);
 				
-				
-				LexiconFile lexiconFile = new LexiconFile(lexiconName, lexicalEntryReader);
+				LexiconFile lexiconFile = new LexiconFile(lexiconName, lexiconScanner, lexicalEntryReader);
 				if (categories!=null)
 					lexiconFile.setCategories(categories);
 				if (exclusionAttributes!=null)
 					lexiconFile.setExclusionAttributes(exclusionAttributes);
 				if (exclusions!=null)
 					lexiconFile.setExclusions(exclusions);
+				if (uniqueAttributes!=null)
+					lexiconFile.setUniqueKeyAttributes(uniqueAttributes);
 				
 				lexiconFile.load();
 				inputStream.close();

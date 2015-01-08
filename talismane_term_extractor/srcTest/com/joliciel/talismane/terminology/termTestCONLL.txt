@@ -1,18 +1,18 @@
-1	Le	le	DET	det	ms	3	det	_	_
-2	petit	petit	ADJ	adj	ms	3	mod	_	_
-3	chat	chat	NC	nc	ms	16	suj	_	_
-4	noir	noir	ADJ	adj	ms	3	mod	_	_
-5	et	et	CC	coo	null	4	coord	_	_
-6	blanc	blanc	ADJ	adj	ms	5	dep_coord	_	_
-7	de	de	P	prep	null	3	dep	_	_
-8	la	la	DET	det	fs	9	det	_	_
-9	grand-mère	grand-mère	NC	nc	fs	7	prep	_	_
-10	maternelle	maternel	ADJ	adj	fs	9	mod	_	_
-11	de	de	P	prep	null	9	dep	_	_
-12	sa	sa	DET	det	fs_P3s	14	det	_	_
-13	deuxième	deuxième	ADJ	adj	s	14	mod	_	_
-14	femme	femme	NC	nc	fs	11	prep	_	_
-15	a	avoir	V	v	P3s	16	aux_tps	_	_
-16	disparu	disparaître	VPP	v	Kms	0	root	_	_
-17	.	.	PONCT	poncts	null	16	ponct	_	_
+1	Le	le	DET	det	n=s|g=m|	3	det	3	det
+2	petit	petit	ADJ	adj	n=s|g=m|	3	mod	3	mod
+3	chat	chat	NC	nc	n=s|g=m|	16	suj	16	suj
+4	noir	noir	ADJ	adj	n=s|g=m|	3	mod	3	mod
+5	et	et	CC	coo		4	coord	4	coord
+6	blanc	blanc	ADJ	adj	n=s|g=m|	5	dep_coord	5	dep_coord
+7	de	de	P	prep		3	dep	3	dep
+8	la	la	DET	det	n=s|g=f|	9	det	9	det
+9	grand-mère	grand-mère	NC	nc	n=s|g=f|	7	prep	7	prep
+10	maternelle	maternel	ADJ	adj	n=s|g=f|	9	mod	9	mod
+11	de	de	P	prep		9	dep	9	dep
+12	sa	sa	DET	det	n=s|g=f|p=3|poss=s|	14	det	14	det
+13	deuxième	deuxième	ADJ	adj	s	14	mod	14	mod
+14	femme	femme	NC	nc	n=s|g=f|	11	prep	11	prep
+15	a	avoir	V	v	n=s|t=P|p=3|	16	aux_tps	16	aux_tps
+16	disparu	disparaître	VPP	v	n=s|g=m|t=K|	0	root	0	root
+17	.	.	PONCT	poncts		16	ponct	16	ponct
 

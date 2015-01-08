@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -28,7 +29,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  * @author Assaf Urieli
  *
  */
-public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalismaneSession {
+public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalismaneSession, LexicalEntryFactory {
 	private static final long serialVersionUID = 2L;
 	private static final Log LOG = LogFactory.getLog(LexiconFile.class);
 	private Map<String,List<LexicalEntry>> entryMap = new THashMap<String, List<LexicalEntry>>();
@@ -47,11 +48,15 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 	private Map<LexicalAttribute,Map<Byte,String>> attributeByteToStringMap = new THashMap<LexicalAttribute, Map<Byte,String>>(INITIAL_CAPACITY, 0.75f);
 	private Map<String,LexicalAttribute> nameToAttributeMap = new THashMap<String, LexicalAttribute>();
 	private int otherAttributeIndex = 0;
+	private List<LexicalAttribute> uniqueKeyAttributes;
 	
-	public LexiconFile(String name, RegexLexicalEntryReader reader) {
+	private transient Scanner lexiconScanner;
+	
+	public LexiconFile(String name, Scanner lexiconScanner, RegexLexicalEntryReader reader) {
 		this.name = name;
+		this.lexiconScanner = lexiconScanner;
 		this.reader = reader;
-		reader.setLexiconFile(this);
+		reader.setLexicalEntryFactory(this);
 	}
 	
 	public void load() {
@@ -70,69 +75,101 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 		int entryCount = 0;
 		int categoryExcludeCount = 0;
 		int exclusionCount = 0;
+		int duplicateCount = 0;
 		int addedCount = 0;
-		while (reader.hasNextLexicalEntry()) {
-			LexicalEntry lexicalEntry = reader.nextLexicalEntry();
-			
-			entryCount++;
-			
-			if (entryCount % 1000 == 0) {
-				LOG.debug("Read " + entryCount + " entries");
-			}
-			
-			if (this.categories!=null) {
-				if (!this.categories.contains(lexicalEntry.getCategory())) {
-					categoryExcludeCount++;
+		while (lexiconScanner.hasNextLine()) {
+			String line = lexiconScanner.nextLine();
+			if (line.length()>0 && !line.startsWith("#")) {
+				LexicalEntry lexicalEntry = reader.readEntry(line);
+				
+				entryCount++;
+				
+				if (entryCount % 1000 == 0) {
+					LOG.debug("Read " + entryCount + " entries");
+				}
+				
+				if (this.categories!=null) {
+					if (!this.categories.contains(lexicalEntry.getCategory())) {
+						categoryExcludeCount++;
+						continue;
+					}
+				}
+				
+				boolean exclude = false;
+				if (exclusionMap!=null && this.exclusionAttributes!=null) {
+					String firstAttribute = this.exclusionAttributes.get(0);
+					String myFirstAttribute = lexicalEntry.getAttribute(firstAttribute);
+					if (exclusionMap.containsKey(myFirstAttribute)) {
+						for (List<String> exclusion : exclusionMap.get(myFirstAttribute)) {
+							boolean foundExclusion = true;
+							for (int i=1; i<this.exclusionAttributes.size(); i++) {
+								if (!exclusion.get(i).equals(lexicalEntry.getAttribute(this.exclusionAttributes.get(i)))) {
+									foundExclusion = false;
+									break;
+								}
+							} // next attribute in exclusion
+							if (foundExclusion) {
+								exclude = true;
+								break;
+							} // do we have a match
+						} // next exclusion
+					} // first attribute is on exclusion map
+				} // have exclusions
+				
+				if (exclude) {
+					LOG.debug("Excluding " + lexicalEntry.toString());
+					exclusionCount++;
 					continue;
 				}
-			}
-			
-			boolean exclude = false;
-			if (exclusionMap!=null && this.exclusionAttributes!=null) {
-				String firstAttribute = this.exclusionAttributes.get(0);
-				String myFirstAttribute = lexicalEntry.getAttribute(firstAttribute);
-				if (exclusionMap.containsKey(myFirstAttribute)) {
-					for (List<String> exclusion : exclusionMap.get(myFirstAttribute)) {
-						boolean foundExclusion = true;
-						for (int i=1; i<this.exclusionAttributes.size(); i++) {
-							if (!exclusion.get(i).equals(lexicalEntry.getAttribute(this.exclusionAttributes.get(i)))) {
-								foundExclusion = false;
+	
+				List<LexicalEntry> entries = entryMap.get(lexicalEntry.getWord());
+				if (entries==null) {
+					entries = new ArrayList<LexicalEntry>();
+					entryMap.put(lexicalEntry.getWord(), entries);
+				}
+				
+				boolean addEntry = true;
+				if (uniqueKeyAttributes!=null) {
+					for (LexicalEntry lexicalEntry2 : entries) {
+						boolean fullMatch = true;
+						for (LexicalAttribute lexicalAttribute : uniqueKeyAttributes) {
+							boolean entry1Has = lexicalEntry.hasAttribute(lexicalAttribute);
+							boolean entry2Has = lexicalEntry2.hasAttribute(lexicalAttribute);
+							if ((!entry1Has && !entry2Has) ||
+									(entry1Has && entry2Has
+									&& lexicalEntry.getAttribute(lexicalAttribute.name()).equals(lexicalEntry2.getAttribute(lexicalAttribute.name())))) {
+								// do nothing, we have a match
+							} else {
+								fullMatch = false;
 								break;
 							}
-						} // next attribute in exclusion
-						if (foundExclusion) {
-							exclude = true;
+						}
+						if (fullMatch) {
+							addEntry = false;
+							duplicateCount++;
 							break;
-						} // do we have a match
-					} // next exclusion
-				} // first attribute is on exclusion map
-			} // have exclusions
-			
-			if (exclude) {
-				LOG.debug("Excluding " + lexicalEntry.toString());
-				exclusionCount++;
-				continue;
-			}
-
-			addedCount++;
-			List<LexicalEntry> entries = entryMap.get(lexicalEntry.getWord());
-			if (entries==null) {
-				entries = new ArrayList<LexicalEntry>();
-				entryMap.put(lexicalEntry.getWord(), entries);
-			}
-			entries.add(lexicalEntry);
-			String key = lexicalEntry.getLemma() + "|" + lexicalEntry.getLemmaComplement();
-			List<LexicalEntry> entriesForLemma = lemmaEntryMap.get(key);
-			if (entriesForLemma==null) {
-				entriesForLemma = new ArrayList<LexicalEntry>();
-				lemmaEntryMap.put(key, entriesForLemma);
-			}
-			entriesForLemma.add(lexicalEntry);
-		}
+						}
+					}
+				}
+				
+				if (addEntry) {
+					addedCount++;
+					entries.add(lexicalEntry);
+					String key = lexicalEntry.getLemma() + "|" + lexicalEntry.getLemmaComplement();
+					List<LexicalEntry> entriesForLemma = lemmaEntryMap.get(key);
+					if (entriesForLemma==null) {
+						entriesForLemma = new ArrayList<LexicalEntry>();
+						lemmaEntryMap.put(key, entriesForLemma);
+					}
+					entriesForLemma.add(lexicalEntry);
+				}
+			} // valid line
+		} // next line
 		
 		LOG.debug("Read " + entryCount + " entries");
 		LOG.debug("Skipped " + categoryExcludeCount + " entries for categories");
 		LOG.debug("Skipped " + exclusionCount + " entries for exclusions");
+		LOG.debug("Skipped " + duplicateCount + " entries for duplicates");
 		LOG.debug("Added " + addedCount + " entries");
 	}
 
@@ -353,6 +390,25 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 			nameToAttributeMap.put(name, attribute);
 		}
 		return attribute;
+	}
+
+	@Override
+	public WritableLexicalEntry newLexicalEntry() {
+		CompactLexicalEntry lexicalEntry = new CompactLexicalEntry(this);
+		return lexicalEntry;
+	}
+
+	/**
+	 * A list of attributes defining the uniqueness of a given entry.
+	 * If another entry exists with the identical set of attributes, it won't get added.
+	 * @return
+	 */
+	public List<LexicalAttribute> getUniqueKeyAttributes() {
+		return uniqueKeyAttributes;
+	}
+
+	public void setUniqueKeyAttributes(List<LexicalAttribute> uniqueKeyAttributes) {
+		this.uniqueKeyAttributes = uniqueKeyAttributes;
 	}
 	
 }

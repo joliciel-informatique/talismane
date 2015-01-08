@@ -25,19 +25,6 @@ package com.joliciel.talismane.lexicon;
  */
 public interface LexicalEntryReader {
 	/**
-	 * Are there any more lexical entries to be read.
-	 * @return
-	 */
-	public boolean hasNextLexicalEntry();
-	
-	/**
-	 * Return the next lexical entry read.
-	 * @param line
-	 * @return
-	 */
-	public LexicalEntry nextLexicalEntry();
-	
-	/**
 	 * Read a lexical entry directly from a block of text.
 	 * @param text
 	 * @return

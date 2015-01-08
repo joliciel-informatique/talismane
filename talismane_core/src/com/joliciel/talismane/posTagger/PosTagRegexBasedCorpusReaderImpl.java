@@ -172,8 +172,9 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						}
 						
 						Matcher matcher = this.getPattern().matcher(line);
-						if (!matcher.matches())
-							throw new TalismaneException("Didn't match pattern on line " + lineNumber);
+						if (!matcher.matches()) {
+							throw new TalismaneException("Didn't match pattern on line " + lineNumber + ": Pattern=" + this.getPattern().pattern() + ", Line: " + line);
+						}
 						
 						if (matcher.groupCount()<placeholderIndexMap.size()) {
 							throw new TalismaneException("Expected at least " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
