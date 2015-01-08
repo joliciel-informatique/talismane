@@ -47,6 +47,7 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
 	private Charset charset;
 	private String endOfFileString = "";
 	private List<CurrentFileObserver> observers = new ArrayList<CurrentFileObserver>();
+	private char[] leftoverBuf = null;
 	
 	public DirectoryReader(File dir, Charset charset) {
 		super();
@@ -62,6 +63,23 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
 
 	@Override
 	public int read(char[] cbuf, int off, int len) throws IOException {
+		if (leftoverBuf!=null) {
+			char[] newLeftovers = null;
+			int j=0;
+			int k=0;
+			for (int i=0; i<leftoverBuf.length; i++) {
+				if (i<cbuf.length) {
+					cbuf[i] = leftoverBuf[i];
+					k++;
+				} else {
+					if (newLeftovers==null)
+						newLeftovers = new char[leftoverBuf.length - cbuf.length];
+					newLeftovers[j++] = leftoverBuf[i];
+				}
+			}
+			leftoverBuf = newLeftovers;
+			return k;
+		}
 		if (reader==null) {
 			if (currentIndex<files.size()) {
 				File file = files.get(currentIndex++);
@@ -76,8 +94,17 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
 		int result = this.reader.read(cbuf, off, len);
 		if (result<0) {
 			result = endOfFileString.length();
+			if (endOfFileString.length()>cbuf.length)
+				result = cbuf.length;
+			int j=0;
 			for (int i=0; i<endOfFileString.length(); i++) {
-				cbuf[i] = endOfFileString.charAt(i);
+				if (i<cbuf.length)
+					cbuf[i] = endOfFileString.charAt(i);
+				else {
+					if (leftoverBuf==null)
+						leftoverBuf = new char[endOfFileString.length()-cbuf.length];
+					leftoverBuf[j++] = endOfFileString.charAt(i);;
+				}
 			}
 			this.reader.close();
 			this.reader = null;

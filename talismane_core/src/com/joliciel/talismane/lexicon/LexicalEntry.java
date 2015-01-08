@@ -138,4 +138,12 @@ public interface LexicalEntry extends Serializable {
 	 * @return
 	 */
 	public String getLexiconName();
+	
+	/**
+	 * Returns true if the lexical attribute provided
+	 * exists for this lexical entry.
+	 * @param attribute
+	 * @return
+	 */
+	public boolean hasAttribute(LexicalAttribute attribute);
 }

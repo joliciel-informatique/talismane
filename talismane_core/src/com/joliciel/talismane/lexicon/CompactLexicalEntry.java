@@ -31,12 +31,12 @@ import java.util.Map;
  * @author Assaf Urieli
  *
  */
-public class DefaultLexicalEntry implements LexicalEntry, Serializable {
-	private static final long serialVersionUID = 4L;
+class CompactLexicalEntry extends AbstractLexicalEntry implements WritableLexicalEntry, Serializable {
+	private static final long serialVersionUID = 5L;
 	
 	private LexiconFile lexiconFile;
-	private String word;
-	private String lemma;
+	private String word = "";
+	private String lemma = "";
 	private int attributeMarker = 0x0;
 	private byte[] attributeCodes = new byte[0];
 	
@@ -66,12 +66,14 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 		attributeBitMap.put(LexicalAttribute.OtherAttribute8, 0x800000);
 	}
 	
-	public DefaultLexicalEntry(LexiconFile lexiconFile) {
+	public CompactLexicalEntry(LexiconFile lexiconFile) {
 		super();
 		this.lexiconFile = lexiconFile;
 	}
 	
-	private boolean hasAttribute(LexicalAttribute attribute) {
+	public boolean hasAttribute(LexicalAttribute attribute) {
+		if (attribute==LexicalAttribute.Word||attribute==LexicalAttribute.Lemma)
+			return true;
 		int attributeBit = attributeBitMap.get(attribute);
 		return ((attributeMarker & attributeBit)>0);
 	}
@@ -147,18 +149,21 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public String getWord() {
 		return word;
 	}
+	@Override
 	public void setWord(String word) {
 		this.word = word;
 	}
 	public String getLemma() {
 		return lemma;
 	}
+	@Override
 	public void setLemma(String lemma) {
 		this.lemma = lemma;
 	}
 	public String getLemmaComplement() {
 		return this.getValue(LexicalAttribute.LemmaComplement);
 	}
+	@Override
 	public void setLemmaComplement(String lemmaComplement) {
 		this.setValue(LexicalAttribute.LemmaComplement, lemmaComplement);
 	}
@@ -166,6 +171,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public String getCategory() {
 		return this.getValue(LexicalAttribute.Category);
 	}
+	@Override
 	public void setCategory(String category) {
 		this.setValue(LexicalAttribute.Category, category);
 	}
@@ -173,6 +179,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public String getMorphology() {
 		return this.getValue(LexicalAttribute.Morphology);
 	}
+	@Override
 	public void setMorphology(String morphology) {
 		this.setValue(LexicalAttribute.Morphology, morphology);
 	}
@@ -180,6 +187,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public String getSubCategory() {
 		return this.getValue(LexicalAttribute.SubCategory);
 	}
+	@Override
 	public void setSubCategory(String subCategory) {
 		this.setValue(LexicalAttribute.SubCategory, subCategory);
 	}
@@ -187,6 +195,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getGender() {
 		return this.getValueAsList(LexicalAttribute.Gender);
 	}
+	@Override
 	public void addGender(String gender) {
 		this.addValue(LexicalAttribute.Gender, gender);
 	}
@@ -194,6 +203,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getNumber() {
 		return this.getValueAsList(LexicalAttribute.Number);
 	}
+	@Override
 	public void addNumber(String number) {
 		this.addValue(LexicalAttribute.Number, number);
 	}
@@ -201,6 +211,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getPerson() {
 		return this.getValueAsList(LexicalAttribute.Person);
 	}
+	@Override
 	public void addPerson(String person) {
 		this.addValue(LexicalAttribute.Person, person);
 	}
@@ -208,6 +219,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getTense() {
 		return this.getValueAsList(LexicalAttribute.Tense);
 	}
+	@Override
 	public void addTense(String tense) {
 		this.addValue(LexicalAttribute.Tense, tense);
 	}
@@ -215,6 +227,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getMood() {
 		return this.getValueAsList(LexicalAttribute.Mood);
 	}
+	@Override
 	public void addMood(String mood) {
 		this.addValue(LexicalAttribute.Mood, mood);
 	}
@@ -222,6 +235,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getAspect() {
 		return this.getValueAsList(LexicalAttribute.Aspect);
 	}
+	@Override
 	public void addAspect(String aspect) {
 		this.addValue(LexicalAttribute.Aspect, aspect);
 	}
@@ -229,6 +243,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getCase() {
 		return this.getValueAsList(LexicalAttribute.Case);
 	}
+	@Override
 	public void addCase(String grammaticalCase) {
 		this.addValue(LexicalAttribute.Case, grammaticalCase);
 	}
@@ -236,99 +251,12 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	public List<String> getPossessorNumber() {
 		return this.getValueAsList(LexicalAttribute.PossessorNumber);
 	}
+	@Override
 	public void addPossessorNumber(String possessorNumber) {
 		this.addValue(LexicalAttribute.PossessorNumber, possessorNumber);
 	}
 	
-	@Override
-	public String getMorphologyForCoNLL() {
-		String morphologyForCoNLL = "";
-		if (this.hasAttribute(LexicalAttribute.SubCategory) && this.getSubCategory().length()>0) {
-			morphologyForCoNLL+= "s=" + this.getSubCategory() + "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.Case) && this.getCase().size()>0) {
-			morphologyForCoNLL+= "c=";
-			boolean first = true;
-			for (String aCase : this.getCase()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += aCase;
-			}
-			morphologyForCoNLL += "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.Number) &&this.getNumber().size()>0) {
-			morphologyForCoNLL+= "n=";
-			boolean first = true;
-			for (String aNumber : this.getNumber()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += aNumber;
-			}
-			morphologyForCoNLL += "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.Gender)&& this.getGender().size()>0) {
-			morphologyForCoNLL+= "g=";
-			boolean first = true;
-			for (String aGender : this.getGender()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += aGender;
-			}
-			morphologyForCoNLL += "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.Tense) && this.getTense().size()>0) {
-			morphologyForCoNLL+= "t=";
-			boolean first = true;
-			for (String aTense : this.getTense()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += aTense;
-			}
-			morphologyForCoNLL += "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.Mood) && this.getMood().size()>0) {
-			morphologyForCoNLL+= "m=";
-			boolean first = true;
-			for (String aMood : this.getMood()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += aMood;
-			}
-			morphologyForCoNLL += "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.Aspect) && this.getAspect().size()>0) {
-			morphologyForCoNLL+= "a=";
-			boolean first = true;
-			for (String anAspect : this.getAspect()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += anAspect;
-			}
-			morphologyForCoNLL += "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.Person) && this.getPerson().size()>0) {
-			morphologyForCoNLL+= "p=";
-			boolean first = true;
-			for (String aPerson : this.getPerson()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += aPerson;
-			}
-			morphologyForCoNLL += "|";
-		}
-		if (this.hasAttribute(LexicalAttribute.PossessorNumber)&& this.getPossessorNumber().size()>0) {
-			morphologyForCoNLL+= "poss=";
-			boolean first = true;
-			for (String aPossessorNumber : this.getPossessorNumber()) {
-				if (!first)
-					morphologyForCoNLL+= ",";
-				morphologyForCoNLL += aPossessorNumber;
-			}
-			morphologyForCoNLL += "|";
-		}
 
-		return morphologyForCoNLL;
-	}
 
 	@Override
 	public String getAttribute(String attribute) {
@@ -349,6 +277,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 		return this.getValue(myAttribute);
 	}
 	
+	@Override
 	public void setAttribute(String attribute, String value) {
 		if (attribute.equals(LexicalAttribute.Word.name()))
 			this.setWord(value);
@@ -373,7 +302,7 @@ public class DefaultLexicalEntry implements LexicalEntry, Serializable {
 	
 	@Override
 	public String toString() {
-		return "DefaultLexicalEntry [lexiconName=" + this.getLexiconName() + ", word="
+		return "LexicalEntry [lexiconName=" + this.getLexiconName() + ", word="
 				+ word + ", lemma=" + lemma + ", lemmaComplement="
 				+ this.getLemmaComplement() + ", category=" + this.getCategory() + ", subCategory=" + this.getSubCategory()
 				+ ", morphology=" + this.getMorphology() + "]";

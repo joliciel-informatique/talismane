@@ -19,15 +19,10 @@
 package com.joliciel.talismane.lexicon;
 
 /**
- * Reads lexical entries from any source whatsoever.
+ * Allows for the generation of lexical entries of a particular type.
  * @author Assaf Urieli
  *
  */
-public interface LexicalEntryReader {
-	/**
-	 * Read a lexical entry directly from a block of text.
-	 * @param text
-	 * @return
-	 */
-	public LexicalEntry readEntry(String text);
+public interface LexicalEntryFactory {
+	WritableLexicalEntry newLexicalEntry();
 }

@@ -63,13 +63,14 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 	private Map<String,List<LexicalAttributePattern>> otherAttributeMap = new HashMap<String, List<LexicalAttributePattern>>();
 	private List<LexicalAttributePattern> entryStartMap = new ArrayList<LexicalAttributePattern>();
 	
-	private Scanner lexiconScanner;
-	private LexicalEntry nextEntry = null;
-	private StringBuilder nextText = new StringBuilder();
-	private LexiconFile lexiconFile;
+	private LexicalEntryFactory lexicalEntryFactory;
 	
-	public RegexLexicalEntryReader(Scanner regexScanner, Scanner lexiconScanner) {
-		this.lexiconScanner = lexiconScanner;
+	public RegexLexicalEntryReader(Scanner regexScanner) {
+		this(regexScanner, null);
+	}
+	
+	public RegexLexicalEntryReader(Scanner regexScanner, LexicalEntryFactory lexicalEntryFactory) {
+		this.lexicalEntryFactory = lexicalEntryFactory;
 		while (regexScanner.hasNextLine()) {
 			String line = regexScanner.nextLine();
 			if (line.length()>0 && !line.startsWith("#")) {
@@ -145,59 +146,11 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 		
 	}
 	
-
-	@Override
-	public boolean hasNextLexicalEntry() {
-		if (nextEntry==null) {
-			while (lexiconScanner.hasNextLine()) {
-				String line = lexiconScanner.nextLine();
-				if (line.length()>0 && !line.startsWith("#")) {
-					if (entryStartMap.size()==0) {
-						nextEntry = this.readEntry(line);
-						break;
-					}
-					String text = null;
-					for (LexicalAttributePattern myPattern : entryStartMap) {
-						Matcher matcher = myPattern.getPattern().matcher(text);
-						if (matcher.find()) {
-							if (nextText.length()>0) {
-								text = nextText.toString();
-								nextText = new StringBuilder();
-							}
-							nextText.append(line + "\n");
-							if (text!=null)
-								break;
-						}
-					}
-					if (text!=null && text.length()>0) {
-						nextEntry = this.readEntry(text);
-						break;
-					} else {
-						nextText.append(line + "\n");
-					}
-				} // valid line?
-			} // has next line?
-			if (nextEntry==null && !lexiconScanner.hasNextLine()) {
-				if (nextText.length()>0) {
-					String text = nextText.toString();
-					nextEntry = this.readEntry(text);
-					nextText = new StringBuilder();
-				}
-			}
-		}
-		return (nextEntry!=null);
-	}
-
-	@Override
-	public LexicalEntry nextLexicalEntry() {
-		LexicalEntry entry = nextEntry;
-		nextEntry = null;
-		return entry;
-	}
-
-	
 	public LexicalEntry readEntry(String text) {
-		DefaultLexicalEntry lexicalEntry = new DefaultLexicalEntry(lexiconFile);
+		if (this.lexicalEntryFactory==null)
+			this.lexicalEntryFactory = new SimpleLexicalEntryFactory();
+		
+		WritableLexicalEntry lexicalEntry = this.lexicalEntryFactory.newLexicalEntry();
 
 		boolean foundWord = false;
 		for (LexicalAttribute attribute : this.attributePatternMap.keySet()) {
@@ -278,17 +231,6 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 		
 		return lexicalEntry;
 	}
-	
-	public LexiconFile getLexiconFile() {
-		return lexiconFile;
-	}
-
-
-	public void setLexiconFile(LexiconFile lexiconFile) {
-		this.lexiconFile = lexiconFile;
-	}
-
-
 
 	private static final class LexicalAttributePattern {
 		private Pattern pattern;
@@ -327,4 +269,15 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 		}
 	
 	}
+
+	public LexicalEntryFactory getLexicalEntryFactory() {
+		return lexicalEntryFactory;
+	}
+
+
+	public void setLexicalEntryFactory(LexicalEntryFactory lexicalEntryFactory) {
+		this.lexicalEntryFactory = lexicalEntryFactory;
+	}
+	
+	
 }

@@ -41,6 +41,7 @@ import static org.junit.Assert.*;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.fr.TalismaneFrench;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
@@ -75,8 +76,11 @@ public class TermExtractorTest {
 		TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
 		talismaneSession.setTransitionSystem(transitionSystem);
 		
-		//TODO: read morpholigical info from export
-		LexicalEntryReader lexicalEntryReader = null;
+		TalismaneFrench talismaneFrench = new TalismaneFrench("");
+		talismaneSession.setLinguisticRules(talismaneFrench.getDefaultLinguisticRules());
+		
+		// Read morphological info from export
+		LexicalEntryReader lexicalEntryReader = talismaneFrench.getDefaultConllLexicalEntryReader();
 		
 		ParserAnnotatedCorpusReader corpusReader = parserService.getRegexBasedCorpusReader(configurationReader);
 		corpusReader.setLexicalEntryReader(lexicalEntryReader);
