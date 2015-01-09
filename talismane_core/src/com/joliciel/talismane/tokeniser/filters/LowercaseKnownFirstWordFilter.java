@@ -102,7 +102,7 @@ public class LowercaseKnownFirstWordFilter implements TokenSequenceFilter, Needs
 					char[] firstChars = null;
 					switch (firstChar) {
 						case 'E':
-							firstChars = new char[] {'e', 'é', 'ê', 'è'};
+							firstChars = new char[] {'e', 'é', 'ê', 'è', 'ë'};
 							break;
 						case 'A':
 							firstChars = new char[] {'à', 'a', 'â', 'á'};

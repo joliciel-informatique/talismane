@@ -18,34 +18,30 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
-import com.joliciel.talismane.TalismaneSession;
+import java.util.regex.Pattern;
+
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
- * Puts text in lower case.
+ * Normalises all unicode characters representing some sort of double quote to simple double quote,
+ * some sort of single quote to a simple apostrophe,
+ * and some sort of dash or hyphen to a simple minus sign.
  * @author Assaf Urieli
  *
  */
-public class LowercaseFilter implements TokenSequenceFilter, NeedsTalismaneSession {
-	TalismaneSession talismaneSession;
+public class QuoteNormaliser implements TokenSequenceFilter {
+	Pattern doubleQuotes = Pattern.compile("[“”„‟″‴«»]");
+	Pattern singleQuotes = Pattern.compile("[‘’]");
+	Pattern dashes = Pattern.compile("[‒–—―]");
 	
 	@Override
 	public void apply(TokenSequence tokenSequence) {
 		for (Token token : tokenSequence) {
-			token.setText(token.getText().toLowerCase(talismaneSession.getLocale()));
+			token.setText(doubleQuotes.matcher(token.getText()).replaceAll("\""));
+			token.setText(singleQuotes.matcher(token.getText()).replaceAll("'"));
+			token.setText(dashes.matcher(token.getText()).replaceAll("-"));
 		}
 	}
-
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
-
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
-
-	
 
 }

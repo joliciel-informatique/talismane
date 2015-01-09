@@ -11,3 +11,4 @@ LefffD.posTagMap=lefff-ext-3.2_posTagMap.txt
 LefffD.exclusions=lefff-ext-3.2_exclusions.txt
 LefffD.categories=adj,adv,advneg,auxAvoir,auxEtre,nc,np,v
 LefffD.encoding=Cp1252
+LefffD.uniqueKey=Word,Lemma,Category,SubCategory,Morphology
