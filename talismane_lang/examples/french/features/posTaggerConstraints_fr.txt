@@ -7,7 +7,6 @@
 !CS	Not(LexiconPosTag("CS"))
 !DET	Not(LexiconPosTag("DET"))
 !DETWH	Not(LexiconPosTag("DETWH"))
-#!null	Not(LexiconPosTag("null"))
 !P	Not(LexiconPosTag("P"))
 !PONCT	Not(LexiconPosTag("PONCT"))
 !PRO	Not(LexiconPosTag("PRO"))
@@ -25,3 +24,10 @@
 !VS	HasClosedClassesOnly()
 !ET	HasClosedClassesOnly()
 !I	HasClosedClassesOnly()
+###### Token patterns ######
+NPP	Word("EntitéNomméeURL")
+NPP	Word("EntitéNomméeAdresseMail")
+NPP	Word("EntitéNomméeTél")
+P	Word("i.e.")
+P	Word("e.g.")
+PONCT	Regex("[\.\?\!]+")

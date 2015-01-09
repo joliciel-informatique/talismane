@@ -79,9 +79,11 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		List<Class<? extends TokenSequenceFilter>> classes = new ArrayList<Class<? extends TokenSequenceFilter>>();
 		LanguageSpecificImplementation implementation = talismaneService.getTalismaneSession().getImplementation();
 		classes.addAll(implementation.getAvailableTokenSequenceFilters());
-		classes.add(LowercaseFilter.class);
 		classes.add(DiacriticRemover.class);
+		classes.add(LowercaseFilter.class);
 		classes.add(LowercaseKnownFirstWordFilter.class);
+		classes.add(QuoteNormaliser.class);
+		classes.add(UppercaseSeriesFilter.class);
 		
 		for (Class<? extends TokenSequenceFilter> clazz : classes) {
 			if (descriptor.equals(clazz.getSimpleName())) {
