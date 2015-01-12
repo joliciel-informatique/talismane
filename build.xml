@@ -62,7 +62,7 @@
 				<include name="talismane_term_extractor/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="one-jar">
+		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_term_viewer/build.xml"/>
 			</fileset>

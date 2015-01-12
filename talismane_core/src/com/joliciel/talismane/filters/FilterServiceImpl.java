@@ -189,6 +189,8 @@ class FilterServiceImpl implements FilterServiceInternal {
 					}
 				}
 			}
+			if (filter==null)
+				throw new TalismaneException("Unknown text filter class: " + filterName);
 			filter.setBlockSize(blockSize);
 		}
 		

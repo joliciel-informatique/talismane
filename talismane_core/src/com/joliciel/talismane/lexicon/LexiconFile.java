@@ -15,9 +15,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.posTagger.UnknownPosTagException;
 
 /**
  * <p>A lexicon contained in a text file with one line per entry.</p>
@@ -199,8 +201,12 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 		PosTagSet posTagSet = this.getPosTagSet();
 		for (LexicalEntry entry : entries) {
 			if (this.getPosTagMapper()==null) {
-				PosTag posTag = posTagSet.getPosTag(entry.getCategory());
-				posTags.add(posTag);
+				try {
+					PosTag posTag = posTagSet.getPosTag(entry.getCategory());
+					posTags.add(posTag);
+				} catch (UnknownPosTagException upte) {
+					throw new TalismaneException("Unknown postag " + upte.getPosTagCode() + " for word: " + word + " in lexicon " + this.name);
+				}
 			} else {
 				posTags.addAll(posTagMapper.getPosTags(entry));
 			}
@@ -254,15 +260,14 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), lexicalEntry.getLemmaComplement(), posTag);
 		else
 			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), lexicalEntry.getLemmaComplement());
-		Set<LexicalEntry> entriesToReturn = new TreeSet<LexicalEntry>();
+		List<LexicalEntry> entryList = new ArrayList<LexicalEntry>();
 		for (LexicalEntry lemmaEntry : lemmaEntries) {
 			if ((number==null || number.length()==0 || lemmaEntry.getNumber().contains(number))
 					&& (gender==null || gender.length()==0 || lemmaEntry.getGender().contains(gender))) {
-				entriesToReturn.add(lemmaEntry);
+				entryList.add(lemmaEntry);
 			}
 		}
 		
-		List<LexicalEntry> entryList = new ArrayList<LexicalEntry>(entriesToReturn);
 		return entryList;
 	}
 

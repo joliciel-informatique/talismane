@@ -225,6 +225,7 @@ public interface TalismaneConfig {
 	 * @return
 	 */
 	public String getInputRegex();
+	public void setInputRegex(String inputRegex);
 
 	/**
 	 * A regex used to process the evaluation corpus.
