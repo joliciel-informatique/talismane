@@ -52,6 +52,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.terminology.Context;
 import com.joliciel.talismane.terminology.Term;
 import com.joliciel.talismane.terminology.TerminologyBase;
@@ -150,7 +151,10 @@ public class TerminologyViewerController {
     }
     
     @FXML protected void handleMenuFileDatabaseAction(ActionEvent event) {
-    	TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance();
+    	String sessionId="";
+       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+
+    	TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
     	TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
     	Properties props = new Properties();
     	props.put("jdbc.driverClassName", "org.postgresql.Driver");

@@ -98,7 +98,7 @@
 	    </manifestclasspath>
 		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}">
 			<manifest>
-	    		<attribute name="Main-Class" value="com.joliciel.talismane.terminology.Main"/>
+	    		<attribute name="Main-Class" value="com.joliciel.talismane.terminology.TalismaneTermExtractorMain"/>
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
@@ -108,23 +108,25 @@
         <!-- Construct the One-JAR file -->   
         <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
         	<manifest>
-        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.terminology.Main" />
+        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.terminology.TalismaneTermExtractorMain" />
         	</manifest>
             <main>
                 <!-- Construct main.jar from classes and source code -->
                 <fileset dir="${classes}"/>
             </main>
             <lib>
-		<fileset dir="${sharedLib}">
-			<include name="**/*.jar" />
-		</fileset>
-		<fileset dir="${dist}">
-			<include name="talismane-utils-${talismane.version}.jar" />
-			<include name="talismane-machineLearning-${talismane.version}.jar" />
-			<include name="talismane-core-${talismane.version}.jar" />
-			<include name="talismane-fr-${talismane.version}.jar" />
-		</fileset>
-
+				<fileset dir="${sharedLib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${terminologyLib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dist}">
+					<include name="talismane-utils-${talismane.version}.jar" />
+					<include name="talismane-machineLearning-${talismane.version}.jar" />
+					<include name="talismane-core-${talismane.version}.jar" />
+					<include name="talismane-fr-${talismane.version}.jar" />
+				</fileset>
             </lib>
         </one-jar>
     </target>

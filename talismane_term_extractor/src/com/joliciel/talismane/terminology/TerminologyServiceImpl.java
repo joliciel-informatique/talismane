@@ -23,11 +23,14 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.terminology.postgres.PostGresTerminologyBase;
 
 class TerminologyServiceImpl implements TerminologyServiceInternal {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TerminologyServiceImpl.class);
+	
+	private TalismaneService talismaneService;
 	
 	public TerminologyBase getPostGresTerminologyBase(String projectCode, Properties connectionProperties) {
 		TerminologyBase terminologyBase = new PostGresTerminologyBase(projectCode, connectionProperties);
@@ -35,12 +38,20 @@ class TerminologyServiceImpl implements TerminologyServiceInternal {
 		
 	}
 
-
 	@Override
 	public TermExtractor getTermExtractor(TerminologyBase terminologyBase) {
 		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase);
 		termExtractor.setTerminologyService(this);
+		termExtractor.setTalismaneService(this.getTalismaneService());
 		return termExtractor;
+	}
+
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
+
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
 	}
 
 

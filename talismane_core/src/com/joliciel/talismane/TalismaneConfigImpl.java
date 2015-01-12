@@ -737,7 +737,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						throw new TalismaneException("parserFeatures is required when training a parser model");
 				}
 			}
-	
+			
 			if (builtInTemplate!=null) {
 				if (builtInTemplate.equalsIgnoreCase("with_location")) {
 					tokeniserTemplateName = "tokeniser_template_with_location.ftl";
@@ -811,6 +811,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			
 			if (this.lexiconPath!=null) {				
 				File lexiconFile = this.getFile(lexiconPath);
+				if (!lexiconFile.exists())
+					throw new TalismaneException("lexicon: File " + lexiconPath + " does not exist");
+				
 				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
 				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
 				for (PosTaggerLexicon oneLexicon : lexicons) {
@@ -1176,6 +1179,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					} else {
 						if (posTaggerRuleFilePath!=null && posTaggerRuleFilePath.length()>0) {
 							File posTaggerRuleFile = this.getFile(posTaggerRuleFilePath);
+							if (!posTaggerRuleFile.exists()) {
+								throw new TalismaneException("posTaggerRules: File " + posTaggerRuleFilePath + " does not exist");
+							}
 							rulesScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerRuleFile), this.getInputCharset().name())));
 						}
 					}
@@ -1223,6 +1229,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						} else {
 							if (parserRuleFilePath!=null && parserRuleFilePath.length()>0) {
 								File parserRuleFile = this.getFile(parserRuleFilePath);
+								if (!parserRuleFile.exists()) {
+									throw new TalismaneException("parserRules: File " + parserRuleFilePath + " does not exist");
+								}
 								rulesScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(parserRuleFile), this.getInputCharset().name())));
 							}
 						}
@@ -1275,6 +1284,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		}
 	}
 	
+	public void setInputRegex(String inputRegex) {
+		this.inputRegex = inputRegex;
+	}
+
 	/**
 	 * A regex used to process the evaluation corpus.
 	 * @return
@@ -1345,6 +1358,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					if (path.length()>0) {
 						LOG.debug("From: " + path);
 						File textFilterFile = this.getFile(path);
+						if (!textFilterFile.exists()) {
+							throw new TalismaneException("textFilters: File " + path + " does not exist");
+						}
 						textFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(textFilterFile), this.getInputCharset().name())));
 					} else {
 						LOG.debug("From default");
@@ -1393,6 +1409,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				
 				if (tokenSequenceFilterPath!=null) {
 					File tokenSequenceFilterFile = this.getFile(tokenSequenceFilterPath);
+					if (!tokenSequenceFilterFile.exists()) {
+						throw new TalismaneException("tokenSequenceFilters: File " + tokenSequenceFilterPath + " does not exist");
+					}
 					Scanner scanner = new Scanner(tokenSequenceFilterFile);
 	
 					while (scanner.hasNextLine()) {
@@ -1484,6 +1503,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					if (path.length()>0) {
 						LOG.debug("From: " + path);
 						File tokenFilterFile = this.getFile(path);
+						if (!tokenFilterFile.exists()) {
+							throw new TalismaneException("tokenFilters: File " + path + " does not exist");
+						}
 						tokenFilterScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokenFilterFile), this.getInputCharset())));
 					} else {
 						LOG.debug("From default");

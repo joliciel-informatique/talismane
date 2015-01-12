@@ -22,6 +22,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
@@ -46,8 +48,8 @@ import com.joliciel.talismane.fr.TalismaneFrench;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.StringUtils;
 
-public class Main {
-	private static final Log LOG = LogFactory.getLog(Main.class);
+public class TalismaneTermExtractorMain {
+	private static final Log LOG = LogFactory.getLog(TalismaneTermExtractorMain.class);
 
 	private enum Command {
 		analyse,
@@ -108,7 +110,21 @@ public class Main {
 
 		long startTime = new Date().getTime();
 		try {
-			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance();
+			if (command.equals(Command.analyse)) {
+				innerArgs.put("command","analyse");
+			} else {
+				innerArgs.put("command", "process");
+			}
+			
+			String sessionId = "";
+	       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+	       	TalismaneService talismaneService = locator.getTalismaneService();
+	    	TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+	    	TalismaneFrench talismaneFrench = new TalismaneFrench(sessionId);
+	    	
+	    	TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, talismaneFrench);
+	    	
+			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
 			TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
 			TerminologyBase terminologyBase = null;
 			
@@ -124,20 +140,12 @@ public class Main {
 			if (command.equals(Command.analyse)||command.equals(Command.extract)) {
 				if (depth<0)
 					throw new TalismaneException("Required argument: depth");
-
-				if (command.equals(Command.analyse)) {
-					innerArgs.put("command","analyse");
-				} else {
-					innerArgs.put("command", "process");
-				}
-				
-				String sessionId = "";
-		       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-		       	TalismaneService talismaneService = locator.getTalismaneService();
-		    	TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
-		    	TalismaneFrench talismaneFrench = new TalismaneFrench(sessionId);
 		    	
-		    	TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, talismaneFrench);
+				InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
+				Scanner regexScanner = new Scanner(regexInputStream, "UTF-8");
+				String inputRegex = regexScanner.nextLine();
+				regexScanner.close();
+		    	config.setInputRegex(inputRegex);
 
 				PosTagSet tagSet = talismaneSession.getPosTagSet();
 				Charset outputCharset = config.getOutputCharset();
@@ -187,4 +195,11 @@ public class Main {
 		}
 	}
 
+	private static InputStream getInputStreamFromResource(String resource) {
+		String path = "/com/joliciel/talismane/terminology/resources/" + resource;
+		LOG.debug("Getting " + path);
+		InputStream inputStream = TalismaneFrench.class.getResourceAsStream(path); 
+		
+		return inputStream;
+	}
 }

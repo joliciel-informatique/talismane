@@ -18,16 +18,20 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.terminology;
 
+import com.joliciel.talismane.TalismaneServiceLocator;
+
 public class TerminologyServiceLocator {
 	TerminologyServiceImpl terminologyService = null;
 	private static TerminologyServiceLocator instance = null;
+	private TalismaneServiceLocator talismaneServiceLocator;
 	
-	private TerminologyServiceLocator() {
+	private TerminologyServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
+		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public static TerminologyServiceLocator getInstance() {
+	public static TerminologyServiceLocator getInstance(TalismaneServiceLocator talismaneServiceLocator) {
 		if (instance==null) {
-			instance = new TerminologyServiceLocator();
+			instance = new TerminologyServiceLocator(talismaneServiceLocator);
 		}
 		return instance;
 	}
@@ -35,6 +39,7 @@ public class TerminologyServiceLocator {
 	public TerminologyService getTerminologyService() {
 		if (terminologyService==null) {
 			terminologyService = new TerminologyServiceImpl();
+			terminologyService.setTalismaneService(this.talismaneServiceLocator.getTalismaneService());
 		}
 		return terminologyService;
 	}

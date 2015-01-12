@@ -37,6 +37,8 @@
 			</fileset>
 			<fileset dir="${dist}">
 				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
+				<include name="talismane-core-${talismane.version}.jar" />
    				<include name="talismane-term-extractor-${talismane.version}.jar" />
 			</fileset>
 			<!--
@@ -53,6 +55,8 @@
 			</fileset>
 			<fileset dir="${dist}">
 				<include name="talismane-utils-${talismane.version}.jar" />
+				<include name="talismane-machineLearning-${talismane.version}.jar" />
+				<include name="talismane-core-${talismane.version}.jar" />
 	   			<include name="talismane-term-extractor-${talismane.version}.jar" />
 			</fileset>
 		</path>
@@ -88,7 +92,7 @@
 	           use="true"
 	           windowtitle="${prettyName} API">
 	    <doctitle><![CDATA[<h1>Talismane Term Extractor</h1>]]></doctitle>
-	    <bottom><![CDATA[<i>Copyright &#169; 2012 Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
+	    <bottom><![CDATA[<i>Copyright &#169; 2015 Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
 	    <tag name="todo" scope="all" description="To do:"/>
 	  </javadoc>
 	</target>
@@ -108,6 +112,8 @@
 					<include name="lib/*.jar" />
 				</fx:fileset>
 				<fx:fileset dir="${dist}" includes="talismane-utils-${talismane.version}.jar" />
+				<fx:fileset dir="${dist}" includes="talismane-machineLearning-${talismane.version}.jar" />
+				<fx:fileset dir="${dist}" includes="talismane-core-${talismane.version}.jar" />
 				<fx:fileset dir="${dist}" includes="talismane-term-extractor-${talismane.version}.jar" />
 		    </fx:resources>
 		            
@@ -118,36 +124,8 @@
 		    <!-- Customize jar manifest (optional) -->
 		    <manifest>
 		        <attribute name="Implementation-Vendor" value="Assaf Urieli"/>
-		        <attribute name="Implementation-Version" value="0.0.1"/>
+		        <attribute name="Implementation-Version" value="${talismane.version}"/>
 		    </manifest>
 		</fx:jar>
 	</target>
-	
-	<!--
-	<target name="jar" depends="compile">
-		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}" />
-	</target>
-	-->
-
-	<target name="one-jar" depends="jar">
-        <!-- Construct the One-JAR file -->   
-        <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
-        	<manifest>
-        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.terminology.viewer.TerminologyViewer" />
-        	</manifest>
-            <main>
-                <!-- Construct main.jar from classes and source code -->
-                <fileset dir="${classes}"/>
-            </main>
-            <lib>
-				<fileset dir="${sharedLib}">
-					<include name="**/*.jar" />
-				</fileset>
-    			<fileset dir="${dist}">
-    				<include name="talismane-term-extractor-${talismane.version}.jar" />
-    			</fileset>
-
-            </lib>
-        </one-jar>
-    </target>
 </project>
