@@ -32,8 +32,8 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  */
 public interface TalismaneSession {
 
-	public LanguageSpecificImplementation getImplementation();
-	public void setImplementation(LanguageSpecificImplementation implementation);
+	public LanguageImplementation getImplementation();
+	public void setImplementation(LanguageImplementation implementation);
 
 	public PosTagSet getPosTagSet();
 	public void setPosTagSet(PosTagSet posTagSet);

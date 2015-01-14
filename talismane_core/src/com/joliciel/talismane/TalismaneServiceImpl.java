@@ -134,14 +134,36 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 
 	@Override
 	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
-			LanguageSpecificImplementation implementation) {
+			LanguageImplementation implementation) {
 		return this.getTalismaneConfig(args, null, implementation);
 	}
 
 	@Override
 	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir,
-			LanguageSpecificImplementation implementation) {
-		TalismaneConfigImpl config = new TalismaneConfigImpl(implementation);
+			LanguageImplementation implementation) {
+		return this.getTalismaneConfig(args, baseDir, implementation, null);
+	}
+	
+	@Override
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
+			String sessionId) {
+		return this.getTalismaneConfig(args, null, sessionId);
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
+			File baseDir, String sessionId) {
+		return this.getTalismaneConfig(args, baseDir, null, sessionId);
+	}
+
+	private TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir,
+			LanguageImplementation implementation, String sessionId) {
+		TalismaneConfigImpl config = null;
+		if (implementation!=null)
+			config = new TalismaneConfigImpl(implementation);
+		else
+			config = new TalismaneConfigImpl(sessionId);
+		
 		config.setTalismaneService(this);
 		config.setFilterService(filterService);
 		config.setMachineLearningService(machineLearningService);
@@ -159,7 +181,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setBaseDir(baseDir);
 		config.loadParameters(args);
 		return config;
-	}
+	}	
 
 	public ParserFeatureService getParserFeatureService() {
 		return parserFeatureService;

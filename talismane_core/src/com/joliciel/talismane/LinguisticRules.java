@@ -1,6 +1,8 @@
 //Copyright (C) 2014 Joliciel Informatique
 package com.joliciel.talismane;
 
+import com.joliciel.talismane.tokeniser.TokenSequence;
+
 /**
  * Various generic rules for a given language,
  * indicating via heuristics how to handle different situations.
@@ -10,11 +12,11 @@ package com.joliciel.talismane;
 public interface LinguisticRules {
 	/**
 	 * For corpora which provide tokens but not the original text (with white space), should a white space be added
-	 * between the previous token and the current token?
+	 * before adding the current token?
 	 * Language-specific - e.g. French takes space before :, ? and !, English doesn't
-	 * @param previousToken
-	 * @param currentToken
+	 * @param tokenSequence the token sequence up to now
+	 * @param currentToken the token about to get added
 	 * @return
 	 */
-	boolean shouldAddSpace(String previousToken, String currentToken);
+	boolean shouldAddSpace(TokenSequence tokenSequence, String currentToken);
 }

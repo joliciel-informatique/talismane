@@ -15,7 +15,6 @@
 				<include name="talismane_core/build.xml"/>
 				<include name="talismane_ftb/build.xml"/>
 				<include name="talismane_extensions/build.xml"/>
-				<include name="talismane_lang/build.xml"/>
 				<include name="talismane_fr/build.xml"/>
 				<include name="talismane_en/build.xml"/>
 				<include name="talismane_term_extractor/build.xml"/>
@@ -40,15 +39,15 @@
 				<include name="talismane_core/build.xml"/>
 			</fileset>
 		</subant>
+		<subant target="languagePacks">
+			<fileset dir=".">
+				<include name="talismane_core/build.xml"/>
+			</fileset>
+		</subant>
 		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_ftb/build.xml"/>
 				<include name="talismane_extensions/build.xml"/>
-			</fileset>
-		</subant>
-		<subant target="one-jar">
-			<fileset dir=".">
-				<include name="talismane_lang/build.xml"/>
 			</fileset>
 		</subant>
 		<subant target="one-jar">

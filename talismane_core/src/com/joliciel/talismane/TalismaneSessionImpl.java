@@ -35,16 +35,16 @@ class TalismaneSessionImpl implements TalismaneSession {
 	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
 	private PosTaggerLexicon mergedLexicon;
 	private TransitionSystem transitionSystem;
-	private LanguageSpecificImplementation implementation;
+	private LanguageImplementation implementation;
 	private LinguisticRules linguisticRules;
 	
 	@Override
-	public LanguageSpecificImplementation getImplementation() {
+	public LanguageImplementation getImplementation() {
 		return implementation;
 	}
 
 	@Override
-	public void setImplementation(LanguageSpecificImplementation implementation) {
+	public void setImplementation(LanguageImplementation implementation) {
 		this.implementation = implementation;
 	}
 

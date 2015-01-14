@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.LanguageSpecificImplementation;
+import com.joliciel.talismane.LanguageImplementation;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
@@ -77,7 +77,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	public TokenSequenceFilter getTokenSequenceFilter(String descriptor) {
 		TokenSequenceFilter filter = null;
 		List<Class<? extends TokenSequenceFilter>> classes = new ArrayList<Class<? extends TokenSequenceFilter>>();
-		LanguageSpecificImplementation implementation = talismaneService.getTalismaneSession().getImplementation();
+		LanguageImplementation implementation = talismaneService.getTalismaneSession().getImplementation();
 		classes.addAll(implementation.getAvailableTokenSequenceFilters());
 		classes.add(DiacriticRemover.class);
 		classes.add(LowercaseFilter.class);

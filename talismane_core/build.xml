@@ -10,9 +10,11 @@
 		<property name="project" value="${ant.project.name}" />
 		<property name="prettyName" value="Talismane Core" />
 		<property name="sharedLib" value="../lib"/>
+		<property name="languagePacks" value="languagePacks"/>
 		<property name="dist" value="../dist"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
+		<property name="examples" value="examples"/>
 		<property name="classes" location="${build}/classes" />
 		<property name="doc" location="${build}/doc" />
 		<path id="classpath">
@@ -39,6 +41,12 @@
 		<mkdir dir="${classes}" />
 		<mkdir dir="${doc}" />
 		<mkdir dir="${dist}" />
+		<mkdir dir="${dist}/lib" />
+		<copy todir="${dist}/lib">
+			<fileset dir="${sharedLib}">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="clean" depends="init" description="removes all directories related to this build">
@@ -58,7 +66,7 @@
 
 	<target name="jar" depends="compile">
 	    <manifestclasspath property="jar.classpath" jarfile="${dist}/${project}-${talismane.version}.jar">
-	      <classpath refid="classpath.jar"/>
+			<classpath refid="classpath.jar"/>
 	    </manifestclasspath>
 		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}">
 			<manifest>
@@ -66,6 +74,9 @@
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
+		<copy todir="${dist}/examples">
+			<fileset dir="${examples}" />
+		</copy>
 	</target>
 	
 	<target name="one-jar" depends="jar">
@@ -89,6 +100,15 @@
             </lib>
         </one-jar>
     </target>
+	
+	<target name="languagePacks" depends="init">
+	    <zip destfile="${dist}/frenchLanguagePack-${talismane.version}.zip">
+			<fileset dir="${languagePacks}/frenchLanguagePack" />
+		</zip>
+	    <zip destfile="${dist}/englishLanguagePack-${talismane.version}.zip">
+			<fileset dir="${languagePacks}/englishLanguagePack" />
+		</zip>
+	</target>
 	
 	<target name="javadoc" depends="compile">
 	  <javadoc packagenames="com.joliciel.*"

@@ -16,32 +16,65 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
+
 package com.joliciel.talismane.utils.io;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.io.InputStream;
 
-public class UnclosableWriter extends Writer {
-	private Writer wrappedWriter;
+public class UnclosableInputStream extends InputStream {
+	InputStream wrappedStream;
 	
-	public UnclosableWriter(Writer wrappedWriter) {
+	
+	public UnclosableInputStream(InputStream wrappedStream) {
 		super();
-		this.wrappedWriter = wrappedWriter;
+		this.wrappedStream = wrappedStream;
 	}
 
 	@Override
-	public void write(char[] cbuf, int off, int len) throws IOException {
-		wrappedWriter.write(cbuf, off, len);
+	public int read() throws IOException {
+		return wrappedStream.read();
 	}
 
 	@Override
-	public void flush() throws IOException {
-		wrappedWriter.flush();
+	public int read(byte[] b) throws IOException {
+		return wrappedStream.read(b);
+	}
+
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		return wrappedStream.read(b, off, len);
+	}
+
+	@Override
+	public long skip(long n) throws IOException {
+		return wrappedStream.skip(n);
+	}
+
+	@Override
+	public int available() throws IOException {
+		return wrappedStream.available();
 	}
 
 	@Override
 	public void close() throws IOException {
-		// ignore - never close the wrapped writer
+		// do nothing
 	}
+
+	@Override
+	public synchronized void mark(int readlimit) {
+		wrappedStream.mark(readlimit);
+	}
+
+	@Override
+	public synchronized void reset() throws IOException {
+		wrappedStream.reset();
+	}
+
+	@Override
+	public boolean markSupported() {
+		return wrappedStream.markSupported();
+	}
+
 
 }

@@ -40,6 +40,8 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.corpus.CorpusModifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
@@ -50,6 +52,7 @@ import com.joliciel.talismane.extensions.standoff.StandoffWriter;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.StringUtils;
 
 public class Extensions {
 	private static final Log LOG = LogFactory.getLog(Extensions.class);
@@ -68,6 +71,31 @@ public class Extensions {
 		projectify
 	}
 
+	/**
+	 * @param args
+	 * @throws Exception 
+	 */
+	public static void main(String[] args) throws Exception {
+    	Map<String,String> argsMap = StringUtils.convertArgs(args);
+    	
+    	Extensions extensions = new Extensions();
+    	extensions.pluckParameters(argsMap);
+    	
+    	String sessionId = "";
+       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+       	TalismaneService talismaneService = locator.getTalismaneService();
+    	
+    	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
+    	if (config.getCommand()==null)
+    		return;
+     	
+    	Talismane talismane = config.getTalismane();
+    	
+    	extensions.prepareCommand(config, talismane);
+    	
+    	talismane.process();
+	}
+	
 	/**
 	 * To be called initially, so that any parameters specific to the extensions can be removed
 	 * and/or replaced in the argument map.

@@ -227,12 +227,11 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			// do nothing
 		} else if (!textProvided) {
 			// check if a space should be added before this token
-			String lastTokenText = this.get(this.size()-1).getText();
 			LinguisticRules rules = talismaneService.getTalismaneSession().getLinguisticRules();
 			if (rules==null)
 				throw new TalismaneException("Linguistic rules have not been set.");
 			
-			if (rules.shouldAddSpace(lastTokenText, tokenText))
+			if (rules.shouldAddSpace(this, tokenText))
 				this.addTokenInternal(" ");
 			
 		}

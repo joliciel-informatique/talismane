@@ -352,7 +352,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	Map<String,List<String>> descriptors = null;
 	String parsingConstrainerPath = null;
 	ParsingConstrainer parsingConstrainer = null;
-	LanguageSpecificImplementation implementation;
+	LanguageImplementation implementation;
 	TalismaneSession talismaneSession = null;
 	
 	File baseDir = null;
@@ -361,8 +361,16 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	Locale locale = null;
 	
-	public TalismaneConfigImpl(LanguageSpecificImplementation implementation) {
+	public TalismaneConfigImpl(LanguageImplementation implementation) {
 		this.implementation = implementation;
+	}
+	
+	/**
+	 * Constructor without language implementation - requires languagePack parameter
+	 * or else all resources specified individually.
+	 */
+	public TalismaneConfigImpl(String sessionId) {
+		this.implementation = new GenericLanguageImplementation(sessionId);
 	}
 	
 	public void loadParameters(Map<String,String> args) {
@@ -400,6 +408,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			String posTagSetPath = null;
 			String externalResourcePath = null;
 			String transitionSystemStr = null;
+			
+			String languagePackPath = null;
 			
 			for (Entry<String,String> arg : args.entrySet()) {
 				String argName = arg.getKey();
@@ -680,6 +690,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					locale = Locale.forLanguageTag(argValue);
 				} else if (argName.equals("languageCorpusMap")) {
 					languageCorpusMapPath = argValue;
+				} else if (argName.equals("languagePack")) {
+					languagePackPath = argValue;
 				} else {
 					System.out.println("Unknown argument: " + argName);
 					throw new RuntimeException("Unknown argument: " + argName);
@@ -689,9 +701,22 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (command==null)
 				throw new TalismaneException("No command provided.");
 			
+			if (!(implementation instanceof LanguagePackImplementation) && languagePackPath!=null)
+				throw new TalismaneException("The implementation " + implementation.getClass().getSimpleName() + " does not accept language packs");
+			
+			if (implementation instanceof LanguagePackImplementation) {
+				if (languagePackPath!=null) {
+			   		File languagePackFile = new File(languagePackPath);
+		    		if (!languagePackFile.exists())
+		    			throw new TalismaneException("languagePack: could not find file: " + languagePackPath);
+		    		
+		    		((LanguagePackImplementation)implementation).setLanguagePack(languagePackFile);
+				}
+			}
+			
 			if (command.equals(Command.evaluate)) {
 				if (outDirPath.length()==0)
-					throw new RuntimeException("Missing argument: outdir");
+					throw new TalismaneException("Missing argument: outdir");
 			}
 			
 			if (startModule==null)
@@ -1407,26 +1432,42 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				List<String> tokenSequenceFilterDescriptors = new ArrayList<String>();
 				tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 				
+				Scanner scanner1 = null;
+				Scanner scanner2 = null;
+				
 				if (tokenSequenceFilterPath!=null) {
 					File tokenSequenceFilterFile = this.getFile(tokenSequenceFilterPath);
 					if (!tokenSequenceFilterFile.exists()) {
 						throw new TalismaneException("tokenSequenceFilters: File " + tokenSequenceFilterPath + " does not exist");
 					}
-					Scanner scanner = new Scanner(tokenSequenceFilterFile);
-	
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						tokenSequenceFilterDescriptors.add(descriptor);
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = this.getTokenFilterService().getTokenSequenceFilter(descriptor);
-							tokenSequenceFilters.add(tokenSequenceFilter);
+					scanner1 = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokenSequenceFilterFile), this.getInputCharset())));
+				}
+				
+				if (!tokenSequenceFiltersReplace) {
+					scanner2 = this.implementation.getDefaultTokenSequenceFiltersScanner();
+				}
+				
+				for (int i=0; i<2; i++) {
+					Scanner scanner = null;
+					if (i==0)
+						scanner = scanner1;
+					else
+						scanner = scanner2;
+					
+					if (scanner!=null) {
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							LOG.debug(descriptor);
+							tokenSequenceFilterDescriptors.add(descriptor);
+							if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+								TokenSequenceFilter tokenSequenceFilter = this.getTokenFilterService().getTokenSequenceFilter(descriptor);
+								if (tokenSequenceFilter instanceof NeedsTalismaneSession)
+									((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+								tokenSequenceFilters.add(tokenSequenceFilter);
+							}
 						}
 					}
 				}
-				
-				if (!tokenSequenceFiltersReplace)
-					tokenSequenceFilters.addAll(this.implementation.getDefaultTokenSequenceFilters());
 				
 				this.getDescriptors().put(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
 			}
@@ -1450,7 +1491,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				
 				if (posTagSequenceFilterPath!=null) {
 					File filterFile = this.getFile(posTagSequenceFilterPath);
-					Scanner scanner = new Scanner(filterFile);
+					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(filterFile), this.getInputCharset())));
 	
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
@@ -1550,7 +1591,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				LOG.debug("Getting language detector model");
 				ClassificationModel<LanguageOutcome> languageModel = null;
 				if (languageModelFilePath!=null) {
-					languageModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(languageModelFilePath)));
+					File languageModelFile = new File(languageModelFilePath);
+					if (!languageModelFile.exists())
+						throw new TalismaneException("Could not find languageModel at: " + languageModelFilePath);
+					languageModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(languageModelFile)));
 				} else {
 					throw new TalismaneException("Cannot detect languages with languageModel");
 				}
@@ -1574,9 +1618,15 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				LOG.debug("Getting sentence detector model");
 				ClassificationModel<SentenceDetectorOutcome> sentenceModel = null;
 				if (sentenceModelFilePath!=null) {
-					sentenceModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(sentenceModelFilePath)));
+					File sentenceModelFile = new File(sentenceModelFilePath);
+					if (!sentenceModelFile.exists())
+						throw new TalismaneException("Could not find sentenceModel at: " + sentenceModelFilePath);
+					
+					sentenceModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(sentenceModelFile)));
 				} else {
 					sentenceModel = this.implementation.getDefaultSentenceModel();
+					if (sentenceModel==null)
+						throw new TalismaneException("No sentenceModel provided");
 				}
 				sentenceDetector = this.getSentenceDetectorService().getSentenceDetector(sentenceModel);
 			}
@@ -1600,6 +1650,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				} else if (tokeniserType==TokeniserType.pattern) {
 					LOG.debug("Getting tokeniser model");
 					ClassificationModel<TokeniserOutcome> tokeniserModel = this.getTokeniserModel();
+					if (tokeniserModel==null)
+						throw new TalismaneException("No tokeniserModel provided");
+
 					tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
 		
 					if (includeDetails) {
@@ -1635,7 +1688,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (tokeniserModel==null) {
 				if (tokeniserModelFilePath!=null) {
-					tokeniserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(tokeniserModelFilePath)));
+					File tokeniserModelFile = new File(tokeniserModelFilePath);
+					if (!tokeniserModelFile.exists())
+						throw new TalismaneException("Could not find tokeniserModel at: " + tokeniserModelFilePath);
+					
+					tokeniserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(tokeniserModelFile)));
 				} else {
 					tokeniserModel = this.implementation.getDefaultTokeniserModel();
 				}
@@ -1651,7 +1708,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (posTaggerModel==null) {
 				if (posTaggerModelFilePath!=null) {
-					posTaggerModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(posTaggerModelFilePath)));
+					File posTaggerModelFile = new File(posTaggerModelFilePath);
+					if (!posTaggerModelFile.exists())
+						throw new TalismaneException("Could not find posTaggerModel at: " + posTaggerModelFilePath);
+					
+					posTaggerModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(posTaggerModelFile)));
 				} else {
 					posTaggerModel = this.implementation.getDefaultPosTaggerModel();
 				}
@@ -1667,7 +1728,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (parserModel==null) {
 				if (parserModelFilePath!=null) {
-					parserModel = this.getMachineLearningService().getMachineLearningModel(new ZipInputStream(new FileInputStream(parserModelFilePath)));
+					File parserModelFile = new File(parserModelFilePath);
+					if (!parserModelFile.exists())
+						throw new TalismaneException("Could not find parserModel at: " + parserModelFilePath);
+					
+					parserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(parserModelFile)));
 				} else {
 					parserModel = this.implementation.getDefaultParserModel();
 				}
@@ -1877,7 +1942,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				LOG.debug("Getting pos-tagger model");
 				
 				ClassificationModel<PosTag> posTaggerModel = this.getPosTaggerModel();
-				
+				if (posTaggerModel==null)
+					throw new TalismaneException("No posTaggerModel provided");
+
 				posTagger = this.getPosTaggerService().getPosTagger(posTaggerModel, posTaggerBeamWidth);
 				
 				if (posTaggerFeaturePath!=null) {
@@ -1940,6 +2007,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (parser==null) {
 				LOG.debug("Getting parser model");
 				MachineLearningModel parserModel = this.getParserModel();
+				if (parserModel==null)
+					throw new TalismaneException("No parserModel provided");
 				
 				parser = this.getParserService().getTransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures);
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
@@ -3333,6 +3402,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	}
 
 	public Locale getLocale() {
+		if (locale==null) {
+			return this.implementation.getLocale();
+		}
 		return locale;
 	}
 
@@ -3359,6 +3431,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public void setLanguageDetectorProcessor(
 			LanguageDetectorProcessor languageDetectorProcessor) {
 		this.languageDetectorProcessor = languageDetectorProcessor;
+	}
+
+	@Override
+	public LanguageImplementation getLanguageImplementation() {
+		return implementation;
 	}
 	
 	

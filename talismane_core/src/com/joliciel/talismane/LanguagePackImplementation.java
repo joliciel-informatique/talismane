@@ -16,32 +16,21 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.utils.io;
+package com.joliciel.talismane;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.File;
 
-public class UnclosableWriter extends Writer {
-	private Writer wrappedWriter;
-	
-	public UnclosableWriter(Writer wrappedWriter) {
-		super();
-		this.wrappedWriter = wrappedWriter;
-	}
-
-	@Override
-	public void write(char[] cbuf, int off, int len) throws IOException {
-		wrappedWriter.write(cbuf, off, len);
-	}
-
-	@Override
-	public void flush() throws IOException {
-		wrappedWriter.flush();
-	}
-
-	@Override
-	public void close() throws IOException {
-		// ignore - never close the wrapped writer
-	}
-
+/**
+ * A language implementation which accepts a language pack,
+ * meaning a zip file containing various resources describing how to perform
+ * analysis for a given language.
+ * @author Assaf Urieli
+ *
+ */
+public interface LanguagePackImplementation extends LanguageImplementation {
+	/**
+	 * Set the language pack.
+	 * @param languagePackFile
+	 */
+	public void setLanguagePack(File languagePackFile);
 }
