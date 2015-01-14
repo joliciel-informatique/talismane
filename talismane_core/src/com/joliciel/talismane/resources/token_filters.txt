@@ -9,27 +9,27 @@ TokenRegexFilter	[\-=*]{2,}
 #################
 #### Numbers ####
 #################
-TokenRegexFilter(featureType=number,language=en)	\b(\d\d\-){3,4}\d\d\b
-TokenRegexFilter(featureType=number,language=en)	\b(\d\d ){3,4}\d\d\b
-TokenRegexFilter(featureType=number,language=en)	\b(\d\d.){3,4}\d\d\b
-TokenRegexFilter(featureType=number,language=en)	\b[1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+([eE][-+]?[0-9]+)?\b
-TokenRegexFilter(featureType=number,language=en)	\b[1-9][0-9]*[,\.][0-9]+([eE][-+]?[0-9]+)?\b
-TokenRegexFilter(featureType=number,language=en)	\b0[,\.][0-9]+([eE][-+]?[0-9]+)?\b
-TokenRegexFilter(featureType=number,language=en)	[\.,][0-9]+([eE][-+]?[0-9]+)?\b
-TokenRegexFilter(featureType=number,language=en)	\b([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b
-TokenRegexFilter(featureType=number,language=en)	[-+][1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+([eE][-+]?[0-9]+)?\b
-TokenRegexFilter(featureType=number,language=en)	[-+][1-9][0-9]*[,\.][0-9]+([eE][-+]?[0-9]+)?\b
-TokenRegexFilter(featureType=number,language=en)	[-+]0[,\.][0-9]+([eE][-+]?[0-9]+)?\b
-TokenRegexFilter(featureType=number,language=en)	[-+][,\.][0-9]+([eE][-+]?[0-9]+)?\b
+TokenRegexFilter(featureType=number)	\b(\d\d\-){3,4}\d\d\b	123
+TokenRegexFilter(featureType=number)	\b(\d\d ){3,4}\d\d\b	123
+TokenRegexFilter(featureType=number)	\b(\d\d.){3,4}\d\d\b	123
+TokenRegexFilter(featureType=number)	\b[1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+([eE][-+]?[0-9]+)?\b	123
+TokenRegexFilter(featureType=number)	\b[1-9][0-9]*[,\.][0-9]+([eE][-+]?[0-9]+)?\b	123
+TokenRegexFilter(featureType=number)	\b0[,\.][0-9]+([eE][-+]?[0-9]+)?\b	123
+TokenRegexFilter(featureType=number)	[\.,][0-9]+([eE][-+]?[0-9]+)?\b	123
+TokenRegexFilter(featureType=number)	\b([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	123
+TokenRegexFilter(featureType=number)	[-+][1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+([eE][-+]?[0-9]+)?\b	123
+TokenRegexFilter(featureType=number)	[-+][1-9][0-9]*[,\.][0-9]+([eE][-+]?[0-9]+)?\b	123
+TokenRegexFilter(featureType=number)	[-+]0[,\.][0-9]+([eE][-+]?[0-9]+)?\b	123
+TokenRegexFilter(featureType=number)	[-+][,\.][0-9]+([eE][-+]?[0-9]+)?\b	123
 # Simple numbers and years
-TokenRegexFilter(featureType=number,language=en)	[-+]([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b
-TokenRegexFilter(featureType=number,language=en)	\b(([1-9])|([12][0-9])|(3[01]))\b
-TokenRegexFilter(featureType=number,language=en)	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b
-TokenRegexFilter(featureType=number,language=en)	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b
-TokenRegexFilter(featureType=number,language=en)	\b([12][0-9][0-9][0-9])\b
-TokenRegexFilter(featureType=number,language=en)	\b([1-9][0-9]*)\b
-TokenRegexFilter(featureType=number,language=en)	\b([0-9]+)\b
-TokenRegexFilter(featureType=number,language=en)	[-+]([1-9][0-9]*)\b
+TokenRegexFilter(featureType=number)	[-+]([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	123
+TokenRegexFilter(featureType=number)	\b(([1-9])|([12][0-9])|(3[01]))\b	123
+TokenRegexFilter(featureType=number)	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	1999-2000
+TokenRegexFilter(featureType=number)	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	1999-2000
+TokenRegexFilter(featureType=number)	\b([12][0-9][0-9][0-9])\b	1999
+TokenRegexFilter(featureType=number)	\b([1-9][0-9]*)\b	123
+TokenRegexFilter(featureType=number)	\b([0-9]+)\b	123
+TokenRegexFilter(featureType=number)	[-+]([1-9][0-9]*)\b	123
 
 ########################
 #### various quotes ####

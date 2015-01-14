@@ -29,8 +29,12 @@ import java.util.Map;
 public interface TalismaneService {
 	public TalismaneSession getTalismaneSession();
 	
-	public TalismaneConfig getTalismaneConfig(Map<String,String> args, LanguageSpecificImplementation implementation);
+	public TalismaneConfig getTalismaneConfig(Map<String,String> args, String sessionId);
 	
-	public TalismaneConfig getTalismaneConfig(Map<String,String> args, File baseDir, LanguageSpecificImplementation implementation);
+	public TalismaneConfig getTalismaneConfig(Map<String,String> args, LanguageImplementation implementation);
+	
+	public TalismaneConfig getTalismaneConfig(Map<String,String> args, File baseDir, String sessionId);
+	
+	public TalismaneConfig getTalismaneConfig(Map<String,String> args, File baseDir, LanguageImplementation implementation);
 
 }

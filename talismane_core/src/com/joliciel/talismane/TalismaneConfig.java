@@ -591,5 +591,7 @@ public interface TalismaneConfig {
 	 * @param languageCorpusMapPath
 	 */
 	public void setLanguageCorpusMapPath(String languageCorpusMapPath);
+	
+	public LanguageImplementation getLanguageImplementation();
 
 }
