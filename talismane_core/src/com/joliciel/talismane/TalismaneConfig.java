@@ -39,7 +39,6 @@ import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
@@ -53,9 +52,7 @@ import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
 
@@ -243,26 +240,6 @@ public interface TalismaneConfig {
 	public void setTextMarkerFilters(List<TextMarkerFilter> textMarkerFilters);
 
 	public void addTextMarkerFilter(TextMarkerFilter textMarkerFilter);
-
-	/**
-	 * TokenFilters to be applied during analysis.
-	 * @return
-	 */
-	public List<TokenSequenceFilter> getTokenSequenceFilters();
-
-	/**
-	 * TokenFilters to be applied during analysis.
-	 * @return
-	 */
-	public List<PosTagSequenceFilter> getDefaultPosTagSequenceFilters();
-
-	/**
-	 * TokenFilters to be applied during analysis.
-	 * @return
-	 */
-	public List<TokenFilter> getTokenFilters();
-
-	public void setTokenFilters(List<TokenFilter> tokenFilters);
 
 	/**
 	 * The language detector to use for analysis.

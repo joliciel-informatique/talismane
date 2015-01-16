@@ -295,8 +295,9 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 	
 	public void setLanguagePack(File languagePackFile) {
+		ZipInputStream zis = null;
 		try {
-			ZipInputStream zis = new ZipInputStream(new FileInputStream(languagePackFile));
+			zis = new ZipInputStream(new FileInputStream(languagePackFile));
 			ZipEntry ze = null;
 			
 			Map<String,String> argMap = new HashMap<String, String>();
@@ -396,6 +397,15 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
+		} finally {
+			if (zis!=null) {
+				try {
+					zis.close();
+				} catch (IOException e) {
+					LogUtils.logError(LOG, e);
+					throw new RuntimeException(e);
+				}
+			}
 		}
 	}
 	
