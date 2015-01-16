@@ -7,3 +7,5 @@
 */doc/
 dist/
 distTerminology/
+talismane_core/languagePacks/englishLanguagePack/*.zip
+talismane_core/languagePacks/frenchLanguagePack/*.zip
