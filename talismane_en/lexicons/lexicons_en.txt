@@ -1,5 +1,0 @@
-lexicons=Dela
-Dela.file=dela-en.zip
-Dela.regex=dela-en_regex.txt
-Dela.posTagMap=dela-en_posTagMap.txt
-

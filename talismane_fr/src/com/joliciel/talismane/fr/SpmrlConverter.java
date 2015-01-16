@@ -196,10 +196,12 @@ public class SpmrlConverter {
 								tokenCluster.get(3).copyGovernor();
 							} else if (posTags.equals("ADJ|NC|")) {
 								tokenCluster.head = 1;
-								tokenCluster.get(1).governor = tokenCluster.get(0).governor;
-								tokenCluster.get(1).label =  tokenCluster.get(0).label;
-								tokenCluster.get(1).projGov = tokenCluster.get(0).projGov;
-								tokenCluster.get(1).projLabel = tokenCluster.get(0).projLabel;
+								if (tokenCluster.get(1).governor==tokenCluster.get(0).index) {
+									tokenCluster.get(1).governor = tokenCluster.get(0).governor;
+									tokenCluster.get(1).label =  tokenCluster.get(0).label;
+									tokenCluster.get(1).projGov = tokenCluster.get(0).projGov;
+									tokenCluster.get(1).projLabel = tokenCluster.get(0).projLabel;
+								}
 								
 								tokenCluster.get(0).governor = tokenCluster.get(1).index;
 								tokenCluster.get(0).label = "mod";
@@ -333,7 +335,7 @@ public class SpmrlConverter {
 					ConllLine conllLine = tokenCluster.get(0);
 					
 					if (conllLine.posTag2==null || conllLine.posTag2.equals("null") || conllLine.posTag2.equals("UNK")) {
-						throw new RuntimeException("Bad postag on line: " + lineNumber);
+						throw new RuntimeException("Bad postag on line: " + lineNumber + ": " + conllLine);
 					}
 					newLineNumber++;
 					String newLine = tokenCluster.newIndex + "\t" + tokenCluster.word + "\t" + tokenCluster.lemma + "\t"
