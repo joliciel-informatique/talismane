@@ -67,8 +67,10 @@ class TokenRegexBasedCorpusReaderImpl implements
 				boolean hasLine = false;
 				if (!scanner.hasNextLine())
 					break;
-				while (scanner.hasNextLine()) {
-					String line = scanner.nextLine().replace("\r", "");
+				while (scanner.hasNextLine()||hasLine) {
+					String line = "";
+					if (scanner.hasNextLine())
+						line = scanner.nextLine().replace("\r", "");
 					lineNumber++;
 					if (line.length()==0) {
 						if (!hasLine)

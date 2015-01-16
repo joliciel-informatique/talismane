@@ -93,8 +93,10 @@ class PosTagRegexBasedCorpusReaderImpl implements
 				boolean hasLine = false;
 				if (!scanner.hasNextLine())
 					break;
-				while (scanner.hasNextLine()&&posTagSequence==null) {
-					String line = scanner.nextLine().replace("\r", "");
+				while ((scanner.hasNextLine()||hasLine)&&posTagSequence==null) {
+					String line = "";
+					if (scanner.hasNextLine())
+						line = scanner.nextLine().replace("\r", "");
 					lineNumber++;
 					if (line.length()==0) {
 						if (!hasLine)
@@ -140,8 +142,8 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						}
 						tokenFilterWrapper.apply(tokenSequence);
 
-						for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-							tokenFilter.apply(tokenSequence);
+						for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+							tokenSequenceFilter.apply(tokenSequence);
 						}
 						
 						posTagSequence = posTaggerServiceInternal.getPosTagSequence(tokenSequence, tokenSequence.size());

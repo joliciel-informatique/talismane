@@ -147,13 +147,19 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public String getLemmaForCoNLL() {
 		if (conllLemma==null) {
 			String lemma = "";
-			if (this.getToken().getText().equals(this.getToken().getOriginalText())) {
+			String lemmaType = this.getToken().getAttributes().get("lemmaType");
+			String explicitLemma = this.getToken().getAttributes().get("lemma");
+			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+			if (explicitLemma!=null) {
+				lemma = explicitLemma;
+			} else if (lemmaType!=null && lemmaType.equals("originalLower")) {
+				lemma = this.getToken().getOriginalText().toLowerCase(talismaneSession.getLocale());
+			} else if (this.getToken().getText().equals(this.getToken().getOriginalText())) {
 				LexicalEntry lexicalEntry = this.getLexicalEntry();
 				if (lexicalEntry!=null) {
 					lemma = lexicalEntry.getLemma();
 				}
 			} else {
-				TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 				LexicalEntry lexicalEntry = null;
 				List<LexicalEntry> entries = talismaneSession.getMergedLexicon().findLexicalEntries(this.getToken().getOriginalText(), this.getTag());
 				if (entries.size()>0)
