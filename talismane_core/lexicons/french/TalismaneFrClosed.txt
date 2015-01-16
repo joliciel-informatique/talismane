@@ -2014,6 +2014,9 @@ y compris	y compris	P
 123	999	PRO	n=p|s=card
 999	999	PRO	n=p|s=card
 1999	1999	NC	n=s|s=card
+1999	1999	DET	n=p|s=card
+1999	1999	ADJ	n=p|s=card
+1999	1999	PRO	n=p|s=card
 1999-2000	1999-2000	NC	n=p|s=card
 deux	deux	DET	n=p|s=card
 trois	trois	DET	n=p|s=card
