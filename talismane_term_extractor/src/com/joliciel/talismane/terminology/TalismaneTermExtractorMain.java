@@ -44,7 +44,6 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.fr.TalismaneFrench;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.StringUtils;
 
@@ -120,9 +119,8 @@ public class TalismaneTermExtractorMain {
 	       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 	       	TalismaneService talismaneService = locator.getTalismaneService();
 	    	TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
-	    	TalismaneFrench talismaneFrench = new TalismaneFrench(sessionId);
 	    	
-	    	TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, talismaneFrench);
+	    	TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, sessionId);
 	    	
 			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
 			TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
@@ -198,7 +196,7 @@ public class TalismaneTermExtractorMain {
 	private static InputStream getInputStreamFromResource(String resource) {
 		String path = "/com/joliciel/talismane/terminology/resources/" + resource;
 		LOG.debug("Getting " + path);
-		InputStream inputStream = TalismaneFrench.class.getResourceAsStream(path); 
+		InputStream inputStream = TalismaneTermExtractorMain.class.getResourceAsStream(path); 
 		
 		return inputStream;
 	}

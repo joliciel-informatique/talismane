@@ -46,11 +46,10 @@ public class LexiconChain implements PosTaggerLexicon {
 	}
 
 	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma,
-			String complement) {
+	public List<LexicalEntry> getEntriesForLemma(String lemma) {
 		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
 		for (PosTaggerLexicon lexicon : lexicons) {
-			entries.addAll(lexicon.getEntriesForLemma(lemma, complement));
+			entries.addAll(lexicon.getEntriesForLemma(lemma));
 		}
 		return entries;
 	}
@@ -75,11 +74,10 @@ public class LexiconChain implements PosTaggerLexicon {
 	}
 
 	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma,
-			String complement, PosTag posTag) {
+	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag) {
 		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
 		for (PosTaggerLexicon lexicon : lexicons) {
-			entries.addAll(lexicon.getEntriesForLemma(lemma, complement, posTag));
+			entries.addAll(lexicon.getEntriesForLemma(lemma, posTag));
 		}
 		return entries;
 	}

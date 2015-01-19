@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -61,8 +62,10 @@ import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
 import com.joliciel.talismane.languageDetector.LanguageOutcome;
+import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -360,6 +363,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	boolean preloadLexicon = true;
 	
 	Locale locale = null;
+	
+	String corpusLexicalEntryRegexPath = null;
 	
 	public TalismaneConfigImpl(LanguageImplementation implementation) {
 		this.implementation = implementation;
@@ -690,6 +695,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					locale = Locale.forLanguageTag(argValue);
 				} else if (argName.equals("languageCorpusMap")) {
 					languageCorpusMapPath = argValue;
+				} else if (argName.equals("corpusLexicalEntryRegex")) {
+					corpusLexicalEntryRegexPath = argValue;
 				} else if (argName.equals("languagePack")) {
 					languagePackPath = argValue;
 				} else {
@@ -1621,7 +1628,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				LOG.debug("Getting language detector model");
 				ClassificationModel<LanguageOutcome> languageModel = null;
 				if (languageModelFilePath!=null) {
-					File languageModelFile = new File(languageModelFilePath);
+					File languageModelFile = this.getFile(languageModelFilePath);
 					if (!languageModelFile.exists())
 						throw new TalismaneException("Could not find languageModel at: " + languageModelFilePath);
 					languageModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(languageModelFile)));
@@ -1648,7 +1655,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				LOG.debug("Getting sentence detector model");
 				ClassificationModel<SentenceDetectorOutcome> sentenceModel = null;
 				if (sentenceModelFilePath!=null) {
-					File sentenceModelFile = new File(sentenceModelFilePath);
+					File sentenceModelFile = this.getFile(sentenceModelFilePath);
 					if (!sentenceModelFile.exists())
 						throw new TalismaneException("Could not find sentenceModel at: " + sentenceModelFilePath);
 					
@@ -1719,7 +1726,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (tokeniserModel==null) {
 				if (tokeniserModelFilePath!=null) {
-					File tokeniserModelFile = new File(tokeniserModelFilePath);
+					File tokeniserModelFile = this.getFile(tokeniserModelFilePath);
 					if (!tokeniserModelFile.exists())
 						throw new TalismaneException("Could not find tokeniserModel at: " + tokeniserModelFilePath);
 					
@@ -1739,7 +1746,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (posTaggerModel==null) {
 				if (posTaggerModelFilePath!=null) {
-					File posTaggerModelFile = new File(posTaggerModelFilePath);
+					File posTaggerModelFile = this.getFile(posTaggerModelFilePath);
 					if (!posTaggerModelFile.exists())
 						throw new TalismaneException("Could not find posTaggerModel at: " + posTaggerModelFilePath);
 					
@@ -1759,7 +1766,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (parserModel==null) {
 				if (parserModelFilePath!=null) {
-					File parserModelFile = new File(parserModelFilePath);
+					File parserModelFile = this.getFile(parserModelFilePath);
 					if (!parserModelFile.exists())
 						throw new TalismaneException("Could not find parserModel at: " + parserModelFilePath);
 					
@@ -2381,23 +2388,48 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 */
 	@Override
 	public ParserAnnotatedCorpusReader getParserCorpusReader() {
-		if (parserCorpusReader==null) {
-			ParserRegexBasedCorpusReader parserRegexCorpusReader = this.getParserService().getRegexBasedCorpusReader(this.getReader());
-			if (this.getInputRegex()!=null)
-				parserRegexCorpusReader.setRegex(this.getInputRegex());
-			parserRegexCorpusReader.setPredictTransitions(predictTransitions);
-			if (this.excludeFileName!=null)
-				parserRegexCorpusReader.setExcludeFileName(this.excludeFileName);
-			this.parserCorpusReader = parserRegexCorpusReader;
+		try {
+			if (parserCorpusReader==null) {
+				ParserRegexBasedCorpusReader parserRegexCorpusReader = this.getParserService().getRegexBasedCorpusReader(this.getReader());
+				if (this.getInputRegex()!=null)
+					parserRegexCorpusReader.setRegex(this.getInputRegex());
+				parserRegexCorpusReader.setPredictTransitions(predictTransitions);
+				if (this.excludeFileName!=null)
+					parserRegexCorpusReader.setExcludeFileName(this.excludeFileName);
+				
+				if (corpusLexicalEntryRegexPath!=null) {
+					File corpusLexicalEntryRegexFile = this.getFile(corpusLexicalEntryRegexPath);
+					if (!corpusLexicalEntryRegexFile.exists())
+						throw new TalismaneException("corpusLexicalEntryRegex file not found: " + corpusLexicalEntryRegexPath);
+					
+					Scanner corpusLexicalEntryRegexScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(corpusLexicalEntryRegexFile), this.getInputCharset().name())));
+					LexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(corpusLexicalEntryRegexScanner);
+					corpusLexicalEntryRegexScanner.close();
+					parserRegexCorpusReader.setLexicalEntryReader(lexicalEntryReader);
+				} else {
+					LexicalEntryReader lexicalEntryReader = implementation.getDefaultCorpusLexicalEntryReader();
+					if (lexicalEntryReader!=null) {
+						parserRegexCorpusReader.setLexicalEntryReader(lexicalEntryReader);
+					}
+				}
+				
+				this.parserCorpusReader = parserRegexCorpusReader;
+			}
+			
+			if (!parserCorpusReaderDecorated) {
+				this.setCorpusReaderAttributes(parserCorpusReader);
+				this.addParserCorpusReaderFilters(parserCorpusReader);
+				parserCorpusReaderDecorated = true;
+			}
+			
+			return parserCorpusReader;
+		} catch (UnsupportedEncodingException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (FileNotFoundException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		}
-		
-		if (!parserCorpusReaderDecorated) {
-			this.setCorpusReaderAttributes(parserCorpusReader);
-			this.addParserCorpusReaderFilters(parserCorpusReader);
-			parserCorpusReaderDecorated = true;
-		}
-		
-		return parserCorpusReader;
 	}
 	
 	void setCorpusReaderAttributes(AnnotatedCorpusReader corpusReader) {

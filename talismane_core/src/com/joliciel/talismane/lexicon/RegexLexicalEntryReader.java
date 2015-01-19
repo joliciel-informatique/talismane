@@ -139,7 +139,6 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 				patterns.add(myPattern);
 			}
 		}
-		regexScanner.close();
 		
 		if (!attributePatternMap.containsKey(LexicalAttribute.Word))
 			throw new TalismaneException("A lexical entry must contain a Word attribute");

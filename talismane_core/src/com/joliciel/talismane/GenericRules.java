@@ -25,7 +25,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
-class GenericRules implements LinguisticRules {
+public class GenericRules implements LinguisticRules {
 	TalismaneSession talismaneSession;
 	
 	public GenericRules(TalismaneSession talismaneSession) {

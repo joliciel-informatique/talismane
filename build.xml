@@ -34,7 +34,7 @@
 				<include name="talismane_machine_learning/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="one-jar">
+		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_core/build.xml"/>
 			</fileset>
@@ -50,13 +50,13 @@
 				<include name="talismane_extensions/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="one-jar">
+		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_fr/build.xml"/>
 				<include name="talismane_en/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="one-jar">
+		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_term_extractor/build.xml"/>
 			</fileset>

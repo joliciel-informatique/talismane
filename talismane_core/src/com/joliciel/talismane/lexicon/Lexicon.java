@@ -26,8 +26,7 @@ public interface Lexicon extends Serializable {
 	/**
 	 * Return all lexical entries for a given lemma.
 	 * @param lemma
-	 * @param complement
 	 * @return
 	 */
-	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement);
+	public List<LexicalEntry> getEntriesForLemma(String lemma);
 }

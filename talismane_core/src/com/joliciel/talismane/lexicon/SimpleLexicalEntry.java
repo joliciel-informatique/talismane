@@ -27,18 +27,18 @@ class SimpleLexicalEntry extends AbstractLexicalEntry implements WritableLexical
 	
 	private String word;
 	private String lemma;
-	private String lemmaComplement;
-	private String category;
-	private String subCategory;
-	private List<String> gender;
-	private List<String> number;
-	private List<String> tense;
-	private List<String> mood;
-	private List<String> aspect;
-	private List<String> person;
-	private List<String> possessorNumber;
-	private List<String> grammaticalCase;
-	private String morphology;
+	private String lemmaComplement = "";
+	private String category = "";
+	private String subCategory = "";
+	private List<String> gender = new ArrayList<String>();
+	private List<String> number = new ArrayList<String>();
+	private List<String> tense = new ArrayList<String>();
+	private List<String> mood = new ArrayList<String>();
+	private List<String> aspect = new ArrayList<String>();
+	private List<String> person = new ArrayList<String>();
+	private List<String> possessorNumber = new ArrayList<String>();
+	private List<String> grammaticalCase = new ArrayList<String>();
+	private String morphology = "";
 	private String lexiconName = "";
 	private Map<String,String> attributes;
 	
@@ -192,33 +192,33 @@ class SimpleLexicalEntry extends AbstractLexicalEntry implements WritableLexical
 	public boolean hasAttribute(LexicalAttribute attribute) {
 		switch (attribute) {
 		case Aspect:
-			return this.aspect!=null;
+			return this.aspect.size()>0;
 		case Case:
-			return this.grammaticalCase!=null;
+			return this.grammaticalCase.size()>0;
 		case Category:
-			return this.category!=null;
+			return this.category.length()>0;
 		case Gender:
-			return this.gender!=null;
+			return this.gender.size()>0;
 		case Lemma:
-			return this.lemma!=null;
+			return this.lemma != null;
 		case LemmaComplement:
-			return this.lemmaComplement!=null;
+			return this.lemmaComplement.length()>0;
 		case Mood:
-			return this.mood!=null;
+			return this.mood.size()>0;
 		case Morphology:
-			return this.morphology!=null;
+			return this.morphology.length()>0;
 		case Number:
-			return this.number!=null;
+			return this.number.size()>0;
 		case Person:
-			return this.person!=null;
+			return this.person.size()>0;
 		case PossessorNumber:
-			return this.possessorNumber!=null;
+			return this.possessorNumber.size()>0;
 		case SubCategory:
-			return this.subCategory!=null;
+			return this.subCategory.length()>0;
 		case Tense:
-			return this.tense!=null;
+			return this.tense.size()>0;
 		case Word:
-			return this.word!=null;
+			return this.word != null;
 		default:
 			return false;
 		}

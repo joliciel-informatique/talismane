@@ -10,7 +10,7 @@
 10	maternelle	maternel	ADJ	adj	n=s|g=f|	9	mod	9	mod
 11	de	de	P	prep		9	dep	9	dep
 12	sa	sa	DET	det	n=s|g=f|p=3|poss=s|	14	det	14	det
-13	deuxième	deuxième	ADJ	adj	s	14	mod	14	mod
+13	deuxième	deuxième	ADJ	adj	n=s|	14	mod	14	mod
 14	femme	femme	NC	nc	n=s|g=f|	11	prep	11	prep
 15	a	avoir	V	v	n=s|t=P|p=3|	16	aux_tps	16	aux_tps
 16	disparu	disparaître	VPP	v	n=s|g=m|t=K|	0	root	0	root
