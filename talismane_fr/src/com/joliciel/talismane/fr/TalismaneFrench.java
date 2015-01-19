@@ -263,7 +263,8 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 		return availableTokenSequenceFilters;
 	}
 	
-	public LexicalEntryReader getDefaultConllLexicalEntryReader() {
+	@Override
+	public LexicalEntryReader getDefaultCorpusLexicalEntryReader() {
 		InputStream inputStream = getInputStreamFromResource("talismane_conll_morph_regex.txt");
 		Scanner regexScanner = new Scanner(inputStream, "UTF-8");
 		LexicalEntryReader reader = new RegexLexicalEntryReader(regexScanner);

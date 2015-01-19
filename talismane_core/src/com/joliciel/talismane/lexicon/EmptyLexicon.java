@@ -42,7 +42,7 @@ public class EmptyLexicon implements PosTaggerLexicon {
 	}
 
 	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement) {
+	public List<LexicalEntry> getEntriesForLemma(String lemma) {
 		return new ArrayList<LexicalEntry>();
 	}
 
@@ -57,8 +57,7 @@ public class EmptyLexicon implements PosTaggerLexicon {
 	}
 
 	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma,
-			String complement, PosTag posTag) {
+	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag) {
 		return new ArrayList<LexicalEntry>();
 	}
 

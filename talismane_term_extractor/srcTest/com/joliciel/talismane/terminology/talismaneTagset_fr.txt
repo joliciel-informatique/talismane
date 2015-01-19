@@ -23,7 +23,7 @@ NPP	nom propre	OPEN
 P	prépostion	CLOSED
 P+D	préposition+déterminant	CLOSED
 P+PRO	préposition+pronom	CLOSED
-PONCT	ponctuation	CLOSED
+PONCT	ponctuation	PUNCTUATION
 PREF	préfixe	OPEN
 PRO	pronom	CLOSED
 PROREL	pronom rélatif	CLOSED

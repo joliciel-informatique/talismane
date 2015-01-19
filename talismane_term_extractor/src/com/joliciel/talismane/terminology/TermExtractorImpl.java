@@ -30,8 +30,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.lexicon.LexicalAttribute;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.DependencyNode;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.posTagger.PosTag;
@@ -414,9 +416,9 @@ class TermExtractorImpl implements TermExtractor {
 			String headNounGender = "m";
 			
 			if (headNounEntry!=null) {
-				if (headNounEntry.getNumber().size()==1 && headNounEntry.getNumber().get(0).equals("p")) {
+				if (headNounEntry.hasAttribute(LexicalAttribute.Number) && headNounEntry.getNumber().size()==1 && headNounEntry.getNumber().get(0).equals("p")) {
 					nounIsPlural = true;
-					if (headNounEntry.getGender().size()==1)
+					if (headNounEntry.hasAttribute(LexicalAttribute.Gender) && headNounEntry.getGender().size()==1)
 						headNounGender = headNounEntry.getGender().get(0);
 				}
 			}
@@ -442,28 +444,48 @@ class TermExtractorImpl implements TermExtractor {
 					
 					if (singularEntry!=null)
 						tokenText = singularEntry.getWord();
-				} else if (nounIsPlural && node.getPosTaggedToken().equals(startNode.getParseConfiguration().getHead(posTaggedToken)) && 
+				} else if (nounIsPlural && 
 						(posTaggedToken.getTag().getCode().equals("ADJ")||posTaggedToken.getTag().getCode().equals("VPP"))) {
-					LexicalEntry pluralEntry = posTaggedToken.getLexicalEntry();
-					if (pluralEntry!=null && !pluralEntry.getNumber().contains("s")) {
-						List<? extends LexicalEntry> singularEntries = lexicon.getEntriesMatchingCriteria(pluralEntry, posTaggedToken.getTag(), headNounGender, "s");
-						LexicalEntry singularEntry = null;
-						if (singularEntries.size()>0)
-							singularEntry = singularEntries.get(0);
-						
-						if (singularEntry!=null)
-							tokenText = singularEntry.getWord();
-					}
 					
-					if (pluralEntry==null) {
-						if (tokenText.endsWith("aux")) {
-							tokenText = tokenText.substring(0, tokenText.length()-3) + "al";
-						} else if (tokenText.endsWith("s")) {
-							tokenText = tokenText.substring(0, tokenText.length()-1);
+					boolean singularise = false;
+					if (node.getPosTaggedToken().equals(startNode.getParseConfiguration().getHead(posTaggedToken))) {
+						singularise = true;
+					} else {
+						// handle coordination as well - find the parent of the entire structure
+						DependencyArc arc = startNode.getParseConfiguration().getGoverningDependency(posTaggedToken);
+						if (arc!=null) {
+							PosTaggedToken parent = arc.getHead();
+							while (arc!=null && arc.getLabel().equals("coord")||arc.getLabel().equals("dep_coord")) {
+								arc = startNode.getParseConfiguration().getGoverningDependency(parent);
+								parent = arc.getHead();
+							}
+							if (node.getPosTaggedToken().equals(parent))
+								singularise = true;
+						}
+					}
+					if (singularise) {
+						LexicalEntry pluralEntry = posTaggedToken.getLexicalEntry();
+						if (pluralEntry!=null && !pluralEntry.getNumber().contains("s")) {
+							List<? extends LexicalEntry> singularEntries = lexicon.getEntriesMatchingCriteria(pluralEntry, posTaggedToken.getTag(), headNounGender, "s");
+							LexicalEntry singularEntry = null;
+							if (singularEntries.size()>0)
+								singularEntry = singularEntries.get(0);
+							
+							if (singularEntry!=null)
+								tokenText = singularEntry.getWord();
+						}
+						
+						if (pluralEntry==null) {
+							if (tokenText.endsWith("aux")) {
+								tokenText = tokenText.substring(0, tokenText.length()-3) + "al";
+							} else if (tokenText.endsWith("s")) {
+								tokenText = tokenText.substring(0, tokenText.length()-1);
+							}
 						}
 					}
 				} // is this some sort of plural entry that needs to be singularised?
-					if (lastToken == null) {
+				
+				if (lastToken == null) {
 					stringBuilder.append(tokenText);
 				} else if (currentToken.getIndex() - lastToken.getIndex() == 1) {
 					stringBuilder.append(sentence.substring(lastToken.getEndIndex(), currentToken.getStartIndex()));

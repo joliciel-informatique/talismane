@@ -50,10 +50,9 @@ public interface PosTaggerLexicon extends Lexicon {
 	/**
 	 * Return all lexical entries for a given lemma and postag.
 	 * @param lemma
-	 * @param complement
 	 * @return
 	 */
-	public List<LexicalEntry> getEntriesForLemma(String lemma, String complement, PosTag posTag);
+	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag);
 
 	/**
 	 * Return an entry for the same lemma as the lexical entry provided, matching the criteria provided (posTag, gender, number).

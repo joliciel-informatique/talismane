@@ -25,6 +25,7 @@ import java.util.Map;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.lexicon.LexicalAttribute;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -88,24 +89,29 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 			if (lexicalEntries.size()>0) {
 				this.bestLexicalEntry = lexicalEntries.get(0);
 				gender = "";
-				for (String oneGender : bestLexicalEntry.getGender())
-					gender += oneGender;
+				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Gender))
+					for (String oneGender : bestLexicalEntry.getGender())
+						gender += oneGender;
 				if (gender.length()==0) gender = null;
 				number = "";
-				for (String oneNumber : bestLexicalEntry.getNumber())
-					number += oneNumber;
+				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Number))
+					for (String oneNumber : bestLexicalEntry.getNumber())
+						number += oneNumber;
 				if (number.length()==0) number = null;
 				tense = "";
-				for (String oneTense : bestLexicalEntry.getTense())
-					tense += oneTense;
+				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Tense))
+					for (String oneTense : bestLexicalEntry.getTense())
+						tense += oneTense;
 				if (tense.length()==0) tense = null;
 				person = "";
-				for (String onePerson : bestLexicalEntry.getPerson())
-					person += onePerson;
+				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Person))
+					for (String onePerson : bestLexicalEntry.getPerson())
+						person += onePerson;
 				if (person.length()==0) person = null;
 				possessorNumber = "";
-				for (String onePossessorNumber : bestLexicalEntry.getPossessorNumber())
-					possessorNumber += onePossessorNumber;
+				if (bestLexicalEntry.hasAttribute(LexicalAttribute.PossessorNumber))
+					for (String onePossessorNumber : bestLexicalEntry.getPossessorNumber())
+						possessorNumber += onePossessorNumber;
 				if (possessorNumber.length()==0) possessorNumber = null;
 			}
 			this.bestLexicalEntryLoaded = true;

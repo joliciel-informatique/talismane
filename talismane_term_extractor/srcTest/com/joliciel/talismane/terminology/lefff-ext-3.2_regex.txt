@@ -1,0 +1,24 @@
+### Regex pour le format utilisé par le Lefff
+Word	^([^\t]+)\t
+Lemma	^[^\t]+\t[^\t]*\t[^\t]*\t[^\t]*\t([^\t\_]+)\_
+LemmaComplement	^[^\t]+\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t\_]+\_+([^\_\t][^\t]*)\t
+Category	^[^\t]+\t[^\t]*\t([^\t]+)\t
+Morphology(group=2)	^[^\t]+\t([^\t]*\t){5}([^\t]+)\t
+Gender(group=2)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*([mf])
+Number(group=2)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*([sp])
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(P)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(F)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(I)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(I)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(J)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(T)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(S)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(C)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(K)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(G)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(W)
+Tense(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t\_]*(Y)
+Person(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t]*([1])
+Person(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t]*([2])
+Person(group=2,stop=false)	^[^\t]+\t([^\t]*\t){5}[^\t]*([3])
+PossessorNumber(group=2)	^[^\t]+\t([^\t]*\t){5}[^\t\_]+\_P[123]([ps])

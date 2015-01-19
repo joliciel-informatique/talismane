@@ -32,7 +32,7 @@ import com.joliciel.talismane.posTagger.UnknownPosTagException;
  *
  */
 public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalismaneSession, LexicalEntryFactory {
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 	private static final Log LOG = LogFactory.getLog(LexiconFile.class);
 	private Map<String,List<LexicalEntry>> entryMap = new THashMap<String, List<LexicalEntry>>();
 	private Map<String,List<LexicalEntry>> lemmaEntryMap = new THashMap<String, List<LexicalEntry>>();
@@ -157,7 +157,7 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 				if (addEntry) {
 					addedCount++;
 					entries.add(lexicalEntry);
-					String key = lexicalEntry.getLemma() + "|" + lexicalEntry.getLemmaComplement();
+					String key = lexicalEntry.getLemma();
 					List<LexicalEntry> entriesForLemma = lemmaEntryMap.get(key);
 					if (entriesForLemma==null) {
 						entriesForLemma = new ArrayList<LexicalEntry>();
@@ -184,10 +184,8 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 	}
 
 	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma,
-			String complement) {
-		String key = lemma + "|" + complement;
-		List<LexicalEntry> entries = this.lemmaEntryMap.get(key);
+	public List<LexicalEntry> getEntriesForLemma(String lemma) {
+		List<LexicalEntry> entries = this.lemmaEntryMap.get(lemma);
 		if (entries==null)
 			entries = new ArrayList<LexicalEntry>();
 		return entries;
@@ -233,9 +231,8 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 	}
 
 	@Override
-	public List<LexicalEntry> getEntriesForLemma(String lemma,
-			String complement, PosTag posTag) {
-		List<LexicalEntry> entries = this.getEntriesForLemma(lemma, complement);
+	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag) {
+		List<LexicalEntry> entries = this.getEntriesForLemma(lemma);
 		List<LexicalEntry> entriesForPosTag = new ArrayList<LexicalEntry>();
 		for (LexicalEntry entry : entries) {
 			if (posTagMapper==null) {
@@ -257,9 +254,9 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 			String number) {
 		List<LexicalEntry> lemmaEntries = null;
 		if (posTag!=null)
-			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), lexicalEntry.getLemmaComplement(), posTag);
+			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), posTag);
 		else
-			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma(), lexicalEntry.getLemmaComplement());
+			lemmaEntries = this.getEntriesForLemma(lexicalEntry.getLemma());
 		List<LexicalEntry> entryList = new ArrayList<LexicalEntry>();
 		for (LexicalEntry lemmaEntry : lemmaEntries) {
 			if ((number==null || number.length()==0 || lemmaEntry.getNumber().contains(number))

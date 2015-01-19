@@ -21,6 +21,8 @@ package com.joliciel.talismane;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+
+import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
@@ -136,4 +138,10 @@ public interface LanguageImplementation {
 	 * @return
 	 */
 	public List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters();
+	
+	/**
+	 * A reader for extracting lexical information from a previously analysed corpus.
+	 * @return
+	 */
+	public LexicalEntryReader getDefaultCorpusLexicalEntryReader();
 }

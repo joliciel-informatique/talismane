@@ -39,7 +39,6 @@
 				<include name="talismane-utils-${talismane.version}.jar" />
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 			<!-- build output path -->
 			<pathelement location="${classes}"/>
@@ -52,7 +51,6 @@
 				<include name="talismane-utils-${talismane.version}.jar" />
 				<include name="talismane-machineLearning-${talismane.version}.jar" />
 				<include name="talismane-core-${talismane.version}.jar" />
-				<include name="talismane-fr-${talismane.version}.jar" />
 			</fileset>
 		</path>
 		<mkdir dir="${build}" />
@@ -125,7 +123,6 @@
 					<include name="talismane-utils-${talismane.version}.jar" />
 					<include name="talismane-machineLearning-${talismane.version}.jar" />
 					<include name="talismane-core-${talismane.version}.jar" />
-					<include name="talismane-fr-${talismane.version}.jar" />
 				</fileset>
             </lib>
         </one-jar>

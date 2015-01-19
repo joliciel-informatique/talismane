@@ -39,8 +39,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.lexicon.EmptyLexicon;
+import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -86,6 +88,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	private static String tokenSequenceFiltersStr;
 	private static String posTaggerRulesStr;
 	private static String parserRulesStr;
+	private static LexicalEntryReader corpusLexicalEntryReader = null;
 	
 	private static Locale locale;
 	
@@ -388,6 +391,11 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
 			    		LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
 						lexicons = deserializer.deserializeLexicons(innerZis);
+			    	} else if (key.equals("corpusLexiconEntryRegex")) {
+						Scanner corpusLexicalEntryRegexScanner = new Scanner(zis, "UTF-8");
+						corpusLexicalEntryReader = new RegexLexicalEntryReader(corpusLexicalEntryRegexScanner);
+			    	} else {
+			    		throw new TalismaneException("Unknown key in languagePack.properties: " + key);
 			    	}
 		    	}
 		    }
@@ -421,6 +429,11 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	@Override
 	public Locale getLocale() {
 		return locale;
+	}
+
+	@Override
+	public LexicalEntryReader getDefaultCorpusLexicalEntryReader() {
+		return corpusLexicalEntryReader;
 	}
 
 }
