@@ -95,6 +95,7 @@ public class TerminologyViewerController {
     @FXML private TextField txtMinFrequency;
     @FXML private TextField txtSearch;
     @FXML private TextField txtTop;
+    @FXML private TextField txtMaxLexicalWords;
     @FXML private Button btnReload;
     @FXML private CheckBox chkMarked;
     @FXML private CheckBox chkExpansions;
@@ -172,7 +173,7 @@ public class TerminologyViewerController {
     	} catch (NumberFormatException nfe) {
     		// do nothing
     	}
-    	List<Term> terms = terminologyBase.getTermsByFrequency(minFrequency);
+    	List<Term> terms = terminologyBase.findTerms(minFrequency, null, 0, null, null);
  
     	tblTerms.setItems(FXCollections.observableArrayList(this.wrapTerms(terms)));
 		this.pushTermTable();
@@ -225,16 +226,27 @@ public class TerminologyViewerController {
 	    	}
     	}
     	
+    	int maxLexicalWords = -1;
+    	if (txtMaxLexicalWords.getText().trim().length()>0) {
+	    	try {
+	    		maxLexicalWords = Integer.parseInt(txtMaxLexicalWords.getText());
+	    		haveCriteria = true;
+	    	} catch (NumberFormatException nfe) {
+	    		this.showAlert("Max lex words must be a number.");
+	    		return;
+	    	}
+    	}
+    	
     	String searchText = txtSearch.getText();
 
     	boolean marked = chkMarked.isSelected();
     	boolean markedExpansions = chkExpansions.isSelected();
     	
-    	haveCriteria = minFrequency>0 || searchText.length()>0 || marked;
+    	haveCriteria = minFrequency>0 || maxLexicalWords>0 || searchText.length()>0 || marked;
 
     	if (haveCriteria) {
 			this.setSelectedTerm();
-	    	List<Term> terms = terminologyBase.getTerms(minFrequency, searchText, marked, markedExpansions);    	
+	    	List<Term> terms = terminologyBase.findTerms(minFrequency, searchText, maxLexicalWords, marked, markedExpansions);    	
 	    	tblTerms.setItems(FXCollections.observableArrayList(this.wrapTerms(terms)));
 			this.pushTermTable();
     	} else {
@@ -247,7 +259,7 @@ public class TerminologyViewerController {
     	String searchText = txtSearch.getText();
     	if (searchText.length()>0) {
     		this.setSelectedTerm();
-    		List<Term> terms = terminologyBase.getTermsByText(searchText);    	
+    		List<Term> terms = terminologyBase.findTerms(0, searchText, 0, null, null);  	
 	    	tblTerms.setItems(FXCollections.observableArrayList(this.wrapTerms(terms)));
     		this.pushTermTable();
     	} else {
@@ -257,7 +269,7 @@ public class TerminologyViewerController {
     
     @FXML protected void handleMarkedButtonAction(ActionEvent event) {
 		this.setSelectedTerm();
-		List<Term> terms = terminologyBase.getMarkedTerms();
+		List<Term> terms = terminologyBase.findTerms(0, null, 0, true, false);
     	tblTerms.setItems(FXCollections.observableArrayList(this.wrapTerms(terms)));
 		this.pushTermTable();
     }

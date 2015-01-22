@@ -18,9 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.terminology;
 
+import java.util.Map;
 import java.util.Properties;
 
+import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
+
 public interface TerminologyService {
-	TermExtractor getTermExtractor(TerminologyBase terminologyBase);
+	TermExtractor getTermExtractor(TerminologyBase terminologyBase, Map<TerminologyProperty,String> terminologyProperties);
 	TerminologyBase getPostGresTerminologyBase(String projectCode, Properties connectionProperties);
 }

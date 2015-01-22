@@ -27,40 +27,18 @@ import java.util.Set;
  *
  */
 public interface TerminologyBase {
-	/**
-	 * Get a set of terms appearing in the corpus above a certain frequency threshold.
-	 * @param frequencyThreshold
-	 * @return
-	 */
-	public List<Term> getTermsByFrequency(int frequencyThreshold);
-	
-	/**
-	 * Get a set of terms matching a certain search string.
-	 * @param searchText
-	 * @return
-	 */
-	public List<Term> getTermsByText(String searchText);
-	
-	/**
-	 * Get all terms that have been "marked" as true terms.
-	 * @return
-	 */
-	public List<Term> getMarkedTerms();
-	
-	public List<Term> getTerms(final int frequencyThreshold,
-			final String searchText, final boolean marked);
-
-	public List<Term> getTerms(final int frequencyThreshold,
-			final String searchText, final boolean marked, final boolean markedExpansions);
+	public List<Term> findTerms(final int frequencyThreshold,
+			final String searchText, final int maxLexicalWords,
+			final Boolean marked, final Boolean markedExpansions);
 
 	/**
 	 * Get a term corresponding to a particular string.
 	 * @param text
 	 * @return
 	 */
-	public Term getTerm(String text);
+	public Term findTerm(String text);
 	
-	public Context getContext(String fileName, int lineNumber, int columnNumber);
+	public Context findContext(Term term, String fileName, int lineNumber, int columnNumber);
 	
 	/**
 	 * Store the term in the datastore.

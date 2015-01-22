@@ -34,7 +34,9 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
  * It can optionally contain the following capturing groups as well:<br/>
  * <li>%FILENAME%: the file containing the token</li>
  * <li>%ROW%: the row containing the token</li>
- * <li>%COLUMN%: the column containing the token</li>
+ * <li>%COLUMN%: the column on which the token starts</li>
+ * <li>%END_ROW%: the row containing the token's end</li>
+ * <li>%END_COLUMN%: the column just after the token end</li>
  * The token placeholder will be replaced by (.*). Other placeholders will be replaced by (.+) meaning no empty strings allowed.
  * @author Assaf Urieli
  *

@@ -87,23 +87,7 @@ public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalisman
 
 	void checkSequence(List<Token> upperCaseSequence) {
 		for (Token token : upperCaseSequence) {
-			boolean foundWord = false;
-			List<String> possibleWords = getPossibleWords(token.getText());
-			for (String possibleWord : possibleWords) {
-				Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(possibleWord);
-				if (posTags.size()>0) {
-					token.setText(possibleWord);
-					foundWord = true;
-					break;
-				}
-			}
-			if (!foundWord) {
-				if (token.getText().length()>0) {
-					String text = token.getText().toLowerCase(this.talismaneSession.getLocale());
-					text = token.getText().substring(0,1) + text.substring(1);
-					token.setText(text);
-				}
-			}
+			token.setText(getKnownWord(this.talismaneSession, token.getText()));
 		}
 	}
 
@@ -115,7 +99,28 @@ public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalisman
 		this.talismaneSession = talismaneSession;
 	}
 
-	private List<String> getPossibleWords(String word) {
+	public static String getKnownWord(TalismaneSession talismaneSession, String word) {
+		String knownWord = word;
+		boolean foundWord = false;
+		List<String> possibleWords = getPossibleWords(word);
+		for (String possibleWord : possibleWords) {
+			Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(possibleWord);
+			if (posTags.size()>0) {
+				knownWord = possibleWord;
+				foundWord = true;
+				break;
+			}
+		}
+		if (!foundWord) {
+			if (word.length()>0) {
+				knownWord = word.toLowerCase(talismaneSession.getLocale());
+				knownWord = word.substring(0,1) + word.substring(1);
+			}
+		}
+		return knownWord;
+	}
+	
+	private static List<String> getPossibleWords(String word) {
 		List<char[]> possibleChars = new ArrayList<char[]>();
 		for (int i = 0; i<word.length();i++) {
 			char c = word.charAt(i);

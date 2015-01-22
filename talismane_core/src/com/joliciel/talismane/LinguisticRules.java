@@ -19,4 +19,11 @@ public interface LinguisticRules {
 	 * @return
 	 */
 	boolean shouldAddSpace(TokenSequence tokenSequence, String currentToken);
+	
+	/**
+	 * Attempts to make an adjective in plural form singular.
+	 * @param adjective
+	 * @return
+	 */
+	String makeAdjectiveSingular(String adjective);
 }

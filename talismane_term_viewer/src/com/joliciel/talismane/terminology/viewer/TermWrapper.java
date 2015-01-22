@@ -115,5 +115,20 @@ public class TermWrapper implements Term {
 	public int getHeadCount() {
 		return this.wrappedTerm.getHeadCount();
 	}
+
+	@Override
+	public int getLexicalWordCount() {
+		return this.wrappedTerm.getLexicalWordCount();
+	}
+
+	@Override
+	public void setLexicalWordCount(int lexicalWordCount) {
+		this.wrappedTerm.setLexicalWordCount(lexicalWordCount);
+	}
+
+	@Override
+	public boolean isNew() {
+		return this.wrappedTerm.isNew();
+	}
 	
 }
