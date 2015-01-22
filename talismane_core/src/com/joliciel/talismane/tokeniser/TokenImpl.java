@@ -66,6 +66,8 @@ final class TokenImpl implements TokenInternal {
 	private String fileName = null;
 	private Integer lineNumber = null;
 	private Integer columnNumber = null;
+	private Integer lineNumberEnd = null;
+	private Integer columnNumberEnd = null;
 	
 	private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
 	private double probability = -1;
@@ -328,20 +330,35 @@ final class TokenImpl implements TokenInternal {
 	public void setColumnNumber(int columnNumber) {
 		this.columnNumber = columnNumber;
 	}
+	
+
+	@Override
+	public int getLineNumberEnd() {
+		if (this.lineNumberEnd==null)
+			this.lineNumberEnd= this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndexEnd());
+		return this.lineNumberEnd;
+	}
+	
+	@Override
+	public void setLineNumberEnd(int lineNumberEnd) {
+		this.lineNumberEnd = lineNumberEnd;
+	}
+
+	@Override
+	public int getColumnNumberEnd() {
+		if (this.columnNumberEnd==null)
+			this.columnNumberEnd = this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndexEnd());
+		return this.columnNumberEnd;
+	}
+
+	@Override
+	public void setColumnNumberEnd(int columnNumberEnd) {
+		this.columnNumberEnd = columnNumberEnd;
+	}
 
 	@Override
 	public int getOriginalIndexEnd() {
 		return this.getTokenSequence().getSentence().getOriginalIndex(this.endIndex);
-	}
-
-	@Override
-	public int getLineNumberEnd() {
-		return this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndexEnd());
-	}
-	
-	@Override
-	public int getColumnNumberEnd() {
-		return this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndexEnd());
 	}
 	
 	@Override
@@ -372,7 +389,7 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public Token cloneToken() {
-		TokenImpl token = new TokenImpl(this);
+		TokenInternal token = new TokenImpl(this);
 		return token;
 	}
 

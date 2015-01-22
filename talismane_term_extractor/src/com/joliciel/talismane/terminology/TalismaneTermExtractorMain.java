@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
@@ -44,7 +45,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
 import com.joliciel.talismane.utils.StringUtils;
 
 public class TalismaneTermExtractorMain {
@@ -63,6 +64,7 @@ public class TalismaneTermExtractorMain {
 		int depth = -1;
 		String databasePropertiesPath = null;
 		String projectCode = null;
+		String terminologyPropertiesPath = null;
 
 		Map<String, String> argMap = StringUtils.convertArgs(args);
 
@@ -89,6 +91,8 @@ public class TalismaneTermExtractorMain {
 				depth = Integer.parseInt(argValue);
 			else if (argName.equals("databaseProperties"))
 				databasePropertiesPath = argValue;
+			else if (argName.equals("terminologyProperties"))
+				terminologyPropertiesPath = argValue;
 			else if (argName.equals("projectCode"))
 				projectCode = argValue;
 			else
@@ -118,7 +122,6 @@ public class TalismaneTermExtractorMain {
 			String sessionId = "";
 	       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 	       	TalismaneService talismaneService = locator.getTalismaneService();
-	    	TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 	    	
 	    	TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, sessionId);
 	    	
@@ -129,14 +132,32 @@ public class TalismaneTermExtractorMain {
 			if (projectCode==null)
 				throw new TalismaneException("Required argument: projectCode");
 
+			
 			File file = new File(databasePropertiesPath);
 			FileInputStream fis = new FileInputStream(file);
 			Properties dataSourceProperties = new Properties();
 			dataSourceProperties.load(fis);
 			terminologyBase = terminologyService.getPostGresTerminologyBase(projectCode, dataSourceProperties);
 
+	    	TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+
 			if (command.equals(Command.analyse)||command.equals(Command.extract)) {
-				if (depth<0)
+				Locale locale = talismaneSession.getLocale();
+				Map<TerminologyProperty,String> terminologyProperties = new HashMap<TerminologyProperty, String>();
+				if (terminologyPropertiesPath!=null) {
+					Map<String,String> terminologyPropertiesStr = StringUtils.getArgMap(terminologyPropertiesPath);
+					for (String key : terminologyPropertiesStr.keySet()) {
+						try {
+							TerminologyProperty property = TerminologyProperty.valueOf(key);
+							terminologyProperties.put(property, terminologyPropertiesStr.get(key));
+						} catch (IllegalArgumentException e) {
+							throw new TalismaneException("Unknown terminology property: " + key);
+						}
+					}
+				} else {
+					terminologyProperties = getDefaultTerminologyProperties(locale);
+				}
+				if (depth<=0 && !terminologyProperties.containsKey(TerminologyProperty.maxDepth))
 					throw new TalismaneException("Required argument: depth");
 		    	
 				InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
@@ -145,17 +166,12 @@ public class TalismaneTermExtractorMain {
 				regexScanner.close();
 		    	config.setInputRegex(inputRegex);
 
-				PosTagSet tagSet = talismaneSession.getPosTagSet();
 				Charset outputCharset = config.getOutputCharset();
 
-				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase);
-				termExtractor.setMaxDepth(depth);
+				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase, terminologyProperties);
+				if (depth>0)
+					termExtractor.setMaxDepth(depth);
 				termExtractor.setOutFilePath(termFilePath);
-				termExtractor.getIncludeChildren().add(tagSet.getPosTag("P"));
-				termExtractor.getIncludeChildren().add(tagSet.getPosTag("P+D"));
-				termExtractor.getIncludeChildren().add(tagSet.getPosTag("CC"));
-
-				termExtractor.getIncludeWithParent().add(tagSet.getPosTag("DET"));
 
 				if (outFilePath!=null) {
 					if (outFilePath.lastIndexOf("/")>=0) {
@@ -177,7 +193,7 @@ public class TalismaneTermExtractorMain {
 				talismane.process();
 			} else if (command.equals(Command.list)) {
 
-				List<Term> terms = terminologyBase.getTermsByFrequency(2);
+				List<Term> terms = terminologyBase.findTerms(2, null, 0, null, null);
 				for (Term term : terms) {
 					LOG.debug("Term: " + term.getText());
 					LOG.debug("Frequency: " + term.getFrequency());
@@ -193,6 +209,27 @@ public class TalismaneTermExtractorMain {
 		}
 	}
 
+	public static  Map<TerminologyProperty,String> getDefaultTerminologyProperties(Locale locale) {
+		Map<TerminologyProperty,String> terminologyProperties = new HashMap<TerminologyProperty, String>();
+		if (locale.getLanguage().equals("fr")) {
+			terminologyProperties.put(TerminologyProperty.adjectivalTags, "ADJ,VPP");
+			terminologyProperties.put(TerminologyProperty.coordinationLabels, "coord,dep_coord");
+			terminologyProperties.put(TerminologyProperty.determinentTags, "DET");
+			terminologyProperties.put(TerminologyProperty.nominalTags, "NC,NPP");
+			terminologyProperties.put(TerminologyProperty.nonStandaloneIfHasDependents, "VPR");
+			terminologyProperties.put(TerminologyProperty.nonStandaloneTags, "P,CC,CS,PONCT,P+D");
+			terminologyProperties.put(TerminologyProperty.nonTopLevelLabels, "det,coord,dep_coord");
+			terminologyProperties.put(TerminologyProperty.prepositionalTags, "P,P+D");
+			terminologyProperties.put(TerminologyProperty.termStopTags, "V,VS,VIMP,PRO,P+PRO,PROREL,PROWH,PONCT");
+			terminologyProperties.put(TerminologyProperty.zeroDepthLabels, "prep,det,coord,dep_coord");
+			terminologyProperties.put(TerminologyProperty.lemmaGender, "m");
+			terminologyProperties.put(TerminologyProperty.lemmaNumber, "s");
+		} else {
+			throw new TalismaneException("Terminology extraction properties unknown for language: " + locale.getLanguage());
+		}
+		return terminologyProperties;
+	}
+	
 	private static InputStream getInputStreamFromResource(String resource) {
 		String path = "/com/joliciel/talismane/terminology/resources/" + resource;
 		LOG.debug("Getting " + path);

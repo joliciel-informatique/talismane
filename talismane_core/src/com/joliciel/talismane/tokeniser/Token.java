@@ -149,13 +149,13 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * The probability assigned to this token by the tokeniser.
 	 * @return
 	 */
-	public double getProbability();
+	double getProbability();
 	
 	/**
 	 * Is this an empty token (without any textual content?)
 	 * @return
 	 */
-	public boolean isEmpty();
+	boolean isEmpty();
 	
 	/**
 	 * Returns the file name of the sentence containing this token.
@@ -188,6 +188,7 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	int getLineNumberEnd();
+	void setLineNumberEnd(int lineNumberEnd);
 	
 	/**
 	 * Returns the original text column number (inside a line) at the beginning of this token.
@@ -201,6 +202,7 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	int getColumnNumberEnd();
+	void setColumnNumberEnd(int columnNumberEnd);
 
 	/**
 	 * Any text that should be output as "raw" prior to outputting this token,
@@ -218,7 +220,7 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	/**
 	 * The "best" lexical entry for this token/postag combination if one exists, or null otherwise.
 	 */
-	public LexicalEntry getLexicalEntry(PosTag posTag);
+	LexicalEntry getLexicalEntry(PosTag posTag);
 	
 	/**
 	 * Any attributes assigned to this token (e.g. telling downstream systems not to stem this token
@@ -226,5 +228,5 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	 * @return
 	 */
 	Map<String,String> getAttributes();
-	public void addAttribute(String key, String value);
+	void addAttribute(String key, String value);
 }

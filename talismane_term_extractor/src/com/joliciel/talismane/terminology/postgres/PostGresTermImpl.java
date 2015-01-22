@@ -34,7 +34,6 @@ public class PostGresTermImpl implements PostGresTerm, Serializable, Comparable<
 	private static final long serialVersionUID = -5945499181086667962L;
 	
 	private int id;
-	private int textId;
 	private String text;
 	private PersistentSet<Term> heads;
 	private PersistentSet<Term> expansions;
@@ -44,6 +43,7 @@ public class PostGresTermImpl implements PostGresTerm, Serializable, Comparable<
 	private int expansionCount = 0;
 	private int headCount = 0;
 	private boolean marked = false;
+	private int lexicalWordCount = 0;
 	private TerminologyBase terminologyBase;
 	private boolean dirty = true;
 	
@@ -256,15 +256,12 @@ public class PostGresTermImpl implements PostGresTerm, Serializable, Comparable<
 		return true;
 	}
 
-	public int getTextId() {
-		return textId;
+	public int getLexicalWordCount() {
+		return lexicalWordCount;
 	}
 
-	public void setTextId(int textId) {
-		if (this.textId!=textId) {
-			this.textId = textId;
-			this.dirty = true;
-		}
+	public void setLexicalWordCount(int lexicalWordCount) {
+		this.lexicalWordCount = lexicalWordCount;
 	}
 
 }

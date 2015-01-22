@@ -34,6 +34,9 @@
 		               prefWidth="100" />
 		        <CheckBox fx:id="chkMarked" text="Marked?" />  
 		        <CheckBox fx:id="chkExpansions" text="Expansions?" selected="true" />  
+		        <Label text="Max lex words:" />
+		        <TextField fx:id="txtMaxLexicalWords"
+		               prefWidth="50" text="" />
 		        <Button text="Reload" fx:id="btnReload"
 		        	onAction="#handleReloadButtonAction" disable="true" />
 		   	</HBox>

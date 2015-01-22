@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -84,8 +85,24 @@ public class TermExtractorTest {
 		
 		// Read morphological info from export
 		InputStream inputStream = getClass().getResourceAsStream("talismane_conll_morph_regex.txt");
-		Scanner regexScanner = new Scanner(inputStream, "UTF-8");
-		LexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(regexScanner);
+		Scanner lexicalEntryRegexScanner = new Scanner(inputStream, "UTF-8");
+		LexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(lexicalEntryRegexScanner);
+		
+		// Construct a mini-lexicon for lemmatising plurals
+		InputStream lexiconInputStream = getClass().getResourceAsStream("lefffExtract.txt"); 
+		Scanner lexiconScanner = new Scanner(lexiconInputStream, "UTF-8");
+		InputStream lexiconRegex = getClass().getResourceAsStream("lefff-ext-3.2_regex.txt"); 
+		Scanner regexScanner = new Scanner(lexiconRegex, "UTF-8");
+		RegexLexicalEntryReader lexiconEntryReader = new RegexLexicalEntryReader(regexScanner);
+		LexiconFile lexiconFile = new LexiconFile("lefff", lexiconScanner, lexiconEntryReader);
+		lexiconFile.load();
+		
+		InputStream posTagMapInputStream = getClass().getResourceAsStream("lefff-ext-3.2_posTagMap.txt"); 
+		Scanner posTagMapScanner = new Scanner(posTagMapInputStream, "UTF-8");
+		PosTagMapper posTagMapper = new DefaultPosTagMapper(posTagMapScanner, tagSet);
+		lexiconFile.setPosTagMapper(posTagMapper);
+
+		talismaneSession.addLexicon(lexiconFile);
 		
 		ParserAnnotatedCorpusReader corpusReader = parserService.getRegexBasedCorpusReader(configurationReader);
 		corpusReader.setLexicalEntryReader(lexicalEntryReader);
@@ -96,11 +113,13 @@ public class TermExtractorTest {
 		new NonStrictExpectations() {
 			Term term;
 			{
-				terminologyBase.getTerm(anyString); returns(term);
+				terminologyBase.findTerm(anyString); returns(term);
 			}
 		};
 		
-		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase);
+		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase,
+				TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
+		termExtractor.setTalismaneService(talismaneService);
 		
 		PosTaggedToken chat = configuration.getPosTagSequence().get(3);
 		assertEquals("chat", chat.getToken().getText());
@@ -356,11 +375,12 @@ public class TermExtractorTest {
 		new NonStrictExpectations() {
 			Term term;
 			{
-				terminologyBase.getTerm(anyString); returns(term);
+				terminologyBase.findTerm(anyString); returns(term);
 			}
 		};
 		
-		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase);
+		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase,
+				TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
 		termExtractor.setTalismaneService(talismaneService);
 		
 		PosTaggedToken chat = configuration.getPosTagSequence().get(3);

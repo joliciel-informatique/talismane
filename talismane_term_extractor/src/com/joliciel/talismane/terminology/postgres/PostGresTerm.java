@@ -25,24 +25,21 @@ import com.joliciel.talismane.terminology.TerminologyBase;
 import com.joliciel.talismane.utils.PersistentSet;
 
 interface PostGresTerm extends Term {
-	public boolean isNew();
-	public abstract void setFrequency(int frequency);
+	public void setFrequency(int frequency);
 
-	public abstract void setText(String text);
-	public int getTextId();
-	public void setTextId(int textId);
+	public void setText(String text);
 
-	public abstract void setId(int id);
+	public void setId(int id);
 
-	public abstract int getId();
+	public int getId();
 	
 	public PersistentSet<Term> getHeadSet();
 	public PersistentSet<Term> getExpansionSet();
 	public Set<Term> getParentsInternal();
 	public void setParentsInternal(Set<Term> parents);
 	
-	public abstract void setTerminologyBase(TerminologyBase terminologyBase);
-	public abstract TerminologyBase getTerminologyBase();
+	public void setTerminologyBase(TerminologyBase terminologyBase);
+	public TerminologyBase getTerminologyBase();
 	
 	public boolean isDirty();
 	public void setDirty(boolean dirty);

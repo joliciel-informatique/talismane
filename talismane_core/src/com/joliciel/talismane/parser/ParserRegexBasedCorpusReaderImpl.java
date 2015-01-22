@@ -81,6 +81,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private static final String FILENAME_PLACEHOLDER = "%FILENAME%";
 	private static final String ROW_PLACEHOLDER = "%ROW%";
 	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
+	private static final String END_ROW_PLACEHOLDER = "%END_ROW%";
+	private static final String END_COLUMN_PLACEHOLDER = "%END_COLUMN%";
 	private static final String POSTAG_COMMENT_PLACEHOLDER = "%POSTAG_COMMENT%";
 	private static final String DEP_COMMENT_PLACEHOLDER = "%DEP_COMMENT%";
 	
@@ -216,6 +218,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										token.setFileName(dataLine.getOriginalFileName());
 										token.setLineNumber(dataLine.getOriginalLineNumber());
 										token.setColumnNumber(dataLine.getOriginalColumnNumber());
+										token.setLineNumberEnd(dataLine.getOriginalEndLineNumber());
+										token.setColumnNumberEnd(dataLine.getOriginalEndColumnNumber());
 									}
 									LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount-1) + ") (Line " + (sentenceStartLineNumber+1) + "): " + tokenSequence.getText());
 									
@@ -423,6 +427,10 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									dataLine.setOriginalLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
 								if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER)) 
 									dataLine.setOriginalColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
+								if (placeholderIndexMap.containsKey(END_ROW_PLACEHOLDER)) 
+									dataLine.setOriginalEndLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(END_ROW_PLACEHOLDER))));
+								if (placeholderIndexMap.containsKey(END_COLUMN_PLACEHOLDER)) 
+									dataLine.setOriginalEndColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(END_COLUMN_PLACEHOLDER))));
 								if (placeholderIndexMap.containsKey(POSTAG_COMMENT_PLACEHOLDER))
 									dataLine.setPosTagComment(matcher.group(placeholderIndexMap.get(POSTAG_COMMENT_PLACEHOLDER)));
 								if (placeholderIndexMap.containsKey(DEP_COMMENT_PLACEHOLDER))
@@ -500,6 +508,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	
 	protected static class ParseDataLine {
 		public ParseDataLine() { }
+
 		private int lineNumber = 0;
 		private int index;
 		private String word = "";
@@ -512,6 +521,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 		private String originalFileName = "";
 		private int originalLineNumber = 0;
 		private int originalColumnNumber = 0;
+		private int originalEndLineNumber = 0;
+		private int originalEndColumnNumber = 0;
 		private boolean skip = false;
 		private String posTagComment = "";
 		private String dependencyComment = "";
@@ -606,6 +617,22 @@ public class ParserRegexBasedCorpusReaderImpl implements
 
 		public void setOriginalColumnNumber(int originalColumnNumber) {
 			this.originalColumnNumber = originalColumnNumber;
+		}
+
+		public int getOriginalEndLineNumber() {
+			return originalEndLineNumber;
+		}
+
+		public void setOriginalEndLineNumber(int originalEndLineNumber) {
+			this.originalEndLineNumber = originalEndLineNumber;
+		}
+
+		public int getOriginalEndColumnNumber() {
+			return originalEndColumnNumber;
+		}
+
+		public void setOriginalEndColumnNumber(int originalEndColumnNumber) {
+			this.originalEndColumnNumber = originalEndColumnNumber;
 		}
 
 		public String getPosTagComment() {
@@ -718,6 +745,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			int filenamePos = regex.indexOf(FILENAME_PLACEHOLDER);
 			int rowNumberPos = regex.indexOf(ROW_PLACEHOLDER);
 			int columnNumberPos = regex.indexOf(COLUMN_PLACEHOLDER);
+			int endRowNumberPos = regex.indexOf(END_ROW_PLACEHOLDER);
+			int endColumnNumberPos = regex.indexOf(END_COLUMN_PLACEHOLDER);
 			int posTagCommentPos = regex.indexOf(POSTAG_COMMENT_PLACEHOLDER);
 			int depCommentPos = regex.indexOf(DEP_COMMENT_PLACEHOLDER);
 			
@@ -737,6 +766,10 @@ public class ParserRegexBasedCorpusReaderImpl implements
 				placeholderMap.put(rowNumberPos, ROW_PLACEHOLDER);
 			if (columnNumberPos>=0)
 				placeholderMap.put(columnNumberPos, COLUMN_PLACEHOLDER);
+			if (endRowNumberPos>=0)
+				placeholderMap.put(endRowNumberPos, END_ROW_PLACEHOLDER);
+			if (endColumnNumberPos>=0)
+				placeholderMap.put(endColumnNumberPos, END_COLUMN_PLACEHOLDER);
 			if (posTagCommentPos>=0)
 				placeholderMap.put(posTagCommentPos, POSTAG_COMMENT_PLACEHOLDER);
 			if (depCommentPos>=0)
@@ -757,6 +790,8 @@ public class ParserRegexBasedCorpusReaderImpl implements
 			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(END_ROW_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(END_COLUMN_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(POSTAG_COMMENT_PLACEHOLDER, "(.*)");
 			regexWithGroups = regexWithGroups.replace(DEP_COMMENT_PLACEHOLDER, "(.*)");
 			

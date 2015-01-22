@@ -20,6 +20,7 @@ package com.joliciel.talismane.terminology;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,15 +31,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalAttribute;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.DependencyNode;
 import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.filters.UppercaseSeriesFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
@@ -58,17 +61,76 @@ class TermExtractorImpl implements TermExtractor {
 	
 	private TerminologyService terminologyService;
 	private TalismaneService talismaneService;
-	private PosTaggerLexicon lexicon;
+	private TalismaneSession talismaneSession;
 	
 	private TerminologyBase terminologyBase;
-	private Set<String> zeroDepthLabels;
+
 	private List<TermObserver> termObservers = new ArrayList<TermObserver>();
 	
-	Set<PosTag> includeChildren = new HashSet<PosTag>();
-	Set<PosTag> includeWithParent = new HashSet<PosTag>();
+	private Set<String> zeroDepthLabels = new HashSet<String>();
+	private Set<String> termStopTags = new HashSet<String>();
+	private Set<String> nonStandaloneTags = new HashSet<String>();
+	private Set<String> nonStandaloneIfHasDependents = new HashSet<String>();
+	private Set<String> prepositionalTags = new HashSet<String>();
+	private Set<String> nominalTags = new HashSet<String>();
+	private Set<String> adjectivalTags = new HashSet<String>();
+	private Set<String> determinentTags = new HashSet<String>();
+	private Set<String> coordinationLabels = new HashSet<String>();
+	private Set<String> nonTopLevelLabels = new HashSet<String>();
+	private String lemmaNumber = null;
+	private String lemmaGender = null;
 	
 	public TermExtractorImpl(TerminologyBase terminologyBase) {
 		this.terminologyBase = terminologyBase;
+	}
+	
+	public TermExtractorImpl(TerminologyBase terminologyBase, Map<TerminologyProperty,String> terminologyProperties) {
+		this(terminologyBase);
+		for (TerminologyProperty key : terminologyProperties.keySet()) {
+			String value = terminologyProperties.get(key);
+			
+			switch (key) {
+			case adjectivalTags:
+				adjectivalTags = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case coordinationLabels:
+				coordinationLabels = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case determinentTags:
+				determinentTags = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case lemmaGender:
+				lemmaGender = value;
+				break;
+			case lemmaNumber:
+				lemmaNumber = value;
+				break;
+			case maxDepth:
+				maxDepth = Integer.parseInt(value);
+				break;
+			case nominalTags:
+				nominalTags = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case nonStandaloneIfHasDependents:
+				nonStandaloneIfHasDependents = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case nonStandaloneTags:
+				nonStandaloneTags = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case nonTopLevelLabels:
+				nonTopLevelLabels = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case prepositionalTags:
+				prepositionalTags = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case termStopTags:
+				termStopTags = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			case zeroDepthLabels:
+				zeroDepthLabels = new HashSet<String>(Arrays.asList(value.split(",")));
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -82,7 +144,7 @@ class TermExtractorImpl implements TermExtractor {
 			// find all nouns
 			List<PosTaggedToken> nouns = new ArrayList<PosTaggedToken>();
 			for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
-				if (posTaggedToken.getTag().getCode().equals("NC")||posTaggedToken.getTag().getCode().equals("NPP")) {
+				if (nominalTags.contains(posTaggedToken.getTag().getCode())) {
 					nouns.add(posTaggedToken);
 				}
 			}
@@ -111,47 +173,65 @@ class TermExtractorImpl implements TermExtractor {
 			
 			for (Expansion expansion : expansions) {
 				DependencyNode node = expansion.getNode();
-				Term term = terminologyBase.getTerm(expansion.display());
+				Term term = terminologyBase.findTerm(expansion.display());
+				if (term.isNew()) {
+					term.setLexicalWordCount(expansion.getLexicalWordCount());
+					term.save();
+				}
 				
-				Context context = terminologyBase.getContext(node.getFirstToken().getToken().getFileName(),
-						node.getFirstToken().getToken().getLineNumber(),
-						node.getFirstToken().getToken().getColumnNumber());
-				int startIndex = node.getFirstToken().getToken().getIndex();
-				startIndex -= TOKEN_BUFFER_FOR_CONTEXT;
-				if (startIndex < 0)
-					startIndex = 0;
+				Token firstToken = node.getFirstToken().getToken();
 				
-				int endIndex = node.getLastToken().getToken().getIndex();
-				endIndex += TOKEN_BUFFER_FOR_CONTEXT;
-				if (endIndex >= parseConfiguration.getPosTagSequence().getTokenSequence().size())
-					endIndex = parseConfiguration.getPosTagSequence().getTokenSequence().size()-1;
+				Context context = terminologyBase.findContext(term, firstToken.getFileName(),
+						firstToken.getLineNumber(),
+						firstToken.getColumnNumber());
 				
-				Token startToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(startIndex);
-				Token endToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(endIndex);
-				String textSegment = parseConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().substring(startToken.getStartIndex(), endToken.getEndIndex());
-				context.setTextSegment(textSegment);
+				if (context.isNew()) {
+					Token lastToken = node.getLastToken().getToken();
+					
+					context.setEndLineNumber(lastToken.getLineNumberEnd());
+					context.setEndColumnNumber(lastToken.getColumnNumberEnd());
+					
+					int startIndex = firstToken.getIndex();
+					startIndex -= TOKEN_BUFFER_FOR_CONTEXT;
+					if (startIndex < 0)
+						startIndex = 0;
+					
+					int endIndex = lastToken.getIndex();
+					endIndex += TOKEN_BUFFER_FOR_CONTEXT;
+					if (endIndex >= parseConfiguration.getPosTagSequence().getTokenSequence().size())
+						endIndex = parseConfiguration.getPosTagSequence().getTokenSequence().size()-1;
+					
+					Token startToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(startIndex);
+					Token endToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(endIndex);
+					String textSegment = parseConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().substring(startToken.getStartIndex(), endToken.getEndIndex());
+					context.setTextSegment(textSegment);
+					context.save();
+				}
+				
 				term.addContext(context);
+				
 				for (TermObserver termObserver : termObservers) {
 					termObserver.onNewTerm(term);
 				}
-				terminologyBase.storeTerm(term);
-				terminologyBase.storeContext(context);
 				
 				for (Expansion parent : expansion.getParents()) {
-					Term parentTerm = terminologyBase.getTerm(parent.display());
+					Term parentTerm = terminologyBase.findTerm(parent.display());
+					if (parentTerm.isNew()) {
+						parentTerm.setLexicalWordCount(parent.getLexicalWordCount());
+					}
 					parentTerm.addExpansion(term);
-					terminologyBase.storeTerm(parentTerm);
+					parentTerm.save();
 				}
 				
 				for (Expansion child : expansion.getChildren()) {
-					Term childTerm = terminologyBase.getTerm(child.display());
+					Term childTerm = terminologyBase.findTerm(child.display());
+					if (childTerm.isNew()) {
+						childTerm.setLexicalWordCount(child.getLexicalWordCount());
+					}
 					childTerm.addHead(term);
-					terminologyBase.storeTerm(childTerm);
+					childTerm.save();
 				}
 
-				// once more to add the heads
-				terminologyBase.storeTerm(term);
-				
 				terminologyBase.commit();
 				
 				String nounPhrase = expansion.display();
@@ -164,10 +244,8 @@ class TermExtractorImpl implements TermExtractor {
 	}
 	
 	/**
-	 * Get all expansions for this node.
-	 * Note: we assume in here that, for a coordinated structure, the coordinator depends on the first node in the structure, and all other
-	 * coordinants depend on the coordinator. This is the case for the ftbDep corpus by Crabbé and Candito.
-	 * For a training corpus where the coordinator is the governor for the full structure, this will have to be generalised somehow.
+	 * Get all expansions for this node recursively.
+	 * Note: we assume in here that coordinated structures are first-conjunct governed.
 	 * @param posTaggedToken
 	 * @param parseConfiguration
 	 * @param depth
@@ -182,15 +260,15 @@ class TermExtractorImpl implements TermExtractor {
 			myExpansions = new ArrayList<Expansion>();
 			
 			List<PosTaggedToken> dependents = parseConfiguration.getDependents(posTaggedToken);
-
+			
 			DependencyNode kernel = parseConfiguration.getDetachedDependencyNode(posTaggedToken);
 			
 			// only add the kernel on its own if it meets certain criteria
 			String posTagCode = posTaggedToken.getTag().getCode();
 			int numDependents = dependents.size();
-			if (!(posTagCode.equals("P") || posTagCode.equals("CC") || posTagCode.equals("CS") || posTagCode.equals("PONCT")|| posTagCode.equals("P+D"))
-					&& !(numDependents>0 && (posTagCode.equals("VPR")))) {
-				myExpansions.add(new Expansion(lexicon, kernel));
+			if (!nonStandaloneTags.contains(posTagCode)
+					&& !(numDependents>0 && nonStandaloneIfHasDependents.contains(posTagCode))) {
+				myExpansions.add(new Expansion(this, kernel));
 			}
 			
 			// add the various dependents one at a time, until we hit a dependent that shouldn't be included
@@ -202,13 +280,11 @@ class TermExtractorImpl implements TermExtractor {
 			for (PosTaggedToken dependent : dependents) {
 				// stop when we hit conjugated verbs or pronouns
 				// current assumption is these will always be "to the right" of the term candidate
-				if (posTagCode.equals("V")||posTagCode.equals("VS")
-						||posTagCode.equals("VIMP")||posTagCode.equals("PRO")||posTagCode.equals("P+PRO")
-						||posTagCode.equals("PROREL")||posTagCode.equals("PROWH")
-						||posTagCode.equals("PONCT")) {
+				if (termStopTags.contains(posTagCode)) {
 					break;
 				}
 				
+				// recursively get the expansions for each dependent, and store them either to the left or to the right
 				List<Expansion> dependentExpansions = this.getExpansions(dependent, parseConfiguration, depth+1, expansionsPerNoun);
 				
 				if (dependentExpansions.size()>0) {
@@ -234,12 +310,12 @@ class TermExtractorImpl implements TermExtractor {
 						DependencyNode dependentNode = dependentExpansion.getNode();
 						DependencyNode newNode = currentNode.cloneNode();
 						newNode.addDependent(dependentNode);
-
+						
 						if (newNode.isContiguous()) {
 							int perceivedDepth = newNode.getPerceivedDepth(this.getZeroDepthLabels());
 							
 							if (perceivedDepth<=this.getMaxDepth()) {
-								Expansion expansion = new Expansion(lexicon, newNode);
+								Expansion expansion = new Expansion(this, newNode);
 								myExpansions.add(expansion);
 							}
 							
@@ -273,7 +349,7 @@ class TermExtractorImpl implements TermExtractor {
 								if (newNode.isContiguous()) {
 									int perceivedDepth = newNode.getPerceivedDepth(this.getZeroDepthLabels());
 									if (perceivedDepth<=this.getMaxDepth()) {
-										Expansion expansion = new Expansion(lexicon, newNode);										
+										Expansion expansion = new Expansion(this, newNode);										
 										myExpansions.add(expansion);
 									}
 									biggestRightNode = rightExpansion.getNode();
@@ -301,17 +377,11 @@ class TermExtractorImpl implements TermExtractor {
 			expansions = new ArrayList<Expansion>();
 			for (Expansion expansion : myExpansions) {
 				boolean include = true;
-				boolean firstChild = true;
 				for (DependencyNode child : expansion.getNode().getDependents()) {
-					if (firstChild && child.getLabel().equals("det")) {
+					if (nonTopLevelLabels.contains(child.getLabel())) {
 						include = false;
 						break;
 					}
-					if (child.getLabel().equals("coord")) {
-						include = false;
-						break;
-					}
-					firstChild = false;
 				}
 				if (include)
 					expansions.add(expansion);
@@ -324,34 +394,39 @@ class TermExtractorImpl implements TermExtractor {
 	}
 	
 	public static class Expansion {
-		String string = null;
+		String text = null;
 		DependencyNode node = null;
+		TermExtractor termExtractor;
+		TalismaneSession talismaneSession;
 		PosTaggerLexicon lexicon;
 		List<Expansion> children = null;
 		List<Expansion> parents = null;
+		Set<PosTaggedToken> tokenSet = null;
 		
-		public Expansion(PosTaggerLexicon lexicon, DependencyNode node) {
+		public Expansion(TermExtractor termExtractor, DependencyNode node) {
 			super();
 			this.node = node;
-			this.lexicon = lexicon;
+			this.termExtractor = termExtractor;
+			this.talismaneSession = termExtractor.getTalismaneSession();
+			this.lexicon = talismaneSession.getMergedLexicon();
 		}
 		
 		public List<Expansion> getChildren() {
 			if (this.children==null) {
-				children = new ArrayList<TermExtractorImpl.Expansion>();
+				children = new ArrayList<Expansion>();
 				for (DependencyNode child : node.getDependents()) {
 					String posTagCode = child.getPosTaggedToken().getTag().getCode();
-					if (posTagCode.equals("P") || posTagCode.equals("P+D")) {
+					if (termExtractor.getPrepositionalTags().contains(posTagCode)) {
 						if (child.getDependents().size()>0) {
 							DependencyNode realChild = child.getDependents().iterator().next().cloneNode();
-							Expansion realChildExpansion = new Expansion(lexicon, realChild);
+							Expansion realChildExpansion = new Expansion(termExtractor, realChild);
 							if (realChildExpansion.display()!=null && realChildExpansion.display().length()>0)
-								children.add(new Expansion(lexicon, realChild));
+								children.add(new Expansion(termExtractor, realChild));
 						}
-					} else if (posTagCode.equals("NC") || posTagCode.equals("NPP")) {
-						Expansion childExpansion = new Expansion(lexicon, child);
+					} else if (termExtractor.getNominalTags().contains(posTagCode)) {
+						Expansion childExpansion = new Expansion(termExtractor, child);
 						if (childExpansion.display()!=null && childExpansion.display().length()>0)
-							children.add(new Expansion(lexicon, child));
+							children.add(new Expansion(termExtractor, child));
 					}
 				}
 			}
@@ -373,12 +448,12 @@ class TermExtractorImpl implements TermExtractor {
 				if (leftDependents.size()>0) {
 					DependencyNode leftParent = node.cloneNode();
 					leftParent.removeNode(leftDependents.get(0));
-					parents.add(new Expansion(lexicon, leftParent));
+					parents.add(new Expansion(termExtractor, leftParent));
 				}
 				if (rightDependents.size()>0) {
 					DependencyNode rightParent = node.cloneNode();
 					rightParent.removeNode(rightDependents.get(rightDependents.size()-1));
-					parents.add(new Expansion(lexicon, rightParent));
+					parents.add(new Expansion(termExtractor, rightParent));
 				}
 			}
 			return parents;
@@ -389,143 +464,148 @@ class TermExtractorImpl implements TermExtractor {
 		}
 		
 		public String display() {
-			if (string==null) {
-				string = this.displayInternal();
+			if (text==null) {
+				DependencyNode startNode = node;
+				String posTagCode = node.getPosTaggedToken().getTag().getCode();
+				if (!(termExtractor.getNominalTags().contains(posTagCode))) {
+					return null;
+				}
+
+				Set<PosTaggedToken> tokensToDisplay = this.getTokenSet();
+				
+				// if top level, return lemma for noun, and bring modifying adjectives to lemmatised form
+				LexicalEntry headNounEntry = startNode.getPosTaggedToken().getLexicalEntry();
+				boolean lemmatiseHead = false;
+				String headNounGender = termExtractor.getLemmaGender();
+				
+				if (headNounEntry!=null) {
+					if (headNounEntry.hasAttribute(LexicalAttribute.Number) && !headNounEntry.getNumber().contains(termExtractor.getLemmaNumber())) {
+						lemmatiseHead = true;
+						if (headNounEntry.hasAttribute(LexicalAttribute.Gender) && headNounEntry.getGender().size()==1)
+							headNounGender = headNounEntry.getGender().get(0);
+					}
+				}
+				
+				Token lastToken = null;
+				String sentence = startNode.getParseConfiguration().getPosTagSequence().getTokenSequence().getText();
+				StringBuilder stringBuilder = new StringBuilder();
+				for (PosTaggedToken posTaggedToken : tokensToDisplay) {
+					Token currentToken = posTaggedToken.getToken();
+					String tokenText = currentToken.getOriginalText();
+					if (Character.isUpperCase(tokenText.charAt(0))) {
+						// lowercase any known words
+						tokenText = UppercaseSeriesFilter.getKnownWord(talismaneSession, tokenText);
+					}
+					
+					if (lemmatiseHead && posTaggedToken.equals(startNode.getPosTaggedToken())) {
+						List<? extends LexicalEntry> lemmaFormEntries = lexicon.getEntriesMatchingCriteria(headNounEntry, node.getPosTaggedToken().getTag(), null, termExtractor.getLemmaNumber());
+						LexicalEntry lemmaFormEntry = null;
+						if (lemmaFormEntries.size()>0)
+							lemmaFormEntry = lemmaFormEntries.get(0);
+						
+						if (lemmaFormEntry!=null)
+							tokenText = lemmaFormEntry.getWord();
+					} else if (lemmatiseHead && 
+							termExtractor.getAdjectivalTags().contains(posTaggedToken.getTag().getCode())) {
+						
+						boolean lemmatiseModifier = false;
+						if (node.getPosTaggedToken().equals(startNode.getParseConfiguration().getHead(posTaggedToken))) {
+							lemmatiseModifier = true;
+						} else {
+							// handle coordination as well - find the parent of the entire structure
+							DependencyArc arc = startNode.getParseConfiguration().getGoverningDependency(posTaggedToken);
+							if (arc!=null) {
+								PosTaggedToken parent = arc.getHead();
+								while (arc!=null && termExtractor.getCoordinationLabels().contains(arc.getLabel())) {
+									arc = startNode.getParseConfiguration().getGoverningDependency(parent);
+									parent = arc.getHead();
+								}
+								if (node.getPosTaggedToken().equals(parent))
+									lemmatiseModifier = true;
+							}
+						}
+						if (lemmatiseModifier) {
+							LexicalEntry pluralEntry = posTaggedToken.getLexicalEntry();
+							if (pluralEntry!=null && !pluralEntry.getNumber().contains(termExtractor.getLemmaNumber())) {
+								List<? extends LexicalEntry> lemmaFormEntries = lexicon.getEntriesMatchingCriteria(pluralEntry, posTaggedToken.getTag(), headNounGender, termExtractor.getLemmaNumber());
+								LexicalEntry lemmaFormEntry = null;
+								if (lemmaFormEntries.size()>0)
+									lemmaFormEntry = lemmaFormEntries.get(0);
+								
+								if (lemmaFormEntry!=null)
+									tokenText = lemmaFormEntry.getWord();
+							}
+							
+							if (pluralEntry==null) {
+								tokenText = this.talismaneSession.getLinguisticRules().makeAdjectiveSingular(tokenText);
+							}
+						}
+					} // is this some sort of plural entry that needs to be singularised?
+					
+					if (lastToken == null) {
+						stringBuilder.append(tokenText);
+					} else if (currentToken.getIndex() - lastToken.getIndex() == 1) {
+						stringBuilder.append(sentence.substring(lastToken.getEndIndex(), currentToken.getStartIndex()));
+						stringBuilder.append(tokenText);
+					} else {
+						stringBuilder.append(" ");
+						stringBuilder.append(tokenText);
+					}
+					lastToken = currentToken;
+				}
+				text = stringBuilder.toString().trim();
 			}
-			return string;
+			return text;
 		}
 		
 		public String toString() {
 			return this.node.toString();
 		}
 		
-		String displayInternal() {
-			DependencyNode startNode = node;
-			String posTagCode = node.getPosTaggedToken().getTag().getCode();
-			if (!(posTagCode.equals("NC")||posTagCode.equals("NPP"))) {
-				return null;
+		Set<PosTaggedToken> getTokenSet() {
+			if (tokenSet==null) {
+				tokenSet = new TreeSet<PosTaggedToken>();
+				this.collectNodesForDisplay(this.node, tokenSet, 1);
 			}
-
-			Set<PosTaggedToken> tokensToDisplay = new TreeSet<PosTaggedToken>();
-			
-			this.collectNodesForDisplay(startNode, tokensToDisplay, 1);
-			
-			//if top level, return lemma for noun, and bring adjectives to singular form
-			LexicalEntry headNounEntry = startNode.getPosTaggedToken().getLexicalEntry();
-			boolean nounIsPlural = false;
-			String headNounGender = "m";
-			
-			if (headNounEntry!=null) {
-				if (headNounEntry.hasAttribute(LexicalAttribute.Number) && headNounEntry.getNumber().size()==1 && headNounEntry.getNumber().get(0).equals("p")) {
-					nounIsPlural = true;
-					if (headNounEntry.hasAttribute(LexicalAttribute.Gender) && headNounEntry.getGender().size()==1)
-						headNounGender = headNounEntry.getGender().get(0);
-				}
-			}
-			
-			Token lastToken = null;
-			String sentence = startNode.getParseConfiguration().getPosTagSequence().getTokenSequence().getText();
-			StringBuilder stringBuilder = new StringBuilder();
-			for (PosTaggedToken posTaggedToken : tokensToDisplay) {
-				Token currentToken = posTaggedToken.getToken();
-				String tokenText = currentToken.getText();
-				if (tokenText.equals("31")||tokenText.equals("999")||tokenText.equals("9,99")||tokenText.equals("1999"))
-					tokenText = currentToken.getOriginalText();
-				else if (currentToken.getOriginalText().length()==0)
-					tokenText = currentToken.getOriginalText();
-				else if (tokenText.equals("lequel")||tokenText.equals("lesquels")||tokenText.equals("lesquelles"))
-					tokenText = currentToken.getOriginalText();
-
-				if (nounIsPlural && posTaggedToken.equals(startNode.getPosTaggedToken())) {
-					List<? extends LexicalEntry> singularEntries = lexicon.getEntriesMatchingCriteria(headNounEntry, node.getPosTaggedToken().getTag(), null, "s");
-					LexicalEntry singularEntry = null;
-					if (singularEntries.size()>0)
-						singularEntry = singularEntries.get(0);
-					
-					if (singularEntry!=null)
-						tokenText = singularEntry.getWord();
-				} else if (nounIsPlural && 
-						(posTaggedToken.getTag().getCode().equals("ADJ")||posTaggedToken.getTag().getCode().equals("VPP"))) {
-					
-					boolean singularise = false;
-					if (node.getPosTaggedToken().equals(startNode.getParseConfiguration().getHead(posTaggedToken))) {
-						singularise = true;
-					} else {
-						// handle coordination as well - find the parent of the entire structure
-						DependencyArc arc = startNode.getParseConfiguration().getGoverningDependency(posTaggedToken);
-						if (arc!=null) {
-							PosTaggedToken parent = arc.getHead();
-							while (arc!=null && arc.getLabel().equals("coord")||arc.getLabel().equals("dep_coord")) {
-								arc = startNode.getParseConfiguration().getGoverningDependency(parent);
-								parent = arc.getHead();
-							}
-							if (node.getPosTaggedToken().equals(parent))
-								singularise = true;
-						}
-					}
-					if (singularise) {
-						LexicalEntry pluralEntry = posTaggedToken.getLexicalEntry();
-						if (pluralEntry!=null && !pluralEntry.getNumber().contains("s")) {
-							List<? extends LexicalEntry> singularEntries = lexicon.getEntriesMatchingCriteria(pluralEntry, posTaggedToken.getTag(), headNounGender, "s");
-							LexicalEntry singularEntry = null;
-							if (singularEntries.size()>0)
-								singularEntry = singularEntries.get(0);
-							
-							if (singularEntry!=null)
-								tokenText = singularEntry.getWord();
-						}
-						
-						if (pluralEntry==null) {
-							if (tokenText.endsWith("aux")) {
-								tokenText = tokenText.substring(0, tokenText.length()-3) + "al";
-							} else if (tokenText.endsWith("s")) {
-								tokenText = tokenText.substring(0, tokenText.length()-1);
-							}
-						}
-					}
-				} // is this some sort of plural entry that needs to be singularised?
-				
-				if (lastToken == null) {
-					stringBuilder.append(tokenText);
-				} else if (currentToken.getIndex() - lastToken.getIndex() == 1) {
-					stringBuilder.append(sentence.substring(lastToken.getEndIndex(), currentToken.getStartIndex()));
-					stringBuilder.append(tokenText);
-				} else {
-					stringBuilder.append(" ");
-					stringBuilder.append(tokenText);
-				}
-				lastToken = currentToken;
-			}
-			String result = stringBuilder.toString().trim();
-			return result;
+			return tokenSet;
 		}
 		
-		public void collectNodesForDisplay(DependencyNode node, Set<PosTaggedToken> tokensToDisplay, int depth) {
+		void collectNodesForDisplay(DependencyNode node, Set<PosTaggedToken> tokensToDisplay, int depth) {
 			if (this.shouldDisplay(node, depth))
 				tokensToDisplay.add(node.getPosTaggedToken());
 			for (DependencyNode child : node.getDependents()) {
 				String posTagCode = child.getPosTaggedToken().getTag().getCode();
 				int newDepth = depth + 1;
-				if (posTagCode.equals("DET"))
+				if (termExtractor.getDeterminentTags().contains(posTagCode))
 					newDepth = depth;
 				this.collectNodesForDisplay(child, tokensToDisplay, newDepth);
 			}	
 		}
 		
-		public boolean shouldDisplay(DependencyNode node, int depth) {
+		boolean shouldDisplay(DependencyNode node, int depth) {
 			String posTagCode = node.getPosTaggedToken().getTag().getCode();
-			if (depth==1 && (posTagCode.equals("DET"))) {
+			if (depth==1 && termExtractor.getDeterminentTags().contains(posTagCode)) {
 				return false;
 			}
 			
 			int numRealDependents = node.getParseConfiguration().getDependents(node.getPosTaggedToken()).size();
 			int numAttachedDependents = node.getDependents().size();
 			if (numAttachedDependents == 0
-					&& ((posTagCode.equals("P") || posTagCode.equals("CC") || posTagCode.equals("CS") || posTagCode.equals("PONCT")|| posTagCode.equals("P+D"))
-					|| (numRealDependents>0 && (posTagCode.equals("VPR"))))) {
+					&& (termExtractor.getNonStandaloneTags().contains(posTagCode))
+					|| (numRealDependents>0 && termExtractor.getNonStandaloneIfHasDependents().contains(posTagCode))) {
 				return false;
 			}
 			return true;
+		}
+		
+		public int getLexicalWordCount() {
+			int lexicalWordCount = 0;
+			for (PosTaggedToken posTaggedToken : this.getTokenSet()) {
+				if (posTaggedToken.getTag().getOpenClassIndicator()==PosTagOpenClassIndicator.OPEN) {
+					lexicalWordCount++;
+				}
+			}
+			return lexicalWordCount;
 		}
 	}
 
@@ -553,10 +633,6 @@ class TermExtractorImpl implements TermExtractor {
 	public Set<String> getZeroDepthLabels() {
 		if (zeroDepthLabels==null) {
 			zeroDepthLabels = new HashSet<String>();
-			zeroDepthLabels.add("prep");
-			zeroDepthLabels.add("det");
-			zeroDepthLabels.add("coord");
-			zeroDepthLabels.add("dep_coord");
 		}
 		return zeroDepthLabels;
 	}
@@ -574,16 +650,6 @@ class TermExtractorImpl implements TermExtractor {
 	@Override
 	public void setOutFilePath(String outFilePath) {
 		this.outFilePath = outFilePath;
-	}
-
-	@Override
-	public Set<PosTag> getIncludeChildren() {
-		return includeChildren;
-	}
-
-	@Override
-	public Set<PosTag> getIncludeWithParent() {
-		return includeWithParent;
 	}
 
 	@Override
@@ -605,7 +671,125 @@ class TermExtractorImpl implements TermExtractor {
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
-		this.lexicon = talismaneService.getTalismaneSession().getMergedLexicon();
+		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
+
+	@Override
+	public Set<String> getPrepositionalTags() {
+		return prepositionalTags;
+	}
+
+	@Override
+	public void setPrepositionalTags(Set<String> prepositionalTags) {
+		this.prepositionalTags = prepositionalTags;
+	}
+
+	@Override
+	public Set<String> getNominalTags() {
+		return nominalTags;
+	}
+
+	@Override
+	public void setNominalTags(Set<String> nominalTags) {
+		this.nominalTags = nominalTags;
+	}
+
+	@Override
+	public Set<String> getAdjectivalTags() {
+		return adjectivalTags;
+	}
+
+	@Override
+	public void setAdjectivalTags(Set<String> adjectivalTags) {
+		this.adjectivalTags = adjectivalTags;
+	}
+
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
+
+	@Override
+	public Set<String> getNonStandaloneTags() {
+		return nonStandaloneTags;
+	}
+
+	@Override
+	public void setNonStandaloneTags(Set<String> nonStandaloneTags) {
+		this.nonStandaloneTags = nonStandaloneTags;
+	}
+
+	@Override
+	public Set<String> getNonStandaloneIfHasDependents() {
+		return nonStandaloneIfHasDependents;
+	}
+
+	@Override
+	public void setNonStandaloneIfHasDependents(
+			Set<String> nonStandaloneIfHasDependents) {
+		this.nonStandaloneIfHasDependents = nonStandaloneIfHasDependents;
+	}
+
+	@Override
+	public Set<String> getCoordinationLabels() {
+		return coordinationLabels;
+	}
+
+	@Override
+	public void setCoordinationLabels(Set<String> coordinationLabels) {
+		this.coordinationLabels = coordinationLabels;
+	}
+
+	@Override
+	public Set<String> getDeterminentTags() {
+		return determinentTags;
+	}
+
+	@Override
+	public void setDeterminentTags(Set<String> determinentTags) {
+		this.determinentTags = determinentTags;
+	}
+
+	@Override
+	public String getLemmaNumber() {
+		return lemmaNumber;
+	}
+
+	@Override
+	public void setLemmaNumber(String lemmaNumber) {
+		this.lemmaNumber = lemmaNumber;
+	}
+
+	public String getLemmaGender() {
+		return lemmaGender;
+	}
+
+	public void setLemmaGender(String lemmaGender) {
+		this.lemmaGender = lemmaGender;
+	}
+
+	@Override
+	public Set<String> getTermStopTags() {
+		return termStopTags;
+	}
+
+	@Override
+	public void setTermStopTags(Set<String> termStopTags) {
+		this.termStopTags = termStopTags;
+	}
+
+	@Override
+	public Set<String> getNonTopLevelLabels() {
+		return nonTopLevelLabels;
+	}
+
+	@Override
+	public void setNonTopLevelLabels(Set<String> nonTopLevelLabels) {
+		this.nonTopLevelLabels = nonTopLevelLabels;
+	}
+
 	
 }

@@ -18,12 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.terminology;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
 import com.joliciel.talismane.terminology.postgres.PostGresTerminologyBase;
 
 class TerminologyServiceImpl implements TerminologyServiceInternal {
@@ -39,8 +41,8 @@ class TerminologyServiceImpl implements TerminologyServiceInternal {
 	}
 
 	@Override
-	public TermExtractor getTermExtractor(TerminologyBase terminologyBase) {
-		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase);
+	public TermExtractor getTermExtractor(TerminologyBase terminologyBase, Map<TerminologyProperty,String> terminologyProperties) {
+		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase, terminologyProperties);
 		termExtractor.setTerminologyService(this);
 		termExtractor.setTalismaneService(this.getTalismaneService());
 		return termExtractor;

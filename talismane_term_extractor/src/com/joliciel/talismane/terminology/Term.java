@@ -79,11 +79,19 @@ public interface Term {
 	public int getHeadCount();
 	
 	/**
+	 * The number of lexical words in this term (as opposed to function words).
+	 * @return
+	 */
+	public int getLexicalWordCount();
+	public void setLexicalWordCount(int lexicalWordCount);
+	
+	/**
 	 * Has this term been marked as a true term for exporting?
 	 * @return
 	 */
 	public boolean isMarked();
 	public void setMarked(boolean marked);
 	
+	public boolean isNew();
 	public void save();
 }

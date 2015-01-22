@@ -3,6 +3,6 @@
 [#if token.precedingRawOutput??]
 ${token.precedingRawOutput}
 [/#if]
-${(token.index+1)?c}	${token.textForCoNLL}	${token.fileName}	${(token.lineNumber)?c}	${(token.columnNumber)?c}
+${(token.index+1)?c}	${token.textForCoNLL}	${token.fileName}	${(token.lineNumber)?c}	${(token.columnNumber)?c}	${(unit.token.lineNumberEnd)?c}	${(unit.token.columnNumberEnd)?c}
 [/#list]
 

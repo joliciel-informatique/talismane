@@ -100,4 +100,20 @@ public class GenericRules implements LinguisticRules {
 		
 		return true;
 	}
+
+	@Override
+	public String makeAdjectiveSingular(String adjective) {
+		Locale locale = this.talismaneSession.getLocale();
+		if (locale.getLanguage().equals("fr")) {
+			String result = adjective;
+			if (adjective.endsWith("aux")) {
+				result = adjective.substring(0, adjective.length()-3) + "al";
+			} else if (adjective.endsWith("s")) {
+				result = adjective.substring(0, adjective.length()-1);
+			}
+			return result;
+		} else {
+			throw new TalismaneException("Language not yet supported for GenericRules.makeAdjectiveSingular: " + locale.getLanguage());
+		}
+	}
 }

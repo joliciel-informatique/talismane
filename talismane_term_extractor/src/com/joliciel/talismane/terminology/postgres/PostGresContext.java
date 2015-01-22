@@ -19,16 +19,23 @@
 package com.joliciel.talismane.terminology.postgres;
 
 import com.joliciel.talismane.terminology.Context;
+import com.joliciel.talismane.terminology.TerminologyBase;
 
 
 interface PostGresContext extends Context {
-
-	public abstract void setColumnNumber(int columnNumber);
-	public abstract void setLineNumber(int lineNumber);
-	public abstract void setFileName(String fileName);
-	public abstract void setId(int id);
-	public abstract int getId();
-	boolean isNew();
+	public void setId(int id);
+	public int getId();
+	public void setColumnNumber(int columnNumber);
+	public void setLineNumber(int lineNumber);
+	public void setFileName(String fileName);
+	public int getFileId();
+	public void setFileId(int fileId);
+	public int getTermId();
+	public void setTermId(int termId);
+	
 	public boolean isDirty();
 	public void setDirty(boolean dirty);
+
+	public void setTerminologyBase(TerminologyBase terminologyBase);
+	public TerminologyBase getTerminologyBase();
 }
