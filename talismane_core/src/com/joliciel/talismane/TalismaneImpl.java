@@ -605,7 +605,7 @@ class TalismaneImpl implements Talismane {
 			    	}
 	    			
 	    			// have sentence detector
-		    		if (finished || (Character.isWhitespace(c) && stringBuilder.length()>config.getBlockSize()) || c==config.getEndBlockCharacter()) {
+		    		if (finished || (Character.isWhitespace(c) && c!='\r' && c!='\n' && stringBuilder.length()>config.getBlockSize()) || c==config.getEndBlockCharacter()) {
 	    				if (c==config.getEndBlockCharacter())
 	    					stringBuilder.append(c);
 		    			if (stringBuilder.length()>0) {
