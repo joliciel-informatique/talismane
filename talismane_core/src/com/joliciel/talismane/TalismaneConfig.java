@@ -52,6 +52,7 @@ import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
+import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
@@ -570,5 +571,12 @@ public interface TalismaneConfig {
 	public void setLanguageCorpusMapPath(String languageCorpusMapPath);
 	
 	public LanguageImplementation getLanguageImplementation();
+	
+	/**
+	 * Add a token filter in addition to those loaded from the model or config.
+	 * Token filters added here will always be run after the ones already loaded.
+	 * @param tokenFilter
+	 */
+	public void addTokenFilter(TokenFilter tokenFilter);
 
 }
