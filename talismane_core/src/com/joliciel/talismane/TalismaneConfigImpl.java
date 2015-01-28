@@ -716,7 +716,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (languagePackPath!=null) {
 			   		File languagePackFile = this.getFile(languagePackPath);
 		    		if (!languagePackFile.exists())
-		    			throw new TalismaneException("languagePack: could not find file: " + languagePackPath);
+		    			throw new TalismaneException("languagePack: could not find file: " + languagePackFile.getPath());
 		    		
 		    		LOG.debug("Setting language pack to " + languagePackFile.getPath());
 		    		((LanguagePackImplementation)implementation).setLanguagePack(languagePackFile);
