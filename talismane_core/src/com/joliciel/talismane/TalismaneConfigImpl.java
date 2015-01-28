@@ -279,6 +279,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private String parserFeaturePath = null;
 	private List<TextMarkerFilter> textMarkerFilters = null;
 	private List<TokenFilter> tokenFilters = null;
+	private List<TokenFilter> additionalTokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = null;
 	private List<PosTagSequenceFilter> posTaggerPostProcessingFilters = null;
 	private boolean includeDistanceFScores = false;
@@ -713,10 +714,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			
 			if (implementation instanceof LanguagePackImplementation) {
 				if (languagePackPath!=null) {
-			   		File languagePackFile = new File(languagePackPath);
+			   		File languagePackFile = this.getFile(languagePackPath);
 		    		if (!languagePackFile.exists())
 		    			throw new TalismaneException("languagePack: could not find file: " + languagePackPath);
 		    		
+		    		LOG.debug("Setting language pack to " + languagePackFile.getPath());
 		    		((LanguagePackImplementation)implementation).setLanguagePack(languagePackFile);
 				}
 			}
@@ -1609,6 +1611,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					}
 				}
 				this.getDescriptors().put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
+				
+				for (TokenFilter tokenFilter : this.additionalTokenFilters)
+					this.tokenFilters.add(tokenFilter);
 			}
 			return tokenFilters;
 		} catch (Exception e) {
@@ -3436,6 +3441,13 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public LanguageImplementation getLanguageImplementation() {
 		return implementation;
+	}
+
+	@Override
+	public void addTokenFilter(TokenFilter tokenFilter) {
+		this.additionalTokenFilters.add(tokenFilter);
+		if (this.tokenFilters!=null)
+			this.tokenFilters.add(tokenFilter);
 	}
 	
 	
