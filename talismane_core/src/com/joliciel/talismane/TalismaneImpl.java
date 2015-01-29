@@ -811,7 +811,7 @@ class TalismaneImpl implements Talismane {
 			} // next character
 		    
 		    // Check if there's any leftover output to output!
-		    if (prevSentenceHolder.getOriginalTextSegments().size()>0) {
+		    if (prevSentenceHolder!=null && prevSentenceHolder.getOriginalTextSegments().size()>0) {
 		    	for (String segment : prevSentenceHolder.getOriginalTextSegments().values()) {
 		    		this.getWriter().append(segment);
 		    	}
