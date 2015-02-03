@@ -91,7 +91,7 @@
 	    </manifestclasspath>
 		<jar jarfile="${dist}/${project}-${talismane.version}.jar" basedir="${classes}">
 			<manifest>
-	    		<!--<attribute name="Main-Class" value="com.joliciel.talismane.fr.TalismaneFrench"/>-->
+	    		<attribute name="Main-Class" value="com.joliciel.talismane.extensions.Extensions"/>
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
