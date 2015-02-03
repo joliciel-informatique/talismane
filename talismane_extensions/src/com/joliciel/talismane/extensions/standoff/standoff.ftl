@@ -13,7 +13,7 @@ T${tIndex?c}	${unit.tag.code?replace("+","_")} ${(cIndex + unit.token.startIndex
 [#else]
 T${tIndex?c}	${unit.tag.code?replace("+","_")} ${(cIndex + unit.token.startIndex+5)?c} ${(cIndex +unit.token.endIndex+5)?c}	${unit.token.originalText}
 [/#if]
-[#if unit.token.comment?length>0]
+[#if unit.token.comment?? && unit.token.comment?length>0]
 #${commentIndex}	AnnotatorNotes T${tIndex?c}	${unit.token.comment}
 [#assign commentIndex=commentIndex+1]
 [/#if]

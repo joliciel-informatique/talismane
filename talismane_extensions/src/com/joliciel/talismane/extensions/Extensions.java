@@ -47,6 +47,7 @@ import com.joliciel.talismane.extensions.corpus.CorpusModifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
 import com.joliciel.talismane.extensions.corpus.CorpusStatistics;
 import com.joliciel.talismane.extensions.corpus.PosTaggerStatistics;
+import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
 import com.joliciel.talismane.extensions.standoff.StandoffReader;
 import com.joliciel.talismane.extensions.standoff.StandoffWriter;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
@@ -81,19 +82,33 @@ public class Extensions {
     	Extensions extensions = new Extensions();
     	extensions.pluckParameters(argsMap);
     	
-    	String sessionId = "";
-       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-       	TalismaneService talismaneService = locator.getTalismaneService();
-    	
-    	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
-    	if (config.getCommand()==null)
-    		return;
-     	
-    	Talismane talismane = config.getTalismane();
-    	
-    	extensions.prepareCommand(config, talismane);
-    	
-    	talismane.process();
+    	boolean commandRun = extensions.runCommand(argsMap);
+    	if (!commandRun) {
+	    	String sessionId = "";
+	       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+	       	TalismaneService talismaneService = locator.getTalismaneService();
+	    	
+	    	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
+	    	if (config.getCommand()==null)
+	    		return;
+	     	
+	    	Talismane talismane = config.getTalismane();
+	    	
+	    	extensions.prepareCommand(config, talismane);
+	    	
+	    	talismane.process();
+    	}
+	}
+	
+	public boolean runCommand(Map<String,String> args) {
+		boolean isRecognised = true;
+		if (command==ExtendedCommand.splitConllFile) {
+			ConllFileSplitter splitter = new ConllFileSplitter();
+			splitter.process(args);
+		} else {
+			isRecognised = false;
+		}
+		return isRecognised;
 	}
 	
 	/**
@@ -116,7 +131,6 @@ public class Extensions {
     			command = ExtendedCommand.valueOf(args.get("command"));
     			args.remove("command");
     			args.put("command", "process");
-//    			args.put("module", "parse");
     		} catch (IllegalArgumentException iae)  {
     			// do nothing
     		}
@@ -137,16 +151,21 @@ public class Extensions {
 			
 			TalismaneSession talismaneSession = config.getTalismaneService().getTalismaneSession();
 			
-			if (command.equals(ExtendedCommand.toStandoff)) {
+			switch (command) {
+			case toStandoff: {
 				StandoffWriter standoffWriter = new StandoffWriter();
 				talismane.setParseConfigurationProcessor(standoffWriter);
-			} else if (command.equals(ExtendedCommand.toStandoffSentences)) {
+				break;
+			}
+			case toStandoffSentences: {
 				InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoffSentences.ftl"); 
 				Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
 				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
 				
 				talismane.setParseConfigurationProcessor(templateWriter);
-			} else if (command.equals(ExtendedCommand.fromStandoff)) {			
+				break;
+			}
+			case fromStandoff: {			
 				Scanner scanner = new Scanner(config.getReader());
 				StandoffReader standoffReader = new StandoffReader(talismaneSession, scanner);
 				standoffReader.setParserService(config.getParserService());
@@ -155,7 +174,9 @@ public class Extensions {
 				standoffReader.setTokenFilterService(config.getTokenFilterService());
 
 				config.setParserCorpusReader(standoffReader);
-			} else if (command.equals(ExtendedCommand.corpusStatistics)) {
+				break;
+			}
+			case corpusStatistics: {
 				CorpusStatistics stats = new CorpusStatistics(talismaneSession);
 				
 				if (referenceStatsPath!=null) {
@@ -179,7 +200,9 @@ public class Extensions {
 				corpusReader.setPredictTransitions(false);
 				
 				talismane.setParseConfigurationProcessor(stats);
-			} else if (command.equals(ExtendedCommand.posTaggerStatistics)) {
+				break;
+			}
+			case posTaggerStatistics: {
 				PosTaggerStatistics stats = new PosTaggerStatistics(talismaneSession);
 				
 				if (referenceStatsPath!=null) {
@@ -200,7 +223,9 @@ public class Extensions {
 				stats.setSerializationFile(serializationFile);
 				
 				talismane.setPosTagSequenceProcessor(stats);
-			} else if (command.equals(ExtendedCommand.modifyCorpus)) {
+				break;
+			}
+			case modifyCorpus: {
 				if (corpusRulesPath==null)
 					throw new TalismaneException("corpusRules is required for modifyCorpus command");
 				
@@ -213,12 +238,16 @@ public class Extensions {
 				}
 				CorpusModifier corpusModifier = new CorpusModifier(config.getParseConfigurationProcessor(), corpusRules);
 				talismane.setParseConfigurationProcessor(corpusModifier);
-				
-			} else if (command.equals(ExtendedCommand.projectify)) {
+				break;
+			}
+			case projectify: {
 				CorpusProjectifier projectifier = new CorpusProjectifier(config.getParseConfigurationProcessor());
 				talismane.setParseConfigurationProcessor(projectifier);
-			} else {
+				break;
+			}
+			default :{
 				throw new RuntimeException("Unknown command: " + command);
+			}
 			}
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
