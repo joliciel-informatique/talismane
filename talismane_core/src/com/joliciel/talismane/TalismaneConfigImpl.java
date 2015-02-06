@@ -1600,14 +1600,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				}
 				
 				for (Scanner scanner : scanners) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						tokenFilterDescriptors.add(descriptor);
-						if (descriptor.length()>0 && !descriptor.startsWith("#")) {
-							TokenFilter tokenFilter = this.getTokenFilterService().getTokenFilter(descriptor);
-							tokenFilters.add(tokenFilter);
-						}
+					List<TokenFilter> myFilters = this.getTokenFilterService().readTokenFilters(scanner, tokenFilterDescriptors);
+					for (TokenFilter tokenFilter : myFilters) {
+						tokenFilters.add(tokenFilter);
 					}
 				}
 				this.getDescriptors().put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
