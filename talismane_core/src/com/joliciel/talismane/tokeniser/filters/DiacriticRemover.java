@@ -31,12 +31,12 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  *
  */
 public class DiacriticRemover implements TokenSequenceFilter {
-	Pattern diacritics = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 	
 	@Override
 	public void apply(TokenSequence tokenSequence) {
 		for (Token token : tokenSequence) {
-			token.setText(diacritics.matcher(Normalizer.normalize(token.getText(), Form.NFD)).replaceAll(""));
+			token.setText(diacriticPattern.matcher(Normalizer.normalize(token.getText(), Form.NFD)).replaceAll(""));
 		}
 	}
 

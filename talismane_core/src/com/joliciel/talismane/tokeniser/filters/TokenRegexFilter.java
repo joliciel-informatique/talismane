@@ -61,4 +61,34 @@ public interface TokenRegexFilter extends TokenFilter {
 	 */
 	Map<String,String> getAttributes();
 	public void addAttribute(String key, String value);
+
+	/**
+	 * If true, will automatically add a word boundary at the beginning and end of the regex,
+	 * as long as the regex begins/ends with a letter (inside round or square brackets or not),
+	 * or one of the character classes \d, \w, or \p{WordList|Lower|Upper|Alpha|Digit|ASCII}. Note that a + at the end of the regex
+	 * is ignored, but a * or ? is not (as it doesn't guarantee that the class will be matched).
+	 * Default is false.
+	 * @return
+	 */
+	public boolean isAutoWordBoundaries();
+	public void setAutoWordBoundaries(boolean autoWordBoundaries);
+
+	/**
+	 * If false, will replace any letter by a class containing the uppercase and lowercase
+	 * versions of the letter. If the letter has a diacritic, both the unadorned and adorned
+	 * uppercase versions will be included.
+	 * Default is true.
+	 * @return
+	 */
+	public boolean isCaseSensitive();
+	public void setCaseSensitive(boolean caseSensitive);
+
+	/**
+	 * If false, will replace any adorned letter with a class containing both unadorned and adorned
+	 * versions.
+	 * Default is true.
+	 * @return
+	 */
+	public boolean isDiacriticSensitive();
+	public void setDiacriticSensitive(boolean diacriticSensitive);
 }

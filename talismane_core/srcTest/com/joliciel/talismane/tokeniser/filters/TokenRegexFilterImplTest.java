@@ -83,7 +83,7 @@ public class TokenRegexFilterImplTest {
 			@NonStrict final ExternalWordList externalWordList) {
 		
 		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b(\\p{WordList(FirstNames,true)}) [A-Z]\\w+\\b");
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		filter.setExternalResourceFinder(externalResourceFinder);
 		
@@ -111,7 +111,7 @@ public class TokenRegexFilterImplTest {
 			@NonStrict final ExternalWordList externalWordList) {
 		
 		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b(\\p{WordList(FirstNames,false,true)}) [A-Z]\\w+\\b");
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		filter.setExternalResourceFinder(externalResourceFinder);
 		
@@ -140,7 +140,7 @@ public class TokenRegexFilterImplTest {
 			@NonStrict final ExternalWordList externalWordList) {
 		
 		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b(\\p{WordList(FirstNames,true,true)}) [A-Z]\\w+\\b");
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		filter.setExternalResourceFinder(externalResourceFinder);
 		
@@ -161,5 +161,162 @@ public class TokenRegexFilterImplTest {
 		LOG.debug(pattern.pattern());
 		
 		assertEquals("\\b([Cc]hlo[ée]|[Mm]arcel|[Jj]o[ëe]lle|[ÉéEe]douard) [A-Z]\\w+\\b", pattern.pattern());
+	}
+	
+	@Test
+	public void testAutoWordBoundaries(@NonStrict final ExternalResourceFinder externalResourceFinder,
+			@NonStrict final ExternalWordList externalWordList) {
+		
+		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
+		
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("hello 123");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		Pattern pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\bhello 123\\b", pattern.pattern());
+		
+		filter = new TokenRegexFilterImpl("\\sabc");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\sabc\\b", pattern.pattern());
+
+		filter = new TokenRegexFilterImpl("\\bblah di blah\\b");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\bblah di blah\\b", pattern.pattern());
+
+		filter = new TokenRegexFilterImpl("\\d+ \\D+");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\b\\d+ \\D+", pattern.pattern());
+
+		filter = new TokenRegexFilterImpl("abc [A-Z]\\w+");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\babc [A-Z]\\w+\\b", pattern.pattern());
+		
+		filter = new TokenRegexFilterImpl("(MLLE\\.|Mlle\\.)");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\b(MLLE\\.|Mlle\\.)", pattern.pattern());
+		
+		final List<String> wordList = new ArrayList<String>();
+		wordList.add("Chloé");
+		wordList.add("Marcel");
+		
+		new NonStrictExpectations() {
+			{
+				externalResourceFinder.getExternalWordList("FirstNames"); returns(externalWordList);
+				externalWordList.getWordList(); returns(wordList);
+			}
+		};
+		
+		filter = new TokenRegexFilterImpl("(\\p{WordList(FirstNames)})");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\b(Chloé|Marcel)\\b", pattern.pattern());
+		
+		                                                  
+		filter = new TokenRegexFilterImpl("(\\p{WordList(FirstNames,diacriticsOptional)}) +([A-Z]'\\p{Alpha}+)");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\b(Chlo[ée]|Marcel) +([A-Z]'\\p{Alpha}+)\\b", pattern.pattern());
+
+	}
+	
+	@Test
+	public void testCaseSensitive(@NonStrict final ExternalResourceFinder externalResourceFinder,
+			@NonStrict final ExternalWordList externalWordList) {
+		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
+		
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("hé");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setCaseSensitive(false);
+		
+		Pattern pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("[Hh][EÉé]", pattern.pattern());
+		
+		filter = new TokenRegexFilterImpl("hé");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setDiacriticSensitive(false);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("h[eé]", pattern.pattern());
+
+		filter = new TokenRegexFilterImpl("hé");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setDiacriticSensitive(false);
+		filter.setCaseSensitive(false);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("[Hh][EeÉé]", pattern.pattern());
+
+		final List<String> wordList = new ArrayList<String>();
+		wordList.add("apples");
+		wordList.add("oranges");
+		
+		new NonStrictExpectations() {
+			{
+				externalResourceFinder.getExternalWordList("Fruit"); returns(externalWordList);
+				externalWordList.getWordList(); returns(wordList);
+			}
+		};
+		
+		filter = new TokenRegexFilterImpl("(\\p{WordList(Fruit)})hé\\w+\\b");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setDiacriticSensitive(false);
+		filter.setCaseSensitive(false);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("(apples|oranges)[Hh][EeÉé]\\w+\\b", pattern.pattern());
+
 	}
 }

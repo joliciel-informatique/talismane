@@ -25,8 +25,12 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
@@ -34,13 +38,18 @@ import com.joliciel.talismane.machineLearning.ExternalWordList;
 import com.joliciel.talismane.utils.RegexUtils;
 
 class TokenRegexFilterImpl implements TokenRegexFilter {
+	private static final Log LOG = LogFactory.getLog(TokenRegexFilterImpl.class);
 	private static Pattern wordListPattern = Pattern.compile("\\\\p\\{WordList\\((.*?)\\)\\}", Pattern.UNICODE_CHARACTER_CLASS);
+	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 	private String regex;
 	private Pattern pattern;
 	private String replacement;
 	private int groupIndex;
 	private boolean possibleSentenceBoundary = true;
 	private Map<String,String> attributes = new HashMap<String,String>();
+	private boolean caseSensitive = true;
+	private boolean diacriticSensitive = true;
+	private boolean autoWordBoundaries = false;
 	
 	private TokenFilterServiceInternal tokeniserFilterService;
 	private ExternalResourceFinder externalResourceFinder;
@@ -132,23 +141,186 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 	public Map<String,String> getAttributes() {
 		return attributes;
 	}
-
+	
 	@Override
 	public void addAttribute(String key, String value) {
 		attributes.put(key, value);
 	}
-
+	
 	Pattern getPattern() {
 		if (pattern==null) {
 			// we may need to replace WordLists by the list contents
+			String myRegex = this.regex;
+			
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Regex: " + myRegex);
+			}
+			
+			if (this.autoWordBoundaries) {
+				Boolean startsWithLetter = null;
+				for (int i=0; i<myRegex.length() && startsWithLetter==null; i++) {
+					char c = myRegex.charAt(i);
+					if (c=='\\') {
+						i++;
+						c = myRegex.charAt(i);
+						if (c=='d' || c=='w') {
+							startsWithLetter = true;
+						} else if (c=='s' || c=='W' || c=='b' || c=='B') {
+							startsWithLetter = false;
+						} else if (c=='p') {
+							i+=2; // skip the open curly brackets
+							int closeCurlyBrackets = myRegex.indexOf('}', i);
+							int openParentheses = myRegex.indexOf('(', i);
+							int endIndex = closeCurlyBrackets;
+							if (openParentheses>0 && openParentheses<closeCurlyBrackets)
+								endIndex = openParentheses;
+							if (endIndex>0) {
+								String specialClass = myRegex.substring(i, endIndex);
+								if (specialClass.equals("WordList")) {
+									startsWithLetter = true;
+								}
+							}
+						}
+						break;
+					} else if (c=='[' || c=='(') {
+						// do nothing
+					} else if (Character.isLetter(c) || Character.isDigit(c)) {
+						startsWithLetter = true;
+					} else {
+						startsWithLetter = false;
+					}
+				}
+				
+				Boolean endsWithLetter = null;
+				for (int i=myRegex.length()-1; i>=0 && endsWithLetter==null; i--) {
+					char c = myRegex.charAt(i);
+					char prevC = ' ';
+					if (i>=1)
+						prevC = myRegex.charAt(i-1);
+					if (prevC=='\\') {
+						if (c=='d' || c=='w') {
+							endsWithLetter = true;
+						} else if (c=='s' || c=='W' || c=='b' || c=='B') {
+							endsWithLetter = false;
+						} else if (c=='p') {
+							i+=2; // skip the open curly brackets
+							int closeCurlyBrackets = myRegex.indexOf('}', i);
+							int openParentheses = myRegex.indexOf('(', i);
+							int endIndex = closeCurlyBrackets;
+							if (openParentheses<closeCurlyBrackets)
+								endIndex = openParentheses;
+							if (endIndex>0) {
+								String specialClass = myRegex.substring(i, endIndex);
+								if (specialClass.equals("WordList") || specialClass.equals("Alpha") || specialClass.equals("Lower") || specialClass.equals("Upper") || specialClass.equals("ASCII") || specialClass.equals("Digit")) {
+									startsWithLetter = true;
+								}
+							}
+						}
+						break;
+					} else if (c==']' || c==')' || c=='+') {
+						// do nothing
+					} else if (c=='}') {
+						int startIndex = myRegex.lastIndexOf('{')+1;
+						int closeCurlyBrackets = myRegex.indexOf('}', startIndex);
+						int openParentheses = myRegex.indexOf('(', startIndex);
+						int endIndex = closeCurlyBrackets;
+						if (openParentheses>0 && openParentheses<closeCurlyBrackets)
+							endIndex = openParentheses;
+						if (endIndex>0) {
+							String specialClass = myRegex.substring(startIndex, endIndex);
+							if (specialClass.equals("WordList") || specialClass.equals("Alpha") || specialClass.equals("Lower") || specialClass.equals("Upper") || specialClass.equals("ASCII") || specialClass.equals("Digit")) {
+								endsWithLetter = true;
+							}
+						}
+						break;
+					} else if (Character.isLetter(c) || Character.isDigit(c)) {
+						endsWithLetter = true;
+					} else {
+						endsWithLetter = false;
+					}
+				}
+				
+				if (startsWithLetter!=null && startsWithLetter) {
+					myRegex = "\\b" + myRegex;
+				}
+				if (endsWithLetter!=null && endsWithLetter) {
+					myRegex = myRegex + "\\b";
+				}
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("After autoWordBoundaries: " + myRegex);
+				}
+			}
+			
+			if (!this.caseSensitive || !this.diacriticSensitive) {
+				StringBuilder regexBuilder = new StringBuilder();
+				for (int i=0; i<myRegex.length(); i++) {
+					char c = myRegex.charAt(i);
+					if (c=='\\') {
+						// escape - skip next
+						regexBuilder.append(c);
+						i++;
+						c = myRegex.charAt(i);
+						regexBuilder.append(c);
+					} else if (c=='[') {
+						// character group, don't change it
+						regexBuilder.append(c);
+						while (c!=']' && i<myRegex.length()) {
+							i++;
+							c = myRegex.charAt(i);
+							regexBuilder.append(c);
+						}
+					} else if (c=='{') {
+						// command, don't change it
+						regexBuilder.append(c);
+						while (c!='}' && i<myRegex.length()) {
+							i++;
+							c = myRegex.charAt(i);
+							regexBuilder.append(c);
+						}
+					} else if (Character.isLetter(c)) {
+						Set<String> chars = new TreeSet<String>();
+						chars.add("" + c);
+						char noAccent = diacriticPattern.matcher(Normalizer.normalize("" + c, Form.NFD)).replaceAll("").charAt(0);
+
+						if (!this.caseSensitive) {
+							chars.add("" + Character.toUpperCase(c));
+							chars.add("" + Character.toLowerCase(c));
+							chars.add("" + Character.toUpperCase(noAccent));
+						}
+						if (!this.diacriticSensitive) {
+							chars.add("" + noAccent);
+							if (!this.caseSensitive) {
+								chars.add("" + Character.toLowerCase(noAccent));
+							}
+						}
+						if (chars.size()==1) {
+							regexBuilder.append(c);
+						} else {
+							regexBuilder.append('[');
+							for (String oneChar : chars) {
+								regexBuilder.append(oneChar);
+							}
+							regexBuilder.append(']');
+						}
+					} else {
+						regexBuilder.append(c);
+					}
+ 				}
+				myRegex = regexBuilder.toString();
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("After caseSensitive: " + myRegex);
+				}
+			}
+			
+			Matcher matcher = wordListPattern.matcher(myRegex);
 			StringBuilder regexBuilder = new StringBuilder();
-			Matcher matcher = wordListPattern.matcher(regex);
+
 			int lastIndex = 0;
 			while (matcher.find()) {
 				String[] params = matcher.group(1).split(",");
 				int start = matcher.start();
 				int end = matcher.end();
-				regexBuilder.append(regex.substring(lastIndex, start));
+				regexBuilder.append(myRegex.substring(lastIndex, start));
 				
 				String wordListName = params[0];
 				boolean uppercaseOptional=false;
@@ -230,8 +402,8 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 				regexBuilder.append(sb.toString());
 				lastIndex = end;
 			} // next match
-			regexBuilder.append(regex.substring(lastIndex));
-			String myRegex = regexBuilder.toString();
+			regexBuilder.append(myRegex.substring(lastIndex));
+			myRegex = regexBuilder.toString();
 			this.pattern = Pattern.compile(myRegex, Pattern.UNICODE_CHARACTER_CLASS);
 		}
 		return pattern;
@@ -245,5 +417,36 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 			ExternalResourceFinder externalResourceFinder) {
 		this.externalResourceFinder = externalResourceFinder;
 	}
+
+	@Override
+	public boolean isDiacriticSensitive() {
+		return diacriticSensitive;
+	}
+
+	@Override
+	public void setDiacriticSensitive(boolean diacriticSensitive) {
+		this.diacriticSensitive = diacriticSensitive;
+	}
+
+	@Override
+	public boolean isCaseSensitive() {
+		return caseSensitive;
+	}
+
+	@Override
+	public void setCaseSensitive(boolean caseSensitive) {
+		this.caseSensitive = caseSensitive;
+	}
+
+	@Override
+	public boolean isAutoWordBoundaries() {
+		return autoWordBoundaries;
+	}
+
+	@Override
+	public void setAutoWordBoundaries(boolean autoWordBoundaries) {
+		this.autoWordBoundaries = autoWordBoundaries;
+	}
+	
 	
 }

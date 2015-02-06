@@ -19,6 +19,7 @@
 package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.List;
+import java.util.Scanner;
 
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 
@@ -70,6 +71,21 @@ public interface TokenFilterService {
 	 * @return
 	 */
 	public TokenFilter getTokenFilter(String descriptor);
+	
+	/**
+	 * Reads a sequence of token filters from a file.
+	 * @param scanner
+	 * @return
+	 */
+	public List<TokenFilter> readTokenFilters(Scanner scanner);
+	
+	/**
+	 * Reads a sequence of token filters from a file, and stores their descriptors in the provided paramater.
+	 * @param scanner
+	 * @param descriptors
+	 * @return
+	 */
+	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors);
 	
 	/**
 	 * Get a TokenSequenceFilter that wraps a list of token filters.

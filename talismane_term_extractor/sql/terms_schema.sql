@@ -190,7 +190,7 @@ CREATE TABLE term_heads (
 );
 
 
-ALTER TABLE public.term_heads OWNER TO postgres;
+ALTER TABLE public.term_heads OWNER TO nlp;
 
 --
 -- TOC entry 1951 (class 2606 OID 48664)

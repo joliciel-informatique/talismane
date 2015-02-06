@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,21 +110,72 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		
 		return filter;
 	}
+	
+	@Override
+	public List<TokenFilter> readTokenFilters(Scanner scanner) {
+		return this.readTokenFilters(scanner, null);
+	}
+	
+	@Override
+	public List<TokenFilter> readTokenFilters(Scanner scanner,
+			List<String> descriptors) {
+		List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+		Map<String,String> defaultParams = new HashMap<String, String>();
+		while (scanner.hasNextLine()) {
+			String descriptor = scanner.nextLine();
+			LOG.debug(descriptor);
+			if (descriptors!=null) {
+				descriptors.add(descriptor);
+			}
+			if (descriptor.trim().length()==0 || descriptor.startsWith("#"))
+				continue;
+			if (descriptor.startsWith("DefaultParameters")) {
+				defaultParams = new HashMap<String, String>();
+				if (descriptor.indexOf('(')>0) {
+					String parameters = descriptor.substring(descriptor.indexOf('(')+1, descriptor.indexOf(')'));
+					if (parameters.length()>0) {
+						String[] paramArray = parameters.split(",");
+						for (String paramEntry : paramArray) {
+							String paramName = paramEntry.substring(0, paramEntry.indexOf('='));
+							String paramValue = paramEntry.substring(paramEntry.indexOf('=')+1);
+							defaultParams.put(paramName, paramValue);
+						}
+					}
+				}
+			} else {
+				Map<String,String> parameterMap = new HashMap<String, String>(defaultParams);
+				TokenFilter tokenFilter = this.getTokenFilter(descriptor, parameterMap);
+				tokenFilters.add(tokenFilter);
+			}
+		}
+		// cancel the default parameters if required
+		if (descriptors!=null)
+			descriptors.add("DefaultParameters()");
+
+		return tokenFilters;
+	}
 
 	@Override
 	public TokenFilter getTokenFilter(String descriptor) {
+		Map<String,String> parameterMap = new HashMap<String, String>();
+		return this.getTokenFilter(descriptor, parameterMap);
+	}
+	
+	public TokenFilter getTokenFilter(String descriptor, Map<String,String> parameterMap) {
 		TokenRegexFilter filter = null;
 		String[] parts = descriptor.split("\t");
 		String className = parts[0];
-		Map<String,String> parameterMap = new HashMap<String, String>();
+		
 		if (className.indexOf('(')>0) {
 			String parameters = className.substring(className.indexOf('(')+1, className.indexOf(')'));
 			className = className.substring(0, className.indexOf('('));
-			String[] paramArray = parameters.split(",");
-			for (String paramEntry : paramArray) {
-				String paramName = paramEntry.substring(0, paramEntry.indexOf('='));
-				String paramValue = paramEntry.substring(paramEntry.indexOf('=')+1);
-				parameterMap.put(paramName, paramValue);
+			if (parameters.length()>0) {
+				String[] paramArray = parameters.split(",");
+				for (String paramEntry : paramArray) {
+					String paramName = paramEntry.substring(0, paramEntry.indexOf('='));
+					String paramValue = paramEntry.substring(paramEntry.indexOf('=')+1);
+					parameterMap.put(paramName, paramValue);
+				}
 			}
 		}
 		if (className.equals(TokenRegexFilter.class.getSimpleName())) {
@@ -143,6 +195,12 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 					filter.setPossibleSentenceBoundary(Boolean.valueOf(paramValue));
 				} else if (paramName.equals("group")) {
 					filter.setGroupIndex(Integer.parseInt(paramValue));
+				} else if (paramName.equals("caseSensitive")) {
+					filter.setCaseSensitive(Boolean.valueOf(paramValue));
+				} else if (paramName.equals("diacriticSensitive")) {
+					filter.setDiacriticSensitive(Boolean.valueOf(paramValue));
+				} else if (paramName.equals("autoWordBoundaries")) {
+					filter.setAutoWordBoundaries(Boolean.valueOf(paramValue));
 				} else {
 					filter.addAttribute(paramName, paramValue);
 				}
