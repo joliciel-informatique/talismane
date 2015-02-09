@@ -28,7 +28,6 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -86,6 +85,7 @@ import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
+import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
@@ -754,7 +754,7 @@ class TalismaneImpl implements Talismane {
  	    			if (config.needsPosTagger()) {
     					posTagSequence = null;
     					if (tokenSequences==null||!config.isPropagateTokeniserBeam()) {
-    						tokenSequences = new ArrayList<TokenSequence>();
+    						tokenSequences = new ArrayListNoNulls<TokenSequence>();
     						tokenSequences.add(tokenSequence);
     					}
 
@@ -775,7 +775,7 @@ class TalismaneImpl implements Talismane {
  	    			
 	    			if (config.needsParser()) {
     					if (posTagSequences==null||!config.isPropagatePosTaggerBeam()) {
-    						posTagSequences = new ArrayList<PosTagSequence>();
+    						posTagSequences = new ArrayListNoNulls<PosTagSequence>();
     						posTagSequences.add(posTagSequence);
     					}
     					

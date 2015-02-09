@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -58,6 +57,7 @@ import com.joliciel.talismane.tokeniser.filters.LowercaseKnownFirstWordFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.UppercaseSeriesFilter;
+import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.joliciel.talismane.utils.io.UnclosableInputStream;
@@ -134,7 +134,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	@Override
 	public List<PosTaggerLexicon> getDefaultLexicons() {
 		if (lexicons==null) {
-			lexicons = new ArrayList<PosTaggerLexicon>();
+			lexicons = new ArrayListNoNulls<PosTaggerLexicon>();
 			lexicons.add(new EmptyLexicon());
 		}
 		return lexicons;
@@ -221,7 +221,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 
 	@Override
 	public List<PosTagSequenceFilter> getDefaultPosTagSequenceFilters() {
-		List<PosTagSequenceFilter> filters = new ArrayList<PosTagSequenceFilter>();
+		List<PosTagSequenceFilter> filters = new ArrayListNoNulls<PosTagSequenceFilter>();
 		return filters;
 	}
 
@@ -267,7 +267,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	@Override
 	public List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters() {
 		if (availableTokenSequenceFilters==null) {
-			availableTokenSequenceFilters = new ArrayList<Class<? extends TokenSequenceFilter>>();
+			availableTokenSequenceFilters = new ArrayListNoNulls<Class<? extends TokenSequenceFilter>>();
 		}
 		return availableTokenSequenceFilters;
 	}
@@ -347,7 +347,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    	if (key.equals("transitionSystem")) { 
 						transitionSystem = this.getParserService().getArcEagerTransitionSystem();
 						Scanner scanner = new Scanner(zis, "UTF-8");
-						List<String> dependencyLabels = new ArrayList<String>();
+						List<String> dependencyLabels = new ArrayListNoNulls<String>();
 						while (scanner.hasNextLine()) {
 							String dependencyLabel = scanner.nextLine();
 							if (!dependencyLabel.startsWith("#")) {

@@ -33,7 +33,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -154,6 +153,7 @@ import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
+import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.joliciel.talismane.utils.io.DirectoryReader;
@@ -279,7 +279,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private String parserFeaturePath = null;
 	private List<TextMarkerFilter> textMarkerFilters = null;
 	private List<TokenFilter> tokenFilters = null;
-	private List<TokenFilter> additionalTokenFilters = new ArrayList<TokenFilter>();
+	private List<TokenFilter> additionalTokenFilters = new ArrayListNoNulls<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = null;
 	private List<PosTagSequenceFilter> posTaggerPostProcessingFilters = null;
 	private boolean includeDistanceFScores = false;
@@ -677,7 +677,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					averageAtIntervals = argValue.equalsIgnoreCase("true");
 				else if (argName.equals("perceptronObservationPoints")) {
 					String[] points = argValue.split(",");
-					perceptronObservationPoints = new ArrayList<Integer>();
+					perceptronObservationPoints = new ArrayListNoNulls<Integer>();
 					for (String point : points)
 						perceptronObservationPoints.add(Integer.parseInt(point));
 				}
@@ -831,7 +831,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (dependencyLabelPath!=null) {
 					File dependencyLabelFile = this.getFile(dependencyLabelPath);
 					Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(dependencyLabelFile), "UTF-8")));
-					List<String> dependencyLabels = new ArrayList<String>();
+					List<String> dependencyLabels = new ArrayListNoNulls<String>();
 					while (depLabelScanner.hasNextLine()) {
 						String dependencyLabel = depLabelScanner.nextLine();
 						if (!dependencyLabel.startsWith("#"))
@@ -867,7 +867,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (externalResourcePath!=null) {
 				externalResourceFinder = this.getMachineLearningService().getExternalResourceFinder();
 				
-				List<String> paths = new ArrayList<String>();
+				List<String> paths = new ArrayListNoNulls<String>();
 				if (externalResourcePath!=null && externalResourcePath.length()>0) {
 					LOG.info("externalResourcePath: " + externalResourcePath);
 					String[] parts = externalResourcePath.split(";");
@@ -1203,7 +1203,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public List<PosTaggerRule> getPosTaggerRules() {
 		try {
 			if (posTaggerRules == null) {
-				posTaggerRules = new ArrayList<PosTaggerRule>();
+				posTaggerRules = new ArrayListNoNulls<PosTaggerRule>();
 				for (int i=0; i<=1; i++) {
 					Scanner rulesScanner = null;
 					if (i==0) {
@@ -1221,7 +1221,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					}
 					
 					if (rulesScanner!=null) {
-						List<String> ruleDescriptors = new ArrayList<String>();
+						List<String> ruleDescriptors = new ArrayListNoNulls<String>();
 						while (rulesScanner.hasNextLine()) {
 							String ruleDescriptor = rulesScanner.nextLine();
 							if (ruleDescriptor.length()>0) {
@@ -1250,7 +1250,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public List<ParserRule> getParserRules() {
 		try {
 			if (parserRules == null) {
-				parserRules = new ArrayList<ParserRule>();
+				parserRules = new ArrayListNoNulls<ParserRule>();
 				if (parserRuleFilePath!=null && parserRuleFilePath.equalsIgnoreCase("null")) {
 					// add no rules! (not even built-in ones)
 				} else {
@@ -1271,7 +1271,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						}
 						
 						if (rulesScanner!=null) {
-							List<String> ruleDescriptors = new ArrayList<String>();
+							List<String> ruleDescriptors = new ArrayListNoNulls<String>();
 							while (rulesScanner.hasNextLine()) {
 								String ruleDescriptor = rulesScanner.nextLine();
 								if (ruleDescriptor.length()>0) {
@@ -1360,7 +1360,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public List<TextMarkerFilter> getTextMarkerFilters() {
 		try {
 			if (textMarkerFilters==null) {
-				textMarkerFilters = new ArrayList<TextMarkerFilter>();
+				textMarkerFilters = new ArrayListNoNulls<TextMarkerFilter>();
 				
 				// insert sentence breaks at end of block
 				this.addTextMarkerFilter(this.getFilterService().getRegexMarkerFilter(new MarkerFilterType[] { MarkerFilterType.SENTENCE_BREAK }, "" + endBlockCharacter, blockSize));
@@ -1374,7 +1374,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				// get rid of duplicate white-space always
 				this.addTextMarkerFilter(this.getFilterService().getDuplicateWhiteSpaceFilter());
 	
-				List<String> paths = new ArrayList<String>();
+				List<String> paths = new ArrayListNoNulls<String>();
 				if (textFiltersPath!=null && textFiltersPath.length()>0) {
 					LOG.debug("textFiltersPath: " + textFiltersPath);
 					String[] parts = textFiltersPath.split(";");
@@ -1437,12 +1437,12 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private List<TokenSequenceFilter> getTokenSequenceFilters(MachineLearningModel model) {
 		try {
 			if (tokenSequenceFilters==null) {
-				List<String> tokenSequenceFilterDescriptors = new ArrayList<String>();
-				tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
+				List<String> tokenSequenceFilterDescriptors = new ArrayListNoNulls<String>();
+				tokenSequenceFilters = new ArrayListNoNulls<TokenSequenceFilter>();
 				
 				LOG.debug("Token sequence filters");
 				
-				List<Scanner> scanners = new ArrayList<Scanner>();
+				List<Scanner> scanners = new ArrayListNoNulls<Scanner>();
 				if (tokenSequenceFilterPath!=null && tokenSequenceFilterPath.length()>0) {
 					LOG.debug("tokenSequenceFilterPath: " + tokenSequenceFilterPath);
 					String[] parts = tokenSequenceFilterPath.split(";");
@@ -1504,10 +1504,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private List<PosTagSequenceFilter> getPosTagSequenceFilters(MachineLearningModel model) {
 		try {
 			if (posTaggerPostProcessingFilters==null) {
-				List<String> posTaggerPostProcessingFilterDescriptors = new ArrayList<String>();
-				posTaggerPostProcessingFilters = new ArrayList<PosTagSequenceFilter>();
+				List<String> posTaggerPostProcessingFilterDescriptors = new ArrayListNoNulls<String>();
+				posTaggerPostProcessingFilters = new ArrayListNoNulls<PosTagSequenceFilter>();
 				
-				List<Scanner> scanners = new ArrayList<Scanner>();
+				List<Scanner> scanners = new ArrayListNoNulls<Scanner>();
 				
 				if (posTagSequenceFilterPath!=null) {
 					File filterFile = this.getFile(posTagSequenceFilterPath);
@@ -1558,12 +1558,12 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private List<TokenFilter> getTokenFilters(MachineLearningModel model) {
 		try {
 			if (tokenFilters==null) {
-				List<String> tokenFilterDescriptors = new ArrayList<String>();
-				tokenFilters = new ArrayList<TokenFilter>();
+				List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
+				tokenFilters = new ArrayListNoNulls<TokenFilter>();
 				
 				LOG.debug("Token filters");
 				
-				List<Scanner> scanners = new ArrayList<Scanner>();
+				List<Scanner> scanners = new ArrayListNoNulls<Scanner>();
 				if (tokenFiltersPath!=null && tokenFiltersPath.length()>0) {
 					LOG.debug("tokenFiltersPath: " + tokenFiltersPath);
 					String[] parts = tokenFiltersPath.split(";");
@@ -1790,7 +1790,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			try {
 				File tokeniserPatternFile = this.getFile(tokeniserPatternFilePath);
 				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserPatternFile), this.getInputCharset())));
-				List<String> patternDescriptors = new ArrayList<String>();
+				List<String> patternDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
 					patternDescriptors.add(descriptor);
@@ -1818,7 +1818,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug("Found setting to change language detector features");
 					File languageFeatureFile = this.getFile(languageFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(languageFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayList<String>();
+					List<String> featureDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						featureDescriptors.add(descriptor);
@@ -1843,7 +1843,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug("Found setting to change sentence detector features");
 					File sentenceFeatureFile = this.getFile(sentenceFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(sentenceFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayList<String>();
+					List<String> featureDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						featureDescriptors.add(descriptor);
@@ -1869,7 +1869,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug("Found setting to change tokeniser context features");
 					File tokeniserFeatureFile = this.getFile(tokeniserFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayList<String>();
+					List<String> featureDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						featureDescriptors.add(descriptor);
@@ -1894,7 +1894,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug("Found setting to change token pattern match features");
 					File tokeniserFeatureFile = this.getFile(tokeniserFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayList<String>();
+					List<String> featureDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						featureDescriptors.add(descriptor);
@@ -1919,7 +1919,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug("Found setting to change pos-tagger features");
 					File posTaggerFeatureFile = this.getFile(posTaggerFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayList<String>();
+					List<String> featureDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						featureDescriptors.add(descriptor);
@@ -2077,7 +2077,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug("Found setting to change parser features");
 					File parserFeatureFile = this.getFile(parserFeaturePath);
 					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(parserFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayList<String>();
+					List<String> featureDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						featureDescriptors.add(descriptor);
@@ -2362,7 +2362,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				}
 			} // do the models exist already?
 			
-			List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+			List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
 			for (TokenFilter tokenFilter : this.getTokenFilters(myPosTaggerModel)) {
 				tokenFilters.add(tokenFilter);
 			}
@@ -2494,7 +2494,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				}
 			} // models exist already?
 			
-			List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+			List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
 			for (TokenFilter tokenFilter : this.getTokenFilters(myPosTaggerModel)) {
 				tokenFilters.add(tokenFilter);
 			}
@@ -2690,7 +2690,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	private List<TokenEvaluationObserver> getTokenEvaluationObservers() {
 		try {
-			List<TokenEvaluationObserver> observers = new ArrayList<TokenEvaluationObserver>();
+			List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
 			Writer errorFileWriter = null;
 			File errorFile = new File(this.getOutDir(), this.getBaseName() + ".errorList.txt");
 			errorFile.delete();

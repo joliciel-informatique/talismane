@@ -18,13 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.filters;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 class PosTagFilterServiceImpl implements PosTagFilterServiceInternal {
@@ -33,7 +33,7 @@ class PosTagFilterServiceImpl implements PosTagFilterServiceInternal {
 	@Override
 	public PosTagSequenceFilter getPosTagSequenceFilter(String descriptor) {
 		PosTagSequenceFilter filter = null;
-		List<Class<? extends PosTagSequenceFilter>> classes = new ArrayList<Class<? extends PosTagSequenceFilter>>();
+		List<Class<? extends PosTagSequenceFilter>> classes = new ArrayListNoNulls<Class<? extends PosTagSequenceFilter>>();
 		classes.add(RemoveNullEmptyTokensFilter.class);
 		
 		for (Class<? extends PosTagSequenceFilter> clazz : classes) {

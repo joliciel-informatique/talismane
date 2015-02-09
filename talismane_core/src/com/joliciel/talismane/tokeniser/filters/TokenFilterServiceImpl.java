@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 class TokenFilterServiceImpl implements TokenFilterServiceInternal {
@@ -77,7 +77,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	@Override
 	public TokenSequenceFilter getTokenSequenceFilter(String descriptor) {
 		TokenSequenceFilter filter = null;
-		List<Class<? extends TokenSequenceFilter>> classes = new ArrayList<Class<? extends TokenSequenceFilter>>();
+		List<Class<? extends TokenSequenceFilter>> classes = new ArrayListNoNulls<Class<? extends TokenSequenceFilter>>();
 		LanguageImplementation implementation = talismaneService.getTalismaneSession().getImplementation();
 		classes.addAll(implementation.getAvailableTokenSequenceFilters());
 		classes.add(DiacriticRemover.class);
@@ -119,7 +119,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	@Override
 	public List<TokenFilter> readTokenFilters(Scanner scanner,
 			List<String> descriptors) {
-		List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
+		List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
 		Map<String,String> defaultParams = new HashMap<String, String>();
 		while (scanner.hasNextLine()) {
 			String descriptor = scanner.nextLine();
