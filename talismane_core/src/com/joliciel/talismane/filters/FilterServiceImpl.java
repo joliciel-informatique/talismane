@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
 
+import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 class FilterServiceImpl implements FilterServiceInternal {
@@ -144,7 +144,7 @@ class FilterServiceImpl implements FilterServiceInternal {
 	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize) {
 		TextMarkerFilter filter = null;
 		
-		List<Class<? extends TextMarkerFilter>> classes = new ArrayList<Class<? extends TextMarkerFilter>>();
+		List<Class<? extends TextMarkerFilter>> classes = new ArrayListNoNulls<Class<? extends TextMarkerFilter>>();
 		classes.add(DuplicateWhiteSpaceFilter.class);
 		classes.add(NewlineEndOfSentenceMarker.class);
 		classes.add(NewlineSpaceMarker.class);
@@ -154,7 +154,7 @@ class FilterServiceImpl implements FilterServiceInternal {
 		
 		if (filterName.equals(RegexMarkerFilter.class.getSimpleName())) {
 			String[] filterTypeStrings = parts[1].split(",");
-			List<MarkerFilterType> filterTypes = new ArrayList<MarkerFilterType>();
+			List<MarkerFilterType> filterTypes = new ArrayListNoNulls<MarkerFilterType>();
 			for (String filterTypeString : filterTypeStrings) {
 				filterTypes.add(MarkerFilterType.valueOf(filterTypeString));
 			}
