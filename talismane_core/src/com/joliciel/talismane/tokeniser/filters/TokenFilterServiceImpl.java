@@ -205,6 +205,9 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 					filter.addAttribute(paramName, paramValue);
 				}
 			}
+			
+			// verify that the filter can work correctly
+			filter.verify();
 		} else {
 			throw new TalismaneException("Unknown TokenFilter: " + parts[0]);
 		}
