@@ -91,4 +91,9 @@ public interface TokenRegexFilter extends TokenFilter {
 	 */
 	public boolean isDiacriticSensitive();
 	public void setDiacriticSensitive(boolean diacriticSensitive);
+
+	/**
+	 * Verify that this filter can be used with the parameters provided, otherwise throws a TalismaneException.
+	 */
+	public void verify();
 }

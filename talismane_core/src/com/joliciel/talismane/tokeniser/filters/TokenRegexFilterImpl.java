@@ -448,5 +448,12 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 		this.autoWordBoundaries = autoWordBoundaries;
 	}
 	
-	
+	@Override
+	public void verify() {
+		Pattern pattern = this.getPattern();
+		Matcher matcher = pattern.matcher("");
+		if (this.groupIndex > matcher.groupCount()) {
+			throw new TalismaneException("No group " + this.groupIndex + " in pattern: " + this.regex);
+		}
+	}
 }
