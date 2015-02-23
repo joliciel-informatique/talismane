@@ -73,26 +73,37 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 	private TalismaneSession talismaneSession;
 	
-	private static ClassificationModel<SentenceDetectorOutcome> sentenceModel;
-	private static ClassificationModel<TokeniserOutcome> tokeniserModel;
-	private static ClassificationModel<PosTag> posTaggerModel;
-	private static MachineLearningModel parserModel;
-	private static List<PosTaggerLexicon> lexicons;
-	private static PosTagSet posTagSet;
-	private static TransitionSystem transitionSystem;
-	private static boolean replaceTextFilters = false;
-	private static boolean replaceTokenFilters = false;
-	private static boolean replaceTokenSequenceFilters = false;
-	private static String textFiltersStr;
-	private static String tokenFiltersStr;
-	private static String tokenSequenceFiltersStr;
-	private static String posTaggerRulesStr;
-	private static String parserRulesStr;
-	private static LexicalEntryReader corpusLexicalEntryReader = null;
+	private ClassificationModel<SentenceDetectorOutcome> sentenceModel;
+	private ClassificationModel<TokeniserOutcome> tokeniserModel;
+	private ClassificationModel<PosTag> posTaggerModel;
+	private MachineLearningModel parserModel;
+	private List<PosTaggerLexicon> lexicons;
+	private PosTagSet posTagSet;
+	private TransitionSystem transitionSystem;
+	private boolean replaceTextFilters = false;
+	private boolean replaceTokenFilters = false;
+	private boolean replaceTokenSequenceFilters = false;
+	private String textFiltersStr;
+	private String tokenFiltersStr;
+	private String tokenSequenceFiltersStr;
+	private String posTaggerRulesStr;
+	private String parserRulesStr;
+	private LexicalEntryReader corpusLexicalEntryReader = null;
 	
-	private static Locale locale;
+	private Locale locale;
 	
-	public GenericLanguageImplementation(String sessionId) {
+	private static Map<String, GenericLanguageImplementation> instances = new HashMap<String, GenericLanguageImplementation>();
+	
+	public static GenericLanguageImplementation getInstance(String sessionId) {
+		GenericLanguageImplementation instance = instances.get(sessionId);
+		if (instance==null) {
+			instance = new GenericLanguageImplementation(sessionId);
+			instances.put(sessionId, instance);
+		}
+		return instance;
+	}
+	
+	protected GenericLanguageImplementation(String sessionId) {
 		talismaneServiceLocator = TalismaneServiceLocator.getInstance(sessionId);
 		talismaneSession = talismaneServiceLocator.getTalismaneService().getTalismaneSession();
 	}
