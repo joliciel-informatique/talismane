@@ -376,7 +376,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * or else all resources specified individually.
 	 */
 	public TalismaneConfigImpl(String sessionId) {
-		this.implementation = new GenericLanguageImplementation(sessionId);
+		this.implementation = GenericLanguageImplementation.getInstance(sessionId);
 	}
 	
 	public void loadParameters(Map<String,String> args) {
