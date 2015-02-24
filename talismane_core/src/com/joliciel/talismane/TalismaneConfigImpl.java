@@ -280,6 +280,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private List<TextMarkerFilter> textMarkerFilters = null;
 	private List<TokenFilter> tokenFilters = null;
 	private List<TokenFilter> additionalTokenFilters = new ArrayListNoNulls<TokenFilter>();
+	private List<TokenFilter> prependedTokenFilters = new ArrayListNoNulls<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = null;
 	private List<PosTagSequenceFilter> posTaggerPostProcessingFilters = null;
 	private boolean includeDistanceFScores = false;
@@ -1562,7 +1563,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				tokenFilters = new ArrayListNoNulls<TokenFilter>();
 				
 				LOG.debug("Token filters");
-				
+
+				for (TokenFilter tokenFilter : this.prependedTokenFilters)
+					this.tokenFilters.add(tokenFilter);
+
 				List<Scanner> scanners = new ArrayListNoNulls<Scanner>();
 				if (tokenFiltersPath!=null && tokenFiltersPath.length()>0) {
 					LOG.debug("tokenFiltersPath: " + tokenFiltersPath);
@@ -3443,6 +3447,13 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		this.additionalTokenFilters.add(tokenFilter);
 		if (this.tokenFilters!=null)
 			this.tokenFilters.add(tokenFilter);
+	}
+
+	@Override
+	public void prependTokenFilter(TokenFilter tokenFilter) {
+		this.prependedTokenFilters.add(0, tokenFilter);
+		if (this.tokenFilters!=null)
+			this.tokenFilters.add(0, tokenFilter);
 	}
 	
 	

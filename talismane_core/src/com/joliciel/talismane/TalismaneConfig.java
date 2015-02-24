@@ -578,5 +578,12 @@ public interface TalismaneConfig {
 	 * @param tokenFilter
 	 */
 	public void addTokenFilter(TokenFilter tokenFilter);
+	
+	/**
+	 * Prepend a token filter to the list of those loaded from the model or config.
+	 * This will always be run before the others.
+	 * @param tokenFilter
+	 */
+	public void prependTokenFilter(TokenFilter tokenFilter);
 
 }
