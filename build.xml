@@ -39,11 +39,6 @@
 				<include name="talismane_core/build.xml"/>
 			</fileset>
 		</subant>
-		<subant target="languagePacks">
-			<fileset dir=".">
-				<include name="talismane_core/build.xml"/>
-			</fileset>
-		</subant>
 		<subant target="jar">
 			<fileset dir=".">
 				<include name="talismane_ftb/build.xml"/>

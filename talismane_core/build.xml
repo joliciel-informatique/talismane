@@ -101,14 +101,6 @@
         </one-jar>
     </target>
 	
-	<target name="languagePacks" depends="init">
-	    <zip destfile="${dist}/frenchLanguagePack-${talismane.version}.zip">
-			<fileset dir="${languagePacks}/frenchLanguagePack" />
-		</zip>
-	    <zip destfile="${dist}/englishLanguagePack-${talismane.version}.zip">
-			<fileset dir="${languagePacks}/englishLanguagePack" />
-		</zip>
-	</target>
 	
 	<target name="javadoc" depends="compile">
 	  <javadoc packagenames="com.joliciel.*"
