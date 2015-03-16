@@ -22,8 +22,6 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.Set;
 
-import com.joliciel.talismane.machineLearning.DecisionFactory;
-
 /**
  * <p>A tag set to be used for pos tagging.
  * The default format for reading a PosTagSet from a file is as follows:</p>
@@ -49,7 +47,7 @@ import com.joliciel.talismane.machineLearning.DecisionFactory;
  * @author Assaf Urieli
  *
  */
-public interface PosTagSet extends Serializable, DecisionFactory<PosTag> {
+public interface PosTagSet extends Serializable {
 	/**
 	 * Name of this posTagSet.
 	 * @return

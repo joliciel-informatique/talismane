@@ -27,7 +27,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<PosTagSequence>, ClassificationSolution<PosTag> {
+public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<PosTagSequence>, ClassificationSolution {
 	/**
 	 * Get the PosTaggedToken at position n.
 	 * @param index

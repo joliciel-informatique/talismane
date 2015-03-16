@@ -34,6 +34,7 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -67,7 +68,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
 	private FeatureService featureService;
-	private DecisionMaker<PosTag> decisionMaker;
+	private MachineLearningService machineLearningService;
+	private DecisionMaker decisionMaker;
 	
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
 	private List<PosTaggerRule> posTaggerRules;
@@ -79,7 +81,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	private int beamWidth;
 
-	private List<ClassificationObserver<PosTag>> observers = new ArrayList<ClassificationObserver<PosTag>>();
+	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
 	
 	/**
 	 * 
@@ -90,7 +92,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	 * @param fScoreCalculator an f-score calculator for evaluating results
 	 */
 	public PosTaggerImpl(Set<PosTaggerFeature<?>> posTaggerFeatures,
-			DecisionMaker<PosTag> decisionMaker,
+			DecisionMaker decisionMaker,
 			int beamWidth) {
 		this.posTaggerFeatures = posTaggerFeatures;
 		this.beamWidth = beamWidth;
@@ -101,8 +103,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	public List<PosTagSequence> tagSentence(List<TokenSequence> tokenSequences) {
 		MONITOR.startTask("tagSentence");
 		try {
-			PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
-			
 			MONITOR.startTask("apply filters");
 			try {
 				for (TokenSequence tokenSequence : tokenSequences) {
@@ -160,7 +160,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					}
 					
 					PosTaggerContext context = this.getPosTaggerFeatureService().getContext(token, history);
-					List<Decision<PosTag>> decisions = new ArrayList<Decision<PosTag>>();
+					List<Decision> decisions = new ArrayList<Decision>();
 					
 					// test the positive rules on the current token
 					boolean ruleApplied = false;
@@ -174,7 +174,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
 								if (ruleResult!=null && ruleResult.getOutcome()) {
-									Decision<PosTag> positiveRuleDecision = posTagSet.createDefaultDecision(rule.getTag());
+									Decision positiveRuleDecision = machineLearningService.createDefaultDecision(rule.getTag().getCode());
 									decisions.add(positiveRuleDecision);
 									positiveRuleDecision.addAuthority(rule.getCondition().getName());
 									ruleApplied = true;
@@ -222,12 +222,12 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 							MONITOR.endTask();
 						}
 						
-						for (ClassificationObserver<PosTag> observer : this.observers) {
+						for (ClassificationObserver observer : this.observers) {
 							observer.onAnalyse(token, featureResults, decisions);
 						}
 		
 						// apply the negative rules
-						Set<PosTag> eliminatedPosTags = new TreeSet<PosTag>();
+						Set<String> eliminatedPosTags = new TreeSet<String>();
 						if (posTaggerNegativeRules!=null) {
 							MONITOR.startTask("check negative rules");
 							try {
@@ -238,7 +238,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 									FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
 									if (ruleResult!=null && ruleResult.getOutcome()) {
-										eliminatedPosTags.add(rule.getTag());
+										eliminatedPosTags.add(rule.getTag().getCode());
 										if (LOG.isTraceEnabled()) {
 											LOG.trace("Rule applies. Eliminating posTag: " + rule.getTag().getCode());
 										}
@@ -246,8 +246,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								}
 								
 								if (eliminatedPosTags.size()>0) {
-									List<Decision<PosTag>> decisionShortList = new ArrayList<Decision<PosTag>>();
-									for (Decision<PosTag> decision : decisions) {
+									List<Decision> decisionShortList = new ArrayList<Decision>();
+									for (Decision decision : decisions) {
 										if (!eliminatedPosTags.contains(decision.getOutcome())) {
 											decisionShortList.add(decision);
 										} else {
@@ -276,9 +276,9 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 								LOG.trace("Token: " + token.getText() + ". PosTags: " + posTags);
 							}
 							
-							List<Decision<PosTag>> decisionShortList = new ArrayList<Decision<PosTag>>();
+							List<Decision> decisionShortList = new ArrayList<Decision>();
 							
-							for (Decision<PosTag> decision : decisions) {
+							for (Decision decision : decisions) {
 								if (decision.getProbability()>=MIN_PROB_TO_STORE) {
 									decisionShortList.add(decision);
 								}
@@ -293,7 +293,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					
 					// add new TaggedTokenSequences to the heap, one for each outcome provided by MaxEnt
 					MONITOR.startTask("heap sort");
-					for (Decision<PosTag> decision : decisions) {
+					for (Decision decision : decisions) {
 						if (LOG.isTraceEnabled())
 							LOG.trace("Outcome: " + decision.getOutcome() + ", " + decision.getProbability());
 	
@@ -383,11 +383,11 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		this.posTaggerFeatureService = posTaggerFeatureService;
 	}
 
-	public DecisionMaker<PosTag> getDecisionMaker() {
+	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
 
-	public void setDecisionMaker(DecisionMaker<PosTag> decisionMaker) {
+	public void setDecisionMaker(DecisionMaker decisionMaker) {
 		this.decisionMaker = decisionMaker;
 	}
 
@@ -409,7 +409,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	}
 
 	@Override
-	public void addObserver(ClassificationObserver<PosTag> observer) {
+	public void addObserver(ClassificationObserver observer) {
 		this.observers.add(observer);
 	}
 
@@ -479,5 +479,15 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
 	
 }

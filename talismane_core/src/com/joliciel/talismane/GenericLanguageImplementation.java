@@ -47,12 +47,9 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.TransitionSystem;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
-import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.filters.LowercaseKnownFirstWordFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -73,9 +70,9 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 	private TalismaneSession talismaneSession;
 	
-	private ClassificationModel<SentenceDetectorOutcome> sentenceModel;
-	private ClassificationModel<TokeniserOutcome> tokeniserModel;
-	private ClassificationModel<PosTag> posTaggerModel;
+	private ClassificationModel sentenceModel;
+	private ClassificationModel tokeniserModel;
+	private ClassificationModel posTaggerModel;
 	private MachineLearningModel parserModel;
 	private List<PosTaggerLexicon> lexicons;
 	private PosTagSet posTagSet;
@@ -152,17 +149,17 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 
 	@Override
-	public ClassificationModel<SentenceDetectorOutcome> getDefaultSentenceModel() {
+	public ClassificationModel getDefaultSentenceModel() {
 		return sentenceModel;
 	}
 
 	@Override
-	public ClassificationModel<TokeniserOutcome> getDefaultTokeniserModel() {
+	public ClassificationModel getDefaultTokeniserModel() {
 		return tokeniserModel;
 	}
 
 	@Override
-	public ClassificationModel<PosTag> getDefaultPosTaggerModel() {
+	public ClassificationModel getDefaultPosTaggerModel() {
 		return posTaggerModel;
 	}
 

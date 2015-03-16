@@ -78,7 +78,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	
 	private DependencyNode parseTree = null;
 	
-	private List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
+	private List<Decision> decisions = new ArrayList<Decision>();
 	private int lastProbApplied = 0;
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	@SuppressWarnings("rawtypes")
@@ -105,7 +105,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		
 		this.dependencies = new TreeSet<DependencyArc>();
 		this.transitions = new ArrayList<Transition>();
-		this.scoringStrategy = new GeometricMeanScoringStrategy<Transition>();
+		this.scoringStrategy = new GeometricMeanScoringStrategy();
 	}
 	
 	public ParseConfigurationImpl(ParseConfiguration history) {
@@ -120,7 +120,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		this.stack = new ArrayDeque<PosTaggedToken>(history.getStack());
 		this.dependentTransitionMap = new HashMap<PosTaggedToken, Transition>(((ParseConfigurationInternal)history).getDependentTransitionMap());
 		
-		this.decisions = new ArrayList<Decision<Transition>>(history.getDecisions());
+		this.decisions = new ArrayList<Decision>(history.getDecisions());
 		this.lastProbApplied = (((ParseConfigurationInternal)history).getLastProbApplied());
 		this.scoringStrategy = history.getScoringStrategy();
 	}
@@ -363,7 +363,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 		double probLog = 0.0;
 		int numDecisions = 0;
 		for (int i=lastProbApplied; i<this.decisions.size();i++) {
-			Decision<Transition> decision = decisions.get(i);
+			Decision decision = decisions.get(i);
 			probLog += decision.getProbabilityLog();
 			if (LOG.isTraceEnabled()) {
 				LOG.trace(decision.getOutcome() + ", *= " + decision.getProbability());
@@ -488,7 +488,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	}
 
 	@Override
-	public List<Decision<Transition>> getDecisions() {
+	public List<Decision> getDecisions() {
 		return decisions;
 	}
 
@@ -498,7 +498,7 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	}
 
 	@Override
-	public void addDecision(Decision<Transition> decision) {
+	public void addDecision(Decision decision) {
 		this.decisions.add(decision);
 	}
 

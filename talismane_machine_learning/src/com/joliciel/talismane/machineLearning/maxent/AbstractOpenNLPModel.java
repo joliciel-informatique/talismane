@@ -30,9 +30,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
+
 import opennlp.model.MaxentModel;
 
 /**
@@ -44,9 +44,12 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractClassificationModel<T> implements OpenNLPModel {
+abstract class AbstractOpenNLPModel extends AbstractClassificationModel implements OpenNLPModel {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(AbstractOpenNLPModel.class);
+	
+	private MachineLearningService machineLearningService;
+
 	private MaxentModel model;
 	private transient Set<String> outcomeNames = null;
 	
@@ -62,19 +65,17 @@ abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractClassific
 	 */
 	AbstractOpenNLPModel(MaxentModel model,
 			Map<String,List<String>> descriptors,
-			DecisionFactory<T> decisionFactory,
 			Map<String,Object> trainingParameters) {
 		super();
 		this.model = model;
 		this.setDescriptors(descriptors);
-		this.setDecisionFactory(decisionFactory);
 		this.setTrainingParameters(trainingParameters);
 	}
 
 	@Override
-	public DecisionMaker<T> getDecisionMaker() {
-		OpenNLPDecisionMaker<T> decisionMaker = new OpenNLPDecisionMaker<T>(this.getModel());
-		decisionMaker.setDecisionFactory(this.getDecisionFactory());
+	public DecisionMaker getDecisionMaker() {
+		OpenNLPDecisionMaker decisionMaker = new OpenNLPDecisionMaker(this.getModel());
+		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		return decisionMaker;
 	}
 	
@@ -106,4 +107,15 @@ abstract class AbstractOpenNLPModel<T extends Outcome> extends AbstractClassific
 		}
 		return outcomeNames;
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

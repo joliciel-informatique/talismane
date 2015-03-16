@@ -26,7 +26,7 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private Token token = null;
 	private T tag = null;
-	private Decision<T> decision = null;
+	private Decision decision = null;
 	
 	protected TaggedTokenImpl(TaggedTokenImpl<T> taggedTokenToClone) {
 		this.token = taggedTokenToClone.token;
@@ -34,10 +34,10 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 		this.decision = taggedTokenToClone.decision;
 	}
 	
-	public TaggedTokenImpl(Token token, Decision<T> decision) {
+	public TaggedTokenImpl(Token token, Decision decision, T tag) {
 		this.token = token;
 		this.decision = decision;
-		this.tag = decision.getOutcome();
+		this.tag = tag;
 	}
 	
 	public Token getToken() {
@@ -102,7 +102,7 @@ public class TaggedTokenImpl<T extends TokenTag> implements TaggedToken<T> {
 		return true;
 	}
 
-	public Decision<T> getDecision() {
+	public Decision getDecision() {
 		return decision;
 	}
 	

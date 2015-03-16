@@ -39,6 +39,7 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
@@ -71,6 +72,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private FilterService filterService;
 	private TokenFilterService tokenFilterService;
 	private TalismaneService talismaneService;
+	private MachineLearningService machineLearningService;
 	
 	private FtbPosTagMapper ftbPosTagMapper;
 	private Writer csvFileErrorWriter = null;
@@ -216,7 +218,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 				tokenSplits.add(currentPos);
 				Token aToken = tokenSequence.addEmptyToken(currentPos);
 				PosTag posTag = phraseUnitReader.getPosTag();
-				Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
+				Decision corpusDecision = machineLearningService.createDefaultDecision(posTag.getCode());
 				
 				PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(aToken, corpusDecision);
 				posTaggedTokens.add(posTaggedToken);
@@ -238,7 +240,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 							LOG.trace("Adding empty token at " + (currentPos - token.length()));
 						tokenSplits.add((currentPos - token.length()));
 						Token emptyToken = tokenSequence.addEmptyToken((currentPos - token.length()));
-						Decision<PosTag> emptyTokenDecision = posTagSet.createDefaultDecision(emptyTokenPosTag);
+						Decision emptyTokenDecision = machineLearningService.createDefaultDecision(emptyTokenPosTag.getCode());
 						PosTaggedToken posTaggedToken2 = posTaggerService.getPosTaggedToken(emptyToken, emptyTokenDecision);
 						posTaggedTokens.add(posTaggedToken2);
 						addEmptyTokenBeforeNextToken = false;
@@ -250,7 +252,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	
 					Token aToken = tokenSequence.addToken(lastSplit, currentPos);
 					PosTag posTag = phraseUnitReader.getPosTag();
-					Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
+					Decision corpusDecision = machineLearningService.createDefaultDecision(posTag.getCode());
 					PosTaggedToken posTaggedToken = posTaggerService.getPosTaggedToken(aToken, corpusDecision);
 					posTaggedTokens.add(posTaggedToken);
 	
@@ -280,7 +282,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 								LOG.trace("Adding empty token at " + currentPos);
 							tokenSplits.add(currentPos);
 							emptyToken = tokenSequence.addEmptyToken(currentPos);
-							Decision<PosTag> emptyTokenDecision = posTagSet.createDefaultDecision(emptyTokenPosTag);
+							Decision emptyTokenDecision = machineLearningService.createDefaultDecision(emptyTokenPosTag.getCode());
 							PosTaggedToken posTaggedToken2 = posTaggerService.getPosTaggedToken(emptyToken, emptyTokenDecision);
 							posTaggedTokens.add(posTaggedToken2);
 						}
@@ -382,7 +384,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 					i++;
 				} else if (token.getStartIndex()==token.getEndIndex()) {
 					LOG.debug("Adding null pos tag at position " + token.getStartIndex());
-					Decision<PosTag> nullPosTagDecision = posTagSet.createDefaultDecision(PosTag.NULL_POS_TAG);
+					Decision nullPosTagDecision = machineLearningService.createDefaultDecision(PosTag.NULL_POS_TAG.getCode());
 					PosTaggedToken emptyTagToken = posTaggerService.getPosTaggedToken(token, nullPosTagDecision);
 					posTagSequence.addPosTaggedToken(emptyTagToken);
 				} else {
@@ -619,6 +621,15 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

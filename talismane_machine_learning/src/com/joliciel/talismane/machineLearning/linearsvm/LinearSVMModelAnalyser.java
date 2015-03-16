@@ -49,9 +49,9 @@ public class LinearSVMModelAnalyser {
 		MachineLearningService machineLearningService = locator.getMachineLearningService();
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(modelFile));
 		
-		ClassificationModel<?> classificationModel = machineLearningService.getClassificationModel(zis);
+		ClassificationModel classificationModel = machineLearningService.getClassificationModel(zis);
 		if (classificationModel instanceof LinearSVMOneVsRestModel) {
-			LinearSVMOneVsRestModel<?> linearSVMModel = (LinearSVMOneVsRestModel<?>) classificationModel;
+			LinearSVMOneVsRestModel linearSVMModel = (LinearSVMOneVsRestModel) classificationModel;
 			int outcomeIndex = 0;
 			
 			final TIntObjectMap<String> featureNameMap = new TIntObjectHashMap<String>();

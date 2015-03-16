@@ -26,11 +26,8 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
  * Makes probabilised decisions based on feature results.
  * @author Assaf Urieli
  */
-public interface DecisionMaker<T extends Outcome> {
-	public List<Decision<T>> decide(List<FeatureResult<?>> featureResults);
+public interface DecisionMaker {
+	public List<Decision> decide(List<FeatureResult<?>> featureResults);
 	
-	public DecisionFactory<T> getDecisionFactory();
-	public void setDecisionFactory(DecisionFactory<T> decisionFactory);
-	
-	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy();
+	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy();
 }

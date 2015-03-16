@@ -27,7 +27,6 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 
@@ -60,7 +59,7 @@ public interface TokeniserPatternService {
 	 */
 	public Tokeniser getIntervalPatternTokeniser(TokeniserPatternManager patternManager,
 			Set<TokeniserContextFeature<?>> features,
-			DecisionMaker<TokeniserOutcome> decisionMaker, int beamWidth);
+			DecisionMaker decisionMaker, int beamWidth);
 	
 	/**
 	 * The compound pattern tokeniser first splits the text into individual tokens based on a list of separators,
@@ -80,7 +79,7 @@ public interface TokeniserPatternService {
 	 */
 	public Tokeniser getCompoundPatternTokeniser(TokeniserPatternManager patternManager,
 			Set<TokenPatternMatchFeature<?>> features,
-			DecisionMaker<TokeniserOutcome> decisionMaker, int beamWidth);
+			DecisionMaker decisionMaker, int beamWidth);
 	
 	/**
 	 * Get a pattern tokeniser out of a machine-learning model,
@@ -89,7 +88,7 @@ public interface TokeniserPatternService {
 	 * @param beamWidth
 	 * @return
 	 */
-	public Tokeniser getPatternTokeniser(ClassificationModel<TokeniserOutcome> model, int beamWidth);
+	public Tokeniser getPatternTokeniser(ClassificationModel model, int beamWidth);
 
 	/**
 	 * An event stream for tokenising, using patterns to identify intervals that need to be examined.

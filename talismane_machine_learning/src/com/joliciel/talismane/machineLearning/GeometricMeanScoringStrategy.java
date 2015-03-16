@@ -26,14 +26,14 @@ import org.apache.commons.logging.LogFactory;
  * @author Assaf Urieli
  *
  */
-public class GeometricMeanScoringStrategy<T extends Outcome> implements ScoringStrategy<ClassificationSolution<T>> {
+public class GeometricMeanScoringStrategy implements ScoringStrategy<ClassificationSolution> {
 	private static final Log LOG = LogFactory.getLog(GeometricMeanScoringStrategy.class);
 
 	@Override
-	public double calculateScore(ClassificationSolution<T> solution) {
+	public double calculateScore(ClassificationSolution solution) {
 		double score = 0;
 		if (solution!=null && solution.getDecisions().size()>0) {
-			for (Decision<?> decision : solution.getDecisions())
+			for (Decision decision : solution.getDecisions())
 				score += decision.getProbabilityLog();
 
 			score = score / solution.getDecisions().size();
@@ -44,7 +44,7 @@ public class GeometricMeanScoringStrategy<T extends Outcome> implements ScoringS
 			LOG.trace("Score for solution: " + solution.getClass().getSimpleName());
 			LOG.trace(solution.toString());
 			StringBuilder sb = new StringBuilder();
-			for (Decision<?> decision : solution.getDecisions()) {
+			for (Decision decision : solution.getDecisions()) {
 				sb.append(" * ");
 				sb.append(decision.getProbability());
 			}

@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchSequence;
@@ -42,7 +43,8 @@ class TokenComparatorImpl implements TokenComparator {
 	private List<TokenEvaluationObserver> observers = new ArrayList<TokenEvaluationObserver>();
 	private int sentenceCount;
 	private TokeniserServiceInternal tokeniserServiceInternal;
-	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
+	private MachineLearningService machineLearningService;
+	
 	private TokeniserAnnotatedCorpusReader referenceCorpusReader;
 	private TokeniserAnnotatedCorpusReader evaluationCorpusReader;
 	private TokeniserPatternManager tokeniserPatternManager;
@@ -113,7 +115,8 @@ class TokenComparatorImpl implements TokenComparator {
 			for (Token token : realAtomicSequence) {
 				if (!token.getText().equals(guessedAtomicSequence.get(i).getToken().getText())) {
 					// skipped stuff at start of sentence on guess, if it's been through the parser
-					Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.SEPARATE);
+					TokeniserOutcome outcome = TokeniserOutcome.SEPARATE;
+					Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
 					decision.addAuthority("_" + this.getClass().getSimpleName());
 					Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
 					if (matchSequences!=null) {
@@ -122,7 +125,7 @@ class TokenComparatorImpl implements TokenComparator {
 							decision.addAuthority(matchSequence.getTokenPattern().getName());
 						}
 					}					
-					guess.addTaggedToken(token, decision);
+					guess.addTaggedToken(token, decision, outcome);
 					mismatches++;
 					LOG.debug("Mismatch: '" + token.getText() + "', '" + guessedAtomicSequence.get(i).getToken().getText() + "'");
 					if (mismatches>6) {
@@ -137,7 +140,7 @@ class TokenComparatorImpl implements TokenComparator {
 				if (guessedSequence.getTokenSplits().contains(guessedAtomicSequence.get(i).getToken().getStartIndex())) {
 					outcome = TokeniserOutcome.SEPARATE;
 				}
-				Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
+				Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
 				decision.addAuthority("_" + this.getClass().getSimpleName());
 				
 				Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
@@ -147,7 +150,7 @@ class TokenComparatorImpl implements TokenComparator {
 						decision.addAuthority(matchSequence.getTokenPattern().getName());
 					}
 				}
-				guess.addTaggedToken(token, decision);
+				guess.addTaggedToken(token, decision, outcome);
 				i++;
 			}
 
@@ -187,6 +190,15 @@ class TokenComparatorImpl implements TokenComparator {
 	public void setTokeniserServiceInternal(
 			TokeniserServiceInternal tokeniserServiceInternal) {
 		this.tokeniserServiceInternal = tokeniserServiceInternal;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 

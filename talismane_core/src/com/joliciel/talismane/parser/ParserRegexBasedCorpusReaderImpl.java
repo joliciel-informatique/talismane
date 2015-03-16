@@ -47,6 +47,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -97,6 +98,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	private PosTaggerService posTaggerService;
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
+	private MachineLearningService machineLearningService;
 	
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
@@ -309,7 +311,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 					    					
 					    					throw new TalismaneException("Unknown posTag, " + fileName + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
 					    				}
-										Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(posTag);
+										Decision posTagDecision = machineLearningService.createDefaultDecision(posTag.getCode());
 										PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
 										if (LOG.isTraceEnabled()) {
 											LOG.trace(posTaggedToken.toString());
@@ -1039,6 +1041,15 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 		this.talismaneSession = talismaneService.getTalismaneSession();
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

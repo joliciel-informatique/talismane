@@ -60,7 +60,6 @@ import com.joliciel.talismane.languageDetector.LanguageDetectorAnnotatedCorpusRe
 import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
-import com.joliciel.talismane.languageDetector.LanguageOutcome;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -97,14 +96,12 @@ import com.joliciel.talismane.parser.ParserFScoreCalculatorByDistance;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParsingConstrainer;
-import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.parser.TransitionBasedParser;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagComparator;
 import com.joliciel.talismane.posTagger.PosTagEvaluationFScoreCalculator;
@@ -125,7 +122,6 @@ import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
@@ -141,7 +137,6 @@ import com.joliciel.talismane.tokeniser.Tokeniser.TokeniserType;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserGuessTemplateWriter;
-import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
@@ -198,8 +193,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private PosTagSequenceProcessor posTagSequenceProcessor;
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 	
-	private ClassificationModel<TokeniserOutcome> tokeniserModel = null;
-	private ClassificationModel<PosTag> posTaggerModel = null;
+	private ClassificationModel tokeniserModel = null;
+	private ClassificationModel posTaggerModel = null;
 	private MachineLearningModel parserModel = null;
 
 	private boolean processByDefault = true;
@@ -1630,7 +1625,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (languageDetector==null) {
 				LOG.debug("Getting language detector model");
-				ClassificationModel<LanguageOutcome> languageModel = null;
+				ClassificationModel languageModel = null;
 				if (languageModelFilePath!=null) {
 					File languageModelFile = this.getFile(languageModelFilePath);
 					if (!languageModelFile.exists())
@@ -1657,7 +1652,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (sentenceDetector==null) {
 				LOG.debug("Getting sentence detector model");
-				ClassificationModel<SentenceDetectorOutcome> sentenceModel = null;
+				ClassificationModel sentenceModel = null;
 				if (sentenceModelFilePath!=null) {
 					File sentenceModelFile = this.getFile(sentenceModelFilePath);
 					if (!sentenceModelFile.exists())
@@ -1686,7 +1681,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public Tokeniser getTokeniser() {
 		try {
 			if (tokeniser==null) {
-				ClassificationModel<TokeniserOutcome> tokeniserModel = null;
+				ClassificationModel tokeniserModel = null;
 				if (tokeniserType==TokeniserType.simple) {
 					tokeniser = this.getTokeniserService().getSimpleTokeniser();
 				} else if (tokeniserType==TokeniserType.pattern) {
@@ -1701,7 +1696,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
 						File detailsFile = new File(this.getOutDir(), detailsFilePath);
 						detailsFile.delete();
-						ClassificationObserver<TokeniserOutcome> observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
+						ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
 						tokeniser.addObserver(observer);
 					}
 				} else {
@@ -1726,7 +1721,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		}
 	}
 
-	ClassificationModel<TokeniserOutcome> getTokeniserModel() {
+	ClassificationModel getTokeniserModel() {
 		try {
 			if (tokeniserModel==null) {
 				if (tokeniserModelFilePath!=null) {
@@ -1746,7 +1741,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		}
 	}
 	
-	ClassificationModel<PosTag> getPosTaggerModel() {
+	ClassificationModel getPosTaggerModel() {
 		try {
 			if (posTaggerModel==null) {
 				if (posTaggerModelFilePath!=null) {
@@ -1983,7 +1978,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (posTagger==null) {
 				LOG.debug("Getting pos-tagger model");
 				
-				ClassificationModel<PosTag> posTaggerModel = this.getPosTaggerModel();
+				ClassificationModel posTaggerModel = this.getPosTaggerModel();
 				if (posTaggerModel==null)
 					throw new TalismaneException("No posTaggerModel provided");
 
@@ -2008,7 +2003,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					ClassificationObserver<PosTag> observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+					ClassificationObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 					posTagger.addObserver(observer);
 				}
 			}
@@ -2057,9 +2052,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					String detailsFilePath = this.getBaseName() + "_parser_details.txt";
 					File detailsFile = new File(this.getOutDir(), detailsFilePath);
 					detailsFile.delete();
-					@SuppressWarnings("unchecked")
-					ClassificationModel<Transition> classificationModel = (ClassificationModel<Transition>) parserModel;
-					ClassificationObserver<Transition> observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
+					ClassificationModel classificationModel = (ClassificationModel) parserModel;
+					ClassificationObserver observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
 					parser.addObserver(observer);
 				}
 				talismaneSession.setTransitionSystem(parser.getTransitionSystem());

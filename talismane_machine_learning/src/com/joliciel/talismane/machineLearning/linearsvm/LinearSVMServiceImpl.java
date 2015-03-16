@@ -19,26 +19,38 @@
 package com.joliciel.talismane.machineLearning.linearsvm;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 
 class LinearSVMServiceImpl implements LinearSVMService {
-
+	private MachineLearningService machineLearningService;
+	
 	@Override
-	public <T extends Outcome> LinearSVMModelTrainer<T> getLinearSVMModelTrainer() {
-		LinearSVMModelTrainer<T> linearSVMModelTrainer = new LinearSVMModelTrainerImpl<T>();
+	public  LinearSVMModelTrainer getLinearSVMModelTrainer() {
+		LinearSVMModelTrainer linearSVMModelTrainer = new LinearSVMModelTrainerImpl();
 		return linearSVMModelTrainer;
 	}
 
 	@Override
-	public <T extends Outcome> ClassificationModel<T> getLinearSVMModel() {
-		LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>();
+	public  ClassificationModel getLinearSVMModel() {
+		LinearSVMModel linearSVMModel = new LinearSVMModel();
+		linearSVMModel.setMachineLearningService(this.getMachineLearningService());
 		return linearSVMModel;
 	}
 
 	@Override
-	public <T extends Outcome> ClassificationModel<T> getLinearSVMOneVsRestModel() {
-		LinearSVMOneVsRestModel<T> linearSVMModel = new LinearSVMOneVsRestModel<T>();
+	public  ClassificationModel getLinearSVMOneVsRestModel() {
+		LinearSVMOneVsRestModel linearSVMModel = new LinearSVMOneVsRestModel();
+		linearSVMModel.setMachineLearningService(this.getMachineLearningService());
 		return linearSVMModel;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 
 

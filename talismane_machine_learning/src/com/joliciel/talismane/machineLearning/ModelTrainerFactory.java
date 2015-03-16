@@ -46,24 +46,24 @@ class ModelTrainerFactory {
 	 * @param algorithm
 	 * @return
 	 */
-	public<T extends Outcome> ClassificationModelTrainer<T> makeClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
-		ClassificationModelTrainer<T> modelTrainer = null;
+	public ClassificationModelTrainer makeClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
+		ClassificationModelTrainer modelTrainer = null;
 		switch (algorithm) {
 		case MaxEnt:
-			MaxentModelTrainer<T> maxentModelTrainer = maxentService.getMaxentModelTrainer();
+			MaxentModelTrainer maxentModelTrainer = maxentService.getMaxentModelTrainer();
 			modelTrainer = maxentModelTrainer;
 			break;
 		case LinearSVM:
 		case LinearSVMOneVsRest:
-			LinearSVMModelTrainer<T> linearSVMModelTrainer = linearSVMService.getLinearSVMModelTrainer();
+			LinearSVMModelTrainer linearSVMModelTrainer = linearSVMService.getLinearSVMModelTrainer();
 			modelTrainer = linearSVMModelTrainer;
 			break;
 		case Perceptron:
-			PerceptronClassificationModelTrainer<T> perceptronModelTrainer = perceptronService.getPerceptronModelTrainer();
+			PerceptronClassificationModelTrainer perceptronModelTrainer = perceptronService.getPerceptronModelTrainer();
 			modelTrainer = perceptronModelTrainer;
 			break;
 		case OpenNLPPerceptron:
-			OpenNLPPerceptronModelTrainer<T> openNLPPerceptronModelTrainer = maxentService.getPerceptronModelTrainer();
+			OpenNLPPerceptronModelTrainer openNLPPerceptronModelTrainer = maxentService.getPerceptronModelTrainer();
 			modelTrainer = openNLPPerceptronModelTrainer;
 			break;
 		default:

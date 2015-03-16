@@ -19,14 +19,13 @@
 package com.joliciel.talismane.parser;
 
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * A single transition in a transition-based parsing system.
  * @author Assaf Urieli
  *
  */
-public interface Transition extends Outcome, Comparable<Transition> {
+public interface Transition extends Comparable<Transition> {
 	/**
 	 * Check whether this transition is valid for the configuration provided.
 	 * @param configuration
@@ -58,6 +57,6 @@ public interface Transition extends Outcome, Comparable<Transition> {
 	 * The decision which generated this transition.
 	 * @return
 	 */
-	public Decision<Transition> getDecision();
-	public void setDecision(Decision<Transition> decision);
+	public Decision getDecision();
+	public void setDecision(Decision decision);
 }

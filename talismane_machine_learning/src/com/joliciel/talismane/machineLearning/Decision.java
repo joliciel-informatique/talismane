@@ -25,18 +25,12 @@ import java.util.List;
  * @author Assaf Urieli
  *
  */
-public interface Decision<T extends Outcome> extends Comparable<Decision<T>> {
+public interface Decision extends Comparable<Decision> {
 	/**
 	 * A unique code representing this decision's outcome.
 	 * @return
 	 */
-	public String getCode();
-	
-	/**
-	 * Convert the name to an outcome of type T.
-	 * @return
-	 */
-	public T getOutcome();
+	public String getOutcome();
 	
 	/**
 	 * The decision's raw score, for additive scoring systems (e.g. perceptrons).

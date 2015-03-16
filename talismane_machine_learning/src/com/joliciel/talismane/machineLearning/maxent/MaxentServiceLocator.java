@@ -18,16 +18,22 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
+
 public class MaxentServiceLocator {
 	private static MaxentServiceLocator instance;
-	
+
+	private MachineLearningServiceLocator machineLearningServiceLocator;
+
 	private MaxentServiceImpl maxentService;
 	
-	private MaxentServiceLocator() { }
+	private MaxentServiceLocator(MachineLearningServiceLocator machineLearningServiceLocator) {
+		this.machineLearningServiceLocator = machineLearningServiceLocator;
+	}
 	
-	public static MaxentServiceLocator getInstance() {
+	public static MaxentServiceLocator getInstance(MachineLearningServiceLocator machineLearningServiceLocator) {
 		if (instance==null) {
-			instance = new MaxentServiceLocator();
+			instance = new MaxentServiceLocator(machineLearningServiceLocator);
 		}
 		return instance;
 	}
@@ -35,6 +41,7 @@ public class MaxentServiceLocator {
 	public MaxentService getMaxentService() {
 		if (maxentService == null) {
 			maxentService = new MaxentServiceImpl();
+			maxentService.setMachineLearningService(this.machineLearningServiceLocator.getMachineLearningService());
 		}
 		return maxentService;
 	}

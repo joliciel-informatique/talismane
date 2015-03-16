@@ -62,7 +62,7 @@ public interface MachineLearningService {
 	 * @param zis the zip input stream
 	 * @return
 	 */
-	public<T extends Outcome> ClassificationModel<T> getClassificationModel(ZipInputStream zis);
+	public ClassificationModel getClassificationModel(ZipInputStream zis);
 	
 	/**
 	 * Get a classification model trainer corresponding to a given outcome type and a given algorithm.
@@ -70,7 +70,7 @@ public interface MachineLearningService {
 	 * @param algorithm
 	 * @return
 	 */
-	public<T extends Outcome> ClassificationModelTrainer<T> getClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
+	public ClassificationModelTrainer getClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
 	
 	/**
 	 * Get a ranking model trainer corresponding to a given input type and a given algorithm.
@@ -87,11 +87,23 @@ public interface MachineLearningService {
 	public ExternalResourceFinder getExternalResourceFinder();
 	
 	/**
-	 * Create a decision as though it were made by a statistical engine.
-	 * @param <T>
-	 * @param outcome
-	 * @param probability
+	 * Create the decision corresponding to a particular name.
+	 * This decision will be considered statistical.
+	 */
+	public Decision createDecision(String code, double probability);
+	
+	/**
+	 * Create the decision corresponding to a particular name.
+	 * This decision will be considered statistical.
+	 */
+	public Decision createDecision(String code, double score, double probability);
+
+	
+	/**
+	 * Create a default decision with a probability of 1.0, for a given outcome.
+	 * This decision will not be considered statistical.
+	 * @param defaultDecision
 	 * @return
 	 */
-	public <T extends Outcome> Decision<T> createDecision(T outcome, double probability);
+	public Decision createDefaultDecision(String code);
 }

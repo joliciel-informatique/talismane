@@ -36,6 +36,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -67,13 +68,15 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 	private ParserServiceInternal parserServiceInternal;
 	private TalismaneService talismaneService;
 	private FeatureService featureService;
-	private DecisionMaker<Transition> decisionMaker;
+	private MachineLearningService machineLearningService;
+	
+	private DecisionMaker decisionMaker;
 	private TransitionSystem transitionSystem;
 	private ParseComparisonStrategy parseComparisonStrategy = new BufferSizeComparisonStrategy();
 	
 	private TalismaneSession talismaneSession;
 
-	private List<ClassificationObserver<Transition>> observers = new ArrayList<ClassificationObserver<Transition>>();
+	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
 	private int maxAnalysisTimePerSentence = 60;
 	private int minFreeMemory = 64;
 	private static final int KILOBYTE = 1024;
@@ -82,7 +85,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 	private List<ParserRule> parserPositiveRules;
 	private List<ParserRule> parserNegativeRules;
 	
-	public TransitionBasedParserImpl(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+	public TransitionBasedParserImpl(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		super();
 		this.decisionMaker = decisionMaker;
 		this.transitionSystem = transitionSystem;
@@ -187,7 +190,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						LOG.trace(history.getPosTagSequence());
 					}
 					
-					List<Decision<Transition>> decisions = new ArrayList<Decision<Transition>>();
+					List<Decision> decisions = new ArrayList<Decision>();
 					
 					// test the positive rules on the current configuration
 					boolean ruleApplied = false;
@@ -201,7 +204,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
 								if (ruleResult!=null && ruleResult.getOutcome()) {
-									Decision<Transition> positiveRuleDecision = talismaneSession.getTransitionSystem().createDefaultDecision(rule.getTransition());
+									Decision positiveRuleDecision = machineLearningService.createDefaultDecision(rule.getTransition().getCode());
 									decisions.add(positiveRuleDecision);
 									positiveRuleDecision.addAuthority(rule.getCondition().getName());
 									ruleApplied = true;
@@ -246,12 +249,12 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						try {
 							decisions = this.decisionMaker.decide(parseFeatureResults);
 							
-							for (ClassificationObserver<Transition> observer : this.observers) {
+							for (ClassificationObserver observer : this.observers) {
 								observer.onAnalyse(history, parseFeatureResults, decisions);
 							}
 							
-							List<Decision<Transition>> decisionShortList = new ArrayList<Decision<Transition>>(decisions.size());
-							for (Decision<Transition> decision : decisions) {
+							List<Decision> decisionShortList = new ArrayList<Decision>(decisions.size());
+							for (Decision decision : decisions) {
 								if (decision.getProbability() > MIN_PROB_TO_STORE)
 									decisionShortList.add(decision);
 							}
@@ -281,8 +284,8 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								}
 								
 								if (eliminatedTransitions.size()>0) {
-									List<Decision<Transition>> decisionShortList = new ArrayList<Decision<Transition>>();
-									for (Decision<Transition> decision : decisions) {
+									List<Decision> decisionShortList = new ArrayList<Decision>();
+									for (Decision decision : decisions) {
 										if (!eliminatedTransitions.contains(decision.getOutcome())) {
 											decisionShortList.add(decision);
 										} else {
@@ -302,6 +305,8 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 					} // has a positive rule been applied?
 					
 					boolean transitionApplied = false;
+					TransitionSystem transitionSystem = this.talismaneSession.getTransitionSystem();
+					
 					// add new configuration to the heap, one for each valid transition
 					MONITOR.startTask("heap sort");
 					try {
@@ -309,8 +314,8 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						// Answer: because we're not always adding solutions to the same heap
 						// And yet: a decision here can only do one of two things: process a token (heap+1000), or add a non-processing transition (heap+1)
 						// So, if we've already applied N decisions of each type, we should be able to stop
-						for (Decision<Transition> decision : decisions) {
-							Transition transition = decision.getOutcome();
+						for (Decision decision : decisions) {
+							Transition transition = transitionSystem.getTransitionForCode(decision.getOutcome());
 							if (LOG.isTraceEnabled())
 								LOG.trace("Outcome: " + transition.getCode() + ", " + decision.getProbability());
 							
@@ -389,7 +394,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 					LOG.debug("Decisions: " + finalConfiguration.getDecisions());
 					if (LOG.isTraceEnabled()) {
 						StringBuilder sb = new StringBuilder();
-						for (Decision<Transition> decision : finalConfiguration.getDecisions()) {
+						for (Decision decision : finalConfiguration.getDecisions()) {
 							sb.append(" * ");
 							sb.append(df.format(decision.getProbability()));
 						}
@@ -437,7 +442,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 	}
 
 	@Override
-	public void addObserver(ClassificationObserver<Transition> observer) {
+	public void addObserver(ClassificationObserver observer) {
 		this.observers.add(observer);
 	}
 
@@ -530,5 +535,17 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		this.talismaneService = talismaneService;
 		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
+
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
 	
 }

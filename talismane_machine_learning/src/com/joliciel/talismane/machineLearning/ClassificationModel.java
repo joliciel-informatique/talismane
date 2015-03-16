@@ -27,27 +27,20 @@ import java.util.Set;
  *
  * @param <T>
  */
-public interface ClassificationModel<T extends Outcome> extends MachineLearningModel {
+public interface ClassificationModel extends MachineLearningModel {
 
 	/**
 	 * Get the decision maker for this model.
 	 * @return
 	 */
-	public DecisionMaker<T> getDecisionMaker();
-
-	
-	/**
-	 * The decision factory associated with this model.
-	 */
-	public DecisionFactory<T> getDecisionFactory();
-	public void setDecisionFactory(DecisionFactory<T> decisionFactory);
+	public DecisionMaker getDecisionMaker();
 	
 	/**
 	 * An observer that will write low-level details of this model's analysis to a file.
 	 * @param file
 	 * @return
 	 */
-	public ClassificationObserver<T> getDetailedAnalysisObserver(File file);
+	public ClassificationObserver getDetailedAnalysisObserver(File file);
 
 	/**
 	 * A set of possible outcomes for this model.

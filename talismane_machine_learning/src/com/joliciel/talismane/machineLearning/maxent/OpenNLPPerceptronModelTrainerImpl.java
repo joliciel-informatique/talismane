@@ -28,9 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -45,7 +43,7 @@ import opennlp.perceptron.PerceptronTrainer;
  * @author Assaf Urieli
  *
  */
-class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPerceptronModelTrainer<T> {
+class OpenNLPPerceptronModelTrainerImpl implements OpenNLPPerceptronModelTrainer {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(OpenNLPPerceptronModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(OpenNLPPerceptronModelTrainerImpl.class);
@@ -60,18 +58,17 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	@Override
-	public ClassificationModel<T> trainModel(
+	public ClassificationModel trainModel(
 			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
+			List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		return this.trainModel(corpusEventStream, decisionFactory, descriptors);
+		return this.trainModel(corpusEventStream, descriptors);
 	}
 
 	@Override
-	public ClassificationModel<T> trainModel(
+	public ClassificationModel trainModel(
 			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory,
 			Map<String,List<String>> descriptors) {
 		MaxentModel perceptronModel = null;
 		EventStream eventStream = new OpenNLPEventStream(corpusEventStream);
@@ -91,7 +88,7 @@ class OpenNLPPerceptronModelTrainerImpl<T extends Outcome> implements OpenNLPPer
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>(perceptronModel, descriptors, decisionFactory, this.trainingParameters);
+		OpenNLPPerceptronModel model = new OpenNLPPerceptronModel(perceptronModel, descriptors, this.trainingParameters);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + this.getIterations());
 		model.addModelAttribute("averaging", "" + this.isUseAverage());

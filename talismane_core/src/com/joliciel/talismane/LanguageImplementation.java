@@ -27,11 +27,8 @@ import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.parser.TransitionSystem;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
-import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -106,19 +103,19 @@ public interface LanguageImplementation {
 	 * The default sentence model for this language.
 	 * @return
 	 */
-	public ClassificationModel<SentenceDetectorOutcome> getDefaultSentenceModel();
+	public ClassificationModel getDefaultSentenceModel();
 
 	/**
 	 * The default tokeniser model for this language.
 	 * @return
 	 */
-	public ClassificationModel<TokeniserOutcome> getDefaultTokeniserModel();
+	public ClassificationModel getDefaultTokeniserModel();
 
 	/**
 	 * The default pos-tagger model for this language.
 	 * @return
 	 */
-	public ClassificationModel<PosTag> getDefaultPosTaggerModel();
+	public ClassificationModel getDefaultPosTaggerModel();
 
 	/**
 	 * The default parser model for this language.

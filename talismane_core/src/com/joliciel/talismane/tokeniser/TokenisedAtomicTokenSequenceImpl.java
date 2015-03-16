@@ -34,10 +34,10 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	private Sentence sentence;
 	private TokeniserServiceInternal tokeniserServiceInternal;
 	private TokenSequence tokenSequence = null;
-	private List<Decision<TokeniserOutcome>> decisions = new ArrayList<Decision<TokeniserOutcome>>();
+	private List<Decision> decisions = new ArrayList<Decision>();
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	@SuppressWarnings("rawtypes")
-	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy<TokeniserOutcome>();
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	double score = 1.0;
 	boolean scoreCalculated = false;
 	
@@ -53,7 +53,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	TokenisedAtomicTokenSequenceImpl(
 			TokenisedAtomicTokenSequence history) {
 		super(history);
-		this.decisions = new ArrayList<Decision<TokeniserOutcome>>(history.getDecisions());
+		this.decisions = new ArrayList<Decision>(history.getDecisions());
 		this.sentence = history.getSentence();
 	}
 
@@ -146,7 +146,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 
 
 	@Override
-	public List<Decision<TokeniserOutcome>> getDecisions() {
+	public List<Decision> getDecisions() {
 		return decisions;
 	}
 
@@ -156,7 +156,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	}
 
 	@Override
-	public void addDecision(Decision<TokeniserOutcome> decision) {
+	public void addDecision(Decision decision) {
 		this.decisions.add(decision);
 	}
 

@@ -19,7 +19,6 @@
 package com.joliciel.talismane.machineLearning.linearsvm;
 
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * Trains a Linear SVM machine learning model for a given CorpusEventStream.
@@ -28,7 +27,7 @@ import com.joliciel.talismane.machineLearning.Outcome;
  * @author Assaf Urieli
  *
  */
-public interface LinearSVMModelTrainer<T extends Outcome> extends ClassificationModelTrainer<T> {
+public interface LinearSVMModelTrainer extends ClassificationModelTrainer {
 	/**
 	 * A parameter accepted by the linear SVM model trainer.
 	 * @author Assaf Urieli

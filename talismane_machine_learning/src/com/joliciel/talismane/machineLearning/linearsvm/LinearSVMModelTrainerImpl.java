@@ -45,9 +45,7 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationMultiModelTrainer;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
@@ -61,7 +59,7 @@ import de.bwaldvogel.liblinear.Parameter;
 import de.bwaldvogel.liblinear.Problem;
 import de.bwaldvogel.liblinear.SolverType;
 
-class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrainer<T>, ClassificationMultiModelTrainer<T> {
+class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, ClassificationMultiModelTrainer {
 	private static final Log LOG = LogFactory.getLog(LinearSVMModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LinearSVMModelTrainerImpl.class);
 	
@@ -76,18 +74,17 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	@Override
-	public ClassificationModel<T> trainModel(
+	public ClassificationModel trainModel(
 			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
+			List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		return this.trainModel(corpusEventStream, decisionFactory, descriptors);
+		return this.trainModel(corpusEventStream, descriptors);
 	}
 
 	@Override
-	public ClassificationModel<T> trainModel(
+	public ClassificationModel trainModel(
 			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory,
 			Map<String, List<String>> descriptors) {
 		MONITOR.startTask("trainModel");
 		try {
@@ -191,7 +188,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					}
 				}
 				
-				LinearSVMOneVsRestModel<T> linearSVMModel = new LinearSVMOneVsRestModel<T>(descriptors, decisionFactory, this.trainingParameters);
+				LinearSVMOneVsRestModel linearSVMModel = new LinearSVMOneVsRestModel(descriptors, this.trainingParameters);
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 				
 				linearSVMModel.setOutcomes(atomicOutcomes);
@@ -314,7 +311,7 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 					MONITOR.endTask();
 				}
 				
-				LinearSVMModel<T> linearSVMModel = new LinearSVMModel<T>(model, descriptors, decisionFactory, this.trainingParameters);
+				LinearSVMModel linearSVMModel = new LinearSVMModel(model, descriptors, this.trainingParameters);
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 								
 				linearSVMModel.setOutcomes(outcomes);
@@ -531,14 +528,13 @@ class LinearSVMModelTrainerImpl<T extends Outcome> implements LinearSVMModelTrai
 
 	@Override
 	public void trainModels(ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
+			List<String> featureDescriptors) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void trainModels(ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory,
 			Map<String, List<String>> descriptors) {
 		// TODO Auto-generated method stub
 		

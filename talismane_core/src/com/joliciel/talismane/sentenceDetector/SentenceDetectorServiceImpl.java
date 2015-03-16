@@ -25,7 +25,6 @@ import java.util.Set;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -52,7 +51,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 
 	@Override
 	public SentenceDetector getSentenceDetector(
-			DecisionMaker<SentenceDetectorOutcome> decisionMaker,
+			DecisionMaker decisionMaker,
 			Set<SentenceDetectorFeature<?>> features) {
 		SentenceDetectorImpl sentenceDetector = new SentenceDetectorImpl(decisionMaker, features);
 		sentenceDetector.setSentenceDetectorService(this);
@@ -63,7 +62,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 
 	@Override
 	public SentenceDetector getSentenceDetector(
-			ClassificationModel<SentenceDetectorOutcome> sentenceModel) {
+			ClassificationModel sentenceModel) {
 		Collection<ExternalResource<?>> externalResources = sentenceModel.getExternalResources();
 		if (externalResources!=null) {
 			for (ExternalResource<?> externalResource : externalResources) {
@@ -112,12 +111,6 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		eventStream.setMachineLearningService(machineLearningService);
 		eventStream.setFeatureService(featureService);
 		return eventStream;
-	}
-
-	@Override
-	public DecisionFactory<SentenceDetectorOutcome> getDecisionFactory() {
-		SentenceDetectorDecisionFactory factory = new SentenceDetectorDecisionFactory();
-		return factory;
 	}
 
 	public MachineLearningService getMachineLearningService() {

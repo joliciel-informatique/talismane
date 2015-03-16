@@ -26,7 +26,6 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
@@ -108,6 +107,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		SimpleTokeniser tokeniser = new SimpleTokeniser();
 		tokeniser.setTokeniserServiceInternal(this);
 		tokeniser.setFilterService(this.getFilterService());
+		tokeniser.setMachineLearningService(this.getMachineLearningService());
 		return tokeniser;
 	}
 	
@@ -120,8 +120,15 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	}
 
 	@Override
-	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision<T> decision) {
-		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision);
+	public TaggedToken<TokeniserOutcome> getTaggedToken(Token token,
+			Decision decision) {
+		TokeniserOutcome tokeniserOutcome = TokeniserOutcome.valueOf(decision.getOutcome());
+		return this.getTaggedToken(token, decision, tokeniserOutcome);
+	}
+
+	@Override
+	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision decision, T tag) {
+		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision, tag);
 		return taggedToken;
 	}
 
@@ -170,13 +177,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 			TokeniserPatternService tokeniserPatternService) {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
-
-	@Override
-	public DecisionFactory<TokeniserOutcome> getDecisionFactory() {
-		TokeniserDecisionFactory factory = new TokeniserDecisionFactory();
-		return factory;
-	}
-
 
 	@Override
 	public TokenRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
@@ -232,6 +232,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 			TokeniserPatternManager tokeniserPatternManager) {
 		TokenComparatorImpl tokenComparator = new TokenComparatorImpl(referenceCorpusReader, evaluationCorpusReader, tokeniserPatternManager);
 		tokenComparator.setTokeniserServiceInternal(this);
+		tokenComparator.setMachineLearningService(this.getMachineLearningService());
 		return tokenComparator;
 	}
 

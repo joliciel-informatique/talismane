@@ -18,16 +18,22 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.linearsvm;
 
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
+
 public class LinearSVMServiceLocator {
 	private static LinearSVMServiceLocator instance;
 	
 	private LinearSVMServiceImpl linearSVMService;
 	
-	private LinearSVMServiceLocator() { }
+	private MachineLearningServiceLocator machineLearningServiceLocator;
 	
-	public static LinearSVMServiceLocator getInstance() {
+	private LinearSVMServiceLocator(MachineLearningServiceLocator machineLearningServiceLocator) {
+		this.machineLearningServiceLocator = machineLearningServiceLocator;
+	}
+	
+	public static LinearSVMServiceLocator getInstance(MachineLearningServiceLocator machineLearningServiceLocator) {
 		if (instance==null) {
-			instance = new LinearSVMServiceLocator();
+			instance = new LinearSVMServiceLocator(machineLearningServiceLocator);
 		}
 		return instance;
 	}
@@ -35,6 +41,7 @@ public class LinearSVMServiceLocator {
 	public LinearSVMService getLinearSVMService() {
 		if (linearSVMService == null) {
 			linearSVMService = new LinearSVMServiceImpl();
+			linearSVMService.setMachineLearningService(this.machineLearningServiceLocator.getMachineLearningService());
 		}
 		return linearSVMService;
 	}

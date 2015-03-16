@@ -40,7 +40,6 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserDecisionFactory;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
@@ -76,7 +75,6 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 	private int currentIndex;
 
 	private TokeniserPatternManager tokeniserPatternManager = null;
-	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 	private TokenSequenceFilter tokenFilterWrapper = null;
 
 	public CompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
@@ -253,7 +251,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 			TokeniserOutcome outcome = TokeniserOutcome.JOIN;
 			if (tokenSplits.contains(token.getStartIndex()))
 				outcome = TokeniserOutcome.SEPARATE;
-			Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
+			Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
 			TaggedToken<TokeniserOutcome> taggedToken = this.getTokeniserService().getTaggedToken(token, decision);
 			taggedTokens.add(taggedToken);
 		}

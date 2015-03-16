@@ -44,7 +44,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 	private static final Log LOG = LogFactory.getLog(SentenceDetectorImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(SentenceDetectorImpl.class);
 
-	private DecisionMaker<SentenceDetectorOutcome> decisionMaker;
+	private DecisionMaker decisionMaker;
 	private Set<SentenceDetectorFeature<?>> features;
 	private List<TokenFilter> preTokeniserFilters = new ArrayList<TokenFilter>();
 	
@@ -52,7 +52,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	private FeatureService featureService;
 	
-	public SentenceDetectorImpl(DecisionMaker<SentenceDetectorOutcome> decisionMaker,
+	public SentenceDetectorImpl(DecisionMaker decisionMaker,
 			Set<SentenceDetectorFeature<?>> features) {
 		super();
 		this.decisionMaker = decisionMaker;
@@ -119,14 +119,15 @@ class SentenceDetectorImpl implements SentenceDetector {
 					}
 				}
 				
-				List<Decision<SentenceDetectorOutcome>> decisions = this.decisionMaker.decide(featureResults);
+				List<Decision> decisions = this.decisionMaker.decide(featureResults);
 				if (LOG.isTraceEnabled()) {
-					for (Decision<SentenceDetectorOutcome> decision : decisions) {
-						LOG.trace(decision.getCode() + ": " + decision.getProbability());
+					for (Decision decision : decisions) {
+						LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
 					}
 				}
 				
-				if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY)) {
+				
+				if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
 					guessedBoundaries.add(possibleBoundary - prevText.length());
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("Adding boundary: " + possibleBoundary);
@@ -140,7 +141,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 		}
 	}
 	
-	public DecisionMaker<SentenceDetectorOutcome> getDecisionMaker() {
+	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
 

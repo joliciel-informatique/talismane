@@ -24,28 +24,28 @@ import java.util.TreeSet;
 
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 import opennlp.model.MaxentModel;
 
-class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
+class OpenNLPDecisionMaker implements DecisionMaker {
 	private MaxentModel model;
-	private DecisionFactory<T> decisionFactory;
-	private transient ScoringStrategy<ClassificationSolution<T>> scoringStrategy = null;
-	
+	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
+
+	private MachineLearningService machineLearningService;
+
 	public OpenNLPDecisionMaker(MaxentModel model) {
 		super();
 		this.model = model;
 	}
 	
 	@Override
-	public List<Decision<T>> decide(List<FeatureResult<?>> featureResults) {
+	public List<Decision> decide(List<FeatureResult<?>> featureResults) {
 		List<String> contextList = new ArrayList<String>();
 		List<Float> weightList = new ArrayList<Float>();
 		OpenNLPDecisionMaker.prepareData(featureResults, contextList, weightList);
@@ -69,13 +69,13 @@ class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		for (i=0;i<probs.length;i++)
 			outcomes[i]=model.getOutcome(i);
 		
-		TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
+		TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
 		for (i = 0; i<probs.length; i++) {
-			Decision<T> decision = decisionFactory.createDecision(outcomes[i], probs[i]);
+			Decision decision = machineLearningService.createDecision(outcomes[i], probs[i]);
 			outcomeSet.add(decision);
 		}
 		
-		List<Decision<T>> decisions = new ArrayList<Decision<T>>(outcomeSet);
+		List<Decision> decisions = new ArrayList<Decision>(outcomeSet);
 
 		return decisions;
 	}
@@ -104,22 +104,22 @@ class OpenNLPDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 			}
 		}
 	}
-	
-	@Override
-	public DecisionFactory<T> getDecisionFactory() {
-		return this.decisionFactory;
-	}
 
 	@Override
-	public void setDecisionFactory(DecisionFactory<T> decisionFactory) {
-		this.decisionFactory = decisionFactory;
-	}
-	
-
-	@Override
-	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy() {
+	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
 		if (scoringStrategy==null)
-			scoringStrategy = new GeometricMeanScoringStrategy<T>();
+			scoringStrategy = new GeometricMeanScoringStrategy();
 		return scoringStrategy;
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

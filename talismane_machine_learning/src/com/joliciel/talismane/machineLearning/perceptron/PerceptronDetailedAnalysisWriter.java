@@ -35,7 +35,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.DoubleFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.WeightedOutcome;
@@ -45,12 +44,12 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-class PerceptronDetailedAnalysisWriter<T extends Outcome> implements ClassificationObserver<T> {
+class PerceptronDetailedAnalysisWriter implements ClassificationObserver {
     private static DecimalFormat decFormat;
 
     private Writer writer;
 	private PerceptronModelParameters modelParams;
-	private PerceptronDecisionMaker<T> decisionMaker;
+	private PerceptronDecisionMaker decisionMaker;
 
 
     static {
@@ -58,7 +57,7 @@ class PerceptronDetailedAnalysisWriter<T extends Outcome> implements Classificat
 	    decFormat.applyPattern("##0.0000");
     }
     
-	public PerceptronDetailedAnalysisWriter(PerceptronDecisionMaker<T> decisionMaker, File file) {
+	public PerceptronDetailedAnalysisWriter(PerceptronDecisionMaker decisionMaker, File file) {
 		this.decisionMaker = decisionMaker;
 		this.modelParams = decisionMaker.getModelParameters();
 		try {
@@ -71,7 +70,7 @@ class PerceptronDetailedAnalysisWriter<T extends Outcome> implements Classificat
 		this.initialise();
 	}
 	
-	public PerceptronDetailedAnalysisWriter(PerceptronDecisionMaker<T> decisionMaker, Writer outcomeFileWriter) {
+	public PerceptronDetailedAnalysisWriter(PerceptronDecisionMaker decisionMaker, Writer outcomeFileWriter) {
 		this.decisionMaker = decisionMaker;
 		this.modelParams = decisionMaker.getModelParameters();
 		this.writer = outcomeFileWriter;
@@ -87,7 +86,7 @@ class PerceptronDetailedAnalysisWriter<T extends Outcome> implements Classificat
 	 */
 	@Override
 	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
-			Collection<Decision<T>> decisions) {
+			Collection<Decision> decisions) {
 		try {
 			Map<String, Double> outcomeTotals = new TreeMap<String, Double>();
 			for (String outcome : modelParams.getOutcomes())
@@ -134,8 +133,8 @@ class PerceptronDetailedAnalysisWriter<T extends Outcome> implements Classificat
 			writer.append("\n");
 			
 			Map<String,Double> outcomeWeights = new TreeMap<String, Double>();
-			for (Decision<T> decision : decisions) {
-				outcomeWeights.put(decision.getCode(), decision.getProbability());
+			for (Decision decision : decisions) {
+				outcomeWeights.put(decision.getOutcome(), decision.getProbability());
 			}
 			
 			writer.append("### Outcome list:\n");

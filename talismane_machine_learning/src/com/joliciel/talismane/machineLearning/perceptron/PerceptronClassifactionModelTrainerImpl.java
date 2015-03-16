@@ -39,13 +39,12 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 
-class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements PerceptronClassificationModelTrainer<T> {
+class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificationModelTrainer {
 	private static final Log LOG = LogFactory.getLog(PerceptronClassifactionModelTrainerImpl.class);
 	private int iterations = 100;
 	private int cutoff = 0;
@@ -54,15 +53,16 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 	private double[][] totalFeatureWeights;
 	private PerceptronModelParameters params;
 	private File eventFile;
-	private PerceptronDecisionMaker<T> decisionMaker;
-	private DecisionFactory<T> decisionFactory;
+	private PerceptronDecisionMaker decisionMaker;
 	private Map<String, List<String>> descriptors;
 	private ClassificationEventStream corpusEventStream;
-	private PerceptronModelTrainerObserver<T> observer;
+	private PerceptronModelTrainerObserver observer;
 	private List<Integer> observationPoints;
 	private boolean averageAtIntervals = false;
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
+	private MachineLearningService machineLearningService;
+
 	public PerceptronClassifactionModelTrainerImpl() {
 	}
 	
@@ -109,7 +109,8 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 				}
 				PerceptronModelParameters cutoffParams = new PerceptronModelParameters();
 				int[] newIndexes = cutoffParams.initialise(params, cutoff);
-				decisionMaker = new PerceptronDecisionMaker<T>(cutoffParams, decisionFactory);
+				decisionMaker = new PerceptronDecisionMaker(cutoffParams);
+				decisionMaker.setMachineLearningService(this.getMachineLearningService());
 				scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(eventFile), "UTF-8")));
 
 				eventFile = File.createTempFile("eventsCutoff","txt");
@@ -208,7 +209,7 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 							classWeights[k] = totalClassWeights[k] / averagingCount;
 						}
 					}
-					ClassificationModel<T> model = this.getModel(cloneParams, i);
+					ClassificationModel model = this.getModel(cloneParams, i);
 					observer.onNextModel(model, i);
 					cloneParams = null;
 				}
@@ -347,22 +348,22 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 
 	@Override
 	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory, List<String> featureDescriptors,
-			PerceptronModelTrainerObserver<T> observer,
+			List<String> featureDescriptors,
+			PerceptronModelTrainerObserver observer,
 			List<Integer> observationPoints) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		this.trainModelsWithObserver(corpusEventStream, decisionFactory, descriptors, observer, observationPoints);
+		this.trainModelsWithObserver(corpusEventStream, descriptors, observer, observationPoints);
 	}
 	
 	@Override
 	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory, Map<String, List<String>> descriptors,
-			PerceptronModelTrainerObserver<T> observer,
+			Map<String, List<String>> descriptors,
+			PerceptronModelTrainerObserver observer,
 			List<Integer> observationPoints) {
 		params = new PerceptronModelParameters();
-		decisionMaker = new PerceptronDecisionMaker<T>(params, decisionFactory);
-		this.decisionFactory = decisionFactory;
+		decisionMaker = new PerceptronDecisionMaker(params);
+		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		this.descriptors = descriptors;
 		this.observer = observer;
 		this.observationPoints = observationPoints;
@@ -377,27 +378,26 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 	}
 	
 	@Override
-	public ClassificationModel<T> trainModel(
+	public ClassificationModel trainModel(
 			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
+			List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		return this.trainModel(corpusEventStream, decisionFactory, descriptors);
+		return this.trainModel(corpusEventStream, descriptors);
 	}
 
 	@Override
-	public ClassificationModel<T> trainModel(
+	public ClassificationModel trainModel(
 			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory,
 			Map<String, List<String>> descriptors) {
 		params = new PerceptronModelParameters();
-		decisionMaker = new PerceptronDecisionMaker<T>(params, decisionFactory);
-		this.decisionFactory = decisionFactory;
+		decisionMaker = new PerceptronDecisionMaker(params);
+		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		this.descriptors = descriptors;
 		this.corpusEventStream = corpusEventStream;
 		this.prepareData(corpusEventStream);
 		this.train();
-		ClassificationModel<T> model = this.getModel(params, this.getIterations());
+		ClassificationModel model = this.getModel(params, this.getIterations());
 
 		if (this.eventFile!=null)
 			this.eventFile.delete();
@@ -405,8 +405,8 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 		return model;		
 	}
 	
-	ClassificationModel<T> getModel(PerceptronModelParameters params, int iterations) {
-		PerceptronClassificationModel<T> model = new PerceptronClassificationModel<T>(params, descriptors, decisionFactory, this.trainingParameters);
+	ClassificationModel getModel(PerceptronModelParameters params, int iterations) {
+		PerceptronClassificationModel model = new PerceptronClassificationModel(params, descriptors, this.trainingParameters);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + iterations);
 		model.addModelAttribute("tolerance", "" + this.getTolerance());
@@ -446,4 +446,15 @@ class PerceptronClassifactionModelTrainerImpl<T extends Outcome> implements Perc
 			}
 		}
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

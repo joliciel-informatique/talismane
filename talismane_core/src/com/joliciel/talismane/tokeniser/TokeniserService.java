@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
@@ -68,7 +67,9 @@ public interface TokeniserService {
 			TokeniserAnnotatedCorpusReader evaluationCorpusReader,
 			TokeniserPatternManager tokeniserPatternManager);
 	
-	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision<T> decision);
+	public TaggedToken<TokeniserOutcome> getTaggedToken(Token token, Decision decision);
+	
+	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision decision, T tag);
 	
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(int initialCapacity);
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(TaggedTokenSequence<T> history);
@@ -79,8 +80,6 @@ public interface TokeniserService {
 	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
 			Sentence sentence,
 			int initialCapacity);
-	
-	public DecisionFactory<TokeniserOutcome> getDecisionFactory();
 	
 	/**
 	 * Returns a corpus reader based on the use of Regex.

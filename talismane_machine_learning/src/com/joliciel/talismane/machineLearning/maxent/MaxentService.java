@@ -19,7 +19,6 @@
 package com.joliciel.talismane.machineLearning.maxent;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * A service for retrieving implementations of the maxent package.
@@ -32,26 +31,26 @@ public interface MaxentService {
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> MaxentModelTrainer<T> getMaxentModelTrainer();
+	public MaxentModelTrainer getMaxentModelTrainer();
 	
 	/**
 	 * Get an "empty" maxent model.
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> ClassificationModel<T> getMaxentModel();
+	public ClassificationModel getMaxentModel();
 	
 	/**
 	 * Returns a perceptron model trainer.
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> OpenNLPPerceptronModelTrainer<T> getPerceptronModelTrainer();
+	public OpenNLPPerceptronModelTrainer getPerceptronModelTrainer();
 	
 	/**
 	 * Get an "empty" perceptron model.
 	 * @param <T>
 	 * @return
 	 */
-	public<T extends Outcome> ClassificationModel<T> getPerceptronModel();
+	public ClassificationModel getPerceptronModel();
 }

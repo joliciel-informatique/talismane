@@ -45,8 +45,8 @@ public class TaggedTokenSequenceImpl<T extends TokenTag> extends ArrayList<Tagge
 	}
 	
 	@Override
-	public TaggedToken<T> addTaggedToken(Token token, Decision<T> decision) {
-		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision);
+	public TaggedToken<T> addTaggedToken(Token token, Decision decision, T tag) {
+		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision, tag);
 		this.add(taggedToken);
 		return taggedToken;
 	}

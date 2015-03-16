@@ -19,7 +19,6 @@
 package com.joliciel.talismane.machineLearning.linearsvm;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * A service for retrieving implementations of the linear SVM package.
@@ -29,22 +28,22 @@ import com.joliciel.talismane.machineLearning.Outcome;
 public interface LinearSVMService {
 	/**
 	 * Returns a linear SVM model trainer.
-	 * @param <T>
+	 * @param 
 	 * @return
 	 */
-	public<T extends Outcome> LinearSVMModelTrainer<T> getLinearSVMModelTrainer();
+	public LinearSVMModelTrainer getLinearSVMModelTrainer();
 	
 	/**
 	 * Get an "empty" linear SVM model.
-	 * @param <T>
+	 * @param 
 	 * @return
 	 */
-	public<T extends Outcome> ClassificationModel<T> getLinearSVMModel();
+	public ClassificationModel getLinearSVMModel();
 	
 	/**
 	 * Get an "empty" linear SVM model.
-	 * @param <T>
+	 * @param 
 	 * @return
 	 */
-	public<T extends Outcome> ClassificationModel<T> getLinearSVMOneVsRestModel();
+	public ClassificationModel getLinearSVMOneVsRestModel();
 }

@@ -27,19 +27,16 @@ import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 
 public interface LanguageDetectorService {
-	public LanguageDetector getLanguageDetector(DecisionMaker<LanguageOutcome> decisionMaker,
+	public LanguageDetector getLanguageDetector(DecisionMaker decisionMaker,
 			Set<LanguageDetectorFeature<?>> features);
-	public LanguageDetector getLanguageDetector(ClassificationModel<LanguageOutcome> model);
+	public LanguageDetector getLanguageDetector(ClassificationModel model);
 
 	
 	public ClassificationEventStream getLanguageDetectorEventStream(LanguageDetectorAnnotatedCorpusReader corpusReader,
 			Set<LanguageDetectorFeature<?>> features);
-
-	public DecisionFactory<LanguageOutcome> getDecisionFactory();
 	
 	/**
 	 * A default reader which assumes one sentence per line.

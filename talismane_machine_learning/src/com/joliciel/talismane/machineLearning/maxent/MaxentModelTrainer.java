@@ -19,7 +19,6 @@
 package com.joliciel.talismane.machineLearning.maxent;
 
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * Trains a MaxEnt machine learning model for a given CorpusEventStream.<br/>
@@ -27,7 +26,7 @@ import com.joliciel.talismane.machineLearning.Outcome;
  * @author Assaf Urieli
  *
  */
-public interface MaxentModelTrainer<T extends Outcome> extends ClassificationModelTrainer<T> {
+public interface MaxentModelTrainer extends ClassificationModelTrainer {
 	/**
 	 * A parameter accepted by the maxent model trainer.
 	 * @author Assaf Urieli

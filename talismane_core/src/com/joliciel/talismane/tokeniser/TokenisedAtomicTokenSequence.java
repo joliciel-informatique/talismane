@@ -9,7 +9,7 @@ import com.joliciel.talismane.machineLearning.ClassificationSolution;
  * @author Assaf
  *
  */
-public interface TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserOutcome>, ClassificationSolution<TokeniserOutcome>, Comparable<TokenisedAtomicTokenSequence> {
+public interface TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserOutcome>, ClassificationSolution, Comparable<TokenisedAtomicTokenSequence> {
 	/**
 	 * Infer a token sequence based on the token decisions taken.
 	 */

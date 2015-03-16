@@ -102,6 +102,6 @@ public interface Tokeniser {
 	 */
 	public void addTokenFilter(TokenFilter filter);
 
-	public void addObserver(ClassificationObserver<TokeniserOutcome> observer);
+	public void addObserver(ClassificationObserver observer);
 
 }

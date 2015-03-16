@@ -34,5 +34,5 @@ public interface TaggedTokenSequence<T extends TokenTag> extends List<TaggedToke
 	 * @param decision the decision attached to this token
 	 * @return
 	 */
-	public TaggedToken<T> addTaggedToken(Token token, Decision<T> decision);
+	public TaggedToken<T> addTaggedToken(Token token, Decision decision, T tag);
 }

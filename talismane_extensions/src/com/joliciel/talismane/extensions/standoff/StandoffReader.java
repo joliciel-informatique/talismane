@@ -33,6 +33,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
@@ -65,6 +66,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private PosTaggerService posTaggerService;
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
+	private MachineLearningService machineLearningService;
 	
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
@@ -81,10 +83,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	
 	private List<List<StandoffToken>> sentences = new ArrayList<List<StandoffReader.StandoffToken>>();
 	
-	private TalismaneSession talismaneSession;
-	
 	public StandoffReader(TalismaneSession talismaneSession, Scanner scanner) {
-		this.talismaneSession = talismaneSession;
 		PosTagSet posTagSet = talismaneSession.getPosTagSet();
 		
 		Map<Integer,StandoffToken> sortedTokens = new TreeMap<Integer, StandoffReader.StandoffToken>();
@@ -173,13 +172,12 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 				PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
 				PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, tokenSequence.size());
 				Map<String,PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
-				PosTagSet posTagSet = talismaneSession.getPosTagSet();
 				
 				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
 				
 				for (StandoffToken standoffToken : tokens) {
 					Token token = tokenSequence.addToken(standoffToken.text);
-					Decision<PosTag> posTagDecision = posTagSet.createDefaultDecision(standoffToken.posTag);
+					Decision posTagDecision = machineLearningService.createDefaultDecision(standoffToken.posTag.getCode());
 					PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
 					if (LOG.isTraceEnabled()) {
 						LOG.trace(posTaggedToken.toString());
@@ -371,6 +369,15 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

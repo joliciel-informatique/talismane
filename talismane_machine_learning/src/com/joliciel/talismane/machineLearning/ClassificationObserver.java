@@ -29,10 +29,10 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
  * @author Assaf Urieli
  *
  */
-public interface ClassificationObserver<T extends Outcome> {
+public interface ClassificationObserver {
 
 	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
-			Collection<Decision<T>> outcomes);
+			Collection<Decision> outcomes);
 
 	public void onTerminate();
 

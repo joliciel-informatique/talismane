@@ -23,10 +23,8 @@ import java.util.Map;
 
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
-import com.joliciel.talismane.machineLearning.Outcome;
 
-public interface PerceptronClassificationModelTrainer<T extends Outcome> extends ClassificationModelTrainer<T> {
+public interface PerceptronClassificationModelTrainer extends ClassificationModelTrainer {
 	/**
 	 * A parameter accepted by the perceptron model trainer.
 	 * @author Assaf Urieli
@@ -54,9 +52,8 @@ public interface PerceptronClassificationModelTrainer<T extends Outcome> extends
 	public void setIterations(int iterations);
 	
 	
-	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory,
-			Map<String, List<String>> descriptors, PerceptronModelTrainerObserver<T> observer, List<Integer> observationPoints);
+	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors, PerceptronModelTrainerObserver observer, List<Integer> observationPoints);
 	
-	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory,
-			List<String> featureDescriptors, PerceptronModelTrainerObserver<T> observer, List<Integer> observationPoints);
+	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream,
+			List<String> featureDescriptors, PerceptronModelTrainerObserver observer, List<Integer> observationPoints);
 }
