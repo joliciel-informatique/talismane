@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
@@ -77,6 +78,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
+	private MachineLearningService machineLearningService;
 	
 	public PosTagRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
@@ -148,16 +150,15 @@ class PosTagRegexBasedCorpusReaderImpl implements
 						
 						posTagSequence = posTaggerServiceInternal.getPosTagSequence(tokenSequence, tokenSequence.size());
 						int i = 0;
-						PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
 	    				for (PosTag posTag : posTags) {
 	    					Token token = tokenSequence.get(i++);
 	    					if (tokenSequence.getTokensAdded().contains(token)) {
-	    						Decision<PosTag> nullDecision = posTagSet.createDefaultDecision(PosTag.NULL_POS_TAG);
+	    						Decision nullDecision = machineLearningService.createDefaultDecision(PosTag.NULL_POS_TAG.getCode());
 	    						PosTaggedToken emptyToken = posTaggerServiceInternal.getPosTaggedToken(token, nullDecision);
 	    						posTagSequence.addPosTaggedToken(emptyToken);
 	    						token = tokenSequence.get(i++);
 	    					}
-	    					Decision<PosTag> corpusDecision = posTagSet.createDefaultDecision(posTag);
+	    					Decision corpusDecision = machineLearningService.createDefaultDecision(posTag.getCode());
 	    					PosTaggedToken posTaggedToken = posTaggerServiceInternal.getPosTaggedToken(token, corpusDecision);
 	    					posTagSequence.addPosTaggedToken(posTaggedToken);
 	    				}
@@ -418,5 +419,12 @@ class PosTagRegexBasedCorpusReaderImpl implements
 		this.talismaneService = talismaneService;
 	}
 
-	
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
 }

@@ -42,7 +42,6 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserDecisionFactory;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
@@ -81,7 +80,6 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 	private TokenisedAtomicTokenSequence currentHistory = null;
 
 	private TokeniserPatternManager tokeniserPatternManager = null;
-	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 	private TokenSequenceFilter tokenFilterWrapper = null;
 
 	public IntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
@@ -232,7 +230,7 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 			TokeniserOutcome outcome = TokeniserOutcome.JOIN;
 			if (tokenSplits.contains(token.getStartIndex()))
 				outcome = TokeniserOutcome.SEPARATE;
-			Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
+			Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
 			TaggedToken<TokeniserOutcome> taggedToken = this.getTokeniserService().getTaggedToken(token, decision);
 			taggedTokens.add(taggedToken);
 		}

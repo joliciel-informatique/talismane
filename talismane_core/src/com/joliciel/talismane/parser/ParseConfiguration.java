@@ -35,7 +35,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * as well as the stack and buffer indicating the pos-tagged tokens already visited and not yet visited.
  * @author Assaf Urieli
  */
-public interface ParseConfiguration extends Comparable<ParseConfiguration>, ClassificationSolution<Transition>, RankingSolution, ParseConfigurationWrapper, HasFeatureCache {
+public interface ParseConfiguration extends Comparable<ParseConfiguration>, ClassificationSolution, RankingSolution, ParseConfigurationWrapper, HasFeatureCache {
 	/**
 	 * Get the PosTag Sequence on which this ParseSequence is based.
 	 * @return

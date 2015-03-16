@@ -36,41 +36,42 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.LogUtils;
 
-class PerceptronClassificationModel<T extends Outcome> extends AbstractClassificationModel<T> {
+class PerceptronClassificationModel extends AbstractClassificationModel {
 	private static final Log LOG = LogFactory.getLog(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
-	PerceptronDecisionMaker<T> decisionMaker;
+	PerceptronDecisionMaker decisionMaker;
 	private transient Set<String> outcomeNames = null;
+	
+	private MachineLearningService machineLearningService;
+
 	
 	PerceptronClassificationModel() { }
 	
 	public PerceptronClassificationModel(PerceptronModelParameters params,
 			Map<String, List<String>> descriptors,
-			DecisionFactory<T> decisionFactory,
 			Map<String,Object> trainingParameters) {
 		this.params = params;
-		this.setDecisionFactory(decisionFactory);
 		this.setDescriptors(descriptors);
 		this.setTrainingParameters(trainingParameters);
 	}
 
 	@Override
-	public DecisionMaker<T> getDecisionMaker() {
+	public DecisionMaker getDecisionMaker() {
 		if (decisionMaker==null) {
-			decisionMaker = new PerceptronDecisionMaker<T>(params, this.getDecisionFactory());
+			decisionMaker = new PerceptronDecisionMaker(params);
+			decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		}
 		return decisionMaker;
 	}
 
 	@Override
-	public ClassificationObserver<T> getDetailedAnalysisObserver(File file) {
-		return new PerceptronDetailedAnalysisWriter<T>(decisionMaker, file);
+	public ClassificationObserver getDetailedAnalysisObserver(File file) {
+		return new PerceptronDetailedAnalysisWriter(decisionMaker, file);
 	}
 
 	@Override
@@ -122,4 +123,15 @@ class PerceptronClassificationModel<T extends Outcome> extends AbstractClassific
 		}
 		return this.outcomeNames;
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

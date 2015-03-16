@@ -33,9 +33,4 @@ public enum TokeniserOutcome implements TokenTag {
 	 * The current interval separates the atomic tokens on either side.
 	 */
 	SEPARATE;
-	
-	@Override
-	public String getCode() {
-		return this.name();
-	}
 }

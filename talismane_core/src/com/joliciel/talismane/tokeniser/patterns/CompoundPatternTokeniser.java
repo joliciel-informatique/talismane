@@ -36,6 +36,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -43,7 +44,6 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserDecisionFactory;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -79,21 +79,21 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
-	private DecisionMaker<TokeniserOutcome> decisionMaker;
+	private DecisionMaker decisionMaker;
 	
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFeatureService tokenFeatureService;
 	private FilterService filterService;
 	private FeatureService featureService;
+	private MachineLearningService machineLearningService;
 	
 	private TokeniserPatternManager tokeniserPatternManager;
 	private int beamWidth;
 	private Set<TokenPatternMatchFeature<?>> features;
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	
-	private List<ClassificationObserver<TokeniserOutcome>> observers = new ArrayList<ClassificationObserver<TokeniserOutcome>>();
-	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
+	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
 	
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 
@@ -166,9 +166,9 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 			
 			// Assign each separator its default value
 			List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
-			List<Decision<TokeniserOutcome>> defaultDecisions = new ArrayList<Decision<TokeniserOutcome>>(defaultOutcomes.size());
+			List<Decision> defaultDecisions = new ArrayList<Decision>(defaultOutcomes.size());
 			for (TokeniserOutcome outcome : defaultOutcomes) {
-				Decision<TokeniserOutcome> tokeniserDecision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
+				Decision tokeniserDecision = this.machineLearningService.createDefaultDecision(outcome.name());
 				tokeniserDecision.addAuthority("_" + this.getClass().getSimpleName());
 				tokeniserDecision.addAuthority("_" + "DefaultDecision");
 				defaultDecisions.add(tokeniserDecision);
@@ -220,7 +220,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 				
 				// we want to create the n most likely token sequences
 				// the sequence has to correspond to a token pattern
-				Map<TokenPatternMatchSequence,List<Decision<TokeniserOutcome>>> matchSequenceDecisionMap = new HashMap<TokenPatternMatchSequence, List<Decision<TokeniserOutcome>>>();
+				Map<TokenPatternMatchSequence,List<Decision>> matchSequenceDecisionMap = new HashMap<TokenPatternMatchSequence, List<Decision>>();
 				
 				for (TokenPatternMatchSequence matchSequence : matchingSequences) {
 					TokenPatternMatch match = primaryMatchMap.get(matchSequence);
@@ -245,15 +245,15 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 						MONITOR.endTask();
 					}
 					
-					List<Decision<TokeniserOutcome>> decisions = null;
+					List<Decision> decisions = null;
 					MONITOR.startTask("make decision");
 					try {
 						decisions = this.decisionMaker.decide(tokenFeatureResults);
 						
-						for (ClassificationObserver<TokeniserOutcome> observer : this.observers)
+						for (ClassificationObserver observer : this.observers)
 							observer.onAnalyse(match.getToken(), tokenFeatureResults, decisions);
 						
-						for (Decision<TokeniserOutcome> decision: decisions) {
+						for (Decision decision: decisions) {
 							decision.addAuthority("_" + this.getClass().getSimpleName());
 							decision.addAuthority("_" + "Patterns");
 							decision.addAuthority(match.getPattern().getName());
@@ -282,7 +282,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 					
 					if (i==0) {
 						// first token is always "separate" from the outside world
-						Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.SEPARATE);
+						Decision decision = this.machineLearningService.createDefaultDecision(TokeniserOutcome.SEPARATE.name());
 						decision.addAuthority("_" + this.getClass().getSimpleName());
 						decision.addAuthority("_" + "DefaultDecision");
 						
@@ -332,7 +332,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 								// Pj: j1 x ... x ji x jj x sj+1 ... x sn
 								// Note of course that we're never likely to have more than two Ps here,
 								// but we need a solution for more just to be sure to be sure
-								TokeniserOutcome defaultOutcome = defaultDecisions.get(token.getIndexWithWhiteSpace()).getOutcome();
+								TokeniserOutcome defaultOutcome = TokeniserOutcome.valueOf(defaultDecisions.get(token.getIndexWithWhiteSpace()).getOutcome());
 								TokeniserOutcome otherOutcome = null;
 								if (defaultOutcome==TokeniserOutcome.SEPARATE)
 									otherOutcome = TokeniserOutcome.JOIN;
@@ -349,10 +349,10 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 								int prevEndIndex = -1;
 								for (TokenPatternMatchSequence matchSequence : matchSequences) {
 									int endIndex = matchSequence.getTokensToCheck().get(matchSequence.getTokensToCheck().size()-1).getEndIndex();
-									List<Decision<TokeniserOutcome>> decisions = matchSequenceDecisionMap.get(matchSequence);
-									for (Decision<TokeniserOutcome> decision : decisions) {
+									List<Decision> decisions = matchSequenceDecisionMap.get(matchSequence);
+									for (Decision decision : decisions) {
 										for (int k=0; k<decisionProbs.length; k++) {
-											if (decision.getOutcome()==defaultOutcome) {
+											if (decision.getOutcome().equals(defaultOutcome.name())) {
 												// e.g. separate in most cases
 												if (k<p && endIndex > prevEndIndex)
 													decisionProbs[k] *= decision.getProbability();
@@ -384,7 +384,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 								// Since this is the default decision for all tokens in the sequence, we don't add the other tokens for now,
 								// so as to allow them
 								// to get examined one at a time, just in case one of them starts its own separate sequence
-								Decision<TokeniserOutcome> defaultDecision = this.tokeniserDecisionFactory.createDecision(defaultOutcome.getCode(), decisionProbs[0]);
+								Decision defaultDecision = this.machineLearningService.createDecision(defaultOutcome.name(), decisionProbs[0]);
 								defaultDecision.addAuthority("_" + this.getClass().getSimpleName());
 								defaultDecision.addAuthority("_" + "Patterns");
 								for (TokenPatternMatchSequence matchSequence : matchSequences) {
@@ -401,7 +401,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 								for (int k=0; k<matchSequences.size(); k++) {
 									TokenPatternMatchSequence matchSequence = matchSequences.get(k);
 									double prob = decisionProbs[k+1];
-									Decision<TokeniserOutcome> decision = this.tokeniserDecisionFactory.createDecision(otherOutcome.getCode(), prob);
+									Decision decision = this.machineLearningService.createDecision(otherOutcome.name(), prob);
 									decision.addAuthority("_" + this.getClass().getSimpleName());
 									decision.addAuthority("_" + "Patterns");
 									decision.addAuthority(matchSequence.getTokenPattern().getName());
@@ -418,7 +418,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 										if (tokenInSequence.equals(token)) {
 											continue;
 										}
-										Decision<TokeniserOutcome> decisionInSequence = this.tokeniserDecisionFactory.createDefaultDecision(decision.getOutcome());
+										Decision decisionInSequence = this.machineLearningService.createDefaultDecision(decision.getOutcome());
 										decisionInSequence.addAuthority("_" + this.getClass().getSimpleName());
 										decisionInSequence.addAuthority("_" + "DecisionInSequence");
 										decisionInSequence.addAuthority("_" + "DecisionInSequence_non_default");
@@ -432,9 +432,9 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 								} // next sequence
 							} else {
 								// token doesn't start match sequence, and hasn't already been added to the current sequence
-								Decision<TokeniserOutcome> decision = defaultDecisions.get(i);
+								Decision decision = defaultDecisions.get(i);
 								if (matchedTokens.contains(token)) {
-									decision = this.tokeniserDecisionFactory.createDefaultDecision(decision.getOutcome());
+									decision = this.machineLearningService.createDefaultDecision(decision.getOutcome());
 									decision.addAuthority("_" + this.getClass().getSimpleName());
 									decision.addAuthority("_" + "DecisionInSequence");
 									decision.addAuthority("_" + "DecisionInSequence_default");
@@ -500,7 +500,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 		}
 	}
 	
-	TokenisedAtomicTokenSequence applyDecision(Token token, Decision<TokeniserOutcome> decision, TokenisedAtomicTokenSequence history, TokenPatternMatchSequence matchSequence, Decision<TokeniserOutcome> defaultDecision) {
+	TokenisedAtomicTokenSequence applyDecision(Token token, Decision decision, TokenisedAtomicTokenSequence history, TokenPatternMatchSequence matchSequence, Decision defaultDecision) {
 		TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
 
 		TokenisedAtomicTokenSequence tokenisedSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(history);
@@ -537,12 +537,12 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 	 * sub-sequences that need further testing.
 	 * @return
 	 */
-	public DecisionMaker<TokeniserOutcome> getDecisionMaker() {
+	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
 
 	public void setDecisionMaker(
-			DecisionMaker<TokeniserOutcome> decisionMaker) {
+			DecisionMaker decisionMaker) {
 		this.decisionMaker = decisionMaker;
 	}
 
@@ -597,7 +597,7 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 	}
 
 	@Override
-	public void addObserver(ClassificationObserver<TokeniserOutcome> observer) {
+	public void addObserver(ClassificationObserver observer) {
 		this.observers.add(observer);
 	}
 	
@@ -624,6 +624,15 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

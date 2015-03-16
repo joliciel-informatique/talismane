@@ -45,18 +45,20 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
 
 import de.bwaldvogel.liblinear.Model;
 
-class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationModel<T> {
+class LinearSVMOneVsRestModel extends AbstractClassificationModel {
 	private static final Log LOG = LogFactory.getLog(LinearSVMOneVsRestModel.class);
+
+	private MachineLearningService machineLearningService;
+	
 	private List<Model> models = new ArrayList<Model>();
 	private TObjectIntMap<String> featureIndexMap = null;
 	private List<String> outcomes = null;
@@ -74,11 +76,9 @@ class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationM
 	 */
 	LinearSVMOneVsRestModel(
 			Map<String,List<String>> descriptors,
-			DecisionFactory<T> decisionFactory,
 			Map<String,Object> trainingParameters) {
 		super();
 		this.setDescriptors(descriptors);
-		this.setDecisionFactory(decisionFactory);
 		this.setTrainingParameters(trainingParameters);
 	}
 	
@@ -87,14 +87,14 @@ class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationM
 	}
 	
 	@Override
-	public DecisionMaker<T> getDecisionMaker() {
-		LinearSVMOneVsRestDecisionMaker<T> decisionMaker = new LinearSVMOneVsRestDecisionMaker<T>(models, this.featureIndexMap, this.outcomes);
-		decisionMaker.setDecisionFactory(this.getDecisionFactory());
+	public DecisionMaker getDecisionMaker() {
+		LinearSVMOneVsRestDecisionMaker decisionMaker = new LinearSVMOneVsRestDecisionMaker(models, this.featureIndexMap, this.outcomes);
+		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		return decisionMaker;
 	}
 
 	@Override
-	public ClassificationObserver<T> getDetailedAnalysisObserver(File file) {
+	public ClassificationObserver getDetailedAnalysisObserver(File file) {
 		throw new JolicielException("No detailed analysis observer currently available for linear SVM.");
 	}
 
@@ -239,6 +239,15 @@ class LinearSVMOneVsRestModel<T extends Outcome> extends AbstractClassificationM
 
 	public List<Model> getModels() {
 		return models;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

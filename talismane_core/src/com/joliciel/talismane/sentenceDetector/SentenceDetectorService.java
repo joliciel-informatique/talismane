@@ -23,15 +23,14 @@ import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 
 public interface SentenceDetectorService {
 	
-	public SentenceDetector getSentenceDetector(DecisionMaker<SentenceDetectorOutcome> decisionMaker,
+	public SentenceDetector getSentenceDetector(DecisionMaker decisionMaker,
 			Set<SentenceDetectorFeature<?>> features);
-	public SentenceDetector getSentenceDetector(ClassificationModel<SentenceDetectorOutcome> model);
+	public SentenceDetector getSentenceDetector(ClassificationModel model);
 	
 	public SentenceDetectorEvaluator getEvaluator(SentenceDetector sentenceDetector);
 	
@@ -39,8 +38,6 @@ public interface SentenceDetectorService {
 	
 	public ClassificationEventStream getSentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader,
 			Set<SentenceDetectorFeature<?>> features);
-
-	public DecisionFactory<SentenceDetectorOutcome> getDecisionFactory();
 	
 	/**
 	 * A default reader which assumes one sentence per line.

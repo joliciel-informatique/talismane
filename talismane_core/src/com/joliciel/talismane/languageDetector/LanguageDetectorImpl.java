@@ -39,13 +39,13 @@ class LanguageDetectorImpl implements LanguageDetector {
 	private static final Log LOG = LogFactory.getLog(LanguageDetectorImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LanguageDetectorImpl.class);
 
-	private DecisionMaker<LanguageOutcome> decisionMaker;
+	private DecisionMaker decisionMaker;
 	private Set<LanguageDetectorFeature<?>> features;
 	
 	private LanguageDetectorService languageDetectorService;
 	private FeatureService featureService;
 	
-	public LanguageDetectorImpl(DecisionMaker<LanguageOutcome> decisionMaker,
+	public LanguageDetectorImpl(DecisionMaker decisionMaker,
 			Set<LanguageDetectorFeature<?>> features) {
 		super();
 		this.decisionMaker = decisionMaker;
@@ -77,16 +77,16 @@ class LanguageDetectorImpl implements LanguageDetector {
 				}
 			}
 			
-			List<Decision<LanguageOutcome>> decisions = this.decisionMaker.decide(featureResults);
+			List<Decision> decisions = this.decisionMaker.decide(featureResults);
 			if (LOG.isTraceEnabled()) {
-				for (Decision<LanguageOutcome> decision : decisions) {
-					LOG.trace(decision.getCode() + ": " + decision.getProbability());
+				for (Decision decision : decisions) {
+					LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
 				}
 			}
 			
 			List<WeightedOutcome<Locale>> results = new ArrayList<WeightedOutcome<Locale>>();
-			for (Decision<LanguageOutcome> decision : decisions) {
-				Locale locale = Locale.forLanguageTag(decision.getOutcome().getCode());
+			for (Decision decision : decisions) {
+				Locale locale = Locale.forLanguageTag(decision.getOutcome());
 				results.add(new WeightedOutcome<Locale>(locale, decision.getProbability()));
 			}
 			
@@ -96,7 +96,7 @@ class LanguageDetectorImpl implements LanguageDetector {
 		}
 	}
 	
-	public DecisionMaker<LanguageOutcome> getDecisionMaker() {
+	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
 

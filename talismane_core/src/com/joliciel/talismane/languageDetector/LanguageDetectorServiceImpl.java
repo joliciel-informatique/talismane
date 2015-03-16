@@ -30,7 +30,6 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
@@ -58,12 +57,6 @@ public class LanguageDetectorServiceImpl implements LanguageDetectorService {
 		eventStream.setMachineLearningService(machineLearningService);
 		eventStream.setFeatureService(featureService);
 		return eventStream;
-	}
-
-	@Override
-	public DecisionFactory<LanguageOutcome> getDecisionFactory() {
-		LanguageDetectorDecisionFactory factory = new LanguageDetectorDecisionFactory();
-		return factory;
 	}
 
 	public MachineLearningService getMachineLearningService() {
@@ -116,7 +109,7 @@ public class LanguageDetectorServiceImpl implements LanguageDetectorService {
 
 	@Override
 	public LanguageDetector getLanguageDetector(
-			DecisionMaker<LanguageOutcome> decisionMaker,
+			DecisionMaker decisionMaker,
 			Set<LanguageDetectorFeature<?>> features) {
 		LanguageDetectorImpl languageDetector = new LanguageDetectorImpl(decisionMaker, features);
 		languageDetector.setLanguageDetectorService(this);
@@ -126,7 +119,7 @@ public class LanguageDetectorServiceImpl implements LanguageDetectorService {
 
 	@Override
 	public LanguageDetector getLanguageDetector(
-			ClassificationModel<LanguageOutcome> languageModel) {
+			ClassificationModel languageModel) {
 		Set<LanguageDetectorFeature<?>> languageDetectorFeatures =
 			this.getFeatureSet(languageModel.getFeatureDescriptors());
 		LanguageDetector languageDetector = this.getLanguageDetector(languageModel.getDecisionMaker(), languageDetectorFeatures);

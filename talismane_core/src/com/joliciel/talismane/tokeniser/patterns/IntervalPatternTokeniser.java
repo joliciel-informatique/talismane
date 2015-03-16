@@ -34,6 +34,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -41,7 +42,6 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserDecisionFactory;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
@@ -77,23 +77,23 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
-	private DecisionMaker<TokeniserOutcome> decisionMaker;
+	private DecisionMaker decisionMaker;
 	
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFeatureService tokenFeatureService;
 	private FilterService filterService;
 	private FeatureService featureService;
+	private MachineLearningService machineLearningService;
 	
 	private TokeniserPatternManager tokeniserPatternManager;
 	private int beamWidth;
 	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	
-	private List<ClassificationObserver<TokeniserOutcome>> observers = new ArrayList<ClassificationObserver<TokeniserOutcome>>();
+	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
 	
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
 
 	/**
 	 * Reads separator defaults and test patterns from the default file for this locale.
@@ -164,9 +164,9 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 			
 			// Assign each separator its default value
 			List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
-			List<Decision<TokeniserOutcome>> defaultDecisions = new ArrayList<Decision<TokeniserOutcome>>(defaultOutcomes.size());
+			List<Decision> defaultDecisions = new ArrayList<Decision>(defaultOutcomes.size());
 			for (TokeniserOutcome outcome : defaultOutcomes) {
-				Decision<TokeniserOutcome> tokeniserDecision = this.tokeniserDecisionFactory.createDefaultDecision(outcome);
+				Decision tokeniserDecision = this.machineLearningService.createDefaultDecision(outcome.name());
 				tokeniserDecision.addAuthority("_" + this.getClass().getSimpleName());
 				tokeniserDecision.addAuthority("_" + "DefaultDecision");
 				defaultDecisions.add(tokeniserDecision);
@@ -219,7 +219,7 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 						TokenisedAtomicTokenSequence history = previousHeap.poll();
 						
 						// Find the separating & non-separating decisions
-						List<Decision<TokeniserOutcome>> decisions = null;
+						List<Decision> decisions = null;
 						if (tokensToCheck.contains(token)) {
 							// test the features on the current token
 							TokeniserContext context = new TokeniserContext(token, history);
@@ -247,10 +247,10 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 							try {
 								decisions = this.decisionMaker.decide(tokenFeatureResults);
 								
-								for (ClassificationObserver<TokeniserOutcome> observer : this.observers)
+								for (ClassificationObserver observer : this.observers)
 									observer.onAnalyse(token, tokenFeatureResults, decisions);
 								
-								for (Decision<TokeniserOutcome> decision: decisions) {
+								for (Decision decision: decisions) {
 									decision.addAuthority(this.getClass().getSimpleName());
 									for (TokenPatternMatch tokenMatch : token.getMatches()) {
 										decision.addAuthority(tokenMatch.getPattern().toString());
@@ -260,13 +260,13 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 								MONITOR.endTask();
 							}
 						} else {
-							decisions = new ArrayList<Decision<TokeniserOutcome>>();
+							decisions = new ArrayList<Decision>();
 							decisions.add(defaultDecisions.get(i));
 						}
 	
 						MONITOR.startTask("heap sort");
 						try {
-							for (Decision<TokeniserOutcome> decision : decisions) {
+							for (Decision decision : decisions) {
 								TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, decision);
 
 								TokenisedAtomicTokenSequence tokenisedSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(history);
@@ -344,12 +344,12 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 	 * sub-sequences that need further testing.
 	 * @return
 	 */
-	public DecisionMaker<TokeniserOutcome> getDecisionMaker() {
+	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
 
 	public void setDecisionMaker(
-			DecisionMaker<TokeniserOutcome> decisionMaker) {
+			DecisionMaker decisionMaker) {
 		this.decisionMaker = decisionMaker;
 	}
 
@@ -404,7 +404,7 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 	}
 
 	@Override
-	public void addObserver(ClassificationObserver<TokeniserOutcome> observer) {
+	public void addObserver(ClassificationObserver observer) {
 		this.observers.add(observer);
 	}
 	
@@ -431,6 +431,15 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

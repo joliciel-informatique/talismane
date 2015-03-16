@@ -22,10 +22,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-class DecisionImpl<T extends Outcome> implements Decision<T> {
+class DecisionImpl implements Decision {
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
-	private T outcome;
-	private String code;
+	private String outcome;
 	private double score;
 	private double probability;
 	private double probabilityLog;
@@ -33,37 +32,28 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 	private List<String> authorities = new ArrayList<String>();
 	private boolean statistical = true;
 	
-	public DecisionImpl(String code, double probability) {
-		this.code = code;
+	public DecisionImpl(String outcome, double probability) {
+		this.outcome = outcome;
 		this.probability = probability;
 		this.statistical = true;
 	}
 	
-	public DecisionImpl(T outcome) {
+	public DecisionImpl(String outcome) {
 		this.outcome = outcome;
-		this.code = outcome.getCode();
 		this.probability = 1.0;
 		this.statistical = false;
 	}
 	
-	public String getCode() {
-		return code;
-	}
-
 	public void setProbability(double value) {
 		this.probability = value;
 		this.probabilityLogCalculated = false;
 	}
 
-	/**
-	 * Convert the name to an outcome of type T.
-	 * @return
-	 */
-	public T getOutcome() {
+	public String getOutcome() {
 		return outcome;
 	}
 
-	void setOutcome(T outcome) {
+	void setOutcome(String outcome) {
 		this.outcome = outcome;
 	}
 
@@ -89,13 +79,13 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 
 
 	@Override
-	public int compareTo(Decision<T> o) {
+	public int compareTo(Decision o) {
 		if (this.getProbability()<o.getProbability()) {
 			return 1;
 		} else if (this.getProbability()>o.getProbability()) {
 			return -1;
 		} else {
-			int nameCompare = this.getCode().compareTo(o.getCode().toString());
+			int nameCompare = this.getOutcome().compareTo(o.getOutcome());
 			if (nameCompare!=0) return nameCompare;
 			return this.hashCode()-o.hashCode();
 		}
@@ -121,7 +111,7 @@ class DecisionImpl<T extends Outcome> implements Decision<T> {
 
 	@Override
 	public String toString() {
-		return "Decision [" + code
+		return "Decision [" + outcome
 				+ "," + df.format(probability) + "]";
 	}
 	

@@ -28,9 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -45,7 +43,7 @@ import opennlp.model.TwoPassRealValueDataIndexer;
  * @author Assaf Urieli
  *
  */
-class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T> {
+class MaxentModelTrainerImpl implements MaxentModelTrainer {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(MaxentModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(MaxentModelTrainerImpl.class);
@@ -58,18 +56,16 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
 	@Override
-	public ClassificationModel<T> trainModel(
-			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory, List<String> featureDescriptors) {
+	public ClassificationModel trainModel(
+			ClassificationEventStream corpusEventStream, List<String> featureDescriptors) {
 		Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		return this.trainModel(corpusEventStream, decisionFactory, descriptors);
+		return this.trainModel(corpusEventStream, descriptors);
 	}
 
 	@Override
-	public ClassificationModel<T> trainModel(
+	public ClassificationModel trainModel(
 			ClassificationEventStream corpusEventStream,
-			DecisionFactory<T> decisionFactory,
 			Map<String,List<String>> descriptors) {
 		MaxentModel maxentModel = null;
 		EventStream eventStream = new OpenNLPEventStream(corpusEventStream);
@@ -91,7 +87,7 @@ class MaxentModelTrainerImpl<T extends Outcome> implements MaxentModelTrainer<T>
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		MaximumEntropyModel<T> model = new MaximumEntropyModel<T>(maxentModel, descriptors, decisionFactory, this.trainingParameters);
+		MaximumEntropyModel model = new MaximumEntropyModel(maxentModel, descriptors, this.trainingParameters);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + this.getIterations());
 		model.addModelAttribute("sigma", "" + this.getSigma());

@@ -214,7 +214,7 @@ public class TalismaneServiceLocator {
 
 	public MaxentServiceLocator getMaxentServiceLocator() {
 		if (this.maxentServiceLocator==null)
-			this.maxentServiceLocator = MaxentServiceLocator.getInstance();
+			this.maxentServiceLocator = MaxentServiceLocator.getInstance(this.getMachineLearningServiceLocator());
 		return maxentServiceLocator;
 	}
 

@@ -32,6 +32,7 @@ import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -49,7 +50,7 @@ class SimpleTokeniser implements Tokeniser {
 	
 	private TokeniserServiceInternal tokeniserService;
 	private FilterService filterService;
-	private TokeniserDecisionFactory tokeniserDecisionFactory = new TokeniserDecisionFactory();
+	private MachineLearningService machineLearningService;
 	
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	
@@ -116,7 +117,7 @@ class SimpleTokeniser implements Tokeniser {
 			sequences = new ArrayList<TokenisedAtomicTokenSequence>();
 			TokenisedAtomicTokenSequence defaultSequence = tokeniserService.getTokenisedAtomicTokenSequence(sentence, 0);
 			for (Token token : tokenSequence.listWithWhiteSpace()) {
-				Decision<TokeniserOutcome> tokeniserDecision = this.tokeniserDecisionFactory.createDefaultDecision(TokeniserOutcome.SEPARATE);
+				Decision tokeniserDecision = this.machineLearningService.createDefaultDecision(TokeniserOutcome.SEPARATE.name());
 				TaggedToken<TokeniserOutcome> taggedToken = this.tokeniserService.getTaggedToken(token, tokeniserDecision);
 				defaultSequence.add(taggedToken);
 			}
@@ -174,7 +175,7 @@ class SimpleTokeniser implements Tokeniser {
 		this.tokenSequenceFilters.add(tokenSequenceFilter);
 	}
 	
-	public void addObserver(ClassificationObserver<TokeniserOutcome> observer) {
+	public void addObserver(ClassificationObserver observer) {
 		// nothing to do here
 	}
 	
@@ -192,6 +193,15 @@ class SimpleTokeniser implements Tokeniser {
 
 	public void setFilterService(FilterService filterService) {
 		this.filterService = filterService;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

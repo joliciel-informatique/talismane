@@ -19,14 +19,17 @@
 package com.joliciel.frenchTreebank.export;
 
 import com.joliciel.frenchTreebank.TreebankServiceLocator;
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 
 public class TreebankExportServiceLocator {
 	private TreebankExportServiceImpl treebankUploadService;
 	private TreebankServiceLocator treebankServiceLocator;
+	private MachineLearningServiceLocator machineLearningServiceLocator;
 
     
 	public TreebankExportServiceLocator(TreebankServiceLocator treebankServiceLocator) {
 		this.treebankServiceLocator = treebankServiceLocator;
+		this.machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 	}
 
 
@@ -39,6 +42,7 @@ public class TreebankExportServiceLocator {
 			treebankUploadService.setFilterService(treebankServiceLocator.getFilterService());
 			treebankUploadService.setTokenFilterService(treebankServiceLocator.getTokenFilterService());
 			treebankUploadService.setTalismaneService(treebankServiceLocator.getTalismaneService());
+			treebankUploadService.setMachineLearningService(machineLearningServiceLocator.getMachineLearningService());
 		}
 		return treebankUploadService;
 	}  

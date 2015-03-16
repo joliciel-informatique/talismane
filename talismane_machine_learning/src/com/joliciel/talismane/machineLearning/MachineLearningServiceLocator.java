@@ -39,9 +39,9 @@ public class MachineLearningServiceLocator {
 	public MachineLearningService getMachineLearningService() {
 		if (machineLearningService == null) {
 			machineLearningService = new MachineLearningServiceImpl();
-			machineLearningService.setMaxentService(MaxentServiceLocator.getInstance().getMaxentService());
-			machineLearningService.setLinearSVMService(LinearSVMServiceLocator.getInstance().getLinearSVMService());
-			machineLearningService.setPerceptronService(PerceptronServiceLocator.getInstance().getPerceptronService());
+			machineLearningService.setMaxentService(MaxentServiceLocator.getInstance(this).getMaxentService());
+			machineLearningService.setLinearSVMService(LinearSVMServiceLocator.getInstance(this).getLinearSVMService());
+			machineLearningService.setPerceptronService(PerceptronServiceLocator.getInstance(this).getPerceptronService());
 		}
 		return machineLearningService;
 	}

@@ -19,24 +19,28 @@
 package com.joliciel.talismane.machineLearning.perceptron;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.RankingModel;
 
 class PerceptronServiceImpl implements PerceptronService {
+	private MachineLearningService machineLearningService;
+	
 	@Override
-	public <T extends Outcome> PerceptronClassificationModelTrainer<T> getPerceptronModelTrainer() {
-		PerceptronClassifactionModelTrainerImpl<T> trainer = new PerceptronClassifactionModelTrainerImpl<T>();
+	public  PerceptronClassificationModelTrainer getPerceptronModelTrainer() {
+		PerceptronClassifactionModelTrainerImpl trainer = new PerceptronClassifactionModelTrainerImpl();
+		trainer.setMachineLearningService(this.getMachineLearningService());
 		return trainer;
 	}
 
 	@Override
-	public <T extends Outcome> ClassificationModel<T> getPerceptronModel() {
-		PerceptronClassificationModel<T> model = new PerceptronClassificationModel<T>();
+	public  ClassificationModel getPerceptronModel() {
+		PerceptronClassificationModel model = new PerceptronClassificationModel();
+		model.setMachineLearningService(this.getMachineLearningService());
 		return model;
 	}
 
 	@Override
-	public <T> PerceptronRankingModelTrainer<T> getPerceptronRankingModelTrainer() {
+	public<T> PerceptronRankingModelTrainer<T> getPerceptronRankingModelTrainer() {
 		PerceptronRankingModelTrainerImpl<T> trainer = new PerceptronRankingModelTrainerImpl<T>();
 		return trainer;
 	}
@@ -46,4 +50,15 @@ class PerceptronServiceImpl implements PerceptronService {
 		PerceptronRankingModel model = new PerceptronRankingModel();
 		return model;
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

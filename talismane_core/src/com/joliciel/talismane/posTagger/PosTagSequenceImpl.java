@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.tokeniser.Token;
@@ -21,13 +22,14 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	private double score = 0.0;
 	private boolean scoreCalculated = false;
 	private String string = null;
-	private List<Decision<PosTag>> decisions = new ArrayList<Decision<PosTag>>();
+	private List<Decision> decisions = new ArrayList<Decision>();
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	@SuppressWarnings("rawtypes")
-	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy<PosTag>();
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TalismaneService talismaneService;
+	private MachineLearningService machineLearningService;
 	
 	PosTagSequenceImpl(TokenSequence tokenSequence) {
 		super();
@@ -43,7 +45,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 		super(history.size()+1);
 		for (PosTaggedToken posTaggedToken : history)
 			this.addPosTaggedToken(posTaggedToken);
-		this.decisions = new ArrayList<Decision<PosTag>>(history.getDecisions());
+		this.decisions = new ArrayList<Decision>(history.getDecisions());
 		this.setTokenSequence(history.getTokenSequence());
 	}
 	
@@ -57,7 +59,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 			newPosTaggedToken.setToken(this.getTokenSequence().get(i++));
 			this.add(newPosTaggedToken);
 		}
-		this.decisions = new ArrayList<Decision<PosTag>>(clone.getDecisions());
+		this.decisions = new ArrayList<Decision>(clone.getDecisions());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,8 +121,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 			tokenSequence.setWithRoot(true);
 			tokenSequence.finalise();
 			
-			PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
-			Decision<PosTag> rootDecision = posTagSet.createDefaultDecision(PosTag.ROOT_POS_TAG);
+			Decision rootDecision = machineLearningService.createDefaultDecision(PosTag.ROOT_POS_TAG.getCode());
 			rootToken = this.posTaggerServiceInternal.getPosTaggedToken(emptyToken, rootDecision);
 			this.add(0, rootToken);
 			rootToken.setPosTagSequence(this);
@@ -157,7 +158,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	}
 
 	@Override
-	public List<Decision<PosTag>> getDecisions() {
+	public List<Decision> getDecisions() {
 		return this.decisions;
 	}
 
@@ -167,7 +168,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	}
 
 	@Override
-	public void addDecision(Decision<PosTag> decision) {
+	public void addDecision(Decision decision) {
 		this.decisions.add(decision);
 	}
 
@@ -251,6 +252,15 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	

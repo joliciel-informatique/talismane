@@ -18,9 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import com.joliciel.talismane.machineLearning.Outcome;
 
-public enum SentenceDetectorOutcome implements Outcome {
+public enum SentenceDetectorOutcome {
 	/**
 	 * The current symbol represents the end of a sentence.
 	 */
@@ -30,11 +29,6 @@ public enum SentenceDetectorOutcome implements Outcome {
 	 * The current symbol does not represent the end of a sentence.
 	 */
 	IS_NOT_BOUNDARY;
-
-	@Override
-	public String getCode() {
-		return this.name();
-	}
 	
 	
 }

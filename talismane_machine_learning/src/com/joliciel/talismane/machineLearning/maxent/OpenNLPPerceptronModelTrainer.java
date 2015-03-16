@@ -19,7 +19,6 @@
 package com.joliciel.talismane.machineLearning.maxent;
 
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.Outcome;
 
 /**
  * Trains a Perceptron machine learning model for a given CorpusEventStream, as described in:<br/>
@@ -29,7 +28,7 @@ import com.joliciel.talismane.machineLearning.Outcome;
  * @author Assaf Urieli
  *
  */
-public interface OpenNLPPerceptronModelTrainer<T extends Outcome> extends ClassificationModelTrainer<T> {
+public interface OpenNLPPerceptronModelTrainer extends ClassificationModelTrainer {
 	/**
 	 * A parameter accepted by the perceptron model trainer.
 	 * @author Assaf Urieli

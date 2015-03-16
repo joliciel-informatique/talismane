@@ -36,7 +36,6 @@ import java.util.ArrayList;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.features.DoubleFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.WeightedOutcome;
@@ -50,7 +49,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-class MaxentDetailedAnalysisWriter<T extends Outcome> implements ClassificationObserver<T> {
+class MaxentDetailedAnalysisWriter implements ClassificationObserver {
     private static DecimalFormat decFormat;
 
     private Writer writer;
@@ -102,7 +101,7 @@ class MaxentDetailedAnalysisWriter<T extends Outcome> implements ClassificationO
 	 */
 	@Override
 	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
-			Collection<Decision<T>> outcomes) {
+			Collection<Decision> outcomes) {
 		try {
 			Map<String, Double> outcomeTotals = new TreeMap<String, Double>();
 			double uniformPrior = Math.log(1 / (double) outcomeList.size());
@@ -152,8 +151,8 @@ class MaxentDetailedAnalysisWriter<T extends Outcome> implements ClassificationO
 			writer.append("\n");
 			
 			Map<String,Double> outcomeWeights = new TreeMap<String, Double>();
-			for (@SuppressWarnings("rawtypes") Decision decision : outcomes) {
-				outcomeWeights.put(decision.getCode(), decision.getProbability());
+			for (Decision decision : outcomes) {
+				outcomeWeights.put(decision.getOutcome(), decision.getProbability());
 			}
 			
 			writer.append("### Outcome list:\n");

@@ -52,7 +52,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTagger getPosTagger(
 			Set<PosTaggerFeature<?>> posTaggerFeatures,
-			DecisionMaker<PosTag> decisionMaker,
+			DecisionMaker decisionMaker,
 			int beamWidth) {
 		PosTaggerImpl posTagger = new PosTaggerImpl(posTaggerFeatures, decisionMaker, beamWidth);
 		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
@@ -60,11 +60,12 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagger.setPosTaggerService(this);
 		posTagger.setFeatureService(this.featureService);
 		posTagger.setTalismaneService(this.getTalismaneService());
+		posTagger.setMachineLearningService(this.getMachineLearningService());
 		
 		return posTagger;
 	}
 	
-	public PosTagger getPosTagger(ClassificationModel<PosTag> posTaggerModel,
+	public PosTagger getPosTagger(ClassificationModel posTaggerModel,
 			int beamWidth) {
 		Collection<ExternalResource<?>> externalResources = posTaggerModel.getExternalResources();
 		if (externalResources!=null) {
@@ -90,6 +91,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(history);
 		posTagSequence.setPosTaggerServiceInternal(this);
 		posTagSequence.setTalismaneService(this.getTalismaneService());
+		posTagSequence.setMachineLearningService(this.getMachineLearningService());
 		return posTagSequence;
 	}
 
@@ -99,13 +101,16 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(tokenSequence, initialCapacity);
 		posTagSequence.setPosTaggerServiceInternal(this);
 		posTagSequence.setTalismaneService(this.getTalismaneService());
+		posTagSequence.setMachineLearningService(this.getMachineLearningService());
 		return posTagSequence;
 
 	}
 
 	@Override
-	public PosTaggedToken getPosTaggedToken(Token token, Decision<PosTag> decision) {
-		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, decision);
+	public PosTaggedToken getPosTaggedToken(Token token, Decision decision) {
+		PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
+		
+		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, decision, posTagSet.getPosTag(decision.getOutcome()));
 		posTaggedToken.setTalismaneService(this.getTalismaneService());
 		return posTaggedToken;
 	}
@@ -183,6 +188,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
+		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
 	}
 

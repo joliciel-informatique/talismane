@@ -43,14 +43,13 @@ import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.languageDetector.LanguageDetector;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
-import com.joliciel.talismane.languageDetector.LanguageOutcome;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.machineLearning.Ranker;
 import com.joliciel.talismane.machineLearning.RankingEventStream;
 import com.joliciel.talismane.machineLearning.RankingModelTrainer;
@@ -66,23 +65,19 @@ import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParsingConstrainer;
-import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagComparator;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorOutcome;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
-import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
@@ -118,8 +113,6 @@ class TalismaneImpl implements Talismane {
 	private FilterService filterService;
 	private MachineLearningService machineLearningService;
 	private LanguageDetectorService languageDetectorService;
-	
-	private TalismaneSession talismaneSession;
 	
 	private boolean stopOnError = true;
 
@@ -338,10 +331,9 @@ class TalismaneImpl implements Talismane {
 						File modelDir = modelFile.getParentFile();
 						modelDir.mkdirs();
 						
-						ClassificationModelTrainer<LanguageOutcome> trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
+						ClassificationModelTrainer trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
 						
-						DecisionFactory<LanguageOutcome> decisionFactory = this.getLanguageDetectorService().getDecisionFactory();
-						ClassificationModel<LanguageOutcome> languageModel = trainer.trainModel(config.getClassificationEventStream(), decisionFactory, config.getDescriptors());
+						ClassificationModel languageModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
 						if (config.getExternalResourceFinder()!=null)
 							languageModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
 						languageModel.persist(modelFile);
@@ -352,10 +344,9 @@ class TalismaneImpl implements Talismane {
 						File modelDir = modelFile.getParentFile();
 						modelDir.mkdirs();
 						
-						ClassificationModelTrainer<SentenceDetectorOutcome> trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
+						ClassificationModelTrainer trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
 	
-						DecisionFactory<SentenceDetectorOutcome> decisionFactory = this.getSentenceDetectorService().getDecisionFactory();
-						ClassificationModel<SentenceDetectorOutcome> sentenceModel = trainer.trainModel(config.getClassificationEventStream(), decisionFactory, config.getDescriptors());
+						ClassificationModel sentenceModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
 						if (config.getExternalResourceFinder()!=null)
 							sentenceModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
 						sentenceModel.persist(modelFile);
@@ -365,10 +356,9 @@ class TalismaneImpl implements Talismane {
 						File modelFile = new File(config.getTokeniserModelFilePath());
 						File modelDir = modelFile.getParentFile();
 						modelDir.mkdirs();
-						ClassificationModelTrainer<TokeniserOutcome> trainer = this.getMachineLearningService().getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
+						ClassificationModelTrainer trainer = this.getMachineLearningService().getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
 						
-						DecisionFactory<TokeniserOutcome> decisionFactory = this.getTokeniserService().getDecisionFactory();
-						ClassificationModel<TokeniserOutcome> tokeniserModel = trainer.trainModel(config.getClassificationEventStream(), decisionFactory, config.getDescriptors());
+						ClassificationModel tokeniserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
 						if (config.getExternalResourceFinder()!=null)
 							tokeniserModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
 						tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), config.getPatternTokeniserType().toString());
@@ -380,24 +370,25 @@ class TalismaneImpl implements Talismane {
 						File modelDir = modelFile.getParentFile();
 						modelDir.mkdirs();
 						if (config.getPerceptronObservationPoints()==null) {
-							ClassificationModelTrainer<PosTag> trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
+							ClassificationModelTrainer trainer = machineLearningService.getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
 	
-							ClassificationModel<PosTag> posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), talismaneSession.getPosTagSet(), config.getDescriptors());			
+							ClassificationModel posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());			
 							if (config.getExternalResourceFinder()!=null)
 								posTaggerModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
 							posTaggerModel.persist(modelFile);
 						} else {
 							if (config.getAlgorithm()!=MachineLearningAlgorithm.Perceptron)
 								throw new RuntimeException("Incompatible argument perceptronTrainingInterval with algorithm " + config.getAlgorithm());
-							PerceptronServiceLocator perceptronServiceLocator = PerceptronServiceLocator.getInstance();
+							MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
+							PerceptronServiceLocator perceptronServiceLocator = PerceptronServiceLocator.getInstance(machineLearningServiceLocator);
 							PerceptronService perceptronService = perceptronServiceLocator.getPerceptronService();
-							PerceptronClassificationModelTrainer<PosTag> trainer = perceptronService.getPerceptronModelTrainer();
+							PerceptronClassificationModelTrainer trainer = perceptronService.getPerceptronModelTrainer();
 							trainer.setParameters(config.getTrainParameters());
 							
 							
 							String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
-							PerceptronModelTrainerObserver<PosTag> observer = new PosTaggerPerceptronModelPersister(modelDir, modelName, config.getExternalResourceFinder());
-							trainer.trainModelsWithObserver(config.getClassificationEventStream(), talismaneSession.getPosTagSet(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
+							PerceptronModelTrainerObserver observer = new PosTaggerPerceptronModelPersister(modelDir, modelName, config.getExternalResourceFinder());
+							trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
 						}
 						break;
 					}
@@ -410,21 +401,22 @@ class TalismaneImpl implements Talismane {
 						boolean needToPersist = true;
 						if (config.getAlgorithm().getModelType()==MachineLearningModelType.Classification) {
 							if (config.getPerceptronObservationPoints()==null) {
-								ClassificationModelTrainer<Transition> trainer = this.getMachineLearningService().getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
+								ClassificationModelTrainer trainer = this.getMachineLearningService().getClassificationModelTrainer(config.getAlgorithm(), config.getTrainParameters());
 			
-								parserModel = trainer.trainModel(config.getClassificationEventStream(), talismaneSession.getTransitionSystem(), config.getDescriptors());
+								parserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
 							} else {
 								if (config.getAlgorithm()!=MachineLearningAlgorithm.Perceptron)
 									throw new RuntimeException("Incompatible argument perceptronTrainingInterval with algorithm " + config.getAlgorithm());
-								PerceptronServiceLocator perceptronServiceLocator = PerceptronServiceLocator.getInstance();
+								MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
+								PerceptronServiceLocator perceptronServiceLocator = PerceptronServiceLocator.getInstance(machineLearningServiceLocator);
 								PerceptronService perceptronService = perceptronServiceLocator.getPerceptronService();
-								PerceptronClassificationModelTrainer<Transition> trainer = perceptronService.getPerceptronModelTrainer();
+								PerceptronClassificationModelTrainer trainer = perceptronService.getPerceptronModelTrainer();
 								trainer.setParameters(config.getTrainParameters());
 								
 								String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 	
-								PerceptronModelTrainerObserver<Transition> observer = new ParserPerceptronModelPersister(modelDir, modelName, config.getExternalResourceFinder());
-								trainer.trainModelsWithObserver(config.getClassificationEventStream(), talismaneSession.getTransitionSystem(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
+								PerceptronModelTrainerObserver observer = new ParserPerceptronModelPersister(modelDir, modelName, config.getExternalResourceFinder());
+								trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer, config.getPerceptronObservationPoints());
 								needToPersist = false;
 							}
 						} else if (config.getAlgorithm().getModelType()==MachineLearningModelType.Ranking) {
@@ -896,7 +888,6 @@ class TalismaneImpl implements Talismane {
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
-		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
 
 	public TokeniserService getTokeniserService() {
@@ -978,7 +969,7 @@ class TalismaneImpl implements Talismane {
 		this.writer = writer;
 	}
 	
-	  private static final class PosTaggerPerceptronModelPersister implements PerceptronModelTrainerObserver<PosTag> {
+	  private static final class PosTaggerPerceptronModelPersister implements PerceptronModelTrainerObserver {
 	    	File outDir;
 	    	ExternalResourceFinder externalResourceFinder;
 	    	String baseName;
@@ -992,7 +983,7 @@ class TalismaneImpl implements Talismane {
 			}
 
 			@Override
-			public void onNextModel(ClassificationModel<PosTag> model,
+			public void onNextModel(ClassificationModel model,
 					int iterations) {
 				this.outDir.mkdirs();
 				File posTaggerModelFile = new File(outDir, baseName + "_i" + iterations + ".zip");
@@ -1003,7 +994,7 @@ class TalismaneImpl implements Talismane {
 			}
 	    }
 	  
-    private static final class ParserPerceptronModelPersister implements PerceptronModelTrainerObserver<Transition> {
+    private static final class ParserPerceptronModelPersister implements PerceptronModelTrainerObserver {
     	File outDir;
     	ExternalResourceFinder externalResourceFinder;
     	String baseName;
@@ -1017,7 +1008,7 @@ class TalismaneImpl implements Talismane {
 		}
 
 		@Override
-		public void onNextModel(ClassificationModel<Transition> model,
+		public void onNextModel(ClassificationModel model,
 				int iterations) {
 			this.outDir.mkdirs();
 			File parserModelFile = new File(outDir, baseName + "_i" + iterations + ".zip");

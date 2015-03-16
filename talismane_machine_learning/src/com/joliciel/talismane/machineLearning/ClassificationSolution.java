@@ -26,16 +26,16 @@ import java.util.List;
  * @author Assaf Urieli
  *
  */
-public interface ClassificationSolution<T extends Outcome> extends Solution {
+public interface ClassificationSolution extends Solution {
 	/**
 	 * The decisions which were used to arrive at this solution.
 	 * @return
 	 */
-	public List<Decision<T>> getDecisions();
+	public List<Decision> getDecisions();
 	
 	/**
 	 * Add a decision to this particular solution.
 	 * @param decision
 	 */
-	public void addDecision(Decision<T> decision);
+	public void addDecision(Decision decision);
 }

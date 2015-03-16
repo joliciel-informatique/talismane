@@ -42,7 +42,7 @@ public interface PosTaggerService {
 	 */
 	public PosTagger getPosTagger(
 			Set<PosTaggerFeature<?>> posTaggerFeatures,
-			DecisionMaker<PosTag> decisionMaker,
+			DecisionMaker decisionMaker,
 			int beamWidth);
 	
 	/**
@@ -51,7 +51,7 @@ public interface PosTaggerService {
 	 * @return
 	 */
 	public PosTagger getPosTagger(
-			ClassificationModel<PosTag> model,
+			ClassificationModel model,
 			int beamWidth);
 
 	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger);
@@ -64,7 +64,7 @@ public interface PosTaggerService {
 			TokenSequence tokenSequence,
 			int initialCapacity);
 	
-	PosTaggedToken getPosTaggedToken(Token token, Decision<PosTag> decision);
+	PosTaggedToken getPosTaggedToken(Token token, Decision decision);
 
 	PosTag getPosTag(String code, String description,
 			PosTagOpenClassIndicator openClassIndicator);

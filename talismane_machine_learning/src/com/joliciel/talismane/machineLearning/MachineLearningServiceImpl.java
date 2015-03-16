@@ -50,21 +50,20 @@ class MachineLearningServiceImpl implements MachineLearningService {
 	}
 
 	@Override
-	public <T extends Outcome> ClassificationModel<T> getClassificationModel(
+	public ClassificationModel getClassificationModel(
 			ZipInputStream zis) {
-		@SuppressWarnings("unchecked")
-		ClassificationModel<T> model = (ClassificationModel<T>) this.getMachineLearningModel(zis);
+		ClassificationModel model = (ClassificationModel) this.getMachineLearningModel(zis);
 		return model;
 	}
 
 	@Override
-	public <T extends Outcome> ClassificationModelTrainer<T> getClassificationModelTrainer(
+	public ClassificationModelTrainer getClassificationModelTrainer(
 			MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
 		ModelTrainerFactory modelTrainerFactory = new ModelTrainerFactory();
 		modelTrainerFactory.setMaxentService(this.getMaxentService());
 		modelTrainerFactory.setLinearSVMService(this.getLinearSVMService());
 		modelTrainerFactory.setPerceptronService(this.getPerceptronService());
-		ClassificationModelTrainer<T> modelTrainer = modelTrainerFactory.makeClassificationModelTrainer(algorithm, parameters);
+		ClassificationModelTrainer modelTrainer = modelTrainerFactory.makeClassificationModelTrainer(algorithm, parameters);
 		return modelTrainer;
 	}
 
@@ -117,9 +116,22 @@ class MachineLearningServiceImpl implements MachineLearningService {
 	}
 
 	@Override
-	public <T extends Outcome> Decision<T> createDecision(T outcome, double probability) {
-		DecisionImpl<T> decision = new DecisionImpl<T>(outcome.getCode(), probability);
-		decision.setOutcome(outcome);
+	public Decision createDecision(String code, double score,
+			double probability) {
+		DecisionImpl decision = new DecisionImpl(code, probability);
+		decision.setScore(score);
+		return decision;
+	}
+
+	@Override
+	public Decision createDecision(String code, double probability) {
+		DecisionImpl decision = new DecisionImpl(code, probability);
+		return decision;
+	}
+
+	@Override
+	public Decision createDefaultDecision(String code) {
+		DecisionImpl decision = new DecisionImpl(code);
 		return decision;
 	}
 

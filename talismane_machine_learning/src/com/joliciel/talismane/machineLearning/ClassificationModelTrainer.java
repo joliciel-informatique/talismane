@@ -26,24 +26,22 @@ import java.util.Map;
  * @author Assaf Urieli
  *
  */
-public interface ClassificationModelTrainer<T extends Outcome> {
+public interface ClassificationModelTrainer {
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
 	 * @param corpusEventStream the event stream containing the events to be used for training
-	 * @param decisionFactory the decision factory used to convert outcomes labels to Outcomes
 	 * @param featureDescriptors the feature descriptors required to apply this model to new data.
 	 * @return
 	 */
-	public ClassificationModel<T> trainModel(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, List<String> featureDescriptors);
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors);
 
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
 	 * @param corpusEventStream the event stream containing the events to be used for training
-	 * @param decisionFactory the decision factory used to convert outcomes labels to Outcomes
 	 * @param descriptors all of the descriptors required to perform analysis using this model (e.g. feature descriptors, etc.)
 	 * @return
 	 */
-	public ClassificationModel<T> trainModel(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, Map<String,List<String>> descriptors);
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String,List<String>> descriptors);
 
 	/**
 	 * Statistical cutoff for feature inclusion: features must appear at least this many times to be included in the model.

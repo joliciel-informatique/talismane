@@ -29,23 +29,24 @@ import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import de.bwaldvogel.liblinear.Feature;
 import de.bwaldvogel.liblinear.Linear;
 import de.bwaldvogel.liblinear.Model;
 
-class LinearSVMOneVsRestDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
+class LinearSVMOneVsRestDecisionMaker implements DecisionMaker {
 	private static final Log LOG = LogFactory.getLog(LinearSVMOneVsRestDecisionMaker.class);
-	private DecisionFactory<T> decisionFactory;
+	
+	private MachineLearningService machineLearningService;
+	
 	private List<Model> models;
-	TObjectIntMap<String> featureIndexMap = null;
-	List<String> outcomes = null;
-	private transient ScoringStrategy<ClassificationSolution<T>> scoringStrategy = null;
+	private TObjectIntMap<String> featureIndexMap = null;
+	private List<String> outcomes = null;
+	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
 	
 	public LinearSVMOneVsRestDecisionMaker(List<Model> models,
 			TObjectIntMap<String> featureIndexMap,
@@ -57,25 +58,25 @@ class LinearSVMOneVsRestDecisionMaker<T extends Outcome> implements DecisionMake
 	}
 
 	@Override
-	public List<Decision<T>> decide(List<FeatureResult<?>> featureResults) {
+	public List<Decision> decide(List<FeatureResult<?>> featureResults) {
 		List<Feature> featureList = LinearSVMUtils.prepareData(featureResults, featureIndexMap);
 		
-		List<Decision<T>> decisions = null;
+		List<Decision> decisions = null;
 
 		if (featureList.size()==0) {
 			LOG.info("No features for current context.");
-			TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
+			TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
 			double uniformProb = 1 / outcomes.size();
 			for (String outcome : outcomes) {
-				Decision<T> decision = decisionFactory.createDecision(outcome, uniformProb);
+				Decision decision = machineLearningService.createDecision(outcome, uniformProb);
 				outcomeSet.add(decision);
 			}
-			decisions = new ArrayList<Decision<T>>(outcomeSet);
+			decisions = new ArrayList<Decision>(outcomeSet);
 		} else {
 			Feature[] instance = new Feature[1];
 			instance = featureList.toArray(instance);
 			
-			TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
+			TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
 			
 			int i=0;
 			for (Model model : models) {
@@ -85,27 +86,30 @@ class LinearSVMOneVsRestDecisionMaker<T extends Outcome> implements DecisionMake
 				double[] probabilities = new double[2];
 				Linear.predictProbability(model, instance, probabilities);
 				
-				Decision<T> decision = decisionFactory.createDecision(outcomes.get(i), probabilities[myLabel]);
+				Decision decision = machineLearningService.createDecision(outcomes.get(i), probabilities[myLabel]);
 				outcomeSet.add(decision);
 				i++;
 			}
-			decisions = new ArrayList<Decision<T>>(outcomeSet);
+			decisions = new ArrayList<Decision>(outcomeSet);
 		}
 		return decisions;
 	}
 
-	public DecisionFactory<T> getDecisionFactory() {
-		return decisionFactory;
-	}
-
-	public void setDecisionFactory(DecisionFactory<T> decisionFactory) {
-		this.decisionFactory = decisionFactory;
-	}
-
 	@Override
-	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy() {
+	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
 		if (scoringStrategy==null)
-			scoringStrategy = new GeometricMeanScoringStrategy<T>();
+			scoringStrategy = new GeometricMeanScoringStrategy();
 		return scoringStrategy;
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }

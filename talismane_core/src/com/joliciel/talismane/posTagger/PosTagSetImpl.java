@@ -35,10 +35,9 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AbstractDecisionFactory;
 import com.joliciel.talismane.utils.LogUtils;
 
-final class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements PosTagSet {
+final class PosTagSetImpl implements PosTagSet {
 	private static final long serialVersionUID = 4894889727388356815L;
 	private static final Log LOG = LogFactory.getLog(PosTagSetImpl.class);
 	
@@ -124,6 +123,7 @@ final class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements Pos
 			tagMap = new HashMap<String, PosTag>();
 			for (PosTag posTag : this.getTags()) {
 				tagMap.put(posTag.getCode(), posTag);
+				tagMap.put(RootPosTag.ROOT_POS_TAG_CODE, RootPosTag.ROOT_POS_TAG);
 			}
 		}
 		PosTag posTag = tagMap.get(code);
@@ -153,10 +153,5 @@ final class PosTagSetImpl extends AbstractDecisionFactory<PosTag> implements Pos
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
-	}
-
-	@Override
-	public PosTag createOutcome(String name) {
-		return this.getPosTag(name);
 	}
 }

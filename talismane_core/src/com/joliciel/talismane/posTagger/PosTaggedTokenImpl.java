@@ -59,8 +59,8 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 		this.lexicalEntries = taggedTokenToClone.lexicalEntries;
 	}
 	
-	public PosTaggedTokenImpl(Token token, Decision<PosTag> decision) {
-		super(token, decision);
+	public PosTaggedTokenImpl(Token token, Decision decision, PosTag posTag) {
+		super(token, decision, posTag);
 	}
 
 	@Override

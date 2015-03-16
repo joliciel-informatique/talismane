@@ -75,7 +75,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 	private ParsingConstrainer parsingConstrainer;
 	private ParseComparisonStrategy parseComparisonStrategy = new TransitionCountComparisonStrategy();
 
-	private List<ClassificationObserver<Transition>> observers = new ArrayList<ClassificationObserver<Transition>>();
+	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
 	private int maxAnalysisTimePerSentence = 60;
 	private int minFreeMemory = 64;
 	private static final int KILOBYTE = 1024;
@@ -403,7 +403,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 							for (Transition transition : deltaScorePerTransition.keySet()) {
 								double probability = deltaScorePerTransition.get(transition);
 								probability /= total;
-								Decision<Transition> decision = machineLearningService.createDecision(transition, probability);
+								Decision decision = machineLearningService.createDecision(transition.getCode(), probability);
 								transition.setDecision(decision);
 								if (LOG.isTraceEnabled()) {
 									LOG.trace("Transition: " + transition.getCode() + ", Prob: " + probability);
@@ -483,7 +483,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 	}
 
 	@Override
-	public void addObserver(ClassificationObserver<Transition> observer) {
+	public void addObserver(ClassificationObserver observer) {
 		this.observers.add(observer);
 	}
 

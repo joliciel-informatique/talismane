@@ -25,7 +25,7 @@ import com.joliciel.talismane.machineLearning.Decision;
 
 public abstract class AbstractTransition implements Transition {
 	private static final Log LOG = LogFactory.getLog(AbstractTransition.class);
-	private Decision<Transition> decision;
+	private Decision decision;
 
 	@Override
 	public void apply(ParseConfiguration configuration) {
@@ -41,11 +41,11 @@ public abstract class AbstractTransition implements Transition {
 
 	protected abstract void applyInternal(ParseConfiguration configuration);
 
-	public Decision<Transition> getDecision() {
+	public Decision getDecision() {
 		return decision;
 	}
 
-	public void setDecision(Decision<Transition> decision) {
+	public void setDecision(Decision decision) {
 		this.decision = decision;
 	}
 	

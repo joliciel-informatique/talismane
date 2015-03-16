@@ -18,16 +18,22 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.perceptron;
 
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
+
 public class PerceptronServiceLocator {
 	private static PerceptronServiceLocator instance;
-	
+
+	private MachineLearningServiceLocator machineLearningServiceLocator;
+
 	private PerceptronServiceImpl perceptronService;
 	
-	private PerceptronServiceLocator() { }
+	private PerceptronServiceLocator(MachineLearningServiceLocator machineLearningServiceLocator) {
+		this.machineLearningServiceLocator = machineLearningServiceLocator;
+	}
 	
-	public static PerceptronServiceLocator getInstance() {
+	public static PerceptronServiceLocator getInstance(MachineLearningServiceLocator machineLearningServiceLocator) {
 		if (instance==null) {
-			instance = new PerceptronServiceLocator();
+			instance = new PerceptronServiceLocator(machineLearningServiceLocator);
 		}
 		return instance;
 	}
@@ -35,6 +41,7 @@ public class PerceptronServiceLocator {
 	public PerceptronService getPerceptronService() {
 		if (perceptronService == null) {
 			perceptronService = new PerceptronServiceImpl();
+			perceptronService.setMachineLearningService(this.machineLearningServiceLocator.getMachineLearningService());
 		}
 		return perceptronService;
 	}

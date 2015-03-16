@@ -19,32 +19,44 @@
 package com.joliciel.talismane.machineLearning.maxent;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.Outcome;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 
 class MaxentServiceImpl implements MaxentService {
+	private MachineLearningService machineLearningService;
 
 	@Override
-	public <T extends Outcome> MaxentModelTrainer<T> getMaxentModelTrainer() {
-		MaxentModelTrainerImpl<T> maxentModelTrainer = new MaxentModelTrainerImpl<T>();
+	public MaxentModelTrainer getMaxentModelTrainer() {
+		MaxentModelTrainerImpl maxentModelTrainer = new MaxentModelTrainerImpl();
 		return maxentModelTrainer;
 	}
 
 	@Override
-	public <T extends Outcome> ClassificationModel<T> getMaxentModel() {
-		MaximumEntropyModel<T> maxentModel = new MaximumEntropyModel<T>();
+	public ClassificationModel getMaxentModel() {
+		MaximumEntropyModel maxentModel = new MaximumEntropyModel();
+		maxentModel.setMachineLearningService(this.getMachineLearningService());
 		return maxentModel;
 	}
 
 	@Override
-	public <T extends Outcome> OpenNLPPerceptronModelTrainer<T> getPerceptronModelTrainer() {
-		OpenNLPPerceptronModelTrainerImpl<T> trainer = new OpenNLPPerceptronModelTrainerImpl<T>();
+	public OpenNLPPerceptronModelTrainer getPerceptronModelTrainer() {
+		OpenNLPPerceptronModelTrainerImpl trainer = new OpenNLPPerceptronModelTrainerImpl();
 		return trainer;
 	}
 
 	@Override
-	public <T extends Outcome> ClassificationModel<T> getPerceptronModel() {
-		OpenNLPPerceptronModel<T> model = new OpenNLPPerceptronModel<T>();
+	public ClassificationModel getPerceptronModel() {
+		OpenNLPPerceptronModel model = new OpenNLPPerceptronModel();
+		model.setMachineLearningService(this.getMachineLearningService());
 		return model;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 
 

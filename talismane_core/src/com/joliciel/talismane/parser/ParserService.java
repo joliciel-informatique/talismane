@@ -99,7 +99,7 @@ public interface ParserService {
 	 * using a Shift-Reduce algorithm.<br/>
 	 * See Nivre 2008 for details on the algorithm for the deterministic case.
 	 */
-	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
+	public NonDeterministicParser getTransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 
 	public ParserEvaluator getParserEvaluator();
 	

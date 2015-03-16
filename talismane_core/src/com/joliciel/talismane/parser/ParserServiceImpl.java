@@ -61,13 +61,14 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public NonDeterministicParser getTransitionBasedParser(DecisionMaker<Transition> decisionMaker, TransitionSystem transitionSystem,
+	public NonDeterministicParser getTransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem,
 			Set<ParseConfigurationFeature<?>> parseFeatures,
 			int beamWidth) {
 		TransitionBasedParserImpl parser = new TransitionBasedParserImpl(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
 		parser.setTalismaneService(this.getTalismaneService());
 		parser.setFeatureService(this.getFeatureService());
+		parser.setMachineLearningService(this.getMachineLearningService());
 		return parser;
 	}
 
@@ -138,9 +139,8 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 		NonDeterministicParser parser = null;
 		if (model instanceof ClassificationModel) {
-			@SuppressWarnings("unchecked")
-			ClassificationModel<Transition> classificationModel = (ClassificationModel<Transition>) model;
-			DecisionMaker<Transition> decisionMaker = classificationModel.getDecisionMaker();
+			ClassificationModel classificationModel = (ClassificationModel) model;
+			DecisionMaker decisionMaker = classificationModel.getDecisionMaker();
 
 			parser = this.getTransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		} else if (model instanceof RankingModel) {
@@ -178,6 +178,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
+		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
 	}
 	
@@ -191,6 +192,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
+		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
 	}
 

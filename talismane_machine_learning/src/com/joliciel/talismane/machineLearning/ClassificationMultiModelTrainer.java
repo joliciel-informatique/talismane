@@ -32,8 +32,8 @@ import java.util.Map;
  *
  * @param <T>
  */
-public interface ClassificationMultiModelTrainer<T extends Outcome> extends
-		ClassificationModelTrainer<T> {
+public interface ClassificationMultiModelTrainer extends
+		ClassificationModelTrainer {
 
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
@@ -42,7 +42,7 @@ public interface ClassificationMultiModelTrainer<T extends Outcome> extends
 	 * @param featureDescriptors the feature descriptors required to apply this model to new data.
 	 * @return
 	 */
-	public void trainModels(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, List<String> featureDescriptors);
+	public void trainModels(ClassificationEventStream corpusEventStream, List<String> featureDescriptors);
 
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
@@ -51,7 +51,7 @@ public interface ClassificationMultiModelTrainer<T extends Outcome> extends
 	 * @param descriptors all of the descriptors required to perform analysis using this model (e.g. feature descriptors, etc.)
 	 * @return
 	 */
-	public void trainModels(ClassificationEventStream corpusEventStream, DecisionFactory<T> decisionFactory, Map<String,List<String>> descriptors);
+	public void trainModels(ClassificationEventStream corpusEventStream, Map<String,List<String>> descriptors);
 
 	/**
 	 * Set parameters for this trainer type.

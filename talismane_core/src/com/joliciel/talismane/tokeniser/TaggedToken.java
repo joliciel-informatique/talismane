@@ -48,7 +48,7 @@ public interface TaggedToken<T extends TokenTag> extends Comparable<TaggedToken<
 	 * The decision which was used to tag this token.
 	 * @return
 	 */
-	public Decision<T> getDecision();
+	public Decision getDecision();
 	
 	public double getProbability();
 }

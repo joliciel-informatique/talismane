@@ -25,30 +25,29 @@ import java.util.TreeSet;
 import com.joliciel.talismane.machineLearning.AdditiveScoringStrategy;
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.DecisionFactory;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.MachineLearningSession;
-import com.joliciel.talismane.machineLearning.Outcome;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.utils.JolicielException;
 
-class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
-	private DecisionFactory<T> decisionFactory;
+class PerceptronDecisionMaker implements DecisionMaker {
 	private PerceptronModelParameters modelParameters;
-	private transient ScoringStrategy<ClassificationSolution<T>> scoringStrategy = null;
+	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
 	private transient PerceptronScoring perceptronScoring = null;
-	
-	public PerceptronDecisionMaker(PerceptronModelParameters params, DecisionFactory<T> decisionFactory) {
+
+	private MachineLearningService machineLearningService;
+
+	public PerceptronDecisionMaker(PerceptronModelParameters params) {
 		super();
 		this.modelParameters = params;
-		this.decisionFactory = decisionFactory;
 	}
 
 	@Override
-	public List<Decision<T>> decide(List<FeatureResult<?>> featureResults) {
+	public List<Decision> decide(List<FeatureResult<?>> featureResults) {
 		List<Integer> featureIndexList = new ArrayList<Integer>();
 		List<Double> featureValueList = new ArrayList<Double>();
 		modelParameters.prepareData(featureResults, featureIndexList, featureValueList);
@@ -101,14 +100,14 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		}
 		
 		int i = 0;
-		TreeSet<Decision<T>> outcomeSet = new TreeSet<Decision<T>>();
+		TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
 		for (String outcome : modelParameters.getOutcomes()) {
-			Decision<T> decision = this.decisionFactory.createDecision(outcome, results[i], probs[i]);
+			Decision decision = this.machineLearningService.createDecision(outcome, results[i], probs[i]);
 			outcomeSet.add(decision);
 			i++;
 		}
 
-		List<Decision<T>> decisions = new ArrayList<Decision<T>>(outcomeSet);
+		List<Decision> decisions = new ArrayList<Decision>(outcomeSet);
 
 		return decisions;
 
@@ -130,29 +129,19 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 		return results;
 	}
 	
-	@Override
-	public DecisionFactory<T> getDecisionFactory() {
-		return this.decisionFactory;
-	}
-
-	@Override
-	public void setDecisionFactory(DecisionFactory<T> decisionFactory) {
-		this.decisionFactory = decisionFactory;
-	}
-
 	public PerceptronModelParameters getModelParameters() {
 		return modelParameters;
 	}
 
 	@Override
-	public ScoringStrategy<ClassificationSolution<T>> getDefaultScoringStrategy() {
+	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
 		if (scoringStrategy==null) {
 			if (this.getPerceptronScoring()==PerceptronScoring.normalisedLinear) {
-				scoringStrategy = new GeometricMeanScoringStrategy<T>();
+				scoringStrategy = new GeometricMeanScoringStrategy();
 			} else if (this.getPerceptronScoring()==PerceptronScoring.normalisedExponential) {
-				scoringStrategy = new GeometricMeanScoringStrategy<T>();
+				scoringStrategy = new GeometricMeanScoringStrategy();
 			} else if (this.getPerceptronScoring()==PerceptronScoring.additive) {
-				scoringStrategy = new AdditiveScoringStrategy<T>();
+				scoringStrategy = new AdditiveScoringStrategy();
 			} else {
 				throw new JolicielException("Unknown perceptron scoring strategy: " + this.getPerceptronScoring());
 			}
@@ -165,6 +154,15 @@ class PerceptronDecisionMaker<T extends Outcome> implements DecisionMaker<T> {
 			perceptronScoring = MachineLearningSession.getPerceptronScoring();
 		}
 		return perceptronScoring;
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	
