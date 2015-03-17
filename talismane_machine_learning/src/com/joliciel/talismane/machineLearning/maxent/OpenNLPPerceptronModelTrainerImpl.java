@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -54,6 +55,8 @@ class OpenNLPPerceptronModelTrainerImpl implements OpenNLPPerceptronModelTrainer
 	private double stepSizeDecrease = 0;
 	private boolean useAverage = false;
 	private boolean useSkippedAverage = false;
+	
+	private MachineLearningService machineLearningService;
 
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
@@ -89,6 +92,7 @@ class OpenNLPPerceptronModelTrainerImpl implements OpenNLPPerceptronModelTrainer
 			throw new RuntimeException(e);
 		}
 		OpenNLPPerceptronModel model = new OpenNLPPerceptronModel(perceptronModel, descriptors, this.trainingParameters);
+		model.setMachineLearningService(machineLearningService);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + this.getIterations());
 		model.addModelAttribute("averaging", "" + this.isUseAverage());
@@ -184,6 +188,15 @@ class OpenNLPPerceptronModelTrainerImpl implements OpenNLPPerceptronModelTrainer
 				}
 			}
 		}
+	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
 	}
 	
 	
