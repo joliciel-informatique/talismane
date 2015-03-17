@@ -34,14 +34,15 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
+import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.LogUtils;
 
-class PerceptronClassificationModel extends AbstractClassificationModel {
+class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Log LOG = LogFactory.getLog(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker decisionMaker;
@@ -131,6 +132,10 @@ class PerceptronClassificationModel extends AbstractClassificationModel {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	@Override
+	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
 	
 	

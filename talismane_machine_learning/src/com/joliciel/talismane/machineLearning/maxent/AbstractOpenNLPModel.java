@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
+import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 
@@ -44,7 +45,7 @@ import opennlp.model.MaxentModel;
  * @author Assaf Urieli
  *
  */
-abstract class AbstractOpenNLPModel extends AbstractClassificationModel implements OpenNLPModel {
+abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel implements OpenNLPModel {
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(AbstractOpenNLPModel.class);
 	
@@ -115,6 +116,10 @@ abstract class AbstractOpenNLPModel extends AbstractClassificationModel implemen
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	@Override
+	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
 	
 	

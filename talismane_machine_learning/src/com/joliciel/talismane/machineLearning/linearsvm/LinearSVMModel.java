@@ -41,7 +41,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.talismane.machineLearning.AbstractClassificationModel;
+import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
@@ -52,7 +53,7 @@ import com.joliciel.talismane.utils.io.UnclosableWriter;
 
 import de.bwaldvogel.liblinear.Model;
 
-class LinearSVMModel extends AbstractClassificationModel {
+class LinearSVMModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Log LOG = LogFactory.getLog(LinearSVMModel.class);
 	
 	private MachineLearningService machineLearningService;
@@ -221,6 +222,10 @@ class LinearSVMModel extends AbstractClassificationModel {
 	public void setMachineLearningService(
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	@Override
+	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
 
 	

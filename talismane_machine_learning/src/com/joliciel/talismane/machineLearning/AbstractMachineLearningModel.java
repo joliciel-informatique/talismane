@@ -59,10 +59,20 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	private ExternalResourceFinder externalResourceFinder;
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
 	
-	@Override
+	@Override	
 	public final void persist(File modelFile) {
 		try {
-			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(modelFile,false));
+			this.persist(new FileOutputStream(modelFile,false));
+		} catch (IOException ioe) {
+			LogUtils.logError(LOG, ioe);
+			throw new RuntimeException(ioe);
+		}
+	}
+	
+	@Override
+	public final void persist(OutputStream outputStream) {
+		try {
+			ZipOutputStream zos = new ZipOutputStream(outputStream);
 			Writer writer = new BufferedWriter(new OutputStreamWriter(zos, "UTF-8"));
 
 			zos.putNextEntry(new ZipEntry("algorithm.txt"));
