@@ -407,6 +407,7 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	
 	ClassificationModel getModel(PerceptronModelParameters params, int iterations) {
 		PerceptronClassificationModel model = new PerceptronClassificationModel(params, descriptors, this.trainingParameters);
+		model.setMachineLearningService(machineLearningService);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + iterations);
 		model.addModelAttribute("tolerance", "" + this.getTolerance());

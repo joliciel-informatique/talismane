@@ -46,6 +46,7 @@ import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationMultiModelTrainer;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
@@ -72,6 +73,8 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 	private File outDir = null;
 	private List<Map<String, Object>> parameterSets;
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
+	
+	private MachineLearningService machineLearningService;
 	
 	@Override
 	public ClassificationModel trainModel(
@@ -189,6 +192,7 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 				}
 				
 				LinearSVMOneVsRestModel linearSVMModel = new LinearSVMOneVsRestModel(descriptors, this.trainingParameters);
+				linearSVMModel.setMachineLearningService(this.machineLearningService);
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 				
 				linearSVMModel.setOutcomes(atomicOutcomes);
@@ -312,6 +316,8 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 				}
 				
 				LinearSVMModel linearSVMModel = new LinearSVMModel(model, descriptors, this.trainingParameters);
+				linearSVMModel.setMachineLearningService(this.machineLearningService);
+
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 								
 				linearSVMModel.setOutcomes(outcomes);
@@ -556,4 +562,14 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 		this.outDir = outDir;
 	}
 
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+
+	
 }

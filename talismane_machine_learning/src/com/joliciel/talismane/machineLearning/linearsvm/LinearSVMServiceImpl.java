@@ -26,7 +26,8 @@ class LinearSVMServiceImpl implements LinearSVMService {
 	
 	@Override
 	public  LinearSVMModelTrainer getLinearSVMModelTrainer() {
-		LinearSVMModelTrainer linearSVMModelTrainer = new LinearSVMModelTrainerImpl();
+		LinearSVMModelTrainerImpl linearSVMModelTrainer = new LinearSVMModelTrainerImpl();
+		linearSVMModelTrainer.setMachineLearningService(this.getMachineLearningService());
 		return linearSVMModelTrainer;
 	}
 

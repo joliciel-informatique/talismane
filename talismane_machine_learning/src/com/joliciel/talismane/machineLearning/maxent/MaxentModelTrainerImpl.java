@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -54,6 +55,8 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 	private double smoothing = 0;
 
 	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
+	
+	private MachineLearningService machineLearningService;
 	
 	@Override
 	public ClassificationModel trainModel(
@@ -88,6 +91,7 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 			throw new RuntimeException(e);
 		}
 		MaximumEntropyModel model = new MaximumEntropyModel(maxentModel, descriptors, this.trainingParameters);
+		model.setMachineLearningService(machineLearningService);
 		model.addModelAttribute("cutoff", "" + this.getCutoff());
 		model.addModelAttribute("iterations", "" + this.getIterations());
 		model.addModelAttribute("sigma", "" + this.getSigma());
@@ -168,4 +172,15 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 			}
 		}
 	}
+
+	public MachineLearningService getMachineLearningService() {
+		return machineLearningService;
+	}
+
+	public void setMachineLearningService(
+			MachineLearningService machineLearningService) {
+		this.machineLearningService = machineLearningService;
+	}
+	
+	
 }
