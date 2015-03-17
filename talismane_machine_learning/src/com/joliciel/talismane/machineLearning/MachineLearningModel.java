@@ -20,6 +20,7 @@ package com.joliciel.talismane.machineLearning;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -41,6 +42,12 @@ public interface MachineLearningModel {
 	}
 	
 	public static final String FEATURE_DESCRIPTOR_KEY = "feature";
+	
+	/**
+	 * Persist this model to an OutputStream.
+	 * @param outputStream
+	 */
+	public void persist(OutputStream outputStream);
 	
 	/**
 	 * Persist this model to a file.

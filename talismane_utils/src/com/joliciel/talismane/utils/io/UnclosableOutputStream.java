@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2015 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,20 +16,41 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.maxent;
+package com.joliciel.talismane.utils.io;
 
-import opennlp.model.MaxentModel;
+import java.io.IOException;
+import java.io.OutputStream;
 
-import com.joliciel.talismane.machineLearning.ClassificationModel;
+public class UnclosableOutputStream extends OutputStream {
+	OutputStream wrappedStream;
+	
+	public UnclosableOutputStream(OutputStream wrappedStream) {
+		super();
+		this.wrappedStream = wrappedStream;
+	}
+	
+	@Override
+	public void write(int b) throws IOException {
+		this.wrappedStream.write(b);
+	}
 
-/**
- * An Apache OpenNLP model wrapper interface
- * @author Assaf
- *
- * @param <T>
- */
-public interface OpenNLPModel extends ClassificationModel {
+	@Override
+	public void write(byte[] b) throws IOException {
+		this.wrappedStream.write(b);
+	}
 
-	public MaxentModel getModel();
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		this.wrappedStream.write(b, off, len);
+	}
 
+	@Override
+	public void flush() throws IOException {
+		this.wrappedStream.flush();
+	}
+
+	@Override
+	public void close() throws IOException {
+		// do nothing
+	}
 }
