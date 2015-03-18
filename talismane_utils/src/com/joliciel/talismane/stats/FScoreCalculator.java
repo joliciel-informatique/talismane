@@ -484,6 +484,7 @@ public class FScoreCalculator<E> {
 			fscoreFileWriter.write(CSV.format("true+")
 					+ CSV.format("false+")
 					+ CSV.format("false-")
+					+ CSV.format("count")
 					+ CSV.format("precision")
 					+ CSV.format("recall")
 					+ CSV.format("f-score"));
@@ -505,6 +506,7 @@ public class FScoreCalculator<E> {
 				fscoreFileWriter.write(CSV.format(this.getTruePositiveCount(outcome)));
 				fscoreFileWriter.write(CSV.format(this.getFalsePositiveCount(outcome)));
 				fscoreFileWriter.write(CSV.format(this.getFalseNegativeCount(outcome)));
+				fscoreFileWriter.write(CSV.format(this.getTruePositiveCount(outcome) + this.getFalseNegativeCount(outcome)));
 				fscoreFileWriter.write(CSV.format(this.getPrecision(outcome)*100));
 				fscoreFileWriter.write(CSV.format(this.getRecall(outcome)*100));
 				fscoreFileWriter.write(CSV.format(this.getFScore(outcome)*100));
@@ -523,6 +525,7 @@ public class FScoreCalculator<E> {
 			fscoreFileWriter.write(CSV.format(this.getTotalTruePositiveCount()));
 			fscoreFileWriter.write(CSV.format(this.getTotalFalsePositiveCount()));
 			fscoreFileWriter.write(CSV.format(this.getTotalFalseNegativeCount()));
+			fscoreFileWriter.write(CSV.format(this.getTotalTruePositiveCount() + this.getTotalFalseNegativeCount()));
 			fscoreFileWriter.write(CSV.format(this.getTotalPrecision()*100));
 			fscoreFileWriter.write(CSV.format(this.getTotalRecall()*100));
 			fscoreFileWriter.write(CSV.format(this.getTotalFScore()*100));
@@ -533,6 +536,7 @@ public class FScoreCalculator<E> {
 				outcome.hashCode();
 				fscoreFileWriter.write(CSV.format(""));
 			}
+			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
@@ -549,6 +553,7 @@ public class FScoreCalculator<E> {
 			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
+			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(this.getAccuracy()*100));
 			fscoreFileWriter.write("\n");
 
@@ -557,6 +562,7 @@ public class FScoreCalculator<E> {
 				outcome.hashCode();
 				fscoreFileWriter.write(CSV.format(""));
 			}
+			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(""));
@@ -622,9 +628,10 @@ public class FScoreCalculator<E> {
 							stats.truePos = Integer.parseInt(cells.get(truePositivePos));
 							stats.falsePos = Integer.parseInt(cells.get(truePositivePos+1));
 							stats.falseNeg = Integer.parseInt(cells.get(truePositivePos+2));
-							stats.precision = Double.parseDouble(cells.get(truePositivePos+3));
-							stats.recall = Double.parseDouble(cells.get(truePositivePos+4));
-							stats.fScore = Double.parseDouble(cells.get(truePositivePos+5));
+							stats.count = Integer.parseInt(cells.get(truePositivePos+3));
+							stats.precision = Double.parseDouble(cells.get(truePositivePos+4));
+							stats.recall = Double.parseDouble(cells.get(truePositivePos+5));
+							stats.fScore = Double.parseDouble(cells.get(truePositivePos+6));
 							statsMap.put(outcome, stats);
 						} // firstLine?
 					} // has more lines
@@ -669,6 +676,7 @@ public class FScoreCalculator<E> {
 					outcomeStat.truePos += stats.truePos;
 					outcomeStat.falsePos += stats.falsePos;
 					outcomeStat.falseNeg += stats.falseNeg;
+					outcomeStat.count += stats.count;
 					
 					outcomes.add(stats.outcome);
 				}
@@ -680,6 +688,7 @@ public class FScoreCalculator<E> {
 			csvFileWriter.write(CSV.format("true+")
 					+ CSV.format("false+")
 					+ CSV.format("false-")
+					+ CSV.format("count")
 					+ CSV.format("tot precision")
 					+ CSV.format("avg precision")
 					+ CSV.format("dev precision")
@@ -702,6 +711,7 @@ public class FScoreCalculator<E> {
 				csvFileWriter.write(CSV.format(outcomeStat.truePos));
 				csvFileWriter.write(CSV.format(outcomeStat.falsePos));
 				csvFileWriter.write(CSV.format(outcomeStat.falseNeg));
+				csvFileWriter.write(CSV.format(outcomeStat.count));
 				csvFileWriter.write(CSV.format(outcomeStat.precision * 100));
 				csvFileWriter.write(CSV.format(precisionStats.getMean()));
 				csvFileWriter.write(CSV.format(precisionStats.getStandardDeviation()));
@@ -724,6 +734,7 @@ public class FScoreCalculator<E> {
 		int truePos;
 		int falsePos;
 		int falseNeg;
+		int count;
 		double precision;
 		double recall;
 		double fScore;
