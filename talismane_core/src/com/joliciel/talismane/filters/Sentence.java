@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -118,6 +119,13 @@ public interface Sentence {
 	 */
 	String getFileName();
 	void setFileName(String fileName);
+	
+	/**
+	 * The file containing this sentence.
+	 * @return
+	 */
+	File getFile();
+	void setFile(File file);
 	
 	/**
 	 * The line number on which this sentence started, when reading from a previously analysed corpus (one token per line).

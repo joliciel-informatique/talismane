@@ -13,11 +13,6 @@ dashAfterSpace	 -{.+}
 Mr.	\b\D+\.{[ ,\)/\\]}
 S.A.	NPPatterns	.+\..+
 Quat'z'Arts	{(?![cdjlmnstCDJLMNST]\z|qu\z|jusqu\z|puisqu\z|lorsqu\z|aujourd\z|prud\z|quelqu\z|quoiqu\z).+'}.+
--t-elle	.+-{t-(elle|elles|il|ils|on)}
--elle	.+-{(ce|je|en|la|le|les|leur|lui|moi|nous|toi|tu|y)[^-]}
--elle	(?!t\z).+-{(elle|elles|il|ils|on)[^-]}
--elle	(?!rendez\z).+-{vous[^-]}
--t'	.+-{[mt]'}
 (-	\(-
 (1)	IndexPatterns	\(\d\)
 (1)	IndexPatterns	\(\d\d\)

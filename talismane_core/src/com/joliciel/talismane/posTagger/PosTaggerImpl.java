@@ -162,30 +162,45 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					PosTaggerContext context = this.getPosTaggerFeatureService().getContext(token, history);
 					List<Decision> decisions = new ArrayList<Decision>();
 					
-					// test the positive rules on the current token
 					boolean ruleApplied = false;
-					if (posTaggerPositiveRules!=null) {
-						MONITOR.startTask("check rules");
-						try {
-							for (PosTaggerRule rule : posTaggerPositiveRules) {
-								if (LOG.isTraceEnabled()) {
-									LOG.trace("Checking rule: " + rule.getCondition().getName());
-								}
-								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
-								FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
-								if (ruleResult!=null && ruleResult.getOutcome()) {
-									Decision positiveRuleDecision = machineLearningService.createDefaultDecision(rule.getTag().getCode());
-									decisions.add(positiveRuleDecision);
-									positiveRuleDecision.addAuthority(rule.getCondition().getName());
-									ruleApplied = true;
+					
+					// does this token have an explicit pos-tag already assigned?
+					if (token.getAttributes().containsKey(PosTagger.POS_TAG_ATTRIBUTE)) {
+						String posTagCode = token.getAttributes().get(PosTagger.POS_TAG_ATTRIBUTE);
+						Decision positiveRuleDecision = machineLearningService.createDefaultDecision(posTagCode);
+						decisions.add(positiveRuleDecision);
+						positiveRuleDecision.addAuthority("tokenAttribute");
+						ruleApplied = true;
+						if (LOG.isTraceEnabled()) {
+							LOG.trace("Token has attribute \"" + PosTagger.POS_TAG_ATTRIBUTE + "\". Setting posTag to: " + posTagCode);
+						}
+					}
+					
+					// test the positive rules on the current token
+					if (!ruleApplied) {
+						if (posTaggerPositiveRules!=null) {
+							MONITOR.startTask("check rules");
+							try {
+								for (PosTaggerRule rule : posTaggerPositiveRules) {
 									if (LOG.isTraceEnabled()) {
-										LOG.trace("Rule applies. Setting posTag to: " + rule.getTag().getCode());
+										LOG.trace("Checking rule: " + rule.getCondition().getName());
 									}
-									break;
+									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
+									if (ruleResult!=null && ruleResult.getOutcome()) {
+										Decision positiveRuleDecision = machineLearningService.createDefaultDecision(rule.getTag().getCode());
+										decisions.add(positiveRuleDecision);
+										positiveRuleDecision.addAuthority(rule.getCondition().getName());
+										ruleApplied = true;
+										if (LOG.isTraceEnabled()) {
+											LOG.trace("Rule applies. Setting posTag to: " + rule.getTag().getCode());
+										}
+										break;
+									}
 								}
+							} finally {
+								MONITOR.endTask();
 							}
-						} finally {
-							MONITOR.endTask();
 						}
 					}
 					

@@ -34,6 +34,8 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  *
  */
 public interface PosTagger {
+	public static final String POS_TAG_ATTRIBUTE = "posTag";
+	
 	/**
 	 * Apply PosTags to the tokens in a given sentence.
 	 * @param tokens the List of tokens comprising the sentence.

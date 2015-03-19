@@ -21,9 +21,25 @@ package com.joliciel.talismane.filters;
 import java.util.List;
 
 public interface FilterService {
+	/**
+	 * Replaces any whitespace characters (including tabs) by a standard whitespace.
+	 *
+	 */
+	public TextMarkerFilter getOtherWhiteSpaceFilter();
 	
+	/**
+	 * Gets rid of duplicate whitespace.
+	 */
 	public TextMarkerFilter getDuplicateWhiteSpaceFilter();
+	
+	/**
+	 * Replace any newline with a sentence break.
+	 */
 	public TextMarkerFilter getNewlineEndOfSentenceMarker();
+	
+	/**
+	 * Replace any newline with a space.
+	 */
 	public TextMarkerFilter getNewlineSpaceMarker();
 
 	/**
