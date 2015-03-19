@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ class SentenceImpl implements Sentence {
 	private boolean complete = true;
 	TreeMap<Integer, Integer> newlines = new TreeMap<Integer, Integer>();
 	private String fileName = "";
+	private File file = null;
 	private int startLineNumber = -1;
 	
 	@Override
@@ -148,6 +150,14 @@ class SentenceImpl implements Sentence {
 
 	public void setStartLineNumber(int startLineNumber) {
 		this.startLineNumber = startLineNumber;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
 	}
 
 	

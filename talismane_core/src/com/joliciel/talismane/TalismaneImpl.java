@@ -563,6 +563,8 @@ class TalismaneImpl implements Talismane {
 			
 			int endBlockCharacterCount = 0;
 			
+			File currentFile = null;
+			
 		    while (!finished) {
 		    	if (config.getStartModule().equals(Module.SentenceDetector)||config.getStartModule().equals(Module.Tokeniser)) {
 		    		// Note SentenceDetector and Tokeniser start modules treated identically,
@@ -629,9 +631,9 @@ class TalismaneImpl implements Talismane {
 						String text = textSegments.removeFirst();
 						String nextText = textSegments.removeFirst();
 						if (LOG.isTraceEnabled()) {
-							LOG.trace("prevText: " + prevText);
-							LOG.trace("text: " + text);
-							LOG.trace("nextText: " + nextText);							
+							LOG.trace("prevText: " + prevText.replace('\n', '¶').replace('\r', '¶'));
+							LOG.trace("text: " + text.replace('\n', '¶').replace('\r', '¶'));
+							LOG.trace("nextText: " + nextText.replace('\n', '¶').replace('\r', '¶'));							
 						}
 						
 						Set<TextMarker> textMarkers = new TreeSet<TextMarker>();
@@ -728,6 +730,12 @@ class TalismaneImpl implements Talismane {
 	    			if (config.getStartModule().compareTo(Module.Tokeniser)<=0 && config.getEndModule().compareTo(Module.SentenceDetector)>=0) {
 		    			sentence = sentences.poll();
 		    			LOG.debug("Sentence: " + sentence);
+		    			if (this.getWriter() instanceof CurrentFileObserver && sentence.getFile()!=null && !sentence.getFile().equals(currentFile)) {
+		    				currentFile = sentence.getFile();
+		    				LOG.debug("Setting current file to " + currentFile.getPath());
+		    				((CurrentFileObserver) this.getWriter()).onNextFile(currentFile);
+		    			}
+		    			
 		    			if (this.getSentenceProcessor()!=null)
 		    				this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
 	    			} // need to read next sentence

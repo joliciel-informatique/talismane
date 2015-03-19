@@ -90,7 +90,7 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	@Override
 	public Set<TextMarker> apply(String prevText, String text, String nextText) {
 		if (LOG.isTraceEnabled()) {
-			LOG.trace("Matching " + regex + "");
+			LOG.trace("Matching " + regex.replace('\n', '¶').replace('\r', '¶'));
 		}
 		String context = prevText + text + nextText;
 		
@@ -112,9 +112,9 @@ class RegexMarkerFilter implements TextMarkerFilter {
 			
 			String matchText = context.substring(matcher.start(), matcher.end());
 			if (LOG.isTraceEnabled()) {
-				LOG.trace("Next match: " + matchText);
+				LOG.trace("Next match: " + matchText.replace('\n', '¶').replace('\r', '¶'));
 				if (matcher.start()!=matcherStart || matcher.end()!=matcherEnd) {
-					LOG.trace("But matching group: " + context.substring(matcherStart, matcherEnd));
+					LOG.trace("But matching group: " + context.substring(matcherStart, matcherEnd).replace('\n', '¶').replace('\r', '¶'));
 				}
 				LOG.trace("matcher.start()=" + matcher.start()
 						+ ", matcher.end()=" + matcher.end()
@@ -201,7 +201,11 @@ class RegexMarkerFilter implements TextMarkerFilter {
 					}
 				}
 			}
-			if (matcherEnd>=textStartPos && matcherEnd<textEndPos) {
+			// if the matcher ends within the textblock
+			// or if the matcher ends exactly on the textblock, and the following text block is empty
+			// we add the end match
+			// the 2nd condition is to ensure we add the end match, since empty blocks can never match anything
+			if (matcherEnd>=textStartPos && (matcherEnd<textEndPos || (matcherEnd==textEndPos && text.length()>0 && nextText.length()==0))) {
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("End in range: textStartPos " + textStartPos + ">= matcherEnd [[" + matcherEnd + "]] < textEndPos " + textEndPos);
 				}
@@ -246,7 +250,7 @@ class RegexMarkerFilter implements TextMarkerFilter {
 		
 		if (textMarkers.size()>0) {
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("For regex: " + this.regex);
+				LOG.debug("For regex: " + this.regex.replace('\n', '¶').replace('\r', '¶'));
 				LOG.debug("Added markers: " + textMarkers);
 			}
 		}

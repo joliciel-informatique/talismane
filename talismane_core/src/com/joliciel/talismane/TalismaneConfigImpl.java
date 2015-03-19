@@ -1151,7 +1151,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						this.suffix = "";
 					DirectoryWriter directoryWriter = new DirectoryWriter(inDir, outDir, suffix, this.getOutputCharset());
 					this.writer = directoryWriter;
-					((CurrentFileProvider) this.getReader()).addCurrentFileObserver(directoryWriter);
 				} else {
 					writer = new BufferedWriter(new OutputStreamWriter(System.out, this.getOutputCharset()));
 				}
@@ -1359,7 +1358,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				textMarkerFilters = new ArrayListNoNulls<TextMarkerFilter>();
 				
 				// insert sentence breaks at end of block
-				this.addTextMarkerFilter(this.getFilterService().getRegexMarkerFilter(new MarkerFilterType[] { MarkerFilterType.SENTENCE_BREAK }, "" + endBlockCharacter, blockSize));
+				this.addTextMarkerFilter(this.getFilterService().getRegexMarkerFilter(new MarkerFilterType[] {MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }, "" + endBlockCharacter, blockSize));
 				
 				// handle newline as requested
 				if (newlineMarker.equals(MarkerFilterType.SENTENCE_BREAK))
@@ -1369,6 +1368,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				
 				// get rid of duplicate white-space always
 				this.addTextMarkerFilter(this.getFilterService().getDuplicateWhiteSpaceFilter());
+				
+				// replace tabs with white space
+				this.addTextMarkerFilter(this.getFilterService().getOtherWhiteSpaceFilter());
 	
 				List<String> paths = new ArrayListNoNulls<String>();
 				if (textFiltersPath!=null && textFiltersPath.length()>0) {

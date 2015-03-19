@@ -157,6 +157,7 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 			}
 			
 			sentence.setFileName(this.getFileName());
+			sentence.setFile(this.getFile());
 			
 			sentences.add(sentence);
 			currentIndex = sentenceBoundary + 1;

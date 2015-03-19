@@ -125,6 +125,14 @@ class FilterServiceImpl implements FilterServiceInternal {
 
 
 	@Override
+	public TextMarkerFilter getOtherWhiteSpaceFilter() {
+		OtherWhiteSpaceFilter filter = new OtherWhiteSpaceFilter();
+		filter.setFilterService(this);
+		return filter;
+	}
+
+
+	@Override
 	public TextMarkerFilter getNewlineEndOfSentenceMarker() {
 		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker();
 		filter.setFilterService(this);

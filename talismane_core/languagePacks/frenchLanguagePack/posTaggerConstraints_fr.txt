@@ -30,9 +30,4 @@
 !ET	HasClosedClassesOnly()
 !I	HasClosedClassesOnly()
 ###### Token patterns ######
-NPP	Word("EntitéNomméeURL")
-NPP	Word("EntitéNomméeAdresseMail")
-NPP	Word("EntitéNomméeTél")
-P	Word("i.e.")
-P	Word("e.g.")
 PONCT	Regex("[\.\?\!]+")

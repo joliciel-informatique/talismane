@@ -40,6 +40,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	private Pattern newlinePattern = Pattern.compile("\r\n|[\r\n]");
 	private int leftoverNewline = 0;
 	private String fileName = "";
+	private File file = null;
 	private static final int NUM_CHARS = 30;
 	
 	private FilterService filterService;
@@ -57,7 +58,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	@Override
 	public SentenceHolder addNextSegment(String originalText, Set<TextMarker> textMarkers) {
 		if (LOG.isTraceEnabled()) {
-			LOG.trace("addNextSegment: " + originalText);
+			LOG.trace("addNextSegment: " + originalText.replace('\n', '¶').replace('\r', '¶'));
 		}
 		SentenceHolder sentenceHolder = filterService.getSentenceHolder();
 
@@ -77,11 +78,11 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 		
 		for (TextMarker textMarker : textMarkers) {
 			if (LOG.isTraceEnabled()) {
+				LOG.trace(textMarker.getType() + ", " + textMarker.getPosition());
 				LOG.trace("Stack before: " + shouldProcessStack);
 				LOG.trace("Text before: " + processedText.toString());
-				LOG.trace(textMarker.getType() + ", " + textMarker.getPosition());
-				LOG.trace("Added by filter: " + textMarker.getSource());
-				LOG.trace("Match text: " + textMarker.getMatchText());
+				LOG.trace("Added by filter: " + textMarker.getSource().toString().replace('\n', '¶').replace('\r', '¶'));
+				LOG.trace("Match text: " + textMarker.getMatchText().replace('\n', '¶').replace('\r', '¶'));
 			}
 			
 			boolean shouldProcess = shouldProcessStack.peek();
@@ -231,6 +232,12 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				break;
 			}
 			} // marker type
+			
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Stack after: " + shouldProcessStack);
+				LOG.trace("Text after: " + processedText.toString());
+			}
+
 		} // next text marker
 		boolean shouldProcess = shouldProcessStack.peek();
 		boolean shouldOutput = shouldOutputStack.peek();
@@ -270,6 +277,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 		originalTextIndex += originalText.length();
 		
 		sentenceHolder.setFileName(this.fileName);
+		sentenceHolder.setFile(this.file);
 		return sentenceHolder;
 	}
 
@@ -293,9 +301,11 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 
 	@Override
 	public void onNextFile(File file) {
+		this.file = file;
 		this.fileName = file.getPath();
 		this.lineNumber = 2;
 		this.originalTextIndex = 0;
+		this.leftoverNewline = 0;
 	}
 
 	
