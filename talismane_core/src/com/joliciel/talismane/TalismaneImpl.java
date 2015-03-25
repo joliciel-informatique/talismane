@@ -127,6 +127,9 @@ class TalismaneImpl implements Talismane {
 		long startTime = new Date().getTime();
 
 		PerformanceMonitor.start(config.getPerformanceConfigFile());
+		if (config.getPerformanceConfigFile()!=null && PerformanceMonitor.getFilePath()==null)
+			PerformanceMonitor.setFilePath(config.getBaseName() + ".performance.csv");
+		
 		try {
 			if (this.getLanguageDetectorProcessor()==null)
 				this.setLanguageDetectorProcessor(config.getLanguageDetectorProcessor());
@@ -451,22 +454,6 @@ class TalismaneImpl implements Talismane {
 			throw new RuntimeException(e);
 		} finally {
 			PerformanceMonitor.end();
-			
-			if (PerformanceMonitor.isActivated()) {
-				try {
-					Writer csvFileWriter = null;
-					File csvFile  =new File(config.getOutDir(), config.getBaseName() + ".performance.csv");
-					
-					csvFile.delete();
-					csvFile.createNewFile();
-					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
-					PerformanceMonitor.writePerformanceCSV(csvFileWriter);
-					csvFileWriter.flush();
-					csvFileWriter.close();
-				} catch (Exception e) {
-					LogUtils.logError(LOG, e);
-				}
-			}
 			
 			long endTime = new Date().getTime();
 			long totalTime = endTime - startTime;
