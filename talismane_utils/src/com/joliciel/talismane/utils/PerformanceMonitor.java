@@ -73,7 +73,7 @@ public class PerformanceMonitor {
 	private String name;
 	private String simpleName;
 	private boolean active = false;
-	
+	private static int numStarts = 0;
 	
 	
 	/**
@@ -84,6 +84,10 @@ public class PerformanceMonitor {
 	 */
 	public static void start(File configFile) {
 		try {
+			numStarts++;
+			if (numStarts>1)
+				return;
+			
 			if (configFile==null)
 				return;
 			
@@ -241,8 +245,12 @@ public class PerformanceMonitor {
 	 * Must be called at the end of the application run, preferably in a finally block.
 	 */
 	public static void end() {
+		numStarts--;
+		if (numStarts>0)
+			return;
 		if (!activated)
 			return;
+		
 		rootMonitor.endTask();
 		if (root.totalTime==0) {
 			long duration = System.currentTimeMillis() - root.startTime;
@@ -392,5 +400,13 @@ public class PerformanceMonitor {
 
 	public static void setActivated(boolean active) {
 		PerformanceMonitor.activated = active;
+	}
+
+	public static String getFilePath() {
+		return filePath;
+	}
+
+	public static void setFilePath(String filePath) {
+		PerformanceMonitor.filePath = filePath;
 	}
 }
