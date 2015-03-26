@@ -49,7 +49,7 @@ class TalismaneSessionImpl implements TalismaneSession {
 	}
 
 	@Override
-	public PosTagSet getPosTagSet() {
+	public synchronized PosTagSet getPosTagSet() {
 		if (posTagSet==null && implementation!=null) {
 			posTagSet = implementation.getDefaultPosTagSet();
 			this.setPosTagSet(posTagSet);
@@ -64,7 +64,7 @@ class TalismaneSessionImpl implements TalismaneSession {
 
 	
 	@Override
-	public TransitionSystem getTransitionSystem() {
+	public synchronized TransitionSystem getTransitionSystem() {
 		if (transitionSystem==null && implementation!=null) {
 			transitionSystem = implementation.getDefaultTransitionSystem();
 			this.setTransitionSystem(transitionSystem);
@@ -78,7 +78,7 @@ class TalismaneSessionImpl implements TalismaneSession {
 	}
 	
 	@Override
-	public List<PosTaggerLexicon> getLexicons() {
+	public synchronized List<PosTaggerLexicon> getLexicons() {
 		if (lexicons.size()==0 && implementation!=null) {
 			List<PosTaggerLexicon> defaultLexicons = implementation.getDefaultLexicons();
 			if (defaultLexicons!=null) {
@@ -109,7 +109,7 @@ class TalismaneSessionImpl implements TalismaneSession {
 	}
 
 	@Override
-	public LinguisticRules getLinguisticRules() {
+	public synchronized LinguisticRules getLinguisticRules() {
 		if (linguisticRules==null && implementation!=null) {
 			linguisticRules = implementation.getDefaultLinguisticRules();
 		}
@@ -122,7 +122,7 @@ class TalismaneSessionImpl implements TalismaneSession {
 	}
 
 	@Override
-	public PosTaggerLexicon getMergedLexicon() {
+	public synchronized PosTaggerLexicon getMergedLexicon() {
 		if (mergedLexicon==null) {
 			List<PosTaggerLexicon> lexicons = this.getLexicons();
 			if (lexicons.size()==0)
