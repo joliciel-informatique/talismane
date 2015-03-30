@@ -195,8 +195,11 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 				for (int i=myRegex.length()-1; i>=0 && endsWithLetter==null; i--) {
 					char c = myRegex.charAt(i);
 					char prevC = ' ';
+					char prevPrevC = ' ';
 					if (i>=1)
 						prevC = myRegex.charAt(i-1);
+					if (i>=2)
+						prevPrevC = myRegex.charAt(i-2);
 					if (prevC=='\\') {
 						if (c=='d' || c=='w') {
 							endsWithLetter = true;
@@ -233,7 +236,11 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 							}
 						}
 						break;
-					} else if (Character.isLetter(c) || Character.isDigit(c)) {
+					} else if (c=='?' || c=='*') {
+						if (Character.isLetterOrDigit(prevC) && Character.isLetterOrDigit(prevPrevC)) {
+							endsWithLetter = true;
+						}
+					} else if (Character.isLetterOrDigit(c)) {
 						endsWithLetter = true;
 					} else {
 						endsWithLetter = false;

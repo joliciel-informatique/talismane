@@ -199,6 +199,16 @@ public class TokenRegexFilterImplTest {
 		
 		assertEquals("\\bblah di blah\\b", pattern.pattern());
 
+		filter = new TokenRegexFilterImpl("helloe?");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setAutoWordBoundaries(true);
+		
+		pattern = filter.getPattern();
+		LOG.debug(pattern.pattern());
+		
+		assertEquals("\\bhelloe?\\b", pattern.pattern());
+
 		filter = new TokenRegexFilterImpl("\\d+ \\D+");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		filter.setExternalResourceFinder(externalResourceFinder);
