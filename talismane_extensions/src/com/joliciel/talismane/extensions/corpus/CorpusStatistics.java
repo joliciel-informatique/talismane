@@ -84,7 +84,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 	private transient Writer writer;
 	private transient File serializationFile;
 	
-	private TalismaneSession talismaneSession;
+	private transient TalismaneSession talismaneSession;
 	
 	public CorpusStatistics(TalismaneSession talismaneSession) {
 		super();
