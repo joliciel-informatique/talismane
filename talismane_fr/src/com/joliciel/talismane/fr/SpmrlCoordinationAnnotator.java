@@ -122,9 +122,7 @@ public class SpmrlCoordinationAnnotator {
 		
 		int lineCount = 0;
 		
-		String rootLineString = "0\tROOT\tROOT\tROOT\troot\troot\t-1\troot\t-1\troot";
-
-		ConllLine rootLine = new ConllLine(rootLineString, -1);
+		ConllLine rootLine = new ConllLine("0\tROOT\tROOT\tROOT\troot\troot\t-1\troot\t-1\troot", -1);
 		List<ConllLine> refLines = new ArrayList<ConllLine>();
 		refLines.add(rootLine);
 		
@@ -168,7 +166,7 @@ public class SpmrlCoordinationAnnotator {
 						ConllLine refLine = refLines.get(j);
 						int coordinatorCount = 0;
 						List<ConllLine> refDeps = refDependencyMap.get(refLine.index);
-						List<ConllLine> coordinators = new ArrayList<SpmrlCoordinationAnnotator.ConllLine>();
+						List<ConllLine> coordinators = new ArrayList<ConllLine>();
 						int lastCoordinatorIndex = -1;
 						for (ConllLine dep : refDeps) {
 							if (dep.label.equals("coord")) {
@@ -239,16 +237,17 @@ public class SpmrlCoordinationAnnotator {
 								}
 							}
 						} else if (refLine.posTag.equals("PONCT") && refLine.label.equals("coord")) {
-							List<ConllLine> coordinators = new ArrayList<SpmrlCoordinationAnnotator.ConllLine>();
+							List<ConllLine> coordinators = new ArrayList<ConllLine>();
 							this.addCoordinators(refLine, coordinators, refDependencyMap);
+							
 							if (coordinators.size()==1)
 								isLastCoordinator=true;
 						}
 						
 						if (isLastCoordinator) {
 							// find all conjuncts
-							List<ConllLine> conjuncts = new ArrayList<SpmrlCoordinationAnnotator.ConllLine>();
-							List<ConllLine> coordinators = new ArrayList<SpmrlCoordinationAnnotator.ConllLine>();
+							List<ConllLine> conjuncts = new ArrayList<ConllLine>();
+							List<ConllLine> coordinators = new ArrayList<ConllLine>();
 							
 							if (!refLine.label.equals("root")) {
 								ConllLine firstConjunct = refLines.get(refLine.governor);
@@ -357,30 +356,27 @@ public class SpmrlCoordinationAnnotator {
 						ConllLine refLine = refLines.get(j);
 						if (refLine.posTag.equals("PONCT")) {
 							boolean fixThisLine = true;
-							if (refLine.label.equals("dep_cpd"))
-								fixThisLine = false;
-							
-							if (fixThisLine) {
-								if (option==Option.ConjunctionGov) {
-									for (ConllLine dep : refDependencyMap.get(refLine.index)) {
-										if (dep.label.equals("coord")) {
-											fixThisLine = false;
-											break;
-										}
+							if (option==Option.ConjunctionGov) {
+								for (ConllLine dep : refDependencyMap.get(refLine.index)) {
+									if (dep.label.equals("coord")) {
+										fixThisLine = false;
+										break;
 									}
-								} else {
-									fixThisLine = !refLine.label.equals("coord");
 								}
+								if (refLine.label.equals("dep_cpd"))
+									fixThisLine = false;
+							} else {
+								fixThisLine = !refLine.label.equals("coord") && !refLine.label.equals("dep_cpd");
 							}
-							
 							if (fixThisLine) {
 								int govIndex = refLine.index-1;
 								for (int k=refLine.index-1; k>=0; k--) {
-									if (!refLines.get(k).posTag.equals("PONCT")) {
+									ConllLine oneLine = refLines.get(k);
+									if (!oneLine.posTag.equals("PONCT") && !oneLine.label.equals("dep_cpd")) {
 										govIndex = k;
 										break;
 									}
-									if (refLines.get(k).posTag.equals("PONCT") && !refLines.get(k).label.equals("ponct")) {
+									if (oneLine.posTag.equals("PONCT") && !oneLine.label.equals("ponct") && !oneLine.label.equals("dep_cpd")) {
 										govIndex = k;
 										break;
 									}
@@ -455,7 +451,7 @@ public class SpmrlCoordinationAnnotator {
 	
 	private static final class ConllLine {
 		public ConllLine(String line, int lineNumber) {
-			String[] parts = line.split("\t", -1);
+			String[] parts = line.split("\t");
 			index = Integer.parseInt(parts[0]);
 			word = parts[1];
 			lemma = parts[2];
@@ -467,12 +463,7 @@ public class SpmrlCoordinationAnnotator {
 			nonProjectiveGovernor = Integer.parseInt(parts[6]);
 			nonProjectiveLabel = parts[7];
 			governor = Integer.parseInt(parts[8]);
-			if (parts.length>=10)
-				label = parts[9];
-
-			for (int i=10; i<parts.length; i++) {
-				extras += "\t" + parts[i];
-			}
+			label = parts[9];
 
 			this.lineNumber = lineNumber;
 		}
@@ -486,13 +477,12 @@ public class SpmrlCoordinationAnnotator {
 		int nonProjectiveGovernor;
 		String nonProjectiveLabel;
 		int governor;
-		String label = "";
-		String extras = "";
+		String label;
 
 		int lineNumber;
 		
 		public String toString() {
-			return index + "\t" + word + "\t" + lemma + "\t" + cat + "\t" + posTag + "\t" + morphology + "\t" + nonProjectiveGovernor + "\t" + nonProjectiveLabel + "\t" + governor + "\t" + label + extras;
+			return index + "\t" + word + "\t" + lemma + "\t" + cat + "\t" + posTag + "\t" + morphology + "\t" + nonProjectiveGovernor + "\t" + nonProjectiveLabel + "\t" + governor + "\t" + label;
 		}
 	}
 }

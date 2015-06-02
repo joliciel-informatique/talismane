@@ -814,8 +814,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				talismaneSession.setPosTagSet(posTagSet);
 			}
 			
+			TransitionSystem transitionSystem = implementation.getDefaultTransitionSystem();
 			if (transitionSystemStr!=null) {
-				TransitionSystem transitionSystem = null;
 				if (transitionSystemStr.equalsIgnoreCase("ShiftReduce")) {
 					transitionSystem = this.getParserService().getShiftReduceTransitionSystem();
 				} else if (transitionSystemStr.equalsIgnoreCase("ArcEager")) {
@@ -823,11 +823,13 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				} else {
 					throw new TalismaneException("Unknown transition system: " + transitionSystemStr);
 				}
-				
+			}
+			
+			if (transitionSystem!=null) {
 				if (dependencyLabelPath!=null) {
 					File dependencyLabelFile = this.getFile(dependencyLabelPath);
 					Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(dependencyLabelFile), "UTF-8")));
-					List<String> dependencyLabels = new ArrayListNoNulls<String>();
+					Set<String> dependencyLabels = new HashSet<String>();
 					while (depLabelScanner.hasNextLine()) {
 						String dependencyLabel = depLabelScanner.nextLine();
 						if (!dependencyLabel.startsWith("#"))
@@ -2879,42 +2881,31 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public synchronized String getBaseName() {
 		if (baseName==null) {
 			baseName = "Talismane";
-			if (outFilePath!=null) {
-				if (outFilePath.indexOf('.')>0)
-					baseName = outFilePath.substring(outFilePath.lastIndexOf('/')+1, outFilePath.lastIndexOf('.'));
+			String path = null;
+			if (outFilePath!=null)
+				path = outFilePath;
+			else if (inFilePath!=null)
+				path = inFilePath;
+			else if (languageModelFilePath!=null && module.equals(Talismane.Module.LanguageDetector)||endModule.equals(Talismane.Module.LanguageDetector))
+				path = languageModelFilePath;
+			else if (sentenceModelFilePath!=null && module.equals(Talismane.Module.SentenceDetector)||endModule.equals(Talismane.Module.SentenceDetector))
+				path = sentenceModelFilePath;
+			else if (tokeniserModelFilePath!=null && (module.equals(Talismane.Module.Tokeniser)||endModule.equals(Talismane.Module.Tokeniser)))
+				path = tokeniserModelFilePath;
+			else if (posTaggerModelFilePath!=null && (module.equals(Talismane.Module.PosTagger)||endModule.equals(Talismane.Module.PosTagger)))
+				path = posTaggerModelFilePath;
+			else if (parserModelFilePath!=null && (module.equals(Talismane.Module.Parser)||endModule.equals(Talismane.Module.Parser)))
+				path = parserModelFilePath;
+			
+			if (path!=null) {
+				path = path.replace('\\', '/');
+				
+				if (path.indexOf('.')>0)
+					baseName = path.substring(path.lastIndexOf('/')+1, path.lastIndexOf('.'));
 				else
-					baseName = outFilePath.substring(outFilePath.lastIndexOf('/')+1);
-			} else if (inFilePath!=null) {
-				if (inFilePath.indexOf('.')>0)
-					baseName = inFilePath.substring(inFilePath.lastIndexOf('/')+1, inFilePath.lastIndexOf('.'));
-				else
-					baseName = inFilePath.substring(inFilePath.lastIndexOf('/')+1);
-			} else if (languageModelFilePath!=null && module.equals(Talismane.Module.LanguageDetector)||endModule.equals(Talismane.Module.LanguageDetector)) {
-				if (languageModelFilePath.indexOf('.')>0)
-					baseName = languageModelFilePath.substring(languageModelFilePath.lastIndexOf('/')+1, languageModelFilePath.lastIndexOf('.'));
-				else
-					baseName = languageModelFilePath.substring(languageModelFilePath.lastIndexOf('/')+1);
-			} else if (sentenceModelFilePath!=null && module.equals(Talismane.Module.SentenceDetector)||endModule.equals(Talismane.Module.SentenceDetector)) {
-				if (sentenceModelFilePath.indexOf('.')>0)
-					baseName = sentenceModelFilePath.substring(sentenceModelFilePath.lastIndexOf('/')+1, sentenceModelFilePath.lastIndexOf('.'));
-				else
-					baseName = sentenceModelFilePath.substring(sentenceModelFilePath.lastIndexOf('/')+1);
-			} else if (tokeniserModelFilePath!=null && (module.equals(Talismane.Module.Tokeniser)||endModule.equals(Talismane.Module.Tokeniser))) {
-				if (tokeniserModelFilePath.indexOf('.')>0)
-					baseName = tokeniserModelFilePath.substring(tokeniserModelFilePath.lastIndexOf('/')+1, tokeniserModelFilePath.lastIndexOf('.'));
-				else
-					baseName = tokeniserModelFilePath.substring(tokeniserModelFilePath.lastIndexOf('/')+1);
-			} else if (posTaggerModelFilePath!=null && (module.equals(Talismane.Module.PosTagger)||endModule.equals(Talismane.Module.PosTagger))) {
-				if (posTaggerModelFilePath.indexOf('.')>0)
-					baseName = posTaggerModelFilePath.substring(posTaggerModelFilePath.lastIndexOf('/')+1, posTaggerModelFilePath.lastIndexOf('.'));
-				else
-					baseName = posTaggerModelFilePath.substring(posTaggerModelFilePath.lastIndexOf('/')+1);
-			} else if (parserModelFilePath!=null && (module.equals(Talismane.Module.Parser)||endModule.equals(Talismane.Module.Parser))) {
-				if (parserModelFilePath.indexOf('.')>0)
-					baseName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1, parserModelFilePath.lastIndexOf('.'));
-				else
-					baseName = parserModelFilePath.substring(parserModelFilePath.lastIndexOf('/')+1);
+					baseName = path.substring(path.lastIndexOf('/')+1);
 			}
+			
 			baseName = baseName + suffix;
 		}
 		return baseName;

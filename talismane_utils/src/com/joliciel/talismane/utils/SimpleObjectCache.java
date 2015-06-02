@@ -27,34 +27,18 @@ import java.util.Map;
  *
  */
 public class SimpleObjectCache implements ObjectCache {
-
-    private static ThreadLocal<Map<Class<? extends Object>,Map<Object,Object>>> cacheHolder = new ThreadLocal<Map<Class<? extends Object>,Map<Object,Object>>>();
+    private Map<Class<? extends Object>,Map<Object,Object>> cache = new HashMap<Class<? extends Object>,Map<Object,Object>>();
     
     public void clearCache() {
-        Map<Class<? extends Object>,Map<Object,Object>> cache = cacheHolder.get();
-        if (cache!=null) {
-            cache.clear();
-        }
+        cache.clear();
     }
-    
-    
 
     @Override
 	public void clearCache(Class<? extends Object> clazz) {
-    	Map<Class<? extends Object>,Map<Object,Object>> cache = cacheHolder.get();
-    	if (cache!=null) {
-    		cache.remove(clazz);
-    	}
+    	cache.remove(clazz);
 	}
 
-
-
 	private Map<Class<? extends Object>,Map<Object,Object>> getCache() {
-        Map<Class<? extends Object>,Map<Object,Object>> cache = cacheHolder.get();
-        if (cache == null) {
-            cache = new HashMap<Class<? extends Object>, Map<Object,Object>>();
-            cacheHolder.set(cache);
-        }
         return cache;
     }
     

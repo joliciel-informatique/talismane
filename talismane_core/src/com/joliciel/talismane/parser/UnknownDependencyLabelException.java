@@ -18,19 +18,34 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.joliciel.talismane.TalismaneException;
 
-abstract class AbstractTransitionSystem implements TransitionSystem {
+/**
+ * Thrown when the dependency label requested does not exist in the current set of dependency labels.
+ * @author Assaf Urieli
+ *
+ */
+public class UnknownDependencyLabelException extends TalismaneException {
 	private static final long serialVersionUID = 1L;
-
-	private Set<String> dependencyLabels = new HashSet<String>();
-
-	public Set<String> getDependencyLabels() {
-		return dependencyLabels;
+	private String dependencyLabel = "";
+	private int index;
+	
+	public UnknownDependencyLabelException(int index, String dependencyLabel) {
+		super("Unknown dependency label: " + dependencyLabel + " on index " + index);
+		this.dependencyLabel = dependencyLabel;
+		this.index = index;
+	}
+	
+	public UnknownDependencyLabelException(String dependencyLabel) {
+		super("Unknown dependency label: " + dependencyLabel);
+		this.dependencyLabel = dependencyLabel;
 	}
 
-	public void setDependencyLabels(Set<String> dependencyLabels) {
-		this.dependencyLabels = dependencyLabels;
+	public String getDependencyLabel() {
+		return dependencyLabel;
+	}
+	
+	public int getIndex() {
+		return index;
 	}
 }
