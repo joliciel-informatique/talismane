@@ -327,8 +327,8 @@ le plus de	DETPatterns	le plus d{'}
 n'importe quel	DETPatterns	n{'}importe (quel|quelle|quelles|quels)
 nombre de	DETPatterns	nombre de
 nombre de	DETPatterns	nombre d{'}
-plus de	DETPatterns	(autant|beaucoup|davantage|plus|moins) de
-plus de	DETPatterns	(autant|beaucoup|davantage|plus|moins) d{'}
+plus de	DETPatterns	(autant|beaucoup|davantage|plus|moins|près) de
+plus de	DETPatterns	(autant|beaucoup|davantage|plus|moins|près) d{'}
 plus des	DETPatterns	(plus|moins) des
 un peu de	DETPatterns	un peu de
 un peu de	DETPatterns	un peu d{'}

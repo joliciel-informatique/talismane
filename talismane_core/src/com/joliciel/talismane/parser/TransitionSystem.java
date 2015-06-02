@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -49,9 +48,9 @@ public interface TransitionSystem {
 	public Set<Transition> getTransitions();
 	
 	/**
-	 * A list of dependency labels for this transition system.
+	 * A set of dependency labels for this transition system.
 	 * @return
 	 */
-	public List<String> getDependencyLabels();
-	public void setDependencyLabels(List<String> dependencyLabels);
+	public Set<String> getDependencyLabels();
+	public void setDependencyLabels(Set<String> dependencyLabels);
 }

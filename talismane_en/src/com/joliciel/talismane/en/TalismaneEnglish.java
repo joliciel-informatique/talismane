@@ -21,10 +21,13 @@ package com.joliciel.talismane.en;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -145,7 +148,7 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
 		InputStream inputStream = getInputStreamFromResource("pennDependencyLabels.txt");
 		Scanner scanner = new Scanner(inputStream, "UTF-8");
-		List<String> dependencyLabels = new ArrayList<String>();
+		Set<String> dependencyLabels = new HashSet<String>();
 		while (scanner.hasNextLine()) {
 			String dependencyLabel = scanner.nextLine();
 			if (!dependencyLabel.startsWith("#")) {
