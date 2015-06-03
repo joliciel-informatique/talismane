@@ -90,6 +90,7 @@ import com.joliciel.talismane.parser.ParseEvaluationSentenceWriter;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.ParseConfigurationProcessorChain;
+import com.joliciel.talismane.parser.ParseTimeByLengthObserver;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserFScoreCalculatorByDistance;
@@ -2542,6 +2543,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					parserEvaluator.setPosTagger(this.getPosTagger());
 				}
 				parserEvaluator.setParser(this.getParser());
+				
+				parserEvaluator.addObserver(new ParseTimeByLengthObserver());
 				
 				File fscoreFile = new File(this.getOutDir(), this.getBaseName() + ".fscores.csv");
 
