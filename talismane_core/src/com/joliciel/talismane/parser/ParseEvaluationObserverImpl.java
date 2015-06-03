@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -25,7 +26,7 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration refConfiguration,
+	public void onParseEnd(ParseConfiguration refConfiguration,
 			List<ParseConfiguration> guessedConfigurations) {
 		try {
 			boolean includeMe = true;
@@ -125,5 +126,10 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 
 	public void setWriter(Writer writer) {
 		this.writer = writer;
+	}
+	
+	@Override
+	public void onParseStart(ParseConfiguration realConfiguration,
+			List<PosTagSequence> posTagSequences) {
 	}
 }

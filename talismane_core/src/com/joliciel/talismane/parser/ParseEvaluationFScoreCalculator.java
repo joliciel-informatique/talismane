@@ -49,7 +49,7 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 		this.fscoreFile = fscoreFile;
 	}
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration realConfiguration,
+	public void onParseEnd(ParseConfiguration realConfiguration,
 			List<ParseConfiguration> guessedConfigurations) {
 		PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();		
 		ParseConfiguration bestGuess = guessedConfigurations.get(0);
@@ -159,5 +159,10 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 	}
 	public void setSkipLabel(String skipLabel) {
 		this.skipLabel = skipLabel;
+	}
+	
+	@Override
+	public void onParseStart(ParseConfiguration realConfiguration,
+			List<PosTagSequence> posTagSequences) {
 	}
 }

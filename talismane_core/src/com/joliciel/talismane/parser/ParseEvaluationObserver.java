@@ -20,6 +20,8 @@ package com.joliciel.talismane.parser;
 
 import java.util.List;
 
+import com.joliciel.talismane.posTagger.PosTagSequence;
+
 
 /**
  * An interface that observes a parsing evaluation while its occurring.
@@ -27,12 +29,23 @@ import java.util.List;
  *
  */
 public interface ParseEvaluationObserver {
+
+	/**
+	 * Called before parsing begins
+	 * @param realConfiguration
+	 * @param posTagSequences
+	 */
+	public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences);
+	
 	/**
 	 * Called when the next parse configuration has been processed.
 	 * @param realConfiguration
 	 * @param guessedConfigurations
 	 */
-	public void onNextParseConfiguration(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations);
+	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations);
 	
+	/**
+	 * Called when full evaluation has completed.
+	 */
 	public void onEvaluationComplete();
 }

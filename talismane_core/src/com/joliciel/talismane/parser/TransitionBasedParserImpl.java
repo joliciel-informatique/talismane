@@ -20,7 +20,6 @@ package com.joliciel.talismane.parser;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -30,7 +29,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -106,8 +104,8 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 	@Override
 	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) {
 		MONITOR.startTask("parseSentence");
+		long startTime = System.currentTimeMillis();
 		try {
-			long startTime = (new Date()).getTime();
 			int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
 			int minFreeMemoryBytes = minFreeMemory * KILOBYTE;
 			
@@ -156,7 +154,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 					finished = true;
 				}
 				
-				long analysisTime = (new Date()).getTime() - startTime;
+				long analysisTime = System.currentTimeMillis() - startTime;
 				if (maxAnalysisTimePerSentence > 0 && analysisTime > maxAnalysisTimeMilliseconds) {
 					LOG.info("Parse tree analysis took too long for sentence: " + tokenSequence.getText());
 					LOG.info("Breaking out after " +  maxAnalysisTimePerSentence + " seconds.");
@@ -546,6 +544,4 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 			MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
-	
-	
 }
