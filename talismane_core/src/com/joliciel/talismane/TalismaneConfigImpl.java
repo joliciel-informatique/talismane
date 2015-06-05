@@ -332,6 +332,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private ParseComparisonStrategyType parseComparisonStrategyType;
 	private boolean includeLexiconCoverage = false;
 	private boolean includeUnknownWordResults = false;
+	private boolean includeTimePerToken = false;
 	
 	// server parameters
 	private int port = 7272;
@@ -488,6 +489,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					outputEncoding = argValue;
 				} else if (argName.equals("includeDetails"))
 					includeDetails = argValue.equalsIgnoreCase("true");
+				else if (argName.equals("includeTimePerToken"))
+					includeTimePerToken = argValue.equalsIgnoreCase("true");
 				else if (argName.equals("propagateBeam"))
 					propagateBeam = argValue.equalsIgnoreCase("true");
 				else if (argName.equals("beamWidth"))
@@ -2544,7 +2547,13 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				}
 				parserEvaluator.setParser(this.getParser());
 				
-				parserEvaluator.addObserver(new ParseTimeByLengthObserver());
+				ParseTimeByLengthObserver parseTimeByLengthObserver = new ParseTimeByLengthObserver();
+				if (includeTimePerToken) {
+					File timePerTokenFile = new File(this.getOutDir(), this.getBaseName() + ".timePerToken.csv");
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false),"UTF8"));
+					parseTimeByLengthObserver.setWriter(csvFileWriter);
+				}
+				parserEvaluator.addObserver(parseTimeByLengthObserver);
 				
 				File fscoreFile = new File(this.getOutDir(), this.getBaseName() + ".fscores.csv");
 
