@@ -26,11 +26,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -355,7 +357,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    	if (key.equals("transitionSystem")) { 
 						transitionSystem = this.getParserService().getArcEagerTransitionSystem();
 						Scanner scanner = new Scanner(zis, "UTF-8");
-						List<String> dependencyLabels = new ArrayListNoNulls<String>();
+						Set<String> dependencyLabels = new HashSet<String>();
 						while (scanner.hasNextLine()) {
 							String dependencyLabel = scanner.nextLine();
 							if (!dependencyLabel.startsWith("#")) {

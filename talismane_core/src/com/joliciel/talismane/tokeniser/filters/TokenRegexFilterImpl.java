@@ -36,6 +36,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.ExternalWordList;
 import com.joliciel.talismane.utils.RegexUtils;
+import com.joliciel.talismane.utils.StringUtils;
 
 class TokenRegexFilterImpl implements TokenRegexFilter {
 	private static final Log LOG = LogFactory.getLog(TokenRegexFilterImpl.class);
@@ -180,6 +181,8 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 									startsWithLetter = true;
 								}
 							}
+							if (startsWithLetter==null)
+								startsWithLetter=false;
 						}
 						break;
 					} else if (c=='[' || c=='(') {
@@ -195,26 +198,19 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 				for (int i=myRegex.length()-1; i>=0 && endsWithLetter==null; i--) {
 					char c = myRegex.charAt(i);
 					char prevC = ' ';
+					char prevPrevC = ' ';
 					if (i>=1)
 						prevC = myRegex.charAt(i-1);
-					if (prevC=='\\') {
+					if (i>=2)
+						prevPrevC = myRegex.charAt(i-2);
+					if (prevC=='\\' && StringUtils.countChar(myRegex, prevC, i-1, false)%2==1) {
+						// the previous character was an escaping backslash
 						if (c=='d' || c=='w') {
 							endsWithLetter = true;
 						} else if (c=='s' || c=='W' || c=='b' || c=='B') {
 							endsWithLetter = false;
-						} else if (c=='p') {
-							i+=2; // skip the open curly brackets
-							int closeCurlyBrackets = myRegex.indexOf('}', i);
-							int openParentheses = myRegex.indexOf('(', i);
-							int endIndex = closeCurlyBrackets;
-							if (openParentheses<closeCurlyBrackets)
-								endIndex = openParentheses;
-							if (endIndex>0) {
-								String specialClass = myRegex.substring(i, endIndex);
-								if (specialClass.equals("WordList") || specialClass.equals("Alpha") || specialClass.equals("Lower") || specialClass.equals("Upper") || specialClass.equals("ASCII") || specialClass.equals("Digit")) {
-									startsWithLetter = true;
-								}
-							}
+						} else {
+							endsWithLetter = false;
 						}
 						break;
 					} else if (c==']' || c==')' || c=='+') {
@@ -233,7 +229,26 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 							}
 						}
 						break;
-					} else if (Character.isLetter(c) || Character.isDigit(c)) {
+					} else if (c=='?' || c=='*') {
+						if (Character.isLetterOrDigit(prevC)) {
+							if (prevPrevC=='\\' && StringUtils.countChar(myRegex, prevPrevC, i-2, false)%2==1) {
+								// the preceding character was an escaping backslash...
+								if (prevC=='d' || prevC=='w') {
+									// skip this construct
+									i-=2;
+								} else {
+									endsWithLetter = false;
+								}
+							} else {
+								// since the matched text may or may not match prevC
+								// we skip this letter and continue, to find out if prior to this letter
+								// there's another letter
+								i--;
+							}
+						} else {
+							endsWithLetter = false;
+						}
+					} else if (Character.isLetterOrDigit(c)) {
 						endsWithLetter = true;
 					} else {
 						endsWithLetter = false;

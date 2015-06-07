@@ -339,10 +339,21 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									PosTaggedToken rootToken = posTagSequence.prependRoot();
 									idTokenMap.put(0, rootToken);
 									
+									TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
 									Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
 									for (ParseDataLine dataLine : dataLines) {
 										PosTaggedToken head = idTokenMap.get(dataLine.getGovernorIndex());
 										PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
+										
+										if (transitionSystem.getDependencyLabels().size()>1) {
+											if (!transitionSystem.getDependencyLabels().contains(dataLine.getDependencyLabel())) {
+												throw new TalismaneException("Unknown dependency label, " + (currentFile==null ? "" : currentFile.getPath()) + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getDependencyLabel());
+											}
+											if (dataLine.getNonProjectiveLabel().length()>0 && !transitionSystem.getDependencyLabels().contains(dataLine.getNonProjectiveLabel())) {
+												throw new TalismaneException("Unknown dependency label, " + (currentFile==null ? "" : currentFile.getPath()) + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getNonProjectiveLabel());
+											}
+
+										}
 										DependencyArc arc = this.getParserService().getDependencyArc(head, dependent, dataLine.getDependencyLabel());
 										if (LOG.isTraceEnabled())
 											LOG.trace(arc);
@@ -352,7 +363,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									
 									configuration = this.getParserService().getInitialConfiguration(posTagSequence);
 									if (this.predictTransitions) {
-										TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
 										transitionSystem.predictTransitions(configuration, dependencies);
 									} else {
 										for (DependencyArc arc : dependencies) {
@@ -782,18 +792,18 @@ public class ParserRegexBasedCorpusReaderImpl implements
 				placeholderIndexMap.put(placeholderName, i++);
 			}
 			
-			String regexWithGroups = regex.replace(INDEX_PLACEHOLDER, "(.+)");
+			String regexWithGroups = regex.replace(INDEX_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(TOKEN_PLACEHOLDER, "(.*)");
 			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
 			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.*)");
-			regexWithGroups = regexWithGroups.replace(GOVERNOR_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(GOVERNOR_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(NON_PROJ_LABEL_PLACEHOLDER, "(.*)");
-			regexWithGroups = regexWithGroups.replace(NON_PROJ_GOVERNOR_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(NON_PROJ_GOVERNOR_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(END_ROW_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(END_COLUMN_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(\\d+)");
+			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(\\d+)");
+			regexWithGroups = regexWithGroups.replace(END_ROW_PLACEHOLDER, "(\\d+)");
+			regexWithGroups = regexWithGroups.replace(END_COLUMN_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(POSTAG_COMMENT_PLACEHOLDER, "(.*)");
 			regexWithGroups = regexWithGroups.replace(DEP_COMMENT_PLACEHOLDER, "(.*)");
 			

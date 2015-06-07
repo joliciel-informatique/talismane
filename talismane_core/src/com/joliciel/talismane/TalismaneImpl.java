@@ -125,10 +125,6 @@ class TalismaneImpl implements Talismane {
 	@Override
 	public void process() {
 		long startTime = new Date().getTime();
-
-		PerformanceMonitor.start(config.getPerformanceConfigFile());
-		if (config.getPerformanceConfigFile()!=null && PerformanceMonitor.getFilePath()==null)
-			PerformanceMonitor.setFilePath(config.getBaseName() + ".performance.csv");
 		
 		try {
 			if (this.getLanguageDetectorProcessor()==null)
@@ -453,8 +449,6 @@ class TalismaneImpl implements Talismane {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		} finally {
-			PerformanceMonitor.end();
-			
 			long endTime = new Date().getTime();
 			long totalTime = endTime - startTime;
 			LOG.debug("Total time for Talismane.process(): " + totalTime);

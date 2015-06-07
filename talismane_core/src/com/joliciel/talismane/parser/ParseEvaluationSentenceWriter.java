@@ -56,7 +56,7 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration realConfiguration,
+	public void onParseEnd(ParseConfiguration realConfiguration,
 			List<ParseConfiguration> guessedConfigurations) {
 		try {
 			TreeSet<Integer> startIndexes = new TreeSet<Integer>();
@@ -265,4 +265,8 @@ public class ParseEvaluationSentenceWriter implements ParseEvaluationObserver {
 		this.hasPosTagger = hasPosTagger;
 	}
 
+	@Override
+	public void onParseStart(ParseConfiguration realConfiguration,
+			List<PosTagSequence> posTagSequences) {
+	}
 }

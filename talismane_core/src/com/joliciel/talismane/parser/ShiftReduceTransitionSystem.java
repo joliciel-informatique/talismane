@@ -71,7 +71,11 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 			DependencyArc currentDep = null;
 			for (DependencyArc arc : targetDependencies) {
 				if (arc.getHead().equals(bufferHead)&&arc.getDependent().equals(stackHead)) {
-					transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
+					try {
+						transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
+					} catch (UnknownDependencyLabelException udle) {
+						throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
+					}
 					currentDep = arc;
 					break;
 				}
@@ -85,7 +89,11 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 						}
 					}
 					if (!dependentHasDependents) {
-						transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+						try {
+							transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+						} catch (UnknownDependencyLabelException udle) {
+							throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
+						}
 
 						currentDep = arc;
 						break;
@@ -126,6 +134,9 @@ class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 		String label = null;
 		if (code.indexOf('[')>=0) {
 			label = code.substring(code.indexOf('[')+1, (code.indexOf(']')));
+			if (this.getDependencyLabels().size()>0 && !this.getDependencyLabels().contains(label)) {
+				throw new UnknownDependencyLabelException(label);
+			}
 		}
 		if (code.startsWith("LeftArc")) {
 			transition = new LeftArcTransition(label);

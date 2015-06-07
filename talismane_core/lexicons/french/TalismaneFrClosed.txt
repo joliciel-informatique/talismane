@@ -950,10 +950,9 @@ de part et d'autre d'	de part et d'autre de	P
 de part et d'autre de	de part et d'autre de	P	
 de part et d'autre des	de part et d'autre de	P+D	n=p
 de part et d'autre du	de part et d'autre de	P+D	g=m|n=s
-de plus en plus d'	de plus en plus de	P	
-de plus en plus de	de plus en plus de	P	
-de plus en plus des	de plus en plus de	P+D	n=p
-de plus en plus du	de plus en plus de	P+D	g=m|n=s
+de plus en plus	de plus en plus	ADV	
+de plus en plus d'	de plus en plus de	DET	
+de plus en plus de	de plus en plus de	DET	
 de près	de près	P	
 de sorte qu'	de sorte que	CS	
 de sorte que	de sorte que	CS	
@@ -1475,7 +1474,9 @@ mes	mes	DET	p=1|poss=s|n=p
 moi	moi	PRO	p=1|n=s
 moi-même	moi-même	PRO	p=1|n=s
 moins	moins	CC	
+moins d'	moins de	ADV	
 moins d'	moins de	DET	
+moins de	moins de	ADV	
 moins de	moins de	DET	
 mon	mon	DET	g=m|p=1|poss=s|n=s
 moult	moult	DET	g=m|n=s
@@ -1625,12 +1626,12 @@ plein d'	plein de	P
 plein de	plein de	DET	
 plein de	plein de	P	
 plus	plus	CC	
+plus d'	plus de	ADV	
 plus d'	plus de	DET	
-plus d'	plus de	P	
 plus d'un	plus d'un	PRO	g=m|n=s
 plus d'une	plus d'un	PRO	g=f|n=s
 plus de	plus de	DET	
-plus de	plus de	P	
+plus de	plus de	ADV	
 plus qu'	plus que	CS	
 plus que	plus que	CS	
 plusieurs	plusieurs	DET	n=p
@@ -1668,6 +1669,8 @@ pour une fois que	pour une fois que	CS
 pourquoi	pourquoi	ADVWH	
 pourvu qu'	pourvu que	CS	
 pourvu que	pourvu que	CS	
+près d'	près de	ADV	
+près de	près de	ADV	
 près d'	près de	P	
 près de	près de	P	
 près des	près de	P+D	n=p
