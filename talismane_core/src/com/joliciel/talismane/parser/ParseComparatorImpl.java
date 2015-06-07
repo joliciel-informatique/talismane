@@ -46,7 +46,7 @@ class ParseComparatorImpl implements ParseComparator {
 			
 			double realLength = realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
 			double guessedLength = guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
-			
+
 			double ratio = realLength > guessedLength ? guessedLength / realLength : realLength / guessedLength;
 			if (ratio < 0.9) {
 				LOG.info("Mismatched sentences");
@@ -57,7 +57,7 @@ class ParseComparatorImpl implements ParseComparator {
 			}
 			
 			for (ParseEvaluationObserver observer : this.observers) {
-				observer.onNextParseConfiguration(realConfiguration, guessConfigurations);
+				observer.onParseEnd(realConfiguration, guessConfigurations);
 			}
 			sentenceIndex++;
 			if (sentenceCount>0 && sentenceIndex==sentenceCount)

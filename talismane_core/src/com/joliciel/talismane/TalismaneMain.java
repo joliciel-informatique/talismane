@@ -32,6 +32,7 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -68,10 +69,16 @@ public class TalismaneMain {
         	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
         	if (config.getCommand()==null)
         		return;
-         	
-        	Talismane talismane = config.getTalismane();
         	
-        	talismane.process();
+    		PerformanceMonitor.start(config.getPerformanceConfigFile());
+    		if (config.getPerformanceConfigFile()!=null && PerformanceMonitor.getFilePath()==null)
+    			PerformanceMonitor.setFilePath(config.getBaseName() + ".performance.csv");
+    		try {
+	        	Talismane talismane = config.getTalismane();
+	        	talismane.process();
+    		} finally {
+    			PerformanceMonitor.end();
+    		}
     	} else {
     		// other command
 			String logConfigPath = argsMap.get("logConfigFile");

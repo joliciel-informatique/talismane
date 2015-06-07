@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.List;
 
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
+import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
  * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
@@ -41,7 +42,7 @@ public class ParseEvaluationGuessTemplateWriter implements
 	}
 	
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration realConfiguration,
+	public void onParseEnd(ParseConfiguration realConfiguration,
 			List<ParseConfiguration> guessedConfigurations) {
 		freemarkerTemplateWriter.onNextParseConfiguration(guessedConfigurations.get(0), writer);
 	}
@@ -51,4 +52,8 @@ public class ParseEvaluationGuessTemplateWriter implements
 		freemarkerTemplateWriter.onCompleteParse();
 	}
 
+	@Override
+	public void onParseStart(ParseConfiguration realConfiguration,
+			List<PosTagSequence> posTagSequences) {
+	}
 }

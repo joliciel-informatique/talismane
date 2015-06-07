@@ -111,6 +111,15 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 				posTagSequences.add(posTagSequence);				
 			}
 			
+			MONITOR.startTask("onParseStart");
+			try {
+				for (ParseEvaluationObserver observer : this.observers) {
+					observer.onParseStart(realConfiguration, posTagSequences);
+				}
+			} finally {
+				MONITOR.endTask();
+			}
+			
 			List<ParseConfiguration> guessedConfigurations = null;
 			if (parser instanceof NonDeterministicParser) {
 				NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
@@ -135,7 +144,7 @@ class ParserEvaluatorImpl implements ParserEvaluator {
 			MONITOR.startTask("observe");
 			try {
 				for (ParseEvaluationObserver observer : this.observers) {
-					observer.onNextParseConfiguration(realConfiguration, guessedConfigurations);
+					observer.onParseEnd(realConfiguration, guessedConfigurations);
 				}
 			} finally {
 				MONITOR.endTask();

@@ -18,19 +18,19 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 abstract class AbstractTransitionSystem implements TransitionSystem {
 	private static final long serialVersionUID = 1L;
 
-	private List<String> dependencyLabels = new ArrayList<String>();
+	private Set<String> dependencyLabels = new HashSet<String>();
 
-	public List<String> getDependencyLabels() {
+	public Set<String> getDependencyLabels() {
 		return dependencyLabels;
 	}
 
-	public void setDependencyLabels(List<String> dependencyLabels) {
+	public void setDependencyLabels(Set<String> dependencyLabels) {
 		this.dependencyLabels = dependencyLabels;
 	}
 }

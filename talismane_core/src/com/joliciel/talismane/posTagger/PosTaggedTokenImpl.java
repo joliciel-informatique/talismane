@@ -57,6 +57,8 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 		super(taggedTokenToClone);
 		this.featureResults = taggedTokenToClone.featureResults;
 		this.lexicalEntries = taggedTokenToClone.lexicalEntries;
+		
+		this.talismaneService = taggedTokenToClone.talismaneService;
 	}
 	
 	public PosTaggedTokenImpl(Token token, Decision decision, PosTag posTag) {

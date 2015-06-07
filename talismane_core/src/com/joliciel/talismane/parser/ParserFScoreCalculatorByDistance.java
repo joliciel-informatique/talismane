@@ -55,7 +55,7 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 	}
 	
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration realConfiguration,
+	public void onParseEnd(ParseConfiguration realConfiguration,
 			List<ParseConfiguration> guessedConfigurations) {
 		PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();		
 		ParseConfiguration bestGuess = guessedConfigurations.get(0);
@@ -217,4 +217,8 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 		this.skipLabel = skipLabel;
 	}
 	
+	@Override
+	public void onParseStart(ParseConfiguration realConfiguration,
+			List<PosTagSequence> posTagSequences) {
+	}
 }

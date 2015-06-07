@@ -86,7 +86,7 @@ public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializabl
 	private transient File serializationFile;
 	
 	
-	private TalismaneSession talismaneSession;
+	private transient TalismaneSession talismaneSession;
 	
 	public PosTaggerStatistics(TalismaneSession talismaneSession) {
 		super();

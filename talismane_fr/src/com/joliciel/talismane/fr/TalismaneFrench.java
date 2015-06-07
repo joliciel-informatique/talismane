@@ -21,10 +21,13 @@ package com.joliciel.talismane.fr;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -173,7 +176,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				config.setSentenceCorpusReader(corpusReader);
 				
 				if (corpusReaderType==CorpusFormat.spmrl) {
-					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
+					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%NON_PROJ_GOVERNOR%\\t%NON_PROJ_LABEL%\\t%GOVERNOR%\\t%LABEL%");
 				}
  				
 				if (config.getInputRegex()!=null) {
@@ -228,7 +231,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
 		InputStream inputStream = getInputStreamFromResource("talismaneDependencyLabels.txt");
 		Scanner scanner = new Scanner(inputStream, "UTF-8");
-		List<String> dependencyLabels = new ArrayList<String>();
+		Set<String> dependencyLabels = new HashSet<String>();
 		while (scanner.hasNextLine()) {
 			String dependencyLabel = scanner.nextLine();
 			if (!dependencyLabel.startsWith("#")) {

@@ -18,34 +18,34 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.List;
-
-import com.joliciel.talismane.posTagger.PosTagSequence;
-
+import com.joliciel.talismane.TalismaneException;
 
 /**
- * An interface that observes a parsing evaluation while its occurring.
+ * Thrown when the dependency label requested does not exist in the current set of dependency labels.
  * @author Assaf Urieli
  *
  */
-public interface ParseEvaluationObserver {
+public class UnknownDependencyLabelException extends TalismaneException {
+	private static final long serialVersionUID = 1L;
+	private String dependencyLabel = "";
+	private int index;
+	
+	public UnknownDependencyLabelException(int index, String dependencyLabel) {
+		super("Unknown dependency label: " + dependencyLabel + " on index " + index);
+		this.dependencyLabel = dependencyLabel;
+		this.index = index;
+	}
+	
+	public UnknownDependencyLabelException(String dependencyLabel) {
+		super("Unknown dependency label: " + dependencyLabel);
+		this.dependencyLabel = dependencyLabel;
+	}
 
-	/**
-	 * Called before parsing begins
-	 * @param realConfiguration
-	 * @param posTagSequences
-	 */
-	public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences);
+	public String getDependencyLabel() {
+		return dependencyLabel;
+	}
 	
-	/**
-	 * Called when the next parse configuration has been processed.
-	 * @param realConfiguration
-	 * @param guessedConfigurations
-	 */
-	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations);
-	
-	/**
-	 * Called when full evaluation has completed.
-	 */
-	public void onEvaluationComplete();
+	public int getIndex() {
+		return index;
+	}
 }
