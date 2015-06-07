@@ -94,6 +94,8 @@ final class TokenImpl implements TokenInternal {
 		this.lineNumber = tokenToClone.lineNumber;
 		this.columnNumber = tokenToClone.columnNumber;
 		this.attributes = tokenToClone.attributes;
+		
+		this.talismaneService = tokenToClone.talismaneService;
 	}
 	
 	TokenImpl(String text, TokenSequence tokenSequence) {
