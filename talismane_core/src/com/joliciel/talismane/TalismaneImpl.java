@@ -669,15 +669,17 @@ class TalismaneImpl implements Talismane {
 							// there isn't a leftover sentence is the case where the sentenceHolder
 							// boundary happens to be a sentence boundary, hence position 0.
 							if (prevSentenceHolder.getOriginalTextSegments().size()>0) {
+								Sentence sentence = filterService.getSentence("");
+								if (sentences.size()>0)
+									sentence.setFile(sentences.peek().getFile());
 								StringBuilder segmentsToInsert = new StringBuilder();
+								if (prevSentenceHolder.getLeftoverOriginalText()!=null)
+									segmentsToInsert.append(prevSentenceHolder.getLeftoverOriginalText());
 								for (String originalTextSegment : prevSentenceHolder.getOriginalTextSegments().values()) {
 									segmentsToInsert.append(originalTextSegment);
 								}
-								String originalTextSegment0 = sentenceHolder.getOriginalTextSegments().get(0);
-								if (originalTextSegment0==null)
-									originalTextSegment0 = "";
-								segmentsToInsert.append(originalTextSegment0);
-								sentenceHolder.getOriginalTextSegments().put(0, segmentsToInsert.toString());
+								sentence.setLeftoverOriginalText(segmentsToInsert.toString());
+								sentences.add(sentence);
 							}
 						}
 						prevSentenceHolder = sentenceHolder;
@@ -711,6 +713,9 @@ class TalismaneImpl implements Talismane {
 	    			if (config.getStartModule().compareTo(Module.Tokeniser)<=0 && config.getEndModule().compareTo(Module.SentenceDetector)>=0) {
 		    			sentence = sentences.poll();
 		    			LOG.debug("Sentence: " + sentence);
+		    			if (sentence.getLeftoverOriginalText()!=null) {
+		    				this.getWriter().append(sentence.getLeftoverOriginalText()+"\n");
+		    			}
 		    			if (this.getWriter() instanceof CurrentFileObserver && sentence.getFile()!=null && !sentence.getFile().equals(currentFile)) {
 		    				currentFile = sentence.getFile();
 		    				LOG.debug("Setting current file to " + currentFile.getPath());

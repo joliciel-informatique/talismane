@@ -91,12 +91,14 @@ public class DirectoryWriter extends Writer implements CurrentFileObserver {
 
 	@Override
 	public void flush() throws IOException {
-		this.writer.flush();
+		if (this.writer!=null)
+			this.writer.flush();
 	}
 
 	@Override
 	public void close() throws IOException {
-		this.writer.close();
+		if (this.writer!=null)
+			this.writer.close();
 	}
 
 }
