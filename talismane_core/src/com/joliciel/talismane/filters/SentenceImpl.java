@@ -40,6 +40,7 @@ class SentenceImpl implements Sentence {
 	private String fileName = "";
 	private File file = null;
 	private int startLineNumber = -1;
+	private String leftoverOriginalText;
 	
 	@Override
 	public String getText() {
@@ -160,5 +161,11 @@ class SentenceImpl implements Sentence {
 		this.file = file;
 	}
 
-	
+	public String getLeftoverOriginalText() {
+		return leftoverOriginalText;
+	}
+
+	public void setLeftoverOriginalText(String leftoverOriginalText) {
+		this.leftoverOriginalText = leftoverOriginalText;
+	}
 }
