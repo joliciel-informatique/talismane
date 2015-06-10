@@ -134,4 +134,17 @@ public interface Sentence {
 	public int getStartLineNumber();
 	public void setStartLineNumber(int startLineNumber);
 
+	
+	/**
+	 * Set original text marked for output from a previous sentence holder.
+	 * @param originalText
+	 * @param file
+	 */
+	void setLeftoverOriginalText(String originalText);
+	
+	/**
+	 * Is there any leftover original text?
+	 * @return
+	 */
+	String getLeftoverOriginalText();
 }
