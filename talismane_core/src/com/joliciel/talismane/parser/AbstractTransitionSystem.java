@@ -22,8 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 abstract class AbstractTransitionSystem implements TransitionSystem {
-	private static final long serialVersionUID = 1L;
-
 	private Set<String> dependencyLabels = new HashSet<String>();
 
 	public Set<String> getDependencyLabels() {
