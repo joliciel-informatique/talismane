@@ -38,7 +38,6 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
-	private static final long serialVersionUID = -6536246443810297657L;
 	private static final Log LOG = LogFactory.getLog(ShiftReduceTransitionSystem.class);
 	private transient Set<Transition> transitions = null;
 
