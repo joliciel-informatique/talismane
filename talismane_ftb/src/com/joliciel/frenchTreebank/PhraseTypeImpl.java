@@ -19,10 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 class PhraseTypeImpl extends EntityImpl implements PhraseTypeInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -6701330948042421882L;
+
 	String code = "";
     String description = "";
     TreebankServiceInternal treebankServiceInternal;

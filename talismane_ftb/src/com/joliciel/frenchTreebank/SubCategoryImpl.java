@@ -19,10 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 class SubCategoryImpl extends EntityImpl implements SubCategoryInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -1588822436580784653L;
+
 	int categoryId;
     Category category;
     String code;

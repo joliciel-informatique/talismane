@@ -57,6 +57,7 @@ public class TextFileMultivaluedResource implements ExternalResource<List<Weight
 		try {
 			this.name = file.getName();
 
+			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(file);
 			int numParts = -1;
 			int i=1;
@@ -99,6 +100,7 @@ public class TextFileMultivaluedResource implements ExternalResource<List<Weight
 				}
 				i++;
 			}
+			scanner.close();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

@@ -19,10 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 class PhraseSubunitImpl extends EntityImpl implements PhraseSubunitInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 7607123437155844820L;
+
 	int phraseUnitId;
     PhraseUnit phraseUnit;
     int wordId;

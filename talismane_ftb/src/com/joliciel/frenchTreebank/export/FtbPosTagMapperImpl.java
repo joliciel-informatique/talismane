@@ -53,6 +53,7 @@ class FtbPosTagMapperImpl implements FtbPosTagMapper {
 				String line = scanner.nextLine();
 				descriptors.add(line);
 			}
+			scanner.close();
 			this.load(descriptors);
 		} catch (FileNotFoundException e) {
 			LogUtils.logError(LOG, e);

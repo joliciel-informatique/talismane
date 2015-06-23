@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;

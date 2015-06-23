@@ -89,6 +89,7 @@ class ExternalResourceFinderImpl implements ExternalResourceFinder {
 				ExternalWordList externalWordList = (ExternalWordList) resourceObject;
 				this.addExternalWordList(externalWordList);
 			}
+			ois.close();
 		} else {
 			boolean wordList = false;
 			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(externalResourceFile), "UTF-8")));
@@ -98,6 +99,7 @@ class ExternalResourceFinderImpl implements ExternalResourceFinder {
 					wordList = true;
 				}
 			}
+			scanner.close();
 			if (wordList) {
 				TextFileWordList textFileWordList = new TextFileWordList(externalResourceFile);
 				this.addExternalWordList(textFileWordList);

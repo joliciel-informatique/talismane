@@ -261,6 +261,7 @@ public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializabl
 		try {
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
 			zis.getNextEntry();
+			@SuppressWarnings("resource")
 			ObjectInputStream in = new ObjectInputStream(zis);
 			PosTaggerStatistics stats = null;
 			try {
