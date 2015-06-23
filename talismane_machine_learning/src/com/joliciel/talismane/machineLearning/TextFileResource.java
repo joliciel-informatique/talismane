@@ -58,6 +58,7 @@ public class TextFileResource implements ExternalResource<String> {
 		try {
 			this.name = file.getName();
 
+			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
 			int numParts = -1;
 			int i=1;
@@ -93,6 +94,7 @@ public class TextFileResource implements ExternalResource<String> {
 				}
 				i++;
 			}
+			scanner.close();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

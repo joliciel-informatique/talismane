@@ -198,6 +198,14 @@ class RegexMarkerFilter implements TextMarkerFilter {
 						textMarkers.add(textMarker);
 						break;
 					}
+					case NONE:
+						break;
+					case OUTPUT_STOP:
+						break;
+					case START:
+						break;
+					default:
+						break;
 					}
 				}
 			}
@@ -243,6 +251,16 @@ class RegexMarkerFilter implements TextMarkerFilter {
 						textMarkers.add(textMarker);
 						break;
 					}
+					case NONE:
+						break;
+					case OUTPUT_START:
+						break;
+					case SENTENCE_BREAK:
+						break;
+					case STOP:
+						break;
+					default:
+						break;
 					}
 				}
 			}

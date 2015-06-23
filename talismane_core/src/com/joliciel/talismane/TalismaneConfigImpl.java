@@ -839,6 +839,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						if (!dependencyLabel.startsWith("#"))
 							dependencyLabels.add(dependencyLabel);
 					}
+					depLabelScanner.close();
 					transitionSystem.setDependencyLabels(dependencyLabels);
 				}
 				
@@ -1831,6 +1832,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						featureDescriptors.add(descriptor);
 						LOG.debug(descriptor);
 					}
+					scanner.close();
 					languageFeatures = this.getLanguageDetectorService().getFeatureSet(featureDescriptors);
 					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
@@ -1856,6 +1858,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						featureDescriptors.add(descriptor);
 						LOG.debug(descriptor);
 					}
+					scanner.close();
 					sentenceFeatures = this.getSentenceDetectorFeatureService().getFeatureSet(featureDescriptors);
 					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
@@ -1882,6 +1885,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						featureDescriptors.add(descriptor);
 						LOG.debug(descriptor);
 					}
+					scanner.close();
 					tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(featureDescriptors, tokeniserPatternManager.getParsedTestPatterns());
 					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
@@ -1907,6 +1911,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						featureDescriptors.add(descriptor);
 						LOG.debug(descriptor);
 					}
+					scanner.close();
 					tokenPatternMatchFeatures = this.getTokenFeatureService().getTokenPatternMatchFeatureSet(featureDescriptors);
 					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
@@ -1932,6 +1937,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						featureDescriptors.add(descriptor);
 						LOG.debug(descriptor);
 					}
+					scanner.close();
 					posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(featureDescriptors);
 					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
@@ -2089,6 +2095,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						featureDescriptors.add(descriptor);
 						LOG.debug(descriptor);
 					}
+					scanner.close();
 					parserFeatures = this.getParserFeatureService().getFeatures(featureDescriptors);
 					
 					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);

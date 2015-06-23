@@ -204,6 +204,24 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 					case Mood:
 						lexicalEntry.addMood(value);
 						break;
+					case OtherAttribute1:
+						break;
+					case OtherAttribute2:
+						break;
+					case OtherAttribute3:
+						break;
+					case OtherAttribute4:
+						break;
+					case OtherAttribute5:
+						break;
+					case OtherAttribute6:
+						break;
+					case OtherAttribute7:
+						break;
+					case OtherAttribute8:
+						break;
+					default:
+						break;
 					}
 					
 					if (myPattern.isStop())

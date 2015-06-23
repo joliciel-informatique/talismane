@@ -241,6 +241,7 @@ public class Extensions {
 				while (scanner.hasNextLine()) {
 					corpusRules.add(scanner.nextLine());
 				}
+				scanner.close();
 				CorpusModifier corpusModifier = new CorpusModifier(config.getParseConfigurationProcessor(), corpusRules);
 				talismane.setParseConfigurationProcessor(corpusModifier);
 				break;

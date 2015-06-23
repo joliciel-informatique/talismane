@@ -55,9 +55,10 @@ public class TextFileWordList implements ExternalWordList {
 			this.name = file.getName();
 
 			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
-			int i=1;
+
 			String firstLine = scanner.nextLine();
 			if (!firstLine.equals("Type: WordList")) {
+				scanner.close();
 				throw new JolicielException("A word list file must start with \"Type: WordList\"");
 			}
 			while (scanner.hasNextLine()) {
@@ -65,13 +66,12 @@ public class TextFileWordList implements ExternalWordList {
 				if (line.length()>0 && !line.startsWith("#")) {
 					if (line.startsWith("Name: ")) {
 						this.name = line.substring("Name: ".length());
-						i++;
 						continue;
 					}
 					wordList.add(line);
 				}
-				i++;
 			}
+			scanner.close();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

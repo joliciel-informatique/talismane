@@ -97,6 +97,7 @@ public class ConllFileSplitter {
 					writer.flush();
 				}
 			}
+			scanner.close();
 			if (writer!=null) {
 				writer.flush();
 				writer.close();

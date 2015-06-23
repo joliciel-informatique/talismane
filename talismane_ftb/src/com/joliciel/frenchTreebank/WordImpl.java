@@ -19,10 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 class WordImpl extends EntityImpl implements WordInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 6371009062992734876L;
+
 	String text;
     String originalText;
     String xmlText = null;

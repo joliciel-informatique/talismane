@@ -42,6 +42,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import java.util.Scanner;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -153,18 +154,20 @@ public class LexiconSerializer {
 				defaultCharset = Charset.forName(defaultEncoding);
 
 			zos.putNextEntry(new ZipEntry("lexicon.properties"));
+			@SuppressWarnings("resource")
 			Writer writer = new BufferedWriter(new OutputStreamWriter(zos, "UTF-8"));
 			Scanner lexiconPropsScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPropertiesFile), "UTF-8")));
 			while (lexiconPropsScanner.hasNextLine()) {
 				String line = lexiconPropsScanner.nextLine();
 				writer.write(line + "\n");
 			}
+			lexiconPropsScanner.close();
 			writer.flush();
 			zos.flush();
 
 			Map<String,String> properties = StringUtils.getArgMap(lexiconPropertiesFile);
 
-			String[] lexiconList= properties.get("lexicons").split(",");
+			String[] lexiconList = properties.get("lexicons").split(",");
 
 			List<String> knownPropertyList = Arrays.asList("file", "regex", "posTagMap", "categories", "exclusions", "encoding", "uniqueKey");
 			Set<String> knownProperties = new HashSet<String>(knownPropertyList);
@@ -210,11 +213,14 @@ public class LexiconSerializer {
 				Scanner regexScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconRegexFile), defaultCharset)));
 				
 				File lexiconInputFile = new File(lexiconDir, lexiconFilePath);
-				InputStream inputStream = new FileInputStream(lexiconInputFile);
+				InputStream inputStream = null;
 				if (lexiconInputFile.getName().endsWith(".zip")) {
+					@SuppressWarnings("resource")
 					ZipInputStream zis = new ZipInputStream(inputStream);
 					zis.getNextEntry();
 					inputStream = zis;
+				} else {
+					inputStream = new FileInputStream(lexiconInputFile);
 				}
 				
 				Charset lexiconCharset = defaultCharset;
@@ -232,6 +238,7 @@ public class LexiconSerializer {
 					String line = regexScanner.nextLine();
 					writer.write(line + "\n");
 				}
+				regexScanner.close();
 				writer.flush();
 				zos.flush();
 
@@ -267,6 +274,7 @@ public class LexiconSerializer {
 							exclusions.add(exclusion);
 						}
 					}
+					exclusionScanner.close();
 				}
 				
 				List<LexicalAttribute> uniqueAttributes = null;
@@ -278,6 +286,7 @@ public class LexiconSerializer {
 							LexicalAttribute attribute = LexicalAttribute.valueOf(uniqueKeyElement);
 							uniqueAttributes.add(attribute);
 						} catch (IllegalArgumentException  e) {
+							lexiconScanner.close();
 							throw new TalismaneException("Unknown attribute in " + lexiconName + ".uniqueKey: " + uniqueKeyElement);
 						}
 					}
@@ -301,8 +310,10 @@ public class LexiconSerializer {
 				
 				if (lexiconPosTagMapPath!=null) {
 					File lexiconPosTagMapFile = new File(lexiconDir, lexiconPosTagMapPath);
+					@SuppressWarnings("resource")
 					Scanner posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPosTagMapFile), defaultCharset)));
 					PosTagMapper posTagMapper = new DefaultPosTagMapper(posTagMapScanner, posTagSet);
+					posTagMapScanner.close();
 					lexiconFile.setPosTagMapper(posTagMapper);
 					
 					posTagMapScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(lexiconPosTagMapFile), defaultCharset)));

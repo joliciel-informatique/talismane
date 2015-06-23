@@ -26,10 +26,7 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 class PhraseImpl extends EntityImpl implements PhraseInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1906638863648461475L;
+
 	Phrase parent;
     int parentId;
     PhraseType phraseType;
