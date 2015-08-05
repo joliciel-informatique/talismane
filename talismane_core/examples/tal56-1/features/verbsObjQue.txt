@@ -1,0 +1,174 @@
+Name: verbesObjQue
+# toujours est-il que, il est vrai que, ...
+être	true
+# il devient urgent que ...
+devenir	true
+# il se peut que
+pouvoir	true
+# il vaut mieux que
+valoir	true
+# j'ai bien peur que
+avoir	true
+# il garde espoir que
+garder	true
+# je me rende compte que
+rendre	true
+# il s'est plaint que
+plaindre	true
+# je tire la conclusion que
+tirer	true
+#porter ???
+écarter	true
+écrire	true
+établir	true
+étonner	true
+éviter	true
+accepter	true
+accroire	true
+# il est acquis que
+acquérir	true
+admettre	true
+affirmer	true
+ajouter	true
+alléguer	true
+annoncer	true
+apercevoir	true
+apparaître	true
+apprendre	true
+arguer	true
+arriver	true
+assurer	true
+attendre	true
+avérer	true
+avancer	true
+avertir	true
+avouer	true
+cacher	true
+certifier	true
+comprendre	true
+# sans compter que
+compter	true
+conclure	true
+confirmer	true
+considérer	true
+constater	true
+contrôler	true
+convaincre	true
+convaincu	true
+convenir	true
+craindre	true
+croire	true
+décevoir	true
+décider	true
+déclarer	true
+découvrir	true
+déduire	true
+démontrer	true
+déplorer	true
+demander	true
+dire	true
+douter	true
+empêcher	true
+enseigner	true
+#laisser entendre que
+entendre	true
+envisager	true
+escompter	true
+espérer	true
+estimer	true
+exclure	true
+exiger	true
+expliquer	true
+féliciter	true
+# faire en sorte que
+faire	true
+falloir	true
+gager	true
+garantir	true
+#il y a longtemps que...
+il y a	true
+ignorer	true
+imaginer	true
+impliquer	true
+importer	true
+indiquer	true
+informer	true
+juger	true
+jurer	true
+lire	true
+marmonner	true
+montrer	true
+nécessiter	true
+négliger	true
+nier	true
+noter	true
+objecter	true
+observer	true
+obtenir	true
+oublier	true
+paraître	true
+passer	true
+penser	true
+permettre	true
+persuader	true
+#poser en préalable que
+poser	true
+postuler	true
+préciser	true
+prédire	true
+préférer	true
+prévenir	true
+prévoir	true
+# prendre conscience que
+prendre	true
+pressentir	true
+promettre	true
+prononcer	true
+proposer	true
+prouver	true
+rapporter	true
+réaffirmer	true
+réclamer	true
+réjouir	true
+remémorer	true
+répéter	true
+répliquer	true
+répondre	true
+#il résulte que
+résulter	true
+rétorquer	true
+révéler	true
+rappeler	true
+reconnaître	true
+redouter	true
+refuser	true
+regretter	true
+relever	true
+remarquer	true
+# il reste que....
+rester	true
+retenir	true
+savoir	true
+sembler	true
+sentir	true
+signaler	true
+signifier	true
+souhaiter	true
+souligner	true
+soutenir	true
+souvenir	true
+stipuler	true
+#il suffit/suffirait que
+suffire	true
+suggérer	true
+supposer	true
+témoigner	true
+trouver	true
+vérifier	true
+vanter	true
+#veiller à ce que
+veiller	true
+voici	true
+voilà	true
+voir	true
+vouloir	true
