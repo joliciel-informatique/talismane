@@ -26,4 +26,14 @@ public interface LinguisticRules {
 	 * @return
 	 */
 	String makeAdjectiveSingular(String adjective);
+	
+	/**
+	 * If c is an upper-case character, return the various possible lowercase characters with diacritics.
+	 * For example, in French, E will return e, é, è, ë, ê.
+	 * Order can be important, since, when looking for the lowercase equivalent of an uppercase word,
+	 * the letters will be replaced in the order given, and the first match will be returned.
+	 * @param c
+	 * @return
+	 */
+	char[] getLowercaseOptionsWithDiacritics(char c);
 }

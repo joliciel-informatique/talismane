@@ -82,6 +82,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		classes.addAll(implementation.getAvailableTokenSequenceFilters());
 		classes.add(DiacriticRemover.class);
 		classes.add(LowercaseFilter.class);
+		classes.add(LowercaseKnownWordFilter.class);
 		classes.add(LowercaseKnownFirstWordFilter.class);
 		classes.add(QuoteNormaliser.class);
 		classes.add(UppercaseSeriesFilter.class);

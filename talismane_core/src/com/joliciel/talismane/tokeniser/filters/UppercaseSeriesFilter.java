@@ -102,7 +102,7 @@ public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalisman
 	public static String getKnownWord(TalismaneSession talismaneSession, String word) {
 		String knownWord = word;
 		boolean foundWord = false;
-		List<String> possibleWords = getPossibleWords(word);
+		List<String> possibleWords = getPossibleWords(talismaneSession, word);
 		for (String possibleWord : possibleWords) {
 			Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(possibleWord);
 			if (posTags.size()>0) {
@@ -113,41 +113,17 @@ public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalisman
 		}
 		if (!foundWord) {
 			if (word.length()>0) {
-				knownWord = word.toLowerCase(talismaneSession.getLocale());
-				knownWord = word.substring(0,1) + word.substring(1);
+				knownWord = word.substring(0,1) + word.substring(1).toLowerCase(talismaneSession.getLocale());
 			}
 		}
 		return knownWord;
 	}
 	
-	private static List<String> getPossibleWords(String word) {
+	public static List<String> getPossibleWords(TalismaneSession talismaneSession, String word) {
 		List<char[]> possibleChars = new ArrayList<char[]>();
 		for (int i = 0; i<word.length();i++) {
 			char c = word.charAt(i);
-			char[] lowerCaseChars = null;
-			switch (c) {
-			case 'E':
-				lowerCaseChars = new char[] {'e', 'é', 'ê', 'è', 'ë'};
-				break;
-			case 'A':
-				lowerCaseChars = new char[] {'à', 'a', 'â', 'á'};
-				break;
-			case 'O':
-				lowerCaseChars  = new char[] {'o', 'ô', 'ò', 'ó'};
-				break;
-			case 'I':
-				lowerCaseChars  = new char[] {'i', 'î', 'ï', 'í'};
-				break;
-			case 'U':
-				lowerCaseChars = new char[] {'u', 'ú', 'ü'};
-				break;
-			case 'C':
-				lowerCaseChars = new char[] {'c', 'ç'};
-				break;
-			default:
-				lowerCaseChars = new char[] {Character.toLowerCase(c)};
-				break;
-			}
+			char[] lowerCaseChars = talismaneSession.getLinguisticRules().getLowercaseOptionsWithDiacritics(c);
 			possibleChars.add(lowerCaseChars);
 		}
 		

@@ -1,0 +1,222 @@
+IfThenElseNull(X,Y)	NullIf(Not(X),Y)
+LemmaOrWord(X)	IfThenElse(IsNull(Lemma(X)),LexicalForm(X),Lemma(X))
+Exists(X)	Not(IsNull(X))
+
+# one token features (custom)
+First	OnlyTrue(FirstWordInSentence())
+Last	OnlyTrue(LastWordInSentence())
+ContainsSpace	OnlyTrue(Regex(".+ .+"))
+ContainsPeriod	OnlyTrue(Regex(".*[^.]\.[^.].*"))
+EndsWithPeriod	OnlyTrue(Regex("(.*[^.])\."))
+ContainsHyphen	OnlyTrue(Regex(".+\-.+"))
+ContainsNumber	OnlyTrue(Regex(".*\d.*"))
+FirstLetterCapsSimple	OnlyTrue(Regex("[A-Z].*"))
+FirstLetterCaps	OnlyTrue(Regex("[A-Z][^A-Z].*"))
+FirstWordInCompoundOrWord	IfThenElse(ContainsSpace(),FirstWordInCompound(),WordForm())
+LastWordInCompound()
+IsNumeric	OnlyTrue(Regex("\d+(,\d+)?"))
+AllCaps	OnlyTrue(Regex("[A-Z '\-]+") & Regex(".*[A-Z][A-Z].*"))
+Pref	NLetterPrefix(IndexRange(2,5))
+Suf	NLetterSuffix(IndexRange(2,5))
+
+# one token features
+Wb2()	WordForm(Offset(-2))
+Wb1	WordForm(Offset(-1))
+W0	WordForm()
+Wf1	WordForm(Offset(1))
+Wf2()	WordForm(Offset(2))
+Pb2()	PosTag(History(-2))
+Pb1	PosTag(History(-1))
+P0prime	LexiconPosTags()
+P0	LexiconPosTagsForString(IfThenElse(UnknownWord&NullToFalse(ContainsSpace),FirstWordInCompound,WordForm))
+Pf1	LexiconPosTags(Offset(1))
+Pf2()	LexiconPosTags(Offset(2))
+Lb1	LemmaOrWord(History(-1))
+Lb2()	LemmaOrWord(History(-2))
+L0	P0 || LemmaForPosTag(P0)
+Lf1	Pf1 || LemmaForPosTag(Offset(1), LexiconPosTags(Offset(1)))
+Lf2()	Pf2 || LemmaForPosTag(Offset(2), LexiconPosTags(Offset(2)))
+A0	LexiconAllPosTags()
+Af1	LexiconAllPosTags(Offset(1))
+Af2()	LexiconAllPosTags(Offset(2))
+U0	ToString(OnlyTrue(UnknownWord()))
+Uf1	ToString(OnlyTrue(UnknownWord(Offset(1))))
+1stb1()	ToString(OnlyTrue(FirstWordInSentence(Offset(-1))))
+
+# two token features
+1sb1_Pb1	1stb1 || Pb1
+1sb1_Lb1	1stb1 || Lb1
+Pb2_Pb1	Pb2 || Pb1
+Pb2_Lb1	Pb2 || Lb1
+Lb2_Lb1	Lb2 || Lb1
+Lb2_Pb1	Lb2 || Pb1
+
+Pb1_W0	Pb1 || W0
+Pb1_U0	Pb1 || U0
+Lb1_W0	Lb1 || W0
+Lb1_U0	Lb1 || U0
+1st_W0	ToString(First) || W0
+1st_P0	ToString(First) || P0
+
+W0_Wf1	W0 || Wf1
+W0_Pf1	W0 || Pf1
+W0_Lf1	W0 || Lf1
+W0_Af1	W0 || Af1
+W0_Uf1	W0 || Uf1
+U0_Wf1	U0 || Wf1
+U0_Pf1	U0 || Pf1
+U0_Lf1	U0 || Lf1
+U0_Af1	U0 || Af1
+U0_Uf1	U0 || Uf1
+
+# three token features
+1stb1_Pb1_W0	1stb1 || Pb1 || W0
+1stb1_Lb1_W0	1stb1 || Lb1 || W0
+Pb2_Pb1_W0	Pb2 || Pb1 || W0
+Pb2_Lb1_W0	Pb2 || Lb1 || W0
+Lb2_Lb1_W0	Lb2 || Lb1 || W0
+Lb2_Pb1_W0	Lb2 || Pb1 || W0
+Pb1_W0_Wf1	Pb1 || W0 || Wf1
+Pb1_W0_Pf1	Pb1 || W0 || Pf1
+Pb1_W0_Lf1	Pb1 || W0 || Lf1
+Lb1_W0_Wf1	Lb1 || W0 || Wf1
+Lb1_W0_Pf1	Lb1 || W0 || Pf1
+Lb1_W0_Lf1	Lb1 || W0 || Lf1
+W0_Wf1_Wf2	W0 || Wf1 || Wf2
+W0_Wf1_Af2	W0 || Wf1 || Af2
+W0_Af1_Wf2	W0 || Af1 || Wf2
+W0_Af1_Af2	W0 || Af1 || Af2
+
+# targeted features
+IsNoun()	PosTagIn("NC","NPP","PRO","CLS")
+IsVerb()	PosTagIn("V","VS","VIMP","VINF","VPR")
+DayOfWeek()	Word("lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche")
+MonthName()	Word("janvier","janv.","février","fév.","mars","avril","avr.","mai","juin","juillet","juil.","août","septembre","sept.","octobre","oct.","novembre","nov.","décembre","déc.")
+# ces derniers temps
+TimeExpression()	DayOfWeek() | MonthName() | Word("mois","semaine","semaines","année","années","an","ans","jour","jours","minute","minutes","veille","avant-veille","lendemain","surlendemain","après-midi","soir","matin","nuit","matinée","soirée","journée","automne","été","printemps","hiver")
+# should we remove or separate "espoir", "idée", "preuve", which could easily subcategorise a PROREL as well?
+ExplanationWord()	Word("assurance","certitude","doute","enseigne","espoir","fait","fois","idée","point","prétexte","preuve","principe")
+ExplanationWordPlus()	Word("annonce","assurance","certitude","chance","conclusion","doute","évidence","enseigne","espoir","fait","foi","fois","hypothèse","impression","idée","point","prétexte","preuve","principe","risque","sentiment","signe","slogan","titre")
+ComparativeWord()	Word("à peine","aussi bien","aussi","autant","autant de","autre","autrement","autres","beaucoup moins","beaucoup plus","d'autant moins","d'autant plus","d'autant","davantage","davantage de","de plus","différent","différente","différentes","différents","le moins","le plus","même","même","mêmes","mêmes","meilleur","meilleure","meilleures","meilleurs","mieux","moins","moins de","pire","pires","plus","plus de","si","si peu","sitôt","tant","tant de","tel","telle","tellement","telles","tels","un peu moins","un peu plus","vaut mieux")
+QuantifierAdverb()	Word("aussi bien","aussi","autant","d'autant moins","d'autant plus","davantage","le moins","le plus","mieux","moins","plus","tant")
+Quantifier()	Word("aussi","autant","autre","davantage","de plus","différent","différente","différentes","différents","le moins","le plus","même","mêmes","moins","plus","sitôt","tant","tel","telle","telles","tels","un peu moins","un peu plus")
+QuantifierWithDe()	Word("autant","davantage","moins","plus","tant")
+
+### Simple sentence stuff ###
+# Que as PROWH: is it near the start of sentence with no nouns/verbs before it (CC, P ok)? And does the sentence end with a question mark?
+Que:NoPrevContentWords	OnlyTrue(Word("que","qu'") & IsNull(HistorySearch(IsVerb | PosTagIn("NC","NPP","DET","PRO","PROWH","DETWH","ADJ","ADV","ET","VPP"))))
+Que:NoPrevContentWordsPeriod	OnlyTrue(Word("que","qu'") & IsNull(HistorySearch(IsVerb | PosTagIn("NC","NPP","DET","PRO","PROWH","DETWH","ADJ","ADV","ET","VPP"))) & Not(IsNull(ForwardSearch(LastWordInSentence & Word(".")))))
+Que:NoPrevContentWordsQtnMark	OnlyTrue(Word("que","qu'") & IsNull(HistorySearch(IsVerb | PosTagIn("NC","NPP","DET","PRO","PROWH","DETWH","ADJ","ADV","ET","VPP"))) & Not(IsNull(ForwardSearch(LastWordInSentence & Word("?")))))
+Que:NoPrevContentWordsAndVerb	OnlyTrue(Word("que","qu'") & IsNull(HistorySearch(IsVerb | PosTagIn("NC","NPP","DET","PRO","PROWH","DETWH","ADJ","ADV","ET","VPP"))) & (LexiconPosTag(Offset(1),"V") | LexiconPosTag(Offset(1),"VINF") | (Word(Offset(1),"en","se","s'") & (LexiconPosTag(Offset(2),"V")| LexiconPosTag(Offset(2),"VINF")))))
+Que:NoPrevVerbYesContent	OnlyTrue(Word("que","qu'") & IsNull(HistorySearch(IsVerb | ComparativeWord)) & (HistoryHas(History(-1), PosTagIn("NC","NPP","PRO","PROWH","DETWH","ET") & Not(ExplanationWordPlus)) | (HistoryHas(History(-2), PosTag=="DET") & HistoryHas(History(-1), PosTag=="ADJ"))))
+Que:PrecedingPronoun	OnlyTrue(Word("que","qu'") & Word(Offset(-1),"ceux","celui","celle","celles","quoi","qui","quel","quelles","quels","quelles","où"))
+
+### Comparatif expressions ###
+# handle davantage/autant de... que de ..., même(s) blah que blah, autre blah que blah
+# moins superficielle que l'on ne l'imagine parfois
+# si incroyable que cela puisse paraître
+Que:AfterComparative	OnlyTrue(Word("que","qu'") & HistoryHas(History(-1), PosTagIn("ADJ","VPP")) & Has(History(-2), QuantifierAdverb) & Not(Word(Offset(-2),"plus") & Exists(BackwardSearch(Word("ne","n'"),TokenIndex-3,TokenIndex-10))))
+Que:AfterQuantifier	OnlyTrue(Word("que","qu'") & Has(History(-1),Quantifier) & Not(Word(Offset(-1),"plus") & Exists(BackwardSearch(Word("ne","n'"),TokenIndex-2,TokenIndex-10))))
+#Que:NePlus	OnlyTrue(Word("que","qu'") & Has(History(-1),Word("plus")) & Exists(BackwardSearch(Word("ne","n'"),TokenIndex-1,TokenIndex-10)))
+NearestQuantifierWithDe()	HistorySearch(QuantifierWithDe, TokenIndex-1, TokenIndex-10)
+ComplexComparativeWithDe()	Not(IsNull(NearestQuantifierWithDe)) & Word(Offset(NearestQuantifierWithDe,1),"de","d'","du","des") & Not(Word(Offset(NearestQuantifierWithDe,2),"deux","31","999","1999","9,99")) & Exists(HistorySearch(PosTag=="NC" | PosTag=="NPP", TokenIndex-1, TokenIndex(NearestQuantifierWithDe)+1)) & IsNull(HistorySearch(PosTag=="V" | PosTag=="VS" | PosTag=="VIMP" | PosTag=="VINF" | PosTag=="VPR" | PosTag=="CC" | PosTag=="CS" | PosTag=="PONCT" | Word("ans","jours","mois","semaines","heures","minutes"), TokenIndex-1, TokenIndex(NearestQuantifierWithDe)+1))
+#Que:ComplexComparativeWithDe	OnlyTrue(Word("que","qu'") & ComplexComparativeWithDe)
+QuantifierAdj()	(PosTag=="ADJ" & Word("autre","autres","même","mêmes","meilleur","meilleure","meilleurs","meilleures","pire","pires")) | (PosTag=="ADV" & Word("aussi bien","d'autant plus","d'autant moins","mieux")) | (PosTag=="ADV" & Word("autant","davantage","moins","plus") & Not(Word(Offset(1),"de","d'")))
+NearestQuantifierAdj()	HistorySearch(QuantifierAdj, TokenIndex-1, TokenIndex-10)
+# Word(Offset(NearestQuantifierAdj,-1),"le","la","les","un","une","d'")
+ComplexComparativeWithAdj()	Not(IsNull(NearestQuantifierAdj)) & Not(Word(Offset(NearestQuantifierAdj,0),"plus") & Exists(BackwardSearch(Word("ne","n'"),TokenIndex(NearestQuantifierAdj)-1,TokenIndex(NearestQuantifierAdj)-10))) & Exists(HistorySearch(PosTag=="NC" | PosTag=="NPP", TokenIndex-1, TokenIndex(NearestQuantifierAdj)+1)) & IsNull(HistorySearch(PosTagIn("V","VS","VIMP","VINF","VPR","CC","CS","PONCT"), TokenIndex-1, TokenIndex(NearestQuantifierAdj)+1))
+#Que:ComplexComparativeWithAdj	OnlyTrue(Word("que","qu'") & ComplexComparativeWithAdj)
+Que:ComplexComparative	OnlyTrue(Word("que","qu'") & (NullToFalse(ComplexComparativeWithDe) | NullToFalse(ComplexComparativeWithAdj)))
+
+
+### Coordination ###
+# Coordination: ", et que" or "et que" or ", que" (followed by "et que"), look for previous que's pos-tag
+#QueFirstConjunct()	IfThenElse(PosTag(History(-1))=="CC", HistorySearch(Word("que","qu'")), IfThenElseNull(Word(Offset(-1),",") & Word(Offset(ForwardSearch(Word("que","qu'")),-1),"et","mais","ou"), HistorySearch(Word("que","qu'"))))
+QuePosTagFirstConjunct()	IfThenElse(PosTag(History(-1))=="CC", PosTag(HistorySearch(Word("que","qu'"))), IfThenElseNull(Word(Offset(-1),",") & Word(Offset(ForwardSearch(Word("que","qu'")),-1),"et","mais","ou"), PosTag(HistorySearch(Word("que","qu'")))))
+QueIndexFirstConjunct()	IfThenElse(PosTag(History(-1))=="CC", TokenIndex(HistorySearch(Word("que","qu'"))), IfThenElseNull(Word(Offset(-1),",") & Word(Offset(ForwardSearch(Word("que","qu'")),-1),"et","mais","ou"), TokenIndex(HistorySearch(Word("que","qu'"))) ))
+QueIndex()	IfThenElse(IsNull(QueIndexFirstConjunct), TokenIndex, QueIndexFirstConjunct)
+Que:Coordination	IfThenElseNull(Word("que","qu'"), QuePosTagFirstConjunct)
+
+### Verbal stuff ###
+# Note: there's only ambiguity if there's an intervening noun
+# Only report previous verb with/without object if there IS a previous verb
+PreviousHelperVerb()	HistorySearch(IsVerb,QueIndex-1,QueIndex-16)
+NoPreviousNe()	IsNull(BackwardSearch(Word("ne","n'","ne pas","ne plus"),TokenIndex(PreviousHelperVerb)-1,TokenIndex(PreviousHelperVerb)-10))
+FirstNonVerbalWord()	HistorySearch(PosTagIn("DET","NC","NPP","ET","ADJ","DETWH","PRO","PROWH","CC","CS","PONCT") & Not(Word("tout")), TokenIndex(PreviousHelperVerb)+1, QueIndex-1)
+PreviousVerb()	HistorySearch(PosTagIn("VPP","V","VS","VINF","VIMP","VPR"),IfThenElse(IsNull(FirstNonVerbalWord),QueIndex-1,TokenIndex(FirstNonVerbalWord)-1),TokenIndex(PreviousHelperVerb))
+PreviousVerbPassive()	PosTag(PreviousVerb)=="VPP" & Not(InSet(Lemma(PreviousVerb),"assurer","avertir","convaincre","informer","persuader","prévenir")) & Lemma(HistoryAbs(TokenIndex(PreviousVerb)-1))=="être"
+InterveningNoun()	HistorySearch((PosTagIn("NC","NPP","PRO","DETWH","PROWH") & Not(TimeExpression)) | (PosTag=="ADJ" & Has(History(-1),PosTag=="DET")), QueIndex-1, TokenIndex(PreviousVerb)+1)
+HasInterveningNoun()	OnlyTrue(Exists(PreviousVerb) & NoPreviousNe & Not(Lemma(PreviousVerb)=="être" & Word(Offset(-1),"ainsi","là"))) && Exists(InterveningNoun)
+NoCleft()	IsNull(BackwardSearch((Word("c'","ce") & Word(Offset(1),"est","était","sera")) | (Word("ce") & Word(Offset(1),"n'","ne") & Word(Offset(2),"est","était","sera")), TokenIndex-1, TokenIndex-20))
+NoPrecedingPronoun()	Not(Word(Offset(-1),"ce","où","qui","quoi","quel","quelle","quels","quelles"))
+Que:HasInterveningNoun	OnlyTrue(Word("que","qu'") & NoCleft & NoPrecedingPronoun) && HasInterveningNoun
+ClosestNoun()	HistorySearch(PosTagIn("NC","NPP","PRO","DETWH","PROWH"), QueIndex-1, TokenIndex(PreviousVerb)+1)
+Que:HasInterveningTime	OnlyTrue(Word("que","qu'") & NoCleft & NoPrecedingPronoun & NoPreviousNe & Has(ClosestNoun, TimeExpression | (Word("temps") & Word(Offset(-1),"derniers"))))
+#Que:LemmaVerbBeforeQue	IfThenElseNull(Word("que","qu'") & HasInterveningNoun, Lemma(PreviousVerb))
+PrevVerbObjQue()	NullIf(IsNull(PreviousVerb), IfThenElse(IsNull(ExternalResource("verbesObjQue", Lemma(PreviousVerb))), "no", "yes"))
+AfterExplanationWord()	Has(History(-1), PosTag=="NC" & ExplanationWordPlus)
+Que:AfterExplanation	OnlyTrue(Word("que","qu'") & Has(History(-1), PosTag=="NC" & ExplanationWord) & NoCleft & NoPreviousNe)
+Que:AfterExplanationPlus	OnlyTrue(Word("que","qu'") & Has(History(-1), PosTag=="NC" & ExplanationWordPlus) & NoCleft & NoPreviousNe)
+Que:AfterExplanationPlusOnly	OnlyTrue(Word("que","qu'") & Has(History(-1), PosTag=="NC" & ExplanationWordPlus & Not(ExplanationWord)) & NoCleft & NoPreviousNe)
+Que:EtreADJQue	OnlyTrue(Word("que","qu'") & NoPreviousNe & PosTag(History(-1))=="ADJ" & InSet(Lemma(History(-2)),"être","devenir"))
+PrevVerbIndex()	TokenIndex(PreviousVerb)
+Que:HasCleft	OnlyTrue(Exists(BackwardSearch((Word(Offset(-2),"c'","ce") & Word(Offset(-1),"est","était","sera") & Not(Word(Offset(0),"là","alors","ainsi","que","qu'","dire","vrai"))) | (Word(Offset(-3),"ce") & Word(Offset(-2),"n'","ne") & Word(Offset(-1),"est","était","sera")), TokenIndex-1, 0)) & Not(AfterExplanationWord))
+Que:HasCleft20	OnlyTrue(Exists(BackwardSearch((Word(Offset(-2),"c'","ce") & Word(Offset(-1),"est","était","sera") & Not(Word(Offset(0),"là","alors","ainsi","que","qu'","dire","vrai"))) | (Word(Offset(-3),"ce") & Word(Offset(-2),"n'","ne") & Word(Offset(-1),"est","était","sera")), TokenIndex-1, TokenIndex-20)) & Not(AfterExplanationWord))
+Que:HasCleft10	OnlyTrue(Exists(BackwardSearch((Word(Offset(-2),"c'","ce") & Word(Offset(-1),"est","était","sera") & Not(Word(Offset(0),"là","alors","ainsi","que","qu'","dire","vrai"))) | (Word(Offset(-3),"ce") & Word(Offset(-2),"n'","ne") & Word(Offset(-1),"est","était","sera")), TokenIndex-1, TokenIndex-10)) & Not(AfterExplanationWord))
+Que:HasCleft5	OnlyTrue(Exists(BackwardSearch((Word(Offset(-2),"c'","ce") & Word(Offset(-1),"est","était","sera") & Not(Word(Offset(0),"là","alors","ainsi","que","qu'","dire","vrai"))) | (Word(Offset(-3),"ce") & Word(Offset(-2),"n'","ne") & Word(Offset(-1),"est","était","sera")), TokenIndex-1, TokenIndex-5)) & Not(AfterExplanationWord))
+Que:HasCleft5Ce	OnlyTrue(Exists(BackwardSearch((Word(Offset(-2),"c'","ce") & Word(Offset(-1),"est","était","sera") & Not(Word(Offset(0),"là","alors","ainsi","que","qu'","dire","vrai"))) | (Word(Offset(-3),"ce") & Word(Offset(-2),"n'","ne") & Word(Offset(-1),"est","était","sera")), TokenIndex-1, TokenIndex-5)) & Not(AfterExplanationWord) & Word(Offset(-1),"ce"))
+# verb followed directly  by obvious direct object (no comma, det + adj* + noun), noun is not month or year - not using as not enough stuff in training corpus, and distribution is equal
+Que:PrevVerbHasDirectObj	OnlyTrue(Word("que","qu'") & Not(HistoryHas(PreviousVerb,InSet(Lemma,"assurer","avertir","convaincre","informer","persuader","prévenir"))) & NoCleft & NoPreviousNe & IsNull(HistorySearch(PosTag=="NC" & ExplanationWordPlus, TokenIndex-1,TokenIndex-3))& IsNull(HistorySearch(ComparativeWord)) & IsNull(HistorySearch(PosTagIn("PONCT","CC"),QueIndex-1,PrevVerbIndex+1)) & PosTag(HistoryAbs(PrevVerbIndex+1))=="DET" & ((PosTag(HistoryAbs(PrevVerbIndex+2))=="NC" & Not(Has(TokenAt(PrevVerbIndex+2),TimeExpression))) | (PosTag(HistoryAbs(PrevVerbIndex+2))=="ADJ" & PosTag(HistoryAbs(PrevVerbIndex+3))=="NC" & Not(Has(TokenAt(PrevVerbIndex+3), TimeExpression)))))
+#Que:PrevVerbObjQue	IfThenElseNull(Word("que","qu'") & NoPreviousNe  & Not(AfterExplanationWord) & IsNull(HistorySearch(ComparativeWord)) & Not(InSet(Lemma(PreviousVerb),"exister") & Has(HistorySearch(IsNoun, TokenIndex(PreviousVerb)-1, 0), ExplanationWordPlus)) & IsNull(HistorySearch(PosTagIn("CC","CS"),TokenIndex(PreviousHelperVerb),TokenIndex)) & PosTag(HistoryAbs(QueIndex-1))!="PONCT", PrevVerbObjQue)
+#Que:PrevVerbPassive	OnlyTrue(Word("que","qu'") & PreviousVerbPassive & NoPreviousNe & Not(AfterExplanationWord)& NoPrecedingPronoun & IsNull(HistorySearch(ComparativeWord)) & IsNull(HistorySearch(PosTagIn("CC","CS"),TokenIndex(PreviousHelperVerb),TokenIndex)) & PosTag(HistoryAbs(QueIndex-1))!="PONCT")
+Que:HasNounAndPrevVerbObjQue	IfThenElseNull(Word("que","qu'") & HasInterveningNoun & NoPreviousNe & Not(AfterExplanationWord) & NoCleft & NoPrecedingPronoun & IsNull(HistorySearch(ComparativeWord)) & Not(HistoryHas(PreviousVerb,InSet(Lemma,"assurer","avertir","convaincre","informer","persuader","prévenir"))) & IsNull(HistorySearch(PosTagIn("CC","CS"),TokenIndex(PreviousHelperVerb),TokenIndex)) & PosTag(HistoryAbs(QueIndex-1))!="PONCT", PrevVerbObjQue)
+Que:PrevVerbObjQueDoubleObject	OnlyTrue(Word("que","qu'") & InSet(Lemma(PreviousVerb),"assurer","avertir","convaincre","informer","persuader","prévenir") & NoPreviousNe & Not(AfterExplanationWord) & NoPrecedingPronoun & IsNull(HistorySearch(ComparativeWord)) & IsNull(HistorySearch(PosTagIn("CC","CS"),TokenIndex(PreviousHelperVerb),TokenIndex)) & PosTag(HistoryAbs(QueIndex-1))!="PONCT")
+Que:PrevVerbAQue	OnlyTrue(Word("que","qu'") & InSet(Lemma(PreviousVerb), "écrire", "annoncer", "avouer", "certifier", "confirmer", "déclarer", "démontrer", "dire", "enseigner", "expliquer", "garantir", "indiquer", "jurer", "marmonner", "montrer", "préciser", "promettre", "prouver", "répéter", "répondre", "rétorquer", "révéler", "rappeler", "signaler", "souligner", "stipuler", "suggérer") & Exists(HistorySearch(Word("à", "aux", "au"), TokenIndex-1, TokenIndex(PreviousVerb)+1)) & NoPrecedingPronoun)
+# after the "que" there's a phrase ending with a transitive verb (or a negative transitive verb)
+HasVerb()	LexiconPosTag("V")| LexiconPosTag("VS") | LexiconPosTag("VPP") | LexiconPosTag("VINF")
+HasNoun()	LexiconPosTag("NC")
+NextVerbIndOrSubj()	ForwardSearch(LexiconPosTag("VS","V"), TokenIndex+1, TokenIndex+8)
+NextSubjunctive()	ForwardSearch(LexiconPosTag("VS") & Not(LexiconPosTag("V","NC","ADJ","ADV")), TokenIndex+1, TokenIndex(NextVerbIndOrSubj))
+Que:FollowedBySubjunctive	OnlyTrue(Word("que","qu'") & Not(IsNull(PreviousVerb)) & NoPrecedingPronoun & Not(IsNull(NextSubjunctive)) & CountIf(LexiconPosTag("CS"),TokenIndex+1, TokenIndex(NextSubjunctive))==0)
+PhraseBreak()	ForwardSearch(LexiconPosTag("PONCT","CC","CS","PROREL"), TokenIndex+1, TokenIndex+8)
+# still needs some work for a phrase like: se/CLR trouver/VINF soudain/ADV dans/P un/DET milieu/NC [qu'/PROREL] il n' avait pu imaginer était une épreuve difficilement supportable .
+NextInfinitiveVerb()	BackwardSearch(LexiconPosTag("VINF"), IfThenElse(IsNull(PhraseBreak),TokenIndex+8,TokenIndex(PhraseBreak)), TokenIndex+1)
+NextVerb()	IfThenElse(Exists(NextInfinitiveVerb), NextInfinitiveVerb, BackwardSearch((LexiconPosTag("VS","V","VPP","VPR")) & Not(LexiconPosTag("NC","ADJ","ADV")) & Not(Word("il y a","cela","plus","entre","contre")), IfThenElse(IsNull(PhraseBreak),TokenIndex+8,TokenIndex(PhraseBreak)), TokenIndex+1))
+# In next one we avoid "aussi grands que soient..." + some strange verbs
+DefiniteVerb()	LexiconPosTag("V","VS") & Not(LexiconPosTag("NC","ADJ","ADV")) & Not(Word("il y a","cela","plus","entre","contre"))
+Que:VerbDirectlyAfterQue	OnlyTrue(Word("que","qu'") & Has(Offset(1),DefiniteVerb) & NoCleft & Not(HistoryHas(History(-1), PosTagIn("ADJ","VPP")) & Has(History(-2), QuantifierAdverb)))
+Que:VerbDirectlyAfterQueNoEtre	OnlyTrue(Que:VerbDirectlyAfterQue & Not(Word(Offset(1),"soit","soient","cesse","réside","est")))
+# Toutefois/ADV ,/PONCT il/CLS n'/ADV affecte/V [que/ADV] 300_000 francs aux provisions contre 3 millions de francs lors_des derniers exercices .
+# Tandis_que/CS l'/DET Ecole/NC polytechnique/ADJ féminine/ADJ ne/ADV forme/V plus/ADV en/P 1990/NC [que/ADV] 4 % des femmes ingénieurs contre 65 % en 1960 .
+Que:FollowedByDirectObject	OnlyTrue(Word("que","qu'") & Not(IsNull(NextVerb)) & Not(InSet(LemmaForPosTag(NextVerb,"V"),"appeler","designer","nommer")) & NoCleft & Not(Has(Offset(1),LexiconPosTag("V")|LexiconPosTag("VS"))) & Not(Has(Offset(1), Word("se","s'","en","lui","leur","me","m'","te","t'","y")) & Has(Offset(2),LexiconPosTag("V")|LexiconPosTag("VS"))) & ((LexiconPosTag(Offset(NextVerb,1),"DET") & Not(Word(Offset(NextVerb,1),"de","des","du","d'")) & ((LexiconPosTag(Offset(NextVerb,2),"NC") & Not(Has(Offset(NextVerb,2),TimeExpression))) | (LexiconPosTag(Offset(NextVerb,2),"ADJ") & LexiconPosTag(Offset(NextVerb,3),"NC") & Not(Has(Offset(NextVerb,3), TimeExpression)))))))
+Que:FollowedByReflexive	OnlyTrue(Word("que","qu'") & Not(IsNull(NextVerb)) & Not(LexiconPosTag(NextVerb,"VINF")) & Not(InSet(LemmaForPosTag(NextVerb,"V"),"livrer","faire","procurer","poser","réserver")) & Not(InSet(LemmaForPosTag(NextVerb,"VS"),"faire")) & NoCleft & NoPreviousNe & NoPrecedingPronoun & Exists(ForwardSearch(Word("se","s'"), TokenIndex+1, TokenIndex(NextVerb))))
+PhraseEnd()	ForwardSearch(Word(".","?","!","-",":",";") | DefiniteVerb, LexiconPosTag("CC","CS","PROREL"), TokenIndex(NextVerb)+1,TokenIndex(NextVerb)+3)
+Que:PhraseEndsWithVerb	OnlyTrue(Word("que","qu'") & Not(IsNull(NextVerb)) & NoPreviousNe & IsNull(HistorySearch(ComparativeWord, TokenIndex-1, TokenIndex-10)) & Not(Word(Offset(NextVerb,-1),"le","les","la","l'","tout")) & IsNull(ForwardSearch(Word("se","s'"), TokenIndex+1, TokenIndex(NextVerb))) & (TokenIndex(NextVerb)==(TokenIndex(PhraseEnd)-1) | (LexiconPosTag(Offset(NextVerb,1),"ADV") & TokenIndex(NextVerb)==(TokenIndex(PhraseEnd)-2))))
+ClosingPunctuationFar()	ForwardSearch(LastWordInSentence & Word(".","?","!"),TokenIndex+1,TokenIndex+20)
+FirstVerb()	ForwardSearch(HasVerb,TokenIndex+1)
+LastVerb()	BackwardSearch(HasVerb,TokenIndex+1000,TokenIndex+1)
+#Que:PhraseWithNoDirectObject	OnlyTrue(Word("que","qu'") & CountIf(Word("que","qu'","et",","),TokenIndex+1)==0 & CountIf(LemmaForPosTag("V","VS","VPP","VINF")=="être",TokenIndex+1)==0 & CountIf(Word("se","s'","le","les","l'","la","tout"), TokenIndex+1, TokenIndex(LastVerb)-1)==0 & CountIf(LexiconPosTag("DET"), TokenIndex(FirstVerb)+1, TokenIndex(ForwardSearch(FirstVerb,LexiconPosTag("P")|LexiconPosTag("P+D")))-1)==0)
+# fixed expressions: attendre/veiller à ce que/CS, tout ce que/PROREL, quoi que/PROREL ce soit, être ADJ que/CS, n'empêche que/CS, verb directly followed by que
+#Que:AttendreACeQue	OnlyTrue(Word("que","qu'") & InSet(Lemma(PreviousVerb),"attendre","veiller") & Word(Offset(-2),"à") & Word(Offset(-1),"ce"))
+
+
+### Negative adverb features ###
+NegativeAdverb()	Word("aucun","aucune","aucunement","autre","ni","nul","pas du tout","plus du tout","point","que","qu'","toujours pas")
+NegativeAdverbCombining()	Word("jamais","guère","pas","pas encore","pas plus","personne","plus","plus jamais","plus guère","rien")
+PreviousNe()	BackwardSearch(Word("ne","n'"))
+PreviousNePlus()	BackwardSearch(Word("ne pas","ne plus"))
+QueBeforeNe()	HistorySearch(Word("que","qu'"),Not(PosTagIn("NC","NPP","ET","PONCT","PRO","DET","PROWH","DETWH","P","ADJ","ADV","CC")),TokenIndex(PreviousNe)-1,0)
+HelperVerbAfterNe()	HistorySearch(IsVerb,TokenIndex(PreviousNe)+1,TokenIndex-1)
+FirstNonVerbalWordAfterNe()	HistorySearch(PosTagIn("DET","NC","NPP","ET","ADJ","DETWH","PRO","PROWH","CC","CS","PONCT","P") & Not(Word("tout")), TokenIndex(HelperVerbAfterNe)+1, TokenIndex-1)
+VerbAfterNe()	HistorySearch(PosTagIn("VPP","V","VS","VINF","VIMP","VPR"),IfThenElse(IsNull(FirstNonVerbalWordAfterNe),TokenIndex-1,TokenIndex(FirstNonVerbalWordAfterNe)-1),TokenIndex(HelperVerbAfterNe))
+VerbAfterNeObjQue()	Not(IsNull(ExternalResource("verbesObjQue", Lemma(VerbAfterNe))))
+#HasComparativeQueBeforeNe()	Not(IsNull(QueBeforeNe)) & (Has(Offset(QueBeforeNe,-1),QuantifierAdverb) | (PosTag(HistoryAbs(TokenIndex(QueBeforeNe)-1))=="ADJ" & Has(Offset(QueBeforeNe,-2),QuantifierWithAdj)))
+#HasPreviousNe()	Not(IsNull(PreviousNe)) & IsNull(BackwardSearch(Word("rien","personne"),TokenIndex(PreviousNe),TokenIndex(PreviousNe)-6)) & Not(Word(Offset(-1),"empêche"))
+PreviousRienPersonne()	HistorySearch((Word("rien","personne","nul","nulle","aucun","aucune") & PosTag=="PRO")|(Word("aucun","aucune","nul","nulle") & PosTag=="DET"),TokenIndex(PreviousNe),TokenIndex(PreviousNe)-6)
+HasPreviousNe()	Not(IsNull(PreviousNe)) & IsNull(PreviousRienPersonne) & Not(Word(Offset(-1),"empêche"))
+HasAmbiguousNe()	NullToFalse(Not(IsNull(PreviousNePlus)))
+#HasPreviousRienPersonne	OnlyTrue(Word("que","qu'") & Not(IsNull(PreviousNe)) & Not(IsNull(PreviousRienPersonne)))
+QueFollowingNe	OnlyTrue(Word("que","qu'") & (Not(HasPreviousNe) | (HasPreviousNe & IsNull(ForwardSearch(NegativeAdverbCombining, TokenIndex(PreviousNe)+1, TokenIndex-1)))) & IsNull(PreviousNePlus)) && HasPreviousNe && IsNull(ForwardSearch(NegativeAdverb, TokenIndex(PreviousNe)+1, TokenIndex-1))
+#QueFollowingNeAndObjQue	OnlyTrue(Word("que","qu'") & (Not(HasPreviousNe) | (HasPreviousNe & (Not(VerbAfterNeObjQue)|(VerbAfterNeObjQue & IsNull(ForwardSearch(NegativeAdverbCombining, TokenIndex(PreviousNe)+1, TokenIndex-1))))))) & HasPreviousNe & IsNull(ForwardSearch(NegativeAdverb, TokenIndex(PreviousNe)+1, TokenIndex-1))
+QueFollowingNeOrNePlus	OnlyTrue(Word("que","qu'")) && (HasPreviousNe|Not(IsNull(PreviousNePlus))) && IsNull(ForwardSearch(NegativeAdverb, TokenIndex(PreviousNe)+1, TokenIndex-1))
+QueFollowingNePlus	OnlyTrue(Word("que","qu'") & ((HasPreviousNe & Exists(ForwardSearch(NegativeAdverbCombining, TokenIndex(PreviousNe)+1, TokenIndex-1)) & IsNull(ForwardSearch(Word("ne","n'"), TokenIndex(PreviousNe)+1, TokenIndex-1)))|(Exists(PreviousNePlus) & IsNull(ForwardSearch(NegativeAdverb | Word("ne","n'"), TokenIndex(PreviousNePlus)+1, TokenIndex-1))))) && ((HasPreviousNe & Exists(BackwardSearch(NegativeAdverbCombining, TokenIndex-1, TokenIndex-6)))|(Exists(PreviousNePlus) & TokenIndex-TokenIndex(PreviousNePlus)<6))
