@@ -157,6 +157,7 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 				dependencyLabels.add(dependencyLabel);
 			}
 		}
+		scanner.close();
 		transitionSystem.setDependencyLabels(dependencyLabels);
 		return transitionSystem;
 	}

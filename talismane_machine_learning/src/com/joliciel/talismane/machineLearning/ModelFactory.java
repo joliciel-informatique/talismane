@@ -53,6 +53,7 @@ class ModelFactory {
 			}
 			
 			// note: assuming the model type will always be the first entry
+			@SuppressWarnings("resource")
 			Scanner typeScanner = new Scanner(zis, "UTF-8");
 			MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
 			if (typeScanner.hasNextLine()) {

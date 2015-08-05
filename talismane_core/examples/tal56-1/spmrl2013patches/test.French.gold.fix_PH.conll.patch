@@ -1,0 +1,2708 @@
+--- test.French.gold.conll	2013-07-11 01:11:42.000000000 +0200
++++ test.French.gold.fix_PH.conll	2015-06-02 16:56:18.000000000 +0200
+@@ -46 +46 @@
+-46	et	et	C	CC	s=c	32	mod	32	mod
++46	et	et	C	CC	s=c	32	coord	32	coord
+@@ -423 +423 @@
+-27	et	et	C	CC	s=c	18	mod	18	mod
++27	et	et	C	CC	s=c	18	coord	18	coord
+@@ -650 +650 @@
+-54	et	et	C	CC	s=c	36	mod	36	mod
++54	et	et	C	CC	s=c	36	coord	36	coord
+@@ -722 +722 @@
+-31	et	et	C	CC	s=c	20	mod	20	mod
++31	et	et	C	CC	s=c	20	coord	20	coord
+@@ -725,2 +725,2 @@
+-34	francs	franc	N	NC	g=m|n=p|s=c	31	obj	31	obj
+-35	pour	pour	P	P	_	31	mod	31	mod
++34	francs	franc	N	NC	g=m|n=p|s=c	31	dep.coord	31	dep.coord
++35	pour	pour	P	P	_	31	dep.coord	31	dep.coord
+@@ -845 +845 @@
+-11	et	et	C	CC	s=c	5	mod	5	mod
++11	et	et	C	CC	s=c	5	coord	5	coord
+@@ -952 +952 @@
+-8	quel	quel	A	ADJWH	g=m|n=s|s=int	7	mod	7	mod
++8	quel	quel	D	DETWH	g=m|n=s|s=int	7	mod	7	mod
+@@ -988 +988 @@
+-14	et	et	C	CC	s=c	4	mod	4	mod
++14	et	et	C	CC	s=c	4	coord	4	coord
+@@ -1010,3 +1010,3 @@
+-7	ordre	ordre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	6	obj.p	6	obj.p
+-8	économique	économique	A	ADJ	n=s|s=qual|pred=y	7	dep_cpd	7	dep_cpd
+-9	et	et	C	CC	s=c	7	coord	7	coord
++7	ordre	ordre	N	NC	g=m|n=s|s=c|pred=y	6	obj.p	6	obj.p
++8	économique	économique	A	ADJ	n=s|s=qual|pred=y	7	mod	7	mod
++9	et	et	C	CC	s=c	8	coord	8	coord
+@@ -1040 +1040 @@
+-18	ou	ou	C	CC	s=c	9	coord	9	coord
++18	ou	ou	C	CC	s=c	13	coord	13	coord
+@@ -1090 +1090 @@
+-10	ou	ou	C	CC	s=c	9	mod	9	mod
++10	ou	ou	C	CC	s=c	9	coord	9	coord
+@@ -1193 +1193 @@
+-25	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	30	mod	30	mod
++25	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	27	mod	27	mod
+@@ -1317 +1317 @@
+-11	moins	moins	ADV	ADV	mwehead=P+|pred=y	14	mod	14	mod
++11	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	13	mod	13	mod
+@@ -1538 +1538 @@
+-10	ou	ou	C	CC	s=c	7	coord	7	coord
++10	ou	ou	C	CC	s=c	9	coord	9	coord
+@@ -1665 +1665 @@
+-14	-LRB-	-LRB-	PONCT	PONCT	s=w	35	ponct	35	ponct
++14	-LRB-	-LRB-	PONCT	PONCT	s=w	13	ponct	13	ponct
+@@ -1668 +1668 @@
+-17	limite	limiter	V	V	m=ind|n=s|p=3|t=pst	35	mod	35	mod
++17	limite	limiter	V	V	m=ind|n=s|p=3|t=pst	13	mod	13	mod
+@@ -1685 +1685 @@
+-34	-RRB-	-RRB-	PONCT	PONCT	s=w	35	ponct	35	ponct
++34	-RRB-	-RRB-	PONCT	PONCT	s=w	13	ponct	13	ponct
+@@ -1823 +1823 @@
+-18	et	et	C	CC	s=c	17	coord	17	coord
++18	et	et	C	CC	s=c	15	coord	15	coord
+@@ -1857 +1857 @@
+-17	-LRB-	-LRB-	PONCT	PONCT	s=w	42	ponct	42	ponct
++17	-LRB-	-LRB-	PONCT	PONCT	s=w	13	ponct	13	ponct
+@@ -1859 +1859 @@
+-19	est	être	V	V	m=ind|n=s|p=3|t=pst	42	mod	42	mod
++19	est	être	V	V	m=ind|n=s|p=3|t=pst	13	mod	13	mod
+@@ -1879 +1879 @@
+-39	-RRB-	-RRB-	PONCT	PONCT	s=w	42	ponct	42	ponct
++39	-RRB-	-RRB-	PONCT	PONCT	s=w	13	ponct	13	ponct
+@@ -1902 +1902 @@
+-62	ou	ou	C	CC	s=c	57	coord	57	coord
++62	ou	ou	C	CC	s=c	60	coord	60	coord
+@@ -2072 +2072 @@
+-5	et	et	C	CC	s=c	2	coord	2	coord
++5	et	et	C	CC	s=c	4	coord	4	coord
+@@ -2188 +2188 @@
+-45	car	car	C	CC	s=c	38	coord	38	coord
++45	car	car	C	CS	s=c	38	mod	38	mod
+@@ -2192 +2192 @@
+-49	contrainte	contraindre	V	VPP	g=f|m=part|n=s|t=past	45	dep.coord	45	dep.coord
++49	contrainte	contraindre	V	VPP	g=f|m=part|n=s|t=past	45	obj.cpl	45	obj.cpl
+@@ -2349,2 +2349,2 @@
+-35	,	,	PONCT	PONCT	s=w	15	ponct	15	ponct
+-36	et	et	C	CC	s=c	15	coord	15	coord
++35	,	,	PONCT	PONCT	s=w	24	ponct	24	ponct
++36	et	et	C	CC	s=c	24	coord	24	coord
+@@ -2739 +2739 @@
+-57	et	et	C	CC	s=c	24	coord	24	coord
++57	et	et	C	CC	s=c	46	coord	46	coord
+@@ -2838 +2838 @@
+-23	en	en	P	P	_	6	mod	6	mod
++23	en	en	P	P	_	6	mod	20	mod
+@@ -2840,4 +2840,4 @@
+-25	-LRB-	-LRB-	PONCT	PONCT	s=w	6	ponct	6	ponct
+-26	et	et	C	CC	s=c	6	mod	6	mod
+-27	plus	plus	ADV	ADV	_	30	mod	30	mod
+-28	de	de	P	P	_	30	dep	30	dep
++25	-LRB-	-LRB-	PONCT	PONCT	s=w	20	ponct	20	ponct
++26	et	et	C	CC	s=c	20	coord	20	coord
++27	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	29	mod	29	mod
++28	de	de	P	P	_|pred=y	27	dep_cpd	27	dep_cpd
+@@ -2856 +2856 @@
+-41	-RRB-	-RRB-	PONCT	PONCT	s=w	6	ponct	6	ponct
++41	-RRB-	-RRB-	PONCT	PONCT	s=w	20	ponct	20	ponct
+@@ -3219 +3219 @@
+-18	et	et	C	CC	s=c	7	coord	7	coord
++18	et	et	C	CC	s=c	12	coord	12	coord
+@@ -3272 +3272 @@
+-45	et	et	C	CC	s=c	33	coord	33	coord
++45	et	et	C	CC	s=c	40	coord	40	coord
+@@ -3504 +3504 @@
+-27	ni	ni	C	CC	s=c	26	obj	26	obj
++27	ni	ni	C	CC	s=c	30	mod	30	mod
+@@ -3507 +3507 @@
+-30	obstacles	obstacle	N	NC	g=m|n=p|s=c	27	dep.coord	27	dep.coord
++30	obstacles	obstacle	N	NC	g=m|n=p|s=c	26	obj	26	obj
+@@ -3509 +3509 @@
+-32	ni	ni	C	CC	s=c	26	obj	26	obj
++32	ni	ni	C	CC	s=c	30	coord	30	coord
+@@ -3550,2 +3550,2 @@
+-23	ni	ni	C	CC	s=c	22	coord	22	coord
+-24	confisqués	confisquer	V	VPP	g=m|m=part|n=p|t=past	23	dep.coord	23	dep.coord
++23	ni	ni	C	CC	s=c	24	mod	24	mod
++24	confisqués	confisquer	V	VPP	g=m|m=part|n=p|t=past	22	ats	22	ats
+@@ -3557 +3557 @@
+-30	ni	ni	C	CC	s=c	22	coord	22	coord
++30	ni	ni	C	CC	s=c	24	coord	24	coord
+@@ -3869 +3869 @@
+-21	près	près	P	P	mwehead=P+|pred=y	24	mod	24	mod
++21	près	près	P	P	mwehead=ADV+|pred=y	24	mod	24	mod
+@@ -4197 +4197 @@
+-44	et	et	C	CC	s=c	41	coord	41	coord
++44	et	et	C	CC	s=c	43	coord	43	coord
+@@ -5120,2 +5120,2 @@
+-13	bon	bon	A	ADJ	g=m|mwehead=ADJ+|n=s|s=qual|pred=y	12	mod	12	mod
+-14	marché	marché	N	NC	g=m|n=s|s=c|pred=y	13	dep_cpd	13	dep_cpd
++13	bon	bon	A	ADJ	g=m|n=s|s=qual|pred=y	14	dep_cpd	14	dep_cpd
++14	marché	marché	N	NC	g=m|mwehead=ADJ+|n=s|s=c|pred=y	12	mod	12	mod
+@@ -5274 +5274 @@
+-19	car	car	C	CC	s=c	8	coord	8	coord
++19	car	car	C	CS	s=c	8	mod	8	mod
+@@ -5279 +5279 @@
+-24	saurait	savoir	V	V	m=ind|n=s|p=3|t=cond	19	dep.coord	19	dep.coord
++24	saurait	savoir	V	V	m=ind|n=s|p=3|t=cond	19	obj.cpl	19	obj.cpl
+@@ -5409,2 +5409,2 @@
+-14	et	et	C	CC	s=c	16	coord	16	coord
+-15	euro-	euro-	PREF	PREF	_	14	mod	14	mod
++14	et	et	C	CC	s=c	13	coord	13	coord
++15	euro-	euro-	PREF	PREF	_	14	dep.coord	14	dep.coord
+@@ -5480 +5480 @@
+-35	et	et	C	CC	s=c	22	obj	22	obj
++35	et	et	C	CC	s=c	11	coord	11	coord
+@@ -5573 +5573 @@
+-18	et	et	C	CC	s=c	14	mod	14	mod
++18	et	et	C	CC	s=c	14	coord	14	coord
+@@ -5612,4 +5612,4 @@
+-24	la	le	D	DET	g=f|n=s|s=def	25	det	25	det
+-25	nouvelle	nouveau	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	23	obj.p	23	obj.p
+-26	donne	donne	N	NC	g=f|n=s|s=c|pred=y	25	dep_cpd	25	dep_cpd
+-27	internationale	international	A	ADJ	g=f|n=s|s=qual	25	mod	25	mod
++24	la	le	D	DET	g=f|n=s|s=def	26	det	26	det
++25	nouvelle	nouveau	A	ADJ	g=f|n=s|s=qual|pred=y	26	dep_cpd	26	dep_cpd
++26	donne	donne	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	23	obj.p	23	obj.p
++27	internationale	international	A	ADJ	g=f|n=s|s=qual	26	mod	26	mod
+@@ -5919 +5919 @@
+-21	mais	mais	C	CC	s=c	14	mod	14	mod
++21	mais	mais	C	CC	s=c	14	coord	14	coord
+@@ -5996 +5996 @@
+-26	et	et	C	CC	s=c	13	coord	13	coord
++26	et	et	C	CC	s=c	22	coord	22	coord
+@@ -6030 +6030 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -6036 +6036 @@
+-7	continuent	continuer	V	V	m=ind|n=p|p=3|t=pst	1	dep.coord	1	dep.coord
++7	continuent	continuer	V	V	m=ind|n=p|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -6041 +6041 @@
+-12	de	de	P	P	_	10	dep	10	dep
++12	de	de	P	P	_	10	dep.coord	10	dep.coord
+@@ -6189,7 +6189,7 @@
+-25	l'	le	D	DET	g=m|n=s|s=def	27	det	27	det
+-26	ancien	ancien	A	ADJ	g=m|n=s|s=qual	27	mod	27	mod
+-27	haut	haut	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	32	suj	32	suj
+-28	fonctionnaire	fonctionnaire	N	NC	n=s|s=c|pred=y	27	dep_cpd	27	dep_cpd
+-29	sénégalais	sénégalais	A	ADJ	g=m|n=s|s=qual	27	mod	27	mod
+-30	Mamadou	Mamadou	N	NPP	g=m|n=s|s=p	27	mod	27	mod
+-31	Dia	Dia	N	NPP	g=m|n=s|s=p	27	mod	27	mod
++25	l'	le	D	DET	g=m|n=s|s=def	28	det	28	det
++26	ancien	ancien	A	ADJ	g=m|n=s|s=qual	28	mod	28	mod
++27	haut	haut	A	ADJ	g=m|n=s|s=qual|pred=y	28	dep_cpd	28	dep_cpd
++28	fonctionnaire	fonctionnaire	N	NC	mwehead=NC+|n=s|s=c|pred=y	32	suj	32	suj
++29	sénégalais	sénégalais	A	ADJ	g=m|n=s|s=qual	28	mod	28	mod
++30	Mamadou	Mamadou	N	NPP	g=m|n=s|s=p	28	mod	28	mod
++31	Dia	Dia	N	NPP	g=m|n=s|s=p	28	mod	28	mod
+@@ -6218 +6218 @@
+-54	régi	régir	V	VPP	g=m|m=part|n=s|t=past	48	dep	48	dep
++54	régi	régir	V	VPP	g=m|m=part|n=s|t=past	48	dep.coord	48	dep.coord
+@@ -6268,3 +6268,3 @@
+-39	valeurs	valeur	N	NC	g=f|mwehead=NC+|n=p|s=c|pred=y	37	obj	37	obj
+-40	sociales	social	A	ADJ	g=f|n=p|s=qual|pred=y	39	dep_cpd	39	dep_cpd
+-41	et	et	C	CC	s=c	39	coord	39	coord
++39	valeurs	valeur	N	NC	g=f|n=p|s=c|pred=y	37	obj	37	obj
++40	sociales	social	A	ADJ	g=f|n=p|s=qual|pred=y	39	mod	39	mod
++41	et	et	C	CC	s=c	40	coord	40	coord
+@@ -6315 +6315 @@
+-34	et	et	C	CC	s=c	30	coord	30	coord
++34	et	et	C	CC	s=c	33	coord	33	coord
+@@ -6384 +6384 @@
+-18	et	et	C	CC	s=c	12	coord	12	coord
++18	et	et	C	CC	s=c	16	coord	16	coord
+@@ -6473,3 +6473,3 @@
+-14	ordre	ordre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	7	obj	7	obj
+-15	naturel	naturel	A	ADJ	g=m|n=s|s=qual|pred=y	14	dep_cpd	14	dep_cpd
+-16	et	et	C	CC	s=c	14	coord	14	coord
++14	ordre	ordre	N	NC	g=m|n=s|s=c|pred=y	7	obj	7	obj
++15	naturel	naturel	A	ADJ	g=m|n=s|s=qual|pred=y	14	mod	14	mod
++16	et	et	C	CC	s=c	15	coord	15	coord
+@@ -6518,3 +6518,3 @@
+-12	communautés	communauté	N	NC	g=f|mwehead=NC+|n=p|s=c|pred=y	11	obj.p	11	obj.p
+-13	locales	local	A	ADJ	g=f|n=p|s=qual|pred=y	12	dep_cpd	12	dep_cpd
+-14	et	et	C	CC	s=c	12	coord	12	coord
++12	communautés	communauté	N	NC	g=f|n=p|s=c|pred=y	11	obj.p	11	obj.p
++13	locales	local	A	ADJ	g=f|n=p|s=qual|pred=y	12	mod	12	mod
++14	et	et	C	CC	s=c	13	coord	13	coord
+@@ -6747 +6747 @@
+-5	et	et	C	CC	s=c	2	coord	2	coord
++5	et	et	C	CC	s=c	4	coord	4	coord
+@@ -7002 +7002 @@
+-14	et	et	C	CC	s=c	6	coord	6	coord
++14	et	et	C	CC	s=c	9	coord	9	coord
+@@ -7228 +7228 @@
+-10	car	car	C	CC	s=c	7	mod	7	mod
++10	car	car	C	CS	s=c	7	mod	7	mod
+@@ -7232 +7232 @@
+-14	a	avoir	V	V	m=ind|n=s|p=3|t=pst	10	dep.coord	10	dep.coord
++14	a	avoir	V	V	m=ind|n=s|p=3|t=pst	10	obj.cpl	10	obj.cpl
+@@ -7609 +7609 @@
+-10	celle	celui	PRO	PRO	g=f|n=s|p=3|s=dem	8	dep	8	dep
++10	celle	celui	PRO	PRO	g=f|n=s|p=3|s=dem	8	dep.coord	8	dep.coord
+@@ -7880 +7880 @@
+-1	Et	et	C	CC	mwehead=ADV+|s=c|pred=y	26	mod	26	mod
++1	Et	et	C	CC	mwehead=ADV+|s=c|pred=y	28	mod	28	mod
+@@ -7883,2 +7883,2 @@
+-4	:	:	PONCT	PONCT	s=w	26	ponct	26	ponct
+-5	si	si	C	CS	s=s	26	mod	26	mod
++4	:	:	PONCT	PONCT	s=w	28	ponct	28	ponct
++5	si	si	C	CS	s=s	28	mod	28	mod
+@@ -7902,6 +7902,6 @@
+-23	,	,	PONCT	PONCT	s=w	26	ponct	26	ponct
+-24	il	il	CL	CLS	g=m|n=s|p=3|s=suj	26	suj	26	suj
+-25	n'	ne	ADV	ADV	_	26	mod	26	mod
+-26	a	avoir	V	V	m=ind|n=s|p=3|t=pst	0	root	0	root
+-27	ni	ni	C	CC	s=c	26	coord	26	coord
+-28	indiqué	indiquer	V	VPP	g=m|m=part|n=s|t=past	27	dep.coord	27	dep.coord
++23	,	,	PONCT	PONCT	s=w	28	ponct	28	ponct
++24	il	il	CL	CLS	g=m|n=s|p=3|s=suj	28	suj	28	suj
++25	n'	ne	ADV	ADV	_	28	mod	28	mod
++26	a	avoir	V	V	m=ind|n=s|p=3|t=pst	28	aux.tps	28	aux.tps
++27	ni	ni	C	CC	s=c	28	mod	28	mod
++28	indiqué	indiquer	V	VPP	g=m|m=part|n=s|t=past	0	root	0	root
+@@ -7909 +7909 @@
+-30	date	date	N	NC	g=f|n=s|s=c	26	obj	26	obj
++30	date	date	N	NC	g=f|n=s|s=c	28	obj	28	obj
+@@ -7913 +7913 @@
+-34	-	-	PONCT	PONCT	s=w	26	ponct	26	ponct
++34	-	-	PONCT	PONCT	s=w	33	ponct	33	ponct
+@@ -7916 +7916 @@
+-37	faite	faire	V	VPP	g=f|m=part|n=s|t=past	26	mod	26	mod
++37	faite	faire	V	VPP	g=f|m=part|n=s|t=past	33	mod	33	mod
+@@ -7921,3 +7921,3 @@
+-42	,	,	PONCT	PONCT	s=w	26	ponct	26	ponct
+-43	-	-	PONCT	PONCT	s=w	26	ponct	26	ponct
+-44	ni	ni	C	CC	s=c	26	obj	26	obj
++42	,	,	PONCT	PONCT	s=w	33	ponct	33	ponct
++43	-	-	PONCT	PONCT	s=w	33	ponct	33	ponct
++44	ni	ni	C	CC	s=c	30	coord	30	coord
+@@ -7927 +7927 @@
+-48	.	.	PONCT	PONCT	s=s	26	ponct	26	ponct
++48	.	.	PONCT	PONCT	s=s	28	ponct	28	ponct
+@@ -7952 +7952 @@
+-24	et	et	C	CC	s=c	9	coord	9	coord
++24	et	et	C	CC	s=c	12	coord	12	coord
+@@ -8090 +8090 @@
+-17	et	et	C	CC	s=c	9	coord	9	coord
++17	et	et	C	CC	s=c	14	coord	14	coord
+@@ -8162 +8162 @@
+-27	et	et	C	CC	s=c	21	mod	21	mod
++27	et	et	C	CC	s=c	21	coord	21	coord
+@@ -8370 +8370 @@
+-15	car	car	C	CC	s=c	4	coord	4	coord
++15	car	car	C	CS	s=c	4	mod	4	mod
+@@ -8375 +8375 @@
+-20	détenait	détenir	V	V	m=ind|n=s|p=3|t=impft	15	dep.coord	15	dep.coord
++20	détenait	détenir	V	V	m=ind|n=s|p=3|t=impft	15	obj.cpl	15	obj.cpl
+@@ -8379,2 +8379,2 @@
+-24	plus	plus	ADV	ADV	_	27	mod	27	mod
+-25	de	de	P	P	_	27	dep	27	dep
++24	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	26	mod	26	mod
++25	de	de	P	P	_|pred=y	24	dep_cpd	24	dep_cpd
+@@ -8733 +8733 @@
+-43	et	et	C	CC	s=c	21	coord	21	coord
++43	et	et	C	CC	s=c	34	coord	34	coord
+@@ -8753 +8753 @@
+-9	près	près	ADV	ADV	mwehead=P+|pred=y	12	mod	12	mod
++9	près	près	ADV	ADV	mwehead=ADV+|pred=y	11	mod	11	mod
+@@ -8877 +8877 @@
+-31	près	près	ADV	ADV	mwehead=P+|pred=y	34	mod	34	mod
++31	près	près	ADV	ADV	mwehead=ADV+|pred=y	33	mod	33	mod
+@@ -9677 +9677 @@
+-14	et	et	C	CC	s=c	2	mod	2	mod
++14	et	et	C	CC	s=c	1	coord	2	coord
+@@ -9689 +9689 @@
+-26	dans	dans	P	P	_	22	mod	22	mod
++26	dans	dans	P	P	_	22	mod	25	mod
+@@ -9692 +9692 @@
+-29	mais	mais	C	CC	s=c	22	coord	22	coord
++29	mais	mais	C	CC	s=c	25	coord	25	coord
+@@ -10026,2 +10026,2 @@
+-9	plus	plus	ADV	ADV	_	12	mod	12	mod
+-10	de	de	P	P	_	12	dep	12	dep
++9	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	11	mod	11	mod
++10	de	de	P	P	_|pred=y	9	dep_cpd	9	dep_cpd
+@@ -10359 +10359 @@
+-66	mais	mais	C	CS	s=s	64	coord	64	coord
++66	mais	mais	C	CC	s=s	64	coord	64	coord
+@@ -10534 +10534 @@
+-16	et	et	C	CC	s=c	3	mod	3	mod
++16	et	et	C	CC	s=c	3	coord	3	coord
+@@ -10536 +10536 @@
+-18	ce	ce	PRO	PRO	g=m|n=s|p=3	16	dep.coord	16	dep.coord
++18	ce	ce	PRO	PRO	g=m|n=s|p=3	16	mod	16	mod
+@@ -10603 +10603 @@
+-4	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	7	mod	7	mod
++4	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	6	mod	6	mod
+@@ -10661,2 +10661,2 @@
+-15	plus	plus	ADV	ADV	_	18	mod	18	mod
+-16	de	de	P	P	_	18	dep	18	dep
++15	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	17	mod	17	mod
++16	de	de	P	P	_|pred=y	15	dep_cpd	15	dep_cpd
+@@ -10681,2 +10681,2 @@
+-35	plus	plus	ADV	ADV	_	38	mod	38	mod
+-36	de	de	P	P	_	38	dep	38	dep
++35	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	37	mod	37	mod
++36	de	de	P	P	_|pred=y	35	dep_cpd	35	dep_cpd
+@@ -10700,2 +10700,2 @@
+-54	plus	plus	ADV	ADV	_	57	mod	57	mod
+-55	de	de	P	P	_	57	dep	57	dep
++54	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	56	mod	56	mod
++55	de	de	P	P	_|pred=y	54	dep_cpd	54	dep_cpd
+@@ -10757 +10757 @@
+-38	et	et	C	CC	s=c	2	coord	2	coord
++38	et	et	C	CC	s=c	19	coord	19	coord
+@@ -10816 +10816 @@
+-12	en	en	P	P	_	3	mod	3	mod
++12	en	en	P	P	_	3	mod	11	dep
+@@ -10818 +10818 @@
+-14	à	à	P	P	_	3	mod	3	mod
++14	à	à	P	P	_	7	arg	7	arg
+@@ -10823 +10823 @@
+-19	,	,	PONCT	PONCT	s=w	3	mod	3	mod
++19	,	,	PONCT	PONCT	s=w	3	coord	3	coord
+@@ -10832 +10832 @@
+-28	à	à	P	P	_	19	dep.coord	19	dep.coord
++28	à	à	P	P	_	23	arg	23	arg
+@@ -10837 +10837 @@
+-33	et	et	C	CC	s=c	3	mod	3	mod
++33	et	et	C	CC	s=c	3	coord	3	coord
+@@ -10846 +10846 @@
+-42	à	à	P	P	_	33	dep.coord	33	dep.coord
++42	à	à	P	P	_	37	arg	37	arg
+@@ -10884 +10884 @@
+-32	et	et	C	CC	s=c	18	mod	18	mod
++32	et	et	C	CC	s=c	18	coord	18	coord
+@@ -10980 +10980 @@
+-15	près	près	P	P	mwehead=P+|pred=y	18	mod	18	mod
++15	près	près	P	P	mwehead=ADV+|pred=y	17	mod	17	mod
+@@ -11031 +11031 @@
+-36	,	,	PONCT	PONCT	s=w	21	coord	21	coord
++36	,	,	PONCT	PONCT	s=w	29	coord	29	coord
+@@ -11040 +11040 @@
+-45	et	et	C	CC	s=c	21	coord	21	coord
++45	et	et	C	CC	s=c	38	coord	38	coord
+@@ -11199 +11199 @@
+-51	et	et	C	CC	s=c	32	coord	32	coord
++51	et	et	C	CC	s=c	42	coord	42	coord
+@@ -11320 +11320 @@
+-28	et	et	C	CC	s=c	18	coord	18	coord
++28	et	et	C	CC	s=c	23	coord	23	coord
+@@ -11786 +11786 @@
+-25	ni	ni	C	CC	s=c	24	ats	24	ats
++25	ni	ni	C	CC	s=c	27	mod	27	mod
+@@ -11788,2 +11788,2 @@
+-27	satellite	satellite	N	NC	g=m|n=s|s=c	25	dep.coord	25	dep.coord
+-28	ni	ni	C	CC	s=c	24	ats	24	ats
++27	satellite	satellite	N	NC	g=m|n=s|s=c	24	ats	24	ats
++28	ni	ni	C	CC	s=c	27	coord	27	coord
+@@ -11877 +11877 @@
+-3	près	près	P	P	mwehead=P+|pred=y	6	mod	6	mod
++3	près	près	P	P	mwehead=ADV+|pred=y	5	mod	5	mod
+@@ -11934 +11934 @@
+-30	et	et	C	CC	s=c	13	coord	13	coord
++30	et	et	C	CC	s=c	18	coord	18	coord
+@@ -12213 +12213 @@
+-11	mais	mais	C	CC	s=c	9	obj	9	obj
++11	mais	mais	C	CC	s=c	9	coord	9	coord
+@@ -12374 +12374 @@
+-10	l'	l'	UNK	UNK	_	11	dep	11	dep
++10	l'	l'	D	DET	_	11	det	11	det
+@@ -12650,2 +12650,2 @@
+-47	ni	ni	ADV	ADV	_	38	coord	38	coord
+-48	comme	comme	P	P	_	47	mod	47	mod
++47	ni	ni	C	CC	_	38	coord	38	coord
++48	comme	comme	P	P	_	47	dep.coord	47	dep.coord
+@@ -13058 +13058 @@
+-24	et	et	C	CC	s=c	3	coord	3	coord
++24	et	et	C	CC	s=c	12	coord	12	coord
+@@ -13294 +13294 @@
+-30	ou	ou	C	CC	s=c	16	coord	16	coord
++30	ou	ou	C	CC	s=c	29	coord	29	coord
+@@ -13296,3 +13296,3 @@
+-32	plus	plus	ADV	ADV	_	30	dep.coord	30	dep.coord
+-33	bas	bas	A	ADJ	g=m|n=s|s=qual	32	mod	32	mod
+-34	qu'	que	C	CS	s=s	32	dep	32	dep
++32	plus	plus	ADV	ADV	_	33	mod	33	mod
++33	bas	bas	A	ADJ	g=m|n=s|s=qual	30	dep.coord	30	dep.coord
++34	qu'	que	C	CS	s=s	32	mod	33	mod
+@@ -13402 +13402 @@
+-31	un	un	D	DET	g=m|mwehead=ADV+|n=s|s=ind|pred=y	38	mod	38	mod
++31	un	un	D	DET	g=m|mwehead=ADV+|n=s|s=ind|pred=y	33	mod	33	mod
+@@ -13404,2 +13404,2 @@
+-33	plus	plus	ADV	ADV	_	38	mod	38	mod
+-34	de	de	P	P	_	38	det	38	det
++33	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	35	mod	35	mod
++34	de	de	P	P	_|pred=y	33	dep_cpd	33	dep_cpd
+@@ -13467 +13467 @@
+-44	et	et	C	CC	s=c	36	coord	36	coord
++44	et	et	C	CC	s=c	39	coord	39	coord
+@@ -13494 +13494 @@
+-17	et	et	C	CC	s=c	13	coord	13	coord
++17	et	et	C	CC	s=c	16	coord	16	coord
+@@ -13508,2 +13508,2 @@
+-8	plus	plus	ADV	ADV	_	11	mod	11	mod
+-9	de	de	P	P	_	11	dep	11	dep
++8	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	11	mod	11	mod
++9	de	de	P	P	_|pred=y	8	dep_cpd	8	dep_cpd
+@@ -13607 +13607 @@
+-15	à	à	P	P	mwehead=ADV+|pred=y	14	mod	14	mod
++15	à	à	P	P	mwehead=ADV+|pred=y	17	mod	17	mod
+@@ -13609 +13609 @@
+-17	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	22	mod	22	mod
++17	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	19	mod	19	mod
+@@ -13774 +13774 @@
+-23	mais	mais	ADV	ADV	_	4	coord	4	coord
++23	mais	mais	C	CC	_	4	coord	4	coord
+@@ -13776 +13776 @@
+-25	est	être	V	V	m=ind|n=s|p=3|t=pst	23	mod	23	mod
++25	est	être	V	V	m=ind|n=s|p=3|t=pst	23	dep.coord	23	dep.coord
+@@ -13873,2 +13873,2 @@
+-19	mais	mais	ADV	ADV	_	7	coord	7	coord
+-20	plafonne	plafonner	V	V	m=ind|n=s|p=3|t=pst	19	mod	19	mod
++19	mais	mais	C	CC	_	7	coord	7	coord
++20	plafonne	plafonner	V	V	m=ind|n=s|p=3|t=pst	19	dep.coord	19	dep.coord
+@@ -13943,2 +13943,2 @@
+-15	moins	moins	ADV	ADV	_	17	mod	17	mod
+-16	de	de	P	P	_	17	det	17	det
++15	moins	moins	ADV	ADV	mwehead=DET+|pred=y	17	det	17	det
++16	de	de	P	P	_|pred=y	15	dep_cpd	15	dep_cpd
+@@ -13998 +13998 @@
+-9	près	près	P	P	mwehead=P+|pred=y	12	mod	12	mod
++9	près	près	P	P	mwehead=ADV+|pred=y	11	mod	11	mod
+@@ -14147 +14147 @@
+-24	mais	mais	ADV	ADV	_	19	coord	19	coord
++24	mais	mais	C	CC	_	19	coord	19	coord
+@@ -14149 +14149 @@
+-26	obtient	obtenir	V	V	m=ind|n=s|p=3|t=pst	24	mod	24	mod
++26	obtient	obtenir	V	V	m=ind|n=s|p=3|t=pst	24	dep.coord	24	dep.coord
+@@ -14420 +14420 @@
+-30	près	près	P	P	mwehead=P+|pred=y	32	mod	32	mod
++30	près	près	P	P	mwehead=ADV+|pred=y	32	mod	32	mod
+@@ -14617 +14617 @@
+-36	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	39	mod	39	mod
++36	plus	plus	ADV	ADV	mwehead=DET+|pred=y	38	mod	38	mod
+@@ -15270,2 +15270,2 @@
+-48	,	,	PONCT	PONCT	s=w	5	ponct	5	ponct
+-49	et	et	C	CC	s=c	5	coord	5	coord
++48	,	,	PONCT	PONCT	s=w	45	ponct	45	ponct
++49	et	et	C	CC	s=c	45	coord	45	coord
+@@ -15469 +15469 @@
+-47	,	,	PONCT	PONCT	s=w	44	coord	44	coord
++47	,	,	PONCT	PONCT	s=w	46	coord	46	coord
+@@ -15471 +15471 @@
+-49	,	,	PONCT	PONCT	s=w	44	coord	44	coord
++49	,	,	PONCT	PONCT	s=w	48	coord	48	coord
+@@ -15473 +15473 @@
+-51	et	et	C	CC	s=c	44	coord	44	coord
++51	et	et	C	CC	s=c	50	coord	50	coord
+@@ -16073 +16073 @@
+-17	du	de	P+D	P+D	s=def	12	dep	12	dep
++17	du	de	P+D	P+D	s=def	12	dep	16	dep
+@@ -16075,2 +16075,2 @@
+-19	,	,	PONCT	PONCT	s=w	12	ponct	12	ponct
+-20	mais	mais	C	CC	s=c	12	coord	12	coord
++19	,	,	PONCT	PONCT	s=w	16	ponct	16	ponct
++20	mais	mais	C	CC	s=c	16	coord	16	coord
+@@ -16196 +16196 @@
+-12	pénalement	pénalement	ADV	ADV	_	10	mod	10	mod
++12	pénalement	pénalement	ADV	ADV	_	10	dep.coord	10	dep.coord
+@@ -16383,2 +16383,2 @@
+-23	plus	plus	ADV	ADV	_	26	mod	26	mod
+-24	de	de	P	P	_	26	dep	26	dep
++23	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	25	mod	25	mod
++24	de	de	P	P	_|pred=y	23	dep_cpd	23	dep_cpd
+@@ -16588,2 +16588,2 @@
+-57	extrême	extrême	A	ADJ	mwehead=NC+|n=s|s=qual|pred=y	56	obj.p	56	obj.p
+-58	droite	droite	N	NC	g=f|n=s|s=c|pred=y	57	dep_cpd	57	dep_cpd
++57	extrême	extrême	A	ADJ	n=s|s=qual|pred=y	58	dep_cpd	58	dep_cpd
++58	droite	droite	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	56	obj.p	56	obj.p
+@@ -16624,3 +16624,3 @@
+-11	l'	le	D	DET	g=f|n=s|s=def	12	det	12	det
+-12	extrême	extrême	A	ADJ	mwehead=NC+|n=s|s=qual|pred=y	10	obj.p	10	obj.p
+-13	droite	droite	N	NC	g=f|n=s|s=c|pred=y	12	dep_cpd	12	dep_cpd
++11	l'	le	D	DET	g=f|n=s|s=def	13	det	13	det
++12	extrême	extrême	A	ADJ	n=s|s=qual|pred=y	13	dep_cpd	13	dep_cpd
++13	droite	droite	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	10	obj.p	10	obj.p
+@@ -16775,2 +16775,2 @@
+-44	plus	plus	ADV	ADV	_	49	mod	49	mod
+-45	de	de	P	P	_	49	det	49	det
++44	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	46	mod	46	mod
++45	de	de	P	P	_|pred=y	44	dep_cpd	44	dep_cpd
+@@ -16782,2 +16782,2 @@
+-51	plus	plus	ADV	ADV	_	57	mod	57	mod
+-52	de	de	P	P	_	57	det	57	det
++51	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	53	mod	53	mod
++52	de	de	P	P	_|pred=y	51	dep_cpd	51	dep_cpd
+@@ -16957 +16957 @@
+-5	et	et	C	CC	s=c	2	coord	2	coord
++5	et	et	C	CC	s=c	4	coord	4	coord
+@@ -17129,2 +17129,2 @@
+-26	-LRB-	-LRB-	PONCT	PONCT	s=w	36	ponct	36	ponct
+-27	le	le	D	DET	g=m|mwehead=NPP+|n=s|s=def|pred=y	36	mod	36	mod
++26	-LRB-	-LRB-	PONCT	PONCT	s=w	25	ponct	25	ponct
++27	le	le	D	DET	g=m|mwehead=NPP+|n=s|s=def|pred=y	25	mod	25	mod
+@@ -17135,2 +17135,2 @@
+-32	-RRB-	-RRB-	PONCT	PONCT	s=w	36	ponct	36	ponct
+-33	,	,	PONCT	PONCT	s=w	36	ponct	36	ponct
++32	-RRB-	-RRB-	PONCT	PONCT	s=w	25	ponct	25	ponct
++33	,	,	PONCT	PONCT	s=w	25	ponct	25	ponct
+@@ -17173 +17173 @@
+-70	et	et	C	CC	s=c	66	coord	66	coord
++70	et	et	C	CC	s=c	69	coord	69	coord
+@@ -17202 +17202 @@
+-12	et	et	C	CC	s=c	11	coord	11	coord
++12	et	et	C	CC	s=c	9	coord	9	coord
+@@ -17206 +17206 @@
+-16	des	de	P+D	P+D	s=def	11	dep	11	dep
++16	des	de	P+D	P+D	s=def	11	dep	15	dep
+@@ -17449 +17449 @@
+-31	,	,	PONCT	PONCT	s=w	25	coord	25	coord
++31	,	,	PONCT	PONCT	s=w	30	coord	30	coord
+@@ -17452 +17452 @@
+-34	,	,	PONCT	PONCT	s=w	25	coord	25	coord
++34	,	,	PONCT	PONCT	s=w	33	coord	33	coord
+@@ -17455 +17455 @@
+-37	,	,	PONCT	PONCT	s=w	25	coord	25	coord
++37	,	,	PONCT	PONCT	s=w	36	coord	36	coord
+@@ -17458 +17458 @@
+-40	,	,	PONCT	PONCT	s=w	25	coord	25	coord
++40	,	,	PONCT	PONCT	s=w	39	coord	39	coord
+@@ -17461 +17461 @@
+-43	et	et	C	CC	s=c	25	coord	25	coord
++43	et	et	C	CC	s=c	42	coord	42	coord
+@@ -17776,2 +17776,2 @@
+-26	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	25	obj.p	25	obj.p
+-27	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	26	dep_cpd	26	dep_cpd
++26	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	27	dep_cpd	27	dep_cpd
++27	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	25	obj.p	25	obj.p
+@@ -18061 +18061 @@
+-15	puis	puis	C	CC	s=c	7	coord	7	coord
++15	puis	puis	C	CC	s=c	11	coord	11	coord
+@@ -18095 +18095 @@
+-9	puis	puis	C	CC	s=c	14	coord	14	coord
++9	puis	puis	C	CC	s=c	1	coord	1	coord
+@@ -18109,5 +18109,5 @@
+-23	d'	d'	UNK	UNK	mwehead=NPP+|pred=y	22	mod	22	mod
+-24	Astier	Astier	UNK	UNK	_|pred=y	23	dep_cpd	23	dep_cpd
+-25	de	de	UNK	UNK	_|pred=y	23	dep_cpd	23	dep_cpd
+-26	la	la	UNK	UNK	_|pred=y	23	dep_cpd	23	dep_cpd
+-27	Vigerie	Vigerie	UNK	UNK	_|pred=y	23	dep_cpd	23	dep_cpd
++23	d'	d'	P	P	mwehead=NPP+|pred=y	22	mod	22	mod
++24	Astier	Astier	N	NPP	_|pred=y	23	dep_cpd	23	dep_cpd
++25	de	de	P	P	_|pred=y	23	dep_cpd	23	dep_cpd
++26	la	la	D	DET	_|pred=y	23	dep_cpd	23	dep_cpd
++27	Vigerie	Vigerie	N	NPP	_|pred=y	23	dep_cpd	23	dep_cpd
+@@ -18224,2 +18224,2 @@
+-51	-LRB-	-LRB-	PONCT	PONCT	s=w	59	ponct	59	ponct
+-52	Ed	Ed	N	NC	g=f|n=p|s=c	59	mod	59	mod
++51	-LRB-	-LRB-	PONCT	PONCT	s=w	48	ponct	48	ponct
++52	Ed	Ed	N	NC	g=f|n=p|s=c	48	mod	48	mod
+@@ -18228,3 +18228,3 @@
+-55	,	,	PONCT	PONCT	s=w	59	ponct	59	ponct
+-56	1973	1973	N	NC	g=f|n=s|s=card	59	mod	59	mod
+-57	-RRB-	-RRB-	PONCT	PONCT	s=w	59	ponct	59	ponct
++55	,	,	PONCT	PONCT	s=w	48	ponct	48	ponct
++56	1973	1973	N	NC	g=f|n=s|s=card	48	mod	48	mod
++57	-RRB-	-RRB-	PONCT	PONCT	s=w	48	ponct	48	ponct
+@@ -18253 +18253 @@
+-19	,	,	PONCT	PONCT	s=w	14	coord	14	coord
++19	,	,	PONCT	PONCT	s=w	17	coord	17	coord
+@@ -18256 +18256 @@
+-22	ou	ou	C	CC	s=c	14	coord	14	coord
++22	ou	ou	C	CC	s=c	20	coord	20	coord
+@@ -18605 +18605 @@
+-40	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	44	mod	44	mod
++40	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	42	mod	42	mod
+@@ -18806 +18806 @@
+-11	et	et	C	CC	s=c	8	coord	8	coord
++11	et	et	C	CC	s=c	7	coord	7	coord
+@@ -19611 +19611 @@
+-68	et	et	C	CC	s=c	72	coord	72	coord
++68	et	et	C	CC	s=c	65	coord	65	coord
+@@ -19688 +19688 @@
+-4	nécessaire	nécessaire	A	ADJ	g=m|n=s|s=qual	3	at0	3	at0
++4	nécessaire	nécessaire	A	ADJ	g=m|n=s|s=qual	3	ato	3	ato
+@@ -19738,2 +19738,2 @@
+-18	,	,	PONCT	PONCT	s=w	13	coord	13	coord
+-19	et	et	C	CC	s=c	21	coord	21	coord
++18	,	,	PONCT	PONCT	s=w	13	ponct	13	ponct
++19	et	et	C	CC	s=c	13	coord	13	coord
+@@ -19741 +19741 @@
+-21	est	être	V	V	m=ind|mwehead=V+|n=s|p=3|t=pst|pred=y	18	dep.coord	18	dep.coord
++21	est	être	V	V	m=ind|mwehead=V+|n=s|p=3|t=pst|pred=y	19	dep.coord	19	dep.coord
+@@ -19804 +19804 @@
+-1	Mais	mais	C	CC	s=c	14	coord	14	coord
++1	Mais	mais	C	CC	s=c	0	root	0	root
+@@ -19817 +19817 @@
+-14	commenté	commenter	V	VPP	g=m|m=part|n=s|t=past	0	root	0	root
++14	commenté	commenter	V	VPP	g=m|m=part|n=s|t=past	4	mod	4	mod
+@@ -19870,4 +19870,4 @@
+-12	les	le	D	DET	g=m|n=p|s=def	13	det	13	det
+-13	grands	grand	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	28	suj	28	suj
+-14	principes	principe	N	NC	g=m|n=p|s=c|pred=y	13	dep_cpd	13	dep_cpd
+-15	du	de	P+D	P+D	s=def	13	dep	13	dep
++12	les	le	D	DET	g=m|n=p|s=def	14	det	14	det
++13	grands	grand	A	ADJ	g=m|n=p|s=qual|pred=y	14	dep_cpd	14	dep_cpd
++14	principes	principe	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	28	suj	28	suj
++15	du	de	P+D	P+D	s=def	14	dep	14	dep
+@@ -19983 +19983 @@
+-48	d'	de	P	P	_	42	dep	42	dep
++48	d'	de	P	P	_	42	dep.coord	42	dep.coord
+@@ -20179 +20179 @@
+-33	nombre	nombre	N	NC	g=m|n=s|s=c	26	dep	26	dep
++33	nombre	nombre	N	NC	g=m|n=s|s=c	26	dep.coord	26	dep.coord
+@@ -20394,2 +20394,2 @@
+-31	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	27	mod	27	mod
+-32	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	31	dep_cpd	31	dep_cpd
++31	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	32	dep_cpd	32	dep_cpd
++32	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	27	mod	27	mod
+@@ -20467 +20467 @@
+-10	car	car	C	CC	s=c	5	coord	5	coord
++10	car	car	C	CS	s=c	5	mod	5	mod
+@@ -20469 +20469 @@
+-12	considèrent	considérer	V	V	m=ind|n=p|p=3|t=pst	10	dep.coord	10	dep.coord
++12	considèrent	considérer	V	V	m=ind|n=p|p=3|t=pst	10	obj.cpl	10	obj.cpl
+@@ -20672,2 +20672,2 @@
+-4	plus	plus	ADV	ADV	_	8	mod	8	mod
+-5	de	de	P	P	_	8	det	8	det
++4	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	6	mod	6	mod
++5	de	de	P	P	_|pred=y	4	dep_cpd	4	dep_cpd
+@@ -21053 +21053 @@
+-37	%	%	N	NC	g=m|n=p|s=c	32	dep	32	dep
++37	%	%	N	NC	g=m|n=p|s=c	32	dep.coord	32	dep.coord
+@@ -21554 +21554 @@
+-11	car	car	C	CC	s=c	5	coord	5	coord
++11	car	car	C	CS	s=c	5	mod	5	mod
+@@ -21569 +21569 @@
+-26	produira	produire	V	V	m=ind|n=s|p=3|t=fut	11	dep.coord	11	dep.coord
++26	produira	produire	V	V	m=ind|n=s|p=3|t=fut	11	obj.cpl	11	obj.cpl
+@@ -21979 +21979 @@
+-7	,	,	PONCT	PONCT	s=w	3	coord	3	coord
++7	,	,	PONCT	PONCT	s=w	6	coord	6	coord
+@@ -21982 +21982 @@
+-10	et	et	C	CC	s=c	3	coord	3	coord
++10	et	et	C	CC	s=c	8	coord	8	coord
+@@ -22048,3 +22048,3 @@
+-21	cette	ce	D	DET	g=f|n=s|s=dem	22	det	22	det
+-22	petite	petit	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	24	suj	24	suj
+-23	fille	fille	N	NC	g=f|n=s|s=c|pred=y	22	dep_cpd	22	dep_cpd
++21	cette	ce	D	DET	g=f|n=s|s=dem	23	det	23	det
++22	petite	petit	A	ADJ	g=f|n=s|s=qual|pred=y	23	dep_cpd	23	dep_cpd
++23	fille	fille	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	24	suj	24	suj
+@@ -22192,2 +22192,2 @@
+-19	,	,	PONCT	PONCT	s=w	1	ponct	1	ponct
+-20	ou	ou	C	CC	s=c	1	coord	1	coord
++19	,	,	PONCT	PONCT	s=w	5	ponct	5	ponct
++20	ou	ou	C	CC	s=c	5	coord	5	coord
+@@ -22316,2 +22316,2 @@
+-39	Bon	bon	A	ADJ	g=m|mwehead=NPP+|n=s|s=qual|pred=y	38	obj.p	38	obj.p
+-40	marché	marché	N	NC	g=m|n=s|s=c|pred=y	39	dep_cpd	39	dep_cpd
++39	Bon	bon	A	ADJ	g=m|n=s|s=qual|pred=y	40	dep_cpd	40	dep_cpd
++40	marché	marché	N	NC	g=m|mwehead=NPP+|n=s|s=c|pred=y	38	obj.p	38	obj.p
+@@ -22359,4 +22359,4 @@
+-4	les	le	D	DET	g=m|n=p|s=def	6	det	6	det
+-5	autres	autre	A	ADJ	g=m|n=p|s=qual	6	mod	6	mod
+-6	grands	grand	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	8	suj	8	suj
+-7	magasins	magasin	N	NC	g=m|n=p|s=c|pred=y	6	dep_cpd	6	dep_cpd
++4	les	le	D	DET	g=m|n=p|s=def	7	det	7	det
++5	autres	autre	A	ADJ	g=m|n=p|s=qual	7	mod	7	mod
++6	grands	grand	A	ADJ	g=m|n=p|s=qual|pred=y	7	dep_cpd	7	dep_cpd
++7	magasins	magasin	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	8	suj	8	suj
+@@ -22510 +22510 @@
+-15	car	car	C	CC	s=c	9	coord	9	coord
++15	car	car	C	CS	s=c	9	mod	9	mod
+@@ -22513 +22513 @@
+-18	sont	être	V	V	m=ind|n=p|p=3|t=pst	15	dep.coord	15	dep.coord
++18	sont	être	V	V	m=ind|n=p|p=3|t=pst	15	obj.cpl	15	obj.cpl
+@@ -22681,2 +22681,2 @@
+-38	menuiserie	menuiserie	N	NC	g=f|n=s|s=c	31	dep	31	dep
+-39	,	,	PONCT	PONCT	s=w	31	ponct	31	ponct
++38	menuiserie	menuiserie	N	NC	g=f|n=s|s=c	31	dep.coord	31	dep.coord
++39	,	,	PONCT	PONCT	s=w	38	coord	38	coord
+@@ -22684,2 +22684,2 @@
+-41	éclairage	éclairage	N	NC	g=m|n=s|s=c	31	dep	31	dep
+-42	,	,	PONCT	PONCT	s=w	31	ponct	31	ponct
++41	éclairage	éclairage	N	NC	g=m|n=s|s=c	39	dep.coord	39	dep.coord
++42	,	,	PONCT	PONCT	s=w	41	coord	41	coord
+@@ -22687 +22687 @@
+-44	peintures	peinture	N	NC	g=f|n=p|s=c	31	dep	31	dep
++44	peintures	peinture	N	NC	g=f|n=p|s=c	42	dep.coord	42	dep.coord
+@@ -22704,4 +22704,4 @@
+-1	Le	le	D	DET	g=m|n=s|s=def	2	det	2	det
+-2	Bon	bon	A	ADJ	g=m|mwehead=NPP+|n=s|s=qual|pred=y	29	suj	29	suj
+-3	marché	marché	N	NC	g=m|n=s|s=c|pred=y	2	dep_cpd	2	dep_cpd
+-4	,	,	PONCT	PONCT	s=w	2	ponct	2	ponct
++1	Le	le	D	DET	g=m|n=s|s=def	3	det	3	det
++2	Bon	bon	A	ADJ	g=m|n=s|s=qual|pred=y	3	dep_cpd	3	dep_cpd
++3	marché	marché	N	NC	g=m|mwehead=NPP+|n=s|s=c|pred=y	29	suj	29	suj
++4	,	,	PONCT	PONCT	s=w	3	ponct	3	ponct
+@@ -22709 +22709 @@
+-6	doit	devoir	V	V	m=ind|n=s|p=3|t=pst	2	mod.rel	2	mod.rel
++6	doit	devoir	V	V	m=ind|n=s|p=3|t=pst	3	mod.rel	3	mod.rel
+@@ -22713,4 +22713,4 @@
+-10	une	un	D	DET	g=f|n=s|s=ind	11	det	11	det
+-11	jeune	jeune	A	ADJ	mwehead=NC+|n=s|s=qual|pred=y	9	obj.p	9	obj.p
+-12	femme	femme	N	NC	g=f|n=s|s=c|pred=y	11	dep_cpd	11	dep_cpd
+-13	de	de	P	P	_	11	dep	11	dep
++10	une	un	D	DET	g=f|n=s|s=ind	12	det	12	det
++11	jeune	jeune	A	ADJ	n=s|s=qual|pred=y	12	dep_cpd	12	dep_cpd
++12	femme	femme	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	9	obj.p	9	obj.p
++13	de	de	P	P	_	12	dep	12	dep
+@@ -22721,2 +22721,2 @@
+-18	,	,	PONCT	PONCT	s=w	11	ponct	11	ponct
+-19	architecte	architecte	N	NC	mwehead=NC+|n=s|s=c|pred=y	11	mod	11	mod
++18	,	,	PONCT	PONCT	s=w	12	ponct	12	ponct
++19	architecte	architecte	N	NC	mwehead=NC+|n=s|s=c|pred=y	12	mod	12	mod
+@@ -22755 +22755 @@
+-9	dans	dans	P	P	_	6	mod	6	mod
++9	dans	dans	P	P	_	6	mod	8	mod
+@@ -22761 +22761 @@
+-15	et	et	C	CC	s=c	6	coord	6	coord
++15	et	et	C	CC	s=c	8	coord	8	coord
+@@ -22874 +22874 @@
+-4	,	,	PONCT	PONCT	s=w	1	coord	1	coord
++4	,	,	PONCT	PONCT	s=w	3	coord	3	coord
+@@ -22876 +22876 @@
+-6	,	,	PONCT	PONCT	s=w	1	coord	1	coord
++6	,	,	PONCT	PONCT	s=w	5	coord	5	coord
+@@ -22879 +22879 @@
+-9	et	et	C	CC	s=c	1	coord	1	coord
++9	et	et	C	CC	s=c	7	coord	7	coord
+@@ -22943,2 +22943,2 @@
+-9	,	,	PONCT	PONCT	s=w	4	ponct	4	ponct
+-10	et	et	C	CC	s=c	4	coord	4	coord
++9	,	,	PONCT	PONCT	s=w	7	ponct	7	ponct
++10	et	et	C	CC	s=c	7	coord	7	coord
+@@ -23005 +23005 @@
+-36	et	et	C	CC	s=c	29	coord	29	coord
++36	et	et	C	CC	s=c	33	coord	33	coord
+@@ -23059,2 +23059,2 @@
+-37	ni	ni	ADV	ADV	_	36	coord	36	coord
+-38	d'	de	P	P	_	37	mod	37	mod
++37	ni	ni	C	CC	_	38	mod	38	mod
++38	d'	de	P	P	_	36	dep	36	dep
+@@ -23064,2 +23064,2 @@
+-42	ni	ni	ADV	ADV	_	36	coord	36	coord
+-43	d'	de	P	P	_	42	mod	42	mod
++42	ni	ni	C	CC	_	38	coord	38	coord
++43	d'	de	P	P	_	42	dep.coord	42	dep.coord
+@@ -23170,3 +23170,3 @@
+-15	le	le	D	DET	g=m|n=s|s=def	16	det	16	det
+-16	grand	grand	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	14	obj	14	obj
+-17	large	large	N	NC	g=m|n=s|s=c|pred=y	16	dep_cpd	16	dep_cpd
++15	le	le	D	DET	g=m|n=s|s=def	17	det	17	det
++16	grand	grand	A	ADJ	g=m|n=s|s=qual|pred=y	17	dep_cpd	17	dep_cpd
++17	large	large	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	14	obj	14	obj
+@@ -23265 +23265 @@
+-29	et	et	C	CC	s=c	28	coord	28	coord
++29	et	et	C	CC	s=c	26	coord	26	coord
+@@ -23269,2 +23269,2 @@
+-33	"	"	PONCT	PONCT	s=w	28	ponct	28	ponct
+-34	des	de	P+D	P+D	s=def	28	dep	28	dep
++33	"	"	PONCT	PONCT	s=w	32	ponct	32	ponct
++34	des	de	P+D	P+D	s=def	28	dep	32	dep
+@@ -23275 +23275 @@
+-39	et	et	C	CC	s=c	34	coord	34	coord
++39	et	et	C	CC	s=c	37	coord	37	coord
+@@ -23610 +23610 @@
+-27	et	et	C	CC	s=c	23	coord	23	coord
++27	et	et	C	CC	s=c	24	coord	24	coord
+@@ -23692 +23692 @@
+-7	près	près	ADV	ADV	mwehead=ADV+|pred=y	10	mod	10	mod
++7	près	près	ADV	ADV	mwehead=ADV+|pred=y	9	mod	9	mod
+@@ -23716 +23716 @@
+-31	et	et	C	CC	s=c	4	coord	4	coord
++31	et	et	C	CC	s=c	20	coord	20	coord
+@@ -23773 +23773 @@
+-12	et	et	C	CC	s=c	5	mod	5	mod
++12	et	et	C	CC	s=c	5	coord	5	coord
+@@ -24414 +24414 @@
+-49	car	car	C	CC	s=c	34	coord	34	coord
++49	car	car	C	CS	s=c	34	mod	34	mod
+@@ -24417 +24417 @@
+-52	aura	avoir	V	V	m=ind|n=s|p=3|t=fut	49	dep.coord	49	dep.coord
++52	aura	avoir	V	V	m=ind|n=s|p=3|t=fut	49	obj.cpl	49	obj.cpl
+@@ -24455 +24455 @@
+-29	et	et	C	CC	s=c	26	coord	26	coord
++29	et	et	C	CC	s=c	28	coord	28	coord
+@@ -24513 +24513 @@
+-18	et	et	C	CC	s=c	11	coord	11	coord
++18	et	et	C	CC	s=c	9	coord	9	coord
+@@ -24647 +24647 @@
+-40	et	et	C	CC	s=c	33	coord	33	coord
++40	et	et	C	CC	s=c	37	coord	37	coord
+@@ -24660,2 +24660,2 @@
+-53	bon	bon	A	ADJ	g=m|mwehead=ADJ+|n=s|s=qual|pred=y	49	mod	49	mod
+-54	marché	marché	N	NC	g=m|n=s|s=c|pred=y	53	dep_cpd	53	dep_cpd
++53	bon	bon	A	ADJ	g=m|n=s|s=qual|pred=y	54	dep_cpd	54	dep_cpd
++54	marché	marché	N	NC	g=m|mwehead=ADJ+|n=s|s=c|pred=y	49	mod	49	mod
+@@ -24855 +24855 @@
+-17	un	un	D	DET	g=m|mwehead=ADV+|n=s|s=ind|pred=y	22	mod	22	mod
++17	un	un	D	DET	g=m|mwehead=ADV+|n=s|s=ind|pred=y	19	mod	19	mod
+@@ -24857 +24857 @@
+-19	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	22	mod	22	mod
++19	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	21	mod	21	mod
+@@ -24959 +24959 @@
+-4	et	et	C	CC	s=c	1	coord	1	coord
++4	et	et	C	CC	s=c	2	coord	2	coord
+@@ -24962,6 +24962,6 @@
+-7	,	,	PONCT	PONCT	s=w	1	ponct	1	ponct
+-8	corruption	corruption	N	NC	g=f|n=s|s=c	1	mod	1	mod
+-9	,	,	PONCT	PONCT	s=w	1	ponct	1	ponct
+-10	gabegie	gabegie	N	NC	g=f|n=s|s=c	1	mod	1	mod
+-11	,	,	PONCT	PONCT	s=w	1	ponct	1	ponct
+-12	désordres	désordre	N	NC	g=m|n=p|s=c	1	mod	1	mod
++7	,	,	PONCT	PONCT	s=w	1	coord	1	coord
++8	corruption	corruption	N	NC	g=f|n=s|s=c	7	dep.coord	7	dep.coord
++9	,	,	PONCT	PONCT	s=w	8	coord	8	coord
++10	gabegie	gabegie	N	NC	g=f|n=s|s=c	9	dep.coord	9	dep.coord
++11	,	,	PONCT	PONCT	s=w	10	coord	10	coord
++12	désordres	désordre	N	NC	g=m|n=p|s=c	11	dep.coord	11	dep.coord
+@@ -25123 +25123 @@
+-16	et	et	C	CC	s=c	12	coord	12	coord
++16	et	et	C	CC	s=c	15	coord	15	coord
+@@ -25467 +25467 @@
+-30	et	et	C	CC	s=c	28	coord	28	coord
++30	et	et	C	CC	s=c	29	coord	29	coord
+@@ -25494 +25494 @@
+-16	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	20	mod	20	mod
++16	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	18	mod	18	mod
+@@ -25581 +25581 @@
+-22	et	et	C	CC	s=c	19	coord	19	coord
++22	et	et	C	CC	s=c	21	coord	21	coord
+@@ -25584 +25584 @@
+-25	et	et	C	CC	s=c	13	coord	13	coord
++25	et	et	C	CC	s=c	17	coord	17	coord
+@@ -25589,2 +25589,2 @@
+-30	-LRB-	-LRB-	PONCT	PONCT	s=w	25	ponct	25	ponct
+-31	chrétienne	chrétien	A	ADJ	g=f|n=s|s=qual	25	dep.coord	25	dep.coord
++30	-LRB-	-LRB-	PONCT	PONCT	s=w	29	ponct	29	ponct
++31	chrétienne	chrétien	A	ADJ	g=f|n=s|s=qual	29	mod	29	mod
+@@ -25593 +25593 @@
+-34	-RRB-	-RRB-	PONCT	PONCT	s=w	25	ponct	25	ponct
++34	-RRB-	-RRB-	PONCT	PONCT	s=w	29	ponct	29	ponct
+@@ -25596 +25596 @@
+-1	Quelle	quel	A	ADJWH	g=f|n=s|s=int	8	mod	8	mod
++1	Quelle	quel	D	DETWH	g=f|n=s|s=int	8	mod	8	mod
+@@ -25980 +25980 @@
+-59	ou	ou	C	CC	s=c	54	coord	54	coord
++59	ou	ou	C	CC	s=c	57	coord	57	coord
+@@ -26024 +26024 @@
+-28	près	près	P	P	mwehead=P+|pred=y	31	mod	31	mod
++28	près	près	P	P	mwehead=ADV+|pred=y	30	mod	30	mod
+@@ -26182 +26182 @@
+-11	,	,	PONCT	PONCT	s=w	7	coord	7	coord
++11	,	,	PONCT	PONCT	s=w	10	coord	10	coord
+@@ -26185 +26185 @@
+-14	et	et	C	CC	s=c	7	coord	7	coord
++14	et	et	C	CC	s=c	13	coord	13	coord
+@@ -26198 +26198 @@
+-27	et	et	C	CC	s=c	22	coord	22	coord
++27	et	et	C	CC	s=c	26	coord	26	coord
+@@ -26242 +26242 @@
+-19	par	par	P	P	_	15	dep	15	dep
++19	par	par	P	P	_	11	mod	18	dep
+@@ -26244,2 +26244,2 @@
+-21	,	,	PONCT	PONCT	s=w	15	ponct	15	ponct
+-22	soit	soit	C	CC	s=c	15	coord	15	coord
++21	,	,	PONCT	PONCT	s=w	19	ponct	19	ponct
++22	soit	soit	C	CC	s=c	14	coord	14	coord
+@@ -26486,2 +26486,2 @@
+-40	-LRB-	-LRB-	PONCT	PONCT	s=w	38	ponct	38	ponct
+-41	près	près	P	P	mwehead=P+|pred=y	38	dep	38	dep
++40	-LRB-	-LRB-	PONCT	PONCT	s=w	37	ponct	37	ponct
++41	près	près	P	P	mwehead=ADV+|pred=y	43	mod	43	mod
+@@ -26490 +26490 @@
+-44	milliards	milliard	N	NC	g=m|n=p|s=card	41	obj.p	41	obj.p
++44	milliards	milliard	N	NC	g=m|n=p|s=card	37	mod	37	mod
+@@ -26493 +26493 @@
+-47	-RRB-	-RRB-	PONCT	PONCT	s=w	38	ponct	38	ponct
++47	-RRB-	-RRB-	PONCT	PONCT	s=w	37	ponct	37	ponct
+@@ -26598 +26598 @@
+-10	-LRB-	-LRB-	PONCT	PONCT	s=w	37	ponct	37	ponct
++10	-LRB-	-LRB-	PONCT	PONCT	s=w	3	ponct	3	ponct
+@@ -26601 +26601 @@
+-13	augmentation	augmentation	N	NC	g=f|n=s|s=c	37	mod	37	mod
++13	augmentation	augmentation	N	NC	g=f|n=s|s=c	3	mod	3	mod
+@@ -26620,2 +26620,2 @@
+-32	-RRB-	-RRB-	PONCT	PONCT	s=w	37	ponct	37	ponct
+-33	,	,	PONCT	PONCT	s=w	37	ponct	37	ponct
++32	-RRB-	-RRB-	PONCT	PONCT	s=w	3	ponct	3	ponct
++33	,	,	PONCT	PONCT	s=w	3	ponct	3	ponct
+@@ -26652 +26652 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -26664 +26664 @@
+-13	est	être	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	1	dep.coord
++13	est	être	V	V	m=ind|n=s|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -27019 +27019 @@
+-7	près	près	P	P	mwehead=P+|pred=y	10	mod	10	mod
++7	près	près	P	P	mwehead=ADV+|pred=y	10	mod	10	mod
+@@ -27214 +27214 @@
+-32	près	près	P	P	mwehead=P+|pred=y	36	mod	36	mod
++32	près	près	P	P	mwehead=ADV+|pred=y	34	mod	34	mod
+@@ -27233,2 +27233,2 @@
+-51	-LRB-	-LRB-	PONCT	PONCT	s=w	56	ponct	56	ponct
+-52	hors	hors	P	P	_	56	mod	56	mod
++51	-LRB-	-LRB-	PONCT	PONCT	s=w	49	ponct	49	ponct
++52	hors	hors	P	P	_	49	dep	49	dep
+@@ -27236 +27236 @@
+-54	-RRB-	-RRB-	PONCT	PONCT	s=w	56	ponct	56	ponct
++54	-RRB-	-RRB-	PONCT	PONCT	s=w	49	ponct	49	ponct
+@@ -27310,2 +27310,2 @@
+-20	mauvais	mauvais	A	ADJ	g=m|mwehead=NC+|s=qual|pred=y	19	obj.p	19	obj.p
+-21	payeur	payeur	N	NC	g=m|n=s|s=c|pred=y	20	dep_cpd	20	dep_cpd
++20	mauvais	mauvais	A	ADJ	g=m|s=qual|pred=y	21	dep_cpd	21	dep_cpd
++21	payeur	payeur	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	19	obj.p	19	obj.p
+@@ -27318 +27318 @@
+-5	ni	ni	C	CC	s=c	16	suj	16	suj
++5	ni	ni	C	CC	s=c	7	mod	7	mod
+@@ -27320 +27320 @@
+-7	Fonds	Fonds	N	NPP	mwehead=NPP+|s=p|pred=y	5	dep.coord	5	dep.coord
++7	Fonds	Fonds	N	NPP	mwehead=NPP+|s=p|pred=y	16	suj	16	suj
+@@ -27323 +27323 @@
+-10	ni	ni	C	CC	s=c	16	suj	16	suj
++10	ni	ni	C	CC	s=c	7	coord	7	coord
+@@ -27392 +27392 @@
+-24	et	et	C	CC	s=c	19	coord	19	coord
++24	et	et	C	CC	s=c	22	coord	22	coord
+@@ -27437 +27437 @@
+-22	ou	ou	C	CC	s=c	19	coord	19	coord
++22	ou	ou	C	CC	s=c	21	coord	21	coord
+@@ -27595 +27595 @@
+-49	z'	z'	UNK	UNK	_|pred=y	52	dep_cpd	52	dep_cpd
++49	z'	z'	ADV	ADV	_|pred=y	52	dep_cpd	52	dep_cpd
+@@ -27737,2 +27737,2 @@
+-12	,	,	PONCT	PONCT	s=w	4	ponct	4	ponct
+-13	et	et	C	CC	s=c	4	coord	4	coord
++12	,	,	PONCT	PONCT	s=w	11	ponct	11	ponct
++13	et	et	C	CC	s=c	11	coord	11	coord
+@@ -27742 +27742 @@
+-17	et	et	C	CC	s=c	14	coord	14	coord
++17	et	et	C	CC	s=c	16	coord	16	coord
+@@ -27948,2 +27948,2 @@
+-22	plein	plein	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	21	obj.p	21	obj.p
+-23	emploi	emploi	N	NC	g=m|n=s|s=c|pred=y	22	dep_cpd	22	dep_cpd
++22	plein	plein	A	ADJ	g=m|n=s|s=qual|pred=y	23	dep_cpd	23	dep_cpd
++23	emploi	emploi	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	21	obj.p	21	obj.p
+@@ -28075,2 +28075,2 @@
+-33	,	,	PONCT	PONCT	s=w	15	ponct	15	ponct
+-34	et	et	C	CC	s=c	15	coord	15	coord
++33	,	,	PONCT	PONCT	s=w	24	ponct	24	ponct
++34	et	et	C	CC	s=c	24	coord	24	coord
+@@ -28094 +28094 @@
+-52	à	à	P	P	_	46	dep	46	dep
++52	à	à	P	P	_	46	dep.coord	46	dep.coord
+@@ -28238,2 +28238,2 @@
+-34	,	,	PONCT	PONCT	s=w	14	ponct	14	ponct
+-35	ou	ou	C	CC	s=c	14	coord	14	coord
++34	,	,	PONCT	PONCT	s=w	15	ponct	15	ponct
++35	ou	ou	C	CC	s=c	15	coord	15	coord
+@@ -28293 +28293 @@
+-36	Petit	petit	A	ADJ	g=m|n=s|s=qual	33	dep	33	dep
++36	Petit	petit	A	ADJ	g=m|n=s|s=qual	33	dep.coord	33	dep.coord
+@@ -28440 +28440 @@
+-28	et	et	C	CC	s=c	25	coord	25	coord
++28	et	et	C	CC	s=c	27	coord	27	coord
+@@ -28448,2 +28448,2 @@
+-36	-LRB-	-LRB-	PONCT	PONCT	s=w	47	ponct	47	ponct
+-37	par	par	P	P	mwehead=ADV+|pred=y	47	mod	47	mod
++36	-LRB-	-LRB-	PONCT	PONCT	s=w	35	ponct	35	ponct
++37	par	par	P	P	mwehead=ADV+|pred=y	41	mod	41	mod
+@@ -28451 +28451 @@
+-39	,	,	PONCT	PONCT	s=w	47	ponct	47	ponct
++39	,	,	PONCT	PONCT	s=w	37	ponct	37	ponct
+@@ -28453 +28453 @@
+-41	régulation	régulation	N	NC	g=f|n=s|s=c	47	suj	47	suj
++41	régulation	régulation	N	NC	g=f|n=s|s=c	35	mod	35	mod
+@@ -28457 +28457 @@
+-45	-RRB-	-RRB-	PONCT	PONCT	s=w	47	ponct	47	ponct
++45	-RRB-	-RRB-	PONCT	PONCT	s=w	35	ponct	35	ponct
+@@ -28533,3 +28533,3 @@
+-47	-LRB-	-LRB-	PONCT	PONCT	s=w	21	ponct	21	ponct
+-48	ALS	ALS	N	NPP	g=f|n=s|s=p	21	mod	21	mod
+-49	-RRB-	-RRB-	PONCT	PONCT	s=w	21	ponct	21	ponct
++47	-LRB-	-LRB-	PONCT	PONCT	s=w	41	ponct	41	ponct
++48	ALS	ALS	N	NPP	g=f|n=s|s=p	41	mod	41	mod
++49	-RRB-	-RRB-	PONCT	PONCT	s=w	41	ponct	41	ponct
+@@ -28589 +28589 @@
+-52	et	et	C	CC	s=c	48	coord	48	coord
++52	et	et	C	CC	s=c	51	coord	51	coord
+@@ -28789 +28789 @@
+-24	ou	ou	C	CC	s=c	20	coord	20	coord
++24	ou	ou	C	CC	s=c	23	coord	23	coord
+@@ -28795 +28795 @@
+-30	aux	à	P+D	P+D	s=def	28	dep	28	dep
++30	aux	à	P+D	P+D	s=def	28	dep.coord	28	dep.coord
+@@ -28798 +28798 @@
+-33	mariés	marier	V	VPP	g=m|m=part|n=p|t=past	28	dep	28	dep
++33	mariés	marier	V	VPP	g=m|m=part|n=p|t=past	32	mod	32	mod
+@@ -28800 +28800 @@
+-35	moins	moins	ADV	ADV	mwehead=P+|pred=y	38	mod	38	mod
++35	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	37	mod	37	mod
+@@ -28856 +28856 @@
+-32	ou	ou	C	CC	s=c	28	coord	28	coord
++32	ou	ou	C	CC	s=c	31	coord	31	coord
+@@ -28861 +28861 @@
+-37	moins	moins	ADV	ADV	mwehead=P+|pred=y	42	mod	42	mod
++37	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	39	mod	39	mod
+@@ -28883,2 +28883,2 @@
+-14	ni	ni	C	CC	s=c	12	a_obj	12	a_obj
+-15	à	à	P	P	_	14	dep.coord	14	dep.coord
++14	ni	ni	C	CC	s=c	15	mod	15	mod
++15	à	à	P	P	_	12	a_obj	12	a_obj
+@@ -28887 +28887 @@
+-18	ni	ni	C	CC	s=c	12	a_obj	12	a_obj
++18	ni	ni	C	CC	s=c	15	coord	15	coord
+@@ -28910,2 +28910,2 @@
+-18	longue	long	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	17	obj.p	17	obj.p
+-19	durée	durée	N	NC	g=f|n=s|s=c|pred=y	18	dep_cpd	18	dep_cpd
++18	longue	long	A	ADJ	g=f|n=s|s=qual|pred=y	19	dep_cpd	19	dep_cpd
++19	durée	durée	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	17	obj.p	17	obj.p
+@@ -28947 +28947 @@
+-13	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	18	mod	18	mod
++13	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	15	mod	15	mod
+@@ -28955 +28955 @@
+-21	moins	moins	ADV	ADV	mwehead=P+|pred=y	26	mod	26	mod
++21	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	23	mod	23	mod
+@@ -28963,2 +28963,2 @@
+-29	aux	à	P+D	P+D	s=def	27	dep	27	dep
+-30	moins	moins	ADV	ADV	mwehead=P+|pred=y	35	mod	35	mod
++29	aux	à	P+D	P+D	s=def	27	dep.coord	27	dep.coord
++30	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	32	mod	32	mod
+@@ -29127 +29127 @@
+-47	et	et	C	CC	s=c	44	coord	44	coord
++47	et	et	C	CC	s=c	46	coord	46	coord
+@@ -29341 +29341 @@
+-4	près	près	P	P	mwehead=P+|pred=y	7	mod	7	mod
++4	près	près	P	P	mwehead=ADV+|pred=y	6	mod	6	mod
+@@ -29349 +29349 @@
+-12	moins	moins	ADV	ADV	mwehead=P+|pred=y	17	mod	17	mod
++12	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	14	mod	14	mod
+@@ -29388 +29388 @@
+-32	près	près	P	P	mwehead=P+|pred=y	35	mod	35	mod
++32	près	près	P	P	mwehead=ADV+|pred=y	34	mod	34	mod
+@@ -29459 +29459 @@
+-13	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	16	mod	16	mod
++13	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	15	mod	15	mod
+@@ -29741 +29741 @@
+-31	et	et	C	CC	s=c	27	coord	27	coord
++31	et	et	C	CC	s=c	28	coord	28	coord
+@@ -29771,2 +29771,2 @@
+-61	élevés	élevé	A	ADJ	g=m|n=p|s=qual	58	mod	58	mod
+-62	et	et	C	CC	s=c	50	coord	50	coord
++61	élevés	élevé	A	ADJ	g=m|n=p|s=qual	57	mod	57	mod
++62	et	et	C	CC	s=c	57	coord	57	coord
+@@ -29890 +29890 @@
+-10	-LRB-	-LRB-	PONCT	PONCT	s=w	8	ponct	8	ponct
++10	-LRB-	-LRB-	PONCT	PONCT	s=w	7	ponct	9	ponct
+@@ -29892 +29892 @@
+-12	taux	taux	N	NC	g=m|mwehead=NC+|s=c|pred=y	8	obj.p	8	obj.p
++12	taux	taux	N	NC	g=m|mwehead=NC+|s=c|pred=y	7	mod	9	mod
+@@ -29895,2 +29895,2 @@
+-15	-RRB-	-RRB-	PONCT	PONCT	s=w	8	ponct	8	ponct
+-16	et	et	C	CC	s=c	7	coord	7	coord
++15	-RRB-	-RRB-	PONCT	PONCT	s=w	7	ponct	9	ponct
++16	et	et	C	CC	s=c	8	coord	8	coord
+@@ -30047,2 +30047,2 @@
+-44	,	,	PONCT	PONCT	s=w	39	ponct	39	ponct
+-45	des	de	P+D	P+D	s=def	39	dep	39	dep
++44	,	,	PONCT	PONCT	s=w	40	coord	40	coord
++45	des	de	P+D	P+D	s=def	44	dep.coord	44	dep.coord
+@@ -30051,2 +30051,2 @@
+-48	,	,	PONCT	PONCT	s=w	39	ponct	39	ponct
+-49	et	et	C	CC	s=c	39	coord	39	coord
++48	,	,	PONCT	PONCT	s=w	45	ponct	45	ponct
++49	et	et	C	CC	s=c	45	coord	45	coord
+@@ -30170,2 +30170,2 @@
+-33	,	,	PONCT	PONCT	s=w	18	ponct	18	ponct
+-34	c'	ce	CL	CLS	mwehead=CC+|n=s|p=3|s=suj|pred=y	18	coord	18	coord
++33	,	,	PONCT	PONCT	s=w	20	ponct	20	ponct
++34	c'	ce	CL	CLS	mwehead=CC+|n=s|p=3|s=suj|pred=y	20	coord	20	coord
+@@ -30177 +30177 @@
+-40	forcer	forcer	V	VINF	m=inf	34	dep	34	dep
++40	forcer	forcer	V	VINF	m=inf	34	dep.coord	34	dep.coord
+@@ -30183 +30183 @@
+-46	et	et	C	CC	s=c	43	coord	43	coord
++46	et	et	C	CC	s=c	44	coord	44	coord
+@@ -30192 +30192 @@
+-55	et	et	C	CC	s=c	52	coord	52	coord
++55	et	et	C	CC	s=c	53	coord	53	coord
+@@ -30195 +30195 @@
+-58	de	de	P	P	_	56	dep	56	dep
++58	de	de	P	P	_	57	dep	57	dep
+@@ -30297 +30297 @@
+-43	et	et	C	CC	s=c	34	coord	34	coord
++43	et	et	C	CC	s=c	35	coord	35	coord
+@@ -30406,2 +30406,2 @@
+-28	ni	ni	C	CC	s=c	27	ats	27	ats
+-29	manipulation	manipulation	N	NC	g=f|n=s|s=c	28	dep.coord	28	dep.coord
++28	ni	ni	C	CC	s=c	29	mod	29	mod
++29	manipulation	manipulation	N	NC	g=f|n=s|s=c	27	ats	27	ats
+@@ -30422,2 +30422,2 @@
+-44	,	,	PONCT	PONCT	s=w	27	ponct	27	ponct
+-45	ni	ni	C	CC	s=c	27	ats	27	ats
++44	,	,	PONCT	PONCT	s=w	29	ponct	29	ponct
++45	ni	ni	C	CC	s=c	29	coord	29	coord
+@@ -30425,2 +30425,2 @@
+-47	,	,	PONCT	PONCT	s=w	27	ponct	27	ponct
+-48	ni	ni	C	CC	s=c	27	ats	27	ats
++47	,	,	PONCT	PONCT	s=w	46	ponct	46	ponct
++48	ni	ni	C	CC	s=c	46	coord	46	coord
+@@ -30429 +30429 @@
+-51	-LRB-	-LRB-	PONCT	PONCT	s=w	48	ponct	48	ponct
++51	-LRB-	-LRB-	PONCT	PONCT	s=w	50	ponct	50	ponct
+@@ -30431 +30431 @@
+-53	lira	lire	V	V	m=ind|n=s|p=3|t=fut	48	mod	48	mod
++53	lira	lire	V	V	m=ind|n=s|p=3|t=fut	50	mod	50	mod
+@@ -30442,3 +30442,3 @@
+-64	-RRB-	-RRB-	PONCT	PONCT	s=w	48	ponct	48	ponct
+-65	mais	mais	C	CC	s=c	48	coord	48	coord
+-66	"	"	PONCT	PONCT	s=w	65	ponct	65	ponct
++64	-RRB-	-RRB-	PONCT	PONCT	s=w	50	ponct	50	ponct
++65	mais	mais	C	CC	s=c	50	coord	50	coord
++66	"	"	PONCT	PONCT	s=w	67	ponct	67	ponct
+@@ -30446,2 +30446,2 @@
+-68	"	"	PONCT	PONCT	s=w	65	ponct	65	ponct
+-69	et	et	C	CC	s=c	65	coord	65	coord
++68	"	"	PONCT	PONCT	s=w	67	ponct	67	ponct
++69	et	et	C	CC	s=c	67	coord	67	coord
+@@ -30450,3 +30450,3 @@
+-72	long	long	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	70	obj.p	70	obj.p
+-73	terme	terme	N	NC	g=m|n=s|s=c|pred=y	72	dep_cpd	72	dep_cpd
+-74	"	"	PONCT	PONCT	s=w	72	ponct	72	ponct
++72	long	long	A	ADJ	g=m|n=s|s=qual|pred=y	73	dep_cpd	73	dep_cpd
++73	terme	terme	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	70	obj.p	70	obj.p
++74	"	"	PONCT	PONCT	s=w	73	ponct	73	ponct
+@@ -30564 +30564 @@
+-22	,	,	PONCT	PONCT	s=w	19	coord	19	coord
++22	,	,	PONCT	PONCT	s=w	21	coord	21	coord
+@@ -30566 +30566 @@
+-24	et	et	C	CC	s=c	19	coord	19	coord
++24	et	et	C	CC	s=c	23	coord	23	coord
+@@ -30621,2 +30621,2 @@
+-1	Vieille	vieux	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	4	obj	4	obj
+-2	lune	lune	N	NC	g=f|n=s|s=c|pred=y	1	dep_cpd	1	dep_cpd
++1	Vieille	vieux	A	ADJ	g=f|n=s|s=qual|pred=y	2	dep_cpd	2	dep_cpd
++2	lune	lune	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	4	obj	4	obj
+@@ -30944 +30944 @@
+-22	et	et	C	CC	s=c	15	coord	15	coord
++22	et	et	C	CC	s=c	19	coord	19	coord
+@@ -31025,2 +31025,2 @@
+-27	,	,	PONCT	PONCT	s=w	24	ponct	24	ponct
+-28	mais	mais	C	CC	s=c	24	coord	24	coord
++27	,	,	PONCT	PONCT	s=w	26	ponct	26	ponct
++28	mais	mais	C	CC	s=c	26	coord	26	coord
+@@ -31224 +31224 @@
+-38	,	,	PONCT	PONCT	s=w	36	coord	36	coord
++38	,	,	PONCT	PONCT	s=w	37	coord	37	coord
+@@ -31228 +31228 @@
+-42	et	et	C	CC	s=c	40	coord	40	coord
++42	et	et	C	CC	s=c	41	coord	41	coord
+@@ -31233 +31233 @@
+-47	,	,	PONCT	PONCT	s=w	36	coord	36	coord
++47	,	,	PONCT	PONCT	s=w	39	coord	39	coord
+@@ -31235 +31235 @@
+-49	ou	ou	C	CC	s=c	36	coord	36	coord
++49	ou	ou	C	CC	s=c	48	coord	48	coord
+@@ -31478,2 +31478,2 @@
+-26	,	,	PONCT	PONCT	s=w	9	ponct	9	ponct
+-27	ou	ou	C	CC	s=c	9	coord	9	coord
++26	,	,	PONCT	PONCT	s=w	14	ponct	14	ponct
++27	ou	ou	C	CC	s=c	14	coord	14	coord
+@@ -31637,2 +31637,2 @@
+-5	mécanisation	mécanisation	N	NC	g=f|n=s|s=c	98	mod	98	mod
+-6	,	,	PONCT	PONCT	s=w	98	ponct	98	ponct
++5	mécanisation	mécanisation	N	NC	g=f|n=s|s=c	0	root	0	root
++6	,	,	PONCT	PONCT	s=w	5	coord	5	coord
+@@ -31640 +31640 @@
+-8	rendements	rendement	N	NC	g=m|n=p|s=c	98	mod	98	mod
++8	rendements	rendement	N	NC	g=m|n=p|s=c	6	dep.coord	6	dep.coord
+@@ -31646 +31646 @@
+-14	et	et	C	CC	s=c	11	coord	11	coord
++14	et	et	C	CC	s=c	13	coord	13	coord
+@@ -31649,2 +31649,2 @@
+-17	,	,	PONCT	PONCT	s=w	98	ponct	98	ponct
+-18	-	-	PONCT	PONCT	s=w	98	ponct	98	ponct
++17	,	,	PONCT	PONCT	s=w	8	coord	8	coord
++18	-	-	PONCT	PONCT	s=w	17	ponct	17	ponct
+@@ -31652 +31652 @@
+-20	main	main	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	98	mod	98	mod
++20	main	main	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	17	dep.coord	17	dep.coord
+@@ -31663 +31663 @@
+-31	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	36	mod	36	mod
++31	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	33	mod	33	mod
+@@ -31670 +31670 @@
+-38	et	et	C	CC	s=c	98	coord	98	coord
++38	et	et	C	CC	s=c	20	coord	20	coord
+@@ -31675 +31675 @@
+-43	,	,	PONCT	PONCT	s=w	98	ponct	98	ponct
++43	,	,	PONCT	PONCT	s=w	20	coord	20	coord
+@@ -31677 +31677 @@
+-45	organisations	organisation	N	NC	g=f|n=p|s=c	98	mod	98	mod
++45	organisations	organisation	N	NC	g=f|n=p|s=c	43	dep.coord	43	dep.coord
+@@ -31694,2 +31694,2 @@
+-62	,	,	PONCT	PONCT	s=w	52	ponct	52	ponct
+-63	et	et	C	CC	s=c	52	coord	52	coord
++62	,	,	PONCT	PONCT	s=w	54	ponct	54	ponct
++63	et	et	C	CC	s=c	54	coord	54	coord
+@@ -31717 +31717 @@
+-85	,	,	PONCT	PONCT	s=w	98	ponct	98	ponct
++85	,	,	PONCT	PONCT	s=w	45	coord	45	coord
+@@ -31720 +31720 @@
+-88	conditions	condition	N	NC	g=f|n=p|s=c	98	mod	98	mod
++88	conditions	condition	N	NC	g=f|n=p|s=c	85	dep.coord	85	dep.coord
+@@ -31730 +31730 @@
+-98	sont	être	V	V	m=ind|n=p|p=3|t=pst	0	root	0	root
++98	sont	être	V	V	m=ind|n=p|p=3|t=pst	5	mod	5	mod
+@@ -31787 +31787 @@
+-29	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	34	mod	34	mod
++29	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	31	mod	31	mod
+@@ -31914 +31914 @@
+-25	de	de	P	P	_	22	dep	22	dep
++25	de	de	P	P	_	24	dep	24	dep
+@@ -31918 +31918 @@
+-29	et	et	C	CC	s=c	22	coord	22	coord
++29	et	et	C	CC	s=c	24	coord	24	coord
+@@ -31972 +31972 @@
+-36	ou	ou	C	CC	s=c	32	coord	32	coord
++36	ou	ou	C	CC	s=c	35	coord	35	coord
+@@ -32034 +32034 @@
+-55	ou	ou	C	CC	s=c	52	coord	52	coord
++55	ou	ou	C	CC	s=c	54	coord	54	coord
+@@ -32126,4 +32126,4 @@
+-71	le	le	D	DET	g=m|n=s|s=def	72	det	72	det
+-72	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	78	suj	78	suj
+-73	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	72	dep_cpd	72	dep_cpd
+-74	Anibal	Anibal	N	NPP	g=m|n=s|s=p	72	mod	72	mod
++71	le	le	D	DET	g=m|n=s|s=def	73	det	73	det
++72	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	73	dep_cpd	73	dep_cpd
++73	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	78	suj	78	suj
++74	Anibal	Anibal	N	NPP	g=m|n=s|s=p	73	mod	73	mod
+@@ -32267,3 +32267,3 @@
+-39	le	le	D	DET	g=m|n=s|s=def	40	det	40	det
+-40	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	38	suj	38	suj
+-41	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	40	dep_cpd	40	dep_cpd
++39	le	le	D	DET	g=m|n=s|s=def	41	det	41	det
++40	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	41	dep_cpd	41	dep_cpd
++41	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	38	suj	38	suj
+@@ -32555 +32555 @@
+-16	car	car	C	CC	s=c	5	coord	5	coord
++16	car	car	C	CS	s=c	5	mod	5	mod
+@@ -32557 +32557 @@
+-18	apportent	apporter	V	V	m=ind|n=p|p=3|t=pst	16	dep.coord	16	dep.coord
++18	apportent	apporter	V	V	m=ind|n=p|p=3|t=pst	16	obj.cpl	16	obj.cpl
+@@ -32831 +32831 @@
+-39	ni	ni	C	CC	s=c	52	suj	52	suj
++39	ni	ni	C	CC	s=c	41	mod	41	mod
+@@ -32833,3 +32833,3 @@
+-41	missiles	missile	N	NC	g=m|n=p|s=c	39	dep.coord	39	dep.coord
+-42	,	,	PONCT	PONCT	s=w	52	ponct	52	ponct
+-43	ni	ni	C	CC	s=c	52	suj	52	suj
++41	missiles	missile	N	NC	g=m|n=p|s=c	52	suj	52	suj
++42	,	,	PONCT	PONCT	s=w	41	ponct	41	ponct
++43	ni	ni	C	CC	s=c	41	coord	41	coord
+@@ -32838,2 +32838,2 @@
+-46	,	,	PONCT	PONCT	s=w	52	ponct	52	ponct
+-47	ni	ni	C	CC	s=c	52	suj	52	suj
++46	,	,	PONCT	PONCT	s=w	45	ponct	45	ponct
++47	ni	ni	C	CC	s=c	45	coord	45	coord
+@@ -32912 +32912 @@
+-10	car	car	C	CC	s=c	4	coord	4	coord
++10	car	car	C	CS	s=c	4	mod	4	mod
+@@ -32914 +32914 @@
+-12	maintient	maintenir	V	V	m=ind|n=s|p=3|t=pst	10	dep.coord	10	dep.coord
++12	maintient	maintenir	V	V	m=ind|n=s|p=3|t=pst	10	obj.cpl	10	obj.cpl
+@@ -33121 +33121 @@
+-17	et	et	C	CC	s=c	16	coord	16	coord
++17	et	et	C	CC	s=c	15	coord	15	coord
+@@ -33215 +33215 @@
+-26	et	et	C	CC	s=c	19	coord	19	coord
++26	et	et	C	CC	s=c	23	coord	23	coord
+@@ -33415 +33415 @@
+-18	car	car	C	CC	s=c	3	coord	3	coord
++18	car	car	C	CS	s=c	3	mod	3	mod
+@@ -33418 +33418 @@
+-21	jugent	juger	V	V	m=ind|n=p|p=3|t=pst	18	dep.coord	18	dep.coord
++21	jugent	juger	V	V	m=ind|n=p|p=3|t=pst	18	obj.cpl	18	obj.cpl
+@@ -33421 +33421 @@
+-24	contraignant	contraignant	A	ADJ	g=m|n=s|s=qual	21	at0	21	at0
++24	contraignant	contraignant	A	ADJ	g=m|n=s|s=qual	21	ato	21	ato
+@@ -33456 +33456 @@
+-23	ou	ou	C	CC	s=c	22	coord	22	coord
++23	ou	ou	C	CC	s=c	20	coord	20	coord
+@@ -33692 +33692 @@
+-14	et	et	C	CC	s=c	10	coord	10	coord
++14	et	et	C	CC	s=c	11	coord	11	coord
+@@ -33769 +33769 @@
+-26	et	et	C	CC	s=c	20	coord	20	coord
++26	et	et	C	CC	s=c	23	coord	23	coord
+@@ -33829 +33829 @@
+-9	et	et	C	CC	s=c	5	coord	5	coord
++9	et	et	C	CC	s=c	8	coord	8	coord
+@@ -33919 +33919 @@
+-5	plus	plus	ADV	ADV	_	4	mod	4	mod
++5	plus	plus	ADV	ADV	s=neg	4	mod	4	mod
+@@ -34196 +34196 @@
+-14	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	17	mod	17	mod
++14	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	16	mod	16	mod
+@@ -34227 +34227 @@
+-16	et	et	C	CC	s=c	15	coord	15	coord
++16	et	et	C	CC	s=c	13	coord	13	coord
+@@ -34420,4 +34420,4 @@
+-13	strict	strict	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	12	obj.p	12	obj.p
+-14	nécessaire	nécessaire	N	NC	g=m|n=s|s=c|pred=y	13	dep_cpd	13	dep_cpd
+-15	,	,	PONCT	PONCT	s=w	4	ponct	4	ponct
+-16	diminution	diminution	N	NC	g=f|n=s|s=c	4	mod	4	mod
++13	strict	strict	A	ADJ	g=m|n=s|s=qual|pred=y	14	dep_cpd	14	dep_cpd
++14	nécessaire	nécessaire	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	12	obj.p	12	obj.p
++15	,	,	PONCT	PONCT	s=w	9	coord	9	coord
++16	diminution	diminution	N	NC	g=f|n=s|s=c	15	dep.coord	15	dep.coord
+@@ -34426 +34426 @@
+-19	et	et	C	CC	s=c	16	coord	16	coord
++19	et	et	C	CC	s=c	17	coord	17	coord
+@@ -34429,2 +34429,2 @@
+-22	,	,	PONCT	PONCT	s=w	4	ponct	4	ponct
+-23	limitation	limitation	N	NC	g=f|n=s|s=c	4	mod	4	mod
++22	,	,	PONCT	PONCT	s=w	16	coord	16	coord
++23	limitation	limitation	N	NC	g=f|n=s|s=c	22	dep.coord	22	dep.coord
+@@ -34435,2 +34435,2 @@
+-28	,	,	PONCT	PONCT	s=w	4	ponct	4	ponct
+-29	augmentations	augmentation	N	NC	g=f|n=p|s=c	4	mod	4	mod
++28	,	,	PONCT	PONCT	s=w	23	coord	23	coord
++29	augmentations	augmentation	N	NC	g=f|n=p|s=c	28	dep.coord	28	dep.coord
+@@ -34676 +34676 @@
+-13	et	et	C	CC	s=c	8	coord	8	coord
++13	et	et	C	CC	s=c	10	coord	10	coord
+@@ -34745 +34745 @@
+-15	pour	pour	P	P	_	8	dep	8	dep
++15	pour	pour	P	P	_	8	dep	11	dep
+@@ -34748 +34748 @@
+-18	,	,	PONCT	PONCT	s=w	8	coord	8	coord
++18	,	,	PONCT	PONCT	s=w	11	coord	11	coord
+@@ -34754 +34754 @@
+-24	,	,	PONCT	PONCT	s=w	8	coord	8	coord
++24	,	,	PONCT	PONCT	s=w	19	coord	19	coord
+@@ -34760 +34760 @@
+-30	et	et	C	CC	s=c	8	coord	8	coord
++30	et	et	C	CC	s=c	25	coord	25	coord
+@@ -34795 +34795 @@
+-7	,	,	PONCT	PONCT	s=w	3	coord	3	coord
++7	,	,	PONCT	PONCT	s=w	6	coord	6	coord
+@@ -34799 +34799 @@
+-11	et	et	C	CC	s=c	3	coord	3	coord
++11	et	et	C	CC	s=c	8	coord	8	coord
+@@ -34955 +34955 @@
+-21	et	et	C	CC	s=c	18	coord	18	coord
++21	et	et	C	CC	s=c	20	coord	20	coord
+@@ -35101 +35101 @@
+-32	et	et	C	CC	s=c	26	coord	26	coord
++32	et	et	C	CC	s=c	30	coord	30	coord
+@@ -35702,3 +35702,3 @@
+-5	ancien	ancien	A	ADJ	g=m|n=s|s=qual	6	mod	6	mod
+-6	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	2	mod	2	mod
+-7	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	6	dep_cpd	6	dep_cpd
++5	ancien	ancien	A	ADJ	g=m|n=s|s=qual	7	mod	7	mod
++6	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	7	dep_cpd	7	dep_cpd
++7	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	2	mod	2	mod
+@@ -35754,2 +35754,2 @@
+-23	-	-	PONCT	PONCT	s=w	14	ponct	14	ponct
+-24	soit	soit	C	CC	s=c	14	coord	14	coord
++23	-	-	PONCT	PONCT	s=w	16	ponct	16	ponct
++24	soit	soit	C	CC	s=c	16	coord	16	coord
+@@ -36273,3 +36273,3 @@
+-5	le	le	D	DET	g=m|n=s|s=def	6	det	6	det
+-6	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	8	suj	8	suj
+-7	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	6	dep_cpd	6	dep_cpd
++5	le	le	D	DET	g=m|n=s|s=def	7	det	7	det
++6	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	7	dep_cpd	7	dep_cpd
++7	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	8	suj	8	suj
+@@ -36440 +36440 @@
+-30	et	et	C	CC	s=c	25	coord	25	coord
++30	et	et	C	CC	s=c	27	coord	27	coord
+@@ -36662,3 +36662,3 @@
+-11	le	le	D	DET	g=m|n=s|s=def	12	det	12	det
+-12	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	14	suj	14	suj
+-13	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	12	dep_cpd	12	dep_cpd
++11	le	le	D	DET	g=m|n=s|s=def	13	det	13	det
++12	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	13	dep_cpd	13	dep_cpd
++13	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	14	suj	14	suj
+@@ -36816 +36816 @@
+-18	et	et	C	CC	s=c	8	coord	8	coord
++18	et	et	C	CC	s=c	10	coord	10	coord
+@@ -36887 +36887 @@
+-13	et	et	C	CC	s=c	11	coord	11	coord
++13	et	et	C	CC	s=c	12	coord	12	coord
+@@ -37156,3 +37156,3 @@
+-23	le	le	D	DET	g=m|n=s|s=def	24	det	24	det
+-24	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	26	suj	26	suj
+-25	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	24	dep_cpd	24	dep_cpd
++23	le	le	D	DET	g=m|n=s|s=def	25	det	25	det
++24	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	25	dep_cpd	25	dep_cpd
++25	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	26	suj	26	suj
+@@ -37333 +37333 @@
+-47	et	et	C	CC	s=c	17	coord	17	coord
++47	et	et	C	CC	s=c	37	coord	37	coord
+@@ -37764 +37764 @@
+-13	et	et	C	CC	s=c	9	coord	9	coord
++13	et	et	C	CC	s=c	12	coord	12	coord
+@@ -37791,2 +37791,2 @@
+-10	-LRB-	-LRB-	PONCT	PONCT	s=w	30	ponct	30	ponct
+-11	voir	voir	V	VINF	m=inf	30	mod	30	mod
++10	-LRB-	-LRB-	PONCT	PONCT	s=w	8	ponct	8	ponct
++11	voir	voir	V	VINF	m=inf	8	mod	8	mod
+@@ -37794,2 +37794,2 @@
+-13	-RRB-	-RRB-	PONCT	PONCT	s=w	30	ponct	30	ponct
+-14	,	,	PONCT	PONCT	s=w	30	ponct	30	ponct
++13	-RRB-	-RRB-	PONCT	PONCT	s=w	8	ponct	8	ponct
++14	,	,	PONCT	PONCT	s=w	8	ponct	8	ponct
+@@ -37823,2 +37823,2 @@
+-1	"	"	PONCT	PONCT	s=w	2	ponct	2	ponct
+-2	6	6	D	DET	g=m|n=p|s=card	0	root	0	root
++1	"	"	PONCT	PONCT	s=w	5	ponct	5	ponct
++2	6	6	D	DET	g=m|n=p|s=card	5	det	5	det
+@@ -37826,3 +37826,3 @@
+-4	14	14	D	DET	g=m|n=s|s=card	5	det	5	det
+-5	mai	mai	N	NC	g=m|n=s|s=c	3	dep.coord	3	dep.coord
+-6	.	.	PONCT	PONCT	s=s	2	ponct	2	ponct
++4	14	14	D	DET	g=m|n=s|s=card	3	dep.coord	3	dep.coord
++5	mai	mai	N	NC	g=m|n=s|s=c	0	root	0	root
++6	.	.	PONCT	PONCT	s=s	5	ponct	5	ponct
+@@ -37852 +37852 @@
+-23	et	et	C	CC	s=c	20	coord	20	coord
++23	et	et	C	CC	s=c	22	coord	22	coord
+@@ -38020 +38020 @@
+-2	et	et	C	CC	s=c	4	coord	4	coord
++2	et	et	C	CC	s=c	1	coord	1	coord
+@@ -38360 +38360 @@
+-2	1	1	D	DET	g=m|n=p|s=card	21	mod	21	mod
++2	1	1	A	ADJ	g=m|n=p|s=card	21	mod	21	mod
+@@ -38376 +38376 @@
+-18	et	et	C	CC	s=c	15	coord	15	coord
++18	et	et	C	CC	s=c	17	coord	17	coord
+@@ -38399 +38399 @@
+-14	quarante	quarante	D	DET	mwehead=DET+|s=card|pred=y	17	det	17	det
++14	quarante	quarante	D	DET	mwehead=DET+|s=card|pred=y	18	det	18	det
+@@ -38402,2 +38402,2 @@
+-17	nouveaux	nouveau	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	13	obj	13	obj
+-18	venus	venu	N	NC	g=m|n=p|s=c|pred=y	17	dep_cpd	17	dep_cpd
++17	nouveaux	nouveau	A	ADJ	g=m|n=p|s=qual|pred=y	18	dep_cpd	18	dep_cpd
++18	venus	venu	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	13	obj	13	obj
+@@ -38484,3 +38484,3 @@
+-17	les	le	D	DET	g=m|n=p|s=def	18	det	18	det
+-18	nouveaux	nouveau	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	16	obj.cpl	16	obj.cpl
+-19	venus	venu	N	NC	g=m|n=p|s=c|pred=y	18	dep_cpd	18	dep_cpd
++17	les	le	D	DET	g=m|n=p|s=def	19	det	19	det
++18	nouveaux	nouveau	A	ADJ	g=m|n=p|s=qual|pred=y	19	dep_cpd	19	dep_cpd
++19	venus	venu	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	16	obj.cpl	16	obj.cpl
+@@ -38500 +38500 @@
+-12	,	,	PONCT	PONCT	s=w	7	coord	7	coord
++12	,	,	PONCT	PONCT	s=w	10	coord	10	coord
+@@ -38508 +38508 @@
+-20	et	et	C	CC	s=c	17	coord	17	coord
++20	et	et	C	CC	s=c	19	coord	19	coord
+@@ -38515 +38515 @@
+-27	et	et	C	CC	s=c	7	coord	7	coord
++27	et	et	C	CC	s=c	14	coord	14	coord
+@@ -38559 +38559 @@
+-13	et	et	C	CC	s=c	8	coord	8	coord
++13	et	et	C	CC	s=c	11	coord	11	coord
+@@ -38784,3 +38784,3 @@
+-10	trois	trois	A	ADJ	g=m|n=p|s=card	11	mod	11	mod
+-11	nouveaux	nouveau	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	9	obj.p	9	obj.p
+-12	venus	venu	N	NC	g=m|n=p|s=c|pred=y	11	dep_cpd	11	dep_cpd
++10	trois	trois	A	ADJ	g=m|n=p|s=card	12	mod	12	mod
++11	nouveaux	nouveau	A	ADJ	g=m|n=p|s=qual|pred=y	12	dep_cpd	12	dep_cpd
++12	venus	venu	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	9	obj.p	9	obj.p
+@@ -38800 +38800 @@
+-26	et	et	C	CC	s=c	19	coord	19	coord
++26	et	et	C	CC	s=c	23	coord	23	coord
+@@ -39321 +39321 @@
+-22	et	et	C	CC	s=c	20	coord	20	coord
++22	et	et	C	CC	s=c	21	coord	21	coord
+@@ -39355,2 +39355,2 @@
+-56	,	,	PONCT	PONCT	s=w	47	ponct	47	ponct
+-57	ainsi	ainsi	ADV	ADV	mwehead=CC+|pred=y	47	coord	47	coord
++56	,	,	PONCT	PONCT	s=w	50	ponct	50	ponct
++57	ainsi	ainsi	ADV	ADV	mwehead=CC+|pred=y	50	coord	50	coord
+@@ -39359 +39359 @@
+-60	centre	centre	N	NC	g=m|n=s|s=c	57	dep	57	dep
++60	centre	centre	N	NC	g=m|n=s|s=c	57	dep.coord	57	dep.coord
+@@ -39391 +39391 @@
+-22	et	et	C	CC	s=c	17	coord	17	coord
++22	et	et	C	CC	s=c	20	coord	20	coord
+@@ -39403,4 +39403,4 @@
+-34	chambre	chambre	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	32	obj.p	32	obj.p
+-35	de	de	P	P	_|pred=y	34	dep_cpd	34	dep_cpd
+-36	commerce	commerce	N	NC	g=m|n=s|s=c|pred=y	34	dep_cpd	34	dep_cpd
+-37	et	et	C	CC	s=c	34	coord	34	coord
++34	chambre	chambre	N	NC	g=f|n=s|s=c|pred=y	32	obj.p	32	obj.p
++35	de	de	P	P	_|pred=y	34	dep	34	dep
++36	commerce	commerce	N	NC	g=m|n=s|s=c|pred=y	35	obj.p	35	obj.p
++37	et	et	C	CC	s=c	35	coord	35	coord
+@@ -40034,2 +40034,2 @@
+-29	moins	moins	ADV	ADV	_	32	mod	32	mod
+-30	de	de	P	P	_	32	dep	32	dep
++29	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	31	mod	31	mod
++30	de	de	P	P	_|pred=y	29	dep_cpd	29	dep_cpd
+@@ -40423,3 +40423,3 @@
+-12	hauts	haut	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	11	obj.p	11	obj.p
+-13	lieux	lieu	N	NC	g=m|n=p|s=c|pred=y	12	dep_cpd	12	dep_cpd
+-14	capables	capable	A	ADJ	g=m|n=p|s=qual	12	mod	12	mod
++12	hauts	haut	A	ADJ	g=m|n=p|s=qual|pred=y	13	dep_cpd	13	dep_cpd
++13	lieux	lieu	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	11	obj.p	11	obj.p
++14	capables	capable	A	ADJ	g=m|n=p|s=qual	13	mod	13	mod
+@@ -40699 +40699 @@
+-15	et	et	C	CC	s=c	7	coord	7	coord
++15	et	et	C	CC	s=c	13	coord	13	coord
+@@ -40820 +40820 @@
+-41	et	et	C	CC	s=c	7	coord	7	coord
++41	et	et	C	CC	s=c	22	coord	22	coord
+@@ -42716 +42716 @@
+-48	et	et	C	CC	s=c	44	coord	44	coord
++48	et	et	C	CC	s=c	47	coord	47	coord
+@@ -42767 +42767 @@
+-27	soit	soit	C	CC	s=c	26	obj	26	obj
++27	soit	soit	C	CC	s=c	29	mod	29	mod
+@@ -42769 +42769 @@
+-29	plan	plan	N	NC	g=m|n=s|s=c	27	dep.coord	27	dep.coord
++29	plan	plan	N	NC	g=m|n=s|s=c	26	obj	26	obj
+@@ -42772,2 +42772,2 @@
+-32	,	,	PONCT	PONCT	s=w	26	ponct	26	ponct
+-33	soit	soit	C	CC	s=c	26	obj	26	obj
++32	,	,	PONCT	PONCT	s=w	29	ponct	29	ponct
++33	soit	soit	C	CC	s=c	29	coord	29	coord
+@@ -43025 +43025 @@
+-39	dispersion	dispersion	N	NC	g=f|n=s|s=c	32	dep	32	dep
++39	dispersion	dispersion	N	NC	g=f|n=s|s=c	32	dep.coord	32	dep.coord
+@@ -43097,2 +43097,2 @@
+-18	soit	soit	C	CC	s=c	12	mod	12	mod
+-19	pour	pour	P	P	_	18	dep.coord	18	dep.coord
++18	soit	soit	C	CC	s=c	19	mod	19	mod
++19	pour	pour	P	P	_	12	mod	12	mod
+@@ -43103,2 +43103,2 @@
+-24	,	,	PONCT	PONCT	s=w	12	ponct	12	ponct
+-25	soit	soit	C	CC	s=c	12	mod	12	mod
++24	,	,	PONCT	PONCT	s=w	19	ponct	19	ponct
++25	soit	soit	C	CC	s=c	19	coord	19	coord
+@@ -43202,2 +43202,2 @@
+-36	,	,	PONCT	PONCT	s=w	18	ponct	18	ponct
+-37	et	et	C	CC	s=c	18	coord	18	coord
++36	,	,	PONCT	PONCT	s=w	29	ponct	29	ponct
++37	et	et	C	CC	s=c	29	coord	29	coord
+@@ -43222 +43222 @@
+-4	près	près	P	P	mwehead=P+|pred=y	7	mod	7	mod
++4	près	près	P	P	mwehead=ADV+|pred=y	6	mod	6	mod
+@@ -43264,2 +43264,2 @@
+-17	soit	soit	C	CC	s=c	15	coord	15	coord
+-18	appauvrir	appauvrir	V	VINF	m=inf	17	dep.coord	17	dep.coord
++17	soit	soit	C	CC	s=c	18	mod	18	mod
++18	appauvrir	appauvrir	V	VINF	m=inf	15	mod	15	mod
+@@ -43270,2 +43270,2 @@
+-23	;	;	PONCT	PONCT	s=w	15	ponct	15	ponct
+-24	soit	soit	C	CC	s=c	15	coord	15	coord
++23	;	;	PONCT	PONCT	s=w	18	ponct	18	ponct
++24	soit	soit	C	CC	s=c	18	coord	18	coord
+@@ -43417 +43417 @@
+-36	ou	ou	C	CC	s=c	29	coord	29	coord
++36	ou	ou	C	CC	s=c	34	coord	34	coord
+@@ -43755,2 +43755,2 @@
+-63	plus	plus	ADV	ADV	_	67	mod	67	mod
+-64	de	de	P	P	_	67	det	67	det
++63	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	65	mod	65	mod
++64	de	de	P	P	_|pred=y	63	dep_cpd	63	dep_cpd
+@@ -43933 +43933 @@
+-13	et	et	C	CC	s=c	9	coord	9	coord
++13	et	et	C	CC	s=c	11	coord	11	coord
+@@ -44190 +44190 @@
+-2	ni	ni	C	CC	s=c	23	mod	23	mod
++2	ni	ni	C	CC	s=c	4	mod	4	mod
+@@ -44192,2 +44192,2 @@
+-4	un	un	PRO	PRO	g=m|n=s|p=3|s=ind	2	dep.coord	2	dep.coord
+-5	ni	ni	C	CC	s=c	23	mod	23	mod
++4	un	un	PRO	PRO	g=m|n=s|p=3|s=ind	23	mod	23	mod
++5	ni	ni	C	CC	s=c	4	coord	4	coord
+@@ -44334 +44334 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -44337 +44337 @@
+-4	ont	avoir	V	V	m=ind|n=p|p=3|t=pst	1	dep.coord	1	dep.coord
++4	ont	avoir	V	V	m=ind|n=p|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -44445,2 +44445,2 @@
+-26	,	,	PONCT	PONCT	s=w	32	ponct	32	ponct
+-27	puis	puis	C	CC	s=c	24	coord	24	coord
++26	,	,	PONCT	PONCT	s=w	25	ponct	25	ponct
++27	puis	puis	C	CC	s=c	25	coord	25	coord
+@@ -44448,2 +44448,2 @@
+-29	,	,	PONCT	PONCT	s=w	32	ponct	32	ponct
+-30	puis	puis	C	CC	s=c	24	coord	24	coord
++29	,	,	PONCT	PONCT	s=w	28	ponct	28	ponct
++30	puis	puis	C	CC	s=c	28	coord	28	coord
+@@ -45346 +45346 @@
+-40	et	et	C	CC	s=c	31	coord	31	coord
++40	et	et	C	CC	s=c	36	coord	36	coord
+@@ -45571,2 +45571,2 @@
+-6	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	5	obj.p	5	obj.p
+-7	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	6	dep_cpd	6	dep_cpd
++6	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	7	dep_cpd	7	dep_cpd
++7	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	5	obj.p	5	obj.p
+@@ -45634,2 +45634,2 @@
+-38	plus	plus	ADV	ADV	_	40	mod	40	mod
+-39	de	de	P	P	_	40	det	40	det
++38	plus	plus	ADV	ADV	mwehead=DET+|pred=y	40	det	40	det
++39	de	de	P	P	_|pred=y	38	dep_cpd	38	dep_cpd
+@@ -45721,3 +45721,3 @@
+-1	Le	le	D	DET	g=m|n=s|s=def	2	det	2	det
+-2	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	4	suj	4	suj
+-3	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	2	dep_cpd	2	dep_cpd
++1	Le	le	D	DET	g=m|n=s|s=def	3	det	3	det
++2	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	3	dep_cpd	3	dep_cpd
++3	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	4	suj	4	suj
+@@ -45877,2 +45877,2 @@
+-12	-LRB-	-LRB-	PONCT	PONCT	s=w	27	ponct	27	ponct
+-13	Le	le	D	DET	g=m|mwehead=NPP+|n=s|s=def|pred=y	27	mod	27	mod
++12	-LRB-	-LRB-	PONCT	PONCT	s=w	3	ponct	3	ponct
++13	Le	le	D	DET	g=m|mwehead=NPP+|n=s|s=def|pred=y	3	mod	3	mod
+@@ -45883,2 +45883,2 @@
+-18	-RRB-	-RRB-	PONCT	PONCT	s=w	27	ponct	27	ponct
+-19	,	,	PONCT	PONCT	s=w	27	ponct	27	ponct
++18	-RRB-	-RRB-	PONCT	PONCT	s=w	3	ponct	3	ponct
++19	,	,	PONCT	PONCT	s=w	3	ponct	3	ponct
+@@ -46012,3 +46012,3 @@
+-6	le	le	D	DET	g=m|n=s|s=def	7	det	7	det
+-7	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	5	suj	5	suj
+-8	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	7	dep_cpd	7	dep_cpd
++6	le	le	D	DET	g=m|n=s|s=def	8	det	8	det
++7	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	8	dep_cpd	8	dep_cpd
++8	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	5	suj	5	suj
+@@ -46232 +46232 @@
+-14	et	et	C	CC	s=c	13	coord	13	coord
++14	et	et	C	CC	s=c	12	coord	12	coord
+@@ -46235,2 +46235,2 @@
+-17	,	,	PONCT	PONCT	s=w	13	ponct	13	ponct
+-18	vendus	vendre	V	VPP	g=m|m=part|n=p|t=past	13	mod	13	mod
++17	,	,	PONCT	PONCT	s=w	13	ponct	16	ponct
++18	vendus	vendre	V	VPP	g=m|m=part|n=p|t=past	13	mod	16	mod
+@@ -46265 +46265 @@
+-10	,	,	PONCT	PONCT	s=w	7	coord	7	coord
++10	,	,	PONCT	PONCT	s=w	9	coord	9	coord
+@@ -46267 +46267 @@
+-12	,	,	PONCT	PONCT	s=w	7	coord	7	coord
++12	,	,	PONCT	PONCT	s=w	11	coord	11	coord
+@@ -46269,2 +46269,2 @@
+-14	,	,	PONCT	PONCT	s=w	7	ponct	7	ponct
+-15	ainsi	ainsi	ADV	ADV	mwehead=CC+|pred=y	7	coord	7	coord
++14	,	,	PONCT	PONCT	s=w	13	ponct	13	ponct
++15	ainsi	ainsi	ADV	ADV	mwehead=CC+|pred=y	13	coord	13	coord
+@@ -46273 +46273 @@
+-18	énergie	énergie	N	NC	g=f|n=s|s=c	15	dep	15	dep
++18	énergie	énergie	N	NC	g=f|n=s|s=c	15	dep.coord	15	dep.coord
+@@ -46277 +46277 @@
+-22	ou	ou	C	CC	s=c	18	coord	18	coord
++22	ou	ou	C	CC	s=c	21	coord	21	coord
+@@ -46335 +46335 @@
+-27	à	à	P	P	mwehead=ADV+|pred=y	32	mod	32	mod
++27	à	à	P	P	mwehead=ADV+|pred=y	29	mod	29	mod
+@@ -46337,2 +46337,2 @@
+-29	plus	plus	ADV	ADV	_	32	mod	32	mod
+-30	de	de	P	P	_	32	dep	32	dep
++29	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	31	mod	31	mod
++30	de	de	P	P	_|pred=y	29	dep_cpd	29	dep_cpd
+@@ -46453 +46453 @@
+-41	,	,	PONCT	PONCT	s=w	33	coord	33	coord
++41	,	,	PONCT	PONCT	s=w	38	coord	38	coord
+@@ -46458,2 +46458,2 @@
+-46	,	,	PONCT	PONCT	s=w	33	ponct	33	ponct
+-47	ou	ou	C	CC	s=c	33	coord	33	coord
++46	,	,	PONCT	PONCT	s=w	42	ponct	42	ponct
++47	ou	ou	C	CC	s=c	42	coord	42	coord
+@@ -46492,2 +46492,2 @@
+-25	moins	moins	ADV	ADV	_	28	mod	28	mod
+-26	de	de	P	P	_	28	dep	28	dep
++25	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	27	mod	27	mod
++26	de	de	P	P	_|pred=y	25	dep_cpd	25	dep_cpd
+@@ -46706,2 +46706,2 @@
+-35	,	,	PONCT	PONCT	s=w	29	ponct	29	ponct
+-36	ainsi	ainsi	ADV	ADV	mwehead=CC+|pred=y	29	coord	29	coord
++35	,	,	PONCT	PONCT	s=w	32	ponct	32	ponct
++36	ainsi	ainsi	ADV	ADV	mwehead=CC+|pred=y	32	coord	32	coord
+@@ -46709 +46709 @@
+-38	de	de	P	P	_	36	dep	36	dep
++38	de	de	P	P	_	36	dep.coord	36	dep.coord
+@@ -46871,4 +46871,4 @@
+-7	un	un	D	DET	g=m|n=s|s=ind	8	det	8	det
+-8	haut	haut	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	6	obj.p	6	obj.p
+-9	fonctionnaire	fonctionnaire	N	NC	n=s|s=c|pred=y	8	dep_cpd	8	dep_cpd
+-10	international	international	A	ADJ	g=m|n=s|s=qual	8	mod	8	mod
++7	un	un	D	DET	g=m|n=s|s=ind	9	det	9	det
++8	haut	haut	A	ADJ	g=m|n=s|s=qual|pred=y	9	dep_cpd	9	dep_cpd
++9	fonctionnaire	fonctionnaire	N	NC	mwehead=NC+|n=s|s=c|pred=y	6	obj.p	6	obj.p
++10	international	international	A	ADJ	g=m|n=s|s=qual	9	mod	9	mod
+@@ -46942 +46942 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -46962 +46962 @@
+-21	risque	risquer	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	1	dep.coord
++21	risque	risquer	V	V	m=ind|n=s|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -47169,6 +47169,6 @@
+-18	le	le	D	DET	g=m|n=s|s=def	19	det	19	det
+-19	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	28	suj	28	suj
+-20	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	19	dep_cpd	19	dep_cpd
+-21	britannique	britannique	A	ADJ	g=m|n=s|s=qual	19	mod	19	mod
+-22	,	,	PONCT	PONCT	s=w	19	ponct	19	ponct
+-23	M.	monsieur	N	NC	g=m|n=s|s=c	19	mod	19	mod
++18	le	le	D	DET	g=m|n=s|s=def	20	det	20	det
++19	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	20	dep_cpd	20	dep_cpd
++20	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	28	suj	28	suj
++21	britannique	britannique	A	ADJ	g=m|n=s|s=qual	20	mod	20	mod
++22	,	,	PONCT	PONCT	s=w	20	ponct	20	ponct
++23	M.	monsieur	N	NC	g=m|n=s|s=c	20	mod	20	mod
+@@ -47419 +47419 @@
+-13	et	et	C	CC	s=c	8	coord	8	coord
++13	et	et	C	CC	s=c	11	coord	11	coord
+@@ -47583 +47583 @@
+-28	pension	pension	N	NC	g=f|n=s|s=c	25	dep	25	dep
++28	pension	pension	N	NC	g=f|n=s|s=c	25	dep.coord	25	dep.coord
+@@ -47673,3 +47673,3 @@
+-8	moins	moins	ADV	ADV	_	11	mod	11	mod
+-9	de	de	P	P	_	11	det	11	det
+-10	dix	dix	A	ADJ	g=m|n=p|s=card	11	mod	11	mod
++8	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	10	mod	10	mod
++9	de	de	P	P	_|pred=y	8	dep_cpd	8	dep_cpd
++10	dix	dix	D	DET	g=m|n=p|s=card	11	det	11	det
+@@ -47697,3 +47697,3 @@
+-5	plus	plus	ADV	ADV	_	8	mod	8	mod
+-6	de	de	P	P	_	8	det	8	det
+-7	dix	dix	A	ADJ	g=m|n=p|s=card	8	mod	8	mod
++5	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	7	mod	7	mod
++6	de	de	P	P	_|pred=y	5	dep_cpd	5	dep_cpd
++7	dix	dix	D	DET	g=m|n=p|s=card	8	det	8	det
+@@ -48380 +48380 @@
+-11	ou	ou	C	CC	s=c	6	coord	6	coord
++11	ou	ou	C	CC	s=c	7	coord	7	coord
+@@ -49656,5 +49656,5 @@
+-6	le	le	D	DET	g=m|n=s|s=def	7	det	7	det
+-7	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	15	suj	15	suj
+-8	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	7	dep_cpd	7	dep_cpd
+-9	,	,	PONCT	PONCT	s=w	7	ponct	7	ponct
+-10	M.	monsieur	N	NC	g=m|n=s|s=c	7	mod	7	mod
++6	le	le	D	DET	g=m|n=s|s=def	8	det	8	det
++7	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	8	dep_cpd	8	dep_cpd
++8	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	15	suj	15	suj
++9	,	,	PONCT	PONCT	s=w	8	ponct	8	ponct
++10	M.	monsieur	N	NC	g=m|n=s|s=c	8	mod	8	mod
+@@ -49976,2 +49976,2 @@
+-12	plus	plus	ADV	ADV	_	15	mod	15	mod
+-13	de	de	P	P	_	15	dep	15	dep
++12	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	14	mod	14	mod
++13	de	de	P	P	_|pred=y	12	dep_cpd	12	dep_cpd
+@@ -50008 +50008 @@
+-13	quel	quel	A	ADJWH	g=m|n=s|s=int	14	mod	14	mod
++13	quel	quel	D	DETWH	g=m|n=s|s=int	14	mod	14	mod
+@@ -50103,2 +50103,2 @@
+-17	plus	plus	ADV	ADV	_	20	mod	20	mod
+-18	de	de	P	P	_	20	dep	20	dep
++17	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	19	mod	19	mod
++18	de	de	P	P	_|pred=y	17	dep_cpd	17	dep_cpd
+@@ -50254 +50254 @@
+-21	et	et	C	CC	s=c	14	coord	14	coord
++21	et	et	C	CC	s=c	18	coord	18	coord
+@@ -50339,2 +50339,2 @@
+-24	moins	moins	ADV	ADV	_	29	mod	29	mod
+-25	de	de	P	P	_	29	det	29	det
++24	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	26	mod	26	mod
++25	de	de	P	P	_|pred=y	24	dep_cpd	24	dep_cpd
+@@ -50530,2 +50530,2 @@
+-2	plus	plus	ADV	ADV	_	6	mod	6	mod
+-3	de	de	P	P	_	6	det	6	det
++2	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	4	mod	4	mod
++3	de	de	P	P	_|pred=y	2	dep_cpd	2	dep_cpd
+@@ -50579 +50579 @@
+-9	près	près	P	P	mwehead=P+|pred=y	11	mod	11	mod
++9	près	près	P	P	mwehead=ADV+|pred=y	11	mod	11	mod
+@@ -50673,2 +50673,2 @@
+-32	plus	plus	ADV	ADV	_	35	mod	35	mod
+-33	de	de	P	P	_	35	dep	35	dep
++32	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	34	mod	34	mod
++33	de	de	P	P	_|pred=y	32	dep_cpd	32	dep_cpd
+@@ -50884 +50884 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -50887 +50887 @@
+-4	agit	agir	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	1	dep.coord
++4	agit	agir	V	V	m=ind|n=s|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -50910 +50910 @@
+-27	,	,	PONCT	PONCT	s=w	22	coord	22	coord
++27	,	,	PONCT	PONCT	s=w	25	coord	25	coord
+@@ -50913 +50913 @@
+-30	ou	ou	C	CC	s=c	22	coord	22	coord
++30	ou	ou	C	CC	s=c	28	coord	28	coord
+@@ -51073 +51073 @@
+-58	et	et	C	CC	s=c	56	coord	56	coord
++58	et	et	C	CC	s=c	53	coord	53	coord
+@@ -51077 +51077 @@
+-62	des	de	P+D	P+D	s=def	56	dep	56	dep
++62	des	de	P+D	P+D	s=def	56	dep	60	dep
+@@ -51191 +51191 @@
+-19	ou	ou	C	CC	s=c	12	coord	12	coord
++19	ou	ou	C	CC	s=c	17	coord	17	coord
+@@ -51235 +51235 @@
+-40	et	et	C	CC	s=c	32	coord	32	coord
++40	et	et	C	CC	s=c	37	coord	37	coord
+@@ -51477,4 +51477,4 @@
+-14	la	le	D	DET	g=f|n=s|s=def	15	det	15	det
+-15	grande	grand	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	9	ats	9	ats
+-16	puissance	puissance	N	NC	g=f|n=s|s=c|pred=y	15	dep_cpd	15	dep_cpd
+-17	de	de	P	P	_	15	dep	15	dep
++14	la	le	D	DET	g=f|n=s|s=def	16	det	16	det
++15	grande	grand	A	ADJ	g=f|n=s|s=qual|pred=y	16	dep_cpd	16	dep_cpd
++16	puissance	puissance	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	9	ats	9	ats
++17	de	de	P	P	_	16	dep	16	dep
+@@ -51548 +51548 @@
+-40	et	et	C	CC	s=c	32	coord	32	coord
++40	et	et	C	CC	s=c	36	coord	36	coord
+@@ -51679 +51679 @@
+-27	,	,	PONCT	PONCT	s=w	22	coord	22	coord
++27	,	,	PONCT	PONCT	s=w	25	coord	25	coord
+@@ -51682 +51682 @@
+-30	et	et	C	CC	s=c	22	coord	22	coord
++30	et	et	C	CC	s=c	28	coord	28	coord
+@@ -51891,2 +51891,2 @@
+-2	plus	plus	ADV	ADV	_	4	mod	4	mod
+-3	de	de	P	P	_	4	det	4	det
++2	plus	plus	ADV	ADV	mwehead=DET+|pred=y	4	det	4	det
++3	de	de	P	P	_|pred=y	2	dep_cpd	2	dep_cpd
+@@ -51931 +51931 @@
+-27	ou	ou	C	CC	s=c	17	coord	17	coord
++27	ou	ou	C	CC	s=c	25	coord	25	coord
+@@ -51937 +51937 @@
+-33	et	et	C	CC	s=c	27	coord	27	coord
++33	et	et	C	CC	s=c	14	coord	14	coord
+@@ -51960 +51960 @@
+-15	de	de	P	P	_	16	det	16	det
++15	de	de	D	DET	_	16	det	16	det
+@@ -51963 +51963 @@
+-18	de	de	P	P	_	19	det	19	det
++18	de	de	D	DET	_	19	det	19	det
+@@ -52231 +52231 @@
+-45	émigration	émigration	N	NC	g=f|n=s|s=c	37	dep	37	dep
++45	émigration	émigration	N	NC	g=f|n=s|s=c	37	dep.coord	37	dep.coord
+@@ -52255 +52255 @@
+-10	ou	ou	C	CC	s=c	7	coord	7	coord
++10	ou	ou	C	CC	s=c	9	coord	9	coord
+@@ -52561 +52561 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -52605 +52605 @@
+-45	autorisait	autoriser	V	V	m=ind|n=s|p=3|t=impft	1	dep.coord	1	dep.coord
++45	autorisait	autoriser	V	V	m=ind|n=s|p=3|t=impft	1	obj.cpl	1	obj.cpl
+@@ -52674 +52674 @@
+-30	et	et	C	CC	s=c	21	coord	21	coord
++30	et	et	C	CC	s=c	26	coord	26	coord
+@@ -52741 +52741 @@
+-23	près	près	P	P	mwehead=P+|pred=y	27	mod	27	mod
++23	près	près	P	P	mwehead=ADV+|pred=y	25	mod	25	mod
+@@ -52756,2 +52756,2 @@
+-38	plus	plus	ADV	ADV	_	41	mod	41	mod
+-39	de	de	P	P	_	41	dep	41	dep
++38	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	41	mod	41	mod
++39	de	de	P	P	_|pred=y	38	dep_cpd	38	dep_cpd
+@@ -52905 +52905 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -52915 +52915 @@
+-11	tenus	tenir	V	VPP	g=m|m=part|n=p|t=past	1	dep.coord	1	dep.coord
++11	tenus	tenir	V	VPP	g=m|m=part|n=p|t=past	1	obj.cpl	1	obj.cpl
+@@ -53051 +53051 @@
+-11	et	et	C	CC	s=c	7	coord	7	coord
++11	et	et	C	CC	s=c	10	coord	10	coord
+@@ -53137 +53137 @@
+-38	et	et	C	CC	s=c	34	coord	34	coord
++38	et	et	C	CC	s=c	37	coord	37	coord
+@@ -53190 +53190 @@
+-21	et	et	C	CC	s=c	18	coord	18	coord
++21	et	et	C	CC	s=c	20	coord	20	coord
+@@ -53442,3 +53442,3 @@
+-10	cette	ce	D	DET	g=f|n=s|s=dem	11	det	11	det
+-11	nouvelle	nouveau	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	9	obj.p	9	obj.p
+-12	donne	donne	N	NC	g=f|n=s|s=c|pred=y	11	dep_cpd	11	dep_cpd
++10	cette	ce	D	DET	g=f|n=s|s=dem	12	det	12	det
++11	nouvelle	nouveau	A	ADJ	g=f|n=s|s=qual|pred=y	12	dep_cpd	12	dep_cpd
++12	donne	donne	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	9	obj.p	9	obj.p
+@@ -53865 +53865 @@
+-19	et	et	C	CC	s=c	14	coord	14	coord
++19	et	et	C	CC	s=c	15	coord	15	coord
+@@ -53974,2 +53974,2 @@
+-4	ni	ni	C	CC	s=c	3	p_obj	3	p_obj
+-5	sur	sur	P	P	_	4	dep.coord	4	dep.coord
++4	ni	ni	C	CC	s=c	5	mod	5	mod
++5	sur	sur	P	P	_	3	p_obj	3	p_obj
+@@ -53980 +53980 @@
+-10	ni	ni	C	CC	s=c	3	p_obj	3	p_obj
++10	ni	ni	C	CC	s=c	5	coord	5	coord
+@@ -54047 +54047 @@
+-23	évolution	évolution	N	NC	g=f|n=s|s=c	16	dep	16	dep
++23	évolution	évolution	N	NC	g=f|n=s|s=c	16	dep.coord	16	dep.coord
+@@ -54431 +54431 @@
+-36	,	,	PONCT	PONCT	s=w	32	coord	32	coord
++36	,	,	PONCT	PONCT	s=w	35	coord	35	coord
+@@ -54435 +54435 @@
+-40	et	et	C	CC	s=c	32	coord	32	coord
++40	et	et	C	CC	s=c	38	coord	38	coord
+@@ -54742,2 +54742,2 @@
+-43	moins	moins	ADV	ADV	_	46	mod	46	mod
+-44	de	de	P	P	_	46	dep	46	dep
++43	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	45	mod	45	mod
++44	de	de	P	P	_|pred=y	43	dep_cpd	43	dep_cpd
+@@ -55386 +55386 @@
+-24	près	près	P	P	mwehead=P+|pred=y	27	mod	27	mod
++24	près	près	P	P	mwehead=ADV+|pred=y	26	mod	26	mod
+@@ -55515 +55515 @@
+-88	et	et	C	CC	s=c	79	coord	79	coord
++88	et	et	C	CC	s=c	85	coord	85	coord
+@@ -55836 +55836 @@
+-9	et	et	C	CC	s=c	3	coord	3	coord
++9	et	et	C	CC	s=c	6	coord	6	coord
+@@ -55925,2 +55925,2 @@
+-23	moins	moins	ADV	ADV	_	26	mod	26	mod
+-24	de	de	P	P	_	26	dep	26	dep
++23	moins	moins	ADV	ADV	mwehead=ADV+|pred=y	25	mod	25	mod
++24	de	de	P	P	_|pred=y	23	dep_cpd	23	dep_cpd
+@@ -55969 +55969 @@
+-21	,	,	PONCT	PONCT	s=w	18	coord	18	coord
++21	,	,	PONCT	PONCT	s=w	20	coord	20	coord
+@@ -55973 +55973 @@
+-25	et	et	C	CC	s=c	18	coord	18	coord
++25	et	et	C	CC	s=c	22	coord	22	coord
+@@ -56003 +56003 @@
+-11	mais	mais	C	CC	s=c	9	mod	9	mod
++11	mais	mais	C	CC	s=c	9	coord	9	coord
+@@ -56123 +56123 @@
+-14	et	et	C	CC	s=c	11	coord	11	coord
++14	et	et	C	CC	s=c	13	coord	13	coord
+@@ -56296 +56296 @@
+-6	âge	âge	N	NC	g=m|n=s|s=c	28	suj	28	suj
++6	âge	âge	N	NC	g=m|n=s|s=c	25	suj	25	suj
+@@ -56315 +56315 @@
+-25	est	être	V	V	m=ind|n=s|p=3|t=pst	28	aux.pass	28	aux.pass
++25	est	être	V	V	m=ind|n=s|p=3|t=pst	4	obj.cpl	4	obj.cpl
+@@ -56318,2 +56318,2 @@
+-28	élevé	élever	V	VPP	g=m|m=part|n=s|t=past	4	obj.cpl	4	obj.cpl
+-29	et	et	C	CC	s=c	28	coord	28	coord
++28	élevé	élever	A	ADJ	g=m|m=part|n=s|t=past	25	ats	25	ats
++29	et	et	C	CC	s=c	25	coord	25	coord
+@@ -56346,2 +56346,2 @@
+-15	%	%	N	NC	g=m|n=p|s=c	16	mod	16	mod
+-16	de	de	P	P	mwehead=ADV+|pred=y	7	obj	7	obj
++15	%	%	N	NC	g=m|n=p|s=c	7	obj	7	obj
++16	de	de	P	P	mwehead=ADV+|pred=y	15	mod	15	mod
+@@ -56349 +56349 @@
+-18	de	de	P	P	_	16	mod	16	mod
++18	de	de	P	P	_	15	dep	15	dep
+@@ -56360 +56360 @@
+-29	à	à	P	P	_	16	mod	16	mod
++29	à	à	P	P	_	15	dep	15	dep
+@@ -56370 +56370 @@
+-39	qu'	que	C	CS	s=s	16	dep	16	dep
++39	qu'	que	C	CS	s=s	16	mod	15	mod
+@@ -56456,2 +56456,2 @@
+-16	moins	moins	ADV	ADV	_	18	mod	18	mod
+-17	de	de	P	P	_	18	det	18	det
++16	moins	moins	ADV	ADV	mwehead=DET+|pred=y	18	mod	18	mod
++17	de	de	P	P	_|pred=y	16	dep_cpd	16	dep_cpd
+@@ -56987 +56987 @@
+-5	entre	entre	P	P	_	4	mod	4	mod
++5	entre	entre	P	P	_	4	p_obj	4	p_obj
+@@ -56991 +56991 @@
+-9	et	et	C	CC	s=c	13	coord	13	coord
++9	et	et	C	CC	s=c	6	coord	6	coord
+@@ -57467 +57467 @@
+-35	et	et	C	CC	s=c	32	coord	32	coord
++35	et	et	C	CC	s=c	34	coord	34	coord
+@@ -57491,2 +57491,2 @@
+-5	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	1	mod	1	mod
+-6	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	5	dep_cpd	5	dep_cpd
++5	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	6	dep_cpd	6	dep_cpd
++6	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	1	mod	1	mod
+@@ -57653,2 +57653,2 @@
+-16	plus	plus	ADV	ADV	_	20	mod	20	mod
+-17	de	de	P	P	_	20	det	20	det
++16	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	18	mod	18	mod
++17	de	de	P	P	_|pred=y	16	dep_cpd	16	dep_cpd
+@@ -57723,2 +57723,2 @@
+-20	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	19	obj.p	19	obj.p
+-21	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	20	dep_cpd	20	dep_cpd
++20	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	21	dep_cpd	21	dep_cpd
++21	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	19	obj.p	19	obj.p
+@@ -57809 +57809 @@
+-15	et	et	C	CC	s=c	12	coord	12	coord
++15	et	et	C	CC	s=c	14	coord	14	coord
+@@ -58169 +58169 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -58173 +58173 @@
+-5	est	être	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	1	dep.coord
++5	est	être	V	V	m=ind|n=s|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -58197,2 +58197,2 @@
+-29	,	,	PONCT	PONCT	s=w	5	ponct	5	ponct
+-30	et	et	C	CC	s=c	5	coord	5	coord
++29	,	,	PONCT	PONCT	s=w	18	ponct	18	ponct
++30	et	et	C	CC	s=c	18	coord	18	coord
+@@ -58250,2 +58250,2 @@
+-37	-	-	PONCT	PONCT	s=w	8	ponct	8	ponct
+-38	tous	tout	PRO	PRO	g=m|n=p|p=3|s=ind	8	mod	8	mod
++37	-	-	PONCT	PONCT	s=w	25	ponct	25	ponct
++38	tous	tout	PRO	PRO	g=m|n=p|p=3|s=ind	8	mod	25	mod
+@@ -58256,2 +58256,2 @@
+-43	-	-	PONCT	PONCT	s=w	8	ponct	8	ponct
+-44	et	et	C	CC	s=c	8	coord	8	coord
++43	-	-	PONCT	PONCT	s=w	25	ponct	25	ponct
++44	et	et	C	CC	s=c	25	coord	25	coord
+@@ -58291,3 +58291,3 @@
+-13	le	le	D	DET	g=m|n=s|s=def	14	det	14	det
+-14	grand	grand	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	12	obj.p	12	obj.p
+-15	public	public	N	NC	g=m|n=s|s=c|pred=y	14	dep_cpd	14	dep_cpd
++13	le	le	D	DET	g=m|n=s|s=def	15	det	15	det
++14	grand	grand	A	ADJ	g=m|n=s|s=qual|pred=y	15	dep_cpd	15	dep_cpd
++15	public	public	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	12	obj.p	12	obj.p
+@@ -58831,2 +58831,2 @@
+-16	plus	plus	ADV	ADV	_	19	mod	19	mod
+-17	de	de	P	P	_	19	dep	19	dep
++16	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	18	mod	18	mod
++17	de	de	P	P	_|pred=y	16	dep_cpd	16	dep_cpd
+@@ -58839,2 +58839,2 @@
+-24	plus	plus	ADV	ADV	_	27	mod	27	mod
+-25	d'	de	P	P	_	27	dep	27	dep
++24	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	26	mod	26	mod
++25	d'	de	P	P	_|pred=y	24	dep_cpd	24	dep_cpd
+@@ -59007 +59007 @@
+-18	car	car	C	CC	s=c	15	coord	15	coord
++18	car	car	C	CS	s=c	15	mod	15	mod
+@@ -59011 +59011 @@
+-22	dispensait	dispenser	V	V	m=ind|n=s|p=3|t=impft	18	dep.coord	18	dep.coord
++22	dispensait	dispenser	V	V	m=ind|n=s|p=3|t=impft	18	obj.cpl	18	obj.cpl
+@@ -59050 +59050 @@
+-20	et	et	C	CC	s=c	16	coord	16	coord
++20	et	et	C	CC	s=c	19	coord	19	coord
+@@ -59101,2 +59101,2 @@
+-24	,	,	PONCT	PONCT	s=w	14	ponct	14	ponct
+-25	et	et	C	CC	s=c	14	coord	14	coord
++24	,	,	PONCT	PONCT	s=w	19	ponct	19	ponct
++25	et	et	C	CC	s=c	19	coord	19	coord
+@@ -59108 +59108 @@
+-31	ou	ou	C	CC	s=c	28	coord	28	coord
++31	ou	ou	C	CC	s=c	30	coord	30	coord
+@@ -59447 +59447 @@
+-32	et	et	C	CC	s=c	31	coord	31	coord
++32	et	et	C	CC	s=c	30	coord	30	coord
+@@ -59450 +59450 @@
+-35	informatiques	informatique	A	ADJ	g=f|n=p|s=qual	31	mod	31	mod
++35	informatiques	informatique	A	ADJ	g=f|n=p|s=qual	31	mod	34	mod
+@@ -59570 +59570 @@
+-71	ou	ou	C	CC	s=c	69	coord	69	coord
++71	ou	ou	C	CC	s=c	70	coord	70	coord
+@@ -59774,2 +59774,2 @@
+-21	soit	soit	C	CC	s=c	16	obj	16	obj
+-22	constituer	constituer	V	VINF	m=inf	21	dep.coord	21	dep.coord
++21	soit	soit	C	CC	s=c	22	mod	22	mod
++22	constituer	constituer	V	VINF	m=inf	16	obj	16	obj
+@@ -59785,2 +59785,2 @@
+-32	,	,	PONCT	PONCT	s=w	16	ponct	16	ponct
+-33	soit	soit	C	CC	s=c	16	obj	16	obj
++32	,	,	PONCT	PONCT	s=w	22	ponct	22	ponct
++33	soit	soit	C	CC	s=c	22	coord	22	coord
+@@ -59858 +59858 @@
+-21	près	près	P	P	mwehead=P+|pred=y	25	mod	25	mod
++21	près	près	P	P	mwehead=ADV+|pred=y	23	mod	23	mod
+@@ -59940 +59940 @@
+-36	et	et	C	CC	s=c	33	coord	33	coord
++36	et	et	C	CC	s=c	35	coord	35	coord
+@@ -60119 +60119 @@
+-6	et	et	C	CC	s=c	1	coord	1	coord
++6	et	et	C	CC	s=c	5	coord	5	coord
+@@ -60180 +60180 @@
+-17	et	et	C	CC	s=c	10	coord	10	coord
++17	et	et	C	CC	s=c	14	coord	14	coord
+@@ -60374 +60374 @@
+-25	et	et	C	CC	s=c	19	coord	19	coord
++25	et	et	C	CC	s=c	22	coord	22	coord
+@@ -60519 +60519 @@
+-21	annuler	annuler	V	VINF	m=inf	15	dep	15	dep
++21	annuler	annuler	V	VINF	m=inf	15	dep.coord	15	dep.coord
+@@ -60533,6 +60533,6 @@
+-35	le	le	D	DET	g=m|n=s|s=def	37	det	37	det
+-36	nouveau	nouveau	A	ADJ	g=m|n=s|s=qual	37	mod	37	mod
+-37	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	29	suj	29	suj
+-38	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	37	dep_cpd	37	dep_cpd
+-39	,	,	PONCT	PONCT	s=w	37	ponct	37	ponct
+-40	M.	monsieur	N	NC	g=m|n=s|s=c	37	mod	37	mod
++35	le	le	D	DET	g=m|n=s|s=def	38	det	38	det
++36	nouveau	nouveau	A	ADJ	g=m|n=s|s=qual	38	mod	38	mod
++37	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	38	dep_cpd	38	dep_cpd
++38	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	29	suj	29	suj
++39	,	,	PONCT	PONCT	s=w	38	ponct	38	ponct
++40	M.	monsieur	N	NC	g=m|n=s|s=c	38	mod	38	mod
+@@ -60541,2 +60541,2 @@
+-43	,	,	PONCT	PONCT	s=w	37	ponct	37	ponct
+-44	ajoutant	ajouter	V	VPR	m=part|t=pst	37	mod	37	mod
++43	,	,	PONCT	PONCT	s=w	38	ponct	38	ponct
++44	ajoutant	ajouter	V	VPR	m=part|t=pst	38	mod	38	mod
+@@ -60556 +60556 @@
+-58	car	car	C	CC	s=c	49	coord	49	coord
++58	car	car	C	CS	s=c	49	mod	49	mod
+@@ -60558 +60558 @@
+-60	désorganiserait	désorganiser	V	V	m=ind|n=s|p=3|t=cond	58	dep.coord	58	dep.coord
++60	désorganiserait	désorganiser	V	V	m=ind|n=s|p=3|t=cond	58	obj.cpl	58	obj.cpl
+@@ -61088,3 +61088,3 @@
+-28	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	27	obj.p	27	obj.p
+-29	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	28	dep_cpd	28	dep_cpd
+-30	,	,	PONCT	PONCT	s=w	21	coord	21	coord
++28	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	29	dep_cpd	29	dep_cpd
++29	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	27	obj.p	27	obj.p
++30	,	,	PONCT	PONCT	s=w	27	coord	27	coord
+@@ -61100 +61100 @@
+-40	et	et	C	CC	s=c	21	coord	21	coord
++40	et	et	C	CC	s=c	31	coord	31	coord
+@@ -61338 +61338 @@
+-17	,	,	PONCT	PONCT	s=w	10	coord	10	coord
++17	,	,	PONCT	PONCT	s=w	14	coord	14	coord
+@@ -61341 +61341 @@
+-20	,	,	PONCT	PONCT	s=w	10	coord	10	coord
++20	,	,	PONCT	PONCT	s=w	18	coord	18	coord
+@@ -61345 +61345 @@
+-24	,	,	PONCT	PONCT	s=w	10	coord	10	coord
++24	,	,	PONCT	PONCT	s=w	21	coord	21	coord
+@@ -61348 +61348 @@
+-27	et	et	C	CC	s=c	10	coord	10	coord
++27	et	et	C	CC	s=c	25	coord	25	coord
+@@ -61594 +61594 @@
+-4	plus	plus	ADV	ADV	mwehead=P+|s=neg|pred=y	7	mod	7	mod
++4	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	6	mod	6	mod
+@@ -61611 +61611 @@
+-21	et	et	C	CC	s=c	13	coord	13	coord
++21	et	et	C	CC	s=c	18	coord	18	coord
+@@ -61777,2 +61777,2 @@
+-14	plus	plus	ADV	ADV	_	17	mod	17	mod
+-15	de	de	P	P	_	17	dep	17	dep
++14	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	16	mod	16	mod
++15	de	de	P	P	_|pred=y	14	dep_cpd	14	dep_cpd
+@@ -61803,2 +61803,2 @@
+-12	plus	plus	ADV	ADV	_	15	mod	15	mod
+-13	de	de	P	P	_	15	dep	15	dep
++12	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	14	mod	14	mod
++13	de	de	P	P	_|pred=y	12	dep_cpd	12	dep_cpd
+@@ -61947 +61947 @@
+-45	coût	coût	N	NC	g=m|n=s|s=c	42	dep	42	dep
++45	coût	coût	N	NC	g=m|n=s|s=c	42	dep.coord	42	dep.coord
+@@ -62235 +62235 @@
+-36	équipe	équiper	V	V	m=ind|n=s|p=3|t=pst	25	mod.rel	25	mod.rel
++36	équipe	équiper	V	V	m=ind|n=s|p=3|t=pst	20	mod.rel	20	mod.rel
+@@ -62383 +62383 @@
+-43	,	,	PONCT	PONCT	s=w	40	coord	40	coord
++43	,	,	PONCT	PONCT	s=w	42	coord	42	coord
+@@ -62385 +62385 @@
+-45	et	et	C	CC	s=c	40	coord	40	coord
++45	et	et	C	CC	s=c	44	coord	44	coord
+@@ -63361 +63361 @@
+-21	ou	ou	C	CC	s=c	7	coord	7	coord
++21	ou	ou	C	CC	s=c	12	coord	12	coord
+@@ -63390 +63390 @@
+-20	et	et	C	CC	s=c	19	coord	19	coord
++20	et	et	C	CC	s=c	18	coord	18	coord
+@@ -63393 +63393 @@
+-23	communautaires	communautaires	A	ADJ	g=m|n=s|s=ind	19	mod	19	mod
++23	communautaires	communautaires	A	ADJ	g=m|n=s|s=ind	19	mod	22	mod
+@@ -63574,2 +63574,2 @@
+-6	plus	plus	ADV	ADV	_	8	mod	8	mod
+-7	de	de	P	P	_	8	det	8	det
++6	plus	plus	ADV	ADV	mwehead=DET+|pred=y	8	mod	8	mod
++7	de	de	P	P	_|pred=y	6	dep_cpd	6	dep_cpd
+@@ -63650 +63650 @@
+-18	et	et	C	CC	s=c	16	coord	16	coord
++18	et	et	C	CC	s=c	17	coord	17	coord
+@@ -63799 +63799 @@
+-36	et	et	C	CC	s=c	27	coord	27	coord
++36	et	et	C	CC	s=c	32	coord	32	coord
+@@ -63910,4 +63910,4 @@
+-1	La	le	D	DET	g=f|n=s|s=def	2	det	2	det
+-2	Haute	haut	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	6	suj	6	suj
+-3	Cour	cour	N	NC	g=f|n=s|s=c|pred=y	2	dep_cpd	2	dep_cpd
+-4	de	de	P	P	_	2	dep	2	dep
++1	La	le	D	DET	g=f|n=s|s=def	3	det	3	det
++2	Haute	haut	A	ADJ	g=f|n=s|s=qual|pred=y	3	dep_cpd	3	dep_cpd
++3	Cour	cour	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	6	suj	6	suj
++4	de	de	P	P	_	3	dep	3	dep
+@@ -64273,2 +64273,2 @@
+-18	nouvel	nouveau	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	17	obj.p	17	obj.p
+-19	an	an	N	NC	g=m|n=s|s=c|pred=y	18	dep_cpd	18	dep_cpd
++18	nouvel	nouveau	A	ADJ	g=m|n=s|s=qual|pred=y	19	dep_cpd	19	dep_cpd
++19	an	an	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	17	obj.p	17	obj.p
+@@ -64396,2 +64396,2 @@
+-24	plus	plus	ADV	ADV	_	27	mod	27	mod
+-25	de	de	P	P	_	27	dep	27	dep
++24	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	26	mod	26	mod
++25	de	de	P	P	_|pred=y	24	dep_cpd	24	dep_cpd
+@@ -65108 +65108 @@
+-33	réunis	réunir	V	VPP	g=m|m=part|n=p|t=past	23	mod	23	mod
++33	réunis	réunir	V	VPP	g=m|m=part|n=p|t=past	23	mod	30	mod
+@@ -65140,3 +65140,3 @@
+-3	encore	encore	ADV	ADV	_	14	mod	14	mod
+-4	,	,	PONCT	PONCT	s=w	14	ponct	14	ponct
+-5	et	et	C	CC	s=c	14	coord	14	coord
++3	encore	encore	ADV	ADV	_	2	mod	2	mod
++4	,	,	PONCT	PONCT	s=w	2	ponct	2	ponct
++5	et	et	C	CC	s=c	2	coord	2	coord
+@@ -65396,4 +65396,4 @@
+-20	la	le	D	DET	g=f|n=s|s=def	21	det	21	det
+-21	courte	court	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	19	dep.coord	19	dep.coord
+-22	durée	durée	N	NC	g=f|n=s|s=c|pred=y	21	dep_cpd	21	dep_cpd
+-23	des	de	P+D	P+D	s=def	21	dep	21	dep
++20	la	le	D	DET	g=f|n=s|s=def	22	det	22	det
++21	courte	court	A	ADJ	g=f|n=s|s=qual|pred=y	22	dep_cpd	22	dep_cpd
++22	durée	durée	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	19	dep.coord	19	dep.coord
++23	des	de	P+D	P+D	s=def	22	dep	22	dep
+@@ -65401 +65401 @@
+-25	et	et	C	CC	s=c	16	coord	16	coord
++25	et	et	C	CC	s=c	22	coord	22	coord
+@@ -65761 +65761 @@
+-21	et	et	C	CC	s=c	15	coord	15	coord
++21	et	et	C	CC	s=c	20	coord	20	coord
+@@ -66140 +66140 @@
+-17	car	car	C	CC	s=c	4	coord	4	coord
++17	car	car	C	CS	s=c	4	mod	4	mod
+@@ -66144 +66144 @@
+-21	sont	être	V	V	m=ind|n=p|p=3|t=pst	17	dep.coord	17	dep.coord
++21	sont	être	V	V	m=ind|n=p|p=3|t=pst	17	obj.cpl	17	obj.cpl
+@@ -67029,4 +67029,4 @@
+-21	premier	premier	A	ADJ	g=m|mwehead=NC+|n=s|s=ord|pred=y	20	obj.p	20	obj.p
+-22	ministre	ministre	N	NC	g=m|n=s|s=c|pred=y	21	dep_cpd	21	dep_cpd
+-23	,	,	PONCT	PONCT	s=w	21	ponct	21	ponct
+-24	M.	monsieur	N	NC	g=m|n=s|s=c	21	mod	21	mod
++21	premier	premier	A	ADJ	g=m|n=s|s=ord|pred=y	22	dep_cpd	22	dep_cpd
++22	ministre	ministre	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	20	obj.p	20	obj.p
++23	,	,	PONCT	PONCT	s=w	22	ponct	22	ponct
++24	M.	monsieur	N	NC	g=m|n=s|s=c	22	mod	22	mod
+@@ -67035 +67035 @@
+-27	,	,	PONCT	PONCT	s=w	21	ponct	21	ponct
++27	,	,	PONCT	PONCT	s=w	22	ponct	22	ponct
+@@ -67038 +67038 @@
+-30	rejeté	rejeter	V	VPP	g=m|m=part|n=s|t=past	21	mod.rel	21	mod.rel
++30	rejeté	rejeter	V	VPP	g=m|m=part|n=s|t=past	22	mod.rel	22	mod.rel
+@@ -67504 +67504 @@
+-22	près	près	ADV	ADV	mwehead=P+|pred=y	25	mod	25	mod
++22	près	près	ADV	ADV	mwehead=ADV+|pred=y	24	mod	24	mod
+@@ -67586,2 +67586,2 @@
+-18	sinon	sinon	C	CC	s=c	27	coord	27	coord
+-19	assouplir	assouplir	V	VINF	m=inf	18	dep.coord	18	dep.coord
++18	sinon	sinon	C	CC	s=c	19	mod	19	mod
++19	assouplir	assouplir	V	VINF	m=inf	11	ato	11	ato
+@@ -67591 +67591 @@
+-23	,	,	PONCT	PONCT	s=w	27	ponct	27	ponct
++23	,	,	PONCT	PONCT	s=w	19	ponct	19	ponct
+@@ -67885 +67885 @@
+-80	et	et	C	CC	s=c	61	mod	61	mod
++80	et	et	C	CC	s=c	61	coord	61	coord
+@@ -68121 +68121 @@
+-7	ou	ou	C	CC	s=c	21	coord	21	coord
++7	ou	ou	C	CC	s=c	6	coord	6	coord
+@@ -68159,5 +68159,5 @@
+-45	court	court	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	52	mod	52	mod
+-46	terme	terme	N	NC	g=m|n=s|s=c|pred=y	45	dep_cpd	45	dep_cpd
+-47	et	et	C	CC	s=c	45	coord	45	coord
+-48	long	long	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	47	dep.coord	47	dep.coord
+-49	terme	terme	N	NC	g=m|n=s|s=c|pred=y	48	dep_cpd	48	dep_cpd
++45	court	court	A	ADJ	g=m|n=s|s=qual|pred=y	46	dep_cpd	46	dep_cpd
++46	terme	terme	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	52	mod	52	mod
++47	et	et	C	CC	s=c	46	coord	46	coord
++48	long	long	A	ADJ	g=m|n=s|s=qual|pred=y	49	dep_cpd	49	dep_cpd
++49	terme	terme	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	47	dep.coord	47	dep.coord
+@@ -68227 +68227 @@
+-43	et	et	C	CC	s=c	38	coord	38	coord
++43	et	et	C	CC	s=c	42	coord	42	coord
+@@ -68247 +68247 @@
+-63	et	et	C	CC	s=c	55	coord	55	coord
++63	et	et	C	CC	s=c	61	coord	61	coord
+@@ -68370,2 +68370,2 @@
+-52	plus	plus	ADV	ADV	_	56	mod	56	mod
+-53	de	de	P	P	_	56	det	56	det
++52	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	54	mod	54	mod
++53	de	de	P	P	_|pred=y	52	dep_cpd	52	dep_cpd
+@@ -68395,2 +68395,2 @@
+-77	,	,	PONCT	PONCT	s=w	69	ponct	69	ponct
+-78	soit	soit	C	CC	s=c	69	coord	69	coord
++77	,	,	PONCT	PONCT	s=w	76	ponct	76	ponct
++78	soit	soit	C	CC	s=c	76	coord	76	coord
+@@ -68500 +68500 @@
+-23	entre	entre	P	P	_	22	mod	22	mod
++23	entre	entre	P	P	_	22	p_obj	22	p_obj
+@@ -68503 +68503 @@
+-26	et	et	C	CC	s=c	29	coord	29	coord
++26	et	et	C	CC	s=c	24	coord	24	coord
+@@ -68693 +68693 @@
+-10	Falconbridge	Falconbridge	N	NPP	g=m|n=s|s=p	8	dep	8	dep
++10	Falconbridge	Falconbridge	N	NPP	g=m|n=s|s=p	8	dep.coord	8	dep.coord
+@@ -68816 +68816 @@
+-8	près	près	ADV	ADV	mwehead=P+|pred=y	11	mod	11	mod
++8	près	près	ADV	ADV	mwehead=ADV+|pred=y	10	mod	10	mod
+@@ -68838 +68838 @@
+-17	près	près	ADV	ADV	mwehead=P+|pred=y	20	mod	20	mod
++17	près	près	ADV	ADV	mwehead=ADV+|pred=y	19	mod	19	mod
+@@ -69114 +69114 @@
+-12	et	et	C	CC	s=c	8	coord	8	coord
++12	et	et	C	CC	s=c	11	coord	11	coord
+@@ -69789 +69789 @@
+-18	en	en	P	P	_	16	dep	16	dep
++18	en	en	P	P	_	16	dep.coord	16	dep.coord
+@@ -69822,3 +69822,3 @@
+-11	car	car	C	CC	s=c	7	coord	7	coord
+-12	nulle	nul	A	ADJ	g=f|mwehead=ADV+|n=s|s=neg|pred=y	17	mod	17	mod
+-13	part	part	N	NC	n=s|s=c|pred=y	12	dep_cpd	12	dep_cpd
++11	car	car	C	CS	s=c	7	mod	7	mod
++12	nulle	nul	A	ADJ	g=f|n=s|s=neg|pred=y	13	dep_cpd	13	dep_cpd
++13	part	part	N	NC	mwehead=ADV+|n=s|s=c|pred=y	17	mod	17	mod
+@@ -69828 +69828 @@
+-17	a	avoir	V	V	m=ind|n=s|p=3|t=pst	11	dep.coord	11	dep.coord
++17	a	avoir	V	V	m=ind|n=s|p=3|t=pst	11	obj.cpl	11	obj.cpl
+@@ -69998 +69998 @@
+-19	et	et	C	CC	s=c	16	coord	16	coord
++19	et	et	C	CC	s=c	18	coord	18	coord
+@@ -70511 +70511 @@
+-43	et	et	C	CC	s=c	40	coord	40	coord
++43	et	et	C	CC	s=c	42	coord	42	coord
+@@ -70592,2 +70592,2 @@
+-10	,	,	PONCT	PONCT	s=w	5	ponct	5	ponct
+-11	et	et	C	CC	s=c	5	coord	5	coord
++10	,	,	PONCT	PONCT	s=w	8	ponct	8	ponct
++11	et	et	C	CC	s=c	8	coord	8	coord
+@@ -70628 +70628 @@
+-1	Et	et	C	CC	s=c	20	coord	20	coord
++1	Et	et	C	CC	s=c	0	root	0	root
+@@ -70647 +70647 @@
+-20	vont	aller	V	V	m=ind|n=p|p=3|t=pst	0	root	0	root
++20	vont	aller	V	V	m=ind|n=p|p=3|t=pst	2	mod	2	mod
+@@ -70823 +70823 @@
+-13	près	près	ADV	ADV	mwehead=P+|pred=y	16	mod	16	mod
++13	près	près	ADV	ADV	mwehead=ADV+|pred=y	15	mod	15	mod
+@@ -70872 +70872 @@
+-26	théories	théorie	N	NC	g=f|n=p|s=c	23	dep	23	dep
++26	théories	théorie	N	NC	g=f|n=p|s=c	23	dep.coord	23	dep.coord
+@@ -70875 +70875 @@
+-29	ou	ou	C	CC	s=c	26	coord	26	coord
++29	ou	ou	C	CC	s=c	28	coord	28	coord
+@@ -71194 +71194 @@
+-13	soit	soit	C	CC	s=c	12	obj	12	obj
++13	soit	soit	C	CC	s=c	15	mod	15	mod
+@@ -71196,3 +71196,3 @@
+-15	récession	récession	N	NC	g=f|n=s|s=c	13	dep.coord	13	dep.coord
+-16	,	,	PONCT	PONCT	s=w	12	ponct	12	ponct
+-17	soit	soit	C	CC	s=c	12	obj	12	obj
++15	récession	récession	N	NC	g=f|n=s|s=c	12	obj	12	obj
++16	,	,	PONCT	PONCT	s=w	15	ponct	15	ponct
++17	soit	soit	C	CC	s=c	15	coord	15	coord
+@@ -71275 +71275 @@
+-50	et	et	C	CC	s=c	45	coord	45	coord
++50	et	et	C	CC	s=c	48	coord	48	coord
+@@ -71341,2 +71341,2 @@
+-12	un	un	D	DET	g=m|n=s|s=ind	11	det	11	det
+-13	ou	ou	C	CC	s=c	12	coord	12	coord
++12	un	un	D	DET	g=m|n=s|s=ind	11	obj.p	11	obj.p
++13	ou	ou	C	CC	s=c	11	coord	11	coord
+@@ -71649 +71649 @@
+-11	car	car	C	CC	s=c	9	coord	9	coord
++11	car	car	C	CS	s=c	9	mod	9	mod
+@@ -71663 +71663 @@
+-25	aperçoivent	apercevoir	V	V	m=ind|n=p|p=3|t=pst	11	dep.coord	11	dep.coord
++25	aperçoivent	apercevoir	V	V	m=ind|n=p|p=3|t=pst	11	obj.cpl	11	obj.cpl
+@@ -71668 +71668 @@
+-30	ni	ni	C	CC	s=c	29	obj	29	obj
++30	ni	ni	C	CC	s=c	32	mod	32	mod
+@@ -71670,2 +71670,2 @@
+-32	moyens	moyen	N	NC	g=m|n=p|s=c	30	dep.coord	30	dep.coord
+-33	ni	ni	C	CC	s=c	29	obj	29	obj
++32	moyens	moyen	N	NC	g=m|n=p|s=c	29	obj	29	obj
++33	ni	ni	C	CC	s=c	32	coord	32	coord
+@@ -71674 +71674 @@
+-36	d'	de	P	P	_	33	dep.coord	33	dep.coord
++36	d'	de	P	P	_	32	dep	35	dep
+@@ -71777 +71777 @@
+-25	et	et	C	CC	s=c	20	coord	20	coord
++25	et	et	C	CC	s=c	23	coord	23	coord
+@@ -71839,2 +71839,2 @@
+-16	,	,	PONCT	PONCT	s=w	5	ponct	5	ponct
+-17	et	et	C	CC	s=c	5	coord	5	coord
++16	,	,	PONCT	PONCT	s=w	14	ponct	14	ponct
++17	et	et	C	CC	s=c	14	coord	14	coord
+@@ -72397,3 +72397,3 @@
+-44	cette	ce	D	DET	g=f|n=s|s=dem	45	det	45	det
+-45	nouvelle	nouveau	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	43	obj.p	43	obj.p
+-46	donne	donne	N	NC	g=f|n=s|s=c|pred=y	45	dep_cpd	45	dep_cpd
++44	cette	ce	D	DET	g=f|n=s|s=dem	46	det	46	det
++45	nouvelle	nouveau	A	ADJ	g=f|n=s|s=qual|pred=y	46	dep_cpd	46	dep_cpd
++46	donne	donne	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	43	obj.p	43	obj.p
+@@ -72578 +72578 @@
+-11	ou	ou	C	CC	s=c	6	coord	6	coord
++11	ou	ou	C	CC	s=c	9	coord	9	coord
+@@ -72610,2 +72610,2 @@
+-15	moyen	moyen	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	14	obj.p	14	obj.p
+-16	terme	terme	N	NC	g=m|n=s|s=c|pred=y	15	dep_cpd	15	dep_cpd
++15	moyen	moyen	A	ADJ	g=m|n=s|s=qual|pred=y	16	dep_cpd	16	dep_cpd
++16	terme	terme	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	14	obj.p	14	obj.p
+@@ -72730,2 +72730,2 @@
+-11	grands	grand	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	10	mod	10	mod
+-12	travaux	travail	N	NC	g=m|n=p|s=c|pred=y	11	dep_cpd	11	dep_cpd
++11	grands	grand	A	ADJ	g=m|n=p|s=qual|pred=y	12	dep_cpd	12	dep_cpd
++12	travaux	travail	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	10	mod	10	mod
+@@ -72738,2 +72738,2 @@
+-19	soit	soit	C	CC	s=c	14	mod	14	mod
+-20	parce	parce	C	CS	mwehead=CS+|s=s|pred=y	19	dep.coord	19	dep.coord
++19	soit	soit	C	CC	s=c	20	mod	20	mod
++20	parce	parce	C	CS	mwehead=CS+|s=s|pred=y	14	mod	14	mod
+@@ -72755,2 +72755,2 @@
+-36	,	,	PONCT	PONCT	s=w	14	ponct	14	ponct
+-37	soit	soit	C	CC	s=c	14	mod	14	mod
++36	,	,	PONCT	PONCT	s=w	20	ponct	20	ponct
++37	soit	soit	C	CC	s=c	20	coord	20	coord
+@@ -72832 +72832 @@
+-30	car	car	C	CC	s=c	20	coord	20	coord
++30	car	car	C	CS	s=c	20	mod	20	mod
+@@ -72834 +72834 @@
+-32	va	aller	V	V	m=ind|n=s|p=3|t=pst	30	dep.coord	30	dep.coord
++32	va	aller	V	V	m=ind|n=s|p=3|t=pst	30	obj.cpl	30	obj.cpl
+@@ -73076 +73076 @@
+-17	car	car	C	CC	s=c	10	mod	10	mod
++17	car	car	C	CS	s=c	10	mod	10	mod
+@@ -73086 +73086 @@
+-27	devrait	devoir	V	V	m=ind|n=s|p=3|t=cond	17	dep.coord	17	dep.coord
++27	devrait	devoir	V	V	m=ind|n=s|p=3|t=cond	17	obj.cpl	17	obj.cpl
+@@ -73511 +73511 @@
+-53	et	et	C	CC	s=c	45	coord	45	coord
++53	et	et	C	CC	s=c	49	coord	49	coord
+@@ -73518 +73518 @@
+-60	mais	mais	C	CC	s=c	58	coord	58	coord
++60	mais	mais	C	CC	s=c	59	coord	59	coord
+@@ -73637 +73637 @@
+-28	et	et	C	CC	s=c	25	coord	25	coord
++28	et	et	C	CC	s=c	27	coord	27	coord
+@@ -73864,3 +73864,3 @@
+-17	de	un	D	DET	g=m|n=p|s=ind	18	det	18	det
+-18	beaux	beau	A	ADJ	g=m|mwehead=NC+|n=p|s=qual|pred=y	16	obj	16	obj
+-19	jours	jour	N	NC	g=m|n=p|s=c|pred=y	18	dep_cpd	18	dep_cpd
++17	de	un	D	DET	g=m|n=p|s=ind	19	det	19	det
++18	beaux	beau	A	ADJ	g=m|n=p|s=qual|pred=y	19	dep_cpd	19	dep_cpd
++19	jours	jour	N	NC	g=m|mwehead=NC+|n=p|s=c|pred=y	16	obj	16	obj
+@@ -73957,2 +73957,2 @@
+-37	plus	plus	ADV	ADV	_	39	mod	39	mod
+-38	de	de	P	P	_	39	det	39	det
++37	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	39	det	39	det
++38	de	de	P	P	_|pred=y	37	dep_cpd	37	dep_cpd
+@@ -73981 +73981 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -73986 +73986 @@
+-6	travaille	travailler	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	1	dep.coord
++6	travaille	travailler	V	V	m=ind|n=s|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -74121 +74121 @@
+-19	entre	entre	P	P	_	18	mod	18	mod
++19	entre	entre	P	P	_	18	p_obj	18	p_obj
+@@ -74126 +74126 @@
+-24	et	et	C	CC	s=c	19	coord	19	coord
++24	et	et	C	CC	s=c	21	coord	21	coord
+@@ -74148 +74148 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -74157 +74157 @@
+-10	varié	varier	V	VPP	g=m|m=part|n=s|t=past	1	dep.coord	1	dep.coord
++10	varié	varier	V	VPP	g=m|m=part|n=s|t=past	1	obj.cpl	1	obj.cpl
+@@ -74187 +74187 @@
+-24	,	,	PONCT	PONCT	s=w	5	coord	5	coord
++24	,	,	PONCT	PONCT	s=w	16	coord	16	coord
+@@ -74195 +74195 @@
+-32	,	,	PONCT	PONCT	s=w	5	coord	5	coord
++32	,	,	PONCT	PONCT	s=w	29	coord	29	coord
+@@ -74206 +74206 @@
+-43	et	et	C	CC	s=c	37	coord	37	coord
++43	et	et	C	CC	s=c	40	coord	40	coord
+@@ -74210,2 +74210,2 @@
+-47	,	,	PONCT	PONCT	s=w	5	ponct	5	ponct
+-48	mais	mais	C	CC	s=c	5	coord	5	coord
++47	,	,	PONCT	PONCT	s=w	36	ponct	36	ponct
++48	mais	mais	C	CC	s=c	36	coord	36	coord
+@@ -74346 +74346 @@
+-6	,	,	PONCT	PONCT	s=w	3	coord	3	coord
++6	,	,	PONCT	PONCT	s=w	5	coord	5	coord
+@@ -74348 +74348 @@
+-8	,	,	PONCT	PONCT	s=w	3	coord	3	coord
++8	,	,	PONCT	PONCT	s=w	7	coord	7	coord
+@@ -74350 +74350 @@
+-10	,	,	PONCT	PONCT	s=w	3	coord	3	coord
++10	,	,	PONCT	PONCT	s=w	9	coord	9	coord
+@@ -74352 +74352 @@
+-12	et	et	C	CC	s=c	3	coord	3	coord
++12	et	et	C	CC	s=c	11	coord	11	coord
+@@ -74365 +74365 @@
+-25	,	,	PONCT	PONCT	s=w	22	coord	22	coord
++25	,	,	PONCT	PONCT	s=w	24	coord	24	coord
+@@ -74369 +74369 @@
+-29	,	,	PONCT	PONCT	s=w	22	coord	22	coord
++29	,	,	PONCT	PONCT	s=w	26	coord	26	coord
+@@ -74371 +74371 @@
+-31	,	,	PONCT	PONCT	s=w	22	coord	22	coord
++31	,	,	PONCT	PONCT	s=w	30	coord	30	coord
+@@ -74373 +74373 @@
+-33	et	et	C	CC	s=c	22	coord	22	coord
++33	et	et	C	CC	s=c	32	coord	32	coord
+@@ -74443 +74443 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -74454 +74454 @@
+-12	suffit	suffire	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	1	dep.coord
++12	suffit	suffire	V	V	m=ind|n=s|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -74496 +74496 @@
+-22	et	et	C	CC	s=c	19	coord	19	coord
++22	et	et	C	CC	s=c	21	coord	21	coord
+@@ -74560 +74560 @@
+-25	en	en	P	P	_	18	dep	18	dep
++25	en	en	P	P	_	18	mod	18	mod
+@@ -74566 +74566 @@
+-31	ordinateur	ordinateur	N	NC	g=m|n=s|s=c	18	dep	18	dep
++31	ordinateur	ordinateur	N	NC	g=m|n=s|s=c	18	dep.coord	18	dep.coord
+@@ -74570 +74570 @@
+-35	,	,	PONCT	PONCT	s=w	31	coord	31	coord
++35	,	,	PONCT	PONCT	s=w	34	coord	34	coord
+@@ -74573 +74573 @@
+-38	et	et	C	CC	s=c	31	coord	31	coord
++38	et	et	C	CC	s=c	37	coord	37	coord
+@@ -74576,4 +74576,4 @@
+-41	-LRB-	-LRB-	PONCT	PONCT	s=w	48	ponct	48	ponct
+-42	3	3	N	NC	g=m|n=s|s=card	48	mod	48	mod
+-43	-RRB-	-RRB-	PONCT	PONCT	s=w	48	ponct	48	ponct
+-44	,	,	PONCT	PONCT	s=w	48	ponct	48	ponct
++41	-LRB-	-LRB-	PONCT	PONCT	s=w	40	ponct	40	ponct
++42	3	3	N	NC	g=m|n=s|s=card	40	mod	40	mod
++43	-RRB-	-RRB-	PONCT	PONCT	s=w	40	ponct	40	ponct
++44	,	,	PONCT	PONCT	s=w	40	ponct	40	ponct
+@@ -75013 +75013 @@
+-17	ou	ou	C	CC	s=c	12	coord	12	coord
++17	ou	ou	C	CC	s=c	15	coord	15	coord
+@@ -75148 +75148 @@
+-6	et	et	C	CC	s=c	3	coord	3	coord
++6	et	et	C	CC	s=c	5	coord	5	coord
+@@ -75180 +75180 @@
+-26	et	et	C	CC	s=c	22	coord	22	coord
++26	et	et	C	CC	s=c	25	coord	25	coord
+@@ -75220,2 +75220,2 @@
+-5	haute	haut	A	ADJ	g=f|mwehead=NC+|n=s|s=qual|pred=y	4	mod	4	mod
+-6	définition	définition	N	NC	g=f|n=s|s=c|pred=y	5	dep_cpd	5	dep_cpd
++5	haute	haut	A	ADJ	g=f|n=s|s=qual|pred=y	6	dep_cpd	6	dep_cpd
++6	définition	définition	N	NC	g=f|mwehead=NC+|n=s|s=c|pred=y	4	mod	4	mod
+@@ -75303 +75303 @@
+-34	élargi	élargir	V	VPP	g=m|m=part|n=s|t=past	28	dep	28	dep
++34	élargi	élargir	V	VPP	g=m|m=part|n=s|t=past	28	dep.coord	28	dep.coord
+@@ -75344,2 +75344,2 @@
+-21	gros	gros	A	ADJ	g=m|mwehead=NC+|s=qual|pred=y	20	obj.p	20	obj.p
+-22	plan	plan	N	NC	g=m|n=s|s=c|pred=y	21	dep_cpd	21	dep_cpd
++21	gros	gros	A	ADJ	g=m|s=qual|pred=y	22	dep_cpd	22	dep_cpd
++22	plan	plan	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	20	obj.p	20	obj.p
+@@ -75384 +75384 @@
+-1	Car	car	C	CC	s=c	0	root	0	root
++1	Car	car	C	CS	s=c	0	root	0	root
+@@ -75394 +75394 @@
+-11	doit	devoir	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	1	dep.coord
++11	doit	devoir	V	V	m=ind|n=s|p=3|t=pst	1	obj.cpl	1	obj.cpl
+@@ -75402,3 +75402,3 @@
+-19	un	un	D	DET	g=m|n=s|s=ind	20	det	20	det
+-20	grand	grand	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	18	obj.p	18	obj.p
+-21	écran	écran	N	NC	g=m|n=s|s=c|pred=y	20	dep_cpd	20	dep_cpd
++19	un	un	D	DET	g=m|n=s|s=ind	21	det	21	det
++20	grand	grand	A	ADJ	g=m|n=s|s=qual|pred=y	21	dep_cpd	21	dep_cpd
++21	écran	écran	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	18	obj.p	18	obj.p
+@@ -75543 +75543 @@
+-22	et	et	C	CC	s=c	11	coord	11	coord
++22	et	et	C	CC	s=c	17	coord	17	coord
+@@ -75870,2 +75870,2 @@
+-18	restent	rester	V	V	m=ind|n=p|p=3|t=pst	25	dep	25	dep
+-19	dans	dans	P	P	_	25	p_obj	25	p_obj
++18	restent	rester	V	V	m=ind|n=p|p=3|t=pst	17	dep.coord	17	dep.coord
++19	dans	dans	P	P	_	18	p_obj	18	p_obj
+@@ -76144,5 +76144,5 @@
+-30	un	un	D	DET	g=m|n=s|s=ind	31	det	31	det
+-31	grand	grand	A	ADJ	g=m|mwehead=NC+|n=s|s=qual|pred=y	29	obj.p	29	obj.p
+-32	écran	écran	N	NC	g=m|n=s|s=c|pred=y	31	dep_cpd	31	dep_cpd
+-33	,	,	PONCT	PONCT	s=w	4	ponct	4	ponct
+-34	et	et	C	CC	s=c	4	coord	4	coord
++30	un	un	D	DET	g=m|n=s|s=ind	32	det	32	det
++31	grand	grand	A	ADJ	g=m|n=s|s=qual|pred=y	32	dep_cpd	32	dep_cpd
++32	écran	écran	N	NC	g=m|mwehead=NC+|n=s|s=c|pred=y	29	obj.p	29	obj.p
++33	,	,	PONCT	PONCT	s=w	20	ponct	20	ponct
++34	et	et	C	CC	s=c	20	coord	20	coord
+@@ -76252,2 +76252,2 @@
+-26	plus	plus	ADV	ADV	_	29	mod	29	mod
+-27	de	de	P	P	_	29	dep	29	dep
++26	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	28	mod	28	mod
++27	de	de	P	P	_|pred=y	26	dep_cpd	26	dep_cpd
+@@ -76286 +76286 @@
+-12	car	car	C	CC	s=c	8	coord	8	coord
++12	car	car	C	CS	s=c	8	mod	8	mod
+@@ -76289 +76289 @@
+-15	est	être	V	V	m=ind|n=s|p=3|t=pst	12	dep.coord	12	dep.coord
++15	est	être	V	V	m=ind|n=s|p=3|t=pst	12	obj.cpl	12	obj.cpl
+@@ -76397 +76397 @@
+-20	ou	ou	C	CC	s=c	7	coord	7	coord
++20	ou	ou	C	CC	s=c	14	coord	14	coord
+@@ -76417,2 +76417,2 @@
+-40	plus	plus	ADV	ADV	_	43	mod	43	mod
+-41	de	de	P	P	_	43	dep	43	dep
++40	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	42	mod	42	mod
++41	de	de	P	P	_|pred=y	40	dep_cpd	40	dep_cpd
+@@ -76447 +76447 @@
+-22	-LRB-	-LRB-	PONCT	PONCT	s=w	31	ponct	31	ponct
++22	-LRB-	-LRB-	PONCT	PONCT	s=w	13	ponct	13	ponct
+@@ -76452 +76452 @@
+-27	est	être	V	V	m=ind|n=s|p=3|t=pst	31	mod	31	mod
++27	est	être	V	V	m=ind|n=s|p=3|t=pst	13	mod	13	mod
+@@ -76455 +76455 @@
+-30	-RRB-	-RRB-	PONCT	PONCT	s=w	31	ponct	31	ponct
++30	-RRB-	-RRB-	PONCT	PONCT	s=w	13	ponct	13	ponct
+@@ -76496,2 +76496,2 @@
+-12	plus	plus	ADV	ADV	_	15	mod	15	mod
+-13	de	de	P	P	_	15	dep	15	dep
++12	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	14	mod	14	mod
++13	de	de	P	P	_|pred=y	12	dep_cpd	12	dep_cpd
+@@ -76681,2 +76681,2 @@
+-24	heures	heure	N	NC	g=f|n=p|s=c	25	mod	25	mod
+-25	de	de	P	P	mwehead=ADV+|pred=y	21	dep.coord	21	dep.coord
++24	heures	heure	N	NC	g=f|n=p|s=c	21	dep.coord	21	dep.coord
++25	de	de	P	P	mwehead=ADV+|pred=y	24	mod	24	mod
+@@ -76695,2 +76695,2 @@
+-6	plus	plus	ADV	ADV	_	10	mod	10	mod
+-7	de	de	P	P	_	10	det	10	det
++6	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	8	mod	8	mod
++7	de	de	P	P	_|pred=y	6	dep_cpd	6	dep_cpd
+@@ -76743 +76743 @@
+-23	,	,	PONCT	PONCT	s=w	14	coord	14	coord
++23	,	,	PONCT	PONCT	s=w	19	coord	19	coord
+@@ -76748 +76748 @@
+-28	et	et	C	CC	s=c	14	coord	14	coord
++28	et	et	C	CC	s=c	24	coord	24	coord
+@@ -76787,2 +76787,2 @@
+-19	plus	plus	ADV	ADV	_	22	mod	22	mod
+-20	de	de	P	P	_	22	dep	22	dep
++19	plus	plus	ADV	ADV	mwehead=ADV+|pred=y	21	mod	21	mod
++20	de	de	P	P	_pred=y	19	dep_cpd	19	dep_cpd
+@@ -76927 +76927 @@
+-56	et	et	C	CC	s=c	50	coord	50	coord
++56	et	et	C	CC	s=c	53	coord	53	coord
+@@ -77113 +77113 @@
+-33	poursuivi	poursuivre	V	VPP	g=m|m=part|n=s|t=past	29	dep.coord	29	dep.coord
++33	poursuivi	poursuivre	V	VPP	g=m|m=part|n=s|t=past	29	mod	29	mod
+@@ -77224,2 +77224,2 @@
+-11	-LRB-	-LRB-	PONCT	PONCT	s=w	30	ponct	30	ponct
+-12	le	le	D	DET	g=m|mwehead=NPP+|n=s|s=def|pred=y	30	mod	30	mod
++11	-LRB-	-LRB-	PONCT	PONCT	s=w	1	ponct	1	ponct
++12	le	le	D	DET	g=m|mwehead=NPP+|n=s|s=def|pred=y	1	mod	1	mod
+@@ -77230,2 +77230,2 @@
+-17	-RRB-	-RRB-	PONCT	PONCT	s=w	30	ponct	30	ponct
+-18	,	,	PONCT	PONCT	s=w	30	ponct	30	ponct
++17	-RRB-	-RRB-	PONCT	PONCT	s=w	1	ponct	1	ponct
++18	,	,	PONCT	PONCT	s=w	1	ponct	1	ponct

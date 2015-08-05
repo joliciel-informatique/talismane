@@ -116,4 +116,38 @@ public class GenericRules implements LinguisticRules {
 			throw new TalismaneException("Language not yet supported for GenericRules.makeAdjectiveSingular: " + locale.getLanguage());
 		}
 	}
+
+	@Override
+	public char[] getLowercaseOptionsWithDiacritics(char c) {
+		Locale locale = this.talismaneSession.getLocale();
+		char[] lowerCaseChars = null;
+		if (locale.getLanguage().equals("fr")) {
+			switch (c) {
+			case 'E':
+				lowerCaseChars = new char[] {'e', 'é', 'ê', 'è', 'ë'};
+				break;
+			case 'A':
+				lowerCaseChars = new char[] {'à', 'a', 'â', 'á'};
+				break;
+			case 'O':
+				lowerCaseChars  = new char[] {'o', 'ô', 'ò', 'ó'};
+				break;
+			case 'I':
+				lowerCaseChars  = new char[] {'i', 'î', 'ï', 'í'};
+				break;
+			case 'U':
+				lowerCaseChars = new char[] {'u', 'ú', 'ü'};
+				break;
+			case 'C':
+				lowerCaseChars = new char[] {'c', 'ç'};
+				break;
+			default:
+				lowerCaseChars = new char[] {Character.toLowerCase(c)};
+				break;
+			}
+		} else {
+			lowerCaseChars = new char[] {Character.toLowerCase(c)};
+		}
+		return lowerCaseChars;
+	}
 }

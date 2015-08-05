@@ -87,8 +87,10 @@ public class SpmrlProjectifier {
 		String outFileName = baseName + "_" + suffix + extension;
 
 		File outFile = new File(refFile.getParentFile(), outFileName);
+		@SuppressWarnings("resource")
 		Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
 
+		@SuppressWarnings("resource")
 		Scanner refFileScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(refFile), "UTF-8")));
 		
 		int lineNumber = 0;
@@ -183,7 +185,7 @@ public class SpmrlProjectifier {
 			} // next sentence
 
 		} // next line
-		
+		refFileScanner.close();
 		writer.flush();
 		writer.close();
 	}

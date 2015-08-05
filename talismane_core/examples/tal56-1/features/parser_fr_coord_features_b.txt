@@ -1,0 +1,289 @@
+# Functions for use below
+IfThenElseNull(X,Y)	NullIf(Not(X),Y)
+Exists(X)	Not(IsNull(X))
+IsVerb(X)	PosTag(X)=="V" | PosTag(X)=="VS" | PosTag(X)=="VIMP" | PosTag(X)=="VPP" | PosTag(X)=="VINF" | PosTag(X)=="VPR"
+LemmaOrWord(X)	IfThenElse(IsNull(Lemma(X)), LexicalForm(X), Lemma(X))
+Lexicalised(X)	IfThenElse(ClosedClass(X), LemmaOrWord(X), PosTag(X))
+
+# single words
+S0p	PosTag(Stack[0])
+S0w	LemmaOrWord(Stack[0])
+S0wp	S0w || S0p
+S0d	PairGroup	DependencyLabel(Stack[0])
+B0w	LemmaOrWord(Buffer[0])
+B0p	PosTag(Buffer[0])
+B0wp	B0w || B0p
+B1w	PairGroup	LemmaOrWord(Buffer[1])
+B1p	PairGroup	PosTag(Buffer[1])
+B1wp	PairGroup	B1w || B1p
+S1w()	PairGroup	LemmaOrWord(Stack[1])
+S1p()	PairGroup	PosTag(Stack[1])
+S1wp()	PairGroup	S1w || S1p
+
+# for use by combo features only
+S0g()	Gender(Stack[0])
+S0n()	Number(Stack[0])
+S0t()	Tense(Stack[0])
+S0r()	Person(Stack[0])
+S0m()	Morphology(Stack[0])
+B0g()	Gender(Buffer[0])
+B0n()	Number(Buffer[0])
+B0t()	Tense(Buffer[0])
+B0r()	Person(Buffer[0])
+B0m()	Morphology(Buffer[0])
+B2w()	LemmaOrWord(Buffer[2])
+B2p()	PosTag(Buffer[2])
+B2wp()	B2w || B2p
+B3p()	PosTag(Buffer[3])
+S2w()	LemmaOrWord(Stack[2])
+S2p()	PosTag(Stack[2])
+S2wp()	S2w || S2p
+
+# S0/B0 combos
+S0pB0p	S0p || B0p
+S0wB0w	S0w || B0w
+S0wpB0p	S0wp || B0p
+S0pB0wp	S0p || B0wp
+S0wpB0wp	S0wp || B0wp
+S0gB0g	PairGroup	S0g || B0g
+S0nB0n	PairGroup	S0n || B0n
+S0tB0t	PairGroup	NullIf(IsNull(S0t) & IsNull(B0t), ConcatWithNulls(S0t,B0t))
+S0rB0r	PairGroup	NullIf(IsNull(S0r) & IsNull(B0r), ConcatWithNulls(S0r,B0r))
+S0mB0m	PairGroup	ConcatWithNulls(Morphology(Stack[0]),Morphology(Buffer[0]))
+
+# sequentially to the right and left
+S0b1p	PairGroup	PosTag(Offset(Stack[0],-1))
+S0f1p	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,PosTag(Offset(Stack[0],1)))
+B0b1p	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,PosTag(Offset(Buffer[0],-1)))
+S0b1w	PairGroup	LemmaOrWord(Offset(Stack[0],-1))
+S0f1w	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,LemmaOrWord(Offset(Stack[0],1)))
+B0b1w	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,LemmaOrWord(Offset(Buffer[0],-1)))
+
+# sequentially to the right and left, two tokens
+S0f2p()	NullIf(Distance(Stack[0],Buffer[0])<=2,PosTag(Offset(Stack[0],2)))
+S0b2p()	PosTag(Offset(Stack[0],-2))
+B0b2p()	NullIf(Distance(Stack[0],Buffer[0])<=2,PosTag(Offset(Buffer[0],-2)))
+S0b1pf1p	PairGroup	S0b1p || S0f1p
+S0b2pb1p	PairGroup	S0b2p || S0b1p
+S0f1pf2p	PairGroup	S0f1p || S0f2p
+B0b2pb1p	PairGroup	B0b2p || B0b1p
+
+# head, left-most dep, right-most dep
+S0Hw	PairGroup	LemmaOrWord(Head(Stack[0]))
+S0Hp	PairGroup	PosTag(Head(Stack[0]))
+S0Hpw	PairGroup	S0Hp || S0Hw
+S0Ht	PairGroup	Tense(Head(Stack[0]))
+S0Hd	PairGroup	DependencyLabel(Head(Stack[0]))
+S0Lw	PairGroup	LemmaOrWord(LDep(Stack[0]))
+S0Lp	PairGroup	PosTag(LDep(Stack[0]))
+S0Lpw	PairGroup	S0Lp || S0Lw
+S0Ld	PairGroup	DependencyLabel(LDep(Stack[0]))
+S0Rw	PairGroup	LemmaOrWord(RDep(Stack[0]))
+S0Rp	PairGroup	PosTag(RDep(Stack[0]))
+S0Rpw	PairGroup	S0Rp || S0Rw
+S0Rt	PairGroup	Tense(RDep(Stack[0]))
+S0Rd	PairGroup	DependencyLabel(RDep(Stack[0]))
+B0Lw	PairGroup	LemmaOrWord(LDep(Buffer[0]))
+B0Lp	PairGroup	PosTag(LDep(Buffer[0]))
+B0Lpw	PairGroup	B0Lp || B0Lw
+B0Lt	PairGroup	Tense(LDep(Buffer[0]))
+B0Ld	PairGroup	DependencyLabel(LDep(Buffer[0]))
+
+# further down the buffer
+B1pB2p	PairGroup	B1p || B2p
+B1wpB2p	PairGroup	B1wp || B2p
+B1wpB2wp	PairGroup	B1wp || B2wp
+B1pB2pB3p	PairGroup	B1p || B2p || B3p
+B1wpB2pB3p	PairGroup	B1wp || B2p || B3p
+B1wpB2wpB3p	PairGroup	B1wp || B2wp || B3p
+
+# deeper in the stack
+S1pS2p()	PairGroup	S1p || S2p
+S1wpS2p()	PairGroup	S1wp || S2p
+S1wpS2wp()	PairGroup	S1wp || S2wp
+S1pS2wp()	PairGroup	S1p || S2wp
+
+# buffer and stack combined
+S1pB1p()	PairGroup	S1p || B1p
+S1wpB1p()	PairGroup	S1wp || B1p
+S1wpB1wp()	PairGroup	S1wp || B1wp
+S1pB1wp()	PairGroup	S1p || B1wp
+
+DistanceString()	PairGroup	IfThenElse(Distance(Stack[0],Buffer[0])>6,"Long",ToString(Distance(Stack[0],Buffer[0])))
+ValencyS0()	PairGroup	ToString(Valency(Stack[0]))
+ValencyB0()	PairGroup	ToString(Valency(Buffer[0]))
+
+# Complete features above with info from the top-of-stack and top-of-buffer
+S0lexB0lex	IfThenElseNull(ClosedClass(Stack[0]) | ClosedClass(Buffer[0]), ConcatWithNulls(Lexicalised(Stack[0]),Lexicalised(Buffer[0])))
+PairGroup_P	S0pB0p || PairGroup()
+PairGroup_Lex	S0lexB0lex || PairGroup()
+
+# Targeted coordination
+PosTagLemma(X)	PosTag(X)||LemmaOrWord(X)
+IsNominal(X)	PosTagIn(X,"NC","NPP","ET","PRO")
+MainVerb(X)	IfThenElse(InSet(DepLabel(X),"aux_tps","aux_caus","aux_pass"),IfThenElse(InSet(DepLabel(Head(X)),"aux_tps","aux_caus","aux_pass"),Head(Head(X)),Head(X)),X)
+VerbInIncise(X)	(PosTagIn(X,"V","VS","VIMP") & (InSet(WordForm(Offset(X,-1)),",","-") | (InSet(WordForm(Offset(X,-2)),",","-") & PosTagIn(Offset(X,-1),"CLO","CLR"))) & Exists(TokenSearch(PosTagIn(Placeholder,"NC","NPP","CLS"),InSet(WordForm(Placeholder),",","-"),Index(X)+1,1000))) | (PosTagIn(X,"V") && Lemma(X)=="obliger" && InSet(WordForm(Offset(X,1)),",","-"))
+VerbAfter(X)	TokenSearch(PosTagIn("V","VS","VIMP"), (PosTagIn("CC")&PosTag(Offset(X,-1))!="PONCT") | InSet(WordForm,":",";",")"),Index(X)+1,1000, true, PosTagIn("CS","PROREL","P+PRO","ADVWH"), PosTagIn("V","VS","VIMP"), WordForm==",", WordForm==",", WordForm=="-", WordForm=="-", WordForm=="(", WordForm==")")
+VerbBefore(X)	TokenSearch(PosTagIn("V","VS","VIMP") & IsNull(AncestorSearch(Placeholder, DepLabel=="mod_rel"|(PosTag=="CS" & Index>1), true)) & (Not(VerbInIncise(Placeholder))), (PosTag=="CC" & Valency(Placeholder,"dep_coord")==0) | (PosTag=="CS" & Valency(Placeholder,"sub")==0) | (PosTagIn("PROREL","P+PRO","ADVWH") & IsNull(Head(Placeholder))) |InSet(WordForm,":") | WordForm==";" & Index(X)-Index(Placeholder)>1, Index(X)-1,0,true,WordForm==")",WordForm=="(")
+VerbBeforeAndAfter(X,Y)	Exists(VerbBefore(X)) & Exists(VerbAfter(Y))
+#VerbBeforeTest	OnlyTrue(PosTag(Buffer[0])=="CC") && Exists(VerbBefore(Stack[0]))
+#VerbAfterTest	OnlyTrue(PosTag(Buffer[0])=="CC") && Exists(VerbAfter(Buffer[0]))
+#VerbInInciseTest	OnlyTrue(VerbInIncise(Stack[0]) & PosTagIn(Stack[0],"V","VS","VIMP") & Exists(TokenSearch(WordForm(Placeholder)==",",Index(Stack[0])+1,Index(Buffer[0])-1)))
+
+PrepObjLeft(X)	DepSearch(X, DepLabel=="obj")
+PrepObjRight(X)	ForwardSearch(X, PosTagIn("NC","NPP","PRO","VINF","PROREL","P+PRO","ADVWH","ET"))
+BothPreps(X,Y)	PosTagIn(X,"P","P+D") & PosTagIn(Y,"P","P+D")
+#Need to refine this for cases like "grace à X et à Y"
+SamePreps(X,Y)	BothPreps(X,Y) & Lemma(X)==Lemma(Y) | (EndsWith(WordForm(X)," à"," aux"," au") & Lemma(Y)=="à") | (EndsWith(WordForm(X)," de"," des"," du"," d'") & Lemma(Y)=="de")
+SameWord(X,Y)	IfThenElse(SamePreps(X,Y), PosTagLemma(PrepObjLeft(X))==PosTagLemma(PrepObjRight(Y)), PosTagLemma(X)==PosTagLemma(Y))
+
+
+### handle "autant ceci est blah, autant A et B sont blah"
+# [a], a [eu], ayant fait [manger], a tout [mangé], ayant [fait], [veux] manger, aurait [voulu] manger
+ContentVerb(X)	TokenSearch(PosTagIn("VPP","V","VS","VINF","VIMP","VPR"), (PosTagIn("VPP","V","VS","VINF","VIMP","VPR") & Not(InSet(Lemma,"avoir","être","faire"))) | (PosTagIn("P","P+D","DET","NC","NPP","ET","ADJ","DETWH","PRO","PROWH","CC","CS") | InSet(WordForm,":",";") & Not(WordForm=="tout"|WordForm=="peu")), Index(X), 1000, false, WordForm==",", WordForm==",", WordForm=="-", WordForm=="-", WordForm=="(", WordForm==")")
+
+DepCoordGuessNC(X)	TokenSearch(PosTagIn("NC","NPP","ET","PRO","VINF"), PosTagIn("P","P+D","PONCT","CC","CS","V","VS","VPR","VIMP","VPP"),Index(X)+1,1000)
+DepCoordGuessNCOrVINF(X)	IfThenElse(PosTag(DepCoordGuessNC(X))=="VINF", ContentVerb(DepCoordGuessNC(X)), DepCoordGuessNC(X))
+
+DepCoordGuessADV(X)	TokenSearch(PosTagIn("ADV") && Not(InSet(WordForm(),"surtout", "même", "alors", "puis")), Not(PosTagIn("ADV")), Index(X)+1, 1000, false, WordForm==",", WordForm==",", WordForm=="-", WordForm=="-", WordForm=="(", WordForm==")")
+DepCoordIsADV(X)	PosTagIn(Offset(X,-1),"ADV") & Exists(DepCoordGuessADV(X))
+
+DepCoordGuessP(X)	TokenSearch(PosTagIn("P","P+D"), Not(PosTagIn("ADV")), Index(X)+1, 1000, true, WordForm==",", WordForm==",", WordForm=="-", WordForm=="-", WordForm=="(", WordForm==")")
+DepCoordIsP(X)	Exists(DepCoordGuessP(X))
+
+PrevVPR(X)	TokenSearch(PosTag=="VPR", PosTagIn("V","VS","VIMP","CS","CC"), Index(X)-1, 0)
+NextVPR(X)	TokenSearch(PosTag=="VPR", PosTagIn("NC","NPP","ET","PRO","V","VS","VIMP","CS","CC"), Index(X)+1, 1000)
+DepCoordGuessVPR(X)	ContentVerb(NextVPR(X))
+DepCoordIsVPR(X)	Exists(DepCoordGuessVPR(X)) && Exists(PrevVPR(X))
+
+DepCoordGuessEnVPR(X)	TokenSearch(PosTag=="P" && WordForm=="en", Not(PosTagIn("CLO","CLR","ADV")), Index(NextVPR(X))-1, 0)
+DepCoordIsEnVPR(X)	Exists(DepCoordGuessEnVPR(X)) && Exists(TokenSearch(PosTag=="P" && WordForm=="en", Not(PosTagIn("CLO","CLR","ADV")), Index(PrevVPR(X))-1, 0))
+
+DepCoordGuessV(X)	ContentVerb(VerbAfter(X))
+DepCoordIsVerb(X)	Exists(DepCoordGuessV(X)) && (PosTagIn(Offset(X,1),"V","VS","VIMP") | WordForm(Offset(X,-1))==";" | (WordForm(X)=="mais" & WordForm(Offset(X,-1))==",") | VerbBeforeAndAfter(X,X))
+#DepCoordIsVerbTest1(X)	PosTagIn(Offset(X,1),"V","VS","VIMP") | WordForm(Offset(X,-1))==";" | (WordForm(X)=="mais" & WordForm(Offset(X,-1))==",") | VerbBeforeAndAfter(X,X)
+#DepCoordIsVerbTest1X	OnlyTrue(PosTag(Stack[0])=="CC") && DepCoordIsVerbTest1(Stack[0])
+#DepCoordIsVerbTest2(X)	Exists(DepCoordGuessV(X))
+#DepCoordIsVerbTest2X	OnlyTrue(PosTag(Stack[0])=="CC") && DepCoordIsVerbTest2(Stack[0])
+
+CardinalAdj(X)	InSet(WordForm(X), "9,99", "999", "31", "1999", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI")
+OrdinalAdj(X)	InSet(Lemma(X), "premier", "second") || EndsWith(WordForm(X),"ème") || InSet(WordForm(X), "Ier")
+AntePositionAdj(X)	PosTag(X)=="ADJ" && (InSet(Lemma(X), "ancien", "beau", "bon", "brave", "chic", "court", "curieux", "dernier", "divers", "faux", "gentil", "grand", "gros", "haut", "humble", "jeune", "joli", "large", "long", "mauvais", "meilleur", "moindre", "moyen", "nouveau", "pauvre", "petit", "pire", "pur", "rare", "sale", "seul", "simple", "tendre", "triste", "unique", "véritable", "vieux", "vilain", "vrai") || OrdinalAdj(X) || CardinalAdj(X))
+DepCoordGuessADJ(X)	TokenSearch(PosTagIn("ADJ","VPP"), Not(PosTagIn("ADV","P")), Index(X)+1, 1000, true, WordForm==",", WordForm==",", WordForm=="-", WordForm=="-", WordForm=="(", WordForm==")")
+DepCoordIsADJ(X)	PosTagIn(Offset(X,-1),"ADJ","VPP") && Exists(DepCoordGuessADJ(X)) && (Not(AntePositionAdj(DepCoordGuessADJ(X))) | (IsNull(TokenSearch(PosTagIn("NC","NPP","ET"), Not(PosTagIn("ADV","ADJ")), Index(X)-2, 0)) | IsNull(TokenSearch(PosTagIn("NC","NPP","ET"), Not(PosTagIn("ADV","ADJ")), Index(DepCoordGuessADJ(X))+1,1000))))
+
+#AdjTest0a	OnlyTrue(PosTag(Stack[0])=="CC" && PosTagIn(Offset(Stack[0],-1),"ADJ","VPP"))
+#AdjTest0b	OnlyTrue(PosTag(Stack[0])=="CC" && PosTagIn(Offset(Stack[0],-1),"ADJ","VPP") && Exists(DepCoordGuessADJ(Stack[0])))
+#AdjTest1	OnlyTrue(PosTag(Stack[0])=="CC" && PosTagIn(Offset(Stack[0],-1),"ADJ","VPP") && (Not(AntePositionAdj(DepCoordGuessADJ(Stack[0])))))
+#AdjTest2	OnlyTrue(PosTag(Stack[0])=="CC" && PosTagIn(Offset(Stack[0],-1),"ADJ","VPP") && IsNull(TokenSearch(PosTagIn("NC","NPP","ET"), Not(PosTagIn("ADV","ADJ")), Index(Stack[0])-2, 0)))
+#AdjTest3	OnlyTrue(PosTag(Stack[0])=="CC" && PosTagIn(Offset(Stack[0],-1),"ADJ","VPP") && IsNull(TokenSearch(PosTagIn("NC","NPP","ET"), Not(PosTagIn("ADV","ADJ")), Index(DepCoordGuessADJ(Stack[0]))+1,1000)))
+#DepCoordIsADJTest	OnlyTrue(PosTag(Stack[0])=="CC") && DepCoordIsADJ(Stack[0])
+
+DepCoordGuessRelative(X)	IfThenElse(Exists(VerbAfter(X)), ContentVerb(VerbAfter(X)), IfThenElseNull( (PosTagIn(Offset(X,1),"ADVWH","DETWH") | PosTagIn(Offset(X,2),"ADVWH","DETWH")), ContentVerb(TokenSearch(PosTagIn("VINF"), PosTagIn("CC","CS"),Index(X)+1,1000))))
+DepCoordIsRelative(X)	(PosTagIn(Offset(X,1),"PROREL","ADVWH","DETWH") | (PosTagIn(Offset(X,1),"P") && PosTagIn(Offset(X,2),"PROREL","ADVWH","DETWH"))) && Exists(DepCoordGuessRelative(X))
+DepCoordGuessDET(X)	TokenSearch(PosTagIn("DET"), Not(PosTagIn("ADV")), Index(X)+1, 1000, true, WordForm==",", WordForm==",", WordForm=="-", WordForm=="-", WordForm=="(", WordForm==")")
+DepCoordIsDET(X)	PosTagIn(Offset(X,-1),"DET") && Exists(DepCoordGuessDET(X))
+
+#DepCoordDETTest	OnlyTrue(PosTag(Stack[0])=="CC" && PosTagIn(Offset(Stack[0],-1),"DET")) && Exists(DepCoordGuessDET(Stack[0]))
+
+PreviousNoun(X)	TokenSearch(PosTagIn("NC","NPP","PRO","ET"),Not(PosTagIn("ADJ","ADV")), Index(X)-1, 0)
+DepCoordGuessInCommas(X)	TokenSearch(PosTagIn("NC","NPP","PRO","ET"),Not(PosTagIn("DET","ADJ","ADV")), Index(X)+1, 1000)
+DepCoordInCommas(X)	Exists(TokenSearch(InSet(WordForm, ",", "-", ";"), Not(PosTagIn("ADJ","ADV","DET")), Index(PreviousNoun(X))-1,0)) & Exists(DepCoordGuessInCommas(X))
+
+Idiom(X,W1,W2,W3)	WordForm(Offset(X,-1))==W1 && WordForm(X)==W2 && WordForm(Offset(X,1))==W3
+Idiom2(X,W1,W2)	WordForm(Offset(X,-1))==W1 && WordForm(Offset(X,1))==W2
+DepCoordGuessObvious(X)	Offset(X,1)
+DepCoordIsObvious(X)	(WordForm(X)=="ou" && WordForm(Offset(X,1))=="non") | (PosTag(Offset(X,-2))=="PONCT" && PosTag(Offset(X,-1))=="ADV" && PosTag(Offset(X,1))=="ADV") | (PosTagIn(Offset(X,1),"CS","P+D")) | (PosTag(Offset(X,-1))=="PREF" && PosTag(Offset(X,1))=="PREF") | Idiom(X, "tôt", "ou", "tard") | Idiom2(X, "ici", "là") | (EndsWith(WordForm(Offset(X,-1)),"ment") && EndsWith(WordForm(Offset(X,1)),"ment") && PosTag(Offset(X,-1))=="ADV" && PosTag(Offset(X,1))=="ADV")
+
+DepCoordGuess(X)	IfThenElse(DepCoordIsObvious(X), DepCoordGuessObvious(X), IfThenElse(DepCoordIsDET(X),DepCoordGuessDET(X), IfThenElse(DepCoordIsRelative(X),DepCoordGuessRelative(X), IfThenElse(DepCoordInCommas(X),DepCoordGuessInCommas(X), IfThenElse(DepCoordIsADJ(X), DepCoordGuessADJ(X), IfThenElse(DepCoordIsVerb(X),DepCoordGuessV(X), IfThenElse(DepCoordIsEnVPR(X),DepCoordGuessEnVPR(X), IfThenElse(DepCoordIsVPR(X),DepCoordGuessVPR(X), IfThenElse(DepCoordIsP(X),DepCoordGuessP(X), IfThenElse(DepCoordIsADV(X), DepCoordGuessADV(X), DepCoordGuessNCOrVINF(X)))))))))))
+
+## Ignore coordinating conjunctions at start of sentence. Also, ignore multiple 2nd conjuncts in the case of ellipses (we're only interested in the first one)
+DepCoordTest	OnlyTrue(PosTag(Stack[0])=="CC" && Not(Index(Stack[0])==1 | (Index(Stack[0])==2 && PosTag(Offset(Stack[0],-1))=="PONCT") | (Index(Stack[0])==3 && PosTag(Offset(Stack[0],-1))=="PONCT" && PosTag(Offset(Stack[0],-2))=="ADV")) && Valency(Stack[0],"dep_coord")==0) && Index(Buffer[0])==Index(DepCoordGuess(Stack[0]))
+PosTagDepCoordTest	IfThenElseNull((PosTag(Stack[0])=="CC" && Not(Index(Stack[0])==1 | (Index(Stack[0])==2 && PosTag(Offset(Stack[0],-1))=="PONCT") | (Index(Stack[0])==3 && PosTag(Offset(Stack[0],-1))=="PONCT" && PosTag(Offset(Stack[0],-2))=="ADV")) && Valency(Stack[0],"dep_coord")==0), ToString(Index(Buffer[0])==Index(DepCoordGuess(Stack[0]))) || PosTag(Buffer[0]))
+
+# New features after error analysis
+IsConjugatedVerb(X)	PosTagIn(X,"V","VS","VIMP") | (PosTag(X)=="VPP" & (Valency(X,"aux_tps")==1|Valency(X,"aux_pass")==1)) | (PosTag(X)=="VINF" & Valency(X,"aux_caus")==1)
+NumberInParentheses(X)	(WordForm(Offset(X,-1))=="(" & Lemma(X)=="#NUM#" & WordForm(Offset(X,-1))==")") | (Index(X)==1 & Lemma(X)=="#NUM#" & WordForm(Offset(X,-1))==")")
+
+# If the dep-coord looks like it's a verb, is S0 a verb also
+## Problems: doit être voté, va être voté, avait dû être fermée, que les syndicats veulent et ..., qui n'a pas été conçu pour eux et... lorsqu'elle est destinéé à blah et ...
+CoordVerbWithVerb	OnlyTrue(PosTag(Buffer[0])=="CC" & DepCoordIsVerb(Buffer[0])) && IsConjugatedVerb(Stack[0])
+
+# Is S0 in parentheses and B0 out of it? If so, not expecting dependency. Excluding numbers like (1)
+## Not excluding numbers:   /root (/PONCT #[1/NC]# )/PONCT en_vertu_d'/P une/DET disposition/NC transitoire/ADJ ,/PONCT le/DET taux/NC mixte/ADJ #[concernera/V]# ,/PONCT jusqu'au/P+D 31/ADJ décembre/NC 1994/NC ,/PONCT les/DET entreprises/NC employant/VPR un/DET nombre/NC de/P salariés/NC compris/VPP entre/P 20/PRO et/CC 500/PRO ./PONCT
+## Including the parentheses: /root #[(/PONCT]# 2/ADJ )/PONCT Six/DET réacteurs/NC VVER/NPP de/P 1_000/DET mégawatts/NC #[sont/V]# en/P construction/NC sur/P les/DET quatre/ADJ sites/NC des/P+D centrales/NC ukrainiennes/ADJ :/PONCT un/PRO pratiquement/ADV achevé/VPP à/P Rovno/NPP ;/PONCT trois/PRO à/P Khmelnitski/NPP ;/PONCT un/PRO à/P Zaporozhe/NPP et/CC un/DET autre/PRO à/P Ukraine/NPP -/PONCT Sud/NPP ./PONCT
+StackInParentheses	OnlyTrue(Not(NumberInParentheses(Stack[0])) & BetweenCountIf(Stack[0],Buffer[0],WordForm==")")>BetweenCountIf(Stack[0],Buffer[0],WordForm=="("))
+
+# If the head is a verb, are we coordinating with a helper verb or a content verb?
+## Problems: false: et les ignorer serait alimenter... Elle a éclarci et fait souffrir
+##  true:
+## /root A/P New-York/NPP ,/PONCT les/DET spéculateurs/NC -/PONCT moins/ADV heureux/ADJ que/CS George/NPP Soros/NPP qui/PROREL a/V gagné/VPP 1/DET milliard/NC de/P dollars/NC en/P jouant/VPR contre/P la/DET livre/NC -/PONCT jouent/V l'/DET éclatement/NC du/P+D noyau/NC du/P+D SME/NPP #[et/CC]# empruntent/V des/DET francs/NC pour/P les/CLO vendre/VINF à_terme/ADV ,/PONCT #[espérant/VPR]# empocher/VINF les/DET gains/NC une/DET fois/NC la/DET monnaie/NC française/ADJ dévaluée/VPP ./PONCT
+## /root Entré/VPP en/P octobre/NC au/P+D règlement/NC mensuel/ADJ ,/PONCT Fougerolle/NPP ,/PONCT qui/PROREL a/V lancé/VPP en/P début/NC d'/P année/NC une/DET offre/NC publique/ADJ d'/P achat/NC sur/P la/DET Société_auxiliaire_d'entreprise/NPP (/PONCT SAE/NPP )/PONCT #[mais/CC]# n'/ADV a/V pu/VPP achever/VINF la/DET fusion/NC prévue/VPP des/P+D deux/ADJ sociétés/NC en_raison_du/P+D blocage/NC de/P la/DET Générale/NC des/P+D eaux/NC ,/PONCT son/DET actionnaire/NC à/P 33,5/DET %/NC ,/PONCT #[termine/V]# l'/DET année/NC aux_environs_de/P 600/DET francs/NC ./PONCT
+## /root Les/DET migrants/NC économiques/ADJ qui/PROREL se/CLR servent/V de/P ce/DET système/NC #[et/CC]# qui/PROREL l'/CLO engorgent/V #[seront/V]# ,/PONCT vous/CLS le/CLO savez/V ,/PONCT dissuadés/VPP de/P venir/VINF ;/PONCT mais/CC surtout/ADV les/DET procédures/NC seront/V accélérées/VPP -LRB-...-RRB-/PONCT ./PONCT
+## detect helper verb:  /root De_même/ADV pour/P la/DET métallurgie/NC ,/PONCT qui/PROREL s'/CLR était/V imprudemment/ADV aventurée/VPP sur/P ce/DET terrain/NC #[et/CC]# #[a/V]# ,/PONCT depuis/ADV ,/PONCT choisi/VPP une/DET voie/NC plus/ADV indolore/ADJ ./PONCT
+## VPR not content verb:  /root Ces/DET fonds/NC ont/V la/DET particularité/NC d'/P être/VINF très/ADV liquides/ADJ #[et/CC]# ,/PONCT n'/ADV #[ayant/VPR]# pas/ADV de/DET contrainte/NC de/P gestion/NC de/P titres/NC à_long_terme/ADJ (/PONCT contrairement/ADV ,/PONCT par_exemple/ADV ,/PONCT aux/P+D fonds/NC de/P pension/NC )/PONCT ,/PONCT ils/CLS prennent/V des/DET positions/NC très/ADV spéculatives/ADJ ./PONCT
+## Double verb after coord:  /root Entré/VPP en/P octobre/NC au/P+D règlement/NC mensuel/ADJ ,/PONCT Fougerolle/NPP ,/PONCT qui/PROREL a/V lancé/VPP en/P début/NC d'/P année/NC une/DET offre/NC publique/ADJ d'/P achat/NC sur/P la/DET Société_auxiliaire_d'entreprise/NPP (/PONCT SAE/NPP )/PONCT #[mais/CC]# n'/ADV a/V pu/VPP achever/VINF la/DET fusion/NC prévue/VPP des/P+D deux/ADJ sociétés/NC en_raison_du/P+D blocage/NC de/P la/DET Générale/NC des/P+D eaux/NC ,/PONCT son/DET actionnaire/NC à/P 33,5/DET %/NC ,/PONCT #[termine/V]# l'/DET année/NC aux_environs_de/P 600/DET francs/NC ./PONCT
+##      /root Les/DET migrants/NC économiques/ADJ qui/PROREL se/CLR servent/V de/P ce/DET système/NC #[et/CC]# qui/PROREL l'/CLO engorgent/V #[seront/V]# ,/PONCT vous/CLS le/CLO savez/V ,/PONCT dissuadés/VPP de/P venir/VINF ;/PONCT mais/CC surtout/ADV les/DET procédures/NC seront/V accélérées/VPP (...)/PONCT ./PONCT
+## if starts with ADVWH, it's the verb we conjunct with probably
+
+DepCoordVerbWithContentVerb	OnlyTrue(DepLabel(Stack[0])=="coord" & IsConjugatedVerb(Head(Stack[0])) & PosTagIn(Buffer[0],"V","VS")) && Index(ContentVerb(Buffer[0]))==Index(Buffer[0])
+
+## ROOT/ROOT Sous/P le/DET titre/NC "/PONCT secousses/NC "/PONCT ,/PONCT le/DET #[Bilan/NC/0]# économique/ADJ et/CC #[social/ADJ]# 1991/NC (/PONCT numéro/NC spécial/ADJ des/P+D dossiers/NC et/CC documents/NC du/P+D Monde/NPP )/PONCT est/V mis/VPP en_vente/ADV mercredi/NC 15/ADJ janvier/NC ./PONCT
+## ADJ+ADJ vs NC+ADJ - need to catch on reduce!!!!
+## P(+D) + P+D - more likely than P(+VINF)+P+D
+
+# If dep_coord is P, and S0 is a P but not the same P, check if the same P is somewhere on the stack
+## Why? /root dans/P son/DET bureau/NC ,/PONCT petit/ADJ et/CC banal/ADJ du/P+D siège/NC de/P Littlehampton/NPP (/PONCT Sussex/NPP )/PONCT ,/PONCT décoré/VPP de/P magnifiques/ADJ photos/NC d'/P Indiens/NPP du/P+D Brésil/NPP et/CC de/P posters/NC #[contre/P]# la/DET vivisection/NC #[ou/CC]# pour/P le/DET recyclage/NC ,/PONCT un/DET quidam/NC non/ADV averti/ADJ peut/V aisément/ADV confondre/VINF le/DET président/NC de/P The_Body_Shop_International/NPP avec/P un/DET militant/NC de/P Greenpeace/NPP ou/CC un/DET promoteur/NC de/P concerts/NC rock/NC ./PONCT
+#### Remove the first conjunct in ni...ni and soit...soit and ou... ou 
+StackHasSamePrep(X,Y)	OnlyTrue(PosTag(Buffer[Y])=="CC" & PosTagIn(DepCoordGuess(Buffer[Y]),"P","P+D") & PosTagIn(Stack[X],"P","P+D") & Not(SamePreps(Stack[X],DepCoordGuess(Buffer[Y]))) & Exists(StackSearch(X+1, SamePreps(Placeholder,DepCoordGuess(Buffer[Y])))))
+StackHasSamePrepS0B0	StackHasSamePrep(0,0)
+StackHasSamePrepCommaB0	OnlyTrue(PosTag(Buffer[0])=="PONCT" & StackHasSamePrep(0,1))
+
+# If dep_coord is P, and S0 is not a P, check if there is a P somewhere on the stack
+StackHasPrepS0NotPrep(X,Y)	OnlyTrue(PosTag(Buffer[Y])=="CC" & PosTagIn(DepCoordGuess(Buffer[Y]),"P","P+D") & Not(PosTagIn(Stack[X],"P","P+D")) & Exists(StackSearch(X+1,PosTagIn(Placeholder,"P","P+D"))))
+StackHasPrepS0NotPrepS0B0	StackHasPrepS0NotPrep(0,0)
+StackHasPrepS0NotPrepCommaB0	OnlyTrue(PosTag(Buffer[0])=="PONCT" & StackHasPrepS0NotPrep(0,1))
+
+# S0 is not the same postag as the dep_coord, but S1 is
+## VPP/V:  /root Les/DET touristes/NC français/ADJ qui/PROREL se/CLR rendent/V aux/P+D Etats-Unis/NPP en_ce_moment/ADV ne/ADV peuvent/V que/ADV se/CLR réjouir/VINF :/PONCT à_moins_de/P 5,10/DET francs/NC ,/PONCT le/DET dollar/NC est/V #[retombé/VPP]# à/P son/DET plus/ADV bas/ADJ cours/NC depuis/P six/DET mois/NC #[et/CC]# se/CLR rapproche/V même/ADV des/P+D 4,95/ADJ francs/NC qu'/PROREL il/CLS toucha/V vers/P le/DET début/NC de/P 1991/NC ,/PONCT peu/ADV avant/P le/DET déclenchement/NC de/P la/DET guerre/NC du/P+D Golfe/NPP ./PONCT
+## allow NPP/NC and PRO/NC, or at least separate them into another feature.
+## allow ADJ et P ??? /root Les/DET classements/NC de/P ce/DET type/NC sont/V bannis/VPP au/P+D profit/NC d'/P une/DET #[hiérarchie/NC]# plus/ADV progressive/ADJ #[et/CC]# sans/P frontières/NC fermées/ADJ ./PONCT
+## Why is this here? (correct coord, but thinks its diff postags):  /root La/DET cession/NC d'/P Adidas/NPP à/P Pentland/NPP ne/ADV sera/V toutefois/ADV effective/ADJ qu'/ADV après/P un/DET audit/NC #[financier/ADJ]# #[et/CC]# juridique/ADJ dont/PROREL les/DET conclusions/NC seront/V connues/VPP d'ici/P trois/DET mois/NC ./PONCT
+PS0NotPDepAndPS1IsPDep(X,Y)	OnlyTrue(PosTag(Buffer[Y])=="CC" & PosTag(Stack[X])!=PosTag(DepCoordGuess(Buffer[Y])) & PosTag(Stack[X+1])==PosTag(DepCoordGuess(Buffer[Y])))
+PS0NotPDepAndPS1IsPDepS0B0	PS0NotPDepAndPS1IsPDep(0,0)
+PS0NotPDepAndPS1IsPDepCommaB0	OnlyTrue(PosTag(Buffer[0])=="PONCT" & PS0NotPDepAndPS1IsPDep(0,1))
+
+# S0 is not the same postag as the dep_coord, but such a one exists on the stack
+S0NotPAndPosTagOnStack(X,Y)	OnlyTrue(PosTag(Buffer[Y])=="CC" & PosTag(Stack[X])!=PosTag(DepCoordGuess(Buffer[Y])) & Exists(StackSearch(X+1, PosTag(Placeholder)==PosTag(DepCoordGuess(Buffer[Y])))))
+S0NotPAndPosTagOnStackS0B0	S0NotPAndPosTagOnStack(0,0)
+S0NotPAndPosTagOnStackCommaB0	OnlyTrue(PosTag(Buffer[0])=="PONCT" & S0NotPAndPosTagOnStack(0,1))
+
+# S0 is the same postag as the dep_coord, and nothing else on the stack is the same postag
+### But differentiate VPP conj from VPP not conj!
+S0IsPAndPosTagNotOnStack(X,Y)	OnlyTrue(PosTag(Buffer[Y])=="CC" & PosTag(Stack[X])==PosTag(DepCoordGuess(Buffer[Y])) & IsNull(StackSearch(X+1, PosTag(Placeholder)==PosTag(DepCoordGuess(Buffer[Y])))))
+S0IsPAndPosTagNotOnStackS0B0	S0IsPAndPosTagNotOnStack(0,0)
+S0IsPAndPosTagNotOnStackCommaB0	OnlyTrue(PosTag(Buffer[0])=="PONCT" & S0IsPAndPosTagNotOnStack(0,1))
+
+### Need to work on parallelism for 3 conjuncts: John, Fred and Jim
+#ThreeConjunctComma	OnlyTrue(WordForm(Buffer[0])=="," & Exists(TokenSearch(PosTag=="CC",Index(Buffer[0])+1,1000)
+
+### Need to work on parallelism for 3 conjuncts: John, Fred and Jim
+NextCC(X)	TokenSearch(PosTag=="CC",Index(X)+2,Index(X)+20)
+#ThreeConjunctCommaNPP	OnlyTrue(PosTagIn(Stack[0],"NPP") & PosTagIn(Buffer[0],"NPP") & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"NPP") & IsNull(TokenSearch(Not(PosTagIn("DET","ADV","ADJ","NPP")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)))
+ThreeConjunctCommaNPP	OnlyTrue(PosTagIn(Stack[0],"NPP") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"NPP") & IsNull(TokenSearch(Not(PosTagIn("DET","ADV","ADJ","NPP")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(PosTagIn("NPP"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaNC	OnlyTrue(PosTagIn(Stack[0],"NC") & PosTagIn(Buffer[0],"NC") & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"NC") & IsNull(TokenSearch(Not(PosTagIn("DET","ADV","ADJ","NC")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)))
+ThreeConjunctCommaNC	OnlyTrue(PosTagIn(Stack[0],"NC") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"NC") & IsNull(TokenSearch(Not(PosTagIn("DET","ADV","ADJ","NC")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(PosTagIn("NC"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaNoun	OnlyTrue(PosTagIn(Stack[0],"NC","NPP") & PosTagIn(Buffer[0],"NC","NPP") & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"NC","NPP") & IsNull(TokenSearch(Not(PosTagIn("DET","ADV","ADJ","NC","NPP")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)))
+ThreeConjunctCommaNoun	OnlyTrue(PosTagIn(Stack[0],"NC","NPP") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"NC","NPP") & IsNull(TokenSearch(Not(PosTagIn("DET","ADV","ADJ","NC","NPP")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(PosTagIn("NC","NPP"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaADJ	OnlyTrue(PosTagIn(Stack[0],"ADJ") & PosTagIn(Buffer[0],"ADJ") & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"ADJ") & IsNull(TokenSearch(Not(PosTagIn("ADV","ADJ")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)))
+ThreeConjunctCommaADJ	OnlyTrue(PosTagIn(Stack[0],"ADJ") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"ADJ") & IsNull(TokenSearch(Not(PosTagIn("ADV","ADJ")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(PosTagIn("ADJ"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaADV	OnlyTrue(PosTagIn(Stack[0],"ADV") & PosTagIn(Buffer[0],"ADV") & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"ADV") & IsNull(TokenSearch(Not(PosTagIn("ADV")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)))
+ThreeConjunctCommaADV	OnlyTrue(PosTagIn(Stack[0],"ADV") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"ADV") & IsNull(TokenSearch(Not(PosTagIn("ADV")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(PosTagIn("ADV"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaPDET	OnlyTrue((PosTag(Stack[0])=="P+D"|(PosTag(Stack[0])=="P" & PosTag(Offset(Stack[0],1))=="DET")) & (PosTag(Buffer[0])=="P+D"|(PosTag(Buffer[0])=="P" & PosTag(Offset(Buffer[0],1))=="DET")) & Exists(NextCC(Buffer[0])) & (PosTag(DepCoordGuess(NextCC(Buffer[0])))=="P+D"|(PosTag(DepCoordGuess(NextCC(Buffer[0])))=="P" & PosTag(Offset(DepCoordGuess(NextCC(Buffer[0])),1))=="DET")) & IsNull(TokenSearch(Not(PosTagIn("ADV","P","P+D","ADJ","NC","NPP","DET")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)) & SamePreps(Stack[0],DepCoordGuess(NextCC(Buffer[0]))) & SamePreps(Stack[0], Buffer[0]))
+ThreeConjunctCommaPDET	OnlyTrue((PosTag(Stack[0])=="P+D"|(PosTag(Stack[0])=="P" & PosTag(Offset(Stack[0],1))=="DET")) & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & (PosTag(DepCoordGuess(NextCC(Buffer[0])))=="P+D"|(PosTag(DepCoordGuess(NextCC(Buffer[0])))=="P" & PosTag(Offset(DepCoordGuess(NextCC(Buffer[0])),1))=="DET")) & IsNull(TokenSearch(Not(PosTagIn("ADV","P","P+D","ADJ","NC","NPP","DET")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch((PosTag=="P+D"|(PosTag=="P" & PosTag(Offset(Placeholder,1))=="DET")), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)) & SamePreps(Stack[0],DepCoordGuess(NextCC(Buffer[0]))) & SamePreps(Stack[0], TokenSearch(PosTagIn("P","P+D"), Not(PosTagIn("ADV")), Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaPNoDET	OnlyTrue((PosTag(Stack[0])=="P" & PosTag(Offset(Stack[0],1))!="DET") & (PosTag(Buffer[0])=="P" & PosTag(Offset(Buffer[0],1))!="DET") & Exists(NextCC(Buffer[0])) & (PosTag(DepCoordGuess(NextCC(Buffer[0])))=="P" & PosTag(Offset(DepCoordGuess(NextCC(Buffer[0])),1))!="DET") & IsNull(TokenSearch(Not(PosTagIn("ADV","P","P+D","ADJ","NC","NPP")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)) & SamePreps(Stack[0],DepCoordGuess(NextCC(Buffer[0]))) & SamePreps(Stack[0], Buffer[0]))
+ThreeConjunctCommaPNoDET	OnlyTrue((PosTag(Stack[0])=="P" & PosTag(Offset(Stack[0],1))!="DET") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & (PosTag(DepCoordGuess(NextCC(Buffer[0])))=="P" & PosTag(Offset(DepCoordGuess(NextCC(Buffer[0])),1))!="DET") & IsNull(TokenSearch(Not(PosTagIn("ADV","P","ADJ","NC","NPP")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch((PosTag=="P" & PosTag(Offset(Placeholder,1))!="DET"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)) & SamePreps(Stack[0],DepCoordGuess(NextCC(Buffer[0]))) & SamePreps(Stack[0], TokenSearch(PosTagIn("P","P+D"), Not(PosTagIn("ADV")), Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaPrep	OnlyTrue(PosTagIn(Stack[0],"P","P+D") & PosTagIn(Buffer[0],"P","P+D")  & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"P","P+D") & IsNull(TokenSearch(Not(PosTagIn("P","P+D","DET","ADV","ADJ","NC")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)))
+ThreeConjunctCommaPrep	OnlyTrue(PosTagIn(Stack[0],"P","P+D") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"P","P+D") & IsNull(TokenSearch(Not(PosTagIn("P","P+D","DET","ADV","ADJ","NC")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(PosTagIn("P","P+D"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))
+#ThreeConjunctCommaSamePrep	OnlyTrue(PosTagIn(Stack[0],"P","P+D") & PosTagIn(Buffer[0],"P","P+D")  & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"P","P+D") & IsNull(TokenSearch(Not(PosTagIn("P","P+D","DET","ADV","ADJ","NC")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(WordForm==",", Index(Stack[0])+1, Index(Buffer[0])-1)) & SamePreps(Stack[0],DepCoordGuess(NextCC(Buffer[0])))  & SamePreps(Stack[0],DepCoordGuess(NextCC(Buffer[0]))) & SamePreps(Stack[0], Buffer[0]))
+ThreeConjunctCommaSamePrep	OnlyTrue(PosTagIn(Stack[0],"P","P+D") & WordForm(Buffer[0])=="," & Exists(NextCC(Buffer[0])) & PosTagIn(DepCoordGuess(NextCC(Buffer[0])),"P","P+D") & IsNull(TokenSearch(Not(PosTagIn("P","P+D","DET","ADV","ADJ","NC")|WordForm==","), Index(Stack[0])+1, Index(NextCC(Buffer[0]))-1)) & Exists(TokenSearch(PosTagIn("P","P+D"), WordForm==",", Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)) & SamePreps(Stack[0],DepCoordGuess(NextCC(Buffer[0]))) & SamePreps(Stack[0], TokenSearch(PosTagIn("P","P+D"), Not(PosTagIn("ADV")), Index(Buffer[0])+1, Index(NextCC(Buffer[0]))-1)))

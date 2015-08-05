@@ -303,6 +303,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 		try {
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
 			zis.getNextEntry();
+			@SuppressWarnings("resource")
 			ObjectInputStream in = new ObjectInputStream(zis);
 			CorpusStatistics stats = null;
 			try {

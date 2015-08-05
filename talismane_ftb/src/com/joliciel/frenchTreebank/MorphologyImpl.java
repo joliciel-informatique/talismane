@@ -19,10 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 class MorphologyImpl extends EntityImpl implements MorphologyInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -2127820362082503249L;
+
 	String code = "";
     String description = "";
     TreebankServiceInternal treebankServiceInternal;

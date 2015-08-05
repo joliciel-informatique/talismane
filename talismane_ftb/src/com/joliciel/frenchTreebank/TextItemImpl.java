@@ -19,10 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 class TextItemImpl extends EntityImpl implements TextItemInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3891870004620744011L;
+
 	int fileId;
     TreebankFile file;
     String externalId;

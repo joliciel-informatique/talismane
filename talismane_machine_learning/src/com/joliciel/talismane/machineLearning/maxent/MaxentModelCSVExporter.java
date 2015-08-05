@@ -96,6 +96,7 @@ public class MaxentModelCSVExporter {
 				if (!excludeItem.startsWith("#"))
 					excludeList.add(excludeItem);
 			}
+			excludeListScanner.close();
 		}
 		
 		try {

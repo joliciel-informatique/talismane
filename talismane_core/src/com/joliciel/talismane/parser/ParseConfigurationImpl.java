@@ -47,10 +47,6 @@ import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
 
 final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	private static final Log LOG = LogFactory.getLog(ParseConfigurationImpl.class);
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	
 	private PosTagSequence posTagSequence;
 	private double score;
