@@ -14,7 +14,6 @@
 		<property name="dist" value="../dist"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
-		<property name="examples" value="examples"/>
 		<property name="classes" location="${build}/classes" />
 		<property name="doc" location="${build}/doc" />
 		<path id="classpath">
@@ -74,9 +73,6 @@
 	    		<attribute name="Class-Path" value="${jar.classpath}"/>
 	    	</manifest>
 		</jar>
-		<copy todir="${dist}/examples">
-			<fileset dir="${examples}" />
-		</copy>
 	</target>
 	
 	<target name="one-jar" depends="jar">
