@@ -1,0 +1,119 @@
+# Functions for use below
+IfThenElseNull(X,Y)	NullIf(Not(X),Y)
+IsVerb(X)	PosTag(X)=="V" | PosTag(X)=="VS" | PosTag(X)=="VIMP" | PosTag(X)=="VPP" | PosTag(X)=="VINF" | PosTag(X)=="VPR"
+LemmaOrWord(X)	IfThenElse(IsNull(Lemma(X)), LexicalForm(X), Lemma(X))
+Lexicalised(X)	IfThenElse(ClosedClass(X), LemmaOrWord(X), PosTag(X))
+
+# single words
+S0p	PosTag(Stack[0])
+S0w	LemmaOrWord(Stack[0])
+S0wp	S0w || S0p
+S0d	PairGroup	DependencyLabel(Stack[0])
+B0w	LemmaOrWord(Buffer[0])
+B0p	PosTag(Buffer[0])
+B0wp	B0w || B0p
+B1w	PairGroup	LemmaOrWord(Buffer[1])
+B1p	PairGroup	PosTag(Buffer[1])
+B1wp	PairGroup	B1w || B1p
+S1w()	PairGroup	LemmaOrWord(Stack[1])
+S1p()	PairGroup	PosTag(Stack[1])
+S1wp()	PairGroup	S1w || S1p
+
+# for use by combo features only
+S0g()	Gender(Stack[0])
+S0n()	Number(Stack[0])
+S0t()	Tense(Stack[0])
+S0r()	Person(Stack[0])
+S0m()	Morphology(Stack[0])
+B0g()	Gender(Buffer[0])
+B0n()	Number(Buffer[0])
+B0t()	Tense(Buffer[0])
+B0r()	Person(Buffer[0])
+B0m()	Morphology(Buffer[0])
+B2w()	LemmaOrWord(Buffer[2])
+B2p()	PosTag(Buffer[2])
+B2wp()	B2w || B2p
+B3p()	PosTag(Buffer[3])
+S2w()	LemmaOrWord(Stack[2])
+S2p()	PosTag(Stack[2])
+S2wp()	S2w || S2p
+
+# S0/B0 combos
+S0pB0p	S0p || B0p
+S0wB0w	S0w || B0w
+S0wpB0p	S0wp || B0p
+S0pB0wp	S0p || B0wp
+S0wpB0wp	S0wp || B0wp
+S0gB0g	PairGroup	S0g || B0g
+S0nB0n	PairGroup	S0n || B0n
+S0tB0t	PairGroup	NullIf(IsNull(S0t) & IsNull(B0t), ConcatWithNulls(S0t,B0t))
+S0rB0r	PairGroup	NullIf(IsNull(S0r) & IsNull(B0r), ConcatWithNulls(S0r,B0r))
+S0mB0m	PairGroup	ConcatWithNulls(Morphology(Stack[0]),Morphology(Buffer[0]))
+
+# sequentially to the right and left
+S0b1p	PairGroup	PosTag(Offset(Stack[0],-1))
+S0f1p	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,PosTag(Offset(Stack[0],1)))
+B0b1p	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,PosTag(Offset(Buffer[0],-1)))
+S0b1w	PairGroup	LemmaOrWord(Offset(Stack[0],-1))
+S0f1w	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,LemmaOrWord(Offset(Stack[0],1)))
+B0b1w	PairGroup	NullIf(Distance(Stack[0],Buffer[0])<=1,LemmaOrWord(Offset(Buffer[0],-1)))
+
+# sequentially to the right and left, two tokens
+S0f2p()	NullIf(Distance(Stack[0],Buffer[0])<=2,PosTag(Offset(Stack[0],2)))
+S0b2p()	PosTag(Offset(Stack[0],-2))
+B0b2p()	NullIf(Distance(Stack[0],Buffer[0])<=2,PosTag(Offset(Buffer[0],-2)))
+S0b1pf1p	PairGroup	S0b1p || S0f1p
+S0b2pb1p	PairGroup	S0b2p || S0b1p
+S0f1pf2p	PairGroup	S0f1p || S0f2p
+B0b2pb1p	PairGroup	B0b2p || B0b1p
+
+# head, left-most dep, right-most dep
+S0Hw	PairGroup	LemmaOrWord(Head(Stack[0]))
+S0Hp	PairGroup	PosTag(Head(Stack[0]))
+S0Hpw	PairGroup	S0Hp || S0Hw
+S0Ht	PairGroup	Tense(Head(Stack[0]))
+S0Hd	PairGroup	DependencyLabel(Head(Stack[0]))
+S0Lw	PairGroup	LemmaOrWord(LDep(Stack[0]))
+S0Lp	PairGroup	PosTag(LDep(Stack[0]))
+S0Lpw	PairGroup	S0Lp || S0Lw
+S0Ld	PairGroup	DependencyLabel(LDep(Stack[0]))
+S0Rw	PairGroup	LemmaOrWord(RDep(Stack[0]))
+S0Rp	PairGroup	PosTag(RDep(Stack[0]))
+S0Rpw	PairGroup	S0Rp || S0Rw
+S0Rt	PairGroup	Tense(RDep(Stack[0]))
+S0Rd	PairGroup	DependencyLabel(RDep(Stack[0]))
+B0Lw	PairGroup	LemmaOrWord(LDep(Buffer[0]))
+B0Lp	PairGroup	PosTag(LDep(Buffer[0]))
+B0Lpw	PairGroup	B0Lp || B0Lw
+B0Lt	PairGroup	Tense(LDep(Buffer[0]))
+B0Ld	PairGroup	DependencyLabel(LDep(Buffer[0]))
+
+# further down the buffer
+B1pB2p	PairGroup	B1p || B2p
+B1wpB2p	PairGroup	B1wp || B2p
+B1wpB2wp	PairGroup	B1wp || B2wp
+B1pB2pB3p	PairGroup	B1p || B2p || B3p
+B1wpB2pB3p	PairGroup	B1wp || B2p || B3p
+B1wpB2wpB3p	PairGroup	B1wp || B2wp || B3p
+
+# deeper in the stack
+S1pS2p()	PairGroup	S1p || S2p
+S1wpS2p()	PairGroup	S1wp || S2p
+S1wpS2wp()	PairGroup	S1wp || S2wp
+S1pS2wp()	PairGroup	S1p || S2wp
+
+# buffer and stack combined
+S1pB1p()	PairGroup	S1p || B1p
+S1wpB1p()	PairGroup	S1wp || B1p
+S1wpB1wp()	PairGroup	S1wp || B1wp
+S1pB1wp()	PairGroup	S1p || B1wp
+
+DistanceString()	PairGroup	IfThenElse(Distance(Stack[0],Buffer[0])>6,"Long",ToString(Distance(Stack[0],Buffer[0])))
+ValencyS0()	PairGroup	ToString(Valency(Stack[0]))
+ValencyB0()	PairGroup	ToString(Valency(Buffer[0]))
+
+# Complete features above with info from the top-of-stack and top-of-buffer
+S0lexB0lex	IfThenElseNull(ClosedClass(Stack[0]) | ClosedClass(Buffer[0]), ConcatWithNulls(Lexicalised(Stack[0]),Lexicalised(Buffer[0])))
+PairGroup_P	S0pB0p || PairGroup()
+PairGroup_Lex	S0lexB0lex || PairGroup()
+

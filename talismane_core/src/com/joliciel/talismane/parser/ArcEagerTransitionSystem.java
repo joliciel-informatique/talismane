@@ -40,7 +40,6 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 class ArcEagerTransitionSystem extends AbstractTransitionSystem implements TransitionSystem {
-	private static final long serialVersionUID = 1L;
 	private static final Log LOG = LogFactory.getLog(ArcEagerTransitionSystem.class);
 	private transient Set<Transition> transitions = null;
 	

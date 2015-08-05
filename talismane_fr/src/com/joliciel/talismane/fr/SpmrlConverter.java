@@ -473,6 +473,8 @@ public class SpmrlConverter {
 						lines.add(conllLine);
 					}
 				}
+				scanner.close();
+				writer.close();
 				
 				Set<WeightedOutcome<String>> counts = new TreeSet<WeightedOutcome<String>>();
 				for (String posTags : compoundPatternCounts.keySet()) {

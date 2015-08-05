@@ -1,0 +1,1 @@
+%INDEX%\t%TOKEN%\t.*\t.*\t%POSTAG%\t.*\t.*\t.*\t%GOVERNOR%\t%LABEL%

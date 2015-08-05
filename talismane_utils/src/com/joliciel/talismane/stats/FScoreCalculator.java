@@ -616,6 +616,7 @@ public class FScoreCalculator<E> {
 								i++;
 							}
 							if (truePositivePos<0) {
+								scanner.close();
 								throw new JolicielException("Couldn't find true+ on first line");
 							}
 							firstLine = false;

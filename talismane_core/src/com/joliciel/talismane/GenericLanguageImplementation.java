@@ -356,6 +356,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 		    	if (key!=null) {
 			    	if (key.equals("transitionSystem")) { 
 						transitionSystem = this.getParserService().getArcEagerTransitionSystem();
+						@SuppressWarnings("resource")
 						Scanner scanner = new Scanner(zis, "UTF-8");
 						Set<String> dependencyLabels = new HashSet<String>();
 						while (scanner.hasNextLine()) {

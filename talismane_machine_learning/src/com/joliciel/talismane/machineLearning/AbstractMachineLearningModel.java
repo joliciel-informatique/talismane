@@ -173,7 +173,8 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 			}
     	} else if (ze.getName().endsWith("_descriptors.txt")) {
     		String key = ze.getName().substring(0, ze.getName().length() - "_descriptors.txt".length());
-    		Scanner scanner = new Scanner(zis, "UTF-8");
+    		@SuppressWarnings("resource")
+			Scanner scanner = new Scanner(zis, "UTF-8");
     		List<String> descriptorList = new ArrayList<String>();
     		while (scanner.hasNextLine()) {
     			String descriptor = scanner.nextLine();
@@ -202,7 +203,8 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 			}
 		} else if (ze.getName().equals("attributes.txt")) {
 			// for backwards compatibility, when attributes where always strings
-    		Scanner scanner = new Scanner(zis, "UTF-8");
+    		@SuppressWarnings("resource")
+			Scanner scanner = new Scanner(zis, "UTF-8");
     		while (scanner.hasNextLine()) {
     			String line = scanner.nextLine();
     			if (line.length()>0) {	

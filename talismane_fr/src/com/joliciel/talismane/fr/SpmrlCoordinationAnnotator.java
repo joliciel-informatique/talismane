@@ -401,7 +401,7 @@ public class SpmrlCoordinationAnnotator {
 			} // next sentence
 
 		} // next line
-		
+		refFileScanner.close();
 		writer.flush();
 		writer.close();
 	}

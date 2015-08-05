@@ -22,10 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 class SentenceImpl extends PhraseImpl implements SentenceInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1194544027034010469L;
+
 	static final Log LOG = LogFactory.getLog(SentenceImpl.class);
     private static final String SPLIT_COMPOUND_DUMMY_TEXT = "[[split]]";
     String sentenceNumber;

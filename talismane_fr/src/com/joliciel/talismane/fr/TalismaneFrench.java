@@ -154,6 +154,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 	  			List<String> descriptors = new ArrayList<String>();
 	  			while (scanner.hasNextLine())
 	  				descriptors.add(scanner.nextLine());
+	  			scanner.close();
 				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneFrench.getDefaultPosTagSet());
 				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper, keepCompoundPosTags);
 				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);
@@ -240,6 +241,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				dependencyLabels.add(dependencyLabel);
 			}
 		}
+		scanner.close();
 		transitionSystem.setDependencyLabels(dependencyLabels);
 		return transitionSystem;
 	}

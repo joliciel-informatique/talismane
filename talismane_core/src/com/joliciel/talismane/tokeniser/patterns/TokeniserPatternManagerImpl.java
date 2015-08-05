@@ -179,6 +179,10 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 						case IS_SEPARATOR_AFTER:
 							outcome = TokeniserOutcome.JOIN;
 							nextOutcome = TokeniserOutcome.SEPARATE;
+						case NOT_APPLICABLE:
+							break;
+						default:
+							break;
 						}
 						break;
 					}

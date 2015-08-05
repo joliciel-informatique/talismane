@@ -44,68 +44,69 @@ public class LinearSVMModelAnalyser {
 
 		File outFile = new File(outDir, baseName + ".features.csv");
 		Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile, false),"UTF8"));
-		
-		MachineLearningServiceLocator locator = MachineLearningServiceLocator.getInstance();
-		MachineLearningService machineLearningService = locator.getMachineLearningService();
-		ZipInputStream zis = new ZipInputStream(new FileInputStream(modelFile));
-		
-		ClassificationModel classificationModel = machineLearningService.getClassificationModel(zis);
-		if (classificationModel instanceof LinearSVMOneVsRestModel) {
-			LinearSVMOneVsRestModel linearSVMModel = (LinearSVMOneVsRestModel) classificationModel;
-			int outcomeIndex = 0;
+		try {
+			MachineLearningServiceLocator locator = MachineLearningServiceLocator.getInstance();
+			MachineLearningService machineLearningService = locator.getMachineLearningService();
+			ZipInputStream zis = new ZipInputStream(new FileInputStream(modelFile));
 			
-			final TIntObjectMap<String> featureNameMap = new TIntObjectHashMap<String>();
-			linearSVMModel.getFeatureIndexMap().forEachEntry(new TObjectIntProcedure<String>() {
-				@Override
-				public boolean execute(String name, int index) {
-					featureNameMap.put(index,name);
-					return true;
-				}
-			});
-			
-			for (Model model : linearSVMModel.getModels()) {
-				String outcome = linearSVMModel.getOutcomes().get(outcomeIndex++);
-				LOG.info("Analysing model for " + outcome);
-				int myLabel = 0;
-				for (int j=0; j<model.getLabels().length; j++)
-					if (model.getLabels()[j]==1) myLabel=j;
+			ClassificationModel classificationModel = machineLearningService.getClassificationModel(zis);
+			if (classificationModel instanceof LinearSVMOneVsRestModel) {
+				LinearSVMOneVsRestModel linearSVMModel = (LinearSVMOneVsRestModel) classificationModel;
+				int outcomeIndex = 0;
 				
-				boolean inverseWeights = false;
-				if (myLabel!=0)
-					inverseWeights = true;
+				final TIntObjectMap<String> featureNameMap = new TIntObjectHashMap<String>();
+				linearSVMModel.getFeatureIndexMap().forEachEntry(new TObjectIntProcedure<String>() {
+					@Override
+					public boolean execute(String name, int index) {
+						featureNameMap.put(index,name);
+						return true;
+					}
+				});
 				
-				int i = 0;
-				BoundedTreeSet<WeightedOutcome<Integer>> bestFeatures = new BoundedTreeSet<WeightedOutcome<Integer>>(featureCount);
-				BoundedTreeSet<WeightedOutcome<Integer>> worstFeatures = new BoundedTreeSet<WeightedOutcome<Integer>>(featureCount, new WeightedOutcomeAscendingComparator<Integer>());
-				for (int featureIndex=0; featureIndex<model.getNrFeature(); featureIndex++) {
-					double featureWeight = model.getFeatureWeights()[i++];
-					if (inverseWeights)
-						featureWeight = 0-featureWeight;
+				for (Model model : linearSVMModel.getModels()) {
+					String outcome = linearSVMModel.getOutcomes().get(outcomeIndex++);
+					LOG.info("Analysing model for " + outcome);
+					int myLabel = 0;
+					for (int j=0; j<model.getLabels().length; j++)
+						if (model.getLabels()[j]==1) myLabel=j;
 					
-					WeightedOutcome<Integer> featureAndWeight = new WeightedOutcome<Integer>(featureIndex+1, featureWeight);
-					bestFeatures.add(featureAndWeight);
-					worstFeatures.add(featureAndWeight);
+					boolean inverseWeights = false;
+					if (myLabel!=0)
+						inverseWeights = true;
+					
+					int i = 0;
+					BoundedTreeSet<WeightedOutcome<Integer>> bestFeatures = new BoundedTreeSet<WeightedOutcome<Integer>>(featureCount);
+					BoundedTreeSet<WeightedOutcome<Integer>> worstFeatures = new BoundedTreeSet<WeightedOutcome<Integer>>(featureCount, new WeightedOutcomeAscendingComparator<Integer>());
+					for (int featureIndex=0; featureIndex<model.getNrFeature(); featureIndex++) {
+						double featureWeight = model.getFeatureWeights()[i++];
+						if (inverseWeights)
+							featureWeight = 0-featureWeight;
+						
+						WeightedOutcome<Integer> featureAndWeight = new WeightedOutcome<Integer>(featureIndex+1, featureWeight);
+						bestFeatures.add(featureAndWeight);
+						worstFeatures.add(featureAndWeight);
+					}
+					
+					
+					List<WeightedOutcome<Integer>> worstFeatureList = new ArrayList<WeightedOutcome<Integer>>(worstFeatures);
+					
+					writer.append(CSV.format("####Outcome") + CSV.format(outcome) + "\n");
+					i=0;
+					for (WeightedOutcome<Integer> goodFeature : bestFeatures) {
+						String goodFeatureName = featureNameMap.get(goodFeature.getOutcome());
+						WeightedOutcome<Integer> badFeature = worstFeatureList.get(i++);
+						String badFeatureName = featureNameMap.get(badFeature.getOutcome());
+						writer.append(CSV.format(goodFeatureName) + CSV.format(goodFeature.getWeight()) + CSV.format(badFeatureName) + CSV.format(badFeature.getWeight()) + "\n");
+					}
+					writer.append("\n");
+					writer.flush();
 				}
-				
-				
-				List<WeightedOutcome<Integer>> worstFeatureList = new ArrayList<WeightedOutcome<Integer>>(worstFeatures);
-				
-				writer.append(CSV.format("####Outcome") + CSV.format(outcome) + "\n");
-				i=0;
-				for (WeightedOutcome<Integer> goodFeature : bestFeatures) {
-					String goodFeatureName = featureNameMap.get(goodFeature.getOutcome());
-					WeightedOutcome<Integer> badFeature = worstFeatureList.get(i++);
-					String badFeatureName = featureNameMap.get(badFeature.getOutcome());
-					writer.append(CSV.format(goodFeatureName) + CSV.format(goodFeature.getWeight()) + CSV.format(badFeatureName) + CSV.format(badFeature.getWeight()) + "\n");
-				}
-				writer.append("\n");
-				writer.flush();
+			} else {
+				throw new RuntimeException("Unsupported model type: " + classificationModel.getClass().getSimpleName());
 			}
+		} finally {
 			writer.close();
-		} else {
-			throw new RuntimeException("Unsupported model type: " + classificationModel.getClass().getSimpleName());
 		}
-
 	}
 
 	public int getFeatureCount() {

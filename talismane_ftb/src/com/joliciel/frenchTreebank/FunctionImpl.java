@@ -19,10 +19,7 @@
 package com.joliciel.frenchTreebank;
 
 class FunctionImpl extends EntityImpl implements FunctionInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 826685523041823095L;
+
 	String code = "";
     String description = "";
     TreebankServiceInternal treebankServiceInternal;

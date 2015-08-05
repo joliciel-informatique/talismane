@@ -22,10 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 class TreebankFileImpl extends EntityImpl implements TreebankFileInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -5918812007515159506L;
+
 	String fileName;
     TreebankServiceInternal treebankServiceInternal;
  

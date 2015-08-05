@@ -43,6 +43,7 @@ public class CSVFile {
 				List<String> cells = formatter.getCSVCells(line);
 				cellMatrix.add(cells);
 			}
+			scanner.close();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

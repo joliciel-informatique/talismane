@@ -23,10 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 class PhraseUnitImpl extends EntityImpl implements PhraseUnitInternal {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -2977379216086141500L;
+
 	int wordId;
     Word word;
     int positionInSentence;

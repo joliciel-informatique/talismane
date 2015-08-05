@@ -155,6 +155,7 @@ class ParsingConstrainerImpl implements ParsingConstrainer {
 		try {
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
 			zis.getNextEntry();
+			@SuppressWarnings("resource")
 			ObjectInputStream in = new ObjectInputStream(zis);
 			ParsingConstrainer parsingConstrainer = null;
 			try {

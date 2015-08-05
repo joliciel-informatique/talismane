@@ -82,6 +82,7 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 			if (cutoff>1) {
 				params.initialiseCounts();
 				File originalEventFile = eventFile;
+				@SuppressWarnings("resource")
 				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(eventFile), "UTF-8")));
 
 				while (scanner.hasNextLine()) {
@@ -177,6 +178,7 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 						totalErrors++;
 					} // correct outcome?
 				} // next event
+				scanner.close();
 				
 				// Add feature weights for this iteration
 				boolean addAverage = true;
