@@ -4,6 +4,7 @@
     
 	<target name="init" description="Initializes properties that are used by other targets.">
 		<property name="dist" value="dist"/>
+		<property name="examples" value="examples"/>
 	</target>
 	
 	<target name="clean" depends="init">
@@ -61,5 +62,8 @@
 				<include name="talismane_term_viewer/build.xml"/>
 			</fileset>
 		</subant>
+		<copy todir="${dist}/examples">
+			<fileset dir="${examples}" />
+		</copy>
 	</target>
 </project>
