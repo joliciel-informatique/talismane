@@ -23,9 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.joliciel.frenchTreebank.util.LogUtils;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.fr.ftb.util.LogUtils;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
