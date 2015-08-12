@@ -5,9 +5,19 @@
 	<target name="init" description="Initializes properties that are used by other targets.">
 		<property name="dist" value="dist"/>
 		<property name="examples" value="examples"/>
+		<property name="build" value="build"/>
+		<property name="doc" value="${build}/doc"/>
+		<property name="src" value="${build}/src"/>
+		<tstamp>
+		  <format property="YEAR" pattern="yyyy" locale="en,UK"/>
+		</tstamp>
+		<mkdir dir="${build}" />
+		<mkdir dir="${doc}" />
+		<mkdir dir="${src}" />
 	</target>
 	
 	<target name="clean" depends="init">
+		<delete dir="${build}"/>
 		<delete dir="${dist}"/>
 		<subant target="clean">
 			<fileset dir=".">
@@ -65,5 +75,37 @@
 		<copy todir="${dist}/examples">
 			<fileset dir="${examples}" />
 		</copy>
+	</target>
+		<target name="javadoc" depends="init">
+		<delete dir="${doc}"/>
+		<delete dir="${src}"/>
+		<mkdir dir="${src}"/>
+		<mkdir dir="${doc}"/>
+		<copy todir="${src}">
+			<fileset dir="talismane_core/src/" />
+			<fileset dir="talismane_en/src/" />
+			<fileset dir="talismane_extensions/src/" />
+			<fileset dir="talismane_fr/src/" />
+			<fileset dir="talismane_ftb/src/" />
+			<fileset dir="talismane_machine_learning/src/" />
+			<fileset dir="talismane_term_extractor/src/" />
+			<fileset dir="talismane_term_viewer/src/" />
+			<fileset dir="talismane_utils/src/" />
+		</copy>
+	  <javadoc packagenames="com.joliciel.*"
+				sourcepath="${src}"
+				defaultexcludes="yes"
+				destdir="${doc}"
+				author="true"
+				version="true"
+				encoding="UTF-8"
+				docencoding="UTF-8"
+				charset="UTF-8"
+				use="true"
+				windowtitle="Talismane v${talismane.version} API">
+	    <doctitle><![CDATA[<h1>Talismane v${talismane.version} API</h1>]]></doctitle>
+	    <bottom><![CDATA[<i>Copyright &#169; ${YEAR} Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
+	    <tag name="todo" scope="all" description="To do:"/>
+	  </javadoc>
 	</target>
 </project>

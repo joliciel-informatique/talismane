@@ -31,12 +31,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joliciel.frenchTreebank.TreebankReader;
-import com.joliciel.frenchTreebank.TreebankServiceLocator;
-import com.joliciel.frenchTreebank.export.FtbPosTagMapper;
-import com.joliciel.frenchTreebank.export.TreebankExportService;
-import com.joliciel.frenchTreebank.upload.TreebankUploadService;
-
 import com.joliciel.talismane.GenericLanguageImplementation;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
@@ -45,6 +39,11 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.extensions.Extensions;
+import com.joliciel.talismane.fr.ftb.TreebankReader;
+import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
+import com.joliciel.talismane.fr.ftb.export.FtbPosTagMapper;
+import com.joliciel.talismane.fr.ftb.export.TreebankExportService;
+import com.joliciel.talismane.fr.ftb.upload.TreebankUploadService;
 import com.joliciel.talismane.fr.tokeniser.filters.AllUppercaseFrenchFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
