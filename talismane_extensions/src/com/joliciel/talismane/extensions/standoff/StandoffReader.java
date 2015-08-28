@@ -170,7 +170,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 			if (configuration==null && sentenceIndex<sentences.size()) {
 				
 				PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
-				PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, tokenSequence.size());
+				PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence);
 				Map<String,PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
 				
 				List<StandoffToken> tokens = sentences.get(sentenceIndex++);

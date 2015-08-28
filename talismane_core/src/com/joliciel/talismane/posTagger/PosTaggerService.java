@@ -32,13 +32,18 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
+/**
+ * Interface for retrieving implementations of various pos-tagger interfaces.
+ * @author Assaf Urieli
+ *
+ */
 public interface PosTaggerService {
 	/**
-	 * 
-	 * @param decisionMaker
-	 * @param posTaggerFeatures
+	 * Get a pos-tagger.
+	 * @param decisionMaker the decision maker used to make pos-tagging decisions
+	 * @param posTaggerFeatures the features on which the decision maker's decisions are made.
 	 * @param beamWidth the maximum beamwidth to consider during the beam search
-	 * @return
+	 * @return the pos-tagger
 	 */
 	public PosTagger getPosTagger(
 			Set<PosTaggerFeature<?>> posTaggerFeatures,
@@ -48,27 +53,52 @@ public interface PosTaggerService {
 	/**
 	 * Get a pos-tagger defined by a particular machine learning model.
 	 * @param beamWidth the maximum beamwidth to consider during the beam search
-	 * @return
+	 * @return the pos-tagger
 	 */
 	public PosTagger getPosTagger(
 			ClassificationModel model,
 			int beamWidth);
 
+	/**
+	 * Get a pos-tagger evaluator.
+	 * @param posTagger the pos-tagger to evaluate.
+	 */
 	public PosTaggerEvaluator getPosTaggerEvaluator(PosTagger posTagger);
+	
+	/**
+	 * Get a pos-tagger comparator.
+	 */
 	public PosTagComparator getPosTagComparator();
 	
+	/**
+	 * Construct an empty pos-tag sequence, based on a given {@link TokenSequence} that needs to be pos-tagged.
+	 * @param tokenSequence the token sequence to be pos-tagged.
+	 */
 	public PosTagSequence getPosTagSequence(
-			PosTagSequence history);
-
-	public PosTagSequence getPosTagSequence(
-			TokenSequence tokenSequence,
-			int initialCapacity);
+			TokenSequence tokenSequence);
 	
+	/**
+	 * Construct a pos-tagged token for a given token and given decision - the {@link Decision#getOutcome()} must
+	 * be a valid {@link PosTag#getCode()} from the current {@link PosTagSet}.
+	 * @param token the token to be tagged
+	 * @param decision the decision used to tag it
+	 */
 	PosTaggedToken getPosTaggedToken(Token token, Decision decision);
 
+	/**
+	 * Construct a pos-tag for a given code, desciption and open-class indicator.
+	 * @param code the pos-tag's code
+	 * @param description the pos-tag's description
+	 * @param openClassIndicator the pos-tag's open class indicator.
+	 */
 	PosTag getPosTag(String code, String description,
 			PosTagOpenClassIndicator openClassIndicator);
 	
+	/**
+	 * Create a classification event stream for a given corpus reader and set of features.
+	 * @param corpusReader the corpus reader used to read the training corpus
+	 * @param posTaggerFeatures the features used to describe events in the training corpus
+	 */
 	public ClassificationEventStream getPosTagEventStream(PosTagAnnotatedCorpusReader corpusReader,
 			Set<PosTaggerFeature<?>> posTaggerFeatures);
 
@@ -107,6 +137,14 @@ public interface PosTaggerService {
 	 */
 	PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 	
+	/**
+	 * A feature tester, which outputs results of applying features to the items encountered
+	 * in a given corpus.
+	 * @param posTaggerFeatures the features to test
+	 * @param testWords limit the test to certain words only
+	 * @param file the file where the test results should be written
+	 * @return
+	 */
 	PosTagSequenceProcessor getPosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures,
 			Set<String> testWords, File file);
 }

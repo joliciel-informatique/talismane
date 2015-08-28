@@ -3,7 +3,6 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required -->
     <import file="../ant/global.xml"/>
-    <import file="../ant/one-jar-ant-task.xml"/>
 
 	<target name="about">
 		<echo message="try targets jar, etc." />
@@ -96,28 +95,4 @@
 	    	</manifest>
 		</jar>
 	</target>
-		
-	<target name="one-jar" depends="jar">
-        <!-- Construct the One-JAR file -->   
-        <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
-        	<manifest>
-        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.en.TalismaneEnglish" />
-        	</manifest>
-            <main>
-                <!-- Construct main.jar from classes and source code -->
-                <fileset dir="${classes}"/>
-            </main>
-            <lib>
-		<fileset dir="${sharedLib}">
-			<include name="**/*.jar" />
-		</fileset>
-		<fileset dir="${dist}">
-			<include name="talismane-utils-${talismane.version}.jar" />
-			<include name="talismane-machineLearning-${talismane.version}.jar" />
-			<include name="talismane-core-${talismane.version}.jar" />
-			<include name="talismane-extensions-${talismane.version}.jar" />
-		</fileset>
-            </lib>
-        </one-jar>
-    </target>
 </project>

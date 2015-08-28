@@ -19,4 +19,6 @@
 package com.joliciel.talismane.posTagger;
 
 interface PosTaggerServiceInternal extends PosTaggerService {
+	public PosTagSequence getPosTagSequence(
+			PosTagSequence history);
 }

@@ -96,9 +96,8 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	}
 
 	@Override
-	public PosTagSequence getPosTagSequence(TokenSequence tokenSequence,
-			int initialCapacity) {
-		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(tokenSequence, initialCapacity);
+	public PosTagSequence getPosTagSequence(TokenSequence tokenSequence) {
+		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(tokenSequence);
 		posTagSequence.setPosTaggerServiceInternal(this);
 		posTagSequence.setTalismaneService(this.getTalismaneService());
 		posTagSequence.setMachineLearningService(this.getMachineLearningService());
