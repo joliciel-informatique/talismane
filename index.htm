@@ -402,7 +402,7 @@ or vice versa. Block size can be increased if really big filters are really requ
 <li><b>propagateTokeniserBeam</b>: if true, the entire output beam of the tokeniser is used as the input for the pos-tagger. If false, only the best option is sent to the pos-tagger. Default is false.</li>
 <li><b>maxParseAnalysisTime</b>: the maximum amount of time the parser will spend analysing any single sentence, in seconds. If it exceeds this time, the parser will return a partial analysis, or a "dependency forest", where certain nodes are left unattached (no governor). A value of 0 indicates that there is no maximum time - the parser will always continue until sentence analysis is complete. The default value is 60.</li>
 <li><b>minFreeMemory</b>: The minimum amount of remaining free memory to continue a parse, in kilobytes.<br/>
-Will be ignored is set to 0.<br/>
+Will be ignored if set to 0.<br/>
 If analysis jumps out because of free memory descends below this limit,
 there will be a parse-forest instead of a parse-tree, with several nodes left unattached. Default is 64k.</li>
 <li><b>includeTransitionLog</b>: If <tt>true</tt>, will write a file (ending with "_transitions.csv") which lists the full transition sequence applied by Talismane.</li>
