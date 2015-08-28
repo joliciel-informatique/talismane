@@ -51,7 +51,14 @@ public interface Tokeniser {
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text);
 	
 	/**
-	 * Similar to tokeniseWithDecisions(String), but returns the token sequences inferred from
+	 * Similar to {@link #tokenise(String)}, but returns only the best token sequence.
+	 * @param text
+	 * @return
+	 */
+	public TokenSequence tokeniseText(String text);
+	
+	/**
+	 * Similar to {@link #tokeniseWithDecisions(String)}, but returns the token sequences inferred from
 	 * the decisions, rather than the list of decisions themselves.
 	 * @param text
 	 * @return
@@ -59,7 +66,7 @@ public interface Tokeniser {
 	public List<TokenSequence> tokenise(String text);
 	
 	/**
-	 * Similar to tokeniseWithDecisions(String), but the text to be tokenised is contained
+	 * Similar to {@link #tokeniseWithDecisions(String)}, but the text to be tokenised is contained
 	 * within a Sentence object.
 	 * @param sentence
 	 * @return
@@ -67,7 +74,7 @@ public interface Tokeniser {
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence);
 	
 	/**
-	 * Similar to tokeniseWithDecisions(Sentence), but returns the token sequences inferred from
+	 * Similar to {@link #tokeniseWithDecisions(Sentence)}, but returns the token sequences inferred from
 	 * the decisions, rather than the list of decisions themselves.
 	 * @return
 	 */
@@ -82,7 +89,7 @@ public interface Tokeniser {
 	public List<TokenSequenceFilter> getTokenSequenceFilters();
 	
 	/**
-	 * See getTokenSequenceFilters().
+	 * See {@link #getTokenSequenceFilters()}.
 	 * @param tokenSequenceFilter
 	 */
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
@@ -97,7 +104,7 @@ public interface Tokeniser {
 	public List<TokenFilter> getTokenFilters();
 
 	/**
-	 * See getTokenFilters().
+	 * See {@link #getTokenFilters()}.
 	 * @param filter
 	 */
 	public void addTokenFilter(TokenFilter filter);

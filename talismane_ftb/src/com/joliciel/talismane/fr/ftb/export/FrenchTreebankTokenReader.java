@@ -373,7 +373,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 			tokenSequence.finalise();
 			
-			PosTagSequence posTagSequence = this.posTaggerService.getPosTagSequence(tokenSequence, allTokens.size() / 2);
+			PosTagSequence posTagSequence = this.posTaggerService.getPosTagSequence(tokenSequence);
 			int i = 0;
 			for (Token token : tokenSequence) {
 				if (LOG.isTraceEnabled())
@@ -393,7 +393,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			}
 			
 			if (useCompoundPosTags) {
-				PosTagSequence newSequence = this.posTaggerService.getPosTagSequence(tokenSequence, allTokens.size() / 2);
+				PosTagSequence newSequence = this.posTaggerService.getPosTagSequence(tokenSequence);
 				PosTaggedToken lastPosTaggedToken = null;
 				i = 0;
 				for (PosTaggedToken posTaggedToken : posTagSequence) {

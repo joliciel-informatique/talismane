@@ -49,6 +49,18 @@ public class TalismaneMain {
 	
 	public static void main(String[] args) throws Exception {
     	Map<String,String> argsMap = StringUtils.convertArgs(args);
+    	
+		if (argsMap.size()==0) {
+			System.out.println("Talismane usage instructions: ");
+			System.out.println("* indicates optional, + indicates default value");
+			System.out.println("");
+			System.out.println("Usage: command=analyse *startModule=[sentence+|tokenise|postag|parse] *endModule=[sentence|tokenise|postag|parse+] *inFile=[inFilePath, stdin if missing] *outFile=[outFilePath, stdout if missing] *template=[outputTemplatePath]");
+			System.out.println("");
+			System.out.println("Additional optional parameters:");
+			System.out.println(" *encoding=[UTF-8, ...] *includeDetails=[true|false+] posTaggerRules*=[posTaggerRuleFilePath] textFilters*=[regexFilterFilePath] *sentenceModel=[path] *tokeniserModel=[path] *posTaggerModel=[path] *parserModel=[path] *inputPatternFile=[inputPatternFilePath] *posTagSet=[posTagSetPath]");
+			return;
+		}
+		
     	OtherCommand otherCommand = null;
     	if (argsMap.containsKey("command")) {
     		try {

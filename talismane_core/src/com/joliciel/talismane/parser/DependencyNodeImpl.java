@@ -114,16 +114,18 @@ class DependencyNodeImpl implements DependencyNode, Comparable<DependencyNode> {
 			string = this.getPosTaggedToken().getToken().getOriginalText();
 	
 			boolean firstDependent = true;
-			string += "(";
-			for (DependencyNode dependent : this.dependents) {
-				if (firstDependent) {
-					firstDependent = false;
-				} else {
-					string += ", ";
+			if (this.dependents.size()>0) {
+				string += "(";
+				for (DependencyNode dependent : this.dependents) {
+					if (firstDependent) {
+						firstDependent = false;
+					} else {
+						string += ", ";
+					}
+					string += dependent.toString();
 				}
-				string += dependent.toString();
+				string += ")";
 			}
-			string += ")";
 		}
 		return string;
 	}

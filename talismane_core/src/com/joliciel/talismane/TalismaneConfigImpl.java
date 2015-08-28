@@ -157,7 +157,7 @@ import com.joliciel.talismane.utils.io.DirectoryWriter;
 
 class TalismaneConfigImpl implements TalismaneConfig {
 	private static final Log LOG = LogFactory.getLog(TalismaneConfigImpl.class);
-	private Command command = null;
+	private Command command = Command.analyse;
 	private Option option = null;
 	private Mode mode = Mode.normal;
 	
@@ -379,17 +379,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	public synchronized void loadParameters(Map<String,String> args) {
 		try {
-			if (args.size()==0) {
-				System.out.println("Talismane usage instructions: ");
-				System.out.println("* indicates optional, + indicates default value");
-				System.out.println("");
-				System.out.println("Usage: command=analyse *startModule=[sentence+|tokenise|postag|parse] *endModule=[sentence|tokenise|postag|parse+] *inFile=[inFilePath, stdin if missing] *outFile=[outFilePath, stdout if missing] *template=[outputTemplatePath]");
-				System.out.println("");
-				System.out.println("Additional optional parameters:");
-				System.out.println(" *encoding=[UTF-8, ...] *includeDetails=[true|false+] posTaggerRules*=[posTaggerRuleFilePath] textFilters*=[regexFilterFilePath] *sentenceModel=[path] *tokeniserModel=[path] *posTaggerModel=[path] *parserModel=[path] *inputPatternFile=[inputPatternFilePath] *posTagSet=[posTagSetPath]");
-				return;
-			}
-			
 			String logConfigPath = args.get("logConfigFile");
 			if (logConfigPath!=null) {
 				args.remove("logConfigFile");
@@ -705,10 +694,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					throw new RuntimeException("Unknown argument: " + argName);
 				}
 			}
-			
-			if (command==null)
-				throw new TalismaneException("No command provided.");
-			
+						
 			if (!(implementation instanceof LanguagePackImplementation) && languagePackPath!=null)
 				throw new TalismaneException("The implementation " + implementation.getClass().getSimpleName() + " does not accept language packs");
 			

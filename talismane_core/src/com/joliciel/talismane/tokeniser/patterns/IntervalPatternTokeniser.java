@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.ArrayList;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -104,6 +105,12 @@ class IntervalPatternTokeniser implements PatternTokeniser {
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.tokeniserContextFeatures = tokeniserContextFeatures;
+	}
+	
+	@Override
+	public TokenSequence tokeniseText(String text) {
+		List<TokenSequence> tokenSequences = this.tokenise(text);
+		return tokenSequences.get(0);
 	}
 	
 	@Override

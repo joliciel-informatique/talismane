@@ -293,7 +293,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 									
 									tokenSequence.getSentence().setStartLineNumber(sentenceStartLineNumber+1);
 									
-									PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, tokenSequence.size());
+									PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence);
 									Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
 									int i = 0;
 									int lexicalEntryIndex = 0;
