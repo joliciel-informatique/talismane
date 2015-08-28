@@ -49,7 +49,7 @@ public class TalismaneAPITest {
 
 		// the first argument gives the path to the (French) language pack
 		String languagePackPath = args[0];
-		String text = "Les amoureux qui se bécottent sur les bancs publics ont des petites gueules bien sympatiques.";
+		String text = "Les amoureux qui se bécotent sur les bancs publics ont des petites gueules bien sympathiques.";
 		
 		// arbitrary session id
 		String sessionId = "";
