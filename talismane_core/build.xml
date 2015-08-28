@@ -1,7 +1,6 @@
 <project name="talismane-core" default="jar" basedir=".">
     <import file="../ant/global.xml"/>
-    <import file="../ant/one-jar-ant-task.xml"/>
-	
+ 	
 	<target name="about">
 		<echo message="try targets jar, etc." />
 	</target>
@@ -10,7 +9,6 @@
 		<property name="project" value="${ant.project.name}" />
 		<property name="prettyName" value="Talismane Core" />
 		<property name="sharedLib" value="../lib"/>
-		<property name="languagePacks" value="languagePacks"/>
 		<property name="dist" value="../dist"/>
 		<property name="src" value="src"/>
 		<property name="build" value="build"/>
@@ -74,29 +72,6 @@
 	    	</manifest>
 		</jar>
 	</target>
-	
-	<target name="one-jar" depends="jar">
-        <!-- Construct the One-JAR file -->   
-        <one-jar destfile="${dist}/${project}-${talismane.version}-allDeps.jar">
-        	<manifest>
-        		<attribute name="One-Jar-Main-Class" value="com.joliciel.talismane.TalismaneMain" />
-        	</manifest>
-            <main>
-                <!-- Construct main.jar from classes and source code -->
-                <fileset dir="${classes}"/>
-            </main>
-            <lib>
-				<fileset dir="${sharedLib}">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dist}">
-					<include name="talismane-utils-${talismane.version}.jar" />
-					<include name="talismane-machineLearning-${talismane.version}.jar" />
-				</fileset>
-            </lib>
-        </one-jar>
-    </target>
-	
 	
 	<target name="javadoc" depends="compile">
 	  <javadoc packagenames="com.joliciel.*"

@@ -15,7 +15,7 @@ import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
-public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequence {
+class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequence {
 	private static final Log LOG = LogFactory.getLog(PosTagSequenceImpl.class);
 	private static final long serialVersionUID = 5038343676751568000L;
 	private TokenSequence tokenSequence;
@@ -32,12 +32,7 @@ public class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements Pos
 	private MachineLearningService machineLearningService;
 	
 	PosTagSequenceImpl(TokenSequence tokenSequence) {
-		super();
-		this.setTokenSequence(tokenSequence);
-	}
-
-	PosTagSequenceImpl(TokenSequence tokenSequence, int initialCapacity) {
-		super(initialCapacity);
+		super(tokenSequence.size());
 		this.setTokenSequence(tokenSequence);
 	}
 

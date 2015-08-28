@@ -3,7 +3,6 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required -->
     <import file="../ant/global.xml"/>
-    <import file="../ant/one-jar-ant-task.xml"/>
 
 	<target name="about">
 		<echo message="try targets jar, etc." />

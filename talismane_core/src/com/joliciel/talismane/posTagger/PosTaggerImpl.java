@@ -64,7 +64,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	
 	private TalismaneService talismaneService;
-	private PosTaggerService posTaggerService;
+	private PosTaggerServiceInternal posTaggerService;
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
 	private FeatureService featureService;
@@ -85,9 +85,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	
 	/**
 	 * 
-	 * @param model the MaxEnt model to use
-	 * @param posTaggerFeatures the set of PosTaggerFeatures used by this model
-	 * @param tagSet the tagset used by this model
+	 * @param posTaggerFeatures the set of PosTaggerFeatures used by the model which provided the decision maker
+	 * @param decisionMaker the decision maker used to make pos-tagging decisions
 	 * @param beamWidth the maximum beamwidth to consider during the beam search
 	 * @param fScoreCalculator an f-score calculator for evaluating results
 	 */
@@ -120,7 +119,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			PriorityQueue<PosTagSequence> heap0 = new PriorityQueue<PosTagSequence>();
 			for (TokenSequence tokenSequence : tokenSequences) {
 				// add an empty PosTagSequence for each token sequence
-				PosTagSequence emptySequence = this.getPosTaggerService().getPosTagSequence(tokenSequence, 0);
+				PosTagSequence emptySequence = this.getPosTaggerService().getPosTagSequence(tokenSequence);
 				emptySequence.setScoringStrategy(decisionMaker.getDefaultScoringStrategy());
 				heap0.add(emptySequence);
 			}
@@ -415,11 +414,11 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		this.beamWidth = beamWidth;
 	}
 
-	public PosTaggerService getPosTaggerService() {
+	public PosTaggerServiceInternal getPosTaggerService() {
 		return posTaggerService;
 	}
 
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
+	public void setPosTaggerService(PosTaggerServiceInternal posTaggerService) {
 		this.posTaggerService = posTaggerService;
 	}
 

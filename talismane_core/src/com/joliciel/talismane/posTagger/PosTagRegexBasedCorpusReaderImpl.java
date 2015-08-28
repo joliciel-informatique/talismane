@@ -148,7 +148,7 @@ class PosTagRegexBasedCorpusReaderImpl implements
 							tokenSequenceFilter.apply(tokenSequence);
 						}
 						
-						posTagSequence = posTaggerServiceInternal.getPosTagSequence(tokenSequence, tokenSequence.size());
+						posTagSequence = posTaggerServiceInternal.getPosTagSequence(tokenSequence);
 						int i = 0;
 	    				for (PosTag posTag : posTags) {
 	    					Token token = tokenSequence.get(i++);

@@ -74,7 +74,7 @@ class PosTagEventStream implements ClassificationEventStream {
 					if (LOG.isDebugEnabled())
 						LOG.debug("### next sentence: " + currentSentence.getTokenSequence().getSentence());
 					currentIndex = 0;
-					currentHistory = posTaggerService.getPosTagSequence(currentSentence.getTokenSequence(), currentSentence.size());
+					currentHistory = posTaggerService.getPosTagSequence(currentSentence.getTokenSequence());
 					if (currentIndex == currentSentence.size()) {
 						currentSentence = null;
 					}

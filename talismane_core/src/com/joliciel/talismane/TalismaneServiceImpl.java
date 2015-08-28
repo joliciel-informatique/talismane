@@ -19,6 +19,7 @@
 package com.joliciel.talismane;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.joliciel.talismane.filters.FilterService;
@@ -137,11 +138,23 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 			LanguageImplementation implementation) {
 		return this.getTalismaneConfig(args, null, implementation);
 	}
+	
+	@Override
+	public TalismaneConfig getTalismaneConfig(LanguageImplementation implementation) {
+		Map<String,String> args = new HashMap<String, String>();
+		return this.getTalismaneConfig(args, null, implementation);
+	}
 
 	@Override
 	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir,
 			LanguageImplementation implementation) {
 		return this.getTalismaneConfig(args, baseDir, implementation, null);
+	}
+	
+	@Override
+	public TalismaneConfig getTalismaneConfig(String sessionId) {
+		Map<String,String> args = new HashMap<String, String>();
+		return this.getTalismaneConfig(args, null, sessionId);
 	}
 	
 	@Override
