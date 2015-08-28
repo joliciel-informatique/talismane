@@ -26,6 +26,7 @@
 				<include name="talismane_core/build.xml"/>
 				<include name="talismane_ftb/build.xml"/>
 				<include name="talismane_extensions/build.xml"/>
+				<include name="talismane_examples/build.xml"/>
 				<include name="talismane_fr/build.xml"/>
 				<include name="talismane_en/build.xml"/>
 				<include name="talismane_term_extractor/build.xml"/>
@@ -54,6 +55,7 @@
 			<fileset dir=".">
 				<include name="talismane_ftb/build.xml"/>
 				<include name="talismane_extensions/build.xml"/>
+				<include name="talismane_examples/build.xml"/>
 			</fileset>
 		</subant>
 		<subant target="jar">
@@ -76,7 +78,8 @@
 			<fileset dir="${examples}" />
 		</copy>
 	</target>
-		<target name="javadoc" depends="init">
+	
+	<target name="javadoc" depends="init">
 		<delete dir="${doc}"/>
 		<delete dir="${src}"/>
 		<mkdir dir="${src}"/>
@@ -85,6 +88,7 @@
 			<fileset dir="talismane_core/src/" />
 			<fileset dir="talismane_en/src/" />
 			<fileset dir="talismane_extensions/src/" />
+			<fileset dir="talismane_examples/src/" />
 			<fileset dir="talismane_fr/src/" />
 			<fileset dir="talismane_ftb/src/" />
 			<fileset dir="talismane_machine_learning/src/" />
@@ -104,8 +108,9 @@
 				use="true"
 				windowtitle="Talismane v${talismane.version} API">
 	    <doctitle><![CDATA[<h1>Talismane v${talismane.version} API</h1>]]></doctitle>
-	    <bottom><![CDATA[<i>Copyright &#169; ${YEAR} Joliciel Informatique SARL. All Rights Reserved.</i>]]></bottom>
+	    <bottom><![CDATA[<a rel='license' href='http://creativecommons.org/licenses/by-nc-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png' /></a> <span xmlns:dct='http://purl.org/dc/terms/' href='http://purl.org/dc/dcmitype/Text' property='dct:title' rel='dct:type'>Talismane JavaDoc API</span> by <a xmlns:cc='http://creativecommons.org/ns#' href='https://www.joli-ciel.com/' property='cc:attributionName' rel='cc:attributionURL'>Joliciel Informatique</a> is licensed under a <a rel='license' href='http://creativecommons.org/licenses/by-nc-sa/4.0/'>Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.]]></bottom>
 	    <tag name="todo" scope="all" description="To do:"/>
+		<link href="http://docs.oracle.com/javase/7/docs/api/"></link>
 	  </javadoc>
 	</target>
 </project>

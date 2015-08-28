@@ -20,6 +20,11 @@ package com.joliciel.talismane.posTagger;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 
+/**
+ * Entry point for this package, through which a {@link PosTaggerService} can be retrieved.
+ * @author Assaf Urieli
+ *
+ */
 public class PosTaggerServiceLocator {
 	PosTaggerServiceImpl posTaggerService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;

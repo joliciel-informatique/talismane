@@ -109,6 +109,13 @@ class CompoundPatternTokeniser implements PatternTokeniser {
 	}
 	
 	@Override
+	public TokenSequence tokeniseText(String text) {
+		List<TokenSequence> tokenSequences = this.tokenise(text);
+		return tokenSequences.get(0);
+	}
+	
+	
+	@Override
 	public List<TokenSequence> tokenise(String text) {
 		Sentence sentence = filterService.getSentence();
 		sentence.setText(text);
