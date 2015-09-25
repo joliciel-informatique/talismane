@@ -31,6 +31,13 @@ class PretokenisedSequenceImpl extends AbstractTokenSequence implements Pretoken
 	
 	private FilterService filterService;
 	
+	public PretokenisedSequenceImpl(PretokenisedSequenceImpl sequenceToClone) {
+		super(sequenceToClone);
+		this.filterService = sequenceToClone.getFilterService();
+		if (this.getText().length()>0)
+			this.textProvided = true;		
+	}
+	
 	public PretokenisedSequenceImpl(FilterService filterService) {
 		this(filterService,"");
 	}
@@ -50,8 +57,15 @@ class PretokenisedSequenceImpl extends AbstractTokenSequence implements Pretoken
 	
 	@Override
 	public TokenSequence cloneTokenSequence() {
-		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService, this.getText());
-		this.cloneTokenSequence(tokenSequence);
+		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(this);
 		return tokenSequence;
+	}
+
+	public FilterService getFilterService() {
+		return filterService;
+	}
+
+	public void setFilterService(FilterService filterService) {
+		this.filterService = filterService;
 	}
 }

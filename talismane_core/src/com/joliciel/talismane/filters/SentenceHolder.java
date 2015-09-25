@@ -38,4 +38,18 @@ public interface SentenceHolder extends Sentence {
 	 * @return
 	 */
 	List<Sentence> getDetectedSentences(Sentence leftOverText);
+	
+	/**
+	 * Indicate that a tag starts at this position.
+	 * @param attribute
+	 * @param position
+	 */
+	void addTagStart(String attribute, String value, int position);
+	
+	/**
+	 * Indicate that a tag ends at this position.
+	 * @param attribute
+	 * @param position
+	 */
+	void addTagEnd(String attribute, String value, int position);
 }

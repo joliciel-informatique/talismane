@@ -51,4 +51,23 @@ public interface TextMarkerFilter {
 	 */
 	public int getBlockSize();
 	public void setBlockSize(int blockSize);
+	
+	/**
+	 * If the filter adds a tag, the attribute to add.
+	 * @return
+	 */
+	public String getAttribute();
+	
+	/**
+	 * If the filter adds a tag, the value to add.
+	 * @return
+	 */
+	public String getValue();
+
+	/**
+	 * Set the tag added by this filter.
+	 * @param attribute
+	 * @param value
+	 */
+	public void setTag(String attribute, String value);
 }

@@ -20,7 +20,9 @@ package com.joliciel.talismane.tokeniser;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -32,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 
 public class TokenSequenceImplTest {
@@ -46,6 +49,11 @@ public class TokenSequenceImplTest {
 		new NonStrictExpectations() {
 			{
 				sentence.getText(); returns("Je n'ai pas l'ourang-outan.");
+				SentenceTag sentenceTag = new SentenceTag("Je n'ai pas l'".length(), "Animal", "Singe");
+				sentenceTag.setEndIndex("Je n'ai pas l'ourang-outan".length());
+				List<SentenceTag> sentenceTags = new ArrayList<SentenceTag>();
+				sentenceTags.add(sentenceTag);
+				sentence.getSentenceTags(); returns(sentenceTags);
 			}
 		};
 		
@@ -89,12 +97,15 @@ public class TokenSequenceImplTest {
 			} else if (i==10) {
 				assertEquals("ourang", token.getText());	
 				assertEquals(false, token.isSeparator());
+				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i==11) {
 				assertEquals("-", token.getText());	
 				assertEquals(true, token.isSeparator());
+				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i==12) {
 				assertEquals("outan", token.getText());	
 				assertEquals(false, token.isSeparator());
+				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i==13) {
 				assertEquals(".", token.getText());	
 				assertEquals(true, token.isSeparator());

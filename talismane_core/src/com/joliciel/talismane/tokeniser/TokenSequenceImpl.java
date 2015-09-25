@@ -36,7 +36,9 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 	private static final Log LOG = LogFactory.getLog(TokenSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
 	
-	private TokenSequenceImpl() {}
+	private TokenSequenceImpl(TokenSequenceImpl sequenceToClone) {
+		super(sequenceToClone);
+	}
 
 	public TokenSequenceImpl(Sentence sentence) {
 		super(sentence);
@@ -109,8 +111,7 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 
 	@Override
 	public TokenSequence cloneTokenSequence() {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl();
-		this.cloneTokenSequence(tokenSequence);
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(this);
 		return tokenSequence;
 	}
 

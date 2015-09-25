@@ -18,9 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -39,6 +45,9 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 	private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "\n\r]+)\\z", Pattern.UNICODE_CHARACTER_CLASS);
 
 	private FilterService filterService;
+	
+	private TIntObjectMap<List<SentenceTag>> tagStarts = new TIntObjectHashMap<List<SentenceTag>>();
+	private TIntObjectMap<List<SentenceTag>> tagEnds = new TIntObjectHashMap<List<SentenceTag>>();
 	
 	public Set<Integer> getSentenceBoundaries() {
 		return sentenceBoundaries;
@@ -70,10 +79,22 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 		}
 		
 		int lastOriginalTextInsertionProcessed = -1;
+		int lastTagStartProcessed = -1;
+		int lastTagEndProcessed = -1;
 		
 		List<Integer> allBoundaries = new ArrayList<Integer>(this.sentenceBoundaries);
 		if (haveLeftOvers)
 			allBoundaries.add(this.getText().length()-1);
+		
+		Map<Integer,List<SentenceTag>> sentenceTagPositions = new HashMap<Integer, List<SentenceTag>>();
+		for (SentenceTag sentenceTag : this.getSentenceTags()) {
+			List<SentenceTag> sentenceTagsAtPos = sentenceTagPositions.get(sentenceTag.getStartIndex());
+			if (sentenceTagsAtPos==null) {
+				sentenceTagsAtPos = new ArrayList<SentenceTag>();
+				sentenceTagPositions.put(sentenceTag.getStartIndex(), sentenceTagsAtPos);
+			}
+			sentenceTagsAtPos.add(sentenceTag);
+		}
 		
 		for (int sentenceBoundary : allBoundaries) {
 			boolean isLeftover = haveLeftOvers && sentenceBoundary==this.getText().length()-1;
@@ -138,11 +159,42 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 						lastOriginalTextInsertionProcessed = i;
 					}
 					
+					if (this.tagStarts.containsKey(i)) {
+						for (SentenceTag tag : this.tagStarts.get(i)) {
+							sentence.getSentenceTags().add(new SentenceTag(sb.length(), tag.getAttribute(), tag.getValue()));
+						}
+						lastTagStartProcessed = i;
+					}
+					
+					if (this.tagEnds.containsKey(i)) {
+						List<SentenceTag> sentenceTags = sentence.getSentenceTags();
+						for (SentenceTag tag : this.tagEnds.get(i)) {
+							SentenceTag myTag = null;
+							for (int k=sentenceTags.size()-1; k>=0; k--) {
+								SentenceTag sentenceTag = sentenceTags.get(k);
+								if (sentenceTag.getAttribute().equals(tag.getAttribute()) && sentenceTag.getValue().equals(tag.getValue()) && sentenceTag.getEndIndex()<0) {
+									myTag = sentenceTag;
+									break;
+								}
+							}
+							if (myTag==null) {
+								myTag = new SentenceTag(0, tag.getAttribute(), tag.getValue());
+							}
+							myTag.setEndIndex(sb.length());
+						}
+						lastTagEndProcessed = i;
+					}
+					
 					i++;
 				}
 				
 				if (appendLetter)
 					sb.append(text.charAt(j));
+			}
+			
+			for (SentenceTag sentenceTag : sentence.getSentenceTags()) {
+				if (sentenceTag.getEndIndex()<0)
+					sentenceTag.setEndIndex(sb.length());
 			}
 			
 			sentence.setText(sb.toString());
@@ -172,6 +224,24 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 		}
 		this.setOriginalTextSegments(leftoverOriginalTextSegments);
 		
+		TIntObjectMap<List<SentenceTag>> leftoverTagStarts = new TIntObjectHashMap<List<SentenceTag>>();
+		TIntIterator iTagStarts = tagStarts.keySet().iterator();
+		while (iTagStarts.hasNext()) {
+			int i = iTagStarts.next();
+			if (i > lastTagStartProcessed)
+				leftoverTagStarts.put(i, tagStarts.get(i));
+		}
+		tagStarts = leftoverTagStarts;
+		
+		TIntObjectMap<List<SentenceTag>> leftoverTagEnds = new TIntObjectHashMap<List<SentenceTag>>();
+		TIntIterator iTagEnds = tagEnds.keySet().iterator();
+		while (iTagEnds.hasNext()) {
+			int i = iTagEnds.next();
+			if (i > lastTagEndProcessed)
+				leftoverTagEnds.put(i, tagEnds.get(i));
+		}
+		tagEnds = leftoverTagEnds;
+		
 		return sentences;
 	}
 
@@ -183,4 +253,23 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 		this.filterService = filterService;
 	}
 
+	@Override
+	public void addTagStart(String attribute, String value, int position) {
+		List<SentenceTag> tagStartsAtPos = this.tagStarts.get(position);
+		if (tagStartsAtPos==null) {
+			tagStartsAtPos = new ArrayList<SentenceTag>();
+			tagStarts.put(position, tagStartsAtPos);
+		}
+		tagStartsAtPos.add(new SentenceTag(0, attribute, value));
+	}
+
+	@Override
+	public void addTagEnd(String attribute, String value, int position) {
+		List<SentenceTag> tagEndsAtPos = this.tagEnds.get(position);
+		if (tagEndsAtPos==null) {
+			tagEndsAtPos = new ArrayList<SentenceTag>();
+			tagEnds.put(position, tagEndsAtPos);
+		}
+		tagEndsAtPos.add(new SentenceTag(0, attribute, value));
+	}
 }

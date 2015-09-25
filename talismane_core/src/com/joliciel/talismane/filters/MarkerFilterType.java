@@ -96,6 +96,11 @@ public enum MarkerFilterType {
 	 */
 	OUTPUT_STOP,
 	/**
+	 * Used to tag all tokens inside the matching space with an arbitrary attribute,
+	 * which can then be retrieved using {@link Token#getAttributes()}.
+	 */
+	TAG,
+	/**
 	 * Does absolutely nothing - only used in code, useless in a filter.
 	 */
 	NONE,

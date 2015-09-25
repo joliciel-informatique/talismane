@@ -44,6 +44,8 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	private String regex;
 	private int groupIndex = 0;
 	private String replacement;
+	private String attribute;
+	private String value;
 	private int blockSize = 1000;
 	
 	private FilterServiceInternal filterService;
@@ -204,6 +206,13 @@ class RegexMarkerFilter implements TextMarkerFilter {
 						break;
 					case START:
 						break;
+					case TAG:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.TAG_START, matcherStart - prevText.length(), this, matchText);
+						textMarker.setTag(attribute, value);
+						textMarkers.add(textMarker);
+						break;
+					}
 					default:
 						break;
 					}
@@ -259,6 +268,14 @@ class RegexMarkerFilter implements TextMarkerFilter {
 						break;
 					case STOP:
 						break;
+					case TAG:
+					{
+						TextMarker textMarker = this.getFilterService().getTextMarker(TextMarkerType.TAG_STOP, matcherEnd - prevText.length(), this, matchText);
+						textMarker.setTag(attribute, value);
+						textMarkers.add(textMarker);
+						break;
+					}
+
 					default:
 						break;
 					}
@@ -309,6 +326,17 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;
 	}
+
+	public String getAttribute() {
+		return attribute;
+	}
 	
-	
+	public String getValue() {
+		return value;
+	}
+
+	public void setTag(String attribute, String value) {
+		this.attribute = attribute;
+		this.value = value;
+	}
 }

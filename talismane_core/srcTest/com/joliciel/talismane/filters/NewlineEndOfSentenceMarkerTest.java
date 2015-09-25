@@ -21,19 +21,19 @@ public class NewlineEndOfSentenceMarkerTest {
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
 		LOG.debug(textMarkers);
 		
-		assertEquals(5, textMarkers.size());
+		assertEquals(6, textMarkers.size());
 		
 		text = "1\r2\r";
 		textMarkers = filter.apply("", text, "");
 		LOG.debug(textMarkers);
 		
-		assertEquals(5, textMarkers.size());
+		assertEquals(6, textMarkers.size());
 		
 		text = "1\n2\n";
 		textMarkers = filter.apply("", text, "");
 		LOG.debug(textMarkers);
 		
-		assertEquals(5, textMarkers.size());
+		assertEquals(6, textMarkers.size());
 
 	}
 
@@ -47,7 +47,7 @@ public class NewlineEndOfSentenceMarkerTest {
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
 		LOG.debug(textMarkers);
 		
-		assertEquals(2, textMarkers.size());
+		assertEquals(3, textMarkers.size());
 
 	}
 }
