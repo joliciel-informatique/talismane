@@ -231,6 +231,14 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 				} // shouldOutput?
 				break;
 			}
+			case TAG_START:
+			{
+				sentenceHolder.addTagStart(textMarker.getAttribute(), textMarker.getValue(), processedText.length());
+			}
+			case TAG_STOP:
+			{
+				sentenceHolder.addTagEnd(textMarker.getAttribute(), textMarker.getValue(), processedText.length());
+			}
 			} // marker type
 			
 			if (LOG.isTraceEnabled()) {

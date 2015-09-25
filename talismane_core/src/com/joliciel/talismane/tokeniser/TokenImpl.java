@@ -421,6 +421,9 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public Map<String,String> getAttributes() {
+		if (this.tokenSequence instanceof AbstractTokenSequence) {
+			((AbstractTokenSequence) this.tokenSequence).addSentenceTags();
+		}
 		return attributes;
 	}
 

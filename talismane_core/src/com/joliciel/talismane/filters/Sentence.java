@@ -19,6 +19,7 @@
 package com.joliciel.talismane.filters;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -147,4 +148,10 @@ public interface Sentence {
 	 * @return
 	 */
 	String getLeftoverOriginalText();
+	
+	/**
+	 * A list of tags added to this sentence.
+	 * @return
+	 */
+	public List<SentenceTag> getSentenceTags();
 }

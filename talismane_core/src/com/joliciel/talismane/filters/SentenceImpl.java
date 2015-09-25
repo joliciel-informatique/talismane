@@ -42,6 +42,8 @@ class SentenceImpl implements Sentence {
 	private int startLineNumber = -1;
 	private String leftoverOriginalText;
 	
+	private List<SentenceTag> sentenceTags = new ArrayList<SentenceTag>();
+	
 	@Override
 	public String getText() {
 		return this.text;
@@ -167,5 +169,9 @@ class SentenceImpl implements Sentence {
 
 	public void setLeftoverOriginalText(String leftoverOriginalText) {
 		this.leftoverOriginalText = leftoverOriginalText;
+	}
+
+	public List<SentenceTag> getSentenceTags() {
+		return sentenceTags;
 	}
 }

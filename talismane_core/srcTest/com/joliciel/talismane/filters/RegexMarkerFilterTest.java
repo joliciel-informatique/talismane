@@ -21,7 +21,7 @@ public class RegexMarkerFilterTest {
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
 		LOG.debug(textMarkers);
 		
-		assertEquals(3, textMarkers.size());
+		assertEquals(4, textMarkers.size());
 		int i = 0;
 		for (TextMarker textMarker : textMarkers) {
 			if (i==0) {
@@ -33,6 +33,9 @@ public class RegexMarkerFilterTest {
 			} else if (i==2) {
 				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
 				assertEquals(44, textMarker.getPosition());
+			} else if (i==3) {
+				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
+				assertEquals(64, textMarker.getPosition());
 			}
 			i++;
 		}
@@ -59,11 +62,14 @@ public class RegexMarkerFilterTest {
 			} else if (i==2) {
 				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
 				assertEquals(44, textMarker.getPosition());
+			} else if (i==3) {
+				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
+				assertEquals(64, textMarker.getPosition());
 			}
 			i++;
 		}
 		
-		assertEquals(3, textMarkers.size());
+		assertEquals(4, textMarkers.size());
 	}
 
 	@Test
@@ -77,7 +83,7 @@ public class RegexMarkerFilterTest {
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
 		LOG.debug(textMarkers);
 		
-		assertEquals(5, textMarkers.size());
+		assertEquals(6, textMarkers.size());
 		int i = 0;
 		for (TextMarker textMarker : textMarkers) {
 			if (i==0) {
@@ -97,6 +103,48 @@ public class RegexMarkerFilterTest {
 			} else if (i==4) {
 				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
 				assertEquals(44, textMarker.getPosition());
+			} else if (i==5) {
+				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
+				assertEquals(66, textMarker.getPosition());
+			}
+			i++;
+		}
+	}
+	
+	@Test
+	public void testTag() {
+		FilterServiceInternal filterService = new FilterServiceImpl();
+		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.TAG, "<skip>(.*?)</skip>", 0);
+		filter.setFilterService(filterService);
+		filter.setTag("TAG1", "x");
+		
+		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
+		Set<TextMarker> textMarkers = filter.apply("", text, "");
+		LOG.debug(textMarkers);
+		
+		assertEquals(4, textMarkers.size());
+		int i = 0;
+		for (TextMarker textMarker : textMarkers) {
+			if (i==0) {
+				assertEquals(TextMarkerType.TAG_START, textMarker.getType());
+				assertEquals(8, textMarker.getPosition());
+				assertEquals("TAG1", textMarker.getAttribute());
+				assertEquals("x", textMarker.getValue());
+			} else if (i==1) {
+				assertEquals(TextMarkerType.TAG_STOP, textMarker.getType());
+				assertEquals(28, textMarker.getPosition());
+				assertEquals("TAG1", textMarker.getAttribute());
+				assertEquals("x", textMarker.getValue());
+			} else if (i==2) {
+				assertEquals(TextMarkerType.TAG_START, textMarker.getType());
+				assertEquals(44, textMarker.getPosition());
+				assertEquals("TAG1", textMarker.getAttribute());
+				assertEquals("x", textMarker.getValue());
+			} else if (i==3) {
+				assertEquals(TextMarkerType.TAG_STOP, textMarker.getType());
+				assertEquals(66, textMarker.getPosition());
+				assertEquals("TAG1", textMarker.getAttribute());
+				assertEquals("x", textMarker.getValue());
 			}
 			i++;
 		}

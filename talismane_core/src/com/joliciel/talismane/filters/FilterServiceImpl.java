@@ -46,7 +46,7 @@ class FilterServiceImpl implements FilterServiceInternal {
 	@Override
 	public TextMarker getTextMarker(TextMarkerType type, int position,
 			TextMarkerFilter source, String matchText) {
-		TextMarkerImpl textMarker = new TextMarkerImpl(type, position);
+		TextMarker textMarker = new TextMarkerImpl(type, position);
 		textMarker.setSource(source);
 		textMarker.setMatchText(matchText);
 		return textMarker;
@@ -167,19 +167,41 @@ class FilterServiceImpl implements FilterServiceInternal {
 				filterTypes.add(MarkerFilterType.valueOf(filterTypeString));
 			}
 			boolean needsReplacement = false;
+			boolean needsTag = false;
 			int minParams = 3;
 			if (filterTypes.contains(MarkerFilterType.REPLACE)) {
 				needsReplacement = true;
+				minParams = 4;
+			} else if (filterTypes.contains(MarkerFilterType.TAG)) {
+				needsTag = true;
 				minParams = 4;
 			}
 			if (parts.length==minParams+1){
 				filter = this.getRegexMarkerFilter(filterTypes, parts[2], Integer.parseInt(parts[3]), blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[4]);
+				if (needsTag) {
+					if (parts[4].indexOf('=')>=0) {
+						String attribute = parts[4].substring(0,parts[4].indexOf('='));
+						String value = parts[4].substring(parts[4].indexOf('=')+1);
+						filter.setTag(attribute, value);
+					} else {
+						filter.setTag(parts[4], "");
+					}
+				}
 			} else if (parts.length==minParams) {
 				filter = this.getRegexMarkerFilter(filterTypes, parts[2], blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[3]);
+				if (needsTag) {
+					if (parts[3].indexOf('=')>=0) {
+						String attribute = parts[3].substring(0,parts[3].indexOf('='));
+						String value = parts[3].substring(parts[3].indexOf('=')+1);
+						filter.setTag(attribute, value);
+					} else {
+						filter.setTag(parts[3], "");
+					}
+				}
 			} else {
 				throw new TalismaneException("Wrong number of arguments for " + RegexMarkerFilter.class.getSimpleName() + ". Expected " + minParams + " or " + (minParams+1) + ", but was " + parts.length);
 			}

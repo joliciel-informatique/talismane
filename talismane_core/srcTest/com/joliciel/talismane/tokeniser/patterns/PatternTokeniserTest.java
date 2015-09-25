@@ -24,12 +24,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -47,6 +50,9 @@ public class PatternTokeniserTest {
 		TokeniserService tokeniserService = tokeniserServiceLocator.getTokeniserService();
 		FilterService filterService = talismaneServiceLocator.getFilterServiceLocator().getFilterService();
 		
+		MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
+		MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
+		
 		final String sentence = "Je n'ai pas l'ourang-outan.";
 		final Map<SeparatorDecision, String> separatorDefaults = new HashMap<SeparatorDecision, String>();
 		separatorDefaults.put(SeparatorDecision.IS_NOT_SEPARATOR, "-");
@@ -57,6 +63,7 @@ public class PatternTokeniserTest {
 		IntervalPatternTokeniser tokeniserImpl = new IntervalPatternTokeniser(patternManager, null, 1);
 		tokeniserImpl.setTokeniserService(tokeniserService);
 		tokeniserImpl.setFilterService(filterService);
+		tokeniserImpl.setMachineLearningService(machineLearningService);
 		patternManager.setSeparatorDefaults(separatorDefaults);
 		List<TokenSequence> tokenSequences = tokeniserImpl.tokenise(sentence);
 		TokenSequence tokenSequence = tokenSequences.get(0);

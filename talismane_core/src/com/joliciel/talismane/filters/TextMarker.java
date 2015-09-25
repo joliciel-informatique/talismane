@@ -56,4 +56,23 @@ public interface TextMarker extends Comparable<TextMarker> {
 	 */
 	public String getMatchText();
 	public void setMatchText(String matchText);
+	
+	/**
+	 * The tag value to add with this marker.
+	 * @return
+	 */
+	public abstract String getValue();
+	
+	/**
+	 * The tag attribute to add with this marker.
+	 * @return
+	 */
+	public abstract String getAttribute();
+	
+	/**
+	 * The marker's attribute and value tag.
+	 * @param attribute
+	 * @param value
+	 */
+	public abstract void setTag(String attribute, String value);
 }

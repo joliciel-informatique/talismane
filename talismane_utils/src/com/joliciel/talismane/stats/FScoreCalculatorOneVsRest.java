@@ -41,7 +41,7 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 	
 	private Map<E,FScoreCalculator<Boolean>> fScoreCalculators = new TreeMap<E, FScoreCalculator<Boolean>>();
 	
-	private int eventCount = 0;
+	private volatile int eventCount = 0;
 	private Map<E,Integer> outcomeCounts = new TreeMap<E, Integer>();
 	
 	public void nextEvent() {
@@ -58,7 +58,7 @@ public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
 	
 	private boolean calculated = false;
 	
-	public void increment(E outcome, boolean expected, boolean guessed) {
+	public synchronized void increment(E outcome, boolean expected, boolean guessed) {
 		FScoreCalculator<Boolean> fScoreCalculator = this.getFScoreCalculator(outcome);
 		fScoreCalculator.increment(expected, guessed);
 		if (expected) {
