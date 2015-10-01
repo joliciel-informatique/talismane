@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2015 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -18,7 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-interface TokenFilterServiceInternal extends TokenFilterService {
-	public TokenPlaceholder getTokenPlaceholder(int startIndex, int endIndex, String replacement, String regex);
-	public AttributeRegexFilter getAttributeRegexFilter(String regex);
+/**
+ * A TokenRegexFilter which only adds attributes to contained tokens, without delimiting a single token.
+ * Note that replacements will be ignored in this type of filter.
+ * @author Assaf Urieli
+ *
+ */
+public interface AttributeRegexFilter extends TokenRegexFilter {
+
 }

@@ -18,8 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -48,7 +50,7 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 		this(sentence, separatorPattern, null, tokeniserServiceInternal);
 	}
 	
-	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, Set<TokenPlaceholder> placeholders, TokeniserServiceInternal tokeniserServiceInternal) {
+	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders, TokeniserServiceInternal tokeniserServiceInternal) {
 		super(sentence);
 		this.setTokeniserServiceInternal(tokeniserServiceInternal);
 		this.initialise(sentence.getText(), separatorPattern, placeholders);
@@ -59,19 +61,24 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 		this.underlyingAtomicTokenSequence = tokenisedAtomicTokenSequence;
 	}
 	
-	private void initialise(String text, Pattern separatorPattern, Set<TokenPlaceholder> placeholders) {
+	private void initialise(String text, Pattern separatorPattern, List<TokenPlaceholder> placeholders) {
 		Matcher matcher = separatorPattern.matcher(text);
 		Set<Integer> separatorMatches = new HashSet<Integer>();
 		while (matcher.find())
 			separatorMatches.add(matcher.start());
 		
 		Map<Integer,TokenPlaceholder> placeholderMap = new HashMap<Integer,TokenPlaceholder>();
+		List<TokenPlaceholder> attributePlaceholders = new ArrayList<TokenPlaceholder>();
 		if (placeholders!=null) {
 			for (TokenPlaceholder placeholder : placeholders) {
-				// take the first placeholder at this start index only
-				// thus declaration order is the order at which they're applied
-				if (!placeholderMap.containsKey(placeholder.getStartIndex()))
-					placeholderMap.put(placeholder.getStartIndex(), placeholder);
+				if (placeholder.isSingleToken()) {
+					// take the first placeholder at this start index only
+					// thus declaration order is the order at which they're applied
+					if (!placeholderMap.containsKey(placeholder.getStartIndex()))
+						placeholderMap.put(placeholder.getStartIndex(), placeholder);
+				} else {
+					attributePlaceholders.add(placeholder);
+				}
 			}
 		}
 		
@@ -105,6 +112,17 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 		
 		if (currentPos<text.length())
 			this.addToken(currentPos, text.length());
+		
+		// add any attributes provided by attribute placeholders
+		for (TokenPlaceholder placeholder : attributePlaceholders) {
+			for (Token token : this) {
+				if (token.getStartIndex()>=placeholder.getStartIndex() && token.getEndIndex()<=placeholder.getEndIndex()) {
+					for (String key : placeholder.getAttributes().keySet()) {
+						token.addAttribute(key, placeholder.getAttributes().get(key));
+					}
+				}
+			}
+		}
 		
 		this.finalise();		
 	}

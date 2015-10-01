@@ -65,5 +65,11 @@ public interface TokenPlaceholder {
 	Map<String,String> getAttributes();
 	public void addAttribute(String key, String value);
 
-
+	/**
+	 * Should this placeholder be interpreted as a single token,
+	 * or should it simply be used to add attributes to all tokens matched by it.
+	 * @return
+	 */
+	public boolean isSingleToken();
+	public void setSingleToken(boolean singleToken);
 }

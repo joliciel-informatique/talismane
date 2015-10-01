@@ -74,7 +74,7 @@ class TokenComparatorImpl implements TokenComparator {
 			
 			Sentence sentence = realSequence.getSentence();
 			
-			Set<TokenPlaceholder> placeholders = new HashSet<TokenPlaceholder>();
+			List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
 			
 			// Initially, separate the sentence into tokens using the separators provided
 			TokenSequence realAtomicSequence = this.tokeniserServiceInternal.getTokenSequence(sentence, Tokeniser.SEPARATORS, placeholders);

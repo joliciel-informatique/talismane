@@ -429,7 +429,8 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public void addAttribute(String key, String value) {
-		attributes.put(key, value);
+		if (!attributes.containsKey(key))
+			attributes.put(key, value);
 	}
 	
 	public TalismaneService getTalismaneService() {

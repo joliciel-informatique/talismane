@@ -18,8 +18,8 @@ TokenRegexFilter	''	"
 #########################
 TokenRegexFilter	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	*
 #### did n't
-TokenRegexFilter	\b([a-zA-Z]+)n't\b	1	$1
-TokenRegexFilter	\b[a-zA-Z]+(n't)\b	1	$1
+TokenRegexFilter(group=1)	\b([a-zA-Z]+)n't\b	$1
+TokenRegexFilter(group=1)	\b[a-zA-Z]+(n't)\b	$1
 ### George's
 TokenRegexFilter	'(s|re|ve|d|m|ll)\b
 ### O'Henry
@@ -61,7 +61,7 @@ TokenRegexFilter	\b([A-Z]\.)+	$0
 TokenRegexFilter(lemmaType=originalLower)	\b[12]?\d:\d\d\b	9:30
 ### AT&T
 TokenRegexFilter	\b[A-Z]+&[A-Z]\b	$0
-TokenRegexFilter	\b((US|C|HK|NZ|AU)\$)[ ,.?!:;"'/\-\)\]\}]	1	$1
+TokenRegexFilter(group=1)	\b((US|C|HK|NZ|AU)\$)[ ,.?!:;"'/\-\)\]\}]	$1
 TokenRegexFilter	\b\w+\-\w+\b	$0
 TokenRegexFilter	\.\.\.	$0
 TokenRegexFilter	\(\.\.\.\)	$0

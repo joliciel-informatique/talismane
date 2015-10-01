@@ -20,8 +20,9 @@ package com.joliciel.talismane.tokeniser.filters;
 
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 	private String regex;
 	private Pattern pattern;
 	private String replacement;
-	private int groupIndex;
+	private int groupIndex = 0;
 	private boolean possibleSentenceBoundary = true;
 	private Map<String,String> attributes = new HashMap<String,String>();
 	private boolean caseSensitive = true;
@@ -56,25 +57,15 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 	private ExternalResourceFinder externalResourceFinder;
 
 	public TokenRegexFilterImpl(String regex) {
-		this(regex, 0, null);
-	}
-	
-	public TokenRegexFilterImpl(String regex, String replacement) {
-		this(regex, 0, replacement);
-	}
-	
-	public TokenRegexFilterImpl(String regex, int groupIndex, String replacement) {
 		super();
 		if (regex==null || regex.length()==0)
 			throw new TalismaneException("Cannot use an empty regex for a filter");
 		this.regex = regex;
-		this.groupIndex = groupIndex;
-		this.replacement = replacement;
 	}
 
 	@Override
-	public Set<TokenPlaceholder> apply(String text) {
-		Set<TokenPlaceholder> placeholders = new HashSet<TokenPlaceholder>();
+	public List<TokenPlaceholder> apply(String text) {
+		List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
 		
 		Matcher matcher = this.getPattern().matcher(text);
 		int lastStart = -1;
@@ -103,6 +94,10 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 	@Override
 	public String getReplacement() {
 		return replacement;
+	}
+
+	public void setReplacement(String replacement) {
+		this.replacement = replacement;
 	}
 
 	public TokenFilterServiceInternal getTokeniserFilterService() {

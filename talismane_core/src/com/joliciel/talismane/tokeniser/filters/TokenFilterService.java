@@ -35,28 +35,6 @@ public interface TokenFilterService {
 	public TokenRegexFilter getTokenRegexFilter(String regex);
 	
 	/**
-	 * Like {@link #getTokenRegexFilter(String, int, String)}, but the group defaults to 0.
-	 * @param regex
-	 * @param replacement
-	 * @return
-	 */
-	public TokenRegexFilter getTokenRegexFilter(String regex, String replacement);
-	
-	/**
-	 * Get a token filter that applies a regex to a given text, and marks an matches found
-	 * as tokens.<br/>
-	 * In addition, if a replacement is provided, the text of the token will be set to the
-	 * value of the replacement.<br/>
-	 * If the surroundings of the token are important, the token itself can be indicated
-	 * via a group in the regex.
-	 * @param regex the regex to look for
-	 * @param groupIndex the group index within the regex corresponding to the token being searched for
-	 * @param replacement the text to be assigned to this token - can refer to groups in the regex via standard $1, $2 usage
-	 * @return
-	 */
-	public TokenRegexFilter getTokenRegexFilter(String regex, int groupIndex, String replacement);
-	
-	/**
 	 * Gets a TokenSequenceFilter corresponding to a given descriptor.
 	 * The descriptor should contain the class name, followed by any arguments, separated by tabs.
 	 * @param descriptor

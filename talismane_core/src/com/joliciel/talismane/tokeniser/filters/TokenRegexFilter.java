@@ -36,13 +36,15 @@ public interface TokenRegexFilter extends TokenFilter {
 	public String getRegex();
 
 	/**
-	 * The replacement to replace it with.
+	 * If provided, will replace the token's text with this replacement.
 	 * @return
 	 */
 	public String getReplacement();
+	public void setReplacement(String replacement);
 
 	/**
-	 * The group index to tokenise and replace within the regex.
+	 * If provided, indicates the group index to tokenise (and possibly replace). Useful for 
+	 * identifying tokens by their context. Default is 0, meaning the entire regex is tokenised and replaced.
 	 * @return
 	 */
 	public int getGroupIndex();

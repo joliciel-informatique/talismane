@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import mockit.NonStrict;
@@ -23,10 +22,11 @@ public class TokenRegexFilterImplTest {
 	@Test
 	public void testApply() {
 		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b", "Email");
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b");
+		filter.setReplacement("Email");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		String text = "My address is joe.schmoe@test.com.";
-		Set<TokenPlaceholder> placeholders = filter.apply(text);
+		List<TokenPlaceholder> placeholders = filter.apply(text);
 		LOG.debug(placeholders);
 		assertEquals(1, placeholders.size());
 		TokenPlaceholder placeholder = placeholders.iterator().next();
@@ -38,10 +38,11 @@ public class TokenRegexFilterImplTest {
 	@Test
 	public void testApplyWithDollars() {
 		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b", "\\$Email$2:$1");
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
+		filter.setReplacement("\\$Email$2:$1");
 		filter.setTokeniserFilterService(tokeniserFilterService);
 		String text = "My address is joe.schmoe@test.com.";
-		Set<TokenPlaceholder> placeholders = filter.apply(text);
+		List<TokenPlaceholder> placeholders = filter.apply(text);
 		LOG.debug(placeholders);
 		assertEquals(1, placeholders.size());
 		TokenPlaceholder placeholder = placeholders.iterator().next();
