@@ -56,4 +56,13 @@ public class SentenceTag {
 	public String getValue() {
 		return value;
 	}
+
+	@Override
+	public String toString() {
+		return "SentenceTag [startIndex=" + startIndex + ", endIndex="
+				+ endIndex + ", attribute=" + attribute + ", value=" + value
+				+ "]";
+	}
+	
+	
 }
