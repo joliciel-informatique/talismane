@@ -57,6 +57,12 @@ public class SentenceHolderImplTest {
 		holder.addSentenceBoundary("Hello  World.".length()-1);
 		holder.addSentenceBoundary("Hello  World. How are you?".length()-1);
 		
+		holder.addTagStart("State", "OK", "Hello  World. ".length());
+		holder.addTagEnd("State", "OK", "Hello  World. How are you".length());
+		
+		holder.addTagStart("VerbIs", "", "Hello  World. How ".length());
+		holder.addTagEnd("VerbIs", "", "Hello  World. How are".length());
+		
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
 			LOG.debug(sentence.getText());
@@ -75,6 +81,13 @@ public class SentenceHolderImplTest {
 			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}
 		assertEquals("<o>Output this</o>", sentence2.getOriginalTextSegments().get(0));
+		assertEquals(2, sentence2.getSentenceTags().size());
+		assertEquals("State", sentence2.getSentenceTags().get(0).getAttribute());
+		assertEquals("".length(), sentence2.getSentenceTags().get(0).getStartIndex());
+		assertEquals("How are you".length(), sentence2.getSentenceTags().get(0).getEndIndex());
+		assertEquals("VerbIs", sentence2.getSentenceTags().get(1).getAttribute());
+		assertEquals("How ".length(), sentence2.getSentenceTags().get(1).getStartIndex());
+		assertEquals("How are".length(), sentence2.getSentenceTags().get(1).getEndIndex());
 		
 		Sentence leftover = sentences.get(2);
 		assertFalse(leftover.isComplete());

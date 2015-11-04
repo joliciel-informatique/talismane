@@ -35,10 +35,11 @@ public class CSVFormatter {
     private DecimalFormat intFormat;
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private boolean addQuotesAlways = false;
-    private String csvSeparator = ",";
+    private String csvSeparator = null;
+    private static String globalCsvSeparator = ",";
     private int decimalPlaces = 2;
     
-	private Pattern csvSeparators = Pattern.compile("[,\"]");
+	private Pattern csvSeparators = null;
 	private enum TokenType {
 		COMMA, QUOTE, OTHER
 	};
@@ -62,8 +63,8 @@ public class CSVFormatter {
      */
     public String format(double number) {
     	if (addQuotesAlways)
-    		return "\"" + decFormat.format(number) + "\"" + csvSeparator;
-		return decFormat.format(number) + csvSeparator;
+    		return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
+		return decFormat.format(number) + this.getCsvSeparator();
 	}
     
     /**
@@ -73,8 +74,8 @@ public class CSVFormatter {
      */
     public String format(float number) {
     	if (addQuotesAlways)
-    		return "\"" + decFormat.format(number) + "\"" + csvSeparator;
-		return decFormat.format(number) + csvSeparator;
+    		return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
+		return decFormat.format(number) + this.getCsvSeparator();
 	}
     
     /**
@@ -84,8 +85,8 @@ public class CSVFormatter {
      */
     public String format(int number) {
     	if (addQuotesAlways)
-    		return "\"" + intFormat.format(number) + "\"" + csvSeparator;
-		return intFormat.format(number) + csvSeparator;
+    		return "\"" + intFormat.format(number) + "\"" + this.getCsvSeparator();
+		return intFormat.format(number) + this.getCsvSeparator();
 	}
     
     /**
@@ -95,8 +96,8 @@ public class CSVFormatter {
      */
     public String format(boolean bool) {
     	if (addQuotesAlways)
-    		return "\"" + bool + "\"" + csvSeparator;
-		return bool + csvSeparator;
+    		return "\"" + bool + "\"" + this.getCsvSeparator();
+		return bool + this.getCsvSeparator();
 	}  
     
     /**
@@ -106,15 +107,15 @@ public class CSVFormatter {
      */
     public String format(String string) {
     	int quotePos = string.indexOf('"');
-    	int commaPos = string.indexOf(csvSeparator);
+    	int commaPos = string.indexOf(this.getCsvSeparator());
        	int apostrophePos = string.indexOf('\'');
 		if (quotePos>=0) {
 			string = string.replace("\"", "\"\"");
 		}
 		if (quotePos>=0||commaPos>=0||apostrophePos>=0||addQuotesAlways)
-			return "\"" + string + "\"" + csvSeparator;
+			return "\"" + string + "\"" + this.getCsvSeparator();
 		else
-			return string + csvSeparator;
+			return string + this.getCsvSeparator();
    	
     }
     
@@ -125,6 +126,9 @@ public class CSVFormatter {
 	 * @return
 	 */
 	public List<String> getCSVCells(String csvLine) {
+		if (csvSeparators==null) {
+			csvSeparators = Pattern.compile("((" + this.getCsvSeparator() + ")|\")");
+		}
 		List<String> cells = new ArrayList<String>();
 		Matcher matcher = csvSeparators.matcher(csvLine);
 		int currentPos = 0;
@@ -149,7 +153,7 @@ public class CSVFormatter {
 				} else {
 					lastToken = TokenType.QUOTE;
 				}
-			} else if (token.equals(csvSeparator)) {
+			} else if (token.equals(this.getCsvSeparator())) {
 				if (inQuote) {
 					currentCell.append(token);
 					lastToken = TokenType.OTHER;
@@ -240,14 +244,22 @@ public class CSVFormatter {
 	 * @return
 	 */
 	public String getCsvSeparator() {
-		return csvSeparator;
+		if (csvSeparator!=null) {
+			return csvSeparator;
+		}
+		return globalCsvSeparator;
 	}
 
 	public void setCsvSeparator(String separator) {
-		if (!csvSeparator.equals(separator)) {
-			csvSeparator = separator;
-			csvSeparators = Pattern.compile("[" + csvSeparator + "\"]");
-		}
+		csvSeparator = separator;
+	}
+	
+	public static String getGlobalCsvSeparator() {
+		return globalCsvSeparator;
+	}
+	
+	public static void setGlobalCsvSeparator(String separator) {
+		globalCsvSeparator = separator;
 	}
 	
 	public void setDecimalPlaces(int decimalPlaces) {

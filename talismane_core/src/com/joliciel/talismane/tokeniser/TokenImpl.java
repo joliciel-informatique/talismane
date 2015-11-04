@@ -421,12 +421,16 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public Map<String,String> getAttributes() {
+		if (this.tokenSequence instanceof AbstractTokenSequence) {
+			((AbstractTokenSequence) this.tokenSequence).addSentenceTags();
+		}
 		return attributes;
 	}
 
 	@Override
 	public void addAttribute(String key, String value) {
-		attributes.put(key, value);
+		if (!attributes.containsKey(key))
+			attributes.put(key, value);
 	}
 	
 	public TalismaneService getTalismaneService() {

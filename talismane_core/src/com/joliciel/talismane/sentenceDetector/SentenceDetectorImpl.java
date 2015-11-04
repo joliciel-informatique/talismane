@@ -68,7 +68,7 @@ class SentenceDetectorImpl implements SentenceDetector {
 			// we only want one placeholder per start index - the first one that gets added
 			Map<Integer,TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
 			for (TokenFilter filter : this.preTokeniserFilters) {
-				Set<TokenPlaceholder> myPlaceholders = filter.apply(context);
+				List<TokenPlaceholder> myPlaceholders = filter.apply(context);
 				for (TokenPlaceholder placeholder : myPlaceholders) {
 					if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
 						placeholderMap.put(placeholder.getStartIndex(), placeholder);

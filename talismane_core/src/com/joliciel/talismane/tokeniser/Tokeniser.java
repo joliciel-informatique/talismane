@@ -58,6 +58,13 @@ public interface Tokeniser {
 	public TokenSequence tokeniseText(String text);
 	
 	/**
+	 * Similar to {@link #tokenise(Sentence)}, but returns only the best token sequence.
+	 * @param sentence
+	 * @return
+	 */
+	public TokenSequence tokeniseSentence(Sentence sentence);
+	
+	/**
 	 * Similar to {@link #tokeniseWithDecisions(String)}, but returns the token sequences inferred from
 	 * the decisions, rather than the list of decisions themselves.
 	 * @param text

@@ -12,6 +12,7 @@ import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenSequence, PretokenisedSequence {
@@ -27,17 +28,38 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
 	private Integer atomicTokenCount = null;
 	private boolean finalised = false;
+	private boolean sentenceTagsAdded = false;
 	private boolean withRoot = false;
 	private PosTagSequence posTagSequence;
 	protected boolean textProvided = false;
 	
 	private TokeniserServiceInternal tokeniserServiceInternal;
 	private TalismaneService talismaneService;
-
-	public AbstractTokenSequence() {}
+	
 	public AbstractTokenSequence(Sentence sentence) {
 		this.sentence = sentence;
 		this.text = sentence.getText();
+	}
+	
+	public AbstractTokenSequence(AbstractTokenSequence sequenceToClone) {
+		this.setTokeniserServiceInternal(sequenceToClone.getTokeniserServiceInternal());
+		this.setTalismaneService(sequenceToClone.getTalismaneService());
+		this.setText(sequenceToClone.getText());
+		this.setSentence(sequenceToClone.getSentence());
+		this.setTokeniserServiceInternal(sequenceToClone.getTokeniserServiceInternal());
+		List<Token> listWithWhiteSpace = new ArrayList<Token>(sequenceToClone.getListWithWhiteSpace());
+		this.setListWithWhiteSpace(listWithWhiteSpace);
+		this.setScore(sequenceToClone.getScore());
+		this.setScoreCalculated(true);
+		this.setUnderlyingAtomicTokenSequence(sequenceToClone.getUnderlyingAtomicTokenSequence());
+		this.setAtomicTokenCount(sequenceToClone.getAtomicTokenCount());
+		this.setPosTagSequence(sequenceToClone.getPosTagSequence());
+		
+		for (Token token : sequenceToClone) {
+			Token clone = token.cloneToken();
+			this.add(clone);
+			clone.setTokenSequence(this);
+		}
 	}
 	
 	@Override
@@ -111,6 +133,22 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			for (Token token : this) {
 				token.setIndex(i++);
 			}
+		}
+	}
+	
+	void addSentenceTags() {
+		if (!sentenceTagsAdded) {
+			sentenceTagsAdded = true;
+			for (SentenceTag sentenceTag : this.sentence.getSentenceTags()) {
+				for (Token token : this) {
+					if (token.getStartIndex()>=sentenceTag.getStartIndex() && token.getEndIndex()<=sentenceTag.getEndIndex()) {
+						token.addAttribute(sentenceTag.getAttribute(), sentenceTag.getValue());
+					}
+					if (token.getStartIndex()>sentenceTag.getEndIndex())
+						break;
+				}
+			}
+
 		}
 	}
 	
@@ -349,25 +387,6 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		this.atomicTokenCount = unitTokenCount;
 	}
 	
-	public void cloneTokenSequence(AbstractTokenSequence tokenSequence) {
-		tokenSequence.setText(this.getText());
-		tokenSequence.setSentence(this.getSentence());
-		tokenSequence.setTokeniserServiceInternal(this.getTokeniserServiceInternal());
-		List<Token> listWithWhiteSpace = new ArrayList<Token>(this.getListWithWhiteSpace());
-		tokenSequence.setListWithWhiteSpace(listWithWhiteSpace);
-		tokenSequence.setScore(this.getScore());
-		tokenSequence.setScoreCalculated(true);
-		tokenSequence.setUnderlyingAtomicTokenSequence(this.getUnderlyingAtomicTokenSequence());
-		tokenSequence.setAtomicTokenCount(this.getAtomicTokenCount());
-		tokenSequence.setPosTagSequence(this.getPosTagSequence());
-		
-		for (Token token : this) {
-			Token clone = token.cloneToken();
-			tokenSequence.add(clone);
-			clone.setTokenSequence(tokenSequence);
-		}
-	}
-	
 	public Sentence getSentence() {
 		return sentence;
 	}
@@ -391,6 +410,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		sb.append('|');
 		return sb.toString();
 	}
+	
 	public PosTagSequence getPosTagSequence() {
 		return posTagSequence;
 	}

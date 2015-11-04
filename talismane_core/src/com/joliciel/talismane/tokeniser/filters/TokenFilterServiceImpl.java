@@ -56,19 +56,15 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 
 	@Override
 	public TokenRegexFilter getTokenRegexFilter(String regex) {
-		return this.getTokenRegexFilter(regex, 0, null);
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl(regex);
+		filter.setTokeniserFilterService(this);
+		filter.setExternalResourceFinder(this.getExternalResourceFinder());
+		return filter;
 	}
 	
 	@Override
-	public TokenRegexFilter getTokenRegexFilter(String regex,
-			String replacement) {
-		return this.getTokenRegexFilter(regex, 0, replacement);
-	}
-
-	@Override
-	public TokenRegexFilter getTokenRegexFilter(String regex,
-			int groupIndex, String replacement) {
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl(regex, groupIndex, replacement);
+	public AttributeRegexFilter getAttributeRegexFilter(String regex) {
+		AttributeRegexFilterImpl filter = new AttributeRegexFilterImpl(regex);
 		filter.setTokeniserFilterService(this);
 		filter.setExternalResourceFinder(this.getExternalResourceFinder());
 		return filter;
@@ -179,39 +175,42 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 				}
 			}
 		}
+		
 		if (className.equals(TokenRegexFilter.class.getSimpleName())) {
-			if (parts.length==4) {
-				filter = this.getTokenRegexFilter(parts[1], Integer.parseInt(parts[2]), parts[3]);
-			} else if (parts.length==3) {
-				filter = this.getTokenRegexFilter(parts[1], parts[2]);
-			} else if (parts.length==2) {
-				filter = this.getTokenRegexFilter(parts[1]);
-			} else {
-				throw new TalismaneException("Wrong number of arguments for " + TokenRegexFilter.class.getSimpleName() + ". Expected 2, 3 or 4, but was " + parts.length);
+			if (parts.length<2 || parts.length>3)
+				throw new TalismaneException("Wrong number of tabs for " + TokenRegexFilter.class.getSimpleName() + ". Expected 2 or 3, but was " + parts.length);
+			filter = this.getTokenRegexFilter(parts[1]);
+			if (parts.length==3) {
+				filter.setReplacement(parts[2]);
 			}
-			
-			for (String paramName : parameterMap.keySet()) {
-				String paramValue = parameterMap.get(paramName);
-				if (paramName.equals("possibleSentenceBoundary")) {
-					filter.setPossibleSentenceBoundary(Boolean.valueOf(paramValue));
-				} else if (paramName.equals("group")) {
-					filter.setGroupIndex(Integer.parseInt(paramValue));
-				} else if (paramName.equals("caseSensitive")) {
-					filter.setCaseSensitive(Boolean.valueOf(paramValue));
-				} else if (paramName.equals("diacriticSensitive")) {
-					filter.setDiacriticSensitive(Boolean.valueOf(paramValue));
-				} else if (paramName.equals("autoWordBoundaries")) {
-					filter.setAutoWordBoundaries(Boolean.valueOf(paramValue));
-				} else {
-					filter.addAttribute(paramName, paramValue);
-				}
-			}
-			
-			// verify that the filter can work correctly
-			filter.verify();
+		} else if (className.equals(AttributeRegexFilter.class.getSimpleName())) {
+			if (parts.length!=2)
+				throw new TalismaneException("Wrong number of tabs for " + AttributeRegexFilter.class.getSimpleName() + ". Expected 2, but was " + parts.length);
+			filter = this.getAttributeRegexFilter(parts[1]);
 		} else {
-			throw new TalismaneException("Unknown TokenFilter: " + parts[0]);
+			throw new TalismaneException("Unknown TokenFilter: " + className);
 		}
+		
+		for (String paramName : parameterMap.keySet()) {
+			String paramValue = parameterMap.get(paramName);
+			if (paramName.equals("possibleSentenceBoundary")) {
+				filter.setPossibleSentenceBoundary(Boolean.valueOf(paramValue));
+			} else if (paramName.equals("group")) {
+				filter.setGroupIndex(Integer.parseInt(paramValue));
+			} else if (paramName.equals("caseSensitive")) {
+				filter.setCaseSensitive(Boolean.valueOf(paramValue));
+			} else if (paramName.equals("diacriticSensitive")) {
+				filter.setDiacriticSensitive(Boolean.valueOf(paramValue));
+			} else if (paramName.equals("autoWordBoundaries")) {
+				filter.setAutoWordBoundaries(Boolean.valueOf(paramValue));
+			} else {
+				filter.addAttribute(paramName, paramValue);
+			}
+		}
+			
+		// verify that the filter can work correctly
+		filter.verify();
+
 		return filter;
 	}
 

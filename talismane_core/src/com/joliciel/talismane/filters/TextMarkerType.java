@@ -91,4 +91,12 @@ public enum TextMarkerType {
 	 * Stop processing when you hit this marker (unless already stopped).
 	 */
 	PUSH_SKIP,
+	/**
+	 * Start tagging tokens inside this range with an arbitary attribute.
+	 */
+	TAG_START,
+	/**
+	 * Stop tagging tokens inside this range with an arbitrary attribute.
+	 */
+	TAG_STOP
 }

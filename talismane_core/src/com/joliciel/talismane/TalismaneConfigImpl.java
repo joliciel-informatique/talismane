@@ -150,6 +150,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
+import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.joliciel.talismane.utils.io.DirectoryReader;
@@ -356,6 +357,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	ParsingConstrainer parsingConstrainer = null;
 	LanguageImplementation implementation;
 	TalismaneSession talismaneSession = null;
+	
+	String csvSeparator = "\t";
 	
 	File baseDir = null;
 	
@@ -689,6 +692,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					corpusLexicalEntryRegexPath = argValue;
 				} else if (argName.equals("languagePack")) {
 					languagePackPath = argValue;
+				} else if (argName.equals("csvSeparator")) {
+					csvSeparator = argValue;
 				} else {
 					System.out.println("Unknown argument: " + argName);
 					throw new RuntimeException("Unknown argument: " + argName);
@@ -792,6 +797,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					outputCharset = Charset.forName(outputEncoding);
 			}
 	
+			if (csvSeparator!=null)
+				CSVFormatter.setGlobalCsvSeparator(csvSeparator);
+			
 			if (fileName==null && inFilePath!=null) {
 				fileName = inFilePath;
 			}

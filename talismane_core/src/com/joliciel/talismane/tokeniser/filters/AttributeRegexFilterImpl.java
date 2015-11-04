@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2015 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -18,7 +18,22 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-interface TokenFilterServiceInternal extends TokenFilterService {
-	public TokenPlaceholder getTokenPlaceholder(int startIndex, int endIndex, String replacement, String regex);
-	public AttributeRegexFilter getAttributeRegexFilter(String regex);
+import java.util.List;
+
+class AttributeRegexFilterImpl extends TokenRegexFilterImpl implements AttributeRegexFilter {
+
+	public AttributeRegexFilterImpl(String regex) {
+		super(regex);
+	}
+
+	@Override
+	public List<TokenPlaceholder> apply(String text) {
+		List<TokenPlaceholder> placeholders = super.apply(text);
+		for (TokenPlaceholder placeholder : placeholders) {
+			placeholder.setSingleToken(false);
+		}
+		return placeholders;
+	}
+
+	
 }

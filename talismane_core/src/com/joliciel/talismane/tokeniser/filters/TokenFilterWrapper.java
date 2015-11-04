@@ -19,7 +19,6 @@
 package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.List;
-import java.util.Set;
 
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -35,7 +34,7 @@ class TokenFilterWrapper implements TokenSequenceFilter {
 	public void apply(TokenSequence tokenSequence) {
 		for (Token token : tokenSequence) {
 			for (TokenFilter tokenFilter : this.tokenFilters) {
-				Set<TokenPlaceholder> placeholders = tokenFilter.apply(token.getOriginalText());
+				List<TokenPlaceholder> placeholders = tokenFilter.apply(token.getOriginalText());
 				if (placeholders.size()>0) {
 					TokenPlaceholder placeholder = placeholders.iterator().next();
 					if (placeholder.getReplacement()!=null && placeholder.getStartIndex()==0 && placeholder.getEndIndex()==token.getText().length()) {
