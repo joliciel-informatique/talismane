@@ -179,6 +179,8 @@ public abstract class AbstractTokeniser implements Tokeniser {
 	}
 
 	public void addTokenFilter(TokenFilter filter) {
+		if (LOG.isTraceEnabled())
+			LOG.trace("Added filter: " + filter.toString());
 		this.tokenFilters.add(filter);
 	}
 
