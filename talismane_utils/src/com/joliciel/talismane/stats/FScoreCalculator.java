@@ -87,7 +87,7 @@ public class FScoreCalculator<E> {
 	 * @param expected
 	 * @param guessed
 	 */
-	public void increment(E expected, E guessed) {
+	public synchronized void increment(E expected, E guessed) {
 		int pairCount = 1;
 		Map<E,Integer> falsePositivesForGuessed = falsePositives.get(guessed);
 		if (falsePositivesForGuessed==null) {

@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * A filter that takes raw text, and finds tokens in the text (which are indicated by placeholders).<br/>
@@ -35,5 +35,5 @@ public interface TokenFilter {
 	 * @param sentence
 	 * @return
 	 */
-	Set<TokenPlaceholder> apply (String text);
+	List<TokenPlaceholder> apply(String text);
 }

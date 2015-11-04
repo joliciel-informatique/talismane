@@ -24,6 +24,8 @@ class TextMarkerImpl implements TextMarker {
 	private String insertionText;
 	private TextMarkerFilter source;
 	private String matchText;
+	private String attribute;
+	private String value;
 	
 	public TextMarkerImpl(TextMarkerType type, int position) {
 		super();
@@ -82,5 +84,19 @@ class TextMarkerImpl implements TextMarker {
 		this.matchText = matchText;
 	}
 	
+	@Override
+	public void setTag(String attribute, String value) {
+		this.attribute = attribute;
+		this.value = value;
+	}
+	
+	@Override
+	public String getAttribute() {
+		return attribute;
+	}
 
+	@Override
+	public String getValue() {
+		return value;
+	}
 }

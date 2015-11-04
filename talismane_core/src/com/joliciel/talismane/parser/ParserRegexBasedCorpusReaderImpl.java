@@ -346,7 +346,7 @@ public class ParserRegexBasedCorpusReaderImpl implements
 										PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
 										
 										if (transitionSystem.getDependencyLabels().size()>1) {
-											if (!transitionSystem.getDependencyLabels().contains(dataLine.getDependencyLabel())) {
+											if (dataLine.getDependencyLabel().length()>0 && !transitionSystem.getDependencyLabels().contains(dataLine.getDependencyLabel())) {
 												throw new TalismaneException("Unknown dependency label, " + (currentFile==null ? "" : currentFile.getPath()) + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getDependencyLabel());
 											}
 											if (dataLine.getNonProjectiveLabel().length()>0 && !transitionSystem.getDependencyLabels().contains(dataLine.getNonProjectiveLabel())) {

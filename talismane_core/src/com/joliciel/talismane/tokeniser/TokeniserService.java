@@ -19,7 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.Reader;
-import java.util.Set;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.Sentence;
@@ -55,7 +55,7 @@ public interface TokeniserService {
 	 * @param separatorPattern
 	 * @return
 	 */
-	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, Set<TokenPlaceholder> placeholders);
+	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders);
 
 	public PretokenisedSequence getEmptyPretokenisedSequence();
 	public PretokenisedSequence getEmptyPretokenisedSequence(String sentenceText);

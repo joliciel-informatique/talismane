@@ -142,7 +142,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 					processedText.append(textMarker.getInsertionText());
 				}
 				break;
-			case SENTENCE_BREAK:
+			case SENTENCE_BREAK: {
 				String leftoverText = null;
 				if (shouldProcess) {
 					insertionPoints.put(processedText.length(), currentPos);
@@ -176,6 +176,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 					}
 				}
 				break;
+			}
 			case POP_SKIP: case POP_INCLUDE: case STOP: case START:
 			{
 				boolean wasProcessing = shouldProcess;
@@ -230,6 +231,19 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 					outputPos = textMarker.getPosition();
 				} // shouldOutput?
 				break;
+			}
+			case TAG_START: case TAG_STOP:
+			{
+				if (shouldProcess) {
+					insertionPoints.put(processedText.length(), currentPos);
+					String leftoverText = originalText.substring(currentPos, textMarker.getPosition());
+					processedText.append(leftoverText);
+					currentPos = textMarker.getPosition();
+				}
+				if (textMarker.getType().equals(TextMarkerType.TAG_START))
+					sentenceHolder.addTagStart(textMarker.getAttribute(), textMarker.getValue(), processedText.length());
+				else
+					sentenceHolder.addTagEnd(textMarker.getAttribute(), textMarker.getValue(), processedText.length());
 			}
 			} // marker type
 			

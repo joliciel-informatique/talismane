@@ -26,7 +26,8 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 	private int endIndex;
 	private String replacement;
 	private String regex;
-	private boolean possibleSentenceBoundary;
+	private boolean possibleSentenceBoundary = true;
+	private boolean singleToken = true;
 	private Map<String,String> attributes = new HashMap<String,String>();
 
 	public TokenPlaceholderImpl() {
@@ -112,5 +113,13 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 	@Override
 	public void addAttribute(String key, String value) {
 		attributes.put(key, value);
+	}
+
+	public boolean isSingleToken() {
+		return singleToken;
+	}
+
+	public void setSingleToken(boolean singleToken) {
+		this.singleToken = singleToken;
 	}
 }

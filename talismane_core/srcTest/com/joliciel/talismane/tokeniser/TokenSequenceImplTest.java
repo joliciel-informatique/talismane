@@ -20,8 +20,10 @@ package com.joliciel.talismane.tokeniser;
 
 import static org.junit.Assert.*;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import mockit.NonStrict;
@@ -32,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 
 public class TokenSequenceImplTest {
@@ -46,6 +49,11 @@ public class TokenSequenceImplTest {
 		new NonStrictExpectations() {
 			{
 				sentence.getText(); returns("Je n'ai pas l'ourang-outan.");
+				SentenceTag sentenceTag = new SentenceTag("Je n'ai pas l'".length(), "Animal", "Singe");
+				sentenceTag.setEndIndex("Je n'ai pas l'ourang-outan".length());
+				List<SentenceTag> sentenceTags = new ArrayList<SentenceTag>();
+				sentenceTags.add(sentenceTag);
+				sentence.getSentenceTags(); returns(sentenceTags);
 			}
 		};
 		
@@ -89,12 +97,15 @@ public class TokenSequenceImplTest {
 			} else if (i==10) {
 				assertEquals("ourang", token.getText());	
 				assertEquals(false, token.isSeparator());
+				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i==11) {
 				assertEquals("-", token.getText());	
 				assertEquals(true, token.isSeparator());
+				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i==12) {
 				assertEquals("outan", token.getText());	
 				assertEquals(false, token.isSeparator());
+				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i==13) {
 				assertEquals(".", token.getText());	
 				assertEquals(true, token.isSeparator());
@@ -189,7 +200,7 @@ public class TokenSequenceImplTest {
 		final String separators="[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
 		
-		final Set<TokenPlaceholder> placeholders = new LinkedHashSet<TokenPlaceholder>();
+		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
 		
 		new NonStrictExpectations() {
 			TokenPlaceholder placeholder0, placeholder1;
@@ -199,11 +210,13 @@ public class TokenSequenceImplTest {
 				placeholder0.getStartIndex(); returns(15);
 				placeholder0.getEndIndex(); returns(34);
 				placeholder0.getReplacement(); returns("Email");
+				placeholder0.isSingleToken(); returns(true);
 				placeholders.add(placeholder0);
 				
 				placeholder1.getStartIndex(); returns(52);
 				placeholder1.getEndIndex(); returns(67);
 				placeholder1.getReplacement(); returns("URL");
+				placeholder1.isSingleToken(); returns(true);
 				placeholders.add(placeholder1);
 				
 			}
@@ -324,17 +337,38 @@ public class TokenSequenceImplTest {
 		final String separators="[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
 		
-		final Set<TokenPlaceholder> placeholders = new LinkedHashSet<TokenPlaceholder>();
+		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
 		
 		new NonStrictExpectations() {
 			TokenPlaceholder placeholder0;
+			TokenPlaceholder placeholder1;
+			TokenPlaceholder placeholder2;
 			{
 				sentence.getText(); returns("Il t’aime.");
+				
+				Map<String,String> attributes1 = new HashMap<String,String>();
+				attributes1.put("phrase", "verbal");
+				attributes1.put("person", "3rd");
+				placeholder1.getStartIndex(); returns("Il ".length());
+				placeholder1.getEndIndex(); returns("Il t’aime".length());
+				placeholder1.isSingleToken(); returns(false);
+				placeholder1.getAttributes(); returns(attributes1);
+				placeholders.add(placeholder1);
+				
+				Map<String,String> attributes2 = new HashMap<String,String>();
+				attributes2.put("type", "object");
+				placeholder2.getStartIndex(); returns("Il ".length());
+				placeholder2.getEndIndex(); returns("Il t’".length());
+				placeholder2.isSingleToken(); returns(false);
+				placeholder2.getAttributes(); returns(attributes2);
+				placeholders.add(placeholder2);
 				
 				placeholder0.getStartIndex(); returns("Il t".length());
 				placeholder0.getEndIndex(); returns("Il t’".length());
 				placeholder0.getReplacement(); returns("'");
+				placeholder0.isSingleToken(); returns(true);
 				placeholders.add(placeholder0);
+				
 			}
 		};
 
@@ -349,21 +383,35 @@ public class TokenSequenceImplTest {
 			if (i==0) {
 				assertEquals("Il", token.getText());
 				assertEquals(false, token.isSeparator());
+				assertEquals(0, token.getAttributes().size());
 			} else if (i==1) {
 				assertEquals(" ", token.getText());
 				assertEquals(true, token.isSeparator());
+				assertEquals(0, token.getAttributes().size());
 			} else if (i==2) {
 				assertEquals("t", token.getText());
 				assertEquals(false, token.isSeparator());
+				assertEquals(3, token.getAttributes().size());
+				assertEquals("verbal", token.getAttributes().get("phrase"));
+				assertEquals("3rd", token.getAttributes().get("person"));
+				assertEquals("object", token.getAttributes().get("type"));
 			} else if (i==3) {
 				assertEquals("'", token.getText());	
 				assertEquals(true, token.isSeparator());
+				assertEquals(3, token.getAttributes().size());
+				assertEquals("verbal", token.getAttributes().get("phrase"));
+				assertEquals("3rd", token.getAttributes().get("person"));
+				assertEquals("object", token.getAttributes().get("type"));
 			} else if (i==4) {
 				assertEquals("aime", token.getText());	
 				assertEquals(false, token.isSeparator());
+				assertEquals(2, token.getAttributes().size());
+				assertEquals("verbal", token.getAttributes().get("phrase"));
+				assertEquals("3rd", token.getAttributes().get("person"));
 			} else if (i==5) {
 				assertEquals(".", token.getText());	
 				assertEquals(true, token.isSeparator());
+				assertEquals(0, token.getAttributes().size());
 			}
 			i++;
 		}

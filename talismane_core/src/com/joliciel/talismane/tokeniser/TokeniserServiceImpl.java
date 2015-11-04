@@ -19,7 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.Reader;
-import java.util.Set;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.TalismaneService;
@@ -80,7 +80,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 	@Override
 	public TokenSequence getTokenSequence(Sentence sentence,
-			Pattern separatorPattern, Set<TokenPlaceholder> placeholders) {
+			Pattern separatorPattern, List<TokenPlaceholder> placeholders) {
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, this);
 		tokenSequence.setTalismaneService(this.getTalismaneService());
 		return tokenSequence;
@@ -105,7 +105,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	@Override
 	public Tokeniser getSimpleTokeniser() {
 		SimpleTokeniser tokeniser = new SimpleTokeniser();
-		tokeniser.setTokeniserServiceInternal(this);
+		tokeniser.setTokeniserService(this);
 		tokeniser.setFilterService(this.getFilterService());
 		tokeniser.setMachineLearningService(this.getMachineLearningService());
 		return tokeniser;
