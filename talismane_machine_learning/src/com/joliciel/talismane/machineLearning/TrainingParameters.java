@@ -146,7 +146,7 @@ public class TrainingParameters {
 				}
 			}
 			
-			if (defaultParameters!=null)
+			if (defaultParameters!=null && defaultParameters.getFeatureDescriptors()!=null)
 				featureDescriptors = new ArrayList<String>(defaultParameters.getFeatureDescriptors());
 			if (props.containsKey(propPrefix + featureProperty)) {
 				featureDescriptors = new ArrayList<String>();
