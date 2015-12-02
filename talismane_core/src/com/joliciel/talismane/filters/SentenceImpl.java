@@ -55,7 +55,7 @@ class SentenceImpl implements Sentence {
 
 	public int getOriginalIndex(int index) {
 		if (originalIndexes==null)
-			return -1;
+			return index;
 		if (index==originalIndexes.size())
 			return originalIndexes.get(index-1)+1;
 		if (index>originalIndexes.size())
@@ -65,7 +65,7 @@ class SentenceImpl implements Sentence {
 
 	public int getIndex(int originalIndex) {
 		if (originalIndexes==null)
-			return -1;
+			return originalIndex;
 		int index = -1;
 		for (int i=0; i<originalIndexes.size(); i++) {
 			if (originalIndexes.get(index)>=originalIndex) {
