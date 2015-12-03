@@ -18,9 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,13 +73,20 @@ public class StringUtils {
 	}
 	
 	/**
-	 * Get a map of strings from a properties file.
+	 * Get a map of strings from a properties file, using the UTF-8 encoding.
 	 */
 	public static Map<String,String> getArgMap(File propsFile) {
+		return getArgMap(propsFile, "UTF-8");
+	}
+	
+	/**
+	 * Get a map of strings from a properties file.
+	 */
+	public static Map<String,String> getArgMap(File propsFile, String encoding) {
 		try {
 			FileInputStream propsInputStream = new FileInputStream(propsFile);
 			Properties props = new Properties();
-			props.load(propsInputStream);
+			props.load(new BufferedReader(new InputStreamReader(propsInputStream, encoding)));
 			
 			return getArgMap(props);
 		} catch (IOException e) {
