@@ -339,34 +339,33 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private int port = 7272;
 	
 	// training parameters
-	int iterations = 0;
-	int cutoff = 0;
-	MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-	double constraintViolationCost = -1;
-	double epsilon = -1;
-	LinearSVMSolverType solverType = null;
-	double perceptronTolerance = -1;
-	boolean averageAtIntervals = false;
-	List<Integer> perceptronObservationPoints = null;
-	String dependencyLabelPath = null;
-	String excludeFileName = null;
+	private int iterations = 0;
+	private int cutoff = 0;
+	private MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
+	private double constraintViolationCost = -1;
+	private double epsilon = -1;
+	private LinearSVMSolverType solverType = null;
+	private double perceptronTolerance = -1;
+	private boolean averageAtIntervals = false;
+	private List<Integer> perceptronObservationPoints = null;
+	private String dependencyLabelPath = null;
+	private String excludeFileName = null;
 	
-	ExternalResourceFinder externalResourceFinder = null;
-	Map<String,List<String>> descriptors = null;
-	String parsingConstrainerPath = null;
-	ParsingConstrainer parsingConstrainer = null;
-	LanguageImplementation implementation;
-	TalismaneSession talismaneSession = null;
+	private ExternalResourceFinder externalResourceFinder = null;
+	private Map<String,List<String>> descriptors = null;
+	private String parsingConstrainerPath = null;
+	private ParsingConstrainer parsingConstrainer = null;
+	private LanguageImplementation implementation;
+	private TalismaneSession talismaneSession = null;
 	
-	String csvSeparator = "\t";
+	private File baseDir = null;
 	
-	File baseDir = null;
+	private boolean preloadLexicon = true;
 	
-	boolean preloadLexicon = true;
+	private Locale locale = null;
 	
-	Locale locale = null;
-	
-	String corpusLexicalEntryRegexPath = null;
+	private String corpusLexicalEntryRegexPath = null;
+	private String csvEncoding = "UTF8";
 	
 	public TalismaneConfigImpl(LanguageImplementation implementation) {
 		this.implementation = implementation;
@@ -407,6 +406,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			
 			String languagePackPath = null;
 			
+			String csvSeparator = "\t";
+			Locale outputLocale = null;			
+
 			for (Entry<String,String> arg : args.entrySet()) {
 				String argName = arg.getKey();
 				String argValue = arg.getValue();
@@ -694,6 +696,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					languagePackPath = argValue;
 				} else if (argName.equals("csvSeparator")) {
 					csvSeparator = argValue;
+				} else if (argName.equals("csvEncoding")) {
+					csvEncoding = argValue;
+				} else if (argName.equals("outputLocale")) {
+					outputLocale = Locale.forLanguageTag(argValue);
 				} else {
 					System.out.println("Unknown argument: " + argName);
 					throw new RuntimeException("Unknown argument: " + argName);
@@ -799,6 +805,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 			if (csvSeparator!=null)
 				CSVFormatter.setGlobalCsvSeparator(csvSeparator);
+			
+			if (outputLocale!=null)
+				CSVFormatter.setGlobalLocale(outputLocale);
 			
 			if (fileName==null && inFilePath!=null) {
 				fileName = inFilePath;
@@ -2235,7 +2244,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_transitions.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),csvEncoding));
 					ParseConfigurationProcessor transitionLogWriter = this.getParserService().getTransitionLogWriter(csvFileWriter);
 					
 					chain.addProcessor(transitionLogWriter);
@@ -2551,7 +2560,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				ParseTimeByLengthObserver parseTimeByLengthObserver = new ParseTimeByLengthObserver();
 				if (includeTimePerToken) {
 					File timePerTokenFile = new File(this.getOutDir(), this.getBaseName() + ".timePerToken.csv");
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false),csvEncoding));
 					parseTimeByLengthObserver.setWriter(csvFileWriter);
 				}
 				parserEvaluator.addObserver(parseTimeByLengthObserver);
@@ -2572,7 +2581,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_sentences.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),csvEncoding));
 					int guessCount = 1;
 					if (outputGuessCount>0)
 						guessCount = outputGuessCount;
@@ -2591,7 +2600,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_distances.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),csvEncoding));
 					ParserFScoreCalculatorByDistance calculator = new ParserFScoreCalculatorByDistance(csvFileWriter);
 					calculator.setLabeledEvaluation(this.labeledEvaluation);
 					calculator.setSkipLabel(skipLabel);
@@ -2602,7 +2611,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_transitions.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),csvEncoding));
 					ParseConfigurationProcessor transitionLogWriter = this.getParserService().getTransitionLogWriter(csvFileWriter);
 					ParseEvaluationObserverImpl observer = new ParseEvaluationObserverImpl(transitionLogWriter);
 					observer.setWriter(csvFileWriter);
@@ -2621,7 +2630,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				File freemarkerFile = new File(this.getOutDir(), this.getBaseName() + "_output.txt");
 				freemarkerFile.delete();
 				freemarkerFile.createNewFile();
-				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),"UTF8"));
+				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false),csvEncoding));
 				ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(freemakerFileWriter, templateReader);
 				parserEvaluator.addObserver(templateWriter);
 				parserEvaluator.setSentenceCount(maxSentenceCount);
@@ -2656,7 +2665,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					File csvFile = new File(this.getOutDir(), this.getBaseName() + ".distances.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),csvEncoding));
 					ParserFScoreCalculatorByDistance calculator = new ParserFScoreCalculatorByDistance(csvFileWriter);
 					calculator.setLabeledEvaluation(this.labeledEvaluation);
 					calculator.setSkipLabel(skipLabel);
@@ -2716,7 +2725,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			File csvErrorFile = new File(this.getOutDir(), this.getBaseName() + ".errors.csv");
 			csvErrorFile.delete();
 			csvErrorFile.createNewFile();
-			csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false),"UTF8"));
+			csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false),csvEncoding));
 	
 			File fScoreFile = new File(this.getOutDir(), this.getBaseName() + ".fscores.csv");
 	
@@ -2807,7 +2816,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_sentences.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),csvEncoding));
 					
 					int guessCount = 1;
 					if (outputGuessCount>0)
