@@ -38,6 +38,9 @@ public class CSVFormatter {
     private String csvSeparator = null;
     private static String globalCsvSeparator = ",";
     private int decimalPlaces = 2;
+    private static Locale globalLocale = Locale.US;
+    private Locale locale = null;
+    private boolean initialized = false;
     
 	private Pattern csvSeparators = null;
 	private enum TokenType {
@@ -50,18 +53,34 @@ public class CSVFormatter {
 	}
 
 	public CSVFormatter() {
-	    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
-	    decFormat.applyPattern("0.00");
-	    intFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
-	    intFormat.applyPattern("##0");
     }
     
+	private void initialize() {
+		if (!this.initialized) {
+		    this.updateDecimalFormat();
+			this.initialized = true;
+		}
+	}
+	
+
+	private void updateDecimalFormat() {
+		String dfFormat = "0.";
+		for (int i = 0; i<decimalPlaces;i++) {
+			dfFormat += "0";
+		}
+	    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(this.getLocale());
+	    decFormat.applyPattern(dfFormat);
+	    intFormat = (DecimalFormat) DecimalFormat.getNumberInstance(this.getLocale());
+	    intFormat.applyPattern("##0");
+	}
+	
     /**
      * Format a double for inclusion in a CSV.
      * @param number
      * @return
      */
     public String format(double number) {
+    	this.initialize();
     	if (addQuotesAlways)
     		return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
 		return decFormat.format(number) + this.getCsvSeparator();
@@ -73,6 +92,7 @@ public class CSVFormatter {
      * @return
      */
     public String format(float number) {
+    	this.initialize();
     	if (addQuotesAlways)
     		return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
 		return decFormat.format(number) + this.getCsvSeparator();
@@ -84,6 +104,7 @@ public class CSVFormatter {
      * @return
      */
     public String format(int number) {
+    	this.initialize();
     	if (addQuotesAlways)
     		return "\"" + intFormat.format(number) + "\"" + this.getCsvSeparator();
 		return intFormat.format(number) + this.getCsvSeparator();
@@ -265,13 +286,31 @@ public class CSVFormatter {
 	public void setDecimalPlaces(int decimalPlaces) {
 		if (this.decimalPlaces!=decimalPlaces) {
 			this.decimalPlaces = decimalPlaces;
-			String dfFormat = "0.";
-			for (int i = 0; i<decimalPlaces;i++) {
-				dfFormat += "0";
-			}
-		    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(Locale.US);
-		    decFormat.applyPattern(dfFormat);
+			this.updateDecimalFormat();
 		}
+	}
+	
+	
+	
+	public Locale getLocale() {
+		if (this.locale!=null)
+			return locale;
+		return globalLocale;
+	}
+
+	public void setLocale(Locale locale) {
+		if (!locale.equals(this.locale)) {
+			this.locale = locale;
+			this.updateDecimalFormat();
+		}
+	}
+
+	public static Locale getGlobalLocale() {
+		return globalLocale;
+	}
+
+	public static void setGlobalLocale(Locale globalLocale) {
+		CSVFormatter.globalLocale = globalLocale;
 	}
 
 	public int getDecimalPlaces() {
