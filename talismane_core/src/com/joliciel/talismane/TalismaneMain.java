@@ -20,6 +20,7 @@ package com.joliciel.talismane;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -67,10 +68,24 @@ public class TalismaneMain {
 	    		otherCommand = OtherCommand.valueOf(argsMap.get("command"));
 	    		argsMap.remove("command");
     		} catch (IllegalArgumentException e) {
-    			// not anotherCommand
+    			// not an otherCommand
     		}
     	}
     	
+    	// Configure log4j
+		String logConfigPath = argsMap.get("logConfigFile");
+		if (logConfigPath!=null) {
+			argsMap.remove("logConfigFile");
+			Properties props = new Properties();
+			props.load(new FileInputStream(logConfigPath));
+			PropertyConfigurator.configure(props);
+		} else {
+			Properties props = new Properties();
+			InputStream stream = TalismaneMain.class.getResourceAsStream("default-log4j.properties");
+			props.load(stream);
+			PropertyConfigurator.configure(props);
+		}
+		
     	String sessionId = "";
        	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
        	TalismaneService talismaneService = locator.getTalismaneService();
@@ -93,14 +108,6 @@ public class TalismaneMain {
     		}
     	} else {
     		// other command
-			String logConfigPath = argsMap.get("logConfigFile");
-			if (logConfigPath!=null) {
-				argsMap.remove("logConfigFile");
-				Properties props = new Properties();
-				props.load(new FileInputStream(logConfigPath));
-				PropertyConfigurator.configure(props);
-			}
-			
 	    	switch (otherCommand) {
 	    	case serializeLexicon: {
 	    		LexiconSerializer serializer = new LexiconSerializer();
