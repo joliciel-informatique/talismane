@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-
 import org.apache.commons.logging.Log;
 
 /**
@@ -32,6 +31,10 @@ import org.apache.commons.logging.Log;
  */
 public class LogUtils {
 	private static final int MEGABYTE = 1024*1024;
+
+	public enum LogLevel {
+		TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+	}
 	
     /**
     * Return the current exception & stack trace as a String.
@@ -56,7 +59,55 @@ public class LogUtils {
     * Log the exception passed.
     */
     public static void logError(Log logger, Throwable e) {
-        logger.error(e);
+        logError(null, logger, e);
+    }
+    
+    /**
+    * Log the exception passed, including the prefix passed.
+    */
+    public static void logError(String prefix, Log logger, Throwable e) {
+        logError(prefix, logger, LogLevel.ERROR, e);
+    }
+    
+    /**
+    * Log the exception passed, including the prefix if not null, at the requested level.
+    */
+    public static void logError(String prefix, Log logger, LogLevel logLevel, Throwable e) {
+    	if (prefix!=null)
+    		log(logger, logLevel, prefix + " " + e);
+    	else
+    		log(logger, logLevel, e.toString());
+    	log(logger, logLevel, getErrorString(e));
+    }
+    
+    public static void log(Log log, LogLevel logLevel, String message) {
+    	switch (logLevel) {
+    	case TRACE:
+            log.trace(message);
+            break;
+    	case DEBUG:
+            log.debug(message);
+        	break;
+    	case INFO:
+            log.info(message);
+        	break;
+    	case WARN:
+            log.warn(message);
+        	break;
+    	case ERROR:
+        	log.error(message);
+        	break;
+    	case FATAL:
+    		log.fatal(message);
+    		break;
+    	}
+    }
+    
+    /**
+    * Log the exception passed.
+    */
+    public static void logError(String customer, Log logger, Throwable e, LogLevel logLevel) {
+        logger.error(customer + " " + e);
         logger.error(LogUtils.getErrorString(e));
     }
     

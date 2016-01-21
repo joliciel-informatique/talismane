@@ -1428,6 +1428,18 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		}
 	}
 
+	public void setTextMarkerFilters(Scanner scanner) {
+		textMarkerFilters = new ArrayListNoNulls<TextMarkerFilter>();
+		while (scanner.hasNextLine()) {
+			String descriptor = scanner.nextLine();
+			LOG.debug(descriptor);
+			if (descriptor.length()>0 && !descriptor.startsWith("#")) {
+				TextMarkerFilter textMarkerFilter = this.getFilterService().getTextMarkerFilter(descriptor, blockSize);
+				this.addTextMarkerFilter(textMarkerFilter);
+			}
+		}
+	}
+	
 	@Override
 	public void setTextMarkerFilters(List<TextMarkerFilter> textMarkerFilters) {
 		this.textMarkerFilters = textMarkerFilters;
@@ -1626,6 +1638,16 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public synchronized void setTokenFilters(Scanner scanner) {
+		List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
+		tokenFilters = new ArrayListNoNulls<TokenFilter>();
+		List<TokenFilter> myFilters = this.getTokenFilterService().readTokenFilters(scanner, tokenFilterDescriptors);
+		for (TokenFilter tokenFilter : myFilters) {
+			tokenFilters.add(tokenFilter);
+		}
+		this.getDescriptors().put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 	}
 
 	/**
