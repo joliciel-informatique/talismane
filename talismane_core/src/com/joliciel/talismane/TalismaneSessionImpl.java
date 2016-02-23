@@ -54,6 +54,8 @@ class TalismaneSessionImpl implements TalismaneSession {
 			posTagSet = implementation.getDefaultPosTagSet();
 			this.setPosTagSet(posTagSet);
 		}
+		if (posTagSet==null)
+			throw new TalismaneException("PosTagSet missing.");
 		return posTagSet;
 	}
 
@@ -69,6 +71,8 @@ class TalismaneSessionImpl implements TalismaneSession {
 			transitionSystem = implementation.getDefaultTransitionSystem();
 			this.setTransitionSystem(transitionSystem);
 		}
+		if (transitionSystem==null)
+			throw new TalismaneException("TransitionSystem missing.");
 		return transitionSystem;
 	}
 

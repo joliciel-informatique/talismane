@@ -74,10 +74,9 @@ public class LogUtils {
     */
     public static void logError(String prefix, Log logger, LogLevel logLevel, Throwable e) {
     	if (prefix!=null)
-    		log(logger, logLevel, prefix + " " + e);
+    		log(logger, logLevel, prefix + " " + getErrorString(e));
     	else
-    		log(logger, logLevel, e.toString());
-    	log(logger, logLevel, getErrorString(e));
+    		log(logger, logLevel, getErrorString(e));
     }
     
     public static void log(Log log, LogLevel logLevel, String message) {

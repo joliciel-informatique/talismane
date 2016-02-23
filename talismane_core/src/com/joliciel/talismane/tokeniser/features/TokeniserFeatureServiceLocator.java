@@ -28,7 +28,7 @@ public class TokeniserFeatureServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public TokenFeatureService getTokenFeatureService() {
+	public synchronized TokenFeatureService getTokenFeatureService() {
 		if (tokenFeatureService==null) {
 			tokenFeatureService = new TokenFeatureServiceImpl();
 			tokenFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());

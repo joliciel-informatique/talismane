@@ -31,14 +31,14 @@ public class LinearSVMServiceLocator {
 		this.machineLearningServiceLocator = machineLearningServiceLocator;
 	}
 	
-	public static LinearSVMServiceLocator getInstance(MachineLearningServiceLocator machineLearningServiceLocator) {
+	public synchronized static LinearSVMServiceLocator getInstance(MachineLearningServiceLocator machineLearningServiceLocator) {
 		if (instance==null) {
 			instance = new LinearSVMServiceLocator(machineLearningServiceLocator);
 		}
 		return instance;
 	}
 	
-	public LinearSVMService getLinearSVMService() {
+	public synchronized LinearSVMService getLinearSVMService() {
 		if (linearSVMService == null) {
 			linearSVMService = new LinearSVMServiceImpl();
 			linearSVMService.setMachineLearningService(this.machineLearningServiceLocator.getMachineLearningService());

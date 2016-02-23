@@ -366,6 +366,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	private String corpusLexicalEntryRegexPath = null;
 	private String csvEncoding = "UTF8";
+	private String outputDivider = "";
 	
 	public TalismaneConfigImpl(LanguageImplementation implementation) {
 		this.implementation = implementation;
@@ -700,12 +701,16 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					csvEncoding = argValue;
 				} else if (argName.equals("outputLocale")) {
 					outputLocale = Locale.forLanguageTag(argValue);
+				} else if (argName.equals("outputDivider")) {
+					outputDivider = argValue;
+					if (outputDivider.equals("NEWLINE"))
+						outputDivider = "\n";
 				} else {
 					System.out.println("Unknown argument: " + argName);
 					throw new RuntimeException("Unknown argument: " + argName);
 				}
 			}
-						
+			
 			if (!(implementation instanceof LanguagePackImplementation) && languagePackPath!=null)
 				throw new TalismaneException("The implementation " + implementation.getClass().getSimpleName() + " does not accept language packs");
 			
@@ -905,6 +910,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					tokenFilterResourceFinder.addExternalWordList(externalWordList);
 				}
 			}
+			
+			this.getFilterService().setOutputDivider(outputDivider);
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

@@ -76,4 +76,11 @@ public interface FilterService {
 	public SentenceHolder getSentenceHolder();
 	
 	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize);
+	
+	/**
+	 * A string inserted between outputs (such as a newline).
+	 * @return
+	 */
+	public String getOutputDivider();
+	public void setOutputDivider(String outputDivider);
 }

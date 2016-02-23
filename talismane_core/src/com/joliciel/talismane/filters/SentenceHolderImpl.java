@@ -155,7 +155,7 @@ class SentenceHolderImpl extends SentenceImpl implements SentenceHolder {
 						sentence.addOriginalIndex(this.getOriginalIndexes().get(i));
 					
 					if (this.getOriginalTextSegments().containsKey(i)) {
-						sentence.getOriginalTextSegments().put(sb.length(), this.getOriginalTextSegments().get(i));
+						sentence.addOriginalTextSegment(sb.length(), this.getOriginalTextSegments().get(i));
 						lastOriginalTextInsertionProcessed = i;
 					}
 					

@@ -33,7 +33,7 @@ public class PosTaggerServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public PosTaggerService getPosTaggerService() {
+	public synchronized PosTaggerService getPosTaggerService() {
 		if (posTaggerService==null) {
 			posTaggerService = new PosTaggerServiceImpl();
 			posTaggerService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
