@@ -21,7 +21,6 @@ package com.joliciel.talismane.tokeniser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -41,7 +40,6 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
 final class TokenImpl implements TokenInternal {
-	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(TokenImpl.class);
 	private static Pattern whiteSpacePattern = Pattern.compile("[\\s\ufeff]+", Pattern.UNICODE_CHARACTER_CLASS);
 
@@ -378,15 +376,26 @@ final class TokenImpl implements TokenInternal {
 	@Override
 	public String getPrecedingRawOutput() {
 		Sentence sentence = this.getTokenSequence().getSentence();
-		Entry<Integer, String> textSegment = sentence.getPrecedingOriginalTextSegment(startIndex);
-		if (textSegment==null)
-			return null;
-		if (this.index==0)
-			return textSegment.getValue();
-		Token previousToken = this.getTokenSequence().get(index-1);
-		if (previousToken.getStartIndex()>=textSegment.getKey())
-			return null;
-		return textSegment.getValue();
+		int prevStart = -1;
+		if (this.index>0) {
+			Token previousToken = this.getTokenSequence().get(index-1);
+			prevStart = previousToken.getStartIndex();
+		}
+		String rawOutput = null;
+		if (startIndex>prevStart)
+			rawOutput = sentence.getRawInput(prevStart, startIndex);
+		return rawOutput;
+	}
+	
+	public String getTrailingRawOutput() {
+		String rawOutput = null;
+		if (this.index==this.getTokenSequence().size()-1) {
+			Sentence sentence = this.getTokenSequence().getSentence();
+			rawOutput = sentence.getRawInput(startIndex, Integer.MAX_VALUE-1);
+			if (LOG.isTraceEnabled())
+				LOG.trace(rawOutput);
+		}
+		return rawOutput;
 	}
 
 	@Override

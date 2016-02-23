@@ -28,7 +28,7 @@ public class SentenceDetectorFeatureServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
+	public synchronized SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
 		if (sentenceDetectorFeatureService==null) {
 			sentenceDetectorFeatureService = new SentenceDetectorFeatureServiceImpl();
 			sentenceDetectorFeatureService.setFeatureService(this.getTalismaneServiceLocator().getFeatureServiceLocator().getFeatureService());

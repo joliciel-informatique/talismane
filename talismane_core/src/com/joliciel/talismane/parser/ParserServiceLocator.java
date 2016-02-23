@@ -28,7 +28,7 @@ public class ParserServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public ParserService getParserService() {
+	public synchronized ParserService getParserService() {
 		if (parserService==null) {
 			parserService = new ParserServiceImpl();
 			parserService.setTalismaneService(this.talismaneServiceLocator.getTalismaneService());

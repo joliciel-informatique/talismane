@@ -29,7 +29,7 @@ public class LexiconServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public LexiconService getLexiconService() {
+	public synchronized LexiconService getLexiconService() {
 		if (lexiconService==null) {
 			lexiconService = new LexiconServiceImpl();
 		}

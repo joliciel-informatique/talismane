@@ -28,7 +28,7 @@ public class ParserFeatureServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public ParserFeatureService getParserFeatureService() {
+	public synchronized ParserFeatureService getParserFeatureService() {
 		if (parserFeatureService==null) {
 			parserFeatureService = new ParserFeatureServiceImpl();
 			parserFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());

@@ -25,14 +25,14 @@ public class FeatureServiceLocator {
 	private FeatureServiceLocator() {
 		
 	}
-	public static FeatureServiceLocator getInstance() {
+	public synchronized static FeatureServiceLocator getInstance() {
 		if (instance==null) {
 			instance = new FeatureServiceLocator();
 		}
 		return instance;
 	}
 	
-	public FeatureService getFeatureService() {
+	public synchronized FeatureService getFeatureService() {
 		if (featureService==null) {
 			featureService = new FeatureServiceImpl();
 		}

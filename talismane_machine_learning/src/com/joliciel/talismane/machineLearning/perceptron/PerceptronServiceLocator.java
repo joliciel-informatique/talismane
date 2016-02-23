@@ -31,14 +31,14 @@ public class PerceptronServiceLocator {
 		this.machineLearningServiceLocator = machineLearningServiceLocator;
 	}
 	
-	public static PerceptronServiceLocator getInstance(MachineLearningServiceLocator machineLearningServiceLocator) {
+	public synchronized static PerceptronServiceLocator getInstance(MachineLearningServiceLocator machineLearningServiceLocator) {
 		if (instance==null) {
 			instance = new PerceptronServiceLocator(machineLearningServiceLocator);
 		}
 		return instance;
 	}
 	
-	public PerceptronService getPerceptronService() {
+	public synchronized PerceptronService getPerceptronService() {
 		if (perceptronService == null) {
 			perceptronService = new PerceptronServiceImpl();
 			perceptronService.setMachineLearningService(this.machineLearningServiceLocator.getMachineLearningService());

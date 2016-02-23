@@ -212,6 +212,13 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	String getPrecedingRawOutput();
 	
 	/**
+	 * Any text that should be output as "raw" after outputting this token, or null
+	 * if none available. Will only ever return non-null for the final token in a sequence.
+	 * @return
+	 */
+	String getTrailingRawOutput();
+	
+	/**
 	 * Make a shallow clone of this token.
 	 * @return
 	 */
