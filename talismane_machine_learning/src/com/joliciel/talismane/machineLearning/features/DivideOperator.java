@@ -44,8 +44,10 @@ public class DivideOperator<T> extends AbstractCachableFeature<T,Double> impleme
 		FeatureResult<Double> operand2Result = operand2.check(context, env);
 		
 		if (operand1Result!=null && operand2Result!=null) {
-			double result = operand1Result.getOutcome() / operand2Result.getOutcome();
-			featureResult = this.generateResult(result);
+			if (operand2Result.getOutcome()!=0) {
+				double result = operand1Result.getOutcome() / operand2Result.getOutcome();
+				featureResult = this.generateResult(result);
+			}
 		}
 		
 		return featureResult;

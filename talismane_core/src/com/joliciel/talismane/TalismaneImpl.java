@@ -780,7 +780,7 @@ class TalismaneImpl implements Talismane {
 	    						this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration, this.getWriter());
 	    					}
     					} catch (Exception e) {
-    						LOG.error(e);
+    						LogUtils.logError(LOG, e);
     						if (stopOnError)
     							throw new RuntimeException(e);
     					}

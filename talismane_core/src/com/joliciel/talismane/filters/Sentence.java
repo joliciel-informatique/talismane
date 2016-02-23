@@ -65,11 +65,27 @@ public interface Sentence {
 	Map<Integer, String> getOriginalTextSegments();
 	
 	/**
+	 * Add a raw text segment at a given position.
+	 * @param index
+	 * @param segment
+	 */
+	void addOriginalTextSegment(int index, String segment);
+	
+	/**
 	 * Get the closest original text segment preceding a certain index.
 	 * @param index
 	 * @return
 	 */
 	Entry<Integer,String> getPrecedingOriginalTextSegment(int index);
+	
+	/**
+	 * Get all raw input strictly after a given startIndex, and before or at a given end index,
+	 * concatenated together.
+	 * @param startIndex
+	 * @param endIndex
+	 * @return
+	 */
+	String getRawInput(int startIndex, int endIndex);
 	
 	/**
 	 * Add a new original index to the current sentence.
@@ -154,4 +170,11 @@ public interface Sentence {
 	 * @return
 	 */
 	public List<SentenceTag> getSentenceTags();
+	
+	/**
+	 * A string inserted between outputs (such as a newline).
+	 * @return
+	 */
+	public String getOutputDivider();
+	public void setOutputDivider(String outputDivider);
 }

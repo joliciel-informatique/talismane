@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import com.joliciel.talismane.Talismane.Command;
@@ -238,6 +239,8 @@ public interface TalismaneConfig {
 	 */
 	public List<TextMarkerFilter> getTextMarkerFilters();
 
+	public void setTextMarkerFilters(Scanner scanner);
+	
 	public void setTextMarkerFilters(List<TextMarkerFilter> textMarkerFilters);
 
 	public void addTextMarkerFilter(TextMarkerFilter textMarkerFilter);
@@ -571,6 +574,12 @@ public interface TalismaneConfig {
 	public void setLanguageCorpusMapPath(String languageCorpusMapPath);
 	
 	public LanguageImplementation getLanguageImplementation();
+	
+	/**
+	 * Set all token filters replacing those loaded from the model or config.
+	 * @param scanner
+	 */
+	public void setTokenFilters(Scanner scanner);
 	
 	/**
 	 * Add a token filter in addition to those loaded from the model or config.

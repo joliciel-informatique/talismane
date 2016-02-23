@@ -28,7 +28,7 @@ public class PosTagFilterServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public PosTagFilterService getPosTagFilterService() {
+	public synchronized PosTagFilterService getPosTagFilterService() {
 		if (posTagFilterService==null) {
 			posTagFilterService = new PosTagFilterServiceImpl();
 		}

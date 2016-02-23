@@ -77,7 +77,7 @@ public class TalismaneServiceLocator {
 		this.sessionId = sessionId;
 	}
 	
-	public static TalismaneServiceLocator getInstance(String sessionId) {
+	public synchronized static TalismaneServiceLocator getInstance(String sessionId) {
 		TalismaneServiceLocator instance = instances.get(sessionId);
 		if (instance==null) {
 			instance = new TalismaneServiceLocator(sessionId);
@@ -106,11 +106,11 @@ public class TalismaneServiceLocator {
     	return this.talismaneService;
     }
 
-    public TalismaneService getTalismaneService() {
+    public synchronized TalismaneService getTalismaneService() {
     	return this.getTalismaneServiceInternal();
     }
 
-	public PosTaggerFeatureServiceLocator getPosTaggerFeatureServiceLocator() {
+	public synchronized PosTaggerFeatureServiceLocator getPosTaggerFeatureServiceLocator() {
 		if (this.posTaggerFeatureServiceLocator==null) {
 			this.posTaggerFeatureServiceLocator = new PosTaggerFeatureServiceLocator(this);
 		}
@@ -118,21 +118,21 @@ public class TalismaneServiceLocator {
 	}
 	
 
-	public PosTaggerServiceLocator getPosTaggerServiceLocator() {
+	public synchronized PosTaggerServiceLocator getPosTaggerServiceLocator() {
 		if (this.posTaggerServiceLocator==null) {
 			this.posTaggerServiceLocator = new PosTaggerServiceLocator(this);
 		}
 		return posTaggerServiceLocator;
 	}
 	
-	public PosTagFilterServiceLocator getPosTagFilterServiceLocator() {
+	public synchronized PosTagFilterServiceLocator getPosTagFilterServiceLocator() {
 		if (this.posTagFilterServiceLocator==null) {
 			this.posTagFilterServiceLocator = new PosTagFilterServiceLocator(this);
 		}
 		return posTagFilterServiceLocator;
 	}
 
-	public TokeniserServiceLocator getTokeniserServiceLocator() {
+	public synchronized TokeniserServiceLocator getTokeniserServiceLocator() {
 		if (this.tokeniserServiceLocator==null) {
 			this.tokeniserServiceLocator = new TokeniserServiceLocator(this);
 		}
@@ -140,28 +140,28 @@ public class TalismaneServiceLocator {
 	}
 	
 
-	public SentenceDetectorServiceLocator getSentenceDetectorServiceLocator() {
+	public synchronized SentenceDetectorServiceLocator getSentenceDetectorServiceLocator() {
 		if (this.sentenceDetectorServiceLocator==null) {
 			this.sentenceDetectorServiceLocator = new SentenceDetectorServiceLocator(this);
 		}
 		return sentenceDetectorServiceLocator;
 	}
 	
-	public LanguageDetectorServiceLocator getLanguageDetectorServiceLocator() {
+	public synchronized LanguageDetectorServiceLocator getLanguageDetectorServiceLocator() {
 		if (this.languageDetectorServiceLocator==null) {
 			this.languageDetectorServiceLocator = new LanguageDetectorServiceLocator(this);
 		}
 		return languageDetectorServiceLocator;
 	}
 
-	public SentenceDetectorFeatureServiceLocator getSentenceDetectorFeatureServiceLocator() {
+	public synchronized SentenceDetectorFeatureServiceLocator getSentenceDetectorFeatureServiceLocator() {
 		if (this.sentenceDetectorFeatureServiceLocator==null) {
 			this.sentenceDetectorFeatureServiceLocator = new SentenceDetectorFeatureServiceLocator(this);
 		}
 		return sentenceDetectorFeatureServiceLocator;
 	}
 
-	public ParserServiceLocator getParserServiceLocator() {
+	public synchronized ParserServiceLocator getParserServiceLocator() {
 		if (this.parserServiceLocator==null) {
 			this.parserServiceLocator = new ParserServiceLocator(this);
 		}
@@ -169,21 +169,21 @@ public class TalismaneServiceLocator {
 	}
 
 
-	public ParserFeatureServiceLocator getParserFeatureServiceLocator() {
+	public synchronized ParserFeatureServiceLocator getParserFeatureServiceLocator() {
 		if (this.parserFeatureServiceLocator==null) {
 			this.parserFeatureServiceLocator = new ParserFeatureServiceLocator(this);
 		}
 		return parserFeatureServiceLocator;
 	}
 
-	public FeatureServiceLocator getFeatureServiceLocator() {
+	public synchronized FeatureServiceLocator getFeatureServiceLocator() {
 		if (this.featureServiceLocator==null) {
 			this.featureServiceLocator = FeatureServiceLocator.getInstance();
 		}
 		return featureServiceLocator;
 	}
 
-	public TokeniserFeatureServiceLocator getTokenFeatureServiceLocator() {
+	public synchronized TokeniserFeatureServiceLocator getTokenFeatureServiceLocator() {
 		if (this.tokeniserFeatureServiceLocator==null) {
 			this.tokeniserFeatureServiceLocator = new TokeniserFeatureServiceLocator(this);
 		}
@@ -191,14 +191,14 @@ public class TalismaneServiceLocator {
 
 	}
 
-	public TokenFilterServiceLocator getTokenFilterServiceLocator() {
+	public synchronized TokenFilterServiceLocator getTokenFilterServiceLocator() {
 		if (this.tokenFilterServiceLocator==null) {
 			this.tokenFilterServiceLocator = new TokenFilterServiceLocator(this);
 		}
 		return tokenFilterServiceLocator;
 	}
 
-	public TokeniserPatternServiceLocator getTokenPatternServiceLocator() {
+	public synchronized TokeniserPatternServiceLocator getTokenPatternServiceLocator() {
 		if (this.tokeniserPatternServiceLocator==null) {
 			this.tokeniserPatternServiceLocator = new TokeniserPatternServiceLocator(this);
 		}
@@ -206,26 +206,26 @@ public class TalismaneServiceLocator {
 
 	}
 
-	public MachineLearningServiceLocator getMachineLearningServiceLocator() {
+	public synchronized MachineLearningServiceLocator getMachineLearningServiceLocator() {
 		if (this.machineLearningServiceLocator==null)
 			this.machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 		return machineLearningServiceLocator;
 	}
 
-	public MaxentServiceLocator getMaxentServiceLocator() {
+	public synchronized MaxentServiceLocator getMaxentServiceLocator() {
 		if (this.maxentServiceLocator==null)
 			this.maxentServiceLocator = MaxentServiceLocator.getInstance(this.getMachineLearningServiceLocator());
 		return maxentServiceLocator;
 	}
 
-	public FilterServiceLocator getFilterServiceLocator() {
+	public synchronized FilterServiceLocator getFilterServiceLocator() {
 		if (this.filterServiceLocator==null)
 			this.filterServiceLocator = new FilterServiceLocator(this);
 		return filterServiceLocator;
 	}
 	
 
-	public LexiconServiceLocator getLexiconServiceLocator() {
+	public synchronized LexiconServiceLocator getLexiconServiceLocator() {
 		if (this.lexiconServiceLocator==null)
 			this.lexiconServiceLocator = new LexiconServiceLocator(this);
 		return lexiconServiceLocator;

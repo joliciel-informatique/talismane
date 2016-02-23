@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -308,9 +309,23 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 	
 	public void setLanguagePack(File languagePackFile) {
+		try {
+			this.setLanguagePack(new BufferedInputStream(new FileInputStream(languagePackFile)), new BufferedInputStream(new FileInputStream(languagePackFile)));
+		} catch (FileNotFoundException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Set the language pack using two identical input streams (since it has to be read twice).
+	 * @param languagePackInputStream
+	 * @param languagePackInputStream2
+	 */
+	public void setLanguagePack(InputStream languagePackInputStream, InputStream languagePackInputStream2) {
 		ZipInputStream zis = null;
 		try {
-			zis = new ZipInputStream(new FileInputStream(languagePackFile));
+			zis = new ZipInputStream(languagePackInputStream);
 			ZipEntry ze = null;
 			
 			Map<String,String> argMap = new HashMap<String, String>();
@@ -346,7 +361,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 		    	}
 		    }
 		    
-		    zis = new ZipInputStream(new FileInputStream(languagePackFile));
+		    zis = new ZipInputStream(languagePackInputStream2);
 			ze = null;
 			
 		    while ((ze = zis.getNextEntry()) != null) {

@@ -29,14 +29,14 @@ public class MachineLearningServiceLocator {
 	
 	private MachineLearningServiceLocator() { }
 	
-	public static MachineLearningServiceLocator getInstance() {
+	public synchronized static MachineLearningServiceLocator getInstance() {
 		if (instance==null) {
 			instance = new MachineLearningServiceLocator();
 		}
 		return instance;
 	}
 	
-	public MachineLearningService getMachineLearningService() {
+	public synchronized MachineLearningService getMachineLearningService() {
 		if (machineLearningService == null) {
 			machineLearningService = new MachineLearningServiceImpl();
 			machineLearningService.setMaxentService(MaxentServiceLocator.getInstance(this).getMaxentService());

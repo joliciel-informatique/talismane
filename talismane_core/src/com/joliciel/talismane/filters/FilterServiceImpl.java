@@ -30,6 +30,7 @@ import com.joliciel.talismane.utils.LogUtils;
 
 class FilterServiceImpl implements FilterServiceInternal {
 	private static final Log LOG = LogFactory.getLog(FilterServiceImpl.class);
+	private String outputDivider = "";
 
 	@Override
 	public TextMarker getTextMarker(TextMarkerType type, int position) {
@@ -52,18 +53,17 @@ class FilterServiceImpl implements FilterServiceInternal {
 		return textMarker;
 	}
 
-
-
-
 	public Sentence getSentence(String text) {
 		SentenceImpl sentence = new SentenceImpl();
 		sentence.setText(text);
+		sentence.setOutputDivider(this.outputDivider);
 		return sentence;
 	}
 	
 	@Override
 	public Sentence getSentence() {
 		SentenceImpl sentence = new SentenceImpl();
+		sentence.setOutputDivider(this.outputDivider);
 		return sentence;
 	}
 
@@ -72,6 +72,7 @@ class FilterServiceImpl implements FilterServiceInternal {
 	public SentenceHolder getSentenceHolder() {
 		SentenceHolderImpl sentenceHolder = new SentenceHolderImpl();
 		sentenceHolder.setFilterService(this);
+		sentenceHolder.setOutputDivider(this.outputDivider);
 		return sentenceHolder;
 	}
 
@@ -229,6 +230,14 @@ class FilterServiceImpl implements FilterServiceInternal {
 		}
 		
 		return filter;
+	}
+
+	public String getOutputDivider() {
+		return outputDivider;
+	}
+
+	public void setOutputDivider(String outputDivider) {
+		this.outputDivider = outputDivider;
 	}
 
 	
