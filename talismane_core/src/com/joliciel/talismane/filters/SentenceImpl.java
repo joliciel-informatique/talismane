@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 class SentenceImpl implements Sentence {
-	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(SentenceImpl.class);
 	
 	private String text;
@@ -41,6 +41,7 @@ class SentenceImpl implements Sentence {
 	private File file = null;
 	private int startLineNumber = -1;
 	private String leftoverOriginalText;
+	private String outputDivider = "";
 	
 	private List<SentenceTag> sentenceTags = new ArrayList<SentenceTag>();
 	
@@ -55,7 +56,7 @@ class SentenceImpl implements Sentence {
 
 	public int getOriginalIndex(int index) {
 		if (originalIndexes==null)
-			return -1;
+			return index;
 		if (index==originalIndexes.size())
 			return originalIndexes.get(index-1)+1;
 		if (index>originalIndexes.size())
@@ -65,7 +66,7 @@ class SentenceImpl implements Sentence {
 
 	public int getIndex(int originalIndex) {
 		if (originalIndexes==null)
-			return -1;
+			return originalIndex;
 		int index = -1;
 		for (int i=0; i<originalIndexes.size(); i++) {
 			if (originalIndexes.get(index)>=originalIndex) {
@@ -79,6 +80,18 @@ class SentenceImpl implements Sentence {
 	@Override
 	public Map<Integer, String> getOriginalTextSegments() {
 		return this.originalTextSegments;
+	}
+	
+	@Override
+	public void addOriginalTextSegment(int index, String segment) {
+		if (LOG.isTraceEnabled())
+			LOG.trace("Adding raw segment at index " + index + ": " + segment);
+		String existingText = this.originalTextSegments.get(index);
+		if (existingText==null) {
+			this.originalTextSegments.put(index, segment);
+		} else {
+			this.originalTextSegments.put(index, existingText + outputDivider + segment);
+		}
 	}
 
 	void setOriginalTextSegments(
@@ -141,6 +154,23 @@ class SentenceImpl implements Sentence {
 	public Entry<Integer, String> getPrecedingOriginalTextSegment(int index) {
 		return this.originalTextSegments.floorEntry(index);
 	}
+	
+	public String getRawInput(int startIndex, int endIndex) {
+		SortedMap<Integer, String> containedSegments = originalTextSegments.subMap(startIndex+1, endIndex+1);
+		String rawInput = null;
+		if (containedSegments.size()>0) {
+			StringBuilder sb = new StringBuilder();
+			boolean firstSegment = true;
+			for (String segment : containedSegments.values()) {
+				if (!firstSegment)
+					sb.append(outputDivider);
+				sb.append(segment);
+				firstSegment = false;
+			}
+			rawInput = sb.toString();
+		}
+		return rawInput;
+	}
 
 	@Override
 	public String toString() {
@@ -168,10 +198,20 @@ class SentenceImpl implements Sentence {
 	}
 
 	public void setLeftoverOriginalText(String leftoverOriginalText) {
+		if (LOG.isTraceEnabled())
+			LOG.trace("setLeftoverOriginalText: " + leftoverOriginalText);
 		this.leftoverOriginalText = leftoverOriginalText;
 	}
 
 	public List<SentenceTag> getSentenceTags() {
 		return sentenceTags;
+	}
+
+	public String getOutputDivider() {
+		return outputDivider;
+	}
+
+	public void setOutputDivider(String outputDivider) {
+		this.outputDivider = outputDivider;
 	}
 }

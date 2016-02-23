@@ -28,7 +28,7 @@ public class PosTaggerFeatureServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
+	public synchronized PosTaggerFeatureService getPosTaggerFeatureService() {
 		if (posTaggerFeatureService==null) {
 			posTaggerFeatureService = new PosTaggerFeatureServiceImpl();
 			posTaggerFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());

@@ -421,10 +421,14 @@ public class FScoreCalculator<E> {
 	}
 
 	public void writeScoresToCSVFile(File fscoreFile) {
+		this.writeScoresToCSVFile(fscoreFile, "UTF8");
+	}
+	
+	public void writeScoresToCSVFile(File fscoreFile, String outputEncoding) {
 		try {
 			fscoreFile.delete();
 			fscoreFile.createNewFile();
-			Writer fscoreFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fscoreFile, false),"UTF8"));
+			Writer fscoreFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fscoreFile, false), outputEncoding));
 			try {
 				this.writeScoresToCSV(fscoreFileWriter);
 			} finally {
@@ -435,6 +439,7 @@ public class FScoreCalculator<E> {
 			throw new RuntimeException(ioe);
 		}
 	}
+	
 	/**
 	 * The total accuracy for this confusion matrix.
 	 * @return
@@ -568,7 +573,7 @@ public class FScoreCalculator<E> {
 			fscoreFileWriter.write(CSV.format(""));
 			fscoreFileWriter.write(CSV.format(this.getKappa()*100));
 			fscoreFileWriter.write("\n");
-
+			fscoreFileWriter.flush();
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}

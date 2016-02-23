@@ -86,6 +86,16 @@ public class TrainingParameters {
 		this.prefix = prefix;
 	}
 	
+	public TrainingParameters(String prefix, File baseDir, Map<String, String> props) {
+		this(prefix);
+		this.load(baseDir, props);
+	}
+	
+	public TrainingParameters(TrainingParameters defaultParameters, String prefix, File baseDir, Map<String, String> props) {
+		this(defaultParameters, prefix);
+		this.load(baseDir, props);
+	}
+	
 	/**
 	 * Load a given set of properties with paths relative to a given base directory,
 	 * and return a set of all property names processed.
@@ -146,7 +156,7 @@ public class TrainingParameters {
 				}
 			}
 			
-			if (defaultParameters!=null)
+			if (defaultParameters!=null && defaultParameters.getFeatureDescriptors()!=null)
 				featureDescriptors = new ArrayList<String>(defaultParameters.getFeatureDescriptors());
 			if (props.containsKey(propPrefix + featureProperty)) {
 				featureDescriptors = new ArrayList<String>();

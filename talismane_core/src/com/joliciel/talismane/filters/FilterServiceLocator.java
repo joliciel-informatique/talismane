@@ -29,7 +29,7 @@ public class FilterServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public FilterService getFilterService() {
+	public synchronized FilterService getFilterService() {
 		if (filterService==null) {
 			filterService = new FilterServiceImpl();
 		}

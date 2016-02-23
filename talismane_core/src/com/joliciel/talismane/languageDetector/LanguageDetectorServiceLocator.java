@@ -28,7 +28,7 @@ public class LanguageDetectorServiceLocator {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
 	
-	public LanguageDetectorService getLanguageDetectorService() {
+	public synchronized LanguageDetectorService getLanguageDetectorService() {
 		if (languageDetectorService==null) {
 			languageDetectorService = new LanguageDetectorServiceImpl();
 			languageDetectorService.setTokeniserService(talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());

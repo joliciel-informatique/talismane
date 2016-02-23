@@ -296,12 +296,7 @@ class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
 	}
 
 	private void addOutputText(SentenceHolder holder, int position, String text) {
-		String existingText = holder.getOriginalTextSegments().get(position);
-		if (existingText==null) {
-			holder.getOriginalTextSegments().put(position, leftoverOutput + text);
-		} else {
-			holder.getOriginalTextSegments().put(position, existingText + leftoverOutput + text);
-		}
+		holder.addOriginalTextSegment(position, leftoverOutput + text);
 		leftoverOutput = "";
 	}
 	

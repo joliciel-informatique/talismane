@@ -380,4 +380,21 @@ public class TokenRegexFilterImplTest {
 		assertEquals("(apples|oranges)[Hh][EeÉé]\\w+\\b", pattern.pattern());
 
 	}
+	
+	@Test
+	public void testStartOfInput() {
+		TokenFilterServiceInternal tokeniserFilterService = new TokenFilterServiceImpl();
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl("^Résumé\\.");
+		filter.setTokeniserFilterService(tokeniserFilterService);
+		filter.addAttribute("TAG", "skip");
+		String text = "Résumé. Résumé des attaques";
+		List<TokenPlaceholder> placeholders = filter.apply(text);
+		LOG.debug(placeholders);
+		assertEquals(1, placeholders.size());
+		TokenPlaceholder placeholder = placeholders.iterator().next();
+		assertEquals(0, placeholder.getStartIndex());
+		assertEquals(7, placeholder.getEndIndex());
+		assertEquals(1, placeholder.getAttributes().size());
+		assertEquals("TAG", placeholder.getAttributes().keySet().iterator().next());
+	}
 }

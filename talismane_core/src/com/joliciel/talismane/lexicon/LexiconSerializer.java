@@ -165,7 +165,7 @@ public class LexiconSerializer {
 			writer.flush();
 			zos.flush();
 
-			Map<String,String> properties = StringUtils.getArgMap(lexiconPropertiesFile);
+			Map<String,String> properties = StringUtils.getArgMap(lexiconPropertiesFile, defaultEncoding);
 
 			String[] lexiconList = properties.get("lexicons").split(",");
 

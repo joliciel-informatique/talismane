@@ -256,7 +256,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 									}
 									
 									if (!rule.getTransition().checkPreconditions(history)) {
-										LOG.error("Cannot apply rule, preconditions not met.");
+										LOG.info("Cannot apply rule, preconditions not met.");
 										ruleApplied = false;
 									}
 									break;
