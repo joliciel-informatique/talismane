@@ -42,6 +42,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.Version;
 
 /**
  * Processes output by writing via a freemarker template.
@@ -59,9 +60,9 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	public FreemarkerTemplateWriter(Reader templateReader) {
 		super();
 		try {
-			Configuration cfg = new Configuration();
+			Configuration cfg = new Configuration(new Version(2, 3, 23));
 			cfg.setCacheStorage(new NullCacheStorage());
-			cfg.setObjectWrapper(new DefaultObjectWrapper());
+			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
 	
 			this.template = new Template("freemarkerTemplate", templateReader, cfg);
 		} catch (IOException ioe) {
