@@ -39,6 +39,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.Version;
 
 /**
  * Writes the French Treebank to an xml file, in the format defined by Anne Abeillé
@@ -73,13 +74,14 @@ public class FrenchTreebankXmlWriter {
 	
 	public void write(Writer writer, TreebankFile treebankFile) throws TemplateException {
 		try {
-			Configuration cfg = new Configuration();
+			Configuration cfg = new Configuration(new Version(2, 3, 23));
+
 			// Specify the data source where the template files come from.
 			cfg.setClassForTemplateLoading(FrenchTreebankXmlWriter.class, "/com/joliciel/frenchTreebank/export");
 //			cfg.setDirectoryForTemplateLoading(new File("templates"));
 			cfg.setCacheStorage(new NullCacheStorage());
 			
-			cfg.setObjectWrapper(new DefaultObjectWrapper());
+			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
 			
 			Map<String,Object> model = new HashMap<String, Object>();
 			model.put("file", treebankFile);
