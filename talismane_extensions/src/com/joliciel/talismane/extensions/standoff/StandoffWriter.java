@@ -43,6 +43,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.Version;
 
 public class StandoffWriter implements ParseConfigurationProcessor {
 	private static final Log LOG = LogFactory.getLog(StandoffWriter.class);
@@ -55,9 +56,9 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 	public StandoffWriter() {
 		super();
 		try {
-			Configuration cfg = new Configuration();
+			Configuration cfg = new Configuration(new Version(2, 3, 23));
 			cfg.setCacheStorage(new NullCacheStorage());
-			cfg.setObjectWrapper(new DefaultObjectWrapper());
+			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
 			InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoff.ftl"); 
 			Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
 			

@@ -384,6 +384,8 @@ final class TokenImpl implements TokenInternal {
 		String rawOutput = null;
 		if (startIndex>prevStart)
 			rawOutput = sentence.getRawInput(prevStart, startIndex);
+		if (LOG.isTraceEnabled())
+			LOG.trace(rawOutput);
 		return rawOutput;
 	}
 	
