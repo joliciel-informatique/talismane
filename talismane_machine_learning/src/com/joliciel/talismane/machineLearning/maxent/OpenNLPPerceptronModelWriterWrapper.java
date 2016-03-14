@@ -22,6 +22,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import opennlp.model.AbstractModel;
 import opennlp.model.MaxentModel;
 import opennlp.perceptron.BinaryPerceptronModelWriter;
 import opennlp.perceptron.PerceptronModelWriter;
@@ -36,8 +37,8 @@ class OpenNLPPerceptronModelWriterWrapper extends PerceptronModelWriter {
 	private OutputStream outputStream;
 	
 	public OpenNLPPerceptronModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
-		super(model);
-		writer = new BinaryPerceptronModelWriter(model,
+		super((AbstractModel) model);
+		writer = new BinaryPerceptronModelWriter((AbstractModel) model,
 	            new DataOutputStream(outputStream));
 		this.outputStream = outputStream;
 	}
