@@ -423,6 +423,20 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
+
+	@Override
+	public String getCorrectedText() {
+		StringBuilder sb = new StringBuilder();
+		int lastPos = 0;
+		for (Token token : this) {
+			if (token.getOriginalIndex()>lastPos) {
+				sb.append(" ");
+			}
+			sb.append(token.getText());
+			lastPos = token.getOriginalIndexEnd();
+		}
+		return sb.toString();
+	}
 	
 	
 }

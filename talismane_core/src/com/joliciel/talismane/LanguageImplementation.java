@@ -20,8 +20,10 @@ package com.joliciel.talismane;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -141,4 +143,16 @@ public interface LanguageImplementation {
 	 * @return
 	 */
 	public LexicalEntryReader getDefaultCorpusLexicalEntryReader();
+	
+	/**
+	 * A diacriticizer.
+	 * @return
+	 */
+	public Diacriticizer getDiacriticizer();
+	
+	/**
+	 * A map of preferences in uppercase-to-lowercase mappings, in cases where ambiguities exist.
+	 * @return
+	 */
+	public Map<String,String> getLowercasePreferences();
 }

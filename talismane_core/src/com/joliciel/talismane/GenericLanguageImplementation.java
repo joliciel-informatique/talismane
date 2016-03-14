@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
@@ -89,6 +91,8 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	private String posTaggerRulesStr;
 	private String parserRulesStr;
 	private LexicalEntryReader corpusLexicalEntryReader = null;
+	private Diacriticizer diacriticizer;
+	private Map<String, String> lowercasePreferences = new HashMap<String, String>();
 	
 	private Locale locale;
 	
@@ -417,6 +421,24 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
 			    		LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
 						lexicons = deserializer.deserializeLexicons(innerZis);
+			    	} else if (key.equals("diacriticizer")) {
+			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+						ObjectInputStream in = new ObjectInputStream(innerZis);
+						diacriticizer = (Diacriticizer) in.readObject();
+						in.close();
+						diacriticizer.setTalismaneSession(talismaneSession);
+			    	} else if (key.equals("lowercasePreferences")) {
+			    		@SuppressWarnings("resource")
+						Scanner scanner = new Scanner(zis, "UTF-8");
+			    		while (scanner.hasNextLine()) {
+			    			String line = scanner.nextLine().trim();
+			    			if (line.length()>0 && !line.startsWith("#")) {
+			    				String[] parts = line.split("\t");
+			    				String uppercase = parts[0];
+			    				String lowercase = parts[1];
+			    				lowercasePreferences.put(uppercase, lowercase);
+ 			    			}
+			    		}
 			    	} else if (key.equals("corpusLexiconEntryRegex")) {
 						Scanner corpusLexicalEntryRegexScanner = new Scanner(zis, "UTF-8");
 						corpusLexicalEntryReader = new RegexLexicalEntryReader(corpusLexicalEntryRegexScanner);
@@ -425,6 +447,9 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    	}
 		    	}
 		    }
+		} catch (ClassNotFoundException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		} catch (FileNotFoundException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -460,6 +485,15 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	@Override
 	public LexicalEntryReader getDefaultCorpusLexicalEntryReader() {
 		return corpusLexicalEntryReader;
+	}
+
+	public Diacriticizer getDiacriticizer() {
+		return diacriticizer;
+	}
+
+	@Override
+	public Map<String, String> getLowercasePreferences() {
+		return lowercasePreferences;
 	}
 
 }

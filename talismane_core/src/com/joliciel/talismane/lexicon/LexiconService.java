@@ -18,6 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import com.joliciel.talismane.TalismaneSession;
+
 public interface LexiconService {
-	
+	/**
+	 * Get a diacriticized form finder for a given lexicon.
+	 * @param lexicon
+	 * @return
+	 */
+	public Diacriticizer getDiacriticizer(TalismaneSession talismaneSession, Lexicon lexicon);
 }

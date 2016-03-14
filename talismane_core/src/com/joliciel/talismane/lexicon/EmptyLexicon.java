@@ -20,6 +20,7 @@ package com.joliciel.talismane.lexicon;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -87,6 +88,11 @@ public class EmptyLexicon implements PosTaggerLexicon {
 	@Override
 	public String getName() {
 		return this.getClass().getSimpleName();
+	}
+
+	@Override
+	public Iterator<LexicalEntry> getAllEntries() {
+		return new ArrayList<LexicalEntry>().iterator();
 	}
 
 

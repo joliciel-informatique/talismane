@@ -246,19 +246,19 @@ public interface TalismaneConfig {
 	public void addTextMarkerFilter(TextMarkerFilter textMarkerFilter);
 
 	/**
-	 * The language detector to use for analysis.
+	 * Create and return a new language detector based on this configuration.
 	 * @return
 	 */
 	public LanguageDetector getLanguageDetector();
 	
 	/**
-	 * The sentence detector to use for analysis.
+	 * Create and return a new sentence detector based on this configuration.
 	 * @return
 	 */
 	public SentenceDetector getSentenceDetector();
 
 	/**
-	 * The tokeniser to use for analysis.
+	 * Create and return a new tokeniser based on this configuration.
 	 * @return
 	 */
 	public Tokeniser getTokeniser();
@@ -278,13 +278,13 @@ public interface TalismaneConfig {
 	public ClassificationEventStream getClassificationEventStream();
 
 	/**
-	 * The pos-tagger to use for analysis.
+	 * Create and return a new pos-tagger based on this configuration.
 	 * @return
 	 */
 	public PosTagger getPosTagger();
 
 	/**
-	 * The parser to use for analysis.
+	 * Create and return a new parser based on this configuration.
 	 * @return
 	 */
 	public Parser getParser();

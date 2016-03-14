@@ -25,7 +25,6 @@ import java.util.Set;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -99,44 +98,9 @@ public class LowercaseKnownFirstWordFilter implements TokenSequenceFilter, Needs
 			if (lowerCaseNextWord) {
 				char firstChar = token.getText().charAt(0);
 				if (Character.isUpperCase(firstChar)) {
-					char[] firstChars = null;
-					switch (firstChar) {
-						case 'E':
-							firstChars = new char[] {'e', 'é', 'ê', 'è', 'ë'};
-							break;
-						case 'A':
-							firstChars = new char[] {'à', 'a', 'â', 'á'};
-							break;
-						case 'O':
-							firstChars  = new char[] {'o', 'ô', 'ò', 'ó'};
-							break;
-						case 'I':
-							firstChars  = new char[] {'i', 'î', 'ï', 'í'};
-							break;
-						case 'U':
-							firstChars = new char[] {'u', 'ú', 'ü'};
-							break;
-						case 'C':
-							firstChars = new char[] {'c', 'ç'};
-							break;
-						default:
-							firstChars = new char[] {Character.toLowerCase(firstChar)};
-							break;
-					}
-					boolean foundWord = false;
-					for (char c : firstChars) {
-						String newWord = c + token.getText().substring(1);
-						Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(newWord);
-						if (posTags.size()>0) {
-							token.setText(newWord);
-							foundWord = true;
-							break;
-						}
-					}
-					if (!foundWord) {
-						// if it's an unknown word, don't lower-case it (could be a proper noun)
-						// hence do nothing
-					}
+					Set<String> possibleWords = talismaneSession.getDiacriticizer().diacriticize(token.getText());
+					if (possibleWords.size()>0)
+						token.setText(possibleWords.iterator().next());
 				} // next word starts with an upper-case
 				lowerCaseNextWord = false;
 			} // should we lower-case the next word?

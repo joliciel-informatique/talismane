@@ -21,6 +21,7 @@ package com.joliciel.talismane;
 import java.util.List;
 import java.util.Locale;
 
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -59,5 +60,8 @@ public interface TalismaneSession {
 
 	public LinguisticRules getLinguisticRules();
 	public void setLinguisticRules(LinguisticRules linguisticRules);
+	
+	public Diacriticizer getDiacriticizer();
+	public void setDiacriticizer(Diacriticizer diacriticizer);
 
 }
