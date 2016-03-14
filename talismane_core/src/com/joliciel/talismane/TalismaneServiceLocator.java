@@ -102,6 +102,7 @@ public class TalismaneServiceLocator {
     		talismaneService.setTokenFilterService(this.getTokenFilterServiceLocator().getTokenFilterService());
     		talismaneService.setTokeniserPatternService(this.getTokenPatternServiceLocator().getTokeniserPatternService());
     		talismaneService.setLanguageDetectorService(this.getLanguageDetectorServiceLocator().getLanguageDetectorService());
+    		talismaneService.setLexiconService(this.getLexiconServiceLocator().getLexiconService());
     	}
     	return this.talismaneService;
     }

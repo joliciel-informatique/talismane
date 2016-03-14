@@ -101,6 +101,11 @@ public interface ParserService {
 	 */
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 
+	/**
+	 * Get the transition system corresponding to the model provided.
+	 */
+	public TransitionSystem getTransitionSystem(MachineLearningModel model);
+	
 	public ParserEvaluator getParserEvaluator();
 	
 	/**

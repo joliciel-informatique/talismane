@@ -5,6 +5,7 @@ import gnu.trove.map.hash.THashMap;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -411,6 +412,47 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 
 	public void setUniqueKeyAttributes(List<LexicalAttribute> uniqueKeyAttributes) {
 		this.uniqueKeyAttributes = uniqueKeyAttributes;
+	}
+
+	@Override
+	public Iterator<LexicalEntry> getAllEntries() {
+		return new Iterator<LexicalEntry>() {
+			Iterator<String> keys = entryMap.keySet().iterator();
+			Iterator<LexicalEntry> entries = null;
+			
+			@Override
+			public boolean hasNext() {
+				while (entries==null) {
+					String key = null;
+					if (keys.hasNext()) {
+						key = keys.next();
+					} else {
+						return false;
+					}
+					
+					entries = entryMap.get(key).iterator();
+					if (!entries.hasNext())
+						entries=null;
+				}
+				return true;
+			}
+
+			@Override
+			public LexicalEntry next() {
+				LexicalEntry entry = null;
+				if (this.hasNext()) {
+					entry = entries.next();
+					if (!entries.hasNext())
+						entries = null;
+				}
+				return entry;
+			}
+
+			@Override
+			public void remove() {
+				throw new TalismaneException("remove not supported");
+			}
+		};
 	}
 	
 }

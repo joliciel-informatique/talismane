@@ -166,12 +166,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private Module endModule = null;
 	private Module module = null;
 	
-	private LanguageDetector languageDetector;
-	private SentenceDetector sentenceDetector;
-	private Tokeniser tokeniser;
-	private PosTagger posTagger;
-	private Parser parser;
-	
 	private ParserEvaluator parserEvaluator;
 	private PosTaggerEvaluator posTaggerEvaluator;
 	private TokeniserEvaluator tokeniserEvaluator;
@@ -195,6 +189,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private PosTagSequenceProcessor posTagSequenceProcessor;
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 	
+	private ClassificationModel languageModel = null;
+	private ClassificationModel sentenceModel = null;
 	private ClassificationModel tokeniserModel = null;
 	private ClassificationModel posTaggerModel = null;
 	private MachineLearningModel parserModel = null;
@@ -361,6 +357,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private File baseDir = null;
 	
 	private boolean preloadLexicon = true;
+	private boolean preloaded = false;
 	
 	private Locale locale = null;
 	
@@ -1662,21 +1659,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * @return
 	 */
 	@Override
-	public synchronized LanguageDetector getLanguageDetector() {
+	public LanguageDetector getLanguageDetector() {
 		try {
-			if (languageDetector==null) {
-				LOG.debug("Getting language detector model");
-				ClassificationModel languageModel = null;
-				if (languageModelFilePath!=null) {
-					File languageModelFile = this.getFile(languageModelFilePath);
-					if (!languageModelFile.exists())
-						throw new TalismaneException("Could not find languageModel at: " + languageModelFilePath);
-					languageModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(languageModelFile)));
-				} else {
-					throw new TalismaneException("Cannot detect languages with languageModel");
-				}
-				languageDetector = this.getLanguageDetectorService().getLanguageDetector(languageModel);
-			}
+			ClassificationModel languageModel = this.getLanguageModel();
+			LanguageDetector languageDetector = this.getLanguageDetectorService().getLanguageDetector(languageModel);
+			
 			return languageDetector;
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
@@ -1689,24 +1676,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * @return
 	 */
 	@Override
-	public synchronized SentenceDetector getSentenceDetector() {
+	public SentenceDetector getSentenceDetector() {
 		try {
-			if (sentenceDetector==null) {
-				LOG.debug("Getting sentence detector model");
-				ClassificationModel sentenceModel = null;
-				if (sentenceModelFilePath!=null) {
-					File sentenceModelFile = this.getFile(sentenceModelFilePath);
-					if (!sentenceModelFile.exists())
-						throw new TalismaneException("Could not find sentenceModel at: " + sentenceModelFilePath);
-					
-					sentenceModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(sentenceModelFile)));
-				} else {
-					sentenceModel = this.implementation.getDefaultSentenceModel();
-					if (sentenceModel==null)
-						throw new TalismaneException("No sentenceModel provided");
-				}
-				sentenceDetector = this.getSentenceDetectorService().getSentenceDetector(sentenceModel);
-			}
+			ClassificationModel sentenceModel = this.getSentenceDetectorModel();
+			SentenceDetector sentenceDetector = this.getSentenceDetectorService().getSentenceDetector(sentenceModel);
+			
 			return sentenceDetector;
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
@@ -1719,42 +1693,42 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * @return
 	 */
 	@Override
-	public synchronized Tokeniser getTokeniser() {
+	public Tokeniser getTokeniser() {
 		try {
-			if (tokeniser==null) {
-				ClassificationModel tokeniserModel = null;
-				if (tokeniserType==TokeniserType.simple) {
-					tokeniser = this.getTokeniserService().getSimpleTokeniser();
-				} else if (tokeniserType==TokeniserType.pattern) {
-					LOG.debug("Getting tokeniser model");
-					tokeniserModel = this.getTokeniserModel();
-					if (tokeniserModel==null)
-						throw new TalismaneException("No tokeniserModel provided");
+			Tokeniser tokeniser = null;
+			ClassificationModel tokeniserModel = null;
+			if (tokeniserType==TokeniserType.simple) {
+				tokeniser = this.getTokeniserService().getSimpleTokeniser();
+			} else if (tokeniserType==TokeniserType.pattern) {
+				LOG.debug("Getting tokeniser model");
+				tokeniserModel = this.getTokeniserModel();
+				if (tokeniserModel==null)
+					throw new TalismaneException("No tokeniserModel provided");
 
-					tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
-		
-					if (includeDetails) {
-						String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
-						File detailsFile = new File(this.getOutDir(), detailsFilePath);
-						detailsFile.delete();
-						ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
-						tokeniser.addObserver(observer);
-					}
-				} else {
-					throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
-				}
+				tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
 				
-				for (TokenFilter tokenFilter : this.getTokenFilters(tokeniserModel)) {
-					tokeniser.addTokenFilter(tokenFilter);
-					if (this.needsSentenceDetector()) {
-						this.getSentenceDetector().addTokenFilter(tokenFilter);
-					}
+				if (includeDetails) {
+					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
+					File detailsFile = new File(this.getOutDir(), detailsFilePath);
+					detailsFile.delete();
+					ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
+					tokeniser.addObserver(observer);
 				}
-				
-				for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(tokeniserModel)) {
-					tokeniser.addTokenSequenceFilter(tokenFilter);
+			} else {
+				throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
+			}
+			
+			for (TokenFilter tokenFilter : this.getTokenFilters(tokeniserModel)) {
+				tokeniser.addTokenFilter(tokenFilter);
+				if (this.needsSentenceDetector()) {
+					this.getSentenceDetector().addTokenFilter(tokenFilter);
 				}
 			}
+			
+			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(tokeniserModel)) {
+				tokeniser.addTokenSequenceFilter(tokenFilter);
+			}
+			
 			return tokeniser;
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
@@ -1762,6 +1736,51 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		}
 	}
 
+	synchronized ClassificationModel getLanguageModel() {
+		try {
+			if (languageModel==null) {
+				LOG.debug("Getting language detector model");
+				
+				if (languageModelFilePath!=null) {
+					File languageModelFile = this.getFile(languageModelFilePath);
+					if (!languageModelFile.exists())
+						throw new TalismaneException("Could not find languageModel at: " + languageModelFilePath);
+					languageModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(languageModelFile)));
+				} else {
+					throw new TalismaneException("Cannot detect languages with languageModel");
+				}
+			}
+			return languageModel;
+		} catch (Exception e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	synchronized ClassificationModel getSentenceDetectorModel() {
+		try {
+			if (sentenceModel==null) {
+				LOG.debug("Getting sentence detector model");
+				
+				if (sentenceModelFilePath!=null) {
+					File sentenceModelFile = this.getFile(sentenceModelFilePath);
+					if (!sentenceModelFile.exists())
+						throw new TalismaneException("Could not find sentenceModel at: " + sentenceModelFilePath);
+					
+					sentenceModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(sentenceModelFile)));
+				} else {
+					sentenceModel = this.implementation.getDefaultSentenceModel();
+					if (sentenceModel==null)
+						throw new TalismaneException("No sentenceModel provided");
+				}
+			}
+			return sentenceModel;
+		} catch (Exception e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+	
 	synchronized ClassificationModel getTokeniserModel() {
 		try {
 			if (tokeniserModel==null) {
@@ -1785,6 +1804,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	synchronized ClassificationModel getPosTaggerModel() {
 		try {
 			if (posTaggerModel==null) {
+				LOG.debug("Getting pos-tagger model");
 				if (posTaggerModelFilePath!=null) {
 					File posTaggerModelFile = this.getFile(posTaggerModelFilePath);
 					if (!posTaggerModelFile.exists())
@@ -1805,6 +1825,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	synchronized MachineLearningModel getParserModel() {
 		try {
 			if (parserModel==null) {
+				LOG.debug("Getting parser model");
+
 				if (parserModelFilePath!=null) {
 					File parserModelFile = this.getFile(parserModelFilePath);
 					if (!parserModelFile.exists())
@@ -1814,6 +1836,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				} else {
 					parserModel = this.implementation.getDefaultParserModel();
 				}
+				
+				talismaneSession.setTransitionSystem(parserService.getTransitionSystem(parserModel));
 			}
 			return parserModel;
 		} catch (Exception e) {
@@ -2019,39 +2043,37 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * @return
 	 */
 	@Override
-	public synchronized PosTagger getPosTagger() {
+	public PosTagger getPosTagger() {
 		try {
-			if (posTagger==null) {
-				LOG.debug("Getting pos-tagger model");
+			PosTagger posTagger = null;
 				
-				ClassificationModel posTaggerModel = this.getPosTaggerModel();
-				if (posTaggerModel==null)
-					throw new TalismaneException("No posTaggerModel provided");
+			ClassificationModel posTaggerModel = this.getPosTaggerModel();
+			if (posTaggerModel==null)
+				throw new TalismaneException("No posTaggerModel provided");
 
-				posTagger = this.getPosTaggerService().getPosTagger(posTaggerModel, posTaggerBeamWidth);
-				
-				if (posTaggerFeaturePath!=null) {
-					Set<PosTaggerFeature<?>> posTaggerFeatures = this.getPosTaggerFeatures();
-					posTagger.setPosTaggerFeatures(posTaggerFeatures);
-				}
-				
-				for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(posTaggerModel)) {
-					posTagger.addPreProcessingFilter(tokenFilter);
-				}
-								
-				for (PosTagSequenceFilter posTagFilter : this.getPosTagSequenceFilters(posTaggerModel)) {
-					posTagger.addPostProcessingFilter(posTagFilter);
-				}
-				
-				posTagger.setPosTaggerRules(this.getPosTaggerRules());
-		
-				if (includeDetails) {
-					String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
-					File detailsFile = new File(this.getOutDir(), detailsFilePath);
-					detailsFile.delete();
-					ClassificationObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
-					posTagger.addObserver(observer);
-				}
+			posTagger = this.getPosTaggerService().getPosTagger(posTaggerModel, posTaggerBeamWidth);
+			
+			if (posTaggerFeaturePath!=null) {
+				Set<PosTaggerFeature<?>> posTaggerFeatures = this.getPosTaggerFeatures();
+				posTagger.setPosTaggerFeatures(posTaggerFeatures);
+			}
+			
+			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(posTaggerModel)) {
+				posTagger.addPreProcessingFilter(tokenFilter);
+			}
+							
+			for (PosTagSequenceFilter posTagFilter : this.getPosTagSequenceFilters(posTaggerModel)) {
+				posTagger.addPostProcessingFilter(posTagFilter);
+			}
+			
+			posTagger.setPosTaggerRules(this.getPosTaggerRules());
+	
+			if (includeDetails) {
+				String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
+				File detailsFile = new File(this.getOutDir(), detailsFilePath);
+				detailsFile.delete();
+				ClassificationObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+				posTagger.addObserver(observer);
 			}
 			return posTagger;
 		} catch (Exception e) {
@@ -2065,46 +2087,43 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * @return
 	 */
 	@Override
-	public synchronized Parser getParser() {
+	public Parser getParser() {
 		try {
-			if (parser==null) {
-				LOG.debug("Getting parser model");
-				MachineLearningModel parserModel = this.getParserModel();
-				if (parserModel==null)
-					throw new TalismaneException("No parserModel provided");
-				
-				parser = this.getParserService().getTransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures);
-				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
-				parser.setMinFreeMemory(minFreeMemory);
-				
-				if (this.parserFeaturePath!=null) {
-					Set<ParseConfigurationFeature<?>> parserFeatures = this.getParserFeatures();
-					parser.setParseFeatures(parserFeatures);
-				}
-				
-				parser.setParserRules(this.getParserRules());
-				
-				if (parser instanceof TransitionBasedParser) {
-					TransitionBasedParser transitionBasedParser = (TransitionBasedParser) parser;
-					transitionBasedParser.setEarlyStop(earlyStop);
-				}
-				
-				if (parseComparisonStrategyType!=null) {
-					ParseComparisonStrategy parseComparisonStrategy = parserService.getParseComparisonStrategy(parseComparisonStrategyType);
-					parser.setParseComparisonStrategy(parseComparisonStrategy);
-				}
-				
-				if (includeDetails && parserModel instanceof ClassificationModel) {
-					String detailsFilePath = this.getBaseName() + "_parser_details.txt";
-					File detailsFile = new File(this.getOutDir(), detailsFilePath);
-					detailsFile.delete();
-					ClassificationModel classificationModel = (ClassificationModel) parserModel;
-					ClassificationObserver observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
-					parser.addObserver(observer);
-				}
-				talismaneSession.setTransitionSystem(parser.getTransitionSystem());
-
+			Parser parser = null;
+			MachineLearningModel parserModel = this.getParserModel();
+			if (parserModel==null)
+				throw new TalismaneException("No parserModel provided");
+			
+			parser = this.getParserService().getTransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures);
+			parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
+			parser.setMinFreeMemory(minFreeMemory);
+			
+			if (this.parserFeaturePath!=null) {
+				Set<ParseConfigurationFeature<?>> parserFeatures = this.getParserFeatures();
+				parser.setParseFeatures(parserFeatures);
 			}
+			
+			parser.setParserRules(this.getParserRules());
+			
+			if (parser instanceof TransitionBasedParser) {
+				TransitionBasedParser transitionBasedParser = (TransitionBasedParser) parser;
+				transitionBasedParser.setEarlyStop(earlyStop);
+			}
+			
+			if (parseComparisonStrategyType!=null) {
+				ParseComparisonStrategy parseComparisonStrategy = parserService.getParseComparisonStrategy(parseComparisonStrategyType);
+				parser.setParseComparisonStrategy(parseComparisonStrategy);
+			}
+			
+			if (includeDetails && parserModel instanceof ClassificationModel) {
+				String detailsFilePath = this.getBaseName() + "_parser_details.txt";
+				File detailsFile = new File(this.getOutDir(), detailsFilePath);
+				detailsFile.delete();
+				ClassificationModel classificationModel = (ClassificationModel) parserModel;
+				ClassificationObserver observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
+				parser.addObserver(observer);
+			}
+
 			return parser;
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
@@ -2615,7 +2634,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					if (outputGuessCount>0)
 						guessCount = outputGuessCount;
 					else
-						guessCount = this.getParser().getBeamWidth();
+						guessCount = parserEvaluator.getParser().getBeamWidth();
 
 					ParseEvaluationSentenceWriter sentenceWriter = new ParseEvaluationSentenceWriter(csvFileWriter, guessCount);
 					if (parserEvaluator.getTokeniser()!=null)
@@ -2850,8 +2869,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					int guessCount = 1;
 					if (outputGuessCount>0)
 						guessCount = outputGuessCount;
-					else if (this.getPosTagger() instanceof NonDeterministicPosTagger)
-						guessCount = ((NonDeterministicPosTagger) this.getPosTagger()).getBeamWidth();
+					else if (posTaggerEvaluator.getPosTagger() instanceof NonDeterministicPosTagger)
+						guessCount = ((NonDeterministicPosTagger) posTaggerEvaluator.getPosTagger()).getBeamWidth();
 					
 					PosTagEvaluationSentenceWriter sentenceWriter = new PosTagEvaluationSentenceWriter(csvFileWriter, guessCount);
 					posTaggerEvaluator.addObserver(sentenceWriter);
@@ -3392,38 +3411,42 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	@Override
 	public void preloadResources() {
-    	LOG.info("Loading shared resources...");
-    	
-    	if (preloadLexicon) {
-	    	LOG.info("Loading lexicon");
-	    	// ping the lexicon to load it
-	    	talismaneSession.getMergedLexicon();
-    	}
-    	
-    	// ping the models to load them
-		if (this.needsSentenceDetector()) {
-	    	LOG.info("Loading sentence detector");
-			if (this.getSentenceDetector()==null) {
-				throw new TalismaneException("Sentence detector not provided.");
+		if (!preloaded) {
+	    	LOG.info("Loading shared resources...");
+	    	
+	    	if (preloadLexicon) {
+		    	LOG.info("Loading lexicon");
+		    	// ping the lexicon to load it
+		    	talismaneSession.getMergedLexicon();
+		    	talismaneSession.getDiacriticizer();
+	    	}
+	    	
+	    	// ping the models to load them
+			if (this.needsSentenceDetector()) {
+		    	LOG.info("Loading sentence detector");
+				if (this.getSentenceDetector()==null) {
+					throw new TalismaneException("Sentence detector not provided.");
+				}
 			}
-		}
-		if (this.needsTokeniser()) {
-	    	LOG.info("Loading tokeniser");
-			if (this.getTokeniser()==null) {
-				throw new TalismaneException("Tokeniser not provided.");
+			if (this.needsTokeniser()) {
+		    	LOG.info("Loading tokeniser");
+				if (this.getTokeniser()==null) {
+					throw new TalismaneException("Tokeniser not provided.");
+				}
 			}
-		}
-		if (this.needsPosTagger()) {
-	    	LOG.info("Loading pos tagger");
-			if (this.getPosTagger()==null) {
-				throw new TalismaneException("Pos-tagger not provided.");
+			if (this.needsPosTagger()) {
+		    	LOG.info("Loading pos tagger");
+				if (this.getPosTagger()==null) {
+					throw new TalismaneException("Pos-tagger not provided.");
+				}
 			}
-		}
-		if (this.needsParser()) {
-	    	LOG.info("Loading parser");
-			if (this.getParser()==null) {
-				throw new TalismaneException("Parser not provided.");
+			if (this.needsParser()) {
+		    	LOG.info("Loading parser");
+				if (this.getParser()==null) {
+					throw new TalismaneException("Parser not provided.");
+				}
 			}
+			preloaded = true;
 		}
 	}
 

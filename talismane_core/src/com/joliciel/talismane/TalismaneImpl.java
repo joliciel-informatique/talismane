@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,6 +63,7 @@ import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
+import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.ParsingConstrainer;
@@ -69,14 +71,17 @@ import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagComparator;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
+import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
+import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
@@ -474,26 +479,18 @@ class TalismaneImpl implements Talismane {
 
 	public void analyse(TalismaneConfig config) {
 		try {
-			if (config.needsSentenceDetector()) {
-				if (config.getSentenceDetector()==null) {
-					throw new TalismaneException("Sentence detector not provided.");
-				}
-			}
-			if (config.needsTokeniser()) {
-				if (config.getTokeniser()==null) {
-					throw new TalismaneException("Tokeniser not provided.");
-				}
-			}
-			if (config.needsPosTagger()) {
-				if (config.getPosTagger()==null) {
-					throw new TalismaneException("Pos-tagger not provided.");
-				}
-			}
-			if (config.needsParser()) {
-				if (config.getParser()==null) {
-					throw new TalismaneException("Parser not provided.");
-				}
-			}
+			SentenceDetector sentenceDetector = null;
+			Tokeniser tokeniser = null;
+			PosTagger posTagger = null;
+			Parser parser = null;
+			if (config.needsSentenceDetector())
+				sentenceDetector = config.getSentenceDetector();
+			if (config.needsTokeniser())
+				tokeniser = config.getTokeniser();
+			if (config.needsPosTagger())
+				posTagger = config.getPosTagger();
+			if (config.needsParser())
+				parser = config.getParser();
 			
 			if (config.getEndModule().equals(Module.SentenceDetector)) {
 				if (this.getSentenceProcessor()==null) {
@@ -642,7 +639,7 @@ class TalismaneImpl implements Talismane {
 
 						if (prevSentenceHolder!=null) {
 							if (config.getStartModule().equals(Module.SentenceDetector)) {
-								List<Integer> sentenceBreaks = config.getSentenceDetector().detectSentences(prevProcessedText, processedText, nextProcessedText);
+								List<Integer> sentenceBreaks = sentenceDetector.detectSentences(prevProcessedText, processedText, nextProcessedText);
 								for (int sentenceBreak : sentenceBreaks) {
 									prevSentenceHolder.addSentenceBoundary(sentenceBreak);
 								}
@@ -728,7 +725,7 @@ class TalismaneImpl implements Talismane {
 	    			
 	    			List<TokenSequence> tokenSequences = null;
 	    			if (config.needsTokeniser()) {
-	    				tokenSequences = config.getTokeniser().tokenise(sentence);
+	    				tokenSequences = tokeniser.tokenise(sentence);
     					tokenSequence = tokenSequences.get(0);
 	    				
     					if (this.getTokenSequenceProcessor()!=null) {
@@ -744,12 +741,12 @@ class TalismaneImpl implements Talismane {
     						tokenSequences.add(tokenSequence);
     					}
 
-	    				if (config.getPosTagger() instanceof NonDeterministicPosTagger) {
-	    					NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) config.getPosTagger();
+	    				if (posTagger instanceof NonDeterministicPosTagger) {
+	    					NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
 	    					posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
 	    					posTagSequence = posTagSequences.get(0);
 	    				} else {
-	    					posTagSequence = config.getPosTagger().tagSentence(tokenSequence);
+	    					posTagSequence = posTagger.tagSentence(tokenSequence);
 	    				}
 	    				
 	    				if (posTagSequenceProcessor!=null) {
@@ -768,12 +765,12 @@ class TalismaneImpl implements Talismane {
     					ParseConfiguration parseConfiguration = null;
     					List<ParseConfiguration> parseConfigurations = null;
     					try {
-	    					if (config.getParser() instanceof NonDeterministicParser) {
-	    						NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) config.getParser();
+	    					if (parser instanceof NonDeterministicParser) {
+	    						NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
 		    					parseConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
 		    					parseConfiguration = parseConfigurations.get(0);
 	    					} else {
-	    						parseConfiguration = config.getParser().parseSentence(posTagSequence);
+	    						parseConfiguration = parser.parseSentence(posTagSequence);
 	    					}
 	    					
 	    					if (this.getParseConfigurationProcessor()!=null) {

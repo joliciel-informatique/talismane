@@ -36,8 +36,11 @@ public class DiacriticRemover implements TokenSequenceFilter {
 	@Override
 	public void apply(TokenSequence tokenSequence) {
 		for (Token token : tokenSequence) {
-			token.setText(diacriticPattern.matcher(Normalizer.normalize(token.getText(), Form.NFD)).replaceAll(""));
+			token.setText(removeDiacritics(token.getText()));
 		}
 	}
 
+	public static String removeDiacritics(String string) {
+		return diacriticPattern.matcher(Normalizer.normalize(string, Form.NFD)).replaceAll("");
+	}
 }

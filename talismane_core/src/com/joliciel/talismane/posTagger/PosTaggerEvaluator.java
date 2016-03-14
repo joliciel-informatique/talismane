@@ -57,4 +57,6 @@ public interface PosTaggerEvaluator {
 	 */
 	public abstract void setSentenceCount(int sentenceCount);
 	public abstract int getSentenceCount();
+
+	public PosTagger getPosTagger();
 }

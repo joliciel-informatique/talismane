@@ -48,11 +48,8 @@ import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
 import com.joliciel.talismane.fr.ftb.export.FtbPosTagMapper;
 import com.joliciel.talismane.fr.ftb.export.TreebankExportService;
 import com.joliciel.talismane.fr.ftb.upload.TreebankUploadService;
-import com.joliciel.talismane.fr.tokeniser.filters.AllUppercaseFrenchFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
-import com.joliciel.talismane.fr.tokeniser.filters.LowercaseFirstWordFrenchFilter;
-import com.joliciel.talismane.fr.tokeniser.filters.UpperCaseSeriesFrenchFilter;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
@@ -278,9 +275,6 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 			availableTokenSequenceFilters = new ArrayList<Class<? extends TokenSequenceFilter>>();
 			availableTokenSequenceFilters.add(EmptyTokenAfterDuFilter.class);
 			availableTokenSequenceFilters.add(EmptyTokenBeforeDuquelFilter.class);
-			availableTokenSequenceFilters.add(LowercaseFirstWordFrenchFilter.class);
-			availableTokenSequenceFilters.add(UpperCaseSeriesFrenchFilter.class);
-			availableTokenSequenceFilters.add(AllUppercaseFrenchFilter.class);
 		}
 		return availableTokenSequenceFilters;
 	}
