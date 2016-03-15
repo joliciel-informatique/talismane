@@ -708,18 +708,16 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				}
 			}
 			
-			if (!(implementation instanceof LanguagePackImplementation) && languagePackPath!=null)
-				throw new TalismaneException("The implementation " + implementation.getClass().getSimpleName() + " does not accept language packs");
-			
-			if (implementation instanceof LanguagePackImplementation) {
-				if (languagePackPath!=null) {
-			   		File languagePackFile = this.getFile(languagePackPath);
-		    		if (!languagePackFile.exists())
-		    			throw new TalismaneException("languagePack: could not find file: " + languagePackFile.getPath());
-		    		
-		    		LOG.debug("Setting language pack to " + languagePackFile.getPath());
-		    		((LanguagePackImplementation)implementation).setLanguagePack(languagePackFile);
-				}
+			if (languagePackPath != null) {
+		   		File languagePackFile = this.getFile(languagePackPath);
+	    		if (!languagePackFile.exists())
+	    			throw new TalismaneException("languagePack: could not find file: " + languagePackFile.getPath());
+	    		
+				if (!(implementation instanceof LanguagePackImplementation))
+					throw new TalismaneException("The implementation " + implementation.getClass().getSimpleName() + " does not accept language packs");
+				
+	    		LOG.debug("Setting language pack to " + languagePackFile.getPath());
+	    		((LanguagePackImplementation)implementation).setLanguagePack(languagePackFile);
 			}
 			
 			if (command.equals(Command.evaluate)) {

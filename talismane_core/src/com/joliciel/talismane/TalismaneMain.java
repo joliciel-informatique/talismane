@@ -22,14 +22,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
@@ -233,23 +231,9 @@ public class TalismaneMain {
 					throw new TalismaneException("Missing argument: words");
 
 				File inFile = new File(inFilePath);
-				FileInputStream fis = new FileInputStream(inFile);
-				ZipInputStream zis = new ZipInputStream(fis);
-				ZipEntry ze = null;
-				Diacriticizer diacriticizer = null;
-			    while ((ze = zis.getNextEntry()) != null) {
-			    	if (ze.getName().endsWith(".obj")) {
-			    		LOG.debug("deserializing " + ze.getName());
-						@SuppressWarnings("resource")
-						ObjectInputStream in = new ObjectInputStream(zis);
-						diacriticizer = (Diacriticizer)in.readObject();
-						
-						break;
-			    	}
-			    }
-			    zis.close();
-			    
-			    diacriticizer.setTalismaneSession(talismaneSession);
+				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
+				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
+				Diacriticizer diacriticizer = lexiconService.deserializeDiacriticizer(inFile, talismaneSession);
 			    
 				for (String word : wordList) {
 					LOG.info("################");

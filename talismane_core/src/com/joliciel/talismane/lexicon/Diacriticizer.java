@@ -19,7 +19,6 @@
 package com.joliciel.talismane.lexicon;
 
 import java.util.Set;
-
 import com.joliciel.talismane.NeedsTalismaneSession;
 
 /**

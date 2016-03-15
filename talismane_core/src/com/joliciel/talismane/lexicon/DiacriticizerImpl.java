@@ -18,6 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,15 +29,23 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.filters.DiacriticRemover;
+import com.joliciel.talismane.utils.LogUtils;
 
 class DiacriticizerImpl implements Diacriticizer, Serializable {
+	private static final Log LOG = LogFactory.getLog(DiacriticizerImpl.class);
+	
 	private static final long serialVersionUID = 1L;
 	private Map<String,Set<String>> map = new HashMap<String,Set<String>>();
 	private Set<String> emptySet = new HashSet<String>();
-	private TalismaneSession talismaneSession;
+	private transient TalismaneSession talismaneSession;
 	
 	public DiacriticizerImpl() {
 	}
@@ -113,5 +125,36 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 		this.talismaneSession = talismaneSession;
 	}
 
+	public void serialize() {
+		
+	}
 	
+	public static Diacriticizer deserialize(File inFile, TalismaneSession talismaneSession) {
+		try {
+			FileInputStream fis = new FileInputStream(inFile);
+			ZipInputStream zis = new ZipInputStream(fis);
+			ZipEntry ze = null;
+			Diacriticizer diacriticizer = null;
+		    while ((ze = zis.getNextEntry()) != null) {
+		    	if (ze.getName().endsWith(".obj")) {
+		    		LOG.debug("deserializing " + ze.getName());
+					@SuppressWarnings("resource")
+					ObjectInputStream in = new ObjectInputStream(zis);
+					diacriticizer = (Diacriticizer) in.readObject();
+					
+					break;
+		    	}
+		    }
+		    zis.close();
+		    diacriticizer.setTalismaneSession(talismaneSession);
+		    
+		    return diacriticizer;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (ClassNotFoundException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
 }
