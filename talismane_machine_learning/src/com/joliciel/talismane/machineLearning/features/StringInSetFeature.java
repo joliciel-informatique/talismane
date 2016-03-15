@@ -28,6 +28,7 @@ public class StringInSetFeature<T> extends AbstractCachableFeature<T, Boolean> i
 		BooleanFeature<T> {
 	StringFeature<T>[] stringFeatures;
 	
+	@SafeVarargs
 	public StringInSetFeature(StringFeature<T>... stringFeatures) {
 		super();
 		this.stringFeatures = stringFeatures;

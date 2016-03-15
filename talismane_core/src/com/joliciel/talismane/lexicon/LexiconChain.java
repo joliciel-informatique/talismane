@@ -19,10 +19,12 @@
 package com.joliciel.talismane.lexicon;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 
@@ -139,6 +141,43 @@ public class LexiconChain implements PosTaggerLexicon {
 
 	public List<PosTaggerLexicon> getLexicons() {
 		return lexicons;
+	}
+
+	@Override
+	public Iterator<LexicalEntry> getAllEntries() {
+		return new Iterator<LexicalEntry>() {
+			Iterator<PosTaggerLexicon> iLexicons = lexicons.iterator();
+			Iterator<LexicalEntry> entries = null;
+			@Override
+			public boolean hasNext() {
+				while (entries==null) {
+					if (iLexicons.hasNext()) {
+						entries = iLexicons.next().getAllEntries();
+					} else {
+						return false;
+					}
+					if (!entries.hasNext())
+						entries = null;
+				}
+				return true;
+			}
+
+			@Override
+			public LexicalEntry next() {
+				LexicalEntry entry = null;
+				if (this.hasNext()) {
+					entry = entries.next();
+					if (!entries.hasNext())
+						entries = null;
+				}
+				return entry;
+			}
+
+			@Override
+			public void remove() {
+				throw new TalismaneException("remove not supported");
+			}
+		};
 	}
 	
 	

@@ -28,6 +28,7 @@ package com.joliciel.talismane.machineLearning.features;
 public class OrFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
 	BooleanFeature<T>[] booleanFeatures;
 	
+	@SafeVarargs
 	public OrFeature(BooleanFeature<T>... booleanFeatures) {
 		super();
 		this.booleanFeatures = booleanFeatures;

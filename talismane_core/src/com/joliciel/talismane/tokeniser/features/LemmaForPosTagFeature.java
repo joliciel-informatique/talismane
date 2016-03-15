@@ -41,6 +41,7 @@ public final class LemmaForPosTagFeature extends AbstractTokenFeature<String>
 	
 	TalismaneSession talismaneSession;
 	
+	@SafeVarargs
 	public LemmaForPosTagFeature(StringFeature<TokenWrapper>... posTagCodeFeatures) {
 		super();
 		this.posTagCodeFeatures = posTagCodeFeatures;
@@ -56,6 +57,7 @@ public final class LemmaForPosTagFeature extends AbstractTokenFeature<String>
 		this.setName(name);
 	}
 	
+	@SafeVarargs
 	public LemmaForPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... posTagCodeFeatures) {
 		this(posTagCodeFeatures);
 		this.setAddressFunction(addressFunction);

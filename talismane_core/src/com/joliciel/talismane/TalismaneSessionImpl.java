@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
+import com.joliciel.talismane.lexicon.LexiconService;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -37,6 +39,8 @@ class TalismaneSessionImpl implements TalismaneSession {
 	private TransitionSystem transitionSystem;
 	private LanguageImplementation implementation;
 	private LinguisticRules linguisticRules;
+	private Diacriticizer diacriticizer;
+	private LexiconService lexiconService;
 	
 	@Override
 	public LanguageImplementation getImplementation() {
@@ -142,6 +146,28 @@ class TalismaneSessionImpl implements TalismaneSession {
 			}
 		}
 		return mergedLexicon;
+	}
+
+	public Diacriticizer getDiacriticizer() {
+		if (diacriticizer==null) {
+			if (implementation!=null)
+				diacriticizer = implementation.getDiacriticizer();
+			if (diacriticizer==null)
+				diacriticizer = lexiconService.getDiacriticizer(this, this.getMergedLexicon());
+		}
+		return diacriticizer;
+	}
+
+	public void setDiacriticizer(Diacriticizer diacriticizer) {
+		this.diacriticizer = diacriticizer;
+	}
+
+	public LexiconService getLexiconService() {
+		return lexiconService;
+	}
+
+	public void setLexiconService(LexiconService lexiconService) {
+		this.lexiconService = lexiconService;
 	}
 	
 }

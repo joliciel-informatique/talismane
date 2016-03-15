@@ -155,4 +155,10 @@ public interface TokenSequence extends Iterable<Token> {
 	 */
 	public PosTagSequence getPosTagSequence();
 	public void setPosTagSequence(PosTagSequence posTagSequence);
+	
+	/**
+	 * Returns the token sequence text after any token filters have replaced original text with something else.
+	 * @return
+	 */
+	public String getCorrectedText();
 }

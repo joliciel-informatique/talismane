@@ -35,7 +35,6 @@ public class StringFeatureDynamiserTest {
 		
 		LessThanOperator<String> lessThan = new LessThanOperator<String>(stringLengthDoubleFeature, doubleFeature5);
 		
-		@SuppressWarnings("unchecked")
 		AndFeature<String> andFeature = new AndFeature<String>(greaterThan, lessThan);
 		
 		StringFeatureDynamiser manager = new StringFeatureDynamiser(String.class);

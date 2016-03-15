@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -83,10 +84,17 @@ public class StringUtils {
 	 * Get a map of strings from a properties file.
 	 */
 	public static Map<String,String> getArgMap(File propsFile, String encoding) {
+		return getArgMap(propsFile, Charset.forName(encoding));
+	}
+	
+	/**
+	 * Get a map of strings from a properties file.
+	 */
+	public static Map<String,String> getArgMap(File propsFile, Charset charset) {
 		try {
 			FileInputStream propsInputStream = new FileInputStream(propsFile);
 			Properties props = new Properties();
-			props.load(new BufferedReader(new InputStreamReader(propsInputStream, encoding)));
+			props.load(new BufferedReader(new InputStreamReader(propsInputStream, charset)));
 			
 			return getArgMap(props);
 		} catch (IOException e) {
