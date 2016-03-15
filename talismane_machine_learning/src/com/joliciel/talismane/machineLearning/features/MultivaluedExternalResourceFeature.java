@@ -38,6 +38,7 @@ public class MultivaluedExternalResourceFeature<T> extends AbstractStringCollect
 	StringFeature<T> resourceNameFeature;
 	StringFeature<T>[] keyElementFeatures;
 	
+	@SafeVarargs
 	public MultivaluedExternalResourceFeature(StringFeature<T> resourceNameFeature, StringFeature<T>... keyElementFeatures) {
 		this.resourceNameFeature = resourceNameFeature;
 		this.keyElementFeatures = keyElementFeatures;

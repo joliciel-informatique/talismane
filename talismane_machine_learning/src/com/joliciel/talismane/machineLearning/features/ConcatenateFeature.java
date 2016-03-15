@@ -29,6 +29,7 @@ public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String> im
 		StringFeature<T> {
 	StringFeature<T>[] stringFeatures;
 	
+	@SafeVarargs
 	public ConcatenateFeature(StringFeature<T>... stringFeatures) {
 		super();
 		this.stringFeatures = stringFeatures;

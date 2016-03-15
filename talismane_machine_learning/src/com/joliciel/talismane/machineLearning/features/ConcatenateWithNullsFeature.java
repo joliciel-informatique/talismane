@@ -31,6 +31,7 @@ public class ConcatenateWithNullsFeature<T> extends AbstractCachableFeature<T, S
 	
 	StringFeature<T>[] stringFeatures;
 	
+	@SafeVarargs
 	public ConcatenateWithNullsFeature(StringFeature<T>... stringFeatures) {
 		super();
 		this.stringFeatures = stringFeatures;

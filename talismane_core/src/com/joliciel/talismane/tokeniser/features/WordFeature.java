@@ -32,6 +32,7 @@ import com.joliciel.talismane.tokeniser.Token;
 public final class WordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
 	StringFeature<TokenWrapper>[] words = null;
 
+	@SafeVarargs
 	public WordFeature(StringFeature<TokenWrapper>... words) {
 		this.words = words;
 		String name = "Word(";
@@ -45,6 +46,7 @@ public final class WordFeature extends AbstractTokenFeature<Boolean> implements 
 		this.setName(name);
 	}
 	
+	@SafeVarargs
 	public WordFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... words) {
 		this(words);
 		this.setAddressFunction(addressFunction);

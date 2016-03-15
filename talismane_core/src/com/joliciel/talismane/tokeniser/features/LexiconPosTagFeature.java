@@ -43,6 +43,7 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>
 	 * 
 	 * @param posTag the PosTag we're testing for
 	 */
+	@SafeVarargs
 	public LexiconPosTagFeature(StringFeature<TokenWrapper>... posTagFeatures) {
 		this.posTagFeatures = posTagFeatures;
 		String name = super.getName() + "(";
@@ -56,6 +57,7 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>
 		this.setName(name);
 	}
 	
+	@SafeVarargs
 	public LexiconPosTagFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... posTagFeatures) {
 		this(posTagFeatures);
 		this.setAddressFunction(addressFunction);

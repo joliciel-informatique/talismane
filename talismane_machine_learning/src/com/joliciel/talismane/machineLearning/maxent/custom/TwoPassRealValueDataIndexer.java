@@ -60,6 +60,7 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
 		return values;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected int sortAndMerge(List eventsToCompare,boolean sort) {
 		int numUniqueEvents = super.sortAndMerge(eventsToCompare,sort);
 		values = new float[numUniqueEvents][];
@@ -74,6 +75,7 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
 		return numUniqueEvents;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected List index(int numEvents, EventStream es, Map<String,Integer> predicateIndex) throws IOException {
 		Map<String,Integer> omap = new HashMap<String,Integer>();

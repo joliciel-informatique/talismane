@@ -77,9 +77,11 @@ public class TwoPassDataIndexer extends AbstractDataIndexer{
    * @param cutoff The minimum number of times a predicate must have been
    *               observed in order to be included in the model.
    */
-  public TwoPassDataIndexer(EventStream eventStream, int cutoff, boolean sort) throws IOException {
+  @SuppressWarnings("unchecked")
+public TwoPassDataIndexer(EventStream eventStream, int cutoff, boolean sort) throws IOException {
     Map<String,Integer> predicateIndex = new HashMap<String,Integer>();
-    List eventsToCompare;
+    @SuppressWarnings("rawtypes")
+	List eventsToCompare;
 
     LOG.info("Indexing events using cutoff of " + cutoff);
 
@@ -124,7 +126,8 @@ public class TwoPassDataIndexer extends AbstractDataIndexer{
       * @param predicatesInOut a <code>TObjectIntHashMap</code> value
       * @param cutoff an <code>int</code> value
       */
-  private int computeEventCounts(EventStream eventStream, Writer eventStore, Map<String,Integer> predicatesInOut, int cutoff) throws IOException {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+private int computeEventCounts(EventStream eventStream, Writer eventStore, Map<String,Integer> predicatesInOut, int cutoff) throws IOException {
     Map<String,Integer> counter = new HashMap<String,Integer>();
     int eventCount = 0;
     Set predicateSet = new HashSet();
@@ -146,7 +149,8 @@ public class TwoPassDataIndexer extends AbstractDataIndexer{
     return eventCount;
   }
 
-  protected List index(int numEvents, EventStream es, Map<String,Integer> predicateIndex) throws IOException {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+protected List index(int numEvents, EventStream es, Map<String,Integer> predicateIndex) throws IOException {
     Map<String,Integer> omap = new HashMap<String,Integer>();
     int outcomeCount = 0;
     List eventsToCompare = new ArrayList(numEvents);

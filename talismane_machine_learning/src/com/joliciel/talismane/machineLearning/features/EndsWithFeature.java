@@ -28,6 +28,7 @@ public class EndsWithFeature<T> extends AbstractCachableFeature<T, Boolean> impl
 		BooleanFeature<T> {
 	StringFeature<T>[] stringFeatures;
 	
+	@SafeVarargs
 	public EndsWithFeature(StringFeature<T>... stringFeatures) {
 		super();
 		this.stringFeatures = stringFeatures;
