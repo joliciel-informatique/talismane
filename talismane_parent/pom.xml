@@ -17,42 +17,54 @@
 		<module>../talismane_ftb</module>
 		<module>../talismane_fr</module>
 		<module>../talismane_en</module>
-		<module>../talismane_extensions</module>
-		<module>../talismane_examples</module>
+		<module>../talismane_other</module>
 		<module>../talismane_term_extractor</module>
+		<module>../talismane_extensions</module>
 		<module>../talismane_term_viewer</module>
+		<module>../talismane_examples</module>
+		<module>../talismane_distribution</module>
 	</modules>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.6</version>
+					<configuration>
+						<descriptors>
+							<descriptor>src/assembly/bin.xml</descriptor>
+						</descriptors>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-core</artifactId>
-				<version>${version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-utils</artifactId>
-				<version>${version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-fr</artifactId>
-				<version>${version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-other</artifactId>
-				<version>${version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-ftb</artifactId>
-				<version>${version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.joliciel.talismane</groupId>
-				<artifactId>talismane-extensions</artifactId>
-				<version>${version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -117,7 +129,7 @@
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-machine-learning</artifactId>
-				<version>${version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -128,6 +140,31 @@
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
 				<version>1.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>com.joliciel.talismane</groupId>
+				<artifactId>talismane-extensions</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.joliciel.talismane</groupId>
+				<artifactId>talismane-examples</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.joliciel.talismane</groupId>
+				<artifactId>talismane-term-extractor</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.joliciel.talismane</groupId>
+				<artifactId>talismane-term-viewer</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.joliciel.talismane</groupId>
+				<artifactId>talismane-en</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

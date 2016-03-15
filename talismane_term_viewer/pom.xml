@@ -29,7 +29,6 @@
         <dependency>
         	<groupId>com.joliciel.talismane</groupId>
         	<artifactId>talismane-term-extractor</artifactId>
-        	<version>2.4.9b</version>
         </dependency>
 	</dependencies>
 	<properties>
