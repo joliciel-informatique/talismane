@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import java.io.File;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,6 +34,13 @@ class LexiconServiceImpl implements LexiconService {
 		DiacriticizerImpl diacriticizer = new DiacriticizerImpl();
 		diacriticizer.setTalismaneSession(talismaneSession);
 		diacriticizer.addLexicon(lexicon);
+		return diacriticizer;
+	}
+
+	@Override
+	public Diacriticizer deserializeDiacriticizer(File inFile,
+			TalismaneSession talismaneSession) {
+		Diacriticizer diacriticizer = DiacriticizerImpl.deserialize(inFile, talismaneSession);
 		return diacriticizer;
 	}
 }

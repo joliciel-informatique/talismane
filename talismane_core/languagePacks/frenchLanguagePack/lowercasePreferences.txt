@@ -1,3 +1,4 @@
 A	à
 CA	ça
 Ca	ça
+NE	ne
