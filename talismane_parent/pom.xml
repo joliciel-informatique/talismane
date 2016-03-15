@@ -17,14 +17,10 @@
 		<module>../talismane_ftb</module>
 		<module>../talismane_fr</module>
 		<module>../talismane_en</module>
-		<module>../talismane_other</module>
-		<module>../talismane_term_extractor</module>
-		<!-- This is a JavaFX module - not trivial to use with Maven :( -->
-		<!-- See: http://zenjava.com/javafx/maven/fix-classpath.html -->
-		<!-- module>talismane_term_viewer</module -->
 		<module>../talismane_extensions</module>
-		<module>../talismane_term_viewer</module>
 		<module>../talismane_examples</module>
+		<module>../talismane_term_extractor</module>
+		<module>../talismane_term_viewer</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -51,6 +47,11 @@
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-ftb</artifactId>
+				<version>${version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.joliciel.talismane</groupId>
+				<artifactId>talismane-extensions</artifactId>
 				<version>${version}</version>
 			</dependency>
 			<dependency>
@@ -127,11 +128,6 @@
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
 				<version>1.1.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.joliciel.talismane</groupId>
-				<artifactId>talismane-extensions</artifactId>
-				<version>2.4.9b</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

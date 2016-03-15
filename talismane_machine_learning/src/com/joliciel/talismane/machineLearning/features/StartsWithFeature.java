@@ -28,6 +28,7 @@ public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean> im
 		BooleanFeature<T> {
 	StringFeature<T>[] stringFeatures;
 	
+	@SafeVarargs
 	public StartsWithFeature(StringFeature<T>... stringFeatures) {
 		super();
 		this.stringFeatures = stringFeatures;

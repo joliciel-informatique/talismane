@@ -15,10 +15,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
-			<artifactId>talismane-other</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-ftb</artifactId>
 		</dependency>
 		<dependency>

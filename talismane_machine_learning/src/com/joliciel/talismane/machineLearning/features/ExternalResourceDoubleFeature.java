@@ -38,6 +38,7 @@ public class ExternalResourceDoubleFeature<T> extends AbstractCachableFeature<T,
 	StringFeature<T> resourceNameFeature;
 	StringFeature<T>[] keyElementFeatures;
 	
+	@SafeVarargs
 	public ExternalResourceDoubleFeature(StringFeature<T> resourceNameFeature, StringFeature<T>... keyElementFeatures) {
 		this.resourceNameFeature = resourceNameFeature;
 		this.keyElementFeatures = keyElementFeatures;

@@ -12,6 +12,7 @@ public class TestStringCollectionFeature extends AbstractStringCollectionFeature
 	
 	StringFeature<String>[] stringFeatures;
 	
+	@SafeVarargs
 	public TestStringCollectionFeature(StringFeature<String>... stringFeatures) {
 		this.stringFeatures = stringFeatures;
 		String name = super.getName() + "(";

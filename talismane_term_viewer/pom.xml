@@ -32,4 +32,8 @@
         	<version>2.4.9b</version>
         </dependency>
 	</dependencies>
+	<properties>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+	</properties>
 </project>
