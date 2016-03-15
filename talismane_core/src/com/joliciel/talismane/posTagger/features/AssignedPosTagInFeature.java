@@ -35,6 +35,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 public final class AssignedPosTagInFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
 	StringFeature<PosTaggedTokenWrapper>[] posTagCodeFeatures;
 	
+	@SafeVarargs
 	public AssignedPosTagInFeature(PosTaggedTokenAddressFunction<T> addressFunction, StringFeature<PosTaggedTokenWrapper>... posTagCodeFeatures) {
 		super(addressFunction);
 		this.posTagCodeFeatures = posTagCodeFeatures;
@@ -51,6 +52,7 @@ public final class AssignedPosTagInFeature<T> extends AbstractPosTaggedTokenFeat
 		this.setAddressFunction(addressFunction);
 	}
 	
+	@SafeVarargs
 	public AssignedPosTagInFeature(StringFeature<PosTaggedTokenWrapper>... posTagCodeFeatures) {
 		this(new ItsMeAddressFunction<T>(), posTagCodeFeatures);
 	}

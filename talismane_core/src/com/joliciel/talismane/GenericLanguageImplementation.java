@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
@@ -89,10 +91,22 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	private String posTaggerRulesStr;
 	private String parserRulesStr;
 	private LexicalEntryReader corpusLexicalEntryReader = null;
+	private Diacriticizer diacriticizer;
+	private Map<String, String> lowercasePreferences = new HashMap<String, String>();
 	
 	private Locale locale;
 	
 	private static Map<String, GenericLanguageImplementation> instances = new HashMap<String, GenericLanguageImplementation>();
+	
+	private static Map<String, LanguageResources> resourceCache = new HashMap<String, LanguageResources>();
+	
+	private static final class LanguageResources {
+		ClassificationModel sentenceModel;
+		ClassificationModel tokeniserModel;
+		ClassificationModel posTaggerModel;
+		MachineLearningModel parserModel;
+		List<PosTaggerLexicon> lexicons;
+	}
 	
 	public static GenericLanguageImplementation getInstance(String sessionId) {
 		GenericLanguageImplementation instance = instances.get(sessionId);
@@ -309,22 +323,10 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 	
 	public void setLanguagePack(File languagePackFile) {
-		try {
-			this.setLanguagePack(new BufferedInputStream(new FileInputStream(languagePackFile)), new BufferedInputStream(new FileInputStream(languagePackFile)));
-		} catch (FileNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-	
-	/**
-	 * Set the language pack using two identical input streams (since it has to be read twice).
-	 * @param languagePackInputStream
-	 * @param languagePackInputStream2
-	 */
-	public void setLanguagePack(InputStream languagePackInputStream, InputStream languagePackInputStream2) {
 		ZipInputStream zis = null;
 		try {
+			InputStream languagePackInputStream = new BufferedInputStream(new FileInputStream(languagePackFile));
+			InputStream languagePackInputStream2 = new BufferedInputStream(new FileInputStream(languagePackFile));
 			zis = new ZipInputStream(languagePackInputStream);
 			ZipEntry ze = null;
 			
@@ -364,6 +366,16 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 		    zis = new ZipInputStream(languagePackInputStream2);
 			ze = null;
 			
+			String path = languagePackFile.getCanonicalPath();
+			LanguageResources languageResources = resourceCache.get(path);
+			if (languageResources==null) {
+				LOG.info("Creating new language resource cache for " + path);
+				languageResources = new LanguageResources();
+				resourceCache.put(path, languageResources);
+			} else {
+				LOG.info("Using existing language resource cache for " + path);
+			}
+			
 		    while ((ze = zis.getNextEntry()) != null) {
 		    	String name = ze.getName();
 		    	if (name.indexOf('/')>=0) name = name.substring(name.lastIndexOf('/')+1);
@@ -402,21 +414,64 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    		Scanner scanner = new Scanner(zis, "UTF-8");
 			    		parserRulesStr = this.getStringFromScanner(scanner);
 			    	} else if (key.equals("sentenceModel")) {
-			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-						sentenceModel = this.getMachineLearningService().getClassificationModel(innerZis);
+			    		if (languageResources.sentenceModel==null) {
+				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+							sentenceModel = this.getMachineLearningService().getClassificationModel(innerZis);
+							languageResources.sentenceModel = sentenceModel;
+			    		} else {
+			    			sentenceModel = languageResources.sentenceModel;
+			    		}
 			    	} else if (key.equals("tokeniserModel")) {
-			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-			    		tokeniserModel = this.getMachineLearningService().getClassificationModel(innerZis);
+			    		if (languageResources.tokeniserModel==null) {
+				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+				    		tokeniserModel = this.getMachineLearningService().getClassificationModel(innerZis);
+				    		languageResources.tokeniserModel = tokeniserModel;
+			    		} else {
+			    			tokeniserModel = languageResources.tokeniserModel;
+			    		}
 			    	} else if (key.equals("posTaggerModel")) {
-			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-			    		posTaggerModel = this.getMachineLearningService().getClassificationModel(innerZis);
+			    		if (languageResources.posTaggerModel==null) {
+				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+				    		posTaggerModel = this.getMachineLearningService().getClassificationModel(innerZis);
+				    		languageResources.posTaggerModel = posTaggerModel;
+			    		} else {
+			    			posTaggerModel = languageResources.posTaggerModel;
+			    		}
 			    	} else if (key.equals("parserModel")) {
-			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-			    		parserModel = this.getMachineLearningService().getClassificationModel(innerZis);
+			    		if (languageResources.parserModel==null) {
+				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+				    		parserModel = this.getMachineLearningService().getClassificationModel(innerZis);
+				    		languageResources.parserModel = parserModel;
+			    		} else {
+			    			parserModel = languageResources.parserModel;
+			    		}
 			    	} else if (key.equals("lexicon")) {
+			    		if (languageResources.lexicons==null) {
+				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+				    		LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
+				    		lexicons = deserializer.deserializeLexicons(innerZis);
+				    		languageResources.lexicons = lexicons;
+			    		} else {
+			    			lexicons = languageResources.lexicons;
+			    		}
+			    	} else if (key.equals("diacriticizer")) {
 			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-			    		LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
-						lexicons = deserializer.deserializeLexicons(innerZis);
+						ObjectInputStream in = new ObjectInputStream(innerZis);
+						diacriticizer = (Diacriticizer) in.readObject();
+						in.close();
+						diacriticizer.setTalismaneSession(talismaneSession);
+			    	} else if (key.equals("lowercasePreferences")) {
+			    		@SuppressWarnings("resource")
+						Scanner scanner = new Scanner(zis, "UTF-8");
+			    		while (scanner.hasNextLine()) {
+			    			String line = scanner.nextLine().trim();
+			    			if (line.length()>0 && !line.startsWith("#")) {
+			    				String[] parts = line.split("\t");
+			    				String uppercase = parts[0];
+			    				String lowercase = parts[1];
+			    				lowercasePreferences.put(uppercase, lowercase);
+ 			    			}
+			    		}
 			    	} else if (key.equals("corpusLexiconEntryRegex")) {
 						Scanner corpusLexicalEntryRegexScanner = new Scanner(zis, "UTF-8");
 						corpusLexicalEntryReader = new RegexLexicalEntryReader(corpusLexicalEntryRegexScanner);
@@ -425,6 +480,9 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    	}
 		    	}
 		    }
+		} catch (ClassNotFoundException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		} catch (FileNotFoundException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -460,6 +518,15 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	@Override
 	public LexicalEntryReader getDefaultCorpusLexicalEntryReader() {
 		return corpusLexicalEntryReader;
+	}
+
+	public Diacriticizer getDiacriticizer() {
+		return diacriticizer;
+	}
+
+	@Override
+	public Map<String, String> getLowercasePreferences() {
+		return lowercasePreferences;
 	}
 
 }

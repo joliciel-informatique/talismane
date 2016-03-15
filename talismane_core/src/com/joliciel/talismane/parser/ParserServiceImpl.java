@@ -114,7 +114,20 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		ArcEagerTransitionSystem transitionSystem = new ArcEagerTransitionSystem();
 		return transitionSystem;
 	}
-
+	
+	public TransitionSystem getTransitionSystem(MachineLearningModel model) {
+		TransitionSystem transitionSystem = null;
+		String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
+		if (transitionSystemClassName.equalsIgnoreCase("ShiftReduceTransitionSystem")) {
+			transitionSystem = this.getShiftReduceTransitionSystem();
+		} else if (transitionSystemClassName.equalsIgnoreCase("ArcEagerTransitionSystem")) {
+			transitionSystem = this.getArcEagerTransitionSystem();
+		} else {
+			throw new TalismaneException("Unknown transition system: " + transitionSystemClassName);
+		}
+		return transitionSystem;
+	}
+	
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(
 			MachineLearningModel model, int beamWidth, boolean dynamiseFeatures) {
@@ -125,15 +138,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			}
 		}
 		
-		TransitionSystem transitionSystem = null;
-		String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
-		if (transitionSystemClassName.equalsIgnoreCase("ShiftReduceTransitionSystem")) {
-			transitionSystem = this.getShiftReduceTransitionSystem();
-		} else if (transitionSystemClassName.equalsIgnoreCase("ArcEagerTransitionSystem")) {
-			transitionSystem = this.getArcEagerTransitionSystem();
-		} else {
-			throw new TalismaneException("Unknown transition system: " + transitionSystemClassName);
-		}
+		TransitionSystem transitionSystem = this.getTransitionSystem(model);
 		
 		Set<ParseConfigurationFeature<?>> parseFeatures = this.getParseFeatureService().getFeatures(model.getFeatureDescriptors(), dynamiseFeatures);
 

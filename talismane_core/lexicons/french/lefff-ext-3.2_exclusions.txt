@@ -2596,7 +2596,7 @@ vêtis	vêtir	v
 vêtit	vêtir	v
 veuve	veuf	nc
 veuves	veuf	nc
-veux	vouloir	v
+veux	se vouloir	v
 vi	oui	adv
 vichy	vichy	nc
 vieil	vieux	adj

@@ -165,7 +165,7 @@ public class LexiconSerializer {
 			writer.flush();
 			zos.flush();
 
-			Map<String,String> properties = StringUtils.getArgMap(lexiconPropertiesFile, defaultEncoding);
+			Map<String,String> properties = StringUtils.getArgMap(lexiconPropertiesFile, defaultCharset);
 
 			String[] lexiconList = properties.get("lexicons").split(",");
 
@@ -215,8 +215,9 @@ public class LexiconSerializer {
 				File lexiconInputFile = new File(lexiconDir, lexiconFilePath);
 				InputStream inputStream = null;
 				if (lexiconInputFile.getName().endsWith(".zip")) {
+					InputStream inputStream2 = new FileInputStream(lexiconInputFile);
 					@SuppressWarnings("resource")
-					ZipInputStream zis = new ZipInputStream(inputStream);
+					ZipInputStream zis = new ZipInputStream(inputStream2);
 					zis.getNextEntry();
 					inputStream = zis;
 				} else {

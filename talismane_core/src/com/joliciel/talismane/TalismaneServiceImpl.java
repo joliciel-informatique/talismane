@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
+import com.joliciel.talismane.lexicon.LexiconService;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
@@ -50,6 +51,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokenFilterService tokenFilterService;
 	private TokeniserPatternService tokeniserPatternService;
 	private LanguageDetectorService languageDetectorService;
+	private LexiconService lexiconService;
 	
 	private TalismaneSession talismaneSession;
 	
@@ -128,7 +130,9 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 
 	public TalismaneSession getTalismaneSession() {
 		if (talismaneSession==null) {
-			talismaneSession = new TalismaneSessionImpl();
+			TalismaneSessionImpl talismaneSession = new TalismaneSessionImpl();
+			talismaneSession.setLexiconService(lexiconService);
+			this.talismaneSession = talismaneSession;
 		}
 		return talismaneSession;
 	}
@@ -254,6 +258,14 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	public void setLanguageDetectorService(
 			LanguageDetectorService languageDetectorService) {
 		this.languageDetectorService = languageDetectorService;
+	}
+
+	public LexiconService getLexiconService() {
+		return lexiconService;
+	}
+
+	public void setLexiconService(LexiconService lexiconService) {
+		this.lexiconService = lexiconService;
 	}
 
 	

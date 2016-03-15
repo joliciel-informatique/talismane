@@ -24,7 +24,7 @@ import java.util.Set;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -36,11 +36,6 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  *
  */
 public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalismaneSession {
-	/**
-	 * No more than 1000 different lowercase words to check per single uppercase word.
-	 */
-	private static final int MAX_WORD_ATTEMPTS = 1000;
-	
 	private TalismaneSession talismaneSession;
 	
 	public UppercaseSeriesFilter() {
@@ -102,14 +97,11 @@ public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalisman
 	public static String getKnownWord(TalismaneSession talismaneSession, String word) {
 		String knownWord = word;
 		boolean foundWord = false;
-		List<String> possibleWords = getPossibleWords(talismaneSession, word);
-		for (String possibleWord : possibleWords) {
-			Set<PosTag> posTags = talismaneSession.getMergedLexicon().findPossiblePosTags(possibleWord);
-			if (posTags.size()>0) {
-				knownWord = possibleWord;
-				foundWord = true;
-				break;
-			}
+		Diacriticizer diacriticizer = talismaneSession.getDiacriticizer();
+		Set<String> lowercaseForms = diacriticizer.diacriticize(word);
+		if (lowercaseForms.size()>0) {
+			knownWord = lowercaseForms.iterator().next();
+			foundWord = true;
 		}
 		if (!foundWord) {
 			if (word.length()>0) {
@@ -117,31 +109,5 @@ public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalisman
 			}
 		}
 		return knownWord;
-	}
-	
-	public static List<String> getPossibleWords(TalismaneSession talismaneSession, String word) {
-		List<char[]> possibleChars = new ArrayList<char[]>();
-		for (int i = 0; i<word.length();i++) {
-			char c = word.charAt(i);
-			char[] lowerCaseChars = talismaneSession.getLinguisticRules().getLowercaseOptionsWithDiacritics(c);
-			possibleChars.add(lowerCaseChars);
-		}
-		
-		List<String> possibleWords = new ArrayList<String>();
-		possibleWords.add("");
-		for (int i=0;i<word.length();i++) {
-			char[] lowerCaseChars = possibleChars.get(i);
-			if (possibleWords.size()>=MAX_WORD_ATTEMPTS) {
-				lowerCaseChars = new char[] { possibleChars.get(i)[0] };
-			}
-			List<String> newPossibleWords = new ArrayList<String>();
-			for (String possibleWord : possibleWords) {
-				for (char c : lowerCaseChars) {
-					newPossibleWords.add(possibleWord + c);
-				}
-			}
-			possibleWords = newPossibleWords;
-		}
-		return possibleWords;
 	}
 }

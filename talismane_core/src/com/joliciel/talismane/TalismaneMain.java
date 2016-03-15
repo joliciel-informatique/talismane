@@ -20,18 +20,27 @@ package com.joliciel.talismane;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
+import com.joliciel.talismane.lexicon.LexiconService;
+import com.joliciel.talismane.lexicon.LexiconServiceLocator;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.StringUtils;
@@ -45,7 +54,9 @@ public class TalismaneMain {
 	private static final Log LOG = LogFactory.getLog(TalismaneMain.class);
 	private enum OtherCommand {
 		serializeLexicon,
-		testLexicon
+		testLexicon,
+		serializeDiacriticizer,
+		testDiacriticizer,
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -127,6 +138,12 @@ public class TalismaneMain {
 	    				throw new TalismaneException("Unknown argument: " + argName);
 	    			}
 	    		}
+	    		
+				if (lexiconFilePath==null)
+					throw new TalismaneException("Missing argument: lexicon");
+				if (wordList==null)
+					throw new TalismaneException("Missing argument: words");
+				
 	    		File lexiconFile = new File(lexiconFilePath);
 				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
 				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
@@ -142,6 +159,92 @@ public class TalismaneMain {
 					}
 				}
 				break;
+	    	}
+	    	case serializeDiacriticizer: {
+	    		String lexiconFilePath = null;
+	    		String outFilePath = null;
+	    		for (String argName : argsMap.keySet()) {
+	    			String argValue = argsMap.get(argName);
+	    			if (argName.equals("lexicon")) {
+	    				lexiconFilePath = argValue;
+	    			} else if (argName.equals("outFile")) {
+	    				outFilePath = argValue;
+	    			} else {
+	    				throw new TalismaneException("Unknown argument: " + argName);
+	    			}
+	    		}
+
+				if (lexiconFilePath==null)
+					throw new TalismaneException("Missing argument: lexicon");
+				if (outFilePath==null)
+					throw new TalismaneException("Missing argument: outFile");
+
+				File lexiconFile = new File(lexiconFilePath);
+				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
+				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
+				PosTaggerLexicon lexicon = lexicons.get(0);
+				if (lexicons.size()>1) {
+					LexiconChain lexiconChain = new LexiconChain();
+					for (PosTaggerLexicon oneLexicon : lexicons)
+						lexiconChain.addLexicon(oneLexicon);
+					lexicon = lexiconChain;
+				}
+				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
+				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
+				Diacriticizer diacriticizer = lexiconService.getDiacriticizer(talismaneSession, lexicon);
+				
+				File outFile = new File(outFilePath);
+				File outDir = outFile.getParentFile();
+				outDir.mkdirs();
+
+				FileOutputStream fos = new FileOutputStream(outFile);
+				ZipOutputStream zos = new ZipOutputStream(fos);
+				zos.putNextEntry(new ZipEntry("diacriticizer.obj"));
+				ObjectOutputStream out = new ObjectOutputStream(zos);
+				try {
+					out.writeObject(diacriticizer);
+				} finally {
+					out.flush();
+				}
+				zos.flush();
+				zos.close();
+				
+	    		break;
+	    	}
+	    	case testDiacriticizer: {
+	    		String inFilePath = null;
+	    		String[] wordList = null;
+	    		for (String argName : argsMap.keySet()) {
+	    			String argValue = argsMap.get(argName);
+	    			if (argName.equals("inFile")) {
+	    				inFilePath = argValue;
+	    			} else if (argName.equals("words")) {
+	    				wordList = argValue.split(",");
+	    			} else {
+	    				throw new TalismaneException("Unknown argument: " + argName);
+	    			}
+	    		}
+
+				if (inFilePath==null)
+					throw new TalismaneException("Missing argument: inFile");
+				if (wordList==null)
+					throw new TalismaneException("Missing argument: words");
+
+				File inFile = new File(inFilePath);
+				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
+				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
+				Diacriticizer diacriticizer = lexiconService.deserializeDiacriticizer(inFile, talismaneSession);
+			    
+				for (String word : wordList) {
+					LOG.info("################");
+					LOG.info("Word: " + word);
+					Set<String> entries = diacriticizer.diacriticize(word);
+					for (String entry : entries) {
+						LOG.info(entry);
+					}
+				}
+
+	    		break;
 	    	}
 	    	}
     	}

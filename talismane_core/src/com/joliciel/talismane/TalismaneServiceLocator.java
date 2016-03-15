@@ -85,6 +85,10 @@ public class TalismaneServiceLocator {
 		}
 		return instance;
 	}
+	
+	public synchronized static void purgeInstance(String sessionId) {
+		instances.remove(sessionId);
+	}
     
     TalismaneServiceInternal getTalismaneServiceInternal() {
     	if (this.talismaneService == null) {
@@ -102,6 +106,7 @@ public class TalismaneServiceLocator {
     		talismaneService.setTokenFilterService(this.getTokenFilterServiceLocator().getTokenFilterService());
     		talismaneService.setTokeniserPatternService(this.getTokenPatternServiceLocator().getTokeniserPatternService());
     		talismaneService.setLanguageDetectorService(this.getLanguageDetectorServiceLocator().getLanguageDetectorService());
+    		talismaneService.setLexiconService(this.getLexiconServiceLocator().getLexiconService());
     	}
     	return this.talismaneService;
     }

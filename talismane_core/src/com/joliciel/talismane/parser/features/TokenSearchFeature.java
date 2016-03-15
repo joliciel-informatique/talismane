@@ -92,6 +92,7 @@ public final class TokenSearchFeature extends AbstractAddressFunction implements
 	 * @param findFirstFeature
 	 * @param skipCriteria need to be provided in pairs, each pair indicates where to start skipping and where to end skipping (e.g. open parentheses and close parentheses)
 	 */
+	@SafeVarargs
 	public TokenSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, BooleanFeature<PosTaggedTokenWrapper> stopCriterion, IntegerFeature<ParseConfigurationWrapper> startIndexFeature, IntegerFeature<ParseConfigurationWrapper> endIndexFeature, BooleanFeature<ParseConfigurationWrapper> findFirstFeature, BooleanFeature<PosTaggedTokenWrapper> ... skipCriteria) {
 		this.criterion = criterion;
 		this.stopCriterion = stopCriterion;
