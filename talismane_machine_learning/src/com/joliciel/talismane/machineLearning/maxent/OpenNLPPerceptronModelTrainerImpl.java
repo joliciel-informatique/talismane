@@ -30,13 +30,13 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.maxent.custom.TwoPassRealValueDataIndexer;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 import opennlp.model.DataIndexer;
 import opennlp.model.EventStream;
 import opennlp.model.MaxentModel;
-import opennlp.model.TwoPassRealValueDataIndexer;
 import opennlp.perceptron.PerceptronTrainer;
 
 /**
@@ -105,52 +105,64 @@ class OpenNLPPerceptronModelTrainerImpl implements OpenNLPPerceptronModelTrainer
 		return model;
 	}
 
-	public int getIterations() {
+	@Override
+    public int getIterations() {
 		return iterations;
 	}
 
 
-	public void setIterations(int iterations) {
+	@Override
+    public void setIterations(int iterations) {
 		this.iterations = iterations;
 	}
 
-	public int getCutoff() {
+	@Override
+    public int getCutoff() {
 		return cutoff;
 	}
 
-	public void setCutoff(int cutoff) {
+	@Override
+    public void setCutoff(int cutoff) {
 		this.cutoff = cutoff;
 	}
 
-	public double getTolerance() {
+	@Override
+    public double getTolerance() {
 		return tolerance;
 	}
 
-	public void setTolerance(double tolerance) {
+	@Override
+    public void setTolerance(double tolerance) {
 		this.tolerance = tolerance;
 	}
 
-	public double getStepSizeDecrease() {
+	@Override
+    public double getStepSizeDecrease() {
 		return stepSizeDecrease;
 	}
 
-	public void setStepSizeDecrease(double stepSizeDecrease) {
+	@Override
+    public void setStepSizeDecrease(double stepSizeDecrease) {
 		this.stepSizeDecrease = stepSizeDecrease;
 	}
 
-	public boolean isUseAverage() {
+	@Override
+    public boolean isUseAverage() {
 		return useAverage;
 	}
 
-	public void setUseAverage(boolean useAverage) {
+	@Override
+    public void setUseAverage(boolean useAverage) {
 		this.useAverage = useAverage;
 	}
 
-	public boolean isUseSkippedAverage() {
+	@Override
+    public boolean isUseSkippedAverage() {
 		return useSkippedAverage;
 	}
 
-	public void setUseSkippedAverage(boolean useSkippedAverage) {
+	@Override
+    public void setUseSkippedAverage(boolean useSkippedAverage) {
 		this.useSkippedAverage = useSkippedAverage;
 	}
 
