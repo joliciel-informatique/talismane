@@ -22,9 +22,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import opennlp.maxent.io.BinaryGISModelWriter;
 import opennlp.maxent.io.GISModelWriter;
+import opennlp.model.AbstractModel;
 import opennlp.model.MaxentModel;
+
+import com.joliciel.talismane.machineLearning.maxent.custom.BinaryGISModelWriter;
 
 /**
  * A Maxent model writer that can write directly to an OutputStream.
@@ -36,7 +38,7 @@ class MaxentModelWriterWrapper extends GISModelWriter {
 	private OutputStream outputStream;
 	
 	public MaxentModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
-		super(model);
+		super((AbstractModel) model);
 		writer = new BinaryGISModelWriter(model,
 	            new DataOutputStream(outputStream));
 		this.outputStream = outputStream;
