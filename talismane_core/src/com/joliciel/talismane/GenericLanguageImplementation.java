@@ -438,7 +438,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    			posTaggerModel = languageResources.posTaggerModel;
 			    		}
 			    	} else if (key.equals("parserModel")) {
-			    		if (languageResources.parserModel!=null) {
+			    		if (languageResources.parserModel==null) {
 				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
 				    		parserModel = this.getMachineLearningService().getClassificationModel(innerZis);
 				    		languageResources.parserModel = parserModel;
@@ -446,7 +446,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			    			parserModel = languageResources.parserModel;
 			    		}
 			    	} else if (key.equals("lexicon")) {
-			    		if (languageResources.lexicons!=null) {
+			    		if (languageResources.lexicons==null) {
 				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
 				    		LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
 				    		lexicons = deserializer.deserializeLexicons(innerZis);
