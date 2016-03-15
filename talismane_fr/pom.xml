@@ -11,6 +11,23 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>srcTest</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<archive>
+						<index>true</index>
+						<manifest>
+							<addClasspath>true</addClasspath>
+                            
+							<mainClass>com.joliciel.talismane.fr.TalismaneFrench</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
