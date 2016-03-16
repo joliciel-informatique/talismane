@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Truncates a double down to an integer.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
 		IntegerFeature<T> {

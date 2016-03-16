@@ -47,7 +47,6 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
     
 	/**
 	 * The text represented by this token.
-	 * @return
 	 */
 	public String getText();
 	public void setText(String text);
@@ -55,91 +54,76 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	/**
 	 * The original text represented by this token, before filters updated it
 	 * for analysis.
-	 * @return
 	 */
 	public String getOriginalText();
 	
 	/**
 	 * The original text as encoded for the CoNLL output format.
-	 * @return
 	 */
 	public String getTextForCoNLL();
 	
 	/**
 	 * The token sequence containing this token.
-	 * @return
 	 */
 	public TokenSequence getTokenSequence();
 	public void setTokenSequence(TokenSequence tokenSequence);
 	
 	/**
 	 * The index of this token in the containing sequence.
-	 * @return
 	 */
 	public int getIndex();
 	public void setIndex(int index);
 	
 	/**
 	 * The index of this token in the containing sequence when whitespace is taken into account.
-	 * @return
 	 */
 	public int getIndexWithWhiteSpace();
 	public void setIndexWithWhiteSpace(int indexInclWhiteSpace);
 
 	/**
 	 * A set of possible postags (assigned externally by a lexicon).
-	 * @param possiblePosTags
 	 */
 	public abstract Set<PosTag> getPossiblePosTags();
 
 	/**
 	 * A list of postags and counts for this token in a training corpus (assigned externally by a statistics service).
-	 * @return
 	 */
 	public abstract Map<PosTag, Integer> getFrequencies();
 	public abstract void setFrequencies(Map<PosTag, Integer> frequencies);
 
 	/**
 	 * The start index of this token within the enclosing sentence.
-	 * @return
 	 */
 	public abstract int getStartIndex();
 
 	/**
 	 * The end index of this token within the enclosing sentence.
-	 * @return
 	 */
 	public abstract int getEndIndex();
 	
 	/**
 	 * Is this token a separator or not?
-	 * @return
 	 */
 	public boolean isSeparator();
 	public void setSeparator(boolean separator);
 	
 	/**
 	 * Is this token white-space or not?
-	 * @return
 	 */
 	public boolean isWhiteSpace();
 	
 	/**
 	 * A list of TokeniserPatterns for which this token was matched, and the pattern index at which the match occurred.
-	 * @return
 	 */
 	public List<TokenPatternMatch> getMatches();
 	
 	/**
 	 * Get all matches for a given pattern.
-	 * @param pattern
-	 * @return
 	 */
 	public List<TokenPatternMatch> getMatches(TokenPattern pattern);
 	
 	/**
 	 * A list of atomic decisions which make up this token.
-	 * @return
 	 */
 	public List<TaggedToken<TokeniserOutcome>> getAtomicParts();
 	public void setAtomicParts(
@@ -147,59 +131,50 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	
 	/**
 	 * The probability assigned to this token by the tokeniser.
-	 * @return
 	 */
 	double getProbability();
 	
 	/**
 	 * Is this an empty token (without any textual content?)
-	 * @return
 	 */
 	boolean isEmpty();
 	
 	/**
 	 * Returns the file name of the sentence containing this token.
-	 * @return
 	 */
 	String getFileName();
 	void setFileName(String fileName);
 	
 	/**
 	 * Returns the original index in the original text at the beginning of this token.
-	 * @return
 	 */
 	int getOriginalIndex();
 	
 	/**
 	 * Returns the original index in the original text at the end of this token.
-	 * @return
 	 */
 	int getOriginalIndexEnd();
 	
 	/**
 	 * Returns the original text line number at the beginning of this token.
-	 * @return
 	 */
 	int getLineNumber();
 	void setLineNumber(int lineNumber);
 	
 	/**
 	 * Returns the original text line number at the end of this token.
-	 * @return
 	 */
 	int getLineNumberEnd();
 	void setLineNumberEnd(int lineNumberEnd);
 	
 	/**
 	 * Returns the original text column number (inside a line) at the beginning of this token.
-	 * @return
 	 */
 	int getColumnNumber();
 	void setColumnNumber(int columnNumber);
 
 	/**
 	 * Returns the original text column number (inside a line) at the end of this token.
-	 * @return
 	 */
 	int getColumnNumberEnd();
 	void setColumnNumberEnd(int columnNumberEnd);
@@ -207,20 +182,17 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	/**
 	 * Any text that should be output as "raw" prior to outputting this token,
 	 * or null if none available.
-	 * @return
 	 */
 	String getPrecedingRawOutput();
 	
 	/**
 	 * Any text that should be output as "raw" after outputting this token, or null
 	 * if none available. Will only ever return non-null for the final token in a sequence.
-	 * @return
 	 */
 	String getTrailingRawOutput();
 	
 	/**
 	 * Make a shallow clone of this token.
-	 * @return
 	 */
 	Token cloneToken();
 	
@@ -232,7 +204,6 @@ public interface Token extends Comparable<Token>, TokenWrapper, HasFeatureCache 
 	/**
 	 * Any attributes assigned to this token (e.g. telling downstream systems not to stem this token
 	 * in a search index, in the case of a recognised acronym).
-	 * @return
 	 */
 	Map<String,String> getAttributes();
 	void addAttribute(String key, String value);

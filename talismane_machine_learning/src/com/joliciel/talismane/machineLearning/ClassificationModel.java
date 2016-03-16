@@ -25,26 +25,21 @@ import java.util.Set;
  * A machine learning model for classification.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public interface ClassificationModel extends MachineLearningModel {
 
 	/**
 	 * Get the decision maker for this model.
-	 * @return
 	 */
 	public DecisionMaker getDecisionMaker();
 	
 	/**
 	 * An observer that will write low-level details of this model's analysis to a file.
-	 * @param file
-	 * @return
 	 */
 	public ClassificationObserver getDetailedAnalysisObserver(File file);
 
 	/**
 	 * A set of possible outcomes for this model.
-	 * @return
 	 */
 	public Set<String> getOutcomeNames();
 }

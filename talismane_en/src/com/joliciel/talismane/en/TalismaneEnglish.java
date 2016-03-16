@@ -65,10 +65,6 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 		pennDep,
 	}
 	
-	/**
-	 * @param args
-	 * @throws Exception 
-	 */
 	public static void main(String[] args) throws Exception {
     	Map<String,String> argsMap = StringUtils.convertArgs(args);
     	CorpusFormat corpusReaderType = null;

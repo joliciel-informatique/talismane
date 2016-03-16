@@ -25,17 +25,11 @@ package com.joliciel.talismane.machineLearning.features;
 public interface HasFeatureCache {
 	/**
 	 * Get a particular feature result from the cache.
-	 * @param <Y>
-	 * @param feature
-	 * @return
 	 */
 	public <T,Y> FeatureResult<Y> getResultFromCache(Feature<T,Y> feature, RuntimeEnvironment env);
 
 	/**
 	 * Place a feature result in the cache.
-	 * @param <Y>
-	 * @param feature
-	 * @param featureResult
 	 */
 	public <T,Y> void putResultInCache(Feature<T,Y>feature, FeatureResult<Y> featureResult, RuntimeEnvironment env);
 }

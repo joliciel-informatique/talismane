@@ -47,33 +47,27 @@ public interface TokeniserPatternManager {
 	/**
 	 * For each type of separator decision, a list of separators (e.g. punctuation marks) which will receive
 	 * this decision by default.
-	 * @return
 	 */
 	public abstract Map<SeparatorDecision, String> getSeparatorDefaults();
 	
 	/**
 	 * The test patterns - only token sequences matching these patterns will
 	 * be submitted to further decision.
-	 * @return
 	 */
 	public abstract List<String> getTestPatterns();
 	
 	/**
 	 * Test patterns after parsing.
-	 * @return
 	 */
 	public List<TokenPattern> getParsedTestPatterns();
 	
 	/**
 	 * Takes a sequence of atomic tokens and applies default decisions for each separator.
-	 * @param tokenSequence
-	 * @return
 	 */
 	public List<TokeniserOutcome> getDefaultOutcomes(TokenSequence tokenSequence);
 	
 	/**
 	 * The full list of descriptors used to construct this pattern manager.
-	 * @return
 	 */
 	public List<String> getDescriptors();
 }

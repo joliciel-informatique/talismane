@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Returns the wrapped literal.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T,Integer> implements
 		IntegerFeature<T> {

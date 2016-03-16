@@ -33,7 +33,6 @@ public interface Term {
 	 * The heads are any terms containing this term, with exactly one degree
 	 * of additional syntactic depth.
 	 * e.g. for the term "wine", "bottle of wine" is a head.
-	 * @return
 	 */
 	public Set<Term> getHeads();
 	
@@ -43,14 +42,12 @@ public interface Term {
 	 * For example, for the term "bottle", "bottle of wine" is an expansion.
 	 * However, "bottle of red wine" is not an expansion (2 degrees of depth) -
 	 * it is an expansion of "bottle of wine".
-	 * @return
 	 */
 	public Set<Term> getExpansions();
 	
 	/**
 	 * The parents are terms of which this term is an expansion.
 	 * For example, for the term "bottle of wine", "bottle" is a parent.
-	 * @return
 	 */
 	public Set<Term> getParents();
 	
@@ -62,32 +59,27 @@ public interface Term {
 	
 	/**
 	 * The number of times this term appears in the corpus.
-	 * @return
 	 */
 	public int getFrequency();
 	
 	/**
 	 * The number of expansions this term has.
-	 * @return
 	 */
 	public int getExpansionCount();
 	
 	/**
 	 * The number of heads this term has.
-	 * @return
 	 */
 	public int getHeadCount();
 	
 	/**
 	 * The number of lexical words in this term (as opposed to function words).
-	 * @return
 	 */
 	public int getLexicalWordCount();
 	public void setLexicalWordCount(int lexicalWordCount);
 	
 	/**
 	 * Has this term been marked as a true term for exporting?
-	 * @return
 	 */
 	public boolean isMarked();
 	public void setMarked(boolean marked);

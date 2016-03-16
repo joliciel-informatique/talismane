@@ -121,7 +121,6 @@ public class PosTagEvaluationFScoreCalculator implements
 	
 	/**
 	 * An overall f-score calculator for all words.
-	 * @return
 	 */
 	public FScoreCalculator<String> getFScoreCalculator() {
 		return fScoreCalculator;
@@ -129,7 +128,6 @@ public class PosTagEvaluationFScoreCalculator implements
 
 	/**
 	 * An f-score calculator for unknown words in the corpus.
-	 * @return
 	 */
 	public FScoreCalculator<String> getFscoreUnknownInCorpus() {
 		return fscoreUnknownInCorpus;
@@ -137,7 +135,6 @@ public class PosTagEvaluationFScoreCalculator implements
 
 	/**
 	 * An f-score calculator for unknown words in the lexicon.
-	 * @return
 	 */
 	public FScoreCalculator<String> getFscoreUnknownInLexicon() {
 		return fscoreUnknownInLexicon;
@@ -145,7 +142,6 @@ public class PosTagEvaluationFScoreCalculator implements
 
 	/**
 	 * A list of unknown words, for evaluating f-scores for unknown words in the corpus.
-	 * @return
 	 */
 	public Set<String> getUnknownWords() {
 		return unknownWords;

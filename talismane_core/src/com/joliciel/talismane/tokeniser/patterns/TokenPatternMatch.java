@@ -32,13 +32,11 @@ public interface TokenPatternMatch extends TokenWrapper {
 	
 	/**
 	 * The index of this pattern match in the sequence containing it.
-	 * @return
 	 */
 	public int getIndex();
 	
 	/**
 	 * The sequence containing this pattern match.
-	 * @return
 	 */
 	public TokenPatternMatchSequence getSequence();
 }

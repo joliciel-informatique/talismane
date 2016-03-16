@@ -52,7 +52,6 @@ public interface OpenNLPPerceptronModelTrainer extends ClassificationModelTraine
 	}
 	/**
 	 * The number of training iterations to run.
-	 * @return
 	 */
 	public void setIterations(int iterations);
 	public int getIterations();
@@ -70,7 +69,7 @@ public interface OpenNLPPerceptronModelTrainer extends ClassificationModelTraine
 	 * decreased every iteration by the specified value.
 	 * <br/>Copied from Apache OpenNLP OpenMaxent.
 	 * 
-	 * @param decrease - step size decrease in percent
+	 * @param stepSizeDecrease - step size decrease in percent
 	 */
 	public void setStepSizeDecrease(double stepSizeDecrease);
 	public double getStepSizeDecrease();

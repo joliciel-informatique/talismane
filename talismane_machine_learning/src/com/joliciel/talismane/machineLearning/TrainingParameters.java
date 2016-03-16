@@ -180,7 +180,6 @@ public class TrainingParameters {
 	
 	/**
 	 * The machine learning algorithm to use.
-	 * @return
 	 */
 	public MachineLearningAlgorithm getAlgorithm() {
 		return algorithm;
@@ -191,7 +190,6 @@ public class TrainingParameters {
 	
 	/**
 	 * The parameters to be provided to this algorithm.
-	 * @return
 	 */
 	public Map<String, Object> getParameters() {
 		return parameters;
@@ -202,7 +200,6 @@ public class TrainingParameters {
 	
 	/**
 	 * The feature descriptors used to describe each training event.
-	 * @return
 	 */
 	public List<String> getFeatureDescriptors() {
 		return featureDescriptors;
@@ -214,7 +211,6 @@ public class TrainingParameters {
 	/**
 	 * The name of the property used to read the feature descriptor path.
 	 * Default is "features".
-	 * @return
 	 */
 	public String getFeatureProperty() {
 		return featureProperty;

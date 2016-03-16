@@ -26,7 +26,6 @@ package com.joliciel.talismane.fr.ftb;
 public interface PartOfSpeech {
 	/**
 	 * Is this the empty part-of-speech (sentence start).
-	 * @return
 	 */
 	public boolean isEmpty();
 	

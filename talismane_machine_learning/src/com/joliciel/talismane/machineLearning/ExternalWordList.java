@@ -11,13 +11,11 @@ import java.util.List;
 public interface ExternalWordList extends Serializable {
 	/**
 	 * A unique name for this resource.
-	 * @return
 	 */
 	public String getName();
 	
 	/**
 	 * The word list itself.
-	 * @return
 	 */
 	List<String> getWordList();
 }

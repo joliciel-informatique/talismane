@@ -30,7 +30,7 @@ import java.math.BigInteger;
  * 
  * The class is very easy to use. Suppose that you wish to generate all possible three-letter combinations of the letters "a", "b", "c", "d", "e", "f", "g". Put the letters into an array. Keep calling the combination generator's getNext () method until there are no more combinations left. The getNext () method returns an array of integers, which tell you the order in which to arrange your original array of letters. Here is a snippet of code which illustrates how to use the CombinationGenerator class.<br/>
  * 
- * <code>
+ * <pre>
 String[] elements = {"a", "b", "c", "d", "e", "f", "g"};
 int[] indices;
 CombinationGenerator x = new CombinationGenerator (elements.length, 3);
@@ -38,12 +38,12 @@ StringBuffer combination;
 while (x.hasMore ()) {
   combination = new StringBuffer ();
   indices = x.getNext ();
-  for (int i = 0; i < indices.length; i++) {
+  for (int i = 0; i &lt; indices.length; i++) {
     combination.append (elements[indices[i]]);
   }
   System.out.println (combination.toString ());
 }
-</code>
+</pre>
  * @author Assaf Urieli
  *
  */
@@ -59,7 +59,6 @@ public class CombinationGenerator {
 	 * Constructor
 	 * @param n the number of elements in the original set
 	 * @param r the number of elements to generate in each combination
-	 * @return
 	 */
 	public CombinationGenerator (int n, int r) {
 		if (r > n) {
@@ -80,7 +79,6 @@ public class CombinationGenerator {
 
 	/**
 	 * Reset
-	 * @return
 	 */
 	public void reset () {
 		for (int i = 0; i < a.length; i++) {
@@ -91,7 +89,6 @@ public class CombinationGenerator {
 
 	/**
 	 * Return number of combinations not yet generated
-	 * @return
 	 */
 	public BigInteger getNumLeft () {
 		return numLeft;
@@ -99,7 +96,6 @@ public class CombinationGenerator {
 
 	/**
 	 * Are there more combinations?
-	 * @return
 	 */
 	public boolean hasMore () {
 		return numLeft.compareTo (BigInteger.ZERO) == 1;
@@ -107,7 +103,6 @@ public class CombinationGenerator {
 
 	/**
 	 * Return total number of combinations
-	 * @return
 	 */
 	public BigInteger getTotal () {
 		return total;
@@ -115,7 +110,6 @@ public class CombinationGenerator {
 
 	/**
 	 * Compute factorial
-	 * @return
 	 */
 	private static BigInteger getFactorial (int n) {
 		BigInteger fact = BigInteger.ONE;
@@ -127,7 +121,6 @@ public class CombinationGenerator {
 
 	/**
 	 * Generate next combination (algorithm from Rosen p. 286)
-	 * @return
 	 */
 	public int[] getNext () {
 

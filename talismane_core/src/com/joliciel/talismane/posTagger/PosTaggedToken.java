@@ -39,7 +39,6 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	
 	/**
 	 * All lexical entries for this token/postag combination.
-	 * @return
 	 */
 	public List<LexicalEntry> getLexicalEntries();
 	public void setLexicalEntries(List<LexicalEntry> lexicalEntries);
@@ -48,7 +47,6 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	
 	/**
 	 * The lemma of the "best" lexical entry as encoded for the CoNLL output format.
-	 * @return
 	 */
 	public String getLemmaForCoNLL();
 	
@@ -56,7 +54,6 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * A list of possible (language-specific) genders for this entry.
 	 * In French, this will include entries such as "masculine", "feminine".
 	 * If gender unknown, will return null.
-	 * @return
 	 */
 	public String getGender();
 	
@@ -64,14 +61,12 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * A list of possible (language-specific) numbers for this entry.
 	 * In French, this will include entries such as "singular", "plural".
 	 * If number unknown, will return null.
-	 * @return
 	 */
 	public String getNumber();
 	
 	/**
 	 * A list of possible (language-specific) tenses/moods for this entry, when the entry is a verb.
 	 * If tense unknown, will return null.
-	 * @return
 	 */
 	public String getTense();
 	
@@ -79,7 +74,6 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * A list of possible persons for this entry.
 	 * In French, this will inlude entries such as "1st person", "2nd person", "3rd person".
 	 * If person unknown, will return null.
-	 * @return
 	 */
 	public String getPerson();
 	
@@ -87,26 +81,22 @@ public interface PosTaggedToken extends TaggedToken<PosTag>, PosTaggedTokenWrapp
 	 * A list of possible (language-specific) numbers for the possessor in this entry,
 	 * when the entry is a possessive determinant or pronoun.
 	 * If possessor number unknown, will return null.
-	 * @return
 	 */
 	public String getPossessorNumber();
 	
 	/**
 	 * A comment regarding this pos-tag annotation.
-	 * @return
 	 */
 	public String getComment();
 	public void setComment(String comment);
 	
 	/**
 	 * This token's index in the containing sentence.
-	 * @return
 	 */
 	public int getIndex();
 	
 	/**
 	 * The sequence containing this pos-tagged token.
-	 * @return
 	 */
 	public PosTagSequence getPosTagSequence();
 	public void setPosTagSequence(PosTagSequence posTagSequence);

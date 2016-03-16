@@ -35,13 +35,11 @@ interface PhraseUnitReader {
 	/**
 	 * A list of strings representing where the PhraseUnitReader is currently stationed
 	 * (to export to a file in case of an error).
-	 * @return
 	 */
 	public abstract List<String> getCurrentInfo();
 
 	/**
 	 * Get the PosTag of the last string read.
-	 * @return
 	 */
 	public PosTag getPosTag();
 

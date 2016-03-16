@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Returns true if a feature is null, false otherwise.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class IsNullFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
 	Feature<T,?> testFeature;

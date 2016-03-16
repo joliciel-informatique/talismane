@@ -226,7 +226,6 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 
 	/**
 	 * Write data to the stream that's specific to this model.
-	 * @param zos
 	 */
 	public abstract void writeDataToStream(ZipOutputStream zos);
 	
@@ -284,13 +283,11 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	
 	/**
 	 * Load this model's internal binary representation from an input stream.
-	 * @param inputStream
 	 */
 	protected abstract void loadModelFromStream(InputStream inputStream);
 
 	/**
 	 * Write this model's internal binary representation to an output stream.
-	 * @param outputStream
 	 */
 	protected abstract void writeModelToStream(OutputStream outputStream);
 	

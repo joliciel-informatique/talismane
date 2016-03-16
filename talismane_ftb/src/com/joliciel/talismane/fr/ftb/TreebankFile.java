@@ -30,7 +30,6 @@ public interface TreebankFile extends Entity {
 
     /**
      * All of the sentences in this file.
-     * @return
      */
     public Iterator<Sentence> getSentences();
 }

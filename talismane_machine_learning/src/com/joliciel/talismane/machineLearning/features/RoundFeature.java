@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Rounds a double to the nearest integer.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 class RoundFeature<T> extends AbstractFeature<T, Integer> implements
 		IntegerFeature<T> {

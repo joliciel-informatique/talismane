@@ -29,7 +29,6 @@ import com.joliciel.talismane.utils.JolicielException;
  * An external resource feature for an external resource with a single class per key.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class ExternalResourceFeature<T> extends AbstractCachableFeature<T, String>
 		implements StringFeature<T> {

@@ -28,19 +28,16 @@ import java.util.Map;
 public interface RankingEventStream<T> {
 	/**
 	 * Does this event reader have any more events to read?
-	 * @return
 	 */
 	public boolean hasNext();
 	
 	/**
 	 * The next event to read.
-	 * @return
 	 */
 	public RankingEvent<T> next();
 	
 	/**
 	 * Get the attributes defining this event stream.
-	 * @return
 	 */
 	public Map<String,String> getAttributes();
 	

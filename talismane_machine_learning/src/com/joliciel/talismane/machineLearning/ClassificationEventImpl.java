@@ -35,7 +35,6 @@ class ClassificationEventImpl implements ClassificationEvent {
 	
 	/**
 	 * The result of testing the various features on this event.
-	 * @return
 	 */
 	@Override
 	public List<FeatureResult<?>> getFeatureResults() {
@@ -44,7 +43,6 @@ class ClassificationEventImpl implements ClassificationEvent {
 	
 	/**
 	 * The correct classification of this event.
-	 * @return
 	 */
 	@Override
 	public String getClassification() {

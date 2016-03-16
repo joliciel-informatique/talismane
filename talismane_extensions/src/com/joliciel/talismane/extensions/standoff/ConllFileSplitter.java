@@ -26,7 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.Map;
@@ -49,11 +48,6 @@ public class ConllFileSplitter {
 	
 	private static DecimalFormat df = new DecimalFormat("000");
 	
-	/**
-	 * @param args
-	 * @throws IOException 
-	 * @throws UnsupportedEncodingException 
-	 */
 	public void split(String filePath, int startIndex, int sentencesPerFile, String encoding) {
 		try {
 			String fileBase = filePath;

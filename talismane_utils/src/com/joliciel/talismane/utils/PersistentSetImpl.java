@@ -28,7 +28,6 @@ import java.util.Set;
  * The default implementation of PersistentSet
  * @author Assaf Urieli
  *
- * @param <E>
  */
 public class PersistentSetImpl<E> implements PersistentSet<E> {
     private List<E> itemsAdded;

@@ -152,9 +152,6 @@ class TokenPatternImpl implements TokenPattern {
 	
 	/**
 	 * Does this particular token match this particular pattern.
-	 * @param pattern
-	 * @param token
-	 * @return
 	 */
 	boolean checkTokenForMatch(Pattern pattern, Token token) {
 		String regex = pattern.pattern();
@@ -189,8 +186,6 @@ class TokenPatternImpl implements TokenPattern {
 
 	/**
 	 * Break the regexp up into chunks, where each chunk will match one token.
-	 * @param regexp
-	 * @return
 	 */
 	List<Pattern> parsePattern(String regexp) {
 		boolean inLiteral = false;

@@ -32,17 +32,12 @@ public interface TokeniserService {
 	
 	/**
 	 * Create a token sequence for a given sentence.
-	 * @param sentence
-	 * @return
 	 */
 	public TokenSequence getTokenSequence(Sentence sentence);
 	
 	/**
 	 * Create a token sequence from a given sentence,
 	 * pre-separated into tokens matching the separatorPattern.
-	 * @param sentence
-	 * @param separatorPattern
-	 * @return
 	 */
 	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern);
 	
@@ -51,9 +46,6 @@ public interface TokeniserService {
 	 * Create a token sequence from a given sentence,
 	 * pre-separated into tokens matching the separatorPattern,
 	 * except for the placeholders provided.
-	 * @param sentence
-	 * @param separatorPattern
-	 * @return
 	 */
 	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders);
 
@@ -84,8 +76,6 @@ public interface TokeniserService {
 	/**
 	 * Returns a corpus reader based on the use of Regex.
 	 * See class description for details.
-	 * @param reader
-	 * @return
 	 */
 	TokenRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 }

@@ -308,7 +308,6 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 	 * A list of specific items to exclude when loading the lexicon.
 	 * Each internal list is a list of attributes, all of which must match for the provided
 	 * {@link #getExclusionAttributes()} for the entry to get excluded.
-	 * @return
 	 */
 	public void setExclusions(List<List<String>> exclusions) {
 		this.exclusions = exclusions;
@@ -321,7 +320,6 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 	/**
 	 * A list of attributes to match based on the exclusion list in
 	 * {@link #getExclusions()}.
-	 * @param exclusionAttributes
 	 */
 	public void setExclusionAttributes(List<String> exclusionAttributes) {
 		this.exclusionAttributes = exclusionAttributes;
@@ -330,7 +328,6 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 	/**
 	 * A set of categories to include when loading.
 	 * If null, all categories are loaded.
-	 * @return
 	 */
 	public Set<String> getCategories() {
 		return categories;
@@ -404,7 +401,6 @@ public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalisma
 	/**
 	 * A list of attributes defining the uniqueness of a given entry.
 	 * If another entry exists with the identical set of attributes, it won't get added.
-	 * @return
 	 */
 	public List<LexicalAttribute> getUniqueKeyAttributes() {
 		return uniqueKeyAttributes;

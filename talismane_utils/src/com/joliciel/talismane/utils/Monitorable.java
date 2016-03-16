@@ -27,8 +27,6 @@ public interface Monitorable {
 	/**
 	 * To be called just before a particular task is started.
 	 * Returns a ProgressMonitor for this particular task.
-	 * @param taskName the name of the task being started.
-	 * @return
 	 */
 	public ProgressMonitor monitorTask();
 	

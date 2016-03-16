@@ -28,8 +28,6 @@ import java.util.List;
 public interface PosTagEvaluationObserver {
 	/**
 	 * Called when the next pos-tag sequence has been processed.
-	 * @param realSequence
-	 * @param guessedSequences
 	 */
 	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences);
 	

@@ -46,7 +46,6 @@ public interface PerceptronClassificationModelTrainer extends ClassificationMode
 	}
 	/**
 	 * The maximum number of training iterations to run.
-	 * @return
 	 */
 	public int getIterations();
 	public void setIterations(int iterations);

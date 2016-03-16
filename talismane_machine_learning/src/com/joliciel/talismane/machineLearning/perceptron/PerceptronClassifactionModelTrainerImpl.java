@@ -338,7 +338,6 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	/**
 	 * If true, will only average for iterations <= 20 and then for all
 	 * perfect squares (25, 36, 49, 64, 81, 100, etc.).
-	 * @return
 	 */
 	public boolean isAverageAtIntervals() {
 		return averageAtIntervals;

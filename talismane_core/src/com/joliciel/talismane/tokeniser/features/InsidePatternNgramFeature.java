@@ -54,16 +54,12 @@ public final class InsidePatternNgramFeature extends AbstractTokeniserContextFea
 	 * both the pattern and the related index in one go.<br/>
 	 * The tokenPatternAndIndexFeature should thus include the pattern name, followed by the character ¤,
 	 * followed by the index number.
-	 * @param tokenPatternFeature
-	 * @param testIndexFeature
 	 */
 	public InsidePatternNgramFeature(StringFeature<TokenWrapper> tokenPatternAndIndexFeature) {
 		this.tokenPatternAndIndexFeature = tokenPatternAndIndexFeature;
 		this.setName(super.getName() + "(" + this.tokenPatternAndIndexFeature.getName() + ")");
 	}	
 	/**
-	 * @param tokenPatternFeature
-	 * @param testIndexFeature
 	 */
 	public InsidePatternNgramFeature(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokeniserContext> testIndexFeature) {
 		this.tokenPatternFeature = tokenPatternFeature;

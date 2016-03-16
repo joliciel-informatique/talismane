@@ -30,10 +30,6 @@ public interface TextMarkerFilter {
 	/**
 	 * Apply the filter to the text (not to prevText or nextText), and detect
 	 * any text markers.
-	 * @param prevText
-	 * @param text
-	 * @param nextText
-	 * @return
 	 */
 	public Set<TextMarker> apply(String prevText, String text, String nextText);
 	
@@ -47,27 +43,22 @@ public interface TextMarkerFilter {
 	 * The maximum size of text that this filter can match (without risking
 	 * to add only the beginning and not the end, or vice versa).
 	 * Bigger matches will throw an error.
-	 * @return
 	 */
 	public int getBlockSize();
 	public void setBlockSize(int blockSize);
 	
 	/**
 	 * If the filter adds a tag, the attribute to add.
-	 * @return
 	 */
 	public String getAttribute();
 	
 	/**
 	 * If the filter adds a tag, the value to add.
-	 * @return
 	 */
 	public String getValue();
 
 	/**
 	 * Set the tag added by this filter.
-	 * @param attribute
-	 * @param value
 	 */
 	public void setTag(String attribute, String value);
 }

@@ -915,7 +915,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The actual command to run by Talismane.
-	 * @return
 	 */
 	@Override
 	public Command getCommand() {
@@ -929,7 +928,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * If the command required a start module (e.g. analyse), the start module for this command.
 	 * Default is {@link com.joliciel.talismane.Talismane.Module#SentenceDetector}.
-	 * @return
 	 */
 	@Override
 	public Module getStartModule() {
@@ -943,7 +941,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * If the command requires an end module (e.g. analyse), the end module for this command.
 	 * Default is {@link com.joliciel.talismane.Talismane.Module#Parser}.
-	 * @return
 	 */
 	@Override
 	public Module getEndModule() {
@@ -956,7 +953,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * For commands which only affect a single module (e.g. evaluate), the module for this command.
-	 * @return
 	 */
 	@Override
 	public Module getModule() {
@@ -970,7 +966,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * When analysing, should the raw text be processed by default, or should we wait until a text
 	 * marker filter tells us to start processing. Default is true.
-	 * @return
 	 */
 	@Override
 	public boolean isProcessByDefault() {
@@ -984,7 +979,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * For the "process" command, the maximum number of sentences to process. If <=0, all sentences
 	 * will be processed. Default is 0 (all).
-	 * @return
 	 */
 	@Override
 	public int getMaxSentenceCount() {
@@ -997,7 +991,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The charset that is used to interpret the input stream.
-	 * @return
 	 */
 	@Override
 	public Charset getInputCharset() {
@@ -1010,7 +1003,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The charset that is used to write to the output stream.
-	 * @return
 	 */
 	@Override
 	public Charset getOutputCharset() {
@@ -1024,7 +1016,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * A character (typically non-printing) which will mark a stop in the input stream and set-off analysis.
 	 * The default value is the form-feed character (code=12).
-	 * @return
 	 */
 	@Override
 	public char getEndBlockCharacter() {
@@ -1038,7 +1029,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * The beam width for beam-search analysis. Default is 1.
 	 * Increasing this value will increase analysis time in a linear fashion, but will typically improve results.
-	 * @return
 	 */
 	@Override
 	public int getBeamWidth() {
@@ -1052,7 +1042,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * If true, the full beam of analyses produced as output by a given module will be used as input for the next module.
 	 * If false, only the single best analysis will be used as input for the next module.
-	 * @return
 	 */
 	@Override
 	public boolean isPropagateBeam() {
@@ -1065,7 +1054,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * If true, a generates a very detailed analysis on how Talismane obtained the results it displays.
-	 * @return
 	 */
 	@Override
 	public boolean isIncludeDetails() {
@@ -1078,7 +1066,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The reader to be used to read the data for this analysis.
-	 * @return
 	 */
 	@Override
 	public Reader getReader() {
@@ -1121,7 +1108,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * The reader to be used to read the data for evaluation, when command=compare.
-	 * @return
 	 */
 	@Override
 	public Reader getEvaluationReader() {
@@ -1139,7 +1125,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * A writer to which Talismane should write its output when analysing.
-	 * @return
 	 */
 	@Override
 	public Writer getWriter() {
@@ -1176,7 +1161,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The filename to be applied to this analysis (if filename is included in the output).
-	 * @return
 	 */
 	@Override
 	public String getFileName() {
@@ -1185,7 +1169,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The directory to which we write any output files.
-	 * @return
 	 */
 	@Override
 	public synchronized File getOutDir() {
@@ -1204,7 +1187,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The rules to apply when running the pos-tagger.
-	 * @return
 	 */
 	@Override
 	public synchronized List<PosTaggerRule> getPosTaggerRules() {
@@ -1251,7 +1233,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * The rules to apply when running the parser.
-	 * @return
 	 */
 	@Override
 	public synchronized List<ParserRule> getParserRules() {
@@ -1302,7 +1283,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * A regex used to process the input, when pre-annotated.
-	 * @return
 	 */
 	@Override
 	public synchronized String getInputRegex() {
@@ -1331,7 +1311,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * A regex used to process the evaluation corpus.
-	 * @return
 	 */
 	@Override
 	public synchronized String getEvaluationRegex() {
@@ -1361,7 +1340,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * Text marker filters are applied to raw text segments extracted from the stream, 3 segments at a time.
 	 * This means that if a particular marker crosses segment borders, it is handled correctly.
-	 * @return
 	 */
 	@Override
 	public synchronized List<TextMarkerFilter> getTextMarkerFilters() {
@@ -1454,7 +1432,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * TokenFilters to be applied during analysis.
-	 * @return
 	 */
 	private synchronized List<TokenSequenceFilter> getTokenSequenceFilters(MachineLearningModel model) {
 		try {
@@ -1575,7 +1552,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * TokenFilters to be applied during analysis.
-	 * @return
 	 */
 	private synchronized List<TokenFilter> getTokenFilters(MachineLearningModel model) {
 		try {
@@ -1654,7 +1630,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The language detector to use for analysis.
-	 * @return
 	 */
 	@Override
 	public LanguageDetector getLanguageDetector() {
@@ -1671,7 +1646,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The sentence detector to use for analysis.
-	 * @return
 	 */
 	@Override
 	public SentenceDetector getSentenceDetector() {
@@ -1688,7 +1662,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The tokeniser to use for analysis.
-	 * @return
 	 */
 	@Override
 	public Tokeniser getTokeniser() {
@@ -2038,7 +2011,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * The pos-tagger to use for analysis.
-	 * @return
 	 */
 	@Override
 	public PosTagger getPosTagger() {
@@ -2082,7 +2054,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The parser to use for analysis.
-	 * @return
 	 */
 	@Override
 	public Parser getParser() {
@@ -2164,7 +2135,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * A value of 0 indicates that there is no maximum time -
 	 * the parser will always continue until sentence analysis is complete.<br/>
 	 * The default value is 60.<br/>
-	 * @return
 	 */
 	@Override
 	public int getMaxParseAnalysisTime() {
@@ -2178,7 +2148,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * A sentence processor to process sentences that have been read.
-	 * @return
 	 */
 	@Override
 	public synchronized SentenceProcessor getSentenceProcessor() {
@@ -2202,7 +2171,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * A token sequence processor to process token sequences that have been read.
-	 * @return
 	 */
 	@Override
 	public synchronized TokenSequenceProcessor getTokenSequenceProcessor() {
@@ -2226,7 +2194,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * A pos-tag sequence processor to process pos-tag sequences that have been read.
-	 * @return
 	 */
 	@Override
 	public synchronized PosTagSequenceProcessor getPosTagSequenceProcessor() {
@@ -2255,7 +2222,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * A parse configuration processor to process parse configurations that have been read.
-	 * @return
 	 */
 	@Override
 	public synchronized ParseConfigurationProcessor getParseConfigurationProcessor() {
@@ -2308,7 +2274,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * A token corpus reader to read a corpus pre-annotated in tokens.
 	 * Note that in general, any filters up to and including the tokeniser should be applied to the corpus reader.
-	 * @return
 	 */
 	@Override
 	public synchronized TokeniserAnnotatedCorpusReader getTokenCorpusReader() {
@@ -2381,7 +2346,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	/**
 	 * A pos tag corpus reader to read a corpus pre-annotated in postags.
 	 * Note that, in general, any filters up to and including the pos-tagger should be applied to the reader.
-	 * @return
 	 */
 	@Override
 	public synchronized PosTagAnnotatedCorpusReader getPosTagCorpusReader() {
@@ -2446,7 +2410,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * A parser corpus reader to read a corpus pre-annotated in dependencies.
-	 * @return
 	 */
 	@Override
 	public synchronized ParserAnnotatedCorpusReader getParserCorpusReader() {
@@ -2588,7 +2551,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * Get a parser evaluator if command=evaluate and endModule=parser.
-	 * @return
 	 */
 	@Override
 	public synchronized ParserEvaluator getParserEvaluator() {
@@ -2692,7 +2654,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * Get a parser comparator if command=compare and endModule=parser.
-	 * @return
 	 */
 	@Override
 	public synchronized ParseComparator getParseComparator() {
@@ -2730,7 +2691,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * Get a tokeniser evaluator if command=evaluate and endModule=tokeniser.
-	 * @return
 	 */
 	@Override
 	public synchronized TokeniserEvaluator getTokeniserEvaluator() {
@@ -2748,7 +2708,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * Get a sentence detector evaluator if command=evaluate and endModule=sentenceDetector.
-	 * @return
 	 */
 	@Override
 	public synchronized SentenceDetectorEvaluator getSentenceDetectorEvaluator() {
@@ -2813,7 +2772,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * Get a token comparator if command=compare and endModule=parser.
-	 * @return
 	 */
 	@Override
 	public synchronized TokenComparator getTokenComparator() {
@@ -2846,7 +2804,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * Get a pos-tagger evaluator if command=evaluate and endModule=posTagger.
-	 * @return
 	 */
 	@Override
 	public synchronized PosTaggerEvaluator getPosTaggerEvaluator() {
@@ -2918,7 +2875,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	
 	/**
 	 * Get a pos-tag comparator if command=compare and endModule=parser.
-	 * @return
 	 */
 	@Override
 	public synchronized PosTagComparator getPosTagComparator() {
@@ -2943,7 +2899,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The base name, out of which to construct output file names.
-	 * @return
 	 */
 	@Override
 	public synchronized String getBaseName() {
@@ -3241,7 +3196,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 * and the next block prior to sentence detection, in order to ensure that a filter which crosses block boundaries is correctly applied.
 	 * It is not legal to have a filter which matches text greater than a block size, since this could result in a filter which stops analysis but doesn't start it again correctly,
 	 * or vice versa. Block size can be increased if really big filters are really required. Default is 1000.
-	 * @return
 	 */
 	@Override
 	public int getBlockSize() {
@@ -3265,7 +3219,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * Should the parser corpus reader predict the transitions or not?
-	 * @return
 	 */
 	@Override
 	public boolean isPredictTransitions() {
@@ -3390,7 +3343,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The port where the Talismane Server should listen.
-	 * @return
 	 */
 	@Override
 	public int getPort() {
@@ -3399,7 +3351,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	/**
 	 * The first sentence index to process.
-	 * @return
 	 */
 	@Override
 	public int getStartSentence() {

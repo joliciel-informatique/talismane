@@ -17,7 +17,6 @@ public interface TokenisedAtomicTokenSequence extends TaggedTokenSequence<Tokeni
 
 	/**
 	 * The original sentence.
-	 * @return
 	 */
 	public Sentence getSentence();
 }

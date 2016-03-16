@@ -21,8 +21,6 @@ package com.joliciel.talismane.machineLearning.features;
 /**
  * Wrapper for a string literal.
  * @author Assaf Urieli
- *
- * @param <T>
  */
 public class StringLiteralFeature<T> extends AbstractFeature<T, String> implements
 		StringFeature<T> {

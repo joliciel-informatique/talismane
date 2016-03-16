@@ -49,7 +49,6 @@ public interface SentenceDetector {
 	/**
 	 * Token filters mark certain portions of the raw text as entire tokens -
 	 * a sentence break will never be detected inside such a token.
-	 * @return
 	 */
 	public List<TokenFilter> getTokenFilters();
 

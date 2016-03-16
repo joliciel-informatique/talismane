@@ -24,7 +24,6 @@ import java.util.Set;
 public interface SentenceHolder extends Sentence {
 	/**
 	 * Add a sentence boundary to this sentence holder.
-	 * @param boundary
 	 */
 	void addSentenceBoundary(int boundary);
 	Set<Integer> getSentenceBoundaries();
@@ -35,21 +34,16 @@ public interface SentenceHolder extends Sentence {
 	 * After this is called, {@link #getOriginalTextSegments()} will only return leftover original text segments
 	 * that have not yet been assigned to sentences in the current list.
 	 * @param leftOverText an incomplete sentence returned by the previous sentence holder.
-	 * @return
 	 */
 	List<Sentence> getDetectedSentences(Sentence leftOverText);
 	
 	/**
 	 * Indicate that a tag starts at this position.
-	 * @param attribute
-	 * @param position
 	 */
 	void addTagStart(String attribute, String value, int position);
 	
 	/**
 	 * Indicate that a tag ends at this position.
-	 * @param attribute
-	 * @param position
 	 */
 	void addTagEnd(String attribute, String value, int position);
 }

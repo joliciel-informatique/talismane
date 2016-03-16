@@ -24,31 +24,26 @@ public interface PossibleSentenceBoundary {
 	/**
 	 * The text englobing this possible boundary, where the end of the text is either the real end of the input stream,
 	 * or at least n characters beyond the possible boundary.
-	 * @return
 	 */
 	public String getText();
 	
 	/**
 	 * The index of the possible boundary being tested.
-	 * @return
 	 */
 	public int getIndex();
 	
 	/**
 	 * The actual string being tested.
-	 * @return
 	 */
 	public String getBoundaryString();
 	
 	/**
 	 * A token sequence representing the text.
-	 * @return
 	 */
 	public TokenSequence getTokenSequence();
 	
 	/**
 	 * Index of this boundary's token, including whitespace.
-	 * @return
 	 */
 	public int getTokenIndexWithWhitespace();
 }

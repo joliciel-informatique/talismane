@@ -54,30 +54,22 @@ public interface PerceptronService {
 	
 	/**
 	 * Returns a perceptron classification model trainer.
-	 * @param 
-	 * @return
 	 */
 	public PerceptronClassificationModelTrainer getPerceptronModelTrainer();
 	
 	/**
 	 * Returns a perceptron ranking model trainer.
-	 * @param 
-	 * @return
 	 */
 	public<T> PerceptronRankingModelTrainer<T> getPerceptronRankingModelTrainer();
 	
 	/**
 	 * Get an "empty" perceptron classification model.
-	 * @param 
-	 * @return
 	 */
 	public ClassificationModel getPerceptronModel();
 	
 	
 	/**
 	 * Get an "empty" perceptron classification model.
-	 * @param 
-	 * @return
 	 */
 	public RankingModel getPerceptronRankingModel();
 

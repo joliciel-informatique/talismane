@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Wrapper for a boolean literal.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class BooleanLiteralFeature<T> extends AbstractFeature<T, Boolean> implements
 		BooleanFeature<T> {

@@ -246,11 +246,6 @@ class TermExtractorImpl implements TermExtractor {
 	/**
 	 * Get all expansions for this node recursively.
 	 * Note: we assume in here that coordinated structures are first-conjunct governed.
-	 * @param posTaggedToken
-	 * @param parseConfiguration
-	 * @param depth
-	 * @param expansionsPerNoun
-	 * @return
 	 */
 	List<Expansion> getExpansions(PosTaggedToken posTaggedToken, ParseConfiguration parseConfiguration, int depth, Map<PosTaggedToken, List<Expansion>> expansionsPerNoun) {
 		List<Expansion> expansions = new ArrayList<Expansion>();

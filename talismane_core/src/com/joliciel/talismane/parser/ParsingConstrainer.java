@@ -31,20 +31,16 @@ public interface ParsingConstrainer extends ParseConfigurationProcessor, Seriali
 	/**
 	 * Get a list of transitions that co-occur with configurations similar to this one
 	 * in the training corpus.
-	 * @param configuration
-	 * @return
 	 */
 	public Set<Transition> getPossibleTransitions(ParseConfiguration configuration);
 	
 	/**
 	 * Get the transition system used by this constrainer.
-	 * @return
 	 */
 	public TransitionSystem getTransitionSystem();
 	
 	/**
 	 * A file for serializing this constrainer.
-	 * @param writer
 	 */
 	public void setFile(File file);
 }

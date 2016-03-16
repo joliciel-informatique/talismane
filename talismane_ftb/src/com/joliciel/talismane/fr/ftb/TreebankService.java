@@ -37,22 +37,16 @@ public interface TreebankService {
     
     /**
      * Load an existing treebank file or create a new one
-     * @param fileName
-     * @return
      */
     public TreebankFile loadOrCreateTreebankFile(String fileName);
 
     /**
      * Load an existing treebank file.
-     * @param fileName
-     * @return
      */
     public TreebankFile loadTreebankFile(String fileName);
     
     /**
      * Load an existing text item.
-     * @param externalId
-     * @return
      */
     public TextItem loadTextItem(String externalId);
     public TextItem newTextItem();
@@ -100,8 +94,6 @@ public interface TreebankService {
     
     /**
      * Loads a sentence, including all of its phrases and phrase units.
-     * @param sentenceId
-     * @return
      */
     public Sentence loadFullSentence(int sentenceId);
     
@@ -110,7 +102,6 @@ public interface TreebankService {
     /**
      * @param treebankSubSet the subset to take from
      * @param numIds if not zero, limit to this number of ids.
-     * @return
      */
     public List<Integer> findSentenceIds(TreebankSubSet treebankSubSet, int numIds);
     public List<Integer> findSentenceIds(TreebankSubSet treebankSubSet, int numIds, int startId);
@@ -123,7 +114,6 @@ public interface TreebankService {
      * Find unknown words in a given portion of the corpus, compared to the training part of the corpus.
      * @param knownSet where to find known words
      * @param unknownSet where to find unknown words
-     * @return
      */
     public Set<String> findUnknownWords(TreebankSubSet knownSet, TreebankSubSet unknownSet);
     
@@ -139,7 +129,6 @@ public interface TreebankService {
 	
 	/**
 	 * Find all treebank files in the database.
-	 * @return
 	 */
 	public abstract List<TreebankFile> findTreebankFiles();
 	

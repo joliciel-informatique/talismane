@@ -32,8 +32,6 @@ import java.util.List;
 public interface TokenFilter {
 	/**
 	 * Analyse the sentence, and provide placeholders for any tokens that will have to be formed.
-	 * @param sentence
-	 * @return
 	 */
 	List<TokenPlaceholder> apply(String text);
 }

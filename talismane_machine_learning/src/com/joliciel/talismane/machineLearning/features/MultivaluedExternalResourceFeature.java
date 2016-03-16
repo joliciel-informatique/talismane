@@ -30,7 +30,6 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * An external resource feature for an external resource with multiple classes per key.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class MultivaluedExternalResourceFeature<T> extends AbstractStringCollectionFeature<T> implements StringCollectionFeature<T> {
 	ExternalResourceFinder externalResourceFinder;

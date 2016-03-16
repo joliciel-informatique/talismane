@@ -33,17 +33,11 @@ public interface TreebankExportService {
 	 * Get a PosTagMapper based on a file with the following layout:<BR/>
 	 * Rows starting with a # are ignored.<BR/>
 	 * Other rows contained tab-delimited: category code, subcategory code, morphology code, postag code.<BR/>
-	 * @param file
-	 * @param posTagSet
-	 * @return
 	 */
 	FtbPosTagMapper getFtbPosTagMapper(File file, PosTagSet posTagSet);
 	
 	/**
 	 * Like getPosTagMapper(File) but replaces the file by a list of strings.
-	 * @param descriptors
-	 * @param posTagSet
-	 * @return
 	 */
 	FtbPosTagMapper getFtbPosTagMapper(List<String> descriptors, PosTagSet posTagSet);
 	

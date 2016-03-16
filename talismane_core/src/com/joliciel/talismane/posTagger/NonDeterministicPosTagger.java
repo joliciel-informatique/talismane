@@ -40,7 +40,6 @@ public interface NonDeterministicPosTagger extends PosTagger {
 
 	/**
 	 * The maximum number of possible sequences returned by the pos-tagger.
-	 * @return
 	 */
 	public abstract int getBeamWidth();
 }

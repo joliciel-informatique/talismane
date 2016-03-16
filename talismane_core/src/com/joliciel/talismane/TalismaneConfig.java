@@ -76,7 +76,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * The actual command to run by Talismane.
-	 * @return
 	 */
 	public Command getCommand();
 
@@ -85,7 +84,6 @@ public interface TalismaneConfig {
 	/**
 	 * If the command required a start module (e.g. analyse), the start module for this command.
 	 * Default is {@link com.joliciel.talismane.Talismane.Module#SentenceDetector}.
-	 * @return
 	 */
 	public Module getStartModule();
 
@@ -94,7 +92,6 @@ public interface TalismaneConfig {
 	/**
 	 * If the command requires an end module (e.g. analyse), the end module for this command.
 	 * Default is {@link com.joliciel.talismane.Talismane.Module#Parser}.
-	 * @return
 	 */
 	public Module getEndModule();
 
@@ -102,7 +99,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * For commands which only affect a single module (e.g. evaluate), the module for this command.
-	 * @return
 	 */
 	public Module getModule();
 
@@ -111,16 +107,14 @@ public interface TalismaneConfig {
 	/**
 	 * When analysing, should the raw text be processed by default, or should we wait until a text
 	 * marker filter tells us to start processing. Default is true.
-	 * @return
 	 */
 	public boolean isProcessByDefault();
 
 	public void setProcessByDefault(boolean processByDefault);
 
 	/**
-	 * For the "process" command, the maximum number of sentences to process. If <=0, all sentences
+	 * For the "process" command, the maximum number of sentences to process. If &lt;=0, all sentences
 	 * will be processed. Default is 0 (all).
-	 * @return
 	 */
 	public int getMaxSentenceCount();
 
@@ -128,7 +122,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * The charset that is used to interpret the input stream.
-	 * @return
 	 */
 	public Charset getInputCharset();
 
@@ -136,7 +129,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * The charset that is used to write to the output stream.
-	 * @return
 	 */
 	public Charset getOutputCharset();
 
@@ -145,7 +137,6 @@ public interface TalismaneConfig {
 	/**
 	 * A character (typically non-printing) which will mark a stop in the input stream and set-off analysis.
 	 * The default value is the form-feed character (code=12).
-	 * @return
 	 */
 	public char getEndBlockCharacter();
 
@@ -154,7 +145,6 @@ public interface TalismaneConfig {
 	/**
 	 * The beam width for beam-search analysis. Default is 1.
 	 * Increasing this value will increase analysis time in a linear fashion, but will typically improve results.
-	 * @return
 	 */
 	public int getBeamWidth();
 
@@ -163,7 +153,6 @@ public interface TalismaneConfig {
 	/**
 	 * If true, the full beam of analyses produced as output by a given module will be used as input for the next module.
 	 * If false, only the single best analysis will be used as input for the next module.
-	 * @return
 	 */
 	public boolean isPropagateBeam();
 
@@ -171,7 +160,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * If true, a generates a very detailed analysis on how Talismane obtained the results it displays.
-	 * @return
 	 */
 	public boolean isIncludeDetails();
 
@@ -179,63 +167,53 @@ public interface TalismaneConfig {
 
 	/**
 	 * The reader to be used to read the data for this analysis.
-	 * @return
 	 */
 	public Reader getReader();
 
 	/**
 	 * The reader to be used to read the data for evaluation, when command=compare.
-	 * @return
 	 */
 	public Reader getEvaluationReader();
 
 	/**
 	 * A writer to which Talismane should write its output when analysing.
-	 * @return
 	 */
 	public Writer getWriter();
 
 	/**
 	 * The filename to be applied to this analysis (if filename is included in the output).
-	 * @return
 	 */
 	public String getFileName();
 
 	/**
 	 * The directory to which we write any output files.
-	 * @return
 	 */
 	public File getOutDir();
 
 	/**
 	 * The rules to apply when running the pos-tagger.
-	 * @return
 	 */
 	public List<PosTaggerRule> getPosTaggerRules();
 
 	/**
 	 * The rules to apply when running the parser.
-	 * @return
 	 */
 	public List<ParserRule> getParserRules();
 
 	/**
 	 * A regex used to process the input, when pre-annotated.
-	 * @return
 	 */
 	public String getInputRegex();
 	public void setInputRegex(String inputRegex);
 
 	/**
 	 * A regex used to process the evaluation corpus.
-	 * @return
 	 */
 	public String getEvaluationRegex();
 
 	/**
 	 * Text marker filters are applied to raw text segments extracted from the stream, 3 segments at a time.
 	 * This means that if a particular marker crosses segment borders, it is handled correctly.
-	 * @return
 	 */
 	public List<TextMarkerFilter> getTextMarkerFilters();
 
@@ -247,19 +225,16 @@ public interface TalismaneConfig {
 
 	/**
 	 * Create and return a new language detector based on this configuration.
-	 * @return
 	 */
 	public LanguageDetector getLanguageDetector();
 	
 	/**
 	 * Create and return a new sentence detector based on this configuration.
-	 * @return
 	 */
 	public SentenceDetector getSentenceDetector();
 
 	/**
 	 * Create and return a new tokeniser based on this configuration.
-	 * @return
 	 */
 	public Tokeniser getTokeniser();
 
@@ -279,13 +254,11 @@ public interface TalismaneConfig {
 
 	/**
 	 * Create and return a new pos-tagger based on this configuration.
-	 * @return
 	 */
 	public PosTagger getPosTagger();
 
 	/**
 	 * Create and return a new parser based on this configuration.
-	 * @return
 	 */
 	public Parser getParser();
 
@@ -298,7 +271,6 @@ public interface TalismaneConfig {
 	 * A value of 0 indicates that there is no maximum time -
 	 * the parser will always continue until sentence analysis is complete.<br/>
 	 * The default value is 60.<br/>
-	 * @return
 	 */
 	public int getMaxParseAnalysisTime();
 
@@ -306,7 +278,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * A language detector processor to process language detector output.
-	 * @return
 	 */
 	public LanguageDetectorProcessor getLanguageDetectorProcessor();
 	public void setLanguageDetectorProcessor(
@@ -314,32 +285,27 @@ public interface TalismaneConfig {
 
 	/**
 	 * A sentence processor to process sentences that have been read.
-	 * @return
 	 */
 	public SentenceProcessor getSentenceProcessor();
 
 	/**
 	 * A token sequence processor to process token sequences that have been read.
-	 * @return
 	 */
 	public TokenSequenceProcessor getTokenSequenceProcessor();
 
 	/**
 	 * A pos-tag sequence processor to process pos-tag sequences that have been read.
-	 * @return
 	 */
 	public PosTagSequenceProcessor getPosTagSequenceProcessor();
 
 	/**
 	 * A parse configuration processor to process parse configurations that have been read.
-	 * @return
 	 */
 	public ParseConfigurationProcessor getParseConfigurationProcessor();
 
 	/**
 	 * A token corpus reader to read a corpus pre-annotated in tokens.
 	 * Note that in general, any filters up to and including the tokeniser should be applied to the corpus reader.
-	 * @return
 	 */
 	public TokeniserAnnotatedCorpusReader getTokenCorpusReader();
 
@@ -351,7 +317,6 @@ public interface TalismaneConfig {
 	/**
 	 * A pos tag corpus reader to read a corpus pre-annotated in postags.
 	 * Note that, in general, any filters up to and including the pos-tagger should be applied to the reader.
-	 * @return
 	 */
 	public PosTagAnnotatedCorpusReader getPosTagCorpusReader();
 
@@ -359,7 +324,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * A parser corpus reader to read a corpus pre-annotated in dependencies.
-	 * @return
 	 */
 	public ParserAnnotatedCorpusReader getParserCorpusReader();
 
@@ -381,49 +345,41 @@ public interface TalismaneConfig {
 
 	/**
 	 * Get a parser evaluator if command=evaluate and endModule=parser.
-	 * @return
 	 */
 	public ParserEvaluator getParserEvaluator();
 
 	/**
 	 * Get a parser comparator if command=compare and endModule=parser.
-	 * @return
 	 */
 	public ParseComparator getParseComparator();
 
 	/**
 	 * Get a tokeniser evaluator if command=evaluate and endModule=tokeniser.
-	 * @return
 	 */
 	public TokeniserEvaluator getTokeniserEvaluator();
 
 	/**
 	 * Get a sentence detector evaluator if command=evaluate and endModule=sentenceDetector.
-	 * @return
 	 */
 	public SentenceDetectorEvaluator getSentenceDetectorEvaluator();
 
 	/**
 	 * Get a token comparator if command=compare and endModule=parser.
-	 * @return
 	 */
 	public TokenComparator getTokenComparator();
 
 	/**
 	 * Get a pos-tagger evaluator if command=evaluate and endModule=posTagger.
-	 * @return
 	 */
 	public PosTaggerEvaluator getPosTaggerEvaluator();
 
 	/**
 	 * Get a pos-tag comparator if command=compare and endModule=parser.
-	 * @return
 	 */
 	public PosTagComparator getPosTagComparator();
 
 	/**
 	 * The base name, out of which to construct output file names.
-	 * @return
 	 */
 	public String getBaseName();
 
@@ -483,7 +439,6 @@ public interface TalismaneConfig {
 	 * and the next block prior to sentence detection, in order to ensure that a filter which crosses block boundaries is correctly applied.
 	 * It is not legal to have a filter which matches text greater than a block size, since this could result in a filter which stops analysis but doesn't start it again correctly,
 	 * or vice versa. Block size can be increased if really big filters are really required. Default is 1000.
-	 * @return
 	 */
 	public int getBlockSize();
 
@@ -495,7 +450,6 @@ public interface TalismaneConfig {
 
 	/**
 	 * Should the parser corpus reader predict the transitions or not?
-	 * @return
 	 */
 	public boolean isPredictTransitions();
 
@@ -535,13 +489,11 @@ public interface TalismaneConfig {
 
 	/**
 	 * The port where the Talismane Server should listen.
-	 * @return
 	 */
 	public int getPort();
 
 	/**
 	 * The first sentence index to process.
-	 * @return
 	 */
 	public int getStartSentence();
 	
@@ -552,14 +504,12 @@ public interface TalismaneConfig {
 	
 	/**
 	 * A base directory from which all relative path names will be read.
-	 * @return
 	 */
 	public File getBaseDir();
 	public void setBaseDir(File baseDir);
 	
 	/**
 	 * The locale indicated for this configuration.
-	 * @return
 	 */
 	public Locale getLocale();
 	public void setLocale(Locale locale);
@@ -569,7 +519,6 @@ public interface TalismaneConfig {
 	/**
 	 * The language corpus map file must be a tab-delimited file, with the language tag, followed by a tab, followed by the path to the corpus
 	 * for this language.
-	 * @param languageCorpusMapPath
 	 */
 	public void setLanguageCorpusMapPath(String languageCorpusMapPath);
 	
@@ -577,21 +526,18 @@ public interface TalismaneConfig {
 	
 	/**
 	 * Set all token filters replacing those loaded from the model or config.
-	 * @param scanner
 	 */
 	public void setTokenFilters(Scanner scanner);
 	
 	/**
 	 * Add a token filter in addition to those loaded from the model or config.
 	 * Token filters added here will always be run after the ones already loaded.
-	 * @param tokenFilter
 	 */
 	public void addTokenFilter(TokenFilter tokenFilter);
 	
 	/**
 	 * Prepend a token filter to the list of those loaded from the model or config.
 	 * This will always be run before the others.
-	 * @param tokenFilter
 	 */
 	public void prependTokenFilter(TokenFilter tokenFilter);
 

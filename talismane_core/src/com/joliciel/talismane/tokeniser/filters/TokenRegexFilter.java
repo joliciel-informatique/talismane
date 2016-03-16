@@ -31,13 +31,11 @@ import java.util.Map;
 public interface TokenRegexFilter extends TokenFilter {
 	/**
 	 * The regex to recognise.
-	 * @return
 	 */
 	public String getRegex();
 
 	/**
 	 * If provided, will replace the token's text with this replacement.
-	 * @return
 	 */
 	public String getReplacement();
 	public void setReplacement(String replacement);
@@ -45,21 +43,18 @@ public interface TokenRegexFilter extends TokenFilter {
 	/**
 	 * If provided, indicates the group index to tokenise (and possibly replace). Useful for 
 	 * identifying tokens by their context. Default is 0, meaning the entire regex is tokenised and replaced.
-	 * @return
 	 */
 	public int getGroupIndex();
 	public void setGroupIndex(int groupIndex);
 	
 	/**
 	 * Can this regex represent a sentence boundary (at its last character that is)?
-	 * @return
 	 */
 	public boolean isPossibleSentenceBoundary();
 	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
 	
 	/**
 	 * Set of attributes to be assigned to tokens recognised by this regex filter.
-	 * @return
 	 */
 	Map<String,String> getAttributes();
 	public void addAttribute(String key, String value);
@@ -70,7 +65,6 @@ public interface TokenRegexFilter extends TokenFilter {
 	 * or one of the character classes \d, \w, or \p{WordList|Lower|Upper|Alpha|Digit|ASCII}. Note that a + at the end of the regex
 	 * is ignored, but a * or ? is not (as it doesn't guarantee that the class will be matched).
 	 * Default is false.
-	 * @return
 	 */
 	public boolean isAutoWordBoundaries();
 	public void setAutoWordBoundaries(boolean autoWordBoundaries);
@@ -80,7 +74,6 @@ public interface TokenRegexFilter extends TokenFilter {
 	 * versions of the letter. If the letter has a diacritic, both the unadorned and adorned
 	 * uppercase versions will be included.
 	 * Default is true.
-	 * @return
 	 */
 	public boolean isCaseSensitive();
 	public void setCaseSensitive(boolean caseSensitive);
@@ -89,7 +82,6 @@ public interface TokenRegexFilter extends TokenFilter {
 	 * If false, will replace any adorned letter with a class containing both unadorned and adorned
 	 * versions.
 	 * Default is true.
-	 * @return
 	 */
 	public boolean isDiacriticSensitive();
 	public void setDiacriticSensitive(boolean diacriticSensitive);
