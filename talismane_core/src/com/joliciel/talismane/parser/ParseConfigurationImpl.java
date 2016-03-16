@@ -584,7 +584,6 @@ final class ParseConfigurationImpl implements ParseConfigurationInternal {
 	 * True: use a geometric mean when calculating individual arc probabilities
 	 * (which multiply the probabilities for the transitions since the last arc was added).
 	 * False: use the simple product. Default is true.
-	 * @return
 	 */
 	public boolean isUseGeometricMeanForProbs() {
 		return useGeometricMeanForProbs;

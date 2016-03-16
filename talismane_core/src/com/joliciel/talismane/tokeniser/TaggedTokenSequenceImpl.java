@@ -37,7 +37,6 @@ public class TaggedTokenSequenceImpl<T extends TokenTag> extends ArrayList<Tagge
 	/**
 	 * Create a letter sequence with space to one additional letter at the end
 	 * of an existing history.
-	 * @param history
 	 */
 	public TaggedTokenSequenceImpl(TaggedTokenSequence<T> history) {
 		super(history.size()+1);

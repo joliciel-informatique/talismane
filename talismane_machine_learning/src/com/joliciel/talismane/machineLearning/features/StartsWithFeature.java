@@ -21,8 +21,6 @@ package com.joliciel.talismane.machineLearning.features;
 /**
  * Returns true if the first string feature starts with any of the other string features.
  * @author Assaf Urieli
- *
- * @param <T>
  */
 public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean> implements
 		BooleanFeature<T> {

@@ -33,7 +33,6 @@ public interface ParseComparator {
 
 	/**
 	 * The maximum number of sentences to evaluate. Default is 0, which means all.
-	 * @param sentenceCount
 	 */
 	public abstract void setSentenceCount(int sentenceCount);
 	public abstract int getSentenceCount();

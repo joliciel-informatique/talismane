@@ -32,7 +32,7 @@ import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
  * and writing the analysis result to a Writer from {@link TalismaneConfig#getWriter()}.<br/>
  * Not thread-safe: a single Talismane cannot be used by multiple threads simultaneously.<br/>
  * The output format is determined by the processor corresponding to {@link TalismaneConfig#getEndModule()}.<br/>
- * This is accomplished by calling {@link #runCommand(TalismaneConfig)}, and passing it all the configuration options.<br/>
+ * This is accomplished by calling {@link #process()}.<br/>
  * @author Assaf Urieli
  *
  */
@@ -107,13 +107,11 @@ public interface Talismane {
 
 	/**
 	 * Run the {@link Command} specified by {@link TalismaneConfigImpl#getCommand()}.
-	 * @throws Exception
 	 */
 	public abstract void process();
 
 	/**
 	 * The language detector processor to be used if the end-module is the language detector.
-	 * @return
 	 */
 	public LanguageDetectorProcessor getLanguageDetectorProcessor();
 	public void setLanguageDetectorProcessor(
@@ -121,14 +119,12 @@ public interface Talismane {
 	
 	/**
 	 * The sentence processor to be used if the end-module is the sentence detector.
-	 * @return
 	 */
 	public SentenceProcessor getSentenceProcessor();
 	public void setSentenceProcessor(SentenceProcessor sentenceProcessor);
 
 	/**
 	 * The token sequence processor to be used if the end-module is the tokeniser.
-	 * @return
 	 */
 	public TokenSequenceProcessor getTokenSequenceProcessor();
 	public void setTokenSequenceProcessor(
@@ -136,7 +132,6 @@ public interface Talismane {
 
 	/**
 	 * The pos-tag sequence processor to be used if the end-module is the pos-tagger.
-	 * @return
 	 */
 	public PosTagSequenceProcessor getPosTagSequenceProcessor();
 	public void setPosTagSequenceProcessor(
@@ -144,7 +139,6 @@ public interface Talismane {
 
 	/**
 	 * The parse configuration processor to be used if the end-module is the parser.
-	 * @return
 	 */
 	public ParseConfigurationProcessor getParseConfigurationProcessor();
 	public void setParseConfigurationProcessor(
@@ -153,21 +147,18 @@ public interface Talismane {
 	/**
 	 * If an error occurs during analysis, should Talismane stop immediately, or try to keep going with the next sentence?
 	 * Default is true (stop immediately).
-	 * @return
 	 */
 	public boolean isStopOnError();
 	public void setStopOnError(boolean stopOnError);
 	
 	/**
 	 * The reader to be used for input by this instance of Talismane.
-	 * @return
 	 */
 	public Reader getReader();
 	public void setReader(Reader reader);
 	
 	/**
 	 * The writer to be used for output by this instance of Talismane.
-	 * @return
 	 */
 	public Writer getWriter();
 	public void setWriter(Writer writer);

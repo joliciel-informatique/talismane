@@ -22,20 +22,17 @@ import java.util.List;
 
 /**
  * A solution to a particular classification problem.
- * @type T the outcomes (or categories) proposed for this classification problem.
  * @author Assaf Urieli
  *
  */
 public interface ClassificationSolution extends Solution {
 	/**
 	 * The decisions which were used to arrive at this solution.
-	 * @return
 	 */
 	public List<Decision> getDecisions();
 	
 	/**
 	 * Add a decision to this particular solution.
-	 * @param decision
 	 */
 	public void addDecision(Decision decision);
 }

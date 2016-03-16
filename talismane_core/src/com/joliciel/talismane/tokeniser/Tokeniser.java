@@ -52,38 +52,29 @@ public interface Tokeniser {
 	
 	/**
 	 * Similar to {@link #tokenise(String)}, but returns only the best token sequence.
-	 * @param text
-	 * @return
 	 */
 	public TokenSequence tokeniseText(String text);
 	
 	/**
 	 * Similar to {@link #tokenise(Sentence)}, but returns only the best token sequence.
-	 * @param sentence
-	 * @return
 	 */
 	public TokenSequence tokeniseSentence(Sentence sentence);
 	
 	/**
 	 * Similar to {@link #tokeniseWithDecisions(String)}, but returns the token sequences inferred from
 	 * the decisions, rather than the list of decisions themselves.
-	 * @param text
-	 * @return
 	 */
 	public List<TokenSequence> tokenise(String text);
 	
 	/**
 	 * Similar to {@link #tokeniseWithDecisions(String)}, but the text to be tokenised is contained
 	 * within a Sentence object.
-	 * @param sentence
-	 * @return
 	 */
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence);
 	
 	/**
 	 * Similar to {@link #tokeniseWithDecisions(Sentence)}, but returns the token sequences inferred from
 	 * the decisions, rather than the list of decisions themselves.
-	 * @return
 	 */
 	public List<TokenSequence> tokenise(Sentence sentence);
 	
@@ -91,13 +82,11 @@ public interface Tokeniser {
 	 * Filters to be applied to the atomic token sequences, prior to tokenising.
 	 * These filters will either add empty tokens at given places, or change the token text.
 	 * Note that these filters will be applied to the token sequences produced by the tokeniser as well.
-	 * @return
 	 */
 	public List<TokenSequenceFilter> getTokenSequenceFilters();
 	
 	/**
 	 * See {@link #getTokenSequenceFilters()}.
-	 * @param tokenSequenceFilter
 	 */
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
 	
@@ -106,13 +95,11 @@ public interface Tokeniser {
 	 * these filters will mark certain portions of the sentence as entire tokens, and the tokeniser
 	 * will not take any decisions inside these. It still may join them to other atomic tokens,
 	 * to create larger tokens.
-	 * @return
 	 */
 	public List<TokenFilter> getTokenFilters();
 
 	/**
 	 * See {@link #getTokenFilters()}.
-	 * @param filter
 	 */
 	public void addTokenFilter(TokenFilter filter);
 

@@ -29,27 +29,21 @@ public interface TransitionSystem {
 	/**
 	 * Predict the transitions required to generate the set of targe dependencies for a given initial configuration,
 	 * also transforms the configuration so that it becomes a terminal configuration.
-	 * @param configuration
-	 * @param targetDependencies
 	 */
 	void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies);
 	
 	/**
 	 * Get the transition corresponding to a particular code.
-	 * @param code
-	 * @return
 	 */
 	public Transition getTransitionForCode(String code);
 	
 	/**
 	 * Get all possible transitions for this system.
-	 * @return
 	 */
 	public Set<Transition> getTransitions();
 	
 	/**
 	 * A set of dependency labels for this transition system.
-	 * @return
 	 */
 	public Set<String> getDependencyLabels();
 	public void setDependencyLabels(Set<String> dependencyLabels);

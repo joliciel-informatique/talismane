@@ -26,7 +26,6 @@ package com.joliciel.talismane.machineLearning.features;
  * where an argument is determined as a get/set method pair that refers to a Feature.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public interface DynamicSourceCodeBuilder<T> {
 	/**
@@ -37,7 +36,6 @@ public interface DynamicSourceCodeBuilder<T> {
 	
 	/**
 	 * Append a line to the source code.
-	 * @param string
 	 */
 	public void append(String string);
 	
@@ -53,19 +51,16 @@ public interface DynamicSourceCodeBuilder<T> {
 	
 	/**
 	 * Get the dynamic (or dynamised) feature constructed by this builder.
-	 * @return
 	 */
 	public Feature<T,?> getFeature();
 	
 	/**
 	 * Returns a unique variable name given a base.
-	 * @return
 	 */
 	public String getVarName(String base);
 	
 	/**
 	 * Add a class to be imported.
-	 * @param importClass
 	 */
 	public void addImport(Class<?> importClass);
 }

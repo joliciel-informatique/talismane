@@ -87,7 +87,6 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 	/**
 	 * Reads separator defaults and test patterns from the default file for this locale.
-	 * @param locale
 	 */
 	public CompoundPatternTokeniser(TokeniserPatternManager tokeniserPatternManager,
 			Set<TokenPatternMatchFeature<?>> features, int beamWidth) {
@@ -122,7 +121,6 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 	/**
 	 * The test patterns - only token sequences matching these patterns will
 	 * be submitted to further decision.
-	 * @return
 	 */
 	public List<String> getTestPatterns() {
 		return this.getTokeniserPatternManager().getTestPatterns();
@@ -131,7 +129,6 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 	/**
 	 * The decision maker to make decisions for any separators within token
 	 * sub-sequences that need further testing.
-	 * @return
 	 */
 	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
@@ -182,7 +179,6 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 	/**
 	 * Filters to be applied to the atoms, prior to tokenising.
-	 * @return
 	 */
 	public List<TokenSequenceFilter> getTokenSequenceFilters() {
 		return tokenSequenceFilters;

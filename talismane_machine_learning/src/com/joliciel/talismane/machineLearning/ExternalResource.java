@@ -32,15 +32,11 @@ import java.util.List;
 public interface ExternalResource<T> extends Serializable {
 	/**
 	 * A unique name for this resource.
-	 * @return
 	 */
 	public String getName();
 	
 	/**
 	 * Return the class corresponding to the key elements provided.
-	 * If {@link #isMultivalued()}, returns a class at random.
-	 * @param keyElements
-	 * @return
 	 */
 	public T getResult(List<String> keyElements);
 }

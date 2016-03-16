@@ -44,7 +44,6 @@ public interface Sentence extends Phrase {
     /**
      *  Add a new phrase unit at the end of the current sentence.
      * If a phrase is currently open, the phrase unit will get added to this phrase as well.
-     * @param isCompound 
      */
     public PhraseUnit newPhraseUnit(String categoryCode, String subcategoryCode, String morphologyCode, String lemma,
     		boolean isCompound, String splitCompoundId, String splitCompoundNextId, String splitCompoundPrevId);

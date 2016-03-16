@@ -26,53 +26,44 @@ package com.joliciel.talismane.filters;
 public interface TextMarker extends Comparable<TextMarker> {
 	/**
 	 * The marker type.
-	 * @return
 	 */
 	public TextMarkerType getType();
 	/**
 	 * The marker position in the original text.
-	 * @return
 	 */
 	public int getPosition();
 	public void setPosition(int position);
 	
 	/**
 	 * The text that should be inserted at this marker position.
-	 * @return
 	 */
 	public String getInsertionText();
 	public void setInsertionText(String insertionText);
 	
 	/**
 	 * The filter which generated this text marker.
-	 * @return
 	 */
 	public TextMarkerFilter getSource();
 	public void setSource(TextMarkerFilter source);
 	
 	/**
 	 * The text that was matched.
-	 * @return
 	 */
 	public String getMatchText();
 	public void setMatchText(String matchText);
 	
 	/**
 	 * The tag value to add with this marker.
-	 * @return
 	 */
 	public abstract String getValue();
 	
 	/**
 	 * The tag attribute to add with this marker.
-	 * @return
 	 */
 	public abstract String getAttribute();
 	
 	/**
 	 * The marker's attribute and value tag.
-	 * @param attribute
-	 * @param value
 	 */
 	public abstract void setTag(String attribute, String value);
 }

@@ -30,28 +30,22 @@ import java.util.List;
 public interface Lexicon extends Serializable {
 	/**
 	 * This lexicon's name, for use in features.
-	 * @return
 	 */
 	public String getName();
 	
 	/**
 	 * Return all lexical entries for a given word.
-	 * @param name
-	 * @return
 	 */
 	public List<LexicalEntry> getEntries(String word);
 	
 
 	/**
 	 * Return all lexical entries for a given lemma.
-	 * @param lemma
-	 * @return
 	 */
 	public List<LexicalEntry> getEntriesForLemma(String lemma);
 	
 	/**
 	 * Returns all lexical entries in this lexicon, without any guaranteed order.
-	 * @return
 	 */
 	public Iterator<LexicalEntry> getAllEntries();
 }

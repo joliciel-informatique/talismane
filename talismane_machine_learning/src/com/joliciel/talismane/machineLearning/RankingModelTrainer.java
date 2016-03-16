@@ -31,7 +31,6 @@ public interface RankingModelTrainer<T> {
 	 * Return the RankingModel trained using the CorpusEventStream provided.
 	 * @param corpusEventStream the event stream containing the events to be used for training
 	 * @param featureDescriptors the feature descriptors required to apply this model to new data.
-	 * @return
 	 */
 	public RankingModel trainModel(RankingEventStream<T> corpusEventStream, Ranker<T> ranker, List<String> featureDescriptors);
 
@@ -39,21 +38,18 @@ public interface RankingModelTrainer<T> {
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
 	 * @param corpusEventStream the event stream containing the events to be used for training
 	 * @param descriptors all of the descriptors required to perform analysis using this model (e.g. feature descriptors, etc.)
-	 * @return
 	 */
 	public RankingModel trainModel(RankingEventStream<T> corpusEventStream, Ranker<T> ranker, Map<String,List<String>> descriptors);
 
 	/**
 	 * Statistical cutoff for feature inclusion: features must appear at least this many times to be included in the model.
-	 * Note that for numeric features, any value > 0 counts as 1 occurrence for cutoff purposes.
-	 * @return
+	 * Note that for numeric features, any value &gt; 0 counts as 1 occurrence for cutoff purposes.
 	 */
 	public int getCutoff();
 	public void setCutoff(int cutoff);
 	
 	/**
 	 * Set parameters for this trainer type.
-	 * @param parameters
 	 */
 	public void setParameters(Map<String,Object> parameters);
 }

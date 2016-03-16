@@ -27,26 +27,21 @@ public interface FeatureResult<T> {
 
 	/**
 	 * The feature that was tested.
-	 * @return
 	 */
 	public abstract Feature<?,T> getFeature();
 
 	/**
 	 * The outcome.
-	 * @return
 	 */
 	public abstract T getOutcome();
 	
 	/**
 	 * The name of this feature result to be used when training and analysing.
-	 * @return
 	 */
 	public String getTrainingName();
 	
 	/**
 	 * Convert a String outcome to a format that can safely be included in a training file.
-	 * @param outcome
-	 * @return
 	 */
 	public String getTrainingOutcome(String outcome);
 

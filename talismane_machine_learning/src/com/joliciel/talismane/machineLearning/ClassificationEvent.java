@@ -32,7 +32,6 @@ public interface ClassificationEvent {
 
 	/**
 	 * The result of testing the various features on this event.
-	 * @return
 	 */
 	public List<FeatureResult<?>> getFeatureResults();
 
@@ -40,7 +39,6 @@ public interface ClassificationEvent {
 	 * The correct classification of this event.
 	 * For now, if multiple classifications are required for a single event in a one-vs-rest learner,
 	 * these should be tab-delimited within the String returned.
-	 * @return
 	 */
 	public String getClassification();
 

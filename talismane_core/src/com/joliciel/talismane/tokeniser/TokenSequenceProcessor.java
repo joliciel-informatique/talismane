@@ -28,8 +28,6 @@ import java.io.Writer;
 public interface TokenSequenceProcessor {
 	/**
 	 * Process the next token sequence, outputting to the writer provided.
-	 * @param tokenSequence
-	 * @param writer
 	 */
 	public void onNextTokenSequence(TokenSequence tokenSequence, Writer writer);
 }

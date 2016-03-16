@@ -33,8 +33,7 @@ public interface Ranker<T> {
 	 * to the correct solution provided.
 	 * @param input the input to be solved
 	 * @param featureWeightVector the weights for each feature
-	 * @param solution the correct solution for this input
-	 * @return
+	 * @param correctSolution the correct solution for this input
 	 */
 	public List<RankingSolution> rank(T input, FeatureWeightVector featureWeightVector, RankingSolution correctSolution);	
 }

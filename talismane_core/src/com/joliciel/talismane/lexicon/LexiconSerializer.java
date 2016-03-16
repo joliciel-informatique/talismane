@@ -86,7 +86,6 @@ public class LexiconSerializer {
 	
 	/**
 	 * For arguments, see {@link #serializeLexicons(Map)}.
-	 * @param args
 	 */
 	public void serializeLexicons(String[] args) {
 		Map<String,String> argMap = StringUtils.convertArgs(args);
@@ -103,7 +102,6 @@ public class LexiconSerializer {
 	 * Note that the encoding for the actual lexicon files can be overridden in the lexicon properties file.</li>
 	 * </ul>
 	 * <p>All arguments are mandatory.</p>
-	 * @param argMap
 	 */
 	public void serializeLexicons(Map<String,String> argMap) {
 		try {

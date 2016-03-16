@@ -34,8 +34,6 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * The collection of results is converted to a List of WeightedOutcome of String, and then returned.<br/>
  * @author Assaf Urieli
  *
- * @param <T>
- * @param <Y>
  */
 class StringCollectionFeatureWrapper<T> extends AbstractMonitorableFeature<T,List<WeightedOutcome<String>>> implements
 		 StringCollectionFeature<T> {

@@ -28,8 +28,6 @@ import java.io.Writer;
 public interface PosTagSequenceProcessor {
 	/**
 	 * Process the next pos-tag sequence, outputting to the writer provided.
-	 * @param posTagSequence
-	 * @param writer
 	 */
 	public void onNextPosTagSequence(PosTagSequence posTagSequence, Writer writer);
 	

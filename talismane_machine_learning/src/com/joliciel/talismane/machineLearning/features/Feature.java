@@ -28,31 +28,29 @@ import java.util.List;
  * to make it possible for a feature to use another feature's result as its argument.
  * Native types in constructors will cause an exception to be thrown when trying to find the constructor in AbstractFeatureParser.
  * @author Assaf Urieli
+ * 
+ * @param <T> the type of the object (or context) being tested
+ * @param <Y> the type of the feature outcome (the feature return type)
  */
 public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	
 	/**
 	 * Check the feature on this context and return the result.
-	 * @param shape
-	 * @return
 	 */
 	public FeatureResult<Y> check(T context, RuntimeEnvironment env);
 	
 	/**
 	 * The name of this feature.
-	 * @return
 	 */
 	public String getName();
 	
 	/**
 	 * Set a name for this feature, that will over-write the default name.
-	 * @return
 	 */
 	public void setName(String name);
 	
 	/**
 	 * Returns the feature's return type interface, e.g. BooleanFeature, StringFeature or DoubleFeature.
-	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
 	public Class<? extends Feature> getFeatureType();
@@ -69,7 +67,6 @@ public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	/**
 	 * Explicitly add a constructor argument to this feature,
 	 * so that the system can recursively iterate through a feature's argument tree.
-	 * @param argument
 	 */
 	public void addArgument(Feature<T,?> argument);
 	
@@ -90,7 +87,6 @@ public interface Feature<T,Y> extends Comparable<Feature<T,?>> {
 	
 	/**
 	 * Was this feature defined in a top-level descriptor, or as part of another feature.
-	 * @return
 	 */
 	public boolean isTopLevelFeature();
 	public void setTopLevelFeature(boolean topLevelFeature);

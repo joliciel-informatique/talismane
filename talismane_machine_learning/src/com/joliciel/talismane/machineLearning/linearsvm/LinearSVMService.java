@@ -28,22 +28,16 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 public interface LinearSVMService {
 	/**
 	 * Returns a linear SVM model trainer.
-	 * @param 
-	 * @return
 	 */
 	public LinearSVMModelTrainer getLinearSVMModelTrainer();
 	
 	/**
 	 * Get an "empty" linear SVM model.
-	 * @param 
-	 * @return
 	 */
 	public ClassificationModel getLinearSVMModel();
 	
 	/**
 	 * Get an "empty" linear SVM model.
-	 * @param 
-	 * @return
 	 */
 	public ClassificationModel getLinearSVMOneVsRestModel();
 }

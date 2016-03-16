@@ -28,8 +28,6 @@ import java.util.List;
 public interface TokenEvaluationObserver {
 	/**
 	 * Called when the next token  sequence has been processed.
-	 * @param realSequence
-	 * @param guessedSequences
 	 */
 	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences);
 	

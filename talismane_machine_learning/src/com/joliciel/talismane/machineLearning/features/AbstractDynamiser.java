@@ -81,8 +81,6 @@ public abstract class AbstractDynamiser<T> implements Dynamiser<T> {
 
 	/**
 	 * Any additional feature return types to be supported by this manager.
-	 * @param feature
-	 * @return
 	 */
 	protected abstract Class<?> getOutcomeTypeExtended(Feature<T, ?> feature);
 	

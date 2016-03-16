@@ -40,7 +40,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * which simplifies the parsing by performing reflection on the feature classes corresponding to function names.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<T>, FeatureClassContainer {
 	private static final Log LOG = LogFactory.getLog(AbstractFeatureParser.class);
@@ -147,9 +146,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	/**
 	 * Get the features corresponding to a particular descriptor by performing
 	 * reflection on the corresponding feature class to be instantiated.
-	 * @param descriptor
-	 * @param featureClass
-	 * @return
 	 */
 	final List<Feature<T, ?>> getFeatures(FunctionDescriptor descriptor, @SuppressWarnings("rawtypes") Class<? extends Feature> featureClass, FunctionDescriptor topLevelDescriptor) {
 		MONITOR.startTask("getFeatures");
@@ -482,25 +478,17 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 
 	/**
 	 * Is it possible to convert a given argument type to the requested parameter type?
-	 * @param parameterType
-	 * @param originalArgumentType
-	 * @return
 	 */
 	protected abstract boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType);
 
 	/**
 	 * If canConvert returned true, convert the original argument to the requested parameter type.
-	 * @param parameterType
-	 * @param originalArgument
-	 * @return
 	 */
 	protected abstract Feature<T,?> convertArgument(Class<?> parameterType, Feature<T,?> originalArgument);
 	
 	/**
 	 * Add the feature return-type interface if required,
 	 * so that the feature can be used as an argument for features requiring this return type.
-	 * @param feature
-	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	Feature<T, ?> convertFeature(Feature<T,?> feature) {
@@ -524,14 +512,11 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	/**
 	 * Add the feature return-type interface if required,
 	 * so that the feature can be used as an argument for features requiring this return type.
-	 * @param feature
-	 * @return
 	 */
 	public abstract Feature<T, ?> convertFeatureCustomType(Feature<T,?> feature);
 	
 	/**
 	 * Inject any dependencies required by this feature to function correctly.
-	 * @param feature
 	 */
 	public abstract void injectDependencies(@SuppressWarnings("rawtypes") Feature feature);
 	
@@ -842,8 +827,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	 * Given a feature descriptor, converts it into multiple feature descriptors if required,
 	 * for example when generating a separate feature for each pos-tag, or for an whole range of indexes.
 	 * Should return a List containing the initial function descriptor if no modification is required.
-	 * @param functionDescriptor
-	 * @return
 	 */
 	public abstract List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor);
 	

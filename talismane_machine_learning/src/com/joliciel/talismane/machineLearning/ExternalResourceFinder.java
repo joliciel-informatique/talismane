@@ -29,7 +29,6 @@ import java.util.Collection;
 public interface ExternalResourceFinder {
 	/**
 	 * Add external resources located in a file or directory.
-	 * @param file
 	 */
 	public void addExternalResources(File file);
 	

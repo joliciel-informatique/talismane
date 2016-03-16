@@ -44,14 +44,12 @@ public interface TalismaneSession {
 
 	/**
 	 * A list of lexicons setup for the current session.
-	 * @return
 	 */
 	public List<PosTaggerLexicon> getLexicons();
 	public void addLexicon(PosTaggerLexicon lexicon);
 	
 	/**
 	 * Get a lexicon which merges all of the lexicons added, prioritised in the order in which they were added.
-	 * @return
 	 */
 	public PosTaggerLexicon getMergedLexicon();
 

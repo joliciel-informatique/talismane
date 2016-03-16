@@ -70,8 +70,6 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
-	 * @param model
-	 * @param featureDescriptors
 	 */
 	LinearSVMModel(Model model,
 			Map<String,List<String>> descriptors,
@@ -131,7 +129,6 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 
 	/**
 	 * A map of feature names to unique indexes.
-	 * @return
 	 */
 	public TObjectIntMap<String> getFeatureIndexMap() {
 		return featureIndexMap;
@@ -143,7 +140,6 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 
 	/**
 	 * A list of outcomes, where the indexes are the ones used by the binary model.
-	 * @return
 	 */	
 	public List<String> getOutcomes() {
 		return outcomes;

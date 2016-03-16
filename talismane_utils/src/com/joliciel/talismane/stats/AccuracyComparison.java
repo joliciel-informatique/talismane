@@ -53,7 +53,6 @@ public class AccuracyComparison {
 	private static Map<String,Map<String, Map<String,Integer>>> confusionMatrixes = new TreeMap<String,Map<String, Map<String,Integer>>>();
 
 	/**
-	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		Map<String, String> argMap = StringUtils.convertArgs(args);

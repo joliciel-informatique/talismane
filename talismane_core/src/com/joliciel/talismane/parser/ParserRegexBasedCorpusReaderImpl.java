@@ -468,8 +468,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 
 	/**
 	 * Returns true if the data line is valid, false otherwise.
-	 * @param dataLine
-	 * @return
 	 */
 	protected boolean checkDataLine(ParseDataLine dataLine) {
 		return true;
@@ -478,7 +476,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 	/**
 	 * Updates the data line prior to processing.
 	 * At this point, empty lines may have been added to correspond to empty tokens that were added by filters.
-	 * @param dataLines
 	 */
 	protected void updateDataLine(List<ParseDataLine> dataLines, int index) {
 		// nothing to do in the base class
@@ -688,7 +685,6 @@ public class ParserRegexBasedCorpusReaderImpl implements
 
 	/**
 	 * If 0, all sentences will be read - otherwise will only read a certain number of sentences.
-	 * @return
 	 */
 	public int getMaxSentenceCount() {
 		return maxSentenceCount;

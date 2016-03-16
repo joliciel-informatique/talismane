@@ -84,8 +84,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * Increment this f-score by a given expected value and guessed value.
-	 * @param expected
-	 * @param guessed
 	 */
 	public synchronized void increment(E expected, E guessed) {
 		int pairCount = 1;
@@ -215,8 +213,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Get the count of false positives for a given outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public int getFalsePositiveCount(E outcome) {
 		int falsePositiveCount = 0;
@@ -228,8 +224,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * Get the false positives for a given outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public Map<E,Integer> getFalsePositives(E outcome) {
 		return falsePositives.get(outcome);
@@ -237,7 +231,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * False positives for all outcomes.
-	 * @return
 	 */
 	public Map<E, Integer> getFalsePositiveCounts() {
 		return falsePositiveCounts;
@@ -245,8 +238,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Get the count of false negatives for a given outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public int getFalseNegativeCount(E outcome) {
 		int falseNegativeCount = 0;
@@ -258,8 +249,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * Get the false negatives for a given outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public Map<E,Integer> getFalseNegatives(E outcome) {
 		return falseNegatives.get(outcome);
@@ -267,7 +256,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * False negatives for all outcomes.
-	 * @return
 	 */
 	public Map<E, Integer> getFalseNegativeCounts() {
 		return falseNegativeCounts;
@@ -275,8 +263,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Get the count of true positives for a given outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public int getTruePositiveCount(E outcome) {
 		int truePositiveCount = 0;
@@ -289,7 +275,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * True positive counts for all outcomes.
-	 * @return
 	 */
 	public Map<E, Integer> getTruePositiveCounts() {
 		return truePositiveCounts;
@@ -297,7 +282,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * The set of outcomes.
-	 * @return
 	 */
 	public Set<E> getOutcomeSet() {
 		return outcomeSet;
@@ -305,8 +289,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Get the precision for a particular outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public double getPrecision(E outcome) {
 		this.evaluate();
@@ -318,7 +300,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * Precisions for all outcomes.
-	 * @return
 	 */
 	public Map<E, Double> getPrecisions() {
 		this.evaluate();
@@ -327,8 +308,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Get the recall for a particular outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public double getRecall(E outcome) {
 		this.evaluate();
@@ -340,7 +319,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * Recalls for all outcomes.
-	 * @return
 	 */
 	public Map<E, Double> getRecalls() {
 		this.evaluate();
@@ -349,8 +327,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Get the f-score for a particular outcome.
-	 * @param outcome
-	 * @return
 	 */
 	public double getFScore(E outcome) {
 		this.evaluate();
@@ -363,7 +339,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * F-scores for all outcomes.
-	 * @return
 	 */
 	public Map<E, Double> getFScores() {
 		this.evaluate();
@@ -372,7 +347,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Total number of tests run.
-	 * @return
 	 */
 	public int getTestCount() {
 		return testCount;
@@ -380,7 +354,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Total precision.
-	 * @return
 	 */
 	public double getTotalPrecision() {
 		this.evaluate();
@@ -389,7 +362,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Total recall.
-	 * @return
 	 */
 	public double getTotalRecall() {
 		this.evaluate();
@@ -398,7 +370,6 @@ public class FScoreCalculator<E> {
 
 	/**
 	 * Total f-score.
-	 * @return
 	 */
 	public double getTotalFScore() {
 		this.evaluate();
@@ -442,7 +413,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * The total accuracy for this confusion matrix.
-	 * @return
 	 */
 	public double getAccuracy() {
 		this.evaluate();
@@ -453,7 +423,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * Return Cohen's kappa for this confusion matrix.
-	 * @return
 	 */
 	public double getKappa() {
 		this.evaluate();
@@ -589,10 +558,6 @@ public class FScoreCalculator<E> {
 	
 	/**
 	 * Combine the results of n cross validation results into a single f-score file.
-	 * @param directory
-	 * @param prefix
-	 * @param suffix
-	 * @param csvFileWriter
 	 */
 	static void combineCrossValidationResults(File directory, String prefix, String suffix, Writer csvFileWriter) {
 		try {

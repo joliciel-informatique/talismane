@@ -46,14 +46,13 @@ public interface PosTagger {
 	
 	/**
 	 * Apply PosTags to the tokens in a given sentence.
-	 * @param tokens the List of tokens comprising the sentence.
+	 * @param tokenSequence the List of tokens comprising the sentence.
 	 * @return a List of TaggedToken reflecting the PosTags applied to the tokens.
 	 */
 	public abstract PosTagSequence tagSentence(TokenSequence tokenSequence);
 
 	/**
 	 * Add an analysis observer to this pos tagger.
-	 * @param observer
 	 */
 	public abstract void addObserver(ClassificationObserver observer);
 
@@ -61,7 +60,6 @@ public interface PosTagger {
 	 * The set of features used to describe the sequence of {@link PosTaggerContext} encountered
 	 * while pos-tagging. These have to be identical to the features used to train the previously trained pos-tagging
 	 * model.
-	 * @return
 	 */
 	public abstract Set<PosTaggerFeature<?>> getPosTaggerFeatures();
 	
@@ -83,7 +81,6 @@ public interface PosTagger {
 	
 	/**
 	 * Filters to be applied to the token sequences prior to pos-tagging.
-	 * @return
 	 */
 	public List<TokenSequenceFilter> getPreProcessingFilters();
 
@@ -99,7 +96,6 @@ public interface PosTagger {
 
 	/**
 	 * Filters to be applied to the final pos-tag sequences after pos-tagging.
-	 * @return
 	 */
 	public List<PosTagSequenceFilter> getPostProcessingFilters();
 

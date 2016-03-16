@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Mimics an in-then-else structure - if condition is true return thenFeature result, else return elseFeature result.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class IfThenElseDoubleFeature<T> extends AbstractCachableFeature<T,Double> implements
 		DoubleFeature<T> {

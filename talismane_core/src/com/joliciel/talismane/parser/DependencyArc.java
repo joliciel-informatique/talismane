@@ -30,32 +30,27 @@ public interface DependencyArc extends Comparable<DependencyArc> {
 
 	/**
 	 * The head (or governor) of this dependency arc.
-	 * @return
 	 */
 	public PosTaggedToken getHead();
 	
 	/**
 	 * The dependent of this dependency arc.
-	 * @return
 	 */
 	public PosTaggedToken getDependent();
 	
 	/**
 	 * The functional label of this dependency arc.
-	 * @return
 	 */
 	public String getLabel();
 
 	/**
 	 * The probability associated with this dependency arc.
-	 * @return
 	 */
 	public double getProbability();
 	public void setProbability(double probability);
 	
 	/**
 	 * A comment regarding this depenency arc annotation.
-	 * @return
 	 */
 	public String getComment();
 	public void setComment(String comment);

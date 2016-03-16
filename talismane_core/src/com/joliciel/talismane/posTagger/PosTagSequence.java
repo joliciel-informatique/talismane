@@ -30,26 +30,21 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<PosTagSequence>, ClassificationSolution {
 	/**
 	 * Get the PosTaggedToken at position n.
-	 * @param index
-	 * @return
 	 */
 	public PosTaggedToken get(int index);
 	
 	/**
 	 * Returns the size of the current PosTagSequence.
-	 * @return
 	 */
 	public int size();
 	
 	/**
 	 * Add a PosTaggedToken to the end of the current sequence.
-	 * @param posTaggedToken
 	 */
 	public void addPosTaggedToken(PosTaggedToken posTaggedToken);
 	
 	/**
 	 * Get the Token Sequence on which this PosTagSequence is based.
-	 * @return
 	 */
 	public TokenSequence getTokenSequence();
 	
@@ -61,7 +56,6 @@ public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<Pos
 	
 	/**
 	 * Get the next token for which no pos tag has yet been assigned.
-	 * @return
 	 */
 	public Token getNextToken();
 	
@@ -78,13 +72,11 @@ public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<Pos
 	
 	/**
 	 * Make a deep clone of this pos-tag sequence.
-	 * @return
 	 */
 	public PosTagSequence clonePosTagSequence();
 	
 	/**
 	 * Remove all pos-tagged tokens that are empty and whose tag is null.
-	 * @param emptyPosTaggedToken
 	 */
 	public void removeEmptyPosTaggedTokens();
 }

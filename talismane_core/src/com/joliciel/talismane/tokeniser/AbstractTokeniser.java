@@ -156,7 +156,6 @@ public abstract class AbstractTokeniser implements Tokeniser {
 	
 	/**
 	 * Filters to be applied to the atoms, prior to tokenising.
-	 * @return
 	 */
 	public List<TokenSequenceFilter> getTokenSequenceFilters() {
 		return tokenSequenceFilters;

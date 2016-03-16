@@ -22,8 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Converts a non-string feature to a string feature.
  * If the feature result is null, will return null (rather than the string "null").
  * @author Assaf Urieli
- *
- * @param <T>
  */
 public class ToStringFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
 	Feature<T,?> featureToString;

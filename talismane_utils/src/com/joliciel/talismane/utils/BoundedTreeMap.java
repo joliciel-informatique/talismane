@@ -27,8 +27,6 @@ import java.util.TreeMap;
  * Thus assumes the most "important" entry is placed first ("least" in comparison).
  * @author Assaf Urieli
  *
- * @param <K>
- * @param <V>
  */
 public class BoundedTreeMap<K, V> extends TreeMap<K, V> {
 	private static final long serialVersionUID = 1L;

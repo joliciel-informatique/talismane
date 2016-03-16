@@ -50,7 +50,6 @@ public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReade
 	
 	/**
 	 * The regex used to find the various data items.
-	 * @return
 	 */
 	public String getRegex();
 	public void setRegex(String regex);
@@ -58,14 +57,12 @@ public interface ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReade
 	/**
 	 * Should an attempt be made to the predict the transitions that led to this configuration,
 	 * or should dependencies simply be added with null transitions.
-	 * @return
 	 */
 	public boolean isPredictTransitions();
 	public void setPredictTransitions(boolean predictTransitions);
 	
 	/**
 	 * If the reader is opened based on a directory, the name of a file to exclude when training.
-	 * @return
 	 */
 	public String getExcludeFileName();
 	public void setExcludeFileName(String excludeFileName);

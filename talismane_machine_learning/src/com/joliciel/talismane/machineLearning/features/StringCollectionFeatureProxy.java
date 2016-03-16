@@ -23,7 +23,6 @@ package com.joliciel.talismane.machineLearning.features;
  * that has been stored in the context via HasRuntimeCollectionSupport.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 class StringCollectionFeatureProxy<T> extends AbstractFeature<T, String> implements StringFeature<T> {
 	private StringCollectionFeature<T> stringCollectionFeature;

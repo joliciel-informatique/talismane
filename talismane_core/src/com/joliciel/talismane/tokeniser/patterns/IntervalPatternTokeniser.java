@@ -83,7 +83,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 	/**
 	 * Reads separator defaults and test patterns from the default file for this locale.
-	 * @param locale
 	 */
 	public IntervalPatternTokeniser(TokeniserPatternManager tokeniserPatternManager,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, int beamWidth) {
@@ -95,7 +94,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	/**
 	 * The test patterns - only token sequences matching these patterns will
 	 * be submitted to further decision.
-	 * @return
 	 */
 	public List<String> getTestPatterns() {
 		return this.getTokeniserPatternManager().getTestPatterns();
@@ -104,7 +102,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	/**
 	 * The decision maker to make decisions for any separators within token
 	 * sub-sequences that need further testing.
-	 * @return
 	 */
 	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
@@ -147,7 +144,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 	/**
 	 * Filters to be applied to the atoms, prior to tokenising.
-	 * @return
 	 */
 	public List<TokenSequenceFilter> getTokenSequenceFilters() {
 		return tokenSequenceFilters;

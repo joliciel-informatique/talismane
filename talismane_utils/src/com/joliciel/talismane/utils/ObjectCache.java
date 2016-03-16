@@ -26,34 +26,23 @@ package com.joliciel.talismane.utils;
 public interface ObjectCache {
 	/**
 	 * Retrieve from the cache the entity corresponding to a given Class and id.
-	 * @param clazz
-	 * @param id
 	 * @return the entity if in the cache, or null otherwise.
 	 */
     public<T> T getEntity(Class<T> clazz, Object id);
     
     /**
      * Put the entity in the cache corresponding to a given Class and id.
-     * @param clazz
-     * @param id
-     * @param entity
      */
     public<T> void putEntity(Class<T> clazz, Object id, T entity);
     
     /**
      * Remove the entity from the cache corresponding to a given Class and id.
-     * @param clazz
-     * @param id
      */
     public<T> void removeEntity(Class<T> clazz, Object id);
     
     /**
      * If the Class and id provided already have an entity in the cache, return it,
      * otherwise put the entity provided in the cache and return it.
-     * @param clazz
-     * @param id
-     * @param entity
-     * @return
      */
     public<T> T getOrPutEntity(Class<T> clazz, Object id, T entity);
     
@@ -64,7 +53,6 @@ public interface ObjectCache {
     
     /**
      * Clear all entities out of the cache corresponding to a particular Class only.
-     * @param clazz
      */
     public void clearCache(Class<? extends Object> clazz);
 }

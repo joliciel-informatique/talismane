@@ -21,8 +21,6 @@ package com.joliciel.talismane.machineLearning.features;
 /**
  * Returns operand1 + operand2.
  * @author Assaf Urieli
- *
- * @param <T>
  */
 public class PlusOperator<T> extends AbstractCachableFeature<T,Double> implements
 		DoubleFeature<T> {

@@ -117,23 +117,17 @@ public interface PosTaggerService {
 	
 	/**
 	 * Same as getPosTageSet(file), but replaces file with a scanner.
-	 * @param scanner
-	 * @return
 	 */
 	PosTagSet getPosTagSet(Scanner scanner);
 
 	/**
 	 * Same as getPosTagSet(File), but replaces the file with a List of Strings.
-	 * @param descriptors
-	 * @return
 	 */
 	PosTagSet getPosTagSet(List<String> descriptors);
 	
 	/**
 	 * Returns a corpus reader based on the use of Regex.
 	 * See class description for details.
-	 * @param reader
-	 * @return
 	 */
 	PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 	
@@ -143,7 +137,6 @@ public interface PosTaggerService {
 	 * @param posTaggerFeatures the features to test
 	 * @param testWords limit the test to certain words only
 	 * @param file the file where the test results should be written
-	 * @return
 	 */
 	PosTagSequenceProcessor getPosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures,
 			Set<String> testWords, File file);

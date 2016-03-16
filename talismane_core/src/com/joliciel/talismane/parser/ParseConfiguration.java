@@ -38,7 +38,6 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 public interface ParseConfiguration extends Comparable<ParseConfiguration>, ClassificationSolution, RankingSolution, ParseConfigurationWrapper, HasFeatureCache {
 	/**
 	 * Get the PosTag Sequence on which this ParseSequence is based.
-	 * @return
 	 */
 	public PosTagSequence getPosTagSequence();
 	
@@ -49,13 +48,11 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	
 	/**
 	 * The list of transitions which generated the present parse configuration.
-	 * @return
 	 */
 	public List<Transition> getTransitions();
 	
 	/**
 	 * A set of dependency arcs defined by the current configuration.
-	 * @return
 	 */
 	public Set<DependencyArc> getDependencies();
 
@@ -63,17 +60,12 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	 * A set of potentially non-projective dependency arcs defined by the current configuration,
 	 * typically because they were read from a manually annotated corpus.
 	 * If non such manual dependency arcs were read, will return the standard set of dependencies.
-	 * @return
 	 */
 	public Set<DependencyArc> getNonProjectiveDependencies();
 
 	/**
 	 * Add the given dependency to the current configuration.
-	 * @param head
-	 * @param dependent
-	 * @param label
 	 * @param transition the transition generating this dependency
-	 * @return
 	 */
 	public DependencyArc addDependency(PosTaggedToken head, PosTaggedToken dependent,
 			String label, Transition transition);
@@ -84,29 +76,22 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	 * to indicate the projective and non-projective governor for a given token.
 	 * If the transition system is capable of producing its own non-projective dependencies
 	 * there should be no need to distinguish between projective and non-projective.
-	 * @param head
-	 * @param dependent
-	 * @param label
-	 * @return
 	 */
 	public DependencyArc addManualNonProjectiveDependency(PosTaggedToken head, PosTaggedToken dependent,
 			String label);
 	
 	/**
 	 * A buffer of pos-tagged tokens that have not yet been processed.
-	 * @return
 	 */
 	public Deque<PosTaggedToken> getBuffer();
 	
 	/**
 	 * A stack of pos-tagged tokens that have been partially processed.
-	 * @return
 	 */
 	public Deque<PosTaggedToken> getStack();
 	
 	/**
 	 * Is this a terminal configuration?
-	 * @return
 	 */
 	public boolean isTerminal();
 
@@ -134,36 +119,26 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	
 	/**
 	 * Get a list of all dependents from left-to-right of a given head in the current set of dependencies.
-	 * @param head
-	 * @return
 	 */
 	public List<PosTaggedToken> getDependents(PosTaggedToken head);
 	
 	/**
 	 * Get all dependents from left-to-rigth for a given head and given dependency label.
-	 * @param head
-	 * @param label
-	 * @return
 	 */
 	public List<PosTaggedToken> getDependents(PosTaggedToken head, String label);
 	
 	/**
 	 * Get the transition which generated the dependency arc provided.
-	 * @param arc
-	 * @return
 	 */
 	public Transition getTransition(DependencyArc arc);
 	
 	/**
 	 * Get the dependency tree represented by this parse configuration, where the node returned is root.
-	 * @return
 	 */
 	public DependencyNode getParseTree();
 
 	/**
 	 * Returns a dependency node without any dependents attached, corresponding to the pos-tagged token provided.
-	 * @param posTaggedToken
-	 * @return
 	 */
 	public DependencyNode getDetachedDependencyNode(PosTaggedToken posTaggedToken);
 	
@@ -174,13 +149,11 @@ public interface ParseConfiguration extends Comparable<ParseConfiguration>, Clas
 	
 	/**
 	 * The sentence on which this parse configuration is based.
-	 * @return
 	 */
 	public Sentence getSentence();
 	
 	/**
 	 * Get dependencies which are not unlabeled dependencies pointing at the root.
-	 * @return
 	 */
 	public Set<DependencyArc> getRealDependencies();
 }

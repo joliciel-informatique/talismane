@@ -23,7 +23,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Includes the string "null" if any of the results is null.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class ConcatenateWithNullsFeature<T> extends AbstractCachableFeature<T, String> implements
 		StringFeature<T> {

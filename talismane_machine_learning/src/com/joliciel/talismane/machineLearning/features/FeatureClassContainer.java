@@ -32,23 +32,17 @@ public interface FeatureClassContainer {
 	 * at runtime.
 	 * The class used at runtime will be the first class added using addFeatureClass which has a constructor
 	 * corresponding to the arguments provided.
-	 * @param name
-	 * @param featureClass
 	 */
 	public void addFeatureClass(String name, @SuppressWarnings("rawtypes") Class<? extends Feature> featureClass);
 	
 	/**
 	 * Return the feature classes currently mapped to the name provided.
-	 * @param name
-	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
 	public List<Class<? extends Feature>> getFeatureClasses(String name);
 	
 	/**
 	 * Return the descriptors corresponding to a particular feature class.
-	 * @param featureClass
-	 * @return
 	 */
 	public List<String> getFeatureClassDescriptors(@SuppressWarnings("rawtypes") Class<? extends Feature> featureClass);
 }

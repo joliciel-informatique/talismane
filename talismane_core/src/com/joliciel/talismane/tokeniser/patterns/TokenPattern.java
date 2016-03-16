@@ -47,20 +47,17 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 public interface TokenPattern {
 	/**
 	 * The regular expression on which this TokeniserPattern was built.
-	 * @return
 	 */
 	public String getRegExp();
 	
 	/**
 	 * The original pattern, broken up into chunks where each chunk should match exactly one token in the token sequence.
 	 * Each chunk is a standard Pattern, but may or may not be interpreted as such (e.g. .+ will only match non-separating tokens).
-	 * @return
 	 */
 	public List<Pattern> getParsedPattern();
 	
 	/**
 	 * The number of tokens that will be matched by this pattern in the TokenSequence.
-	 * @return
 	 */
 	public int getTokenCount();
 	
@@ -68,15 +65,12 @@ public interface TokenPattern {
 	 * The indexes in getParsedPattern corresponding to tokens that need to be examined further,
 	 * to decide if they represent a token break or not.
 	 * These will typically correspond to all separators.
-	 * @return
 	 */
 	public List<Integer> getIndexesToTest();
 	
 	/**
 	 * Return a TokenPatternMatchSequence for each sequence of <i>n</i> tokens in a TokenSequence which match this pattern.
 	 * Will also add any matches to Token.getMatches() for the matched tokens.
-	 * @param tokenSequence
-	 * @return
 	 */
 	public List<TokenPatternMatchSequence> match(TokenSequence tokenSequence);
 
@@ -84,7 +78,6 @@ public interface TokenPattern {
 	 * This token pattern's user-friendly name.
 	 * Can also be used to group together two patterns whose statistical distribtuion should be identical,
 	 * e.g. "parce que" and "parce qu'".
-	 * @param name
 	 */
 	public void setName(String name);
 	public String getName();
@@ -92,15 +85,12 @@ public interface TokenPattern {
 	/**
 	 * A name for grouping together several patterns due to take advantage
 	 * of their distributional similarity in features.
-	 * @return
 	 */
 	public String getGroupName();
 	public void setGroupName(String groupName);
 	
 	/**
 	 * Is the pattern at the provided index a separator class pattern.
-	 * @param index
-	 * @return
 	 */
 	public boolean isSeparatorClass(int index);
 }

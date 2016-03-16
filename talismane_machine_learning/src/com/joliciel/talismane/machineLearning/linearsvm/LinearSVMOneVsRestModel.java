@@ -72,8 +72,6 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
-	 * @param model
-	 * @param featureDescriptors
 	 */
 	LinearSVMOneVsRestModel(
 			Map<String,List<String>> descriptors,
@@ -154,7 +152,6 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 
 	/**
 	 * A map of feature names to unique indexes.
-	 * @return
 	 */
 	public TObjectIntMap<String> getFeatureIndexMap() {
 		return featureIndexMap;
@@ -166,7 +163,6 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 
 	/**
 	 * A list of outcomes, where the indexes are the ones used by the binary model.
-	 * @return
 	 */	
 	public List<String> getOutcomes() {
 		return outcomes;

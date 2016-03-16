@@ -20,11 +20,10 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Changes a numeric feature to a value from 0 to 1,
- * where any value <= minValue is set to 0, and any value >= maxValue is set to 1,
+ * where any value &lt;= minValue is set to 0, and any value &gt;= maxValue is set to 1,
  * and all other values are set to a proportional value between 0 and 1.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> implements DoubleFeature<T> {	
 	DoubleFeature<T> featureToNormalise;
@@ -33,8 +32,6 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 	
 	/**
 	 * Constructor assuming the min value is 0.
-	 * @param featureToNormalise
-	 * @param maxValueFeature
 	 */
 	public NormaliseFeature(DoubleFeature<T> featureToNormalise, DoubleFeature<T> maxValueFeature) {
 		this.featureToNormalise = featureToNormalise;
@@ -44,9 +41,6 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 	
 	/**
 	 * Constructor providing both min and max values.
-	 * @param featureToNormalise
-	 * @param minValueFeature
-	 * @param maxValueFeature
 	 */
 	public NormaliseFeature(DoubleFeature<T> featureToNormalise, DoubleFeature<T> minValueFeature, DoubleFeature<T> maxValueFeature) {
 		super();

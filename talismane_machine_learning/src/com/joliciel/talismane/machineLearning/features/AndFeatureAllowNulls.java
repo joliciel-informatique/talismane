@@ -23,7 +23,6 @@ package com.joliciel.talismane.machineLearning.features;
  * If any of the features is null, will consider them as false.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class AndFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
 	BooleanFeature<T>[] booleanFeatures;

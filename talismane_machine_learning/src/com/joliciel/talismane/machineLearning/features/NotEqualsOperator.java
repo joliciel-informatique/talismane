@@ -24,7 +24,6 @@ package com.joliciel.talismane.machineLearning.features;
  * 
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> implements
 		BooleanFeature<T> {

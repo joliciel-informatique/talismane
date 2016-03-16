@@ -26,7 +26,7 @@ package com.joliciel.talismane.tokeniser;
 public interface TokeniserEvaluator {
 	/**
 	 * Evaluate a given tokeniser.
-	 * @param reader for reading manually separated tokens from a corpus
+	 * @param corpusReader for reading manually separated tokens from a corpus
 	 */
 	public void evaluate(
 			TokeniserAnnotatedCorpusReader corpusReader);

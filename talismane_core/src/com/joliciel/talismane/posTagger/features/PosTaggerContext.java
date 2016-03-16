@@ -31,7 +31,6 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 public interface PosTaggerContext extends TokenWrapper {
 	/**
 	 * The token being tested,.
-	 * @return
 	 */
 	public Token getToken();
 	

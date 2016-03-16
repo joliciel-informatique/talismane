@@ -31,7 +31,6 @@ import java.io.Writer;
 public interface ParseConfigurationProcessor {
 	/**
 	 * Called when the next parse configuration is available for processing, outputting to the writer provided.
-	 * @param parseConfiguration
 	 */
 	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer);
 

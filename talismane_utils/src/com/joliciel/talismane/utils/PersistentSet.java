@@ -30,31 +30,26 @@ public interface PersistentSet<E> extends Set<E> {
     /***
      * To be used whenever populating the list initially from the database.
      * Makes it possible to differentiate between previously persisted objects and new ones being added.
-     * @param object
      */
     public boolean addFromDB(E element);
     
     /***
      * Add a whole collection at a time.
-     * @param c
      */
     public boolean addAllFromDB(Collection<? extends E> c);
     
     /**
      * Which items have been added that need to be persisted.
-     * @return
      */
     public List<E> getItemsAdded();
     
     /**
      * Which items have been removed that need to be persisted.
-     * @return
      */
     public List<E> getItemsRemoved();
     
     /**
      * Have items been added or removed from this list?
-     * @return
      */
     public boolean isDirty();
     

@@ -37,14 +37,12 @@ public interface ParserEvaluator {
 	/**
 	 * If provided, will apply tokenisation as part of the evaluation.
 	 * If provided, a pos-tagger must be provided as well.
-	 * @param tokeniser
 	 */
 	public abstract void setTokeniser(Tokeniser tokeniser);
 	public abstract Tokeniser getTokeniser();
 
 	/**
 	 * If provided, will apply pos-tagging as part of the evaluation.
-	 * @param posTagger
 	 */
 	public abstract void setPosTagger(PosTagger posTagger);
 	public abstract PosTagger getPosTagger();
@@ -52,14 +50,12 @@ public interface ParserEvaluator {
 	/**
 	 * Should the beam be propagated from one module to the next,
 	 * e.g. from the pos-tagger to the parser.
-	 * @param propagateBeam
 	 */
 	public abstract void setPropagateBeam(boolean propagateBeam);
 	public abstract boolean isPropagateBeam();
 
 	/**
 	 * The maximum number of sentences to evaluate. Default is 0, which means all.
-	 * @param sentenceCount
 	 */
 	public abstract void setSentenceCount(int sentenceCount);
 	public abstract int getSentenceCount();
