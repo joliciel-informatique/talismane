@@ -23,6 +23,16 @@
 		<module>../talismane_examples</module>
 		<module>../talismane_distribution</module>
 	</modules>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -34,6 +44,20 @@
 							<descriptor>src/assembly/bin.xml</descriptor>
 						</descriptors>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.5</version>
+					<executions>
+						<execution>
+							<id>sign-artifacts</id>
+							<phase>package</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -162,4 +186,36 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<name>Talismane</name>
+	<organization>
+		<name>Joliciel Informatique SARL</name>
+		<url>http://www.joli-ciel.com/</url>
+	</organization>
+	<scm>
+		<developerConnection>urieli</developerConnection>
+		<url>https://github.com/urieli/talismane</url>
+		<connection>https://github.com/urieli/talismane.git</connection>
+		<tag>v2.4.10b</tag>
+	</scm>
+	<url>https://github.com/urieli/talismane</url>
+	<description>Natural language processing framework with sentence detector, tokeniser, pos-tagger and dependency parser, including default language packs for French and English syntax parsing.</description>
+	<inceptionYear>2012</inceptionYear>
+	<licenses>
+		<license>
+			<name>GNU AFFERO GENERAL PUBLIC LICENSE, Version 3, 19 November 2007</name>
+			<url>http://www.gnu.org/licenses/agpl.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>urieli</id>
+			<name>Assaf Urieli</name>
+			<email>assaf.urieli@gmail.com</email>
+		</developer>
+	</developers>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/urieli/talismane/issues</url>
+	</issueManagement>
 </project>
