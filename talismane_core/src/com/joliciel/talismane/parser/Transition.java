@@ -28,34 +28,27 @@ import com.joliciel.talismane.machineLearning.Decision;
 public interface Transition extends Comparable<Transition> {
 	/**
 	 * Check whether this transition is valid for the configuration provided.
-	 * @param configuration
-	 * @return
 	 */
 	public boolean checkPreconditions(ParseConfiguration configuration);
 	
 	/**
 	 * Apply the transition to the configuration provided.
-	 * @param configuration
-	 * @return
 	 */
 	public void apply(ParseConfiguration configuration);
 	
 	/**
 	 * The unique code for this transition.
-	 * @return
 	 */
 	public String getCode();
 	
 	/**
 	 * Returns true if this transition reduces the elements left to process,
 	 * by removing an element permanently from either the stack or the buffer.
-	 * @return
 	 */
 	public boolean doesReduce();
 	
 	/**
 	 * The decision which generated this transition.
-	 * @return
 	 */
 	public Decision getDecision();
 	public void setDecision(Decision decision);

@@ -61,8 +61,6 @@ abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel impleme
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
-	 * @param model
-	 * @param featureDescriptors
 	 */
 	AbstractOpenNLPModel(MaxentModel model,
 			Map<String,List<String>> descriptors,

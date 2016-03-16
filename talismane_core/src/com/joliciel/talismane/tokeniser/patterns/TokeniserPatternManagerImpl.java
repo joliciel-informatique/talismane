@@ -50,7 +50,6 @@ class TokeniserPatternManagerImpl implements TokeniserPatternManager {
 	
 	/**
 	 * Reads separator defaults and test patterns from a list of strings.
-	 * @param locale
 	 */
 	public TokeniserPatternManagerImpl (List<String> patternDescriptors) {
 		this.descriptors = patternDescriptors;

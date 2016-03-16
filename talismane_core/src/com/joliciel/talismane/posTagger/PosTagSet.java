@@ -50,13 +50,11 @@ import java.util.Set;
 public interface PosTagSet extends Serializable {
 	/**
 	 * Name of this posTagSet.
-	 * @return
 	 */
 	public String getName();
 	
 	/**
 	 * The locale to which this PosTagSet applies.
-	 * @return
 	 */
 	public Locale getLocale();
 	
@@ -67,7 +65,6 @@ public interface PosTagSet extends Serializable {
 	
 	/**
 	 * Return the PosTag corresponding to a given code.
-	 * @param code
 	 */
 	PosTag getPosTag(String code);
 }

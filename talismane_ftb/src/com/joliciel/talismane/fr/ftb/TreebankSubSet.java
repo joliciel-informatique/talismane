@@ -30,7 +30,7 @@ public enum TreebankSubSet {
 	DEV(new int[] {9}, new int[] {}),
 	/** Standard test subset, consisting of file 0 for each group of 10 */
 	TEST(new int[] {0}, new int[] {}),
-	/** Convenience subset grouping together standard dev & test */
+	/** Convenience subset grouping together standard dev and test */
 	DEV_AND_TEST(new int[] {0,9}, new int[] {}),
 	/** Entire treebank */
 	ALL(new int[]{},new int[] {});
@@ -46,7 +46,6 @@ public enum TreebankSubSet {
 	/**
 	 * Out of every group of 10 files (numbered from 0 to 9), which ones to include.
 	 * If empty, include all files except for those explicitly excluded.
-	 * @return
 	 */
 	public int[] getFileNumbersToInclude() {
 		return fileNumbersToInclude;
@@ -55,7 +54,6 @@ public enum TreebankSubSet {
 	/**
 	 * Out of every group of 10 files (numbered from 0 to 9), which ones to exclude.
 	 * If empty, exclude all files except for those explicitly included.
-	 * @return
 	 */
 	public int[] getFileNumbersToExclude() {
 		return fileNumbersToExclude;

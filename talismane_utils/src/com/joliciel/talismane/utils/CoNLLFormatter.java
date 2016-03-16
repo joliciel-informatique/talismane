@@ -21,8 +21,6 @@ package com.joliciel.talismane.utils;
 public class CoNLLFormatter {
 	/**
 	 * Convert a string to CoNLL format.
-	 * @param text
-	 * @return
 	 */
 	public static String toCoNLL(String text) {
 		String conllText = text.replace("_", "&und;");
@@ -34,8 +32,6 @@ public class CoNLLFormatter {
 	
 	/**
 	 * Convert a string from CoNLL format.
-	 * @param conllText
-	 * @return
 	 */
 	public static String fromCoNLL(String conllText) {
 		String text = null;

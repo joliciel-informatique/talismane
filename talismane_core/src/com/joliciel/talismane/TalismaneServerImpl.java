@@ -92,7 +92,6 @@ class TalismaneServerImpl implements TalismaneServer {
 	
 	/**
 	 * The port to listen on - default is 7272.
-	 * @param port
 	 */
 	@Override
 	public int getPort() {
@@ -106,7 +105,6 @@ class TalismaneServerImpl implements TalismaneServer {
 
 	/**
 	 * Whether or not any new connections will be accepted.
-	 * @return
 	 */
 	@Override
 	public boolean isListening() {

@@ -61,7 +61,6 @@ interface TreebankDao {
     
     /**
      * Save a phrase unit to the database.
-     * @param phraseUnit
      */
     public void savePhraseUnit(PhraseUnitInternal phraseUnit);
     

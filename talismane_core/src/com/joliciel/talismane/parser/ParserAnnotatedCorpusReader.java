@@ -32,13 +32,11 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 public interface ParserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	/**
 	 * Is there another sentence to be read?
-	 * @return
 	 */
 	public boolean hasNextConfiguration();
 	
 	/**
 	 * Read the ParseConfiguration from the next sentence in the training corpus.
-	 * @return
 	 */
 	public ParseConfiguration nextConfiguration();
 	
@@ -50,7 +48,6 @@ public interface ParserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	
 	/**
 	 * If provided, will read a lexical entry for each pos-tagged token.
-	 * @return
 	 */
 	public LexicalEntryReader getLexicalEntryReader();
 	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);

@@ -52,8 +52,6 @@ class MaximumEntropyModel extends AbstractOpenNLPModel {
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
-	 * @param model
-	 * @param featureDescriptors
 	 */
 	MaximumEntropyModel(MaxentModel model,
 			Map<String,List<String>> descriptors,

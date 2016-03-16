@@ -28,29 +28,21 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 public interface MaxentService {
 	/**
 	 * Returns a maxent model trainer.
-	 * @param <T>
-	 * @return
 	 */
 	public MaxentModelTrainer getMaxentModelTrainer();
 	
 	/**
 	 * Get an "empty" maxent model.
-	 * @param <T>
-	 * @return
 	 */
 	public ClassificationModel getMaxentModel();
 	
 	/**
 	 * Returns a perceptron model trainer.
-	 * @param <T>
-	 * @return
 	 */
 	public OpenNLPPerceptronModelTrainer getPerceptronModelTrainer();
 	
 	/**
 	 * Get an "empty" perceptron model.
-	 * @param <T>
-	 * @return
 	 */
 	public ClassificationModel getPerceptronModel();
 }

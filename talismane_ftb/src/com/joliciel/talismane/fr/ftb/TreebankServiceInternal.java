@@ -95,13 +95,11 @@ interface TreebankServiceInternal extends TreebankService {
     
     /**
      * Save a phrase unit to the database.
-     * @param phraseUnit
      */
     public void savePhraseUnitInternal(PhraseUnitInternal phraseUnit);
     
     /**
      * Save a phrase subunit to the database.
-     * @param phraseSubunit
      */
     public void savePhraseSubunitInternal(PhraseSubunitInternal phraseSubunit);
 

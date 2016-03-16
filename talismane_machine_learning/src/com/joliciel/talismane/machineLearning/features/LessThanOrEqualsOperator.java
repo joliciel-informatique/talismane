@@ -19,10 +19,9 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Returns operand1 <= operand2.
+ * Returns operand1 &lt;= operand2.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class LessThanOrEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> implements
 		BooleanFeature<T> {

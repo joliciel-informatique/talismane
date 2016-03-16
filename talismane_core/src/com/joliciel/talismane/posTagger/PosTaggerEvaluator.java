@@ -35,7 +35,6 @@ public interface PosTaggerEvaluator {
 	/**
 	 * A tokeniser to tokenise the sentences brought back by the corpus reader,
 	 * rather than automatically using their existing tokenisation.
-	 * @return
 	 */
 	public abstract Tokeniser getTokeniser();
 	public abstract void setTokeniser(Tokeniser tokeniser);
@@ -43,7 +42,6 @@ public interface PosTaggerEvaluator {
 	/**
 	 * Should the pos tagger take the tokeniser's full beam as it's input,
 	 * or only the best guess.
-	 * @return
 	 */
 	public abstract boolean isPropagateBeam();
 	public abstract void setPropagateBeam(boolean propagateBeam);
@@ -53,7 +51,6 @@ public interface PosTaggerEvaluator {
 	/**
 	 * If set, will limit the maximum number of sentences that will be evaluated.
 	 * Default is 0 = all sentences.
-	 * @param sentenceCount
 	 */
 	public abstract void setSentenceCount(int sentenceCount);
 	public abstract int getSentenceCount();

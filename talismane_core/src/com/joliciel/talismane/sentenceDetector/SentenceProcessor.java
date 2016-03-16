@@ -30,8 +30,6 @@ import com.joliciel.talismane.filters.Sentence;
 public interface SentenceProcessor {
 	/**
 	 * Process the next sentence, outputting to the writer provided.
-	 * @param sentence
-	 * @param writer
 	 */
 	public void onNextSentence(Sentence sentence, Writer writer);
 }

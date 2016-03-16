@@ -30,7 +30,6 @@ public interface TreebankReader {
 	
 	/**
 	 * Characteristics describing this corpus reader.
-	 * @return
 	 */
 	public Map<String,String> getCharacteristics();
 	

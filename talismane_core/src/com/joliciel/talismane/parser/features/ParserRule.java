@@ -35,25 +35,21 @@ import com.joliciel.talismane.parser.Transition;
 public interface ParserRule {
 	/**
 	 * The condition to test.
-	 * @return
 	 */
 	public BooleanFeature<ParseConfigurationWrapper> getCondition();
 	
 	/**
 	 * The transition to apply (or to eliminate, for negative rules) if the condition evaluates to true.
-	 * @return
 	 */
 	public Transition getTransition();
 	
 	/**
 	 * The transitions to eliminate if the condition evaluates to true.
-	 * @return
 	 */
 	public Set<Transition> getTransitions();
 	
 	/**
 	 * Is this rule a negative rule or not.
-	 * @return
 	 */
 	public boolean isNegative();
 	public void setNegative(boolean negative);

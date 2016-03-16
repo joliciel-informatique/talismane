@@ -28,32 +28,27 @@ import java.util.List;
 public interface Decision extends Comparable<Decision> {
 	/**
 	 * A unique code representing this decision's outcome.
-	 * @return
 	 */
 	public String getOutcome();
 	
 	/**
 	 * The decision's raw score, for additive scoring systems (e.g. perceptrons).
-	 * @return
 	 */
 	public double getScore();
 	
 	/**
 	 * This decision's probability.
-	 * @return
 	 */
 	public double getProbability();
 	
 	/**
 	 * The log of this decision's probability.
 	 * Avoids calculating the log multiple times.
-	 * @return
 	 */
 	public double getProbabilityLog();
 		
 	/**
 	 * Was this decision calculated by a statistical model, or was it made by default, based on rules, etc.
-	 * @return
 	 */
 	public boolean isStatistical();
 
@@ -61,13 +56,11 @@ public interface Decision extends Comparable<Decision> {
 	 * A list of decision authorities which helped to make this decision.
 	 * Useful when decisions are made by different authorities based on certain criteria -
 	 * allows us to establish an f-score by authority, as well as analysing errors by authority. 
-	 * @return
 	 */
 	public List<String> getAuthorities();
 	
 	/**
 	 * Add an authority to this decision's list.
-	 * @param authority
 	 */
 	public void addAuthority(String authority);
 

@@ -28,39 +28,33 @@ import java.util.Map;
 public interface TokenPlaceholder {
 	/**
 	 * The replacement text for this placeholder.
-	 * @return
 	 */
 	String getReplacement();
 	
 	/**
 	 * Start index for this placeholder.
-	 * @return
 	 */
 	int getStartIndex();
 	
 	/**
 	 * The index just after this placeholder ends.
-	 * @return
 	 */
 	int getEndIndex();
 	
 	/**
 	 * The regex which matched this placeholder.
-	 * @return
 	 */
 	String getRegex();
 	
 	
 	/**
 	 * Can this placeholder represent a sentence boundary (at its last character that is)?
-	 * @return
 	 */
 	public boolean isPossibleSentenceBoundary();
 	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
 	
 	/**
 	 * Set of attributes to be assigned to tokens recognised by this regex filter.
-	 * @return
 	 */
 	Map<String,String> getAttributes();
 	public void addAttribute(String key, String value);
@@ -68,7 +62,6 @@ public interface TokenPlaceholder {
 	/**
 	 * Should this placeholder be interpreted as a single token,
 	 * or should it simply be used to add attributes to all tokens matched by it.
-	 * @return
 	 */
 	public boolean isSingleToken();
 	public void setSingleToken(boolean singleToken);

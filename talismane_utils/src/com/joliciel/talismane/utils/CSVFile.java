@@ -53,7 +53,6 @@ public class CSVFile {
 	 * Return the string value of a cell, or null
 	 * if the cell is not in the CSV file limits.
 	 * @param label in standard Excel format, e.g. A1 for top-left.
-	 * @return
 	 */
 	public String getValue(String label) {
 		int row = formatter.getRowIndex(label);

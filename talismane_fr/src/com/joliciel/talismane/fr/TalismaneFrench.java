@@ -81,10 +81,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 		spmrl
 	}
 	
-	/**
-	 * @param args
-	 * @throws Exception 
-	 */
+
 	public static void main(String[] args) throws Exception {
     	Map<String,String> argsMap = StringUtils.convertArgs(args);
     	CorpusFormat corpusReaderType = null;

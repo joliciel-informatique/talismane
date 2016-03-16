@@ -211,8 +211,6 @@ public class GISTrainer {
    * Sets whether this trainer will use smoothing while training the model.
    * This can improve model accuracy, though training will potentially take
    * longer and use more memory.  Model size will also be larger.
-   *
-   * @param smooth true if smoothing is desired, false if not
    */
   public void setGaussianSigma(double sigmaValue) {
     useGaussianSmoothing = true;

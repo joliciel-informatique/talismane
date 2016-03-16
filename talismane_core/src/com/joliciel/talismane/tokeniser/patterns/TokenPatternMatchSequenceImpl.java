@@ -44,7 +44,6 @@ class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence, Compar
 	
 	/**
 	 * The full token sequence that matched this pattern.
-	 * @return
 	 */
 	@Override
 	public List<Token> getTokenSequence() {
@@ -53,7 +52,6 @@ class TokenPatternMatchSequenceImpl implements TokenPatternMatchSequence, Compar
 	
 	/**
 	 * The list of tokens which need to be tested further.
-	 * @return
 	 */
 	@Override
 	public List<Token> getTokensToCheck() {

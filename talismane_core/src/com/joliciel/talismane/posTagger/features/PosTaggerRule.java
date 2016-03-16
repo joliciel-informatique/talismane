@@ -33,19 +33,16 @@ import com.joliciel.talismane.posTagger.PosTag;
 public interface PosTaggerRule {
 	/**
 	 * The condition to test.
-	 * @return
 	 */
 	public BooleanFeature<PosTaggerContext> getCondition();
 	
 	/**
 	 * The tag to apply if the condition evaluates to true.
-	 * @return
 	 */
 	public PosTag getTag();
 	
 	/**
 	 * Is this rule a negative rule or not.
-	 * @return
 	 */
 	public boolean isNegative();
 	public void setNegative(boolean negative);

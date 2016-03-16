@@ -53,8 +53,6 @@ class OpenNLPPerceptronModel extends AbstractOpenNLPModel {
 	
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
-	 * @param model
-	 * @param featureDescriptors
 	 */
 	OpenNLPPerceptronModel(MaxentModel model,
 			Map<String,List<String>> descriptors,

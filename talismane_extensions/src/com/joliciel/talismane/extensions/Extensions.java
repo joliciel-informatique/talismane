@@ -74,10 +74,7 @@ public class Extensions {
 		projectify
 	}
 
-	/**
-	 * @param args
-	 * @throws Exception 
-	 */
+
 	public static void main(String[] args) throws Exception {
     	Map<String,String> argsMap = StringUtils.convertArgs(args);
     	
@@ -116,7 +113,6 @@ public class Extensions {
 	/**
 	 * To be called initially, so that any parameters specific to the extensions can be removed
 	 * and/or replaced in the argument map.
-	 * @param args
 	 */
 	public void pluckParameters(Map<String,String> args) {
 		if (args.containsKey("referenceStats")) {
@@ -143,8 +139,6 @@ public class Extensions {
 	/**
 	 * To be called just before running the Talismane command, to
 	 * prepare anything specifically required for extensions to function correctly.
-	 * @param config
-	 * @param talismane
 	 */
 	public void prepareCommand(TalismaneConfig config, Talismane talismane) {
 		try {

@@ -24,8 +24,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * In addition to AbstractFeature, logs performance.
  * @author Assaf Urieli
  *
- * @param <T>
- * @param <Y>
  */
 public abstract class AbstractMonitorableFeature<T,Y> extends AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<Feature<T,?>> {
 	public AbstractMonitorableFeature() {

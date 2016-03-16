@@ -58,7 +58,6 @@ public class DBSCANClusterer<T> {
 	 * @param epsilon the maximum distance for including two points in the same cluster
 	 * @param minPoints the minimum points required to form a cluster
 	 * @param includeNoise whether or not noise should be included when returning the clusters
-	 * @return
 	 */
 	public Set<Set<T>> cluster(double epsilon, int minPoints, boolean includeNoise) {
 		LOG.debug("cluster: epsilon=" + epsilon + ", minPoints=" + minPoints + ", includeNoise=" + includeNoise);
@@ -146,9 +145,6 @@ public class DBSCANClusterer<T> {
 
 	/**
 	 * Get neighbours based on Euclidean distance.
-	 * @param i
-	 * @param epsilon
-	 * @return
 	 */
 	Set<Integer> getNeighbours(int i, double epsilon) {
 		Set<Integer> neighbours = new HashSet<Integer>();

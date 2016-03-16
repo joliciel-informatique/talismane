@@ -25,8 +25,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * to avoid multiple checking, and logs performance.
  * @author Assaf Urieli
  *
- * @param <T>
- * @param <Y>
  */
 public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y> {
 	public AbstractCachableFeature() {
@@ -56,8 +54,6 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	/**
 	 * Override if this feature result should be cached within the context
 	 * to avoid checking multiple times.
-	 * @param context
-	 * @return
 	 */
 	protected FeatureResult<Y> checkInCache(T context, RuntimeEnvironment env) {
 		if (context instanceof HasFeatureCache) {
@@ -69,8 +65,6 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	/**
 	 * Override if this feature result should be cached within the context
 	 * to avoid checking multiple times.
-	 * @param context
-	 * @return
 	 */	
 	protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
 		if (context instanceof HasFeatureCache) {

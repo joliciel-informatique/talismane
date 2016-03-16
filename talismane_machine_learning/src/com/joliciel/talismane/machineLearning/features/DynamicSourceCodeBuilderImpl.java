@@ -344,7 +344,6 @@ class DynamicSourceCodeBuilderImpl<T> implements DynamicSourceCodeBuilder<T> {
 
 	/**
 	 * Replace static arguments by their dynamic equivalents.
-	 * @param feature
 	 */
 	void dynamise(Feature<T,?> feature) {
 		try {

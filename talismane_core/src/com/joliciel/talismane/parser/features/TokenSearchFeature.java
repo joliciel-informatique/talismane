@@ -85,11 +85,6 @@ public final class TokenSearchFeature extends AbstractAddressFunction implements
 	
 	/**
 	 * 
-	 * @param criterion
-	 * @param stopCriterion
-	 * @param startIndexFeature
-	 * @param endIndexFeature
-	 * @param findFirstFeature
 	 * @param skipCriteria need to be provided in pairs, each pair indicates where to start skipping and where to end skipping (e.g. open parentheses and close parentheses)
 	 */
 	@SafeVarargs

@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Wrapper for a double literal.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class DoubleLiteralFeature<T> extends AbstractFeature<T, Double> implements
 		DoubleFeature<T> {

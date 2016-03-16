@@ -27,7 +27,6 @@ import java.util.TreeSet;
  * Thus assumes the most "important" element is placed first ("least" in comparison).
  * @author Assaf Urieli
  *
- * @param <E>
  */
 public class BoundedTreeSet<E> extends TreeSet<E> {
 	private static final long serialVersionUID = 234375156025262002L;

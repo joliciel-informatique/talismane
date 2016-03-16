@@ -28,19 +28,16 @@ import java.util.Map;
 public interface ClassificationEventStream {
 	/**
 	 * Does this event reader have any more events to read?
-	 * @return
 	 */
 	public boolean hasNext();
 	
 	/**
 	 * The next event to read.
-	 * @return
 	 */
 	public ClassificationEvent next();
 	
 	/**
 	 * Get the attributes defining this event stream.
-	 * @return
 	 */
 	public Map<String,String> getAttributes();
 }

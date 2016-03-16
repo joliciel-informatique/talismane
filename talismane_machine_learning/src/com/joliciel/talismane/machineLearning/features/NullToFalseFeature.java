@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * If the wrapped boolean feature returns null, will convert it to a false.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
 	BooleanFeature<T> wrappedFeature;

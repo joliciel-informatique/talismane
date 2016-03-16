@@ -23,14 +23,12 @@ public interface TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusRea
 	
 	/**
 	 * The regex used to find the tokens.
-	 * @return
 	 */
 	public String getRegex();
 	public void setRegex(String regex);
 	
 	/**
 	 * If provided, will assign sentences with the original white space to the token sequences.
-	 * @return
 	 */
 	public SentenceDetectorAnnotatedCorpusReader getSentenceReader();
 	public void setSentenceReader(

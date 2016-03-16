@@ -32,15 +32,11 @@ public interface ParseEvaluationObserver {
 
 	/**
 	 * Called before parsing begins
-	 * @param realConfiguration
-	 * @param posTagSequences
 	 */
 	public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences);
 	
 	/**
 	 * Called when the next parse configuration has been processed.
-	 * @param realConfiguration
-	 * @param guessedConfigurations
 	 */
 	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations);
 	

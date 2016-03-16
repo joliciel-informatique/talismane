@@ -33,7 +33,6 @@ public class LinearSVMModelAnalyser {
 	private int featureCount = 200;
 	
 	/**
-	 * @param args
 	 */
 	public void analyse(File modelFile, File outDir) throws Exception {
 		outDir.mkdirs();

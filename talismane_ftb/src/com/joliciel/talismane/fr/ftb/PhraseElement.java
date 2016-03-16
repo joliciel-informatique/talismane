@@ -28,7 +28,6 @@ public interface PhraseElement extends Entity {
     
     /**
      * Is this element a phrase or a word?
-     * @return
      */
     public boolean isPhrase();
 

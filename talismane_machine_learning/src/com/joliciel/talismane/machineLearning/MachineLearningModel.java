@@ -33,7 +33,6 @@ import java.util.zip.ZipInputStream;
  * all of the information required to analyse mew data (e.g. feature descriptors).
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public interface MachineLearningModel {
 	public enum MachineLearningModelType {
@@ -45,63 +44,51 @@ public interface MachineLearningModel {
 	
 	/**
 	 * Persist this model to an OutputStream.
-	 * @param outputStream
 	 */
 	public void persist(OutputStream outputStream);
 	
 	/**
 	 * Persist this model to a file.
-	 * @param modelFile
 	 */
 	public void persist(File modelFile);
 
 	/**
 	 * Get this model's defining attributes.
-	 * @return
 	 */
 	public Map<String, Object> getModelAttributes();
 
 	/**
 	 * Add a defining attribute to this model.
-	 * @param name
-	 * @param value
 	 */
 	public void addModelAttribute(String name, Object value);
 	
 	/**
 	 * Get this model's dependencies.
-	 * @return
 	 */
 	public Map<String, Object> getDependencies();
 
 	/**
 	 * Add a dependency to this model.
-	 * @param name
-	 * @param value
 	 */
 	public void addDependency(String name, Serializable dependency);
 
 	/**
 	 * A map of all descriptors required to apply this model to new data.
-	 * @return
 	 */
 	public Map<String, List<String>> getDescriptors();
 	
 	/**
 	 * Get the list of feature descriptors for this model.
-	 * @return
 	 */
 	public List<String> getFeatureDescriptors();
 
 	/**
 	 * The machine learning algorithm implemented by this model.
-	 * @return
 	 */
 	public MachineLearningAlgorithm getAlgorithm();
 	
 	/**
 	 * External resources used by this model.
-	 * @return
 	 */
 	public Collection<ExternalResource<?>> getExternalResources();
 	public void setExternalResources(Collection<ExternalResource<?>> externalResources);
@@ -110,9 +97,6 @@ public interface MachineLearningModel {
 	
 	/**
 	 * Load some aspect of this model from a zip entry.
-	 * @param zis
-	 * @param ze
-	 * @throws IOException
 	 * @return true if entry loaded, false otherwise
 	 */
 	boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException;
@@ -124,7 +108,6 @@ public interface MachineLearningModel {
 	
 	/**
 	 * The training parameters used to train this model.
-	 * @return
 	 */
 	public Map<String,Object> getTrainingParameters();
 }

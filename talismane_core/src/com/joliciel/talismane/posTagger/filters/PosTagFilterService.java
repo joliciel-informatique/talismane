@@ -25,8 +25,6 @@ public interface PosTagFilterService {
 	/**
 	 * Gets a PosTagSequenceFilter corresponding to a given descriptor.
 	 * The descriptor should contain the class name, followed by any arguments, separated by tabs.
-	 * @param descriptor
-	 * @return
 	 */
 	public PosTagSequenceFilter getPosTagSequenceFilter(String descriptor);
 }

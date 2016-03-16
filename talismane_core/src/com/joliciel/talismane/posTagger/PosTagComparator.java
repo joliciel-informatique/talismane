@@ -26,7 +26,7 @@ package com.joliciel.talismane.posTagger;
 public interface PosTagComparator {
 	/**
 	 * Evaluate the evaluation corpus against the reference corpus.
-	 * @param reader for reading manually tagged tokens from a corpus
+	 * @param evaluationCorpusReader for reading manually tagged tokens from a corpus
 	 */
 	public void evaluate(PosTagAnnotatedCorpusReader referenceCorpusReader,
 			PosTagAnnotatedCorpusReader evaluationCorpusReader);
@@ -36,7 +36,6 @@ public interface PosTagComparator {
 	/**
 	 * If set, will limit the maximum number of sentences that will be evaluated.
 	 * Default is 0 = all sentences.
-	 * @param sentenceCount
 	 */
 	public abstract void setSentenceCount(int sentenceCount);
 	public abstract int getSentenceCount();

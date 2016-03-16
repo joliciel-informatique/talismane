@@ -23,14 +23,11 @@ public interface FeatureService {
 	
 	/**
 	 * Get a function descriptor that wraps an actual function of the given name.
-	 * @param functionName
-	 * @return
 	 */
 	public FunctionDescriptor getFunctionDescriptor(String functionName);
 	
 	/**
 	 * Get a runtime environment for variable storage.
-	 * @return
 	 */
 	public RuntimeEnvironment getRuntimeEnvironment();
 }

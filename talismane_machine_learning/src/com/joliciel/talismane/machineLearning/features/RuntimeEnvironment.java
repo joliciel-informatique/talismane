@@ -30,7 +30,6 @@ public interface RuntimeEnvironment {
 
 	/**
 	 * A key uniquely describing this environment.
-	 * @return
 	 */
 	public String getKey();
 }

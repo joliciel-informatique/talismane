@@ -23,14 +23,12 @@ import java.util.Map;
 public interface AnnotatedCorpusReader {
 	/**
 	 * If 0, all sentences will be read - otherwise will only read a certain number of sentences.
-	 * @return
 	 */
 	public int getMaxSentenceCount();
 	public void setMaxSentenceCount(int maxSentenceCount);
 	
 	/**
 	 * The index of the first sentence to process.
-	 * @return
 	 */
 	public int getStartSentence();
 	public void setStartSentence(int startSentence);
@@ -38,21 +36,18 @@ public interface AnnotatedCorpusReader {
 	/**
 	 * The number of cross-validation segments for this corpus.
 	 * -1 means no cross-validation.
-	 * @param crossValidationSize
 	 */
 	public abstract void setCrossValidationSize(int crossValidationSize);
 	public abstract int getCrossValidationSize();
 	
 	/**
 	 * Which index to exclude when reading (for training), from 0 to getCrossValidationSize-1.
-	 * @param excludeIndex
 	 */
 	public abstract void setExcludeIndex(int excludeIndex);
 	public abstract int getExcludeIndex();
 	
 	/**
 	 * Which index to include when reading (for evaluation), from 0 to getCrossValidationSize-1.
-	 * @param includeIndex
 	 */
 	public abstract void setIncludeIndex(int includeIndex);
 	public abstract int getIncludeIndex();
@@ -60,7 +55,6 @@ public interface AnnotatedCorpusReader {
 
 	/**
 	 * Characteristics describing this corpus reader.
-	 * @return
 	 */
 	public Map<String,String> getCharacteristics();
 }

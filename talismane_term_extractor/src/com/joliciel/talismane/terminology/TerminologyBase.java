@@ -33,8 +33,6 @@ public interface TerminologyBase {
 
 	/**
 	 * Get a term corresponding to a particular string.
-	 * @param text
-	 * @return
 	 */
 	public Term findTerm(String text);
 	
@@ -42,7 +40,6 @@ public interface TerminologyBase {
 	
 	/**
 	 * Store the term in the datastore.
-	 * @param term
 	 */
 	public void storeTerm(Term term);
 	
@@ -52,30 +49,22 @@ public interface TerminologyBase {
 	
 	/**
 	 * Load the parents of a given term from the datastore.
-	 * @param term
-	 * @return
 	 */
 	public Set<Term> getParents(Term term);
 	
 	
 	/**
 	 * Load the heads of a given term from the datastore.
-	 * @param term
-	 * @return
 	 */
 	public Set<Term> getHeads(Term term);
 	
 	/**
 	 * Load the expansions of a given term from the datastore.
-	 * @param term
-	 * @return
 	 */
 	public Set<Term> getExpansions(Term term);
 	
 	/**
 	 * Load the contexts of a given term from the datastore.
-	 * @param term
-	 * @return
 	 */
 	public List<Context> getContexts(Term term);
 }

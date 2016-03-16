@@ -67,8 +67,6 @@ public class CSVFormatter {
 	/**
 	 * Extract a list of cell contents from a given CSV line.
 	 * 
-	 * @param csvLine
-	 * @return
 	 */
 	public static List<String> getCSVCells(String csvLine) {
 		List<String> cells = new ArrayList<String>();

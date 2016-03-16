@@ -29,7 +29,6 @@ import com.joliciel.talismane.utils.JolicielException;
  * An external resource feature for an external resource with a double value per key.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class ExternalResourceDoubleFeature<T> extends AbstractCachableFeature<T, Double>
 		implements DoubleFeature<T> {

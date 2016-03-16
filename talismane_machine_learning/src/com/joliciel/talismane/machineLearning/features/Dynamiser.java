@@ -25,25 +25,21 @@ import com.joliciel.talismane.utils.compiler.DynamicCompiler;
  * the feature structure into declarative code.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public interface Dynamiser<T> {
 	/**
 	 * Return the next available class index (to ensure class name uniqueness).
-	 * @return
 	 */
 	public int nextClassIndex();
 	
 	/**
 	 * Get a compiler to be used for compiling classes.
-	 * @return
 	 */
 	public DynamicCompiler getCompiler();
 	
 	/**
 	 * Get a new builder for a given feature.
 	 * @param rootFeature the feature to build.
-	 * @return
 	 */
 	public DynamicSourceCodeBuilder<T> getBuilder(Feature<T,?> rootFeature);
 	

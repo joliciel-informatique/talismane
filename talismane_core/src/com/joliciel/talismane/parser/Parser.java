@@ -55,15 +55,14 @@ public interface Parser {
 	/**
 	 * Analyse a pos-tag sequence,
 	 * and return the most likely parse configuration for the sentence.
-	 * @param posTagSequences the n most likely pos-tag sequences for this sentence.
-	 * @return the n most likely parse sequences for this sentence
+	 * @param posTagSequence the likely pos-tag sequence for this sentence.
+	 * @return the most likely parse configuration for this sentence
 	 */
 	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence);
 	
 
 	/**
 	 * The maximum size of the beam to be used during analysis.
-	 * @return
 	 */
 	public abstract int getBeamWidth();
 	
@@ -71,7 +70,6 @@ public interface Parser {
 	
 	/**
 	 * The transition system used by this parser to make parse decisions.
-	 * @return
 	 */
 	public TransitionSystem getTransitionSystem();
 	
@@ -80,7 +78,6 @@ public interface Parser {
 	 * Will be ignored if set to 0.
 	 * If analysis jumps out because of time-out, there will be a parse-forest instead of a parse-tree,
 	 * with several nodes left unattached.
-	 * @return
 	 */
 	public int getMaxAnalysisTimePerSentence();
 	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence);
@@ -91,14 +88,12 @@ public interface Parser {
 	 * If analysis jumps out because of free memory descends below this limit,
 	 * there will be a parse-forest instead of a parse-tree,
 	 * with several nodes left unattached.
-	 * @return
 	 */
 	public int getMinFreeMemory();
 	public void setMinFreeMemory(int minFreeMemory);
 	
 	/**
 	 * Rules to apply while parsing (in place of the probablistic classifier).
-	 * @param parserRules
 	 */
 	public List<ParserRule> getParserRules();
 	public void setParserRules(List<ParserRule> parserRules);

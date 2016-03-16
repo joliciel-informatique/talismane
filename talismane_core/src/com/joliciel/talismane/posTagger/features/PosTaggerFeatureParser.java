@@ -64,7 +64,6 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 	
 	/**
 	 * Add pos-tagged token feature classes to the container provided.
-	 * @param container
 	 */
 	public static void addPosTaggedTokenFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("PosTag", AssignedPosTagFeature.class);
