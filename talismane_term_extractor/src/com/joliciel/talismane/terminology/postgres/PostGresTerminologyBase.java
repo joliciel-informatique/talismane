@@ -217,12 +217,13 @@ public class PostGresTerminologyBase implements TerminologyBase {
 	
 	void addParents(List<Term> childTerms) {
 		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
-        String sql = "SELECT " + SELECT_TERM + ", term_expansion_id FROM term_expansions" +
+        String sql = "SELECT " + SELECT_TERM + ", termexp_expansion_id FROM term_expansions" +
+    		" INNER JOIN term ON termexp_expansion_id = term_id" +
 			" INNER JOIN context ON termexp_expansion_id = context_term_id" +
 			" INNER JOIN projectfile ON context_file_id = projectfile_file_id" +
 			" WHERE projectfile_project_id = :term_project_id" +
 			" AND termexp_expansion_id IN (:child_terms)" +
-			" GROUP BY " + SELECT_TERM_ONLY;
+			" GROUP BY " + SELECT_TERM_ONLY + ", termexp_expansion_id";
         
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
         paramSource.addValue("term_project_id", this.getCurrentProjectId());

@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -449,7 +450,8 @@ public class TerminologyViewerController {
   		Stage preferencesStage = new Stage();
 		preferencesStage.initModality(Modality.WINDOW_MODAL);
     	FXMLLoader fxmlLoader = new FXMLLoader();
-        Parent root = (Parent) fxmlLoader.load(getClass().getResource("preferences.fxml").openStream());
+    	URL fxmlURL = TerminologyViewerController.class.getResource("resources/preferences.fxml");
+        Parent root = (Parent) fxmlLoader.load(fxmlURL.openStream());
         
         PreferencesController controller = fxmlLoader.getController();
         controller.setPrimaryStage(preferencesStage);
