@@ -23,7 +23,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Useful to keep the feature sparse, so that only true values return a result.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
 	BooleanFeature<T> wrappedFeature;

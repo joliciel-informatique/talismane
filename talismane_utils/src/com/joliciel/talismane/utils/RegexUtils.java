@@ -33,7 +33,6 @@ public class RegexUtils {
 	 * @param replacement the replacment string
 	 * @param text the original text
 	 * @param matcher the matcher
-	 * @return
 	 */
 	public static String getReplacement(String replacement, String text, Matcher matcher) {
 		String newText = replacement;

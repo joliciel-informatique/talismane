@@ -51,7 +51,7 @@ public interface FilterService {
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int blockSize);
 	
 	/**
-	 * @see #getRegexMarkerFilter(List, String)
+	 * @see #getRegexMarkerFilter(List, String, int)
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int blockSize);
 
@@ -62,7 +62,7 @@ public interface FilterService {
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int groupIndex, int blockSize);
 
 	/**
-	 * @see #getRegexMarkerFilter(List, String, int)
+	 * @see #getRegexMarkerFilter(List, String, int, int)
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex, int blockSize);
 
@@ -79,7 +79,6 @@ public interface FilterService {
 	
 	/**
 	 * A string inserted between outputs (such as a newline).
-	 * @return
 	 */
 	public String getOutputDivider();
 	public void setOutputDivider(String outputDivider);

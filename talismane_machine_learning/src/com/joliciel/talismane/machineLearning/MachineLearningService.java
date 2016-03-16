@@ -32,57 +32,39 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 public interface MachineLearningService {
 	/**
 	 * Get a CorpusEvent corresponding to the featureResults and classification provided.
-	 * @param featureResults
-	 * @param classification
-	 * @return
 	 */
 	public ClassificationEvent getClassificationEvent(List<FeatureResult<?>> featureResults,
 			String classification);
 	
 	/**
 	 * Get a RankingEvent corresponding to a particular input and solution.
-	 * @param <T>
-	 * @param input
-	 * @param solution
-	 * @return
 	 */
 	public<T> RankingEvent<T> getRankingEvent(T input, RankingSolution solution);
 	
 	/**
 	 * Get the machine learning model stored in a given ZipInputStream.
-	 * @param <T> the outcome type for this model
 	 * @param zis the zip input stream
-	 * @return
 	 */
 	public MachineLearningModel getMachineLearningModel(ZipInputStream zis);
 
 	/**
 	 * Get the machine learning model stored in a given ZipInputStream.
-	 * @param <T> the outcome type for this model
 	 * @param zis the zip input stream
-	 * @return
 	 */
 	public ClassificationModel getClassificationModel(ZipInputStream zis);
 	
 	/**
 	 * Get a classification model trainer corresponding to a given outcome type and a given algorithm.
-	 * @param <T>
-	 * @param algorithm
-	 * @return
 	 */
 	public ClassificationModelTrainer getClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
 	
 	/**
 	 * Get a ranking model trainer corresponding to a given input type and a given algorithm.
-	 * @param <T>
-	 * @param algorithm
-	 * @return
 	 */
 	public<T> RankingModelTrainer<T> getRankingModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
 
 	/**
 	 * Get a default implementation of the ExternalResourceFinder.
-	 * @return
 	 */
 	public ExternalResourceFinder getExternalResourceFinder();
 	
@@ -102,8 +84,6 @@ public interface MachineLearningService {
 	/**
 	 * Create a default decision with a probability of 1.0, for a given outcome.
 	 * This decision will not be considered statistical.
-	 * @param defaultDecision
-	 * @return
 	 */
 	public Decision createDefaultDecision(String code);
 }

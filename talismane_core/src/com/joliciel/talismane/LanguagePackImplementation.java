@@ -30,7 +30,6 @@ import java.io.File;
 public interface LanguagePackImplementation extends LanguageImplementation {
 	/**
 	 * Set the language pack.
-	 * @param languagePackFile
 	 */
 	public void setLanguagePack(File languagePackFile);
 }

@@ -30,7 +30,6 @@ import java.util.Map;
  * in a given directory.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public interface ClassificationMultiModelTrainer extends
 		ClassificationModelTrainer {
@@ -38,30 +37,24 @@ public interface ClassificationMultiModelTrainer extends
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
 	 * @param corpusEventStream the event stream containing the events to be used for training
-	 * @param decisionFactory the decision factory used to convert outcomes labels to Outcomes
 	 * @param featureDescriptors the feature descriptors required to apply this model to new data.
-	 * @return
 	 */
 	public void trainModels(ClassificationEventStream corpusEventStream, List<String> featureDescriptors);
 
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream provided.
 	 * @param corpusEventStream the event stream containing the events to be used for training
-	 * @param decisionFactory the decision factory used to convert outcomes labels to Outcomes
 	 * @param descriptors all of the descriptors required to perform analysis using this model (e.g. feature descriptors, etc.)
-	 * @return
 	 */
 	public void trainModels(ClassificationEventStream corpusEventStream, Map<String,List<String>> descriptors);
 
 	/**
 	 * Set parameters for this trainer type.
-	 * @param parameters
 	 */
 	public void setParameterSets(List<Map<String,Object>> parameterSets);
 	
 	/**
 	 * The directory where models should be written.
-	 * @param outDir
 	 */
 	public void setOutDir(File outDir);
 	public File getOutDir();

@@ -48,21 +48,18 @@ public interface MaxentModelTrainer extends ClassificationModelTrainer {
 	}
 	/**
 	 * The number of training iterations to run.
-	 * @return
 	 */
 	public int getIterations();
 	public void setIterations(int iterations);
 	
 	/**
 	 * Sigma for Gaussian smoothing on maxent training.
-	 * @return
 	 */
 	public double getSigma();
 	public void setSigma(double sigma);
 
 	/**
 	 * Additive smoothing parameter during maxent training.
-	 * @return
 	 */
 	public double getSmoothing();
 	public void setSmoothing(double smoothing);

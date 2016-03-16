@@ -42,9 +42,6 @@ class ModelTrainerFactory {
 
 	/**
 	 * Get a classification model trainer corresponding to a given outcome type and a given algorithm.
-	 * @param <T>
-	 * @param algorithm
-	 * @return
 	 */
 	public ClassificationModelTrainer makeClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
 		ClassificationModelTrainer modelTrainer = null;
@@ -76,9 +73,6 @@ class ModelTrainerFactory {
 	
 	/**
 	 * Get a ranking model trainer corresponding to a given input type and a given algorithm.
-	 * @param <T>
-	 * @param algorithm
-	 * @return
 	 */
 	public<T> RankingModelTrainer<T> makeRankingModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
 		RankingModelTrainer<T> modelTrainer = null;

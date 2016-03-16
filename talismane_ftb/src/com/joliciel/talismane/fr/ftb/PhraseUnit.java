@@ -72,9 +72,9 @@ public interface PhraseUnit extends PhraseElement, Entity {
     /** subunits for this phrase unit - only if it is compound */
     public List<PhraseSubunit> getSubunits();
 
-    /** Adds a new subunit at the end of the current list 
-     * @param morphologyCode 
-     * @param subCategoryCode */
+    /**
+     * Adds a new subunit at the end of the current list 
+     */
     public PhraseSubunit newSubunit(String categoryCode, String subCategoryCode, String morphologyCode);
     
     /** the text of this phrase unit (got from it's word) */
@@ -89,7 +89,6 @@ public interface PhraseUnit extends PhraseElement, Entity {
 
 	/** For split compounds only, indicates the next part of the split compound, after any insertions.
 	 * Note that each part of the split compound is given as a separate phrase unit, with the same lemma.
-	 * @return
 	 */
 	public abstract PhraseUnit getNextCompoundPart();
 
@@ -99,7 +98,6 @@ public interface PhraseUnit extends PhraseElement, Entity {
 	/**
 	 * The id of the postag that was guessed for this phrase unit, useful when evaluating
 	 * a test set.
-	 * @return
 	 */
 	public abstract int getGuessedPosTagId();
 	public abstract void setGuessedPosTagId(int guessedPosTagId);

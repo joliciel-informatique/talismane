@@ -28,7 +28,6 @@ import java.util.ArrayList;
  * The default implementation of PersistentList
  * @author Assaf Urieli
  *
- * @param <E>
  */
 public class PersistentListImpl<E> implements PersistentList<E> {
     private List<E> itemsAdded;

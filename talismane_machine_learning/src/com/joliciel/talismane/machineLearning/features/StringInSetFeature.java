@@ -21,8 +21,6 @@ package com.joliciel.talismane.machineLearning.features;
 /**
  * Returns true if the first string feature is in the set defined by the remaining string features.
  * @author Assaf Urieli
- *
- * @param <T>
  */
 public class StringInSetFeature<T> extends AbstractCachableFeature<T, Boolean> implements
 		BooleanFeature<T> {

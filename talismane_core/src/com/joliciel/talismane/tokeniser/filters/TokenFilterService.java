@@ -28,40 +28,29 @@ public interface TokenFilterService {
 	public static final String TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY = "token_sequence_filter";
 	
 	/**
-	 * Like {@link #getTokenRegexFilter(String, int, String)}, but the group defaults to 0, and a null replacement.
-	 * @param regex
-	 * @return
+	 * Return a filter for the regex provided.
 	 */
 	public TokenRegexFilter getTokenRegexFilter(String regex);
 	
 	/**
 	 * Gets a TokenSequenceFilter corresponding to a given descriptor.
 	 * The descriptor should contain the class name, followed by any arguments, separated by tabs.
-	 * @param descriptor
-	 * @return
 	 */
 	public TokenSequenceFilter getTokenSequenceFilter(String descriptor);
 	
 	/**
 	 * Gets a TokenFilter corresponding to a given descriptor.
 	 * The descriptor should contain the class name, followed by any arguments, separated by tabs.
-	 * @param descriptor
-	 * @return
 	 */
 	public TokenFilter getTokenFilter(String descriptor);
 	
 	/**
 	 * Reads a sequence of token filters from a file.
-	 * @param scanner
-	 * @return
 	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner);
 	
 	/**
 	 * Reads a sequence of token filters from a file, and stores their descriptors in the provided paramater.
-	 * @param scanner
-	 * @param descriptors
-	 * @return
 	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors);
 	
@@ -69,8 +58,6 @@ public interface TokenFilterService {
 	 * Get a TokenSequenceFilter that wraps a list of token filters.
 	 * While it won't re-assign any token boundaries, it will check each TokenFilter against
 	 * each individual token, and if a match is found, will replace the text.
-	 * @param tokenFilter
-	 * @return
 	 */
 	public TokenSequenceFilter getTokenSequenceFilter(List<TokenFilter> tokenFilters);
 	

@@ -27,13 +27,11 @@ package com.joliciel.talismane.machineLearning;
 public interface RankingEvent<T> {
 	/**
 	 * The correct solution for this event's input.
-	 * @return
 	 */
 	public RankingSolution getSolution();
 
 	/**
 	 * The input resulting in this event.
-	 * @return
 	 */
 	public T getInput();
 

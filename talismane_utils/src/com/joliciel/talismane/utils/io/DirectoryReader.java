@@ -136,7 +136,6 @@ public class DirectoryReader extends Reader implements CurrentFileProvider {
 
 	/**
 	 * A string to add at the end of each file to ensure proper processing.
-	 * @return
 	 */
 	public String getEndOfFileString() {
 		return endOfFileString;

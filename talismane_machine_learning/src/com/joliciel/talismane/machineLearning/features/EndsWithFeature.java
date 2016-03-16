@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Returns true if the first string feature ends with any of the other string features.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class EndsWithFeature<T> extends AbstractCachableFeature<T, Boolean> implements
 		BooleanFeature<T> {

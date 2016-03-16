@@ -34,8 +34,6 @@ public interface Diacriticizer extends NeedsTalismaneSession {
 	 * letter must be a decorated or undecorated lowercase or uppercase. If the original letter is in the lowercase, it must remain identical.
 	 * If the original letter is a decorated uppercase, the equivalent letter must be the decorated lowercase or uppercase.<br/>
 	 * Thus, for a french glossary, "MANGE" will return "mangé" and "mange", "A" will return "à" and "a", "À" will return only "à", and "a" will return only "a".
-	 * @param originalWord
-	 * @return
 	 */
 	public Set<String> diacriticize(String originalWord);
 }

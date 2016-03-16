@@ -26,8 +26,6 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Automatically removes the oldest entry.
  * @author Assaf Urieli
  *
- * @param <K>
- * @param <V>
  */
 public class BoundedHashMap<K, V> extends HashMap<K, V> {
 	private static final long serialVersionUID = 1L;

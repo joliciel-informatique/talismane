@@ -26,7 +26,7 @@ import com.joliciel.talismane.machineLearning.features.Feature;
  * Currently, these cannot take any constructor arguments.
  * @author Assaf Urieli
  *
- * @param <T>
+ * @param <T> The feature's return type.
  */
 public interface ParseConfigurationAddressFeature<T> extends Feature<ParseConfigurationWrapper,T> {
 

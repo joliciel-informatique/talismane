@@ -40,8 +40,6 @@ public interface LanguageDetectorService {
 	
 	/**
 	 * A default reader which assumes one sentence per line.
-	 * @param reader
-	 * @return
 	 */
 	public LanguageDetectorAnnotatedCorpusReader getDefaultReader(Map<Locale,Reader> readerMap);
 

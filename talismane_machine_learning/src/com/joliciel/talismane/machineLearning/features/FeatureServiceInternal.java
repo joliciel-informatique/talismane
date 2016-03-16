@@ -26,15 +26,11 @@ interface FeatureServiceInternal extends FeatureService {
 	 * If it can be parsed as a double, the wrapped object will be a double.
 	 * If it can be parsed as a boolean, the wrapped object will be a boolean.
 	 * Otherwise, assumes it's a function name.
-	 * @param argument
-	 * @return
 	 */
 	public FunctionDescriptor getFunctionDescriptorForArgument(String argument);
 	
 	/**
 	 * Get a function descriptor that simply wraps an object, rather than an actual function.
-	 * @param object
-	 * @return
 	 */
 	public FunctionDescriptor getFunctionDescriptorForObject(Object object);
 

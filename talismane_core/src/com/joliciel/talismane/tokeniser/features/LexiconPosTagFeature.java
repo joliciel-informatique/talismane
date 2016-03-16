@@ -39,10 +39,6 @@ public final class LexiconPosTagFeature extends AbstractTokenFeature<Boolean>
 	
 	TalismaneSession talismaneSession;
 	
-	/**
-	 * 
-	 * @param posTag the PosTag we're testing for
-	 */
 	@SafeVarargs
 	public LexiconPosTagFeature(StringFeature<TokenWrapper>... posTagFeatures) {
 		this.posTagFeatures = posTagFeatures;

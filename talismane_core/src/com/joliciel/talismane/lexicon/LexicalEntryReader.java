@@ -26,8 +26,6 @@ package com.joliciel.talismane.lexicon;
 public interface LexicalEntryReader {
 	/**
 	 * Read a lexical entry directly from a block of text.
-	 * @param text
-	 * @return
 	 */
 	public LexicalEntry readEntry(String text);
 }

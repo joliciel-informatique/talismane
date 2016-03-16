@@ -95,21 +95,18 @@ public interface LinearSVMModelTrainer extends ClassificationModelTrainer {
 	/**
 	 * The cost of constraint violation (typically referred to as "C" in SVM literature).
 	 * Default value: 1.0.
-	 * @return
 	 */
 	public double getConstraintViolationCost();
 	public void setConstraintViolationCost(double constraintViolationCost);
 
 	/**
 	 * The stopping criterion. Default value: 0.01.
-	 * @return
 	 */
 	public double getEpsilon();
 	public void setEpsilon(double epsilon);
 	
 	/**
 	 * The solver algorithm used by this linear SVM. Default: L2R_LR.
-	 * @return
 	 */
 	public LinearSVMSolverType getSolverType();
 	public void setSolverType(LinearSVMSolverType solverType);

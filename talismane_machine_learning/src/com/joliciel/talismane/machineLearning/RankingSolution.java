@@ -32,26 +32,21 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 public interface RankingSolution extends Solution {
 	/**
 	 * One feature vector for each incremental step in the ranking solution.
-	 * @return
 	 */
 	public List<List<FeatureResult<?>>> getIncrementalFeatureResults();
 	
 	/**
 	 * The list of incremental outcomes corresponding to each step.
-	 * @return
 	 */
 	public List<String> getIncrementalOutcomes();
 	
 	/**
 	 * Can this ranking solution be used to reach the correct solution?
-	 * @param correctSolution
-	 * @return
 	 */
 	public boolean canReach(RankingSolution correctSolution);
 	
 	/**
 	 * The ranking score of this solution.
-	 * @return
 	 */
 	public double getRankingScore();
 	public void setRankingScore(double rankingScore);

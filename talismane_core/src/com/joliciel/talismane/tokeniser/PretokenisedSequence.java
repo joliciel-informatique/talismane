@@ -28,8 +28,6 @@ public interface PretokenisedSequence extends TokenSequence {
 	 * Adds a token to the current sequence, where the sequence is constructed
 	 * from unit tokens, rather than from an existing sentence.
 	 * Will automatically attempt to add the correct whitespace prior to this token.
-	 * @param text
-	 * @return
 	 */
 	public Token addToken(String string);
 }

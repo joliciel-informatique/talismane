@@ -52,7 +52,6 @@ public interface Phrase extends PhraseElement, Entity {
 
     /**
      * Return all elements of this phrase, whether sub-phrases or words.
-     * @return
      */
     public List<PhraseElement> getElements();
 }

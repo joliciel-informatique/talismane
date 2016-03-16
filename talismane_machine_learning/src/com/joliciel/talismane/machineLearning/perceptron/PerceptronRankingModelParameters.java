@@ -106,9 +106,6 @@ class PerceptronRankingModelParameters implements Serializable, FeatureWeightVec
 	
 	/**
 	 * Prepare the feature index list and weight list, based on the feature results provided.
-	 * @param featureResults
-	 * @param featureIndexList
-	 * @param featureValueList
 	 * @param create If true and a feature is not in the model, create it. Otherwise leave it out.
 	 */
 	public void prepareData(List<FeatureResult<?>> featureResults, List<Integer> featureIndexList, List<Double> featureValueList, boolean create) {

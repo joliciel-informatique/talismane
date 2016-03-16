@@ -35,13 +35,11 @@ public interface TokenPatternMatchSequence {
 
 	/**
 	 * The full token sequence that matched this pattern.
-	 * @return
 	 */
 	public List<Token> getTokenSequence();
 
 	/**
 	 * The list of tokens which need to be tested further.
-	 * @return
 	 */
 	public List<Token> getTokensToCheck();
 

@@ -28,13 +28,11 @@ import com.joliciel.talismane.AnnotatedCorpusReader;
 public interface LanguageDetectorAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	/**
 	 * Is there another text to be read?
-	 * @return
 	 */
 	public boolean hasNextText();
 	
 	/**
 	 * Reads the next sentence from the corpus.
-	 * @return
 	 */
 	public LanguageTaggedText nextText();
 }

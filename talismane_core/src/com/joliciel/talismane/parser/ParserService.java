@@ -38,8 +38,6 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 public interface ParserService {
 	/**
 	 * Gets the initial configuration for a particular pos-tagged token sequence.
-	 * @param posTagSequence
-	 * @return
 	 */
 	public ParseConfiguration getInitialConfiguration(PosTagSequence posTagSequence);
 
@@ -67,7 +65,6 @@ public interface ParserService {
 	 * @param parsingConstrainer used to constrain the parse solutions given the training corpus
 	 * @param parseFeatures features to use
 	 * @param beamWidth beam width to use when ranking
-	 * @return
 	 */
 	public Ranker<PosTagSequence> getRanker(ParsingConstrainer parsingConstrainer, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 	
@@ -77,20 +74,11 @@ public interface ParserService {
 	 * The features are thus used to rank parse configurations
 	 * after all valid transitions have been applied, rather than being used
 	 * to select the next transition for an existing configuration.
-	 * @param featureWeightVector
-	 * @param parsingConstrainer
-	 * @param parseFeatures
-	 * @param beamWidth
-	 * @return
 	 */
 	public NonDeterministicParser getTransitionBasedGlobalLearningParser(FeatureWeightVector featureWeightVector, ParsingConstrainer parsingConstrainer, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth);
 	
 	/**
 	 * Read a non-deterministic parser directly from a model.
-	 * @param jolicielMaxentModel
-	 * @param beamWidth
-	 * @param dynamiseFeatures
-	 * @return
 	 */
 	public NonDeterministicParser getTransitionBasedParser(MachineLearningModel machineLearningModel, int beamWidth, boolean dynamiseFeatures);
 	
@@ -120,20 +108,16 @@ public interface ParserService {
 	
 	/**
 	 * Get a brand new parsing constrainer.
-	 * @return
 	 */
 	public ParsingConstrainer getParsingConstrainer();
 	
 	/**
 	 * Writes the list of transitions that were actually applied, one at a time.
-	 * @return
 	 */
 	public ParseConfigurationProcessor getTransitionLogWriter(Writer csvFileWriter);
 	
 	/**
 	 * Get a parsing constrainer from a file where it was previously serialised.
-	 * @param file
-	 * @return
 	 */
 	public ParsingConstrainer getParsingConstrainer(File file);
 	

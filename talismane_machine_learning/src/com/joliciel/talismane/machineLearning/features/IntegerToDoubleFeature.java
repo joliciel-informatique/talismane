@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * Converts an integer feature to a double feature
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implements
 		DoubleFeature<T> {

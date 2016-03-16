@@ -40,8 +40,6 @@ public interface PosTaggerLexicon extends Lexicon {
 	
 	/**
 	 * Find the lexical entries corresponding to a given postag for this word.
-	 * @param word
-	 * @param posTag
 	 * @return an ordered Set containing the lexical entries, or an empty set if none found
 	 */
 	public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag);
@@ -49,32 +47,23 @@ public interface PosTaggerLexicon extends Lexicon {
 
 	/**
 	 * Return all lexical entries for a given lemma and postag.
-	 * @param lemma
-	 * @return
 	 */
 	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag);
 
 	/**
 	 * Return an entry for the same lemma as the lexical entry provided, matching the criteria provided (posTag, gender, number).
-	 * @param lexicalEntry
-	 * @param posTag
-	 * @param gender
-	 * @param number
-	 * @return
 	 */
 	public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number);
 
 	
 	/**
 	 * The PosTagSet to use when retrieving postags for a given word.
-	 * @return
 	 */
 	public abstract PosTagSet getPosTagSet();
 	public abstract void setPosTagSet(PosTagSet posTagSet);
 	
 	/**
 	 * The PosTagMapper to use when selecting the possible pos-tags for a given lexical entry.
-	 * @return
 	 */
 	public PosTagMapper getPosTagMapper();
 	public void setPosTagMapper(PosTagMapper posTagMapper);

@@ -125,7 +125,6 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 
 	/**
 	 * Sigma for Gaussian smoothing on maxent training.
-	 * @return
 	 */
 	@Override
     public double getSigma() {
@@ -139,7 +138,6 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 
 	/**
 	 * Additive smoothing parameter during maxent training.
-	 * @return
 	 */
 	@Override
     public double getSmoothing() {

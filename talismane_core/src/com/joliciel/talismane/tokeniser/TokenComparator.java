@@ -26,7 +26,6 @@ package com.joliciel.talismane.tokeniser;
 public interface TokenComparator {
 	/**
 	 * Evaluate the evaluation corpus against the reference corpus.
-	 * @param reader for reading manually tagged tokens from a corpus
 	 */
 	public void compare();
 
@@ -35,7 +34,6 @@ public interface TokenComparator {
 	/**
 	 * If set, will limit the maximum number of sentences that will be evaluated.
 	 * Default is 0 = all sentences.
-	 * @param sentenceCount
 	 */
 	public abstract void setSentenceCount(int sentenceCount);
 	public abstract int getSentenceCount();

@@ -23,7 +23,6 @@ package com.joliciel.talismane.machineLearning.features;
  * If any feature returns null, will return a null.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class OrFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
 	BooleanFeature<T>[] booleanFeatures;

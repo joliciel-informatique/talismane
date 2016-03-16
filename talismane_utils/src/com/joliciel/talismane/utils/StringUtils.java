@@ -147,11 +147,6 @@ public class StringUtils {
 	/**
 	 * Count how many times a character is repeated in a string,
 	 * starting at a given position and moving forwards or backwards.
-	 * @param string
-	 * @param c
-	 * @param pos
-	 * @param forwards
-	 * @return
 	 */
 	public static int countChar(String string, char c, int pos, boolean forwards) {
 		int count = 0;

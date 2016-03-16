@@ -28,19 +28,16 @@ import com.joliciel.talismane.AnnotatedCorpusReader;
 public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	/**
 	 * Is there another sentence to be read?
-	 * @return
 	 */
 	public boolean hasNextSentence();
 	
 	/**
 	 * Reads the next sentence from the corpus.
-	 * @return
 	 */
 	public String nextSentence();
 	
 	/**
 	 * Is the last sentence read the start of a new paragraph?
-	 * @return
 	 */
 	public boolean isNewParagraph();
 

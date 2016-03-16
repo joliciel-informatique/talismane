@@ -23,8 +23,6 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 interface ParserServiceInternal extends ParserService {	
 	/**
 	 * Clones an existing configuration.
-	 * @param history
-	 * @return
 	 */
 	public ParseConfiguration getConfiguration(ParseConfiguration history);
 	

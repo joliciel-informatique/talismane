@@ -30,13 +30,11 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 public interface PosTagAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	/**
 	 * Is there another sentence to be read?
-	 * @return
 	 */
 	public boolean hasNextPosTagSequence();
 	
 	/**
 	 * Read the list of tagged tokens from next sentence from the training corpus.
-	 * @return
 	 */
 	public PosTagSequence nextPosTagSequence();
 	

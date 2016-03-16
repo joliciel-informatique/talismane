@@ -36,23 +36,18 @@ public interface Sentence {
 	
 	/**
 	 * The sentence text.
-	 * @return
 	 */
 	String getText();
 	void setText(String text);
 	
 	/**
 	 * Get the original text index of any character index within this sentence.
-	 * @param index
-	 * @return
 	 */
 	int getOriginalIndex(int index);
 	
 	/**
 	 * Get the sentence text index corresponding to the first position following
 	 * the original index provided.
-	 * @param originalIndex
-	 * @return
 	 */
 	int getIndex(int originalIndex);
 	
@@ -60,30 +55,22 @@ public interface Sentence {
 	 * A map giving any original text segments marked for output.
 	 * The integer gives the index before which the segment needs to be inserted in the processed sentence text.
 	 * The string gives the actual segment to be inserted.
-	 * @return
 	 */
 	Map<Integer, String> getOriginalTextSegments();
 	
 	/**
 	 * Add a raw text segment at a given position.
-	 * @param index
-	 * @param segment
 	 */
 	void addOriginalTextSegment(int index, String segment);
 	
 	/**
 	 * Get the closest original text segment preceding a certain index.
-	 * @param index
-	 * @return
 	 */
 	Entry<Integer,String> getPrecedingOriginalTextSegment(int index);
 	
 	/**
 	 * Get all raw input strictly after a given startIndex, and before or at a given end index,
 	 * concatenated together.
-	 * @param startIndex
-	 * @param endIndex
-	 * @return
 	 */
 	String getRawInput(int startIndex, int endIndex);
 	
@@ -95,7 +82,6 @@ public interface Sentence {
 	
 	/**
 	 * Is this a complete sentence? Default is true.
-	 * @return
 	 */
 	boolean isComplete();
 	void setComplete(boolean complete);
@@ -103,50 +89,40 @@ public interface Sentence {
 	/**
 	 * Returns the line number corresponding to a particular original index inside this sentence,
 	 * starting at 1.
-	 * @param originalIndex
-	 * @return
 	 */
 	int getLineNumber(int originalIndex);
 	
 	/**
 	 * Returns the column number corresponding to a particular original index inside this sentence,
 	 * starting at 1.
-	 * @param originalIndex
-	 * @return
 	 */
 	int getColumnNumber(int originalIndex);
 	
 	/**
 	 * Indicate that a new line was found at a given original index in this sentence holder,
 	 * and gives the line number.
-	 * @param originalIndex
-	 * @param lineNumber
 	 */
 	void addNewline(int originalIndex, int lineNumber);
 	
 	/**
 	 * A map giving original index to line number mappings, for all lines contained within this sentence.
-	 * @return
 	 */
 	Map<Integer, Integer> getNewlines();
 	
 	/**
 	 * The file name containing this sentence.
-	 * @return
 	 */
 	String getFileName();
 	void setFileName(String fileName);
 	
 	/**
 	 * The file containing this sentence.
-	 * @return
 	 */
 	File getFile();
 	void setFile(File file);
 	
 	/**
 	 * The line number on which this sentence started, when reading from a previously analysed corpus (one token per line).
-	 * @return
 	 */
 	public int getStartLineNumber();
 	public void setStartLineNumber(int startLineNumber);
@@ -154,26 +130,21 @@ public interface Sentence {
 	
 	/**
 	 * Set original text marked for output from a previous sentence holder.
-	 * @param originalText
-	 * @param file
 	 */
 	void setLeftoverOriginalText(String originalText);
 	
 	/**
 	 * Is there any leftover original text?
-	 * @return
 	 */
 	String getLeftoverOriginalText();
 	
 	/**
 	 * A list of tags added to this sentence.
-	 * @return
 	 */
 	public List<SentenceTag> getSentenceTags();
 	
 	/**
 	 * A string inserted between outputs (such as a newline).
-	 * @return
 	 */
 	public String getOutputDivider();
 	public void setOutputDivider(String outputDivider);

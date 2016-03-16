@@ -32,8 +32,6 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 public interface LanguageDetectorProcessor {
 	/**
 	 * Process the next text, outputting to the writer provided.
-	 * @param sentence
-	 * @param writer
 	 */
 	public void onNextText(String text, List<WeightedOutcome<Locale>> results, Writer writer);
 }

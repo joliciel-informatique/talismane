@@ -22,7 +22,6 @@ public interface TransitionBasedParser extends NonDeterministicParser {
 	/**
 	 * If set, we stop as soon as the beam contains <i>n</i> terminal configurations,
 	 * where <i>n</i> is the beam width.
-	 * @return
 	 */
 	public boolean isEarlyStop();
 	public void setEarlyStop(boolean earlyStop);

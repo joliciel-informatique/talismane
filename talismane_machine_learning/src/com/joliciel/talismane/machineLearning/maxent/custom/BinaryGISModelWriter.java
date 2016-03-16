@@ -40,9 +40,7 @@ public class BinaryGISModelWriter extends GISModelWriter {
    * the model to that file. Detects whether the file is gzipped or not based on
    * whether the suffix contains ".gz".
    * 
-   * @param model
    *          The GISModel which is to be persisted.
-   * @param f
    *          The File in which the model is to be persisted.
    */
   public BinaryGISModelWriter(MaxentModel model, File f) throws IOException {
@@ -61,9 +59,7 @@ public class BinaryGISModelWriter extends GISModelWriter {
    * Constructor which takes a GISModel and a DataOutputStream and prepares
    * itself to write the model to that stream.
    * 
-   * @param model
    *          The GISModel which is to be persisted.
-   * @param dos
    *          The stream which will be used to persist the model.
    */
   public BinaryGISModelWriter(MaxentModel model, DataOutputStream dos) {

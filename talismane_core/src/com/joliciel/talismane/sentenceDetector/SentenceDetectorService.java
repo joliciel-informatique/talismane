@@ -41,8 +41,6 @@ public interface SentenceDetectorService {
 	
 	/**
 	 * A default reader which assumes one sentence per line.
-	 * @param reader
-	 * @return
 	 */
 	public SentenceDetectorAnnotatedCorpusReader getDefaultReader(Reader reader);
 }

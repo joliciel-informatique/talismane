@@ -27,26 +27,23 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  * or a PosTag, or any other piece of information added by the learners.
  * @author Assaf Urieli
  *
- * @param <T>
+ * @param <T> the TokenTag used to tag this token.
  */
 public interface TaggedToken<T extends TokenTag> extends Comparable<TaggedToken<T>>, TokenWrapper {
 	/**
 	 * The token being tagged.
-	 * @return
 	 */
 	public Token getToken();
 	public void setToken(Token token);
 	
 	/**
 	 * The Tag for this token.
-	 * @return
 	 */
 	public T getTag();
 	public void setTag(T tag);
 	
 	/**
 	 * The decision which was used to tag this token.
-	 * @return
 	 */
 	public Decision getDecision();
 	

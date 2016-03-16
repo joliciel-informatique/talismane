@@ -161,7 +161,6 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 
 	/**
 	 * Transform current string to a new descriptor, push it to the stack.
-	 * @param stack
 	 */
 	void doOpenParentheses(FunctionDescriptorParseContext context) {
 		if (context.lastCharacterClass.equals(CharacterClass.CLOSE_PARENTHESIS))
@@ -179,8 +178,6 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 	/**
 	 * If current string length > 0, add it as argument to top descriptor.
 	 * Pop top-of-stack, and add it as argument to new top-of-stack.
-	 * @param stack
-	 * @param currentString
 	 */
 	void doCloseParentheses(FunctionDescriptorParseContext context) {
 		if (context.lastCharacterClass.equals(CharacterClass.COMMA))
@@ -219,8 +216,6 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 	
 	/**
 	 * If current string length > 0, add it as argument to top descriptor.
-	 * @param stack
-	 * @param currentString
 	 */
 	void doComma(FunctionDescriptorParseContext context) {
 		if (context.lastCharacterClass.equals(CharacterClass.OPERATOR))
@@ -240,8 +235,6 @@ class FunctionDescriptorParserImpl implements FunctionDescriptorParser {
 	 * If current string length > 0, add it as argument to top descriptor.
 	 * Take top(A) and transform it to top(operator(A)).
 	 * 
-	 * @param stack
-	 * @param currentString
 	 */
 	void doOperator(FunctionDescriptorParseContext context) {
 		boolean unaryOperator = false;

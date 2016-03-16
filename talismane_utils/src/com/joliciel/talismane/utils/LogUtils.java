@@ -37,7 +37,7 @@ public class LogUtils {
 	}
 	
     /**
-    * Return the current exception & stack trace as a String.
+    * Return the current exception and stack trace as a String.
     */
     public static String getErrorString(Throwable e)
     {

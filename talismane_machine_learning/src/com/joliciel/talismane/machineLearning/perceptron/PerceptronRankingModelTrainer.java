@@ -41,7 +41,6 @@ public interface PerceptronRankingModelTrainer<T> extends RankingModelTrainer<T>
 	}
 	/**
 	 * The number of training iterations to run.
-	 * @return
 	 */
 	public int getIterations();
 	public void setIterations(int iterations);

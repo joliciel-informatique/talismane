@@ -73,7 +73,6 @@ public class ParseTimeByLengthObserver implements ParseEvaluationObserver {
 	
 	/**
 	 * Total parsing time statistics for sentences of different lengths.
-	 * @return
 	 */
 	public Map<Integer, DescriptiveStatistics> getTimeStatsPerLength() {
 		return timeStatsPerLength;

@@ -76,8 +76,6 @@ public class CSVFormatter {
 	
     /**
      * Format a double for inclusion in a CSV.
-     * @param number
-     * @return
      */
     public String format(double number) {
     	this.initialize();
@@ -88,8 +86,6 @@ public class CSVFormatter {
     
     /**
      * Format a float for inclusion in a CSV.
-     * @param number
-     * @return
      */
     public String format(float number) {
     	this.initialize();
@@ -100,8 +96,6 @@ public class CSVFormatter {
     
     /**
      * Format an int for inclusion in a CSV.
-     * @param number
-     * @return
      */
     public String format(int number) {
     	this.initialize();
@@ -112,8 +106,6 @@ public class CSVFormatter {
     
     /**
      * Format a boolean for inclusion in a CSV.
-     * @param number
-     * @return
      */
     public String format(boolean bool) {
     	if (addQuotesAlways)
@@ -123,8 +115,6 @@ public class CSVFormatter {
     
     /**
      * Format a String for inclusion in a CSV.
-     * @param number
-     * @return
      */
     public String format(String string) {
     	int quotePos = string.indexOf('"');
@@ -143,8 +133,6 @@ public class CSVFormatter {
 	/**
 	 * Extract a list of cell contents from a given CSV line.
 	 * 
-	 * @param csvLine
-	 * @return
 	 */
 	public List<String> getCSVCells(String csvLine) {
 		if (csvSeparators==null) {
@@ -195,8 +183,6 @@ public class CSVFormatter {
 	
 	/**
 	 * Return the spreadsheet column label corresponding to a certain index.
-	 * @param index
-	 * @return
 	 */
 	public String getColumnLabel(int index) {
 		String columnLabel = "";
@@ -212,8 +198,6 @@ public class CSVFormatter {
 	
 	/**
 	 * Get the zero-based column index corresponding to a particular label, e.g. BB=(26*2)+2-1=54-1=53.
-	 * @param label
-	 * @return
 	 */
 	public int getColumnIndex(String label) {
 		int result=0;
@@ -232,8 +216,6 @@ public class CSVFormatter {
 	
 	/**
 	 * Get the zero-based row index corresponding to a particular label, e.g. BB19 = 18
-	 * @param label
-	 * @return
 	 */
 	public int getRowIndex(String label){
 		int result = 0;
@@ -254,7 +236,6 @@ public class CSVFormatter {
 	
 	/**
 	 * Whether or not to systematically add quotes around all cell contents.
-	 * @param addQuotesAlways
 	 */
 	public void setAddQuotesAlways(boolean addQuotesAlways) {
 		this.addQuotesAlways = addQuotesAlways;
@@ -262,7 +243,6 @@ public class CSVFormatter {
 
 	/**
 	 * The CSV separator to be used (default is a comma).
-	 * @return
 	 */
 	public String getCsvSeparator() {
 		if (csvSeparator!=null) {

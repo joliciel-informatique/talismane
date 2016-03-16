@@ -8,7 +8,6 @@ package com.joliciel.talismane;
 public interface TalismaneServer extends Talismane {
 	/**
 	 * The port to listen on - default is 7272.
-	 * @param port
 	 */
 	public int getPort();
 
@@ -16,7 +15,6 @@ public interface TalismaneServer extends Talismane {
 
 	/**
 	 * Whether or not any new connections will be accepted.
-	 * @return
 	 */
 	public boolean isListening();
 

@@ -328,7 +328,6 @@ class TreebankXmlReader implements TreebankReader {
 
 	/**
 	 * The single sentence to read.
-	 * @return
 	 */
 	public String getSentenceNumber() {
 		return sentenceNumber;

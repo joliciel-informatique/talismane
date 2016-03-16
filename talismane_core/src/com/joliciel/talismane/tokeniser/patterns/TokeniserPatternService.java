@@ -84,9 +84,6 @@ public interface TokeniserPatternService {
 	/**
 	 * Get a pattern tokeniser out of a machine-learning model,
 	 * using all of the saved model attributes to construct it.
-	 * @param model
-	 * @param beamWidth
-	 * @return
 	 */
 	public Tokeniser getPatternTokeniser(ClassificationModel model, int beamWidth);
 

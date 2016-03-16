@@ -22,7 +22,6 @@ package com.joliciel.talismane.machineLearning.features;
  * If the condition returns true, return null, else return the result of the feature provided.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class NullIfDoubleFeature<T> extends AbstractCachableFeature<T,Double> implements
 		DoubleFeature<T> {

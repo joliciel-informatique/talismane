@@ -26,7 +26,6 @@ package com.joliciel.talismane.machineLearning.features;
  * to gain an infinitesimal amount of performance.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 public class EqualsOperator<T> extends AbstractCachableFeature<T,Boolean> implements
 		BooleanFeature<T> {

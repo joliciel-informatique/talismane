@@ -31,38 +31,32 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	/**
 	 * Is there another sentence to be read?
-	 * @return
 	 */
 	public boolean hasNextTokenSequence();
 	
 	/***
 	 * Reads the next token sequence from the corpus.
-	 * @return
 	 */
 	public TokenSequence nextTokenSequence();
 	
 	/**
 	 * These filters will be applied to each token sequence returned by the corpus prior to being returned.
-	 * @param tokenFilter
 	 */
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
 
 	/**
 	 * These filters will not be used to detect tokens, as token boundaries are provided by the corpus.
 	 * They will, on the other hand, be used to replace token text.
-	 * @param tokenFilter
 	 */
 	public void addTokenFilter(TokenFilter tokenFilter);
 	
 	/**
 	 * @see #addTokenSequenceFilter(TokenSequenceFilter)
-	 * @return
 	 */
 	public List<TokenSequenceFilter> getTokenSequenceFilters();
 	
 	/**
 	 * #see {@link #addTokenFilter(TokenFilter)}
-	 * @return
 	 */
 	public List<TokenFilter> getTokenFilters();
 }

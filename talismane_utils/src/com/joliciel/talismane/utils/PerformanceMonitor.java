@@ -80,7 +80,6 @@ public class PerformanceMonitor {
 	 * Must be called at start of the application run.<br/>
 	 * Uses a config properties file.<br/>
 	 * Lines starting with # will be skipped.
-	 * @throws IOException 
 	 */
 	public static void start(File configFile) {
 		try {
@@ -158,8 +157,6 @@ public class PerformanceMonitor {
 	
 	/**
 	 * Get a monitor for the class provided.
-	 * @param clazz
-	 * @return
 	 */
 	public static PerformanceMonitor getMonitor(@SuppressWarnings("rawtypes") Class clazz) {
 		return getMonitor(clazz.getCanonicalName(), clazz.getSimpleName());
@@ -167,8 +164,6 @@ public class PerformanceMonitor {
 	
 	/**
 	 * Get a monitor for the name provided.
-	 * @param name
-	 * @return
 	 */
 	public static PerformanceMonitor getMonitor(String name, String simpleName) {
 		PerformanceMonitor monitor = monitors.get(name);
@@ -183,7 +178,6 @@ public class PerformanceMonitor {
 	 * Indicates that a particular task is starting.
 	 * It's safest to place a try block immediately after the startTask, and place the corresponding endTask
 	 * in the finally block.
-	 * @param taskName
 	 */
 	public void startTask(String taskName) {
 		if (!active)
@@ -212,7 +206,6 @@ public class PerformanceMonitor {
 	/**
 	 * Indicates that a particular task is ending.
 	 * It's safest to place this in the finally block of a try block starting immediately after the corresponding startTask.
-	 * @param name
 	 */
 	public void endTask() {
 		if (!active)
@@ -357,7 +350,6 @@ public class PerformanceMonitor {
 	
 	/**
 	 * Write the performance measurements to a CSV file.
-	 * @param csvWriter
 	 */
 	public static void writePerformanceCSV(Writer csvWriter) {
 		if (!activated)

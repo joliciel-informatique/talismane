@@ -43,7 +43,6 @@ public interface PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReade
 
 	/**
 	 * The regex used to find the various data items.
-	 * @return
 	 */
 	public String getRegex();
 	public void setRegex(String regex);

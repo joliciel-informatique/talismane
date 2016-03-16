@@ -45,7 +45,6 @@ public class FrenchTreebank {
     private static final Log LOG = LogFactory.getLog(FrenchTreebank.class);
 
     /**
-     * @param args
      */
     public static void main(String[] args) throws Exception {
         String command = args[0];

@@ -23,7 +23,6 @@ package com.joliciel.talismane.machineLearning.features;
  * to indicate a feature has already been checked.
  * @author Assaf Urieli
  *
- * @param <T>
  */
 class NullFeatureResult<T> implements FeatureResult<T> {
 

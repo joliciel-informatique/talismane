@@ -16,14 +16,11 @@ public interface LinguisticRules {
 	 * Language-specific - e.g. French takes space before :, ? and !, English doesn't
 	 * @param tokenSequence the token sequence up to now
 	 * @param currentToken the token about to get added
-	 * @return
 	 */
 	boolean shouldAddSpace(TokenSequence tokenSequence, String currentToken);
 	
 	/**
 	 * Attempts to make an adjective in plural form singular.
-	 * @param adjective
-	 * @return
 	 */
 	String makeAdjectiveSingular(String adjective);
 	
@@ -32,8 +29,6 @@ public interface LinguisticRules {
 	 * For example, in French, E will return e, é, è, ë, ê.
 	 * Order can be important, since, when looking for the lowercase equivalent of an uppercase word,
 	 * the letters will be replaced in the order given, and the first match will be returned.
-	 * @param c
-	 * @return
 	 */
 	char[] getLowercaseOptionsWithDiacritics(char c);
 }

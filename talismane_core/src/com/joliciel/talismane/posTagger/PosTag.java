@@ -46,7 +46,6 @@ public interface PosTag extends TokenTag, Serializable, Comparable<PosTag> {
 	
 	/**
 	 * Is this PosTag an open or a closed class, and which type of open/closed class?
-	 * @return
 	 */
 	public PosTagOpenClassIndicator getOpenClassIndicator();
 	
