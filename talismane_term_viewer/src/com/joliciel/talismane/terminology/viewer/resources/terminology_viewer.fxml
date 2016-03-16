@@ -8,7 +8,7 @@
 <?import com.joliciel.talismane.terminology.viewer.controls.*?>
 
 <VBox fx:controller="com.joliciel.talismane.terminology.viewer.TerminologyViewerController" 
-    stylesheets="com/joliciel/talismane/terminology/viewer/Main.css"
+    stylesheets="com/joliciel/talismane/terminology/viewer/resources/Main.css"
     xmlns:fx="http://javafx.com/fxml">
     <MenuBar>
     	<Menu text="File">
