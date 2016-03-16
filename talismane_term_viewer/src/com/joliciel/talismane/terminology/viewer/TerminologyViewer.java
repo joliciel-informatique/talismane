@@ -1,6 +1,7 @@
 
 package com.joliciel.talismane.terminology.viewer;
 
+import java.net.URL;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,7 +17,9 @@ public class TerminologyViewer extends Application {
     @Override
     public void start(Stage stage) throws Exception {
     	FXMLLoader fxmlLoader = new FXMLLoader();
-        Parent root = (Parent) fxmlLoader.load(getClass().getResource("terminology_viewer.fxml").openStream());
+
+    	URL fxmlURL = TerminologyViewer.class.getResource("resources/terminology_viewer.fxml");
+        Parent root = (Parent) fxmlLoader.load(fxmlURL.openStream());
         
         TerminologyViewerController controller = fxmlLoader.getController();
         controller.setPrimaryStage(stage);
