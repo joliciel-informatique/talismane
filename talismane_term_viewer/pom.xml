@@ -9,8 +9,6 @@
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>srcTest</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -73,13 +71,19 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>com.joliciel.talismane</groupId>
-			<artifactId>talismane-fr</artifactId>
+			<!-- Must be before junit! -->
+			<groupId>com.googlecode.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.joliciel.talismane</groupId>
+			<artifactId>talismane-fr</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>

@@ -9,8 +9,6 @@
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>srcTest</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -40,6 +38,13 @@
 				<configuration>
 					<additionalparam>-Xdoclint:syntax -Xdoclint:accessibility
 						-Xdoclint:reference</additionalparam>
+					<additionalDependencies>
+						<additionalDependency>
+							<groupId>junit</groupId>
+							<artifactId>junit</artifactId>
+							<version>4.11</version>
+						</additionalDependency>
+					</additionalDependencies>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -58,6 +63,12 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<!-- Must be before junit! -->
+			<groupId>com.googlecode.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
