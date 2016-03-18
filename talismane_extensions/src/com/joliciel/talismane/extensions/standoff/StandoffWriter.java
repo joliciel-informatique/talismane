@@ -59,18 +59,19 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 			Configuration cfg = new Configuration(new Version(2, 3, 23));
 			cfg.setCacheStorage(new NullCacheStorage());
 			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
-			InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoff.ftl"); 
+			InputStream inputStream = StandoffWriter.class.getResourceAsStream("./standoff.ftl");
 			Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
-			
+
 			this.template = new Template("freemarkerTemplate", templateReader, cfg);
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
 			throw new RuntimeException(ioe);
 		}
 	}
+
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
-		Map<String,Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<String, Object>();
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);
 		model.put("configuration", parseConfiguration);
@@ -94,8 +95,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 		sentenceCount += 1;
 	}
 
-
-	void process(Map<String,Object> model, Writer writer) {
+	void process(Map<String, Object> model, Writer writer) {
 		try {
 			template.process(model, writer);
 			writer.flush();
@@ -107,7 +107,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 			throw new RuntimeException(ioe);
 		}
 	}
-	
+
 	@Override
 	public void onCompleteParse() {
 	}

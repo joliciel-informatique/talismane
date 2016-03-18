@@ -31,9 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,9 +52,7 @@ public class TalismaneTermExtractorMain {
 	private static final Log LOG = LogFactory.getLog(TalismaneTermExtractorMain.class);
 
 	private enum Command {
-		analyse,
-		extract,
-		list
+		analyse, extract, list
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -69,23 +67,23 @@ public class TalismaneTermExtractorMain {
 		Map<String, String> argMap = StringUtils.convertArgs(args);
 
 		String logConfigPath = argMap.get("logConfigFile");
-		if (logConfigPath!=null) {
+		if (logConfigPath != null) {
 			argMap.remove("logConfigFile");
 			Properties props = new Properties();
 			props.load(new FileInputStream(logConfigPath));
 			PropertyConfigurator.configure(props);
 		}
-		
-		Map<String,String> innerArgs = new HashMap<String, String>();
+
+		Map<String, String> innerArgs = new HashMap<String, String>();
 		for (Entry<String, String> argEntry : argMap.entrySet()) {
 			String argName = argEntry.getKey();
 			String argValue = argEntry.getValue();
 
 			if (argName.equals("command"))
 				command = Command.valueOf(argValue);
-			else if (argName.equals("termFile")) 
+			else if (argName.equals("termFile"))
 				termFilePath = argValue;
-			else if (argName.equals("outFile")) 
+			else if (argName.equals("outFile"))
 				outFilePath = argValue;
 			else if (argName.equals("depth"))
 				depth = Integer.parseInt(argValue);
@@ -98,13 +96,13 @@ public class TalismaneTermExtractorMain {
 			else
 				innerArgs.put(argName, argValue);
 		}
-		if (termFilePath==null && databasePropertiesPath==null)
+		if (termFilePath == null && databasePropertiesPath == null)
 			throw new TalismaneException("Required argument: termFile or databasePropertiesPath");
 
-		if (termFilePath!=null) {
+		if (termFilePath != null) {
 			String currentDirPath = System.getProperty("user.dir");
 			File termFileDir = new File(currentDirPath);
-			if (termFilePath.lastIndexOf("/")>=0) {
+			if (termFilePath.lastIndexOf("/") >= 0) {
 				String termFileDirPath = termFilePath.substring(0, termFilePath.lastIndexOf("/"));
 				termFileDir = new File(termFileDirPath);
 				termFileDir.mkdirs();
@@ -114,38 +112,37 @@ public class TalismaneTermExtractorMain {
 		long startTime = new Date().getTime();
 		try {
 			if (command.equals(Command.analyse)) {
-				innerArgs.put("command","analyse");
+				innerArgs.put("command", "analyse");
 			} else {
 				innerArgs.put("command", "process");
 			}
-			
+
 			String sessionId = "";
-	       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-	       	TalismaneService talismaneService = locator.getTalismaneService();
-	    	
-	    	TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, sessionId);
-	    	
+			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+			TalismaneService talismaneService = locator.getTalismaneService();
+
+			TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, sessionId);
+
 			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
 			TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
 			TerminologyBase terminologyBase = null;
-			
-			if (projectCode==null)
+
+			if (projectCode == null)
 				throw new TalismaneException("Required argument: projectCode");
 
-			
 			File file = new File(databasePropertiesPath);
 			FileInputStream fis = new FileInputStream(file);
 			Properties dataSourceProperties = new Properties();
 			dataSourceProperties.load(fis);
 			terminologyBase = terminologyService.getPostGresTerminologyBase(projectCode, dataSourceProperties);
 
-	    	TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 
-			if (command.equals(Command.analyse)||command.equals(Command.extract)) {
+			if (command.equals(Command.analyse) || command.equals(Command.extract)) {
 				Locale locale = talismaneSession.getLocale();
-				Map<TerminologyProperty,String> terminologyProperties = new HashMap<TerminologyProperty, String>();
-				if (terminologyPropertiesPath!=null) {
-					Map<String,String> terminologyPropertiesStr = StringUtils.getArgMap(terminologyPropertiesPath);
+				Map<TerminologyProperty, String> terminologyProperties = new HashMap<TerminologyProperty, String>();
+				if (terminologyPropertiesPath != null) {
+					Map<String, String> terminologyPropertiesStr = StringUtils.getArgMap(terminologyPropertiesPath);
 					for (String key : terminologyPropertiesStr.keySet()) {
 						try {
 							TerminologyProperty property = TerminologyProperty.valueOf(key);
@@ -157,24 +154,25 @@ public class TalismaneTermExtractorMain {
 				} else {
 					terminologyProperties = getDefaultTerminologyProperties(locale);
 				}
-				if (depth<=0 && !terminologyProperties.containsKey(TerminologyProperty.maxDepth))
+				if (depth <= 0 && !terminologyProperties.containsKey(TerminologyProperty.maxDepth))
 					throw new TalismaneException("Required argument: depth");
-		    	
+
 				InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
 				Scanner regexScanner = new Scanner(regexInputStream, "UTF-8");
 				String inputRegex = regexScanner.nextLine();
 				regexScanner.close();
-		    	config.setInputRegex(inputRegex);
+				config.setInputRegex(inputRegex);
 
 				Charset outputCharset = config.getOutputCharset();
 
-				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase, terminologyProperties);
-				if (depth>0)
+				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase,
+						terminologyProperties);
+				if (depth > 0)
 					termExtractor.setMaxDepth(depth);
 				termExtractor.setOutFilePath(termFilePath);
 
-				if (outFilePath!=null) {
-					if (outFilePath.lastIndexOf("/")>=0) {
+				if (outFilePath != null) {
+					if (outFilePath.lastIndexOf("/") >= 0) {
 						String outFileDirPath = outFilePath.substring(0, outFilePath.lastIndexOf("/"));
 						File outFileDir = new File(outFileDirPath);
 						outFileDir.mkdirs();
@@ -183,7 +181,8 @@ public class TalismaneTermExtractorMain {
 					outFile.delete();
 					outFile.createNewFile();
 
-					Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilePath), outputCharset));
+					Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilePath),
+							outputCharset));
 					TermAnalysisWriter termAnalysisWriter = new TermAnalysisWriter(writer);
 					termExtractor.addTermObserver(termAnalysisWriter);
 				}
@@ -209,8 +208,8 @@ public class TalismaneTermExtractorMain {
 		}
 	}
 
-	public static  Map<TerminologyProperty,String> getDefaultTerminologyProperties(Locale locale) {
-		Map<TerminologyProperty,String> terminologyProperties = new HashMap<TerminologyProperty, String>();
+	public static Map<TerminologyProperty, String> getDefaultTerminologyProperties(Locale locale) {
+		Map<TerminologyProperty, String> terminologyProperties = new HashMap<TerminologyProperty, String>();
 		if (locale.getLanguage().equals("fr")) {
 			terminologyProperties.put(TerminologyProperty.adjectivalTags, "ADJ,VPP");
 			terminologyProperties.put(TerminologyProperty.coordinationLabels, "coord,dep_coord");
@@ -225,16 +224,17 @@ public class TalismaneTermExtractorMain {
 			terminologyProperties.put(TerminologyProperty.lemmaGender, "m");
 			terminologyProperties.put(TerminologyProperty.lemmaNumber, "s");
 		} else {
-			throw new TalismaneException("Terminology extraction properties unknown for language: " + locale.getLanguage());
+			throw new TalismaneException("Terminology extraction properties unknown for language: "
+					+ locale.getLanguage());
 		}
 		return terminologyProperties;
 	}
-	
+
 	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "/com/joliciel/talismane/terminology/resources/" + resource;
+		String path = "./resources/" + resource;
 		LOG.debug("Getting " + path);
-		InputStream inputStream = TalismaneTermExtractorMain.class.getResourceAsStream(path); 
-		
+		InputStream inputStream = TalismaneTermExtractorMain.class.getResourceAsStream(path);
+
 		return inputStream;
 	}
 }

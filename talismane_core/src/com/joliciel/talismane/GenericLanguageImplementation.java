@@ -71,10 +71,10 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	private ParserService parserService;
 	private MachineLearningService machineLearningService;
 	private TokenFilterService tokenFilterService;
-	
+
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 	private TalismaneSession talismaneSession;
-	
+
 	private ClassificationModel sentenceModel;
 	private ClassificationModel tokeniserModel;
 	private ClassificationModel posTaggerModel;
@@ -93,13 +93,13 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	private LexicalEntryReader corpusLexicalEntryReader = null;
 	private Diacriticizer diacriticizer;
 	private Map<String, String> lowercasePreferences = new HashMap<String, String>();
-	
+
 	private Locale locale;
-	
+
 	private static Map<String, GenericLanguageImplementation> instances = new HashMap<String, GenericLanguageImplementation>();
-	
+
 	private static Map<String, LanguageResources> resourceCache = new HashMap<String, LanguageResources>();
-	
+
 	private static final class LanguageResources {
 		ClassificationModel sentenceModel;
 		ClassificationModel tokeniserModel;
@@ -107,58 +107,56 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 		MachineLearningModel parserModel;
 		List<PosTaggerLexicon> lexicons;
 	}
-	
+
 	public static GenericLanguageImplementation getInstance(String sessionId) {
 		GenericLanguageImplementation instance = instances.get(sessionId);
-		if (instance==null) {
+		if (instance == null) {
 			instance = new GenericLanguageImplementation(sessionId);
 			instances.put(sessionId, instance);
 		}
 		return instance;
 	}
-	
+
 	protected GenericLanguageImplementation(String sessionId) {
 		talismaneServiceLocator = TalismaneServiceLocator.getInstance(sessionId);
 		talismaneSession = talismaneServiceLocator.getTalismaneService().getTalismaneSession();
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static ZipInputStream getZipInputStreamFromResource(String resource) {
 		InputStream inputStream = getInputStreamFromResource(resource);
 		ZipInputStream zis = new ZipInputStream(inputStream);
-		
+
 		return zis;
 	}
 
 	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "/com/joliciel/talismane/resources/" + resource;
+		String path = "./resources/" + resource;
 		LOG.debug("Getting " + path);
-		InputStream inputStream = GenericLanguageImplementation.class.getResourceAsStream(path); 
-		
+		InputStream inputStream = GenericLanguageImplementation.class.getResourceAsStream(path);
+
 		return inputStream;
 	}
 
 	@Override
 	public Scanner getDefaultPosTaggerRulesScanner() {
 		Scanner scanner = null;
-		if (posTaggerRulesStr!=null)
+		if (posTaggerRulesStr != null)
 			scanner = new Scanner(posTaggerRulesStr);
 		return scanner;
 	}
-	
 
 	@Override
 	public Scanner getDefaultParserRulesScanner() {
 		Scanner scanner = null;
-		if (parserRulesStr!=null)
+		if (parserRulesStr != null)
 			scanner = new Scanner(parserRulesStr);
 		return scanner;
 	}
 
-
 	@Override
 	public List<PosTaggerLexicon> getDefaultLexicons() {
-		if (lexicons==null) {
+		if (lexicons == null) {
 			lexicons = new ArrayListNoNulls<PosTaggerLexicon>();
 			lexicons.add(new EmptyLexicon());
 		}
@@ -188,7 +186,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	@Override
 	public Scanner getDefaultTokenSequenceFiltersScanner() {
 		String tokenSequenceFilterString = "";
-		if (tokenSequenceFiltersStr!=null) {
+		if (tokenSequenceFiltersStr != null) {
 			tokenSequenceFilterString = tokenSequenceFiltersStr;
 		}
 		if (!replaceTokenSequenceFilters) {
@@ -196,7 +194,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			tokenSequenceFilterString += LowercaseKnownFirstWordFilter.class.getSimpleName() + "\n";
 			tokenSequenceFilterString += UppercaseSeriesFilter.class.getSimpleName() + "\n";
 		}
-		
+
 		Scanner scanner = new Scanner(tokenSequenceFilterString);
 		return scanner;
 	}
@@ -205,12 +203,13 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	public Scanner getDefaultTextMarkerFiltersScanner() {
 		try {
 			String textFilterString = "";
-			if (textFiltersStr!=null) {
+			if (textFiltersStr != null) {
 				textFilterString += textFiltersStr;
 			}
 			if (!replaceTextFilters) {
 				InputStream inputStream = getInputStreamFromResource("text_marker_filters.txt");
-				String defaultTextMarkerFilters = StringUtils.readerToString(new InputStreamReader(inputStream, "UTF-8"));
+				String defaultTextMarkerFilters = StringUtils
+						.readerToString(new InputStreamReader(inputStream, "UTF-8"));
 				textFilterString += defaultTextMarkerFilters;
 			}
 			return new Scanner(textFilterString);
@@ -224,12 +223,13 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	public Scanner getDefaultTokenFiltersScanner() {
 		try {
 			String tokenFilterString = "";
-			if (tokenFiltersStr!=null) {
+			if (tokenFiltersStr != null) {
 				tokenFilterString += tokenFiltersStr;
 			}
 			if (!replaceTokenFilters) {
 				InputStream inputStream = getInputStreamFromResource("token_filters.txt");
-				String defaultTextMarkerFilters = StringUtils.readerToString(new InputStreamReader(inputStream, "UTF-8"));
+				String defaultTextMarkerFilters = StringUtils
+						.readerToString(new InputStreamReader(inputStream, "UTF-8"));
 				tokenFilterString += defaultTextMarkerFilters;
 			}
 			return new Scanner(tokenFilterString);
@@ -250,15 +250,13 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 		return filters;
 	}
 
-
 	@Override
 	public PosTagSet getDefaultPosTagSet() {
 		return posTagSet;
 	}
-	
 
 	public PosTaggerService getPosTaggerService() {
-		if (posTaggerService==null) {
+		if (posTaggerService == null) {
 			posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
 		}
 		return posTaggerService;
@@ -269,7 +267,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 
 	public ParserService getParserService() {
-		if (parserService==null) {
+		if (parserService == null) {
 			parserService = talismaneServiceLocator.getParserServiceLocator().getParserService();
 		}
 		return parserService;
@@ -280,7 +278,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 
 	public TokenFilterService getTokenFilterService() {
-		if (tokenFilterService==null)
+		if (tokenFilterService == null)
 			tokenFilterService = talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService();
 		return tokenFilterService;
 	}
@@ -291,7 +289,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 
 	@Override
 	public List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters() {
-		if (availableTokenSequenceFilters==null) {
+		if (availableTokenSequenceFilters == null) {
 			availableTokenSequenceFilters = new ArrayListNoNulls<Class<? extends TokenSequenceFilter>>();
 		}
 		return availableTokenSequenceFilters;
@@ -303,25 +301,25 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 
 	public TalismaneSession getTalismaneSession() {
-		if (talismaneSession==null) {
+		if (talismaneSession == null) {
 			talismaneSession = talismaneServiceLocator.getTalismaneService().getTalismaneSession();
 		}
 		return talismaneSession;
 	}
-	
 
 	public MachineLearningService getMachineLearningService() {
-		if (machineLearningService==null) {
-			machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
+		if (machineLearningService == null) {
+			machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator()
+					.getMachineLearningService();
 		}
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
-	
+
+	@Override
 	public void setLanguagePack(File languagePackFile) {
 		ZipInputStream zis = null;
 		try {
@@ -329,59 +327,61 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			InputStream languagePackInputStream2 = new BufferedInputStream(new FileInputStream(languagePackFile));
 			zis = new ZipInputStream(languagePackInputStream);
 			ZipEntry ze = null;
-			
-			Map<String,String> argMap = new HashMap<String, String>();
-		    while ((ze = zis.getNextEntry()) != null) {
-		    	String name = ze.getName();
-		    	if (name.indexOf('/')>=0) name = name.substring(name.lastIndexOf('/')+1);
-		    	if (name.equals("languagePack.properties")) {
+
+			Map<String, String> argMap = new HashMap<String, String>();
+			while ((ze = zis.getNextEntry()) != null) {
+				String name = ze.getName();
+				if (name.indexOf('/') >= 0)
+					name = name.substring(name.lastIndexOf('/') + 1);
+				if (name.equals("languagePack.properties")) {
 					Properties props = new Properties();
 					props.load(zis);
 					argMap = StringUtils.getArgMap(props);
 					break;
-		    	}
-		    } // next zip entry
-		    zis.close();
-		    
-		    Map<String,String> reverseMap = new HashMap<String, String>();
-		    for (String key : argMap.keySet()) {
-		    	String value = argMap.get(key);
-		    	if (value.startsWith("replace:")) {
-		    		value = value.substring("replace:".length());
-		    		if (key.equals("textFilters")) {
-		    			replaceTextFilters = true;
-		    		} else if (key.equals("tokenFilters")) {
-		    			replaceTokenFilters = true;
-		    		} else if (key.equals("tokenSequenceFilters")) {
-		    			replaceTokenSequenceFilters = true;
-		    		}
-		    	}
-		    	if (key.equals("locale")) {
-		    		locale = Locale.forLanguageTag(value);
-		    	} else {
-		    		reverseMap.put(value,key);
-		    	}
-		    }
-		    
-		    zis = new ZipInputStream(languagePackInputStream2);
+				}
+			} // next zip entry
+			zis.close();
+
+			Map<String, String> reverseMap = new HashMap<String, String>();
+			for (String key : argMap.keySet()) {
+				String value = argMap.get(key);
+				if (value.startsWith("replace:")) {
+					value = value.substring("replace:".length());
+					if (key.equals("textFilters")) {
+						replaceTextFilters = true;
+					} else if (key.equals("tokenFilters")) {
+						replaceTokenFilters = true;
+					} else if (key.equals("tokenSequenceFilters")) {
+						replaceTokenSequenceFilters = true;
+					}
+				}
+				if (key.equals("locale")) {
+					locale = Locale.forLanguageTag(value);
+				} else {
+					reverseMap.put(value, key);
+				}
+			}
+
+			zis = new ZipInputStream(languagePackInputStream2);
 			ze = null;
-			
+
 			String path = languagePackFile.getCanonicalPath();
 			LanguageResources languageResources = resourceCache.get(path);
-			if (languageResources==null) {
+			if (languageResources == null) {
 				LOG.info("Creating new language resource cache for " + path);
 				languageResources = new LanguageResources();
 				resourceCache.put(path, languageResources);
 			} else {
 				LOG.info("Using existing language resource cache for " + path);
 			}
-			
-		    while ((ze = zis.getNextEntry()) != null) {
-		    	String name = ze.getName();
-		    	if (name.indexOf('/')>=0) name = name.substring(name.lastIndexOf('/')+1);
-		    	String key = reverseMap.get(name);
-		    	if (key!=null) {
-			    	if (key.equals("transitionSystem")) { 
+
+			while ((ze = zis.getNextEntry()) != null) {
+				String name = ze.getName();
+				if (name.indexOf('/') >= 0)
+					name = name.substring(name.lastIndexOf('/') + 1);
+				String key = reverseMap.get(name);
+				if (key != null) {
+					if (key.equals("transitionSystem")) {
 						transitionSystem = this.getParserService().getArcEagerTransitionSystem();
 						@SuppressWarnings("resource")
 						Scanner scanner = new Scanner(zis, "UTF-8");
@@ -389,97 +389,97 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 						while (scanner.hasNextLine()) {
 							String dependencyLabel = scanner.nextLine();
 							if (!dependencyLabel.startsWith("#")) {
-								if (dependencyLabel.indexOf('\t')>0)
+								if (dependencyLabel.indexOf('\t') > 0)
 									dependencyLabel = dependencyLabel.substring(0, dependencyLabel.indexOf('\t'));
 								dependencyLabels.add(dependencyLabel);
 							}
 						}
 						transitionSystem.setDependencyLabels(dependencyLabels);
-			    	} else if (key.equals("posTagSet")) {
-			    		Scanner scanner = new Scanner(zis, "UTF-8");
-			    		posTagSet = this.getPosTaggerService().getPosTagSet(scanner);
-			    	} else if (key.equals("textFilters")) {
-			    		Scanner scanner = new Scanner(zis, "UTF-8");
-			    		textFiltersStr = this.getStringFromScanner(scanner);
-			    	} else if (key.equals("tokenFilters")) {		    		
-			    		Scanner scanner = new Scanner(zis, "UTF-8");
-			    		tokenFiltersStr = this.getStringFromScanner(scanner);
-			    	} else if (key.equals("tokenSequenceFilters")) {
-			    		Scanner scanner = new Scanner(zis, "UTF-8");
-			    		tokenSequenceFiltersStr = this.getStringFromScanner(scanner);
-			    	} else if (key.equals("posTaggerRules")) {
-			    		Scanner scanner = new Scanner(zis, "UTF-8");
-			    		posTaggerRulesStr = this.getStringFromScanner(scanner);
-			    	} else if (key.equals("parserRules")) {
-			    		Scanner scanner = new Scanner(zis, "UTF-8");
-			    		parserRulesStr = this.getStringFromScanner(scanner);
-			    	} else if (key.equals("sentenceModel")) {
-			    		if (languageResources.sentenceModel==null) {
-				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+					} else if (key.equals("posTagSet")) {
+						Scanner scanner = new Scanner(zis, "UTF-8");
+						posTagSet = this.getPosTaggerService().getPosTagSet(scanner);
+					} else if (key.equals("textFilters")) {
+						Scanner scanner = new Scanner(zis, "UTF-8");
+						textFiltersStr = this.getStringFromScanner(scanner);
+					} else if (key.equals("tokenFilters")) {
+						Scanner scanner = new Scanner(zis, "UTF-8");
+						tokenFiltersStr = this.getStringFromScanner(scanner);
+					} else if (key.equals("tokenSequenceFilters")) {
+						Scanner scanner = new Scanner(zis, "UTF-8");
+						tokenSequenceFiltersStr = this.getStringFromScanner(scanner);
+					} else if (key.equals("posTaggerRules")) {
+						Scanner scanner = new Scanner(zis, "UTF-8");
+						posTaggerRulesStr = this.getStringFromScanner(scanner);
+					} else if (key.equals("parserRules")) {
+						Scanner scanner = new Scanner(zis, "UTF-8");
+						parserRulesStr = this.getStringFromScanner(scanner);
+					} else if (key.equals("sentenceModel")) {
+						if (languageResources.sentenceModel == null) {
+							ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
 							sentenceModel = this.getMachineLearningService().getClassificationModel(innerZis);
 							languageResources.sentenceModel = sentenceModel;
-			    		} else {
-			    			sentenceModel = languageResources.sentenceModel;
-			    		}
-			    	} else if (key.equals("tokeniserModel")) {
-			    		if (languageResources.tokeniserModel==null) {
-				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-				    		tokeniserModel = this.getMachineLearningService().getClassificationModel(innerZis);
-				    		languageResources.tokeniserModel = tokeniserModel;
-			    		} else {
-			    			tokeniserModel = languageResources.tokeniserModel;
-			    		}
-			    	} else if (key.equals("posTaggerModel")) {
-			    		if (languageResources.posTaggerModel==null) {
-				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-				    		posTaggerModel = this.getMachineLearningService().getClassificationModel(innerZis);
-				    		languageResources.posTaggerModel = posTaggerModel;
-			    		} else {
-			    			posTaggerModel = languageResources.posTaggerModel;
-			    		}
-			    	} else if (key.equals("parserModel")) {
-			    		if (languageResources.parserModel==null) {
-				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-				    		parserModel = this.getMachineLearningService().getClassificationModel(innerZis);
-				    		languageResources.parserModel = parserModel;
-			    		} else {
-			    			parserModel = languageResources.parserModel;
-			    		}
-			    	} else if (key.equals("lexicon")) {
-			    		if (languageResources.lexicons==null) {
-				    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
-				    		LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
-				    		lexicons = deserializer.deserializeLexicons(innerZis);
-				    		languageResources.lexicons = lexicons;
-			    		} else {
-			    			lexicons = languageResources.lexicons;
-			    		}
-			    	} else if (key.equals("diacriticizer")) {
-			    		ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+						} else {
+							sentenceModel = languageResources.sentenceModel;
+						}
+					} else if (key.equals("tokeniserModel")) {
+						if (languageResources.tokeniserModel == null) {
+							ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+							tokeniserModel = this.getMachineLearningService().getClassificationModel(innerZis);
+							languageResources.tokeniserModel = tokeniserModel;
+						} else {
+							tokeniserModel = languageResources.tokeniserModel;
+						}
+					} else if (key.equals("posTaggerModel")) {
+						if (languageResources.posTaggerModel == null) {
+							ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+							posTaggerModel = this.getMachineLearningService().getClassificationModel(innerZis);
+							languageResources.posTaggerModel = posTaggerModel;
+						} else {
+							posTaggerModel = languageResources.posTaggerModel;
+						}
+					} else if (key.equals("parserModel")) {
+						if (languageResources.parserModel == null) {
+							ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+							parserModel = this.getMachineLearningService().getClassificationModel(innerZis);
+							languageResources.parserModel = parserModel;
+						} else {
+							parserModel = languageResources.parserModel;
+						}
+					} else if (key.equals("lexicon")) {
+						if (languageResources.lexicons == null) {
+							ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
+							LexiconDeserializer deserializer = new LexiconDeserializer(this.getTalismaneSession());
+							lexicons = deserializer.deserializeLexicons(innerZis);
+							languageResources.lexicons = lexicons;
+						} else {
+							lexicons = languageResources.lexicons;
+						}
+					} else if (key.equals("diacriticizer")) {
+						ZipInputStream innerZis = new ZipInputStream(new UnclosableInputStream(zis));
 						ObjectInputStream in = new ObjectInputStream(innerZis);
 						diacriticizer = (Diacriticizer) in.readObject();
 						in.close();
 						diacriticizer.setTalismaneSession(talismaneSession);
-			    	} else if (key.equals("lowercasePreferences")) {
-			    		@SuppressWarnings("resource")
+					} else if (key.equals("lowercasePreferences")) {
+						@SuppressWarnings("resource")
 						Scanner scanner = new Scanner(zis, "UTF-8");
-			    		while (scanner.hasNextLine()) {
-			    			String line = scanner.nextLine().trim();
-			    			if (line.length()>0 && !line.startsWith("#")) {
-			    				String[] parts = line.split("\t");
-			    				String uppercase = parts[0];
-			    				String lowercase = parts[1];
-			    				lowercasePreferences.put(uppercase, lowercase);
- 			    			}
-			    		}
-			    	} else if (key.equals("corpusLexiconEntryRegex")) {
+						while (scanner.hasNextLine()) {
+							String line = scanner.nextLine().trim();
+							if (line.length() > 0 && !line.startsWith("#")) {
+								String[] parts = line.split("\t");
+								String uppercase = parts[0];
+								String lowercase = parts[1];
+								lowercasePreferences.put(uppercase, lowercase);
+							}
+						}
+					} else if (key.equals("corpusLexiconEntryRegex")) {
 						Scanner corpusLexicalEntryRegexScanner = new Scanner(zis, "UTF-8");
 						corpusLexicalEntryReader = new RegexLexicalEntryReader(corpusLexicalEntryRegexScanner);
-			    	} else {
-			    		throw new TalismaneException("Unknown key in languagePack.properties: " + key);
-			    	}
-		    	}
-		    }
+					} else {
+						throw new TalismaneException("Unknown key in languagePack.properties: " + key);
+					}
+				}
+			}
 		} catch (ClassNotFoundException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -490,7 +490,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		} finally {
-			if (zis!=null) {
+			if (zis != null) {
 				try {
 					zis.close();
 				} catch (IOException e) {
@@ -500,7 +500,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			}
 		}
 	}
-	
+
 	private String getStringFromScanner(Scanner scanner) {
 		StringBuilder sb = new StringBuilder();
 		while (scanner.hasNextLine()) {
@@ -520,6 +520,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 		return corpusLexicalEntryReader;
 	}
 
+	@Override
 	public Diacriticizer getDiacriticizer() {
 		return diacriticizer;
 	}
