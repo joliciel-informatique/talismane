@@ -34,6 +34,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.joliciel.talismane.Talismane;
+import com.joliciel.talismane.TalismaneConfig;
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexiconChain;
@@ -93,7 +99,7 @@ public class TalismaneMain {
 			PropertyConfigurator.configure(props);
 		} else {
 			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class.getResourceAsStream("./resources/default-log4j.properties");
+			InputStream stream = TalismaneMain.class.getResourceAsStream("resources/default-log4j.properties");
 			props.load(stream);
 			PropertyConfigurator.configure(props);
 		}

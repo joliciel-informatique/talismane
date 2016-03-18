@@ -43,6 +43,7 @@ import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.extensions.Extensions;
+import com.joliciel.talismane.fr.FtbDepReader;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
 import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
 import com.joliciel.talismane.fr.ftb.export.FtbPosTagMapper;
@@ -110,8 +111,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 			PropertyConfigurator.configure(props);
 		} else {
 			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class
-					.getResourceAsStream("/com/joliciel/talismane/default-log4j.properties");
+			InputStream stream = TalismaneMain.class.getResourceAsStream("/com/joliciel/talismane/default-log4j.properties");
 			props.load(stream);
 			PropertyConfigurator.configure(props);
 		}
@@ -155,10 +155,8 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				}
 			} else if (corpusReaderType == CorpusFormat.ftb) {
 				TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(locator);
-				TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator()
-						.getTreebankUploadService();
-				TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator()
-						.getTreebankExportService();
+				TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
+				TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
 				File treebankFile = new File(treebankDirPath);
 				TreebankReader treebankReader = treebankUploadService.getXmlReader(treebankFile);
 
@@ -170,24 +168,21 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				while (scanner.hasNextLine())
 					descriptors.add(scanner.nextLine());
 				scanner.close();
-				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors,
-						talismaneFrench.getDefaultPosTagSet());
-				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService
-						.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper, keepCompoundPosTags);
+				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneFrench.getDefaultPosTagSet());
+				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper,
+						keepCompoundPosTags);
 				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);
 
-				TokeniserAnnotatedCorpusReader tokenCorpusReader = treebankExportService
-						.getTokeniserAnnotatedCorpusReader(treebankReader, ftbPosTagMapper, keepCompoundPosTags);
+				TokeniserAnnotatedCorpusReader tokenCorpusReader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader, ftbPosTagMapper,
+						keepCompoundPosTags);
 				config.setTokenCorpusReader(tokenCorpusReader);
 
-				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService
-						.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
+				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
 				config.setSentenceCorpusReader(sentenceCorpusReader);
 			} else if (corpusReaderType == CorpusFormat.conll || corpusReaderType == CorpusFormat.spmrl) {
 				File inputFile = new File(config.getInFilePath());
 
-				ParserRegexBasedCorpusReader corpusReader = config.getParserService().getRegexBasedCorpusReader(
-						inputFile, config.getInputCharset());
+				ParserRegexBasedCorpusReader corpusReader = config.getParserService().getRegexBasedCorpusReader(inputFile, config.getInputCharset());
 
 				corpusReader.setPredictTransitions(config.isPredictTransitions());
 
@@ -197,8 +192,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				config.setSentenceCorpusReader(corpusReader);
 
 				if (corpusReaderType == CorpusFormat.spmrl) {
-					corpusReader
-							.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%NON_PROJ_GOVERNOR%\\t%NON_PROJ_LABEL%\\t%GOVERNOR%\\t%LABEL%");
+					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%NON_PROJ_GOVERNOR%\\t%NON_PROJ_LABEL%\\t%GOVERNOR%\\t%LABEL%");
 				}
 
 				if (config.getInputRegex() != null) {
@@ -207,14 +201,13 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 
 				if (config.getCommand().equals(Command.compare)) {
 					File evaluationFile = new File(config.getEvaluationFilePath());
-					ParserRegexBasedCorpusReader evaluationReader = config.getParserService()
-							.getRegexBasedCorpusReader(evaluationFile, config.getInputCharset());
+					ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(evaluationFile,
+							config.getInputCharset());
 					config.setParserEvaluationCorpusReader(evaluationReader);
 					config.setPosTagEvaluationCorpusReader(evaluationReader);
 
 					if (corpusReaderType == CorpusFormat.spmrl) {
-						evaluationReader
-								.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
+						evaluationReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
 					}
 
 					if (config.getInputRegex() != null) {
@@ -237,7 +230,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 	}
 
 	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "./resources/" + resource;
+		String path = "resources/" + resource;
 		LOG.debug("Getting " + path);
 		InputStream inputStream = TalismaneFrench.class.getResourceAsStream(path);
 

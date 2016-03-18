@@ -165,8 +165,7 @@ public class TalismaneTermExtractorMain {
 
 				Charset outputCharset = config.getOutputCharset();
 
-				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase,
-						terminologyProperties);
+				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase, terminologyProperties);
 				if (depth > 0)
 					termExtractor.setMaxDepth(depth);
 				termExtractor.setOutFilePath(termFilePath);
@@ -181,8 +180,7 @@ public class TalismaneTermExtractorMain {
 					outFile.delete();
 					outFile.createNewFile();
 
-					Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilePath),
-							outputCharset));
+					Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilePath), outputCharset));
 					TermAnalysisWriter termAnalysisWriter = new TermAnalysisWriter(writer);
 					termExtractor.addTermObserver(termAnalysisWriter);
 				}
@@ -224,14 +222,13 @@ public class TalismaneTermExtractorMain {
 			terminologyProperties.put(TerminologyProperty.lemmaGender, "m");
 			terminologyProperties.put(TerminologyProperty.lemmaNumber, "s");
 		} else {
-			throw new TalismaneException("Terminology extraction properties unknown for language: "
-					+ locale.getLanguage());
+			throw new TalismaneException("Terminology extraction properties unknown for language: " + locale.getLanguage());
 		}
 		return terminologyProperties;
 	}
 
 	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "./resources/" + resource;
+		String path = "resources/" + resource;
 		LOG.debug("Getting " + path);
 		InputStream inputStream = TalismaneTermExtractorMain.class.getResourceAsStream(path);
 
