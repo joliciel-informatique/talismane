@@ -9,8 +9,6 @@
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>srcTest</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
