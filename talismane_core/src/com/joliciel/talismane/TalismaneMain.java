@@ -47,104 +47,105 @@ import com.joliciel.talismane.utils.StringUtils;
 
 /**
  * Direct entry point for Talismane from the command line.
+ * 
  * @author Assaf Urieli
  *
  */
 public class TalismaneMain {
 	private static final Log LOG = LogFactory.getLog(TalismaneMain.class);
+
 	private enum OtherCommand {
-		serializeLexicon,
-		testLexicon,
-		serializeDiacriticizer,
-		testDiacriticizer,
+		serializeLexicon, testLexicon, serializeDiacriticizer, testDiacriticizer,
 	}
-	
+
 	public static void main(String[] args) throws Exception {
-    	Map<String,String> argsMap = StringUtils.convertArgs(args);
-    	
-		if (argsMap.size()==0) {
+		Map<String, String> argsMap = StringUtils.convertArgs(args);
+
+		if (argsMap.size() == 0) {
 			System.out.println("Talismane usage instructions: ");
 			System.out.println("* indicates optional, + indicates default value");
 			System.out.println("");
-			System.out.println("Usage: command=analyse *startModule=[sentence+|tokenise|postag|parse] *endModule=[sentence|tokenise|postag|parse+] *inFile=[inFilePath, stdin if missing] *outFile=[outFilePath, stdout if missing] *template=[outputTemplatePath]");
+			System.out
+					.println("Usage: command=analyse *startModule=[sentence+|tokenise|postag|parse] *endModule=[sentence|tokenise|postag|parse+] *inFile=[inFilePath, stdin if missing] *outFile=[outFilePath, stdout if missing] *template=[outputTemplatePath]");
 			System.out.println("");
 			System.out.println("Additional optional parameters:");
-			System.out.println(" *encoding=[UTF-8, ...] *includeDetails=[true|false+] posTaggerRules*=[posTaggerRuleFilePath] textFilters*=[regexFilterFilePath] *sentenceModel=[path] *tokeniserModel=[path] *posTaggerModel=[path] *parserModel=[path] *inputPatternFile=[inputPatternFilePath] *posTagSet=[posTagSetPath]");
+			System.out
+					.println(" *encoding=[UTF-8, ...] *includeDetails=[true|false+] posTaggerRules*=[posTaggerRuleFilePath] textFilters*=[regexFilterFilePath] *sentenceModel=[path] *tokeniserModel=[path] *posTaggerModel=[path] *parserModel=[path] *inputPatternFile=[inputPatternFilePath] *posTagSet=[posTagSetPath]");
 			return;
 		}
-		
-    	OtherCommand otherCommand = null;
-    	if (argsMap.containsKey("command")) {
-    		try {
-	    		otherCommand = OtherCommand.valueOf(argsMap.get("command"));
-	    		argsMap.remove("command");
-    		} catch (IllegalArgumentException e) {
-    			// not an otherCommand
-    		}
-    	}
-    	
-    	// Configure log4j
+
+		OtherCommand otherCommand = null;
+		if (argsMap.containsKey("command")) {
+			try {
+				otherCommand = OtherCommand.valueOf(argsMap.get("command"));
+				argsMap.remove("command");
+			} catch (IllegalArgumentException e) {
+				// not an otherCommand
+			}
+		}
+
+		// Configure log4j
 		String logConfigPath = argsMap.get("logConfigFile");
-		if (logConfigPath!=null) {
+		if (logConfigPath != null) {
 			argsMap.remove("logConfigFile");
 			Properties props = new Properties();
 			props.load(new FileInputStream(logConfigPath));
 			PropertyConfigurator.configure(props);
 		} else {
 			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class.getResourceAsStream("default-log4j.properties");
+			InputStream stream = TalismaneMain.class.getResourceAsStream("./default-log4j.properties");
 			props.load(stream);
 			PropertyConfigurator.configure(props);
 		}
-		
-    	String sessionId = "";
-       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-       	TalismaneService talismaneService = locator.getTalismaneService();
+
+		String sessionId = "";
+		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+		TalismaneService talismaneService = locator.getTalismaneService();
 		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 
-    	if (otherCommand==null) {
-    		// regular command
-        	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
-        	if (config.getCommand()==null)
-        		return;
-        	
-    		PerformanceMonitor.start(config.getPerformanceConfigFile());
-    		if (config.getPerformanceConfigFile()!=null && PerformanceMonitor.getFilePath()==null)
-    			PerformanceMonitor.setFilePath(config.getBaseName() + ".performance.csv");
-    		try {
-	        	Talismane talismane = config.getTalismane();
-	        	talismane.process();
-    		} finally {
-    			PerformanceMonitor.end();
-    		}
-    	} else {
-    		// other command
-	    	switch (otherCommand) {
-	    	case serializeLexicon: {
-	    		LexiconSerializer serializer = new LexiconSerializer();
-	    		serializer.serializeLexicons(argsMap);
-	    		break;
-	    	}
-	    	case testLexicon: {
-	    		String lexiconFilePath = null;
-	    		String[] wordList = null;
-	    		for (String argName : argsMap.keySet()) {
-	    			String argValue = argsMap.get(argName);
-	    			if (argName.equals("lexicon")) {
-	    				lexiconFilePath = argValue;
-	    			} else if (argName.equals("words")) {
-	    				wordList = argValue.split(",");
-	    			} else {
-	    				throw new TalismaneException("Unknown argument: " + argName);
-	    			}
-	    		}
-	    		
-				if (lexiconFilePath==null)
+		if (otherCommand == null) {
+			// regular command
+			TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
+			if (config.getCommand() == null)
+				return;
+
+			PerformanceMonitor.start(config.getPerformanceConfigFile());
+			if (config.getPerformanceConfigFile() != null && PerformanceMonitor.getFilePath() == null)
+				PerformanceMonitor.setFilePath(config.getBaseName() + ".performance.csv");
+			try {
+				Talismane talismane = config.getTalismane();
+				talismane.process();
+			} finally {
+				PerformanceMonitor.end();
+			}
+		} else {
+			// other command
+			switch (otherCommand) {
+			case serializeLexicon: {
+				LexiconSerializer serializer = new LexiconSerializer();
+				serializer.serializeLexicons(argsMap);
+				break;
+			}
+			case testLexicon: {
+				String lexiconFilePath = null;
+				String[] wordList = null;
+				for (String argName : argsMap.keySet()) {
+					String argValue = argsMap.get(argName);
+					if (argName.equals("lexicon")) {
+						lexiconFilePath = argValue;
+					} else if (argName.equals("words")) {
+						wordList = argValue.split(",");
+					} else {
+						throw new TalismaneException("Unknown argument: " + argName);
+					}
+				}
+
+				if (lexiconFilePath == null)
 					throw new TalismaneException("Missing argument: lexicon");
-				if (wordList==null)
+				if (wordList == null)
 					throw new TalismaneException("Missing argument: words");
-				
-	    		File lexiconFile = new File(lexiconFilePath);
+
+				File lexiconFile = new File(lexiconFilePath);
 				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
 				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
 				for (PosTaggerLexicon lexicon : lexicons)
@@ -159,31 +160,31 @@ public class TalismaneMain {
 					}
 				}
 				break;
-	    	}
-	    	case serializeDiacriticizer: {
-	    		String lexiconFilePath = null;
-	    		String outFilePath = null;
-	    		for (String argName : argsMap.keySet()) {
-	    			String argValue = argsMap.get(argName);
-	    			if (argName.equals("lexicon")) {
-	    				lexiconFilePath = argValue;
-	    			} else if (argName.equals("outFile")) {
-	    				outFilePath = argValue;
-	    			} else {
-	    				throw new TalismaneException("Unknown argument: " + argName);
-	    			}
-	    		}
+			}
+			case serializeDiacriticizer: {
+				String lexiconFilePath = null;
+				String outFilePath = null;
+				for (String argName : argsMap.keySet()) {
+					String argValue = argsMap.get(argName);
+					if (argName.equals("lexicon")) {
+						lexiconFilePath = argValue;
+					} else if (argName.equals("outFile")) {
+						outFilePath = argValue;
+					} else {
+						throw new TalismaneException("Unknown argument: " + argName);
+					}
+				}
 
-				if (lexiconFilePath==null)
+				if (lexiconFilePath == null)
 					throw new TalismaneException("Missing argument: lexicon");
-				if (outFilePath==null)
+				if (outFilePath == null)
 					throw new TalismaneException("Missing argument: outFile");
 
 				File lexiconFile = new File(lexiconFilePath);
 				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
 				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
 				PosTaggerLexicon lexicon = lexicons.get(0);
-				if (lexicons.size()>1) {
+				if (lexicons.size() > 1) {
 					LexiconChain lexiconChain = new LexiconChain();
 					for (PosTaggerLexicon oneLexicon : lexicons)
 						lexiconChain.addLexicon(oneLexicon);
@@ -192,7 +193,7 @@ public class TalismaneMain {
 				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
 				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
 				Diacriticizer diacriticizer = lexiconService.getDiacriticizer(talismaneSession, lexicon);
-				
+
 				File outFile = new File(outFilePath);
 				File outDir = outFile.getParentFile();
 				outDir.mkdirs();
@@ -208,33 +209,33 @@ public class TalismaneMain {
 				}
 				zos.flush();
 				zos.close();
-				
-	    		break;
-	    	}
-	    	case testDiacriticizer: {
-	    		String inFilePath = null;
-	    		String[] wordList = null;
-	    		for (String argName : argsMap.keySet()) {
-	    			String argValue = argsMap.get(argName);
-	    			if (argName.equals("inFile")) {
-	    				inFilePath = argValue;
-	    			} else if (argName.equals("words")) {
-	    				wordList = argValue.split(",");
-	    			} else {
-	    				throw new TalismaneException("Unknown argument: " + argName);
-	    			}
-	    		}
 
-				if (inFilePath==null)
+				break;
+			}
+			case testDiacriticizer: {
+				String inFilePath = null;
+				String[] wordList = null;
+				for (String argName : argsMap.keySet()) {
+					String argValue = argsMap.get(argName);
+					if (argName.equals("inFile")) {
+						inFilePath = argValue;
+					} else if (argName.equals("words")) {
+						wordList = argValue.split(",");
+					} else {
+						throw new TalismaneException("Unknown argument: " + argName);
+					}
+				}
+
+				if (inFilePath == null)
 					throw new TalismaneException("Missing argument: inFile");
-				if (wordList==null)
+				if (wordList == null)
 					throw new TalismaneException("Missing argument: words");
 
 				File inFile = new File(inFilePath);
 				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
 				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
 				Diacriticizer diacriticizer = lexiconService.deserializeDiacriticizer(inFile, talismaneSession);
-			    
+
 				for (String word : wordList) {
 					LOG.info("################");
 					LOG.info("Word: " + word);
@@ -244,9 +245,9 @@ public class TalismaneMain {
 					}
 				}
 
-	    		break;
-	    	}
-	    	}
-    	}
+				break;
+			}
+			}
+		}
 	}
 }

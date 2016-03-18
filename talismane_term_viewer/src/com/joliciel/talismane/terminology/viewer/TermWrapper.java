@@ -8,15 +8,16 @@ import javafx.beans.property.SimpleBooleanProperty;
 import com.joliciel.talismane.terminology.Context;
 import com.joliciel.talismane.terminology.Term;
 
+@SuppressWarnings("restriction")
 public class TermWrapper implements Term {
 	private Term wrappedTerm;
 	private AutoUpdateBooleanProperty markedProperty;
-	
+
 	public TermWrapper(Term wrappedTerm) {
 		this.wrappedTerm = wrappedTerm;
 		this.markedProperty = new AutoUpdateBooleanProperty(wrappedTerm);
 	}
-	
+
 	@Override
 	public String getText() {
 		return wrappedTerm.getText();
@@ -73,18 +74,18 @@ public class TermWrapper implements Term {
 	}
 
 	public SimpleBooleanProperty markedProperty() {
-        return markedProperty;
-    }
+		return markedProperty;
+	}
 
 	@Override
 	public int getExpansionCount() {
 		return wrappedTerm.getExpansionCount();
 	}
-	
+
 	private static final class AutoUpdateBooleanProperty extends SimpleBooleanProperty {
 		private Term wrappedTerm;
 		private boolean initialized = false;
-		
+
 		public AutoUpdateBooleanProperty(Term wrappedTerm) {
 			super(wrappedTerm.isMarked());
 			this.wrappedTerm = wrappedTerm;
@@ -130,5 +131,5 @@ public class TermWrapper implements Term {
 	public boolean isNew() {
 		return this.wrappedTerm.isNew();
 	}
-	
+
 }

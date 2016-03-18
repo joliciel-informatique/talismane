@@ -62,46 +62,38 @@ public class Extensions {
 	String referenceStatsPath = null;
 	String corpusRulesPath = null;
 	ExtendedCommand command = null;
-	
-	public enum ExtendedCommand {
-		toStandoff,
-		toStandoffSentences,
-		fromStandoff,
-		splitConllFile,
-		corpusStatistics,
-		posTaggerStatistics,
-		modifyCorpus,
-		projectify
-	}
 
+	public enum ExtendedCommand {
+		toStandoff, toStandoffSentences, fromStandoff, splitConllFile, corpusStatistics, posTaggerStatistics, modifyCorpus, projectify
+	}
 
 	public static void main(String[] args) throws Exception {
-    	Map<String,String> argsMap = StringUtils.convertArgs(args);
-    	
-    	Extensions extensions = new Extensions();
-    	extensions.pluckParameters(argsMap);
-    	
-    	boolean commandRun = extensions.runCommand(argsMap);
-    	if (!commandRun) {
-	    	String sessionId = "";
-	       	TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-	       	TalismaneService talismaneService = locator.getTalismaneService();
-	    	
-	    	TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
-	    	if (config.getCommand()==null)
-	    		return;
-	     	
-	    	Talismane talismane = config.getTalismane();
-	    	
-	    	extensions.prepareCommand(config, talismane);
-	    	
-	    	talismane.process();
-    	}
+		Map<String, String> argsMap = StringUtils.convertArgs(args);
+
+		Extensions extensions = new Extensions();
+		extensions.pluckParameters(argsMap);
+
+		boolean commandRun = extensions.runCommand(argsMap);
+		if (!commandRun) {
+			String sessionId = "";
+			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
+			TalismaneService talismaneService = locator.getTalismaneService();
+
+			TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
+			if (config.getCommand() == null)
+				return;
+
+			Talismane talismane = config.getTalismane();
+
+			extensions.prepareCommand(config, talismane);
+
+			talismane.process();
+		}
 	}
-	
-	public boolean runCommand(Map<String,String> args) {
+
+	public boolean runCommand(Map<String, String> args) {
 		boolean isRecognised = true;
-		if (command==ExtendedCommand.splitConllFile) {
+		if (command == ExtendedCommand.splitConllFile) {
 			ConllFileSplitter splitter = new ConllFileSplitter();
 			splitter.process(args);
 		} else {
@@ -109,12 +101,12 @@ public class Extensions {
 		}
 		return isRecognised;
 	}
-	
+
 	/**
-	 * To be called initially, so that any parameters specific to the extensions can be removed
-	 * and/or replaced in the argument map.
+	 * To be called initially, so that any parameters specific to the extensions
+	 * can be removed and/or replaced in the argument map.
 	 */
-	public void pluckParameters(Map<String,String> args) {
+	public void pluckParameters(Map<String, String> args) {
 		if (args.containsKey("referenceStats")) {
 			referenceStatsPath = args.get("referenceStats");
 			args.remove("referenceStats");
@@ -123,32 +115,32 @@ public class Extensions {
 			corpusRulesPath = args.get("corpusRules");
 			args.remove("corpusRules");
 		}
-		
-    	if (args.containsKey("command")) {
-    		try {
-    			command = ExtendedCommand.valueOf(args.get("command"));
-    			args.remove("command");
-    			args.put("command", "process");
-    		} catch (IllegalArgumentException iae)  {
-    			// do nothing
-    		}
-    		
-    	}
+
+		if (args.containsKey("command")) {
+			try {
+				command = ExtendedCommand.valueOf(args.get("command"));
+				args.remove("command");
+				args.put("command", "process");
+			} catch (IllegalArgumentException iae) {
+				// do nothing
+			}
+
+		}
 	}
-	
+
 	/**
-	 * To be called just before running the Talismane command, to
-	 * prepare anything specifically required for extensions to function correctly.
+	 * To be called just before running the Talismane command, to prepare
+	 * anything specifically required for extensions to function correctly.
 	 */
 	public void prepareCommand(TalismaneConfig config, Talismane talismane) {
 		try {
-			if (command==null)
+			if (command == null)
 				return;
-			
+
 			TalismaneSession talismaneSession = config.getTalismaneService().getTalismaneSession();
 			MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 			MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
-			
+
 			switch (command) {
 			case toStandoff: {
 				StandoffWriter standoffWriter = new StandoffWriter();
@@ -156,14 +148,14 @@ public class Extensions {
 				break;
 			}
 			case toStandoffSentences: {
-				InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoffSentences.ftl"); 
+				InputStream inputStream = StandoffWriter.class.getResourceAsStream("./standoffSentences.ftl");
 				Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
 				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
-				
+
 				talismane.setParseConfigurationProcessor(templateWriter);
 				break;
 			}
-			case fromStandoff: {			
+			case fromStandoff: {
 				Scanner scanner = new Scanner(config.getReader());
 				StandoffReader standoffReader = new StandoffReader(talismaneSession, scanner);
 				standoffReader.setParserService(config.getParserService());
@@ -177,60 +169,64 @@ public class Extensions {
 			}
 			case corpusStatistics: {
 				CorpusStatistics stats = new CorpusStatistics(talismaneSession);
-				
-				if (referenceStatsPath!=null) {
+
+				if (referenceStatsPath != null) {
 					File referenceStatsFile = new File(referenceStatsPath);
 					CorpusStatistics referenceStats = CorpusStatistics.loadFromFile(referenceStatsFile);
 					stats.setReferenceWords(referenceStats.getWords());
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
-				
+
 				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
-				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),
+						"UTF8"));
 				stats.setWriter(csvFileWriter);
-				
+
 				File serializationFile = new File(config.getOutDir(), config.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
-				
-				ParserRegexBasedCorpusReader corpusReader = (ParserRegexBasedCorpusReader) config.getParserCorpusReader();
+
+				ParserRegexBasedCorpusReader corpusReader = (ParserRegexBasedCorpusReader) config
+						.getParserCorpusReader();
 				corpusReader.setPredictTransitions(false);
-				
+
 				talismane.setParseConfigurationProcessor(stats);
 				break;
 			}
 			case posTaggerStatistics: {
 				PosTaggerStatistics stats = new PosTaggerStatistics(talismaneSession);
-				
-				if (referenceStatsPath!=null) {
+
+				if (referenceStatsPath != null) {
 					File referenceStatsFile = new File(referenceStatsPath);
 					PosTaggerStatistics referenceStats = PosTaggerStatistics.loadFromFile(referenceStatsFile);
 					stats.setReferenceWords(referenceStats.getWords());
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
-				
+
 				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
-				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),
+						"UTF8"));
 				stats.setWriter(csvFileWriter);
-				
+
 				File serializationFile = new File(config.getOutDir(), config.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
-				
+
 				talismane.setPosTagSequenceProcessor(stats);
 				break;
 			}
 			case modifyCorpus: {
-				if (corpusRulesPath==null)
+				if (corpusRulesPath == null)
 					throw new TalismaneException("corpusRules is required for modifyCorpus command");
-				
+
 				List<String> corpusRules = new ArrayList<String>();
 				File corpusRulesFile = new File(corpusRulesPath);
-				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(corpusRulesFile), "UTF-8")));
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(
+						corpusRulesFile), "UTF-8")));
 
 				while (scanner.hasNextLine()) {
 					corpusRules.add(scanner.nextLine());
@@ -245,7 +241,7 @@ public class Extensions {
 				talismane.setParseConfigurationProcessor(projectifier);
 				break;
 			}
-			default :{
+			default: {
 				throw new RuntimeException("Unknown command: " + command);
 			}
 			}

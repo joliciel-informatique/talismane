@@ -25,23 +25,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
-
 public class DaoUtils {
-    private static final Log LOG = LogFactory.getLog(DaoUtils.class);
+	private static final Log LOG = LogFactory.getLog(DaoUtils.class);
 
-    public static void LogParameters(Map<String,Object> paramMap) {
-        if (LOG.isDebugEnabled()) {
-            for (Object obj : paramMap.entrySet()) {
-                @SuppressWarnings("rawtypes")
+	public static void LogParameters(Map<String, Object> paramMap) {
+		if (LOG.isDebugEnabled()) {
+			for (Object obj : paramMap.entrySet()) {
+				@SuppressWarnings("rawtypes")
 				Entry entry = (Entry) obj;
-                LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-            }
-        }
-    }
-    
-    @SuppressWarnings("unchecked")
-    public static void LogParameters(MapSqlParameterSource paramSource) {
-       DaoUtils.LogParameters(paramSource.getValues());
-    }
+				LOG.debug(entry.getKey()
+						+ ": "
+						+ (entry.getValue() == null ? "null" : entry.getValue()
+								.toString()));
+			}
+		}
+	}
+
+	public static void LogParameters(MapSqlParameterSource paramSource) {
+		DaoUtils.LogParameters(paramSource.getValues());
+	}
 
 }
