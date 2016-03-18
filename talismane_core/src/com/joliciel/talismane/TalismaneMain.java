@@ -93,7 +93,7 @@ public class TalismaneMain {
 			PropertyConfigurator.configure(props);
 		} else {
 			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class.getResourceAsStream("./default-log4j.properties");
+			InputStream stream = TalismaneMain.class.getResourceAsStream("./resources/default-log4j.properties");
 			props.load(stream);
 			PropertyConfigurator.configure(props);
 		}
