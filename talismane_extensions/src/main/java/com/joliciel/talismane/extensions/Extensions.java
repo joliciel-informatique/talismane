@@ -148,7 +148,7 @@ public class Extensions {
 				break;
 			}
 			case toStandoffSentences: {
-				InputStream inputStream = StandoffWriter.class.getResourceAsStream("./standoffSentences.ftl");
+				InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoffSentences.ftl");
 				Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
 				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
 
@@ -180,16 +180,14 @@ public class Extensions {
 				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
-				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),
-						"UTF8"));
+				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
 				File serializationFile = new File(config.getOutDir(), config.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
-				ParserRegexBasedCorpusReader corpusReader = (ParserRegexBasedCorpusReader) config
-						.getParserCorpusReader();
+				ParserRegexBasedCorpusReader corpusReader = (ParserRegexBasedCorpusReader) config.getParserCorpusReader();
 				corpusReader.setPredictTransitions(false);
 
 				talismane.setParseConfigurationProcessor(stats);
@@ -208,8 +206,7 @@ public class Extensions {
 				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
-				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),
-						"UTF8"));
+				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
 				File serializationFile = new File(config.getOutDir(), config.getBaseName() + "_stats.zip");
@@ -225,8 +222,7 @@ public class Extensions {
 
 				List<String> corpusRules = new ArrayList<String>();
 				File corpusRulesFile = new File(corpusRulesPath);
-				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(
-						corpusRulesFile), "UTF-8")));
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(corpusRulesFile), "UTF-8")));
 
 				while (scanner.hasNextLine()) {
 					corpusRules.add(scanner.nextLine());

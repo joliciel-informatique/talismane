@@ -59,7 +59,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 			Configuration cfg = new Configuration(new Version(2, 3, 23));
 			cfg.setCacheStorage(new NullCacheStorage());
 			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
-			InputStream inputStream = StandoffWriter.class.getResourceAsStream("./standoff.ftl");
+			InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoff.ftl");
 			Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
 
 			this.template = new Template("freemarkerTemplate", templateReader, cfg);

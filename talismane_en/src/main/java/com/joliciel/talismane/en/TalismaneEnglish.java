@@ -42,6 +42,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.en.PennDepReader;
 import com.joliciel.talismane.extensions.Extensions;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.TransitionSystem;
@@ -84,8 +85,7 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 			PropertyConfigurator.configure(props);
 		} else {
 			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class
-					.getResourceAsStream("/com/joliciel/talismane/default-log4j.properties");
+			InputStream stream = TalismaneMain.class.getResourceAsStream("/com/joliciel/talismane/default-log4j.properties");
 			props.load(stream);
 			PropertyConfigurator.configure(props);
 		}
@@ -126,8 +126,8 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 
 				if (config.getCommand().equals(Command.compare)) {
 					File evaluationFile = new File(config.getEvaluationFilePath());
-					ParserRegexBasedCorpusReader evaluationReader = config.getParserService()
-							.getRegexBasedCorpusReader(evaluationFile, config.getInputCharset());
+					ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(evaluationFile,
+							config.getInputCharset());
 					config.setParserEvaluationCorpusReader(evaluationReader);
 					config.setPosTagEvaluationCorpusReader(evaluationReader);
 
@@ -153,7 +153,7 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 	}
 
 	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "./resources/" + resource;
+		String path = "resources/" + resource;
 		LOG.debug("Getting " + path);
 		InputStream inputStream = TalismaneEnglish.class.getResourceAsStream(path);
 

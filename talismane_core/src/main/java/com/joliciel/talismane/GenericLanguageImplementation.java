@@ -41,6 +41,12 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.joliciel.talismane.GenericRules;
+import com.joliciel.talismane.LanguagePackImplementation;
+import com.joliciel.talismane.LinguisticRules;
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
@@ -131,7 +137,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 	}
 
 	private static InputStream getInputStreamFromResource(String resource) {
-		String path = "./resources/" + resource;
+		String path = "resources/" + resource;
 		LOG.debug("Getting " + path);
 		InputStream inputStream = GenericLanguageImplementation.class.getResourceAsStream(path);
 
@@ -208,8 +214,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			}
 			if (!replaceTextFilters) {
 				InputStream inputStream = getInputStreamFromResource("text_marker_filters.txt");
-				String defaultTextMarkerFilters = StringUtils
-						.readerToString(new InputStreamReader(inputStream, "UTF-8"));
+				String defaultTextMarkerFilters = StringUtils.readerToString(new InputStreamReader(inputStream, "UTF-8"));
 				textFilterString += defaultTextMarkerFilters;
 			}
 			return new Scanner(textFilterString);
@@ -228,8 +233,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 			}
 			if (!replaceTokenFilters) {
 				InputStream inputStream = getInputStreamFromResource("token_filters.txt");
-				String defaultTextMarkerFilters = StringUtils
-						.readerToString(new InputStreamReader(inputStream, "UTF-8"));
+				String defaultTextMarkerFilters = StringUtils.readerToString(new InputStreamReader(inputStream, "UTF-8"));
 				tokenFilterString += defaultTextMarkerFilters;
 			}
 			return new Scanner(tokenFilterString);
@@ -309,8 +313,7 @@ public class GenericLanguageImplementation implements LanguagePackImplementation
 
 	public MachineLearningService getMachineLearningService() {
 		if (machineLearningService == null) {
-			machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator()
-					.getMachineLearningService();
+			machineLearningService = talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService();
 		}
 		return machineLearningService;
 	}
