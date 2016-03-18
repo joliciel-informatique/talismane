@@ -80,17 +80,17 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>com.googlecode.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-fr</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
