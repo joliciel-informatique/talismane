@@ -3,15 +3,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>talismane-extensions</artifactId>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -82,7 +73,7 @@
 	<parent>
 		<groupId>com.joliciel.talismane</groupId>
 		<artifactId>talismane-parent</artifactId>
-		<version>2.4.11b</version>
+		<version>2.5.0b</version>
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<dependencies>

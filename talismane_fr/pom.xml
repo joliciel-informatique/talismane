@@ -5,12 +5,10 @@
 	<parent>
 		<groupId>com.joliciel.talismane</groupId>
 		<artifactId>talismane-parent</artifactId>
-		<version>2.4.11b</version>
+		<version>2.5.0b</version>
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>srcTest</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
