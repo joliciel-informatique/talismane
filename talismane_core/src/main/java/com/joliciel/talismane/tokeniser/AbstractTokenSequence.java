@@ -15,7 +15,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
-abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenSequence, PretokenisedSequence {
+abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSequence, PretokenisedSequence {
 	private static final Log LOG = LogFactory.getLog(AbstractTokenSequence.class);
 	private static final long serialVersionUID = 2675309892340757939L;
 	private List<Integer> tokenSplits;
@@ -32,15 +32,15 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	private boolean withRoot = false;
 	private PosTagSequence posTagSequence;
 	protected boolean textProvided = false;
-	
+
 	private TokeniserServiceInternal tokeniserServiceInternal;
 	private TalismaneService talismaneService;
-	
+
 	public AbstractTokenSequence(Sentence sentence) {
 		this.sentence = sentence;
 		this.text = sentence.getText();
 	}
-	
+
 	public AbstractTokenSequence(AbstractTokenSequence sequenceToClone) {
 		this.setTokeniserServiceInternal(sequenceToClone.getTokeniserServiceInternal());
 		this.setTalismaneService(sequenceToClone.getTalismaneService());
@@ -54,14 +54,14 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		this.setUnderlyingAtomicTokenSequence(sequenceToClone.getUnderlyingAtomicTokenSequence());
 		this.setAtomicTokenCount(sequenceToClone.getAtomicTokenCount());
 		this.setPosTagSequence(sequenceToClone.getPosTagSequence());
-		
+
 		for (Token token : sequenceToClone) {
 			Token clone = token.cloneToken();
 			this.add(clone);
 			clone.setTokenSequence(this);
 		}
 	}
-	
+
 	@Override
 	public Token get(int index) {
 		this.finalise();
@@ -94,10 +94,10 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 
 	@Override
 	public List<Integer> getTokenSplits() {
-		if (this.text==null) {
+		if (this.text == null) {
 			throw new TalismaneException("Cannot get token splits if no sentence has been set.");
 		}
-		if (this.tokenSplits==null) {
+		if (this.tokenSplits == null) {
 			this.tokenSplits = new ArrayList<Integer>();
 			this.tokenSplits.add(0);
 			for (Token token : this) {
@@ -109,6 +109,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		return tokenSplits;
 	}
 
+	@Override
 	public String getText() {
 		return text;
 	}
@@ -116,6 +117,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	public void setText(String text) {
 		this.text = text;
 	}
+
 	@Override
 	public List<Token> listWithWhiteSpace() {
 		return listWithWhiteSpace;
@@ -135,54 +137,56 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 			}
 		}
 	}
-	
+
 	void addSentenceTags() {
 		if (!sentenceTagsAdded) {
 			sentenceTagsAdded = true;
-			for (SentenceTag sentenceTag : this.sentence.getSentenceTags()) {
+			for (SentenceTag<?> sentenceTag : this.sentence.getSentenceTags()) {
 				for (Token token : this) {
-					if (token.getStartIndex()>=sentenceTag.getStartIndex() && token.getEndIndex()<=sentenceTag.getEndIndex()) {
+					if (token.getStartIndex() >= sentenceTag.getStartIndex() && token.getEndIndex() <= sentenceTag.getEndIndex()) {
 						token.addAttribute(sentenceTag.getAttribute(), sentenceTag.getValue());
 					}
-					if (token.getStartIndex()>sentenceTag.getEndIndex())
+					if (token.getStartIndex() > sentenceTag.getEndIndex())
 						break;
 				}
 			}
 
 		}
 	}
-	
+
 	void markModified() {
 		this.finalised = false;
 		this.tokenSplits = null;
 		this.atomicTokenCount = null;
 	}
-	
+
+	@Override
 	public double getScore() {
 		if (!this.scoreCalculated) {
 			this.finalise();
 			if (LOG.isTraceEnabled())
 				LOG.trace(this);
 			score = 1.0;
-			if (this.underlyingAtomicTokenSequence!=null) {
+			if (this.underlyingAtomicTokenSequence != null) {
 				score = this.underlyingAtomicTokenSequence.getScore();
 			}
-			
+
 			this.scoreCalculated = true;
 		}
 		return score;
 	}
 
+	@Override
 	public TokenisedAtomicTokenSequence getUnderlyingAtomicTokenSequence() {
 		return underlyingAtomicTokenSequence;
 	}
 
 	@Override
 	public int getAtomicTokenCount() {
-		if (atomicTokenCount==null) {
+		if (atomicTokenCount == null) {
 			atomicTokenCount = 0;
 			for (Token token : this) {
-				if (token.getAtomicParts().size()==0)
+				if (token.getAtomicParts().size() == 0)
 					atomicTokenCount += 1;
 				else
 					atomicTokenCount += token.getAtomicParts().size();
@@ -197,61 +201,61 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 
 	Token addToken(int start, int end, boolean allowEmpty) {
-		if (this.text==null) {
+		if (this.text == null) {
 			throw new RuntimeException("Cannot add a token by index if no sentence has been set.");
 		}
-		if (!allowEmpty && start==end)
+		if (!allowEmpty && start == end)
 			return null;
-		
+
 		String string = this.text.substring(start, end);
-		
+
 		List<Token> tokensToRemove = new ArrayList<Token>();
-		
+
 		int prevTokenIndex = -1;
 		int i = 0;
 		for (Token aToken : this.listWithWhiteSpace) {
-			if (aToken.getStartIndex()>end) {
+			if (aToken.getStartIndex() > end) {
 				break;
-			} else if (aToken.getStartIndex()==start&&aToken.getEndIndex()==end) {
+			} else if (aToken.getStartIndex() == start && aToken.getEndIndex() == end) {
 				return aToken;
-			} else if (aToken.getStartIndex()<end && aToken.getEndIndex()>start) {
+			} else if (aToken.getStartIndex() < end && aToken.getEndIndex() > start) {
 				tokensToRemove.add(aToken);
-			} else if (aToken.getEndIndex()<=start) {
+			} else if (aToken.getEndIndex() <= start) {
 				prevTokenIndex = i;
 			}
 			i++;
 		}
-		
+
 		for (Token tokenToRemove : tokensToRemove) {
 			this.listWithWhiteSpace.remove(tokenToRemove);
 			this.remove(tokenToRemove);
 		}
-		
+
 		TokenInternal token = this.getTokeniserServiceInternal().getTokenInternal(string, this, this.size());
 		token.setStartIndex(start);
 		token.setEndIndex(end);
-		token.setIndexWithWhiteSpace(prevTokenIndex+1);
+		token.setIndexWithWhiteSpace(prevTokenIndex + 1);
 
-		this.listWithWhiteSpace.add(prevTokenIndex+1, token);
-		
+		this.listWithWhiteSpace.add(prevTokenIndex + 1, token);
+
 		if (!token.isWhiteSpace()) {
 			prevTokenIndex = -1;
 			i = 0;
 			for (Token aToken : this) {
-				if (aToken.getStartIndex()>end) {
+				if (aToken.getStartIndex() > end) {
 					break;
-				} else if (aToken.getEndIndex()<=start) {
+				} else if (aToken.getEndIndex() <= start) {
 					prevTokenIndex = i;
 				}
 				i++;
 			}
 
-			super.add(prevTokenIndex+1, token);
-			if (tokensAdded!=null)
+			super.add(prevTokenIndex + 1, token);
+			if (tokensAdded != null)
 				tokensAdded.add(token);
-			token.setIndex(prevTokenIndex+1);
+			token.setIndex(prevTokenIndex + 1);
 		}
-		
+
 		this.markModified();
 
 		return token;
@@ -260,18 +264,18 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	@Override
 	public Token addToken(String tokenText) {
 		Token token = null;
-		
-		if (this.size()==0) {
+
+		if (this.size() == 0) {
 			// do nothing
 		} else if (!textProvided) {
 			// check if a space should be added before this token
 			LinguisticRules rules = talismaneService.getTalismaneSession().getLinguisticRules();
-			if (rules==null)
+			if (rules == null)
 				throw new TalismaneException("Linguistic rules have not been set.");
-			
+
 			if (rules.shouldAddSpace(this, tokenText))
 				this.addTokenInternal(" ");
-			
+
 		}
 		token = this.addTokenInternal(tokenText);
 
@@ -279,32 +283,33 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 	}
 
 	private Token addTokenInternal(String string) {
-		// note, this is only called for PretokenisedSequence, where the sentence has to be reconstructed
+		// note, this is only called for PretokenisedSequence, where the
+		// sentence has to be reconstructed
 		// from an annotated corpus
-		if (this.text==null)
+		if (this.text == null)
 			this.text = "";
-		
+
 		TokenInternal token = this.getTokeniserServiceInternal().getTokenInternal(string, this, this.size());
-		
+
 		if (this.textProvided) {
 			int currentIndex = 0;
-			if (this.size()>0)
-				currentIndex = this.get(this.size()-1).getEndIndex();
-			int j=0;
+			if (this.size() > 0)
+				currentIndex = this.get(this.size() - 1).getEndIndex();
+			int j = 0;
 			TokenInternal whiteSpace = null;
-			for (int i=currentIndex; i<this.text.length(); i++) {
+			for (int i = currentIndex; i < this.text.length(); i++) {
 				char c = text.charAt(i);
 				if (Character.isWhitespace(c)) {
 					whiteSpace = this.getTokeniserServiceInternal().getTokenInternal(" ", this, this.size());
-					whiteSpace.setStartIndex(currentIndex+j);
-					whiteSpace.setEndIndex(whiteSpace.getStartIndex()+1);
+					whiteSpace.setStartIndex(currentIndex + j);
+					whiteSpace.setEndIndex(whiteSpace.getStartIndex() + 1);
 					this.listWithWhiteSpace().add(whiteSpace);
 				} else {
 					break;
 				}
 				j++;
 			}
-			if (whiteSpace!=null) {
+			if (whiteSpace != null) {
 				token.setStartIndex(whiteSpace.getEndIndex());
 				token.setEndIndex(whiteSpace.getEndIndex() + string.length());
 			} else {
@@ -312,9 +317,10 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 				token.setEndIndex(currentIndex + string.length());
 			}
 			if (!text.substring(token.getStartIndex(), token.getEndIndex()).equals(string)) {
-				throw new TalismaneException("Add token failed: Expected '" + string + "' but was '" + text.substring(token.getStartIndex(), token.getEndIndex()) + "' in sentence: " + text);
+				throw new TalismaneException("Add token failed: Expected '" + string + "' but was '"
+						+ text.substring(token.getStartIndex(), token.getEndIndex()) + "' in sentence: " + text);
 			}
-			
+
 		} else {
 			token.setStartIndex(this.getText().length());
 			token.setEndIndex(this.getText().length() + string.length());
@@ -323,22 +329,22 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		}
 
 		this.listWithWhiteSpace().add(token);
-		
+
 		if (!token.isWhiteSpace()) {
 			super.add(token);
-			if (tokensAdded!=null)
+			if (tokensAdded != null)
 				tokensAdded.add(token);
 		}
-		
+
 		this.markModified();
 		return token;
 	}
-	
+
 	public TokeniserServiceInternal getTokeniserServiceInternal() {
 		return tokeniserServiceInternal;
 	}
-	public void setTokeniserServiceInternal(
-			TokeniserServiceInternal tokeniserServiceInternal) {
+
+	public void setTokeniserServiceInternal(TokeniserServiceInternal tokeniserServiceInternal) {
 		this.tokeniserServiceInternal = tokeniserServiceInternal;
 	}
 
@@ -358,48 +364,60 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		this.listWithWhiteSpace.remove(emptyToken);
 		this.markModified();
 	}
-	
+
 	@Override
 	public void cleanSlate() {
 		this.tokensAdded = new ArrayList<Token>();
 	}
+
 	@Override
 	public List<Token> getTokensAdded() {
 		return this.tokensAdded;
 	}
+
 	private List<Token> getListWithWhiteSpace() {
 		return listWithWhiteSpace;
 	}
+
 	private void setListWithWhiteSpace(List<Token> listWithWhiteSpace) {
 		this.listWithWhiteSpace = listWithWhiteSpace;
 	}
+
 	private void setScore(double score) {
 		this.score = score;
 	}
+
 	private void setScoreCalculated(boolean scoreCalculated) {
 		this.scoreCalculated = scoreCalculated;
 	}
-	private void setUnderlyingAtomicTokenSequence(
-			TokenisedAtomicTokenSequence underlyingAtomicTokenSequence) {
+
+	private void setUnderlyingAtomicTokenSequence(TokenisedAtomicTokenSequence underlyingAtomicTokenSequence) {
 		this.underlyingAtomicTokenSequence = underlyingAtomicTokenSequence;
 	}
+
 	private void setAtomicTokenCount(Integer unitTokenCount) {
 		this.atomicTokenCount = unitTokenCount;
 	}
-	
+
+	@Override
 	public Sentence getSentence() {
 		return sentence;
 	}
+
 	public void setSentence(Sentence sentence) {
 		this.sentence = sentence;
 	}
+
+	@Override
 	public boolean isWithRoot() {
 		return withRoot;
 	}
+
+	@Override
 	public void setWithRoot(boolean withRoot) {
 		this.withRoot = withRoot;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -410,16 +428,21 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		sb.append('|');
 		return sb.toString();
 	}
-	
+
+	@Override
 	public PosTagSequence getPosTagSequence() {
 		return posTagSequence;
 	}
+
+	@Override
 	public void setPosTagSequence(PosTagSequence posTagSequence) {
 		this.posTagSequence = posTagSequence;
 	}
+
 	public TalismaneService getTalismaneService() {
 		return talismaneService;
 	}
+
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
@@ -429,7 +452,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		StringBuilder sb = new StringBuilder();
 		int lastPos = 0;
 		for (Token token : this) {
-			if (token.getOriginalIndex()>lastPos) {
+			if (token.getOriginalIndex() > lastPos) {
 				sb.append(" ");
 			}
 			sb.append(token.getText());
@@ -437,6 +460,5 @@ abstract class AbstractTokenSequence extends ArrayList<Token>  implements TokenS
 		}
 		return sb.toString();
 	}
-	
-	
+
 }

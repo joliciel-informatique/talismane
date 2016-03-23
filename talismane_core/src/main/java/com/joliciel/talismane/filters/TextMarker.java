@@ -18,8 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+
 /**
- * A text marker, indicating a position within a block of text and the action to take.
+ * A text marker, indicating a position within a block of text and the action to
+ * take.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -28,42 +32,47 @@ public interface TextMarker extends Comparable<TextMarker> {
 	 * The marker type.
 	 */
 	public TextMarkerType getType();
+
 	/**
 	 * The marker position in the original text.
 	 */
 	public int getPosition();
+
 	public void setPosition(int position);
-	
+
 	/**
 	 * The text that should be inserted at this marker position.
 	 */
 	public String getInsertionText();
+
 	public void setInsertionText(String insertionText);
-	
+
 	/**
 	 * The filter which generated this text marker.
 	 */
 	public TextMarkerFilter getSource();
+
 	public void setSource(TextMarkerFilter source);
-	
+
 	/**
 	 * The text that was matched.
 	 */
 	public String getMatchText();
+
 	public void setMatchText(String matchText);
-	
+
 	/**
 	 * The tag value to add with this marker.
 	 */
-	public abstract String getValue();
-	
+	public TokenAttribute<?> getValue();
+
 	/**
 	 * The tag attribute to add with this marker.
 	 */
-	public abstract String getAttribute();
-	
+	public String getAttribute();
+
 	/**
 	 * The marker's attribute and value tag.
 	 */
-	public abstract void setTag(String attribute, String value);
+	public <T> void setTag(String attribute, TokenAttribute<T> value);
 }

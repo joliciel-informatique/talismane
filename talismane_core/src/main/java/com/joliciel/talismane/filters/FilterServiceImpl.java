@@ -24,13 +24,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.joliciel.talismane.TalismaneException;
-
+import com.joliciel.talismane.tokeniser.StringAttribute;
+import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 class FilterServiceImpl implements FilterServiceInternal {
 	private static final Log LOG = LogFactory.getLog(FilterServiceImpl.class);
 	private String outputDivider = "";
+	private TokeniserService tokeniserService;
 
 	@Override
 	public TextMarker getTextMarker(TextMarkerType type, int position) {
@@ -38,28 +40,26 @@ class FilterServiceImpl implements FilterServiceInternal {
 	}
 
 	@Override
-	public TextMarker getTextMarker(TextMarkerType type, int position,
-			TextMarkerFilter source) {
+	public TextMarker getTextMarker(TextMarkerType type, int position, TextMarkerFilter source) {
 		return this.getTextMarker(type, position, source, null);
 	}
 
-
 	@Override
-	public TextMarker getTextMarker(TextMarkerType type, int position,
-			TextMarkerFilter source, String matchText) {
+	public TextMarker getTextMarker(TextMarkerType type, int position, TextMarkerFilter source, String matchText) {
 		TextMarker textMarker = new TextMarkerImpl(type, position);
 		textMarker.setSource(source);
 		textMarker.setMatchText(matchText);
 		return textMarker;
 	}
 
+	@Override
 	public Sentence getSentence(String text) {
 		SentenceImpl sentence = new SentenceImpl();
 		sentence.setText(text);
 		sentence.setOutputDivider(this.outputDivider);
 		return sentence;
 	}
-	
+
 	@Override
 	public Sentence getSentence() {
 		SentenceImpl sentence = new SentenceImpl();
@@ -67,15 +67,14 @@ class FilterServiceImpl implements FilterServiceInternal {
 		return sentence;
 	}
 
-
 	@Override
 	public SentenceHolder getSentenceHolder() {
 		SentenceHolderImpl sentenceHolder = new SentenceHolderImpl();
 		sentenceHolder.setFilterService(this);
+		sentenceHolder.setTokeniserService(tokeniserService);
 		sentenceHolder.setOutputDivider(this.outputDivider);
 		return sentenceHolder;
 	}
-
 
 	@Override
 	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault) {
@@ -84,16 +83,13 @@ class FilterServiceImpl implements FilterServiceInternal {
 		return processor;
 	}
 
-
 	@Override
-	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes,
-			String regex, int blockSize) {
+	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int blockSize) {
 		return this.getRegexMarkerFilter(filterTypes, regex, 0, blockSize);
 	}
 
 	@Override
-	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes,
-			String regex, int groupIndex, int blockSize) {
+	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int groupIndex, int blockSize) {
 		RegexMarkerFilter filter = new RegexMarkerFilter(filterTypes, regex, groupIndex);
 		filter.setFilterService(this);
 		filter.setBlockSize(blockSize);
@@ -102,15 +98,12 @@ class FilterServiceImpl implements FilterServiceInternal {
 	}
 
 	@Override
-	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types,
-			String regex, int blockSize) {
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int blockSize) {
 		return this.getRegexMarkerFilter(types, regex, 0, blockSize);
 	}
 
-
 	@Override
-	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types,
-			String regex, int groupIndex, int blockSize) {
+	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex, int blockSize) {
 		RegexMarkerFilter filter = new RegexMarkerFilter(types, regex, groupIndex);
 		filter.setFilterService(this);
 		filter.setBlockSize(blockSize);
@@ -124,14 +117,12 @@ class FilterServiceImpl implements FilterServiceInternal {
 		return filter;
 	}
 
-
 	@Override
 	public TextMarkerFilter getOtherWhiteSpaceFilter() {
 		OtherWhiteSpaceFilter filter = new OtherWhiteSpaceFilter();
 		filter.setFilterService(this);
 		return filter;
 	}
-
 
 	@Override
 	public TextMarkerFilter getNewlineEndOfSentenceMarker() {
@@ -140,7 +131,6 @@ class FilterServiceImpl implements FilterServiceInternal {
 		return filter;
 	}
 
-
 	@Override
 	public TextMarkerFilter getNewlineSpaceMarker() {
 		NewlineSpaceMarker filter = new NewlineSpaceMarker();
@@ -148,19 +138,18 @@ class FilterServiceImpl implements FilterServiceInternal {
 		return filter;
 	}
 
-
 	@Override
 	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize) {
 		TextMarkerFilter filter = null;
-		
+
 		List<Class<? extends TextMarkerFilter>> classes = new ArrayListNoNulls<Class<? extends TextMarkerFilter>>();
 		classes.add(DuplicateWhiteSpaceFilter.class);
 		classes.add(NewlineEndOfSentenceMarker.class);
 		classes.add(NewlineSpaceMarker.class);
-		
+
 		String[] parts = descriptor.split("\t");
 		String filterName = parts[0];
-		
+
 		if (filterName.equals(RegexMarkerFilter.class.getSimpleName())) {
 			String[] filterTypeStrings = parts[1].split(",");
 			List<MarkerFilterType> filterTypes = new ArrayListNoNulls<MarkerFilterType>();
@@ -177,34 +166,35 @@ class FilterServiceImpl implements FilterServiceInternal {
 				needsTag = true;
 				minParams = 4;
 			}
-			if (parts.length==minParams+1){
+			if (parts.length == minParams + 1) {
 				filter = this.getRegexMarkerFilter(filterTypes, parts[2], Integer.parseInt(parts[3]), blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[4]);
 				if (needsTag) {
-					if (parts[4].indexOf('=')>=0) {
-						String attribute = parts[4].substring(0,parts[4].indexOf('='));
-						String value = parts[4].substring(parts[4].indexOf('=')+1);
-						filter.setTag(attribute, value);
+					if (parts[4].indexOf('=') >= 0) {
+						String attribute = parts[4].substring(0, parts[4].indexOf('='));
+						String value = parts[4].substring(parts[4].indexOf('=') + 1);
+						filter.setTag(attribute, new StringAttribute(value));
 					} else {
-						filter.setTag(parts[4], "");
+						filter.setTag(parts[4], new StringAttribute(""));
 					}
 				}
-			} else if (parts.length==minParams) {
+			} else if (parts.length == minParams) {
 				filter = this.getRegexMarkerFilter(filterTypes, parts[2], blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[3]);
 				if (needsTag) {
-					if (parts[3].indexOf('=')>=0) {
-						String attribute = parts[3].substring(0,parts[3].indexOf('='));
-						String value = parts[3].substring(parts[3].indexOf('=')+1);
-						filter.setTag(attribute, value);
+					if (parts[3].indexOf('=') >= 0) {
+						String attribute = parts[3].substring(0, parts[3].indexOf('='));
+						String value = parts[3].substring(parts[3].indexOf('=') + 1);
+						filter.setTag(attribute, new StringAttribute(value));
 					} else {
-						filter.setTag(parts[3], "");
+						filter.setTag(parts[3], new StringAttribute(""));
 					}
 				}
 			} else {
-				throw new TalismaneException("Wrong number of arguments for " + RegexMarkerFilter.class.getSimpleName() + ". Expected " + minParams + " or " + (minParams+1) + ", but was " + parts.length);
+				throw new TalismaneException("Wrong number of arguments for " + RegexMarkerFilter.class.getSimpleName() + ". Expected " + minParams + " or "
+						+ (minParams + 1) + ", but was " + parts.length);
 			}
 		} else {
 			for (Class<? extends TextMarkerFilter> clazz : classes) {
@@ -220,25 +210,34 @@ class FilterServiceImpl implements FilterServiceInternal {
 					}
 				}
 			}
-			if (filter==null)
+			if (filter == null)
 				throw new TalismaneException("Unknown text filter class: " + filterName);
 			filter.setBlockSize(blockSize);
 		}
-		
-		if (filter==null) {
+
+		if (filter == null) {
 			throw new TalismaneException("Unknown TextMarkerFilter: " + descriptor);
 		}
-		
+
 		return filter;
 	}
 
+	@Override
 	public String getOutputDivider() {
 		return outputDivider;
 	}
 
+	@Override
 	public void setOutputDivider(String outputDivider) {
 		this.outputDivider = outputDivider;
 	}
 
-	
+	public TokeniserService getTokeniserService() {
+		return tokeniserService;
+	}
+
+	public void setTokeniserService(TokeniserService tokeniserService) {
+		this.tokeniserService = tokeniserService;
+	}
+
 }

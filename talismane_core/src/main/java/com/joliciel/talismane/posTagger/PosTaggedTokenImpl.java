@@ -31,15 +31,16 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TaggedTokenImpl;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
 final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTaggedToken {
-	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+	private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
 	private TalismaneService talismaneService;
-	
+
 	private List<LexicalEntry> lexicalEntries = null;
 	private LexicalEntry bestLexicalEntry = null;
 	private boolean bestLexicalEntryLoaded = false;
@@ -52,28 +53,29 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	private String possessorNumber = null;
 	private String comment = "";
 	private PosTagSequence posTagSequence;
-	
+
 	PosTaggedTokenImpl(PosTaggedTokenImpl taggedTokenToClone) {
 		super(taggedTokenToClone);
 		this.featureResults = taggedTokenToClone.featureResults;
 		this.lexicalEntries = taggedTokenToClone.lexicalEntries;
-		
+
 		this.talismaneService = taggedTokenToClone.talismaneService;
 	}
-	
+
 	public PosTaggedTokenImpl(Token token, Decision decision, PosTag posTag) {
 		super(token, decision, posTag);
 	}
 
 	@Override
 	public List<LexicalEntry> getLexicalEntries() {
-		if (lexicalEntries==null) {
+		if (lexicalEntries == null) {
 			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 			lexicalEntries = talismaneSession.getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
 		}
 		return lexicalEntries;
 	}
 
+	@Override
 	public void setLexicalEntries(List<LexicalEntry> lexicalEntries) {
 		this.lexicalEntries = lexicalEntries;
 	}
@@ -88,33 +90,38 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 		if (!this.bestLexicalEntryLoaded) {
 			List<LexicalEntry> lexicalEntries = this.getLexicalEntries();
 			this.bestLexicalEntry = null;
-			if (lexicalEntries.size()>0) {
+			if (lexicalEntries.size() > 0) {
 				this.bestLexicalEntry = lexicalEntries.get(0);
 				gender = "";
 				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Gender))
 					for (String oneGender : bestLexicalEntry.getGender())
 						gender += oneGender;
-				if (gender.length()==0) gender = null;
+				if (gender.length() == 0)
+					gender = null;
 				number = "";
 				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Number))
 					for (String oneNumber : bestLexicalEntry.getNumber())
 						number += oneNumber;
-				if (number.length()==0) number = null;
+				if (number.length() == 0)
+					number = null;
 				tense = "";
 				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Tense))
 					for (String oneTense : bestLexicalEntry.getTense())
 						tense += oneTense;
-				if (tense.length()==0) tense = null;
+				if (tense.length() == 0)
+					tense = null;
 				person = "";
 				if (bestLexicalEntry.hasAttribute(LexicalAttribute.Person))
 					for (String onePerson : bestLexicalEntry.getPerson())
 						person += onePerson;
-				if (person.length()==0) person = null;
+				if (person.length() == 0)
+					person = null;
 				possessorNumber = "";
 				if (bestLexicalEntry.hasAttribute(LexicalAttribute.PossessorNumber))
 					for (String onePossessorNumber : bestLexicalEntry.getPossessorNumber())
 						possessorNumber += onePossessorNumber;
-				if (possessorNumber.length()==0) possessorNumber = null;
+				if (possessorNumber.length() == 0)
+					possessorNumber = null;
 			}
 			this.bestLexicalEntryLoaded = true;
 		}
@@ -125,7 +132,7 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	@Override
 	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
 		FeatureResult<Y> result = null;
-		
+
 		String key = feature.getName() + env.getKey();
 		if (this.featureResults.containsKey(key)) {
 			result = (FeatureResult<Y>) this.featureResults.get(key);
@@ -134,10 +141,9 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	}
 
 	@Override
-	public <T, Y> void putResultInCache(Feature<T, Y> feature,
-			FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+	public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
 		String key = feature.getName() + env.getKey();
-		this.featureResults.put(key, featureResult);	
+		this.featureResults.put(key, featureResult);
 	}
 
 	@Override
@@ -153,34 +159,41 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 
 	@Override
 	public String getLemmaForCoNLL() {
-		if (conllLemma==null) {
+		if (conllLemma == null) {
 			String lemma = "";
-			String lemmaType = this.getToken().getAttributes().get("lemmaType");
-			String explicitLemma = this.getToken().getAttributes().get("lemma");
+			String lemmaType = null;
+			StringAttribute lemmaTypeAttribute = (StringAttribute) this.getToken().getAttributes().get(PosTagger.LEMMA_TYPE_ATTRIBUTE);
+			if (lemmaTypeAttribute != null)
+				lemmaType = lemmaTypeAttribute.getValue();
+			String explicitLemma = null;
+			StringAttribute explicitLemmaAttribute = (StringAttribute) this.getToken().getAttributes().get(PosTagger.LEMMA_ATTRIBUTE);
+			if (explicitLemmaAttribute != null)
+				explicitLemma = explicitLemmaAttribute.getValue();
 			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
-			if (explicitLemma!=null) {
+			if (explicitLemma != null) {
 				lemma = explicitLemma;
-			} else if (lemmaType!=null && lemmaType.equals("originalLower")) {
+			} else if (lemmaType != null && lemmaType.equals("originalLower")) {
 				lemma = this.getToken().getOriginalText().toLowerCase(talismaneSession.getLocale());
 			} else if (this.getToken().getText().equals(this.getToken().getOriginalText())) {
 				LexicalEntry lexicalEntry = this.getLexicalEntry();
-				if (lexicalEntry!=null) {
+				if (lexicalEntry != null) {
 					lemma = lexicalEntry.getLemma();
 				}
 			} else {
 				LexicalEntry lexicalEntry = null;
 				List<LexicalEntry> entries = talismaneSession.getMergedLexicon().findLexicalEntries(this.getToken().getOriginalText(), this.getTag());
-				if (entries.size()>0)
+				if (entries.size() > 0)
 					lexicalEntry = entries.get(0);
-				if (lexicalEntry==null) {
-					entries = talismaneSession.getMergedLexicon().findLexicalEntries(this.getToken().getOriginalText().toLowerCase(talismaneSession.getLocale()), this.getTag());
-					if (entries.size()>0)
-						lexicalEntry = entries.get(0);				
+				if (lexicalEntry == null) {
+					entries = talismaneSession.getMergedLexicon()
+							.findLexicalEntries(this.getToken().getOriginalText().toLowerCase(talismaneSession.getLocale()), this.getTag());
+					if (entries.size() > 0)
+						lexicalEntry = entries.get(0);
 				}
-				if (lexicalEntry==null)
+				if (lexicalEntry == null)
 					lexicalEntry = this.getLexicalEntry();
 
-				if (lexicalEntry!=null)
+				if (lexicalEntry != null)
 					lemma = lexicalEntry.getLemma();
 			}
 			conllLemma = CoNLLFormatter.toCoNLL(lemma);
@@ -189,35 +202,42 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 		return conllLemma;
 	}
 
+	@Override
 	public String getGender() {
 		this.getLexicalEntry();
 		return gender;
 	}
 
+	@Override
 	public String getNumber() {
 		this.getLexicalEntry();
 		return number;
 	}
 
+	@Override
 	public String getTense() {
 		this.getLexicalEntry();
 		return tense;
 	}
 
+	@Override
 	public String getPerson() {
 		this.getLexicalEntry();
 		return person;
 	}
 
+	@Override
 	public String getPossessorNumber() {
 		this.getLexicalEntry();
 		return possessorNumber;
 	}
 
+	@Override
 	public String getComment() {
 		return comment;
 	}
 
+	@Override
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
@@ -227,10 +247,12 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 		return this.getToken().getIndex();
 	}
 
+	@Override
 	public PosTagSequence getPosTagSequence() {
 		return posTagSequence;
 	}
 
+	@Override
 	public void setPosTagSequence(PosTagSequence posTagSequence) {
 		this.posTagSequence = posTagSequence;
 	}
@@ -247,6 +269,5 @@ final class PosTaggedTokenImpl extends TaggedTokenImpl<PosTag> implements PosTag
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
-	
-	
+
 }

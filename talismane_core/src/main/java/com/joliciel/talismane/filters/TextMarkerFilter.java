@@ -20,9 +20,11 @@ package com.joliciel.talismane.filters;
 
 import java.util.Set;
 
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+
 /**
- * A filter applied to a block of raw text
- * and producing a list of text markers.
+ * A filter applied to a block of raw text and producing a list of text markers.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -32,33 +34,35 @@ public interface TextMarkerFilter {
 	 * any text markers.
 	 */
 	public Set<TextMarker> apply(String prevText, String text, String nextText);
-	
+
 	/**
 	 * If the filter includes text replacement, the replacement string.
 	 */
 	public String getReplacement();
+
 	public void setReplacement(String replacement);
-	
+
 	/**
-	 * The maximum size of text that this filter can match (without risking
-	 * to add only the beginning and not the end, or vice versa).
-	 * Bigger matches will throw an error.
+	 * The maximum size of text that this filter can match (without risking to
+	 * add only the beginning and not the end, or vice versa). Bigger matches
+	 * will throw an error.
 	 */
 	public int getBlockSize();
+
 	public void setBlockSize(int blockSize);
-	
+
 	/**
 	 * If the filter adds a tag, the attribute to add.
 	 */
 	public String getAttribute();
-	
+
 	/**
 	 * If the filter adds a tag, the value to add.
 	 */
-	public String getValue();
+	public TokenAttribute<?> getValue();
 
 	/**
 	 * Set the tag added by this filter.
 	 */
-	public void setTag(String attribute, String value);
+	public void setTag(String attribute, TokenAttribute<?> value);
 }

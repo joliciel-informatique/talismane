@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,24 +16,20 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.filters;
+package com.joliciel.talismane.tokeniser;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
-
-public class FilterServiceLocator {
-	FilterServiceImpl filterService = null;
-
-	private TalismaneServiceLocator talismaneServiceLocator;
-
-	public FilterServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
-		this.talismaneServiceLocator = talismaneServiceLocator;
-	}
-
-	public synchronized FilterService getFilterService() {
-		if (filterService == null) {
-			filterService = new FilterServiceImpl();
-			filterService.setTokeniserService(talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
-		}
-		return filterService;
-	}
+/**
+ * An attribute that can be tagged onto a token. Important: implementations must
+ * implement equals and hashCode.
+ * 
+ * @author Assaf Urieli
+ *
+ * @param <T>
+ *            the content type of this attribute
+ */
+public interface TokenAttribute<T> {
+	/**
+	 * Get this attribute's value.
+	 */
+	public T getValue();
 }
