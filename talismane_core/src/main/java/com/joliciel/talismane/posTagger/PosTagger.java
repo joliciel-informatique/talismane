@@ -27,27 +27,55 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenRegexFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
- * The PosTagger's task is to add part-of-speech tags to words within a sentence. More specifically, the {@link #tagSentence(TokenSequence)} method takes a {@link TokenSequence}
- * as input and produces a {@link PosTagSequence}, which extends a List of {@link PosTaggedToken}.
+ * The PosTagger's task is to add part-of-speech tags to words within a
+ * sentence. More specifically, the {@link #tagSentence(TokenSequence)} method
+ * takes a {@link TokenSequence} as input and produces a {@link PosTagSequence},
+ * which extends a List of {@link PosTaggedToken}.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface PosTagger {
 	/**
-	 * If this attribute is added to a {@link Token} via {@link Token#addAttribute(String, String)} (typically using a {@link TokenRegexFilter}),
-	 * the token in question will get the pos-tag in the attribute value assigned to it without consulting the statistical model. This is an alternative to using pos-tagger rules.
+	 * If this attribute is added to a {@link Token} via
+	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+	 * {@link TokenRegexFilter}), the token in question will get the pos-tag in
+	 * the attribute value assigned to it without consulting the statistical
+	 * model. This is an alternative to using pos-tagger rules.
 	 */
 	public static final String POS_TAG_ATTRIBUTE = "posTag";
-	
+
+	/**
+	 * If this attribute is added to a {@link Token} via
+	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+	 * {@link TokenRegexFilter}), and the value of this attribute is
+	 * "originalLower", then the token's lemma will be set to the original
+	 * value, forced into lowercase.
+	 */
+	public static final String LEMMA_TYPE_ATTRIBUTE = "lemmaType";
+
+	/**
+	 * If this attribute is added to a {@link Token} via
+	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
+	 * {@link TokenRegexFilter}), and the value of this attribute is
+	 * "originalLower", then the token's lemma will be set to the value
+	 * provided.
+	 */
+	public static final String LEMMA_ATTRIBUTE = "lemma";
+
 	/**
 	 * Apply PosTags to the tokens in a given sentence.
-	 * @param tokenSequence the List of tokens comprising the sentence.
-	 * @return a List of TaggedToken reflecting the PosTags applied to the tokens.
+	 * 
+	 * @param tokenSequence
+	 *            the List of tokens comprising the sentence.
+	 * @return a List of TaggedToken reflecting the PosTags applied to the
+	 *         tokens.
 	 */
 	public abstract PosTagSequence tagSentence(TokenSequence tokenSequence);
 
@@ -57,12 +85,13 @@ public interface PosTagger {
 	public abstract void addObserver(ClassificationObserver observer);
 
 	/**
-	 * The set of features used to describe the sequence of {@link PosTaggerContext} encountered
-	 * while pos-tagging. These have to be identical to the features used to train the previously trained pos-tagging
-	 * model.
+	 * The set of features used to describe the sequence of
+	 * {@link PosTaggerContext} encountered while pos-tagging. These have to be
+	 * identical to the features used to train the previously trained
+	 * pos-tagging model.
 	 */
 	public abstract Set<PosTaggerFeature<?>> getPosTaggerFeatures();
-	
+
 	/**
 	 * @see #getPosTaggerFeatures()
 	 */
@@ -74,11 +103,11 @@ public interface PosTagger {
 	public abstract void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
 
 	/**
-	 * Rules to be applied during pos-tagging, used to override the statistical model
-	 * for phenomena under-represented in the training corpus.
+	 * Rules to be applied during pos-tagging, used to override the statistical
+	 * model for phenomena under-represented in the training corpus.
 	 */
 	public abstract List<PosTaggerRule> getPosTaggerRules();
-	
+
 	/**
 	 * Filters to be applied to the token sequences prior to pos-tagging.
 	 */
@@ -88,7 +117,7 @@ public interface PosTagger {
 	 * @see #getPreProcessingFilters()
 	 */
 	public void setPreProcessingFilters(List<TokenSequenceFilter> tokenFilters);
-	
+
 	/**
 	 * Add a pre-processing filter.
 	 */
@@ -103,7 +132,7 @@ public interface PosTagger {
 	 * @see #getPostProcessingFilters()
 	 */
 	public void setPostProcessingFilters(List<PosTagSequenceFilter> posTagFilters);
-	
+
 	/**
 	 * Add a post-processing filter.
 	 */

@@ -18,11 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -51,28 +51,28 @@ final class TokenImpl implements TokenInternal {
 	private TokenSequence tokenSequence;
 	private Set<PosTag> possiblePosTags;
 	private Map<PosTag, Integer> frequencies;
-	private Map<String,FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+	private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 	private boolean separator = false;
 	private boolean whiteSpace = false;
 	private List<TokenPatternMatch> matches = null;
 	private Map<String, List<TokenPatternMatch>> matchesPerPattern = null;
 	private List<TaggedToken<TokeniserOutcome>> atomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
-	
+
 	private int startIndex = 0;
 	private int endIndex = 0;
-	
+
 	private String fileName = null;
 	private Integer lineNumber = null;
 	private Integer columnNumber = null;
 	private Integer lineNumberEnd = null;
 	private Integer columnNumberEnd = null;
-	
+
 	private Map<PosTag, List<LexicalEntry>> lexicalEntryMap;
 	private double probability = -1;
-	private Map<String,String> attributes = new HashMap<String,String>();
-	
+	private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
+
 	private TalismaneService talismaneService;
-	
+
 	TokenImpl(TokenImpl tokenToClone) {
 		this.text = tokenToClone.text;
 		this.originalText = tokenToClone.originalText;
@@ -92,85 +92,99 @@ final class TokenImpl implements TokenInternal {
 		this.lineNumber = tokenToClone.lineNumber;
 		this.columnNumber = tokenToClone.columnNumber;
 		this.attributes = tokenToClone.attributes;
-		
+
 		this.talismaneService = tokenToClone.talismaneService;
 	}
-	
+
 	TokenImpl(String text, TokenSequence tokenSequence) {
 		this(text, tokenSequence, 0);
 	}
-	
+
 	TokenImpl(String text, TokenSequence tokenSequence, int index) {
 		this.text = text;
 		this.originalText = text;
 		this.tokenSequence = tokenSequence;
 		this.index = index;
-		if (text.length()==0)
+		if (text.length() == 0)
 			this.whiteSpace = false;
 		else if (whiteSpacePattern.matcher(text).matches())
 			this.whiteSpace = true;
 	}
-	
+
+	@Override
 	public String getText() {
 		return text;
 	}
+
+	@Override
 	public void setText(String text) {
 		this.text = text;
 	}
-	
+
+	@Override
 	public String getOriginalText() {
 		return originalText;
 	}
 
+	@Override
 	public int getIndex() {
 		return index;
 	}
+
+	@Override
 	public void setIndex(int index) {
 		this.index = index;
 	}
-	
+
+	@Override
 	public int getIndexWithWhiteSpace() {
 		return indexWithWhiteSpace;
 	}
 
+	@Override
 	public void setIndexWithWhiteSpace(int indexWithWhiteSpace) {
 		this.indexWithWhiteSpace = indexWithWhiteSpace;
 	}
 
+	@Override
 	public TokenSequence getTokenSequence() {
 		return tokenSequence;
 	}
+
+	@Override
 	public void setTokenSequence(TokenSequence tokenSequence) {
 		this.tokenSequence = tokenSequence;
 	}
+
 	@Override
 	public String toString() {
 		return this.getText();
 	}
+
 	@Override
 	public Set<PosTag> getPossiblePosTags() {
-		if (possiblePosTags==null) {
+		if (possiblePosTags == null) {
 			possiblePosTags = talismaneService.getTalismaneSession().getMergedLexicon().findPossiblePosTags(this.getText());
 		}
-		
+
 		return possiblePosTags;
 	}
-	
+
 	@Override
 	public Map<PosTag, Integer> getFrequencies() {
 		return frequencies;
 	}
+
 	@Override
 	public void setFrequencies(Map<PosTag, Integer> frequencies) {
 		this.frequencies = frequencies;
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
 		FeatureResult<Y> result = null;
-		
+
 		String key = feature.getName() + env.getKey();
 		if (this.featureResults.containsKey(key)) {
 			result = (FeatureResult<Y>) this.featureResults.get(key);
@@ -179,51 +193,60 @@ final class TokenImpl implements TokenInternal {
 	}
 
 	@Override
-	public <T, Y> void putResultInCache(Feature<T, Y> feature,
-			FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+	public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
 		String key = feature.getName() + env.getKey();
-		this.featureResults.put(key, featureResult);	
+		this.featureResults.put(key, featureResult);
 	}
 
 	@Override
 	public int getStartIndex() {
 		return startIndex;
 	}
+
+	@Override
 	public void setStartIndex(int startIndex) {
 		this.startIndex = startIndex;
 	}
+
 	@Override
 	public int getEndIndex() {
 		return endIndex;
 	}
+
+	@Override
 	public void setEndIndex(int endIndex) {
 		this.endIndex = endIndex;
 	}
-	
+
+	@Override
 	public boolean isSeparator() {
 		return separator;
 	}
+
+	@Override
 	public void setSeparator(boolean separator) {
 		this.separator = separator;
 	}
+
+	@Override
 	public boolean isWhiteSpace() {
 		return whiteSpace;
 	}
 
+	@Override
 	public List<TokenPatternMatch> getMatches() {
-		if (matches==null)
+		if (matches == null)
 			matches = new ArrayList<TokenPatternMatch>();
 		return matches;
 	}
-	
 
 	@Override
 	public List<TokenPatternMatch> getMatches(TokenPattern pattern) {
-		if (matchesPerPattern==null) {
+		if (matchesPerPattern == null) {
 			matchesPerPattern = new HashMap<String, List<TokenPatternMatch>>();
 			for (TokenPatternMatch match : this.getMatches()) {
 				List<TokenPatternMatch> matchesForPattern = matchesPerPattern.get(match.getPattern().getName());
-				if (matchesForPattern==null) {
+				if (matchesForPattern == null) {
 					matchesForPattern = new ArrayList<TokenPatternMatch>();
 					matchesPerPattern.put(match.getPattern().getName(), matchesForPattern);
 				}
@@ -243,17 +266,16 @@ final class TokenImpl implements TokenInternal {
 		return atomicParts;
 	}
 
-	public void setAtomicParts(
-			List<TaggedToken<TokeniserOutcome>> atomicParts) {
+	@Override
+	public void setAtomicParts(List<TaggedToken<TokeniserOutcome>> atomicParts) {
 		this.atomicParts = atomicParts;
 	}
 
-
 	@Override
 	public double getProbability() {
-		if (probability<0) {
+		if (probability < 0) {
 			probability = 1;
-			if (this.atomicParts!=null) {
+			if (this.atomicParts != null) {
 				for (TaggedToken<TokeniserOutcome> atomicDecision : atomicParts) {
 					probability *= atomicDecision.getDecision().getProbability();
 				}
@@ -261,7 +283,7 @@ final class TokenImpl implements TokenInternal {
 		}
 		return probability;
 	}
-	
+
 	@Override
 	public Token getToken() {
 		return this;
@@ -271,8 +293,7 @@ final class TokenImpl implements TokenInternal {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((originalText == null) ? 0 : originalText.hashCode());
+		result = prime * result + ((originalText == null) ? 0 : originalText.hashCode());
 		result = prime * result + startIndex;
 		return result;
 	}
@@ -298,7 +319,7 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public boolean isEmpty() {
-		return this.getStartIndex()==this.getEndIndex();
+		return this.getStartIndex() == this.getEndIndex();
 	}
 
 	@Override
@@ -308,37 +329,37 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public int getLineNumber() {
-		if (this.lineNumber==null) {
+		if (this.lineNumber == null) {
 			this.lineNumber = this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndex());
 		}
 		return this.lineNumber;
 	}
+
 	@Override
 	public void setLineNumber(int lineNumber) {
 		this.lineNumber = lineNumber;
 	}
 
-
 	@Override
 	public int getColumnNumber() {
-		if (this.columnNumber==null) {
+		if (this.columnNumber == null) {
 			this.columnNumber = this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndex());
 		}
 		return this.columnNumber;
 	}
+
 	@Override
 	public void setColumnNumber(int columnNumber) {
 		this.columnNumber = columnNumber;
 	}
-	
 
 	@Override
 	public int getLineNumberEnd() {
-		if (this.lineNumberEnd==null)
-			this.lineNumberEnd= this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndexEnd());
+		if (this.lineNumberEnd == null)
+			this.lineNumberEnd = this.getTokenSequence().getSentence().getLineNumber(this.getOriginalIndexEnd());
 		return this.lineNumberEnd;
 	}
-	
+
 	@Override
 	public void setLineNumberEnd(int lineNumberEnd) {
 		this.lineNumberEnd = lineNumberEnd;
@@ -346,7 +367,7 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public int getColumnNumberEnd() {
-		if (this.columnNumberEnd==null)
+		if (this.columnNumberEnd == null)
 			this.columnNumberEnd = this.getTokenSequence().getSentence().getColumnNumber(this.getOriginalIndexEnd());
 		return this.columnNumberEnd;
 	}
@@ -360,14 +381,15 @@ final class TokenImpl implements TokenInternal {
 	public int getOriginalIndexEnd() {
 		return this.getTokenSequence().getSentence().getOriginalIndex(this.endIndex);
 	}
-	
+
 	@Override
 	public String getFileName() {
-		if (this.fileName==null) {
+		if (this.fileName == null) {
 			this.fileName = this.getTokenSequence().getSentence().getFileName();
 		}
 		return this.fileName;
 	}
+
 	@Override
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
@@ -377,23 +399,24 @@ final class TokenImpl implements TokenInternal {
 	public String getPrecedingRawOutput() {
 		Sentence sentence = this.getTokenSequence().getSentence();
 		int prevStart = -1;
-		if (this.index>0) {
-			Token previousToken = this.getTokenSequence().get(index-1);
+		if (this.index > 0) {
+			Token previousToken = this.getTokenSequence().get(index - 1);
 			prevStart = previousToken.getStartIndex();
 		}
 		String rawOutput = null;
-		if (startIndex>prevStart)
+		if (startIndex > prevStart)
 			rawOutput = sentence.getRawInput(prevStart, startIndex);
 		if (LOG.isTraceEnabled())
 			LOG.trace(rawOutput);
 		return rawOutput;
 	}
-	
+
+	@Override
 	public String getTrailingRawOutput() {
 		String rawOutput = null;
-		if (this.index==this.getTokenSequence().size()-1) {
+		if (this.index == this.getTokenSequence().size() - 1) {
 			Sentence sentence = this.getTokenSequence().getSentence();
-			rawOutput = sentence.getRawInput(startIndex, Integer.MAX_VALUE-1);
+			rawOutput = sentence.getRawInput(startIndex, Integer.MAX_VALUE - 1);
 			if (LOG.isTraceEnabled())
 				LOG.trace(rawOutput);
 		}
@@ -408,7 +431,7 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public String getTextForCoNLL() {
-		if (conllText==null) {
+		if (conllText == null) {
 			conllText = CoNLLFormatter.toCoNLL(originalText);
 		}
 		return conllText;
@@ -416,22 +439,22 @@ final class TokenImpl implements TokenInternal {
 
 	@Override
 	public LexicalEntry getLexicalEntry(PosTag posTag) {
-		if (this.lexicalEntryMap==null) {
+		if (this.lexicalEntryMap == null) {
 			this.lexicalEntryMap = new HashMap<PosTag, List<LexicalEntry>>();
 		}
 		List<LexicalEntry> lexicalEntries = this.lexicalEntryMap.get(posTag);
-		if (lexicalEntries==null) {
+		if (lexicalEntries == null) {
 			lexicalEntries = talismaneService.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getText(), posTag);
 			this.lexicalEntryMap.put(posTag, lexicalEntries);
 		}
 		LexicalEntry bestEntry = null;
-		if (lexicalEntries.size()>0)
+		if (lexicalEntries.size() > 0)
 			bestEntry = lexicalEntries.get(0);
 		return bestEntry;
 	}
 
 	@Override
-	public Map<String,String> getAttributes() {
+	public Map<String, TokenAttribute<?>> getAttributes() {
 		if (this.tokenSequence instanceof AbstractTokenSequence) {
 			((AbstractTokenSequence) this.tokenSequence).addSentenceTags();
 		}
@@ -439,11 +462,11 @@ final class TokenImpl implements TokenInternal {
 	}
 
 	@Override
-	public void addAttribute(String key, String value) {
+	public <T> void addAttribute(String key, TokenAttribute<T> value) {
 		if (!attributes.containsKey(key))
 			attributes.put(key, value);
 	}
-	
+
 	public TalismaneService getTalismaneService() {
 		return talismaneService;
 	}
@@ -451,6 +474,5 @@ final class TokenImpl implements TokenInternal {
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
-
 
 }

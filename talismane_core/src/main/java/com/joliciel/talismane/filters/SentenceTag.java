@@ -18,23 +18,36 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+
 /**
- * A sentence tag which is used to add arbitrary attributes to tokens found in this sentence.
+ * A sentence tag which is used to add arbitrary attributes to tokens found in
+ * this sentence.
+ * 
  * @author Assaf Urieli
  *
  */
-public class SentenceTag {
+public class SentenceTag<T> {
 	private int startIndex;
 	private int endIndex;
 	private String attribute;
-	private String value;
-	
-	public SentenceTag(int startIndex, String attribute, String value) {
+	private TokenAttribute<T> value;
+
+	public SentenceTag(int startIndex, String attribute, TokenAttribute<T> value) {
 		super();
 		this.startIndex = startIndex;
 		this.endIndex = -1;
 		this.attribute = attribute;
 		this.value = value;
+	}
+
+	private SentenceTag(int startIndex, SentenceTag<T> toClone) {
+		this(startIndex, toClone.getAttribute(), toClone.getValue());
+	}
+
+	public SentenceTag<T> clone(int startIndex) {
+		SentenceTag<T> clone = new SentenceTag<T>(startIndex, this);
+		return clone;
 	}
 
 	public int getStartIndex() {
@@ -53,16 +66,13 @@ public class SentenceTag {
 		return attribute;
 	}
 
-	public String getValue() {
+	public TokenAttribute<T> getValue() {
 		return value;
 	}
 
 	@Override
 	public String toString() {
-		return "SentenceTag [startIndex=" + startIndex + ", endIndex="
-				+ endIndex + ", attribute=" + attribute + ", value=" + value
-				+ "]";
+		return "SentenceTag [startIndex=" + startIndex + ", endIndex=" + endIndex + ", attribute=" + attribute + ", value=" + value + "]";
 	}
-	
-	
+
 }

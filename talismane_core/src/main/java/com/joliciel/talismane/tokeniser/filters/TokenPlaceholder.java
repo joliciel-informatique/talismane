@@ -20,8 +20,11 @@ package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.Map;
 
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+
 /**
  * A place-holder that will be replaced by a proper token when tokenising.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -30,39 +33,43 @@ public interface TokenPlaceholder {
 	 * The replacement text for this placeholder.
 	 */
 	String getReplacement();
-	
+
 	/**
 	 * Start index for this placeholder.
 	 */
 	int getStartIndex();
-	
+
 	/**
 	 * The index just after this placeholder ends.
 	 */
 	int getEndIndex();
-	
+
 	/**
 	 * The regex which matched this placeholder.
 	 */
 	String getRegex();
-	
-	
-	/**
-	 * Can this placeholder represent a sentence boundary (at its last character that is)?
-	 */
-	public boolean isPossibleSentenceBoundary();
-	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
-	
-	/**
-	 * Set of attributes to be assigned to tokens recognised by this regex filter.
-	 */
-	Map<String,String> getAttributes();
-	public void addAttribute(String key, String value);
 
 	/**
-	 * Should this placeholder be interpreted as a single token,
-	 * or should it simply be used to add attributes to all tokens matched by it.
+	 * Can this placeholder represent a sentence boundary (at its last character
+	 * that is)?
+	 */
+	public boolean isPossibleSentenceBoundary();
+
+	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
+
+	/**
+	 * Set of attributes to be assigned to tokens recognised by this regex
+	 * filter.
+	 */
+	Map<String, TokenAttribute<?>> getAttributes();
+
+	public void addAttribute(String key, TokenAttribute<?> value);
+
+	/**
+	 * Should this placeholder be interpreted as a single token, or should it
+	 * simply be used to add attributes to all tokens matched by it.
 	 */
 	public boolean isSingleToken();
+
 	public void setSingleToken(boolean singleToken);
 }

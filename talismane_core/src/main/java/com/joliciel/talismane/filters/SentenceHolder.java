@@ -21,29 +21,37 @@ package com.joliciel.talismane.filters;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+
 public interface SentenceHolder extends Sentence {
 	/**
 	 * Add a sentence boundary to this sentence holder.
 	 */
-	void addSentenceBoundary(int boundary);
-	Set<Integer> getSentenceBoundaries();
-	
+	public void addSentenceBoundary(int boundary);
+
+	public Set<Integer> getSentenceBoundaries();
+
 	/**
-	 * Based on the sentence boundaries added, return all the sentences produced by this sentence holder.
-	 * If there is any text left over, the last sentence will be marked as not complete.
-	 * After this is called, {@link #getOriginalTextSegments()} will only return leftover original text segments
-	 * that have not yet been assigned to sentences in the current list.
-	 * @param leftOverText an incomplete sentence returned by the previous sentence holder.
+	 * Based on the sentence boundaries added, return all the sentences produced
+	 * by this sentence holder. If there is any text left over, the last
+	 * sentence will be marked as not complete. After this is called,
+	 * {@link #getOriginalTextSegments()} will only return leftover original
+	 * text segments that have not yet been assigned to sentences in the current
+	 * list.
+	 * 
+	 * @param leftOverText
+	 *            an incomplete sentence returned by the previous sentence
+	 *            holder.
 	 */
-	List<Sentence> getDetectedSentences(Sentence leftOverText);
-	
+	public List<Sentence> getDetectedSentences(Sentence leftOverText);
+
 	/**
 	 * Indicate that a tag starts at this position.
 	 */
-	void addTagStart(String attribute, String value, int position);
-	
+	public <T> void addTagStart(String attribute, TokenAttribute<T> value, int position);
+
 	/**
 	 * Indicate that a tag ends at this position.
 	 */
-	void addTagEnd(String attribute, String value, int position);
+	public <T> void addTagEnd(String attribute, TokenAttribute<T> value, int position);
 }

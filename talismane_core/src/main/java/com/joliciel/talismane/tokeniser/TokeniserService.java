@@ -29,53 +29,50 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 public interface TokeniserService {
 	public Token getToken(String string, TokenSequence tokenSequence, int index);
-	
+
 	/**
 	 * Create a token sequence for a given sentence.
 	 */
 	public TokenSequence getTokenSequence(Sentence sentence);
-	
+
 	/**
-	 * Create a token sequence from a given sentence,
-	 * pre-separated into tokens matching the separatorPattern.
+	 * Create a token sequence from a given sentence, pre-separated into tokens
+	 * matching the separatorPattern.
 	 */
 	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern);
-	
-	
+
 	/**
-	 * Create a token sequence from a given sentence,
-	 * pre-separated into tokens matching the separatorPattern,
-	 * except for the placeholders provided.
+	 * Create a token sequence from a given sentence, pre-separated into tokens
+	 * matching the separatorPattern, except for the placeholders provided.
 	 */
 	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders);
 
 	public PretokenisedSequence getEmptyPretokenisedSequence();
+
 	public PretokenisedSequence getEmptyPretokenisedSequence(String sentenceText);
-	
+
 	public Tokeniser getSimpleTokeniser();
-	
+
 	public TokeniserEvaluator getTokeniserEvaluator(Tokeniser tokeniser);
-	public TokenComparator getTokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader,
-			TokeniserAnnotatedCorpusReader evaluationCorpusReader,
+
+	public TokenComparator getTokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
 			TokeniserPatternManager tokeniserPatternManager);
-	
+
 	public TaggedToken<TokeniserOutcome> getTaggedToken(Token token, Decision decision);
-	
+
 	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision decision, T tag);
-	
+
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(int initialCapacity);
+
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(TaggedTokenSequence<T> history);
-	
-	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
-			TokenisedAtomicTokenSequence history);
-	
-	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(
-			Sentence sentence,
-			int initialCapacity);
-	
+
+	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(TokenisedAtomicTokenSequence history);
+
+	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(Sentence sentence, int initialCapacity);
+
 	/**
-	 * Returns a corpus reader based on the use of Regex.
-	 * See class description for details.
+	 * Returns a corpus reader based on the use of Regex. See class description
+	 * for details.
 	 */
 	TokenRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 }

@@ -21,6 +21,8 @@ package com.joliciel.talismane.tokeniser.filters;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+
 class TokenPlaceholderImpl implements TokenPlaceholder {
 	private int startIndex;
 	private int endIndex;
@@ -28,33 +30,41 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 	private String regex;
 	private boolean possibleSentenceBoundary = true;
 	private boolean singleToken = true;
-	private Map<String,String> attributes = new HashMap<String,String>();
+	private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
 
 	public TokenPlaceholderImpl() {
 	}
-	
+
+	@Override
 	public int getStartIndex() {
 		return startIndex;
 	}
+
 	public void setStartIndex(int startIndex) {
 		this.startIndex = startIndex;
 	}
+
+	@Override
 	public int getEndIndex() {
 		return endIndex;
 	}
+
 	public void setEndIndex(int endIndex) {
 		this.endIndex = endIndex;
 	}
+
+	@Override
 	public String getReplacement() {
 		return replacement;
 	}
+
 	public void setReplacement(String replacement) {
 		this.replacement = replacement;
 	}
+
 	@Override
 	public String toString() {
-		return "TokenPlaceholderImpl [startIndex=" + startIndex + ", endIndex="
-				+ endIndex + ", replacement=" + replacement + "]";
+		return "TokenPlaceholderImpl [startIndex=" + startIndex + ", endIndex=" + endIndex + ", replacement=" + replacement + "]";
 	}
 
 	@Override
@@ -62,8 +72,7 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + endIndex;
-		result = prime * result
-				+ ((replacement == null) ? 0 : replacement.hashCode());
+		result = prime * result + ((replacement == null) ? 0 : replacement.hashCode());
 		result = prime * result + startIndex;
 		return result;
 	}
@@ -89,6 +98,7 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 		return true;
 	}
 
+	@Override
 	public String getRegex() {
 		return regex;
 	}
@@ -97,28 +107,32 @@ class TokenPlaceholderImpl implements TokenPlaceholder {
 		this.regex = regex;
 	}
 
+	@Override
 	public boolean isPossibleSentenceBoundary() {
 		return possibleSentenceBoundary;
 	}
 
+	@Override
 	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary) {
 		this.possibleSentenceBoundary = possibleSentenceBoundary;
 	}
-	
+
 	@Override
-	public Map<String,String> getAttributes() {
+	public Map<String, TokenAttribute<?>> getAttributes() {
 		return attributes;
 	}
 
 	@Override
-	public void addAttribute(String key, String value) {
+	public void addAttribute(String key, TokenAttribute<?> value) {
 		attributes.put(key, value);
 	}
 
+	@Override
 	public boolean isSingleToken() {
 		return singleToken;
 	}
 
+	@Override
 	public void setSingleToken(boolean singleToken) {
 		this.singleToken = singleToken;
 	}

@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+
 class TextMarkerImpl implements TextMarker {
 	private TextMarkerType type;
 	private int position;
@@ -25,21 +27,25 @@ class TextMarkerImpl implements TextMarker {
 	private TextMarkerFilter source;
 	private String matchText;
 	private String attribute;
-	private String value;
-	
+	private TokenAttribute<?> value;
+
 	public TextMarkerImpl(TextMarkerType type, int position) {
 		super();
 		this.type = type;
 		this.position = position;
 	}
-	
+
+	@Override
 	public TextMarkerType getType() {
 		return type;
 	}
+
+	@Override
 	public int getPosition() {
 		return position;
 	}
 
+	@Override
 	public void setPosition(int position) {
 		this.position = position;
 	}
@@ -48,7 +54,7 @@ class TextMarkerImpl implements TextMarker {
 	public int compareTo(TextMarker o) {
 		if (this == o)
 			return 0;
-		if (this.position!=o.getPosition())
+		if (this.position != o.getPosition())
 			return this.position - o.getPosition();
 		if (!this.getType().equals(o.getType()))
 			return this.getType().compareTo(o.getType());
@@ -60,43 +66,49 @@ class TextMarkerImpl implements TextMarker {
 		return "TextMarkerImpl [type=" + type + ", position=" + position + "]";
 	}
 
+	@Override
 	public String getInsertionText() {
 		return insertionText;
 	}
 
+	@Override
 	public void setInsertionText(String insertionText) {
 		this.insertionText = insertionText;
 	}
 
+	@Override
 	public TextMarkerFilter getSource() {
 		return source;
 	}
 
+	@Override
 	public void setSource(TextMarkerFilter source) {
 		this.source = source;
 	}
 
+	@Override
 	public String getMatchText() {
 		return matchText;
 	}
 
+	@Override
 	public void setMatchText(String matchText) {
 		this.matchText = matchText;
 	}
-	
+
 	@Override
-	public void setTag(String attribute, String value) {
+	public <T> void setTag(String attribute, TokenAttribute<T> value) {
 		this.attribute = attribute;
 		this.value = value;
 	}
-	
+
 	@Override
 	public String getAttribute() {
 		return attribute;
 	}
 
 	@Override
-	public String getValue() {
+	public TokenAttribute<?> getValue() {
 		return value;
 	}
 }
