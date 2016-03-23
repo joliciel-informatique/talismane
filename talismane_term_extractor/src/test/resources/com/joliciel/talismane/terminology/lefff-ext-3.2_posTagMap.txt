@@ -1,0 +1,470 @@
+# Lefff 3.2 to Talismane tagset mapping
+Category	Morphology
+adj	f	ADJ
+adj	fp	ADJ
+adj	fs	ADJ
+adj	m	ADJ
+adj	mp	ADJ
+adj	ms	ADJ
+adj		ADJ
+adj		ADJ
+adj	p	ADJ
+adj	s	ADJ
+adj	Kfs	ADJ
+adj	Kfp	ADJ
+adj	Kms	ADJ
+adj	Kmp	ADJ
+adj	K	ADJ
+adj	Km	ADJ
+adjPref		ADV
+adv		ADV
+adv	e	ADV
+advm		ADV
+advp		ADV
+advPref		ADV
+advneg		ADV
+advwh		ADVWH
+auxAvoir	C12s	V
+auxAvoir	C1p	V
+auxAvoir	C2p	V
+auxAvoir	C3p	V
+auxAvoir	C3s	V
+auxAvoir	F1p	V
+auxAvoir	F1s	V
+auxAvoir	F2p	V
+auxAvoir	F2s	V
+auxAvoir	F3p	V
+auxAvoir	F3s	V
+auxAvoir	G	VPR
+auxAvoir	I12s	V
+auxAvoir	I1p	V
+auxAvoir	I2p	V
+auxAvoir	I3p	V
+auxAvoir	I3s	V
+auxAvoir	J12s	V
+auxAvoir	J1p	V
+auxAvoir	J2p	V
+auxAvoir	J3p	V
+auxAvoir	J3s	V
+auxAvoir	Kfp	VPP
+auxAvoir	Kfs	VPP
+auxAvoir	Kmp	VPP
+auxAvoir	Kms	VPP
+auxAvoir		VINF
+auxAvoir	P1p	V
+auxAvoir	P1s	V
+auxAvoir	P2p	V
+auxAvoir	P2s	V
+auxAvoir	P3p	V
+auxAvoir	P3s	V
+auxAvoir	PFIJTSC	V
+auxAvoir	PFIJTSC	V
+auxAvoir	PFIJTSC	V
+auxAvoir	PFIJTSC	V
+auxAvoir	PFIJTSC	V
+auxAvoir	PFIJTSC	V
+auxAvoir	PFIJTSC	V
+auxAvoir	PFIJTSC	V
+auxAvoir	S1p	VS
+auxAvoir	S1s	VS
+auxAvoir	S2p	VS
+auxAvoir	S2s	VS
+auxAvoir	S3p	VS
+auxAvoir	S3s	VS
+auxAvoir	T1p	VS
+auxAvoir	T1s	VS
+auxAvoir	T2p	VS
+auxAvoir	T2s	VS
+auxAvoir	T3p	VS
+auxAvoir	T3s	VS
+auxAvoir	W	VINF
+auxAvoir	Y1p	VIMP
+auxAvoir	Y2p	VIMP
+auxAvoir	Y2s	VIMP
+auxEtre	C12s	V
+auxEtre	C1p	V
+auxEtre	C2p	V
+auxEtre	C3p	V
+auxEtre	C3s	V
+auxEtre	F1p	V
+auxEtre	F1s	V
+auxEtre	F2p	V
+auxEtre	F2s	V
+auxEtre	F3p	V
+auxEtre	F3s	V
+auxEtre	G	VPR
+auxEtre	I12s	V
+auxEtre	I1p	V
+auxEtre	I2p	V
+auxEtre	I3p	V
+auxEtre	I3s	V
+auxEtre	J12s	V
+auxEtre	J1p	V
+auxEtre	J2p	V
+auxEtre	J3p	V
+auxEtre	J3s	V
+auxEtre	K	VPP
+auxEtre	K	VPP
+auxEtre		VINF
+auxEtre	P1p	V
+auxEtre	P1s	V
+auxEtre	P2p	V
+auxEtre	P2s	V
+auxEtre	P3p	V
+auxEtre	P3s	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	V
+auxEtre	PFIJTSC	VS
+auxEtre	PFIJTSC	VS
+auxEtre	PFIJTSC	VS
+auxEtre	PFIJTSC	VS
+auxEtre	PFIJTSC	VS
+auxEtre	PFIJTSC	VS
+auxEtre	PFIJTSC	VS
+auxEtre	PFIJTSC	VS
+auxEtre	S1p	VS
+auxEtre	S1s	VS
+auxEtre	S2p	VS
+auxEtre	S2s	VS
+auxEtre	S3p	VS
+auxEtre	S3s	VS
+auxEtre	T1p	VS
+auxEtre	T1s	VS
+auxEtre	T2p	VS
+auxEtre	T2s	VS
+auxEtre	T3p	VS
+auxEtre	T3s	VS
+auxEtre	W	VINF
+auxEtre	Y1p	VIMP
+auxEtre	Y2p	VIMP
+auxEtre	Y2s	VIMP
+cla	1p	CLO
+cla	1s	CLO
+cla	2p	CLO
+cla	2s	CLO
+cla	3fs	CLO
+cla	3ms	CLO
+cla	3p	CLO
+cla	3s	CLO
+cla		CLO
+clar	3p	CLR
+clar	3s	CLR
+cld	1p	CLO
+cld	1s	CLO
+cld	2p	CLO
+cld	2s	CLO
+cld	3p	CLO
+cld	3s	CLO
+cld		CLO
+cld		CLO
+cldr	3p	CLR
+cldr	3s	CLR
+clg		CLO
+clg		CLO
+cll		CLO
+cll		CLO
+cln	1p	CLS
+cln	1s	CLS
+cln	2p	CLS
+cln	2s	CLS
+cln	3fp	CLS
+cln	3fs	CLS
+cln	3mp	CLS
+cln	3ms	CLS
+cln	3s	CLS
+cln		CLS
+cln		CLS
+cln	s	CLS
+clneg		ADV
+clr	1p	CLR
+clr	1s	CLR
+clr	2p	CLR
+clr	2s	CLR
+clr	3p	CLR
+clr	3s	CLR
+clr		CLR
+clr		CLR
+coo		CC
+csu		CS
+det	fp	DET
+det	fs	DET
+det	fs_P1s	DET
+det	fs_P2s	DET
+det	fs_P3s	DET
+det	mp	DET
+det	ms	DET
+det		DET
+det		DET
+det	p	DET
+det	p_P1p	DET
+det	p_P1s	DET
+det	p_P2p	DET
+det	p_P2s	DET
+det	p_P3p	DET
+det	p_P3s	DET
+det	s	DET
+det	s_P1p	DET
+det	s_P1s	DET
+det	s_P2p	DET
+det	s_P2s	DET
+det	s_P3p	DET
+det	s_P3s	DET
+detwh	fp	DETWH
+detwh	fs	DETWH
+detwh	mp	DETWH
+detwh	ms	DETWH
+detwh	p	DETWH
+epsilon		PONCT
+etr		ET
+nc	f	NC
+nc	f	NC
+nc	fp	NC
+nc	fs	NC
+nc	m	NC
+nc	m	NC
+nc	mp	NC
+nc	ms	NC
+nc		NC
+nc		NC
+nc	p	NC
+nc	s	NC
+ncpred		NC
+np	fp	NPP
+np	fs	NPP
+np	mp	NPP
+np	ms	NPP
+np		NPP
+np	s	NPP
+pdem	fp	PRO
+pdem	fs	PRO
+pdem	mp	PRO
+pdem	ms	PRO
+pdem		PRO
+pdem		PRO
+pneg	fp	PRO
+pneg	fs	PRO
+pneg	mp	PRO
+pneg	ms	PRO
+pneg	s	PRO
+poncts		PONCT
+ponctw		PONCT
+ppers	1p	PRO
+ppers	1s	PRO
+ppers	2p	PRO
+ppers	2s	PRO
+ppers	3fp	PRO
+ppers	3fs	PRO
+ppers	3mp	PRO
+ppers	3ms	PRO
+ppers	s	PRO
+prel	fp	PROREL
+prel	fs	PROREL
+prel	mp	PROREL
+prel	ms	PROREL
+prel		PROREL
+prel		PROREL
+prep		P
+pres		I
+pri	fp	PROWH
+pri	fs	PROWH
+pri	mp	PROWH
+pri	ms	PROWH
+pri		PROWH
+pro	3	PRO
+pro	3	PRO
+pro	3	PRO
+pro	3fp	PRO
+pro	3fs	PRO
+pro	3fs	PRO
+pro	3m	PRO
+pro	3m	PRO
+pro	3m	PRO
+pro	3mp	PRO
+pro	3mp	PRO
+pro	3ms	PRO
+pro	3ms	PRO
+pro	3s	PRO
+pro	3s	PRO
+pro	f	PRO
+pro	f	PRO
+pro	f	PRO
+pro	fp	PRO
+pro	fp	PRO
+pro	fp_P1p	PRO
+pro	fp_P1p	PRO
+pro	fp_P1s	PRO
+pro	fp_P1s	PRO
+pro	fp_P2p	PRO
+pro	fp_P2p	PRO
+pro	fp_P2s	PRO
+pro	fp_P2s	PRO
+pro	fp_P3p	PRO
+pro	fp_P3p	PRO
+pro	fp_P3s	PRO
+pro	fp_P3s	PRO
+pro	fs	PRO
+pro	fs	PRO
+pro	fs_P1p	PRO
+pro	fs_P1p	PRO
+pro	fs_P1s	PRO
+pro	fs_P1s	PRO
+pro	fs_P2p	PRO
+pro	fs_P2p	PRO
+pro	fs_P2s	PRO
+pro	fs_P2s	PRO
+pro	fs_P3p	PRO
+pro	fs_P3p	PRO
+pro	fs_P3s	PRO
+pro	fs_P3s	PRO
+pro	m	PRO
+pro	m	PRO
+pro	m	PRO
+pro	mp	PRO
+pro	mp	PRO
+pro	mp_P1p	PRO
+pro	mp_P1p	PRO
+pro	mp_P1s	PRO
+pro	mp_P1s	PRO
+pro	mp_P2p	PRO
+pro	mp_P2p	PRO
+pro	mp_P2s	PRO
+pro	mp_P2s	PRO
+pro	mp_P3p	PRO
+pro	mp_P3p	PRO
+pro	mp_P3s	PRO
+pro	mp_P3s	PRO
+pro	ms	PRO
+pro	ms	PRO
+pro	ms_P1p	PRO
+pro	ms_P1p	PRO
+pro	ms_P1s	PRO
+pro	ms_P1s	PRO
+pro	ms_P2p	PRO
+pro	ms_P2p	PRO
+pro	ms_P2s	PRO
+pro	ms_P2s	PRO
+pro	ms_P3p	PRO
+pro	ms_P3p	PRO
+pro	ms_P3s	PRO
+pro	ms_P3s	PRO
+pro		PRO
+pro		PRO
+pro		PRO
+pro	p	PRO
+pro	p	PRO
+pro	s	PRO
+pro	s	PRO
+prowh	fp	PROWH
+prowh	fs	PROWH
+prowh	mp	PROWH
+prowh	ms	PROWH
+sbound		ET
+v	C12s	V
+v	C1p	V
+v	C1s	V
+v	C2p	V
+v	C3p	V
+v	C3s	V
+v	F1p	V
+v	F1s	V
+v	F2p	V
+v	F2s	V
+v	F3p	V
+v	F3s	V
+v	fp	NC
+v	fs	NC
+v	G	VPR
+v	I12s	V
+v	I1p	V
+v	I1s	V
+v	I2p	V
+v	I3p	V
+v	I3s	V
+v	J12s	V
+v	J1p	V
+v	J1s	V
+v	J2p	V
+v	J2s	V
+v	J3p	V
+v	J3s	V
+v	K	VPP
+v	K	VPP
+v	Kfp	VPP
+v	Kfs	VPP
+v	Km	VPP
+v	Km	VPP
+v	Kmp	VPP
+v	Kms	VPP
+v	K	ADJ
+v	K	ADJ
+v	Kfp	ADJ
+v	Kfs	ADJ
+v	Km	ADJ
+v	Km	ADJ
+v	Kmp	ADJ
+v	Kms	ADJ
+v	mp	NC
+v	ms	NC
+v		V
+v	P12s	V
+v	P1p	V
+v	P1s	V
+v	P2p	V
+v	P2s	V
+v	P3p	V
+v	P3s	V
+v	PFIJTSC	V
+v	PFIJTSC	V
+v	PFIJTSC	V
+v	PFIJTSC	V
+v	PFIJTSC	V
+v	PFIJTSC	V
+v	PFIJTSC	V
+v	PFIJTSC	V
+v	PFIJTSC	VS
+v	PFIJTSC	VS
+v	PFIJTSC	VS
+v	PFIJTSC	VS
+v	PFIJTSC	VS
+v	PFIJTSC	VS
+v	PFIJTSC	VS
+v	PFIJTSC	VS
+v	PJ12s	V
+v	PS13s	V
+v	PS13s	VS
+v	PS2s	V
+v	PS2s	VS
+v	PS3	V
+v	PS3	V
+v	PS3	VS
+v	PS3	VS
+v	PS3p	V
+v	PS3p	VS
+v	PS3s	V
+v	PS3s	VS
+v	S13s	VS
+v	S1p	VS
+v	S1s	VS
+v	S2p	VS
+v	S2s	VS
+v	S3p	VS
+v	S3s	VS
+v	ST2s	VS
+v	ST2s	VS
+v	T1p	VS
+v	T1s	VS
+v	T2p	VS
+v	T2s	VS
+v	T3p	VS
+v	T3s	VS
+v	W	VINF
+v	Y	VIMP
+v	Y1p	VIMP
+v	Y2p	VIMP
+v	Y2s	VIMP
