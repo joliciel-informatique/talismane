@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,32 +46,25 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	private MachineLearningService machineLearningService;
 	private TokeniserService tokeniserService;
 	private ExternalResourceFinder externalResourceFinder;
+	private Map<String, Class<? extends TokenFilter>> registeredFilterTypes = new HashMap<String, Class<? extends TokenFilter>>();
 
-	@Override
-	public TokenPlaceholder getTokenPlaceholder(int startIndex, int endIndex, String replacement, String regex) {
-		TokenPlaceholderImpl placeholder = new TokenPlaceholderImpl();
-		placeholder.setStartIndex(startIndex);
-		placeholder.setEndIndex(endIndex);
-		placeholder.setReplacement(replacement);
-		placeholder.setRegex(regex);
-		return placeholder;
+	public TokenFilterServiceImpl() {
+		registeredFilterTypes.put(AttributeRegexFilter.class.getSimpleName(), AttributeRegexFilter.class);
+		registeredFilterTypes.put(TokenRegexFilter.class.getSimpleName(), TokenRegexFilterWithReplacement.class);
 	}
 
 	@Override
 	public TokenRegexFilter getTokenRegexFilter(String regex) {
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl(regex);
-		filter.setTokeniserFilterService(this);
-		filter.setTokeniserService(this.tokeniserService);
+		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
 		filter.setExternalResourceFinder(this.getExternalResourceFinder());
+		filter.setRegex(regex);
 		return filter;
 	}
 
 	@Override
-	public AttributeRegexFilter getAttributeRegexFilter(String regex) {
-		AttributeRegexFilterImpl filter = new AttributeRegexFilterImpl(regex);
-		filter.setTokeniserFilterService(this);
-		filter.setTokeniserService(this.tokeniserService);
-		filter.setExternalResourceFinder(this.getExternalResourceFinder());
+	public TokenRegexFilter getTokenRegexFilter(String regex, String replacement) {
+		TokenRegexFilterWithReplacement filter = (TokenRegexFilterWithReplacement) this.getTokenRegexFilter(regex);
+		filter.setReplacement(replacement);
 		return filter;
 	}
 
@@ -141,8 +137,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 					}
 				}
 			} else {
-				Map<String, String> parameterMap = new HashMap<String, String>(defaultParams);
-				TokenFilter tokenFilter = this.getTokenFilter(descriptor, parameterMap);
+				TokenFilter tokenFilter = this.getTokenFilter(descriptor, defaultParams);
 				tokenFilters.add(tokenFilter);
 			}
 		}
@@ -159,62 +154,60 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		return this.getTokenFilter(descriptor, parameterMap);
 	}
 
-	public TokenFilter getTokenFilter(String descriptor, Map<String, String> parameterMap) {
-		TokenRegexFilter filter = null;
-		String[] parts = descriptor.split("\t");
-		String className = parts[0];
+	public TokenFilter getTokenFilter(String descriptor, Map<String, String> defaultParams) {
+		try {
+			Map<String, String> myParams = new HashMap<String, String>(defaultParams);
 
-		if (className.indexOf('(') > 0) {
-			String parameters = className.substring(className.indexOf('(') + 1, className.indexOf(')'));
-			className = className.substring(0, className.indexOf('('));
-			if (parameters.length() > 0) {
-				String[] paramArray = parameters.split(",");
-				for (String paramEntry : paramArray) {
-					String paramName = paramEntry.substring(0, paramEntry.indexOf('='));
-					String paramValue = paramEntry.substring(paramEntry.indexOf('=') + 1);
-					parameterMap.put(paramName, paramValue);
+			String[] parts = descriptor.split("\t");
+			String className = parts[0];
+
+			if (className.indexOf('(') > 0) {
+				String parameters = className.substring(className.indexOf('(') + 1, className.indexOf(')'));
+				className = className.substring(0, className.indexOf('('));
+				if (parameters.length() > 0) {
+					String[] paramArray = parameters.split(",");
+					for (String paramEntry : paramArray) {
+						String paramName = paramEntry.substring(0, paramEntry.indexOf('='));
+						String paramValue = paramEntry.substring(paramEntry.indexOf('=') + 1);
+						myParams.put(paramName, paramValue);
+					}
 				}
 			}
-		}
 
-		if (className.equals(TokenRegexFilter.class.getSimpleName())) {
-			if (parts.length < 2 || parts.length > 3)
-				throw new TalismaneException(
-						"Wrong number of tabs for " + TokenRegexFilter.class.getSimpleName() + ". Expected 2 or 3, but was " + parts.length);
-			filter = this.getTokenRegexFilter(parts[1]);
-			if (parts.length == 3) {
-				filter.setReplacement(parts[2]);
+			Class<? extends TokenFilter> clazz = this.registeredFilterTypes.get(className);
+			if (clazz == null) {
+				throw new TalismaneException("Unknown TokenFilter: " + className);
 			}
-		} else if (className.equals(AttributeRegexFilter.class.getSimpleName())) {
-			if (parts.length != 2)
-				throw new TalismaneException(
-						"Wrong number of tabs for " + AttributeRegexFilter.class.getSimpleName() + ". Expected 2, but was " + parts.length);
-			filter = this.getAttributeRegexFilter(parts[1]);
-		} else {
-			throw new TalismaneException("Unknown TokenFilter: " + className);
-		}
+			TokenFilter filter = clazz.newInstance();
 
-		for (String paramName : parameterMap.keySet()) {
-			String paramValue = parameterMap.get(paramName);
-			if (paramName.equals("possibleSentenceBoundary")) {
-				filter.setPossibleSentenceBoundary(Boolean.valueOf(paramValue));
-			} else if (paramName.equals("group")) {
-				filter.setGroupIndex(Integer.parseInt(paramValue));
-			} else if (paramName.equals("caseSensitive")) {
-				filter.setCaseSensitive(Boolean.valueOf(paramValue));
-			} else if (paramName.equals("diacriticSensitive")) {
-				filter.setDiacriticSensitive(Boolean.valueOf(paramValue));
-			} else if (paramName.equals("autoWordBoundaries")) {
-				filter.setAutoWordBoundaries(Boolean.valueOf(paramValue));
-			} else {
-				filter.addAttribute(paramName, paramValue);
+			try {
+				Method setExternalResourceFinderMethod = clazz.getMethod("setExternalResourceFinder", ExternalResourceFinder.class);
+				setExternalResourceFinderMethod.invoke(filter, this.getExternalResourceFinder());
+			} catch (NoSuchMethodException e) {
+				// do nothing
+			} catch (SecurityException e) {
+				// do nothing
 			}
+
+			List<String> tabs = new ArrayList<String>(parts.length - 1);
+			for (int i = 1; i < parts.length; i++)
+				tabs.add(parts[i]);
+			filter.load(myParams, tabs);
+
+			return filter;
+		} catch (InstantiationException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		}
-
-		// verify that the filter can work correctly
-		filter.verify();
-
-		return filter;
 	}
 
 	@Override
@@ -260,4 +253,8 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		this.tokeniserService = tokeniserService;
 	}
 
+	@Override
+	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type) {
+		this.registeredFilterTypes.put(name, type);
+	}
 }

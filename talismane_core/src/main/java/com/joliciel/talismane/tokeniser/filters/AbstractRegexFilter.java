@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -37,33 +37,26 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.ExternalWordList;
 import com.joliciel.talismane.tokeniser.StringAttribute;
-import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.utils.RegexUtils;
+import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.utils.StringUtils;
 
-class TokenRegexFilterImpl implements TokenRegexFilter {
-	private static final Log LOG = LogFactory.getLog(TokenRegexFilterImpl.class);
+public abstract class AbstractRegexFilter implements TokenRegexFilter {
+
+	private static final Log LOG = LogFactory.getLog(AbstractRegexFilter.class);
 	private static Pattern wordListPattern = Pattern.compile("\\\\p\\{WordList\\((.*?)\\)\\}", Pattern.UNICODE_CHARACTER_CLASS);
 	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 	private String regex;
 	private Pattern pattern;
-	private String replacement;
 	private int groupIndex = 0;
 	private boolean possibleSentenceBoundary = true;
-	private Map<String, String> attributes = new HashMap<String, String>();
+	private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
 	private boolean caseSensitive = true;
 	private boolean diacriticSensitive = true;
 	private boolean autoWordBoundaries = false;
-
-	private TokenFilterServiceInternal tokeniserFilterService;
-	private TokeniserService tokeniserService;
 	private ExternalResourceFinder externalResourceFinder;
 
-	public TokenRegexFilterImpl(String regex) {
+	public AbstractRegexFilter() {
 		super();
-		if (regex == null || regex.length() == 0)
-			throw new TalismaneException("Cannot use an empty regex for a filter");
-		this.regex = regex;
 	}
 
 	@Override
@@ -76,11 +69,11 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 			int start = matcher.start(groupIndex);
 			if (start > lastStart) {
 				int end = matcher.end(groupIndex);
-				String newText = RegexUtils.getReplacement(replacement, text, matcher);
-				TokenPlaceholder placeholder = this.tokeniserFilterService.getTokenPlaceholder(start, end, newText, regex);
+				String replacement = this.findReplacement(text, matcher);
+				TokenPlaceholder placeholder = new TokenPlaceholder(start, end, replacement, regex);
 				placeholder.setPossibleSentenceBoundary(this.possibleSentenceBoundary);
 				for (String key : attributes.keySet()) {
-					StringAttribute tokenAttribute = new StringAttribute(attributes.get(key));
+					TokenAttribute<?> tokenAttribute = attributes.get(key);
 					placeholder.addAttribute(key, tokenAttribute);
 				}
 				placeholders.add(placeholder);
@@ -91,40 +84,26 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 		return placeholders;
 	}
 
+	/**
+	 * If the token text should be replaced, return something, otherwise return
+	 * null.
+	 */
+	protected String findReplacement(String text, Matcher matcher) {
+		return null;
+	}
+
 	@Override
 	public String getRegex() {
 		return regex;
 	}
 
-	@Override
-	public String getReplacement() {
-		return replacement;
-	}
-
-	@Override
-	public void setReplacement(String replacement) {
-		this.replacement = replacement;
-	}
-
-	public TokenFilterServiceInternal getTokeniserFilterService() {
-		return tokeniserFilterService;
-	}
-
-	public void setTokeniserFilterService(TokenFilterServiceInternal tokeniserFilterService) {
-		this.tokeniserFilterService = tokeniserFilterService;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
+	public void setRegex(String regex) {
+		this.regex = regex;
 	}
 
 	@Override
 	public String toString() {
-		return "TokenRegexFilter [regex=" + regex + ", replacement=" + replacement + "]";
+		return "AbstractRegexFilter [regex=" + regex + "]";
 	}
 
 	@Override
@@ -148,16 +127,16 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 	}
 
 	@Override
-	public Map<String, String> getAttributes() {
+	public Map<String, TokenAttribute<?>> getAttributes() {
 		return attributes;
 	}
 
 	@Override
-	public void addAttribute(String key, String value) {
+	public void addAttribute(String key, TokenAttribute<?> value) {
 		attributes.put(key, value);
 	}
 
-	Pattern getPattern() {
+	protected Pattern getPattern() {
 		if (pattern == null) {
 			// we may need to replace WordLists by the list contents
 			String myRegex = this.regex;
@@ -481,10 +460,56 @@ class TokenRegexFilterImpl implements TokenRegexFilter {
 
 	@Override
 	public void verify() {
+		if (regex == null || regex.length() == 0)
+			throw new TalismaneException("Cannot use an empty regex for a filter");
+
 		Pattern pattern = this.getPattern();
 		Matcher matcher = pattern.matcher("");
 		if (this.groupIndex > matcher.groupCount()) {
 			throw new TalismaneException("No group " + this.groupIndex + " in pattern: " + this.regex);
 		}
 	}
+
+	@Override
+	public void load(Map<String, String> parameters, List<String> tabs) {
+		if (tabs.size() < 1)
+			throw new TalismaneException(
+					"Wrong number of additional tabs for " + TokenRegexFilter.class.getSimpleName() + ". Expected at least 1, but was " + tabs.size());
+		this.setRegex(tabs.get(0));
+
+		this.loadInternal(parameters, tabs);
+
+		for (String paramName : parameters.keySet()) {
+			String paramValue = parameters.get(paramName);
+			if (paramName.equals("possibleSentenceBoundary")) {
+				this.setPossibleSentenceBoundary(Boolean.valueOf(paramValue));
+			} else if (paramName.equals("group")) {
+				this.setGroupIndex(Integer.parseInt(paramValue));
+			} else if (paramName.equals("caseSensitive")) {
+				this.setCaseSensitive(Boolean.valueOf(paramValue));
+			} else if (paramName.equals("diacriticSensitive")) {
+				this.setDiacriticSensitive(Boolean.valueOf(paramValue));
+			} else if (paramName.equals("autoWordBoundaries")) {
+				this.setAutoWordBoundaries(Boolean.valueOf(paramValue));
+			} else {
+				this.addAttribute(paramName, new StringAttribute(paramValue));
+			}
+		}
+
+		this.verify();
+	}
+
+	/**
+	 * Load the token filter's state using information extracted from a
+	 * descriptor.
+	 * 
+	 * @param parameters
+	 *            a series of name/value parameters. Subclasses should remove
+	 *            any parameters handled before passing on to the superclass.
+	 * @param tabs
+	 *            a list of unnamed parameters, whose placement determines their
+	 *            meaning
+	 */
+	protected abstract void loadInternal(Map<String, String> parameters, List<String> tabs);
+
 }

@@ -19,6 +19,4 @@
 package com.joliciel.talismane.tokeniser.filters;
 
 interface TokenFilterServiceInternal extends TokenFilterService {
-	public TokenPlaceholder getTokenPlaceholder(int startIndex, int endIndex, String replacement, String regex);
-	public AttributeRegexFilter getAttributeRegexFilter(String regex);
 }

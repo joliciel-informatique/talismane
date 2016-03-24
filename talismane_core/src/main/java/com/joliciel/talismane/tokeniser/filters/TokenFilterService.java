@@ -26,42 +26,66 @@ import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 public interface TokenFilterService {
 	public static final String TOKEN_FILTER_DESCRIPTOR_KEY = "token_filter";
 	public static final String TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY = "token_sequence_filter";
-	
+
 	/**
 	 * Return a filter for the regex provided.
 	 */
 	public TokenRegexFilter getTokenRegexFilter(String regex);
-	
+
 	/**
-	 * Gets a TokenSequenceFilter corresponding to a given descriptor.
-	 * The descriptor should contain the class name, followed by any arguments, separated by tabs.
+	 * Return a filter for the regex and replacement provided.
+	 */
+	public TokenRegexFilter getTokenRegexFilter(String regex, String replacement);
+
+	/**
+	 * Gets a TokenSequenceFilter corresponding to a given descriptor. The
+	 * descriptor should contain the class name, followed by any arguments,
+	 * separated by tabs.
 	 */
 	public TokenSequenceFilter getTokenSequenceFilter(String descriptor);
-	
+
 	/**
-	 * Gets a TokenFilter corresponding to a given descriptor.
-	 * The descriptor should contain the class name, followed by any arguments, separated by tabs.
+	 * Gets a TokenFilter corresponding to a given descriptor. The descriptor
+	 * should contain the class name, followed by any arguments, separated by
+	 * tabs.
 	 */
 	public TokenFilter getTokenFilter(String descriptor);
-	
+
 	/**
 	 * Reads a sequence of token filters from a file.
 	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner);
-	
+
 	/**
-	 * Reads a sequence of token filters from a file, and stores their descriptors in the provided paramater.
+	 * Reads a sequence of token filters from a file, and stores their
+	 * descriptors in the provided paramater.
 	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors);
-	
+
 	/**
-	 * Get a TokenSequenceFilter that wraps a list of token filters.
-	 * While it won't re-assign any token boundaries, it will check each TokenFilter against
-	 * each individual token, and if a match is found, will replace the text.
+	 * Get a TokenSequenceFilter that wraps a list of token filters. While it
+	 * won't re-assign any token boundaries, it will check each TokenFilter
+	 * against each individual token, and if a match is found, will replace the
+	 * text.
 	 */
 	public TokenSequenceFilter getTokenSequenceFilter(List<TokenFilter> tokenFilters);
-	
+
+	/**
+	 * Set the external resource finder to be use by the token filters.
+	 */
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder);
+
 	public ExternalResourceFinder getExternalResourceFinder();
-	public void setExternalResourceFinder(
-			ExternalResourceFinder externalResourceFinder);
+
+	/**
+	 * Register a token filter class that can be loaded using
+	 * {@link #readTokenFilters(Scanner)}. The type must include a default
+	 * constructor.
+	 * 
+	 * @param name
+	 *            the name used to recognise this class
+	 * @param type
+	 *            the class to be instantiated
+	 */
+	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type);
 }
