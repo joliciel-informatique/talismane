@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.joliciel.talismane.tokeniser.TokenAttribute;
@@ -28,48 +29,84 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  * @author Assaf Urieli
  *
  */
-public interface TokenPlaceholder {
+public class TokenPlaceholder {
+	private int startIndex;
+	private int endIndex;
+	private String replacement;
+	private String regex;
+	private boolean possibleSentenceBoundary = true;
+	private boolean singleToken = true;
+	private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
+
+	public TokenPlaceholder(int startIndex, int endIndex, String replacement, String regex) {
+		super();
+		this.startIndex = startIndex;
+		this.endIndex = endIndex;
+		this.replacement = replacement;
+		this.regex = regex;
+	}
+
 	/**
 	 * The replacement text for this placeholder.
 	 */
-	String getReplacement();
+	public String getReplacement() {
+		return this.replacement;
+	}
 
 	/**
 	 * Start index for this placeholder.
 	 */
-	int getStartIndex();
+	public int getStartIndex() {
+		return this.startIndex;
+	}
 
 	/**
 	 * The index just after this placeholder ends.
 	 */
-	int getEndIndex();
+	public int getEndIndex() {
+		return this.endIndex;
+	}
 
 	/**
 	 * The regex which matched this placeholder.
 	 */
-	String getRegex();
+	public String getRegex() {
+		return this.regex;
+	}
 
 	/**
 	 * Can this placeholder represent a sentence boundary (at its last character
 	 * that is)?
 	 */
-	public boolean isPossibleSentenceBoundary();
+	public boolean isPossibleSentenceBoundary() {
+		return this.possibleSentenceBoundary;
+	}
 
-	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
+	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary) {
+		this.possibleSentenceBoundary = possibleSentenceBoundary;
+	}
 
 	/**
 	 * Set of attributes to be assigned to tokens recognised by this regex
 	 * filter.
 	 */
-	Map<String, TokenAttribute<?>> getAttributes();
+	public Map<String, TokenAttribute<?>> getAttributes() {
+		return this.attributes;
+	}
 
-	public void addAttribute(String key, TokenAttribute<?> value);
+	public void addAttribute(String key, TokenAttribute<?> value) {
+		this.attributes.put(key, value);
+	}
 
 	/**
 	 * Should this placeholder be interpreted as a single token, or should it
 	 * simply be used to add attributes to all tokens matched by it.
 	 */
-	public boolean isSingleToken();
+	public boolean isSingleToken() {
+		return this.singleToken;
+	}
 
-	public void setSingleToken(boolean singleToken);
+	public void setSingleToken(boolean singleToken) {
+		this.singleToken = singleToken;
+	}
 }

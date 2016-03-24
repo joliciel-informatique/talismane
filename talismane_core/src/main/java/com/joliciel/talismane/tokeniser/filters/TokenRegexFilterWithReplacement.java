@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2015 Joliciel Informatique
+//Copyright (C) 2014 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -20,31 +20,41 @@ package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
-/**
- * A TokenRegexFilter which only adds attributes to contained tokens, without
- * delimiting a single token. Note that replacements will be ignored in this
- * type of filter.
- * 
- * @author Assaf Urieli
- *
- */
-public class AttributeRegexFilter extends AbstractRegexFilter {
-	AttributeRegexFilter() {
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.utils.RegexUtils;
+
+class TokenRegexFilterWithReplacement extends AbstractRegexFilter {
+	String replacement;
+
+	TokenRegexFilterWithReplacement() {
 		super();
 	}
 
-	@Override
-	public List<TokenPlaceholder> apply(String text) {
-		List<TokenPlaceholder> placeholders = super.apply(text);
-		for (TokenPlaceholder placeholder : placeholders) {
-			placeholder.setSingleToken(false);
-		}
-		return placeholders;
+	public String getReplacement() {
+		return replacement;
+	}
+
+	public void setReplacement(String replacement) {
+		this.replacement = replacement;
 	}
 
 	@Override
-	protected void loadInternal(Map<String, String> parameters, List<String> tabs) {
-		// nothing to do
+	protected String findReplacement(String text, Matcher matcher) {
+		String newText = RegexUtils.getReplacement(replacement, text, matcher);
+		return newText;
 	}
+
+	@Override
+	public void loadInternal(Map<String, String> parameters, List<String> tabs) {
+		if (tabs.size() < 1 || tabs.size() > 2)
+			throw new TalismaneException(
+					"Wrong number of additional tabs for " + TokenRegexFilter.class.getSimpleName() + ". Expected 1 or 2, but was " + tabs.size());
+
+		if (tabs.size() == 2) {
+			this.setReplacement(tabs.get(1));
+		}
+	}
+
 }

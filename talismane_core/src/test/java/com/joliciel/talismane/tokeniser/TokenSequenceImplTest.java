@@ -206,33 +206,17 @@ public class TokenSequenceImplTest {
 		Pattern separatorPattern = Pattern.compile(separators);
 
 		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
+		TokenPlaceholder placeholder0 = new TokenPlaceholder("Write to me at ".length(), "Write to me at joe.schome@test.com".length(), "Email", "blah");
+		placeholders.add(placeholder0);
+		TokenPlaceholder placeholder1 = new TokenPlaceholder("Write to me at joe.schome@test.com, otherwise go to ".length(),
+				"Write to me at joe.schome@test.com, otherwise go to http://test.com".length(), "URL", "blah");
+		placeholders.add(placeholder1);
 
 		new NonStrictExpectations() {
-			TokenPlaceholder placeholder0, placeholder1;
+
 			{
 				sentence.getText();
 				returns("Write to me at joe.schome@test.com, otherwise go to http://test.com.");
-
-				placeholder0.getStartIndex();
-				returns(15);
-				placeholder0.getEndIndex();
-				returns(34);
-				placeholder0.getReplacement();
-				returns("Email");
-				placeholder0.isSingleToken();
-				returns(true);
-				placeholders.add(placeholder0);
-
-				placeholder1.getStartIndex();
-				returns(52);
-				placeholder1.getEndIndex();
-				returns(67);
-				placeholder1.getReplacement();
-				returns("URL");
-				placeholder1.isSingleToken();
-				returns(true);
-				placeholders.add(placeholder1);
-
 			}
 		};
 
@@ -352,49 +336,30 @@ public class TokenSequenceImplTest {
 		Pattern separatorPattern = Pattern.compile(separators);
 
 		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
+		TokenPlaceholder placeholder1 = new TokenPlaceholder("Il ".length(), "Il t’aime".length(), null, "blah");
+		placeholder1.setSingleToken(false);
+		placeholder1.addAttribute("phrase", new StringAttribute("verbal"));
+		placeholder1.addAttribute("person", new StringAttribute("3rd"));
+		placeholders.add(placeholder1);
+
+		Map<String, TokenAttribute<?>> attributes2 = new HashMap<String, TokenAttribute<?>>();
+		attributes2.put("type", new StringAttribute("object"));
+
+		TokenPlaceholder placeholder2 = new TokenPlaceholder("Il ".length(), "Il t’".length(), null, "blah");
+		placeholder2.setSingleToken(false);
+		placeholder2.addAttribute("type", new StringAttribute("object"));
+		placeholders.add(placeholder2);
+
+		TokenPlaceholder placeholder0 = new TokenPlaceholder("Il t".length(), "Il t’".length(), "'", "blah");
+		placeholder0.setSingleToken(true);
+
+		placeholders.add(placeholder0);
 
 		new NonStrictExpectations() {
-			TokenPlaceholder placeholder0;
-			TokenPlaceholder placeholder1;
-			TokenPlaceholder placeholder2;
+
 			{
 				sentence.getText();
 				returns("Il t’aime.");
-
-				Map<String, TokenAttribute<?>> attributes1 = new HashMap<String, TokenAttribute<?>>();
-				attributes1.put("phrase", new StringAttribute("verbal"));
-				attributes1.put("person", new StringAttribute("3rd"));
-				placeholder1.getStartIndex();
-				returns("Il ".length());
-				placeholder1.getEndIndex();
-				returns("Il t’aime".length());
-				placeholder1.isSingleToken();
-				returns(false);
-				placeholder1.getAttributes();
-				returns(attributes1);
-				placeholders.add(placeholder1);
-
-				Map<String, TokenAttribute<?>> attributes2 = new HashMap<String, TokenAttribute<?>>();
-				attributes2.put("type", new StringAttribute("object"));
-				placeholder2.getStartIndex();
-				returns("Il ".length());
-				placeholder2.getEndIndex();
-				returns("Il t’".length());
-				placeholder2.isSingleToken();
-				returns(false);
-				placeholder2.getAttributes();
-				returns(attributes2);
-				placeholders.add(placeholder2);
-
-				placeholder0.getStartIndex();
-				returns("Il t".length());
-				placeholder0.getEndIndex();
-				returns("Il t’".length());
-				placeholder0.getReplacement();
-				returns("'");
-				placeholder0.isSingleToken();
-				returns(true);
-				placeholders.add(placeholder0);
 
 			}
 		};

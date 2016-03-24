@@ -19,19 +19,35 @@
 package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * A filter that takes raw text, and finds tokens in the text (which are indicated by placeholders).<br/>
+ * A filter that takes raw text, and finds tokens in the text (which are
+ * indicated by placeholders).<br/>
  * Note that, in addition to indicating tokens, it is possible to stipulate that
  * a sentence boundary will never be detected inside a placeholder.<br/>
- * Note that the tokeniser might still join the "atomic tokens" defined by the token filter
- * into larger tokens.
+ * Note that the tokeniser might still join the "atomic tokens" defined by the
+ * token filter into larger tokens.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface TokenFilter {
 	/**
-	 * Analyse the sentence, and provide placeholders for any tokens that will have to be formed.
+	 * Analyse the sentence, and provide placeholders for any tokens that will
+	 * have to be formed.
 	 */
-	List<TokenPlaceholder> apply(String text);
+	public List<TokenPlaceholder> apply(String text);
+
+	/**
+	 * Load the token filter's state using information extracted from a
+	 * descriptor.
+	 * 
+	 * @param parameters
+	 *            a series of name/value parameters
+	 * @param tabs
+	 *            a list of unnamed parameters, whose placement determines their
+	 *            meaning
+	 */
+	public void load(Map<String, String> parameters, List<String> tabs);
 }
