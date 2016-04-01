@@ -54,6 +54,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 	private boolean diacriticSensitive = true;
 	private boolean autoWordBoundaries = false;
 	private ExternalResourceFinder externalResourceFinder;
+	private boolean excluded = false;
 
 	public AbstractRegexFilter() {
 		super();
@@ -512,4 +513,12 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 	 */
 	protected abstract void loadInternal(Map<String, String> parameters, List<String> tabs);
 
+	@Override
+	public boolean isExcluded() {
+		return excluded;
+	}
+
+	public void setExcluded(boolean excluded) {
+		this.excluded = excluded;
+	}
 }

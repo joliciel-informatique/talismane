@@ -18,12 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +38,7 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
-class TokenFilterServiceImpl implements TokenFilterServiceInternal {
+class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterDependencyInjector {
 	private static final Log LOG = LogFactory.getLog(TokenFilterServiceImpl.class);
 
 	private TalismaneService talismaneService;
@@ -47,10 +46,12 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	private TokeniserService tokeniserService;
 	private ExternalResourceFinder externalResourceFinder;
 	private Map<String, Class<? extends TokenFilter>> registeredFilterTypes = new HashMap<String, Class<? extends TokenFilter>>();
+	private Map<Class<? extends TokenFilter>, TokenFilterDependencyInjector> registeredDependencyInjectors = new HashMap<Class<? extends TokenFilter>, TokenFilterDependencyInjector>();
 
 	public TokenFilterServiceImpl() {
 		registeredFilterTypes.put(AttributeRegexFilter.class.getSimpleName(), AttributeRegexFilter.class);
 		registeredFilterTypes.put(TokenRegexFilter.class.getSimpleName(), TokenRegexFilterWithReplacement.class);
+		registeredDependencyInjectors.put(AbstractRegexFilter.class, this);
 	}
 
 	@Override
@@ -138,7 +139,8 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 				}
 			} else {
 				TokenFilter tokenFilter = this.getTokenFilter(descriptor, defaultParams);
-				tokenFilters.add(tokenFilter);
+				if (tokenFilter != null)
+					tokenFilters.add(tokenFilter);
 			}
 		}
 		// cancel the default parameters if required
@@ -180,13 +182,12 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 			}
 			TokenFilter filter = clazz.newInstance();
 
-			try {
-				Method setExternalResourceFinderMethod = clazz.getMethod("setExternalResourceFinder", ExternalResourceFinder.class);
-				setExternalResourceFinderMethod.invoke(filter, this.getExternalResourceFinder());
-			} catch (NoSuchMethodException e) {
-				// do nothing
-			} catch (SecurityException e) {
-				// do nothing
+			for (Entry<Class<? extends TokenFilter>, TokenFilterDependencyInjector> entry : this.registeredDependencyInjectors.entrySet()) {
+				Class<? extends TokenFilter> tokenFilterClass = entry.getKey();
+				TokenFilterDependencyInjector dependencyInjector = entry.getValue();
+				if (tokenFilterClass.isAssignableFrom(clazz)) {
+					dependencyInjector.injectDependencies(filter);
+				}
 			}
 
 			List<String> tabs = new ArrayList<String>(parts.length - 1);
@@ -194,6 +195,8 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 				tabs.add(parts[i]);
 			filter.load(myParams, tabs);
 
+			if (filter.isExcluded())
+				return null;
 			return filter;
 		} catch (InstantiationException e) {
 			LogUtils.logError(LOG, e);
@@ -204,9 +207,14 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 		} catch (IllegalArgumentException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void injectDependencies(TokenFilter tokenFilter) {
+		if (AbstractRegexFilter.class.isAssignableFrom(tokenFilter.getClass())) {
+			AbstractRegexFilter abstractRegexFilter = (AbstractRegexFilter) tokenFilter;
+			abstractRegexFilter.setExternalResourceFinder(this.getExternalResourceFinder());
 		}
 	}
 
@@ -256,5 +264,11 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal {
 	@Override
 	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type) {
 		this.registeredFilterTypes.put(name, type);
+	}
+
+	@Override
+	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type, TokenFilterDependencyInjector dependencyInjector) {
+		this.registeredFilterTypes.put(name, type);
+		this.registeredDependencyInjectors.put(type, dependencyInjector);
 	}
 }

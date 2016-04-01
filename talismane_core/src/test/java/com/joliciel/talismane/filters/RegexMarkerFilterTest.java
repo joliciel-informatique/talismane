@@ -15,9 +15,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApply() {
-		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>.*?</skip>");
-		filter.setFilterService(filterService);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
@@ -45,9 +43,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApplyWithGroup() {
-		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>(.*?)</skip>");
-		filter.setFilterService(filterService);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
@@ -76,9 +72,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApplyWithReplacement() {
-		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.REPLACE, "<skip>(.*?)</skip>", 0);
-		filter.setFilterService(filterService);
 		filter.setReplacement("Skipped:$1");
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
@@ -115,9 +109,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testTag() {
-		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.TAG, "<skip>(.*?)</skip>", 0);
-		filter.setFilterService(filterService);
 		filter.setTag("TAG1", new StringAttribute("x"));
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
@@ -154,9 +146,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testUnaryOperatorsStop() {
-		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.STOP, "<skip>");
-		filter.setFilterService(filterService);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
@@ -178,9 +168,7 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testUnaryOperatorsStart() {
-		FilterServiceInternal filterService = new FilterServiceImpl();
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.START, "</skip>");
-		filter.setFilterService(filterService);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>!";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");

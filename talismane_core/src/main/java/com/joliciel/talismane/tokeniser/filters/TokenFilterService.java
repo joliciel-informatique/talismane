@@ -88,4 +88,15 @@ public interface TokenFilterService {
 	 *            the class to be instantiated
 	 */
 	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type);
+
+	/**
+	 * Like {@link #registerTokenFilterType(String, Class)}, but with an
+	 * additional dependency injector argument to inject dependencies prior to
+	 * loading.
+	 * 
+	 * @param dependencyInjector
+	 *            the dependency injector for this class - any TokenFilter
+	 *            assignable to this class will receive calls for this injector.
+	 */
+	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type, TokenFilterDependencyInjector dependencyInjector);
 }

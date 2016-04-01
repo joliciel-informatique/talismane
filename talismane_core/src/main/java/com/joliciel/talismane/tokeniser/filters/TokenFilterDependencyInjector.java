@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,7 +16,16 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.filters;
+package com.joliciel.talismane.tokeniser.filters;
 
-interface FilterServiceInternal extends FilterService {
+public interface TokenFilterDependencyInjector {
+	/**
+	 * Inject dependencies into a token filter, if appropriate for the class in
+	 * question. Will be called before
+	 * {@link TokenFilter#load(java.util.Map, java.util.List)}.
+	 * 
+	 * @param tokenFilter
+	 *            the token filter into which we need to inject dependencies.
+	 */
+	public void injectDependencies(TokenFilter tokenFilter);
 }

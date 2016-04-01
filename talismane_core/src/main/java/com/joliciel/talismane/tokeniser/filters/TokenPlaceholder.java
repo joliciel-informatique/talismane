@@ -109,4 +109,10 @@ public class TokenPlaceholder {
 	public void setSingleToken(boolean singleToken) {
 		this.singleToken = singleToken;
 	}
+
+	@Override
+	public String toString() {
+		return "TokenPlaceholder [startIndex=" + startIndex + ", endIndex=" + endIndex + ", replacement=" + replacement + ", regex=" + regex
+				+ ", possibleSentenceBoundary=" + possibleSentenceBoundary + ", singleToken=" + singleToken + ", attributes=" + attributes + "]";
+	}
 }
