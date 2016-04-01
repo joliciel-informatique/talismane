@@ -22,42 +22,44 @@ import java.util.List;
 
 public interface FilterService {
 	/**
-	 * Replaces any whitespace characters (including tabs) by a standard whitespace.
+	 * Replaces any whitespace characters (including tabs) by a standard
+	 * whitespace.
 	 *
 	 */
 	public TextMarkerFilter getOtherWhiteSpaceFilter();
-	
+
 	/**
 	 * Gets rid of duplicate whitespace.
 	 */
 	public TextMarkerFilter getDuplicateWhiteSpaceFilter();
-	
+
 	/**
 	 * Replace any newline with a sentence break.
 	 */
 	public TextMarkerFilter getNewlineEndOfSentenceMarker();
-	
+
 	/**
 	 * Replace any newline with a space.
 	 */
 	public TextMarkerFilter getNewlineSpaceMarker();
 
 	/**
-	 * For a given regex, finds any matches within the text,
-	 * and adds the appropriate marker to these matches.
-	 * The markers will automatically be added to the last group indicated in the regex,
-	 * or to the entire regex if it contains no groups.
+	 * For a given regex, finds any matches within the text, and adds the
+	 * appropriate marker to these matches. The markers will automatically be
+	 * added to the last group indicated in the regex, or to the entire regex if
+	 * it contains no groups.
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int blockSize);
-	
+
 	/**
 	 * @see #getRegexMarkerFilter(List, String, int)
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int blockSize);
 
 	/**
-	 * For a given regex, finds any matches within the text, and adds the appropriate marker to these matches.
-	 * The markers will be added for the group indicated by the groupIndex.
+	 * For a given regex, finds any matches within the text, and adds the
+	 * appropriate marker to these matches. The markers will be added for the
+	 * group indicated by the groupIndex.
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> types, String regex, int groupIndex, int blockSize);
 
@@ -67,19 +69,19 @@ public interface FilterService {
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex, int blockSize);
 
 	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault);
-	
-	public TextMarker getTextMarker(TextMarkerType type, int position);
 
 	public Sentence getSentence(String text);
+
 	public Sentence getSentence();
-	
+
 	public SentenceHolder getSentenceHolder();
-	
+
 	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize);
-	
+
 	/**
 	 * A string inserted between outputs (such as a newline).
 	 */
 	public String getOutputDivider();
+
 	public void setOutputDivider(String outputDivider);
 }

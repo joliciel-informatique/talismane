@@ -23,12 +23,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -41,45 +43,52 @@ import com.joliciel.talismane.utils.LogUtils;
 
 class DiacriticizerImpl implements Diacriticizer, Serializable {
 	private static final Log LOG = LogFactory.getLog(DiacriticizerImpl.class);
-	
+
 	private static final long serialVersionUID = 1L;
-	private Map<String,Set<String>> map = new HashMap<String,Set<String>>();
+	private Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 	private Set<String> emptySet = new HashSet<String>();
 	private transient TalismaneSession talismaneSession;
-	
+
 	public DiacriticizerImpl() {
 	}
 
 	@Override
 	public Set<String> diacriticize(String originalWord) {
 		String undecorated = DiacriticRemover.removeDiacritics(originalWord);
-		String key =  undecorated.toLowerCase();
+		String key = undecorated.toLowerCase();
 		String lowercase = originalWord.toLowerCase();
 		Set<String> results = map.get(key);
-		if (results==null)
+		if (results == null)
 			return emptySet;
-		Set<String> validResults = new HashSet<String>();
+		Set<String> validResults = null;
+		if (talismaneSession != null)
+			validResults = new TreeSet<String>(Collator.getInstance(talismaneSession.getLocale()));
+		else
+			validResults = new TreeSet<String>();
+
 		for (String result : results) {
 			boolean validResult = true;
-			for (int i=0; i<originalWord.length(); i++) {
+			for (int i = 0; i < originalWord.length(); i++) {
 				char cO = originalWord.charAt(i);
 				char cR = result.charAt(i);
 				char cU = undecorated.charAt(i);
 				char cL = lowercase.charAt(i);
 				if (Character.isUpperCase(cO)) {
-					if (cO==cU) {
+					if (cO == cU) {
 						// original is undecorated uppercase? anything goes.
 						continue;
 					}
-					if (cL==cR || cO==cR) {
-						// original is decorated uppercase, decorated lowercase or uppercase version == result? Fine.
+					if (cL == cR || cO == cR) {
+						// original is decorated uppercase, decorated lowercase
+						// or uppercase version == result? Fine.
 						continue;
 					}
-					// original is decorated uppercase, decorated lowercase version != result. Bad.
+					// original is decorated uppercase, decorated lowercase
+					// version != result. Bad.
 					validResult = false;
 					break;
 				} else {
-					if (cO==cR) {
+					if (cO == cR) {
 						// original lowercase == result. Fine
 						continue;
 					}
@@ -90,10 +99,10 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 			if (validResult)
 				validResults.add(result);
 		}
-		
-		if (talismaneSession!=null) {
+
+		if (talismaneSession != null) {
 			String lowercasePreference = talismaneSession.getImplementation().getLowercasePreferences().get(originalWord);
-			if (lowercasePreference!=null) {
+			if (lowercasePreference != null) {
 				Set<String> orderedResults = new LinkedHashSet<String>();
 				orderedResults.add(lowercasePreference);
 				orderedResults.addAll(validResults);
@@ -109,7 +118,7 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 			LexicalEntry entry = entries.next();
 			String key = DiacriticRemover.removeDiacritics(entry.getWord().toLowerCase());
 			Set<String> values = map.get(key);
-			if (values==null) {
+			if (values == null) {
 				values = new HashSet<String>();
 				map.put(key, values);
 			}
@@ -117,38 +126,40 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 		}
 	}
 
+	@Override
 	public TalismaneSession getTalismaneSession() {
 		return talismaneSession;
 	}
 
+	@Override
 	public void setTalismaneSession(TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
 	}
 
 	public void serialize() {
-		
+
 	}
-	
+
 	public static Diacriticizer deserialize(File inFile, TalismaneSession talismaneSession) {
 		try {
 			FileInputStream fis = new FileInputStream(inFile);
 			ZipInputStream zis = new ZipInputStream(fis);
 			ZipEntry ze = null;
 			Diacriticizer diacriticizer = null;
-		    while ((ze = zis.getNextEntry()) != null) {
-		    	if (ze.getName().endsWith(".obj")) {
-		    		LOG.debug("deserializing " + ze.getName());
+			while ((ze = zis.getNextEntry()) != null) {
+				if (ze.getName().endsWith(".obj")) {
+					LOG.debug("deserializing " + ze.getName());
 					@SuppressWarnings("resource")
 					ObjectInputStream in = new ObjectInputStream(zis);
 					diacriticizer = (Diacriticizer) in.readObject();
-					
+
 					break;
-		    	}
-		    }
-		    zis.close();
-		    diacriticizer.setTalismaneSession(talismaneSession);
-		    
-		    return diacriticizer;
+				}
+			}
+			zis.close();
+			diacriticizer.setTalismaneSession(talismaneSession);
+
+			return diacriticizer;
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

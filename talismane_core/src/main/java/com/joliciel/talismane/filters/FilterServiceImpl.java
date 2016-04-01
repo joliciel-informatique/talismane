@@ -35,24 +35,6 @@ class FilterServiceImpl implements FilterServiceInternal {
 	private TokeniserService tokeniserService;
 
 	@Override
-	public TextMarker getTextMarker(TextMarkerType type, int position) {
-		return this.getTextMarker(type, position, null, null);
-	}
-
-	@Override
-	public TextMarker getTextMarker(TextMarkerType type, int position, TextMarkerFilter source) {
-		return this.getTextMarker(type, position, source, null);
-	}
-
-	@Override
-	public TextMarker getTextMarker(TextMarkerType type, int position, TextMarkerFilter source, String matchText) {
-		TextMarker textMarker = new TextMarkerImpl(type, position);
-		textMarker.setSource(source);
-		textMarker.setMatchText(matchText);
-		return textMarker;
-	}
-
-	@Override
 	public Sentence getSentence(String text) {
 		SentenceImpl sentence = new SentenceImpl();
 		sentence.setText(text);
@@ -91,7 +73,6 @@ class FilterServiceImpl implements FilterServiceInternal {
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int groupIndex, int blockSize) {
 		RegexMarkerFilter filter = new RegexMarkerFilter(filterTypes, regex, groupIndex);
-		filter.setFilterService(this);
 		filter.setBlockSize(blockSize);
 		return filter;
 
@@ -105,7 +86,6 @@ class FilterServiceImpl implements FilterServiceInternal {
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex, int blockSize) {
 		RegexMarkerFilter filter = new RegexMarkerFilter(types, regex, groupIndex);
-		filter.setFilterService(this);
 		filter.setBlockSize(blockSize);
 		return filter;
 	}
@@ -113,28 +93,24 @@ class FilterServiceImpl implements FilterServiceInternal {
 	@Override
 	public TextMarkerFilter getDuplicateWhiteSpaceFilter() {
 		DuplicateWhiteSpaceFilter filter = new DuplicateWhiteSpaceFilter();
-		filter.setFilterService(this);
 		return filter;
 	}
 
 	@Override
 	public TextMarkerFilter getOtherWhiteSpaceFilter() {
 		OtherWhiteSpaceFilter filter = new OtherWhiteSpaceFilter();
-		filter.setFilterService(this);
 		return filter;
 	}
 
 	@Override
 	public TextMarkerFilter getNewlineEndOfSentenceMarker() {
 		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker();
-		filter.setFilterService(this);
 		return filter;
 	}
 
 	@Override
 	public TextMarkerFilter getNewlineSpaceMarker() {
 		NewlineSpaceMarker filter = new NewlineSpaceMarker();
-		filter.setFilterService(this);
 		return filter;
 	}
 

@@ -50,4 +50,11 @@ public interface TokenFilter {
 	 *            meaning
 	 */
 	public void load(Map<String, String> parameters, List<String> tabs);
+
+	/**
+	 * Returns true if this TokenFilter should be excluded from the list of
+	 * TokenFilters for the current configuration. This will typically be set
+	 * during the load method, based on context specific considerations.
+	 */
+	public boolean isExcluded();
 }
