@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Scanner;
 
@@ -49,7 +51,7 @@ public interface TokenFilterService {
 	 * should contain the class name, followed by any arguments, separated by
 	 * tabs.
 	 */
-	public TokenFilter getTokenFilter(String descriptor);
+	public TokenFilter getTokenFilter(String descriptor) throws TokenFilterLoadException;
 
 	/**
 	 * Reads a sequence of token filters from a file.
@@ -61,6 +63,21 @@ public interface TokenFilterService {
 	 * descriptors in the provided paramater.
 	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors);
+
+	/**
+	 * Similar to {@link TokenFilterService#readTokenFilters(Scanner, List)},
+	 * but keeps a reference to the file, useful for finding the location of any
+	 * descriptor errors.
+	 * 
+	 * @param file
+	 *            the file to be read
+	 * @param charset
+	 *            the charset used to read the file
+	 * @param descriptors
+	 *            a list of descriptors in which we store the descriptors added
+	 *            from this file
+	 */
+	public List<TokenFilter> readTokenFilters(File file, Charset charset, List<String> descriptors);
 
 	/**
 	 * Get a TokenSequenceFilter that wraps a list of token filters. While it

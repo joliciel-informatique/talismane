@@ -472,7 +472,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 	}
 
 	@Override
-	public void load(Map<String, String> parameters, List<String> tabs) {
+	public void load(Map<String, String> parameters, List<String> tabs) throws TokenFilterLoadException {
 		if (tabs.size() < 1)
 			throw new TalismaneException(
 					"Wrong number of additional tabs for " + TokenRegexFilter.class.getSimpleName() + ". Expected at least 1, but was " + tabs.size());
@@ -511,7 +511,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 	 *            a list of unnamed parameters, whose placement determines their
 	 *            meaning
 	 */
-	protected abstract void loadInternal(Map<String, String> parameters, List<String> tabs);
+	protected abstract void loadInternal(Map<String, String> parameters, List<String> tabs) throws TokenFilterLoadException;
 
 	@Override
 	public boolean isExcluded() {

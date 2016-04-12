@@ -48,8 +48,10 @@ public interface TokenFilter {
 	 * @param tabs
 	 *            a list of unnamed parameters, whose placement determines their
 	 *            meaning
+	 * @throws TokenFilterLoadException
+	 *             if any loading error occurs related to the parameters or tabs
 	 */
-	public void load(Map<String, String> parameters, List<String> tabs);
+	public void load(Map<String, String> parameters, List<String> tabs) throws TokenFilterLoadException;
 
 	/**
 	 * Returns true if this TokenFilter should be excluded from the list of
