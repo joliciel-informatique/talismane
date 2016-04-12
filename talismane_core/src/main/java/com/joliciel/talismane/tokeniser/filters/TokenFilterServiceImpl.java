@@ -18,6 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -113,11 +119,28 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	}
 
 	@Override
+	public List<TokenFilter> readTokenFilters(File file, Charset charset, List<String> descriptors) {
+		try {
+			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)));
+			return this.readTokenFilters(scanner, file.getCanonicalPath(), descriptors);
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
 	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors) {
+		return this.readTokenFilters(scanner, null, descriptors);
+	}
+
+	public List<TokenFilter> readTokenFilters(Scanner scanner, String path, List<String> descriptors) {
 		List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
 		Map<String, String> defaultParams = new HashMap<String, String>();
+		int lineNumber = 0;
 		while (scanner.hasNextLine()) {
 			String descriptor = scanner.nextLine();
+			lineNumber++;
 			LOG.debug(descriptor);
 			if (descriptors != null) {
 				descriptors.add(descriptor);
@@ -138,9 +161,15 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 					}
 				}
 			} else {
-				TokenFilter tokenFilter = this.getTokenFilter(descriptor, defaultParams);
-				if (tokenFilter != null)
-					tokenFilters.add(tokenFilter);
+				try {
+					TokenFilter tokenFilter = this.getTokenFilter(descriptor, defaultParams);
+					if (tokenFilter != null)
+						tokenFilters.add(tokenFilter);
+				} catch (TokenFilterLoadException e) {
+					if (path != null)
+						throw new TalismaneException("Unable to parse file " + path + ", line " + lineNumber + ": " + descriptor, e);
+					throw new TalismaneException("Unable to parse line " + lineNumber + ": " + descriptor, e);
+				}
 			}
 		}
 		// cancel the default parameters if required
@@ -151,12 +180,12 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	}
 
 	@Override
-	public TokenFilter getTokenFilter(String descriptor) {
+	public TokenFilter getTokenFilter(String descriptor) throws TokenFilterLoadException {
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		return this.getTokenFilter(descriptor, parameterMap);
 	}
 
-	public TokenFilter getTokenFilter(String descriptor, Map<String, String> defaultParams) {
+	public TokenFilter getTokenFilter(String descriptor, Map<String, String> defaultParams) throws TokenFilterLoadException {
 		try {
 			Map<String, String> myParams = new HashMap<String, String>(defaultParams);
 
@@ -178,7 +207,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 
 			Class<? extends TokenFilter> clazz = this.registeredFilterTypes.get(className);
 			if (clazz == null) {
-				throw new TalismaneException("Unknown TokenFilter: " + className);
+				throw new TokenFilterLoadException("Unknown TokenFilter: " + className);
 			}
 			TokenFilter filter = clazz.newInstance();
 
