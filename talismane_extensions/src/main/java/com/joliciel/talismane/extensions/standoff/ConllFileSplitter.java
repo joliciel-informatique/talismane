@@ -40,61 +40,65 @@ import com.joliciel.talismane.utils.StringUtils;
 
 /**
  * Class for splitting a CoNNL file into lots of smaller files.
+ * 
  * @author Assaf Urieli
  *
  */
 public class ConllFileSplitter {
 	private static final Log LOG = LogFactory.getLog(ConllFileSplitter.class);
-	
+
 	private static DecimalFormat df = new DecimalFormat("000");
-	
+
 	public void split(String filePath, int startIndex, int sentencesPerFile, String encoding) {
 		try {
 			String fileBase = filePath;
-			if (filePath.indexOf('.')>0)
-				fileBase = filePath.substring(0,filePath.lastIndexOf('.'));
+			if (filePath.indexOf('.') > 0)
+				fileBase = filePath.substring(0, filePath.lastIndexOf('.'));
 			File file = new File(filePath);
-			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding)));
-	
-			boolean hasSentence = false;
-			int currentFileIndex = startIndex;
-			
-			int sentenceCount = 0;
 			Writer writer = null;
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				if (line.length()==0 && !hasSentence) {
-					continue;
-				} else if (line.length()==0) {
-					writer.write("\n");
-					writer.flush();
-					hasSentence=false;
-				} else {
-					if (!hasSentence) {
-						hasSentence = true;
-						sentenceCount++;
-					}
-					if (writer==null || sentenceCount % sentencesPerFile==0) {
-						if (writer!=null) {
-							writer.flush();
-							writer.close();
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding)))) {
+
+				boolean hasSentence = false;
+				int currentFileIndex = startIndex;
+
+				int sentenceCount = 0;
+
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					if (line.length() == 0 && !hasSentence) {
+						continue;
+					} else if (line.length() == 0) {
+						writer.write("\n");
+						writer.flush();
+						hasSentence = false;
+					} else {
+						if (!hasSentence) {
+							hasSentence = true;
+							sentenceCount++;
 						}
-						File outFile = new File(fileBase + "_" + df.format(currentFileIndex) + ".tal");
-						outFile.delete();
-						outFile.createNewFile();
-						writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile, false), encoding));
-						currentFileIndex++;
-						hasSentence=false;
+						if (writer == null || sentenceCount % sentencesPerFile == 0) {
+							if (writer != null) {
+								writer.flush();
+								writer.close();
+							}
+							File outFile = new File(fileBase + "_" + df.format(currentFileIndex) + ".tal");
+							outFile.delete();
+							outFile.createNewFile();
+
+							writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile, false), encoding));
+							currentFileIndex++;
+							hasSentence = false;
+						}
+
+						writer.write(line + "\n");
+						writer.flush();
 					}
-	
-					writer.write(line + "\n");
-					writer.flush();
 				}
-			}
-			scanner.close();
-			if (writer!=null) {
-				writer.flush();
-				writer.close();
+			} finally {
+				if (writer != null) {
+					writer.flush();
+					writer.close();
+				}
 			}
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
@@ -103,32 +107,32 @@ public class ConllFileSplitter {
 	}
 
 	public static void main(String[] args) {
-		Map<String,String> argMap = StringUtils.convertArgs(args);
+		Map<String, String> argMap = StringUtils.convertArgs(args);
 		ConllFileSplitter splitter = new ConllFileSplitter();
 		splitter.process(argMap);
 	}
-	
-	public void process(Map<String,String> args) {
+
+	public void process(Map<String, String> args) {
 		String filePath = null;
 		if (args.containsKey("inFile"))
 			filePath = args.get("inFile");
 		else
 			throw new TalismaneException("Missing option: inFile");
-		
+
 		int startIndex = 1;
-		if (args.containsKey("startIndex"))  {
+		if (args.containsKey("startIndex")) {
 			startIndex = Integer.parseInt(args.get("startIndex"));
 		}
-		
+
 		int sentencesPerFile = 20;
-		if (args.containsKey("sentencesPerFile"))  {
+		if (args.containsKey("sentencesPerFile")) {
 			sentencesPerFile = Integer.parseInt(args.get("sentencesPerFile"));
 		}
-		
+
 		String encoding = "UTF-8";
 		if (args.containsKey("encoding"))
 			encoding = args.get("encoding");
-		
+
 		this.split(filePath, startIndex, sentencesPerFile, encoding);
 	}
 }

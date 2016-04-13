@@ -158,10 +158,10 @@ public class TalismaneTermExtractorMain {
 					throw new TalismaneException("Required argument: depth");
 
 				InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
-				Scanner regexScanner = new Scanner(regexInputStream, "UTF-8");
-				String inputRegex = regexScanner.nextLine();
-				regexScanner.close();
-				config.setInputRegex(inputRegex);
+				try (Scanner regexScanner = new Scanner(regexInputStream, "UTF-8")) {
+					String inputRegex = regexScanner.nextLine();
+					config.setInputRegex(inputRegex);
+				}
 
 				Charset outputCharset = config.getOutputCharset();
 

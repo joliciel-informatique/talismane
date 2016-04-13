@@ -35,11 +35,14 @@ import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * An external word list read from a text file.<br/>
- * The first line must be "Type: WordList", otherwise an exception gets thrown.<br/>
+ * The first line must be "Type: WordList", otherwise an exception gets thrown.
+ * <br/>
  * The default name will be the filename.<br/>
- * If a line starts with the string "Name: ", the default name will be replaced by this name.<br/>
+ * If a line starts with the string "Name: ", the default name will be replaced
+ * by this name.<br/>
  * All lines starting with # are skipped.<br/>
  * All other lines contain words.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -47,40 +50,42 @@ public class TextFileWordList implements ExternalWordList {
 	private static final long serialVersionUID = 1L;
 	private static final Log LOG = LogFactory.getLog(TextFileWordList.class);
 	List<String> wordList = new ArrayList<String>();
-	
+
 	private String name;
-	
+
 	public TextFileWordList(File file) {
 		try {
 			this.name = file.getName();
 
-			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
 
-			String firstLine = scanner.nextLine();
-			if (!firstLine.equals("Type: WordList")) {
-				scanner.close();
-				throw new JolicielException("A word list file must start with \"Type: WordList\"");
-			}
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				if (line.length()>0 && !line.startsWith("#")) {
-					if (line.startsWith("Name: ")) {
-						this.name = line.substring("Name: ".length());
-						continue;
+				String firstLine = scanner.nextLine();
+				if (!firstLine.equals("Type: WordList")) {
+					scanner.close();
+					throw new JolicielException("A word list file must start with \"Type: WordList\"");
+				}
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					if (line.length() > 0 && !line.startsWith("#")) {
+						if (line.startsWith("Name: ")) {
+							this.name = line.substring("Name: ".length());
+							continue;
+						}
+						wordList.add(line);
 					}
-					wordList.add(line);
 				}
 			}
-			scanner.close();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	@Override
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}

@@ -43,6 +43,7 @@ import opennlp.model.MaxentModel;
 
 /**
  * A class for writing a MaxEnt model to a CSV file.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -51,11 +52,11 @@ public class MaxentModelCSVExporter {
 		String maxentModelFile = null;
 		boolean top100 = false;
 		String excludeListPath = null;
-		
+
 		for (String arg : args) {
 			int equalsPos = arg.indexOf('=');
 			String argName = arg.substring(0, equalsPos);
-			String argValue = arg.substring(equalsPos+1);
+			String argValue = arg.substring(equalsPos + 1);
 			if (argName.equals("model"))
 				maxentModelFile = argValue;
 			else if (argName.equals("top100"))
@@ -70,7 +71,7 @@ public class MaxentModelCSVExporter {
 		MachineLearningService machineLearningService = locator.getMachineLearningService();
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(maxentModelFile));
 		OpenNLPModel machineLearningModel = (OpenNLPModel) machineLearningService.getClassificationModel(zis);
-		
+
 		MaxentModel model = machineLearningModel.getModel();
 		Object[] dataStructures = model.getDataStructures();
 		Context[] modelParameters = (Context[]) dataStructures[0];
@@ -80,29 +81,29 @@ public class MaxentModelCSVExporter {
 		String[] predicates = new String[predicateTable.size()];
 		predicateTable.toArray(predicates);
 		Writer csvFileWriter = null;
-		
+
 		File csvFile = new File(maxentModelFile + ".model.csv");
 		csvFile.delete();
 		csvFile.createNewFile();
-		csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false),"UTF8"));
+		csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 
 		Set<String> excludeList = null;
-		if (excludeListPath!=null) {
+		if (excludeListPath != null) {
 			excludeList = new HashSet<String>();
 			File excludeListFile = new File(excludeListPath);
-			Scanner excludeListScanner = new Scanner(excludeListFile);
-			while (excludeListScanner.hasNextLine()) {
-				String excludeItem = excludeListScanner.nextLine();
-				if (!excludeItem.startsWith("#"))
-					excludeList.add(excludeItem);
+			try (Scanner excludeListScanner = new Scanner(excludeListFile)) {
+				while (excludeListScanner.hasNextLine()) {
+					String excludeItem = excludeListScanner.nextLine();
+					if (!excludeItem.startsWith("#"))
+						excludeList.add(excludeItem);
+				}
 			}
-			excludeListScanner.close();
 		}
-		
+
 		try {
 			if (top100) {
-				Map<String,Integer> outcomeMap = new TreeMap<String, Integer>();
-				for (int i=0;i<outcomeNames.length;i++) {
+				Map<String, Integer> outcomeMap = new TreeMap<String, Integer>();
+				for (int i = 0; i < outcomeNames.length; i++) {
 					String outcomeName = outcomeNames[i];
 					outcomeMap.put(outcomeName, i);
 				}
@@ -110,18 +111,18 @@ public class MaxentModelCSVExporter {
 					csvFileWriter.write(outcome + ",,");
 				}
 				csvFileWriter.write("\n");
-				
-				Map<String,Set<MaxentParameter>> outcomePredicates = new HashMap<String, Set<MaxentParameter>>();
-				for (int i=0;i<modelParameters.length;i++) {
+
+				Map<String, Set<MaxentParameter>> outcomePredicates = new HashMap<String, Set<MaxentParameter>>();
+				for (int i = 0; i < modelParameters.length; i++) {
 					Context context = modelParameters[i];
 					int[] outcomeIndexes = context.getOutcomes();
 					double[] parameters = context.getParameters();
-					for (int j=0;j<outcomeIndexes.length;j++) {
+					for (int j = 0; j < outcomeIndexes.length; j++) {
 						int outcomeIndex = outcomeIndexes[j];
 						String outcomeName = outcomeNames[outcomeIndex];
 						double value = parameters[j];
 						Set<MaxentParameter> outcomeParameters = outcomePredicates.get(outcomeName);
-						if (outcomeParameters==null) {
+						if (outcomeParameters == null) {
 							outcomeParameters = new TreeSet<MaxentParameter>();
 							outcomePredicates.put(outcomeName, outcomeParameters);
 						}
@@ -129,16 +130,16 @@ public class MaxentModelCSVExporter {
 						outcomeParameters.add(param);
 					}
 				}
-				
-				for (int i=0;i<100;i++) {
+
+				for (int i = 0; i < 100; i++) {
 					for (String outcome : outcomeMap.keySet()) {
 						Set<MaxentParameter> outcomeParameters = outcomePredicates.get(outcome);
-						if (outcomeParameters==null) {
+						if (outcomeParameters == null) {
 							csvFileWriter.write(",,");
 						} else {
 							Iterator<MaxentParameter> iParams = outcomeParameters.iterator();
 							MaxentParameter param = null;
-							for (int j=0;j<=i;j++) {
+							for (int j = 0; j <= i; j++) {
 								if (iParams.hasNext()) {
 									param = iParams.next();
 								} else {
@@ -146,7 +147,7 @@ public class MaxentModelCSVExporter {
 									break;
 								}
 							}
-							if (param==null)
+							if (param == null)
 								csvFileWriter.write(",,");
 							else
 								csvFileWriter.write("\"" + param.getPredicate() + "\"," + param.getValue() + ",");
@@ -160,38 +161,38 @@ public class MaxentModelCSVExporter {
 					csvFileWriter.write(outcomeName + ",");
 				}
 				csvFileWriter.write("\n");
-				
+
 				int i = 0;
 				for (String predicate : predicates) {
-					if (excludeList!=null) {
+					if (excludeList != null) {
 						boolean excludeMe = false;
-						for(String excludeItem : excludeList) {
+						for (String excludeItem : excludeList) {
 							if (predicate.startsWith(excludeItem)) {
 								excludeMe = true;
 								break;
 							}
 						}
-						
+
 						if (excludeMe) {
 							i++;
 							continue;
 						}
 					}
-					
+
 					csvFileWriter.write("\"" + predicate + "\",");
 					Context context = modelParameters[i];
 					int[] outcomeIndexes = context.getOutcomes();
 					double[] parameters = context.getParameters();
-					for (int j=0;j<outcomeNames.length;j++) {
+					for (int j = 0; j < outcomeNames.length; j++) {
 						int paramIndex = -1;
-						for (int k=0;k<outcomeIndexes.length;k++) {
-							if (outcomeIndexes[k]==j) {
+						for (int k = 0; k < outcomeIndexes.length; k++) {
+							if (outcomeIndexes[k] == j) {
 								paramIndex = k;
 								break;
 							}
 						}
 						double value = 0.0;
-						if (paramIndex>=0)
+						if (paramIndex >= 0)
 							value = parameters[paramIndex];
 						csvFileWriter.write(value + ",");
 					}
@@ -200,37 +201,39 @@ public class MaxentModelCSVExporter {
 				}
 			}
 		} finally {
-			if (csvFileWriter!=null) {
+			if (csvFileWriter != null) {
 				csvFileWriter.flush();
 				csvFileWriter.close();
 			}
 		}
 	}
-	
+
 	private static class MaxentParameter implements Comparable<MaxentParameter> {
 		private String predicate;
 		private double value;
+
 		public MaxentParameter(String predicate, double value) {
 			this.predicate = predicate;
 			this.value = value;
 		}
+
 		public String getPredicate() {
 			return predicate;
 		}
+
 		public double getValue() {
 			return value;
 		}
+
 		@Override
 		public int compareTo(MaxentParameter o) {
-			if (this.getValue()==o.getValue()) {
+			if (this.getValue() == o.getValue()) {
 				return this.getPredicate().compareTo(o.getPredicate());
 			}
-			if (o.getValue()>this.getValue())
+			if (o.getValue() > this.getValue())
 				return 1;
 			return -1;
 		}
 
-		
-		
 	}
 }

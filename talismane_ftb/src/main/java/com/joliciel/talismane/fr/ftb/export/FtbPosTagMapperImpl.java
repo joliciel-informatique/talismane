@@ -18,8 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.fr.ftb.export;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,33 +42,30 @@ import com.joliciel.talismane.utils.LogUtils;
 
 class FtbPosTagMapperImpl implements FtbPosTagMapper {
 	private static final Log LOG = LogFactory.getLog(FtbPosTagMapperImpl.class);
-	
-	private Map<String,PosTag> posTagMap = new TreeMap<String, PosTag>();
+
+	private Map<String, PosTag> posTagMap = new TreeMap<String, PosTag>();
 	PosTagSet posTagSet;
-	
+
 	public FtbPosTagMapperImpl(File file, PosTagSet posTagSet) {
 		this.posTagSet = posTagSet;
-		Scanner scanner = null;
-		try {
-			scanner = new Scanner(file);
+		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
 			List<String> descriptors = new ArrayList<String>();
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				descriptors.add(line);
 			}
-			scanner.close();
 			this.load(descriptors);
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public FtbPosTagMapperImpl(List<String> descriptors, PosTagSet posTagSet) {
 		this.posTagSet = posTagSet;
 		this.load(descriptors);
 	}
-	
+
 	void load(List<String> descriptors) {
 		for (String descriptor : descriptors) {
 			if (descriptor.startsWith("#"))
@@ -76,18 +76,18 @@ class FtbPosTagMapperImpl implements FtbPosTagMapper {
 			posTagMap.put(key, posTag);
 		}
 	}
-	
+
 	@Override
-	public PosTag getPosTag(Category category, SubCategory subCategory,
-			Morphology morphology) {
+	public PosTag getPosTag(Category category, SubCategory subCategory, Morphology morphology) {
 		String key = category.getCode() + "|" + subCategory.getCode() + "|" + morphology.getCode();
 		PosTag posTag = posTagMap.get(key);
-		if (posTag==null) {
+		if (posTag == null) {
 			throw new TalismaneException("Could not find postag for: " + key);
 		}
 		return posTag;
 	}
 
+	@Override
 	public PosTagSet getPosTagSet() {
 		return posTagSet;
 	}

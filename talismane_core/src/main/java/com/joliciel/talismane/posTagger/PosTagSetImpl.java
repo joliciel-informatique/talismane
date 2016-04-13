@@ -40,32 +40,29 @@ import com.joliciel.talismane.utils.LogUtils;
 final class PosTagSetImpl implements PosTagSet {
 	private static final long serialVersionUID = 4894889727388356815L;
 	private static final Log LOG = LogFactory.getLog(PosTagSetImpl.class);
-	
+
 	private String name;
 	private Locale locale;
 	private Set<PosTag> tags = new TreeSet<PosTag>();
-	private Map<String,PosTag> tagMap = null;
-	
+	private Map<String, PosTag> tagMap = null;
 
 	public PosTagSetImpl(File file) {
-		Scanner scanner = null;
-		try {
-			scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")));
+		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
 			this.load(scanner);
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public PosTagSetImpl(Scanner scanner) {
 		this.load(scanner);
 	}
-	
+
 	public PosTagSetImpl(List<String> descriptors) {
 		this.load(descriptors);
 	}
-	
+
 	void load(Scanner scanner) {
 		List<String> descriptors = new ArrayList<String>();
 		while (scanner.hasNextLine()) {
@@ -74,7 +71,7 @@ final class PosTagSetImpl implements PosTagSet {
 		}
 		this.load(descriptors);
 	}
-	
+
 	void load(List<String> descriptors) {
 		boolean nameFound = false;
 		boolean localeFound = false;
@@ -83,7 +80,7 @@ final class PosTagSetImpl implements PosTagSet {
 			if (descriptor.startsWith("#")) {
 				continue;
 			}
-			
+
 			if (!nameFound) {
 				this.name = descriptor;
 				nameFound = true;
@@ -94,9 +91,10 @@ final class PosTagSetImpl implements PosTagSet {
 				String[] parts = descriptor.split("\t");
 				tags.add(new PosTagImpl(parts[0], parts[1], PosTagOpenClassIndicator.valueOf(parts[2])));
 			}
-		}		
+		}
 	}
-	
+
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -105,6 +103,7 @@ final class PosTagSetImpl implements PosTagSet {
 		this.name = name;
 	}
 
+	@Override
 	public Locale getLocale() {
 		return locale;
 	}
@@ -113,13 +112,14 @@ final class PosTagSetImpl implements PosTagSet {
 		this.locale = locale;
 	}
 
+	@Override
 	public Set<PosTag> getTags() {
 		return tags;
 	}
 
 	@Override
 	public PosTag getPosTag(String code) {
-		if (tagMap==null) {
+		if (tagMap == null) {
 			tagMap = new HashMap<String, PosTag>();
 			for (PosTag posTag : this.getTags()) {
 				tagMap.put(posTag.getCode(), posTag);
@@ -127,7 +127,7 @@ final class PosTagSetImpl implements PosTagSet {
 			}
 		}
 		PosTag posTag = tagMap.get(code);
-		if (posTag==null) {
+		if (posTag == null) {
 			throw new UnknownPosTagException("Unknown PosTag: " + code);
 		}
 		return posTag;
