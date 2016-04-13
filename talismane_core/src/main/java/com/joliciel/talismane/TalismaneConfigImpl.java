@@ -28,6 +28,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -61,6 +62,7 @@ import com.joliciel.talismane.languageDetector.LanguageDetectorAnnotatedCorpusRe
 import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
+import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -367,6 +369,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private String csvEncoding = "UTF8";
 	private String outputDivider = "";
 
+	private static final Map<String, Diacriticizer> diacriticizerMap = new HashMap<String, Diacriticizer>();
+
 	public TalismaneConfigImpl(LanguageImplementation implementation) {
 		this.implementation = implementation;
 	}
@@ -405,6 +409,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			String transitionSystemStr = null;
 
 			String languagePackPath = null;
+
+			String diacriticizerPath = null;
 
 			String csvSeparator = "\t";
 			Locale outputLocale = null;
@@ -700,6 +706,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					outputDivider = argValue;
 					if (outputDivider.equals("NEWLINE"))
 						outputDivider = "\n";
+				} else if (argName.equals("diacriticizer")) {
+					diacriticizerPath = argValue;
 				} else {
 					System.out.println("Unknown argument: " + argName);
 					throw new RuntimeException("Unknown argument: " + argName);
@@ -813,11 +821,12 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 			if (posTagSetPath != null) {
 				File posTagSetFile = this.getFile(posTagSetPath);
-				Scanner posTagSetScanner = new Scanner(
-						new BufferedReader(new InputStreamReader(new FileInputStream(posTagSetFile), this.getInputCharset().name())));
+				try (Scanner posTagSetScanner = new Scanner(
+						new BufferedReader(new InputStreamReader(new FileInputStream(posTagSetFile), this.getInputCharset().name())))) {
 
-				PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
-				talismaneSession.setPosTagSet(posTagSet);
+					PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
+					talismaneSession.setPosTagSet(posTagSet);
+				}
 			}
 
 			TransitionSystem transitionSystem = implementation.getDefaultTransitionSystem();
@@ -834,15 +843,15 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (transitionSystem != null) {
 				if (dependencyLabelPath != null) {
 					File dependencyLabelFile = this.getFile(dependencyLabelPath);
-					Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(dependencyLabelFile), "UTF-8")));
-					Set<String> dependencyLabels = new HashSet<String>();
-					while (depLabelScanner.hasNextLine()) {
-						String dependencyLabel = depLabelScanner.nextLine();
-						if (!dependencyLabel.startsWith("#"))
-							dependencyLabels.add(dependencyLabel);
+					try (Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(dependencyLabelFile), "UTF-8")))) {
+						Set<String> dependencyLabels = new HashSet<String>();
+						while (depLabelScanner.hasNextLine()) {
+							String dependencyLabel = depLabelScanner.nextLine();
+							if (!dependencyLabel.startsWith("#"))
+								dependencyLabels.add(dependencyLabel);
+						}
+						transitionSystem.setDependencyLabels(dependencyLabels);
 					}
-					depLabelScanner.close();
-					transitionSystem.setDependencyLabels(dependencyLabels);
 				}
 
 				talismaneSession.setTransitionSystem(transitionSystem);
@@ -905,8 +914,30 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				}
 			}
 
+			if (diacriticizerPath != null) {
+				File diacriticizerFile = this.getFile(diacriticizerPath);
+				if (!diacriticizerFile.exists())
+					throw new TalismaneException("diacriticizer: File " + diacriticizerFile + " does not exist");
+				Diacriticizer diacriticizer = diacriticizerMap.get(diacriticizerFile.getCanonicalPath());
+				if (diacriticizer == null) {
+					LOG.info("Loading new diacriticizer from: " + diacriticizerPath);
+					try (ZipInputStream zis = new ZipInputStream(new FileInputStream(diacriticizerFile))) {
+						zis.getNextEntry();
+						ObjectInputStream in = new ObjectInputStream(zis);
+						diacriticizer = (Diacriticizer) in.readObject();
+						diacriticizerMap.put(diacriticizerFile.getCanonicalPath(), diacriticizer);
+					}
+				} else {
+					LOG.info("Fetching diacriticizer from cache for: " + diacriticizerPath);
+				}
+				talismaneSession.setDiacriticizer(diacriticizer);
+			}
+
 			this.getFilterService().setOutputDivider(outputDivider);
 		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (ClassNotFoundException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
@@ -1232,17 +1263,20 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					}
 
 					if (rulesScanner != null) {
-						List<String> ruleDescriptors = new ArrayListNoNulls<String>();
-						while (rulesScanner.hasNextLine()) {
-							String ruleDescriptor = rulesScanner.nextLine();
-							if (ruleDescriptor.length() > 0) {
-								ruleDescriptors.add(ruleDescriptor);
-								LOG.trace(ruleDescriptor);
+						try {
+							List<String> ruleDescriptors = new ArrayListNoNulls<String>();
+							while (rulesScanner.hasNextLine()) {
+								String ruleDescriptor = rulesScanner.nextLine();
+								if (ruleDescriptor.length() > 0) {
+									ruleDescriptors.add(ruleDescriptor);
+									LOG.trace(ruleDescriptor);
+								}
 							}
+							List<PosTaggerRule> rules = this.getPosTaggerFeatureService().getRules(ruleDescriptors);
+							posTaggerRules.addAll(rules);
+						} finally {
+							rulesScanner.close();
 						}
-						List<PosTaggerRule> rules = this.getPosTaggerFeatureService().getRules(ruleDescriptors);
-						posTaggerRules.addAll(rules);
-
 					}
 				}
 			}
@@ -1282,16 +1316,20 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						}
 
 						if (rulesScanner != null) {
-							List<String> ruleDescriptors = new ArrayListNoNulls<String>();
-							while (rulesScanner.hasNextLine()) {
-								String ruleDescriptor = rulesScanner.nextLine();
-								if (ruleDescriptor.length() > 0) {
-									ruleDescriptors.add(ruleDescriptor);
-									LOG.trace(ruleDescriptor);
+							try {
+								List<String> ruleDescriptors = new ArrayListNoNulls<String>();
+								while (rulesScanner.hasNextLine()) {
+									String ruleDescriptor = rulesScanner.nextLine();
+									if (ruleDescriptor.length() > 0) {
+										ruleDescriptors.add(ruleDescriptor);
+										LOG.trace(ruleDescriptor);
+									}
 								}
+								List<ParserRule> rules = this.getParserFeatureService().getRules(ruleDescriptors, dynamiseFeatures);
+								parserRules.addAll(rules);
+							} finally {
+								rulesScanner.close();
 							}
-							List<ParserRule> rules = this.getParserFeatureService().getRules(ruleDescriptors, dynamiseFeatures);
-							parserRules.addAll(rules);
 
 						}
 					}
@@ -1311,14 +1349,13 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public synchronized String getInputRegex() {
 		try {
 			if (inputRegex == null && inputPatternFilePath != null && inputPatternFilePath.length() > 0) {
-				Scanner inputPatternScanner = null;
 				File inputPatternFile = this.getFile(inputPatternFilePath);
-				inputPatternScanner = new Scanner(
-						new BufferedReader(new InputStreamReader(new FileInputStream(inputPatternFile), this.getInputCharset().name())));
-				if (inputPatternScanner.hasNextLine()) {
-					inputRegex = inputPatternScanner.nextLine();
+				try (Scanner inputPatternScanner = new Scanner(
+						new BufferedReader(new InputStreamReader(new FileInputStream(inputPatternFile), this.getInputCharset().name())))) {
+					if (inputPatternScanner.hasNextLine()) {
+						inputRegex = inputPatternScanner.nextLine();
+					}
 				}
-				inputPatternScanner.close();
 				if (inputRegex == null)
 					throw new TalismaneException("No input pattern found in " + inputPatternFilePath);
 			}
@@ -1342,14 +1379,13 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (evaluationRegex == null) {
 				if (evaluationPatternFilePath != null && evaluationPatternFilePath.length() > 0) {
-					Scanner evaluationPatternScanner = null;
 					File evaluationPatternFile = this.getFile(evaluationPatternFilePath);
-					evaluationPatternScanner = new Scanner(
-							new BufferedReader(new InputStreamReader(new FileInputStream(evaluationPatternFile), this.getInputCharset().name())));
-					if (evaluationPatternScanner.hasNextLine()) {
-						evaluationRegex = evaluationPatternScanner.nextLine();
+					try (Scanner evaluationPatternScanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(evaluationPatternFile), this.getInputCharset().name())))) {
+						if (evaluationPatternScanner.hasNextLine()) {
+							evaluationRegex = evaluationPatternScanner.nextLine();
+						}
 					}
-					evaluationPatternScanner.close();
 					if (evaluationRegex == null)
 						throw new TalismaneException("No evaluation pattern found in " + evaluationPatternFilePath);
 				} else {
@@ -1418,13 +1454,17 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						textFilterScanner = this.implementation.getDefaultTextMarkerFiltersScanner();
 					}
 					if (textFilterScanner != null) {
-						while (textFilterScanner.hasNextLine()) {
-							String descriptor = textFilterScanner.nextLine();
-							LOG.debug(descriptor);
-							if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-								TextMarkerFilter textMarkerFilter = this.getFilterService().getTextMarkerFilter(descriptor, blockSize);
-								this.addTextMarkerFilter(textMarkerFilter);
+						try {
+							while (textFilterScanner.hasNextLine()) {
+								String descriptor = textFilterScanner.nextLine();
+								LOG.debug(descriptor);
+								if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
+									TextMarkerFilter textMarkerFilter = this.getFilterService().getTextMarkerFilter(descriptor, blockSize);
+									this.addTextMarkerFilter(textMarkerFilter);
+								}
 							}
+						} finally {
+							textFilterScanner.close();
 						}
 					}
 				}
@@ -1472,53 +1512,61 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				LOG.debug("Token sequence filters");
 
 				List<Scanner> scanners = new ArrayListNoNulls<Scanner>();
-				if (tokenSequenceFilterPath != null && tokenSequenceFilterPath.length() > 0) {
-					LOG.debug("tokenSequenceFilterPath: " + tokenSequenceFilterPath);
-					String[] parts = tokenSequenceFilterPath.split(";");
-					for (String part : parts) {
-						if (part.length() > 0) {
-							LOG.debug("From: " + part);
-							File tokenSequenceFilterFile = this.getFile(part);
-							if (!tokenSequenceFilterFile.exists()) {
-								throw new TalismaneException("tokenSequenceFilters: File " + part + " does not exist");
+
+				try {
+					if (tokenSequenceFilterPath != null && tokenSequenceFilterPath.length() > 0) {
+						LOG.debug("tokenSequenceFilterPath: " + tokenSequenceFilterPath);
+						String[] parts = tokenSequenceFilterPath.split(";");
+						for (String part : parts) {
+							if (part.length() > 0) {
+								LOG.debug("From: " + part);
+								File tokenSequenceFilterFile = this.getFile(part);
+								if (!tokenSequenceFilterFile.exists()) {
+									throw new TalismaneException("tokenSequenceFilters: File " + part + " does not exist");
+								}
+								Scanner scanner = new Scanner(
+										new BufferedReader(new InputStreamReader(new FileInputStream(tokenSequenceFilterFile), this.getInputCharset())));
+								scanners.add(scanner);
 							}
-							Scanner scanner = new Scanner(
-									new BufferedReader(new InputStreamReader(new FileInputStream(tokenSequenceFilterFile), this.getInputCharset())));
+						}
+					}
+					if (!tokenSequenceFiltersReplace) {
+						if (model != null) {
+							LOG.debug("From model");
+							List<String> modelDescriptors = model.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
+							String modelDescriptorString = "";
+							if (modelDescriptors != null) {
+								for (String descriptor : modelDescriptors) {
+									modelDescriptorString += descriptor + "\n";
+								}
+							}
+							Scanner scanner = new Scanner(modelDescriptorString);
+							scanners.add(scanner);
+						} else {
+							// default token filters
+							LOG.debug("From default");
+							Scanner scanner = this.implementation.getDefaultTokenSequenceFiltersScanner();
 							scanners.add(scanner);
 						}
 					}
-				}
-				if (!tokenSequenceFiltersReplace) {
-					if (model != null) {
-						LOG.debug("From model");
-						List<String> modelDescriptors = model.getDescriptors().get(PosTagFilterService.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-						String modelDescriptorString = "";
-						if (modelDescriptors != null) {
-							for (String descriptor : modelDescriptors) {
-								modelDescriptorString += descriptor + "\n";
+
+					for (Scanner scanner : scanners) {
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							LOG.debug(descriptor);
+							tokenSequenceFilterDescriptors.add(descriptor);
+							if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
+								TokenSequenceFilter tokenSequenceFilter = this.getTokenFilterService().getTokenSequenceFilter(descriptor);
+								if (tokenSequenceFilter instanceof NeedsTalismaneSession)
+									((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+								tokenSequenceFilters.add(tokenSequenceFilter);
 							}
 						}
-						Scanner scanner = new Scanner(modelDescriptorString);
-						scanners.add(scanner);
-					} else {
-						// default token filters
-						LOG.debug("From default");
-						Scanner scanner = this.implementation.getDefaultTokenSequenceFiltersScanner();
-						scanners.add(scanner);
 					}
-				}
-
-				for (Scanner scanner : scanners) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						tokenSequenceFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = this.getTokenFilterService().getTokenSequenceFilter(descriptor);
-							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
-							tokenSequenceFilters.add(tokenSequenceFilter);
-						}
+				} finally {
+					for (Scanner scanner : scanners) {
+						if (scanner != null)
+							scanner.close();
 					}
 				}
 
@@ -1539,34 +1587,40 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 				List<Scanner> scanners = new ArrayListNoNulls<Scanner>();
 
-				if (posTagSequenceFilterPath != null) {
-					File filterFile = this.getFile(posTagSequenceFilterPath);
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(filterFile), this.getInputCharset())));
-					scanners.add(scanner);
-				} else if (model != null) {
-					List<String> modelDescriptors = model.getDescriptors().get(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY);
-					if (modelDescriptors != null) {
-						String modelDescriptorString = "";
+				try {
+					if (posTagSequenceFilterPath != null) {
+						File filterFile = this.getFile(posTagSequenceFilterPath);
+						Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(filterFile), this.getInputCharset())));
+						scanners.add(scanner);
+					} else if (model != null) {
+						List<String> modelDescriptors = model.getDescriptors().get(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY);
 						if (modelDescriptors != null) {
-							for (String descriptor : modelDescriptors) {
-								modelDescriptorString += descriptor + "\n";
+							String modelDescriptorString = "";
+							if (modelDescriptors != null) {
+								for (String descriptor : modelDescriptors) {
+									modelDescriptorString += descriptor + "\n";
+								}
+							}
+							Scanner scanner = new Scanner(modelDescriptorString);
+							scanners.add(scanner);
+						}
+					}
+
+					for (Scanner scanner : scanners) {
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							LOG.debug(descriptor);
+							posTaggerPostProcessingFilterDescriptors.add(descriptor);
+							if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
+								PosTagSequenceFilter filter = this.getPosTagFilterService().getPosTagSequenceFilter(descriptor);
+								posTaggerPostProcessingFilters.add(filter);
 							}
 						}
-						Scanner scanner = new Scanner(modelDescriptorString);
-						scanners.add(scanner);
 					}
-				}
-
-				for (Scanner scanner : scanners) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						posTaggerPostProcessingFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							PosTagSequenceFilter filter = this.getPosTagFilterService().getPosTagSequenceFilter(descriptor);
-							posTaggerPostProcessingFilters.add(filter);
-						}
-					}
+				} finally {
+					for (Scanner scanner : scanners)
+						if (scanner != null)
+							scanner.close();
 				}
 
 				this.getDescriptors().put(PosTagFilterService.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
@@ -1594,55 +1648,64 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					this.tokenFilters.add(tokenFilter);
 
 				List<Either<Scanner, File>> sources = new ArrayList<>();
-				if (tokenFiltersPath != null && tokenFiltersPath.length() > 0) {
-					LOG.debug("tokenFiltersPath: " + tokenFiltersPath);
-					String[] parts = tokenFiltersPath.split(";");
-					for (String part : parts) {
-						if (part.length() > 0) {
-							LOG.debug("From: " + part);
-							File tokenFilterFile = this.getFile(part);
-							if (!tokenFilterFile.exists()) {
-								throw new TalismaneException("tokenFilters: File " + part + " does not exist");
+
+				try {
+					if (tokenFiltersPath != null && tokenFiltersPath.length() > 0) {
+						LOG.debug("tokenFiltersPath: " + tokenFiltersPath);
+						String[] parts = tokenFiltersPath.split(";");
+						for (String part : parts) {
+							if (part.length() > 0) {
+								LOG.debug("From: " + part);
+								File tokenFilterFile = this.getFile(part);
+								if (!tokenFilterFile.exists()) {
+									throw new TalismaneException("tokenFilters: File " + part + " does not exist");
+								}
+								Either<Scanner, File> source = Either.ofRight(tokenFilterFile);
+								sources.add(source);
 							}
-							Either<Scanner, File> source = Either.ofRight(tokenFilterFile);
+						}
+					}
+					if (!tokenFiltersReplace) {
+						if (model != null) {
+							LOG.debug("From model");
+							List<String> modelDescriptors = model.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
+							String modelDescriptorString = "";
+							if (modelDescriptors != null) {
+								for (String descriptor : modelDescriptors) {
+									modelDescriptorString += descriptor + "\n";
+								}
+							}
+							Scanner scanner = new Scanner(modelDescriptorString);
+							Either<Scanner, File> source = Either.ofLeft(scanner);
+							sources.add(source);
+						} else {
+							// default token filters
+							LOG.debug("From default");
+							Scanner tokenFilterScanner = this.implementation.getDefaultTokenFiltersScanner();
+							Either<Scanner, File> source = Either.ofLeft(tokenFilterScanner);
 							sources.add(source);
 						}
 					}
-				}
-				if (!tokenFiltersReplace) {
-					if (model != null) {
-						LOG.debug("From model");
-						List<String> modelDescriptors = model.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
-						String modelDescriptorString = "";
-						if (modelDescriptors != null) {
-							for (String descriptor : modelDescriptors) {
-								modelDescriptorString += descriptor + "\n";
-							}
+
+					for (Either<Scanner, File> source : sources) {
+						List<TokenFilter> myFilters = null;
+
+						if (source.isLeft())
+							myFilters = this.getTokenFilterService().readTokenFilters(source.getLeft(), tokenFilterDescriptors);
+						else
+							myFilters = this.getTokenFilterService().readTokenFilters(source.getRight(), this.getInputCharset(), tokenFilterDescriptors);
+
+						for (TokenFilter tokenFilter : myFilters) {
+							tokenFilters.add(tokenFilter);
 						}
-						Scanner scanner = new Scanner(modelDescriptorString);
-						Either<Scanner, File> source = Either.ofLeft(scanner);
-						sources.add(source);
-					} else {
-						// default token filters
-						LOG.debug("From default");
-						Scanner tokenFilterScanner = this.implementation.getDefaultTokenFiltersScanner();
-						Either<Scanner, File> source = Either.ofLeft(tokenFilterScanner);
-						sources.add(source);
+					}
+				} finally {
+					for (Either<Scanner, File> source : sources) {
+						if (source.isLeft() && source.getLeft() != null)
+							source.getLeft().close();
 					}
 				}
 
-				for (Either<Scanner, File> source : sources) {
-					List<TokenFilter> myFilters = null;
-
-					if (source.isLeft())
-						myFilters = this.getTokenFilterService().readTokenFilters(source.getLeft(), tokenFilterDescriptors);
-					else
-						myFilters = this.getTokenFilterService().readTokenFilters(source.getRight(), this.getInputCharset(), tokenFilterDescriptors);
-
-					for (TokenFilter tokenFilter : myFilters) {
-						tokenFilters.add(tokenFilter);
-					}
-				}
 				this.getDescriptors().put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 
 				for (TokenFilter tokenFilter : this.additionalTokenFilters)
@@ -1862,18 +1925,20 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				throw new RuntimeException("Missing argument: tokeniserPatterns");
 			try {
 				File tokeniserPatternFile = this.getFile(tokeniserPatternFilePath);
-				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserPatternFile), this.getInputCharset())));
-				List<String> patternDescriptors = new ArrayListNoNulls<String>();
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					patternDescriptors.add(descriptor);
-					LOG.debug(descriptor);
+				try (Scanner scanner = new Scanner(
+						new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserPatternFile), this.getInputCharset())))) {
+					List<String> patternDescriptors = new ArrayListNoNulls<String>();
+					while (scanner.hasNextLine()) {
+						String descriptor = scanner.nextLine();
+						patternDescriptors.add(descriptor);
+						LOG.debug(descriptor);
+					}
+
+					this.getDescriptors().put(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
+
+					tokeniserPatternManager = this.getTokeniserPatternService().getPatternManager(patternDescriptors);
 				}
-				scanner.close();
 
-				this.getDescriptors().put(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
-
-				tokeniserPatternManager = this.getTokeniserPatternService().getPatternManager(patternDescriptors);
 			} catch (Exception e) {
 				LogUtils.logError(LOG, e);
 				throw new RuntimeException(e);
@@ -1889,16 +1954,18 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (languageFeaturePath != null) {
 					LOG.debug("Found setting to change language detector features");
 					File languageFeatureFile = this.getFile(languageFeaturePath);
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(languageFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						featureDescriptors.add(descriptor);
-						LOG.debug(descriptor);
+					try (Scanner scanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(languageFeatureFile), this.getInputCharset())))) {
+						List<String> featureDescriptors = new ArrayListNoNulls<String>();
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							featureDescriptors.add(descriptor);
+							LOG.debug(descriptor);
+						}
+
+						languageFeatures = this.getLanguageDetectorService().getFeatureSet(featureDescriptors);
+						this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 					}
-					scanner.close();
-					languageFeatures = this.getLanguageDetectorService().getFeatureSet(featureDescriptors);
-					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
 			} catch (Exception e) {
 				LogUtils.logError(LOG, e);
@@ -1915,16 +1982,17 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (sentenceFeaturePath != null) {
 					LOG.debug("Found setting to change sentence detector features");
 					File sentenceFeatureFile = this.getFile(sentenceFeaturePath);
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(sentenceFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						featureDescriptors.add(descriptor);
-						LOG.debug(descriptor);
+					try (Scanner scanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(sentenceFeatureFile), this.getInputCharset())))) {
+						List<String> featureDescriptors = new ArrayListNoNulls<String>();
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							featureDescriptors.add(descriptor);
+							LOG.debug(descriptor);
+						}
+						sentenceFeatures = this.getSentenceDetectorFeatureService().getFeatureSet(featureDescriptors);
+						this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 					}
-					scanner.close();
-					sentenceFeatures = this.getSentenceDetectorFeatureService().getFeatureSet(featureDescriptors);
-					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
 			} catch (Exception e) {
 				LogUtils.logError(LOG, e);
@@ -1942,17 +2010,18 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					TokeniserPatternManager tokeniserPatternManager = this.getTokeniserPatternManager();
 					LOG.debug("Found setting to change tokeniser context features");
 					File tokeniserFeatureFile = this.getFile(tokeniserFeaturePath);
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						featureDescriptors.add(descriptor);
-						LOG.debug(descriptor);
+					try (Scanner scanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserFeatureFile), this.getInputCharset())))) {
+						List<String> featureDescriptors = new ArrayListNoNulls<String>();
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							featureDescriptors.add(descriptor);
+							LOG.debug(descriptor);
+						}
+						tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(featureDescriptors,
+								tokeniserPatternManager.getParsedTestPatterns());
+						this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 					}
-					scanner.close();
-					tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(featureDescriptors,
-							tokeniserPatternManager.getParsedTestPatterns());
-					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
 			} catch (Exception e) {
 				LogUtils.logError(LOG, e);
@@ -1969,16 +2038,17 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (tokeniserFeaturePath != null) {
 					LOG.debug("Found setting to change token pattern match features");
 					File tokeniserFeatureFile = this.getFile(tokeniserFeaturePath);
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						featureDescriptors.add(descriptor);
-						LOG.debug(descriptor);
+					try (Scanner scanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(tokeniserFeatureFile), this.getInputCharset())))) {
+						List<String> featureDescriptors = new ArrayListNoNulls<String>();
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							featureDescriptors.add(descriptor);
+							LOG.debug(descriptor);
+						}
+						tokenPatternMatchFeatures = this.getTokenFeatureService().getTokenPatternMatchFeatureSet(featureDescriptors);
+						this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 					}
-					scanner.close();
-					tokenPatternMatchFeatures = this.getTokenFeatureService().getTokenPatternMatchFeatureSet(featureDescriptors);
-					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
 			} catch (Exception e) {
 				LogUtils.logError(LOG, e);
@@ -1995,16 +2065,17 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (posTaggerFeaturePath != null) {
 					LOG.debug("Found setting to change pos-tagger features");
 					File posTaggerFeatureFile = this.getFile(posTaggerFeaturePath);
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						featureDescriptors.add(descriptor);
-						LOG.debug(descriptor);
+					try (Scanner scanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerFeatureFile), this.getInputCharset())))) {
+						List<String> featureDescriptors = new ArrayListNoNulls<String>();
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							featureDescriptors.add(descriptor);
+							LOG.debug(descriptor);
+						}
+						posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(featureDescriptors);
+						this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 					}
-					scanner.close();
-					posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(featureDescriptors);
-					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 				}
 			} catch (Exception e) {
 				LogUtils.logError(LOG, e);
@@ -2148,17 +2219,19 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (parserFeaturePath != null) {
 					LOG.debug("Found setting to change parser features");
 					File parserFeatureFile = this.getFile(parserFeaturePath);
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(parserFeatureFile), this.getInputCharset())));
-					List<String> featureDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						featureDescriptors.add(descriptor);
-						LOG.debug(descriptor);
-					}
-					scanner.close();
-					parserFeatures = this.getParserFeatureService().getFeatures(featureDescriptors);
+					try (Scanner scanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(parserFeatureFile), this.getInputCharset())))) {
+						List<String> featureDescriptors = new ArrayListNoNulls<String>();
+						while (scanner.hasNextLine()) {
+							String descriptor = scanner.nextLine();
+							featureDescriptors.add(descriptor);
+							LOG.debug(descriptor);
+						}
 
-					this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+						parserFeatures = this.getParserFeatureService().getFeatures(featureDescriptors);
+
+						this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+					}
 				}
 			} catch (Exception e) {
 				LogUtils.logError(LOG, e);
@@ -2469,11 +2542,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					if (!corpusLexicalEntryRegexFile.exists())
 						throw new TalismaneException("corpusLexicalEntryRegex file not found: " + corpusLexicalEntryRegexPath);
 
-					Scanner corpusLexicalEntryRegexScanner = new Scanner(
-							new BufferedReader(new InputStreamReader(new FileInputStream(corpusLexicalEntryRegexFile), this.getInputCharset().name())));
-					LexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(corpusLexicalEntryRegexScanner);
-					corpusLexicalEntryRegexScanner.close();
-					parserRegexCorpusReader.setLexicalEntryReader(lexicalEntryReader);
+					try (Scanner corpusLexicalEntryRegexScanner = new Scanner(
+							new BufferedReader(new InputStreamReader(new FileInputStream(corpusLexicalEntryRegexFile), this.getInputCharset().name())))) {
+						LexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(corpusLexicalEntryRegexScanner);
+						parserRegexCorpusReader.setLexicalEntryReader(lexicalEntryReader);
+					}
 				} else {
 					LexicalEntryReader lexicalEntryReader = implementation.getDefaultCorpusLexicalEntryReader();
 					if (lexicalEntryReader != null) {
@@ -3158,21 +3231,21 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (languageCorpusReader == null) {
 				File languageCorpusMapFile = this.getFile(languageCorpusMapPath);
-				Scanner languageCorpusMapScanner = new Scanner(
-						new BufferedReader(new InputStreamReader(new FileInputStream(languageCorpusMapFile), this.getInputCharset().name())));
+				try (Scanner languageCorpusMapScanner = new Scanner(
+						new BufferedReader(new InputStreamReader(new FileInputStream(languageCorpusMapFile), this.getInputCharset().name())))) {
 
-				Map<Locale, Reader> languageMap = new HashMap<Locale, Reader>();
-				while (languageCorpusMapScanner.hasNextLine()) {
-					String line = languageCorpusMapScanner.nextLine();
-					String[] parts = line.split("\t");
-					Locale locale = Locale.forLanguageTag(parts[0]);
-					String corpusPath = parts[1];
-					File corpusFile = this.getFile(corpusPath);
-					Reader corpusReader = new BufferedReader(new InputStreamReader(new FileInputStream(corpusFile), this.getInputCharset().name()));
-					languageMap.put(locale, corpusReader);
+					Map<Locale, Reader> languageMap = new HashMap<Locale, Reader>();
+					while (languageCorpusMapScanner.hasNextLine()) {
+						String line = languageCorpusMapScanner.nextLine();
+						String[] parts = line.split("\t");
+						Locale locale = Locale.forLanguageTag(parts[0]);
+						String corpusPath = parts[1];
+						File corpusFile = this.getFile(corpusPath);
+						Reader corpusReader = new BufferedReader(new InputStreamReader(new FileInputStream(corpusFile), this.getInputCharset().name()));
+						languageMap.put(locale, corpusReader);
+					}
+					languageCorpusReader = this.getLanguageDetectorService().getDefaultReader(languageMap);
 				}
-				languageCorpusMapScanner.close();
-				languageCorpusReader = this.getLanguageDetectorService().getDefaultReader(languageMap);
 			}
 			this.setCorpusReaderAttributes(languageCorpusReader);
 			return languageCorpusReader;

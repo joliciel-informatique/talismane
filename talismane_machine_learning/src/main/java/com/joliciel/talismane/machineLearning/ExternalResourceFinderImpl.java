@@ -37,14 +37,15 @@ import com.joliciel.talismane.utils.LogUtils;
 
 class ExternalResourceFinderImpl implements ExternalResourceFinder {
 	private static final Log LOG = LogFactory.getLog(ExternalResourceFinderImpl.class);
-	private Map<String,ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
-	private Map<String,ExternalWordList> wordListMap = new HashMap<String, ExternalWordList>();
-	
+	private Map<String, ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
+	private Map<String, ExternalWordList> wordListMap = new HashMap<String, ExternalWordList>();
+
 	@Override
 	public ExternalResource<?> getExternalResource(String name) {
 		return this.resourceMap.get(name);
 	}
-	
+
+	@Override
 	public void addExternalResource(ExternalResource<?> externalResource) {
 		LOG.debug("Adding resource with name: " + externalResource.getName());
 		this.resourceMap.put(externalResource.getName(), externalResource);
@@ -74,7 +75,7 @@ class ExternalResourceFinderImpl implements ExternalResourceFinder {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private void addExternalResourceFromFile(File externalResourceFile) throws IOException, ClassNotFoundException {
 		LOG.debug("Reading " + externalResourceFile.getName());
 		if (externalResourceFile.getName().endsWith(".zip")) {
@@ -92,14 +93,14 @@ class ExternalResourceFinderImpl implements ExternalResourceFinder {
 			ois.close();
 		} else {
 			boolean wordList = false;
-			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(externalResourceFile), "UTF-8")));
-			if (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				if (line.startsWith("Type: WordList")) {
-					wordList = true;
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(externalResourceFile), "UTF-8")))) {
+				if (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					if (line.startsWith("Type: WordList")) {
+						wordList = true;
+					}
 				}
 			}
-			scanner.close();
 			if (wordList) {
 				TextFileWordList textFileWordList = new TextFileWordList(externalResourceFile);
 				this.addExternalWordList(textFileWordList);

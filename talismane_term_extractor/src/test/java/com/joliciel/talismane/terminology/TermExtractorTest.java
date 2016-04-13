@@ -34,9 +34,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
@@ -58,6 +55,9 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.terminology.TermExtractorImpl.Expansion;
+
+import mockit.NonStrict;
+import mockit.NonStrictExpectations;
 
 public class TermExtractorTest {
 	private static final Log LOG = LogFactory.getLog(TermExtractorTest.class);
@@ -84,25 +84,30 @@ public class TermExtractorTest {
 		talismaneSession.setLinguisticRules(new GenericRules(talismaneSession));
 
 		// Read morphological info from export
-		InputStream inputStream = getClass().getResourceAsStream("talismane_conll_morph_regex.txt");
-		Scanner lexicalEntryRegexScanner = new Scanner(inputStream, "UTF-8");
-		LexicalEntryReader lexicalEntryReader = new RegexLexicalEntryReader(lexicalEntryRegexScanner);
+		LexicalEntryReader lexicalEntryReader = null;
+		try (InputStream inputStream = getClass().getResourceAsStream("talismane_conll_morph_regex.txt");
+				Scanner lexicalEntryRegexScanner = new Scanner(inputStream, "UTF-8")) {
+			lexicalEntryReader = new RegexLexicalEntryReader(lexicalEntryRegexScanner);
+		}
 
 		// Construct a mini-lexicon for lemmatising plurals
-		InputStream lexiconInputStream = getClass().getResourceAsStream("lefffExtract.txt");
-		Scanner lexiconScanner = new Scanner(lexiconInputStream, "UTF-8");
-		InputStream lexiconRegex = getClass().getResourceAsStream("lefff-ext-3.2_regex.txt");
-		Scanner regexScanner = new Scanner(lexiconRegex, "UTF-8");
-		RegexLexicalEntryReader lexiconEntryReader = new RegexLexicalEntryReader(regexScanner);
-		LexiconFile lexiconFile = new LexiconFile("lefff", lexiconScanner, lexiconEntryReader);
-		lexiconFile.load();
+		LexiconFile lexiconFile = null;
+		try (InputStream lexiconInputStream = getClass().getResourceAsStream("lefffExtract.txt");
+				Scanner lexiconScanner = new Scanner(lexiconInputStream, "UTF-8");
+				InputStream lexiconRegex = getClass().getResourceAsStream("lefff-ext-3.2_regex.txt");
+				Scanner regexScanner = new Scanner(lexiconRegex, "UTF-8")) {
+			RegexLexicalEntryReader lexiconEntryReader = new RegexLexicalEntryReader(regexScanner);
+			lexiconFile = new LexiconFile("lefff", lexiconScanner, lexiconEntryReader);
+			lexiconFile.load();
+		}
 
-		InputStream posTagMapInputStream = getClass().getResourceAsStream("lefff-ext-3.2_posTagMap.txt");
-		Scanner posTagMapScanner = new Scanner(posTagMapInputStream, "UTF-8");
-		PosTagMapper posTagMapper = new DefaultPosTagMapper(posTagMapScanner, tagSet);
-		lexiconFile.setPosTagMapper(posTagMapper);
+		try (InputStream posTagMapInputStream = getClass().getResourceAsStream("lefff-ext-3.2_posTagMap.txt");
+				Scanner posTagMapScanner = new Scanner(posTagMapInputStream, "UTF-8");) {
+			PosTagMapper posTagMapper = new DefaultPosTagMapper(posTagMapScanner, tagSet);
+			lexiconFile.setPosTagMapper(posTagMapper);
 
-		talismaneSession.addLexicon(lexiconFile);
+			talismaneSession.addLexicon(lexiconFile);
+		}
 
 		ParserAnnotatedCorpusReader corpusReader = parserService.getRegexBasedCorpusReader(configurationReader);
 		corpusReader.setLexicalEntryReader(lexicalEntryReader);
@@ -118,8 +123,7 @@ public class TermExtractorTest {
 			}
 		};
 
-		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase,
-				TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
+		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase, TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
 		termExtractor.setTalismaneService(talismaneService);
 
 		PosTaggedToken chat = configuration.getPosTagSequence().get(3);
@@ -159,9 +163,8 @@ public class TermExtractorTest {
 			expansionStrings.add(expansion.display());
 		}
 
-		String[] depth2Array = new String[] { "petit chat", "chat noir", "petit chat noir", "chat noir et blanc",
-				"petit chat noir et blanc", "chat noir et blanc de la grand-mère",
-				"petit chat noir et blanc de la grand-mère" };
+		String[] depth2Array = new String[] { "petit chat", "chat noir", "petit chat noir", "chat noir et blanc", "petit chat noir et blanc",
+				"chat noir et blanc de la grand-mère", "petit chat noir et blanc de la grand-mère" };
 
 		for (String expansion : depth2Array)
 			limitedDepthExpansions.add(expansion);
@@ -368,8 +371,7 @@ public class TermExtractorTest {
 			}
 		};
 
-		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase,
-				TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
+		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase, TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
 		termExtractor.setTalismaneService(talismaneService);
 
 		PosTaggedToken chat = configuration.getPosTagSequence().get(3);
@@ -409,9 +411,8 @@ public class TermExtractorTest {
 			expansionStrings.add(expansion.display());
 		}
 
-		String[] depth2Array = new String[] { "petit chat", "chat noir", "petit chat noir", "chat noir et blanc",
-				"petit chat noir et blanc", "chat noir et blanc de ses grand-mères",
-				"petit chat noir et blanc de ses grand-mères" };
+		String[] depth2Array = new String[] { "petit chat", "chat noir", "petit chat noir", "chat noir et blanc", "petit chat noir et blanc",
+				"chat noir et blanc de ses grand-mères", "petit chat noir et blanc de ses grand-mères" };
 
 		for (String expansion : depth2Array)
 			limitedDepthExpansions.add(expansion);

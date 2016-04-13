@@ -20,6 +20,7 @@ package com.joliciel.talismane.fr;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,12 +44,12 @@ import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.extensions.Extensions;
-import com.joliciel.talismane.fr.FtbDepReader;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
 import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
 import com.joliciel.talismane.fr.ftb.export.FtbPosTagMapper;
 import com.joliciel.talismane.fr.ftb.export.TreebankExportService;
 import com.joliciel.talismane.fr.ftb.upload.TreebankUploadService;
+import com.joliciel.talismane.fr.ftb.util.LogUtils;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
@@ -162,12 +163,12 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 
 				// we prepare both the tokeniser and pos-tag readers, just in
 				// case they are needed
-				InputStream posTagMapStream = talismaneFrench.getFtbPosTagMapFromStream();
-				Scanner scanner = new Scanner(posTagMapStream, "UTF-8");
-				List<String> descriptors = new ArrayList<String>();
-				while (scanner.hasNextLine())
-					descriptors.add(scanner.nextLine());
-				scanner.close();
+				List<String> descriptors = null;
+				try (InputStream posTagMapStream = talismaneFrench.getFtbPosTagMapFromStream(); Scanner scanner = new Scanner(posTagMapStream, "UTF-8")) {
+					descriptors = new ArrayList<String>();
+					while (scanner.hasNextLine())
+						descriptors.add(scanner.nextLine());
+				}
 				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneFrench.getDefaultPosTagSet());
 				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper,
 						keepCompoundPosTags);
@@ -245,29 +246,34 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 	@Override
 	public TransitionSystem getDefaultTransitionSystem() {
 		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
-		InputStream inputStream = getInputStreamFromResource("talismaneDependencyLabels.txt");
-		Scanner scanner = new Scanner(inputStream, "UTF-8");
-		Set<String> dependencyLabels = new HashSet<String>();
-		while (scanner.hasNextLine()) {
-			String dependencyLabel = scanner.nextLine();
-			if (!dependencyLabel.startsWith("#")) {
-				if (dependencyLabel.indexOf('\t') > 0)
-					dependencyLabel = dependencyLabel.substring(0, dependencyLabel.indexOf('\t'));
-				dependencyLabels.add(dependencyLabel);
+		try (InputStream inputStream = getInputStreamFromResource("talismaneDependencyLabels.txt"); Scanner scanner = new Scanner(inputStream, "UTF-8")) {
+			Set<String> dependencyLabels = new HashSet<String>();
+			while (scanner.hasNextLine()) {
+				String dependencyLabel = scanner.nextLine();
+				if (!dependencyLabel.startsWith("#")) {
+					if (dependencyLabel.indexOf('\t') > 0)
+						dependencyLabel = dependencyLabel.substring(0, dependencyLabel.indexOf('\t'));
+					dependencyLabels.add(dependencyLabel);
+				}
 			}
+			transitionSystem.setDependencyLabels(dependencyLabels);
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		}
-		scanner.close();
-		transitionSystem.setDependencyLabels(dependencyLabels);
 		return transitionSystem;
 	}
 
 	@Override
 	public PosTagSet getDefaultPosTagSet() {
-		InputStream posTagInputStream = getInputStreamFromResource("talismaneTagset.txt");
-		Scanner posTagSetScanner = new Scanner(posTagInputStream, "UTF-8");
-
-		PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
-		return posTagSet;
+		try (InputStream posTagInputStream = getInputStreamFromResource("talismaneTagset.txt");
+				Scanner posTagSetScanner = new Scanner(posTagInputStream, "UTF-8")) {
+			PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
+			return posTagSet;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -282,10 +288,14 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 
 	@Override
 	public LexicalEntryReader getDefaultCorpusLexicalEntryReader() {
-		InputStream inputStream = getInputStreamFromResource("talismane_conll_morph_regex.txt");
-		Scanner regexScanner = new Scanner(inputStream, "UTF-8");
-		LexicalEntryReader reader = new RegexLexicalEntryReader(regexScanner);
-		return reader;
+		try (InputStream inputStream = getInputStreamFromResource("talismane_conll_morph_regex.txt");
+				Scanner regexScanner = new Scanner(inputStream, "UTF-8")) {
+			LexicalEntryReader reader = new RegexLexicalEntryReader(regexScanner);
+			return reader;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

@@ -20,6 +20,7 @@ package com.joliciel.talismane.en;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,12 +43,12 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.en.PennDepReader;
 import com.joliciel.talismane.extensions.Extensions;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -163,29 +164,35 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 	@Override
 	public TransitionSystem getDefaultTransitionSystem() {
 		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
-		InputStream inputStream = getInputStreamFromResource("pennDependencyLabels.txt");
-		Scanner scanner = new Scanner(inputStream, "UTF-8");
-		Set<String> dependencyLabels = new HashSet<String>();
-		while (scanner.hasNextLine()) {
-			String dependencyLabel = scanner.nextLine();
-			if (!dependencyLabel.startsWith("#")) {
-				if (dependencyLabel.indexOf('\t') > 0)
-					dependencyLabel = dependencyLabel.substring(0, dependencyLabel.indexOf('\t'));
-				dependencyLabels.add(dependencyLabel);
+		try (InputStream inputStream = getInputStreamFromResource("pennDependencyLabels.txt"); Scanner scanner = new Scanner(inputStream, "UTF-8");) {
+			Set<String> dependencyLabels = new HashSet<String>();
+			while (scanner.hasNextLine()) {
+				String dependencyLabel = scanner.nextLine();
+				if (!dependencyLabel.startsWith("#")) {
+					if (dependencyLabel.indexOf('\t') > 0)
+						dependencyLabel = dependencyLabel.substring(0, dependencyLabel.indexOf('\t'));
+					dependencyLabels.add(dependencyLabel);
+				}
 			}
+			scanner.close();
+			transitionSystem.setDependencyLabels(dependencyLabels);
+			return transitionSystem;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		}
-		scanner.close();
-		transitionSystem.setDependencyLabels(dependencyLabels);
-		return transitionSystem;
 	}
 
 	@Override
 	public PosTagSet getDefaultPosTagSet() {
-		InputStream posTagInputStream = getInputStreamFromResource("pennTagset.txt");
-		Scanner posTagSetScanner = new Scanner(posTagInputStream, "UTF-8");
+		try (InputStream posTagInputStream = getInputStreamFromResource("pennTagset.txt"); Scanner posTagSetScanner = new Scanner(posTagInputStream, "UTF-8")) {
 
-		PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
-		return posTagSet;
+			PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
+			return posTagSet;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

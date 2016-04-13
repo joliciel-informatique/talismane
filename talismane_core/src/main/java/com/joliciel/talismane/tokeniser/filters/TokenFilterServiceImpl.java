@@ -121,8 +121,9 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	@Override
 	public List<TokenFilter> readTokenFilters(File file, Charset charset, List<String> descriptors) {
 		try {
-			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)));
-			return this.readTokenFilters(scanner, file.getCanonicalPath(), descriptors);
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)))) {
+				return this.readTokenFilters(scanner, file.getCanonicalPath(), descriptors);
+			}
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
