@@ -40,8 +40,15 @@ import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.utils.StringUtils;
 
+/**
+ * A parent class for TokenRegexFilter implementations, which knows how to
+ * construct the Pattern using the various attributes set and the initial regex,
+ * and how to apply the regex to get the matching placeholders.
+ * 
+ * @author Assaf Urieli
+ *
+ */
 public abstract class AbstractRegexFilter implements TokenRegexFilter {
-
 	private static final Log LOG = LogFactory.getLog(AbstractRegexFilter.class);
 	private static Pattern wordListPattern = Pattern.compile("\\\\p\\{WordList\\((.*?)\\)\\}", Pattern.UNICODE_CHARACTER_CLASS);
 	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
@@ -137,7 +144,8 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 		attributes.put(key, value);
 	}
 
-	protected Pattern getPattern() {
+	@Override
+	public Pattern getPattern() {
 		if (pattern == null) {
 			// we may need to replace WordLists by the list contents
 			String myRegex = this.regex;
