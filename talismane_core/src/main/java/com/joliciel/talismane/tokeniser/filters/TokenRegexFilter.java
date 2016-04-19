@@ -19,6 +19,7 @@
 package com.joliciel.talismane.tokeniser.filters;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 
@@ -37,6 +38,13 @@ public interface TokenRegexFilter extends TokenFilter {
 	 * The regex to recognise.
 	 */
 	public String getRegex();
+
+	/**
+	 * The pattern used by this filter.
+	 * 
+	 * @return
+	 */
+	public Pattern getPattern();
 
 	/**
 	 * If provided, indicates the group index to tokenise (and possibly
