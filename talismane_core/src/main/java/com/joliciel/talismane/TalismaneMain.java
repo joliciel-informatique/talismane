@@ -69,6 +69,7 @@ import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerTrainer;
 import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.CompiledRegexAnnotatorSerializer;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorTrainer;
@@ -119,6 +120,10 @@ public class TalismaneMain {
 			}
 			if (argSet.contains("--testDiacriticizer")) {
 				Diacriticizer.main(args);
+				return;
+			}
+			if (argSet.contains("--compileRegexFilters")) {
+				CompiledRegexAnnotatorSerializer.main(args);
 				return;
 			}
 		}

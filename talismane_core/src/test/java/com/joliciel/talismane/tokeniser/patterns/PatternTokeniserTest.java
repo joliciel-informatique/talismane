@@ -52,7 +52,7 @@ public class PatternTokeniserTest {
 		final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan sur www.google.com.", session);
 		List<Annotation<TokenPlaceholder>> annotations = new ArrayList<>();
 		Annotation<TokenPlaceholder> annotation = new Annotation<TokenPlaceholder>("Je n'ai pas l'ourang-outan sur ".length(),
-				"Je n'ai pas l'ourang-outan sur www.google.com".length(), new TokenPlaceholder("URL", ""), labels);
+				"Je n'ai pas l'ourang-outan sur www.google.com".length(), new TokenPlaceholder("URL"), labels);
 		annotations.add(annotation);
 		sentence.addAnnotations(annotations);
 

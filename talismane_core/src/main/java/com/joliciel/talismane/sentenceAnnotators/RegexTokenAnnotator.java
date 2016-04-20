@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -87,7 +88,7 @@ public class RegexTokenAnnotator extends AbstractRegexAnnotator {
 
 	/**
 	 * The replacement string to use for this token. See
-	 * {@link RegexUtils#getReplacement(String, CharSequence, Matcher)} for
+	 * {@link RegexUtils#getReplacement(String, CharSequence, MatchResult)} for
 	 * handling of the replacement string.
 	 * 
 	 * @return
@@ -110,6 +111,11 @@ public class RegexTokenAnnotator extends AbstractRegexAnnotator {
 	protected String findReplacement(CharSequence text, Matcher matcher) {
 		String newText = RegexUtils.getReplacement(replacement, text, matcher);
 		return newText;
+	}
+
+	@Override
+	public boolean isSingleToken() {
+		return true;
 	}
 
 }

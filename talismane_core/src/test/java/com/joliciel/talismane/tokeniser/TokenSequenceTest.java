@@ -194,10 +194,10 @@ public class TokenSequenceTest {
 
 		final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Write to me at ".length(), "Write to me at joe.schome@test.com".length(),
-				new TokenPlaceholder("Email", "blah"), labels);
+				new TokenPlaceholder("Email"), labels);
 		placeholders.add(placeholder0);
 		Annotation<TokenPlaceholder> placeholder1 = new Annotation<>("Write to me at joe.schome@test.com, otherwise go to ".length(),
-				"Write to me at joe.schome@test.com, otherwise go to http://test.com".length(), new TokenPlaceholder("URL", "blah"), labels);
+				"Write to me at joe.schome@test.com, otherwise go to http://test.com".length(), new TokenPlaceholder("URL"), labels);
 		placeholders.add(placeholder1);
 
 		sentence.addAnnotations(placeholders);
@@ -334,7 +334,7 @@ public class TokenSequenceTest {
 
 		final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 
-		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Il t".length(), "Il t’".length(), new TokenPlaceholder("'", "blah"), labels);
+		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Il t".length(), "Il t’".length(), new TokenPlaceholder("'"), labels);
 
 		placeholders.add(placeholder0);
 
@@ -509,7 +509,7 @@ public class TokenSequenceTest {
 
 		List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 		placeholders.add(new Annotation<>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot/minute".length(),
-				new TokenPlaceholder("foot_per_minute", "blah"), labels));
+				new TokenPlaceholder("foot_per_minute"), labels));
 		sentence.addAnnotations(placeholders);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, session);

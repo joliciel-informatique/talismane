@@ -18,6 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
  * A TokenAttribute containing a String.
  * 
@@ -27,7 +31,28 @@ package com.joliciel.talismane.tokeniser;
 public class StringAttribute extends TokenAttribute<String> {
 	private static final long serialVersionUID = 1L;
 
+	/*
+	 * For deserialization only.
+	 */
+	public StringAttribute() {
+	}
+
 	public StringAttribute(String key, String value) {
 		super(key, value);
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		// just write the key and value to the stream
+		out.writeUTF(key);
+		out.writeUTF(value);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		// read the key and value from the stream
+		this.key = in.readUTF();
+		this.value = in.readUTF();
+
 	}
 }

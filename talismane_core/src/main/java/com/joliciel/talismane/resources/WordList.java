@@ -19,6 +19,7 @@
 package com.joliciel.talismane.resources;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -26,15 +27,14 @@ import java.util.Scanner;
  * An external word list read from a text file.<br/>
  * The first line must be "Type: WordList". <br/>
  * The default name will be the filename.<br/>
- * If a line starts with the string "Name: ", the default name will be replaced
- * by this name.<br/>
+ * If a line starts with the string "Name: ", the default name will be replaced by this name.<br/>
  * All lines starting with # are skipped.<br/>
  * All other lines contain words.
  * 
  * @author Assaf Urieli
  *
  */
-public class WordList {
+public class WordList implements Iterable<String> {
 	private final String name;
 	private final List<String> wordList;
 
@@ -45,7 +45,7 @@ public class WordList {
 
 	public WordList(String fileName, Scanner scanner) {
 		String name = fileName;
-		this.wordList = new ArrayList<String>();
+		this.wordList = new ArrayList<>();
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (line.length() > 0 && !line.startsWith("#")) {
@@ -74,6 +74,11 @@ public class WordList {
 	 */
 	public List<String> getWordList() {
 		return wordList;
+	}
+
+	@Override
+	public Iterator<String> iterator() {
+		return wordList.iterator();
 	}
 
 }

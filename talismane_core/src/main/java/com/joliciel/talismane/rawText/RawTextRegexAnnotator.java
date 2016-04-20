@@ -43,6 +43,7 @@ import com.joliciel.talismane.utils.RegexUtils;
  * expression as a whole.
  * 
  * @author Assaf Urieli
+ * @author Lucas Satabin
  *
  */
 public class RawTextRegexAnnotator implements RawTextAnnotator {

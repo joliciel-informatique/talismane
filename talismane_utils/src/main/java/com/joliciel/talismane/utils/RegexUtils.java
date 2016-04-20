@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.utils;
 
-import java.util.regex.Matcher;
+import java.util.regex.MatchResult;
 
 /**
  * Various generic utilities for use with patterns and regexes.
@@ -40,7 +40,7 @@ public class RegexUtils {
 	 * @param matcher
 	 *            the matcher
 	 */
-	public static String getReplacement(String replacement, CharSequence text, Matcher matcher) {
+	public static String getReplacement(String replacement, CharSequence text, MatchResult matcher) {
 		String newText = replacement;
 		if (replacement != null && replacement.indexOf('$') >= 0) {
 			StringBuilder sb = new StringBuilder();

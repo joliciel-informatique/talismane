@@ -52,6 +52,11 @@ public interface RegexAnnotator extends SentenceAnnotator {
 	public int getGroupIndex();
 
 	/**
+	 * Does this token filter refuse any token boundaries inside the match.
+	 */
+	public boolean isSingleToken();
+
+	/**
 	 * Set of attributes to be assigned to tokens entirely contained in the
 	 * sequence identified by this regex.
 	 */

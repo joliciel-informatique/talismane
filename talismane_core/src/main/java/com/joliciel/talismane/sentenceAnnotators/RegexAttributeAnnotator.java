@@ -53,4 +53,9 @@ public class RegexAttributeAnnotator extends AbstractRegexAnnotator {
 		super(descriptor, defaultParams, Collections.emptySet(), false, talismaneSession);
 	}
 
+	@Override
+	public boolean isSingleToken() {
+		return false;
+	}
+
 }

@@ -29,7 +29,7 @@ public class SimpleTokeniserTest {
 		final Sentence sentence = new Sentence("Click http://www.blah-di-blah.com now", session);
 		List<Annotation<TokenPlaceholder>> annotations = new ArrayList<>();
 		Annotation<TokenPlaceholder> annotation = new Annotation<TokenPlaceholder>("Click ".length(), "Click http://www.blah-di-blah.com".length(),
-				new TokenPlaceholder("URL", ""), labels);
+				new TokenPlaceholder("URL"), labels);
 		annotations.add(annotation);
 		sentence.addAnnotations(annotations);
 

@@ -62,6 +62,7 @@ import com.joliciel.talismane.rawText.RawTextFilterFactory;
 import com.joliciel.talismane.rawText.RawTextMarkType;
 import com.joliciel.talismane.rawText.RawTextRegexAnnotator;
 import com.joliciel.talismane.resources.WordListFinder;
+import com.joliciel.talismane.sentenceAnnotators.CompiledRegexAnnotatorSerializer;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoader;
 import com.joliciel.talismane.utils.CSVFormatter;
@@ -127,8 +128,10 @@ public class TalismaneSession {
 	 *             the configuration
 	 * @throws ClassNotFoundException
 	 *             if a resource contains the wrong serialized class or version
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
-	public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException {
+	public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		this.sessionId = sessionId;
 		this.config = config;
 
@@ -403,6 +406,18 @@ public class TalismaneSession {
 					descriptors.add(line);
 				}
 			}
+		}
+
+		configPath = "talismane.core.annotators.compiled-token-filters";
+		List<String> compiledFilterPaths = config.getStringList(configPath);
+		for (String path : compiledFilterPaths) {
+			LOG.debug("From: " + path);
+			try (InputStream inputStream = ConfigUtils.getFile(config, configPath, path); ObjectInputStream in = new ObjectInputStream(inputStream);) {
+				SentenceAnnotator compiledFilter = CompiledRegexAnnotatorSerializer.deserialize(in);
+				this.sentenceAnnotators.add(compiledFilter);
+				this.sentenceAnnotatorDescriptors.add(Arrays.asList(path));
+			}
+
 		}
 	}
 

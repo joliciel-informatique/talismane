@@ -489,7 +489,7 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
 
 				if (this.singleToken) {
 					String replacement = this.findReplacement(annotatedText.getText(), matcher);
-					TokenPlaceholder placeholder = new TokenPlaceholder(replacement, regex);
+					TokenPlaceholder placeholder = new TokenPlaceholder(replacement);
 					Annotation<TokenPlaceholder> placeholderAnnotation = new Annotation<>(start, end, placeholder, labels);
 					placeholders.add(placeholderAnnotation);
 
