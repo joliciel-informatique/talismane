@@ -717,7 +717,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (languagePackPath != null) {
 				File languagePackFile = this.getFile(languagePackPath);
 				if (!languagePackFile.exists())
-					throw new TalismaneException("languagePack: could not find file: " + languagePackFile.getPath());
+					throw new TalismaneException("languagePack: could not find file: " + languagePackFile.getCanonicalPath());
 
 				if (!(implementation instanceof LanguagePackImplementation))
 					throw new TalismaneException("The implementation " + implementation.getClass().getSimpleName() + " does not accept language packs");
@@ -860,7 +860,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (this.lexiconPath != null) {
 				File lexiconFile = this.getFile(lexiconPath);
 				if (!lexiconFile.exists())
-					throw new TalismaneException("lexicon: File " + lexiconPath + " does not exist");
+					throw new TalismaneException("lexicon: File " + lexiconFile.getCanonicalPath() + " does not exist");
 
 				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
 				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
@@ -917,7 +917,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (diacriticizerPath != null) {
 				File diacriticizerFile = this.getFile(diacriticizerPath);
 				if (!diacriticizerFile.exists())
-					throw new TalismaneException("diacriticizer: File " + diacriticizerFile + " does not exist");
+					throw new TalismaneException("diacriticizer: File " + diacriticizerFile.getCanonicalPath() + " does not exist");
 				Diacriticizer diacriticizer = diacriticizerMap.get(diacriticizerFile.getCanonicalPath());
 				if (diacriticizer == null) {
 					LOG.info("Loading new diacriticizer from: " + diacriticizerPath);
@@ -1119,41 +1119,40 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	 */
 	@Override
 	public Reader getReader() {
-		if (this.reader == null) {
-			if (inFilePath != null) {
-				try {
+		try {
+			if (this.reader == null) {
+				if (inFilePath != null) {
 					File inFile = this.getFile(inFilePath);
 					if (!inFile.exists())
-						throw new TalismaneException("inFile does not exist: " + inFilePath);
+						throw new TalismaneException("inFile does not exist: " + inFile.getCanonicalPath());
 					if (inFile.isDirectory())
-						throw new TalismaneException("inFile must be a file, not a directory - use inDir instead: " + inFilePath);
+						throw new TalismaneException("inFile must be a file, not a directory - use inDir instead: " + inFile.getCanonicalPath());
 
 					this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile), this.getInputCharset()));
-
-				} catch (FileNotFoundException fnfe) {
-					LogUtils.logError(LOG, fnfe);
-					throw new RuntimeException(fnfe);
-				}
-			} else if (inDirPath != null) {
-				File inDir = this.getFile(inDirPath);
-				if (!inDir.exists())
-					throw new TalismaneException("inDir does not exist: " + inDirPath);
-				if (inDir.isDirectory()) {
-					DirectoryReader directoryReader = new DirectoryReader(inDir, this.getInputCharset());
-					if (this.command == Command.analyse) {
-						directoryReader.setEndOfFileString("\n" + this.getEndBlockCharacter());
+				} else if (inDirPath != null) {
+					File inDir = this.getFile(inDirPath);
+					if (!inDir.exists())
+						throw new TalismaneException("inDir does not exist: " + inDir.getCanonicalPath());
+					if (inDir.isDirectory()) {
+						DirectoryReader directoryReader = new DirectoryReader(inDir, this.getInputCharset());
+						if (this.command == Command.analyse) {
+							directoryReader.setEndOfFileString("\n" + this.getEndBlockCharacter());
+						} else {
+							directoryReader.setEndOfFileString("\n");
+						}
+						this.reader = directoryReader;
 					} else {
-						directoryReader.setEndOfFileString("\n");
+						throw new TalismaneException("inDir must be a directory, not a file - use inFile instead: " + inDirPath);
 					}
-					this.reader = directoryReader;
 				} else {
-					throw new TalismaneException("inDir must be a directory, not a file - use inFile instead: " + inDirPath);
+					this.reader = new BufferedReader(new InputStreamReader(System.in, this.getInputCharset()));
 				}
-			} else {
-				this.reader = new BufferedReader(new InputStreamReader(System.in, this.getInputCharset()));
 			}
+			return reader;
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
 		}
-		return reader;
 	}
 
 	/**
@@ -1255,7 +1254,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						if (posTaggerRuleFilePath != null && posTaggerRuleFilePath.length() > 0) {
 							File posTaggerRuleFile = this.getFile(posTaggerRuleFilePath);
 							if (!posTaggerRuleFile.exists()) {
-								throw new TalismaneException("posTaggerRules: File " + posTaggerRuleFilePath + " does not exist");
+								throw new TalismaneException("posTaggerRules: File " + posTaggerRuleFile.getCanonicalPath() + " does not exist");
 							}
 							rulesScanner = new Scanner(
 									new BufferedReader(new InputStreamReader(new FileInputStream(posTaggerRuleFile), this.getInputCharset().name())));
@@ -1308,7 +1307,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 							if (parserRuleFilePath != null && parserRuleFilePath.length() > 0) {
 								File parserRuleFile = this.getFile(parserRuleFilePath);
 								if (!parserRuleFile.exists()) {
-									throw new TalismaneException("parserRules: File " + parserRuleFilePath + " does not exist");
+									throw new TalismaneException("parserRules: File " + parserRuleFile.getCanonicalPath() + " does not exist");
 								}
 								rulesScanner = new Scanner(
 										new BufferedReader(new InputStreamReader(new FileInputStream(parserRuleFile), this.getInputCharset().name())));
@@ -1445,7 +1444,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						LOG.debug("From: " + path);
 						File textFilterFile = this.getFile(path);
 						if (!textFilterFile.exists()) {
-							throw new TalismaneException("textFilters: File " + path + " does not exist");
+							throw new TalismaneException("textFilters: File " + textFilterFile.getCanonicalPath() + " does not exist");
 						}
 						textFilterScanner = new Scanner(
 								new BufferedReader(new InputStreamReader(new FileInputStream(textFilterFile), this.getInputCharset().name())));
@@ -1522,7 +1521,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 								LOG.debug("From: " + part);
 								File tokenSequenceFilterFile = this.getFile(part);
 								if (!tokenSequenceFilterFile.exists()) {
-									throw new TalismaneException("tokenSequenceFilters: File " + part + " does not exist");
+									throw new TalismaneException(
+											"tokenSequenceFilters: File " + tokenSequenceFilterFile.getCanonicalPath() + " does not exist");
 								}
 								Scanner scanner = new Scanner(
 										new BufferedReader(new InputStreamReader(new FileInputStream(tokenSequenceFilterFile), this.getInputCharset())));
@@ -1658,7 +1658,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 								LOG.debug("From: " + part);
 								File tokenFilterFile = this.getFile(part);
 								if (!tokenFilterFile.exists()) {
-									throw new TalismaneException("tokenFilters: File " + part + " does not exist");
+									throw new TalismaneException("tokenFilters: File " + tokenFilterFile.getCanonicalPath() + " does not exist");
 								}
 								Either<Scanner, File> source = Either.ofRight(tokenFilterFile);
 								sources.add(source);
@@ -1837,7 +1837,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (sentenceModelFilePath != null) {
 					File sentenceModelFile = this.getFile(sentenceModelFilePath);
 					if (!sentenceModelFile.exists())
-						throw new TalismaneException("Could not find sentenceModel at: " + sentenceModelFilePath);
+						throw new TalismaneException("Could not find sentenceModel at: " + sentenceModelFile.getCanonicalPath());
 
 					sentenceModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(sentenceModelFile)));
 				} else {
@@ -1859,7 +1859,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (tokeniserModelFilePath != null) {
 					File tokeniserModelFile = this.getFile(tokeniserModelFilePath);
 					if (!tokeniserModelFile.exists())
-						throw new TalismaneException("Could not find tokeniserModel at: " + tokeniserModelFilePath);
+						throw new TalismaneException("Could not find tokeniserModel at: " + tokeniserModelFile.getCanonicalPath());
 
 					tokeniserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(tokeniserModelFile)));
 				} else {
@@ -1880,7 +1880,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (posTaggerModelFilePath != null) {
 					File posTaggerModelFile = this.getFile(posTaggerModelFilePath);
 					if (!posTaggerModelFile.exists())
-						throw new TalismaneException("Could not find posTaggerModel at: " + posTaggerModelFilePath);
+						throw new TalismaneException("Could not find posTaggerModel at: " + posTaggerModelFile.getCanonicalPath());
 
 					posTaggerModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(posTaggerModelFile)));
 				} else {
@@ -1902,7 +1902,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (parserModelFilePath != null) {
 					File parserModelFile = this.getFile(parserModelFilePath);
 					if (!parserModelFile.exists())
-						throw new TalismaneException("Could not find parserModel at: " + parserModelFilePath);
+						throw new TalismaneException("Could not find parserModel at: " + parserModelFile.getCanonicalPath());
 
 					parserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(new FileInputStream(parserModelFile)));
 				} else {
@@ -2540,7 +2540,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (corpusLexicalEntryRegexPath != null) {
 					File corpusLexicalEntryRegexFile = this.getFile(corpusLexicalEntryRegexPath);
 					if (!corpusLexicalEntryRegexFile.exists())
-						throw new TalismaneException("corpusLexicalEntryRegex file not found: " + corpusLexicalEntryRegexPath);
+						throw new TalismaneException("corpusLexicalEntryRegex file not found: " + corpusLexicalEntryRegexFile.getCanonicalPath());
 
 					try (Scanner corpusLexicalEntryRegexScanner = new Scanner(
 							new BufferedReader(new InputStreamReader(new FileInputStream(corpusLexicalEntryRegexFile), this.getInputCharset().name())))) {
@@ -2567,7 +2567,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		} catch (UnsupportedEncodingException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
