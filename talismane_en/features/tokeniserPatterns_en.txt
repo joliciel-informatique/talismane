@@ -22,7 +22,7 @@ Initials	[A-Z]\.{ }
 U.K.	[A-Za-z]\.[A-Za-z]\.
 U.K.	[A-Za-z]\.[A-Za-z]\.[A-Za-z]\.
 U.K.	[A-Za-z]\.[A-Za-z]\.[A-Za-z]\.[A-Za-z]\.
-US$	(US|C|HK|NZ|AU)$
+US$	(US|C|HK|NZ|AU)\$
 9:30	\d:\d\d
 9:30	\d\d:\d\d
 Possessive	{.+'}(s|re|ve|d|m|ll)

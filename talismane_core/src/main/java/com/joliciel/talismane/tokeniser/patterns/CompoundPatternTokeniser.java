@@ -220,30 +220,32 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 				for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
 					List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(initialSequence);
 					for (TokenPatternMatchSequence matchSequence : matchesForThisPattern) {
-						matchingSequences.add(matchSequence);
-						matchedTokens.addAll(matchSequence.getTokensToCheck());
-						
-						TokenPatternMatch primaryMatch = null;
-						Token token = matchSequence.getTokensToCheck().get(0);
-						
-						Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-						if (matchSequences==null) {
-							matchSequences = new TreeSet<TokenPatternMatchSequence>();
-							tokenMatchSequenceMap.put(token, matchSequences);
-						}
-						matchSequences.add(matchSequence);
-						
-						for (TokenPatternMatch patternMatch : matchSequence.getTokenPatternMatches()) {
-							if (patternMatch.getToken().equals(token)) {
-								primaryMatch = patternMatch;
-								break;
+						if (matchSequence.getTokensToCheck().size()>0) {
+							matchingSequences.add(matchSequence);
+							matchedTokens.addAll(matchSequence.getTokensToCheck());
+							
+							TokenPatternMatch primaryMatch = null;
+							Token token = matchSequence.getTokensToCheck().get(0);
+							
+							Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
+							if (matchSequences==null) {
+								matchSequences = new TreeSet<TokenPatternMatchSequence>();
+								tokenMatchSequenceMap.put(token, matchSequences);
 							}
+							matchSequences.add(matchSequence);
+							
+							for (TokenPatternMatch patternMatch : matchSequence.getTokenPatternMatches()) {
+								if (patternMatch.getToken().equals(token)) {
+									primaryMatch = patternMatch;
+									break;
+								}
+							}
+							
+							if (LOG.isTraceEnabled()) {
+								LOG.trace("Found match: " + primaryMatch);
+							}
+							primaryMatchMap.put(matchSequence, primaryMatch);
 						}
-						
-						if (LOG.isTraceEnabled()) {
-							LOG.trace("Found match: " + primaryMatch);
-						}
-						primaryMatchMap.put(matchSequence, primaryMatch);
 					}
 				}
 			} finally {
