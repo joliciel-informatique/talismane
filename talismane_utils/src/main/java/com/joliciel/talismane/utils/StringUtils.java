@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Various generic utilities for use with Strings.
@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class StringUtils {
-	private static final Log LOG = LogFactory.getLog(StringUtils.class);
+	private static final Logger LOG = LoggerFactory.getLogger(StringUtils.class);
 	public static String padRight(String s, int n) {
 	     return String.format("%1$-" + n + "s", s);  
 	}

@@ -30,8 +30,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
@@ -49,7 +49,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public abstract class AbstractRegexFilter implements TokenRegexFilter {
-	private static final Log LOG = LogFactory.getLog(AbstractRegexFilter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractRegexFilter.class);
 	private static Pattern wordListPattern = Pattern.compile("\\\\p\\{WordList\\((.*?)\\)\\}", Pattern.UNICODE_CHARACTER_CLASS);
 	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 	private String regex;

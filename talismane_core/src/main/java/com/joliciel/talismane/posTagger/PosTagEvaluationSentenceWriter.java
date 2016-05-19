@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -37,7 +37,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public class PosTagEvaluationSentenceWriter implements PosTagEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(PosTagEvaluationSentenceWriter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagEvaluationSentenceWriter.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	private Writer csvFileWriter;
 	private int guessCount;

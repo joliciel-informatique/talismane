@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.filters.Sentence;
@@ -39,7 +39,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchSequence;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 class TokenComparatorImpl implements TokenComparator {
-	private static final Log LOG = LogFactory.getLog(TokenComparatorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenComparatorImpl.class);
 	private List<TokenEvaluationObserver> observers = new ArrayList<TokenEvaluationObserver>();
 	private int sentenceCount;
 	private TokeniserServiceInternal tokeniserServiceInternal;

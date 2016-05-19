@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -36,7 +36,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 class LanguageDetectorImpl implements LanguageDetector {
-	private static final Log LOG = LogFactory.getLog(LanguageDetectorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LanguageDetectorImpl.class);
 
 	private DecisionMaker decisionMaker;

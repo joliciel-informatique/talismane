@@ -27,14 +27,14 @@ import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.StringUtils;
 
 class SentenceDetectorEvaluatorImpl implements SentenceDetectorEvaluator {
-	private static final Log LOG = LogFactory.getLog(SentenceDetectorEvaluatorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorEvaluatorImpl.class);
 	private SentenceDetector sentenceDetector;
 	int minCharactersAfterBoundary = 50;
 	private static final int NUM_CHARS = 30;

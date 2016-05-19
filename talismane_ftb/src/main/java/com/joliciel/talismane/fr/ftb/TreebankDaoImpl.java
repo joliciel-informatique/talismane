@@ -30,8 +30,8 @@ import java.util.TreeSet;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -42,7 +42,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.joliciel.talismane.utils.DaoUtils;
 
 class TreebankDaoImpl implements TreebankDao {
-	static final Log LOG = LogFactory.getLog(TreebankDaoImpl.class);
+	static final Logger LOG = LoggerFactory.getLogger(TreebankDaoImpl.class);
 	TreebankServiceInternal treebankServiceInternal;
 	private DataSource dataSource;
 

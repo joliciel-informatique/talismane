@@ -20,8 +20,8 @@ package com.joliciel.talismane.filters;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.StringAttribute;
@@ -30,7 +30,7 @@ import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 class FilterServiceImpl implements FilterServiceInternal {
-	private static final Log LOG = LogFactory.getLog(FilterServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FilterServiceImpl.class);
 	private String outputDivider = "";
 	private TokeniserService tokeniserService;
 

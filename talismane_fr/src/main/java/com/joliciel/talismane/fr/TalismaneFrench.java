@@ -19,7 +19,6 @@
 package com.joliciel.talismane.fr;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,20 +26,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.GenericLanguageImplementation;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.extensions.Extensions;
@@ -49,7 +45,6 @@ import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
 import com.joliciel.talismane.fr.ftb.export.FtbPosTagMapper;
 import com.joliciel.talismane.fr.ftb.export.TreebankExportService;
 import com.joliciel.talismane.fr.ftb.upload.TreebankUploadService;
-import com.joliciel.talismane.fr.ftb.util.LogUtils;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
@@ -61,6 +56,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -70,7 +66,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class TalismaneFrench extends GenericLanguageImplementation {
-	private static final Log LOG = LogFactory.getLog(TalismaneFrench.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneFrench.class);
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 
 	private enum CorpusFormat {
@@ -103,19 +99,9 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 			argsMap.remove("keepCompoundPosTags");
 		}
 
-		// Configure log4j
 		String logConfigPath = argsMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argsMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		} else {
-			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class.getResourceAsStream("/com/joliciel/talismane/default-log4j.properties");
-			props.load(stream);
-			PropertyConfigurator.configure(props);
-		}
+		argsMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		Extensions extensions = new Extensions();
 		extensions.pluckParameters(argsMap);

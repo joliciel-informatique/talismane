@@ -30,8 +30,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.FeatureWeightVector;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -44,7 +44,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 class PerceptronRankingModelParameters implements Serializable, FeatureWeightVector {
-	private static final Log LOG = LogFactory.getLog(PerceptronRankingModelParameters.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PerceptronRankingModelParameters.class);
 	private static final long serialVersionUID = 1L;
 	private int featureCount = 0;
 	

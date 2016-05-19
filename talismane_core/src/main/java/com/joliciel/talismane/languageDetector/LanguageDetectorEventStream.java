@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -35,7 +35,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 class LanguageDetectorEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(LanguageDetectorEventStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorEventStream.class);
 
     private LanguageDetectorAnnotatedCorpusReader corpusReader;
 	private Set<LanguageDetectorFeature<?>> features;

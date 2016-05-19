@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
@@ -20,7 +20,7 @@ import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
 public class TokenRegexFilterImplTest {
-	private static final Log LOG = LogFactory.getLog(TokenRegexFilterImplTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexFilterImplTest.class);
 
 	@Before
 	public void setup() {
@@ -34,7 +34,7 @@ public class TokenRegexFilterImplTest {
 		filter.setReplacement("Email");
 		String text = "My address is joe.schmoe@test.com.";
 		List<TokenPlaceholder> placeholders = filter.apply(text);
-		LOG.debug(placeholders);
+		LOG.debug(placeholders.toString());
 		assertEquals(1, placeholders.size());
 		TokenPlaceholder placeholder = placeholders.iterator().next();
 		assertEquals(14, placeholder.getStartIndex());
@@ -49,7 +49,7 @@ public class TokenRegexFilterImplTest {
 		filter.setReplacement("\\$Email$2:$1");
 		String text = "My address is joe.schmoe@test.com.";
 		List<TokenPlaceholder> placeholders = filter.apply(text);
-		LOG.debug(placeholders);
+		LOG.debug(placeholders.toString());
 		assertEquals(1, placeholders.size());
 		TokenPlaceholder placeholder = placeholders.iterator().next();
 		assertEquals(14, placeholder.getStartIndex());
@@ -393,7 +393,7 @@ public class TokenRegexFilterImplTest {
 		filter.addAttribute("TAG", new StringAttribute("skip"));
 		String text = "Résumé. Résumé des attaques";
 		List<TokenPlaceholder> placeholders = filter.apply(text);
-		LOG.debug(placeholders);
+		LOG.debug(placeholders.toString());
 		assertEquals(1, placeholders.size());
 		TokenPlaceholder placeholder = placeholders.iterator().next();
 		assertEquals(0, placeholder.getStartIndex());

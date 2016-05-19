@@ -20,8 +20,8 @@ package com.joliciel.talismane.tokeniser;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
@@ -39,7 +39,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 public abstract class AbstractTokeniser implements Tokeniser {
-	private static final Log LOG = LogFactory.getLog(AbstractTokeniser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokeniser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractTokeniser.class);
 	
 	private TokeniserService tokeniserService;

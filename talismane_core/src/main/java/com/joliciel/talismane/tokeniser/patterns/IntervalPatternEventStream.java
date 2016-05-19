@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
@@ -61,7 +61,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 class IntervalPatternEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(IntervalPatternEventStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IntervalPatternEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternEventStream.class);
     
     private TokenFeatureService tokenFeatureService;

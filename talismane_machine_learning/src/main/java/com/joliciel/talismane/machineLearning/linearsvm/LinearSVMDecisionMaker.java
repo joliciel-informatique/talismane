@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -39,7 +39,7 @@ import de.bwaldvogel.liblinear.Linear;
 import de.bwaldvogel.liblinear.Model;
 
 class LinearSVMDecisionMaker implements DecisionMaker {
-	private static final Log LOG = LogFactory.getLog(LinearSVMDecisionMaker.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMDecisionMaker.class);
 	
 	private MachineLearningService machineLearningService;
 	

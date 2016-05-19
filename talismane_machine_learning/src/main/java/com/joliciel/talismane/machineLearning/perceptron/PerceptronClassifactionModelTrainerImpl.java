@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -45,7 +45,7 @@ import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 
 class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificationModelTrainer {
-	private static final Log LOG = LogFactory.getLog(PerceptronClassifactionModelTrainerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassifactionModelTrainerImpl.class);
 	private int iterations = 100;
 	private int cutoff = 0;
 	private double tolerance = 1e-5;

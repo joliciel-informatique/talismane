@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.Ranker;
@@ -39,7 +39,7 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.utils.JolicielException;
 
 class PerceptronRankingModelTrainerImpl<T> implements PerceptronRankingModelTrainer<T> {
-	private static final Log LOG = LogFactory.getLog(PerceptronRankingModelTrainerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PerceptronRankingModelTrainerImpl.class);
 	private int iterations = 100;
 	private int cutoff = 0;
 	private double tolerance = 0.0001;

@@ -26,11 +26,11 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class SentenceImpl implements Sentence {
-	private static final Log LOG = LogFactory.getLog(SentenceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SentenceImpl.class);
 
 	private String text;
 	private TreeMap<Integer, String> originalTextSegments = new TreeMap<Integer, String>();

@@ -21,12 +21,12 @@ package com.joliciel.talismane.tokeniser;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class TokeniserEvaluatorImpl implements TokeniserEvaluator {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TokeniserEvaluatorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokeniserEvaluatorImpl.class);
 	Tokeniser tokeniser;
 	private int sentenceCount = 0;
 

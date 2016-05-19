@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
 
@@ -37,7 +37,7 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
  */
 public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
     @SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(FtbDepReader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FtbDepReader.class);
     
     private boolean keepCompoundPosTags = false;
     

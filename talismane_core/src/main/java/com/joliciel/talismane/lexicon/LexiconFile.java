@@ -12,8 +12,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
@@ -34,7 +34,7 @@ import com.joliciel.talismane.posTagger.UnknownPosTagException;
  */
 public class LexiconFile implements PosTaggerLexicon, Serializable, NeedsTalismaneSession, LexicalEntryFactory {
 	private static final long serialVersionUID = 3L;
-	private static final Log LOG = LogFactory.getLog(LexiconFile.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LexiconFile.class);
 	private Map<String,List<LexicalEntry>> entryMap = new THashMap<String, List<LexicalEntry>>();
 	private Map<String,List<LexicalEntry>> lemmaEntryMap = new THashMap<String, List<LexicalEntry>>();
 	private TalismaneSession talismaneSession;

@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
@@ -51,7 +51,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  */
 public class TextFileResource implements ExternalResource<String> {
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(TextFileResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TextFileResource.class);
 	Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
 	Map<String, String> resultMap = new HashMap<String, String>();
 

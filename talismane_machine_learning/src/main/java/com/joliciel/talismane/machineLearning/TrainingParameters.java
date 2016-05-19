@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
@@ -61,7 +61,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public class TrainingParameters {
-	private static final Log LOG = LogFactory.getLog(TrainingParameters.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TrainingParameters.class);
 
 	private MachineLearningAlgorithm algorithm;
 	private Map<String, Object> parameters;

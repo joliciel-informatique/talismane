@@ -38,8 +38,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
@@ -65,7 +65,7 @@ import com.joliciel.talismane.utils.StringUtils;
 import com.joliciel.talismane.utils.io.UnclosableInputStream;
 
 public class GenericLanguageImplementation implements LanguagePackImplementation {
-	private static final Log LOG = LogFactory.getLog(GenericLanguageImplementation.class);
+	private static final Logger LOG = LoggerFactory.getLogger(GenericLanguageImplementation.class);
 	private TalismaneServiceLocator talismaneServiceLocator = null;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;

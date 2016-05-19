@@ -20,14 +20,14 @@ package com.joliciel.talismane.lexicon;
 
 import java.io.File;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 
 class LexiconServiceImpl implements LexiconService {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(LexiconServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LexiconServiceImpl.class);
 
 	@Override
 	public Diacriticizer getDiacriticizer(TalismaneSession talismaneSession, Lexicon lexicon) {

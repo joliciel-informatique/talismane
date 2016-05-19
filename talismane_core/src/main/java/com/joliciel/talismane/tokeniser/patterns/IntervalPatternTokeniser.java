@@ -24,8 +24,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -65,7 +65,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 class IntervalPatternTokeniser extends AbstractTokeniser implements PatternTokeniser {
-	private static final Log LOG = LogFactory.getLog(IntervalPatternTokeniser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(IntervalPatternTokeniser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternTokeniser.class);
 	
 	private DecisionMaker decisionMaker;

@@ -31,8 +31,8 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import javax.tools.JavaCompiler.CompilationTask;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A compiler for compiling classes whose source code has been constructed dynamically in memory.
@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class DynamicCompiler {
-	private static final Log LOG = LogFactory.getLog(DynamicCompiler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DynamicCompiler.class);
 	private JavaCompiler javaCompiler;
 	private InMemoryClassLoader inMemoryClassLoader;
 	private InMemoryFileManager inMemoryFileManager;

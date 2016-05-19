@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -46,7 +46,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
 
 final class ParseConfigurationImpl implements ParseConfigurationInternal {
-	private static final Log LOG = LogFactory.getLog(ParseConfigurationImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParseConfigurationImpl.class);
 	
 	private PosTagSequence posTagSequence;
 	private double score;

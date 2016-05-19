@@ -34,15 +34,15 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.filters.DiacriticRemover;
 import com.joliciel.talismane.utils.LogUtils;
 
 class DiacriticizerImpl implements Diacriticizer, Serializable {
-	private static final Log LOG = LogFactory.getLog(DiacriticizerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DiacriticizerImpl.class);
 
 	private static final long serialVersionUID = 1L;
 	private Map<String, Set<String>> map = new HashMap<String, Set<String>>();

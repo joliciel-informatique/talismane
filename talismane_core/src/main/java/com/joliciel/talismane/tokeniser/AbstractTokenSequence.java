@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
@@ -16,7 +16,7 @@ import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSequence, PretokenisedSequence {
-	private static final Log LOG = LogFactory.getLog(AbstractTokenSequence.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokenSequence.class);
 	private static final long serialVersionUID = 2675309892340757939L;
 	private List<Integer> tokenSplits;
 	private String text;
@@ -165,7 +165,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 		if (!this.scoreCalculated) {
 			this.finalise();
 			if (LOG.isTraceEnabled())
-				LOG.trace(this);
+				LOG.trace(this.toString());
 			score = 1.0;
 			if (this.underlyingAtomicTokenSequence != null) {
 				score = this.underlyingAtomicTokenSequence.getScore();

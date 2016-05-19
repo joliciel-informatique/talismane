@@ -43,8 +43,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
@@ -100,7 +100,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class LexiconSerializer {
-	private static final Log LOG = LogFactory.getLog(LexiconSerializer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LexiconSerializer.class);
 
 	/**
 	 * For arguments, see {@link #serializeLexicons(Map)}.

@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -51,7 +51,7 @@ import com.joliciel.talismane.fr.ftb.util.UnicodeReader;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class XmlPatternSearchImpl implements XmlPatternSearch {
-    private static final Log LOG = LogFactory.getLog(XmlPatternSearchImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XmlPatternSearchImpl.class);
 
     String xmlPattern = "";
     TreebankService treebankService;

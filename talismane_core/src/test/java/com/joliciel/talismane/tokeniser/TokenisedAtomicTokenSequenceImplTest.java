@@ -18,33 +18,33 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 
+import mockit.NonStrict;
+import mockit.NonStrictExpectations;
+
 public class TokenisedAtomicTokenSequenceImplTest {
-	private static final Log LOG = LogFactory.getLog(TokenisedAtomicTokenSequenceImplTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceImplTest.class);
 
 	@Test
 	public void testGetTokenSequence(@NonStrict final Sentence sentence) {
 		new NonStrictExpectations() {
 			{
-				sentence.getText(); returns("Je n'ai pas encore l'ourang-outan.");
+				sentence.getText();
+				returns("Je n'ai pas encore l'ourang-outan.");
 			}
 		};
-		
-		TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] {
-				TokeniserOutcome.SEPARATE, // Je
+
+		TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] { TokeniserOutcome.SEPARATE, // Je
 				TokeniserOutcome.SEPARATE, // _
 				TokeniserOutcome.SEPARATE, // n
 				TokeniserOutcome.JOIN, // '
@@ -61,44 +61,43 @@ public class TokenisedAtomicTokenSequenceImplTest {
 				TokeniserOutcome.JOIN, // outan
 				TokeniserOutcome.SEPARATE // .
 		};
-		
+
 		MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 		MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
 		TokeniserServiceInternal tokeniserService = new TokeniserServiceImpl();
 
 		TokenisedAtomicTokenSequenceImpl atomicTokenSequence = new TokenisedAtomicTokenSequenceImpl(sentence);
 		atomicTokenSequence.setTokeniserServiceInternal(tokeniserService);
-		
+
 		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
-		
+
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 			Decision decision = machineLearningService.createDefaultDecision(tokeniserOutcomeArray[i++].name());
 			TaggedToken<TokeniserOutcome> taggedToken = tokeniserService.getTaggedToken(token, decision);
 			atomicTokenSequence.add(taggedToken);
 		}
-		
-			
+
 		TokenSequence newTokenSequence = atomicTokenSequence.inferTokenSequence();
-		LOG.debug(newTokenSequence);
-		
+		LOG.debug(newTokenSequence.toString());
+
 		i = 0;
 		for (Token token : newTokenSequence) {
-			if (i==0) {
+			if (i == 0) {
 				assertEquals("Je", token.getText());
-			} else if (i==1) {
+			} else if (i == 1) {
 				assertEquals("n'", token.getText());
-			} else if (i==2) {
-				assertEquals("ai", token.getText());	
-			} else if (i==3) {
-				assertEquals("pas encore", token.getText());	
-			} else if (i==4) {
-				assertEquals("l'", token.getText());	
-			} else if (i==5) {
-				assertEquals("ourang-outan", token.getText());	
-			} else if (i==6) {
-				assertEquals(".", token.getText());	
-			} 
+			} else if (i == 2) {
+				assertEquals("ai", token.getText());
+			} else if (i == 3) {
+				assertEquals("pas encore", token.getText());
+			} else if (i == 4) {
+				assertEquals("l'", token.getText());
+			} else if (i == 5) {
+				assertEquals("ourang-outan", token.getText());
+			} else if (i == 6) {
+				assertEquals(".", token.getText());
+			}
 			i++;
 		}
 		assertEquals(7, newTokenSequence.size());

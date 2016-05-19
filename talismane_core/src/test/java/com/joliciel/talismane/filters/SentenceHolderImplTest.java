@@ -25,17 +25,17 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 public class SentenceHolderImplTest {
-	private static final Log LOG = LogFactory.getLog(SentenceHolderImplTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SentenceHolderImplTest.class);
 
 	@Before
 	public void setup() {
@@ -99,7 +99,7 @@ public class SentenceHolderImplTest {
 		assertEquals("<o>Output this</o>", sentence2.getOriginalTextSegments().get(0));
 
 		for (SentenceTag<?> sentenceTag : sentence2.getSentenceTags()) {
-			LOG.debug(sentenceTag);
+			LOG.debug(sentenceTag.toString());
 		}
 
 		assertEquals(2, sentence2.getSentenceTags().size());

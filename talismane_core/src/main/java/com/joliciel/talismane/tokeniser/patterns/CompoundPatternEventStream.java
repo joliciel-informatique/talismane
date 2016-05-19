@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
@@ -56,7 +56,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  */
 class CompoundPatternEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(CompoundPatternEventStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternEventStream.class);
     
     private TokenFeatureService tokenFeatureService;

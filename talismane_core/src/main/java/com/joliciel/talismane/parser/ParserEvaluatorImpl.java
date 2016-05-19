@@ -21,8 +21,8 @@ package com.joliciel.talismane.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.filters.Sentence;
@@ -35,7 +35,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class ParserEvaluatorImpl implements ParserEvaluator {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(ParserEvaluatorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParserEvaluatorImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserEvaluatorImpl.class);
 	private Parser parser;
 	private PosTagger posTagger;

@@ -28,8 +28,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import opennlp.maxent.GISModel;
 import opennlp.model.DataIndexer;
@@ -59,7 +59,7 @@ import opennlp.model.UniformPrior;
  * data and the specified prior.  By default, the uniform distribution is used as the prior.
  */
 public class GISTrainer {
-    private static final Log LOG = LogFactory.getLog(GISTrainer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GISTrainer.class);
     private String currentMessage = "";
 
   /**

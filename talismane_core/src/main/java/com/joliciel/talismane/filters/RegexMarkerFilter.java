@@ -25,8 +25,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
@@ -41,7 +41,7 @@ import com.joliciel.talismane.utils.RegexUtils;
  *
  */
 class RegexMarkerFilter implements TextMarkerFilter {
-	private static final Log LOG = LogFactory.getLog(RegexMarkerFilter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RegexMarkerFilter.class);
 	private List<MarkerFilterType> filterTypes;
 	private Pattern pattern;
 	private String regex;

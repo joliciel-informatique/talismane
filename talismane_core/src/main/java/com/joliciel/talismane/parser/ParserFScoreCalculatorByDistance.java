@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -40,7 +40,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(ParserFScoreCalculatorByDistance.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParserFScoreCalculatorByDistance.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	Map<Integer,FScoreCalculator<String>> fscoreByDistanceMap = new TreeMap<Integer, FScoreCalculator<String>>();
 	private boolean labeledEvaluation = true;

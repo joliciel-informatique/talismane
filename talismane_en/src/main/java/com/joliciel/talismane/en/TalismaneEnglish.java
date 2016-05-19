@@ -19,7 +19,6 @@
 package com.joliciel.talismane.en;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,20 +26,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.GenericLanguageImplementation;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.extensions.Extensions;
@@ -58,7 +54,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class TalismaneEnglish extends GenericLanguageImplementation {
-	private static final Log LOG = LogFactory.getLog(TalismaneEnglish.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneEnglish.class);
 	private static final String DEFAULT_CONLL_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%";
 
 	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
@@ -77,19 +73,9 @@ public class TalismaneEnglish extends GenericLanguageImplementation {
 			argsMap.remove("corpusReader");
 		}
 
-		// Configure log4j
 		String logConfigPath = argsMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argsMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		} else {
-			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class.getResourceAsStream("/com/joliciel/talismane/default-log4j.properties");
-			props.load(stream);
-			PropertyConfigurator.configure(props);
-		}
+		argsMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		Extensions extensions = new Extensions();
 		extensions.pluckParameters(argsMap);

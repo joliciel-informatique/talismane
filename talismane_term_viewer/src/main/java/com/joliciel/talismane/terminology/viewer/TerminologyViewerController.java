@@ -76,8 +76,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.terminology.Context;
@@ -89,7 +89,7 @@ import com.joliciel.talismane.utils.CSVFormatter;
 
 @SuppressWarnings("restriction")
 public class TerminologyViewerController {
-	private static final Log LOG = LogFactory.getLog(TerminologyViewerController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TerminologyViewerController.class);
 	private static CSVFormatter CSV = new CSVFormatter();
 
 	@FXML

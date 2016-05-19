@@ -24,8 +24,8 @@ import java.io.Writer;
 import java.net.ServerSocket;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -35,7 +35,7 @@ import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.utils.LogUtils;
 
 class TalismaneServerImpl implements TalismaneServer {
-	private static final Log LOG = LogFactory.getLog(TalismaneServerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerImpl.class);
 	private int port = 7272;
 	private boolean listening = true;
 	private TalismaneConfig config = null;

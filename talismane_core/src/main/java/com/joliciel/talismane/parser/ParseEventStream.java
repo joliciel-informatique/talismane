@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -42,7 +42,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 class ParseEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(ParseEventStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseEventStream.class);
 
     ParserAnnotatedCorpusReader corpusReader;

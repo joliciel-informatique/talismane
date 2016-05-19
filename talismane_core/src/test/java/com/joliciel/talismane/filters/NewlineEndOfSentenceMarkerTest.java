@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NewlineEndOfSentenceMarkerTest {
-	private static final Log LOG = LogFactory.getLog(NewlineEndOfSentenceMarkerTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(NewlineEndOfSentenceMarkerTest.class);
 
 	@Test
 	public void testApply() {
@@ -17,19 +17,19 @@ public class NewlineEndOfSentenceMarkerTest {
 
 		String text = "1\r\n2\r\n";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(6, textMarkers.size());
 
 		text = "1\r2\r";
 		textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(6, textMarkers.size());
 
 		text = "1\n2\n";
 		textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(6, textMarkers.size());
 
@@ -41,7 +41,7 @@ public class NewlineEndOfSentenceMarkerTest {
 
 		String text = "Yet another test sentence.\n";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(3, textMarkers.size());
 

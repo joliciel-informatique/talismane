@@ -6,15 +6,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(ParseEvaluationObserverImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParseEvaluationObserverImpl.class);
 
 	ParseConfigurationProcessor processor;
 	Set<String> errorLabels = new HashSet<String>();

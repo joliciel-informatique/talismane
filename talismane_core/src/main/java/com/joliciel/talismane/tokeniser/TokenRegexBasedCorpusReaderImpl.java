@@ -11,8 +11,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
@@ -25,7 +25,7 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class TokenRegexBasedCorpusReaderImpl implements
 		TokenRegexBasedCorpusReader {
-	private static final Log LOG = LogFactory.getLog(TokenRegexBasedCorpusReaderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexBasedCorpusReaderImpl.class);
 	
 	private String regex = TokenRegexBasedCorpusReader.DEFAULT_REGEX;
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";

@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
@@ -42,7 +42,7 @@ import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class ParseFeatureTester implements ParseConfigurationProcessor {
-    private static final Log LOG = LogFactory.getLog(ParseFeatureTester.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParseFeatureTester.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseConfigurationProcessor.class);
 
     private Set<ParseConfigurationFeature<?>> parseFeatures;

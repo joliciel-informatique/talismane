@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.CSVFormatter;
@@ -40,7 +40,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(TokenEvaluationFScoreCalculator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenEvaluationFScoreCalculator.class);
 	private static final CSVFormatter CSV = new CSVFormatter(4);
 	private static final int NUM_CHARS = 20;
 	private FScoreCalculator<TokeniserOutcome> fScoreCalculator = new FScoreCalculator<TokeniserOutcome>();

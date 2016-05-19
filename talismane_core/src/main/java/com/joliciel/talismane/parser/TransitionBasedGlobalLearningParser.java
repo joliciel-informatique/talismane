@@ -25,13 +25,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
+import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -51,26 +51,27 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
- * A non-deterministic parser implementing transition based parsing,
- * using a Shift-Reduce algorithm, but applying global learning.</br>
- * The features are thus used to rank parse configurations
- * after all valid transitions have been applied, rather than being used
- * to select the next transition for an existing configuration.
+ * A non-deterministic parser implementing transition based parsing, using a
+ * Shift-Reduce algorithm, but applying global learning.</br>
+ * The features are thus used to rank parse configurations after all valid
+ * transitions have been applied, rather than being used to select the next
+ * transition for an existing configuration.
+ * 
  * @author Assaf Urieli
  *
  */
 class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ranker<PosTagSequence> {
-	private static final Log LOG = LogFactory.getLog(TransitionBasedGlobalLearningParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TransitionBasedGlobalLearningParser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TransitionBasedGlobalLearningParser.class);
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private int beamWidth;
-	
+
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
-	
+
 	private ParserServiceInternal parserServiceInternal;
 	private FeatureService featureService;
 	private MachineLearningService machineLearningService;
-	
+
 	private FeatureWeightVector featureWeightVector;
 	private ParsingConstrainer parsingConstrainer;
 	private ParseComparisonStrategy parseComparisonStrategy = new TransitionCountComparisonStrategy();
@@ -79,16 +80,17 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 	private int maxAnalysisTimePerSentence = 60;
 	private int minFreeMemory = 64;
 	private static final int KILOBYTE = 1024;
-	
+
 	private List<ParserRule> parserRules;
 	private List<ParserRule> parserPositiveRules;
 	private List<ParserRule> parserNegativeRules;
-	
+
 	public TransitionBasedGlobalLearningParser(ParsingConstrainer parsingConstrainer, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		this(null, parsingConstrainer, parseFeatures, beamWidth);
 	}
-	
-	public TransitionBasedGlobalLearningParser(FeatureWeightVector featureWeightVector, ParsingConstrainer parsingConstrainer, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+
+	public TransitionBasedGlobalLearningParser(FeatureWeightVector featureWeightVector, ParsingConstrainer parsingConstrainer,
+			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		super();
 		this.featureWeightVector = featureWeightVector;
 		this.parsingConstrainer = parsingConstrainer;
@@ -97,15 +99,14 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 	}
 
 	@Override
-	public List<RankingSolution> rank(PosTagSequence posTagSequence,
-			FeatureWeightVector weightVector, RankingSolution correctSolution) {
+	public List<RankingSolution> rank(PosTagSequence posTagSequence, FeatureWeightVector weightVector, RankingSolution correctSolution) {
 		List<PosTagSequence> posTagSequences = new ArrayList<PosTagSequence>();
 		posTagSequences.add(posTagSequence);
 		List<ParseConfiguration> parseConfigurations = this.parseSentence(posTagSequences, weightVector, correctSolution);
 		List<RankingSolution> rankingSolutions = new ArrayList<RankingSolution>(parseConfigurations);
 		return rankingSolutions;
 	}
-	
+
 	@Override
 	public ParseConfiguration parseSentence(PosTagSequence posTagSequence) {
 		List<PosTagSequence> posTagSequences = new ArrayList<PosTagSequence>();
@@ -114,23 +115,23 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 		ParseConfiguration parseConfiguration = parseConfigurations.get(0);
 		return parseConfiguration;
 	}
-	
+
 	@Override
 	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) {
 		return this.parseSentence(posTagSequences, this.getFeatureWeightVector(), null);
 	}
-	
+
 	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences, FeatureWeightVector weightVector, RankingSolution correctSolution) {
 		MONITOR.startTask("parseSentence");
 		try {
 			long startTime = (new Date()).getTime();
 			int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
 			int minFreeMemoryBytes = minFreeMemory * KILOBYTE;
-			
+
 			TokenSequence tokenSequence = posTagSequences.get(0).getTokenSequence();
-				
+
 			TreeMap<Integer, TreeSet<ParseConfiguration>> heaps = new TreeMap<Integer, TreeSet<ParseConfiguration>>();
-			
+
 			TreeSet<ParseConfiguration> heap0 = new TreeSet<ParseConfiguration>();
 			for (PosTagSequence posTagSequence : posTagSequences) {
 				// add an initial ParseConfiguration for each postag sequence
@@ -144,28 +145,30 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 			}
 			heaps.put(0, heap0);
 			TreeSet<ParseConfiguration> backupHeap = null;
-			
+
 			TreeSet<ParseConfiguration> finalHeap = null;
-			while (heaps.size()>0) {
+			while (heaps.size() > 0) {
 				Entry<Integer, TreeSet<ParseConfiguration>> heapEntry = heaps.firstEntry();
 				TreeSet<ParseConfiguration> currentHeap = heapEntry.getValue();
 				int currentHeapIndex = heapEntry.getKey();
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("##### Polling next heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 				}
-				
+
 				boolean finished = false;
-				// systematically set the final heap here, just in case we exit "naturally" with no more heaps
+				// systematically set the final heap here, just in case we exit
+				// "naturally" with no more heaps
 				finalHeap = heapEntry.getValue();
 				backupHeap = new TreeSet<ParseConfiguration>();
-				
-				// we jump out when either (a) all tokens have been attached or (b) we go over the max alloted time
+
+				// we jump out when either (a) all tokens have been attached or
+				// (b) we go over the max alloted time
 				ParseConfiguration topConf = currentHeap.first();
 				if (topConf.isTerminal()) {
 					LOG.trace("Exiting with terminal heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 					finished = true;
 				}
-				
+
 				// check if we've gone over alloted time for this sentence
 				long analysisTime = (new Date()).getTime() - startTime;
 				if (maxAnalysisTimePerSentence > 0 && analysisTime > maxAnalysisTimeMilliseconds) {
@@ -173,25 +176,26 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 					LOG.info("Breaking out after " + maxAnalysisTimePerSentence + " seconds.");
 					finished = true;
 				}
-				
+
 				// check if we've enough memory to process this sentence
 				if (minFreeMemory > 0) {
 					long freeMemory = Runtime.getRuntime().freeMemory();
 					if (freeMemory < minFreeMemoryBytes) {
 						LOG.info("Not enough memory left to parse sentence: " + tokenSequence.getText());
-						LOG.info("Min free memory (bytes):" +  minFreeMemoryBytes);
-						LOG.info("Current free memory (bytes): " +  freeMemory);
+						LOG.info("Min free memory (bytes):" + minFreeMemoryBytes);
+						LOG.info("Current free memory (bytes): " + freeMemory);
 						finished = true;
 					}
 				}
-				
-				// check if any of the remaining top-N solutions on any heap can lead to the correct solution
-				if (correctSolution!=null) {
+
+				// check if any of the remaining top-N solutions on any heap can
+				// lead to the correct solution
+				if (correctSolution != null) {
 					boolean canReachCorrectSolution = false;
 					for (TreeSet<ParseConfiguration> heap : heaps.values()) {
-						int j=1;
+						int j = 1;
 						for (ParseConfiguration solution : heap) {
-							if (j>beamWidth)
+							if (j > beamWidth)
 								break;
 							if (solution.canReach(correctSolution)) {
 								canReachCorrectSolution = true;
@@ -207,39 +211,39 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 						finished = true;
 					}
 				}
-				
+
 				if (finished) {
 					// combine any remaining heaps
 					for (TreeSet<ParseConfiguration> heap : heaps.values()) {
-						if (finalHeap!=heap) {
+						if (finalHeap != heap) {
 							finalHeap.addAll(heap);
 						}
-					}			
+					}
 					break;
 				}
-				
+
 				// remove heap from set of heaps
 				heapEntry = heaps.pollFirstEntry();
-				
+
 				// limit the breadth to K
 				int maxSolutions = currentHeap.size() > this.beamWidth ? this.beamWidth : currentHeap.size();
-				
-				int j=0;
-				while (currentHeap.size()>0) {
+
+				int j = 0;
+				while (currentHeap.size() > 0) {
 					ParseConfiguration history = currentHeap.pollFirst();
 					backupHeap.add(history);
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("### Next configuration on heap " + heapEntry.getKey() + ":");
 						LOG.trace(history.toString());
 						LOG.trace("Score: " + df.format(history.getScore()));
-						LOG.trace(history.getPosTagSequence());
+						LOG.trace(history.getPosTagSequence().toString());
 					}
-					
+
 					Set<Transition> transitions = new HashSet<Transition>();
-					
+
 					// test the positive rules on the current configuration
 					boolean ruleApplied = false;
-					if (parserPositiveRules!=null) {
+					if (parserPositiveRules != null) {
 						MONITOR.startTask("check rules");
 						try {
 							for (ParserRule rule : parserPositiveRules) {
@@ -248,13 +252,13 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 								}
 								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
-								if (ruleResult!=null && ruleResult.getOutcome()) {
+								if (ruleResult != null && ruleResult.getOutcome()) {
 									transitions.add(rule.getTransition());
 									ruleApplied = true;
 									if (LOG.isTraceEnabled()) {
 										LOG.trace("Rule applies. Setting transition to: " + rule.getTransition().getCode());
 									}
-									
+
 									if (!rule.getTransition().checkPreconditions(history)) {
 										LOG.info("Cannot apply rule, preconditions not met.");
 										ruleApplied = false;
@@ -266,10 +270,10 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 							MONITOR.endTask();
 						}
 					}
-					
+
 					if (!ruleApplied) {
 						transitions = parsingConstrainer.getPossibleTransitions(history);
-						
+
 						Set<Transition> eliminatedTransitions = new HashSet<Transition>();
 						for (Transition transition : transitions) {
 							if (!transition.checkPreconditions(history)) {
@@ -277,10 +281,10 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 							}
 						}
 						transitions.removeAll(eliminatedTransitions);
-						
+
 						// apply the negative rules
 						eliminatedTransitions = new HashSet<Transition>();
-						if (parserNegativeRules!=null) {
+						if (parserNegativeRules != null) {
 							MONITOR.startTask("check negative rules");
 							try {
 								for (ParserRule rule : parserNegativeRules) {
@@ -289,15 +293,15 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 									}
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 									FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
-									if (ruleResult!=null && ruleResult.getOutcome()) {
+									if (ruleResult != null && ruleResult.getOutcome()) {
 										eliminatedTransitions.add(rule.getTransition());
 										if (LOG.isTraceEnabled()) {
 											LOG.debug("Rule applies. Eliminating transition: " + rule.getTransition().getCode());
 										}
 									}
 								}
-								
-								if (eliminatedTransitions.size()==transitions.size()) {
+
+								if (eliminatedTransitions.size() == transitions.size()) {
 									LOG.debug("All transitions eliminated! Restoring original transitions.");
 								} else {
 									transitions.removeAll(eliminatedTransitions);
@@ -307,21 +311,23 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 							}
 						}
 					} // has a positive rule been applied?
-					
-					if (transitions.size()==0) {
-						// just in case the we run out of both heaps and analyses, we build this backup heap
+
+					if (transitions.size() == 0) {
+						// just in case the we run out of both heaps and
+						// analyses, we build this backup heap
 						backupHeap.add(history);
 						if (LOG.isTraceEnabled())
 							LOG.trace("No transitions could be applied: not counting this solution as part of the beam");
 					} else {
-						// up the counter, since we will count this solution towards the heap
+						// up the counter, since we will count this solution
+						// towards the heap
 						j++;
 						// add solutions to the heap, one per valid transition
 						MONITOR.startTask("heap sort");
 						try {
-							Map<Transition,Double> deltaScorePerTransition = new HashMap<Transition, Double>();
+							Map<Transition, Double> deltaScorePerTransition = new HashMap<Transition, Double>();
 							double absoluteMax = 1;
-							
+
 							for (Transition transition : transitions) {
 								if (LOG.isTraceEnabled()) {
 									LOG.trace("Applying transition: " + transition.getCode());
@@ -330,7 +336,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 								transition.apply(configuration);
 								configuration.setRankingScore(history.getRankingScore());
 								configuration.getIncrementalFeatureResults().addAll(history.getIncrementalFeatureResults());
-								
+
 								// test the features on the new configuration
 								double scoreDelta = 0.0;
 								MONITOR.startTask("feature analyse");
@@ -341,7 +347,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 										try {
 											RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 											FeatureResult<?> featureResult = feature.check(configuration, env);
-											if (featureResult!=null) {
+											if (featureResult != null) {
 												featureResults.add(featureResult);
 												double weight = weightVector.getWeight(featureResult);
 												scoreDelta += weight;
@@ -355,24 +361,24 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 									}
 									configuration.getIncrementalFeatureResults().add(featureResults);
 									if (LOG.isTraceEnabled()) {
-										LOG.trace("Score = " + configuration.getRankingScore() + " + " + scoreDelta + " = " + (configuration.getRankingScore() + scoreDelta));
+										LOG.trace("Score = " + configuration.getRankingScore() + " + " + scoreDelta + " = "
+												+ (configuration.getRankingScore() + scoreDelta));
 									}
 									configuration.setRankingScore(configuration.getRankingScore() + scoreDelta);
 									deltaScorePerTransition.put(transition, scoreDelta);
-									if (Math.abs(scoreDelta)>absoluteMax)
+									if (Math.abs(scoreDelta) > absoluteMax)
 										absoluteMax = Math.abs(scoreDelta);
-									
+
 								} finally {
 									MONITOR.endTask();
 								}
-								
-								
+
 								int nextHeapIndex = parseComparisonStrategy.getComparisonIndex(configuration) * 1000;
-								while (nextHeapIndex<=currentHeapIndex)
+								while (nextHeapIndex <= currentHeapIndex)
 									nextHeapIndex++;
-								
+
 								TreeSet<ParseConfiguration> nextHeap = heaps.get(nextHeapIndex);
-								if (nextHeap==null) {
+								if (nextHeap == null) {
 									nextHeap = new TreeSet<ParseConfiguration>();
 									heaps.put(nextHeapIndex, nextHeap);
 									if (LOG.isTraceEnabled())
@@ -380,14 +386,16 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 								}
 								nextHeap.add(configuration);
 								if (LOG.isTraceEnabled()) {
-									LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + nextHeapIndex + ", total size: " + nextHeap.size());
+									LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + nextHeapIndex + ", total size: "
+											+ nextHeap.size());
 								}
-								
+
 								configuration.clearMemory();
 							} // next transition
-							
+
 							// Create a probability distribution of transitions
-							// normalise probabilities for each transition via normalised exponential
+							// normalise probabilities for each transition via
+							// normalised exponential
 							// e^(x/absmax)/sum(e^(x/absmax))
 							// where x/absmax is in [-1,1]
 							// e^(x/absmax) is in [1/e,e]
@@ -395,7 +403,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 							double total = 0.0;
 							for (Transition transition : deltaScorePerTransition.keySet()) {
 								double deltaScore = deltaScorePerTransition.get(transition);
-								deltaScore = Math.exp(deltaScore/absoluteMax);
+								deltaScore = Math.exp(deltaScore / absoluteMax);
 								deltaScorePerTransition.put(transition, deltaScore);
 								total += deltaScore;
 							}
@@ -409,33 +417,33 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 									LOG.trace("Transition: " + transition.getCode() + ", Prob: " + probability);
 								}
 							}
-							
+
 						} finally {
 							MONITOR.endTask();
 						}
 					} // have we any transitions?
-					
+
 					// beam width test
-					if (j==maxSolutions)
+					if (j == maxSolutions)
 						break;
-				} // next history	
+				} // next history
 			} // next atomic index
-			
+
 			// return the best sequences on the heap
 			List<ParseConfiguration> bestConfigurations = new ArrayList<ParseConfiguration>();
 			int i = 0;
-			
+
 			if (finalHeap.isEmpty())
 				finalHeap = backupHeap;
-			
+
 			while (!finalHeap.isEmpty()) {
 				bestConfigurations.add(finalHeap.pollFirst());
 				i++;
-				if (i>=this.getBeamWidth())
+				if (i >= this.getBeamWidth())
 					break;
 			}
 			if (LOG.isDebugEnabled()) {
-				if (correctSolution!=null) {
+				if (correctSolution != null) {
 					LOG.debug("Gold transitions: " + correctSolution.getIncrementalOutcomes());
 				}
 				for (ParseConfiguration finalConfiguration : bestConfigurations) {
@@ -454,12 +462,12 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 						sb.append(" root ");
 						sb.append(finalConfiguration.getPosTagSequence().size());
 						LOG.trace(sb.toString());
-						
+
 						sb = new StringBuilder();
 						sb.append(" * Token sequence score = ");
 						sb.append(df.format(finalConfiguration.getPosTagSequence().getTokenSequence().getScore()));
 						LOG.trace(sb.toString());
-						
+
 					}
 				}
 			}
@@ -487,25 +495,25 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 		this.observers.add(observer);
 	}
 
+	@Override
 	public int getMaxAnalysisTimePerSentence() {
 		return maxAnalysisTimePerSentence;
 	}
 
-
+	@Override
 	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence) {
 		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
 	}
-	
-	
+
+	@Override
 	public int getMinFreeMemory() {
 		return minFreeMemory;
 	}
 
-
+	@Override
 	public void setMinFreeMemory(int minFreeMemory) {
 		this.minFreeMemory = minFreeMemory;
 	}
-
 
 	@Override
 	public void setParserRules(List<ParserRule> parserRules) {
@@ -520,6 +528,7 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 		}
 	}
 
+	@Override
 	public List<ParserRule> getParserRules() {
 		return parserRules;
 	}
@@ -540,7 +549,6 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 		this.parsingConstrainer = parsingConstrainer;
 	}
 
-
 	@Override
 	public TransitionSystem getTransitionSystem() {
 		return this.parsingConstrainer.getTransitionSystem();
@@ -554,27 +562,28 @@ class TransitionBasedGlobalLearningParser implements NonDeterministicParser, Ran
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 
+	@Override
 	public ParseComparisonStrategy getParseComparisonStrategy() {
 		return parseComparisonStrategy;
 	}
 
-	public void setParseComparisonStrategy(
-			ParseComparisonStrategy parseComparisonStrategy) {
+	@Override
+	public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy) {
 		this.parseComparisonStrategy = parseComparisonStrategy;
 	}
 
+	@Override
 	public Set<ParseConfigurationFeature<?>> getParseFeatures() {
 		return parseFeatures;
 	}
 
+	@Override
 	public void setParseFeatures(Set<ParseConfigurationFeature<?>> parseFeatures) {
 		this.parseFeatures = parseFeatures;
 	}
-	
-	
+
 }

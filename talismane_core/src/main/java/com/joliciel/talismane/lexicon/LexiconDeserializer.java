@@ -33,8 +33,8 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
@@ -49,7 +49,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class LexiconDeserializer {
-	private static final Log LOG = LogFactory.getLog(LexiconDeserializer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LexiconDeserializer.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LexiconDeserializer.class);
 	
 	private TalismaneSession talismaneSession;

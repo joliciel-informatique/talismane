@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
@@ -40,7 +40,7 @@ import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
-	private static final Log LOG = LogFactory.getLog(ParserFeatureServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParserFeatureServiceImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserFeatureServiceImpl.class);
 	private FeatureService featureService;
 	private MachineLearningService machineLearningService;

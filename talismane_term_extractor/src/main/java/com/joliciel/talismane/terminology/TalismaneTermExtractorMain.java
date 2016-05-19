@@ -35,9 +35,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
@@ -46,10 +45,11 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 public class TalismaneTermExtractorMain {
-	private static final Log LOG = LogFactory.getLog(TalismaneTermExtractorMain.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneTermExtractorMain.class);
 
 	private enum Command {
 		analyse, extract, list
@@ -67,12 +67,8 @@ public class TalismaneTermExtractorMain {
 		Map<String, String> argMap = StringUtils.convertArgs(args);
 
 		String logConfigPath = argMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		}
+		argMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		Map<String, String> innerArgs = new HashMap<String, String>();
 		for (Entry<String, String> argEntry : argMap.entrySet()) {

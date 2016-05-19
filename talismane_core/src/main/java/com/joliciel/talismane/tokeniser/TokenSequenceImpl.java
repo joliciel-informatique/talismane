@@ -27,15 +27,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 
 class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TokenSequenceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
 	
 	private TokenSequenceImpl(TokenSequenceImpl sequenceToClone) {

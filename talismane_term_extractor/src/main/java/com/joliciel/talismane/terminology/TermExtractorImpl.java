@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
@@ -51,7 +51,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class TermExtractorImpl implements TermExtractor {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TermExtractorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TermExtractorImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TermExtractorImpl.class);
 
 	private static final int DEFAULT_MAX_DEPTH = 8;

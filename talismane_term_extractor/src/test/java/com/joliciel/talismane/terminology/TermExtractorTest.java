@@ -34,8 +34,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.GenericRules;
@@ -60,7 +60,7 @@ import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
 public class TermExtractorTest {
-	private static final Log LOG = LogFactory.getLog(TermExtractorTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TermExtractorTest.class);
 
 	@Test
 	public void testGetExpansionStrings(@NonStrict final TerminologyBase terminologyBase) throws Exception {

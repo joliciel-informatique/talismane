@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A reader which reads through all the files in a given directory structure.
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DirectoryReader extends Reader implements CurrentFileProvider {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(DirectoryReader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DirectoryReader.class);
 	private File dir;
 	private List<File> files;
 	private int currentIndex = 0;

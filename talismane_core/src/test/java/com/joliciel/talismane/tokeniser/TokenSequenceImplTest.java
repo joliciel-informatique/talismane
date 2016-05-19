@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceTag;
@@ -39,7 +39,7 @@ import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
 public class TokenSequenceImplTest {
-	private static final Log LOG = LogFactory.getLog(TokenSequenceImplTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceImplTest.class);
 
 	@Test
 	public void testTokeniseSentence(@NonStrict final Sentence sentence) {
@@ -192,7 +192,7 @@ public class TokenSequenceImplTest {
 
 		LOG.debug("Token splits:");
 		for (int tokenSplit : tokenSequence.getTokenSplits()) {
-			LOG.debug(tokenSplit);
+			LOG.debug("" + tokenSplit);
 		}
 
 		assertEquals(9, tokenSequence.getTokenSplits().size());
@@ -365,8 +365,8 @@ public class TokenSequenceImplTest {
 		};
 
 		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, tokeniserService);
-		LOG.debug(tokenSequence.listWithWhiteSpace());
-		LOG.debug(tokenSequence);
+		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
+		LOG.debug(tokenSequence.toString());
 		assertEquals(6, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(5, tokenSequence.size());
 

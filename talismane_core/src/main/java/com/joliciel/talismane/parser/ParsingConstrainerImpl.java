@@ -34,15 +34,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.LogUtils;
 
 class ParsingConstrainerImpl implements ParsingConstrainer {
-	private static final Log LOG = LogFactory.getLog(ParsingConstrainerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParsingConstrainerImpl.class);
 	private static final long serialVersionUID = 1L;
 
 	private Map<String,Set<String>> possibleTransitionMap = new HashMap<String, Set<String>>();

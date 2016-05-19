@@ -29,8 +29,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
@@ -48,7 +48,7 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
 
 class PosTagRegexBasedCorpusReaderImpl implements
 		PosTagRegexBasedCorpusReader {
-	private static final Log LOG = LogFactory.getLog(PosTagRegexBasedCorpusReaderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagRegexBasedCorpusReaderImpl.class);
 	
 	private String regex = PosTagRegexBasedCorpusReader.DEFAULT_REGEX;
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
