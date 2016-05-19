@@ -13,22 +13,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.fr.ftb.util.LogUtils;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
@@ -39,7 +37,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public class SpmrlConverter {
-	private static final Log LOG = LogFactory.getLog(SpmrlConverter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SpmrlConverter.class);
 
 	private static PosTagSet posTagSet = null;
 
@@ -47,12 +45,8 @@ public class SpmrlConverter {
 		Map<String, String> argMap = StringUtils.convertArgs(args);
 
 		String logConfigPath = argMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		}
+		argMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		String spmrlPath = "";
 		String suffix = "tal";

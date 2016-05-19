@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
@@ -36,7 +36,7 @@ import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 class TokeniserPatternManagerImpl implements TokeniserPatternManager {
-	private static final Log LOG = LogFactory.getLog(TokeniserPatternManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokeniserPatternManagerImpl.class);
 	
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;

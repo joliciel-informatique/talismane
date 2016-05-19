@@ -27,11 +27,11 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class RollingSentenceProcessorImpl implements RollingSentenceProcessor {
-	private static final Log LOG = LogFactory.getLog(RollingSentenceProcessorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RollingSentenceProcessorImpl.class);
 	private Stack<Boolean> shouldProcessStack = new Stack<Boolean>();
 	private Stack<Boolean> shouldOutputStack = new Stack<Boolean>();
 	private int originalTextIndex = 0;

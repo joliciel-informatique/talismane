@@ -41,14 +41,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Mode;
@@ -161,7 +159,7 @@ import com.joliciel.talismane.utils.io.DirectoryReader;
 import com.joliciel.talismane.utils.io.DirectoryWriter;
 
 class TalismaneConfigImpl implements TalismaneConfig {
-	private static final Log LOG = LogFactory.getLog(TalismaneConfigImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneConfigImpl.class);
 	private Command command = Command.analyse;
 	private Option option = null;
 	private Mode mode = Mode.normal;
@@ -387,16 +385,15 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			String logConfigPath = args.get("logConfigFile");
 			if (logConfigPath != null) {
+				// don't do default configuration - only call this of not null
 				args.remove("logConfigFile");
-				Properties props = new Properties();
-				props.load(new FileInputStream(logConfigPath));
-				PropertyConfigurator.configure(props);
+				LogUtils.configureLogging(logConfigPath);
 			}
 
-			String performanceConifPath = args.get("performanceConfigFile");
-			if (performanceConifPath != null) {
+			String performanceConfigPath = args.get("performanceConfigFile");
+			if (performanceConfigPath != null) {
 				args.remove("performanceConfigFile");
-				performanceConfigFile = this.getFile(performanceConifPath);
+				performanceConfigFile = this.getFile(performanceConfigPath);
 			}
 
 			String encoding = null;

@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
@@ -63,7 +63,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTagAnnotatedCorpusReader {
-    private static final Log LOG = LogFactory.getLog(FrenchTreebankTokenReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FrenchTreebankTokenReader.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(FrenchTreebankTokenReader.class);
     
     private TreebankService treebankService;

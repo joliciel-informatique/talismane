@@ -21,8 +21,8 @@ package com.joliciel.talismane.parser;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
@@ -36,7 +36,7 @@ import com.joliciel.talismane.stats.FScoreCalculator;
  *
  */
 public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(ParseEvaluationFScoreCalculator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParseEvaluationFScoreCalculator.class);
 	FScoreCalculator<String> fscoreCalculator = new FScoreCalculator<String>();
 	private boolean labeledEvaluation = true;
 	private boolean hasTokeniser = false;

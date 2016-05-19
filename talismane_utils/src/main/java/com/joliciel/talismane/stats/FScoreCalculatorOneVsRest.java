@@ -27,8 +27,8 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 
@@ -36,7 +36,7 @@ import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class FScoreCalculatorOneVsRest<E extends Comparable<E>> {
-	private static final Log LOG = LogFactory.getLog(FScoreCalculator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FScoreCalculator.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	
 	private Map<E,FScoreCalculator<Boolean>> fScoreCalculators = new TreeMap<E, FScoreCalculator<Boolean>>();

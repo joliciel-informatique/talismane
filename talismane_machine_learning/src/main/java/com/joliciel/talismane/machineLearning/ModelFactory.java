@@ -23,8 +23,8 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentService;
@@ -38,7 +38,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 class ModelFactory {
-	private static final Log LOG = LogFactory.getLog(ModelFactory.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ModelFactory.class);
 	
 	private PerceptronService perceptronService;
 	private MaxentService maxentService;

@@ -3,8 +3,8 @@ package com.joliciel.talismane.posTagger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -16,7 +16,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequence {
-	private static final Log LOG = LogFactory.getLog(PosTagSequenceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagSequenceImpl.class);
 	private static final long serialVersionUID = 5038343676751568000L;
 	private TokenSequence tokenSequence;
 	private double score = 0.0;

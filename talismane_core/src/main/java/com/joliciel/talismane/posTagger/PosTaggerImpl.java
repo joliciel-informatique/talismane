@@ -27,8 +27,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -58,7 +58,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
-	private static final Log LOG = LogFactory.getLog(PosTaggerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTaggerImpl.class);
 	private static final double MIN_PROB_TO_STORE = 0.001;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");

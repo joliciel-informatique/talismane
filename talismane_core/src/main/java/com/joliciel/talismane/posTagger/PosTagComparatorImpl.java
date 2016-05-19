@@ -3,12 +3,12 @@ package com.joliciel.talismane.posTagger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class PosTagComparatorImpl implements PosTagComparator {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(PosTaggerEvaluatorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerEvaluatorImpl.class);
 	private int sentenceCount = 0;
 	
 	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();

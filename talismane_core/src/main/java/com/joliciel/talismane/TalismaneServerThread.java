@@ -24,8 +24,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
@@ -40,7 +40,7 @@ import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
  */
 class TalismaneServerThread extends Thread {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TalismaneServerThread.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
     private Socket socket = null;
     private TalismaneServer server = null;
     private TalismaneConfig config = null;

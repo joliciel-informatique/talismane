@@ -21,8 +21,8 @@ package com.joliciel.talismane;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.FilterServiceLocator;
 import com.joliciel.talismane.languageDetector.LanguageDetectorServiceLocator;
@@ -49,7 +49,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternServiceLocator;
  */
 public class TalismaneServiceLocator {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TalismaneServiceLocator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServiceLocator.class);
 	private TalismaneServiceImpl talismaneService;
 	
 	private PosTaggerFeatureServiceLocator posTaggerFeatureServiceLocator;

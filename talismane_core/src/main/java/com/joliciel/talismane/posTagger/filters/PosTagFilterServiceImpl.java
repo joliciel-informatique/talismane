@@ -20,15 +20,15 @@ package com.joliciel.talismane.posTagger.filters;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 class PosTagFilterServiceImpl implements PosTagFilterServiceInternal {
-	private static final Log LOG = LogFactory.getLog(PosTagFilterServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagFilterServiceImpl.class);
 
 	@Override
 	public PosTagSequenceFilter getPosTagSequenceFilter(String descriptor) {

@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.fr.ftb.Category;
@@ -41,7 +41,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.utils.LogUtils;
 
 class FtbPosTagMapperImpl implements FtbPosTagMapper {
-	private static final Log LOG = LogFactory.getLog(FtbPosTagMapperImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FtbPosTagMapperImpl.class);
 
 	private Map<String, PosTag> posTagMap = new TreeMap<String, PosTag>();
 	PosTagSet posTagSet;

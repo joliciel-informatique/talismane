@@ -23,15 +23,15 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 public class DefaultLanguageDetectorProcessor implements
 		LanguageDetectorProcessor {
-	private static final Log LOG = LogFactory.getLog(DefaultLanguageDetectorProcessor.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguageDetectorProcessor.class);
 
 	private Writer out;
 	

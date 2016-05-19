@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.utils.JolicielException;
@@ -42,7 +42,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<T>, FeatureClassContainer {
-	private static final Log LOG = LogFactory.getLog(AbstractFeatureParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractFeatureParser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractFeatureParser.class);
 
 	private FeatureService featureService;

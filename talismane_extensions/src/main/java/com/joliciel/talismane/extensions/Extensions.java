@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
@@ -58,7 +58,7 @@ import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 public class Extensions {
-	private static final Log LOG = LogFactory.getLog(Extensions.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Extensions.class);
 	String referenceStatsPath = null;
 	String corpusRulesPath = null;
 	ExtendedCommand command = null;

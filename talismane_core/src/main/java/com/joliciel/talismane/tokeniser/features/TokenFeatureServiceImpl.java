@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
@@ -36,7 +36,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class TokenFeatureServiceImpl implements TokenFeatureService {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TokenFeatureServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenFeatureServiceImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokenFeatureServiceImpl.class);
 
 	private FeatureService featureService;

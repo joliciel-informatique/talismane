@@ -21,11 +21,11 @@ package com.joliciel.talismane.machineLearning.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class FunctionDescriptorImpl implements FunctionDescriptor {
-	private static final Log LOG = LogFactory.getLog(FunctionDescriptorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FunctionDescriptorImpl.class);
 	FeatureServiceInternal featureServiceInternal;
 	String functionName = null;
 	List<FunctionDescriptor> arguments = new ArrayList<FunctionDescriptor>();

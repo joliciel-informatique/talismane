@@ -40,8 +40,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -56,7 +56,7 @@ import com.joliciel.talismane.utils.io.UnclosableWriter;
 import de.bwaldvogel.liblinear.Model;
 
 class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements ClassificationModel {
-	private static final Log LOG = LogFactory.getLog(LinearSVMOneVsRestModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMOneVsRestModel.class);
 
 	private MachineLearningService machineLearningService;
 	

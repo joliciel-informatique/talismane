@@ -41,14 +41,14 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.compiler.DynamicCompiler;
 
 class DynamicSourceCodeBuilderImpl<T> implements DynamicSourceCodeBuilder<T> {
-	private static final Log LOG = LogFactory.getLog(DynamicSourceCodeBuilderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DynamicSourceCodeBuilderImpl.class);
 	
 	Map<String,Integer> varIndexes = new HashMap<String, Integer>();
 	

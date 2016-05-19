@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.RankingEvent;
@@ -43,7 +43,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  *
  */
 class ParseGlobalEventStream implements RankingEventStream<PosTagSequence> {
-    private static final Log LOG = LogFactory.getLog(ParseGlobalEventStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParseGlobalEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseGlobalEventStream.class);
 
     ParserAnnotatedCorpusReader corpusReader;

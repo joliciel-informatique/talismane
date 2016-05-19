@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -16,7 +16,7 @@ import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class ParseTimeByLengthObserver implements ParseEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(ParseTimeByLengthObserver.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParseTimeByLengthObserver.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	private Map<Integer, DescriptiveStatistics> timeStatsPerLength = new TreeMap<Integer, DescriptiveStatistics>();
 

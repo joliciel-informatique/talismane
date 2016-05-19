@@ -20,8 +20,8 @@ package com.joliciel.talismane.tokeniser;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -34,7 +34,7 @@ import com.joliciel.talismane.machineLearning.Decision;
  */
 class SimpleTokeniser extends AbstractTokeniser {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(SimpleTokeniser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SimpleTokeniser.class);
 
 	@Override
 	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) {

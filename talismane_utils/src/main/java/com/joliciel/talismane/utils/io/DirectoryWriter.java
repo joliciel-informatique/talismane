@@ -9,8 +9,8 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -22,7 +22,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public class DirectoryWriter extends Writer implements CurrentFileObserver {
-	private static final Log LOG = LogFactory.getLog(DirectoryReader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DirectoryReader.class);
 	private File inDir;
 	private File outDir;
 	private String suffix;

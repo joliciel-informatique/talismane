@@ -22,8 +22,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TaggedToken;
@@ -35,7 +35,7 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
  */
 public class PosTagEvaluationFScoreCalculator implements
 		PosTagEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(PosTagEvaluationFScoreCalculator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagEvaluationFScoreCalculator.class);
 	private FScoreCalculator<String> fScoreCalculator = new FScoreCalculator<String>();
 	private FScoreCalculator<String> fscoreUnknownInCorpus = new FScoreCalculator<String>();
 	private FScoreCalculator<String> fscoreUnknownInLexicon = new FScoreCalculator<String>();

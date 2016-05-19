@@ -24,8 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
@@ -44,7 +44,7 @@ import opennlp.model.MaxentModel;
  *
  */
 class OpenNLPPerceptronModel extends AbstractOpenNLPModel {
-	private static final Log LOG = LogFactory.getLog(OpenNLPPerceptronModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(OpenNLPPerceptronModel.class);
 	
 	/**
 	 * Default constructor for factory.

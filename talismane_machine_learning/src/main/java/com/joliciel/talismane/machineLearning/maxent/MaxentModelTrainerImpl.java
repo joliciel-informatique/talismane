@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -46,7 +46,7 @@ import opennlp.model.MaxentModel;
  */
 class MaxentModelTrainerImpl implements MaxentModelTrainer {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(MaxentModelTrainerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MaxentModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(MaxentModelTrainerImpl.class);
 	
 	private int iterations = 100;

@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.LanguageImplementation;
 import com.joliciel.talismane.NeedsTalismaneSession;
@@ -45,7 +45,7 @@ import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterDependencyInjector {
-	private static final Log LOG = LogFactory.getLog(TokenFilterServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenFilterServiceImpl.class);
 
 	private TalismaneService talismaneService;
 	private MachineLearningService machineLearningService;

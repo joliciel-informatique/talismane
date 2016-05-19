@@ -26,8 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
 
@@ -44,7 +44,7 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
  */
 public class PennDepReader extends ParserRegexBasedCorpusReaderImpl {
     @SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(PennDepReader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PennDepReader.class);
 	private static final String DEFAULT_CONLL_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%";
     
     private boolean keepCompoundPosTags = false;

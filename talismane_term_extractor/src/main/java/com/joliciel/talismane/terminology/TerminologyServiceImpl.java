@@ -21,8 +21,8 @@ package com.joliciel.talismane.terminology;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
@@ -30,7 +30,7 @@ import com.joliciel.talismane.terminology.postgres.PostGresTerminologyBase;
 
 class TerminologyServiceImpl implements TerminologyServiceInternal {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TerminologyServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TerminologyServiceImpl.class);
 	
 	private TalismaneService talismaneService;
 	

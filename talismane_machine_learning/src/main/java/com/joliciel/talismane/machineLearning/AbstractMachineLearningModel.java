@@ -40,8 +40,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -51,7 +51,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public abstract class AbstractMachineLearningModel implements MachineLearningModel {
-	private static final Log LOG = LogFactory.getLog(AbstractMachineLearningModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractMachineLearningModel.class);
 	private Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
 	private Map<String, Object> modelAttributes = new TreeMap<String, Object>();
 	private Map<String, Object> dependencies = new HashMap<String, Object>();

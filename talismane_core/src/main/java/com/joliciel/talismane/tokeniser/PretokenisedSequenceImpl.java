@@ -18,15 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.filters.FilterService;
 
 class PretokenisedSequenceImpl extends AbstractTokenSequence implements PretokenisedSequence {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(PretokenisedSequenceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PretokenisedSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
 	
 	private FilterService filterService;

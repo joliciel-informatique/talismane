@@ -22,13 +22,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -46,51 +47,52 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
- * A non-deterministic parser implementing transition based parsing,
- * using a Shift-Reduce algorithm.<br/>
+ * A non-deterministic parser implementing transition based parsing, using a
+ * Shift-Reduce algorithm.<br/>
  * See Nivre 2008 for details on the algorithm for the deterministic case.</br>
+ * 
  * @author Assaf Urieli
  *
  */
 class TransitionBasedParserImpl implements TransitionBasedParser {
-	private static final Log LOG = LogFactory.getLog(TransitionBasedParserImpl.class);
-	private static final Log LOG_FEATURES = LogFactory.getLog(TransitionBasedParserImpl.class.getName() + ".features");
+	private static final Logger LOG = LoggerFactory.getLogger(TransitionBasedParserImpl.class);
+	private static final Logger LOG_FEATURES = LoggerFactory.getLogger(TransitionBasedParserImpl.class.getName() + ".features");
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TransitionBasedParserImpl.class);
 	private static final double MIN_PROB_TO_STORE = 0.0001;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 	private int beamWidth = 1;
 	private boolean earlyStop = false;
-	
+
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
-	
+
 	private ParserServiceInternal parserServiceInternal;
 	private TalismaneService talismaneService;
 	private FeatureService featureService;
 	private MachineLearningService machineLearningService;
-	
+
 	private DecisionMaker decisionMaker;
 	private TransitionSystem transitionSystem;
 	private ParseComparisonStrategy parseComparisonStrategy = new BufferSizeComparisonStrategy();
-	
+
 	private TalismaneSession talismaneSession;
 
 	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
 	private int maxAnalysisTimePerSentence = 60;
 	private int minFreeMemory = 64;
 	private static final int KILOBYTE = 1024;
-	
+
 	private List<ParserRule> parserRules;
 	private List<ParserRule> parserPositiveRules;
 	private List<ParserRule> parserNegativeRules;
-	
-	public TransitionBasedParserImpl(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
+
+	public TransitionBasedParserImpl(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures,
+			int beamWidth) {
 		super();
 		this.decisionMaker = decisionMaker;
 		this.transitionSystem = transitionSystem;
 		this.parseFeatures = parseFeatures;
 		this.beamWidth = beamWidth;
 	}
-
 
 	@Override
 	public ParseConfiguration parseSentence(PosTagSequence posTagSequence) {
@@ -100,7 +102,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		ParseConfiguration parseConfiguration = parseConfigurations.get(0);
 		return parseConfiguration;
 	}
-	
+
 	@Override
 	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) {
 		MONITOR.startTask("parseSentence");
@@ -108,11 +110,11 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		try {
 			int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
 			int minFreeMemoryBytes = minFreeMemory * KILOBYTE;
-			
+
 			TokenSequence tokenSequence = posTagSequences.get(0).getTokenSequence();
-				
+
 			TreeMap<Integer, PriorityQueue<ParseConfiguration>> heaps = new TreeMap<Integer, PriorityQueue<ParseConfiguration>>();
-			
+
 			PriorityQueue<ParseConfiguration> heap0 = new PriorityQueue<ParseConfiguration>();
 			for (PosTagSequence posTagSequence : posTagSequences) {
 				// add an initial ParseConfiguration for each postag sequence
@@ -125,74 +127,76 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 			}
 			heaps.put(0, heap0);
 			PriorityQueue<ParseConfiguration> backupHeap = null;
-			
+
 			PriorityQueue<ParseConfiguration> finalHeap = null;
 			PriorityQueue<ParseConfiguration> terminalHeap = new PriorityQueue<ParseConfiguration>();
-			while (heaps.size()>0) {
+			while (heaps.size() > 0) {
 				Entry<Integer, PriorityQueue<ParseConfiguration>> heapEntry = heaps.pollFirstEntry();
 				PriorityQueue<ParseConfiguration> currentHeap = heapEntry.getValue();
 				int currentHeapIndex = heapEntry.getKey();
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("##### Polling next heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 				}
-				
+
 				boolean finished = false;
-				// systematically set the final heap here, just in case we exit "naturally" with no more heaps
+				// systematically set the final heap here, just in case we exit
+				// "naturally" with no more heaps
 				finalHeap = heapEntry.getValue();
 				backupHeap = new PriorityQueue<ParseConfiguration>();
-				
-				// we jump out when either (a) all tokens have been attached or (b) we go over the max alloted time
+
+				// we jump out when either (a) all tokens have been attached or
+				// (b) we go over the max alloted time
 				ParseConfiguration topConf = currentHeap.peek();
 				if (topConf.isTerminal()) {
 					LOG.trace("Exiting with terminal heap: " + heapEntry.getKey() + ", size: " + heapEntry.getValue().size());
 					finished = true;
 				}
-				
-				if (earlyStop && terminalHeap.size()>=beamWidth) {
+
+				if (earlyStop && terminalHeap.size() >= beamWidth) {
 					LOG.debug("Early stop activated and terminal heap contains " + beamWidth + " entries. Exiting.");
 					finalHeap = terminalHeap;
 					finished = true;
 				}
-				
+
 				long analysisTime = System.currentTimeMillis() - startTime;
 				if (maxAnalysisTimePerSentence > 0 && analysisTime > maxAnalysisTimeMilliseconds) {
 					LOG.info("Parse tree analysis took too long for sentence: " + tokenSequence.getText());
-					LOG.info("Breaking out after " +  maxAnalysisTimePerSentence + " seconds.");
+					LOG.info("Breaking out after " + maxAnalysisTimePerSentence + " seconds.");
 					finished = true;
 				}
-				
+
 				if (minFreeMemory > 0) {
 					long freeMemory = Runtime.getRuntime().freeMemory();
 					if (freeMemory < minFreeMemoryBytes) {
 						LOG.info("Not enough memory left to parse sentence: " + tokenSequence.getText());
-						LOG.info("Min free memory (bytes):" +  minFreeMemoryBytes);
-						LOG.info("Current free memory (bytes): " +  freeMemory);
+						LOG.info("Min free memory (bytes):" + minFreeMemoryBytes);
+						LOG.info("Current free memory (bytes): " + freeMemory);
 						finished = true;
 					}
 				}
-				
+
 				if (finished) {
 					break;
 				}
-				
+
 				// limit the breadth to K
 				int maxSequences = currentHeap.size() > this.beamWidth ? this.beamWidth : currentHeap.size();
-				
-				int j=0;
-				while (currentHeap.size()>0) {
+
+				int j = 0;
+				while (currentHeap.size() > 0) {
 					ParseConfiguration history = currentHeap.poll();
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("### Next configuration on heap " + heapEntry.getKey() + ":");
 						LOG.trace(history.toString());
 						LOG.trace("Score: " + df.format(history.getScore()));
-						LOG.trace(history.getPosTagSequence());
+						LOG.trace(history.getPosTagSequence().toString());
 					}
-					
+
 					List<Decision> decisions = new ArrayList<Decision>();
-					
+
 					// test the positive rules on the current configuration
 					boolean ruleApplied = false;
-					if (parserPositiveRules!=null) {
+					if (parserPositiveRules != null) {
 						MONITOR.startTask("check rules");
 						try {
 							for (ParserRule rule : parserPositiveRules) {
@@ -201,7 +205,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								}
 								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
-								if (ruleResult!=null && ruleResult.getOutcome()) {
+								if (ruleResult != null && ruleResult.getOutcome()) {
 									Decision positiveRuleDecision = machineLearningService.createDefaultDecision(rule.getTransition().getCode());
 									decisions.add(positiveRuleDecision);
 									positiveRuleDecision.addAuthority(rule.getCondition().getName());
@@ -216,7 +220,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 							MONITOR.endTask();
 						}
 					}
-					
+
 					if (!ruleApplied) {
 						// test the features on the current configuration
 						List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
@@ -227,7 +231,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								try {
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 									FeatureResult<?> featureResult = feature.check(history, env);
-									if (featureResult!=null)
+									if (featureResult != null)
 										parseFeatureResults.add(featureResult);
 								} finally {
 									MONITOR.endTask();
@@ -241,16 +245,16 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						} finally {
 							MONITOR.endTask();
 						}
-						
+
 						// evaluate the feature results using the decision maker
 						MONITOR.startTask("make decision");
 						try {
 							decisions = this.decisionMaker.decide(parseFeatureResults);
-							
+
 							for (ClassificationObserver observer : this.observers) {
 								observer.onAnalyse(history, parseFeatureResults, decisions);
 							}
-							
+
 							List<Decision> decisionShortList = new ArrayList<Decision>(decisions.size());
 							for (Decision decision : decisions) {
 								if (decision.getProbability() > MIN_PROB_TO_STORE)
@@ -260,10 +264,10 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						} finally {
 							MONITOR.endTask();
 						}
-						
+
 						// apply the negative rules
 						Set<Transition> eliminatedTransitions = new HashSet<Transition>();
-						if (parserNegativeRules!=null) {
+						if (parserNegativeRules != null) {
 							MONITOR.startTask("check negative rules");
 							try {
 								for (ParserRule rule : parserNegativeRules) {
@@ -272,7 +276,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 									}
 									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 									FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
-									if (ruleResult!=null && ruleResult.getOutcome()) {
+									if (ruleResult != null && ruleResult.getOutcome()) {
 										eliminatedTransitions.addAll(rule.getTransitions());
 										if (LOG.isTraceEnabled()) {
 											for (Transition eliminatedTransition : rule.getTransitions())
@@ -280,8 +284,8 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 										}
 									}
 								}
-								
-								if (eliminatedTransitions.size()>0) {
+
+								if (eliminatedTransitions.size() > 0) {
 									List<Decision> decisionShortList = new ArrayList<Decision>();
 									for (Decision decision : decisions) {
 										if (!eliminatedTransitions.contains(decision.getOutcome())) {
@@ -290,7 +294,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 											LOG.trace("Eliminating decision: " + decision.toString());
 										}
 									}
-									if (decisionShortList.size()>0) {
+									if (decisionShortList.size() > 0) {
 										decisions = decisionShortList;
 									} else {
 										LOG.debug("All decisions eliminated! Restoring original decisions.");
@@ -301,39 +305,45 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 							}
 						}
 					} // has a positive rule been applied?
-					
+
 					boolean transitionApplied = false;
 					TransitionSystem transitionSystem = this.talismaneSession.getTransitionSystem();
-					
-					// add new configuration to the heap, one for each valid transition
+
+					// add new configuration to the heap, one for each valid
+					// transition
 					MONITOR.startTask("heap sort");
 					try {
-						// Why apply all decisions here? Why not just the top N (where N = beamwidth)?
-						// Answer: because we're not always adding solutions to the same heap
-						// And yet: a decision here can only do one of two things: process a token (heap+1000), or add a non-processing transition (heap+1)
-						// So, if we've already applied N decisions of each type, we should be able to stop
+						// Why apply all decisions here? Why not just the top N
+						// (where N = beamwidth)?
+						// Answer: because we're not always adding solutions to
+						// the same heap
+						// And yet: a decision here can only do one of two
+						// things: process a token (heap+1000), or add a
+						// non-processing transition (heap+1)
+						// So, if we've already applied N decisions of each
+						// type, we should be able to stop
 						for (Decision decision : decisions) {
 							Transition transition = transitionSystem.getTransitionForCode(decision.getOutcome());
 							if (LOG.isTraceEnabled())
 								LOG.trace("Outcome: " + transition.getCode() + ", " + decision.getProbability());
-							
+
 							if (transition.checkPreconditions(history)) {
 								transitionApplied = true;
 								ParseConfiguration configuration = this.parserServiceInternal.getConfiguration(history);
 								if (decision.isStatistical())
 									configuration.addDecision(decision);
 								transition.apply(configuration);
-								
+
 								int nextHeapIndex = parseComparisonStrategy.getComparisonIndex(configuration) * 1000;
 								if (configuration.isTerminal()) {
 									nextHeapIndex = Integer.MAX_VALUE;
 								} else {
-									while (nextHeapIndex<=currentHeapIndex)
+									while (nextHeapIndex <= currentHeapIndex)
 										nextHeapIndex++;
 								}
-								
+
 								PriorityQueue<ParseConfiguration> nextHeap = heaps.get(nextHeapIndex);
-								if (nextHeap==null) {
+								if (nextHeap == null) {
 									if (configuration.isTerminal())
 										nextHeap = terminalHeap;
 									else
@@ -344,44 +354,46 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								}
 								nextHeap.add(configuration);
 								if (LOG.isTraceEnabled()) {
-									LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + nextHeapIndex + ", total size: " + nextHeap.size());
+									LOG.trace("Added configuration with score " + configuration.getScore() + " to heap: " + nextHeapIndex + ", total size: "
+											+ nextHeap.size());
 								}
-								
+
 								configuration.clearMemory();
 							} else {
 								if (LOG.isTraceEnabled())
 									LOG.trace("Cannot apply transition: doesn't meet pre-conditions");
-								// just in case the we run out of both heaps and analyses, we build this backup heap
+								// just in case the we run out of both heaps and
+								// analyses, we build this backup heap
 								backupHeap.add(history);
 							} // does transition meet pre-conditions?
 						} // next transition
 					} finally {
 						MONITOR.endTask();
 					}
-					
+
 					if (transitionApplied) {
 						j++;
 					} else {
 						LOG.trace("No transitions could be applied: not counting this history as part of the beam");
 					}
-					
+
 					// beam width test
-					if (j==maxSequences)
+					if (j == maxSequences)
 						break;
-				} // next history	
+				} // next history
 			} // next atomic index
-			
+
 			// return the best sequences on the heap
 			List<ParseConfiguration> bestConfigurations = new ArrayList<ParseConfiguration>();
 			int i = 0;
-			
+
 			if (finalHeap.isEmpty())
 				finalHeap = backupHeap;
-			
+
 			while (!finalHeap.isEmpty()) {
 				bestConfigurations.add(finalHeap.poll());
 				i++;
-				if (i>=this.getBeamWidth())
+				if (i >= this.getBeamWidth())
 					break;
 			}
 			if (LOG.isDebugEnabled()) {
@@ -399,7 +411,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						sb.append(" root ");
 						sb.append(finalConfiguration.getTransitions().size());
 						LOG.trace(sb.toString());
-						
+
 						sb = new StringBuilder();
 						sb.append(" * PosTag sequence score ");
 						sb.append(df.format(finalConfiguration.getPosTagSequence().getScore()));
@@ -411,12 +423,12 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 						sb.append(" root ");
 						sb.append(finalConfiguration.getPosTagSequence().size());
 						LOG.trace(sb.toString());
-						
+
 						sb = new StringBuilder();
 						sb.append(" * Token sequence score = ");
 						sb.append(df.format(finalConfiguration.getPosTagSequence().getTokenSequence().getScore()));
 						LOG.trace(sb.toString());
-						
+
 					}
 				}
 			}
@@ -444,6 +456,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		this.observers.add(observer);
 	}
 
+	@Override
 	public TransitionSystem getTransitionSystem() {
 		return transitionSystem;
 	}
@@ -452,26 +465,25 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		this.transitionSystem = transitionSystem;
 	}
 
-
+	@Override
 	public int getMaxAnalysisTimePerSentence() {
 		return maxAnalysisTimePerSentence;
 	}
 
-
+	@Override
 	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence) {
 		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
 	}
-	
-	
+
+	@Override
 	public int getMinFreeMemory() {
 		return minFreeMemory;
 	}
 
-
+	@Override
 	public void setMinFreeMemory(int minFreeMemory) {
 		this.minFreeMemory = minFreeMemory;
 	}
-
 
 	@Override
 	public void setParserRules(List<ParserRule> parserRules) {
@@ -486,6 +498,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		}
 	}
 
+	@Override
 	public List<ParserRule> getParserRules() {
 		return parserRules;
 	}
@@ -498,19 +511,22 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		this.featureService = featureService;
 	}
 
+	@Override
 	public ParseComparisonStrategy getParseComparisonStrategy() {
 		return parseComparisonStrategy;
 	}
 
-	public void setParseComparisonStrategy(
-			ParseComparisonStrategy parseComparisonStrategy) {
+	@Override
+	public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy) {
 		this.parseComparisonStrategy = parseComparisonStrategy;
 	}
 
+	@Override
 	public boolean isEarlyStop() {
 		return earlyStop;
 	}
 
+	@Override
 	public void setEarlyStop(boolean earlyStop) {
 		this.earlyStop = earlyStop;
 	}
@@ -524,7 +540,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 	public void setParseFeatures(Set<ParseConfigurationFeature<?>> parseFeatures) {
 		this.parseFeatures = parseFeatures;
 	}
-	
+
 	public TalismaneService getTalismaneService() {
 		return talismaneService;
 	}
@@ -534,14 +550,11 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
 
-
 	public MachineLearningService getMachineLearningService() {
 		return machineLearningService;
 	}
 
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 }

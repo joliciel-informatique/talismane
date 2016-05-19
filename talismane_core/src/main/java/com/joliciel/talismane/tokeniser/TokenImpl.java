@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.Sentence;
@@ -40,7 +40,7 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
 final class TokenImpl implements TokenInternal {
-	private static final Log LOG = LogFactory.getLog(TokenImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenImpl.class);
 	private static Pattern whiteSpacePattern = Pattern.compile("[\\s\ufeff]+", Pattern.UNICODE_CHARACTER_CLASS);
 
 	private String text;

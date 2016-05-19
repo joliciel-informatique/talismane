@@ -20,8 +20,8 @@ package com.joliciel.talismane.machineLearning.features;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.joliciel.talismane.machineLearning.features.DescriptorSyntaxException;
@@ -30,7 +30,7 @@ import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParserImpl;
 
 public class FunctionDescriptorParserImplTest {
-	private static final Log LOG = LogFactory.getLog(FunctionDescriptorParserImplTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FunctionDescriptorParserImplTest.class);
 
 	@Test
 	public void testParseDescriptor() {

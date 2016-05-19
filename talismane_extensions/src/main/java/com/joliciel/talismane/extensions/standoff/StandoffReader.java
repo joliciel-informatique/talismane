@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
@@ -53,7 +53,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 public class StandoffReader implements ParserAnnotatedCorpusReader {
-    private static final Log LOG = LogFactory.getLog(StandoffReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
 	private int sentenceCount = 0;

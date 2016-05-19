@@ -27,8 +27,8 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -47,7 +47,7 @@ import opennlp.model.MaxentModel;
  */
 abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel implements OpenNLPModel {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(AbstractOpenNLPModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractOpenNLPModel.class);
 	
 	private MachineLearningService machineLearningService;
 

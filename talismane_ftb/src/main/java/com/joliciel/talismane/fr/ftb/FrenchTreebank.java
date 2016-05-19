@@ -26,8 +26,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.fr.ftb.export.FrenchTreebankXmlWriter;
@@ -42,7 +42,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 
 public class FrenchTreebank {
-    private static final Log LOG = LogFactory.getLog(FrenchTreebank.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FrenchTreebank.class);
 
     /**
      */

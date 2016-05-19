@@ -26,8 +26,8 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -39,7 +39,7 @@ import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 
 class SentenceDetectorEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(SentenceDetectorEventStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorEventStream.class);
     
 	private SentenceDetectorAnnotatedCorpusReader corpusReader;
 	private Set<SentenceDetectorFeature<?>> features;

@@ -32,8 +32,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.RollingSentenceProcessor;
@@ -98,7 +98,7 @@ import com.joliciel.talismane.utils.io.CurrentFileProvider;
  * @author Assaf Urieli
  */
 class TalismaneImpl implements Talismane {
-	private static final Log LOG = LogFactory.getLog(TalismaneImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneImpl.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TalismaneImpl.class);
 
@@ -812,7 +812,7 @@ class TalismaneImpl implements Talismane {
 				this.getWriter().flush();
 				this.getWriter().close();
 			} catch (IOException ioe2) {
-				LOG.error(ioe2);
+				LogUtils.logError(LOG, ioe2);
 				throw new RuntimeException(ioe2);
 			}
 

@@ -31,8 +31,8 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -43,7 +43,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.LogUtils;
 
 class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
-	private static final Log LOG = LogFactory.getLog(PerceptronClassificationModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker decisionMaker;
 	private transient Set<String> outcomeNames = null;

@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -29,7 +29,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class ShiftTransition extends AbstractTransition implements Transition {
-	private static final Log LOG = LogFactory.getLog(ShiftTransition.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ShiftTransition.class);
 	private static String name = "Shift";
 	
 	public ShiftTransition() {

@@ -30,13 +30,13 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
 
 class ExternalResourceFinderImpl implements ExternalResourceFinder {
-	private static final Log LOG = LogFactory.getLog(ExternalResourceFinderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ExternalResourceFinderImpl.class);
 	private Map<String, ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
 	private Map<String, ExternalWordList> wordListMap = new HashMap<String, ExternalWordList>();
 

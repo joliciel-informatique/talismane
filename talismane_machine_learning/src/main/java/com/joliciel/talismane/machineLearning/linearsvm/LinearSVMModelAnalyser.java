@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -28,7 +28,7 @@ import com.joliciel.talismane.utils.WeightedOutcomeAscendingComparator;
 import de.bwaldvogel.liblinear.Model;
 
 public class LinearSVMModelAnalyser {
-	private static final Log LOG = LogFactory.getLog(LinearSVMModelAnalyser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMModelAnalyser.class);
 	private static final CSVFormatter CSV = new CSVFormatter(5);
 	private int featureCount = 200;
 	

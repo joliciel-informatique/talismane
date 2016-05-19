@@ -32,14 +32,14 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
 
 final class PosTagSetImpl implements PosTagSet {
 	private static final long serialVersionUID = 4894889727388356815L;
-	private static final Log LOG = LogFactory.getLog(PosTagSetImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagSetImpl.class);
 
 	private String name;
 	private Locale locale;

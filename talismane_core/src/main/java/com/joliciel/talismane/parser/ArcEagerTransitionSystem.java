@@ -23,55 +23,56 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * An arc-eager Shift-Reduce transition system, as described in Nivre 2009 Dependency Parsing, Chapter 3,
- * in which right-depedencies are attached as soon as possible, rather than waiting until all left-dependencies
- * have been attached.
- * We allow for corpora with unattached nodes, by applying the reduce transition, rather than artificially attaching
- * these nodes to the root, which could incur non-projectivity.
+ * An arc-eager Shift-Reduce transition system, as described in Nivre 2009
+ * Dependency Parsing, Chapter 3, in which right-depedencies are attached as
+ * soon as possible, rather than waiting until all left-dependencies have been
+ * attached. We allow for corpora with unattached nodes, by applying the reduce
+ * transition, rather than artificially attaching these nodes to the root, which
+ * could incur non-projectivity.
+ * 
  * @author Assaf Urieli
  *
  */
 class ArcEagerTransitionSystem extends AbstractTransitionSystem implements TransitionSystem {
-	private static final Log LOG = LogFactory.getLog(ArcEagerTransitionSystem.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ArcEagerTransitionSystem.class);
 	private transient Set<Transition> transitions = null;
-	
+
 	@Override
-	public void predictTransitions(ParseConfiguration configuration,
-			Set<DependencyArc> targetDependencies) {
+	public void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies) {
 		LOG.debug("predictTransitions");
 		LOG.debug(configuration.getSentence().getText());
-		LOG.debug(configuration);
-		LOG.debug(targetDependencies);
-		
-		Map<PosTaggedToken,DependencyArc> ungovernedTokens = new HashMap<PosTaggedToken,DependencyArc>();
-		
+		LOG.debug(configuration.toString());
+		LOG.debug(targetDependencies.toString());
+
+		Map<PosTaggedToken, DependencyArc> ungovernedTokens = new HashMap<PosTaggedToken, DependencyArc>();
+
 		for (DependencyArc arc : targetDependencies) {
-			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG)&& (arc.getLabel()==null || arc.getLabel().length()==0)) {
+			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel() == null || arc.getLabel().length() == 0)) {
 				ungovernedTokens.put(arc.getDependent(), arc);
 			}
 		}
-		
+
 		while (!configuration.getBuffer().isEmpty()) {
 			PosTaggedToken stackHead = configuration.getStack().peek();
 			PosTaggedToken bufferHead = configuration.getBuffer().peekFirst();
-			
+
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("S0: " + stackHead);
 				LOG.trace("B0: " + bufferHead);
 			}
-			
+
 			Transition transition = null;
 			DependencyArc currentDep = null;
 			for (DependencyArc arc : targetDependencies) {
-				if (arc.getHead().equals(bufferHead)&&arc.getDependent().equals(stackHead)) {
+				if (arc.getHead().equals(bufferHead) && arc.getDependent().equals(stackHead)) {
 					try {
 						transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
 					} catch (UnknownDependencyLabelException udle) {
@@ -80,8 +81,8 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 					currentDep = arc;
 					break;
 				}
-				
-				if (arc.getHead().equals(stackHead)&&arc.getDependent().equals(bufferHead)) {
+
+				if (arc.getHead().equals(stackHead) && arc.getDependent().equals(bufferHead)) {
 					try {
 						transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
 					} catch (UnknownDependencyLabelException udle) {
@@ -91,9 +92,9 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 					break;
 				}
 			}
-			
-			if (transition==null) {
-				boolean stackHeadHasGovernor = configuration.getHead(stackHead)!=null;
+
+			if (transition == null) {
+				boolean stackHeadHasGovernor = configuration.getHead(stackHead) != null;
 				boolean stackHeadUngoverned = ungovernedTokens.containsKey(stackHead);
 				boolean stackHeadHasDependents = false;
 				if (stackHeadHasGovernor || stackHeadUngoverned) {
@@ -104,7 +105,7 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 						}
 					}
 				}
-				
+
 				if (!stackHeadHasDependents) {
 					if (stackHeadHasGovernor) {
 						transition = this.getTransitionForCode("Reduce");
@@ -115,22 +116,22 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 					}
 				}
 			}
-			
-			if (transition==null) {
-				transition =  this.getTransitionForCode("Shift");
+
+			if (transition == null) {
+				transition = this.getTransitionForCode("Shift");
 			}
-			if (currentDep!=null)
+			if (currentDep != null)
 				targetDependencies.remove(currentDep);
-			
+
 			transition.apply(configuration);
-			
+
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Transition: " + transition);
 				LOG.trace("Configuration: " + configuration);
 			}
 
 		}
-		if (targetDependencies.size()>0) {
+		if (targetDependencies.size() > 0) {
 			throw new RuntimeException("Wasn't able to predict: " + targetDependencies);
 		}
 		LOG.debug("Full prediction complete");
@@ -140,9 +141,9 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 	public Transition getTransitionForCode(String code) {
 		AbstractTransition transition = null;
 		String label = null;
-		if (code.indexOf('[')>=0) {
-			label = code.substring(code.indexOf('[')+1, (code.indexOf(']')));
-			if (this.getDependencyLabels().size()>0 && !this.getDependencyLabels().contains(label)) {
+		if (code.indexOf('[') >= 0) {
+			label = code.substring(code.indexOf('[') + 1, (code.indexOf(']')));
+			if (this.getDependencyLabels().size() > 0 && !this.getDependencyLabels().contains(label)) {
 				throw new UnknownDependencyLabelException(label);
 			}
 		}
@@ -159,13 +160,13 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 		} else {
 			throw new TalismaneException("Unknown transition name: " + code);
 		}
-		
+
 		return transition;
 	}
 
 	@Override
 	public Set<Transition> getTransitions() {
-		if (transitions==null) {
+		if (transitions == null) {
 			transitions = new TreeSet<Transition>();
 			transitions.add(this.getTransitionForCode("Shift"));
 			transitions.add(this.getTransitionForCode("Reduce"));
@@ -176,6 +177,5 @@ class ArcEagerTransitionSystem extends AbstractTransitionSystem implements Trans
 		}
 		return transitions;
 	}
-
 
 }
