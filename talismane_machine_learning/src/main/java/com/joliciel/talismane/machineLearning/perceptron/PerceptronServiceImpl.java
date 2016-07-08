@@ -20,34 +20,21 @@ package com.joliciel.talismane.machineLearning.perceptron;
 
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.RankingModel;
 
 class PerceptronServiceImpl implements PerceptronService {
 	private MachineLearningService machineLearningService;
-	
+
 	@Override
-	public  PerceptronClassificationModelTrainer getPerceptronModelTrainer() {
+	public PerceptronClassificationModelTrainer getPerceptronModelTrainer() {
 		PerceptronClassifactionModelTrainerImpl trainer = new PerceptronClassifactionModelTrainerImpl();
 		trainer.setMachineLearningService(this.getMachineLearningService());
 		return trainer;
 	}
 
 	@Override
-	public  ClassificationModel getPerceptronModel() {
+	public ClassificationModel getPerceptronModel() {
 		PerceptronClassificationModel model = new PerceptronClassificationModel();
 		model.setMachineLearningService(this.getMachineLearningService());
-		return model;
-	}
-
-	@Override
-	public<T> PerceptronRankingModelTrainer<T> getPerceptronRankingModelTrainer() {
-		PerceptronRankingModelTrainerImpl<T> trainer = new PerceptronRankingModelTrainerImpl<T>();
-		return trainer;
-	}
-
-	@Override
-	public RankingModel getPerceptronRankingModel() {
-		PerceptronRankingModel model = new PerceptronRankingModel();
 		return model;
 	}
 
@@ -55,10 +42,8 @@ class PerceptronServiceImpl implements PerceptronService {
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
-	
-	
+
 }

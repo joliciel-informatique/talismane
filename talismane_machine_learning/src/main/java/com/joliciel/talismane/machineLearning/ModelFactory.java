@@ -34,16 +34,17 @@ import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * A class for constructing models implementing AbstractMachineLearningModel.
+ * 
  * @author Assaf Urieli
  *
  */
 class ModelFactory {
 	private static final Logger LOG = LoggerFactory.getLogger(ModelFactory.class);
-	
+
 	private PerceptronService perceptronService;
 	private MaxentService maxentService;
 	private LinearSVMService linearSVMService;
-	
+
 	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) {
 		try {
 			MachineLearningModel machineLearningModel = null;
@@ -51,7 +52,7 @@ class ModelFactory {
 			if (!ze.getName().equals("algorithm.txt")) {
 				throw new JolicielException("Expected algorithm.txt as first entry in zip. Was: " + ze.getName());
 			}
-			
+
 			// note: assuming the model type will always be the first entry
 			@SuppressWarnings("resource")
 			Scanner typeScanner = new Scanner(zis, "UTF-8");
@@ -80,23 +81,17 @@ class ModelFactory {
 			case Perceptron:
 				machineLearningModel = perceptronService.getPerceptronModel();
 				break;
-			case PerceptronRanking:
-				machineLearningModel = perceptronService.getPerceptronRankingModel();
-				break;
-			case OpenNLPPerceptron:
-				machineLearningModel = maxentService.getPerceptronModel();
-				break;
 			default:
 				throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
 			}
-			
-		    while ((ze = zis.getNextEntry()) != null) {
-		    	LOG.debug(ze.getName());
-		    	machineLearningModel.loadZipEntry(zis, ze);
-		    } // next zip entry
-		    
-		    machineLearningModel.onLoadComplete();
-		    
+
+			while ((ze = zis.getNextEntry()) != null) {
+				LOG.debug(ze.getName());
+				machineLearningModel.loadZipEntry(zis, ze);
+			} // next zip entry
+
+			machineLearningModel.onLoadComplete();
+
 			return machineLearningModel;
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
@@ -109,7 +104,6 @@ class ModelFactory {
 			}
 		}
 	}
-	
 
 	public MaxentService getMaxentService() {
 		return maxentService;
@@ -134,6 +128,5 @@ class ModelFactory {
 	public void setPerceptronService(PerceptronService perceptronService) {
 		this.perceptronService = perceptronService;
 	}
-	
-	
+
 }

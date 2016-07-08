@@ -41,8 +41,8 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
 class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificationModelTrainer {
 	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassifactionModelTrainerImpl.class);
@@ -404,12 +404,12 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	}
 
 	ClassificationModel getModel(PerceptronModelParameters params, int iterations) {
-		PerceptronClassificationModel model = new PerceptronClassificationModel(params, descriptors, this.trainingParameters);
+		PerceptronClassificationModel model = new PerceptronClassificationModel(params, descriptors);
 		model.setMachineLearningService(machineLearningService);
-		model.addModelAttribute("cutoff", "" + this.getCutoff());
-		model.addModelAttribute("iterations", "" + iterations);
-		model.addModelAttribute("tolerance", "" + this.getTolerance());
-		model.addModelAttribute("averageAtIntervals", "" + this.isAverageAtIntervals());
+		model.addModelAttribute("cutoff", this.getCutoff());
+		model.addModelAttribute("iterations", this.getIterations());
+		model.addModelAttribute("tolerance", this.getTolerance());
+		model.addModelAttribute("averageAtIntervals", this.isAverageAtIntervals());
 
 		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
 
@@ -417,33 +417,14 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	}
 
 	@Override
-	public void setParameters(Map<String, Object> parameters) {
-		if (parameters != null) {
-			this.trainingParameters = parameters;
-			for (String parameter : parameters.keySet()) {
-				PerceptronModelParameter modelParameter = PerceptronModelParameter.valueOf(parameter);
-				Object value = parameters.get(parameter);
-				if (!modelParameter.getParameterType().isAssignableFrom(value.getClass())) {
-					throw new JolicielException("Parameter of wrong type: " + parameter + ". Expected: " + modelParameter.getParameterType().getSimpleName());
-				}
-				switch (modelParameter) {
-				case Iterations:
-					this.setIterations((Integer) value);
-					break;
-				case Cutoff:
-					this.setCutoff((Integer) value);
-					break;
-				case Tolerance:
-					this.setTolerance((Double) value);
-					break;
-				case AverageAtIntervals:
-					this.setAverageAtIntervals((Boolean) value);
-					break;
-				default:
-					throw new JolicielException("Unknown parameter type: " + modelParameter);
-				}
-			}
-		}
+	public void setParameters(Config config) {
+		Config machineLearningConfig = config.getConfig("talismane.machine-learning");
+		Config perceptronConfig = machineLearningConfig.getConfig("perceptron");
+
+		this.setCutoff(machineLearningConfig.getInt("cutoff"));
+		this.setIterations(perceptronConfig.getInt("iterations"));
+		this.setTolerance(perceptronConfig.getDouble("tolerance"));
+		this.setAverageAtIntervals(perceptronConfig.getBoolean("average-at-intervals"));
 	}
 
 	public MachineLearningService getMachineLearningService() {

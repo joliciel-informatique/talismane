@@ -25,17 +25,15 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearni
  *
  */
 public enum MachineLearningAlgorithm {
-	MaxEnt(MachineLearningModelType.Classification),
-	LinearSVM(MachineLearningModelType.Classification),
-	LinearSVMOneVsRest(MachineLearningModelType.Classification),
-	Perceptron(MachineLearningModelType.Classification),
-	PerceptronRanking(MachineLearningModelType.Ranking),
-	OpenNLPPerceptron(MachineLearningModelType.Classification);
-	
+	MaxEnt(MachineLearningModelType.Classification), LinearSVM(MachineLearningModelType.Classification), LinearSVMOneVsRest(
+			MachineLearningModelType.Classification), Perceptron(MachineLearningModelType.Classification);
+
 	private MachineLearningModelType modelType;
+
 	private MachineLearningAlgorithm(MachineLearningModelType modelType) {
 		this.modelType = modelType;
 	}
+
 	public MachineLearningModelType getModelType() {
 		return modelType;
 	}

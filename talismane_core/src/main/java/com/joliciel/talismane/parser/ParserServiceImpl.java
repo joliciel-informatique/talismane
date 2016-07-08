@@ -13,12 +13,8 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.FeatureWeightVector;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.Ranker;
-import com.joliciel.talismane.machineLearning.RankingEventStream;
-import com.joliciel.talismane.machineLearning.RankingModel;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
@@ -37,17 +33,15 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	MachineLearningService machineLearningService;
 	TokenFilterService tokenFilterService;
 	FeatureService featureService;
-	
+
 	@Override
-	public DependencyArc getDependencyArc(PosTaggedToken head,
-			PosTaggedToken dependent, String label) {
+	public DependencyArc getDependencyArc(PosTaggedToken head, PosTaggedToken dependent, String label) {
 		DependencyArcImpl arc = new DependencyArcImpl(head, dependent, label);
 		return arc;
 	}
 
 	@Override
-	public ParseConfiguration getInitialConfiguration(
-			PosTagSequence posTagSequence) {
+	public ParseConfiguration getInitialConfiguration(PosTagSequence posTagSequence) {
 		ParseConfigurationImpl configuration = new ParseConfigurationImpl(posTagSequence);
 		configuration.setParserServiceInternal(this);
 		return configuration;
@@ -62,8 +56,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem,
-			Set<ParseConfigurationFeature<?>> parseFeatures,
-			int beamWidth) {
+			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
 		TransitionBasedParserImpl parser = new TransitionBasedParserImpl(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
 		parser.setTalismaneService(this.getTalismaneService());
@@ -73,28 +66,13 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public ClassificationEventStream getParseEventStream(
-			ParserAnnotatedCorpusReader corpusReader,
-			Set<ParseConfigurationFeature<?>> parseFeatures) {
+	public ClassificationEventStream getParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
 		eventStream.setParserServiceInternal(this);
 		eventStream.setMachineLearningService(this.getMachineLearningService());
 		eventStream.setFeatureService(this.getFeatureService());
 		return eventStream;
 	}
-	
-
-	@Override
-	public RankingEventStream<PosTagSequence> getGlobalParseEventStream(
-			ParserAnnotatedCorpusReader corpusReader,
-			Set<ParseConfigurationFeature<?>> parseFeatures) {
-		ParseGlobalEventStream eventStream = new ParseGlobalEventStream(corpusReader, parseFeatures);
-		eventStream.setParserServiceInternal(this);
-		eventStream.setMachineLearningService(this.getMachineLearningService());
-		eventStream.setFeatureService(this.getFeatureService());
-		return eventStream;
-	}
-	
 
 	@Override
 	public ParserEvaluator getParserEvaluator() {
@@ -114,7 +92,8 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		ArcEagerTransitionSystem transitionSystem = new ArcEagerTransitionSystem();
 		return transitionSystem;
 	}
-	
+
+	@Override
 	public TransitionSystem getTransitionSystem(MachineLearningModel model) {
 		TransitionSystem transitionSystem = null;
 		String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
@@ -127,19 +106,18 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		}
 		return transitionSystem;
 	}
-	
+
 	@Override
-	public NonDeterministicParser getTransitionBasedParser(
-			MachineLearningModel model, int beamWidth, boolean dynamiseFeatures) {
+	public NonDeterministicParser getTransitionBasedParser(MachineLearningModel model, int beamWidth, boolean dynamiseFeatures) {
 		Collection<ExternalResource<?>> externalResources = model.getExternalResources();
-		if (externalResources!=null) {
+		if (externalResources != null) {
 			for (ExternalResource<?> externalResource : externalResources) {
 				this.getParseFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}
-		
+
 		TransitionSystem transitionSystem = this.getTransitionSystem(model);
-		
+
 		Set<ParseConfigurationFeature<?>> parseFeatures = this.getParseFeatureService().getFeatures(model.getFeatureDescriptors(), dynamiseFeatures);
 
 		NonDeterministicParser parser = null;
@@ -148,11 +126,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 			DecisionMaker decisionMaker = classificationModel.getDecisionMaker();
 
 			parser = this.getTransitionBasedParser(decisionMaker, transitionSystem, parseFeatures, beamWidth);
-		} else if (model instanceof RankingModel) {
-			RankingModel rankingModel = (RankingModel) model;
-			FeatureWeightVector featureWeightVector = rankingModel.getFeatureWeightVector();
-			ParsingConstrainer parsingConstrainer = (ParsingConstrainer) model.getDependencies().get(ParsingConstrainer.class.getSimpleName());
-			parser = this.getTransitionBasedGlobalLearningParser(featureWeightVector, parsingConstrainer, parseFeatures, beamWidth);
 		} else {
 			throw new TalismaneException("Unknown parser model type: " + model.getClass().getSimpleName());
 		}
@@ -168,8 +141,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public DependencyNode getDependencyNode(PosTaggedToken token, String label,
-			ParseConfiguration parseConfiguration) {
+	public DependencyNode getDependencyNode(PosTaggedToken token, String label, ParseConfiguration parseConfiguration) {
 		DependencyNodeImpl dependencyNode = new DependencyNodeImpl(token, label, parseConfiguration);
 		dependencyNode.setParserServiceInternal(this);
 		return dependencyNode;
@@ -186,11 +158,9 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
 	}
-	
 
 	@Override
-	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(File file,
-			Charset charset) {
+	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(File file, Charset charset) {
 		ParserRegexBasedCorpusReaderImpl corpusReader = new ParserRegexBasedCorpusReaderImpl(file, charset);
 		corpusReader.setParserService(this);
 		corpusReader.setTalismaneService(this.getTalismaneService());
@@ -200,7 +170,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
 	}
-
 
 	public PosTaggerService getPosTaggerService() {
 		return posTaggerService;
@@ -225,8 +194,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public void setMachineLearningService(MachineLearningService macheLearningService) {
 		this.machineLearningService = macheLearningService;
 	}
-	
-	
 
 	public TokenFilterService getTokenFilterService() {
 		return tokenFilterService;
@@ -266,30 +233,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public Ranker<PosTagSequence> getRanker(
-			ParsingConstrainer parsingConstrainer,
-			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
-		TransitionBasedGlobalLearningParser parser = this.getTransitionBasedGlobalLearningParser(null, parsingConstrainer, parseFeatures, beamWidth);
-		// if training, don't set a maximum time per sentence
-		parser.setMaxAnalysisTimePerSentence(0);
-		return parser;
-	}
-
-	@Override
-	public TransitionBasedGlobalLearningParser getTransitionBasedGlobalLearningParser(
-			FeatureWeightVector featureWeightVector,
-			ParsingConstrainer parsingConstrainer,
-			Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth) {
-		TransitionBasedGlobalLearningParser parser = new TransitionBasedGlobalLearningParser(featureWeightVector, parsingConstrainer, parseFeatures, beamWidth);
-		parser.setParserServiceInternal(this);
-		parser.setFeatureService(this.getFeatureService());
-		parser.setMachineLearningService(this.getMachineLearningService());
-		return parser;
-	}
-
-	@Override
-	public ParseComparisonStrategy getParseComparisonStrategy(
-			ParseComparisonStrategyType type) {
+	public ParseComparisonStrategy getParseComparisonStrategy(ParseComparisonStrategyType type) {
 		switch (type) {
 		case transitionCount:
 			return new TransitionCountComparisonStrategy();
@@ -305,8 +249,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public ParseConfigurationProcessor getParseFeatureTester(
-			Set<ParseConfigurationFeature<?>> parserFeatures, File file) {
+	public ParseConfigurationProcessor getParseFeatureTester(Set<ParseConfigurationFeature<?>> parserFeatures, File file) {
 		ParseFeatureTester tester = new ParseFeatureTester(parserFeatures, file);
 		tester.setFeatureService(this.getFeatureService());
 		tester.setParserServiceInternal(this);
@@ -314,8 +257,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public ParseConfigurationProcessor getTransitionLogWriter(
-			Writer csvFileWriter) {
+	public ParseConfigurationProcessor getTransitionLogWriter(Writer csvFileWriter) {
 		TransitionLogWriter processor = new TransitionLogWriter(csvFileWriter);
 		processor.setParserServiceInternal(this);
 		return processor;
@@ -329,5 +271,4 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		this.talismaneService = talismaneService;
 	}
 
-	
 }

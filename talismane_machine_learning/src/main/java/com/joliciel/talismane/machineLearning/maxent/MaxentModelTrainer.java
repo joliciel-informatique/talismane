@@ -23,44 +23,29 @@ import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 /**
  * Trains a MaxEnt machine learning model for a given CorpusEventStream.<br/>
  * Uses the Apache OpenNLP OpenMaxent implementation.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface MaxentModelTrainer extends ClassificationModelTrainer {
 	/**
-	 * A parameter accepted by the maxent model trainer.
-	 * @author Assaf Urieli
-	 *
-	 */
-	public enum MaxentModelParameter {
-		Iterations(Integer.class),
-		Cutoff(Integer.class),
-		Sigma(Double.class),
-		Smoothing(Double.class);
-		
-		private Class<?> parameterType;
-		private MaxentModelParameter(Class<?> parameterType) {
-			this.parameterType = parameterType;
-		}
-		public Class<?> getParameterType() {
-			return parameterType;
-		}
-	}
-	/**
 	 * The number of training iterations to run.
 	 */
 	public int getIterations();
+
 	public void setIterations(int iterations);
-	
+
 	/**
 	 * Sigma for Gaussian smoothing on maxent training.
 	 */
 	public double getSigma();
+
 	public void setSigma(double sigma);
 
 	/**
 	 * Additive smoothing parameter during maxent training.
 	 */
 	public double getSmoothing();
+
 	public void setSmoothing(double smoothing);
 }
