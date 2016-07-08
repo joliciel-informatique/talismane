@@ -28,36 +28,39 @@ import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 
 /**
- * An interface for processing a Reader from {@link TalismaneConfig#getReader()} 
- * and writing the analysis result to a Writer from {@link TalismaneConfig#getWriter()}.<br/>
- * Not thread-safe: a single Talismane cannot be used by multiple threads simultaneously.<br/>
- * The output format is determined by the processor corresponding to {@link TalismaneConfig#getEndModule()}.<br/>
+ * An interface for processing a Reader from {@link TalismaneConfig#getReader()}
+ * and writing the analysis result to a Writer from
+ * {@link TalismaneConfig#getWriter()}.<br/>
+ * Not thread-safe: a single Talismane cannot be used by multiple threads
+ * simultaneously.<br/>
+ * The output format is determined by the processor corresponding to
+ * {@link TalismaneConfig#getEndModule()}.<br/>
  * This is accomplished by calling {@link #process()}.<br/>
+ * 
  * @author Assaf Urieli
  *
  */
 public interface Talismane {
 	/**
 	 * A module within the Talismane Suite.
+	 * 
 	 * @author Assaf Urieli
 	 *
 	 */
 	public enum Module {
-		LanguageDetector,
-		SentenceDetector,
-		Tokeniser,
-		PosTagger,
-		Parser
+		LanguageDetector, SentenceDetector, Tokeniser, PosTagger, Parser
 	}
-	
+
 	/**
 	 * The command which Talismane is asked to perform.
+	 * 
 	 * @author Assaf Urieli
 	 *
 	 */
 	public enum Command {
 		/**
-		 * Train a model using a corpus, a feature set, a classifier + parameters, etc.
+		 * Train a model using a corpus, a feature set, a classifier +
+		 * parameters, etc.
 		 */
 		train,
 		/**
@@ -65,12 +68,14 @@ public interface Talismane {
 		 */
 		analyse,
 		/**
-		 * Evaluate an annotated corpus, by re-analysing the corpus and comparing the new annotations to the existing ones.
+		 * Evaluate an annotated corpus, by re-analysing the corpus and
+		 * comparing the new annotations to the existing ones.
 		 */
 		evaluate,
 		/**
-		 * Process an annotated corpus - Talismane simply reads the corpus using the appropriate corpus reader
-		 * and passes the results to the appropriate processors.
+		 * Process an annotated corpus - Talismane simply reads the corpus using
+		 * the appropriate corpus reader and passes the results to the
+		 * appropriate processors.
 		 */
 		process,
 		/**
@@ -78,8 +83,12 @@ public interface Talismane {
 		 */
 		compare
 	}
-	
+
 	public enum Option {
+		/**
+		 * Simply output what you read, usually changing the format.
+		 */
+		output,
 		/**
 		 * Load the parsing constraints from a training corpus.
 		 */
@@ -96,7 +105,8 @@ public interface Talismane {
 
 	public enum Mode {
 		/**
-		 * Command line mode, reading from standard in or file, and writing to standard out or file.
+		 * Command line mode, reading from standard in or file, and writing to
+		 * standard out or file.
 		 */
 		normal,
 		/**
@@ -106,60 +116,71 @@ public interface Talismane {
 	}
 
 	/**
-	 * Run the {@link Command} specified by {@link TalismaneConfigImpl#getCommand()}.
+	 * Run the {@link Command} specified by
+	 * {@link TalismaneConfigImpl#getCommand()}.
 	 */
 	public abstract void process();
 
 	/**
-	 * The language detector processor to be used if the end-module is the language detector.
+	 * The language detector processor to be used if the end-module is the
+	 * language detector.
 	 */
 	public LanguageDetectorProcessor getLanguageDetectorProcessor();
-	public void setLanguageDetectorProcessor(
-			LanguageDetectorProcessor languageDetectorProcessor);
-	
+
+	public void setLanguageDetectorProcessor(LanguageDetectorProcessor languageDetectorProcessor);
+
 	/**
-	 * The sentence processor to be used if the end-module is the sentence detector.
+	 * The sentence processor to be used if the end-module is the sentence
+	 * detector.
 	 */
 	public SentenceProcessor getSentenceProcessor();
+
 	public void setSentenceProcessor(SentenceProcessor sentenceProcessor);
 
 	/**
-	 * The token sequence processor to be used if the end-module is the tokeniser.
+	 * The token sequence processor to be used if the end-module is the
+	 * tokeniser.
 	 */
 	public TokenSequenceProcessor getTokenSequenceProcessor();
-	public void setTokenSequenceProcessor(
-			TokenSequenceProcessor tokenSequenceProcessor);
+
+	public void setTokenSequenceProcessor(TokenSequenceProcessor tokenSequenceProcessor);
 
 	/**
-	 * The pos-tag sequence processor to be used if the end-module is the pos-tagger.
+	 * The pos-tag sequence processor to be used if the end-module is the
+	 * pos-tagger.
 	 */
 	public PosTagSequenceProcessor getPosTagSequenceProcessor();
-	public void setPosTagSequenceProcessor(
-			PosTagSequenceProcessor posTagSequenceProcessor);
+
+	public void setPosTagSequenceProcessor(PosTagSequenceProcessor posTagSequenceProcessor);
 
 	/**
-	 * The parse configuration processor to be used if the end-module is the parser.
+	 * The parse configuration processor to be used if the end-module is the
+	 * parser.
 	 */
 	public ParseConfigurationProcessor getParseConfigurationProcessor();
-	public void setParseConfigurationProcessor(
-			ParseConfigurationProcessor parseConfigurationProcessor);
-	
+
+	public void setParseConfigurationProcessor(ParseConfigurationProcessor parseConfigurationProcessor);
+
 	/**
-	 * If an error occurs during analysis, should Talismane stop immediately, or try to keep going with the next sentence?
-	 * Default is true (stop immediately).
+	 * If an error occurs during analysis, should Talismane stop immediately, or
+	 * try to keep going with the next sentence? Default is true (stop
+	 * immediately).
 	 */
 	public boolean isStopOnError();
+
 	public void setStopOnError(boolean stopOnError);
-	
+
 	/**
 	 * The reader to be used for input by this instance of Talismane.
 	 */
 	public Reader getReader();
+
 	public void setReader(Reader reader);
-	
+
 	/**
 	 * The writer to be used for output by this instance of Talismane.
 	 */
 	public Writer getWriter();
+
 	public void setWriter(Writer writer);
 }

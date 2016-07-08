@@ -18,8 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.linearsvm;
 
-import gnu.trove.map.TObjectIntMap;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,34 +50,33 @@ import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
 
 import de.bwaldvogel.liblinear.Model;
+import gnu.trove.map.TObjectIntMap;
 
 class LinearSVMModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMModel.class);
-	
+
 	private MachineLearningService machineLearningService;
-	
+
 	private Model model;
 	private TObjectIntMap<String> featureIndexMap = null;
 	private List<String> outcomes = null;
 	private transient Set<String> outcomeNames = null;
-	
+
 	/**
 	 * Default constructor for factory.
 	 */
-	LinearSVMModel() {}
-	
+	LinearSVMModel() {
+	}
+
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	LinearSVMModel(Model model,
-			Map<String,List<String>> descriptors,
-			Map<String,Object> trainingParameters) {
+	LinearSVMModel(Model model, Map<String, List<String>> descriptors) {
 		super();
 		this.model = model;
 		this.setDescriptors(descriptors);
-		this.setTrainingParameters(trainingParameters);
 	}
-	
+
 	@Override
 	public DecisionMaker getDecisionMaker() {
 		LinearSVMDecisionMaker decisionMaker = new LinearSVMDecisionMaker(model, this.featureIndexMap, this.outcomes);
@@ -106,7 +103,7 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
 	public void loadModelFromStream(InputStream inputStream) {
 		// load model or use it directly
@@ -139,8 +136,9 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	}
 
 	/**
-	 * A list of outcomes, where the indexes are the ones used by the binary model.
-	 */	
+	 * A list of outcomes, where the indexes are the ones used by the binary
+	 * model.
+	 */
 	public List<String> getOutcomes() {
 		return outcomes;
 	}
@@ -148,21 +146,21 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	public void setOutcomes(List<String> outcomes) {
 		this.outcomes = outcomes;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
 		try {
 			boolean loaded = true;
 			if (zipEntry.getName().equals("featureIndexMap.obj")) {
-	    		ObjectInputStream in = new ObjectInputStream(inputStream);
+				ObjectInputStream in = new ObjectInputStream(inputStream);
 				featureIndexMap = (TObjectIntMap<String>) in.readObject();
-	    	} else if (zipEntry.getName().equals("outcomes.obj")) {
-	    		ObjectInputStream in = new ObjectInputStream(inputStream);
+			} else if (zipEntry.getName().equals("outcomes.obj")) {
+				ObjectInputStream in = new ObjectInputStream(inputStream);
 				outcomes = (List<String>) in.readObject();
-	    	} else {
-	    		loaded = false;
-	    	}
+			} else {
+				loaded = false;
+			}
 			return loaded;
 		} catch (ClassNotFoundException e) {
 			LogUtils.logError(LOG, e);
@@ -178,15 +176,15 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 		try {
 			zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
 			ObjectOutputStream out = new ObjectOutputStream(zos);
-	
+
 			try {
 				out.writeObject(featureIndexMap);
 			} finally {
 				out.flush();
 			}
-			
+
 			zos.flush();
-			
+
 			zos.putNextEntry(new ZipEntry("outcomes.obj"));
 			out = new ObjectOutputStream(zos);
 			try {
@@ -194,18 +192,18 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 			} finally {
 				out.flush();
 			}
-			
+
 			zos.flush();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 
 	@Override
 	public Set<String> getOutcomeNames() {
-		if (this.outcomeNames==null) {
+		if (this.outcomeNames == null) {
 			this.outcomeNames = new TreeSet<String>(this.outcomes);
 		}
 		return this.outcomeNames;
@@ -215,8 +213,7 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 
@@ -224,5 +221,4 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
 
-	
 }
