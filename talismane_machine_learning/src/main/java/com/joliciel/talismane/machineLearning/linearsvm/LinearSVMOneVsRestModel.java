@@ -248,4 +248,7 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
 
+	@Override
+	public void onLoadComplete() {
+	}
 }

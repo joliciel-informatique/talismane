@@ -90,19 +90,9 @@ public interface ParserService {
 	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(File file, Charset charset);
 
 	/**
-	 * Get a brand new parsing constrainer.
-	 */
-	public ParsingConstrainer getParsingConstrainer();
-
-	/**
 	 * Writes the list of transitions that were actually applied, one at a time.
 	 */
 	public ParseConfigurationProcessor getTransitionLogWriter(Writer csvFileWriter);
-
-	/**
-	 * Get a parsing constrainer from a file where it was previously serialised.
-	 */
-	public ParsingConstrainer getParsingConstrainer(File file);
 
 	public ParseComparisonStrategy getParseComparisonStrategy(ParseComparisonStrategyType type);
 

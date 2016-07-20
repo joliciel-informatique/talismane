@@ -284,9 +284,4 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	 * Loads data from the input stream that is specific to this model type.
 	 */
 	protected abstract boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry);
-
-	@Override
-	public void onLoadComplete() {
-	}
-
 }

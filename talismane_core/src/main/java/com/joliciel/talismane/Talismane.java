@@ -90,10 +90,6 @@ public interface Talismane {
 		 */
 		output,
 		/**
-		 * Load the parsing constraints from a training corpus.
-		 */
-		loadParsingConstraints,
-		/**
 		 * Test pos-tag features on a subset of words in the training set.
 		 */
 		posTagFeatureTester,

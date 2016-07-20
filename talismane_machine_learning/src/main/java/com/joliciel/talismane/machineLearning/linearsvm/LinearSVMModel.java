@@ -221,4 +221,8 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
 
+	@Override
+	public void onLoadComplete() {
+	}
+
 }

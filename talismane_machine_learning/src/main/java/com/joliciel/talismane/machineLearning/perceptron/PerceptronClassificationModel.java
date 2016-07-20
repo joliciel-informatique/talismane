@@ -40,6 +40,7 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.utils.LogUtils;
 
 class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
@@ -61,7 +62,7 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 	@Override
 	public DecisionMaker getDecisionMaker() {
 		if (decisionMaker == null) {
-			decisionMaker = new PerceptronDecisionMaker(params);
+			decisionMaker = new PerceptronDecisionMaker(params, this.getPerceptronScoring());
 			decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		}
 		return decisionMaker;
@@ -134,4 +135,11 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
 
+	public PerceptronScoring getPerceptronScoring() {
+		return (PerceptronScoring) this.getModelAttributes().get("scoring");
+	}
+
+	@Override
+	public void onLoadComplete() {
+	}
 }

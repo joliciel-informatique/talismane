@@ -65,12 +65,12 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LinearSVMModelTrainerImpl.class);
 
-	private int cutoff = 1;
-	private double constraintViolationCost = 1.0;
-	private double epsilon = 0.01;
-	private LinearSVMSolverType solverType = LinearSVMSolverType.L2R_LR;
-	private boolean oneVsRest = false;
-	private boolean balanceEventCounts = false;
+	private int cutoff;
+	private double constraintViolationCost;
+	private double epsilon;
+	private LinearSVMSolverType solverType;
+	private boolean oneVsRest;
+	private boolean balanceEventCounts;
 	private File outDir = null;
 	private List<Map<String, Object>> parameterSets;
 
@@ -507,14 +507,14 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 
 	@Override
 	public void setParameters(Config config) {
-		Config machineLearningConfig = config.getConfig("talismane.machine-learning");
-		Config linearSVMConfig = machineLearningConfig.getConfig("linear-svm");
+		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
+		Config linearSVMConfig = machineLearningConfig.getConfig("linearSVM");
 
 		this.setCutoff(machineLearningConfig.getInt("cutoff"));
-		this.setSolverType(LinearSVMSolverType.valueOf(linearSVMConfig.getString("solver-type")));
+		this.setSolverType(LinearSVMSolverType.valueOf(linearSVMConfig.getString("solverType")));
 		this.setConstraintViolationCost(linearSVMConfig.getDouble("cost"));
 		this.setEpsilon(linearSVMConfig.getDouble("epsilon"));
-		this.setBalanceEventCounts(linearSVMConfig.getBoolean("balance-event-counts"));
+		this.setBalanceEventCounts(linearSVMConfig.getBoolean("balanceEventCounts"));
 
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(machineLearningConfig.getString("algorithm"));
 		this.setOneVsRest(algorithm.equals(MachineLearningAlgorithm.LinearSVMOneVsRest));

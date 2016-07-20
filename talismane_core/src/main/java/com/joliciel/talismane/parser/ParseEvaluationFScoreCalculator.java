@@ -32,6 +32,7 @@ import com.joliciel.talismane.stats.FScoreCalculator;
 
 /**
  * Calculates the f-score during a parse evaluation.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -42,58 +43,62 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 	private boolean hasTokeniser = false;
 	private boolean hasPosTagger = false;
 	private File fscoreFile;
-	private String skipLabel = null;
-	
-	public ParseEvaluationFScoreCalculator() {}
+
+	public ParseEvaluationFScoreCalculator() {
+	}
+
 	public ParseEvaluationFScoreCalculator(File fscoreFile) {
 		this.fscoreFile = fscoreFile;
 	}
+
 	@Override
-	public void onParseEnd(ParseConfiguration realConfiguration,
-			List<ParseConfiguration> guessedConfigurations) {
-		PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();		
+	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) {
+		PosTagSequence posTagSequence = realConfiguration.getPosTagSequence();
 		ParseConfiguration bestGuess = guessedConfigurations.get(0);
 		int mismatchedTokens = 0;
 		for (PosTaggedToken posTaggedToken : posTagSequence) {
 			if (!posTaggedToken.getTag().equals(PosTag.ROOT_POS_TAG)) {
 				DependencyArc realArc = realConfiguration.getGoverningDependency(posTaggedToken);
-				
+
 				DependencyArc guessedArc = null;
 
 				boolean foundToken = false;
 				for (PosTaggedToken guessedToken : bestGuess.getPosTagSequence()) {
-					if (guessedToken.getToken().getStartIndex()==posTaggedToken.getToken().getStartIndex()) {
-						if (guessedToken.getToken().isEmpty()&&!posTaggedToken.getToken().isEmpty())
+					if (guessedToken.getToken().getStartIndex() == posTaggedToken.getToken().getStartIndex()) {
+						if (guessedToken.getToken().isEmpty() && !posTaggedToken.getToken().isEmpty())
 							continue;
-						if (!guessedToken.getToken().isEmpty()&&posTaggedToken.getToken().isEmpty())
+						if (!guessedToken.getToken().isEmpty() && posTaggedToken.getToken().isEmpty())
 							continue;
 						foundToken = true;
 						guessedArc = bestGuess.getGoverningDependency(guessedToken);
 						break;
 					}
 				}
-				
+
 				if (!foundToken) {
 					LOG.info("Mismatched token :" + posTaggedToken.getToken().getText() + ", index " + posTaggedToken.getToken().getIndex());
-					mismatchedTokens+=1;
+					mismatchedTokens += 1;
 				}
-				
-				String realLabel = realArc==null ? "noHead" : labeledEvaluation ? realArc.getLabel() : "head";
-				String guessedLabel = guessedArc==null ? "noHead" : labeledEvaluation ? guessedArc.getLabel() : "head";
-				
-				if (realLabel==null||realLabel.length()==0) realLabel = "noLabel";
-				if (guessedLabel==null||guessedLabel.length()==0) guessedLabel = "noLabel";
-				
-				// anything attached "by default" to the root, without a label, should be considered a "no head" rather than "no label"
-				if (realArc!=null && realArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && realLabel.equals("noLabel"))
+
+				String realLabel = realArc == null ? "noHead" : labeledEvaluation ? realArc.getLabel() : "head";
+				String guessedLabel = guessedArc == null ? "noHead" : labeledEvaluation ? guessedArc.getLabel() : "head";
+
+				if (realLabel == null || realLabel.length() == 0)
+					realLabel = "noLabel";
+				if (guessedLabel == null || guessedLabel.length() == 0)
+					guessedLabel = "noLabel";
+
+				// anything attached "by default" to the root, without a label,
+				// should be considered a "no head" rather than "no label"
+				if (realArc != null && realArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && realLabel.equals("noLabel"))
 					realLabel = "noHead";
-				if (guessedArc!=null && guessedArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && guessedLabel.equals("noLabel"))
+				if (guessedArc != null && guessedArc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && guessedLabel.equals("noLabel"))
 					guessedLabel = "noHead";
-				
-				if (realArc==null || guessedArc==null) {
+
+				if (realArc == null || guessedArc == null) {
 					fscoreCalculator.increment(realLabel, guessedLabel);
 				} else {
-					boolean sameHead = realArc.getHead().getToken().getStartIndex()==guessedArc.getHead().getToken().getStartIndex();
+					boolean sameHead = realArc.getHead().getToken().getStartIndex() == guessedArc.getHead().getToken().getStartIndex();
 
 					if (sameHead) {
 						fscoreCalculator.increment(realLabel, guessedLabel);
@@ -104,11 +109,11 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 					} else {
 						fscoreCalculator.increment(realLabel, "wrongHeadWrongLabel");
 					}
-					
+
 				} // have one of the arcs
 			} // is root tag?
 		} // next pos-tagged token
-		
+
 		if ((double) mismatchedTokens / (double) posTagSequence.size() > 0.5) {
 			// more than half of the tokens mismatched?
 			throw new TalismaneException("Too many mismatched tokens in sentence: " + posTagSequence.getTokenSequence().getSentence().getText());
@@ -129,9 +134,9 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 
 	@Override
 	public void onEvaluationComplete() {
-		if (fscoreFile!=null) {
+		if (fscoreFile != null) {
 			FScoreCalculator<String> fScoreCalculator = this.getFscoreCalculator();
-			
+
 			double fscore = fScoreCalculator.getTotalFScore();
 			LOG.debug("F-score: " + fscore);
 			fScoreCalculator.writeScoresToCSVFile(fscoreFile);
@@ -153,16 +158,8 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 	public void setHasPosTagger(boolean hasPosTagger) {
 		this.hasPosTagger = hasPosTagger;
 	}
-	
-	public String getSkipLabel() {
-		return skipLabel;
-	}
-	public void setSkipLabel(String skipLabel) {
-		this.skipLabel = skipLabel;
-	}
-	
+
 	@Override
-	public void onParseStart(ParseConfiguration realConfiguration,
-			List<PosTagSequence> posTagSequences) {
+	public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences) {
 	}
 }
