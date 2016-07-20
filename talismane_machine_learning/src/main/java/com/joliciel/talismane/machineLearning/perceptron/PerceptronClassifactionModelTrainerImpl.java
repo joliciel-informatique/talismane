@@ -41,14 +41,16 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.utils.JolicielException;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
 class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificationModelTrainer {
 	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassifactionModelTrainerImpl.class);
-	private int iterations = 100;
-	private int cutoff = 0;
-	private double tolerance = 1e-5;
+	private int iterations;
+	private int cutoff;
+	private double tolerance;
+	private PerceptronScoring scoring;
 
 	private double[][] totalFeatureWeights;
 	private PerceptronModelParameters params;
@@ -59,7 +61,6 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	private PerceptronModelTrainerObserver observer;
 	private List<Integer> observationPoints;
 	private boolean averageAtIntervals = false;
-	private Map<String, Object> trainingParameters = new HashMap<String, Object>();
 
 	private MachineLearningService machineLearningService;
 
@@ -109,7 +110,7 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 				}
 				PerceptronModelParameters cutoffParams = new PerceptronModelParameters();
 				int[] newIndexes = cutoffParams.initialise(params, cutoff);
-				decisionMaker = new PerceptronDecisionMaker(cutoffParams);
+				decisionMaker = new PerceptronDecisionMaker(cutoffParams, this.scoring);
 				decisionMaker.setMachineLearningService(this.getMachineLearningService());
 				try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(eventFile), "UTF-8")))) {
 					eventFile = File.createTempFile("eventsCutoff", "txt");
@@ -364,7 +365,7 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors,
 			PerceptronModelTrainerObserver observer, List<Integer> observationPoints) {
 		params = new PerceptronModelParameters();
-		decisionMaker = new PerceptronDecisionMaker(params);
+		decisionMaker = new PerceptronDecisionMaker(params, this.getScoring());
 		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		this.descriptors = descriptors;
 		this.observer = observer;
@@ -389,7 +390,7 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	@Override
 	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors) {
 		params = new PerceptronModelParameters();
-		decisionMaker = new PerceptronDecisionMaker(params);
+		decisionMaker = new PerceptronDecisionMaker(params, this.getScoring());
 		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		this.descriptors = descriptors;
 		this.corpusEventStream = corpusEventStream;
@@ -404,12 +405,13 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	}
 
 	ClassificationModel getModel(PerceptronModelParameters params, int iterations) {
-		PerceptronClassificationModel model = new PerceptronClassificationModel(params, descriptors, this.trainingParameters);
+		PerceptronClassificationModel model = new PerceptronClassificationModel(params, descriptors);
 		model.setMachineLearningService(machineLearningService);
-		model.addModelAttribute("cutoff", "" + this.getCutoff());
-		model.addModelAttribute("iterations", "" + iterations);
-		model.addModelAttribute("tolerance", "" + this.getTolerance());
-		model.addModelAttribute("averageAtIntervals", "" + this.isAverageAtIntervals());
+		model.addModelAttribute("cutoff", this.getCutoff());
+		model.addModelAttribute("iterations", this.getIterations());
+		model.addModelAttribute("tolerance", this.getTolerance());
+		model.addModelAttribute("averageAtIntervals", this.isAverageAtIntervals());
+		model.addModelAttribute("scoring", this.getScoring());
 
 		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
 
@@ -417,33 +419,15 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	}
 
 	@Override
-	public void setParameters(Map<String, Object> parameters) {
-		if (parameters != null) {
-			this.trainingParameters = parameters;
-			for (String parameter : parameters.keySet()) {
-				PerceptronModelParameter modelParameter = PerceptronModelParameter.valueOf(parameter);
-				Object value = parameters.get(parameter);
-				if (!modelParameter.getParameterType().isAssignableFrom(value.getClass())) {
-					throw new JolicielException("Parameter of wrong type: " + parameter + ". Expected: " + modelParameter.getParameterType().getSimpleName());
-				}
-				switch (modelParameter) {
-				case Iterations:
-					this.setIterations((Integer) value);
-					break;
-				case Cutoff:
-					this.setCutoff((Integer) value);
-					break;
-				case Tolerance:
-					this.setTolerance((Double) value);
-					break;
-				case AverageAtIntervals:
-					this.setAverageAtIntervals((Boolean) value);
-					break;
-				default:
-					throw new JolicielException("Unknown parameter type: " + modelParameter);
-				}
-			}
-		}
+	public void setParameters(Config config) {
+		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
+		Config perceptronConfig = machineLearningConfig.getConfig("perceptron");
+
+		this.setCutoff(machineLearningConfig.getInt("cutoff"));
+		this.setIterations(perceptronConfig.getInt("iterations"));
+		this.setTolerance(perceptronConfig.getDouble("tolerance"));
+		this.setAverageAtIntervals(perceptronConfig.getBoolean("averageAtIntervals"));
+		this.setScoring(PerceptronScoring.valueOf(perceptronConfig.getString("scoring")));
 	}
 
 	public MachineLearningService getMachineLearningService() {
@@ -452,6 +436,14 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 
 	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
+	}
+
+	public PerceptronScoring getScoring() {
+		return scoring;
+	}
+
+	public void setScoring(PerceptronScoring scoring) {
+		this.scoring = scoring;
 	}
 
 }

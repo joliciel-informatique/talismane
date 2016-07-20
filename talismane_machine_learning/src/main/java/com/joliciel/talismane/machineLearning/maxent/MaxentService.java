@@ -22,6 +22,7 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 
 /**
  * A service for retrieving implementations of the maxent package.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -30,19 +31,9 @@ public interface MaxentService {
 	 * Returns a maxent model trainer.
 	 */
 	public MaxentModelTrainer getMaxentModelTrainer();
-	
+
 	/**
 	 * Get an "empty" maxent model.
 	 */
 	public ClassificationModel getMaxentModel();
-	
-	/**
-	 * Returns a perceptron model trainer.
-	 */
-	public OpenNLPPerceptronModelTrainer getPerceptronModelTrainer();
-	
-	/**
-	 * Get an "empty" perceptron model.
-	 */
-	public ClassificationModel getPerceptronModel();
 }

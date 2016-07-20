@@ -38,28 +38,12 @@ class MaxentServiceImpl implements MaxentService {
 		return maxentModel;
 	}
 
-	@Override
-	public OpenNLPPerceptronModelTrainer getPerceptronModelTrainer() {
-		OpenNLPPerceptronModelTrainerImpl trainer = new OpenNLPPerceptronModelTrainerImpl();
-		trainer.setMachineLearningService(this.getMachineLearningService());
-		return trainer;
-	}
-
-	@Override
-	public ClassificationModel getPerceptronModel() {
-		OpenNLPPerceptronModel model = new OpenNLPPerceptronModel();
-		model.setMachineLearningService(this.getMachineLearningService());
-		return model;
-	}
-
 	public MachineLearningService getMachineLearningService() {
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
-
 
 }

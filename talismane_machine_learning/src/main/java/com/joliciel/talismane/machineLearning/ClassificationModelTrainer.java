@@ -21,35 +21,50 @@ package com.joliciel.talismane.machineLearning;
 import java.util.List;
 import java.util.Map;
 
+import com.typesafe.config.Config;
+
 /**
  * Trains a machine learning classification model for a given CorpusEventStream.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface ClassificationModelTrainer {
 	/**
-	 * Return the ClassificationModel trained using the CorpusEventStream provided.
-	 * @param corpusEventStream the event stream containing the events to be used for training
-	 * @param featureDescriptors the feature descriptors required to apply this model to new data.
+	 * Return the ClassificationModel trained using the CorpusEventStream
+	 * provided.
+	 * 
+	 * @param corpusEventStream
+	 *            the event stream containing the events to be used for training
+	 * @param featureDescriptors
+	 *            the feature descriptors required to apply this model to new
+	 *            data.
 	 */
 	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors);
 
 	/**
-	 * Return the ClassificationModel trained using the CorpusEventStream provided.
-	 * @param corpusEventStream the event stream containing the events to be used for training
-	 * @param descriptors all of the descriptors required to perform analysis using this model (e.g. feature descriptors, etc.)
+	 * Return the ClassificationModel trained using the CorpusEventStream
+	 * provided.
+	 * 
+	 * @param corpusEventStream
+	 *            the event stream containing the events to be used for training
+	 * @param descriptors
+	 *            all of the descriptors required to perform analysis using this
+	 *            model (e.g. feature descriptors, etc.)
 	 */
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String,List<String>> descriptors);
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors);
 
 	/**
-	 * Statistical cutoff for feature inclusion: features must appear at least this many times to be included in the model.
-	 * Note that for numeric features, any value &gt; 0 counts as 1 occurrence for cutoff purposes.
+	 * Statistical cutoff for feature inclusion: features must appear at least
+	 * this many times to be included in the model. Note that for numeric
+	 * features, any value &gt; 0 counts as 1 occurrence for cutoff purposes.
 	 */
 	public int getCutoff();
+
 	public void setCutoff(int cutoff);
-	
+
 	/**
 	 * Set parameters for this trainer type.
 	 */
-	public void setParameters(Map<String,Object> parameters);
+	public void setParameters(Config config);
 }

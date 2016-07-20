@@ -19,26 +19,24 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentService;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
+import com.typesafe.config.Config;
 
 class MachineLearningServiceImpl implements MachineLearningService {
 	MaxentService maxentService;
 	LinearSVMService linearSVMService;
 	PerceptronService perceptronService;
-	
+
 	@Override
-	public ClassificationEvent getClassificationEvent(List<FeatureResult<?>> featureResults,
-			String classification) {
+	public ClassificationEvent getClassificationEvent(List<FeatureResult<?>> featureResults, String classification) {
 		ClassificationEventImpl corpusEvent = new ClassificationEventImpl(featureResults, classification);
 		return corpusEvent;
 	}
-
 
 	@Override
 	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) {
@@ -50,32 +48,18 @@ class MachineLearningServiceImpl implements MachineLearningService {
 	}
 
 	@Override
-	public ClassificationModel getClassificationModel(
-			ZipInputStream zis) {
+	public ClassificationModel getClassificationModel(ZipInputStream zis) {
 		ClassificationModel model = (ClassificationModel) this.getMachineLearningModel(zis);
 		return model;
 	}
 
 	@Override
-	public ClassificationModelTrainer getClassificationModelTrainer(
-			MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
+	public ClassificationModelTrainer getClassificationModelTrainer(Config config) {
 		ModelTrainerFactory modelTrainerFactory = new ModelTrainerFactory();
 		modelTrainerFactory.setMaxentService(this.getMaxentService());
 		modelTrainerFactory.setLinearSVMService(this.getLinearSVMService());
 		modelTrainerFactory.setPerceptronService(this.getPerceptronService());
-		ClassificationModelTrainer modelTrainer = modelTrainerFactory.makeClassificationModelTrainer(algorithm, parameters);
-		return modelTrainer;
-	}
-
-
-	@Override
-	public <T> RankingModelTrainer<T> getRankingModelTrainer(
-			MachineLearningAlgorithm algorithm, Map<String, Object> parameters) {
-		ModelTrainerFactory modelTrainerFactory = new ModelTrainerFactory();
-		modelTrainerFactory.setMaxentService(this.getMaxentService());
-		modelTrainerFactory.setLinearSVMService(this.getLinearSVMService());
-		modelTrainerFactory.setPerceptronService(this.getPerceptronService());
-		RankingModelTrainer<T> modelTrainer = modelTrainerFactory.makeRankingModelTrainer(algorithm, parameters);
+		ClassificationModelTrainer modelTrainer = modelTrainerFactory.makeClassificationModelTrainer(config);
 		return modelTrainer;
 	}
 
@@ -110,14 +94,7 @@ class MachineLearningServiceImpl implements MachineLearningService {
 	}
 
 	@Override
-	public <T> RankingEvent<T> getRankingEvent(T input, RankingSolution solution) {
-		RankingEventImpl<T> event = new RankingEventImpl<T>(input, solution);
-		return event;
-	}
-
-	@Override
-	public Decision createDecision(String code, double score,
-			double probability) {
+	public Decision createDecision(String code, double score, double probability) {
 		DecisionImpl decision = new DecisionImpl(code, probability);
 		decision.setScore(score);
 		return decision;

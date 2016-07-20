@@ -18,8 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.linearsvm;
 
-import gnu.trove.map.TObjectIntMap;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,37 +52,36 @@ import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
 
 import de.bwaldvogel.liblinear.Model;
+import gnu.trove.map.TObjectIntMap;
 
 class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMOneVsRestModel.class);
 
 	private MachineLearningService machineLearningService;
-	
+
 	private List<Model> models = new ArrayList<Model>();
 	private TObjectIntMap<String> featureIndexMap = null;
 	private List<String> outcomes = null;
 	private transient Set<String> outcomeNames = null;
-	
+
 	/**
 	 * Default constructor for factory.
 	 */
-	LinearSVMOneVsRestModel() {}
-	
+	LinearSVMOneVsRestModel() {
+	}
+
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	LinearSVMOneVsRestModel(
-			Map<String,List<String>> descriptors,
-			Map<String,Object> trainingParameters) {
+	LinearSVMOneVsRestModel(Map<String, List<String>> descriptors) {
 		super();
 		this.setDescriptors(descriptors);
-		this.setTrainingParameters(trainingParameters);
 	}
-	
+
 	public void addModel(Model model) {
 		this.models.add(model);
 	}
-	
+
 	@Override
 	public DecisionMaker getDecisionMaker() {
 		LinearSVMOneVsRestDecisionMaker decisionMaker = new LinearSVMOneVsRestDecisionMaker(models, this.featureIndexMap, this.outcomes);
@@ -122,7 +119,7 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
 	public void loadModelFromStream(InputStream inputStream) {
 		// load model or use it directly
@@ -130,7 +127,7 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 			models = new ArrayList<Model>();
 			ZipInputStream zis = new ZipInputStream(inputStream);
 			ZipEntry zipEntry = null;
-			while ((zipEntry = zis.getNextEntry())!=null) {
+			while ((zipEntry = zis.getNextEntry()) != null) {
 				LOG.debug("Reading " + zipEntry.getName());
 				Reader reader = new InputStreamReader(zis, "UTF-8");
 				Model model = Model.load(reader);
@@ -162,8 +159,9 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 	}
 
 	/**
-	 * A list of outcomes, where the indexes are the ones used by the binary model.
-	 */	
+	 * A list of outcomes, where the indexes are the ones used by the binary
+	 * model.
+	 */
 	public List<String> getOutcomes() {
 		return outcomes;
 	}
@@ -171,21 +169,21 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 	public void setOutcomes(List<String> outcomes) {
 		this.outcomes = outcomes;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
 		try {
 			boolean loaded = true;
 			if (zipEntry.getName().equals("featureIndexMap.obj")) {
-	    		ObjectInputStream in = new ObjectInputStream(inputStream);
+				ObjectInputStream in = new ObjectInputStream(inputStream);
 				featureIndexMap = (TObjectIntMap<String>) in.readObject();
-	    	} else if (zipEntry.getName().equals("outcomes.obj")) {
-	    		ObjectInputStream in = new ObjectInputStream(inputStream);
+			} else if (zipEntry.getName().equals("outcomes.obj")) {
+				ObjectInputStream in = new ObjectInputStream(inputStream);
 				outcomes = (List<String>) in.readObject();
-	    	} else {
-	    		loaded = false;
-	    	}
+			} else {
+				loaded = false;
+			}
 			return loaded;
 		} catch (ClassNotFoundException e) {
 			LogUtils.logError(LOG, e);
@@ -201,15 +199,15 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 		try {
 			zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
 			ObjectOutputStream out = new ObjectOutputStream(zos);
-	
+
 			try {
 				out.writeObject(featureIndexMap);
 			} finally {
 				out.flush();
 			}
-			
+
 			zos.flush();
-			
+
 			zos.putNextEntry(new ZipEntry("outcomes.obj"));
 			out = new ObjectOutputStream(zos);
 			try {
@@ -217,18 +215,18 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 			} finally {
 				out.flush();
 			}
-			
+
 			zos.flush();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 
 	@Override
 	public Set<String> getOutcomeNames() {
-		if (this.outcomeNames==null) {
+		if (this.outcomeNames == null) {
 			this.outcomeNames = new TreeSet<String>(this.outcomes);
 		}
 		return this.outcomeNames;
@@ -242,14 +240,15 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 
 	@Override
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
-	
-	
+
+	@Override
+	public void onLoadComplete() {
+	}
 }
