@@ -40,6 +40,7 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.utils.LogUtils;
 
 class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
@@ -47,24 +48,21 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker decisionMaker;
 	private transient Set<String> outcomeNames = null;
-	
+
 	private MachineLearningService machineLearningService;
 
-	
-	PerceptronClassificationModel() { }
-	
-	public PerceptronClassificationModel(PerceptronModelParameters params,
-			Map<String, List<String>> descriptors,
-			Map<String,Object> trainingParameters) {
+	PerceptronClassificationModel() {
+	}
+
+	public PerceptronClassificationModel(PerceptronModelParameters params, Map<String, List<String>> descriptors) {
 		this.params = params;
 		this.setDescriptors(descriptors);
-		this.setTrainingParameters(trainingParameters);
 	}
 
 	@Override
 	public DecisionMaker getDecisionMaker() {
-		if (decisionMaker==null) {
-			decisionMaker = new PerceptronDecisionMaker(params);
+		if (decisionMaker == null) {
+			decisionMaker = new PerceptronDecisionMaker(params, this.getPerceptronScoring());
 			decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		}
 		return decisionMaker;
@@ -92,7 +90,7 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 
 	@Override
@@ -119,7 +117,7 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 
 	@Override
 	public Set<String> getOutcomeNames() {
-		if (this.outcomeNames==null) {
+		if (this.outcomeNames == null) {
 			this.outcomeNames = new TreeSet<String>(this.params.getOutcomes());
 		}
 		return this.outcomeNames;
@@ -129,14 +127,19 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 
 	@Override
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
-	
-	
+
+	public PerceptronScoring getPerceptronScoring() {
+		return (PerceptronScoring) this.getModelAttributes().get("scoring");
+	}
+
+	@Override
+	public void onLoadComplete() {
+	}
 }

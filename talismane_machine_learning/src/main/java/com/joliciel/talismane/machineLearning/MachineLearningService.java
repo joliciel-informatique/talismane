@@ -19,68 +19,63 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.typesafe.config.Config;
 
 /**
  * A service for retrieving implementations of the machineLearning package.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface MachineLearningService {
 	/**
-	 * Get a CorpusEvent corresponding to the featureResults and classification provided.
+	 * Get a CorpusEvent corresponding to the featureResults and classification
+	 * provided.
 	 */
-	public ClassificationEvent getClassificationEvent(List<FeatureResult<?>> featureResults,
-			String classification);
-	
-	/**
-	 * Get a RankingEvent corresponding to a particular input and solution.
-	 */
-	public<T> RankingEvent<T> getRankingEvent(T input, RankingSolution solution);
-	
+	public ClassificationEvent getClassificationEvent(List<FeatureResult<?>> featureResults, String classification);
+
 	/**
 	 * Get the machine learning model stored in a given ZipInputStream.
-	 * @param zis the zip input stream
+	 * 
+	 * @param zis
+	 *            the zip input stream
 	 */
 	public MachineLearningModel getMachineLearningModel(ZipInputStream zis);
 
 	/**
 	 * Get the machine learning model stored in a given ZipInputStream.
-	 * @param zis the zip input stream
+	 * 
+	 * @param zis
+	 *            the zip input stream
 	 */
 	public ClassificationModel getClassificationModel(ZipInputStream zis);
-	
+
 	/**
-	 * Get a classification model trainer corresponding to a given outcome type and a given algorithm.
+	 * Get a classification model trainer corresponding to a given outcome type
+	 * and a given algorithm.
 	 */
-	public ClassificationModelTrainer getClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
-	
-	/**
-	 * Get a ranking model trainer corresponding to a given input type and a given algorithm.
-	 */
-	public<T> RankingModelTrainer<T> getRankingModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters);
+	public ClassificationModelTrainer getClassificationModelTrainer(Config config);
 
 	/**
 	 * Get a default implementation of the ExternalResourceFinder.
 	 */
 	public ExternalResourceFinder getExternalResourceFinder();
-	
+
 	/**
-	 * Create the decision corresponding to a particular name.
-	 * This decision will be considered statistical.
+	 * Create the decision corresponding to a particular name. This decision
+	 * will be considered statistical.
 	 */
 	public Decision createDecision(String code, double probability);
-	
+
 	/**
-	 * Create the decision corresponding to a particular name.
-	 * This decision will be considered statistical.
+	 * Create the decision corresponding to a particular name. This decision
+	 * will be considered statistical.
 	 */
 	public Decision createDecision(String code, double score, double probability);
 
-	
 	/**
 	 * Create a default decision with a probability of 1.0, for a given outcome.
 	 * This decision will not be considered statistical.

@@ -18,20 +18,18 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
-import java.util.Map;
-
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
 import com.joliciel.talismane.machineLearning.maxent.MaxentService;
-import com.joliciel.talismane.machineLearning.maxent.OpenNLPPerceptronModelTrainer;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronRankingModelTrainer;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
 import com.joliciel.talismane.utils.JolicielException;
+import com.typesafe.config.Config;
 
 /**
  * A class for constructing model trainers implementing ModelTrainer.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -41,9 +39,11 @@ class ModelTrainerFactory {
 	LinearSVMService linearSVMService;
 
 	/**
-	 * Get a classification model trainer corresponding to a given outcome type and a given algorithm.
+	 * Get a classification model trainer corresponding to a given outcome type
+	 * and a given algorithm.
 	 */
-	public ClassificationModelTrainer makeClassificationModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
+	public ClassificationModelTrainer makeClassificationModelTrainer(Config config) {
+		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("talismane.machineLearning.algorithm"));
 		ClassificationModelTrainer modelTrainer = null;
 		switch (algorithm) {
 		case MaxEnt:
@@ -59,33 +59,11 @@ class ModelTrainerFactory {
 			PerceptronClassificationModelTrainer perceptronModelTrainer = perceptronService.getPerceptronModelTrainer();
 			modelTrainer = perceptronModelTrainer;
 			break;
-		case OpenNLPPerceptron:
-			OpenNLPPerceptronModelTrainer openNLPPerceptronModelTrainer = maxentService.getPerceptronModelTrainer();
-			modelTrainer = openNLPPerceptronModelTrainer;
-			break;
 		default:
 			throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
 		}
 
-		modelTrainer.setParameters(parameters);
-		return modelTrainer;
-	}
-	
-	/**
-	 * Get a ranking model trainer corresponding to a given input type and a given algorithm.
-	 */
-	public<T> RankingModelTrainer<T> makeRankingModelTrainer(MachineLearningAlgorithm algorithm, Map<String,Object> parameters) {
-		RankingModelTrainer<T> modelTrainer = null;
-		switch (algorithm) {
-		case PerceptronRanking:
-			PerceptronRankingModelTrainer<T> perceptronModelTrainer = perceptronService.getPerceptronRankingModelTrainer();
-			modelTrainer = perceptronModelTrainer;
-			break;
-		default:
-			throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
-		}
-
-		modelTrainer.setParameters(parameters);
+		modelTrainer.setParameters(config);
 		return modelTrainer;
 	}
 

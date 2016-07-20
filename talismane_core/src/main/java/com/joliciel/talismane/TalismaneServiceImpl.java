@@ -36,6 +36,7 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
+import com.typesafe.config.Config;
 
 class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokeniserService tokeniserService;
@@ -52,9 +53,8 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokeniserPatternService tokeniserPatternService;
 	private LanguageDetectorService languageDetectorService;
 	private LexiconService lexiconService;
-	
+
 	private TalismaneSession talismaneSession;
-	
 
 	@Override
 	public Talismane getTalismane(TalismaneConfig config) {
@@ -113,8 +113,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 
@@ -122,14 +121,13 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		return sentenceDetectorService;
 	}
 
-	public void setSentenceDetectorService(
-			SentenceDetectorService sentenceDetectorService) {
+	public void setSentenceDetectorService(SentenceDetectorService sentenceDetectorService) {
 		this.sentenceDetectorService = sentenceDetectorService;
 	}
 
-
+	@Override
 	public TalismaneSession getTalismaneSession() {
-		if (talismaneSession==null) {
+		if (talismaneSession == null) {
 			TalismaneSessionImpl talismaneSession = new TalismaneSessionImpl();
 			talismaneSession.setLexiconService(lexiconService);
 			this.talismaneSession = talismaneSession;
@@ -138,49 +136,65 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
-			LanguageImplementation implementation) {
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args, LanguageImplementation implementation) {
 		return this.getTalismaneConfig(args, null, implementation);
 	}
-	
+
 	@Override
 	public TalismaneConfig getTalismaneConfig(LanguageImplementation implementation) {
-		Map<String,String> args = new HashMap<String, String>();
+		Map<String, String> args = new HashMap<String, String>();
 		return this.getTalismaneConfig(args, null, implementation);
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir,
-			LanguageImplementation implementation) {
-		return this.getTalismaneConfig(args, baseDir, implementation, null);
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir, LanguageImplementation implementation) {
+		return this.getTalismaneConfig(null, args, baseDir, implementation, null);
 	}
-	
+
 	@Override
 	public TalismaneConfig getTalismaneConfig(String sessionId) {
-		Map<String,String> args = new HashMap<String, String>();
+		Map<String, String> args = new HashMap<String, String>();
 		return this.getTalismaneConfig(args, null, sessionId);
 	}
-	
+
 	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args, String sessionId) {
+		return this.getTalismaneConfig(args, null, sessionId);
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir, String sessionId) {
+		return this.getTalismaneConfig(null, args, baseDir, null, sessionId);
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(Config config, LanguageImplementation implementation) {
+		return this.getTalismaneConfig(config, null, implementation);
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(Config config, String sessionId) {
+		return this.getTalismaneConfig(config, null, sessionId);
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(Config config, File baseDir, LanguageImplementation implementation) {
+		return this.getTalismaneConfig(config, null, baseDir, implementation, null);
+	}
+
+	@Override
+	public TalismaneConfig getTalismaneConfig(Config config, File baseDir, String sessionId) {
+		return this.getTalismaneConfig(config, null, baseDir, null, sessionId);
+	}
+
+	private TalismaneConfig getTalismaneConfig(Config myConfig, Map<String, String> args, File baseDir, LanguageImplementation implementation,
 			String sessionId) {
-		return this.getTalismaneConfig(args, null, sessionId);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args,
-			File baseDir, String sessionId) {
-		return this.getTalismaneConfig(args, baseDir, null, sessionId);
-	}
-
-	private TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir,
-			LanguageImplementation implementation, String sessionId) {
 		TalismaneConfigImpl config = null;
-		if (implementation!=null)
+		if (implementation != null)
 			config = new TalismaneConfigImpl(implementation);
 		else
 			config = new TalismaneConfigImpl(sessionId);
-		
+
 		config.setTalismaneService(this);
 		config.setFilterService(filterService);
 		config.setMachineLearningService(machineLearningService);
@@ -196,9 +210,13 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setTokeniserService(tokeniserService);
 		config.setLanguageDetectorService(languageDetectorService);
 		config.setBaseDir(baseDir);
-		config.loadParameters(args);
+
+		if (args != null)
+			config.loadParameters(args);
+		else
+			config.loadParameters(myConfig);
 		return config;
-	}	
+	}
 
 	public ParserFeatureService getParserFeatureService() {
 		return parserFeatureService;
@@ -212,8 +230,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		return posTaggerFeatureService;
 	}
 
-	public void setPosTaggerFeatureService(
-			PosTaggerFeatureService posTaggerFeatureService) {
+	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
 		this.posTaggerFeatureService = posTaggerFeatureService;
 	}
 
@@ -221,8 +238,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		return sentenceDetectorFeatureService;
 	}
 
-	public void setSentenceDetectorFeatureService(
-			SentenceDetectorFeatureService sentenceDetectorFeatureService) {
+	public void setSentenceDetectorFeatureService(SentenceDetectorFeatureService sentenceDetectorFeatureService) {
 		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
 	}
 
@@ -246,8 +262,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		return tokeniserPatternService;
 	}
 
-	public void setTokeniserPatternService(
-			TokeniserPatternService tokeniserPatternService) {
+	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
 
@@ -255,8 +270,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		return languageDetectorService;
 	}
 
-	public void setLanguageDetectorService(
-			LanguageDetectorService languageDetectorService) {
+	public void setLanguageDetectorService(LanguageDetectorService languageDetectorService) {
 		this.languageDetectorService = languageDetectorService;
 	}
 
@@ -268,5 +282,4 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		this.lexiconService = lexiconService;
 	}
 
-	
 }

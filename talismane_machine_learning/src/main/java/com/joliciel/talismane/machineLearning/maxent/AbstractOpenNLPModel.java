@@ -37,38 +37,38 @@ import com.joliciel.talismane.machineLearning.MachineLearningService;
 import opennlp.model.MaxentModel;
 
 /**
- * A wrapper for a OpenNLP model and the features used to train it -
- * useful since the same features need to be used when evaluating on the basis on this model.
- * Also contains the attributes describing how the model was trained, for reference purposes.
+ * A wrapper for a OpenNLP model and the features used to train it - useful
+ * since the same features need to be used when evaluating on the basis on this
+ * model. Also contains the attributes describing how the model was trained, for
+ * reference purposes.
  * 
- * @param T the decision type to be made by this model
+ * @param T
+ *            the decision type to be made by this model
  * @author Assaf Urieli
  *
  */
 abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel implements OpenNLPModel {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractOpenNLPModel.class);
-	
+
 	private MachineLearningService machineLearningService;
 
 	private MaxentModel model;
 	private transient Set<String> outcomeNames = null;
-	
+
 	/**
 	 * Default constructor for factory.
 	 */
-	AbstractOpenNLPModel() {}
-	
+	AbstractOpenNLPModel() {
+	}
+
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	AbstractOpenNLPModel(MaxentModel model,
-			Map<String,List<String>> descriptors,
-			Map<String,Object> trainingParameters) {
+	AbstractOpenNLPModel(MaxentModel model, Map<String, List<String>> descriptors) {
 		super();
 		this.model = model;
 		this.setDescriptors(descriptors);
-		this.setTrainingParameters(trainingParameters);
 	}
 
 	@Override
@@ -77,11 +77,12 @@ abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel impleme
 		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		return decisionMaker;
 	}
-	
+
 	@Override
 	public MaxentModel getModel() {
 		return model;
 	}
+
 	public void setModel(MaxentModel model) {
 		this.model = model;
 	}
@@ -98,9 +99,9 @@ abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel impleme
 
 	@Override
 	public Set<String> getOutcomeNames() {
-		if (outcomeNames==null) {
+		if (outcomeNames == null) {
 			outcomeNames = new TreeSet<String>();
-			for (int i=0; i<this.model.getNumOutcomes(); i++) {
+			for (int i = 0; i < this.model.getNumOutcomes(); i++) {
 				outcomeNames.add(this.model.getOutcome(i));
 			}
 		}
@@ -111,14 +112,12 @@ abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel impleme
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 
 	@Override
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
-	
-	
+
 }
