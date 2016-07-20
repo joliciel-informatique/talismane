@@ -219,20 +219,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	}
 
 	@Override
-	public ParsingConstrainer getParsingConstrainer() {
-		ParsingConstrainerImpl constrainer = new ParsingConstrainerImpl();
-		constrainer.setParseServiceInternal(this);
-		constrainer.setTalismaneService(this.getTalismaneService());
-		return constrainer;
-	}
-
-	@Override
-	public ParsingConstrainer getParsingConstrainer(File file) {
-		ParsingConstrainer constrainer = ParsingConstrainerImpl.loadFromFile(file);
-		return constrainer;
-	}
-
-	@Override
 	public ParseComparisonStrategy getParseComparisonStrategy(ParseComparisonStrategyType type) {
 		switch (type) {
 		case transitionCount:

@@ -22,14 +22,12 @@ import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserService;
-import com.joliciel.talismane.parser.ParsingConstrainer;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
@@ -57,6 +55,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
+import com.typesafe.config.Config;
 
 /**
  * An abstract base class for loading, storing and translating configuration
@@ -82,6 +81,10 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.Pattern
  *
  */
 public interface TalismaneConfig {
+	/**
+	 * Get the configuration object used to build this TalismaneConfig.
+	 */
+	public Config getConfig();
 
 	/**
 	 * The actual command to run by Talismane.
@@ -483,17 +486,11 @@ public interface TalismaneConfig {
 
 	public Talismane getTalismane();
 
-	public Map<String, Object> getTrainParameters();
-
 	public Map<String, List<String>> getDescriptors();
-
-	public MachineLearningAlgorithm getAlgorithm();
 
 	public ExternalResourceFinder getExternalResourceFinder();
 
 	public List<Integer> getPerceptronObservationPoints();
-
-	public ParsingConstrainer getParsingConstrainer();
 
 	public String getPosTaggerModelFilePath();
 

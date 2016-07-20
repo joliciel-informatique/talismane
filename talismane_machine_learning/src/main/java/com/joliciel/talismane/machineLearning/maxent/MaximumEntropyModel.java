@@ -92,4 +92,8 @@ class MaximumEntropyModel extends AbstractOpenNLPModel {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void onLoadComplete() {
+	}
 }

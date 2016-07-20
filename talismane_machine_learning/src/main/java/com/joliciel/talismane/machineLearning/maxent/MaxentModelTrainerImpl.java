@@ -50,10 +50,10 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 	private static final Logger LOG = LoggerFactory.getLogger(MaxentModelTrainerImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(MaxentModelTrainerImpl.class);
 
-	private int iterations = 100;
-	private int cutoff = 5;
-	private double sigma = 0;
-	private double smoothing = 0;
+	private int iterations;
+	private int cutoff;
+	private double sigma;
+	private double smoothing;
 
 	private MachineLearningService machineLearningService;
 
@@ -146,7 +146,7 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 
 	@Override
 	public void setParameters(Config config) {
-		Config machineLearningConfig = config.getConfig("talismane.machine-learning");
+		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
 		Config maxentConfig = machineLearningConfig.getConfig("maxent");
 
 		this.setCutoff(machineLearningConfig.getInt("cutoff"));

@@ -45,6 +45,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,15 +72,8 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.ExternalWordList;
-import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.MachineLearningSession;
-import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
-import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer.LinearSVMSolverType;
-import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseComparisonStrategy;
@@ -97,7 +91,6 @@ import com.joliciel.talismane.parser.ParserEvaluator;
 import com.joliciel.talismane.parser.ParserFScoreCalculatorByDistance;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
-import com.joliciel.talismane.parser.ParsingConstrainer;
 import com.joliciel.talismane.parser.TransitionBasedParser;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
@@ -157,16 +150,23 @@ import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.joliciel.talismane.utils.io.DirectoryReader;
 import com.joliciel.talismane.utils.io.DirectoryWriter;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
+import gnu.trove.list.TIntList;
 
 class TalismaneConfigImpl implements TalismaneConfig {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneConfigImpl.class);
-	private Command command = Command.analyse;
-	private Option option = null;
-	private Mode mode = Mode.normal;
 
-	private Module startModule = null;
-	private Module endModule = null;
-	private Module module = null;
+	private Config config;
+
+	private Command command;
+	private Option option;
+	private Mode mode;
+
+	private Module startModule;
+	private Module endModule;
+	private Module module;
 
 	private ParserEvaluator parserEvaluator;
 	private PosTaggerEvaluator posTaggerEvaluator;
@@ -176,14 +176,14 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private PosTagComparator posTagComparator;
 	private TokenComparator tokenComparator;
 
-	private TokeniserAnnotatedCorpusReader tokenCorpusReader = null;
-	private PosTagAnnotatedCorpusReader posTagCorpusReader = null;
-	private ParserAnnotatedCorpusReader parserCorpusReader = null;
-	private ParserAnnotatedCorpusReader parserEvaluationCorpusReader = null;
-	private PosTagAnnotatedCorpusReader posTagEvaluationCorpusReader = null;
-	private TokeniserAnnotatedCorpusReader tokenEvaluationCorpusReader = null;
-	private SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = null;
-	private LanguageDetectorAnnotatedCorpusReader languageCorpusReader = null;
+	private TokeniserAnnotatedCorpusReader tokenCorpusReader;
+	private PosTagAnnotatedCorpusReader posTagCorpusReader;
+	private ParserAnnotatedCorpusReader parserCorpusReader;
+	private ParserAnnotatedCorpusReader parserEvaluationCorpusReader;
+	private PosTagAnnotatedCorpusReader posTagEvaluationCorpusReader;
+	private TokeniserAnnotatedCorpusReader tokenEvaluationCorpusReader;
+	private SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader;
+	private LanguageDetectorAnnotatedCorpusReader languageCorpusReader;
 
 	private LanguageDetectorProcessor languageDetectorProcessor;
 	private SentenceProcessor sentenceProcessor;
@@ -191,110 +191,110 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private PosTagSequenceProcessor posTagSequenceProcessor;
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 
-	private ClassificationModel languageModel = null;
-	private ClassificationModel sentenceModel = null;
-	private ClassificationModel tokeniserModel = null;
-	private ClassificationModel posTaggerModel = null;
-	private MachineLearningModel parserModel = null;
+	private ClassificationModel languageModel;
+	private ClassificationModel sentenceModel;
+	private ClassificationModel tokeniserModel;
+	private ClassificationModel posTaggerModel;
+	private MachineLearningModel parserModel;
 
-	private boolean processByDefault = true;
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
-	private int beamWidth = 1;
-	private boolean propagateBeam = true;
-	private boolean includeDetails = false;
-	private Charset inputCharset = null;
-	private Charset outputCharset = null;
+	private boolean processByDefault;
+	private int maxSentenceCount;
+	private int startSentence;
+	private int beamWidth;
+	private boolean propagateBeam;
+	private boolean includeDetails;
+	private Charset inputCharset;
+	private Charset outputCharset;
 
-	private int tokeniserBeamWidth = 1;
-	private int posTaggerBeamWidth = -1;
-	private int parserBeamWidth = -1;
-	private boolean propagateTokeniserBeam = false;
+	private int tokeniserBeamWidth;
+	private int posTaggerBeamWidth;
+	private int parserBeamWidth;
+	private boolean propagateTokeniserBeam;
 
-	private char endBlockCharacter = '\f';
-	private String inputRegex = "";
-	private String inputPatternFilePath = "";
-	private String evaluationRegex = "";
-	private String evaluationPatternFilePath = "";
+	private char endBlockCharacter;
+	private String inputRegex;
+	private String inputPatternFilePath;
+	private String evaluationRegex;
+	private String evaluationPatternFilePath;
 	private int maxParseAnalysisTime;
 	private int minFreeMemory;
-	private boolean earlyStop = false;
+	private boolean earlyStop;
 
-	private Reader reader = null;
-	private Writer writer = null;
-	private Reader evaluationReader = null;
+	private Reader reader;
+	private Writer writer;
+	private Reader evaluationReader;
 
-	private String inFilePath = "";
-	private String inDirPath = "";
-	private String outFilePath = "";
-	private String outDirPath = "";
-	private String parserModelFilePath = "";
-	private String posTaggerModelFilePath = "";
-	private String tokeniserModelFilePath = "";
-	private String sentenceModelFilePath = "";
-	private String languageModelFilePath = "";
-	private String textFiltersPath = "";
-	private String tokenFiltersPath = "";
-	private String tokenSequenceFilterPath = "";
-	private String posTagSequenceFilterPath = "";
-	private String templatePath = "";
-	private String evaluationFilePath = "";
-	private String sentenceReaderPath = "";
-	private String posTaggerRuleFilePath = "";
-	private String posTaggerFeaturePath = "";
-	private String tokeniserFeaturePath = "";
-	private String tokeniserPatternFilePath = "";
-	private String sentenceFeaturePath = "";
-	private String languageFeaturePath = "";
-	private String languageCorpusMapPath = "";
+	private String inFilePath;
+	private String inDirPath;
+	private String outFilePath;
+	private String outDirPath;
+	private String parserModelFilePath;
+	private String posTaggerModelFilePath;
+	private String tokeniserModelFilePath;
+	private String sentenceModelFilePath;
+	private String languageModelFilePath;
+	private String textFiltersPath;
+	private String tokenFiltersPath;
+	private String tokenSequenceFilterPath;
+	private String posTagSequenceFilterPath;
+	private String templatePath;
+	private String evaluationFilePath;
+	private String sentenceReaderPath;
+	private String posTaggerRuleFilePath;
+	private String posTaggerFeaturePath;
+	private String tokeniserFeaturePath;
+	private String tokeniserPatternFilePath;
+	private String sentenceFeaturePath;
+	private String languageFeaturePath;
+	private String languageCorpusMapPath;
 
-	private String lexiconPath = "";
-	private boolean replaceLexicon = false;
+	private String lexiconPath;
+	private boolean replaceLexicon;
 
 	private String sentenceTemplateName = "sentence_template.ftl";
 	private String tokeniserTemplateName = "tokeniser_template.ftl";
 	private String posTaggerTemplateName = "posTagger_template.ftl";
 	private String parserTemplateName = "parser_conll_template.ftl";
 
-	private String fileName = "";
-	private boolean logStats = false;
-	private File outDir = null;
-	private String baseName = "";
-	private String suffix = "";
-	private boolean outputGuesses = false;
-	private int outputGuessCount = 0;
-	private boolean labeledEvaluation = true;
-	private boolean dynamiseFeatures = false;
-	private String skipLabel = null;
-	private Set<String> errorLabels = null;
+	private String fileName;
+	private boolean logStats;
+	private File outDir;
+	private String baseName;
+	private String suffix;
+	private boolean outputGuesses;
+	private int outputGuessCount;
+	private boolean labeledEvaluation;
+	private boolean dynamiseFeatures;
+	private String skipLabel;
+	private Set<String> errorLabels;
 
-	private List<PosTaggerRule> posTaggerRules = null;
-	private List<ParserRule> parserRules = null;
-	private String parserRuleFilePath = "";
-	private String parserFeaturePath = "";
-	private List<TextMarkerFilter> textMarkerFilters = null;
-	private List<TokenFilter> tokenFilters = null;
+	private List<PosTaggerRule> posTaggerRules;
+	private List<ParserRule> parserRules;
+	private String parserRuleFilePath;
+	private String parserFeaturePath;
+	private List<TextMarkerFilter> textMarkerFilters;
+	private List<TokenFilter> tokenFilters;
 	private List<TokenFilter> additionalTokenFilters = new ArrayListNoNulls<TokenFilter>();
 	private List<TokenFilter> prependedTokenFilters = new ArrayListNoNulls<TokenFilter>();
-	private List<TokenSequenceFilter> tokenSequenceFilters = null;
-	private List<PosTagSequenceFilter> posTaggerPostProcessingFilters = null;
-	private boolean includeDistanceFScores = false;
-	private boolean includeTransitionLog = false;
-	private boolean predictTransitions = false;
-	private boolean posTaggerRulesReplace = false;
-	private boolean parserRulesReplace = false;
-	private boolean tokenFiltersReplace = false;
-	private boolean textFiltersReplace = false;
-	private boolean tokenSequenceFiltersReplace = false;
+	private List<TokenSequenceFilter> tokenSequenceFilters;
+	private List<PosTagSequenceFilter> posTaggerPostProcessingFilters;
+	private boolean includeDistanceFScores;
+	private boolean includeTransitionLog;
+	private boolean predictTransitions;
+	private boolean posTaggerRulesReplace;
+	private boolean parserRulesReplace;
+	private boolean tokenFiltersReplace;
+	private boolean textFiltersReplace;
+	private boolean tokenSequenceFiltersReplace;
 
-	private MarkerFilterType newlineMarker = MarkerFilterType.SENTENCE_BREAK;
-	private int blockSize = 1000;
+	private MarkerFilterType newlineMarker;
+	private int blockSize;
 
-	private int crossValidationSize = -1;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
+	private int crossValidationSize;
+	private int includeIndex;
+	private int excludeIndex;
 
-	private Set<String> testWords = null;
+	private Set<String> testWords;
 	private Set<LanguageDetectorFeature<?>> languageFeatures;
 	private Set<SentenceDetectorFeature<?>> sentenceFeatures;
 	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
@@ -303,8 +303,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private Set<ParseConfigurationFeature<?>> parserFeatures;
 	private TokeniserPatternManager tokeniserPatternManager;
 	private ClassificationEventStream classificationEventStream;
-	private TokeniserType tokeniserType = TokeniserType.pattern;
-	private PatternTokeniserType patternTokeniserType = PatternTokeniserType.Compound;
+	private TokeniserType tokeniserType;
+	private PatternTokeniserType patternTokeniserType;
 
 	private boolean parserCorpusReaderFiltersAdded = false;
 	private boolean posTagCorpusReaderFiltersAdded = false;
@@ -329,43 +329,32 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	private File performanceConfigFile;
 	private ParseComparisonStrategyType parseComparisonStrategyType;
-	private boolean includeLexiconCoverage = false;
-	private boolean includeUnknownWordResults = false;
-	private boolean includeTimePerToken = false;
+	private boolean includeLexiconCoverage;
+	private boolean includeUnknownWordResults;
+	private boolean includeTimePerToken;
 
 	// server parameters
-	private int port = 7272;
+	private int port;
 
 	// training parameters
-	private int iterations = 0;
-	private int cutoff = 0;
-	private MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.MaxEnt;
-	private double constraintViolationCost = -1;
-	private double epsilon = -1;
-	private LinearSVMSolverType solverType = null;
-	private double perceptronTolerance = -1;
-	private boolean averageAtIntervals = false;
-	private List<Integer> perceptronObservationPoints = null;
-	private String dependencyLabelPath = "";
-	private String excludeFileName = "";
+	private List<Integer> perceptronObservationPoints;
+	private String dependencyLabelPath;
 
-	private ExternalResourceFinder externalResourceFinder = null;
-	private Map<String, List<String>> descriptors = null;
-	private String parsingConstrainerPath = "";
-	private ParsingConstrainer parsingConstrainer = null;
+	private ExternalResourceFinder externalResourceFinder;
+	private Map<String, List<String>> descriptors;
 	private LanguageImplementation implementation;
-	private TalismaneSession talismaneSession = null;
+	private TalismaneSession talismaneSession;
 
-	private File baseDir = null;
+	private File baseDir;
 
-	private boolean preloadLexicon = true;
+	private boolean preloadLexicon;
 	private boolean preloaded = false;
 
-	private Locale locale = null;
+	private Locale locale;
 
-	private String corpusLexicalEntryRegexPath = null;
-	private String csvEncoding = "UTF8";
-	private String outputDivider = "";
+	private String corpusLexicalEntryRegexPath;
+	private String csvEncoding;
+	private String outputDivider;
 
 	private static final Map<String, Diacriticizer> diacriticizerMap = new HashMap<String, Diacriticizer>();
 
@@ -381,329 +370,460 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		this.implementation = GenericLanguageImplementation.getInstance(sessionId);
 	}
 
+	private static final class PairFactory {
+		@SuppressWarnings("rawtypes")
+		public static ImmutablePair<String, Class> create(String s, Class c) {
+			return new ImmutablePair<>(s, c);
+		}
+	}
+
 	public synchronized void loadParameters(Map<String, String> args) {
+		String logConfigPath = args.get("logConfigFile");
+		if (logConfigPath != null && logConfigPath.length() > 0) {
+			// don't do default configuration - only call this of not null
+			args.remove("logConfigFile");
+			LogUtils.configureLogging(logConfigPath);
+		}
+
+		String performanceConfigPath = args.get("performanceConfigFile");
+		if (performanceConfigPath != null && performanceConfigPath.length() > 0) {
+			args.remove("performanceConfigFile");
+			performanceConfigFile = this.getFile(performanceConfigPath);
+		}
+
+		Map<String, Object> values = new HashMap<>();
+		@SuppressWarnings("rawtypes")
+		Map<String, ImmutablePair<String, Class>> mapping = new HashMap<>();
+
+		String prefix = "talismane.core.";
+		mapping.put("command", PairFactory.create(prefix + "command", String.class));
+		mapping.put("languagePack", PairFactory.create(prefix + "languagePack", String.class));
+		mapping.put("mode", PairFactory.create(prefix + "mode", String.class));
+		mapping.put("module", PairFactory.create(prefix + "module", String.class));
+		mapping.put("inFile", PairFactory.create(prefix + "inFile", String.class));
+		mapping.put("inDir", PairFactory.create(prefix + "inDir", String.class));
+		mapping.put("outFile", PairFactory.create(prefix + "outFile", String.class));
+		mapping.put("outDir", PairFactory.create(prefix + "outDir", String.class));
+		mapping.put("encoding", PairFactory.create(prefix + "encoding", String.class));
+		mapping.put("encoding", PairFactory.create(prefix + "encoding", String.class));
+		mapping.put("inputEncoding", PairFactory.create(prefix + "inputEncoding", String.class));
+		mapping.put("outputEncoding", PairFactory.create(prefix + "outputEncoding", String.class));
+		mapping.put("locale", PairFactory.create(prefix + "locale", String.class));
+
+		prefix = "talismane.core.analyse.";
+		mapping.put("startModule", PairFactory.create(prefix + "startModule", String.class));
+		mapping.put("endModule", PairFactory.create(prefix + "endModule", String.class));
+		mapping.put("posTagSet", PairFactory.create(prefix + "posTagSet", String.class));
+		mapping.put("transitionSystem", PairFactory.create(prefix + "transitionSystem", String.class));
+		mapping.put("dependencyLabels", PairFactory.create(prefix + "dependencyLabels", String.class));
+		mapping.put("languageModel", PairFactory.create(prefix + "languageModel", String.class));
+		mapping.put("sentenceModel", PairFactory.create(prefix + "sentenceModel", String.class));
+		mapping.put("tokeniserModel", PairFactory.create(prefix + "tokeniserModel", String.class));
+		mapping.put("posTaggerModel", PairFactory.create(prefix + "posTaggerModel", String.class));
+		mapping.put("parserModel", PairFactory.create(prefix + "parserModel", String.class));
+		mapping.put("lexicon", PairFactory.create(prefix + "lexicon", String.class));
+		mapping.put("diacriticizer", PairFactory.create(prefix + "diacriticizer", String.class));
+		mapping.put("inputPattern", PairFactory.create(prefix + "inputPattern", String.class));
+		mapping.put("inputPatternFile", PairFactory.create(prefix + "inputPatternFile", String.class));
+		mapping.put("textFilters", PairFactory.create(prefix + "textFilters", String.class));
+		mapping.put("tokenFilters", PairFactory.create(prefix + "tokenFilters", String.class));
+		mapping.put("tokenSequenceFilters", PairFactory.create(prefix + "tokenSequenceFilters", String.class));
+		mapping.put("posTagSequenceFilters", PairFactory.create(prefix + "posTagSequenceFilters", String.class));
+		mapping.put("newline", PairFactory.create(prefix + "newline", String.class));
+		mapping.put("processByDefault", PairFactory.create(prefix + "processByDefault", Boolean.class));
+		mapping.put("endBlockCharCode", PairFactory.create(prefix + "endBlockCharCode", String.class));
+		mapping.put("blockSize", PairFactory.create(prefix + "blockSize", Integer.class));
+		mapping.put("sentenceCount", PairFactory.create(prefix + "sentenceCount", Integer.class));
+		mapping.put("startSentence", PairFactory.create(prefix + "startSentence", Integer.class));
+		mapping.put("builtInTemplate", PairFactory.create(prefix + "builtInTemplate", String.class));
+		mapping.put("template", PairFactory.create(prefix + "template", String.class));
+		mapping.put("includeDetails", PairFactory.create(prefix + "includeDetails", Boolean.class));
+		mapping.put("posTaggerRules", PairFactory.create(prefix + "posTaggerRules", String.class));
+		mapping.put("parserRules", PairFactory.create(prefix + "parserRules", String.class));
+		mapping.put("fileName", PairFactory.create(prefix + "fileName", String.class));
+		mapping.put("suffix", PairFactory.create(prefix + "suffix", String.class));
+		mapping.put("outputDivider", PairFactory.create(prefix + "outputDivider", String.class));
+		mapping.put("beamWidth", PairFactory.create(prefix + "beamWidth", Integer.class));
+		mapping.put("tokeniserBeamWidth", PairFactory.create(prefix + "tokeniserBeamWidth", Integer.class));
+		mapping.put("posTaggerBeamWidth", PairFactory.create(prefix + "posTaggerBeamWidth", Integer.class));
+		mapping.put("parserBeamWidth", PairFactory.create(prefix + "parserBeamWidth", Integer.class));
+		mapping.put("propagateBeam", PairFactory.create(prefix + "propagateBeam", Boolean.class));
+		mapping.put("propagateTokeniserBeam", PairFactory.create(prefix + "propagateTokeniserBeam", Boolean.class));
+		mapping.put("dynamiseFeatures", PairFactory.create(prefix + "dynamiseFeatures", Boolean.class));
+		mapping.put("preloadLexicon", PairFactory.create(prefix + "preloadLexicon", Boolean.class));
+
+		prefix = "talismane.core.analyse.tokeniser";
+		mapping.put("tokeniserType", PairFactory.create(prefix + "type", String.class));
+		mapping.put("patternTokeniserType", PairFactory.create(prefix + "patternTokeniserType", String.class));
+
+		prefix = "talismane.core.analyse.parser";
+		mapping.put("maxParseAnalysisTime", PairFactory.create(prefix + "maxAnalysisTime", Integer.class));
+		mapping.put("minFreeMemory", PairFactory.create(prefix + "minFreeMemory", Integer.class));
+		mapping.put("parseComparisonStrategy", PairFactory.create(prefix + "comparisonStrategy", String.class));
+		mapping.put("earlyStop", PairFactory.create(prefix + "earlyStop", Boolean.class));
+
+		prefix = "talismane.core.evaluate.";
+		mapping.put("evaluationFile", PairFactory.create(prefix + "evaluationFile", String.class));
+		mapping.put("evaluationPattern", PairFactory.create(prefix + "evaluationPattern", String.class));
+		mapping.put("evaluationPatternFile", PairFactory.create(prefix + "evaluationPatternFile", String.class));
+
+		prefix = "talismane.core.evaluate.csv.";
+		mapping.put("csvSeparator", PairFactory.create(prefix + "separator", String.class));
+		mapping.put("csvEncoding", PairFactory.create(prefix + "encoding", String.class));
+		mapping.put("outputLocale", PairFactory.create(prefix + "locale", String.class));
+
+		prefix = "talismane.core.evaluate.posTagger.";
+		mapping.put("includeUnknownWordResults", PairFactory.create(prefix + "includeUnknownWordResults", Boolean.class));
+		mapping.put("includeLexiconCoverage", PairFactory.create(prefix + "includeLexiconCoverage", Boolean.class));
+
+		prefix = "talismane.core.evaluate.parser.";
+		mapping.put("labeledEvaluation", PairFactory.create(prefix + "labeledEvaluation", Boolean.class));
+		mapping.put("includeTimePerToken", PairFactory.create(prefix + "includeTimePerToken", Boolean.class));
+		mapping.put("includeDistanceFScores", PairFactory.create(prefix + "includeDistanceFScores", Boolean.class));
+		mapping.put("skipLabel", PairFactory.create(prefix + "skipLabel", String.class));
+		mapping.put("includeTransitionLog", PairFactory.create(prefix + "includeTransitionLog", Boolean.class));
+		mapping.put("errorLabels", PairFactory.create(prefix + "errorLabels", Boolean.class));
+
+		prefix = "talismane.core.evaluate.crossValidation.";
+		mapping.put("crossValidationSize", PairFactory.create(prefix + "foldCount", Integer.class));
+		mapping.put("includeIndex", PairFactory.create(prefix + "includeIndex", Integer.class));
+		mapping.put("excludeIndex", PairFactory.create(prefix + "excludeIndex", Integer.class));
+
+		prefix = "talismane.core.evaluate.";
+		mapping.put("outputGuesses", PairFactory.create(prefix + "outputGuesses", Boolean.class));
+		mapping.put("outputGuessCount", PairFactory.create(prefix + "outputGuessCount", Integer.class));
+
+		prefix = "talismane.core.process.";
+		mapping.put("option", PairFactory.create(prefix + "option", String.class));
+		mapping.put("predictTransitions", PairFactory.create(prefix + "predictTransitions", Boolean.class));
+		mapping.put("corpusLexicalEntryRegex", PairFactory.create(prefix + "corpusLexicalEntryRegex", String.class));
+		mapping.put("option", PairFactory.create(prefix + "option", String.class));
+		mapping.put("testWords", PairFactory.create(prefix + "posTagFeatureTester.testWords", String.class));
+
+		prefix = "talismane.core.train.";
+		mapping.put("externalResources", PairFactory.create(prefix + "externalResources", String.class));
+		mapping.put("languageFeatures", PairFactory.create(prefix + "languageDetector.features", String.class));
+		mapping.put("languageCorpusMap", PairFactory.create(prefix + "languageDetector.languageCorpusMap", String.class));
+		mapping.put("sentenceFeatures", PairFactory.create(prefix + "sentenceDetector.features", String.class));
+		mapping.put("sentenceReader", PairFactory.create(prefix + "tokeniser.sentenceReader", String.class));
+		mapping.put("tokeniserFeatures", PairFactory.create(prefix + "tokeniser.features", String.class));
+		mapping.put("tokeniserPatterns", PairFactory.create(prefix + "tokeniser.patterns", String.class));
+		mapping.put("posTaggerFeatures", PairFactory.create(prefix + "posTagger.features", String.class));
+		mapping.put("parserFeatures", PairFactory.create(prefix + "parser.features", String.class));
+		mapping.put("perceptronObservationPoints", PairFactory.create(prefix + "perceptronObservationPoints", TIntList.class));
+
+		prefix = "talismane.core.";
+		mapping.put("logStats", PairFactory.create(prefix + "logStats", Boolean.class));
+
+		prefix = "talismane.machineLearning.";
+		mapping.put("algorithm", PairFactory.create(prefix + "algorithm", String.class));
+		mapping.put("cutoff", PairFactory.create(prefix + "cutoff", Integer.class));
+		mapping.put("linearSVMEpsilon", PairFactory.create(prefix + "linearSVM.epsilon", Double.class));
+		mapping.put("linearSVMCost", PairFactory.create(prefix + "linearSVM.cost", Double.class));
+		mapping.put("iterations", PairFactory.create(prefix + "maxent.iterations", Integer.class));
+
+		for (Entry<String, String> arg : args.entrySet()) {
+			String key = arg.getKey();
+			String argValue = arg.getValue();
+			@SuppressWarnings("rawtypes")
+			ImmutablePair<String, Class> mappingType = mapping.get(key);
+			if (mappingType == null) {
+				System.err.println("Unknown argument: " + key);
+				throw new RuntimeException("Unknown argument: " + key);
+			} else if (String.class.equals(mappingType.right)) {
+				values.put(mappingType.left, argValue);
+			} else if (Integer.class.equals(mappingType.right)) {
+				values.put(mappingType.left, Integer.parseInt(argValue));
+			} else if (Double.class.equals(mappingType.right)) {
+				values.put(mappingType.left, Double.parseDouble(argValue));
+			} else if (Boolean.class.equals(mappingType.right)) {
+				values.put(mappingType.left, argValue.equalsIgnoreCase("true"));
+			} else if (TIntList.class.equals(mappingType.right)) {
+				String[] parts = argValue.split(",");
+				List<Integer> intValues = new ArrayListNoNulls<Integer>();
+				for (String part : parts)
+					intValues.add(Integer.parseInt(part));
+
+				values.put(mappingType.left, intValues);
+			} else {
+				throw new RuntimeException("Unable to parse class " + mappingType.right.getSimpleName() + " for " + key);
+			}
+		}
+
+		Config config = ConfigFactory.parseMap(values, "command-line parameters");
+		config = config.withFallback(ConfigFactory.defaultReference());
+		this.loadParameters(config);
+	}
+
+	public synchronized void loadParameters(Config config) {
 		try {
-			String logConfigPath = args.get("logConfigFile");
-			if (logConfigPath != null && logConfigPath.length() > 0) {
-				// don't do default configuration - only call this of not null
-				args.remove("logConfigFile");
-				LogUtils.configureLogging(logConfigPath);
-			}
+			this.config = config;
 
-			String performanceConfigPath = args.get("performanceConfigFile");
-			if (performanceConfigPath != null && performanceConfigPath.length() > 0) {
-				args.remove("performanceConfigFile");
-				performanceConfigFile = this.getFile(performanceConfigPath);
-			}
+			String encoding;
+			String inputEncoding;
+			String outputEncoding;
+			String builtInTemplate;
 
-			String encoding = "";
-			String inputEncoding = "";
-			String outputEncoding = "";
-			String builtInTemplate = "";
+			String posTagSetPath;
+			String externalResourcePath;
+			String transitionSystemStr;
 
-			String posTagSetPath = "";
-			String externalResourcePath = "";
-			String transitionSystemStr = "";
+			String languagePackPath;
 
-			String languagePackPath = "";
+			String diacriticizerPath;
 
-			String diacriticizerPath = "";
-
-			String csvSeparator = "\t";
+			String csvSeparator;
 			Locale outputLocale = null;
 
-			for (Entry<String, String> arg : args.entrySet()) {
-				String argName = arg.getKey();
-				String argValue = arg.getValue();
-				if (argName.equals("command")) {
-					String commandString = argValue;
-					if (commandString.equals("analyze"))
-						commandString = "analyse";
+			Config talismaneConfig = config.getConfig("talismane.core");
+			Config analyseConfig = talismaneConfig.getConfig("analyse");
+			Config evaluateConfig = talismaneConfig.getConfig("evaluate");
+			Config trainConfig = talismaneConfig.getConfig("train");
+			Config processConfig = talismaneConfig.getConfig("process");
 
-					command = Command.valueOf(commandString);
-				} else if (argName.equals("option")) {
-					option = Option.valueOf(argValue);
-				} else if (argName.equals("mode")) {
-					mode = Mode.valueOf(argValue);
-				} else if (argName.equals("module")) {
-					if (argValue.equalsIgnoreCase("sentence") || argValue.equalsIgnoreCase("sentenceDetector"))
-						module = Talismane.Module.SentenceDetector;
-					else if (argValue.equalsIgnoreCase("tokenise") || argValue.equalsIgnoreCase("tokeniser"))
-						module = Talismane.Module.Tokeniser;
-					else if (argValue.equalsIgnoreCase("postag") || argValue.equalsIgnoreCase("posTagger"))
-						module = Talismane.Module.PosTagger;
-					else if (argValue.equalsIgnoreCase("parse") || argValue.equalsIgnoreCase("parser"))
-						module = Talismane.Module.Parser;
-					else if (argValue.equalsIgnoreCase("language") || argValue.equalsIgnoreCase("languageDetector"))
-						module = Talismane.Module.LanguageDetector;
-					else
-						throw new TalismaneException("Unknown module: " + argValue);
-				} else if (argName.equals("startModule")) {
-					if (argValue.equalsIgnoreCase("sentence") || argValue.equalsIgnoreCase("sentenceDetector"))
-						startModule = Talismane.Module.SentenceDetector;
-					else if (argValue.equalsIgnoreCase("tokenise") || argValue.equalsIgnoreCase("tokeniser"))
-						startModule = Talismane.Module.Tokeniser;
-					else if (argValue.equalsIgnoreCase("postag") || argValue.equalsIgnoreCase("posTagger"))
-						startModule = Talismane.Module.PosTagger;
-					else if (argValue.equalsIgnoreCase("parse") || argValue.equalsIgnoreCase("parser"))
-						startModule = Talismane.Module.Parser;
-					else
-						throw new TalismaneException("Unknown startModule: " + argValue);
-				} else if (argName.equals("endModule")) {
-					if (argValue.equalsIgnoreCase("sentence") || argValue.equalsIgnoreCase("sentenceDetector"))
-						endModule = Talismane.Module.SentenceDetector;
-					else if (argValue.equalsIgnoreCase("tokenise") || argValue.equalsIgnoreCase("tokeniser"))
-						endModule = Talismane.Module.Tokeniser;
-					else if (argValue.equalsIgnoreCase("postag") || argValue.equalsIgnoreCase("posTagger"))
-						endModule = Talismane.Module.PosTagger;
-					else if (argValue.equalsIgnoreCase("parse") || argValue.equalsIgnoreCase("parser"))
-						endModule = Talismane.Module.Parser;
-					else
-						throw new TalismaneException("Unknown endModule: " + argValue);
-				} else if (argName.equals("inFile"))
-					inFilePath = argValue;
-				else if (argName.equals("inDir"))
-					inDirPath = argValue;
-				else if (argName.equals("outFile"))
-					outFilePath = argValue;
-				else if (argName.equals("outDir"))
-					outDirPath = argValue;
-				else if (argName.equals("template"))
-					templatePath = argValue;
-				else if (argName.equals("builtInTemplate"))
-					builtInTemplate = argValue;
-				else if (argName.equals("encoding")) {
-					encoding = argValue;
-				} else if (argName.equals("inputEncoding")) {
-					inputEncoding = argValue;
-				} else if (argName.equals("outputEncoding")) {
-					outputEncoding = argValue;
-				} else if (argName.equals("includeDetails"))
-					includeDetails = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("includeTimePerToken"))
-					includeTimePerToken = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("propagateBeam"))
-					propagateBeam = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("beamWidth"))
-					beamWidth = Integer.parseInt(argValue);
-				else if (argName.equals("languageModel"))
-					languageModelFilePath = argValue;
-				else if (argName.equals("sentenceModel"))
-					sentenceModelFilePath = argValue;
-				else if (argName.equals("tokeniserModel"))
-					tokeniserModelFilePath = argValue;
-				else if (argName.equals("posTaggerModel"))
-					posTaggerModelFilePath = argValue;
-				else if (argName.equals("parserModel"))
-					parserModelFilePath = argValue;
-				else if (argName.equals("inputPatternFile"))
-					inputPatternFilePath = argValue;
-				else if (argName.equals("inputPattern"))
-					inputRegex = argValue;
-				else if (argName.equals("evaluationPatternFile"))
-					evaluationPatternFilePath = argValue;
-				else if (argName.equals("evaluationPattern"))
-					evaluationRegex = argValue;
-				else if (argName.equals("posTaggerRules")) {
-					if (argValue.startsWith("replace:")) {
-						posTaggerRulesReplace = true;
-						posTaggerRuleFilePath = argValue.substring("replace:".length());
-					} else {
-						posTaggerRuleFilePath = argValue;
-					}
-				} else if (argName.equals("parserRules")) {
-					if (argValue.startsWith("replace:")) {
-						parserRulesReplace = true;
-						parserRuleFilePath = argValue.substring("replace:".length());
-					} else {
-						parserRuleFilePath = argValue;
-					}
-				} else if (argName.equals("posTagSet"))
-					posTagSetPath = argValue;
-				else if (argName.equals("textFilters")) {
-					if (argValue.startsWith("replace:")) {
-						textFiltersReplace = true;
-						textFiltersPath = argValue.substring("replace:".length());
-					} else {
-						textFiltersPath = argValue;
-					}
-				} else if (argName.equals("tokenFilters")) {
-					if (argValue.startsWith("replace:")) {
-						tokenFiltersReplace = true;
-						tokenFiltersPath = argValue.substring("replace:".length());
-					} else {
-						tokenFiltersPath = argValue;
-					}
-				} else if (argName.equals("tokenSequenceFilters")) {
-					if (argValue.startsWith("replace:")) {
-						tokenSequenceFiltersReplace = true;
-						tokenSequenceFilterPath = argValue.substring("replace:".length());
-					} else {
-						tokenSequenceFilterPath = argValue;
-					}
-				} else if (argName.equals("posTagSequenceFilters"))
-					posTagSequenceFilterPath = argValue;
-				else if (argName.equals("logStats"))
-					logStats = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("newline"))
-					newlineMarker = MarkerFilterType.valueOf(argValue);
-				else if (argName.equals("fileName"))
-					fileName = argValue;
-				else if (argName.equals("processByDefault"))
-					processByDefault = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("maxParseAnalysisTime"))
-					maxParseAnalysisTime = Integer.parseInt(argValue);
-				else if (argName.equals("minFreeMemory"))
-					minFreeMemory = Integer.parseInt(argValue);
-				else if (argName.equals("transitionSystem"))
-					transitionSystemStr = argValue;
-				else if (argName.equals("sentenceCount"))
-					maxSentenceCount = Integer.parseInt(argValue);
-				else if (argName.equals("startSentence"))
-					startSentence = Integer.parseInt(argValue);
-				else if (argName.equals("endBlockCharCode"))
-					endBlockCharacter = (char) Integer.parseInt(argValue);
-				else if (argName.equals("outputGuesses"))
-					outputGuesses = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("outputGuessCount"))
-					outputGuessCount = Integer.parseInt(argValue);
-				else if (argName.equals("suffix"))
-					suffix = argValue;
-				else if (argName.equals("includeDistanceFScores"))
-					includeDistanceFScores = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("includeTransitionLog"))
-					includeTransitionLog = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("evaluationFile"))
-					evaluationFilePath = argValue;
-				else if (argName.equals("labeledEvaluation"))
-					labeledEvaluation = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("tokeniserBeamWidth"))
-					tokeniserBeamWidth = Integer.parseInt(argValue);
-				else if (argName.equals("posTaggerBeamWidth"))
-					posTaggerBeamWidth = Integer.parseInt(argValue);
-				else if (argName.equals("parserBeamWidth"))
-					parserBeamWidth = Integer.parseInt(argValue);
-				else if (argName.equals("propagateTokeniserBeam"))
-					propagateTokeniserBeam = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("blockSize"))
-					blockSize = Integer.parseInt(argValue);
-				else if (argName.equals("crossValidationSize"))
-					crossValidationSize = Integer.parseInt(argValue);
-				else if (argName.equals("includeIndex"))
-					includeIndex = Integer.parseInt(argValue);
-				else if (argName.equals("excludeIndex"))
-					excludeIndex = Integer.parseInt(argValue);
-				else if (argName.equals("dynamiseFeatures"))
-					dynamiseFeatures = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("predictTransitions"))
-					predictTransitions = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("lexicon")) {
-					if (argValue.startsWith("replace:")) {
-						replaceLexicon = true;
-						lexiconPath = argValue.substring("replace:".length());
-					} else {
-						lexiconPath = argValue;
-					}
-				} else if (argName.equals("perceptronScoring")) {
-					PerceptronScoring perceptronScoring = PerceptronScoring.valueOf(argValue);
-					MachineLearningSession.setPerceptronScoring(perceptronScoring);
-				} else if (argName.equals("parseComparisonStrategy")) {
-					parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(argValue);
-				} else if (argName.equals("sentenceReader")) {
-					sentenceReaderPath = argValue;
-				} else if (argName.equals("skipLabel")) {
-					skipLabel = argValue;
-				} else if (argName.equals("errorLabels")) {
-					errorLabels = new HashSet<String>();
-					String[] labels = argValue.split(",");
-					for (String label : labels) {
-						errorLabels.add(label);
-					}
-				} else if (argName.equals("earlyStop")) {
-					earlyStop = argValue.equalsIgnoreCase("true");
-				} else if (argName.equals("languageFeatures")) {
-					languageFeaturePath = argValue;
-				} else if (argName.equals("sentenceFeatures")) {
-					sentenceFeaturePath = argValue;
-				} else if (argName.equals("tokeniserFeatures")) {
-					tokeniserFeaturePath = argValue;
-				} else if (argName.equals("tokeniserPatterns")) {
-					tokeniserPatternFilePath = argValue;
-				} else if (argName.equals("posTaggerFeatures")) {
-					posTaggerFeaturePath = argValue;
-				} else if (argName.equals("parserFeatures")) {
-					parserFeaturePath = argValue;
-				} else if (argName.equals("externalResources")) {
-					externalResourcePath = argValue;
-				} else if (argName.equals("testWords")) {
-					String[] parts = argValue.split(";");
-					testWords = new HashSet<String>();
-					for (String part : parts)
-						testWords.add(part);
-				} else if (argName.equals("includeLexiconCoverage")) {
-					includeLexiconCoverage = argValue.equalsIgnoreCase("true");
-				} else if (argName.equals("includeUnknownWordResults")) {
-					includeUnknownWordResults = argValue.equalsIgnoreCase("true");
-				} else if (argName.equals("iterations"))
-					iterations = Integer.parseInt(argValue);
-				else if (argName.equals("cutoff"))
-					cutoff = Integer.parseInt(argValue);
-				else if (argName.equals("dependencyLabels"))
-					dependencyLabelPath = argValue;
-				else if (argName.equals("parsingConstrainer"))
-					parsingConstrainerPath = argValue;
-				else if (argName.equals("algorithm"))
-					algorithm = MachineLearningAlgorithm.valueOf(argValue);
-				else if (argName.equals("linearSVMSolver"))
-					solverType = LinearSVMSolverType.valueOf(argValue);
-				else if (argName.equals("linearSVMCost"))
-					constraintViolationCost = Double.parseDouble(argValue);
-				else if (argName.equals("linearSVMEpsilon"))
-					epsilon = Double.parseDouble(argValue);
-				else if (argName.equals("perceptronTolerance"))
-					perceptronTolerance = Double.parseDouble(argValue);
-				else if (argName.equals("averageAtIntervals"))
-					averageAtIntervals = argValue.equalsIgnoreCase("true");
-				else if (argName.equals("perceptronObservationPoints")) {
-					String[] points = argValue.split(",");
-					perceptronObservationPoints = new ArrayListNoNulls<Integer>();
-					for (String point : points)
-						perceptronObservationPoints.add(Integer.parseInt(point));
-				} else if (argName.equals("tokeniserType")) {
-					tokeniserType = TokeniserType.valueOf(argValue);
-				} else if (argName.equals("patternTokeniser"))
-					patternTokeniserType = PatternTokeniserType.valueOf(argValue);
-				else if (argName.equals("excludeFile")) {
-					excludeFileName = argValue;
-				} else if (argName.equals("port")) {
-					port = Integer.parseInt(argValue);
-				} else if (argName.equals("preloadLexicon")) {
-					preloadLexicon = argValue.equalsIgnoreCase("true");
-				} else if (argName.equals("locale")) {
-					locale = Locale.forLanguageTag(argValue);
-				} else if (argName.equals("languageCorpusMap")) {
-					languageCorpusMapPath = argValue;
-				} else if (argName.equals("corpusLexicalEntryRegex")) {
-					corpusLexicalEntryRegexPath = argValue;
-				} else if (argName.equals("languagePack")) {
-					languagePackPath = argValue;
-				} else if (argName.equals("csvSeparator")) {
-					csvSeparator = argValue;
-				} else if (argName.equals("csvEncoding")) {
-					csvEncoding = argValue;
-				} else if (argName.equals("outputLocale")) {
-					outputLocale = Locale.forLanguageTag(argValue);
-				} else if (argName.equals("outputDivider")) {
-					outputDivider = argValue;
-					if (outputDivider.equals("NEWLINE"))
-						outputDivider = "\n";
-				} else if (argName.equals("diacriticizer")) {
-					diacriticizerPath = argValue;
-				} else {
-					System.out.println("Unknown argument: " + argName);
-					throw new RuntimeException("Unknown argument: " + argName);
+			String commandString = talismaneConfig.getString("command");
+			if (commandString.equals("analyze"))
+				commandString = "analyse";
+
+			command = Command.valueOf(commandString);
+
+			languagePackPath = talismaneConfig.getString("languagePack");
+
+			mode = Mode.valueOf(talismaneConfig.getString("mode"));
+			port = talismaneConfig.getInt("port");
+
+			String moduleString = talismaneConfig.getString("module");
+
+			if (moduleString.equalsIgnoreCase("sentence") || moduleString.equalsIgnoreCase("sentenceDetector"))
+				module = Talismane.Module.SentenceDetector;
+			else if (moduleString.equalsIgnoreCase("tokenise") || moduleString.equalsIgnoreCase("tokeniser"))
+				module = Talismane.Module.Tokeniser;
+			else if (moduleString.equalsIgnoreCase("postag") || moduleString.equalsIgnoreCase("posTagger"))
+				module = Talismane.Module.PosTagger;
+			else if (moduleString.equalsIgnoreCase("parse") || moduleString.equalsIgnoreCase("parser"))
+				module = Talismane.Module.Parser;
+			else if (moduleString.equalsIgnoreCase("language") || moduleString.equalsIgnoreCase("languageDetector"))
+				module = Talismane.Module.LanguageDetector;
+			else
+				throw new TalismaneException("Unknown module: " + moduleString);
+
+			inFilePath = talismaneConfig.getString("inFile");
+			inDirPath = talismaneConfig.getString("inDir");
+			outFilePath = talismaneConfig.getString("outFile");
+			outDirPath = talismaneConfig.getString("outDir");
+
+			encoding = talismaneConfig.getString("encoding");
+			inputEncoding = talismaneConfig.getString("inputEncoding");
+			outputEncoding = talismaneConfig.getString("outputEncoding");
+
+			String localeString = talismaneConfig.getString("locale");
+			if (localeString.length() > 0)
+				locale = Locale.forLanguageTag(localeString);
+
+			String startModuleString = analyseConfig.getString("startModule");
+
+			if (startModuleString.equalsIgnoreCase("sentence") || startModuleString.equalsIgnoreCase("sentenceDetector"))
+				startModule = Talismane.Module.SentenceDetector;
+			else if (startModuleString.equalsIgnoreCase("tokenise") || startModuleString.equalsIgnoreCase("tokeniser"))
+				startModule = Talismane.Module.Tokeniser;
+			else if (startModuleString.equalsIgnoreCase("postag") || startModuleString.equalsIgnoreCase("posTagger"))
+				startModule = Talismane.Module.PosTagger;
+			else if (startModuleString.equalsIgnoreCase("parse") || startModuleString.equalsIgnoreCase("parser"))
+				startModule = Talismane.Module.Parser;
+			else
+				throw new TalismaneException("Unknown startModule: " + startModuleString);
+
+			String endModuleString = analyseConfig.getString("endModule");
+
+			if (endModuleString.equalsIgnoreCase("sentence") || endModuleString.equalsIgnoreCase("sentenceDetector"))
+				endModule = Talismane.Module.SentenceDetector;
+			else if (endModuleString.equalsIgnoreCase("tokenise") || endModuleString.equalsIgnoreCase("tokeniser"))
+				endModule = Talismane.Module.Tokeniser;
+			else if (endModuleString.equalsIgnoreCase("postag") || endModuleString.equalsIgnoreCase("posTagger"))
+				endModule = Talismane.Module.PosTagger;
+			else if (endModuleString.equalsIgnoreCase("parse") || endModuleString.equalsIgnoreCase("parser"))
+				endModule = Talismane.Module.Parser;
+			else
+				throw new TalismaneException("Unknown endModule: " + endModuleString);
+
+			posTagSetPath = analyseConfig.getString("posTagSet");
+
+			transitionSystemStr = analyseConfig.getString("transitionSystem");
+
+			dependencyLabelPath = analyseConfig.getString("dependencyLabels");
+
+			languageModelFilePath = analyseConfig.getString("languageModel");
+			sentenceModelFilePath = analyseConfig.getString("sentenceModel");
+			tokeniserModelFilePath = analyseConfig.getString("tokeniserModel");
+			posTaggerModelFilePath = analyseConfig.getString("posTaggerModel");
+			parserModelFilePath = analyseConfig.getString("parserModel");
+
+			String lexiconStr = analyseConfig.getString("lexicon");
+
+			if (lexiconStr.startsWith("replace:")) {
+				replaceLexicon = true;
+				lexiconPath = lexiconStr.substring("replace:".length());
+			} else {
+				lexiconPath = lexiconStr;
+			}
+
+			preloadLexicon = analyseConfig.getBoolean("preloadLexicon");
+
+			diacriticizerPath = analyseConfig.getString("diacriticizer");
+
+			inputPatternFilePath = analyseConfig.getString("inputPatternFile");
+			inputRegex = analyseConfig.getString("inputPattern");
+
+			String textFilters = analyseConfig.getString("textFilters");
+			if (textFilters.startsWith("replace:")) {
+				textFiltersReplace = true;
+				textFiltersPath = textFilters.substring("replace:".length());
+			} else {
+				textFiltersPath = textFilters;
+			}
+
+			String tokenFilters = analyseConfig.getString("tokenFilters");
+			if (tokenFilters.startsWith("replace:")) {
+				tokenFiltersReplace = true;
+				tokenFiltersPath = tokenFilters.substring("replace:".length());
+			} else {
+				tokenFiltersPath = tokenFilters;
+			}
+
+			String tokenSequenceFilters = analyseConfig.getString("tokenSequenceFilters");
+			if (tokenSequenceFilters.startsWith("replace:")) {
+				tokenSequenceFiltersReplace = true;
+				tokenSequenceFilterPath = tokenSequenceFilters.substring("replace:".length());
+			} else {
+				tokenSequenceFilterPath = tokenSequenceFilters;
+			}
+
+			posTagSequenceFilterPath = analyseConfig.getString("posTagSequenceFilters");
+
+			newlineMarker = MarkerFilterType.valueOf(analyseConfig.getString("newline"));
+
+			processByDefault = analyseConfig.getBoolean("processByDefault");
+
+			endBlockCharacter = analyseConfig.getString("endBlockCharCode").charAt(0);
+
+			blockSize = analyseConfig.getInt("blockSize");
+
+			maxSentenceCount = analyseConfig.getInt("sentenceCount");
+			startSentence = analyseConfig.getInt("startSentence");
+
+			builtInTemplate = analyseConfig.getString("builtInTemplate");
+			templatePath = analyseConfig.getString("template");
+
+			includeDetails = analyseConfig.getBoolean("includeDetails");
+
+			String posTaggerRules = analyseConfig.getString("posTaggerRules");
+			if (posTaggerRules.startsWith("replace:")) {
+				posTaggerRulesReplace = true;
+				posTaggerRuleFilePath = posTaggerRules.substring("replace:".length());
+			} else {
+				posTaggerRuleFilePath = posTaggerRules;
+			}
+
+			String parserRules = analyseConfig.getString("parserRules");
+			if (parserRules.startsWith("replace:")) {
+				parserRulesReplace = true;
+				parserRuleFilePath = parserRules.substring("replace:".length());
+			} else {
+				parserRuleFilePath = parserRules;
+			}
+
+			fileName = analyseConfig.getString("fileName");
+			suffix = analyseConfig.getString("suffix");
+
+			outputDivider = analyseConfig.getString("outputDivider");
+			if (outputDivider.equals("NEWLINE"))
+				outputDivider = "\n";
+
+			beamWidth = analyseConfig.getInt("beamWidth");
+			tokeniserBeamWidth = analyseConfig.getInt("tokeniserBeamWidth");
+			posTaggerBeamWidth = analyseConfig.getInt("posTaggerBeamWidth");
+			parserBeamWidth = analyseConfig.getInt("parserBeamWidth");
+			propagateBeam = analyseConfig.getBoolean("propagateBeam");
+			propagateTokeniserBeam = analyseConfig.getBoolean("propagateTokeniserBeam");
+
+			dynamiseFeatures = analyseConfig.getBoolean("dynamiseFeatures");
+
+			tokeniserType = TokeniserType.valueOf(analyseConfig.getString("tokeniser.type"));
+			patternTokeniserType = PatternTokeniserType.valueOf(analyseConfig.getString("tokeniser.patternTokeniserType"));
+
+			maxParseAnalysisTime = analyseConfig.getInt("parser.maxAnalysisTime");
+			minFreeMemory = analyseConfig.getInt("parser.minFreeMemory");
+			parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(analyseConfig.getString("parser.comparisonStrategy"));
+			earlyStop = analyseConfig.getBoolean("parser.earlyStop");
+
+			evaluationFilePath = evaluateConfig.getString("evaluationFile");
+			evaluationPatternFilePath = evaluateConfig.getString("evaluationPatternFile");
+			evaluationRegex = evaluateConfig.getString("evaluationPattern");
+
+			csvSeparator = evaluateConfig.getString("csv.separator");
+			csvEncoding = evaluateConfig.getString("csv.encoding");
+			if (csvEncoding.length() == 0) {
+				csvEncoding = Charset.defaultCharset().name();
+			}
+
+			String csvLocaleString = evaluateConfig.getString("csv.locale");
+			if (csvLocaleString.length() > 0)
+				outputLocale = Locale.forLanguageTag(csvLocaleString);
+
+			includeLexiconCoverage = evaluateConfig.getBoolean("posTagger.includeLexiconCoverage");
+			includeUnknownWordResults = evaluateConfig.getBoolean("posTagger.includeUnknownWordResults");
+
+			labeledEvaluation = evaluateConfig.getBoolean("parser.labeledEvaluation");
+			includeTimePerToken = evaluateConfig.getBoolean("parser.includeTimePerToken");
+			includeDistanceFScores = evaluateConfig.getBoolean("parser.includeDistanceFScores");
+			skipLabel = evaluateConfig.getString("parser.skipLabel");
+			includeTransitionLog = evaluateConfig.getBoolean("parser.includeTransitionLog");
+			String errorLabelsString = evaluateConfig.getString("parser.errorLabels");
+			if (errorLabelsString.length() > 0) {
+				errorLabels = new HashSet<String>();
+				String[] labels = errorLabelsString.split(",");
+				for (String label : labels) {
+					errorLabels.add(label);
 				}
 			}
+
+			crossValidationSize = evaluateConfig.getInt("crossValidation.foldCount");
+			includeIndex = evaluateConfig.getInt("crossValidation.includeIndex");
+			excludeIndex = evaluateConfig.getInt("crossValidation.excludeIndex");
+
+			outputGuesses = evaluateConfig.getBoolean("outputGuesses");
+			outputGuessCount = evaluateConfig.getInt("outputGuessCount");
+
+			option = Option.valueOf(processConfig.getString("option"));
+			corpusLexicalEntryRegexPath = processConfig.getString("corpusLexicalEntryRegex");
+			predictTransitions = processConfig.getBoolean("predictTransitions");
+
+			String testWordsString = processConfig.getString("posTagFeatureTester.testWords");
+			if (testWordsString.length() > 0) {
+				String[] parts = testWordsString.split(";");
+				testWords = new HashSet<String>();
+				for (String part : parts)
+					testWords.add(part);
+			}
+
+			externalResourcePath = trainConfig.getString("externalResources");
+
+			languageFeaturePath = trainConfig.getString("languageDetector.features");
+			languageCorpusMapPath = trainConfig.getString("languageDetector.languageCorpusMap");
+
+			sentenceFeaturePath = trainConfig.getString("sentenceDetector.features");
+
+			sentenceReaderPath = trainConfig.getString("tokeniser.sentenceReader");
+			tokeniserFeaturePath = trainConfig.getString("tokeniser.features");
+			tokeniserPatternFilePath = trainConfig.getString("tokeniser.patterns");
+
+			posTaggerFeaturePath = trainConfig.getString("posTagger.features");
+
+			parserFeaturePath = trainConfig.getString("parser.features");
+
+			perceptronObservationPoints = trainConfig.getIntList("perceptronObservationPoints");
+
+			logStats = talismaneConfig.getBoolean("logStats");
 
 			if (languagePackPath.length() > 0) {
 				File languagePackFile = this.getFile(languagePackPath);
@@ -921,7 +1041,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			}
 
 			this.getFilterService().setOutputDivider(outputDivider);
-		} catch (IOException e) {
+		} catch (
+
+		IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {
@@ -2242,7 +2364,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (sentenceProcessor == null && endModule.equals(Module.SentenceDetector)) {
 				Reader templateReader = null;
-				if (templatePath == null) {
+				if (templatePath.length() == 0) {
 					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(sentenceTemplateName)));
 				} else {
 					templateReader = new BufferedReader(new FileReader(this.getFile(templatePath)));
@@ -2266,7 +2388,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		try {
 			if (tokenSequenceProcessor == null && endModule.equals(Module.Tokeniser)) {
 				Reader templateReader = null;
-				if (templatePath == null) {
+				if (templatePath.length() == 0) {
 					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(tokeniserTemplateName)));
 				} else {
 					templateReader = new BufferedReader(new FileReader(this.getFile(templatePath)));
@@ -2294,7 +2416,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					posTagSequenceProcessor = this.getPosTaggerService().getPosTagFeatureTester(this.getPosTaggerFeatures(), this.testWords, file);
 				} else {
 					Reader templateReader = null;
-					if (templatePath == null) {
+					if (templatePath.length() == 0) {
 						templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(posTaggerTemplateName)));
 					} else {
 						templateReader = new BufferedReader(new FileReader(this.getFile(templatePath)));
@@ -2318,21 +2440,15 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public synchronized ParseConfigurationProcessor getParseConfigurationProcessor() {
 		try {
 			if (parseConfigurationProcessor == null && endModule.equals(Module.Parser)) {
-				if (option == null) {
+				if (option.equals(Option.output)) {
 					Reader templateReader = null;
-					if (templatePath == null) {
+					if (templatePath.length() == 0) {
 						templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(parserTemplateName)));
 					} else {
 						templateReader = new BufferedReader(new FileReader(this.getFile(templatePath)));
 					}
 					FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
 					parseConfigurationProcessor = templateWriter;
-				} else if (option.equals(Option.loadParsingConstraints)) {
-					ParsingConstrainer constrainer = this.getParserService().getParsingConstrainer();
-					this.getOutDir();
-					File outFile = this.getFile(outFilePath);
-					constrainer.setFile(outFile);
-					parseConfigurationProcessor = constrainer;
 				} else if (option.equals(Option.parseFeatureTester)) {
 					File file = new File(this.getOutDir(), this.getBaseName() + "_featureTest.txt");
 					parseConfigurationProcessor = this.getParserService().getParseFeatureTester(this.getParserFeatures(), file);
@@ -2347,6 +2463,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					File csvFile = new File(this.getOutDir(), this.getBaseName() + "_transitions.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
+
 					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), csvEncoding));
 					ParseConfigurationProcessor transitionLogWriter = this.getParserService().getTransitionLogWriter(csvFileWriter);
 
@@ -2508,8 +2625,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (this.getInputRegex() != null)
 					parserRegexCorpusReader.setRegex(this.getInputRegex());
 				parserRegexCorpusReader.setPredictTransitions(predictTransitions);
-				if (this.excludeFileName.length() > 0)
-					parserRegexCorpusReader.setExcludeFileName(this.excludeFileName);
 
 				if (corpusLexicalEntryRegexPath.length() > 0) {
 					File corpusLexicalEntryRegexFile = this.getFile(corpusLexicalEntryRegexPath);
@@ -2660,7 +2775,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 				ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
 				parseFScoreCalculator.setLabeledEvaluation(this.labeledEvaluation);
-				parseFScoreCalculator.setSkipLabel(skipLabel);
 
 				if (parserEvaluator.getTokeniser() != null)
 					parseFScoreCalculator.setHasTokeniser(true);
@@ -2706,7 +2820,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					ParseConfigurationProcessor transitionLogWriter = this.getParserService().getTransitionLogWriter(csvFileWriter);
 					ParseEvaluationObserverImpl observer = new ParseEvaluationObserverImpl(transitionLogWriter);
 					observer.setWriter(csvFileWriter);
-					if (this.errorLabels != null)
+					if (this.errorLabels != null && this.errorLabels.size() > 0)
 						observer.setErrorLabels(errorLabels);
 					parserEvaluator.addObserver(observer);
 				}
@@ -2747,7 +2861,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 				ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
 				parseFScoreCalculator.setLabeledEvaluation(this.labeledEvaluation);
-				parseFScoreCalculator.setSkipLabel(skipLabel);
 
 				parseComparator.addObserver(parseFScoreCalculator);
 
@@ -2941,7 +3054,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				posTaggerEvaluator.addObserver(templateWriter);
 
 				if (includeLexiconCoverage) {
-					File lexiconCoverageFile = new File(this.getOutDir(), this.getBaseName() + ".unknown.csv");
+					File lexiconCoverageFile = new File(this.getOutDir(), this.getBaseName() + ".lexiconCoverage.csv");
 					PosTagEvaluationLexicalCoverageTester lexiconCoverageTester = new PosTagEvaluationLexicalCoverageTester(lexiconCoverageFile);
 					posTaggerEvaluator.addObserver(lexiconCoverageTester);
 				}
@@ -3337,41 +3450,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	}
 
 	@Override
-	public Map<String, Object> getTrainParameters() {
-		Map<String, Object> trainParameters = new HashMap<String, Object>();
-		if (algorithm == MachineLearningAlgorithm.MaxEnt) {
-			trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Iterations.name(), iterations);
-			trainParameters.put(MaxentModelTrainer.MaxentModelParameter.Cutoff.name(), cutoff);
-		} else if (algorithm == MachineLearningAlgorithm.Perceptron || algorithm == MachineLearningAlgorithm.PerceptronRanking) {
-			trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Iterations.name(), iterations);
-			trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Cutoff.name(), cutoff);
-			trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.AverageAtIntervals.name(), averageAtIntervals);
-
-			if (perceptronTolerance >= 0)
-				trainParameters.put(PerceptronClassificationModelTrainer.PerceptronModelParameter.Tolerance.name(), perceptronTolerance);
-		} else if (algorithm == MachineLearningAlgorithm.LinearSVM) {
-			trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Cutoff.name(), cutoff);
-			if (solverType != null)
-				trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.SolverType.name(), solverType);
-			if (constraintViolationCost >= 0)
-				trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.ConstraintViolationCost.name(), constraintViolationCost);
-			if (epsilon >= 0)
-				trainParameters.put(LinearSVMModelTrainer.LinearSVMModelParameter.Epsilon.name(), epsilon);
-		}
-		return trainParameters;
-	}
-
-	@Override
 	public Map<String, List<String>> getDescriptors() {
 		if (this.descriptors == null) {
 			descriptors = new HashMap<String, List<String>>();
 		}
 		return descriptors;
-	}
-
-	@Override
-	public MachineLearningAlgorithm getAlgorithm() {
-		return algorithm;
 	}
 
 	@Override
@@ -3382,17 +3465,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public List<Integer> getPerceptronObservationPoints() {
 		return perceptronObservationPoints;
-	}
-
-	@Override
-	public synchronized ParsingConstrainer getParsingConstrainer() {
-		if (parsingConstrainer == null) {
-			if (parsingConstrainerPath == null) {
-				throw new RuntimeException("Missing argument: parsingConstrainer");
-			}
-			parsingConstrainer = parserService.getParsingConstrainer(this.getFile(parsingConstrainerPath));
-		}
-		return parsingConstrainer;
 	}
 
 	@Override
@@ -3553,6 +3625,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		this.prependedTokenFilters.add(0, tokenFilter);
 		if (this.tokenFilters != null)
 			this.tokenFilters.add(0, tokenFilter);
+	}
+
+	@Override
+	public Config getConfig() {
+		return config;
 	}
 
 }

@@ -45,6 +45,9 @@ class ModelFactory {
 	private MaxentService maxentService;
 	private LinearSVMService linearSVMService;
 
+	public ModelFactory() {
+	}
+
 	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) {
 		try {
 			MachineLearningModel machineLearningModel = null;

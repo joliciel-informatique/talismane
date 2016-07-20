@@ -43,7 +43,7 @@ class ModelTrainerFactory {
 	 * and a given algorithm.
 	 */
 	public ClassificationModelTrainer makeClassificationModelTrainer(Config config) {
-		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("talismane.machine-learning.algorithm"));
+		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("talismane.machineLearning.algorithm"));
 		ClassificationModelTrainer modelTrainer = null;
 		switch (algorithm) {
 		case MaxEnt:
