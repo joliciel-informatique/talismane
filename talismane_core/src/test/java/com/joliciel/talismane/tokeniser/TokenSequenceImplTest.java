@@ -22,9 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -342,9 +340,6 @@ public class TokenSequenceImplTest {
 		placeholder1.addAttribute("person", new StringAttribute("3rd"));
 		placeholders.add(placeholder1);
 
-		Map<String, TokenAttribute<?>> attributes2 = new HashMap<String, TokenAttribute<?>>();
-		attributes2.put("type", new StringAttribute("object"));
-
 		TokenPlaceholder placeholder2 = new TokenPlaceholder("Il ".length(), "Il t’".length(), null, "blah");
 		placeholder2.setSingleToken(false);
 		placeholder2.addAttribute("type", new StringAttribute("object"));
@@ -425,6 +420,80 @@ public class TokenSequenceImplTest {
 			} else if (i == 4) {
 				assertEquals(".", token.getText());
 				assertEquals(true, token.isSeparator());
+			}
+			i++;
+		}
+	}
+
+	@Test
+	public void testOverlappingPlaceholders(@NonStrict final Sentence sentence) {
+		final TokeniserServiceInternal tokeniserService = new TokeniserServiceImpl();
+
+		final String separators = "[\\s\\p{Punct}]";
+		Pattern separatorPattern = Pattern.compile(separators);
+
+		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
+		TokenPlaceholder placeholder1 = new TokenPlaceholder("".length(), "Pakistan".length(), null, "blah");
+		placeholder1.setSingleToken(false);
+		placeholder1.addAttribute("namedEntity", new StringAttribute("place"));
+		placeholder1.addAttribute("startsWithP", new StringAttribute("true"));
+		placeholders.add(placeholder1);
+
+		TokenPlaceholder placeholder2 = new TokenPlaceholder("".length(), "Pakistan International Airlines".length(), null, "blah");
+		placeholder2.setSingleToken(false);
+		placeholder2.addAttribute("namedEntity", new StringAttribute("company"));
+		placeholder2.addAttribute("asianCompany", new StringAttribute("true"));
+		placeholders.add(placeholder2);
+
+		TokenPlaceholder placeholder3 = new TokenPlaceholder("Pakistan ".length(), "Pakistan International Airlines Company".length(), null, "blah");
+		placeholder3.setSingleToken(false);
+		placeholder3.addAttribute("namedEntity", new StringAttribute("company"));
+		placeholder3.addAttribute("asianCompany", new StringAttribute("false"));
+		placeholders.add(placeholder3);
+
+		TokenPlaceholder placeholder4 = new TokenPlaceholder("Pakistan International Airlines ".length(), "Pakistan International Airlines Company".length(),
+				null, "blah");
+		placeholder4.setSingleToken(false);
+		placeholder4.addAttribute("shouldNotBeSkipped", new StringAttribute("true"));
+		placeholders.add(placeholder4);
+
+		new NonStrictExpectations() {
+
+			{
+				sentence.getText();
+				returns("Pakistan International Airlines Company");
+
+			}
+		};
+
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, tokeniserService);
+		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
+		LOG.debug(tokenSequence.toString());
+		assertEquals(4, tokenSequence.size());
+
+		int i = 0;
+		for (Token token : tokenSequence) {
+			LOG.debug(token.getAttributes().toString());
+			if (i == 0) {
+				assertEquals("Pakistan", token.getText());
+				assertEquals(3, token.getAttributes().size());
+				assertEquals("company", token.getAttributes().get("namedEntity").getValue());
+				assertEquals("true", token.getAttributes().get("startsWithP").getValue());
+				assertEquals("true", token.getAttributes().get("asianCompany").getValue());
+			} else if (i == 1) {
+				assertEquals("International", token.getText());
+				assertEquals(2, token.getAttributes().size());
+				assertEquals("company", token.getAttributes().get("namedEntity").getValue());
+				assertEquals("true", token.getAttributes().get("asianCompany").getValue());
+			} else if (i == 2) {
+				assertEquals("Airlines", token.getText());
+				assertEquals(2, token.getAttributes().size());
+				assertEquals("company", token.getAttributes().get("namedEntity").getValue());
+				assertEquals("true", token.getAttributes().get("asianCompany").getValue());
+			} else if (i == 3) {
+				assertEquals("Company", token.getText());
+				assertEquals(1, token.getAttributes().size());
+				assertEquals("true", token.getAttributes().get("shouldNotBeSkipped").getValue());
 			}
 			i++;
 		}
