@@ -23,7 +23,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +39,7 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
-	
+
 	private TokenSequenceImpl(TokenSequenceImpl sequenceToClone) {
 		super(sequenceToClone);
 	}
@@ -45,35 +47,37 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 	public TokenSequenceImpl(Sentence sentence) {
 		super(sentence);
 	}
-	
+
 	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, TokeniserServiceInternal tokeniserServiceInternal) {
 		this(sentence, separatorPattern, null, tokeniserServiceInternal);
 	}
-	
-	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders, TokeniserServiceInternal tokeniserServiceInternal) {
+
+	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders,
+			TokeniserServiceInternal tokeniserServiceInternal) {
 		super(sentence);
 		this.setTokeniserServiceInternal(tokeniserServiceInternal);
 		this.initialise(sentence.getText(), separatorPattern, placeholders);
 	}
-	
+
 	public TokenSequenceImpl(Sentence sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence) {
 		super(sentence);
 		this.underlyingAtomicTokenSequence = tokenisedAtomicTokenSequence;
 	}
-	
+
 	private void initialise(String text, Pattern separatorPattern, List<TokenPlaceholder> placeholders) {
 		Matcher matcher = separatorPattern.matcher(text);
 		Set<Integer> separatorMatches = new HashSet<Integer>();
 		while (matcher.find())
 			separatorMatches.add(matcher.start());
-		
-		Map<Integer,TokenPlaceholder> placeholderMap = new HashMap<Integer,TokenPlaceholder>();
+
+		Map<Integer, TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
 		List<TokenPlaceholder> attributePlaceholders = new ArrayList<TokenPlaceholder>();
-		if (placeholders!=null) {
+		if (placeholders != null) {
 			for (TokenPlaceholder placeholder : placeholders) {
 				if (placeholder.isSingleToken()) {
 					// take the first placeholder at this start index only
-					// thus declaration order is the order at which they're applied
+					// thus declaration order is the order at which they're
+					// applied
 					if (!placeholderMap.containsKey(placeholder.getStartIndex()))
 						placeholderMap.put(placeholder.getStartIndex(), placeholder);
 				} else {
@@ -81,50 +85,80 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 				}
 			}
 		}
-		
+
 		int currentPos = 0;
-		for (int i=0; i<text.length(); i++) {
+		for (int i = 0; i < text.length(); i++) {
 			if (placeholderMap.containsKey(i)) {
-				if (i>currentPos)
-					this.addToken(currentPos,i);
+				if (i > currentPos)
+					this.addToken(currentPos, i);
 				TokenPlaceholder placeholder = placeholderMap.get(i);
 				Token token = this.addToken(placeholder.getStartIndex(), placeholder.getEndIndex());
-				if (placeholder.getReplacement()!=null)
+				if (placeholder.getReplacement() != null)
 					token.setText(placeholder.getReplacement());
-				
+
 				for (String key : placeholder.getAttributes().keySet())
 					token.addAttribute(key, placeholder.getAttributes().get(key));
-				
+
 				if (separatorPattern.matcher(token.getText()).matches())
 					token.setSeparator(true);
-				
+
 				// skip until after the placeholder
-				i = placeholder.getEndIndex()-1;
+				i = placeholder.getEndIndex() - 1;
 				currentPos = placeholder.getEndIndex();
 			} else if (separatorMatches.contains(i)) {
-				if (i>currentPos)
-					this.addToken(currentPos,i);
-				Token separator = this.addToken(i, i+1);
+				if (i > currentPos)
+					this.addToken(currentPos, i);
+				Token separator = this.addToken(i, i + 1);
 				separator.setSeparator(true);
-				currentPos = i+1;
+				currentPos = i + 1;
 			}
 		}
-		
-		if (currentPos<text.length())
+
+		if (currentPos < text.length())
 			this.addToken(currentPos, text.length());
-		
-		// add any attributes provided by attribute placeholders
+
+		// select order in which to add attributes, when attributes exist for
+		// identical keys
+		Map<String, NavigableSet<TokenPlaceholder>> attributeOrderingMap = new HashMap<>();
 		for (TokenPlaceholder placeholder : attributePlaceholders) {
-			for (Token token : this) {
-				if (token.getStartIndex()>=placeholder.getStartIndex() && token.getEndIndex()<=placeholder.getEndIndex()) {
-					for (String key : placeholder.getAttributes().keySet()) {
+			for (String key : placeholder.getAttributes().keySet()) {
+				NavigableSet<TokenPlaceholder> placeholderSet = attributeOrderingMap.get(key);
+				if (placeholderSet == null) {
+					placeholderSet = new TreeSet<>();
+					attributeOrderingMap.put(key, placeholderSet);
+					placeholderSet.add(placeholder);
+				} else {
+					// only add one placeholder per location for each attribute
+					// key
+					TokenPlaceholder floor = placeholderSet.floor(placeholder);
+					if (floor == null || floor.compareTo(placeholder) < 0) {
+						placeholderSet.add(placeholder);
+					}
+				}
+			}
+		}
+
+		// add any attributes provided by attribute placeholders
+		for (String key : attributeOrderingMap.keySet()) {
+			for (TokenPlaceholder placeholder : attributeOrderingMap.get(key)) {
+				for (Token token : this) {
+					if (token.getStartIndex() >= placeholder.getStartIndex() && token.getEndIndex() <= placeholder.getEndIndex()) {
+						if (token.getAttributes().containsKey(key)) {
+							// this token already contains the key in question,
+							// only possible when two placeholders overlap
+							// in this case, the second placeholder is
+							// completely skipped
+							// so we break out of the token loop to avoid
+							// assigning the remaining tokens
+							break;
+						}
 						token.addAttribute(key, placeholder.getAttributes().get(key));
 					}
 				}
 			}
 		}
-		
-		this.finalise();		
+
+		this.finalise();
 	}
 
 	@Override
