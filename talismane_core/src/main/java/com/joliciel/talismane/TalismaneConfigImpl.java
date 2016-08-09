@@ -596,7 +596,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 			String moduleString = talismaneConfig.getString("module");
 
-			if (moduleString.equalsIgnoreCase("sentence") || moduleString.equalsIgnoreCase("sentenceDetector"))
+			if (moduleString.length() == 0) {
+				// do nothing
+			} else if (moduleString.equalsIgnoreCase("sentence") || moduleString.equalsIgnoreCase("sentenceDetector"))
 				module = Talismane.Module.SentenceDetector;
 			else if (moduleString.equalsIgnoreCase("tokenise") || moduleString.equalsIgnoreCase("tokeniser"))
 				module = Talismane.Module.Tokeniser;
@@ -635,6 +637,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			else
 				throw new TalismaneException("Unknown startModule: " + startModuleString);
 
+			if (module != null)
+				startModule = module;
+
 			String endModuleString = analyseConfig.getString("endModule");
 
 			if (endModuleString.equalsIgnoreCase("sentence") || endModuleString.equalsIgnoreCase("sentenceDetector"))
@@ -647,6 +652,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				endModule = Talismane.Module.Parser;
 			else
 				throw new TalismaneException("Unknown endModule: " + endModuleString);
+
+			if (module != null)
+				endModule = module;
 
 			posTagSetPath = analyseConfig.getString("posTagSet");
 
@@ -3042,7 +3050,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				posTaggerEvaluator.addObserver(posTagFScoreCalculator);
 
 				Reader templateReader = null;
-				if (templatePath == null) {
+				if (templatePath.length() == 0) {
 					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(posTaggerTemplateName)));
 				} else {
 					templateReader = new BufferedReader(new FileReader(this.getFile(templatePath)));
