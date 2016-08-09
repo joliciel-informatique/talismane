@@ -26,6 +26,7 @@ import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificatio
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * A class for constructing model trainers implementing ModelTrainer.
@@ -43,6 +44,7 @@ class ModelTrainerFactory {
 	 * and a given algorithm.
 	 */
 	public ClassificationModelTrainer makeClassificationModelTrainer(Config config) {
+		config.checkValid(ConfigFactory.defaultReference(), "talismane.machineLearning");
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("talismane.machineLearning.algorithm"));
 		ClassificationModelTrainer modelTrainer = null;
 		switch (algorithm) {
