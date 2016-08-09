@@ -48,6 +48,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
+import com.typesafe.config.Config;
 
 import de.bwaldvogel.liblinear.Model;
 import gnu.trove.map.TObjectIntMap;
@@ -71,10 +72,9 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	LinearSVMModel(Model model, Map<String, List<String>> descriptors) {
-		super();
+	LinearSVMModel(Model model, Config config, Map<String, List<String>> descriptors) {
+		super(config, descriptors);
 		this.model = model;
-		this.setDescriptors(descriptors);
 	}
 
 	@Override

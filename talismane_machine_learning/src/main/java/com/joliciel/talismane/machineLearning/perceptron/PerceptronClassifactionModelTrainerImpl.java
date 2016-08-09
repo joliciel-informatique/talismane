@@ -62,6 +62,8 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	private List<Integer> observationPoints;
 	private boolean averageAtIntervals = false;
 
+	private Config config;
+
 	private MachineLearningService machineLearningService;
 
 	public PerceptronClassifactionModelTrainerImpl() {
@@ -405,7 +407,7 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 	}
 
 	ClassificationModel getModel(PerceptronModelParameters params, int iterations) {
-		PerceptronClassificationModel model = new PerceptronClassificationModel(params, descriptors);
+		PerceptronClassificationModel model = new PerceptronClassificationModel(params, config, descriptors);
 		model.setMachineLearningService(machineLearningService);
 		model.addModelAttribute("cutoff", this.getCutoff());
 		model.addModelAttribute("iterations", this.getIterations());
@@ -420,6 +422,8 @@ class PerceptronClassifactionModelTrainerImpl implements PerceptronClassificatio
 
 	@Override
 	public void setParameters(Config config) {
+		this.config = config;
+
 		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
 		Config perceptronConfig = machineLearningConfig.getConfig("perceptron");
 

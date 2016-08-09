@@ -23,10 +23,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -44,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * An abstract superclass for machine-learning models.
@@ -58,6 +62,17 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	private Map<String, Object> dependencies = new HashMap<String, Object>();
 	private Collection<ExternalResource<?>> externalResources;
 	private ExternalResourceFinder externalResourceFinder;
+	private Config config;
+
+	public AbstractMachineLearningModel() {
+		super();
+	}
+
+	public AbstractMachineLearningModel(Config config, Map<String, List<String>> descriptors) {
+		super();
+		this.descriptors = descriptors;
+		this.config = config;
+	}
 
 	@Override
 	public final void persist(File modelFile) {
@@ -77,6 +92,11 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 
 			zos.putNextEntry(new ZipEntry("algorithm.txt"));
 			writer.write(this.getAlgorithm().name());
+			writer.flush();
+			zos.flush();
+
+			zos.putNextEntry(new ZipEntry("config.txt"));
+			writer.write(this.getConfig().root().render());
 			writer.flush();
 			zos.flush();
 
@@ -198,6 +218,10 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 					this.addModelAttribute(name, value);
 				}
 			}
+		} else if (ze.getName().equals("config.txt")) {
+			Reader reader = new InputStreamReader(zis, "UTF-8");
+
+			this.config = ConfigFactory.parseReader(reader);
 		} else {
 			loaded = this.loadDataFromStream(zis, ze);
 		}
@@ -284,4 +308,9 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	 * Loads data from the input stream that is specific to this model type.
 	 */
 	protected abstract boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry);
+
+	@Override
+	public Config getConfig() {
+		return config;
+	}
 }

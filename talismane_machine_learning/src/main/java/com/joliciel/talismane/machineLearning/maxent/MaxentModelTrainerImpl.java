@@ -55,6 +55,8 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 	private double sigma;
 	private double smoothing;
 
+	private Config config;
+
 	private MachineLearningService machineLearningService;
 
 	@Override
@@ -86,7 +88,7 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		MaximumEntropyModel model = new MaximumEntropyModel(maxentModel, descriptors);
+		MaximumEntropyModel model = new MaximumEntropyModel(maxentModel, config, descriptors);
 		model.setMachineLearningService(machineLearningService);
 		model.addModelAttribute("cutoff", this.getCutoff());
 		model.addModelAttribute("iterations", this.getIterations());
@@ -146,6 +148,8 @@ class MaxentModelTrainerImpl implements MaxentModelTrainer {
 
 	@Override
 	public void setParameters(Config config) {
+		this.config = config;
+
 		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
 		Config maxentConfig = machineLearningConfig.getConfig("maxent");
 

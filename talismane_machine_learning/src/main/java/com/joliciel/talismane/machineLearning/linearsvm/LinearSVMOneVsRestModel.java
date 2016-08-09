@@ -50,6 +50,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
+import com.typesafe.config.Config;
 
 import de.bwaldvogel.liblinear.Model;
 import gnu.trove.map.TObjectIntMap;
@@ -73,9 +74,8 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	LinearSVMOneVsRestModel(Map<String, List<String>> descriptors) {
-		super();
-		this.setDescriptors(descriptors);
+	LinearSVMOneVsRestModel(Config config, Map<String, List<String>> descriptors) {
+		super(config, descriptors);
 	}
 
 	public void addModel(Model model) {

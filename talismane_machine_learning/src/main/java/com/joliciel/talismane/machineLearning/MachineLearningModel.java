@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.typesafe.config.Config;
+
 /**
  * A machine learning model, capable of providing a DecisionMaker, and
  * encapsluating all of the information required to analyse mew data (e.g.
@@ -87,6 +89,12 @@ public interface MachineLearningModel {
 	 * The machine learning algorithm implemented by this model.
 	 */
 	public MachineLearningAlgorithm getAlgorithm();
+
+	/**
+	 * The configuration used to construct this model, useful for retraining a
+	 * new model using the identical config.
+	 */
+	public Config getConfig();
 
 	/**
 	 * External resources used by this model.

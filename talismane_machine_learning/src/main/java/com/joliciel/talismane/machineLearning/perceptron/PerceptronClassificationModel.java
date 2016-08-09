@@ -42,6 +42,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
 class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassificationModel.class);
@@ -54,9 +55,9 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 	PerceptronClassificationModel() {
 	}
 
-	public PerceptronClassificationModel(PerceptronModelParameters params, Map<String, List<String>> descriptors) {
+	public PerceptronClassificationModel(PerceptronModelParameters params, Config config, Map<String, List<String>> descriptors) {
+		super(config, descriptors);
 		this.params = params;
-		this.setDescriptors(descriptors);
 	}
 
 	@Override
