@@ -557,6 +557,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	public synchronized void loadParameters(Config config) {
 		try {
+			config.checkValid(ConfigFactory.defaultReference(), "talismane.core");
+
 			this.config = config;
 
 			String encoding;
