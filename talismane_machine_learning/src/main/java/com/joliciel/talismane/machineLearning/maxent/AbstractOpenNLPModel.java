@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.typesafe.config.Config;
 
 import opennlp.model.MaxentModel;
 
@@ -65,10 +66,9 @@ abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel impleme
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	AbstractOpenNLPModel(MaxentModel model, Map<String, List<String>> descriptors) {
-		super();
+	AbstractOpenNLPModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
+		super(config, descriptors);
 		this.model = model;
-		this.setDescriptors(descriptors);
 	}
 
 	@Override

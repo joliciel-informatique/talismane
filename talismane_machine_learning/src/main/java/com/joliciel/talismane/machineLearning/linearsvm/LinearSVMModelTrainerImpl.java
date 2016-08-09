@@ -73,6 +73,7 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 	private boolean balanceEventCounts;
 	private File outDir = null;
 	private List<Map<String, Object>> parameterSets;
+	private Config config;
 
 	private MachineLearningService machineLearningService;
 
@@ -190,7 +191,7 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 					}
 				}
 
-				LinearSVMOneVsRestModel linearSVMModel = new LinearSVMOneVsRestModel(descriptors);
+				LinearSVMOneVsRestModel linearSVMModel = new LinearSVMOneVsRestModel(config, descriptors);
 				linearSVMModel.setMachineLearningService(this.machineLearningService);
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
 
@@ -325,7 +326,7 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 					MONITOR.endTask();
 				}
 
-				LinearSVMModel linearSVMModel = new LinearSVMModel(model, descriptors);
+				LinearSVMModel linearSVMModel = new LinearSVMModel(model, config, descriptors);
 				linearSVMModel.setMachineLearningService(this.machineLearningService);
 
 				linearSVMModel.setFeatureIndexMap(featureIndexMap);
@@ -507,6 +508,7 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 
 	@Override
 	public void setParameters(Config config) {
+		this.config = config;
 		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
 		Config linearSVMConfig = machineLearningConfig.getConfig("linearSVM");
 

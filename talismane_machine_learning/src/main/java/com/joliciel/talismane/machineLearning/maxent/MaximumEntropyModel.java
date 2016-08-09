@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
 import opennlp.model.MaxentModel;
 
@@ -57,8 +58,8 @@ class MaximumEntropyModel extends AbstractOpenNLPModel {
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	MaximumEntropyModel(MaxentModel model, Map<String, List<String>> descriptors) {
-		super(model, descriptors);
+	MaximumEntropyModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
+		super(model, config, descriptors);
 	}
 
 	@Override
