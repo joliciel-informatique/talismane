@@ -142,7 +142,9 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 		for (String key : attributeOrderingMap.keySet()) {
 			for (TokenPlaceholder placeholder : attributeOrderingMap.get(key)) {
 				for (Token token : this) {
-					if (token.getStartIndex() >= placeholder.getStartIndex() && token.getEndIndex() <= placeholder.getEndIndex()) {
+					if (token.getStartIndex() < placeholder.getStartIndex()) {
+						continue;
+					} else if (token.getEndIndex() <= placeholder.getEndIndex()) {
 						if (token.getAttributes().containsKey(key)) {
 							// this token already contains the key in question,
 							// only possible when two placeholders overlap
@@ -153,6 +155,9 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 							break;
 						}
 						token.addAttribute(key, placeholder.getAttributes().get(key));
+					} else {
+						// token.getEndIndex() > placeholder.getEndIndex()
+						break;
 					}
 				}
 			}
