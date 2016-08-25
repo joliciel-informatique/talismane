@@ -32,7 +32,6 @@ import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationMultiModelTrainer;
-import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -517,9 +516,7 @@ class LinearSVMModelTrainerImpl implements LinearSVMModelTrainer, Classification
 		this.setConstraintViolationCost(linearSVMConfig.getDouble("cost"));
 		this.setEpsilon(linearSVMConfig.getDouble("epsilon"));
 		this.setBalanceEventCounts(linearSVMConfig.getBoolean("balanceEventCounts"));
-
-		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(machineLearningConfig.getString("algorithm"));
-		this.setOneVsRest(algorithm.equals(MachineLearningAlgorithm.LinearSVMOneVsRest));
+		this.setOneVsRest(linearSVMConfig.getBoolean("oneVsRest"));
 	}
 
 	@Override

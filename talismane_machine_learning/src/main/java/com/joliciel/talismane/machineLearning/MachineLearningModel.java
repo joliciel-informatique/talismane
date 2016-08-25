@@ -39,10 +39,6 @@ import com.typesafe.config.Config;
  *
  */
 public interface MachineLearningModel {
-	public enum MachineLearningModelType {
-		Classification
-	}
-
 	public static final String FEATURE_DESCRIPTOR_KEY = "feature";
 
 	/**
