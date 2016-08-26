@@ -7,6 +7,29 @@ TokenRegexFilter(possibleSentenceBoundary=false,posTag=P,lemmaType=originalLower
 TokenRegexFilter(possibleSentenceBoundary=false,posTag=P,lemmaType=originalLower)	\be\.g\.	$0
 TokenRegexFilter(posTag=PONCT,lemmaType=originalLower)	[\.\?\!]{2,}	$0
 
+###################
+### Apostrophes ###
+###################
+TokenRegexFilter(caseSensitive=false)	\b(chefs?|mains?|ma[iî]tres?|hors)[ -]d'((oe|œ)uvres?)\b
+TokenRegexFilter(caseSensitive=false)	\bprud'(homme|hommes|homal|homaux|homale|homales)\b
+TokenRegexFilter(caseSensitive=false)	\b(trompes?)[ -]l'(oe|œ)il\b
+TokenRegexFilter(stem=aujourd'hui,caseSensitive=false)	\baujourd'hui\b
+TokenRegexFilter(stem=rendez-vous,caseSensitive=false)	\brendez-vous\b
+TokenRegexFilter(stem=ce,caseSensitive=false)	\bc('|e\b)
+TokenRegexFilter(stem=de,caseSensitive=false)	\bd('|e\b)
+TokenRegexFilter(stem=je,caseSensitive=false)	\bj('|e\b)
+TokenRegexFilter(stem=le,caseSensitive=false)	\bl('|e\b)
+TokenRegexFilter(stem=me,caseSensitive=false)	\bm('|e\b)
+TokenRegexFilter(stem=ne,caseSensitive=false)	\bn('|e\b)
+TokenRegexFilter(stem=se,caseSensitive=false)	\bs('|e\b)
+TokenRegexFilter(stem=te,caseSensitive=false)	\bt('|e\b)
+TokenRegexFilter(stem=que,caseSensitive=false)	\bqu('|e\b)
+TokenRegexFilter(stem=jusque,caseSensitive=false)	\bjusqu('|e\b)
+TokenRegexFilter(stem=puisque,caseSensitive=false)	\bpuisqu('|e\b)
+TokenRegexFilter(stem=lorsque,caseSensitive=false)	\blorsqu('|e\b)
+TokenRegexFilter(stem=quelque,caseSensitive=false)	\bquelqu('|e\b)
+TokenRegexFilter(stem=quoique,caseSensitive=false)	\bquoiqu('|e\b)
+
 #################
 #### Numbers ####
 #################
