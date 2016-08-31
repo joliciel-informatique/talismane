@@ -551,10 +551,11 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			}
 
 			String encoding = null;
-			String inputEncoding = encoding;
-			String outputEncoding = encoding;
 			if (talismaneConfig.hasPath("encoding"))
 				encoding = talismaneConfig.getString("encoding");
+
+			String inputEncoding = encoding;
+			String outputEncoding = encoding;
 			if (talismaneConfig.hasPath("inputEncoding"))
 				inputEncoding = talismaneConfig.getString("inputEncoding");
 			if (talismaneConfig.hasPath("outputEncoding"))
