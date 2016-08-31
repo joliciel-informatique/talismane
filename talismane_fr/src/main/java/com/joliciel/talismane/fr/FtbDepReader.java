@@ -18,38 +18,35 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.fr;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.Reader;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
 
 /**
- * A reader for the FrenchTreebank corpus, automatically converted from constituent trees to dependencies as
- * by Candito, Crabbé and Denis, see <i>Candito M.-H., Crabbé B., and Denis P.,
- * Statistical French dependency parsing: treebank conversion and first results, Proceedings of LREC'2010, La Valletta, Malta, 2010.</i>
+ * A reader for the FrenchTreebank corpus, automatically converted from
+ * constituent trees to dependencies as by Candito, Crabbé and Denis, see
+ * <i>Candito M.-H., Crabbé B., and Denis P., Statistical French dependency
+ * parsing: treebank conversion and first results, Proceedings of LREC'2010, La
+ * Valletta, Malta, 2010.</i>
  * 
  * @author Assaf
  *
  */
 public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
-    @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(FtbDepReader.class);
-    
-    private boolean keepCompoundPosTags = false;
-    
-	public FtbDepReader(File ftbDepFile, Charset charset) throws IOException {
-		super(ftbDepFile, charset);
+
+	private boolean keepCompoundPosTags = false;
+
+	public FtbDepReader(Reader reader) throws IOException {
+		super(reader);
 		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t.*\\t.*");
 	}
-
-	public FtbDepReader(File ftbDepFile, String encoding) throws IOException {
-		this(ftbDepFile, Charset.forName(encoding));
-	}
-
 
 	@Override
 	protected boolean checkDataLine(ParseDataLine dataLine) {
@@ -69,48 +66,52 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
 				dataLine.setPosTagCode("P");
 			} else if (dataLine.getPosTagCode().equals("P+PRO")) {
 				dataLine.setPosTagCode("PRO");
-			} else if (dataLine.getPosTagCode().length()==0) {
-				ParseDataLine previousLine = dataLines.get(index-1);
-				ParseDataLine nextLine = dataLines.get(index+1);
+			} else if (dataLine.getPosTagCode().length() == 0) {
+				ParseDataLine previousLine = dataLines.get(index - 1);
+				ParseDataLine nextLine = dataLines.get(index + 1);
 				if (nextLine.getPosTagCode().equals("P+PRO")) {
 					dataLine.setPosTagCode("P");
 					nextLine.setPosTagCode("PROREL");
-					
+
 					dataLine.setGovernorIndex(nextLine.getGovernorIndex());
 					nextLine.setGovernorIndex(dataLine.getIndex());
 				} else if (previousLine.getPosTagCode().equals("DET")) {
-					// this empty token is equivalent to a null postag, and can be removed
+					// this empty token is equivalent to a null postag, and can
+					// be removed
 					dataLine.setSkip(true);
 				} else {
-					// Initially checked for "P+D" only here, but since there are many other postags used,
-					// especially in the case of compounds, we left off the condition
+					// Initially checked for "P+D" only here, but since there
+					// are many other postags used,
+					// especially in the case of compounds, we left off the
+					// condition
 					if (previousLine.getPosTagCode().equals("P+D"))
 						previousLine.setPosTagCode("P");
 					dataLine.setPosTagCode("DET");
 					dataLine.setDependencyLabel("det");
-					// if it's a P+D, the D needs to become dependent on the noun that depends on the P
+					// if it's a P+D, the D needs to become dependent on the
+					// noun that depends on the P
 					ParseDataLine governor = null;
 					int realGovernorIndex = 0;
-					for (int i=index+1; i<dataLines.size(); i++) {
+					for (int i = index + 1; i < dataLines.size(); i++) {
 						ParseDataLine otherLine = dataLines.get(i);
 						if (otherLine.getPosTagCode().equals("PONCT"))
 							continue;
-						if (governor==null) {
+						if (governor == null) {
 							governor = otherLine;
 							realGovernorIndex = i;
 						}
-						if (otherLine.getGovernorIndex()==previousLine.getIndex()) {
+						if (otherLine.getGovernorIndex() == previousLine.getIndex()) {
 							governor = otherLine;
 							realGovernorIndex = i;
 							break;
-						} else if (otherLine.getGovernorIndex()<previousLine.getIndex()) {
+						} else if (otherLine.getGovernorIndex() < previousLine.getIndex()) {
 							break;
 						}
 					}
-					
-					for (int i=index+1; i<realGovernorIndex; i++) {
+
+					for (int i = index + 1; i < realGovernorIndex; i++) {
 						ParseDataLine otherLine = dataLines.get(i);
-						if (otherLine.getPosTagCode().equals("PONCT") && otherLine.getGovernorIndex()==previousLine.getIndex()) {
+						if (otherLine.getPosTagCode().equals("PONCT") && otherLine.getGovernorIndex() == previousLine.getIndex()) {
 							otherLine.setGovernorIndex(dataLine.getIndex());
 						}
 					}
@@ -120,16 +121,14 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
 		}
 	}
 
-
 	public boolean isKeepCompoundPosTags() {
 		return keepCompoundPosTags;
 	}
 
-
 	public void setKeepCompoundPosTags(boolean keepCompoundPosTags) {
 		this.keepCompoundPosTags = keepCompoundPosTags;
 	}
-	
+
 	@Override
 	protected String readWord(String rawWord) {
 		if (rawWord.equals("_")) {
@@ -143,7 +142,7 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
 			if (firstPart) {
 				word += part;
 				firstPart = false;
-			} else if (lastPart.endsWith("-")||part.startsWith("-")||lastPart.endsWith("'")) {
+			} else if (lastPart.endsWith("-") || part.startsWith("-") || lastPart.endsWith("'")) {
 				word += part;
 			} else {
 				word += " " + part;
@@ -152,5 +151,5 @@ public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
 		}
 		return word;
 	}
-	
+
 }

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -175,8 +176,10 @@ public interface Talismane {
 
 	/**
 	 * The writer to be used for output by this instance of Talismane.
+	 * 
+	 * @throws IOException
 	 */
-	public Writer getWriter();
+	public Writer getWriter() throws IOException;
 
 	public void setWriter(Writer writer);
 }

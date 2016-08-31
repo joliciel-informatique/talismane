@@ -18,8 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.joliciel.talismane.filters.FilterService;
@@ -136,64 +134,13 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args, LanguageImplementation implementation) {
-		return this.getTalismaneConfig(args, null, implementation);
+	public TalismaneConfig getTalismaneConfig(Config config) {
+		return this.getTalismaneConfig(config, null);
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(LanguageImplementation implementation) {
-		Map<String, String> args = new HashMap<String, String>();
-		return this.getTalismaneConfig(args, null, implementation);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir, LanguageImplementation implementation) {
-		return this.getTalismaneConfig(null, args, baseDir, implementation, null);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(String sessionId) {
-		Map<String, String> args = new HashMap<String, String>();
-		return this.getTalismaneConfig(args, null, sessionId);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args, String sessionId) {
-		return this.getTalismaneConfig(args, null, sessionId);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Map<String, String> args, File baseDir, String sessionId) {
-		return this.getTalismaneConfig(null, args, baseDir, null, sessionId);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Config config, LanguageImplementation implementation) {
-		return this.getTalismaneConfig(config, null, implementation);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Config config, String sessionId) {
-		return this.getTalismaneConfig(config, null, sessionId);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Config config, File baseDir, LanguageImplementation implementation) {
-		return this.getTalismaneConfig(config, null, baseDir, implementation, null);
-	}
-
-	@Override
-	public TalismaneConfig getTalismaneConfig(Config config, File baseDir, String sessionId) {
-		return this.getTalismaneConfig(config, null, baseDir, null, sessionId);
-	}
-
-	private TalismaneConfig getTalismaneConfig(Config myConfig, Map<String, String> args, File baseDir, LanguageImplementation implementation,
-			String sessionId) {
-		TalismaneConfigImpl config = null;
-		if (implementation != null)
-			config = new TalismaneConfigImpl(implementation);
-		else
-			config = new TalismaneConfigImpl(sessionId);
+	public TalismaneConfig getTalismaneConfig(Config myConfig, Map<String, String> args) {
+		TalismaneConfigImpl config = new TalismaneConfigImpl();
 
 		config.setTalismaneService(this);
 		config.setFilterService(filterService);
@@ -209,10 +156,9 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setTokeniserPatternService(tokeniserPatternService);
 		config.setTokeniserService(tokeniserService);
 		config.setLanguageDetectorService(languageDetectorService);
-		config.setBaseDir(baseDir);
 
 		if (args != null)
-			config.loadParameters(args);
+			config.loadParameters(args, myConfig);
 		else
 			config.loadParameters(myConfig);
 		return config;

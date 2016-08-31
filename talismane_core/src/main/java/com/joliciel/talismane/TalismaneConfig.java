@@ -2,6 +2,7 @@
 package com.joliciel.talismane;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -185,13 +186,17 @@ public interface TalismaneConfig {
 	/**
 	 * The reader to be used to read the data for evaluation, when
 	 * command=compare.
+	 * 
+	 * @throws IOException
 	 */
-	public Reader getEvaluationReader();
+	public Reader getEvaluationReader() throws IOException;
 
 	/**
 	 * A writer to which Talismane should write its output when analysing.
+	 * 
+	 * @throws IOException
 	 */
-	public Writer getWriter();
+	public Writer getWriter() throws IOException;
 
 	/**
 	 * The filename to be applied to this analysis (if filename is included in
@@ -206,32 +211,42 @@ public interface TalismaneConfig {
 
 	/**
 	 * The rules to apply when running the pos-tagger.
+	 * 
+	 * @throws IOException
 	 */
-	public List<PosTaggerRule> getPosTaggerRules();
+	public List<PosTaggerRule> getPosTaggerRules() throws IOException;
 
 	/**
 	 * The rules to apply when running the parser.
+	 * 
+	 * @throws IOException
 	 */
-	public List<ParserRule> getParserRules();
+	public List<ParserRule> getParserRules() throws IOException;
 
 	/**
 	 * A regex used to process the input, when pre-annotated.
+	 * 
+	 * @throws IOException
 	 */
-	public String getInputRegex();
+	public String getInputRegex() throws IOException;
 
 	public void setInputRegex(String inputRegex);
 
 	/**
 	 * A regex used to process the evaluation corpus.
+	 * 
+	 * @throws IOException
 	 */
-	public String getEvaluationRegex();
+	public String getEvaluationRegex() throws IOException;
 
 	/**
 	 * Text marker filters are applied to raw text segments extracted from the
 	 * stream, 3 segments at a time. This means that if a particular marker
 	 * crosses segment borders, it is handled correctly.
+	 * 
+	 * @throws IOException
 	 */
-	public List<TextMarkerFilter> getTextMarkerFilters();
+	public List<TextMarkerFilter> getTextMarkerFilters() throws IOException;
 
 	public void setTextMarkerFilters(Scanner scanner);
 
@@ -254,19 +269,19 @@ public interface TalismaneConfig {
 	 */
 	public Tokeniser getTokeniser();
 
-	public TokeniserPatternManager getTokeniserPatternManager();
+	public TokeniserPatternManager getTokeniserPatternManager() throws IOException;
 
-	public Set<LanguageDetectorFeature<?>> getLanguageDetectorFeatures();
+	public Set<LanguageDetectorFeature<?>> getLanguageDetectorFeatures() throws IOException;
 
-	public Set<SentenceDetectorFeature<?>> getSentenceDetectorFeatures();
+	public Set<SentenceDetectorFeature<?>> getSentenceDetectorFeatures() throws IOException;
 
-	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatures();
+	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatures() throws IOException;
 
-	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatures();
+	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatures() throws IOException;
 
-	public Set<PosTaggerFeature<?>> getPosTaggerFeatures();
+	public Set<PosTaggerFeature<?>> getPosTaggerFeatures() throws IOException;
 
-	public ClassificationEventStream getClassificationEventStream();
+	public ClassificationEventStream getClassificationEventStream() throws IOException;
 
 	/**
 	 * Create and return a new pos-tagger based on this configuration.
@@ -278,7 +293,7 @@ public interface TalismaneConfig {
 	 */
 	public Parser getParser();
 
-	public Set<ParseConfigurationFeature<?>> getParserFeatures();
+	public Set<ParseConfigurationFeature<?>> getParserFeatures() throws IOException;
 
 	/**
 	 * The maximum amount of time the parser will spend analysing any single
@@ -295,42 +310,54 @@ public interface TalismaneConfig {
 
 	/**
 	 * A language detector processor to process language detector output.
+	 * 
+	 * @throws IOException
 	 */
-	public LanguageDetectorProcessor getLanguageDetectorProcessor();
+	public LanguageDetectorProcessor getLanguageDetectorProcessor() throws IOException;
 
 	public void setLanguageDetectorProcessor(LanguageDetectorProcessor languageDetectorProcessor);
 
 	/**
 	 * A sentence processor to process sentences that have been read.
+	 * 
+	 * @throws IOException
 	 */
-	public SentenceProcessor getSentenceProcessor();
+	public SentenceProcessor getSentenceProcessor() throws IOException;
 
 	/**
 	 * A token sequence processor to process token sequences that have been
 	 * read.
+	 * 
+	 * @throws IOException
 	 */
-	public TokenSequenceProcessor getTokenSequenceProcessor();
+	public TokenSequenceProcessor getTokenSequenceProcessor() throws IOException;
 
 	/**
 	 * A pos-tag sequence processor to process pos-tag sequences that have been
 	 * read.
+	 * 
+	 * @throws IOException
 	 */
-	public PosTagSequenceProcessor getPosTagSequenceProcessor();
+	public PosTagSequenceProcessor getPosTagSequenceProcessor() throws IOException;
 
 	/**
 	 * A parse configuration processor to process parse configurations that have
 	 * been read.
+	 * 
+	 * @throws IOException
 	 */
-	public ParseConfigurationProcessor getParseConfigurationProcessor();
+	public ParseConfigurationProcessor getParseConfigurationProcessor() throws IOException;
 
 	/**
 	 * A token corpus reader to read a corpus pre-annotated in tokens. Note that
 	 * in general, any filters up to and including the tokeniser should be
 	 * applied to the corpus reader.
+	 * 
+	 * @throws IOException
 	 */
-	public TokeniserAnnotatedCorpusReader getTokenCorpusReader();
+	public TokeniserAnnotatedCorpusReader getTokenCorpusReader() throws IOException;
 
-	public TokeniserAnnotatedCorpusReader getTokenEvaluationCorpusReader();
+	public TokeniserAnnotatedCorpusReader getTokenEvaluationCorpusReader() throws IOException;
 
 	public void setTokenCorpusReader(TokeniserAnnotatedCorpusReader tokenCorpusReader);
 
@@ -338,19 +365,21 @@ public interface TalismaneConfig {
 	 * A pos tag corpus reader to read a corpus pre-annotated in postags. Note
 	 * that, in general, any filters up to and including the pos-tagger should
 	 * be applied to the reader.
+	 * 
+	 * @throws IOException
 	 */
-	public PosTagAnnotatedCorpusReader getPosTagCorpusReader();
+	public PosTagAnnotatedCorpusReader getPosTagCorpusReader() throws IOException;
 
-	public PosTagAnnotatedCorpusReader getPosTagEvaluationCorpusReader();
+	public PosTagAnnotatedCorpusReader getPosTagEvaluationCorpusReader() throws IOException;
 
 	/**
 	 * A parser corpus reader to read a corpus pre-annotated in dependencies.
+	 * 
+	 * @throws IOException
 	 */
-	public ParserAnnotatedCorpusReader getParserCorpusReader();
+	public ParserAnnotatedCorpusReader getParserCorpusReader() throws IOException;
 
-	public ParserAnnotatedCorpusReader getParserEvaluationCorpusReader();
-
-	public String getEvaluationFilePath();
+	public ParserAnnotatedCorpusReader getParserEvaluationCorpusReader() throws IOException;
 
 	public void setParserEvaluationCorpusReader(ParserAnnotatedCorpusReader parserEvaluationCorpusReader);
 
@@ -437,8 +466,6 @@ public interface TalismaneConfig {
 	 */
 	public boolean needsParser();
 
-	public String getInFilePath();
-
 	public boolean isLogStats();
 
 	public SentenceDetectorAnnotatedCorpusReader getSentenceCorpusReader();
@@ -500,9 +527,9 @@ public interface TalismaneConfig {
 
 	public String getParserModelFilePath();
 
-	public LanguageDetectorAnnotatedCorpusReader getLanguageCorpusReader();
-
 	public String getLanguageModelFilePath();
+
+	public LanguageDetectorAnnotatedCorpusReader getLanguageCorpusReader();
 
 	public PatternTokeniserType getPatternTokeniserType();
 
@@ -522,29 +549,11 @@ public interface TalismaneConfig {
 	public void preloadResources();
 
 	/**
-	 * A base directory from which all relative path names will be read.
-	 */
-	public File getBaseDir();
-
-	public void setBaseDir(File baseDir);
-
-	/**
 	 * The locale indicated for this configuration.
 	 */
 	public Locale getLocale();
 
 	public void setLocale(Locale locale);
-
-	public String getLanguageCorpusMapPath();
-
-	/**
-	 * The language corpus map file must be a tab-delimited file, with the
-	 * language tag, followed by a tab, followed by the path to the corpus for
-	 * this language.
-	 */
-	public void setLanguageCorpusMapPath(String languageCorpusMapPath);
-
-	public LanguageImplementation getLanguageImplementation();
 
 	/**
 	 * Set all token filters replacing those loaded from the model or config.

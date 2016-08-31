@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -37,7 +38,6 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.filters.DiacriticRemover;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -47,7 +47,8 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 	private static final long serialVersionUID = 1L;
 	private Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 	private Set<String> emptySet = new HashSet<String>();
-	private transient TalismaneSession talismaneSession;
+	private Map<String, String> lowercasePreferences = new HashMap<String, String>();
+	private Locale locale;
 
 	public DiacriticizerImpl() {
 	}
@@ -61,8 +62,8 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 		if (results == null)
 			return emptySet;
 		Set<String> validResults = null;
-		if (talismaneSession != null)
-			validResults = new TreeSet<String>(Collator.getInstance(talismaneSession.getLocale()));
+		if (locale != null)
+			validResults = new TreeSet<String>(Collator.getInstance(locale));
 		else
 			validResults = new TreeSet<String>();
 
@@ -100,15 +101,14 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 				validResults.add(result);
 		}
 
-		if (talismaneSession != null) {
-			String lowercasePreference = talismaneSession.getImplementation().getLowercasePreferences().get(originalWord);
-			if (lowercasePreference != null) {
-				Set<String> orderedResults = new LinkedHashSet<String>();
-				orderedResults.add(lowercasePreference);
-				orderedResults.addAll(validResults);
-				validResults = orderedResults;
-			}
+		String lowercasePreference = this.getLowercasePreferences().get(originalWord);
+		if (lowercasePreference != null) {
+			Set<String> orderedResults = new LinkedHashSet<String>();
+			orderedResults.add(lowercasePreference);
+			orderedResults.addAll(validResults);
+			validResults = orderedResults;
 		}
+
 		return validResults;
 	}
 
@@ -126,21 +126,11 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 		}
 	}
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
-
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
-
 	public void serialize() {
 
 	}
 
-	public static Diacriticizer deserialize(File inFile, TalismaneSession talismaneSession) {
+	public static Diacriticizer deserialize(File inFile) {
 		try {
 			FileInputStream fis = new FileInputStream(inFile);
 			ZipInputStream zis = new ZipInputStream(fis);
@@ -157,7 +147,6 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 				}
 			}
 			zis.close();
-			diacriticizer.setTalismaneSession(talismaneSession);
 
 			return diacriticizer;
 		} catch (IOException e) {
@@ -168,4 +157,25 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public Map<String, String> getLowercasePreferences() {
+		return lowercasePreferences;
+	}
+
+	@Override
+	public void setLowercasePreferences(Map<String, String> lowercasePreferences) {
+		this.lowercasePreferences = lowercasePreferences;
+	}
+
+	@Override
+	public Locale getLocale() {
+		return locale;
+	}
+
+	@Override
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
 }

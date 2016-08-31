@@ -19,20 +19,16 @@
 package com.joliciel.talismane.fr;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.GenericLanguageImplementation;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.TalismaneConfig;
@@ -47,17 +43,15 @@ import com.joliciel.talismane.fr.ftb.export.TreebankExportService;
 import com.joliciel.talismane.fr.ftb.upload.TreebankUploadService;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
-import com.joliciel.talismane.lexicon.LexicalEntryReader;
-import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
-import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
-import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * The default French implementation of Talismane.
@@ -65,9 +59,8 @@ import com.joliciel.talismane.utils.StringUtils;
  * @author Assaf Urieli
  *
  */
-public class TalismaneFrench extends GenericLanguageImplementation {
+public class TalismaneFrench {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneFrench.class);
-	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 
 	private enum CorpusFormat {
 		/** CoNLL-X format */
@@ -109,16 +102,23 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 		String sessionId = "";
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 		TalismaneService talismaneService = locator.getTalismaneService();
-		TalismaneFrench talismaneFrench = new TalismaneFrench(sessionId);
 
-		TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, talismaneFrench);
+		TokenFilterService tokenFilterService = locator.getTokenFilterServiceLocator().getTokenFilterService();
+		tokenFilterService.getAvailableTokenSequenceFilters().add(EmptyTokenAfterDuFilter.class);
+		tokenFilterService.getAvailableTokenSequenceFilters().add(EmptyTokenBeforeDuquelFilter.class);
+
+		Map<String, Object> defaultConfigParams = new HashMap<>();
+		defaultConfigParams.put("talismane.core.locale", "fr");
+
+		Config conf = ConfigFactory.load().withFallback(ConfigFactory.parseMap(defaultConfigParams));
+
+		TalismaneConfig config = talismaneService.getTalismaneConfig(conf, argsMap);
 		if (config.getCommand() == null)
 			return;
 
 		if (corpusReaderType != null) {
 			if (corpusReaderType == CorpusFormat.ftbDep) {
-				File inputFile = new File(config.getInFilePath());
-				FtbDepReader ftbDepReader = new FtbDepReader(inputFile, config.getInputCharset());
+				FtbDepReader ftbDepReader = new FtbDepReader(config.getReader());
 				ftbDepReader.setParserService(config.getParserService());
 				ftbDepReader.setPosTaggerService(config.getPosTaggerService());
 				ftbDepReader.setTokeniserService(config.getTokeniserService());
@@ -134,8 +134,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				config.setSentenceCorpusReader(ftbDepReader);
 
 				if (config.getCommand().equals(Command.compare)) {
-					File evaluationFile = new File(config.getEvaluationFilePath());
-					FtbDepReader ftbDepEvaluationReader = new FtbDepReader(evaluationFile, config.getInputCharset());
+					FtbDepReader ftbDepEvaluationReader = new FtbDepReader(config.getEvaluationReader());
 					ftbDepEvaluationReader.setKeepCompoundPosTags(keepCompoundPosTags);
 					config.setParserEvaluationCorpusReader(ftbDepEvaluationReader);
 					config.setPosTagEvaluationCorpusReader(ftbDepEvaluationReader);
@@ -150,12 +149,13 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				// we prepare both the tokeniser and pos-tag readers, just in
 				// case they are needed
 				List<String> descriptors = null;
-				try (InputStream posTagMapStream = talismaneFrench.getFtbPosTagMapFromStream(); Scanner scanner = new Scanner(posTagMapStream, "UTF-8")) {
+				try (InputStream posTagMapStream = TalismaneFrench.getFtbPosTagMapFromStream(); Scanner scanner = new Scanner(posTagMapStream, "UTF-8")) {
 					descriptors = new ArrayList<String>();
 					while (scanner.hasNextLine())
 						descriptors.add(scanner.nextLine());
 				}
-				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneFrench.getDefaultPosTagSet());
+
+				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneService.getTalismaneSession().getPosTagSet());
 				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper,
 						keepCompoundPosTags);
 				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);
@@ -167,9 +167,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
 				config.setSentenceCorpusReader(sentenceCorpusReader);
 			} else if (corpusReaderType == CorpusFormat.conll || corpusReaderType == CorpusFormat.spmrl) {
-				File inputFile = new File(config.getInFilePath());
-
-				ParserRegexBasedCorpusReader corpusReader = config.getParserService().getRegexBasedCorpusReader(inputFile, config.getInputCharset());
+				ParserRegexBasedCorpusReader corpusReader = config.getParserService().getRegexBasedCorpusReader(config.getReader());
 
 				corpusReader.setPredictTransitions(config.isPredictTransitions());
 
@@ -187,9 +185,7 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 				}
 
 				if (config.getCommand().equals(Command.compare)) {
-					File evaluationFile = new File(config.getEvaluationFilePath());
-					ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(evaluationFile,
-							config.getInputCharset());
+					ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(config.getEvaluationReader());
 					config.setParserEvaluationCorpusReader(evaluationReader);
 					config.setPosTagEvaluationCorpusReader(evaluationReader);
 
@@ -212,10 +208,6 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 		talismane.process();
 	}
 
-	public TalismaneFrench(String sessionId) {
-		super(sessionId);
-	}
-
 	private static InputStream getInputStreamFromResource(String resource) {
 		String path = "resources/" + resource;
 		LOG.debug("Getting " + path);
@@ -224,68 +216,8 @@ public class TalismaneFrench extends GenericLanguageImplementation {
 		return inputStream;
 	}
 
-	public InputStream getFtbPosTagMapFromStream() {
+	public static InputStream getFtbPosTagMapFromStream() {
 		InputStream inputStream = getInputStreamFromResource("ftbCrabbeCanditoTagsetMap.txt");
 		return inputStream;
-	}
-
-	@Override
-	public TransitionSystem getDefaultTransitionSystem() {
-		TransitionSystem transitionSystem = this.getParserService().getArcEagerTransitionSystem();
-		try (InputStream inputStream = getInputStreamFromResource("talismaneDependencyLabels.txt"); Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-			Set<String> dependencyLabels = new HashSet<String>();
-			while (scanner.hasNextLine()) {
-				String dependencyLabel = scanner.nextLine();
-				if (!dependencyLabel.startsWith("#")) {
-					if (dependencyLabel.indexOf('\t') > 0)
-						dependencyLabel = dependencyLabel.substring(0, dependencyLabel.indexOf('\t'));
-					dependencyLabels.add(dependencyLabel);
-				}
-			}
-			transitionSystem.setDependencyLabels(dependencyLabels);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-		return transitionSystem;
-	}
-
-	@Override
-	public PosTagSet getDefaultPosTagSet() {
-		try (InputStream posTagInputStream = getInputStreamFromResource("talismaneTagset.txt");
-				Scanner posTagSetScanner = new Scanner(posTagInputStream, "UTF-8")) {
-			PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
-			return posTagSet;
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters() {
-		if (availableTokenSequenceFilters == null) {
-			availableTokenSequenceFilters = new ArrayList<Class<? extends TokenSequenceFilter>>();
-			availableTokenSequenceFilters.add(EmptyTokenAfterDuFilter.class);
-			availableTokenSequenceFilters.add(EmptyTokenBeforeDuquelFilter.class);
-		}
-		return availableTokenSequenceFilters;
-	}
-
-	@Override
-	public LexicalEntryReader getDefaultCorpusLexicalEntryReader() {
-		try (InputStream inputStream = getInputStreamFromResource("talismane_conll_morph_regex.txt");
-				Scanner regexScanner = new Scanner(inputStream, "UTF-8")) {
-			LexicalEntryReader reader = new RegexLexicalEntryReader(regexScanner);
-			return reader;
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public Locale getLocale() {
-		return Locale.FRENCH;
 	}
 }

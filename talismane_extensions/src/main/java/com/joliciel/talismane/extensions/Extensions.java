@@ -56,6 +56,8 @@ import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class Extensions {
 	private static final Logger LOG = LoggerFactory.getLogger(Extensions.class);
@@ -79,7 +81,8 @@ public class Extensions {
 			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 			TalismaneService talismaneService = locator.getTalismaneService();
 
-			TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
+			Config conf = ConfigFactory.load();
+			TalismaneConfig config = talismaneService.getTalismaneConfig(conf, argsMap);
 			if (config.getCommand() == null)
 				return;
 

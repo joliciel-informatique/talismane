@@ -36,27 +36,12 @@ class TalismaneSessionImpl implements TalismaneSession {
 	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
 	private PosTaggerLexicon mergedLexicon;
 	private TransitionSystem transitionSystem;
-	private LanguageImplementation implementation;
 	private LinguisticRules linguisticRules;
 	private Diacriticizer diacriticizer;
 	private LexiconService lexiconService;
 
 	@Override
-	public LanguageImplementation getImplementation() {
-		return implementation;
-	}
-
-	@Override
-	public void setImplementation(LanguageImplementation implementation) {
-		this.implementation = implementation;
-	}
-
-	@Override
 	public synchronized PosTagSet getPosTagSet() {
-		if (posTagSet == null && implementation != null) {
-			posTagSet = implementation.getDefaultPosTagSet();
-			this.setPosTagSet(posTagSet);
-		}
 		if (posTagSet == null)
 			throw new TalismaneException("PosTagSet missing.");
 		return posTagSet;
@@ -69,10 +54,6 @@ class TalismaneSessionImpl implements TalismaneSession {
 
 	@Override
 	public synchronized TransitionSystem getTransitionSystem() {
-		if (transitionSystem == null && implementation != null) {
-			transitionSystem = implementation.getDefaultTransitionSystem();
-			this.setTransitionSystem(transitionSystem);
-		}
 		if (transitionSystem == null)
 			throw new TalismaneException("TransitionSystem missing.");
 		return transitionSystem;
@@ -85,14 +66,6 @@ class TalismaneSessionImpl implements TalismaneSession {
 
 	@Override
 	public synchronized List<PosTaggerLexicon> getLexicons() {
-		if (lexicons.size() == 0 && implementation != null) {
-			List<PosTaggerLexicon> defaultLexicons = implementation.getDefaultLexicons();
-			if (defaultLexicons != null) {
-				for (PosTaggerLexicon lexicon : defaultLexicons)
-					this.addLexicon(lexicon);
-			}
-		}
-
 		return lexicons;
 	}
 
@@ -116,8 +89,8 @@ class TalismaneSessionImpl implements TalismaneSession {
 
 	@Override
 	public synchronized LinguisticRules getLinguisticRules() {
-		if (linguisticRules == null && implementation != null) {
-			linguisticRules = implementation.getDefaultLinguisticRules();
+		if (linguisticRules == null) {
+			linguisticRules = new GenericRules(this);
 		}
 		return linguisticRules;
 	}
@@ -149,11 +122,8 @@ class TalismaneSessionImpl implements TalismaneSession {
 	@Override
 	public Diacriticizer getDiacriticizer() {
 		if (diacriticizer == null) {
-			if (implementation != null)
-				diacriticizer = implementation.getDiacriticizer();
-			if (diacriticizer == null)
-				diacriticizer = lexiconService.getDiacriticizer(this, this.getMergedLexicon());
-			diacriticizer.setTalismaneSession(this);
+			diacriticizer = lexiconService.getDiacriticizer(this.getMergedLexicon());
+			diacriticizer.setLocale(this.getLocale());
 		}
 		return diacriticizer;
 	}
@@ -161,7 +131,6 @@ class TalismaneSessionImpl implements TalismaneSession {
 	@Override
 	public void setDiacriticizer(Diacriticizer diacriticizer) {
 		this.diacriticizer = diacriticizer;
-		this.diacriticizer.setTalismaneSession(this);
 	}
 
 	public LexiconService getLexiconService() {

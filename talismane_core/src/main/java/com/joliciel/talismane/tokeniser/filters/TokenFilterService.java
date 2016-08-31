@@ -54,7 +54,7 @@ public interface TokenFilterService {
 	public TokenFilter getTokenFilter(String descriptor) throws TokenFilterLoadException;
 
 	/**
-	 * Reads a sequence of token filters from a file.
+	 * Reads a sequence of token filters from a scanner.
 	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner);
 
@@ -63,6 +63,12 @@ public interface TokenFilterService {
 	 * descriptors in the provided paramater.
 	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors);
+
+	/**
+	 * Reads a sequence of token filters from a scanner, with a path providing
+	 * clean error reporting.
+	 */
+	public List<TokenFilter> readTokenFilters(Scanner scanner, String path, List<String> descriptors);
 
 	/**
 	 * Similar to {@link TokenFilterService#readTokenFilters(Scanner, List)},
@@ -116,4 +122,11 @@ public interface TokenFilterService {
 	 *            assignable to this class will receive calls for this injector.
 	 */
 	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type, TokenFilterDependencyInjector dependencyInjector);
+
+	/**
+	 * A list of token sequence filters to which any new filters can be added.
+	 * 
+	 * @return
+	 */
+	List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters();
 }

@@ -47,6 +47,8 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TalismaneTermExtractorMain {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneTermExtractorMain.class);
@@ -117,7 +119,8 @@ public class TalismaneTermExtractorMain {
 			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 			TalismaneService talismaneService = locator.getTalismaneService();
 
-			TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, sessionId);
+			Config conf = ConfigFactory.load();
+			TalismaneConfig config = talismaneService.getTalismaneConfig(conf, innerArgs);
 
 			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
 			TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();

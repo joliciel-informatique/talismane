@@ -41,6 +41,8 @@ import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Direct entry point for Talismane from the command line.
@@ -90,17 +92,19 @@ public class TalismaneMain {
 		TalismaneService talismaneService = locator.getTalismaneService();
 		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 
+		Config config = ConfigFactory.load();
+
 		if (otherCommand == null) {
 			// regular command
-			TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
-			if (config.getCommand() == null)
+			TalismaneConfig talismaneConfig = talismaneService.getTalismaneConfig(config, argsMap);
+			if (talismaneConfig.getCommand() == null)
 				return;
 
-			PerformanceMonitor.start(config.getPerformanceConfigFile());
-			if (config.getPerformanceConfigFile() != null && PerformanceMonitor.getFilePath() == null)
-				PerformanceMonitor.setFilePath(config.getBaseName() + ".performance.csv");
+			PerformanceMonitor.start(talismaneConfig.getPerformanceConfigFile());
+			if (talismaneConfig.getPerformanceConfigFile() != null && PerformanceMonitor.getFilePath() == null)
+				PerformanceMonitor.setFilePath(talismaneConfig.getBaseName() + ".performance.csv");
 			try {
-				Talismane talismane = config.getTalismane();
+				Talismane talismane = talismaneConfig.getTalismane();
 				talismane.process();
 			} finally {
 				PerformanceMonitor.end();
@@ -179,7 +183,7 @@ public class TalismaneMain {
 				}
 				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
 				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
-				Diacriticizer diacriticizer = lexiconService.getDiacriticizer(talismaneSession, lexicon);
+				Diacriticizer diacriticizer = lexiconService.getDiacriticizer(lexicon);
 
 				File outFile = new File(outFilePath);
 				File outDir = outFile.getParentFile();
@@ -221,7 +225,7 @@ public class TalismaneMain {
 				File inFile = new File(inFilePath);
 				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
 				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
-				Diacriticizer diacriticizer = lexiconService.deserializeDiacriticizer(inFile, talismaneSession);
+				Diacriticizer diacriticizer = lexiconService.deserializeDiacriticizer(inFile);
 
 				for (String word : wordList) {
 					LOG.info("################");

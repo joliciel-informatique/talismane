@@ -20,13 +20,11 @@ package com.joliciel.talismane.lexicon;
 
 import java.io.File;
 
-import com.joliciel.talismane.TalismaneSession;
-
 public interface LexiconService {
 	/**
 	 * Get a diacriticized form finder for a given lexicon.
 	 */
-	public Diacriticizer getDiacriticizer(TalismaneSession talismaneSession, Lexicon lexicon);
-	
-	public Diacriticizer deserializeDiacriticizer(File inFile, TalismaneSession talismaneSession);
+	public Diacriticizer getDiacriticizer(Lexicon lexicon);
+
+	public Diacriticizer deserializeDiacriticizer(File inFile);
 }

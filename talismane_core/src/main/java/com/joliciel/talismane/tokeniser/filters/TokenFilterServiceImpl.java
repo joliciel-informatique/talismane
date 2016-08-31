@@ -34,7 +34,6 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.LanguageImplementation;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
@@ -53,6 +52,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	private ExternalResourceFinder externalResourceFinder;
 	private Map<String, Class<? extends TokenFilter>> registeredFilterTypes = new HashMap<String, Class<? extends TokenFilter>>();
 	private Map<Class<? extends TokenFilter>, TokenFilterDependencyInjector> registeredDependencyInjectors = new HashMap<Class<? extends TokenFilter>, TokenFilterDependencyInjector>();
+	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters = new ArrayList<>();
 
 	public TokenFilterServiceImpl() {
 		registeredFilterTypes.put(AttributeRegexFilter.class.getSimpleName(), AttributeRegexFilter.class);
@@ -79,8 +79,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	public TokenSequenceFilter getTokenSequenceFilter(String descriptor) {
 		TokenSequenceFilter filter = null;
 		List<Class<? extends TokenSequenceFilter>> classes = new ArrayListNoNulls<Class<? extends TokenSequenceFilter>>();
-		LanguageImplementation implementation = talismaneService.getTalismaneSession().getImplementation();
-		classes.addAll(implementation.getAvailableTokenSequenceFilters());
+		classes.addAll(this.getAvailableTokenSequenceFilters());
 		classes.add(DiacriticRemover.class);
 		classes.add(LowercaseFilter.class);
 		classes.add(LowercaseKnownWordFilter.class);
@@ -135,6 +134,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 		return this.readTokenFilters(scanner, null, descriptors);
 	}
 
+	@Override
 	public List<TokenFilter> readTokenFilters(Scanner scanner, String path, List<String> descriptors) {
 		List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
 		Map<String, String> defaultParams = new HashMap<String, String>();
@@ -301,4 +301,10 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 		this.registeredFilterTypes.put(name, type);
 		this.registeredDependencyInjectors.put(type, dependencyInjector);
 	}
+
+	@Override
+	public List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters() {
+		return availableTokenSequenceFilters;
+	}
+
 }

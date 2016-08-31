@@ -23,24 +23,20 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneSession;
-
 class LexiconServiceImpl implements LexiconService {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(LexiconServiceImpl.class);
 
 	@Override
-	public Diacriticizer getDiacriticizer(TalismaneSession talismaneSession, Lexicon lexicon) {
+	public Diacriticizer getDiacriticizer(Lexicon lexicon) {
 		DiacriticizerImpl diacriticizer = new DiacriticizerImpl();
-		diacriticizer.setTalismaneSession(talismaneSession);
 		diacriticizer.addLexicon(lexicon);
 		return diacriticizer;
 	}
 
 	@Override
-	public Diacriticizer deserializeDiacriticizer(File inFile,
-			TalismaneSession talismaneSession) {
-		Diacriticizer diacriticizer = DiacriticizerImpl.deserialize(inFile, talismaneSession);
+	public Diacriticizer deserializeDiacriticizer(File inFile) {
+		Diacriticizer diacriticizer = DiacriticizerImpl.deserialize(inFile);
 		return diacriticizer;
 	}
 }
