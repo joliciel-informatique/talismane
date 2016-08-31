@@ -18,11 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
-import java.io.File;
 import java.util.Collection;
+import java.util.Scanner;
 
 /**
  * Finds the external resource corresponding to a given name.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -30,17 +31,17 @@ public interface ExternalResourceFinder {
 	/**
 	 * Add external resources located in a file or directory.
 	 */
-	public void addExternalResources(File file);
-	
+	public void addExternalResource(String fileName, Scanner scanner);
+
 	public ExternalResource<?> getExternalResource(String name);
-	
+
 	public void addExternalResource(ExternalResource<?> externalResource);
-	
+
 	public Collection<ExternalResource<?>> getExternalResources();
-	
-	public ExternalWordList	getExternalWordList(String name);
-	
+
+	public ExternalWordList getExternalWordList(String name);
+
 	public void addExternalWordList(ExternalWordList externalWordList);
-	
+
 	public Collection<ExternalWordList> getExternalWordLists();
 }

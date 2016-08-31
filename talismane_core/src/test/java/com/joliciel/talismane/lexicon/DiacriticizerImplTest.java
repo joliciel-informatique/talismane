@@ -12,31 +12,17 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.joliciel.talismane.LanguageImplementation;
-import com.joliciel.talismane.TalismaneSession;
-
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
 public class DiacriticizerImplTest {
 
 	@Test
-	public void testDiacriticize(@NonStrict final Lexicon lexicon, @NonStrict final TalismaneSession talismaneSession,
-			@NonStrict final LanguageImplementation languageImplementation) {
+	public void testDiacriticize(@NonStrict final Lexicon lexicon) {
 
 		new NonStrictExpectations() {
 			LexicalEntry l1, l2, l3, l4, l5, l6, l7, l8, l9;
 			{
-				Map<String, String> lowercasePreferences = new HashMap<>();
-				lowercasePreferences.put("A", "à");
-
-				languageImplementation.getLowercasePreferences();
-				returns(lowercasePreferences);
-				talismaneSession.getImplementation();
-				returns(languageImplementation);
-				talismaneSession.getLocale();
-				returns(Locale.FRENCH);
-
 				List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
 				lexicalEntries.add(l1);
 				lexicalEntries.add(l2);
@@ -72,7 +58,13 @@ public class DiacriticizerImplTest {
 		};
 
 		DiacriticizerImpl diacriticizer = new DiacriticizerImpl();
-		diacriticizer.setTalismaneSession(talismaneSession);
+		diacriticizer.setLocale(Locale.FRENCH);
+
+		Map<String, String> lowercasePreferences = new HashMap<>();
+		lowercasePreferences.put("A", "à");
+
+		diacriticizer.setLowercasePreferences(lowercasePreferences);
+
 		diacriticizer.addLexicon(lexicon);
 
 		Set<String> results = diacriticizer.diacriticize("MANGEE");

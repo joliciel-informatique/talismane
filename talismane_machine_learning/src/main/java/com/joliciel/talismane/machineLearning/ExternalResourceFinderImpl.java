@@ -18,22 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.JolicielException;
 
 class ExternalResourceFinderImpl implements ExternalResourceFinder {
 	private static final Logger LOG = LoggerFactory.getLogger(ExternalResourceFinderImpl.class);
@@ -57,57 +50,24 @@ class ExternalResourceFinderImpl implements ExternalResourceFinder {
 	}
 
 	@Override
-	public void addExternalResources(File externalResourceFile) {
-		try {
-			if (externalResourceFile.isDirectory()) {
-				File[] files = externalResourceFile.listFiles();
-				for (File resourceFile : files) {
-					this.addExternalResourceFromFile(resourceFile);
-				}
-			} else {
-				this.addExternalResourceFromFile(externalResourceFile);
-			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
+	public void addExternalResource(String fileName, Scanner scanner) {
+		LOG.debug("Reading " + fileName);
+		String typeLine = scanner.nextLine();
 
-	private void addExternalResourceFromFile(File externalResourceFile) throws IOException, ClassNotFoundException {
-		LOG.debug("Reading " + externalResourceFile.getName());
-		if (externalResourceFile.getName().endsWith(".zip")) {
-			ZipInputStream zis = new ZipInputStream(new FileInputStream(externalResourceFile));
-			zis.getNextEntry();
-			ObjectInputStream ois = new ObjectInputStream(zis);
-			Object resourceObject = ois.readObject();
-			if (resourceObject instanceof ExternalResource) {
-				ExternalResource<?> externalResource = (ExternalResource<?>) resourceObject;
-				this.addExternalResource(externalResource);
-			} else if (resourceObject instanceof ExternalWordList) {
-				ExternalWordList externalWordList = (ExternalWordList) resourceObject;
-				this.addExternalWordList(externalWordList);
-			}
-			ois.close();
-		} else {
-			boolean wordList = false;
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(externalResourceFile), "UTF-8")))) {
-				if (scanner.hasNextLine()) {
-					String line = scanner.nextLine();
-					if (line.startsWith("Type: WordList")) {
-						wordList = true;
-					}
-				}
-			}
-			if (wordList) {
-				TextFileWordList textFileWordList = new TextFileWordList(externalResourceFile);
-				this.addExternalWordList(textFileWordList);
-			} else {
-				TextFileResource textFileResource = new TextFileResource(externalResourceFile);
-				this.addExternalResource(textFileResource);
-			}
+		if (!typeLine.startsWith("Type: "))
+			throw new JolicielException("In file " + fileName + ", expected line starting with \"Type: \"");
+
+		String type = typeLine.substring("Type: ".length());
+
+		if ("WordList".equals(type)) {
+			TextFileWordList textFileWordList = new TextFileWordList(fileName, scanner);
+			this.addExternalWordList(textFileWordList);
+		} else if ("KeyValue".equals(type)) {
+			TextFileResource textFileResource = new TextFileResource(fileName, scanner);
+			this.addExternalResource(textFileResource);
+		} else if ("KeyMultiValue".equals(type)) {
+			TextFileMultivaluedResource resource = new TextFileMultivaluedResource(fileName, scanner);
+			this.addExternalResource(resource);
 		}
 	}
 

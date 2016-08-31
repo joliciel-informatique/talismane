@@ -942,7 +942,7 @@ class TalismaneImpl implements Talismane {
 	}
 
 	@Override
-	public Writer getWriter() {
+	public Writer getWriter() throws IOException {
 		if (this.writer == null)
 			this.writer = config.getWriter();
 		return writer;
