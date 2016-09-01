@@ -773,7 +773,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				InputStream posTagSetFile = this.getFileFromConfig(configPath);
 				try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, this.getInputCharset().name())))) {
 
-					PosTagSet posTagSet = this.getPosTaggerService().getPosTagSet(posTagSetScanner);
+					PosTagSet posTagSet = new PosTagSet(posTagSetScanner);
 					talismaneSession.setPosTagSet(posTagSet);
 				}
 			}

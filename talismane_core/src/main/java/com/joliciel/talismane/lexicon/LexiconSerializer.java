@@ -47,9 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
@@ -217,9 +215,7 @@ public class LexiconSerializer {
 				File posTagSetFile = new File(posTagSetPath);
 				Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTagSetFile), defaultCharset)));
 
-				TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-				PosTaggerService posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
-				PosTagSet posTagSet = posTaggerService.getPosTagSet(posTagSetScanner);
+				PosTagSet posTagSet = new PosTagSet(posTagSetScanner);
 
 				for (String lexiconName : lexiconList) {
 					LOG.debug("Lexicon: " + lexiconName);
