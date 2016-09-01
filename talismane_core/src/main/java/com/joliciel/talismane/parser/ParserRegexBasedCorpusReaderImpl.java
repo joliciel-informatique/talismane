@@ -317,7 +317,7 @@ public class ParserRegexBasedCorpusReaderImpl implements ParserRegexBasedCorpusR
 													"Unknown posTag, " + fileName + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
 										}
 										Decision posTagDecision = machineLearningService.createDefaultDecision(posTag.getCode());
-										PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
+										PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
 										if (LOG.isTraceEnabled()) {
 											LOG.trace(posTaggedToken.toString());
 										}

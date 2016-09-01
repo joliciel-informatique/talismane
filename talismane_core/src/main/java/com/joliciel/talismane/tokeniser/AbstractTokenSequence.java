@@ -10,9 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceTag;
+import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSequence, PretokenisedSequence {
@@ -33,20 +34,20 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 	private PosTagSequence posTagSequence;
 	protected boolean textProvided = false;
 
-	private TokeniserServiceInternal tokeniserServiceInternal;
-	private TalismaneService talismaneService;
+	private PosTaggerLexicon lexicon;
 
-	public AbstractTokenSequence(Sentence sentence) {
+	private final TalismaneSession talismaneSession;
+
+	public AbstractTokenSequence(Sentence sentence, TalismaneSession talismaneSession) {
 		this.sentence = sentence;
+		this.talismaneSession = talismaneSession;
 		this.text = sentence.getText();
 	}
 
 	public AbstractTokenSequence(AbstractTokenSequence sequenceToClone) {
-		this.setTokeniserServiceInternal(sequenceToClone.getTokeniserServiceInternal());
-		this.setTalismaneService(sequenceToClone.getTalismaneService());
+		this.talismaneSession = sequenceToClone.talismaneSession;
 		this.setText(sequenceToClone.getText());
 		this.setSentence(sequenceToClone.getSentence());
-		this.setTokeniserServiceInternal(sequenceToClone.getTokeniserServiceInternal());
 		List<Token> listWithWhiteSpace = new ArrayList<Token>(sequenceToClone.getListWithWhiteSpace());
 		this.setListWithWhiteSpace(listWithWhiteSpace);
 		this.setScore(sequenceToClone.getScore());
@@ -231,7 +232,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 			this.remove(tokenToRemove);
 		}
 
-		TokenInternal token = this.getTokeniserServiceInternal().getTokenInternal(string, this, this.size());
+		Token token = new Token(string, this, this.size(), this.getLexicon());
 		token.setStartIndex(start);
 		token.setEndIndex(end);
 		token.setIndexWithWhiteSpace(prevTokenIndex + 1);
@@ -269,7 +270,7 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 			// do nothing
 		} else if (!textProvided) {
 			// check if a space should be added before this token
-			LinguisticRules rules = talismaneService.getTalismaneSession().getLinguisticRules();
+			LinguisticRules rules = this.getTalismaneSession().getLinguisticRules();
 			if (rules == null)
 				throw new TalismaneException("Linguistic rules have not been set.");
 
@@ -289,18 +290,18 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 		if (this.text == null)
 			this.text = "";
 
-		TokenInternal token = this.getTokeniserServiceInternal().getTokenInternal(string, this, this.size());
+		Token token = new Token(string, this, this.size(), this.getLexicon());
 
 		if (this.textProvided) {
 			int currentIndex = 0;
 			if (this.size() > 0)
 				currentIndex = this.get(this.size() - 1).getEndIndex();
 			int j = 0;
-			TokenInternal whiteSpace = null;
+			Token whiteSpace = null;
 			for (int i = currentIndex; i < this.text.length(); i++) {
 				char c = text.charAt(i);
 				if (Character.isWhitespace(c)) {
-					whiteSpace = this.getTokeniserServiceInternal().getTokenInternal(" ", this, this.size());
+					whiteSpace = new Token(" ", this, this.size(), this.getLexicon());
 					whiteSpace.setStartIndex(currentIndex + j);
 					whiteSpace.setEndIndex(whiteSpace.getStartIndex() + 1);
 					this.listWithWhiteSpace().add(whiteSpace);
@@ -338,14 +339,6 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 
 		this.markModified();
 		return token;
-	}
-
-	public TokeniserServiceInternal getTokeniserServiceInternal() {
-		return tokeniserServiceInternal;
-	}
-
-	public void setTokeniserServiceInternal(TokeniserServiceInternal tokeniserServiceInternal) {
-		this.tokeniserServiceInternal = tokeniserServiceInternal;
 	}
 
 	@Override
@@ -439,14 +432,6 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 		this.posTagSequence = posTagSequence;
 	}
 
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
-	}
-
-	public void setTalismaneService(TalismaneService talismaneService) {
-		this.talismaneService = talismaneService;
-	}
-
 	@Override
 	public String getCorrectedText() {
 		StringBuilder sb = new StringBuilder();
@@ -461,4 +446,14 @@ abstract class AbstractTokenSequence extends ArrayList<Token> implements TokenSe
 		return sb.toString();
 	}
 
+	public PosTaggerLexicon getLexicon() {
+		if (this.lexicon == null) {
+			this.lexicon = this.getTalismaneSession().getMergedLexicon();
+		}
+		return lexicon;
+	}
+
+	private TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
 }

@@ -24,10 +24,8 @@ import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
@@ -80,18 +78,6 @@ public interface PosTaggerService {
 	 *            the token sequence to be pos-tagged.
 	 */
 	public PosTagSequence getPosTagSequence(TokenSequence tokenSequence);
-
-	/**
-	 * Construct a pos-tagged token for a given token and given decision - the
-	 * {@link Decision#getOutcome()} must be a valid {@link PosTag#getCode()}
-	 * from the current {@link PosTagSet}.
-	 * 
-	 * @param token
-	 *            the token to be tagged
-	 * @param decision
-	 *            the decision used to tag it
-	 */
-	PosTaggedToken getPosTaggedToken(Token token, Decision decision);
 
 	/**
 	 * Create a classification event stream for a given corpus reader and set of

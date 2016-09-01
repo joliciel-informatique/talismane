@@ -25,36 +25,36 @@ import com.joliciel.talismane.machineLearning.Decision;
 public class TaggedTokenSequenceImpl<T extends TokenTag> extends ArrayList<TaggedToken<T>> implements TaggedTokenSequence<T> {
 	private static final long serialVersionUID = -8634022202538586472L;
 	private String string = null;
-	
+
 	public TaggedTokenSequenceImpl() {
 		super();
 	}
-	
+
 	public TaggedTokenSequenceImpl(int initialCapacity) {
 		super(initialCapacity);
 	}
-	
+
 	/**
 	 * Create a letter sequence with space to one additional letter at the end
 	 * of an existing history.
 	 */
 	public TaggedTokenSequenceImpl(TaggedTokenSequence<T> history) {
-		super(history.size()+1);
+		super(history.size() + 1);
 		this.addAll(history);
 	}
-	
+
 	@Override
 	public TaggedToken<T> addTaggedToken(Token token, Decision decision, T tag) {
-		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision, tag);
+		TaggedToken<T> taggedToken = new TaggedToken<T>(token, decision, tag);
 		this.add(taggedToken);
 		return taggedToken;
 	}
 
 	@Override
 	public synchronized String toString() {
-		if (string==null) {
+		if (string == null) {
 			StringBuilder builder = new StringBuilder();
-			builder.append("Sequence: " );
+			builder.append("Sequence: ");
 			for (TaggedToken<T> taggedToken : this) {
 				builder.append(taggedToken.toString());
 			}

@@ -22,7 +22,4 @@ import com.joliciel.talismane.filters.Sentence;
 
 interface TokeniserServiceInternal extends TokeniserService {
 	public TokenSequence getTokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence);
-	
-	public TokenInternal getTokenInternal(String string, TokenSequence tokenSequence, int index);
-
 }

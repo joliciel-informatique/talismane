@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
@@ -44,59 +43,38 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	private TalismaneService talismaneService;
 
 	@Override
-	public Token getToken(String string, TokenSequence tokenSequence, int index) {
-		return this.getTokenInternal(string, tokenSequence, index);
-	}
-
-	@Override
-	public TokenInternal getTokenInternal(String string, TokenSequence tokenSequence, int index) {
-		TokenImpl token = new TokenImpl(string, tokenSequence, index);
-		token.setTalismaneService(this.getTalismaneService());
-		return token;
-	}
-
-	@Override
 	public TokenSequence getTokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, tokeniserDecisionTagSequence);
-		tokenSequence.setTokeniserServiceInternal(this);
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, tokeniserDecisionTagSequence, talismaneService.getTalismaneSession());
 		return tokenSequence;
 	}
 
 	@Override
 	public TokenSequence getTokenSequence(Sentence sentence) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence);
-		tokenSequence.setTokeniserServiceInternal(this);
-		tokenSequence.setTalismaneService(this.getTalismaneService());
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, talismaneService.getTalismaneSession());
 		return tokenSequence;
 	}
 
 	@Override
 	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, this);
-		tokenSequence.setTalismaneService(this.getTalismaneService());
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, talismaneService.getTalismaneSession());
 		return tokenSequence;
 	}
 
 	@Override
 	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, this);
-		tokenSequence.setTalismaneService(this.getTalismaneService());
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneService.getTalismaneSession());
 		return tokenSequence;
 	}
 
 	@Override
 	public PretokenisedSequence getEmptyPretokenisedSequence() {
-		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService);
-		tokenSequence.setTokeniserServiceInternal(this);
-		tokenSequence.setTalismaneService(this.getTalismaneService());
+		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService, talismaneService.getTalismaneSession());
 		return tokenSequence;
 	}
 
 	@Override
 	public PretokenisedSequence getEmptyPretokenisedSequence(String sentenceText) {
-		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService, sentenceText);
-		tokenSequence.setTokeniserServiceInternal(this);
-		tokenSequence.setTalismaneService(this.getTalismaneService());
+		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService, sentenceText, talismaneService.getTalismaneSession());
 		return tokenSequence;
 	}
 
@@ -114,18 +92,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		TokeniserEvaluatorImpl evaluator = new TokeniserEvaluatorImpl();
 		evaluator.setTokeniser(tokeniser);
 		return evaluator;
-	}
-
-	@Override
-	public TaggedToken<TokeniserOutcome> getTaggedToken(Token token, Decision decision) {
-		TokeniserOutcome tokeniserOutcome = TokeniserOutcome.valueOf(decision.getOutcome());
-		return this.getTaggedToken(token, decision, tokeniserOutcome);
-	}
-
-	@Override
-	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision decision, T tag) {
-		TaggedToken<T> taggedToken = new TaggedTokenImpl<T>(token, decision, tag);
-		return taggedToken;
 	}
 
 	@Override

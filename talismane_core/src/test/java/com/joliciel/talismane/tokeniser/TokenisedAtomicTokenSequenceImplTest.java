@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -64,7 +66,9 @@ public class TokenisedAtomicTokenSequenceImplTest {
 
 		MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 		MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
-		TokeniserServiceInternal tokeniserService = new TokeniserServiceImpl();
+		TalismaneService talismaneService = TalismaneServiceLocator.getInstance("").getTalismaneService();
+		TokeniserServiceImpl tokeniserService = new TokeniserServiceImpl();
+		tokeniserService.setTalismaneService(talismaneService);
 
 		TokenisedAtomicTokenSequenceImpl atomicTokenSequence = new TokenisedAtomicTokenSequenceImpl(sentence);
 		atomicTokenSequence.setTokeniserServiceInternal(tokeniserService);
@@ -74,7 +78,8 @@ public class TokenisedAtomicTokenSequenceImplTest {
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 			Decision decision = machineLearningService.createDefaultDecision(tokeniserOutcomeArray[i++].name());
-			TaggedToken<TokeniserOutcome> taggedToken = tokeniserService.getTaggedToken(token, decision);
+			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
+
 			atomicTokenSequence.add(taggedToken);
 		}
 

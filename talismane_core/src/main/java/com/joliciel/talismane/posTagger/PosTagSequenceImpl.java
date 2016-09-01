@@ -26,24 +26,24 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
 	@SuppressWarnings("rawtypes")
 	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
-	
+
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TalismaneService talismaneService;
 	private MachineLearningService machineLearningService;
-	
+
 	PosTagSequenceImpl(TokenSequence tokenSequence) {
 		super(tokenSequence.size());
 		this.setTokenSequence(tokenSequence);
 	}
 
 	PosTagSequenceImpl(PosTagSequence history) {
-		super(history.size()+1);
+		super(history.size() + 1);
 		for (PosTaggedToken posTaggedToken : history)
 			this.addPosTaggedToken(posTaggedToken);
 		this.decisions = new ArrayList<Decision>(history.getDecisions());
 		this.setTokenSequence(history.getTokenSequence());
 	}
-	
+
 	PosTagSequenceImpl(PosTagSequenceImpl clone, boolean fromClone) {
 		this.setTokenSequence(clone.getTokenSequence().cloneTokenSequence());
 		this.setPosTaggerServiceInternal(clone.getPosTaggerServiceInternal());
@@ -67,6 +67,7 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 		return score;
 	}
 
+	@Override
 	public TokenSequence getTokenSequence() {
 		return tokenSequence;
 	}
@@ -75,24 +76,23 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 	public Token getNextToken() {
 		return this.tokenSequence.get(this.size());
 	}
-	
+
 	@Override
 	public int compareTo(PosTagSequence o) {
-		if (this.getScore()<o.getScore()) {
+		if (this.getScore() < o.getScore()) {
 			return 1;
-		} else if (this.getScore()>o.getScore()) {
+		} else if (this.getScore() > o.getScore()) {
 			return -1;
 		} else {
 			return 0;
 		}
 	}
-	
 
 	@Override
 	public synchronized String toString() {
-		if (string==null) {
+		if (string == null) {
 			StringBuilder builder = new StringBuilder();
-			builder.append("Sequence: " );
+			builder.append("Sequence: ");
 			for (PosTaggedToken taggedToken : this) {
 				builder.append(taggedToken.toString());
 				builder.append(", ");
@@ -105,36 +105,35 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 	@Override
 	public PosTaggedToken prependRoot() {
 		PosTaggedToken rootToken = null;
-		if (this.size()>0) {
+		if (this.size() > 0) {
 			rootToken = this.get(0);
 			if (!rootToken.getTag().equals(PosTag.ROOT_POS_TAG))
 				rootToken = null;
 		}
-		if (rootToken==null) {
+		if (rootToken == null) {
 			Token emptyToken = tokenSequence.addEmptyToken(0);
 			emptyToken.setText("[ROOT]");
 			tokenSequence.setWithRoot(true);
 			tokenSequence.finalise();
-			
+
 			Decision rootDecision = machineLearningService.createDefaultDecision(PosTag.ROOT_POS_TAG.getCode());
-			rootToken = this.posTaggerServiceInternal.getPosTaggedToken(emptyToken, rootDecision);
+			rootToken = new PosTaggedToken(emptyToken, rootDecision, talismaneService.getTalismaneSession());
 			this.add(0, rootToken);
 			rootToken.setPosTagSequence(this);
 		}
 		this.string = null;
 		return rootToken;
 	}
-	
 
 	@Override
 	public void removeRoot() {
 		PosTaggedToken rootToken = null;
-		if (this.size()>0) {
+		if (this.size() > 0) {
 			rootToken = this.get(0);
 			if (!rootToken.getTag().equals(PosTag.ROOT_POS_TAG))
 				rootToken = null;
 		}
-		if (rootToken!=null) {
+		if (rootToken != null) {
 			Token emptyToken = rootToken.getToken();
 			tokenSequence.removeEmptyToken(emptyToken);
 			this.remove(0);
@@ -147,8 +146,7 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 		return posTaggerServiceInternal;
 	}
 
-	public void setPosTaggerServiceInternal(
-			PosTaggerServiceInternal posTaggerServiceInternal) {
+	public void setPosTaggerServiceInternal(PosTaggerServiceInternal posTaggerServiceInternal) {
 		this.posTaggerServiceInternal = posTaggerServiceInternal;
 	}
 
@@ -167,18 +165,20 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 		this.decisions.add(decision);
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public ScoringStrategy getScoringStrategy() {
 		return scoringStrategy;
 	}
 
+	@Override
 	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
 		this.scoringStrategy = scoringStrategy;
 	}
 
 	void setTokenSequence(TokenSequence tokenSequence) {
 		this.tokenSequence = tokenSequence;
-		if (tokenSequence.getUnderlyingAtomicTokenSequence()!=null) {
+		if (tokenSequence.getUnderlyingAtomicTokenSequence() != null) {
 			this.underlyingSolutions.add(tokenSequence.getUnderlyingAtomicTokenSequence());
 		}
 		tokenSequence.setPosTagSequence(this);
@@ -200,11 +200,11 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 				break;
 			}
 		}
-		
+
 		if (haveEmptyTokens) {
 			List<PosTaggedToken> cloneList = new ArrayList<PosTaggedToken>();
 			this.tokenSequence = this.tokenSequence.cloneTokenSequence();
-			
+
 			List<Token> emptyTokensToRemove = new ArrayList<Token>();
 			int i = 0;
 			for (PosTaggedToken posTaggedToken : this) {
@@ -218,17 +218,17 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 					cloneList.add(clonedTaggedToken);
 				}
 			}
-			
+
 			for (Token token : emptyTokensToRemove) {
 				this.tokenSequence.removeEmptyToken(token);
 			}
 			this.tokenSequence.finalise();
-			
+
 			i = 0;
 			for (PosTaggedToken posTaggedToken : cloneList) {
 				posTaggedToken.setToken(this.tokenSequence.get(i++));
 			}
-			
+
 			this.clear();
 			this.addAll(cloneList);
 			this.string = null;
@@ -253,10 +253,8 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
-	
-	
+
 }

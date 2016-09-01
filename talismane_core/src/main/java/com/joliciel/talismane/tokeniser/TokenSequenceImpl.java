@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 
@@ -44,23 +45,21 @@ class TokenSequenceImpl extends AbstractTokenSequence implements TokenSequence {
 		super(sequenceToClone);
 	}
 
-	public TokenSequenceImpl(Sentence sentence) {
-		super(sentence);
+	public TokenSequenceImpl(Sentence sentence, TalismaneSession talismaneSession) {
+		super(sentence, talismaneSession);
 	}
 
-	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, TokeniserServiceInternal tokeniserServiceInternal) {
-		this(sentence, separatorPattern, null, tokeniserServiceInternal);
+	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, TalismaneSession talismaneSession) {
+		this(sentence, separatorPattern, null, talismaneSession);
 	}
 
-	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders,
-			TokeniserServiceInternal tokeniserServiceInternal) {
-		super(sentence);
-		this.setTokeniserServiceInternal(tokeniserServiceInternal);
+	public TokenSequenceImpl(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders, TalismaneSession talismaneSession) {
+		super(sentence, talismaneSession);
 		this.initialise(sentence.getText(), separatorPattern, placeholders);
 	}
 
-	public TokenSequenceImpl(Sentence sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence) {
-		super(sentence);
+	public TokenSequenceImpl(Sentence sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence, TalismaneSession talismaneSession) {
+		super(sentence, talismaneSession);
 		this.underlyingAtomicTokenSequence = tokenisedAtomicTokenSequence;
 	}
 
