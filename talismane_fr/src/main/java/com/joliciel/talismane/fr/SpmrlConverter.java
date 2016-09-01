@@ -22,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -105,9 +103,7 @@ public class SpmrlConverter {
 		if (posTagSetPath != null) {
 			File posTagSetFile = new File(posTagSetPath);
 			try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(posTagSetFile), "UTF-8")))) {
-				TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
-				PosTaggerService posTaggerService = locator.getPosTaggerServiceLocator().getPosTaggerService();
-				posTagSet = posTaggerService.getPosTagSet(posTagSetScanner);
+				posTagSet = new PosTagSet(posTagSetScanner);
 			}
 		}
 

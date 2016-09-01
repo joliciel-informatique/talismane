@@ -34,9 +34,9 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.Test;
 
 import com.joliciel.talismane.GenericRules;
 import com.joliciel.talismane.TalismaneService;
@@ -53,7 +53,6 @@ import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.terminology.TermExtractorImpl.Expansion;
 
 import mockit.NonStrict;
@@ -72,8 +71,7 @@ public class TermExtractorTest {
 
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TalismaneService talismaneService = locator.getTalismaneService();
-		PosTaggerService posTaggerService = locator.getPosTaggerServiceLocator().getPosTaggerService();
-		PosTagSet tagSet = posTaggerService.getPosTagSet(tagsetScanner);
+		PosTagSet tagSet = new PosTagSet(tagsetScanner);
 		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 		talismaneSession.setPosTagSet(tagSet);
 
@@ -325,8 +323,7 @@ public class TermExtractorTest {
 
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
 		TalismaneService talismaneService = locator.getTalismaneService();
-		PosTaggerService posTaggerService = locator.getPosTaggerServiceLocator().getPosTaggerService();
-		PosTagSet tagSet = posTaggerService.getPosTagSet(tagsetScanner);
+		PosTagSet tagSet = new PosTagSet(tagsetScanner);
 		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 		talismaneSession.setPosTagSet(tagSet);
 
