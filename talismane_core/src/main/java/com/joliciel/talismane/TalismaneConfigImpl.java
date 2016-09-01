@@ -340,19 +340,17 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 		String prefix = "talismane.core.";
 		mapping.put("command", new ImmutablePair<String, Class<?>>(prefix + "command", String.class));
-		mapping.put("languagePack", new ImmutablePair<String, Class<?>>(prefix + "languagePack", String.class));
 		mapping.put("mode", new ImmutablePair<String, Class<?>>(prefix + "mode", String.class));
+		mapping.put("port", new ImmutablePair<String, Class<?>>(prefix + "port", Integer.class));
 		mapping.put("module", new ImmutablePair<String, Class<?>>(prefix + "module", String.class));
 		mapping.put("inFile", new ImmutablePair<String, Class<?>>(prefix + "inFile", String.class));
 		mapping.put("inDir", new ImmutablePair<String, Class<?>>(prefix + "inDir", String.class));
 		mapping.put("outFile", new ImmutablePair<String, Class<?>>(prefix + "outFile", String.class));
 		mapping.put("outDir", new ImmutablePair<String, Class<?>>(prefix + "outDir", String.class));
 		mapping.put("encoding", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
-		mapping.put("encoding", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
 		mapping.put("inputEncoding", new ImmutablePair<String, Class<?>>(prefix + "inputEncoding", String.class));
 		mapping.put("outputEncoding", new ImmutablePair<String, Class<?>>(prefix + "outputEncoding", String.class));
 		mapping.put("locale", new ImmutablePair<String, Class<?>>(prefix + "locale", String.class));
-		mapping.put("resourceBaseDir", new ImmutablePair<String, Class<?>>(prefix + "resourceBaseDir", String.class));
 
 		prefix = "talismane.core.analyse.";
 		mapping.put("startModule", new ImmutablePair<String, Class<?>>(prefix + "startModule", String.class));
@@ -365,7 +363,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		mapping.put("tokeniserModel", new ImmutablePair<String, Class<?>>(prefix + "tokeniserModel", String.class));
 		mapping.put("posTaggerModel", new ImmutablePair<String, Class<?>>(prefix + "posTaggerModel", String.class));
 		mapping.put("parserModel", new ImmutablePair<String, Class<?>>(prefix + "parserModel", String.class));
-		mapping.put("lexicon", new ImmutablePair<String, Class<?>>(prefix + "lexicon", List.class));
+		mapping.put("lexicon", new ImmutablePair<String, Class<?>>(prefix + "lexicons", List.class));
+		mapping.put("preloadLexicons", new ImmutablePair<String, Class<?>>(prefix + "preloadLexicons", Boolean.class));
 		mapping.put("diacriticizer", new ImmutablePair<String, Class<?>>(prefix + "diacriticizer", String.class));
 		mapping.put("inputPattern", new ImmutablePair<String, Class<?>>(prefix + "inputPattern", String.class));
 		mapping.put("inputPatternFile", new ImmutablePair<String, Class<?>>(prefix + "inputPatternFile", String.class));
@@ -383,8 +382,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		mapping.put("builtInTemplate", new ImmutablePair<String, Class<?>>(prefix + "builtInTemplate", String.class));
 		mapping.put("template", new ImmutablePair<String, Class<?>>(prefix + "template", String.class));
 		mapping.put("includeDetails", new ImmutablePair<String, Class<?>>(prefix + "includeDetails", Boolean.class));
-		mapping.put("posTaggerRules", new ImmutablePair<String, Class<?>>(prefix + "posTaggerRules", String.class));
-		mapping.put("parserRules", new ImmutablePair<String, Class<?>>(prefix + "parserRules", String.class));
+		mapping.put("posTaggerRules", new ImmutablePair<String, Class<?>>(prefix + "posTaggerRules", List.class));
+		mapping.put("parserRules", new ImmutablePair<String, Class<?>>(prefix + "parserRules", List.class));
 		mapping.put("fileName", new ImmutablePair<String, Class<?>>(prefix + "fileName", String.class));
 		mapping.put("suffix", new ImmutablePair<String, Class<?>>(prefix + "suffix", String.class));
 		mapping.put("outputDivider", new ImmutablePair<String, Class<?>>(prefix + "outputDivider", String.class));
@@ -395,7 +394,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		mapping.put("propagateBeam", new ImmutablePair<String, Class<?>>(prefix + "propagateBeam", Boolean.class));
 		mapping.put("propagateTokeniserBeam", new ImmutablePair<String, Class<?>>(prefix + "propagateTokeniserBeam", Boolean.class));
 		mapping.put("dynamiseFeatures", new ImmutablePair<String, Class<?>>(prefix + "dynamiseFeatures", Boolean.class));
-		mapping.put("preloadLexicon", new ImmutablePair<String, Class<?>>(prefix + "preloadLexicon", Boolean.class));
 
 		prefix = "talismane.core.analyse.tokeniser";
 		mapping.put("tokeniserType", new ImmutablePair<String, Class<?>>(prefix + "type", String.class));
@@ -427,7 +425,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		mapping.put("includeDistanceFScores", new ImmutablePair<String, Class<?>>(prefix + "includeDistanceFScores", Boolean.class));
 		mapping.put("skipLabel", new ImmutablePair<String, Class<?>>(prefix + "skipLabel", String.class));
 		mapping.put("includeTransitionLog", new ImmutablePair<String, Class<?>>(prefix + "includeTransitionLog", Boolean.class));
-		mapping.put("errorLabels", new ImmutablePair<String, Class<?>>(prefix + "errorLabels", Boolean.class));
+		mapping.put("errorLabels", new ImmutablePair<String, Class<?>>(prefix + "errorLabels", List.class));
 
 		prefix = "talismane.core.evaluate.crossValidation.";
 		mapping.put("crossValidationSize", new ImmutablePair<String, Class<?>>(prefix + "foldCount", Integer.class));
@@ -442,8 +440,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		mapping.put("option", new ImmutablePair<String, Class<?>>(prefix + "option", String.class));
 		mapping.put("predictTransitions", new ImmutablePair<String, Class<?>>(prefix + "predictTransitions", Boolean.class));
 		mapping.put("corpusLexicalEntryRegex", new ImmutablePair<String, Class<?>>(prefix + "corpusLexicalEntryRegex", String.class));
-		mapping.put("option", new ImmutablePair<String, Class<?>>(prefix + "option", String.class));
-		mapping.put("testWords", new ImmutablePair<String, Class<?>>(prefix + "posTagFeatureTester.testWords", String.class));
+		mapping.put("testWords", new ImmutablePair<String, Class<?>>(prefix + "posTagFeatureTester.testWords", List.class));
 
 		prefix = "talismane.core.train.";
 		mapping.put("languageFeatures", new ImmutablePair<String, Class<?>>(prefix + "languageDetector.features", String.class));
@@ -464,6 +461,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		mapping.put("cutoff", new ImmutablePair<String, Class<?>>(prefix + "cutoff", Integer.class));
 		mapping.put("linearSVMEpsilon", new ImmutablePair<String, Class<?>>(prefix + "linearSVM.epsilon", Double.class));
 		mapping.put("linearSVMCost", new ImmutablePair<String, Class<?>>(prefix + "linearSVM.cost", Double.class));
+		mapping.put("oneVsRest", new ImmutablePair<String, Class<?>>(prefix + "linearSVM.oneVsRest", Boolean.class));
 		mapping.put("iterations", new ImmutablePair<String, Class<?>>(prefix + "maxent.iterations", Integer.class));
 
 		for (Entry<String, String> arg : args.entrySet()) {

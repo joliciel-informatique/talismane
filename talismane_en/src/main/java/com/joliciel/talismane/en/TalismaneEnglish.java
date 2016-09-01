@@ -19,7 +19,6 @@
 package com.joliciel.talismane.en;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -33,7 +32,6 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.extensions.Extensions;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
@@ -49,8 +47,6 @@ public class TalismaneEnglish {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneEnglish.class);
 	private static final String DEFAULT_CONLL_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%";
-
-	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters;
 
 	private enum CorpusFormat {
 		/** Penn-To-Dependency CoNLL-X format */
