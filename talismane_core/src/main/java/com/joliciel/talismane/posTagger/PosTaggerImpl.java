@@ -317,7 +317,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						if (LOG.isTraceEnabled())
 							LOG.trace("Outcome: " + decision.getOutcome() + ", " + decision.getProbability());
 
-						PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, decision);
+						PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, talismaneService.getTalismaneSession());
 						PosTagSequence sequence = this.getPosTaggerService().getPosTagSequence(history);
 						sequence.addPosTaggedToken(posTaggedToken);
 						if (decision.isStatistical())

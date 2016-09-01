@@ -22,30 +22,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.FilterService;
 
 class PretokenisedSequenceImpl extends AbstractTokenSequence implements PretokenisedSequence {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(PretokenisedSequenceImpl.class);
 	private static final long serialVersionUID = 2675309892340757939L;
-	
-	private FilterService filterService;
-	
+
+	private final FilterService filterService;
+
 	public PretokenisedSequenceImpl(PretokenisedSequenceImpl sequenceToClone) {
 		super(sequenceToClone);
 		this.filterService = sequenceToClone.getFilterService();
-		if (this.getText().length()>0)
-			this.textProvided = true;		
+		if (this.getText().length() > 0)
+			this.textProvided = true;
 	}
-	
-	public PretokenisedSequenceImpl(FilterService filterService) {
-		this(filterService,"");
+
+	public PretokenisedSequenceImpl(FilterService filterService, TalismaneSession talismaneSession) {
+		this(filterService, "", talismaneSession);
 	}
-	
-	public PretokenisedSequenceImpl(FilterService filterService, String text) {
-		super(filterService.getSentence(text));
+
+	public PretokenisedSequenceImpl(FilterService filterService, String text, TalismaneSession talismaneSession) {
+		super(filterService.getSentence(text), talismaneSession);
 		this.filterService = filterService;
-		if (text.length()>0)
+		if (text.length() > 0)
 			this.textProvided = true;
 	}
 
@@ -54,7 +55,7 @@ class PretokenisedSequenceImpl extends AbstractTokenSequence implements Pretoken
 		throw new TalismaneException("Cannot add tokens by index");
 
 	}
-	
+
 	@Override
 	public TokenSequence cloneTokenSequence() {
 		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(this);
@@ -63,9 +64,5 @@ class PretokenisedSequenceImpl extends AbstractTokenSequence implements Pretoken
 
 	public FilterService getFilterService() {
 		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 }

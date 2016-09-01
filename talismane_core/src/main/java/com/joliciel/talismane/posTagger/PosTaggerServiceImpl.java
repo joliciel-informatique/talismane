@@ -26,14 +26,12 @@ import java.util.Set;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
-import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
@@ -98,15 +96,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagSequence.setMachineLearningService(this.getMachineLearningService());
 		return posTagSequence;
 
-	}
-
-	@Override
-	public PosTaggedToken getPosTaggedToken(Token token, Decision decision) {
-		PosTagSet posTagSet = talismaneService.getTalismaneSession().getPosTagSet();
-
-		PosTaggedTokenImpl posTaggedToken = new PosTaggedTokenImpl(token, decision, posTagSet.getPosTag(decision.getOutcome()));
-		posTaggedToken.setTalismaneService(this.getTalismaneService());
-		return posTaggedToken;
 	}
 
 	public PosTaggerFeatureService getPosTaggerFeatureService() {

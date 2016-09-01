@@ -18,11 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,36 +50,37 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
- * An event stream for tokenising, using patterns to identify potential compounds that need to be examined.
- * This reduces the tokeniser decision to binary decision: separate or join.
- * Unlike the Interval stream, we generate one event per pattern match.
- * The advantage is that inconsistent compounds become virtually impossible, even lower down on the beam.
+ * An event stream for tokenising, using patterns to identify potential
+ * compounds that need to be examined. This reduces the tokeniser decision to
+ * binary decision: separate or join. Unlike the Interval stream, we generate
+ * one event per pattern match. The advantage is that inconsistent compounds
+ * become virtually impossible, even lower down on the beam.
+ * 
  * @author Assaf Urieli
  */
 class CompoundPatternEventStream implements ClassificationEventStream {
-    private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternEventStream.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternEventStream.class);
-    
-    private TokenFeatureService tokenFeatureService;
+
+	private TokenFeatureService tokenFeatureService;
 	private TokenFilterService tokenFilterService;
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
 	private FilterService filterService;
 	private FeatureService featureService;
-	
+
 	private MachineLearningService machineLearningService;
 
 	private TokeniserAnnotatedCorpusReader corpusReader;
-    private Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
-    private List<TokeniserOutcome> currentOutcomes;
-    private List<TokenPatternMatch> currentPatternMatches;
+	private Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
+	private List<TokeniserOutcome> currentOutcomes;
+	private List<TokenPatternMatch> currentPatternMatches;
 	private int currentIndex;
 
 	private TokeniserPatternManager tokeniserPatternManager = null;
 	private TokenSequenceFilter tokenFilterWrapper = null;
 
-	public CompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader,
-			Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures) {
+	public CompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures) {
 		this.corpusReader = corpusReader;
 		this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
 	}
@@ -87,44 +89,44 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 	public boolean hasNext() {
 		MONITOR.startTask("hasNext");
 		try {
-			if (currentPatternMatches!=null) {
-				if (currentIndex==currentPatternMatches.size()) {
+			if (currentPatternMatches != null) {
+				if (currentIndex == currentPatternMatches.size()) {
 					currentPatternMatches = null;
 				}
 			}
-			while (currentPatternMatches==null) {
+			while (currentPatternMatches == null) {
 				if (this.corpusReader.hasNextTokenSequence()) {
 					currentPatternMatches = new ArrayList<TokenPatternMatch>();
 					currentOutcomes = new ArrayList<TokeniserOutcome>();
 					currentIndex = 0;
-					
+
 					TokenSequence realSequence = corpusReader.nextTokenSequence();
-					
+
 					List<Integer> tokenSplits = realSequence.getTokenSplits();
 					String text = realSequence.getText();
 					LOG.debug("Sentence: " + text);
 					Sentence sentence = filterService.getSentence(text);
-					
+
 					TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
 					for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
 						tokenSequenceFilter.apply(tokenSequence);
 					}
-					if (tokenFilterWrapper==null) {
+					if (tokenFilterWrapper == null) {
 						tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.corpusReader.getTokenFilters());
 					}
 					tokenFilterWrapper.apply(tokenSequence);
-					
+
 					List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
-					
+
 					List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
-					
+
 					// check if anything matches each pattern
 					for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
 						List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
 						for (TokenPatternMatchSequence tokenPatternMatchSequence : tokenPatternMatches) {
 							if (LOG.isTraceEnabled())
 								LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatchSequence.getTokenSequence());
-							
+
 							// check if entire pattern is separated or joined
 							TokeniserOutcome outcome = null;
 							TokeniserOutcome defaultOutcome = null;
@@ -140,29 +142,32 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 									}
 								}
 								TaggedToken<TokeniserOutcome> taggedToken = currentSentence.get(token.getIndexWithWhiteSpace());
-								if (outcome==null) {
+								if (outcome == null) {
 									outcome = taggedToken.getTag();
 									defaultOutcome = defaultOutcomes.get(token.getIndexWithWhiteSpace());
-								} else if (taggedToken.getTag()!=outcome) {
-									// this should only happen when two patterns overlap:
-									// e.g. "aussi bien que" and "bien que", or "plutot que" and "plutot que de"
-									// AND the outer pattern is separated, while the inner pattern is joined
+								} else if (taggedToken.getTag() != outcome) {
+									// this should only happen when two patterns
+									// overlap:
+									// e.g. "aussi bien que" and "bien que", or
+									// "plutot que" and "plutot que de"
+									// AND the outer pattern is separated, while
+									// the inner pattern is joined
 									LOG.debug("Mismatch in pattern: " + tokenPatternMatch + ", " + taggedToken);
 									haveMismatch = true;
 								}
 							}
 							currentPatternMatches.add(tokenPatternMatch);
-							
+
 							if (haveMismatch) {
 								currentOutcomes.add(defaultOutcome);
 							} else {
 								currentOutcomes.add(outcome);
 							}
-							
+
 						}
 					} // next pattern
-					
-					if (currentPatternMatches.size()==0) {
+
+					if (currentPatternMatches.size() == 0) {
 						currentPatternMatches = null;
 						currentOutcomes = null;
 					}
@@ -170,8 +175,8 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 					break;
 				}
 			}
-			
-			return currentPatternMatches!=null;
+
+			return currentPatternMatches != null;
 		} finally {
 			MONITOR.endTask();
 		}
@@ -179,12 +184,12 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 
 	@Override
 	public Map<String, String> getAttributes() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
-		attributes.put("eventStream", this.getClass().getSimpleName());		
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
+		attributes.put("eventStream", this.getClass().getSimpleName());
 		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
-				
+
 		attributes.putAll(corpusReader.getCharacteristics());
-		
+
 		return attributes;
 	}
 
@@ -197,7 +202,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 				TokenPatternMatch tokenPatternMatch = currentPatternMatches.get(currentIndex);
 				TokeniserOutcome outcome = currentOutcomes.get(currentIndex);
 				String classification = outcome.name();
-				
+
 				LOG.debug("next event, pattern match: " + tokenPatternMatch.toString() + ", outcome:" + classification);
 				List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
 				MONITOR.startTask("check features");
@@ -205,7 +210,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 					for (TokenPatternMatchFeature<?> feature : tokenPatternMatchFeatures) {
 						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
 						FeatureResult<?> featureResult = feature.check(tokenPatternMatch, env);
-						if (featureResult!=null) {
+						if (featureResult != null) {
 							tokenFeatureResults.add(featureResult);
 							if (LOG.isTraceEnabled()) {
 								LOG.trace(featureResult.toString());
@@ -215,11 +220,11 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 				} finally {
 					MONITOR.endTask();
 				}
-				
+
 				event = this.machineLearningService.getClassificationEvent(tokenFeatureResults, classification);
-				
+
 				currentIndex++;
-				if (currentIndex==currentPatternMatches.size()) {
+				if (currentIndex == currentPatternMatches.size()) {
 					currentPatternMatches = null;
 				}
 			}
@@ -252,18 +257,17 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 			if (tokenSplits.contains(token.getStartIndex()))
 				outcome = TokeniserOutcome.SEPARATE;
 			Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
-			TaggedToken<TokeniserOutcome> taggedToken = this.getTokeniserService().getTaggedToken(token, decision);
+			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
 			taggedTokens.add(taggedToken);
 		}
 		return taggedTokens;
 	}
-	
+
 	public TokeniserPatternManager getTokeniserPatternManager() {
 		return tokeniserPatternManager;
 	}
 
-	public void setTokeniserPatternManager(
-			TokeniserPatternManager tokeniserPatternManager) {
+	public void setTokeniserPatternManager(TokeniserPatternManager tokeniserPatternManager) {
 		this.tokeniserPatternManager = tokeniserPatternManager;
 	}
 
@@ -271,8 +275,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 		return tokeniserPatternService;
 	}
 
-	public void setTokeniserPatternService(
-			TokeniserPatternService tokeniserPatternService) {
+	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
 
@@ -280,8 +283,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
 
@@ -308,6 +310,5 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 	public void setFeatureService(FeatureService featureService) {
 		this.featureService = featureService;
 	}
-	
-	
+
 }

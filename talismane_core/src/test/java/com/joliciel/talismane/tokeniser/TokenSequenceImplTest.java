@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
@@ -41,7 +43,7 @@ public class TokenSequenceImplTest {
 
 	@Test
 	public void testTokeniseSentence(@NonStrict final Sentence sentence) {
-		final TokeniserServiceInternal tokeniserServiceInternal = new TokeniserServiceImpl();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
 
@@ -59,7 +61,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, tokeniserServiceInternal);
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, talismaneSession);
 
 		assertEquals(14, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -157,7 +159,7 @@ public class TokenSequenceImplTest {
 
 	@Test
 	public void testSimpleAddByIndex(@NonStrict final Sentence sentence) {
-		TokeniserServiceInternal tokeniserServiceInternal = new TokeniserServiceImpl();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		new NonStrictExpectations() {
 			{
@@ -165,8 +167,7 @@ public class TokenSequenceImplTest {
 				returns("The quick brown fox.");
 			}
 		};
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence);
-		tokenSequence.setTokeniserServiceInternal(tokeniserServiceInternal);
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, talismaneSession);
 		tokenSequence.addToken(16, 19); // fox
 		tokenSequence.addToken(4, 9); // quick
 		tokenSequence.addToken(4, 9); // quick - should be ignored
@@ -198,7 +199,7 @@ public class TokenSequenceImplTest {
 
 	@Test
 	public void testTokeniseSentenceWithPlaceholders(@NonStrict final Sentence sentence) {
-		TokeniserServiceInternal tokeniserServiceInternal = new TokeniserServiceImpl();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
@@ -218,7 +219,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, tokeniserServiceInternal);
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneSession);
 
 		assertEquals(19, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -328,7 +329,7 @@ public class TokenSequenceImplTest {
 
 	@Test
 	public void testTokeniseSentenceWithPlaceholdersNoSeparators(@NonStrict final Sentence sentence) {
-		final TokeniserServiceInternal tokeniserService = new TokeniserServiceImpl();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
@@ -359,7 +360,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, tokeniserService);
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneSession);
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(6, tokenSequence.listWithWhiteSpace().size());
@@ -427,7 +428,7 @@ public class TokenSequenceImplTest {
 
 	@Test
 	public void testOverlappingPlaceholders(@NonStrict final Sentence sentence) {
-		final TokeniserServiceInternal tokeniserService = new TokeniserServiceImpl();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
@@ -466,7 +467,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, tokeniserService);
+		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneSession);
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(4, tokenSequence.size());

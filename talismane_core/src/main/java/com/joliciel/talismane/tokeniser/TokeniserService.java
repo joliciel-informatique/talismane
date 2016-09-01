@@ -23,13 +23,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 public interface TokeniserService {
-	public Token getToken(String string, TokenSequence tokenSequence, int index);
-
 	/**
 	 * Create a token sequence for a given sentence.
 	 */
@@ -57,10 +54,6 @@ public interface TokeniserService {
 
 	public TokenComparator getTokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
 			TokeniserPatternManager tokeniserPatternManager);
-
-	public TaggedToken<TokeniserOutcome> getTaggedToken(Token token, Decision decision);
-
-	public <T extends TokenTag> TaggedToken<T> getTaggedToken(Token token, Decision decision, T tag);
 
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(int initialCapacity);
 
