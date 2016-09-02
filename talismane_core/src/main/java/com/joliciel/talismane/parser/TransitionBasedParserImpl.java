@@ -35,9 +35,7 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserRule;
@@ -67,8 +65,6 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 
 	private ParserServiceInternal parserServiceInternal;
 	private TalismaneService talismaneService;
-	private FeatureService featureService;
-	private MachineLearningService machineLearningService;
 
 	private DecisionMaker decisionMaker;
 	private TransitionSystem transitionSystem;
@@ -203,10 +199,10 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 								if (LOG.isTraceEnabled()) {
 									LOG.trace("Checking rule: " + rule.toString());
 								}
-								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+								RuntimeEnvironment env = new RuntimeEnvironment();
 								FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
 								if (ruleResult != null && ruleResult.getOutcome()) {
-									Decision positiveRuleDecision = machineLearningService.createDefaultDecision(rule.getTransition().getCode());
+									Decision positiveRuleDecision = new Decision(rule.getTransition().getCode());
 									decisions.add(positiveRuleDecision);
 									positiveRuleDecision.addAuthority(rule.getCondition().getName());
 									ruleApplied = true;
@@ -229,7 +225,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 							for (ParseConfigurationFeature<?> feature : this.parseFeatures) {
 								MONITOR.startTask(feature.getName());
 								try {
-									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									RuntimeEnvironment env = new RuntimeEnvironment();
 									FeatureResult<?> featureResult = feature.check(history, env);
 									if (featureResult != null)
 										parseFeatureResults.add(featureResult);
@@ -274,7 +270,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 									if (LOG.isTraceEnabled()) {
 										LOG.trace("Checking negative rule: " + rule.toString());
 									}
-									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									RuntimeEnvironment env = new RuntimeEnvironment();
 									FeatureResult<Boolean> ruleResult = rule.getCondition().check(history, env);
 									if (ruleResult != null && ruleResult.getOutcome()) {
 										eliminatedTransitions.addAll(rule.getTransitions());
@@ -503,14 +499,6 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		return parserRules;
 	}
 
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
 	@Override
 	public ParseComparisonStrategy getParseComparisonStrategy() {
 		return parseComparisonStrategy;
@@ -550,11 +538,4 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 		this.talismaneSession = talismaneService.getTalismaneSession();
 	}
 
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
 }

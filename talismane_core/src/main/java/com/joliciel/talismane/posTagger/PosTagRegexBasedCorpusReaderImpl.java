@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
@@ -77,7 +76,6 @@ class PosTagRegexBasedCorpusReaderImpl implements PosTagRegexBasedCorpusReader {
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
-	private MachineLearningService machineLearningService;
 
 	public PosTagRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
@@ -153,12 +151,12 @@ class PosTagRegexBasedCorpusReaderImpl implements PosTagRegexBasedCorpusReader {
 						for (PosTag posTag : posTags) {
 							Token token = tokenSequence.get(i++);
 							if (tokenSequence.getTokensAdded().contains(token)) {
-								Decision nullDecision = machineLearningService.createDefaultDecision(PosTag.NULL_POS_TAG.getCode());
+								Decision nullDecision = new Decision(PosTag.NULL_POS_TAG.getCode());
 								PosTaggedToken emptyToken = new PosTaggedToken(token, nullDecision, talismaneService.getTalismaneSession());
 								posTagSequence.addPosTaggedToken(emptyToken);
 								token = tokenSequence.get(i++);
 							}
-							Decision corpusDecision = machineLearningService.createDefaultDecision(posTag.getCode());
+							Decision corpusDecision = new Decision(posTag.getCode());
 							PosTaggedToken posTaggedToken = new PosTaggedToken(token, corpusDecision, talismaneService.getTalismaneSession());
 							posTagSequence.addPosTaggedToken(posTaggedToken);
 						}
@@ -427,13 +425,5 @@ class PosTagRegexBasedCorpusReaderImpl implements PosTagRegexBasedCorpusReader {
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 }

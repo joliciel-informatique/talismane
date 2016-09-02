@@ -36,7 +36,6 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.AbstractTokeniser;
 import com.joliciel.talismane.tokeniser.TaggedToken;
@@ -82,7 +81,6 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFeatureService tokenFeatureService;
-	private FeatureService featureService;
 
 	private TokeniserPatternManager tokeniserPatternManager;
 	private int beamWidth;
@@ -175,14 +173,6 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 		this.tokenFeatureService = tokenFeatureService;
 	}
 
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
 	/**
 	 * Filters to be applied to the atoms, prior to tokenising.
 	 */
@@ -208,7 +198,7 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 		List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(initialSequence);
 		List<Decision> defaultDecisions = new ArrayList<Decision>(defaultOutcomes.size());
 		for (TokeniserOutcome outcome : defaultOutcomes) {
-			Decision tokeniserDecision = this.getMachineLearningService().createDefaultDecision(outcome.name());
+			Decision tokeniserDecision = new Decision(outcome.name());
 			tokeniserDecision.addAuthority("_" + this.getClass().getSimpleName());
 			tokeniserDecision.addAuthority("_" + "DefaultDecision");
 			defaultDecisions.add(tokeniserDecision);
@@ -269,7 +259,7 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 				MONITOR.startTask("analyse features");
 				try {
 					for (TokenPatternMatchFeature<?> feature : features) {
-						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+						RuntimeEnvironment env = new RuntimeEnvironment();
 						FeatureResult<?> featureResult = feature.check(match, env);
 						if (featureResult != null) {
 							tokenFeatureResults.add(featureResult);
@@ -322,7 +312,7 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 				if (i == 0) {
 					// first token is always "separate" from the outside world
-					Decision decision = this.getMachineLearningService().createDefaultDecision(TokeniserOutcome.SEPARATE.name());
+					Decision decision = new Decision(TokeniserOutcome.SEPARATE.name());
 					decision.addAuthority("_" + this.getClass().getSimpleName());
 					decision.addAuthority("_" + "DefaultDecision");
 
@@ -437,7 +427,7 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 							// so as to allow them
 							// to get examined one at a time, just in case one
 							// of them starts its own separate sequence
-							Decision defaultDecision = this.getMachineLearningService().createDecision(defaultOutcome.name(), decisionProbs[0]);
+							Decision defaultDecision = new Decision(defaultOutcome.name(), decisionProbs[0]);
 							defaultDecision.addAuthority("_" + this.getClass().getSimpleName());
 							defaultDecision.addAuthority("_" + "Patterns");
 							for (TokenPatternMatchSequence matchSequence : matchSequences) {
@@ -455,7 +445,7 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 							for (int k = 0; k < matchSequences.size(); k++) {
 								TokenPatternMatchSequence matchSequence = matchSequences.get(k);
 								double prob = decisionProbs[k + 1];
-								Decision decision = this.getMachineLearningService().createDecision(otherOutcome.name(), prob);
+								Decision decision = new Decision(otherOutcome.name(), prob);
 								decision.addAuthority("_" + this.getClass().getSimpleName());
 								decision.addAuthority("_" + "Patterns");
 								decision.addAuthority(matchSequence.getTokenPattern().getName());
@@ -474,7 +464,7 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 									if (tokenInSequence.equals(token)) {
 										continue;
 									}
-									Decision decisionInSequence = this.getMachineLearningService().createDefaultDecision(decision.getOutcome());
+									Decision decisionInSequence = new Decision(decision.getOutcome());
 									decisionInSequence.addAuthority("_" + this.getClass().getSimpleName());
 									decisionInSequence.addAuthority("_" + "DecisionInSequence");
 									decisionInSequence.addAuthority("_" + "DecisionInSequence_non_default");
@@ -493,7 +483,7 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 							// already been added to the current sequence
 							Decision decision = defaultDecisions.get(i);
 							if (matchedTokens.contains(token)) {
-								decision = this.getMachineLearningService().createDefaultDecision(decision.getOutcome());
+								decision = new Decision(decision.getOutcome());
 								decision.addAuthority("_" + this.getClass().getSimpleName());
 								decision.addAuthority("_" + "DecisionInSequence");
 								decision.addAuthority("_" + "DecisionInSequence_default");

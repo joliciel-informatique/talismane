@@ -23,29 +23,25 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 
-public class SentenceDetectorFeatureServiceImpl implements
-		SentenceDetectorFeatureService {
-	
+public class SentenceDetectorFeatureServiceImpl implements SentenceDetectorFeatureService {
+
 	private FeatureService featureService;
-	private MachineLearningService machineLearningService;
 	private ExternalResourceFinder externalResourceFinder;
 
 	@Override
-	public Set<SentenceDetectorFeature<?>> getFeatureSet(
-			List<String> featureDescriptors) {
+	public Set<SentenceDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) {
 		Set<SentenceDetectorFeature<?>> features = new TreeSet<SentenceDetectorFeature<?>>();
-		
+
 		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
 		SentenceDetectorFeatureParser sentenceDetectorFeatureParser = this.getSentenceDetectorFeatureParser();
 		sentenceDetectorFeatureParser.setExternalResourceFinder(externalResourceFinder);
-		
+
 		for (String featureDescriptor : featureDescriptors) {
-			if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
+			if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
 				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 				List<SentenceDetectorFeature<?>> myFeatures = sentenceDetectorFeatureParser.parseDescriptor(functionDescriptor);
 				features.addAll(myFeatures);
@@ -67,26 +63,17 @@ public class SentenceDetectorFeatureServiceImpl implements
 		this.featureService = featureService;
 	}
 
-
+	@Override
 	public ExternalResourceFinder getExternalResourceFinder() {
-		if (this.externalResourceFinder==null) {
-			this.externalResourceFinder = this.machineLearningService.getExternalResourceFinder();
+		if (this.externalResourceFinder == null) {
+			this.externalResourceFinder = new ExternalResourceFinder();
 		}
 		return externalResourceFinder;
 	}
 
-	public void setExternalResourceFinder(
-			ExternalResourceFinder externalResourceFinder) {
+	@Override
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
 		this.externalResourceFinder = externalResourceFinder;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 }

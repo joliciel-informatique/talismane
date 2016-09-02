@@ -33,7 +33,6 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
@@ -66,7 +65,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private PosTaggerService posTaggerService;
 	private TokeniserService tokeniserService;
 	private TokenFilterService tokenFilterService;
-	private MachineLearningService machineLearningService;
 
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
@@ -180,7 +178,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 				for (StandoffToken standoffToken : tokens) {
 					Token token = tokenSequence.addToken(standoffToken.text);
-					Decision posTagDecision = machineLearningService.createDefaultDecision(standoffToken.posTag.getCode());
+					Decision posTagDecision = new Decision(standoffToken.posTag.getCode());
 					PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
 
 					if (LOG.isTraceEnabled()) {
@@ -379,14 +377,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	@Override
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 }

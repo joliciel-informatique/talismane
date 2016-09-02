@@ -29,47 +29,44 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A classification event stream for parse configurations.
+ * 
  * @author Assaf Urieli
  *
  */
 class ParseEventStream implements ClassificationEventStream {
-    private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseEventStream.class);
 
-    ParserAnnotatedCorpusReader corpusReader;
-    Set<ParseConfigurationFeature<?>> parseFeatures;
-    
+	ParserAnnotatedCorpusReader corpusReader;
+	Set<ParseConfigurationFeature<?>> parseFeatures;
+
 	ParseConfiguration targetConfiguration;
 	ParseConfiguration currentConfiguration;
-	
+
 	ParserServiceInternal parserServiceInternal;
-	MachineLearningService machineLearningService;
-	FeatureService featureService;
-	
+
 	int currentIndex;
 	int eventCount;
-	
+
 	ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
 		this.corpusReader = corpusReader;
 		this.parseFeatures = parseFeatures;
 	}
-	
+
 	@Override
 	public boolean hasNext() {
 		MONITOR.startTask("hasNext");
 		try {
-			while (targetConfiguration==null) {
+			while (targetConfiguration == null) {
 				if (this.corpusReader.hasNextConfiguration()) {
-					
+
 					targetConfiguration = this.corpusReader.nextConfiguration();
 					currentConfiguration = parserServiceInternal.getInitialConfiguration(targetConfiguration.getPosTagSequence());
 					currentIndex = 0;
@@ -80,11 +77,11 @@ class ParseEventStream implements ClassificationEventStream {
 					break;
 				}
 			}
-			
-			if (targetConfiguration==null) {
+
+			if (targetConfiguration == null) {
 				LOG.debug("Event stream reading complete");
 			}
-			return targetConfiguration!=null;
+			return targetConfiguration != null;
 		} finally {
 			MONITOR.endTask();
 		}
@@ -98,34 +95,34 @@ class ParseEventStream implements ClassificationEventStream {
 			if (this.hasNext()) {
 				eventCount++;
 				LOG.debug("Event " + eventCount + ": " + currentConfiguration.toString());
-		
+
 				List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
 				for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
 					MONITOR.startTask(parseFeature.getName());
 					try {
-						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+						RuntimeEnvironment env = new RuntimeEnvironment();
 						FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
-						if (featureResult!=null) {
+						if (featureResult != null) {
 							parseFeatureResults.add(featureResult);
 							if (LOG.isTraceEnabled()) {
 								LOG.trace(featureResult.toString());
 							}
-						}	
+						}
 					} finally {
 						MONITOR.endTask();
 					}
 				}
-				
+
 				Transition transition = targetConfiguration.getTransitions().get(currentIndex);
 				String classification = transition.getCode();
-				event = this.machineLearningService.getClassificationEvent(parseFeatureResults, classification);
-				
+				event = new ClassificationEvent(parseFeatureResults, classification);
+
 				// apply the transition and up the index
 				currentConfiguration = parserServiceInternal.getConfiguration(currentConfiguration);
 				transition.apply(currentConfiguration);
 				currentIndex++;
-	
-				if (currentIndex==targetConfiguration.getTransitions().size()) {
+
+				if (currentIndex == targetConfiguration.getTransitions().size()) {
 					targetConfiguration = null;
 				}
 			}
@@ -137,10 +134,10 @@ class ParseEventStream implements ClassificationEventStream {
 
 	@Override
 	public Map<String, String> getAttributes() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
-		attributes.put("eventStream", this.getClass().getSimpleName());		
-		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
-		
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
+		attributes.put("eventStream", this.getClass().getSimpleName());
+		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
+
 		attributes.putAll(corpusReader.getCharacteristics());
 		return attributes;
 	}
@@ -152,23 +149,4 @@ class ParseEventStream implements ClassificationEventStream {
 	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
 		this.parserServiceInternal = parserServiceInternal;
 	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
-	
 }

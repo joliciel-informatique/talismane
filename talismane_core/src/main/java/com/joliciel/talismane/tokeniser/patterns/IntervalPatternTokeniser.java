@@ -33,7 +33,6 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.AbstractTokeniser;
 import com.joliciel.talismane.tokeniser.TaggedToken;
@@ -80,7 +79,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFeatureService tokenFeatureService;
-	private FeatureService featureService;
 
 	private TokeniserPatternManager tokeniserPatternManager;
 	private int beamWidth;
@@ -168,21 +166,13 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 		this.observers.add(observer);
 	}
 
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
 	@Override
 	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) {
 		// Assign each separator its default value
 		List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(initialSequence);
 		List<Decision> defaultDecisions = new ArrayList<Decision>(defaultOutcomes.size());
 		for (TokeniserOutcome outcome : defaultOutcomes) {
-			Decision tokeniserDecision = this.getMachineLearningService().createDefaultDecision(outcome.name());
+			Decision tokeniserDecision = new Decision(outcome.name());
 			tokeniserDecision.addAuthority("_" + this.getClass().getSimpleName());
 			tokeniserDecision.addAuthority("_" + "DefaultDecision");
 			defaultDecisions.add(tokeniserDecision);
@@ -243,7 +233,7 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 						MONITOR.startTask("analyse features");
 						try {
 							for (TokeniserContextFeature<?> feature : tokeniserContextFeatures) {
-								RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+								RuntimeEnvironment env = new RuntimeEnvironment();
 								FeatureResult<?> featureResult = feature.check(context, env);
 								if (featureResult != null) {
 									tokenFeatureResults.add(featureResult);

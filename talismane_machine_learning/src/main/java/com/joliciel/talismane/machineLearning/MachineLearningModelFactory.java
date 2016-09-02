@@ -26,9 +26,10 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
-import com.joliciel.talismane.machineLearning.maxent.MaxentService;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
+import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModel;
+import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMOneVsRestModel;
+import com.joliciel.talismane.machineLearning.maxent.MaximumEntropyModel;
+import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModel;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -38,14 +39,17 @@ import com.joliciel.talismane.utils.LogUtils;
  * @author Assaf Urieli
  *
  */
-class ModelFactory {
-	private static final Logger LOG = LoggerFactory.getLogger(ModelFactory.class);
+public class MachineLearningModelFactory {
+	private static final Logger LOG = LoggerFactory.getLogger(MachineLearningModelFactory.class);
 
-	private PerceptronService perceptronService;
-	private MaxentService maxentService;
-	private LinearSVMService linearSVMService;
+	public MachineLearningModelFactory() {
+	}
 
-	public ModelFactory() {
+	public ClassificationModel getClassificationModel(ZipInputStream zis) {
+		MachineLearningModel model = this.getMachineLearningModel(zis);
+		if (!(model instanceof ClassificationModel))
+			throw new JolicielException("Model in zip file not " + ClassificationModel.class.getSimpleName());
+		return (ClassificationModel) model;
 	}
 
 	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) {
@@ -73,16 +77,16 @@ class ModelFactory {
 			}
 			switch (algorithm) {
 			case MaxEnt:
-				machineLearningModel = maxentService.getMaxentModel();
+				machineLearningModel = new MaximumEntropyModel();
 				break;
 			case LinearSVM:
-				machineLearningModel = linearSVMService.getLinearSVMModel();
+				machineLearningModel = new LinearSVMModel();
 				break;
 			case LinearSVMOneVsRest:
-				machineLearningModel = linearSVMService.getLinearSVMOneVsRestModel();
+				machineLearningModel = new LinearSVMOneVsRestModel();
 				break;
 			case Perceptron:
-				machineLearningModel = perceptronService.getPerceptronModel();
+				machineLearningModel = new PerceptronClassificationModel();
 				break;
 			default:
 				throw new JolicielException("Machine learning algorithm not yet supported: " + algorithm);
@@ -106,30 +110,6 @@ class ModelFactory {
 				LogUtils.logError(LOG, ioe);
 			}
 		}
-	}
-
-	public MaxentService getMaxentService() {
-		return maxentService;
-	}
-
-	public void setMaxentService(MaxentService maxentService) {
-		this.maxentService = maxentService;
-	}
-
-	public LinearSVMService getLinearSVMService() {
-		return linearSVMService;
-	}
-
-	public void setLinearSVMService(LinearSVMService linearSVMService) {
-		this.linearSVMService = linearSVMService;
-	}
-
-	public PerceptronService getPerceptronService() {
-		return perceptronService;
-	}
-
-	public void setPerceptronService(PerceptronService perceptronService) {
-		this.perceptronService = perceptronService;
 	}
 
 }

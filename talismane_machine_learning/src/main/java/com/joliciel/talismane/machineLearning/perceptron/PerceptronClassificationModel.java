@@ -39,20 +39,16 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 
-class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
+public class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker decisionMaker;
 	private transient Set<String> outcomeNames = null;
 
-	private MachineLearningService machineLearningService;
-
-	PerceptronClassificationModel() {
+	public PerceptronClassificationModel() {
 	}
 
 	public PerceptronClassificationModel(PerceptronModelParameters params, Config config, Map<String, List<String>> descriptors) {
@@ -64,7 +60,6 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 	public DecisionMaker getDecisionMaker() {
 		if (decisionMaker == null) {
 			decisionMaker = new PerceptronDecisionMaker(params, this.getPerceptronScoring());
-			decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		}
 		return decisionMaker;
 	}
@@ -122,14 +117,6 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 			this.outcomeNames = new TreeSet<String>(this.params.getOutcomes());
 		}
 		return this.outcomeNames;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override

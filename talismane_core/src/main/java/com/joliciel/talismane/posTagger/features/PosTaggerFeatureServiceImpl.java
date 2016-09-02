@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
@@ -40,61 +39,61 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 
 public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
-    private static final Logger LOG = LoggerFactory.getLogger(PosTaggerFeatureServiceImpl.class);
-    private TalismaneService talismaneService;
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerFeatureServiceImpl.class);
+	private TalismaneService talismaneService;
 	private FeatureService featureService;
 	private TokenFeatureService tokenFeatureService;
-	private MachineLearningService machineLearningService;
 	private ExternalResourceFinder externalResourceFinder;
 
+	@Override
 	public PosTaggerContext getContext(Token token, PosTagSequence history) {
 		PosTaggerContextImpl context = new PosTaggerContextImpl(token, history);
 		return context;
 	}
 
+	@Override
 	public Set<PosTaggerFeature<?>> getFeatureSet(List<String> featureDescriptors) {
 		Set<PosTaggerFeature<?>> features = new TreeSet<PosTaggerFeature<?>>();
 		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
 		PosTaggerFeatureParser posTagFeatureParser = this.getPosTagFeatureParser();
-		
+
 		for (String featureDescriptor : featureDescriptors) {
 			LOG.debug(featureDescriptor);
-			if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
+			if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
 				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 				List<PosTaggerFeature<?>> myFeatures = posTagFeatureParser.parseDescriptor(functionDescriptor);
 				features.addAll(myFeatures);
-				
+
 			}
 		}
 		return features;
 	}
-	
 
 	@Override
 	public List<PosTaggerRule> getRules(List<String> ruleDescriptors) {
 		List<PosTaggerRule> rules = new ArrayList<PosTaggerRule>();
-		
+
 		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
 		PosTaggerFeatureParser posTagFeatureParser = this.getPosTagFeatureParser();
 
 		for (String ruleDescriptor : ruleDescriptors) {
 			LOG.debug(ruleDescriptor);
-			if (ruleDescriptor.length()>0 && !ruleDescriptor.startsWith("#")) {
+			if (ruleDescriptor.length() > 0 && !ruleDescriptor.startsWith("#")) {
 				String[] ruleParts = ruleDescriptor.split("\t");
 				String posTagCode = ruleParts[0];
 				PosTag posTag = null;
 				boolean negative = false;
 				String descriptor = null;
 				String descriptorName = null;
-				if (ruleParts.length>2) {
+				if (ruleParts.length > 2) {
 					descriptor = ruleParts[2];
 					descriptorName = ruleParts[1];
 				} else {
 					descriptor = ruleParts[1];
 				}
-				
-				if (posTagCode.length()==0) {
-					if (descriptorName==null) {
+
+				if (posTagCode.length() == 0) {
+					if (descriptorName == null) {
 						throw new TalismaneException("Rule without PosTag must have a name.");
 					}
 				} else {
@@ -106,10 +105,10 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 				}
 
 				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
-				if (descriptorName!=null)
+				if (descriptorName != null)
 					functionDescriptor.setDescriptorName(descriptorName);
 				List<PosTaggerFeature<?>> myFeatures = posTagFeatureParser.parseDescriptor(functionDescriptor);
-				if (posTag!=null) {
+				if (posTag != null) {
 					for (PosTaggerFeature<?> feature : myFeatures) {
 						if (feature instanceof BooleanFeature) {
 							@SuppressWarnings("unchecked")
@@ -125,9 +124,8 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 			} // proper rule descriptor
 		} // next rule descriptor
 		return rules;
-		
-	}
 
+	}
 
 	private PosTaggerFeatureParser getPosTagFeatureParser() {
 		PosTaggerFeatureParser posTagFeatureParser = new PosTaggerFeatureParser(featureService);
@@ -135,7 +133,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 		posTagFeatureParser.setExternalResourceFinder(externalResourceFinder);
 		return posTagFeatureParser;
 	}
-	
+
 	public PosTaggerRule getPosTaggerRule(BooleanFeature<PosTaggerContext> condition, PosTag posTag) {
 		PosTaggerRuleImpl rule = new PosTaggerRuleImpl(condition, posTag);
 		return rule;
@@ -157,25 +155,17 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 		this.tokenFeatureService = tokenFeatureService;
 	}
 
+	@Override
 	public ExternalResourceFinder getExternalResourceFinder() {
-		if (this.externalResourceFinder==null) {
-			this.externalResourceFinder = this.machineLearningService.getExternalResourceFinder();
+		if (this.externalResourceFinder == null) {
+			this.externalResourceFinder = new ExternalResourceFinder();
 		}
 		return externalResourceFinder;
 	}
 
-	public void setExternalResourceFinder(
-			ExternalResourceFinder externalResourceFinder) {
+	@Override
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
 		this.externalResourceFinder = externalResourceFinder;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	public TalismaneService getTalismaneService() {
@@ -185,6 +175,5 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
-
 
 }

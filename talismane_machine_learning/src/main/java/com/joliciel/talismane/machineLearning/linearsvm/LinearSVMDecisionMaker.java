@@ -18,8 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.linearsvm;
 
-import gnu.trove.map.TObjectIntMap;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -31,26 +29,23 @@ import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+
 import de.bwaldvogel.liblinear.Feature;
 import de.bwaldvogel.liblinear.Linear;
 import de.bwaldvogel.liblinear.Model;
+import gnu.trove.map.TObjectIntMap;
 
 class LinearSVMDecisionMaker implements DecisionMaker {
 	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMDecisionMaker.class);
-	
-	private MachineLearningService machineLearningService;
-	
+
 	private Model model;
 	TObjectIntMap<String> featureIndexMap = null;
 	List<String> outcomes = null;
 	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
-	
-	public LinearSVMDecisionMaker(Model model,
-			TObjectIntMap<String> featureIndexMap,
-			List<String> outcomes) {
+
+	public LinearSVMDecisionMaker(Model model, TObjectIntMap<String> featureIndexMap, List<String> outcomes) {
 		super();
 		this.model = model;
 		this.featureIndexMap = featureIndexMap;
@@ -60,28 +55,28 @@ class LinearSVMDecisionMaker implements DecisionMaker {
 	@Override
 	public List<Decision> decide(List<FeatureResult<?>> featureResults) {
 		List<Feature> featureList = LinearSVMUtils.prepareData(featureResults, featureIndexMap);
-		
+
 		List<Decision> decisions = null;
 
-		if (featureList.size()==0) {
+		if (featureList.size() == 0) {
 			LOG.info("No features for current context.");
 			TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
 			double uniformProb = 1 / outcomes.size();
 			for (String outcome : outcomes) {
-				Decision decision = machineLearningService.createDecision(outcome, uniformProb);
+				Decision decision = new Decision(outcome, uniformProb);
 				outcomeSet.add(decision);
 			}
 			decisions = new ArrayList<Decision>(outcomeSet);
 		} else {
 			Feature[] instance = new Feature[1];
 			instance = featureList.toArray(instance);
-			
+
 			double[] probabilities = new double[model.getLabels().length];
 			Linear.predictProbability(model, instance, probabilities);
-	
+
 			TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
-			for (int i = 0; i<model.getLabels().length; i++) {
-				Decision decision = machineLearningService.createDecision(outcomes.get(i), probabilities[i]);
+			for (int i = 0; i < model.getLabels().length; i++) {
+				Decision decision = new Decision(outcomes.get(i), probabilities[i]);
 				outcomeSet.add(decision);
 			}
 			decisions = new ArrayList<Decision>(outcomeSet);
@@ -91,22 +86,10 @@ class LinearSVMDecisionMaker implements DecisionMaker {
 
 	}
 
-
 	@Override
 	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
-		if (scoringStrategy==null)
+		if (scoringStrategy == null)
 			scoringStrategy = new GeometricMeanScoringStrategy();
 		return scoringStrategy;
 	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-	
-	
 }

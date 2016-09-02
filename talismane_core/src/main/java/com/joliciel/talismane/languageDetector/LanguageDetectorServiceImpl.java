@@ -30,14 +30,10 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 public class LanguageDetectorServiceImpl implements LanguageDetectorService {
 	TokeniserService tokeniserService;
-	MachineLearningService machineLearningService;
-	FeatureService featureService;
 
 	public TokeniserService getTokeniserService() {
 		return tokeniserService;
@@ -51,31 +47,13 @@ public class LanguageDetectorServiceImpl implements LanguageDetectorService {
 	public ClassificationEventStream getLanguageDetectorEventStream(LanguageDetectorAnnotatedCorpusReader corpusReader,
 			Set<LanguageDetectorFeature<?>> features) {
 		LanguageDetectorEventStream eventStream = new LanguageDetectorEventStream(corpusReader, features);
-		eventStream.setMachineLearningService(machineLearningService);
-		eventStream.setFeatureService(featureService);
 		return eventStream;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override
 	public LanguageDetectorAnnotatedCorpusReader getDefaultReader(Map<Locale, Reader> readerMap) {
 		TextPerLineCorpusReader corpusReader = new TextPerLineCorpusReader(readerMap);
 		return corpusReader;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	@Override
@@ -97,7 +75,6 @@ public class LanguageDetectorServiceImpl implements LanguageDetectorService {
 	public LanguageDetector getLanguageDetector(DecisionMaker decisionMaker, Set<LanguageDetectorFeature<?>> features) {
 		LanguageDetectorImpl languageDetector = new LanguageDetectorImpl(decisionMaker, features);
 		languageDetector.setLanguageDetectorService(this);
-		languageDetector.setFeatureService(featureService);
 		return languageDetector;
 	}
 

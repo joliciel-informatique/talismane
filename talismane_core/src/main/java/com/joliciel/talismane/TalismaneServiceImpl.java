@@ -21,7 +21,6 @@ package com.joliciel.talismane;
 import java.util.Map;
 
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
@@ -38,7 +37,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
-	private MachineLearningService machineLearningService;
 	private SentenceDetectorService sentenceDetectorService;
 	private ParserFeatureService parserFeatureService;
 	private PosTaggerFeatureService posTaggerFeatureService;
@@ -57,7 +55,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		talismane.setParserService(this.getParserService());
 		talismane.setPosTaggerService(this.getPosTaggerService());
 		talismane.setTokeniserService(this.getTokeniserService());
-		talismane.setMachineLearningService(this.getMachineLearningService());
 		talismane.setSentenceDetectorService(this.getSentenceDetectorService());
 		talismane.setLanguageDetectorService(this.getLanguageDetectorService());
 		return talismane;
@@ -94,14 +91,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		this.parserService = parserService;
 	}
 
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
 	public SentenceDetectorService getSentenceDetectorService() {
 		return sentenceDetectorService;
 	}
@@ -129,7 +118,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		TalismaneConfigImpl config = new TalismaneConfigImpl();
 
 		config.setTalismaneService(this);
-		config.setMachineLearningService(machineLearningService);
 		config.setParserFeatureService(parserFeatureService);
 		config.setParserService(parserService);
 		config.setPosTaggerFeatureService(posTaggerFeatureService);

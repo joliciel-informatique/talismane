@@ -23,16 +23,15 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 public class TokenFilterServiceLocator {
 	TokenFilterServiceImpl tokenFilterService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public TokenFilterServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized TokenFilterService getTokenFilterService() {
-		if (tokenFilterService==null) {
+		if (tokenFilterService == null) {
 			tokenFilterService = new TokenFilterServiceImpl();
 			tokenFilterService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
-			tokenFilterService.setMachineLearningService(talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return tokenFilterService;
 	}

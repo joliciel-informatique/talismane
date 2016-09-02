@@ -20,17 +20,17 @@ package com.joliciel.talismane.languageDetector;
 
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.WeightedOutcome;
@@ -41,34 +41,32 @@ class LanguageDetectorImpl implements LanguageDetector {
 
 	private DecisionMaker decisionMaker;
 	private Set<LanguageDetectorFeature<?>> features;
-	
+
 	private LanguageDetectorService languageDetectorService;
-	private FeatureService featureService;
-	
-	public LanguageDetectorImpl(DecisionMaker decisionMaker,
-			Set<LanguageDetectorFeature<?>> features) {
+
+	public LanguageDetectorImpl(DecisionMaker decisionMaker, Set<LanguageDetectorFeature<?>> features) {
 		super();
 		this.decisionMaker = decisionMaker;
 		this.features = features;
 	}
-	
+
 	@Override
 	public List<WeightedOutcome<Locale>> detectLanguages(String text) {
 		MONITOR.startTask("detectLanguages");
 		try {
-			
+
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Testing text: " + text);
 			}
-			
+
 			text = text.toLowerCase(Locale.ENGLISH);
 			text = Normalizer.normalize(text, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
 			List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
 			for (LanguageDetectorFeature<?> feature : features) {
-				RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+				RuntimeEnvironment env = new RuntimeEnvironment();
 				FeatureResult<?> featureResult = feature.check(text, env);
-				if (featureResult!=null)
+				if (featureResult != null)
 					featureResults.add(featureResult);
 			}
 			if (LOG.isTraceEnabled()) {
@@ -76,26 +74,26 @@ class LanguageDetectorImpl implements LanguageDetector {
 					LOG.trace(result.toString());
 				}
 			}
-			
+
 			List<Decision> decisions = this.decisionMaker.decide(featureResults);
 			if (LOG.isTraceEnabled()) {
 				for (Decision decision : decisions) {
 					LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
 				}
 			}
-			
+
 			List<WeightedOutcome<Locale>> results = new ArrayList<WeightedOutcome<Locale>>();
 			for (Decision decision : decisions) {
 				Locale locale = Locale.forLanguageTag(decision.getOutcome());
 				results.add(new WeightedOutcome<Locale>(locale, decision.getProbability()));
 			}
-			
+
 			return results;
 		} finally {
 			MONITOR.endTask();
 		}
 	}
-	
+
 	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
@@ -108,18 +106,8 @@ class LanguageDetectorImpl implements LanguageDetector {
 		return languageDetectorService;
 	}
 
-	public void setLanguageDetectorService(
-			LanguageDetectorService languageDetectorService) {
+	public void setLanguageDetectorService(LanguageDetectorService languageDetectorService) {
 		this.languageDetectorService = languageDetectorService;
 	}
 
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-	
-	
 }

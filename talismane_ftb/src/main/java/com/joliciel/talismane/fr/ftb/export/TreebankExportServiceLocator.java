@@ -19,16 +19,13 @@
 package com.joliciel.talismane.fr.ftb.export;
 
 import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
-import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 
 public class TreebankExportServiceLocator {
 	private TreebankExportServiceImpl treebankUploadService;
 	private TreebankServiceLocator treebankServiceLocator;
-	private MachineLearningServiceLocator machineLearningServiceLocator;
 
 	public TreebankExportServiceLocator(TreebankServiceLocator treebankServiceLocator) {
 		this.treebankServiceLocator = treebankServiceLocator;
-		this.machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 	}
 
 	public TreebankExportService getTreebankExportService() {
@@ -39,7 +36,6 @@ public class TreebankExportServiceLocator {
 			treebankUploadService.setPosTaggerService(treebankServiceLocator.getPosTaggerService());
 			treebankUploadService.setTokenFilterService(treebankServiceLocator.getTokenFilterService());
 			treebankUploadService.setTalismaneService(treebankServiceLocator.getTalismaneService());
-			treebankUploadService.setMachineLearningService(machineLearningServiceLocator.getMachineLearningService());
 		}
 		return treebankUploadService;
 	}

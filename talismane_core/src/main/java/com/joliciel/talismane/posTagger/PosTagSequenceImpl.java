@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.tokeniser.Token;
@@ -29,7 +28,6 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TalismaneService talismaneService;
-	private MachineLearningService machineLearningService;
 
 	PosTagSequenceImpl(TokenSequence tokenSequence) {
 		super(tokenSequence.size());
@@ -116,7 +114,7 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 			tokenSequence.setWithRoot(true);
 			tokenSequence.finalise();
 
-			Decision rootDecision = machineLearningService.createDefaultDecision(PosTag.ROOT_POS_TAG.getCode());
+			Decision rootDecision = new Decision(PosTag.ROOT_POS_TAG.getCode());
 			rootToken = new PosTaggedToken(emptyToken, rootDecision, talismaneService.getTalismaneSession());
 			this.add(0, rootToken);
 			rootToken.setPosTagSequence(this);
@@ -247,14 +245,6 @@ class PosTagSequenceImpl extends ArrayList<PosTaggedToken> implements PosTagSequ
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 }

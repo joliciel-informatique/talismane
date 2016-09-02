@@ -23,23 +23,38 @@ import java.util.List;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 
 /**
- * A single classification event in a training or test corpus, combining the results of feature
- * tests and the correct classification.
+ * A single classification event in a training or test corpus, combining the
+ * results of feature tests and the correct classification.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface ClassificationEvent {
+public class ClassificationEvent {
+	private final String classification;
+	private final List<FeatureResult<?>> featureResults;
+
+	/**
+	 * Get a ClassificationEvent corresponding to the featureResults and
+	 * classification provided.
+	 */
+	public ClassificationEvent(List<FeatureResult<?>> featureResults, String classification) {
+		this.classification = classification;
+		this.featureResults = featureResults;
+	}
 
 	/**
 	 * The result of testing the various features on this event.
 	 */
-	public List<FeatureResult<?>> getFeatureResults();
+
+	public List<FeatureResult<?>> getFeatureResults() {
+		return featureResults;
+	}
 
 	/**
 	 * The correct classification of this event.
-	 * For now, if multiple classifications are required for a single event in a one-vs-rest learner,
-	 * these should be tab-delimited within the String returned.
 	 */
-	public String getClassification();
 
+	public String getClassification() {
+		return classification;
+	}
 }

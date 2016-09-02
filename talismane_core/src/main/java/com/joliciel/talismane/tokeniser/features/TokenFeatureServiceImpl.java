@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
@@ -41,7 +40,6 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 
 	private FeatureService featureService;
 	private TalismaneService talismaneService;
-	private MachineLearningService machineLearningService;
 	private ExternalResourceFinder externalResourceFinder;
 
 	TokeniserContextFeatureParser getTokeniserContextFeatureParser(List<TokenPattern> patternList) {
@@ -50,40 +48,38 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 		parser.setTokenFeatureParser(this.getTokenFeatureParser(patternList));
 		return parser;
 	}
-	
 
 	private TokenPatternMatchFeatureParser getTokenPatternMatchFeatureParser() {
 		TokenPatternMatchFeatureParser parser = new TokenPatternMatchFeatureParser(this.getFeatureService());
 		parser.setTokenFeatureParser(this.getTokenFeatureParser(null));
 		return parser;
 	}
-	
+
 	@Override
 	public TokenFeatureParser getTokenFeatureParser() {
 		return this.getTokenFeatureParser(null);
 	}
-	
+
 	public TokenFeatureParser getTokenFeatureParser(List<TokenPattern> patternList) {
 		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl(this.getFeatureService());
 		tokenFeatureParser.setTalismaneService(this.getTalismaneService());
 		tokenFeatureParser.setPatternList(patternList);
 		return tokenFeatureParser;
 	}
-	
+
 	@Override
-	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatureSet(List<String> featureDescriptors,
-			List<TokenPattern> patternList) {
+	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatureSet(List<String> featureDescriptors, List<TokenPattern> patternList) {
 		Set<TokeniserContextFeature<?>> features = new TreeSet<TokeniserContextFeature<?>>();
 
 		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
 		TokeniserContextFeatureParser tokeniserContextFeatureParser = this.getTokeniserContextFeatureParser(patternList);
 		tokeniserContextFeatureParser.setPatternList(patternList);
 		tokeniserContextFeatureParser.setExternalResourceFinder(externalResourceFinder);
-		
+
 		MONITOR.startTask("findFeatureSet");
 		try {
 			for (String featureDescriptor : featureDescriptors) {
-				if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
+				if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 					List<TokeniserContextFeature<?>> myFeatures = tokeniserContextFeatureParser.parseDescriptor(functionDescriptor);
 					MONITOR.startTask("add features");
@@ -99,21 +95,19 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 		}
 		return features;
 	}
-	
 
 	@Override
-	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatureSet(
-			List<String> featureDescriptors) {
+	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatureSet(List<String> featureDescriptors) {
 		Set<TokenPatternMatchFeature<?>> features = new TreeSet<TokenPatternMatchFeature<?>>();
 
 		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
 		TokenPatternMatchFeatureParser featureParser = this.getTokenPatternMatchFeatureParser();
 		featureParser.setExternalResourceFinder(externalResourceFinder);
-		
+
 		MONITOR.startTask("findFeatureSet");
 		try {
 			for (String featureDescriptor : featureDescriptors) {
-				if (featureDescriptor.length()>0 && !featureDescriptor.startsWith("#")) {
+				if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
 					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
 					List<TokenPatternMatchFeature<?>> myFeatures = featureParser.parseDescriptor(functionDescriptor);
 					MONITOR.startTask("add features");
@@ -138,36 +132,25 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 		this.featureService = featureService;
 	}
 
+	@Override
 	public ExternalResourceFinder getExternalResourceFinder() {
-		if (this.externalResourceFinder==null) {
-			this.externalResourceFinder = this.machineLearningService.getExternalResourceFinder();
+		if (this.externalResourceFinder == null) {
+			this.externalResourceFinder = new ExternalResourceFinder();
 		}
 		return externalResourceFinder;
 	}
 
-	public void setExternalResourceFinder(
-			ExternalResourceFinder externalResourceFinder) {
+	@Override
+	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
 		this.externalResourceFinder = externalResourceFinder;
 	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
 
 	public TalismaneService getTalismaneService() {
 		return talismaneService;
 	}
 
-
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
-
 
 }

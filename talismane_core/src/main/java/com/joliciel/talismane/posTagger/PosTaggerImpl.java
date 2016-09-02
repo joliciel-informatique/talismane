@@ -34,9 +34,7 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
@@ -67,8 +65,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	private PosTaggerServiceInternal posTaggerService;
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
-	private FeatureService featureService;
-	private MachineLearningService machineLearningService;
+
 	private DecisionMaker decisionMaker;
 
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
@@ -171,7 +168,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 					if (token.getAttributes().containsKey(PosTagger.POS_TAG_ATTRIBUTE)) {
 						StringAttribute posTagCodeAttribute = (StringAttribute) token.getAttributes().get(PosTagger.POS_TAG_ATTRIBUTE);
 						String posTagCode = posTagCodeAttribute.getValue();
-						Decision positiveRuleDecision = machineLearningService.createDefaultDecision(posTagCode);
+						Decision positiveRuleDecision = new Decision(posTagCode);
 						decisions.add(positiveRuleDecision);
 						positiveRuleDecision.addAuthority("tokenAttribute");
 						ruleApplied = true;
@@ -189,10 +186,10 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 									if (LOG.isTraceEnabled()) {
 										LOG.trace("Checking rule: " + rule.getCondition().getName());
 									}
-									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									RuntimeEnvironment env = new RuntimeEnvironment();
 									FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
 									if (ruleResult != null && ruleResult.getOutcome()) {
-										Decision positiveRuleDecision = machineLearningService.createDefaultDecision(rule.getTag().getCode());
+										Decision positiveRuleDecision = new Decision(rule.getTag().getCode());
 										decisions.add(positiveRuleDecision);
 										positiveRuleDecision.addAuthority(rule.getCondition().getName());
 										ruleApplied = true;
@@ -216,7 +213,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 							for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
 								MONITOR.startTask(posTaggerFeature.getCollectionName());
 								try {
-									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									RuntimeEnvironment env = new RuntimeEnvironment();
 									FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
 									if (featureResult != null)
 										featureResults.add(featureResult);
@@ -254,7 +251,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 									if (LOG.isTraceEnabled()) {
 										LOG.trace("Checking negative rule: " + rule.getCondition().getName());
 									}
-									RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+									RuntimeEnvironment env = new RuntimeEnvironment();
 									FeatureResult<Boolean> ruleResult = rule.getCondition().check(context, env);
 									if (ruleResult != null && ruleResult.getOutcome()) {
 										eliminatedPosTags.add(rule.getTag().getCode());
@@ -490,28 +487,12 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		this.postProcessingFilters.add(posTagFilter);
 	}
 
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
 	public TalismaneService getTalismaneService() {
 		return talismaneService;
 	}
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 }

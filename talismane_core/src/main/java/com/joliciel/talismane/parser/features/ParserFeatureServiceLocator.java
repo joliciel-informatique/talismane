@@ -23,17 +23,16 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 public class ParserFeatureServiceLocator {
 	ParserFeatureServiceImpl parserFeatureService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public ParserFeatureServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized ParserFeatureService getParserFeatureService() {
-		if (parserFeatureService==null) {
+		if (parserFeatureService == null) {
 			parserFeatureService = new ParserFeatureServiceImpl();
 			parserFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 			parserFeatureService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
-			parserFeatureService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return parserFeatureService;
 	}

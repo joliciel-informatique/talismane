@@ -50,8 +50,6 @@ import com.joliciel.talismane.extensions.corpus.PosTaggerStatistics;
 import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
 import com.joliciel.talismane.extensions.standoff.StandoffReader;
 import com.joliciel.talismane.extensions.standoff.StandoffWriter;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;
@@ -141,8 +139,6 @@ public class Extensions {
 				return;
 
 			TalismaneSession talismaneSession = config.getTalismaneService().getTalismaneSession();
-			MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
-			MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
 
 			switch (command) {
 			case toStandoff: {
@@ -165,7 +161,6 @@ public class Extensions {
 					standoffReader.setPosTaggerService(config.getPosTaggerService());
 					standoffReader.setTokeniserService(config.getTokeniserService());
 					standoffReader.setTokenFilterService(config.getTokenFilterService());
-					standoffReader.setMachineLearningService(machineLearningService);
 
 					config.setParserCorpusReader(standoffReader);
 				}

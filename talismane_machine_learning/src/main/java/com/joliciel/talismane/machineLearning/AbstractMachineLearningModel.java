@@ -286,7 +286,7 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	@Override
 	public ExternalResourceFinder getExternalResourceFinder() {
 		if (externalResourceFinder == null) {
-			externalResourceFinder = new ExternalResourceFinderImpl();
+			externalResourceFinder = new ExternalResourceFinder();
 			for (ExternalResource<?> resource : this.externalResources) {
 				externalResourceFinder.addExternalResource(resource);
 			}
