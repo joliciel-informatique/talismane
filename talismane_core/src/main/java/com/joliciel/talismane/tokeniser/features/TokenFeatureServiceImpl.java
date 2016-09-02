@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
@@ -38,19 +37,18 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenFeatureServiceImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokenFeatureServiceImpl.class);
 
-	private FeatureService featureService;
 	private TalismaneService talismaneService;
 	private ExternalResourceFinder externalResourceFinder;
 
 	TokeniserContextFeatureParser getTokeniserContextFeatureParser(List<TokenPattern> patternList) {
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(this.getFeatureService());
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
 		parser.setPatternList(patternList);
 		parser.setTokenFeatureParser(this.getTokenFeatureParser(patternList));
 		return parser;
 	}
 
 	private TokenPatternMatchFeatureParser getTokenPatternMatchFeatureParser() {
-		TokenPatternMatchFeatureParser parser = new TokenPatternMatchFeatureParser(this.getFeatureService());
+		TokenPatternMatchFeatureParser parser = new TokenPatternMatchFeatureParser();
 		parser.setTokenFeatureParser(this.getTokenFeatureParser(null));
 		return parser;
 	}
@@ -61,7 +59,7 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	}
 
 	public TokenFeatureParser getTokenFeatureParser(List<TokenPattern> patternList) {
-		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl(this.getFeatureService());
+		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl();
 		tokenFeatureParser.setTalismaneService(this.getTalismaneService());
 		tokenFeatureParser.setPatternList(patternList);
 		return tokenFeatureParser;
@@ -71,7 +69,7 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatureSet(List<String> featureDescriptors, List<TokenPattern> patternList) {
 		Set<TokeniserContextFeature<?>> features = new TreeSet<TokeniserContextFeature<?>>();
 
-		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser tokeniserContextFeatureParser = this.getTokeniserContextFeatureParser(patternList);
 		tokeniserContextFeatureParser.setPatternList(patternList);
 		tokeniserContextFeatureParser.setExternalResourceFinder(externalResourceFinder);
@@ -100,7 +98,7 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatureSet(List<String> featureDescriptors) {
 		Set<TokenPatternMatchFeature<?>> features = new TreeSet<TokenPatternMatchFeature<?>>();
 
-		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 		TokenPatternMatchFeatureParser featureParser = this.getTokenPatternMatchFeatureParser();
 		featureParser.setExternalResourceFinder(externalResourceFinder);
 
@@ -122,14 +120,6 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 			MONITOR.endTask();
 		}
 		return features;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	@Override

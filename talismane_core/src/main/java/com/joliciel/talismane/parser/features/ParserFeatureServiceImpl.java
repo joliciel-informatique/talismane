@@ -32,7 +32,6 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.Dynamiser;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.parser.Transition;
@@ -41,7 +40,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	private static final Logger LOG = LoggerFactory.getLogger(ParserFeatureServiceImpl.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserFeatureServiceImpl.class);
-	private FeatureService featureService;
+
 	private TalismaneService talismaneService;
 	private ExternalResourceFinder externalResourceFinder;
 
@@ -55,7 +54,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 		MONITOR.startTask("getFeatures");
 		try {
 			Set<ParseConfigurationFeature<?>> parseFeatures = new TreeSet<ParseConfigurationFeature<?>>();
-			FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+			FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 			ParserFeatureParser featureParser = this.getParserFeatureParser();
 
 			if (dynamise) {
@@ -82,7 +81,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	}
 
 	public ParserFeatureParser getParserFeatureParser() {
-		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(featureService);
+		ParserFeatureParser parserFeatureParser = new ParserFeatureParser();
 		parserFeatureParser.setParserFeatureServiceInternal(this);
 		parserFeatureParser.setTalismaneService(this.getTalismaneService());
 		parserFeatureParser.setExternalResourceFinder(externalResourceFinder);
@@ -101,7 +100,7 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 		try {
 			List<ParserRule> rules = new ArrayList<ParserRule>();
 
-			FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+			FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 			ParserFeatureParser parserFeatureParser = this.getParserFeatureParser();
 
 			if (dynamise) {
@@ -185,14 +184,6 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	public ParserRule getParserRule(BooleanFeature<ParseConfigurationWrapper> condition, Set<Transition> transitions) {
 		ParserRule parserRule = new ParserRuleImpl(condition, transitions);
 		return parserRule;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	@Override

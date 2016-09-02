@@ -30,7 +30,6 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.posTagger.PosTag;
@@ -41,7 +40,6 @@ import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerFeatureServiceImpl.class);
 	private TalismaneService talismaneService;
-	private FeatureService featureService;
 	private TokenFeatureService tokenFeatureService;
 	private ExternalResourceFinder externalResourceFinder;
 
@@ -54,7 +52,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	@Override
 	public Set<PosTaggerFeature<?>> getFeatureSet(List<String> featureDescriptors) {
 		Set<PosTaggerFeature<?>> features = new TreeSet<PosTaggerFeature<?>>();
-		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 		PosTaggerFeatureParser posTagFeatureParser = this.getPosTagFeatureParser();
 
 		for (String featureDescriptor : featureDescriptors) {
@@ -73,7 +71,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	public List<PosTaggerRule> getRules(List<String> ruleDescriptors) {
 		List<PosTaggerRule> rules = new ArrayList<PosTaggerRule>();
 
-		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 		PosTaggerFeatureParser posTagFeatureParser = this.getPosTagFeatureParser();
 
 		for (String ruleDescriptor : ruleDescriptors) {
@@ -128,7 +126,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	}
 
 	private PosTaggerFeatureParser getPosTagFeatureParser() {
-		PosTaggerFeatureParser posTagFeatureParser = new PosTaggerFeatureParser(featureService);
+		PosTaggerFeatureParser posTagFeatureParser = new PosTaggerFeatureParser();
 		posTagFeatureParser.setTokenFeatureParser(this.tokenFeatureService.getTokenFeatureParser());
 		posTagFeatureParser.setExternalResourceFinder(externalResourceFinder);
 		return posTagFeatureParser;
@@ -137,14 +135,6 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	public PosTaggerRule getPosTaggerRule(BooleanFeature<PosTaggerContext> condition, PosTag posTag) {
 		PosTaggerRuleImpl rule = new PosTaggerRuleImpl(condition, posTag);
 		return rule;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	public TokenFeatureService getTokenFeatureService() {

@@ -54,11 +54,9 @@ public class StringFeatureDynamiserTest {
 
 	@Test
 	public void testBuildFromParser() {
-		FeatureServiceLocator featureServiceLocator = FeatureServiceLocator.getInstance();
-		FeatureService featureService = featureServiceLocator.getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 
-		TestParser parser = new TestParser(featureService);
+		TestParser parser = new TestParser();
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("IfThenElse(IsNull(Substring(5,3)),\"Null\",Substring(5,3))");
 		@SuppressWarnings("unchecked")

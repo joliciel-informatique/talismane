@@ -22,7 +22,6 @@ import java.io.Reader;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
@@ -32,7 +31,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	private TokenFeatureService tokenFeatureService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFilterService tokenFilterService;
-	private FeatureService featureService;
 	private TalismaneService talismaneService;
 
 	@Override
@@ -104,14 +102,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	@Override

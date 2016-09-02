@@ -18,30 +18,24 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.Test;
-
-import com.joliciel.talismane.machineLearning.features.DescriptorSyntaxException;
-import com.joliciel.talismane.machineLearning.features.FeatureServiceImpl;
-import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
-import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParserImpl;
 
 public class FunctionDescriptorParserImplTest {
 	private static final Logger LOG = LoggerFactory.getLogger(FunctionDescriptorParserImplTest.class);
 
 	@Test
 	public void testParseDescriptor() {
-		FeatureServiceImpl featureService = new FeatureServiceImpl();
-		FunctionDescriptorParserImpl parser = new FunctionDescriptorParserImpl();
-		parser.setFeatureServiceInternal(featureService);
-		
+		FunctionDescriptorParser parser = new FunctionDescriptorParser();
+
 		FunctionDescriptor descriptor = parser.parseDescriptor("T");
 		assertEquals("T", descriptor.getFunctionName());
 		assertEquals(0, descriptor.getArguments().size());
-		
+
 		descriptor = parser.parseDescriptor("T(1)");
 		assertEquals("T", descriptor.getFunctionName());
 		assertEquals(1, descriptor.getArguments().size());
@@ -72,7 +66,7 @@ public class FunctionDescriptorParserImplTest {
 		assertEquals("-", operator.getFunctionName());
 		assertEquals(2, operator.getArguments().get(0).getObject());
 		assertEquals(1, operator.getArguments().get(1).getObject());
-		
+
 		descriptor = parser.parseDescriptor("T(A()-3)");
 		assertEquals("T", descriptor.getFunctionName());
 		assertEquals(1, descriptor.getArguments().size());
@@ -128,7 +122,7 @@ public class FunctionDescriptorParserImplTest {
 		assertEquals("F", innerFunction.getFunctionName());
 		assertEquals(1, innerFunction.getArguments().size());
 		assertEquals("y", innerFunction.getArguments().get(0).getFunctionName());
-		
+
 		descriptor = parser.parseDescriptor("T(\"1 2\")");
 		assertEquals("T", descriptor.getFunctionName());
 		assertEquals(1, descriptor.getArguments().size());
@@ -146,7 +140,7 @@ public class FunctionDescriptorParserImplTest {
 		} catch (DescriptorSyntaxException fse) {
 			LOG.debug(fse.getMessage());
 		}
-		
+
 		try {
 			descriptor = parser.parseDescriptor("Test(");
 			fail("Expected exception");
@@ -160,37 +154,35 @@ public class FunctionDescriptorParserImplTest {
 		} catch (DescriptorSyntaxException fse) {
 			LOG.debug(fse.getMessage());
 		}
-		
+
 		try {
 			descriptor = parser.parseDescriptor("Test())");
 			fail("Expected exception");
 		} catch (DescriptorSyntaxException fse) {
 			LOG.debug(fse.getMessage());
 		}
-		
+
 		try {
 			descriptor = parser.parseDescriptor("");
 			fail("Expected exception");
 		} catch (DescriptorSyntaxException fse) {
 			LOG.debug(fse.getMessage());
 		}
-		
+
 		try {
 			descriptor = parser.parseDescriptor("Test, Blah");
 			fail("Expected exception");
 		} catch (DescriptorSyntaxException fse) {
 			LOG.debug(fse.getMessage());
 		}
-		
-		
+
 		try {
 			descriptor = parser.parseDescriptor("Blah(>2)");
 			fail("Expected exception");
 		} catch (DescriptorSyntaxException fse) {
 			LOG.debug(fse.getMessage());
 		}
-		
-		
+
 		try {
 			descriptor = parser.parseDescriptor("Blah(1,>2)");
 			fail("Expected exception");
@@ -201,10 +193,8 @@ public class FunctionDescriptorParserImplTest {
 
 	@Test
 	public void testGroupingParentheses() {
-		FeatureServiceImpl featureService = new FeatureServiceImpl();
-		FunctionDescriptorParserImpl parser = new FunctionDescriptorParserImpl();
-		parser.setFeatureServiceInternal(featureService);
-		
+		FunctionDescriptorParser parser = new FunctionDescriptorParser();
+
 		FunctionDescriptor descriptor = parser.parseDescriptor("Test((1))");
 		assertEquals("Test", descriptor.getFunctionName());
 		assertEquals(1, descriptor.getArguments().size());
@@ -231,7 +221,7 @@ public class FunctionDescriptorParserImplTest {
 		assertEquals(2, descriptor.getArguments().size());
 		assertEquals(10, descriptor.getArguments().get(0).getObject());
 		assertEquals(5, descriptor.getArguments().get(1).getObject());
-		
+
 		// no grouping parentheses (always interpreted to have left-precedence)
 		descriptor = parser.parseDescriptor("(6-5-3)");
 		assertEquals("-", descriptor.getFunctionName());
@@ -250,13 +240,11 @@ public class FunctionDescriptorParserImplTest {
 			LOG.debug(fse.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testOperatorPrecedence() {
-		FeatureServiceImpl featureService = new FeatureServiceImpl();
-		FunctionDescriptorParserImpl parser = new FunctionDescriptorParserImpl();
-		parser.setFeatureServiceInternal(featureService);
-		
+		FunctionDescriptorParser parser = new FunctionDescriptorParser();
+
 		FunctionDescriptor descriptor = parser.parseDescriptor("9-3*2");
 		assertEquals("-", descriptor.getFunctionName());
 		assertEquals(2, descriptor.getArguments().size());
@@ -266,7 +254,7 @@ public class FunctionDescriptorParserImplTest {
 		assertEquals(2, descriptor.getArguments().size());
 		assertEquals(3, descriptor.getArguments().get(0).getObject());
 		assertEquals(2, descriptor.getArguments().get(1).getObject());
-		
+
 		descriptor = parser.parseDescriptor("9-4+3");
 		assertEquals("+", descriptor.getFunctionName());
 		assertEquals(2, descriptor.getArguments().size());
@@ -300,7 +288,7 @@ public class FunctionDescriptorParserImplTest {
 		assertEquals(2, rightDescriptor.getArguments().size());
 		assertEquals(5, rightDescriptor.getArguments().get(0).getObject());
 		assertEquals(6, rightDescriptor.getArguments().get(1).getObject());
-		
+
 		descriptor = parser.parseDescriptor("A()-B()*C()");
 		assertEquals("-", descriptor.getFunctionName());
 		assertEquals(2, descriptor.getArguments().size());

@@ -30,24 +30,22 @@ import com.joliciel.talismane.machineLearning.features.DoubleFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunctionWrapper;
+import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
-import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
 
 class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrapper> {
 	private ParserFeatureServiceInternal parserFeatureServiceInternal;
 	private TalismaneService talismaneService;
-	
-	public ParserFeatureParser(FeatureService featureService) {
-		super(featureService);
-	}	
+
+	public ParserFeatureParser() {
+	}
 
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
@@ -74,11 +72,11 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		container.addFeatureClass("TokenSearch", TokenSearchFeature.class);
 		container.addFeatureClass("Valency", ValencyFeature.class);
 		container.addFeatureClass("Valency", ValencyByLabelFeature.class);
-		
+
 		PosTaggerFeatureParser.addPosTaggedTokenFeatureClasses(container);
 
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<ParseConfigurationFeature<?>> parseDescriptor(FunctionDescriptor functionDescriptor) {
 		List<Feature<ParseConfigurationWrapper, ?>> parseFeatures = this.parse(functionDescriptor);
@@ -98,7 +96,7 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 			} else {
 				wrappedFeature = new ParseConfigurationFeatureWrapper(parseFeature);
 			}
-			
+
 			wrappedFeatures.add(wrappedFeature);
 		}
 		return wrappedFeatures;
@@ -108,97 +106,92 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		return parserFeatureServiceInternal;
 	}
 
-	public void setParserFeatureServiceInternal(
-			ParserFeatureServiceInternal parserFeatureServiceInternal) {
+	public void setParserFeatureServiceInternal(ParserFeatureServiceInternal parserFeatureServiceInternal) {
 		this.parserFeatureServiceInternal = parserFeatureServiceInternal;
 	}
 
 	@Override
-	public List<FunctionDescriptor> getModifiedDescriptors(
-			FunctionDescriptor functionDescriptor) {
+	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
 		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
 		String functionName = functionDescriptor.getFunctionName();
-		
+
 		@SuppressWarnings("rawtypes")
 		List<Class<? extends Feature>> featureClasses = this.getFeatureClasses(functionName);
-		
+
 		@SuppressWarnings("rawtypes")
 		Class<? extends Feature> featureClass = null;
-		if (featureClasses!=null && featureClasses.size()>0)
+		if (featureClasses != null && featureClasses.size() > 0)
 			featureClass = featureClasses.get(0);
 
-		if (featureClass!=null) {
+		if (featureClass != null) {
 			if (featureClass.equals(DependencyCountIf.class)) {
-				if (functionDescriptor.getArguments().size()==1) {
+				if (functionDescriptor.getArguments().size() == 1) {
 					String descriptor = this.getFeatureClassDescriptors(ImplicitAddressFeature.class).get(0);
-					FunctionDescriptor implicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor(descriptor);
+					FunctionDescriptor implicitAddressDescriptor = new FunctionDescriptor(descriptor);
 					functionDescriptor.addArgument(0, implicitAddressDescriptor);
 				}
-			} else if (PosTaggedTokenFeature.class.isAssignableFrom(featureClass)
-						|| ParseConfigurationAddressFeature.class.isAssignableFrom(featureClass)) {
-				if (functionDescriptor.getArguments().size()==0) {
+			} else if (PosTaggedTokenFeature.class.isAssignableFrom(featureClass) || ParseConfigurationAddressFeature.class.isAssignableFrom(featureClass)) {
+				if (functionDescriptor.getArguments().size() == 0) {
 					String descriptor = this.getFeatureClassDescriptors(ImplicitAddressFeature.class).get(0);
-					FunctionDescriptor implicitAddressDescriptor = this.getFeatureService().getFunctionDescriptor(descriptor);
+					FunctionDescriptor implicitAddressDescriptor = new FunctionDescriptor(descriptor);
 					functionDescriptor.addArgument(implicitAddressDescriptor);
-				
+
 				} // has arguments
 			}
 		}
-		
-		if (descriptors.size()==0) {
+
+		if (descriptors.size() == 0) {
 			descriptors.add(functionDescriptor);
 		}
 		return descriptors;
 	}
 
-	private static class ParseConfigurationFeatureWrapper<Y> extends AbstractFeature<ParseConfigurationWrapper, Y> implements
-			ParseConfigurationFeature<Y> {
-		private Feature<ParseConfigurationWrapper,Y> wrappedFeature = null;
-		
-		public ParseConfigurationFeatureWrapper(
-				Feature<ParseConfigurationWrapper, Y> wrappedFeature) {
+	private static class ParseConfigurationFeatureWrapper<Y> extends AbstractFeature<ParseConfigurationWrapper, Y> implements ParseConfigurationFeature<Y> {
+		private Feature<ParseConfigurationWrapper, Y> wrappedFeature = null;
+
+		public ParseConfigurationFeatureWrapper(Feature<ParseConfigurationWrapper, Y> wrappedFeature) {
 			super();
 			this.wrappedFeature = wrappedFeature;
 			this.setName(wrappedFeature.getName());
 			this.setCollectionName(wrappedFeature.getCollectionName());
 		}
-		
+
 		@Override
 		public FeatureResult<Y> check(ParseConfigurationWrapper context, RuntimeEnvironment env) {
 			return wrappedFeature.check(context, env);
 		}
-		
+
 		@SuppressWarnings("rawtypes")
 		@Override
 		public Class<? extends Feature> getFeatureType() {
 			return wrappedFeature.getFeatureType();
 		}
 	}
-	
-	private final class ParseConfigurationBooleanFeatureWrapper extends ParseConfigurationFeatureWrapper<Boolean> implements BooleanFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationBooleanFeatureWrapper(
-				Feature<ParseConfigurationWrapper, Boolean> wrappedFeature) {
+
+	private final class ParseConfigurationBooleanFeatureWrapper extends ParseConfigurationFeatureWrapper<Boolean>
+			implements BooleanFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationBooleanFeatureWrapper(Feature<ParseConfigurationWrapper, Boolean> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
-	
-	private final class ParseConfigurationStringFeatureWrapper extends ParseConfigurationFeatureWrapper<String> implements StringFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationStringFeatureWrapper(
-				Feature<ParseConfigurationWrapper, String> wrappedFeature) {
+
+	private final class ParseConfigurationStringFeatureWrapper extends ParseConfigurationFeatureWrapper<String>
+			implements StringFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationStringFeatureWrapper(Feature<ParseConfigurationWrapper, String> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
-	
-	private final class ParseConfigurationDoubleFeatureWrapper extends ParseConfigurationFeatureWrapper<Double> implements DoubleFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationDoubleFeatureWrapper(
-				Feature<ParseConfigurationWrapper, Double> wrappedFeature) {
+
+	private final class ParseConfigurationDoubleFeatureWrapper extends ParseConfigurationFeatureWrapper<Double>
+			implements DoubleFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationDoubleFeatureWrapper(Feature<ParseConfigurationWrapper, Double> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
-	
-	private final class ParseConfigurationIntegerFeatureWrapper extends ParseConfigurationFeatureWrapper<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationIntegerFeatureWrapper(
-				Feature<ParseConfigurationWrapper, Integer> wrappedFeature) {
+
+	private final class ParseConfigurationIntegerFeatureWrapper extends ParseConfigurationFeatureWrapper<Integer>
+			implements IntegerFeature<ParseConfigurationWrapper> {
+		public ParseConfigurationIntegerFeatureWrapper(Feature<ParseConfigurationWrapper, Integer> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
@@ -206,30 +199,27 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		if (feature instanceof NeedsTalismaneSession) {
-			((NeedsTalismaneSession)feature).setTalismaneSession(talismaneService.getTalismaneSession());
+			((NeedsTalismaneSession) feature).setTalismaneSession(talismaneService.getTalismaneSession());
 		}
 	}
 
 	@Override
-	protected boolean canConvert(Class<?> parameterType,
-			Class<?> originalArgumentType) {
+	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
 		return false;
 	}
 
 	@Override
-	protected Feature<ParseConfigurationWrapper, ?> convertArgument(
-			Class<?> parameterType,
-			Feature<ParseConfigurationWrapper, ?> originalArgument) {
+	protected Feature<ParseConfigurationWrapper, ?> convertArgument(Class<?> parameterType, Feature<ParseConfigurationWrapper, ?> originalArgument) {
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Feature<ParseConfigurationWrapper, ?> convertFeatureCustomType(
-			Feature<ParseConfigurationWrapper, ?> feature) {
+	public Feature<ParseConfigurationWrapper, ?> convertFeatureCustomType(Feature<ParseConfigurationWrapper, ?> feature) {
 		Feature<ParseConfigurationWrapper, ?> convertedFeature = feature;
-		if (PosTaggedTokenAddressFunction.class.isAssignableFrom(feature.getFeatureType())&& !(feature instanceof PosTaggedTokenAddressFunction)) {
-			convertedFeature = new PosTaggedTokenAddressFunctionWrapper<ParseConfigurationWrapper>((Feature<ParseConfigurationWrapper, PosTaggedTokenWrapper>) feature);
+		if (PosTaggedTokenAddressFunction.class.isAssignableFrom(feature.getFeatureType()) && !(feature instanceof PosTaggedTokenAddressFunction)) {
+			convertedFeature = new PosTaggedTokenAddressFunctionWrapper<ParseConfigurationWrapper>(
+					(Feature<ParseConfigurationWrapper, PosTaggedTokenWrapper>) feature);
 		}
 
 		return convertedFeature;

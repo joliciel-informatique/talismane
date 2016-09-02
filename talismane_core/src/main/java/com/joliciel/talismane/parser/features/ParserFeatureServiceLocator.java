@@ -32,7 +32,6 @@ public class ParserFeatureServiceLocator {
 		if (parserFeatureService == null) {
 			parserFeatureService = new ParserFeatureServiceImpl();
 			parserFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
-			parserFeatureService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 		}
 		return parserFeatureService;
 	}
