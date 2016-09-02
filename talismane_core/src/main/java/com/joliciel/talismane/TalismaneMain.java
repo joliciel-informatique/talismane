@@ -35,8 +35,6 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
-import com.joliciel.talismane.lexicon.LexiconService;
-import com.joliciel.talismane.lexicon.LexiconServiceLocator;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
@@ -181,9 +179,8 @@ public class TalismaneMain {
 						lexiconChain.addLexicon(oneLexicon);
 					lexicon = lexiconChain;
 				}
-				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
-				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
-				Diacriticizer diacriticizer = lexiconService.getDiacriticizer(lexicon);
+
+				Diacriticizer diacriticizer = new Diacriticizer(lexicon);
 
 				File outFile = new File(outFilePath);
 				File outDir = outFile.getParentFile();
@@ -223,9 +220,8 @@ public class TalismaneMain {
 					throw new TalismaneException("Missing argument: words");
 
 				File inFile = new File(inFilePath);
-				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
-				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
-				Diacriticizer diacriticizer = lexiconService.deserializeDiacriticizer(inFile);
+
+				Diacriticizer diacriticizer = Diacriticizer.deserialize(inFile);
 
 				for (String word : wordList) {
 					LOG.info("################");

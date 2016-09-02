@@ -18,14 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import java.util.Arrays;
+
 /**
  * Replace any newline with a space.
+ * 
  * @author Assaf Urieli
  *
  */
-class NewlineSpaceMarker extends RegexMarkerFilter {
-	public NewlineSpaceMarker() {
-		super(new MarkerFilterType[] {MarkerFilterType.SKIP, MarkerFilterType.SPACE},
-				"\r\n|[\r\n]");
+public class NewlineSpaceMarker extends RegexMarkerFilter {
+	public NewlineSpaceMarker(int blockSize) {
+		super(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SPACE }), "\r\n|[\r\n]", 0, blockSize);
 	}
 }

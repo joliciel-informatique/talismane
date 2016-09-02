@@ -15,7 +15,7 @@ import org.junit.Test;
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
-public class DiacriticizerImplTest {
+public class DiacriticizerTest {
 
 	@Test
 	public void testDiacriticize(@NonStrict final Lexicon lexicon) {
@@ -57,7 +57,7 @@ public class DiacriticizerImplTest {
 			}
 		};
 
-		DiacriticizerImpl diacriticizer = new DiacriticizerImpl();
+		Diacriticizer diacriticizer = new Diacriticizer();
 		diacriticizer.setLocale(Locale.FRENCH);
 
 		Map<String, String> lowercasePreferences = new HashMap<>();

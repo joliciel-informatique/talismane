@@ -23,17 +23,16 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 public class LanguageDetectorServiceLocator {
 	LanguageDetectorServiceImpl languageDetectorService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public LanguageDetectorServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized LanguageDetectorService getLanguageDetectorService() {
-		if (languageDetectorService==null) {
+		if (languageDetectorService == null) {
 			languageDetectorService = new LanguageDetectorServiceImpl();
 			languageDetectorService.setTokeniserService(talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
 			languageDetectorService.setMachineLearningService(talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
-			languageDetectorService.setFilterService(talismaneServiceLocator.getFilterServiceLocator().getFilterService());
 			languageDetectorService.setFeatureService(talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 		}
 		return languageDetectorService;

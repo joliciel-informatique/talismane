@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,54 +40,30 @@ import com.joliciel.talismane.utils.RegexUtils;
  * @author Assaf Urieli
  *
  */
-class RegexMarkerFilter implements TextMarkerFilter {
+public class RegexMarkerFilter implements TextMarkerFilter {
 	private static final Logger LOG = LoggerFactory.getLogger(RegexMarkerFilter.class);
-	private List<MarkerFilterType> filterTypes;
-	private Pattern pattern;
-	private String regex;
-	private int groupIndex = 0;
+	private final List<MarkerFilterType> filterTypes;
+	private final Pattern pattern;
+	private final String regex;
+	private final int groupIndex;
 	private String replacement;
 	private String attribute;
 	private TokenAttribute<?> value;
-	private int blockSize = 1000;
+	private final int blockSize;
 
-	public RegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex) {
-		this(filterTypes, regex, 0);
-	}
-
-	public RegexMarkerFilter(MarkerFilterType[] filterTypeArray, String regex) {
-		this(filterTypeArray, regex, 0);
-	}
-
-	public RegexMarkerFilter(MarkerFilterType filterType, String regex) {
-		this(filterType, regex, 0);
-	}
-
-	public RegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int groupIndex) {
+	public RegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int groupIndex, int blockSize) {
 		this.filterTypes = filterTypes;
-		this.initialise(regex, groupIndex);
-	}
-
-	public RegexMarkerFilter(MarkerFilterType[] filterTypeArray, String regex, int groupIndex) {
-		this.filterTypes = new ArrayList<MarkerFilterType>(filterTypeArray.length);
-		for (MarkerFilterType filterType : filterTypeArray)
-			this.filterTypes.add(filterType);
-		this.initialise(regex, groupIndex);
-	}
-
-	public RegexMarkerFilter(MarkerFilterType filterType, String regex, int groupIndex) {
-		this.filterTypes = new ArrayList<MarkerFilterType>(1);
-		this.filterTypes.add(filterType);
-		this.initialise(regex, groupIndex);
-	}
-
-	private void initialise(String regex, int groupIndex) {
+		this.blockSize = blockSize;
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
 		if (groupIndex < 0) {
 			throw new TalismaneException("Cannot have a group index < 0: " + groupIndex);
 		}
 		this.groupIndex = groupIndex;
+	}
+
+	public RegexMarkerFilter(MarkerFilterType filterType, String regex, int groupIndex, int blockSize) {
+		this(Arrays.asList(new MarkerFilterType[] { filterType }), regex, groupIndex, blockSize);
 	}
 
 	@Override
@@ -300,11 +276,6 @@ class RegexMarkerFilter implements TextMarkerFilter {
 	@Override
 	public int getBlockSize() {
 		return blockSize;
-	}
-
-	@Override
-	public void setBlockSize(int blockSize) {
-		this.blockSize = blockSize;
 	}
 
 	@Override

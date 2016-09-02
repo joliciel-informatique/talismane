@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -25,64 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.StringAttribute;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
-import com.joliciel.talismane.utils.LogUtils;
 
-class FilterServiceImpl implements FilterServiceInternal {
-	private static final Logger LOG = LoggerFactory.getLogger(FilterServiceImpl.class);
-	private TokeniserService tokeniserService;
+public class TextMarkerFilterFactory {
+	@SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(TextMarkerFilterFactory.class);
 
-	@Override
-	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int blockSize) {
-		return this.getRegexMarkerFilter(filterTypes, regex, 0, blockSize);
-	}
-
-	@Override
-	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int groupIndex, int blockSize) {
-		RegexMarkerFilter filter = new RegexMarkerFilter(filterTypes, regex, groupIndex);
-		filter.setBlockSize(blockSize);
-		return filter;
-
-	}
-
-	@Override
-	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int blockSize) {
-		return this.getRegexMarkerFilter(types, regex, 0, blockSize);
-	}
-
-	@Override
-	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex, int blockSize) {
-		RegexMarkerFilter filter = new RegexMarkerFilter(types, regex, groupIndex);
-		filter.setBlockSize(blockSize);
-		return filter;
-	}
-
-	@Override
-	public TextMarkerFilter getDuplicateWhiteSpaceFilter() {
-		DuplicateWhiteSpaceFilter filter = new DuplicateWhiteSpaceFilter();
-		return filter;
-	}
-
-	@Override
-	public TextMarkerFilter getOtherWhiteSpaceFilter() {
-		OtherWhiteSpaceFilter filter = new OtherWhiteSpaceFilter();
-		return filter;
-	}
-
-	@Override
-	public TextMarkerFilter getNewlineEndOfSentenceMarker() {
-		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker();
-		return filter;
-	}
-
-	@Override
-	public TextMarkerFilter getNewlineSpaceMarker() {
-		NewlineSpaceMarker filter = new NewlineSpaceMarker();
-		return filter;
-	}
-
-	@Override
 	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize) {
 		TextMarkerFilter filter = null;
 
@@ -111,7 +60,7 @@ class FilterServiceImpl implements FilterServiceInternal {
 				minParams = 4;
 			}
 			if (parts.length == minParams + 1) {
-				filter = this.getRegexMarkerFilter(filterTypes, parts[2], Integer.parseInt(parts[3]), blockSize);
+				filter = new RegexMarkerFilter(filterTypes, parts[2], Integer.parseInt(parts[3]), blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[4]);
 				if (needsTag) {
@@ -124,7 +73,7 @@ class FilterServiceImpl implements FilterServiceInternal {
 					}
 				}
 			} else if (parts.length == minParams) {
-				filter = this.getRegexMarkerFilter(filterTypes, parts[2], blockSize);
+				filter = new RegexMarkerFilter(filterTypes, parts[2], 0, blockSize);
 				if (needsReplacement)
 					filter.setReplacement(parts[3]);
 				if (needsTag) {
@@ -144,34 +93,18 @@ class FilterServiceImpl implements FilterServiceInternal {
 			for (Class<? extends TextMarkerFilter> clazz : classes) {
 				if (filterName.equals(clazz.getSimpleName())) {
 					try {
-						filter = clazz.newInstance();
-					} catch (InstantiationException e) {
-						LogUtils.logError(LOG, e);
-						throw new RuntimeException(e);
-					} catch (IllegalAccessException e) {
-						LogUtils.logError(LOG, e);
-						throw new RuntimeException(e);
+						Constructor<? extends TextMarkerFilter> constructor = clazz.getConstructor(Integer.class);
+						filter = constructor.newInstance(blockSize);
+					} catch (ReflectiveOperationException e) {
+						throw new TalismaneException("Problem building class: " + filterName, e);
 					}
 				}
 			}
 			if (filter == null)
 				throw new TalismaneException("Unknown text filter class: " + filterName);
-			filter.setBlockSize(blockSize);
-		}
-
-		if (filter == null) {
-			throw new TalismaneException("Unknown TextMarkerFilter: " + descriptor);
 		}
 
 		return filter;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 }

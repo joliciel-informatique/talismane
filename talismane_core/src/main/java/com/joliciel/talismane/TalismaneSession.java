@@ -18,10 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import com.joliciel.talismane.lexicon.Diacriticizer;
+import com.joliciel.talismane.lexicon.EmptyLexicon;
+import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -32,44 +35,115 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  * @author Assaf Urieli
  *
  */
-public interface TalismaneSession {
-	public PosTagSet getPosTagSet();
+public class TalismaneSession {
+	private Locale locale;
+	private PosTagSet posTagSet;
+	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
+	private PosTaggerLexicon mergedLexicon;
+	private TransitionSystem transitionSystem;
+	private LinguisticRules linguisticRules;
+	private Diacriticizer diacriticizer;
+	private String outputDivider = "";
 
-	public void setPosTagSet(PosTagSet posTagSet);
+	TalismaneSession() {
+	}
 
-	public TransitionSystem getTransitionSystem();
+	public synchronized PosTagSet getPosTagSet() {
+		if (posTagSet == null)
+			throw new TalismaneException("PosTagSet missing.");
+		return posTagSet;
+	}
 
-	public void setTransitionSystem(TransitionSystem transitionSystem);
+	public void setPosTagSet(PosTagSet posTagSet) {
+		this.posTagSet = posTagSet;
+	}
+
+	public synchronized TransitionSystem getTransitionSystem() {
+		if (transitionSystem == null)
+			throw new TalismaneException("TransitionSystem missing.");
+		return transitionSystem;
+	}
+
+	public void setTransitionSystem(TransitionSystem transitionSystem) {
+		this.transitionSystem = transitionSystem;
+	}
 
 	/**
 	 * A list of lexicons setup for the current session.
 	 */
-	public List<PosTaggerLexicon> getLexicons();
+	public synchronized List<PosTaggerLexicon> getLexicons() {
+		return lexicons;
+	}
 
-	public void addLexicon(PosTaggerLexicon lexicon);
+	public void addLexicon(PosTaggerLexicon lexicon) {
+		this.lexicons.add(lexicon);
+	}
+
+	public Locale getLocale() {
+		if (locale == null && this.getPosTagSet() != null) {
+			locale = this.getPosTagSet().getLocale();
+		}
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	public synchronized LinguisticRules getLinguisticRules() {
+		if (linguisticRules == null) {
+			linguisticRules = new GenericRules(this);
+		}
+		return linguisticRules;
+	}
+
+	public void setLinguisticRules(LinguisticRules linguisticRules) {
+		this.linguisticRules = linguisticRules;
+	}
 
 	/**
 	 * Get a lexicon which merges all of the lexicons added, prioritised in the
 	 * order in which they were added.
 	 */
-	public PosTaggerLexicon getMergedLexicon();
+	public synchronized PosTaggerLexicon getMergedLexicon() {
+		if (mergedLexicon == null) {
+			List<PosTaggerLexicon> lexicons = this.getLexicons();
+			if (lexicons.size() == 0)
+				mergedLexicon = new EmptyLexicon();
+			else if (lexicons.size() == 1)
+				mergedLexicon = lexicons.get(0);
+			else {
+				LexiconChain lexiconChain = new LexiconChain();
+				for (PosTaggerLexicon lexicon : lexicons) {
+					lexiconChain.addLexicon(lexicon);
+				}
+				mergedLexicon = lexiconChain;
+			}
+		}
+		return mergedLexicon;
+	}
 
-	public Locale getLocale();
+	public Diacriticizer getDiacriticizer() {
+		if (diacriticizer == null) {
+			diacriticizer = new Diacriticizer(this.getMergedLexicon());
+			diacriticizer.setLocale(this.getLocale());
+		}
+		return diacriticizer;
+	}
 
-	public void setLocale(Locale locale);
-
-	public LinguisticRules getLinguisticRules();
-
-	public void setLinguisticRules(LinguisticRules linguisticRules);
-
-	public Diacriticizer getDiacriticizer();
-
-	public void setDiacriticizer(Diacriticizer diacriticizer);
+	public void setDiacriticizer(Diacriticizer diacriticizer) {
+		this.diacriticizer = diacriticizer;
+	}
 
 	/**
 	 * A string inserted between outputs (such as a newline).
 	 */
-	public String getOutputDivider();
 
-	public void setOutputDivider(String outputDivider);
+	public String getOutputDivider() {
+		return outputDivider;
+	}
+
+	public void setOutputDivider(String outputDivider) {
+		this.outputDivider = outputDivider;
+	}
 }

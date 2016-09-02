@@ -35,7 +35,6 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.RollingSentenceProcessor;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceHolder;
@@ -110,7 +109,6 @@ class TalismaneImpl implements Talismane {
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
-	private FilterService filterService;
 	private MachineLearningService machineLearningService;
 	private LanguageDetectorService languageDetectorService;
 
@@ -896,14 +894,6 @@ class TalismaneImpl implements Talismane {
 
 	public void setParserService(ParserService parserService) {
 		this.parserService = parserService;
-	}
-
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 
 	public MachineLearningService getMachineLearningService() {

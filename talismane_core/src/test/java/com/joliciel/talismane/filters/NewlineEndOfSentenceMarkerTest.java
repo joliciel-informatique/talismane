@@ -13,7 +13,7 @@ public class NewlineEndOfSentenceMarkerTest {
 
 	@Test
 	public void testApply() {
-		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker();
+		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker(1000);
 
 		String text = "1\r\n2\r\n";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
@@ -37,7 +37,7 @@ public class NewlineEndOfSentenceMarkerTest {
 
 	@Test
 	public void testApplyRealSentence() {
-		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker();
+		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker(1000);
 
 		String text = "Yet another test sentence.\n";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
