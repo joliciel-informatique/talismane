@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -45,7 +44,6 @@ public abstract class AbstractTokeniser implements Tokeniser {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractTokeniser.class);
 
 	private TokeniserService tokeniserService;
-	private MachineLearningService machineLearningService;
 
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 
@@ -197,13 +195,4 @@ public abstract class AbstractTokeniser implements Tokeniser {
 			LOG.trace("Added filter: " + filter.toString());
 		this.tokenFilters.add(filter);
 	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
 }

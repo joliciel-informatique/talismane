@@ -44,7 +44,6 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
@@ -53,10 +52,8 @@ import com.typesafe.config.Config;
 import de.bwaldvogel.liblinear.Model;
 import gnu.trove.map.TObjectIntMap;
 
-class LinearSVMModel extends AbstractMachineLearningModel implements ClassificationModel {
+public class LinearSVMModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMModel.class);
-
-	private MachineLearningService machineLearningService;
 
 	private Model model;
 	private TObjectIntMap<String> featureIndexMap = null;
@@ -66,7 +63,7 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	/**
 	 * Default constructor for factory.
 	 */
-	LinearSVMModel() {
+	public LinearSVMModel() {
 	}
 
 	/**
@@ -80,7 +77,6 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 	@Override
 	public DecisionMaker getDecisionMaker() {
 		LinearSVMDecisionMaker decisionMaker = new LinearSVMDecisionMaker(model, this.featureIndexMap, this.outcomes);
-		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		return decisionMaker;
 	}
 
@@ -207,14 +203,6 @@ class LinearSVMModel extends AbstractMachineLearningModel implements Classificat
 			this.outcomeNames = new TreeSet<String>(this.outcomes);
 		}
 		return this.outcomeNames;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override

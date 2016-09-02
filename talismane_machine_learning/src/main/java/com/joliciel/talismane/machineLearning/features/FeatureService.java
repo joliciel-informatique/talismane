@@ -20,14 +20,10 @@ package com.joliciel.talismane.machineLearning.features;
 
 public interface FeatureService {
 	public FunctionDescriptorParser getFunctionDescriptorParser();
-	
+
 	/**
-	 * Get a function descriptor that wraps an actual function of the given name.
+	 * Get a function descriptor that wraps an actual function of the given
+	 * name.
 	 */
 	public FunctionDescriptor getFunctionDescriptor(String functionName);
-	
-	/**
-	 * Get a runtime environment for variable storage.
-	 */
-	public RuntimeEnvironment getRuntimeEnvironment();
 }

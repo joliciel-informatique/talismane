@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2012 Assaf Urieli
 //
 //This file is part of Talismane.
 //
@@ -18,7 +18,26 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.maxent;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+import com.joliciel.talismane.machineLearning.maxent.custom.GISTrainer;
+import com.joliciel.talismane.machineLearning.maxent.custom.TwoPassRealValueDataIndexer;
+import com.joliciel.talismane.utils.PerformanceMonitor;
+import com.typesafe.config.Config;
+
+import opennlp.model.DataIndexer;
+import opennlp.model.EventStream;
+import opennlp.model.MaxentModel;
 
 /**
  * Trains a MaxEnt machine learning model for a given CorpusEventStream.<br/>
@@ -27,25 +46,113 @@ import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
  * @author Assaf Urieli
  *
  */
-public interface MaxentModelTrainer extends ClassificationModelTrainer {
+public class MaxentModelTrainer implements ClassificationModelTrainer {
+	@SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(MaxentModelTrainer.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(MaxentModelTrainer.class);
+
+	private int iterations;
+	private int cutoff;
+	private double sigma;
+	private double smoothing;
+
+	private Config config;
+
+	@Override
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) {
+		Map<String, List<String>> descriptors = new HashMap<String, List<String>>();
+		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+		return this.trainModel(corpusEventStream, descriptors);
+	}
+
+	@Override
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors) {
+		MaxentModel maxentModel = null;
+		EventStream eventStream = new OpenNLPEventStream(corpusEventStream);
+		try {
+			DataIndexer dataIndexer = new TwoPassRealValueDataIndexer(eventStream, cutoff);
+			GISTrainer trainer = new GISTrainer(true);
+			if (this.getSmoothing() > 0) {
+				trainer.setSmoothing(true);
+				trainer.setSmoothingObservation(this.getSmoothing());
+			} else if (this.getSigma() > 0) {
+				trainer.setGaussianSigma(this.getSigma());
+			}
+			MONITOR.startTask("train");
+			try {
+				maxentModel = trainer.trainModel(iterations, dataIndexer, cutoff);
+			} finally {
+				MONITOR.endTask();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		MaximumEntropyModel model = new MaximumEntropyModel(maxentModel, config, descriptors);
+		model.addModelAttribute("cutoff", this.getCutoff());
+		model.addModelAttribute("iterations", this.getIterations());
+		model.addModelAttribute("sigma", this.getSigma());
+		model.addModelAttribute("smoothing", this.getSmoothing());
+
+		model.getModelAttributes().putAll(corpusEventStream.getAttributes());
+
+		return model;
+	}
+
 	/**
 	 * The number of training iterations to run.
 	 */
-	public int getIterations();
+	public int getIterations() {
+		return iterations;
+	}
 
-	public void setIterations(int iterations);
+	public void setIterations(int iterations) {
+		this.iterations = iterations;
+	}
+
+	@Override
+	public int getCutoff() {
+		return cutoff;
+	}
+
+	@Override
+	public void setCutoff(int cutoff) {
+		this.cutoff = cutoff;
+	}
 
 	/**
 	 * Sigma for Gaussian smoothing on maxent training.
 	 */
-	public double getSigma();
 
-	public void setSigma(double sigma);
+	public double getSigma() {
+		return sigma;
+	}
+
+	public void setSigma(double sigma) {
+		this.sigma = sigma;
+	}
 
 	/**
 	 * Additive smoothing parameter during maxent training.
 	 */
-	public double getSmoothing();
 
-	public void setSmoothing(double smoothing);
+	public double getSmoothing() {
+		return smoothing;
+	}
+
+	public void setSmoothing(double smoothing) {
+		this.smoothing = smoothing;
+	}
+
+	@Override
+	public void setParameters(Config config) {
+		this.config = config;
+
+		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
+		Config maxentConfig = machineLearningConfig.getConfig("maxent");
+
+		this.setCutoff(machineLearningConfig.getInt("cutoff"));
+		this.setIterations(maxentConfig.getInt("iterations"));
+		this.setSigma(maxentConfig.getDouble("sigma"));
+		this.setSmoothing(maxentConfig.getDouble("sigma"));
+	}
 }

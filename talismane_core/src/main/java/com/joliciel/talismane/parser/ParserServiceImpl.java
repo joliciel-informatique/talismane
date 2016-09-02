@@ -14,8 +14,6 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
@@ -30,9 +28,7 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	ParserFeatureService parseFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
-	MachineLearningService machineLearningService;
 	TokenFilterService tokenFilterService;
-	FeatureService featureService;
 
 	@Override
 	public DependencyArc getDependencyArc(PosTaggedToken head, PosTaggedToken dependent, String label) {
@@ -60,8 +56,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		TransitionBasedParserImpl parser = new TransitionBasedParserImpl(decisionMaker, transitionSystem, parseFeatures, beamWidth);
 		parser.setParserServiceInternal(this);
 		parser.setTalismaneService(this.getTalismaneService());
-		parser.setFeatureService(this.getFeatureService());
-		parser.setMachineLearningService(this.getMachineLearningService());
 		return parser;
 	}
 
@@ -69,8 +63,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	public ClassificationEventStream getParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
 		ParseEventStream eventStream = new ParseEventStream(corpusReader, parseFeatures);
 		eventStream.setParserServiceInternal(this);
-		eventStream.setMachineLearningService(this.getMachineLearningService());
-		eventStream.setFeatureService(this.getFeatureService());
 		return eventStream;
 	}
 
@@ -155,7 +147,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
-		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
 	}
 
@@ -167,7 +158,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
-		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
 	}
 
@@ -187,14 +177,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		this.tokeniserService = tokeniserService;
 	}
 
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService macheLearningService) {
-		this.machineLearningService = macheLearningService;
-	}
-
 	public TokenFilterService getTokenFilterService() {
 		return tokenFilterService;
 	}
@@ -208,14 +190,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		ParseComparatorImpl parseComparator = new ParseComparatorImpl();
 		parseComparator.setParserServiceInternal(this);
 		return parseComparator;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	@Override
@@ -237,7 +211,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	@Override
 	public ParseConfigurationProcessor getParseFeatureTester(Set<ParseConfigurationFeature<?>> parserFeatures, File file) {
 		ParseFeatureTester tester = new ParseFeatureTester(parserFeatures, file);
-		tester.setFeatureService(this.getFeatureService());
 		tester.setParserServiceInternal(this);
 		return tester;
 	}

@@ -32,8 +32,6 @@ public class LanguageDetectorServiceLocator {
 		if (languageDetectorService == null) {
 			languageDetectorService = new LanguageDetectorServiceImpl();
 			languageDetectorService.setTokeniserService(talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
-			languageDetectorService.setMachineLearningService(talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
-			languageDetectorService.setFeatureService(talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 		}
 		return languageDetectorService;
 	}

@@ -23,18 +23,17 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 public class PosTaggerFeatureServiceLocator {
 	PosTaggerFeatureServiceImpl posTaggerFeatureService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public PosTaggerFeatureServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized PosTaggerFeatureService getPosTaggerFeatureService() {
-		if (posTaggerFeatureService==null) {
+		if (posTaggerFeatureService == null) {
 			posTaggerFeatureService = new PosTaggerFeatureServiceImpl();
 			posTaggerFeatureService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 			posTaggerFeatureService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 			posTaggerFeatureService.setTokenFeatureService(this.talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService());
-			posTaggerFeatureService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 		}
 		return posTaggerFeatureService;
 	}

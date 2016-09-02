@@ -25,9 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.languageDetector.LanguageDetectorServiceLocator;
-import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
-import com.joliciel.talismane.machineLearning.maxent.MaxentServiceLocator;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -63,8 +61,6 @@ public class TalismaneServiceLocator {
 	private ParserServiceLocator parserServiceLocator;
 	private ParserFeatureServiceLocator parserFeatureServiceLocator;
 	private FeatureServiceLocator featureServiceLocator;
-	private MachineLearningServiceLocator machineLearningServiceLocator;
-	private MaxentServiceLocator maxentServiceLocator;
 	private LanguageDetectorServiceLocator languageDetectorServiceLocator;
 
 	private static Map<String, TalismaneServiceLocator> instances = new HashMap<String, TalismaneServiceLocator>();
@@ -93,7 +89,6 @@ public class TalismaneServiceLocator {
 			talismaneService.setParserService(this.getParserServiceLocator().getParserService());
 			talismaneService.setPosTaggerService(this.getPosTaggerServiceLocator().getPosTaggerService());
 			talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
-			talismaneService.setMachineLearningService(this.getMachineLearningServiceLocator().getMachineLearningService());
 			talismaneService.setSentenceDetectorService(this.getSentenceDetectorServiceLocator().getSentenceDetectorService());
 			talismaneService.setParserFeatureService(this.getParserFeatureServiceLocator().getParserFeatureService());
 			talismaneService.setPosTaggerFeatureService(this.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService());
@@ -201,18 +196,6 @@ public class TalismaneServiceLocator {
 		}
 		return tokeniserPatternServiceLocator;
 
-	}
-
-	public synchronized MachineLearningServiceLocator getMachineLearningServiceLocator() {
-		if (this.machineLearningServiceLocator == null)
-			this.machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
-		return machineLearningServiceLocator;
-	}
-
-	public synchronized MaxentServiceLocator getMaxentServiceLocator() {
-		if (this.maxentServiceLocator == null)
-			this.maxentServiceLocator = MaxentServiceLocator.getInstance(this.getMachineLearningServiceLocator());
-		return maxentServiceLocator;
 	}
 
 	public String getSessionId() {

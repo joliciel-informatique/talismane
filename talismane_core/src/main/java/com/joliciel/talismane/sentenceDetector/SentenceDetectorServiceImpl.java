@@ -27,18 +27,14 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 
 public class SentenceDetectorServiceImpl implements SentenceDetectorService {
-	SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	TokeniserService tokeniserService;
-	MachineLearningService machineLearningService;
-	FeatureService featureService;
 	TalismaneService talismaneService;
+	SentenceDetectorFeatureService sentenceDetectorFeatureService;
 
 	@Override
 	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text, int index) {
@@ -50,8 +46,6 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	public SentenceDetector getSentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features) {
 		SentenceDetectorImpl sentenceDetector = new SentenceDetectorImpl(decisionMaker, features);
 		sentenceDetector.setSentenceDetectorService(this);
-		sentenceDetector.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
-		sentenceDetector.setFeatureService(featureService);
 		return sentenceDetector;
 	}
 
@@ -76,14 +70,6 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		return evaluator;
 	}
 
-	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
-		return sentenceDetectorFeatureService;
-	}
-
-	public void setSentenceDetectorFeatureService(SentenceDetectorFeatureService sentenceDetectorFeatureService) {
-		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
-	}
-
 	public TokeniserService getTokeniserService() {
 		return tokeniserService;
 	}
@@ -97,32 +83,13 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 			Set<SentenceDetectorFeature<?>> features) {
 		SentenceDetectorEventStream eventStream = new SentenceDetectorEventStream(corpusReader, features);
 		eventStream.setSentenceDetectorService(this);
-		eventStream.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
-		eventStream.setMachineLearningService(machineLearningService);
-		eventStream.setFeatureService(featureService);
 		return eventStream;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override
 	public SentenceDetectorAnnotatedCorpusReader getDefaultReader(Reader reader) {
 		SentencePerLineCorpusReader corpusReader = new SentencePerLineCorpusReader(reader);
 		return corpusReader;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	public TalismaneService getTalismaneService() {
@@ -132,4 +99,13 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
+
+	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
+		return sentenceDetectorFeatureService;
+	}
+
+	public void setSentenceDetectorFeatureService(SentenceDetectorFeatureService sentenceDetectorFeatureService) {
+		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
+	}
+
 }

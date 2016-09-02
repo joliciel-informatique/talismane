@@ -23,21 +23,19 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 public class ParserServiceLocator {
 	ParserServiceImpl parserService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public ParserServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized ParserService getParserService() {
-		if (parserService==null) {
+		if (parserService == null) {
 			parserService = new ParserServiceImpl();
 			parserService.setTalismaneService(this.talismaneServiceLocator.getTalismaneService());
 			parserService.setParseFeatureService(this.talismaneServiceLocator.getParserFeatureServiceLocator().getParserFeatureService());
 			parserService.setPosTaggerService(this.talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService());
 			parserService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
-			parserService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 			parserService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
-			parserService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 		}
 		return parserService;
 	}

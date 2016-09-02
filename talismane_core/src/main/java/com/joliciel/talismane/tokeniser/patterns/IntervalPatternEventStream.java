@@ -33,9 +33,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
@@ -71,9 +69,6 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 	private TokenFilterService tokenFilterService;
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
-	private FeatureService featureService;
-
-	private MachineLearningService machineLearningService;
 
 	private final TokeniserAnnotatedCorpusReader corpusReader;
 	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
@@ -186,7 +181,7 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 				MONITOR.startTask("check features");
 				try {
 					for (TokeniserContextFeature<?> tokeniserContextFeature : tokeniserContextFeatures) {
-						RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+						RuntimeEnvironment env = new RuntimeEnvironment();
 						FeatureResult<?> featureResult = tokeniserContextFeature.check(context, env);
 						if (featureResult != null) {
 							tokenFeatureResults.add(featureResult);
@@ -200,7 +195,7 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 				}
 
 				String classification = taggedToken.getTag().name();
-				event = this.machineLearningService.getClassificationEvent(tokenFeatureResults, classification);
+				event = new ClassificationEvent(tokenFeatureResults, classification);
 
 				currentHistory.add(taggedToken);
 				if (currentIndex == tokensToCheck.size()) {
@@ -235,7 +230,7 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 			TokeniserOutcome outcome = TokeniserOutcome.JOIN;
 			if (tokenSplits.contains(token.getStartIndex()))
 				outcome = TokeniserOutcome.SEPARATE;
-			Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
+			Decision decision = new Decision(outcome.name());
 			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
 
 			taggedTokens.add(taggedToken);
@@ -259,28 +254,12 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
 
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
 	public TokenFilterService getTokenFilterService() {
 		return tokenFilterService;
 	}
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 }

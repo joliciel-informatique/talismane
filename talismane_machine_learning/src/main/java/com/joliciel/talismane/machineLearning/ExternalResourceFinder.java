@@ -19,7 +19,14 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.utils.JolicielException;
 
 /**
  * Finds the external resource corresponding to a given name.
@@ -27,21 +34,58 @@ import java.util.Scanner;
  * @author Assaf Urieli
  *
  */
-public interface ExternalResourceFinder {
+public class ExternalResourceFinder {
+	private static final Logger LOG = LoggerFactory.getLogger(ExternalResourceFinder.class);
+	private Map<String, ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
+	private Map<String, ExternalWordList> wordListMap = new HashMap<String, ExternalWordList>();
+
+	public ExternalResource<?> getExternalResource(String name) {
+		return this.resourceMap.get(name);
+	}
+
+	public void addExternalResource(ExternalResource<?> externalResource) {
+		LOG.debug("Adding resource with name: " + externalResource.getName());
+		this.resourceMap.put(externalResource.getName(), externalResource);
+	}
+
+	public Collection<ExternalResource<?>> getExternalResources() {
+		return resourceMap.values();
+	}
+
 	/**
-	 * Add external resources located in a file or directory.
+	 * Add external resources located in a scanner from a particular filename.
 	 */
-	public void addExternalResource(String fileName, Scanner scanner);
+	public void addExternalResource(String fileName, Scanner scanner) {
+		LOG.debug("Reading " + fileName);
+		String typeLine = scanner.nextLine();
 
-	public ExternalResource<?> getExternalResource(String name);
+		if (!typeLine.startsWith("Type: "))
+			throw new JolicielException("In file " + fileName + ", expected line starting with \"Type: \"");
 
-	public void addExternalResource(ExternalResource<?> externalResource);
+		String type = typeLine.substring("Type: ".length());
 
-	public Collection<ExternalResource<?>> getExternalResources();
+		if ("WordList".equals(type)) {
+			TextFileWordList textFileWordList = new TextFileWordList(fileName, scanner);
+			this.addExternalWordList(textFileWordList);
+		} else if ("KeyValue".equals(type)) {
+			TextFileResource textFileResource = new TextFileResource(fileName, scanner);
+			this.addExternalResource(textFileResource);
+		} else if ("KeyMultiValue".equals(type)) {
+			TextFileMultivaluedResource resource = new TextFileMultivaluedResource(fileName, scanner);
+			this.addExternalResource(resource);
+		}
+	}
 
-	public ExternalWordList getExternalWordList(String name);
+	public ExternalWordList getExternalWordList(String name) {
+		return this.wordListMap.get(name);
+	}
 
-	public void addExternalWordList(ExternalWordList externalWordList);
+	public void addExternalWordList(ExternalWordList externalWordList) {
+		LOG.debug("Adding word list with name: " + externalWordList.getName());
+		this.wordListMap.put(externalWordList.getName(), externalWordList);
+	}
 
-	public Collection<ExternalWordList> getExternalWordLists();
+	public Collection<ExternalWordList> getExternalWordLists() {
+		return wordListMap.values();
+	}
 }

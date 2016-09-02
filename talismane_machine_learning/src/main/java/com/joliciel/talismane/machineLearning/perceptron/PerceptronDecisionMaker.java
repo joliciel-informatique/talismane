@@ -27,18 +27,14 @@ import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronService.PerceptronScoring;
 import com.joliciel.talismane.utils.JolicielException;
 
 class PerceptronDecisionMaker implements DecisionMaker {
 	private PerceptronModelParameters modelParameters;
 	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
 	private transient PerceptronScoring perceptronScoring = null;
-
-	private MachineLearningService machineLearningService;
 
 	public PerceptronDecisionMaker(PerceptronModelParameters params, PerceptronScoring perceptronScoring) {
 		super();
@@ -102,7 +98,7 @@ class PerceptronDecisionMaker implements DecisionMaker {
 		int i = 0;
 		TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
 		for (String outcome : modelParameters.getOutcomes()) {
-			Decision decision = this.machineLearningService.createDecision(outcome, results[i], probs[i]);
+			Decision decision = new Decision(outcome, results[i], probs[i]);
 			outcomeSet.add(decision);
 			i++;
 		}
@@ -151,14 +147,6 @@ class PerceptronDecisionMaker implements DecisionMaker {
 
 	public PerceptronScoring getPerceptronScoring() {
 		return perceptronScoring;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 }

@@ -174,7 +174,7 @@ public class TestParserTest {
 		assertTrue(feature instanceof TestStringCollectionFeature);
 
 		String testContext = "abc";
-		RuntimeEnvironment env = featureService.getRuntimeEnvironment();
+		RuntimeEnvironment env = new RuntimeEnvironment();
 		TestStringCollectionFeature testStringCollectionFeature = (TestStringCollectionFeature) feature;
 		FeatureResult<List<WeightedOutcome<String>>> featureResult = testStringCollectionFeature.check(testContext, env);
 		List<WeightedOutcome<String>> outcome = featureResult.getOutcome();
@@ -204,7 +204,7 @@ public class TestParserTest {
 		assertTrue(feature instanceof StringCollectionFeatureWrapper);
 
 		testContext = "abc";
-		env = featureService.getRuntimeEnvironment();
+		env = new RuntimeEnvironment();
 		StringCollectionFeatureWrapper<String> stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<String>) feature;
 		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
 		outcome = featureResult.getOutcome();
@@ -228,7 +228,7 @@ public class TestParserTest {
 		assertTrue(feature instanceof StringCollectionFeatureWrapper);
 
 		testContext = "abc";
-		env = featureService.getRuntimeEnvironment();
+		env = new RuntimeEnvironment();
 		stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<String>) feature;
 		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
 		outcome = featureResult.getOutcome();
@@ -251,7 +251,7 @@ public class TestParserTest {
 		assertTrue(feature instanceof StringCollectionFeatureWrapper);
 
 		testContext = "abc";
-		env = featureService.getRuntimeEnvironment();
+		env = new RuntimeEnvironment();
 		stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<String>) feature;
 		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
 		outcome = featureResult.getOutcome();
@@ -280,7 +280,7 @@ public class TestParserTest {
 
 		testContext = "abc";
 		stringCollectionFeatureWrapper = (StringCollectionFeatureWrapper<String>) feature;
-		env = featureService.getRuntimeEnvironment();
+		env = new RuntimeEnvironment();
 		featureResult = stringCollectionFeatureWrapper.check(testContext, env);
 		outcome = featureResult.getOutcome();
 		LOG.debug(outcome.toString());

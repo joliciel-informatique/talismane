@@ -28,8 +28,6 @@ import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
@@ -64,8 +62,6 @@ public class TokenisedAtomicTokenSequenceImplTest {
 				TokeniserOutcome.SEPARATE // .
 		};
 
-		MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
-		MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
 		TalismaneService talismaneService = TalismaneServiceLocator.getInstance("").getTalismaneService();
 		TokeniserServiceImpl tokeniserService = new TokeniserServiceImpl();
 		tokeniserService.setTalismaneService(talismaneService);
@@ -77,7 +73,7 @@ public class TokenisedAtomicTokenSequenceImplTest {
 
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
-			Decision decision = machineLearningService.createDefaultDecision(tokeniserOutcomeArray[i++].name());
+			Decision decision = new Decision(tokeniserOutcomeArray[i++].name());
 			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
 
 			atomicTokenSequence.add(taggedToken);

@@ -28,8 +28,6 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
@@ -42,9 +40,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 	private TokeniserService tokeniserService;
 	private TokenFeatureService tokenFeatureService;
-	private FeatureService featureService;
 	private TokenFilterService tokenFilterService;
-	private MachineLearningService machineLearningService;
 	private TalismaneService talismaneService;
 
 	@Override
@@ -71,8 +67,6 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 		tokeniser.setTokeniserService(this.getTokeniserService());
 		tokeniser.setTokenFeatureService(this.getTokenFeatureService());
 		tokeniser.setDecisionMaker(decisionMaker);
-		tokeniser.setFeatureService(this.getFeatureService());
-		tokeniser.setMachineLearningService(this.getMachineLearningService());
 		return tokeniser;
 	}
 
@@ -84,8 +78,6 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 		tokeniser.setTokeniserService(this.getTokeniserService());
 		tokeniser.setTokenFeatureService(this.getTokenFeatureService());
 		tokeniser.setDecisionMaker(decisionMaker);
-		tokeniser.setFeatureService(this.getFeatureService());
-		tokeniser.setMachineLearningService(this.getMachineLearningService());
 		return tokeniser;
 
 	}
@@ -125,11 +117,9 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 
 		eventStream.setTokenFeatureService(this.getTokenFeatureService());
 		eventStream.setTokeniserPatternService(this);
-		eventStream.setMachineLearningService(this.getMachineLearningService());
 		eventStream.setTokeniserService(this.getTokeniserService());
 		eventStream.setTokeniserPatternManager(patternManager);
 		eventStream.setTokenFilterService(this.getTokenFilterService());
-		eventStream.setFeatureService(this.getFeatureService());
 		return eventStream;
 	}
 
@@ -140,11 +130,9 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 
 		eventStream.setTokenFeatureService(this.getTokenFeatureService());
 		eventStream.setTokeniserPatternService(this);
-		eventStream.setMachineLearningService(this.getMachineLearningService());
 		eventStream.setTokeniserService(this.getTokeniserService());
 		eventStream.setTokeniserPatternManager(patternManager);
 		eventStream.setTokenFilterService(this.getTokenFilterService());
-		eventStream.setFeatureService(this.getFeatureService());
 		return eventStream;
 
 	}
@@ -165,28 +153,12 @@ class TokeniserPatternServiceImpl implements TokeniserPatternServiceInternal {
 		this.tokenFeatureService = tokenFeatureService;
 	}
 
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
 	public TokenFilterService getTokenFilterService() {
 		return tokenFilterService;
 	}
 
 	public void setTokenFilterService(TokenFilterService tokenFilterService) {
 		this.tokenFilterService = tokenFilterService;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override

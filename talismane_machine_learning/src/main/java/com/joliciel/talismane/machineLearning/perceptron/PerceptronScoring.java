@@ -16,28 +16,31 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning.linearsvm;
-
-import com.joliciel.talismane.machineLearning.ClassificationModel;
+package com.joliciel.talismane.machineLearning.perceptron;
 
 /**
- * A service for retrieving implementations of the linear SVM package.
+ * Different methods of scoring perceptron classifiers.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface LinearSVMService {
+public enum PerceptronScoring {
 	/**
-	 * Returns a linear SVM model trainer.
+	 * Use standard additive perceptron scoring, where each state's score is the
+	 * sum of scores of incremental states.
 	 */
-	public LinearSVMModelTrainer getLinearSVMModelTrainer();
-	
+	additive,
 	/**
-	 * Get an "empty" linear SVM model.
+	 * Use a geometric mean of state probabilities, where the probability is
+	 * calculated by first transforming all scores to positive (minimum = 1),
+	 * and then dividing by the total.
 	 */
-	public ClassificationModel getLinearSVMModel();
-	
+	normalisedLinear,
 	/**
-	 * Get an "empty" linear SVM model.
+	 * Use a geometric mean of state probabilities, where the probability is
+	 * e^{score/absmax(scores)}, where absmax is the maximum absolute value of
+	 * scores. This gives us positive scores from 1/e to e. We then divide by
+	 * the total.
 	 */
-	public ClassificationModel getLinearSVMOneVsRestModel();
+	normalisedExponential
 }

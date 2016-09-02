@@ -33,7 +33,6 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchSequence;
@@ -44,7 +43,6 @@ class TokenComparatorImpl implements TokenComparator {
 	private List<TokenEvaluationObserver> observers = new ArrayList<TokenEvaluationObserver>();
 	private int sentenceCount;
 	private TokeniserServiceInternal tokeniserServiceInternal;
-	private MachineLearningService machineLearningService;
 
 	private final TokeniserAnnotatedCorpusReader referenceCorpusReader;
 	private final TokeniserAnnotatedCorpusReader evaluationCorpusReader;
@@ -117,7 +115,7 @@ class TokenComparatorImpl implements TokenComparator {
 					// skipped stuff at start of sentence on guess, if it's been
 					// through the parser
 					TokeniserOutcome outcome = TokeniserOutcome.SEPARATE;
-					Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
+					Decision decision = new Decision(outcome.name());
 					decision.addAuthority("_" + this.getClass().getSimpleName());
 					Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
 					if (matchSequences != null) {
@@ -141,7 +139,7 @@ class TokenComparatorImpl implements TokenComparator {
 				if (guessedSequence.getTokenSplits().contains(guessedAtomicSequence.get(i).getToken().getStartIndex())) {
 					outcome = TokeniserOutcome.SEPARATE;
 				}
-				Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
+				Decision decision = new Decision(outcome.name());
 				decision.addAuthority("_" + this.getClass().getSimpleName());
 
 				Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
@@ -192,14 +190,6 @@ class TokenComparatorImpl implements TokenComparator {
 
 	public void setTokeniserServiceInternal(TokeniserServiceInternal tokeniserServiceInternal) {
 		this.tokeniserServiceInternal = tokeniserServiceInternal;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 }

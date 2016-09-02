@@ -28,7 +28,6 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
@@ -40,7 +39,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerFeatureService posTaggerFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
-	MachineLearningService machineLearningService;
 	FeatureService featureService;
 	TokenFilterService tokenFilterService;
 	TalismaneService talismaneService;
@@ -51,9 +49,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
 		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);
-		posTagger.setFeatureService(this.featureService);
 		posTagger.setTalismaneService(this.getTalismaneService());
-		posTagger.setMachineLearningService(this.getMachineLearningService());
 
 		return posTagger;
 	}
@@ -84,7 +80,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(history);
 		posTagSequence.setPosTaggerServiceInternal(this);
 		posTagSequence.setTalismaneService(this.getTalismaneService());
-		posTagSequence.setMachineLearningService(this.getMachineLearningService());
 		return posTagSequence;
 	}
 
@@ -93,7 +88,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(tokenSequence);
 		posTagSequence.setPosTaggerServiceInternal(this);
 		posTagSequence.setTalismaneService(this.getTalismaneService());
-		posTagSequence.setMachineLearningService(this.getMachineLearningService());
 		return posTagSequence;
 
 	}
@@ -127,8 +121,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagEventStream eventStream = new PosTagEventStream(corpusReader, posTaggerFeatures);
 		eventStream.setPosTaggerFeatureService(posTaggerFeatureService);
 		eventStream.setPosTaggerService(posTaggerService);
-		eventStream.setMachineLearningService(machineLearningService);
-		eventStream.setFeatureService(featureService);
 		return eventStream;
 	}
 
@@ -139,16 +131,7 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
-		corpusReader.setMachineLearningService(this.getMachineLearningService());
 		return corpusReader;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override
@@ -168,7 +151,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTagSequenceProcessor getPosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures, Set<String> testWords, File file) {
 		PosTagFeatureTester tester = new PosTagFeatureTester(posTaggerFeatures, testWords, file);
-		tester.setFeatureService(this.getFeatureService());
 		tester.setPosTaggerFeatureService(this.getPosTaggerFeatureService());
 		tester.setPosTaggerService(this);
 		return tester;

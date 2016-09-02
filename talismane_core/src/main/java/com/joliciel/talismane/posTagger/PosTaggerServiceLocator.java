@@ -21,26 +21,27 @@ package com.joliciel.talismane.posTagger;
 import com.joliciel.talismane.TalismaneServiceLocator;
 
 /**
- * Entry point for this package, through which a {@link PosTaggerService} can be retrieved.
+ * Entry point for this package, through which a {@link PosTaggerService} can be
+ * retrieved.
+ * 
  * @author Assaf Urieli
  *
  */
 public class PosTaggerServiceLocator {
 	PosTaggerServiceImpl posTaggerService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public PosTaggerServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized PosTaggerService getPosTaggerService() {
-		if (posTaggerService==null) {
+		if (posTaggerService == null) {
 			posTaggerService = new PosTaggerServiceImpl();
 			posTaggerService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 			posTaggerService.setPosTaggerFeatureService(this.talismaneServiceLocator.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService());
 			posTaggerService.setPosTaggerService(this.talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService());
 			posTaggerService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
-			posTaggerService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
 			posTaggerService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 			posTaggerService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
 		}

@@ -41,18 +41,16 @@ import opennlp.model.MaxentModel;
  * Also contains the attributes describing how the model was trained, for
  * reference purposes.
  * 
- * @param T
- *            the decision type to be made by this model
  * @author Assaf Urieli
  *
  */
-class MaximumEntropyModel extends AbstractOpenNLPModel {
+public class MaximumEntropyModel extends AbstractOpenNLPModel {
 	private static final Logger LOG = LoggerFactory.getLogger(MaximumEntropyModel.class);
 
 	/**
 	 * Default constructor for factory.
 	 */
-	MaximumEntropyModel() {
+	public MaximumEntropyModel() {
 	}
 
 	/**

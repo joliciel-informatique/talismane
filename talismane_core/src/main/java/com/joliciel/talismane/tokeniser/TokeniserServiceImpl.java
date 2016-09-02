@@ -22,7 +22,6 @@ import java.io.Reader;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
@@ -33,7 +32,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	private TokenFeatureService tokenFeatureService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFilterService tokenFilterService;
-	private MachineLearningService machineLearningService;
 	private FeatureService featureService;
 	private TalismaneService talismaneService;
 
@@ -41,7 +39,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	public Tokeniser getSimpleTokeniser() {
 		SimpleTokeniser tokeniser = new SimpleTokeniser(talismaneService.getTalismaneSession());
 		tokeniser.setTokeniserService(this);
-		tokeniser.setMachineLearningService(this.getMachineLearningService());
 		return tokeniser;
 	}
 
@@ -101,14 +98,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		return corpusReader;
 	}
 
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
 	public TokenFilterService getTokenFilterService() {
 		return tokenFilterService;
 	}
@@ -131,7 +120,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 		TokenComparatorImpl tokenComparator = new TokenComparatorImpl(referenceCorpusReader, evaluationCorpusReader, tokeniserPatternManager,
 				talismaneService.getTalismaneSession());
 		tokenComparator.setTokeniserServiceInternal(this);
-		tokenComparator.setMachineLearningService(this.getMachineLearningService());
 		return tokenComparator;
 	}
 

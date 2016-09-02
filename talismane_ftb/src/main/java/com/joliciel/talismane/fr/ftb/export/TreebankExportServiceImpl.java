@@ -25,7 +25,6 @@ import java.util.List;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
 import com.joliciel.talismane.fr.ftb.TreebankService;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
@@ -40,7 +39,6 @@ class TreebankExportServiceImpl implements TreebankExportService {
 	private PosTaggerService posTaggerService;
 	private TokenFilterService tokenFilterService;
 	private TalismaneService talismaneService;
-	private MachineLearningService machineLearningService;
 
 	public TreebankService getTreebankService() {
 		return treebankService;
@@ -148,13 +146,4 @@ class TreebankExportServiceImpl implements TreebankExportService {
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
 }

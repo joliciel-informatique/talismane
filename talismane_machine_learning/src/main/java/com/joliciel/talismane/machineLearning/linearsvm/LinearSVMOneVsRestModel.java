@@ -46,7 +46,6 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
@@ -55,10 +54,8 @@ import com.typesafe.config.Config;
 import de.bwaldvogel.liblinear.Model;
 import gnu.trove.map.TObjectIntMap;
 
-class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements ClassificationModel {
+public class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements ClassificationModel {
 	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMOneVsRestModel.class);
-
-	private MachineLearningService machineLearningService;
 
 	private List<Model> models = new ArrayList<Model>();
 	private TObjectIntMap<String> featureIndexMap = null;
@@ -68,7 +65,7 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 	/**
 	 * Default constructor for factory.
 	 */
-	LinearSVMOneVsRestModel() {
+	public LinearSVMOneVsRestModel() {
 	}
 
 	/**
@@ -85,7 +82,6 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 	@Override
 	public DecisionMaker getDecisionMaker() {
 		LinearSVMOneVsRestDecisionMaker decisionMaker = new LinearSVMOneVsRestDecisionMaker(models, this.featureIndexMap, this.outcomes);
-		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		return decisionMaker;
 	}
 
@@ -234,14 +230,6 @@ class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implements Cl
 
 	public List<Model> getModels() {
 		return models;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override

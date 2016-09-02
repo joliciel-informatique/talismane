@@ -81,7 +81,7 @@ import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.ExternalWordList;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
+import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseComparisonStrategy;
@@ -289,7 +289,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private TokenFilterService tokenFilterService;
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
-	private MachineLearningService machineLearningService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFeatureService tokenFeatureService;
 	private TokeniserService tokeniserService;
@@ -822,7 +821,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			configPath = "talismane.core.analyse.externalResources";
 			List<String> externalResourcePaths = config.getStringList(configPath);
 			if (externalResourcePaths.size() > 0) {
-				externalResourceFinder = this.getMachineLearningService().getExternalResourceFinder();
+				externalResourceFinder = new ExternalResourceFinder();
 
 				for (String path : externalResourcePaths) {
 					LOG.info("Reading external resources from " + path);
@@ -1613,7 +1612,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 			String configPath = "talismane.core.analyse.languageModel";
 			InputStream languageModelFile = this.getFileFromConfig(configPath);
-			languageModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(languageModelFile));
+			MachineLearningModelFactory factory = new MachineLearningModelFactory();
+			languageModel = factory.getClassificationModel(new ZipInputStream(languageModelFile));
 		}
 		return languageModel;
 	}
@@ -1624,7 +1624,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 			String configPath = "talismane.core.analyse.sentenceModel";
 			InputStream sentenceModelFile = this.getFileFromConfig(configPath);
-			sentenceModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(sentenceModelFile));
+			MachineLearningModelFactory factory = new MachineLearningModelFactory();
+			sentenceModel = factory.getClassificationModel(new ZipInputStream(sentenceModelFile));
 		}
 		return sentenceModel;
 	}
@@ -1635,7 +1636,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 			String configPath = "talismane.core.analyse.tokeniserModel";
 			InputStream tokeniserModelFile = this.getFileFromConfig(configPath);
-			tokeniserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(tokeniserModelFile));
+			MachineLearningModelFactory factory = new MachineLearningModelFactory();
+			tokeniserModel = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
 		}
 		return tokeniserModel;
 	}
@@ -1646,7 +1648,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 			String configPath = "talismane.core.analyse.posTaggerModel";
 			InputStream posTaggerModelFile = this.getFileFromConfig(configPath);
-			posTaggerModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(posTaggerModelFile));
+			MachineLearningModelFactory factory = new MachineLearningModelFactory();
+			posTaggerModel = factory.getClassificationModel(new ZipInputStream(posTaggerModelFile));
 		}
 		return posTaggerModel;
 	}
@@ -1657,7 +1660,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 			String configPath = "talismane.core.analyse.parserModel";
 			InputStream parserModelFile = this.getFileFromConfig(configPath);
-			parserModel = this.getMachineLearningService().getClassificationModel(new ZipInputStream(parserModelFile));
+			MachineLearningModelFactory factory = new MachineLearningModelFactory();
+			parserModel = factory.getClassificationModel(new ZipInputStream(parserModelFile));
 
 			talismaneSession.setTransitionSystem(parserService.getTransitionSystem(parserModel));
 		}
@@ -2740,14 +2744,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	public void setSentenceDetectorFeatureService(SentenceDetectorFeatureService sentenceDetectorFeatureService) {
 		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	public TokeniserPatternService getTokeniserPatternService() {

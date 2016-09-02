@@ -28,7 +28,6 @@ class FeatureServiceImpl implements FeatureServiceInternal {
 		return descriptor;
 	}
 
-
 	@Override
 	public FunctionDescriptor getFunctionDescriptorForObject(Object object) {
 		FunctionDescriptorImpl descriptor = new FunctionDescriptorImpl();
@@ -44,21 +43,11 @@ class FeatureServiceImpl implements FeatureServiceInternal {
 		descriptor.setObjectAsString(argument);
 		return descriptor;
 	}
-	
+
 	@Override
 	public FunctionDescriptorParser getFunctionDescriptorParser() {
 		FunctionDescriptorParserImpl parser = new FunctionDescriptorParserImpl();
 		parser.setFeatureServiceInternal(this);
 		return parser;
 	}
-
-
-	@Override
-	public RuntimeEnvironment getRuntimeEnvironment() {
-		RuntimeEnvironmentImpl env = new RuntimeEnvironmentImpl();
-		return env;
-	}
-
-
-
 }

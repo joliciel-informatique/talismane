@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.typesafe.config.Config;
 
 import opennlp.model.MaxentModel;
@@ -43,16 +42,12 @@ import opennlp.model.MaxentModel;
  * model. Also contains the attributes describing how the model was trained, for
  * reference purposes.
  * 
- * @param T
- *            the decision type to be made by this model
  * @author Assaf Urieli
  *
  */
 abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel implements OpenNLPModel {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractOpenNLPModel.class);
-
-	private MachineLearningService machineLearningService;
 
 	private MaxentModel model;
 	private transient Set<String> outcomeNames = null;
@@ -74,7 +69,6 @@ abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel impleme
 	@Override
 	public DecisionMaker getDecisionMaker() {
 		OpenNLPDecisionMaker decisionMaker = new OpenNLPDecisionMaker(this.getModel());
-		decisionMaker.setMachineLearningService(this.getMachineLearningService());
 		return decisionMaker;
 	}
 
@@ -106,14 +100,6 @@ abstract class AbstractOpenNLPModel extends AbstractMachineLearningModel impleme
 			}
 		}
 		return outcomeNames;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
 	}
 
 	@Override

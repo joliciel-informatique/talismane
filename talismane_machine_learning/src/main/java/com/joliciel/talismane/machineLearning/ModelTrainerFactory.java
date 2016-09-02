@@ -19,11 +19,8 @@
 package com.joliciel.talismane.machineLearning;
 
 import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMModelTrainer;
-import com.joliciel.talismane.machineLearning.linearsvm.LinearSVMService;
 import com.joliciel.talismane.machineLearning.maxent.MaxentModelTrainer;
-import com.joliciel.talismane.machineLearning.maxent.MaxentService;
 import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronService;
 import com.joliciel.talismane.utils.JolicielException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -34,31 +31,27 @@ import com.typesafe.config.ConfigFactory;
  * @author Assaf Urieli
  *
  */
-class ModelTrainerFactory {
-	PerceptronService perceptronService;
-	MaxentService maxentService;
-	LinearSVMService linearSVMService;
-
+public class ModelTrainerFactory {
 	/**
 	 * Get a classification model trainer corresponding to a given outcome type
 	 * and a given algorithm.
 	 */
-	public ClassificationModelTrainer makeClassificationModelTrainer(Config config) {
+	public ClassificationModelTrainer constructTrainer(Config config) {
 		config.checkValid(ConfigFactory.defaultReference(), "talismane.machineLearning");
 		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("talismane.machineLearning.algorithm"));
 		ClassificationModelTrainer modelTrainer = null;
 		switch (algorithm) {
 		case MaxEnt:
-			MaxentModelTrainer maxentModelTrainer = maxentService.getMaxentModelTrainer();
+			MaxentModelTrainer maxentModelTrainer = new MaxentModelTrainer();
 			modelTrainer = maxentModelTrainer;
 			break;
 		case LinearSVM:
 		case LinearSVMOneVsRest:
-			LinearSVMModelTrainer linearSVMModelTrainer = linearSVMService.getLinearSVMModelTrainer();
+			LinearSVMModelTrainer linearSVMModelTrainer = new LinearSVMModelTrainer();
 			modelTrainer = linearSVMModelTrainer;
 			break;
 		case Perceptron:
-			PerceptronClassificationModelTrainer perceptronModelTrainer = perceptronService.getPerceptronModelTrainer();
+			PerceptronClassificationModelTrainer perceptronModelTrainer = new PerceptronClassificationModelTrainer();
 			modelTrainer = perceptronModelTrainer;
 			break;
 		default:
@@ -68,29 +61,4 @@ class ModelTrainerFactory {
 		modelTrainer.setParameters(config);
 		return modelTrainer;
 	}
-
-	public MaxentService getMaxentService() {
-		return maxentService;
-	}
-
-	public void setMaxentService(MaxentService maxentService) {
-		this.maxentService = maxentService;
-	}
-
-	public LinearSVMService getLinearSVMService() {
-		return linearSVMService;
-	}
-
-	public void setLinearSVMService(LinearSVMService linearSVMService) {
-		this.linearSVMService = linearSVMService;
-	}
-
-	public PerceptronService getPerceptronService() {
-		return perceptronService;
-	}
-
-	public void setPerceptronService(PerceptronService perceptronService) {
-		this.perceptronService = perceptronService;
-	}
-
 }
