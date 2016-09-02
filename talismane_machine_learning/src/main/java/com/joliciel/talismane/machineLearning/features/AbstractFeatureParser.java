@@ -46,7 +46,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractFeatureParser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractFeatureParser.class);
 
-	private FeatureService featureService;
 	private ExternalResourceFinder externalResourceFinder;
 	private Map<String, List<Feature<T, ?>>> namedFeatures = new HashMap<String, List<Feature<T, ?>>>();
 	private Map<String, List<Feature<T, ?>>> featureGroups = new HashMap<String, List<Feature<T, ?>>>();
@@ -62,9 +61,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 
 	private Dynamiser<T> dynamiser = null;
 
-	public AbstractFeatureParser(FeatureService featureService) {
-		super();
-		this.featureService = featureService;
+	public AbstractFeatureParser() {
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -583,7 +580,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 				// need to parse it immediately
 
 				// normal parsing
-				FunctionDescriptor rootDescriptor = this.featureService.getFunctionDescriptor("RootWrapper");
+				FunctionDescriptor rootDescriptor = new FunctionDescriptor("RootWrapper");
 				rootDescriptor.addArgument(descriptor);
 				List<Feature<T, ?>> rootFeatures = this.parseInternal(rootDescriptor, descriptor);
 
@@ -724,7 +721,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 					step = ((Integer) descriptor.getArguments().get(2).getObject()).intValue();
 
 				for (int i = start; i <= end; i += step) {
-					FunctionDescriptor indexDescriptor = this.getFeatureService().getFunctionDescriptor("Integer");
+					FunctionDescriptor indexDescriptor = new FunctionDescriptor("Integer");
 					indexDescriptor.addArgument(i);
 					modifiedDescriptors.add(indexDescriptor);
 				}
@@ -1002,14 +999,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		public FunctionDescriptor getDescriptor() {
 			return descriptor;
 		}
-	}
-
-	public final FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public final void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	public ExternalResourceFinder getExternalResourceFinder() {

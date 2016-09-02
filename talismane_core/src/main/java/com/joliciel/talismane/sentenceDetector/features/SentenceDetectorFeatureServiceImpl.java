@@ -23,21 +23,18 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 
 public class SentenceDetectorFeatureServiceImpl implements SentenceDetectorFeatureService {
-
-	private FeatureService featureService;
 	private ExternalResourceFinder externalResourceFinder;
 
 	@Override
 	public Set<SentenceDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) {
 		Set<SentenceDetectorFeature<?>> features = new TreeSet<SentenceDetectorFeature<?>>();
 
-		FunctionDescriptorParser descriptorParser = this.getFeatureService().getFunctionDescriptorParser();
-		SentenceDetectorFeatureParser sentenceDetectorFeatureParser = this.getSentenceDetectorFeatureParser();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+		SentenceDetectorFeatureParser sentenceDetectorFeatureParser = new SentenceDetectorFeatureParser();
 		sentenceDetectorFeatureParser.setExternalResourceFinder(externalResourceFinder);
 
 		for (String featureDescriptor : featureDescriptors) {
@@ -48,19 +45,6 @@ public class SentenceDetectorFeatureServiceImpl implements SentenceDetectorFeatu
 			}
 		}
 		return features;
-	}
-
-	SentenceDetectorFeatureParser getSentenceDetectorFeatureParser() {
-		SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(this.getFeatureService());
-		return parser;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	@Override

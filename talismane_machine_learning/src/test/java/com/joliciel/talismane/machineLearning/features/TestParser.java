@@ -20,20 +20,15 @@ package com.joliciel.talismane.machineLearning.features;
 
 import java.util.List;
 
-import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
-import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
-import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
-
 /**
  * A concrete class useful for testing the AbstractFeatureParser functionality.
+ * 
  * @author Assaf Urieli
  *
  */
 final class TestParser extends AbstractFeatureParser<String> {
 
-	public TestParser(FeatureService featureService) {
-		super(featureService);
+	public TestParser() {
 	}
 
 	@Override
@@ -44,31 +39,27 @@ final class TestParser extends AbstractFeatureParser<String> {
 	}
 
 	@Override
-	public List<FunctionDescriptor> getModifiedDescriptors(
-			FunctionDescriptor functionDescriptor) {
+	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
 		return null;
 	}
 
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-		
+
 	}
 
 	@Override
-	protected boolean canConvert(Class<?> parameterType,
-			Class<?> originalArgumentType) {
+	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
 		return false;
 	}
 
 	@Override
-	protected Feature<String, ?> convertArgument(Class<?> parameterType,
-			Feature<String, ?> originalArgument) {
+	protected Feature<String, ?> convertArgument(Class<?> parameterType, Feature<String, ?> originalArgument) {
 		return null;
 	}
 
 	@Override
-	public Feature<String, ?> convertFeatureCustomType(
-			Feature<String, ?> feature) {
+	public Feature<String, ?> convertFeatureCustomType(Feature<String, ?> feature) {
 		return null;
 	}
 

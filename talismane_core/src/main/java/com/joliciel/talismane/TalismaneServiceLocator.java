@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.languageDetector.LanguageDetectorServiceLocator;
-import com.joliciel.talismane.machineLearning.features.FeatureServiceLocator;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
@@ -60,7 +59,6 @@ public class TalismaneServiceLocator {
 	private SentenceDetectorFeatureServiceLocator sentenceDetectorFeatureServiceLocator;
 	private ParserServiceLocator parserServiceLocator;
 	private ParserFeatureServiceLocator parserFeatureServiceLocator;
-	private FeatureServiceLocator featureServiceLocator;
 	private LanguageDetectorServiceLocator languageDetectorServiceLocator;
 
 	private static Map<String, TalismaneServiceLocator> instances = new HashMap<String, TalismaneServiceLocator>();
@@ -166,13 +164,6 @@ public class TalismaneServiceLocator {
 			this.parserFeatureServiceLocator = new ParserFeatureServiceLocator(this);
 		}
 		return parserFeatureServiceLocator;
-	}
-
-	public synchronized FeatureServiceLocator getFeatureServiceLocator() {
-		if (this.featureServiceLocator == null) {
-			this.featureServiceLocator = FeatureServiceLocator.getInstance();
-		}
-		return featureServiceLocator;
 	}
 
 	public synchronized TokeniserFeatureServiceLocator getTokenFeatureServiceLocator() {

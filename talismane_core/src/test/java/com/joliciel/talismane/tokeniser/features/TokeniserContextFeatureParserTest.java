@@ -27,12 +27,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.machineLearning.features.AndFeature;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.ConcatenateFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
@@ -44,12 +42,9 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseAndFeature() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
-
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(featureService);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(featureService);
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
 		parser.setTokenFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("And(FirstWordInSentence(),UnknownWord(),Regex(\".+ .+\"))");
@@ -69,13 +64,11 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseWordFeature() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
-
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(featureService);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(featureService);
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
 		parser.setTokenFeatureParser(tokenFeatureParser);
+
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("Word(\"le\",\"la\",\"les\",\"l'\")");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
 		assertEquals(1, features.size());
@@ -93,12 +86,9 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseConcatenateFeature() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
-
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(featureService);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(featureService);
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
 		parser.setTokenFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("Concat(WordForm(),NLetterPrefix(5),NLetterSuffix(3))");
@@ -119,12 +109,9 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testNamedFeatures() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
-
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(featureService);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(featureService);
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
 		parser.setTokenFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor(
@@ -144,12 +131,9 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testOrOperator() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		FeatureService featureService = talismaneServiceLocator.getFeatureServiceLocator().getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
-
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(featureService);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(featureService);
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
 		parser.setTokenFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("(WordForm()==\"le\")|(WordForm()==\"la\")");

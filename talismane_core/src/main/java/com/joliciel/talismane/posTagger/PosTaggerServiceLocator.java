@@ -42,7 +42,6 @@ public class PosTaggerServiceLocator {
 			posTaggerService.setPosTaggerFeatureService(this.talismaneServiceLocator.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService());
 			posTaggerService.setPosTaggerService(this.talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService());
 			posTaggerService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
-			posTaggerService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 			posTaggerService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
 		}
 		return posTaggerService;

@@ -28,7 +28,6 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -39,7 +38,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerFeatureService posTaggerFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
-	FeatureService featureService;
 	TokenFilterService tokenFilterService;
 	TalismaneService talismaneService;
 
@@ -138,14 +136,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	public PosTagComparator getPosTagComparator() {
 		PosTagComparatorImpl comparator = new PosTagComparatorImpl();
 		return comparator;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 	@Override

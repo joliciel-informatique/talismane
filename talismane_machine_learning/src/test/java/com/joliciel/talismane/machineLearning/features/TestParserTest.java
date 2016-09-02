@@ -35,11 +35,9 @@ public class TestParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testMultiplePossibleConstructors() {
-		FeatureServiceLocator featureServiceLocator = FeatureServiceLocator.getInstance();
-		FeatureService featureService = featureServiceLocator.getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 
-		TestParser parser = new TestParser(featureService);
+		TestParser parser = new TestParser();
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("23-12");
 		List<Feature<String, ?>> features = parser.parse(descriptor);
@@ -81,11 +79,9 @@ public class TestParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testNamedFeatures() {
-		FeatureServiceLocator featureServiceLocator = FeatureServiceLocator.getInstance();
-		FeatureService featureService = featureServiceLocator.getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 
-		TestParser parser = new TestParser(featureService);
+		TestParser parser = new TestParser();
 
 		FunctionDescriptor descriptor1 = functionDescriptorParser.parseDescriptor("TestArgs(X,Y)\tX+Y");
 		FunctionDescriptor descriptor2 = functionDescriptorParser.parseDescriptor("TestNoArgs\t1+2");
@@ -156,11 +152,9 @@ public class TestParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testStringCollectionFeatures() {
-		FeatureServiceLocator featureServiceLocator = FeatureServiceLocator.getInstance();
-		FeatureService featureService = featureServiceLocator.getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 
-		TestParser parser = new TestParser(featureService);
+		TestParser parser = new TestParser();
 
 		FunctionDescriptor descriptor1 = functionDescriptorParser.parseDescriptor("ABC\tTestStringCollectionFeature(\"A\",\"B\",\"C\")");
 

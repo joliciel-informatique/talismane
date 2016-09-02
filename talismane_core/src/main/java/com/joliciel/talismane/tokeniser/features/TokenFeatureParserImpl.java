@@ -25,22 +25,19 @@ import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class TokenFeatureParserImpl implements TokenFeatureParser {
-	private FeatureService featureService;
 	private TalismaneService talismaneService;
-	
+
 	private List<TokenPattern> patternList;
 
-	public TokenFeatureParserImpl(FeatureService featureService) {
-		this.featureService = featureService;
-	}	
-
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#addFeatureClasses(com.joliciel.nlp.features.FeatureClassContainer)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#
+	 * addFeatureClasses(com.joliciel.nlp.features.FeatureClassContainer)
 	 */
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
@@ -74,8 +71,11 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		container.addFeatureClass("WordForm", WordFormFeature.class);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#getModifiedDescriptors(com.joliciel.nlp.features.FunctionDescriptor)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#
+	 * getModifiedDescriptors(com.joliciel.nlp.features.FunctionDescriptor)
 	 */
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
@@ -84,34 +84,32 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 		return descriptors;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#getPatternList()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#
+	 * getPatternList()
 	 */
 	@Override
 	public List<TokenPattern> getPatternList() {
 		return patternList;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#setPatternList(java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.joliciel.talismane.tokeniser.features.TokenFeatureParser#
+	 * setPatternList(java.util.List)
 	 */
 	@Override
 	public void setPatternList(List<TokenPattern> patternList) {
 		this.patternList = patternList;
 	}
 
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		if (feature instanceof NeedsTalismaneSession) {
-			((NeedsTalismaneSession)feature).setTalismaneSession(talismaneService.getTalismaneSession());
+			((NeedsTalismaneSession) feature).setTalismaneSession(talismaneService.getTalismaneSession());
 		}
 	}
 
@@ -122,6 +120,5 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
 	}
-	
-	
+
 }
