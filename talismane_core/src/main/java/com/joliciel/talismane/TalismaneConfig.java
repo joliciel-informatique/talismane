@@ -15,7 +15,6 @@ import java.util.Set;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Mode;
 import com.joliciel.talismane.Talismane.Module;
-import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.languageDetector.LanguageDetector;
 import com.joliciel.talismane.languageDetector.LanguageDetectorAnnotatedCorpusReader;
@@ -433,8 +432,6 @@ public interface TalismaneConfig {
 	public PosTaggerService getPosTaggerService();
 
 	public ParserService getParserService();
-
-	public FilterService getFilterService();
 
 	public TokenFilterService getTokenFilterService();
 

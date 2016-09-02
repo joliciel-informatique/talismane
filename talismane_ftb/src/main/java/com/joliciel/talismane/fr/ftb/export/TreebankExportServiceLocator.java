@@ -26,25 +26,22 @@ public class TreebankExportServiceLocator {
 	private TreebankServiceLocator treebankServiceLocator;
 	private MachineLearningServiceLocator machineLearningServiceLocator;
 
-    
 	public TreebankExportServiceLocator(TreebankServiceLocator treebankServiceLocator) {
 		this.treebankServiceLocator = treebankServiceLocator;
 		this.machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 	}
 
-
 	public TreebankExportService getTreebankExportService() {
-		if (treebankUploadService==null) {
+		if (treebankUploadService == null) {
 			treebankUploadService = new TreebankExportServiceImpl();
 			treebankUploadService.setTreebankService(treebankServiceLocator.getTreebankService());
 			treebankUploadService.setTokeniserService(treebankServiceLocator.getTokeniserService());
 			treebankUploadService.setPosTaggerService(treebankServiceLocator.getPosTaggerService());
-			treebankUploadService.setFilterService(treebankServiceLocator.getFilterService());
 			treebankUploadService.setTokenFilterService(treebankServiceLocator.getTokenFilterService());
 			treebankUploadService.setTalismaneService(treebankServiceLocator.getTalismaneService());
 			treebankUploadService.setMachineLearningService(machineLearningServiceLocator.getMachineLearningService());
 		}
 		return treebankUploadService;
-	}  
-    
+	}
+
 }

@@ -20,9 +20,7 @@ package com.joliciel.talismane;
 
 import java.util.Map;
 
-import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.languageDetector.LanguageDetectorService;
-import com.joliciel.talismane.lexicon.LexiconService;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
@@ -40,7 +38,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
-	private FilterService filterService;
 	private MachineLearningService machineLearningService;
 	private SentenceDetectorService sentenceDetectorService;
 	private ParserFeatureService parserFeatureService;
@@ -50,7 +47,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokenFilterService tokenFilterService;
 	private TokeniserPatternService tokeniserPatternService;
 	private LanguageDetectorService languageDetectorService;
-	private LexiconService lexiconService;
 
 	private TalismaneSession talismaneSession;
 
@@ -58,7 +54,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	public Talismane getTalismane(TalismaneConfig config) {
 		TalismaneImpl talismane = new TalismaneImpl(config, this.getTalismaneSession());
 		talismane.setTalismaneService(this);
-		talismane.setFilterService(this.getFilterService());
 		talismane.setParserService(this.getParserService());
 		talismane.setPosTaggerService(this.getPosTaggerService());
 		talismane.setTokeniserService(this.getTokeniserService());
@@ -99,14 +94,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		this.parserService = parserService;
 	}
 
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
-	}
-
 	public MachineLearningService getMachineLearningService() {
 		return machineLearningService;
 	}
@@ -126,8 +113,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	@Override
 	public TalismaneSession getTalismaneSession() {
 		if (talismaneSession == null) {
-			TalismaneSessionImpl talismaneSession = new TalismaneSessionImpl();
-			talismaneSession.setLexiconService(lexiconService);
+			TalismaneSession talismaneSession = new TalismaneSession();
 			this.talismaneSession = talismaneSession;
 		}
 		return talismaneSession;
@@ -143,7 +129,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		TalismaneConfigImpl config = new TalismaneConfigImpl();
 
 		config.setTalismaneService(this);
-		config.setFilterService(filterService);
 		config.setMachineLearningService(machineLearningService);
 		config.setParserFeatureService(parserFeatureService);
 		config.setParserService(parserService);
@@ -218,14 +203,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 
 	public void setLanguageDetectorService(LanguageDetectorService languageDetectorService) {
 		this.languageDetectorService = languageDetectorService;
-	}
-
-	public LexiconService getLexiconService() {
-		return lexiconService;
-	}
-
-	public void setLexiconService(LexiconService lexiconService) {
-		this.lexiconService = lexiconService;
 	}
 
 }

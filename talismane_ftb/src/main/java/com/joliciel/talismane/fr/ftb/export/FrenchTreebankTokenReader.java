@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.fr.ftb.PhraseUnit;
 import com.joliciel.talismane.fr.ftb.Sentence;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
@@ -70,7 +69,6 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private TreebankService treebankService;
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
-	private FilterService filterService;
 	private TokenFilterService tokenFilterService;
 	private TalismaneService talismaneService;
 	private MachineLearningService machineLearningService;
@@ -533,14 +531,6 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 	public void setFtbPosTagMapper(FtbPosTagMapper ftbPosTagMapper) {
 		this.ftbPosTagMapper = ftbPosTagMapper;
-	}
-
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 
 	@Override

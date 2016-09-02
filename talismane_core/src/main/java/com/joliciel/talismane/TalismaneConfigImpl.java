@@ -56,9 +56,14 @@ import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Mode;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.Talismane.Option;
-import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
 import com.joliciel.talismane.filters.MarkerFilterType;
+import com.joliciel.talismane.filters.NewlineEndOfSentenceMarker;
+import com.joliciel.talismane.filters.NewlineSpaceMarker;
+import com.joliciel.talismane.filters.OtherWhiteSpaceFilter;
+import com.joliciel.talismane.filters.RegexMarkerFilter;
 import com.joliciel.talismane.filters.TextMarkerFilter;
+import com.joliciel.talismane.filters.TextMarkerFilterFactory;
 import com.joliciel.talismane.languageDetector.LanguageDetector;
 import com.joliciel.talismane.languageDetector.LanguageDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
@@ -281,7 +286,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private ParserService parserService;
 	private PosTaggerFeatureService posTaggerFeatureService;
 	private ParserFeatureService parserFeatureService;
-	private FilterService filterService;
 	private TokenFilterService tokenFilterService;
 	private SentenceDetectorService sentenceDetectorService;
 	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
@@ -1296,20 +1300,22 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			textMarkerFilters = new ArrayListNoNulls<TextMarkerFilter>();
 
 			// insert sentence breaks at end of block
-			this.addTextMarkerFilter(this.getFilterService().getRegexMarkerFilter(
-					new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }, "" + endBlockCharacter, blockSize));
+			this.addTextMarkerFilter(new RegexMarkerFilter(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }),
+					"" + endBlockCharacter, 0, blockSize));
 
 			// handle newline as requested
 			if (newlineMarker.equals(MarkerFilterType.SENTENCE_BREAK))
-				this.addTextMarkerFilter(this.getFilterService().getNewlineEndOfSentenceMarker());
+				this.addTextMarkerFilter(new NewlineEndOfSentenceMarker(blockSize));
 			else if (newlineMarker.equals(MarkerFilterType.SPACE))
-				this.addTextMarkerFilter(this.getFilterService().getNewlineSpaceMarker());
+				this.addTextMarkerFilter(new NewlineSpaceMarker(blockSize));
 
 			// get rid of duplicate white-space always
-			this.addTextMarkerFilter(this.getFilterService().getDuplicateWhiteSpaceFilter());
+			this.addTextMarkerFilter(new DuplicateWhiteSpaceFilter(blockSize));
 
 			// replace tabs with white space
-			this.addTextMarkerFilter(this.getFilterService().getOtherWhiteSpaceFilter());
+			this.addTextMarkerFilter(new OtherWhiteSpaceFilter(blockSize));
+
+			TextMarkerFilterFactory factory = new TextMarkerFilterFactory();
 
 			String configPath = "talismane.core.analyse.textFilters";
 			List<String> textFilterPaths = config.getStringList(configPath);
@@ -1321,7 +1327,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						String descriptor = scanner.nextLine();
 						LOG.debug(descriptor);
 						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TextMarkerFilter textMarkerFilter = this.getFilterService().getTextMarkerFilter(descriptor, blockSize);
+							TextMarkerFilter textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
 							this.addTextMarkerFilter(textMarkerFilter);
 						}
 					}
@@ -1334,11 +1340,12 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public void setTextMarkerFilters(Scanner scanner) {
 		textMarkerFilters = new ArrayListNoNulls<TextMarkerFilter>();
+		TextMarkerFilterFactory factory = new TextMarkerFilterFactory();
 		while (scanner.hasNextLine()) {
 			String descriptor = scanner.nextLine();
 			LOG.debug(descriptor);
 			if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-				TextMarkerFilter textMarkerFilter = this.getFilterService().getTextMarkerFilter(descriptor, blockSize);
+				TextMarkerFilter textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
 				this.addTextMarkerFilter(textMarkerFilter);
 			}
 		}
@@ -2696,15 +2703,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	public void setParserFeatureService(ParserFeatureService parserFeatureService) {
 		this.parserFeatureService = parserFeatureService;
-	}
-
-	@Override
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 
 	@Override
