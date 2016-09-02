@@ -56,7 +56,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 
 	@Override
 	public Talismane getTalismane(TalismaneConfig config) {
-		TalismaneImpl talismane = new TalismaneImpl(config);
+		TalismaneImpl talismane = new TalismaneImpl(config, this.getTalismaneSession());
 		talismane.setTalismaneService(this);
 		talismane.setFilterService(this.getFilterService());
 		talismane.setParserService(this.getParserService());

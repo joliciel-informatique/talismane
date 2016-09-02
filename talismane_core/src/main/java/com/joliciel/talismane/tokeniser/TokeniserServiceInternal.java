@@ -18,8 +18,5 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import com.joliciel.talismane.filters.Sentence;
-
 interface TokeniserServiceInternal extends TokeniserService {
-	public TokenSequence getTokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence);
 }

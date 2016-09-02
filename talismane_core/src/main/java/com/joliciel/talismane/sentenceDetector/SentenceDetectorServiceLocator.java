@@ -23,19 +23,20 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 public class SentenceDetectorServiceLocator {
 	SentenceDetectorServiceImpl sentenceDetectorService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public SentenceDetectorServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized SentenceDetectorService getSentenceDetectorService() {
-		if (sentenceDetectorService==null) {
+		if (sentenceDetectorService == null) {
 			sentenceDetectorService = new SentenceDetectorServiceImpl();
-			sentenceDetectorService.setSentenceDetectorFeatureService(this.talismaneServiceLocator.getSentenceDetectorFeatureServiceLocator().getSentenceDetectorFeatureService());
+			sentenceDetectorService.setSentenceDetectorFeatureService(
+					this.talismaneServiceLocator.getSentenceDetectorFeatureServiceLocator().getSentenceDetectorFeatureService());
 			sentenceDetectorService.setTokeniserService(talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
 			sentenceDetectorService.setMachineLearningService(talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
-			sentenceDetectorService.setFilterService(talismaneServiceLocator.getFilterServiceLocator().getFilterService());
 			sentenceDetectorService.setFeatureService(talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
+			sentenceDetectorService.setTalismaneService(talismaneServiceLocator.getTalismaneService());
 		}
 		return sentenceDetectorService;
 	}

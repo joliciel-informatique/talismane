@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
@@ -31,7 +32,7 @@ import com.joliciel.talismane.machineLearning.Solution;
 
 class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<TokeniserOutcome> implements TokenisedAtomicTokenSequence {
 	private static final long serialVersionUID = -5837144642078063115L;
-	private Sentence sentence;
+	private final Sentence sentence;
 	private TokeniserServiceInternal tokeniserServiceInternal;
 	private TokenSequence tokenSequence = null;
 	private List<Decision> decisions = new ArrayList<Decision>();
@@ -40,33 +41,40 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	double score = 1.0;
 	boolean scoreCalculated = false;
-	
-	TokenisedAtomicTokenSequenceImpl(Sentence sentence) {
-		this.sentence = sentence;
-	}
-	
-	TokenisedAtomicTokenSequenceImpl(Sentence sentence, int initialCapacity) {
-		super(initialCapacity);
+
+	private final TalismaneSession talismaneSession;
+
+	TokenisedAtomicTokenSequenceImpl(Sentence sentence, TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 		this.sentence = sentence;
 	}
 
-	TokenisedAtomicTokenSequenceImpl(
-			TokenisedAtomicTokenSequence history) {
+	TokenisedAtomicTokenSequenceImpl(Sentence sentence, int initialCapacity, TalismaneSession talismaneSession) {
+		super(initialCapacity);
+		this.sentence = sentence;
+		this.talismaneSession = talismaneSession;
+	}
+
+	TokenisedAtomicTokenSequenceImpl(TokenisedAtomicTokenSequenceImpl history) {
 		super(history);
 		this.decisions = new ArrayList<Decision>(history.getDecisions());
 		this.sentence = history.getSentence();
+		this.talismaneSession = history.talismaneSession;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.tokeniser.TokeniserDecisionTagSequence#getTokenSequence()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.joliciel.talismane.tokeniser.TokeniserDecisionTagSequence#
+	 * getTokenSequence()
 	 */
 	@Override
 	public TokenSequence inferTokenSequence() {
-		if (tokenSequence==null) {
+		if (tokenSequence == null) {
 			Map<Integer, TaggedToken<TokeniserOutcome>> indexTokenMap = new HashMap<Integer, TaggedToken<TokeniserOutcome>>();
-			
-			tokenSequence = this.getTokeniserServiceInternal().getTokenSequence(sentence, this);
-	
+
+			tokenSequence = new TokenSequence(sentence, this, talismaneSession);
+
 			int currentStart = 0;
 			int currentEnd = 0;
 			StringBuilder currentText = new StringBuilder();
@@ -76,7 +84,7 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 				currentAtomicParts.add(decisionTag);
 				indexTokenMap.put(decisionTag.getToken().getStartIndex(), decisionTag);
 				Token token = decisionTag.getToken();
-				
+
 				if (decisionTag.getTag().equals(TokeniserOutcome.SEPARATE)) {
 					// make separation (add token)
 					if (!isWhiteSpace) {
@@ -90,27 +98,29 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 					currentStart = token.getStartIndex();
 					isWhiteSpace = true;
 				} else {
-					currentText.append(token.getText());			
+					currentText.append(token.getText());
 				}
 				isWhiteSpace = isWhiteSpace && token.isWhiteSpace();
 				currentEnd = token.getEndIndex();
 			}
 			if (!isWhiteSpace) {
-				//TODO: S.MICHEL: current atomic parts contains "S.MICHEL" for "S.", " " for "MICHEL" -
+				// TODO: S.MICHEL: current atomic parts contains "S.MICHEL" for
+				// "S.", " " for "MICHEL" -
 				// therefore we lose all attributes on MICHEL!
 				this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
 			} else {
 				this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
 			}
-			
+
 			tokenSequence.finalise();
-			
-			// Assign any token attributes that existed on the corresponding atomic tokens.
+
+			// Assign any token attributes that existed on the corresponding
+			// atomic tokens.
 			for (Token token : tokenSequence) {
 				TaggedToken<TokeniserOutcome> decisionTag = indexTokenMap.get(token.getStartIndex());
-				if (decisionTag!=null) {
+				if (decisionTag != null) {
 					Token atomicToken = decisionTag.getToken();
-					if (atomicToken.getStartIndex()==token.getStartIndex() && atomicToken.getEndIndex()==token.getEndIndex()) {
+					if (atomicToken.getStartIndex() == token.getStartIndex() && atomicToken.getEndIndex() == token.getEndIndex()) {
 						for (String key : atomicToken.getAttributes().keySet()) {
 							token.addAttribute(key, atomicToken.getAttributes().get(key));
 						}
@@ -120,17 +130,17 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 		}
 		return tokenSequence;
 	}
-	
+
 	private Token addToken(TokenSequence tokenSequence, int start, int end, StringBuilder currentText, List<TaggedToken<TokeniserOutcome>> currentAtomicParts) {
 		Token token = null;
-		if (start==end) {
+		if (start == end) {
 			// do nothing
 		} else {
 			token = tokenSequence.addToken(start, end);
 			token.setText(currentText.toString());
 			token.setAtomicParts(currentAtomicParts);
 		}
-		
+
 		return token;
 	}
 
@@ -138,12 +148,9 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 		return tokeniserServiceInternal;
 	}
 
-	public void setTokeniserServiceInternal(
-			TokeniserServiceInternal tokeniserServiceInternal) {
+	public void setTokeniserServiceInternal(TokeniserServiceInternal tokeniserServiceInternal) {
 		this.tokeniserServiceInternal = tokeniserServiceInternal;
 	}
-
-
 
 	@Override
 	public List<Decision> getDecisions() {
@@ -160,11 +167,13 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 		this.decisions.add(decision);
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public ScoringStrategy getScoringStrategy() {
 		return scoringStrategy;
 	}
 
+	@Override
 	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
 		this.scoringStrategy = scoringStrategy;
 	}
@@ -178,22 +187,26 @@ class TokenisedAtomicTokenSequenceImpl extends TaggedTokenSequenceImpl<Tokeniser
 		}
 		return score;
 	}
-	
 
 	@Override
 	public int compareTo(TokenisedAtomicTokenSequence o) {
-		if (this.getScore()<o.getScore()) {
+		if (this.getScore() < o.getScore()) {
 			return 1;
-		} else if (this.getScore()>o.getScore()) {
+		} else if (this.getScore() > o.getScore()) {
 			return -1;
 		} else {
 			return 0;
 		}
 	}
 
+	@Override
 	public Sentence getSentence() {
 		return sentence;
 	}
-	
-	
+
+	public TokenisedAtomicTokenSequence cloneSequence() {
+		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(this);
+		return sequence;
+	}
+
 }

@@ -27,7 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -66,13 +66,12 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 	private TokenFilterService tokenFilterService;
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
-	private FilterService filterService;
 	private FeatureService featureService;
 
 	private MachineLearningService machineLearningService;
 
-	private TokeniserAnnotatedCorpusReader corpusReader;
-	private Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
+	private final TokeniserAnnotatedCorpusReader corpusReader;
+	private final Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
 	private List<TokeniserOutcome> currentOutcomes;
 	private List<TokenPatternMatch> currentPatternMatches;
 	private int currentIndex;
@@ -80,9 +79,13 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 	private TokeniserPatternManager tokeniserPatternManager = null;
 	private TokenSequenceFilter tokenFilterWrapper = null;
 
-	public CompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures) {
+	private final TalismaneSession talismaneSession;
+
+	public CompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures,
+			TalismaneSession talismaneSession) {
 		this.corpusReader = corpusReader;
 		this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
+		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
@@ -105,9 +108,9 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 					List<Integer> tokenSplits = realSequence.getTokenSplits();
 					String text = realSequence.getText();
 					LOG.debug("Sentence: " + text);
-					Sentence sentence = filterService.getSentence(text);
+					Sentence sentence = new Sentence(text, talismaneSession);
 
-					TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+					TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 					for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
 						tokenSequenceFilter.apply(tokenSequence);
 					}
@@ -285,14 +288,6 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 
 	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
-	}
-
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 
 	public TokenFilterService getTokenFilterService() {

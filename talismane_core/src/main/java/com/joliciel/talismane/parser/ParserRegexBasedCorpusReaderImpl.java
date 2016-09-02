@@ -208,7 +208,7 @@ public class ParserRegexBasedCorpusReaderImpl implements ParserRegexBasedCorpusR
 								}
 
 								if (!badConfig) {
-									PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
+									PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
 
 									int maxIndex = 0;
 									for (ParseDataLine dataLine : dataLines) {

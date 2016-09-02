@@ -314,7 +314,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private Locale locale;
 
 	private String csvEncoding;
-	private String outputDivider;
 
 	private static final Map<String, Diacriticizer> diacriticizerMap = new HashMap<String, Diacriticizer>();
 
@@ -622,9 +621,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				fileName = analyseConfig.getString("fileName");
 			suffix = analyseConfig.getString("suffix");
 
-			outputDivider = analyseConfig.getString("outputDivider");
+			String outputDivider = analyseConfig.getString("outputDivider");
 			if (outputDivider.equals("NEWLINE"))
 				outputDivider = "\n";
+			talismaneSession.setOutputDivider(outputDivider);
 
 			beamWidth = analyseConfig.getInt("beamWidth");
 			tokeniserBeamWidth = analyseConfig.getInt("tokeniserBeamWidth");
@@ -887,8 +887,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				Diacriticizer diacriticizer = talismaneSession.getDiacriticizer();
 				diacriticizer.setLowercasePreferences(lowercasePreferences);
 			}
-
-			this.getFilterService().setOutputDivider(outputDivider);
 		} catch (
 
 		IOException e) {

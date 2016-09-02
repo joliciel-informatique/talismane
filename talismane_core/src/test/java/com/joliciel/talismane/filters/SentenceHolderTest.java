@@ -31,11 +31,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.StringAttribute;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 
-public class SentenceHolderImplTest {
-	private static final Logger LOG = LoggerFactory.getLogger(SentenceHolderImplTest.class);
+public class SentenceHolderTest {
+	private static final Logger LOG = LoggerFactory.getLogger(SentenceHolderTest.class);
 
 	@Before
 	public void setup() {
@@ -44,13 +44,8 @@ public class SentenceHolderImplTest {
 
 	@Test
 	public void testGetDetectedSentences() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		TokeniserService tokeniserService = talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService();
-
-		FilterService filterService = new FilterServiceImpl();
-		SentenceHolderImpl holder = new SentenceHolderImpl();
-		holder.setFilterService(filterService);
-		holder.setTokeniserService(tokeniserService);
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		String originalText = "Hello  <b>World</b>. <o>Output this</o>How are you?  Fine<o>Output</o>,  ";
 		holder.setText("Hello  World. How are you?  Fine,  ");
@@ -119,8 +114,7 @@ public class SentenceHolderImplTest {
 		}
 		assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
 
-		SentenceHolderImpl holder2 = new SentenceHolderImpl();
-		holder2.setFilterService(filterService);
+		SentenceHolder holder2 = new SentenceHolder(talismaneSession);
 
 		String originalText2 = "thanks, and you";
 		holder2.setText("thanks, and you");
@@ -139,8 +133,7 @@ public class SentenceHolderImplTest {
 		assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
 		assertFalse(leftover.isComplete());
 
-		SentenceHolderImpl holder3 = new SentenceHolderImpl();
-		holder3.setFilterService(filterService);
+		SentenceHolder holder3 = new SentenceHolder(talismaneSession);
 
 		String originalText3 = "? Grand.";
 		holder3.setText(originalText3);
@@ -170,9 +163,8 @@ public class SentenceHolderImplTest {
 
 	@Test
 	public void testGetDetectedSentencesWithBoundaryAtEnd() {
-		FilterService filterService = new FilterServiceImpl();
-		SentenceHolderImpl holder = new SentenceHolderImpl();
-		holder.setFilterService(filterService);
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		holder.setText("Hello World.");
 
@@ -194,9 +186,8 @@ public class SentenceHolderImplTest {
 
 	@Test
 	public void testGetDetectedSentencesWithNewlines() {
-		FilterService filterService = new FilterServiceImpl();
-		SentenceHolderImpl holder = new SentenceHolderImpl();
-		holder.setFilterService(filterService);
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		holder.setText("Hello World. How are you? Fine thanks.");
 

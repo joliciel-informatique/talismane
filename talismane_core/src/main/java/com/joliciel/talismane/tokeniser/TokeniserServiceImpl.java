@@ -19,17 +19,13 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.Reader;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.filters.FilterService;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
-import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 
@@ -37,52 +33,14 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	private TokenFeatureService tokenFeatureService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFilterService tokenFilterService;
-	private FilterService filterService;
 	private MachineLearningService machineLearningService;
 	private FeatureService featureService;
 	private TalismaneService talismaneService;
 
 	@Override
-	public TokenSequence getTokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokeniserDecisionTagSequence) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, tokeniserDecisionTagSequence, talismaneService.getTalismaneSession());
-		return tokenSequence;
-	}
-
-	@Override
-	public TokenSequence getTokenSequence(Sentence sentence) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, talismaneService.getTalismaneSession());
-		return tokenSequence;
-	}
-
-	@Override
-	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, talismaneService.getTalismaneSession());
-		return tokenSequence;
-	}
-
-	@Override
-	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders) {
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneService.getTalismaneSession());
-		return tokenSequence;
-	}
-
-	@Override
-	public PretokenisedSequence getEmptyPretokenisedSequence() {
-		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService, talismaneService.getTalismaneSession());
-		return tokenSequence;
-	}
-
-	@Override
-	public PretokenisedSequence getEmptyPretokenisedSequence(String sentenceText) {
-		PretokenisedSequenceImpl tokenSequence = new PretokenisedSequenceImpl(filterService, sentenceText, talismaneService.getTalismaneSession());
-		return tokenSequence;
-	}
-
-	@Override
 	public Tokeniser getSimpleTokeniser() {
-		SimpleTokeniser tokeniser = new SimpleTokeniser();
+		SimpleTokeniser tokeniser = new SimpleTokeniser(talismaneService.getTalismaneSession());
 		tokeniser.setTokeniserService(this);
-		tokeniser.setFilterService(this.getFilterService());
 		tokeniser.setMachineLearningService(this.getMachineLearningService());
 		return tokeniser;
 	}
@@ -108,15 +66,14 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 	@Override
 	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(Sentence sentence, int initialCapacity) {
-		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(sentence, initialCapacity);
+		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(sentence, initialCapacity, talismaneService.getTalismaneSession());
 		sequence.setTokeniserServiceInternal(this);
 		return sequence;
 	}
 
 	@Override
 	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(TokenisedAtomicTokenSequence history) {
-		TokenisedAtomicTokenSequenceImpl sequence = new TokenisedAtomicTokenSequenceImpl(history);
-		sequence.setTokeniserServiceInternal(this);
+		TokenisedAtomicTokenSequence sequence = history.cloneSequence();
 		return sequence;
 	}
 
@@ -138,7 +95,7 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 	@Override
 	public TokenRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
-		TokenRegexBasedCorpusReaderImpl corpusReader = new TokenRegexBasedCorpusReaderImpl(reader);
+		TokenRegexBasedCorpusReaderImpl corpusReader = new TokenRegexBasedCorpusReaderImpl(reader, talismaneService.getTalismaneSession());
 		corpusReader.setTokeniserService(this);
 		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
@@ -150,14 +107,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 
 	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
-	}
-
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 
 	public TokenFilterService getTokenFilterService() {
@@ -179,7 +128,8 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	@Override
 	public TokenComparator getTokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
 			TokeniserPatternManager tokeniserPatternManager) {
-		TokenComparatorImpl tokenComparator = new TokenComparatorImpl(referenceCorpusReader, evaluationCorpusReader, tokeniserPatternManager);
+		TokenComparatorImpl tokenComparator = new TokenComparatorImpl(referenceCorpusReader, evaluationCorpusReader, tokeniserPatternManager,
+				talismaneService.getTalismaneSession());
 		tokenComparator.setTokeniserServiceInternal(this);
 		tokenComparator.setMachineLearningService(this.getMachineLearningService());
 		return tokenComparator;

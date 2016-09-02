@@ -22,7 +22,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.Set;
 
-import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -37,22 +37,17 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	TokeniserService tokeniserService;
 	MachineLearningService machineLearningService;
-	FilterService filterService;
 	FeatureService featureService;
-	
+	TalismaneService talismaneService;
+
 	@Override
-	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text,
-			int index) {
-		PossibleSentenceBoundaryImpl boundary = new PossibleSentenceBoundaryImpl(text, index);
-		boundary.setTokeniserService(tokeniserService);
-		boundary.setFilterService(filterService);
+	public PossibleSentenceBoundary getPossibleSentenceBoundary(String text, int index) {
+		PossibleSentenceBoundaryImpl boundary = new PossibleSentenceBoundaryImpl(text, index, talismaneService.getTalismaneSession());
 		return boundary;
 	}
 
 	@Override
-	public SentenceDetector getSentenceDetector(
-			DecisionMaker decisionMaker,
-			Set<SentenceDetectorFeature<?>> features) {
+	public SentenceDetector getSentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features) {
 		SentenceDetectorImpl sentenceDetector = new SentenceDetectorImpl(decisionMaker, features);
 		sentenceDetector.setSentenceDetectorService(this);
 		sentenceDetector.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
@@ -61,24 +56,22 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 	}
 
 	@Override
-	public SentenceDetector getSentenceDetector(
-			ClassificationModel sentenceModel) {
+	public SentenceDetector getSentenceDetector(ClassificationModel sentenceModel) {
 		Collection<ExternalResource<?>> externalResources = sentenceModel.getExternalResources();
-		if (externalResources!=null) {
+		if (externalResources != null) {
 			for (ExternalResource<?> externalResource : externalResources) {
 				this.getSentenceDetectorFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}
 
-		Set<SentenceDetectorFeature<?>> sentenceDetectorFeatures =
-			this.getSentenceDetectorFeatureService().getFeatureSet(sentenceModel.getFeatureDescriptors());
+		Set<SentenceDetectorFeature<?>> sentenceDetectorFeatures = this.getSentenceDetectorFeatureService()
+				.getFeatureSet(sentenceModel.getFeatureDescriptors());
 		SentenceDetector sentenceDetector = this.getSentenceDetector(sentenceModel.getDecisionMaker(), sentenceDetectorFeatures);
 		return sentenceDetector;
 	}
 
 	@Override
-	public SentenceDetectorEvaluator getEvaluator(
-			SentenceDetector sentenceDetector) {
+	public SentenceDetectorEvaluator getEvaluator(SentenceDetector sentenceDetector) {
 		SentenceDetectorEvaluatorImpl evaluator = new SentenceDetectorEvaluatorImpl(sentenceDetector);
 		return evaluator;
 	}
@@ -87,8 +80,7 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		return sentenceDetectorFeatureService;
 	}
 
-	public void setSentenceDetectorFeatureService(
-			SentenceDetectorFeatureService sentenceDetectorFeatureService) {
+	public void setSentenceDetectorFeatureService(SentenceDetectorFeatureService sentenceDetectorFeatureService) {
 		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
 	}
 
@@ -100,10 +92,8 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		this.tokeniserService = tokeniserService;
 	}
 
-
 	@Override
-	public ClassificationEventStream getSentenceDetectorEventStream(
-			SentenceDetectorAnnotatedCorpusReader corpusReader,
+	public ClassificationEventStream getSentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader,
 			Set<SentenceDetectorFeature<?>> features) {
 		SentenceDetectorEventStream eventStream = new SentenceDetectorEventStream(corpusReader, features);
 		eventStream.setSentenceDetectorService(this);
@@ -117,17 +107,8 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
-	}
-
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 
 	@Override
@@ -144,6 +125,11 @@ public class SentenceDetectorServiceImpl implements SentenceDetectorService {
 		this.featureService = featureService;
 	}
 
+	public TalismaneService getTalismaneService() {
+		return talismaneService;
+	}
 
-
+	public void setTalismaneService(TalismaneService talismaneService) {
+		this.talismaneService = talismaneService;
+	}
 }

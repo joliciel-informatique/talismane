@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
@@ -47,7 +47,7 @@ public class PatternTokeniserTest {
 		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
 		TokeniserServiceLocator tokeniserServiceLocator = talismaneServiceLocator.getTokeniserServiceLocator();
 		TokeniserService tokeniserService = tokeniserServiceLocator.getTokeniserService();
-		FilterService filterService = talismaneServiceLocator.getFilterServiceLocator().getFilterService();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
 		MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
@@ -59,9 +59,8 @@ public class PatternTokeniserTest {
 
 		List<String> tokeniserPatterns = new ArrayList<String>();
 		TokeniserPatternManagerImpl patternManager = new TokeniserPatternManagerImpl(tokeniserPatterns);
-		IntervalPatternTokeniser tokeniserImpl = new IntervalPatternTokeniser(patternManager, null, 1);
+		IntervalPatternTokeniser tokeniserImpl = new IntervalPatternTokeniser(patternManager, null, 1, talismaneSession);
 		tokeniserImpl.setTokeniserService(tokeniserService);
-		tokeniserImpl.setFilterService(filterService);
 		tokeniserImpl.setMachineLearningService(machineLearningService);
 		patternManager.setSeparatorDefaults(separatorDefaults);
 		List<TokenSequence> tokenSequences = tokeniserImpl.tokenise(sentence);

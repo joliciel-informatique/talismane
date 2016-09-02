@@ -68,20 +68,5 @@ public interface FilterService {
 	 */
 	public TextMarkerFilter getRegexMarkerFilter(MarkerFilterType[] types, String regex, int groupIndex, int blockSize);
 
-	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault);
-
-	public Sentence getSentence(String text);
-
-	public Sentence getSentence();
-
-	public SentenceHolder getSentenceHolder();
-
 	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize);
-
-	/**
-	 * A string inserted between outputs (such as a newline).
-	 */
-	public String getOutputDivider();
-
-	public void setOutputDivider(String outputDivider);
 }
