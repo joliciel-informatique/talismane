@@ -37,11 +37,13 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserContext> {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokeniserContextFeatureParser.class);
 
-	TokenFeatureParser tokenFeatureParser;
+	private final TokenFeatureParser tokenFeatureParser;
 	private List<TokenPattern> patternList;
 	private Map<String, TokenPattern> patternMap;
 
-	public TokeniserContextFeatureParser() {
+	public TokeniserContextFeatureParser(TokenFeatureParser tokenFeatureParser) {
+		this.tokenFeatureParser = tokenFeatureParser;
+		this.setExternalResourceFinder(tokenFeatureParser.getTalismaneSession().getExternalResourceFinder());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -98,14 +100,6 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		} else if (feature instanceof PatternOffsetAddressFunction) {
 			((PatternOffsetAddressFunction) feature).setPatternMap(patternMap);
 		}
-	}
-
-	public TokenFeatureParser getTokenFeatureParser() {
-		return tokenFeatureParser;
-	}
-
-	public void setTokenFeatureParser(TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
 	}
 
 	private static class TokeniserContextFeatureWrapper<T> extends AbstractFeature<TokeniserContext, T>

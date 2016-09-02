@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.typesafe.config.Config;
@@ -36,14 +37,18 @@ public interface TalismaneService {
 	 *            configuration parameters
 	 * @param args
 	 *            command-line parameters to override the config parameters
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
-	public TalismaneConfig getTalismaneConfig(Config config, Map<String, String> args);
+	public TalismaneConfig getTalismaneConfig(Config config, Map<String, String> args) throws ClassNotFoundException, IOException;
 
 	/**
 	 * 
 	 * @param config
 	 *            configuration parameters
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
-	public TalismaneConfig getTalismaneConfig(Config config);
+	public TalismaneConfig getTalismaneConfig(Config config) throws ClassNotFoundException, IOException;
 
 }

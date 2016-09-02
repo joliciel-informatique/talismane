@@ -43,7 +43,7 @@ import com.typesafe.config.ConfigFactory;
  */
 public class TalismaneAPITest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String text = "Les amoureux qui se bécotent sur les bancs publics ont des petites gueules bien sympathiques.";
 
 		// arbitrary session id

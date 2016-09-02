@@ -26,8 +26,10 @@ import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.resources.WordListFinder;
 
 /**
  * A class storing session-wide reference data.
@@ -44,6 +46,8 @@ public class TalismaneSession {
 	private LinguisticRules linguisticRules;
 	private Diacriticizer diacriticizer;
 	private String outputDivider = "";
+	private final WordListFinder wordListFinder = new WordListFinder();
+	private final ExternalResourceFinder externalResourceFinder = new ExternalResourceFinder();
 
 	TalismaneSession() {
 	}
@@ -146,4 +150,13 @@ public class TalismaneSession {
 	public void setOutputDivider(String outputDivider) {
 		this.outputDivider = outputDivider;
 	}
+
+	public WordListFinder getWordListFinder() {
+		return wordListFinder;
+	}
+
+	public ExternalResourceFinder getExternalResourceFinder() {
+		return externalResourceFinder;
+	}
+
 }

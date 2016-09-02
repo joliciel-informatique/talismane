@@ -41,15 +41,13 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	private ExternalResourceFinder externalResourceFinder;
 
 	TokeniserContextFeatureParser getTokeniserContextFeatureParser(List<TokenPattern> patternList) {
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(this.getTokenFeatureParser(patternList));
 		parser.setPatternList(patternList);
-		parser.setTokenFeatureParser(this.getTokenFeatureParser(patternList));
 		return parser;
 	}
 
 	private TokenPatternMatchFeatureParser getTokenPatternMatchFeatureParser() {
-		TokenPatternMatchFeatureParser parser = new TokenPatternMatchFeatureParser();
-		parser.setTokenFeatureParser(this.getTokenFeatureParser(null));
+		TokenPatternMatchFeatureParser parser = new TokenPatternMatchFeatureParser(this.getTokenFeatureParser(null));
 		return parser;
 	}
 
@@ -59,8 +57,7 @@ public class TokenFeatureServiceImpl implements TokenFeatureService {
 	}
 
 	public TokenFeatureParser getTokenFeatureParser(List<TokenPattern> patternList) {
-		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl();
-		tokenFeatureParser.setTalismaneService(this.getTalismaneService());
+		TokenFeatureParserImpl tokenFeatureParser = new TokenFeatureParserImpl(talismaneService.getTalismaneSession());
 		tokenFeatureParser.setPatternList(patternList);
 		return tokenFeatureParser;
 	}

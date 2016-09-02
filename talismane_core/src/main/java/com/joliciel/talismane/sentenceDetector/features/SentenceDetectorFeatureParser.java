@@ -20,7 +20,10 @@ package com.joliciel.talismane.sentenceDetector.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -28,11 +31,34 @@ import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
-class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
-	public SentenceDetectorFeatureParser() {
+/**
+ * A parser for sentence detector descriptors.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
+	public SentenceDetectorFeatureParser(TalismaneSession talismaneSession) {
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+	}
+
+	public Set<SentenceDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) {
+		Set<SentenceDetectorFeature<?>> features = new TreeSet<SentenceDetectorFeature<?>>();
+
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		for (String featureDescriptor : featureDescriptors) {
+			if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+				List<SentenceDetectorFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+				features.addAll(myFeatures);
+			}
+		}
+		return features;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

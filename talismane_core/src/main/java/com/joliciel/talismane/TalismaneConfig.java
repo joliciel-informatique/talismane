@@ -21,7 +21,6 @@ import com.joliciel.talismane.languageDetector.LanguageDetectorAnnotatedCorpusRe
 import com.joliciel.talismane.languageDetector.LanguageDetectorFeature;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser;
@@ -511,8 +510,6 @@ public interface TalismaneConfig {
 	public Talismane getTalismane();
 
 	public Map<String, List<String>> getDescriptors();
-
-	public ExternalResourceFinder getExternalResourceFinder();
 
 	public List<Integer> getPerceptronObservationPoints();
 

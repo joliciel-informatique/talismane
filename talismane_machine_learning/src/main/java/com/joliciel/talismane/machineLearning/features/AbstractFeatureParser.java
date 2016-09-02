@@ -1002,6 +1002,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	}
 
 	public ExternalResourceFinder getExternalResourceFinder() {
+		if (externalResourceFinder == null)
+			externalResourceFinder = new ExternalResourceFinder();
 		return externalResourceFinder;
 	}
 

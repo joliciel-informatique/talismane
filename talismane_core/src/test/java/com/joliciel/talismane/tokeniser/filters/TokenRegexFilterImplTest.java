@@ -12,12 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.ExternalWordList;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.resources.WordList;
 import com.joliciel.talismane.tokeniser.StringAttribute;
-
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
 
 public class TokenRegexFilterImplTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexFilterImplTest.class);
@@ -58,11 +55,8 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordList(@NonStrict final ExternalResourceFinder externalResourceFinder, @NonStrict final ExternalWordList externalWordList) {
-
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
-		filter.setRegex("\\b(\\p{WordList(FirstNames)}) [A-Z]\\w+\\b");
-		filter.setExternalResourceFinder(externalResourceFinder);
+	public void testWordList() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -70,14 +64,12 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Joëlle");
 		wordList.add("Édouard");
 
-		new NonStrictExpectations() {
-			{
-				externalResourceFinder.getExternalWordList("FirstNames");
-				returns(externalWordList);
-				externalWordList.getWordList();
-				returns(wordList);
-			}
-		};
+		WordList nameList = new WordList("FirstNames", wordList);
+		talismaneSession.getWordListFinder().addWordList(nameList);
+
+		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		filter.setTalismaneSession(talismaneSession);
+		filter.setRegex("\\b(\\p{WordList(FirstNames)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -86,11 +78,8 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListDiacriticsOptional(@NonStrict final ExternalResourceFinder externalResourceFinder,
-			@NonStrict final ExternalWordList externalWordList) {
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
-		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b");
-		filter.setExternalResourceFinder(externalResourceFinder);
+	public void testWordListDiacriticsOptional() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -98,14 +87,12 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Joëlle");
 		wordList.add("Édouard");
 
-		new NonStrictExpectations() {
-			{
-				externalResourceFinder.getExternalWordList("FirstNames");
-				returns(externalWordList);
-				externalWordList.getWordList();
-				returns(wordList);
-			}
-		};
+		WordList nameList = new WordList("FirstNames", wordList);
+		talismaneSession.getWordListFinder().addWordList(nameList);
+
+		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		filter.setTalismaneSession(talismaneSession);
+		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -114,12 +101,8 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListUppercaseOptional(@NonStrict final ExternalResourceFinder externalResourceFinder,
-			@NonStrict final ExternalWordList externalWordList) {
-
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
-		filter.setRegex("\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b");
-		filter.setExternalResourceFinder(externalResourceFinder);
+	public void testWordListUppercaseOptional() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -127,14 +110,12 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Joëlle");
 		wordList.add("Édouard");
 
-		new NonStrictExpectations() {
-			{
-				externalResourceFinder.getExternalWordList("FirstNames");
-				returns(externalWordList);
-				externalWordList.getWordList();
-				returns(wordList);
-			}
-		};
+		WordList nameList = new WordList("FirstNames", wordList);
+		talismaneSession.getWordListFinder().addWordList(nameList);
+
+		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		filter.setTalismaneSession(talismaneSession);
+		filter.setRegex("\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -143,12 +124,8 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListUppercaseDiacriticsOptional(@NonStrict final ExternalResourceFinder externalResourceFinder,
-			@NonStrict final ExternalWordList externalWordList) {
-
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
-		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b");
-		filter.setExternalResourceFinder(externalResourceFinder);
+	public void testWordListUppercaseDiacriticsOptional() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -156,14 +133,12 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Joëlle");
 		wordList.add("Édouard");
 
-		new NonStrictExpectations() {
-			{
-				externalResourceFinder.getExternalWordList("FirstNames");
-				returns(externalWordList);
-				externalWordList.getWordList();
-				returns(wordList);
-			}
-		};
+		WordList nameList = new WordList("FirstNames", wordList);
+		talismaneSession.getWordListFinder().addWordList(nameList);
+
+		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		filter.setTalismaneSession(talismaneSession);
+		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -172,11 +147,9 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testAutoWordBoundaries(@NonStrict final ExternalResourceFinder externalResourceFinder, @NonStrict final ExternalWordList externalWordList) {
-
+	public void testAutoWordBoundaries() {
 		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("hello 123");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		Pattern pattern = filter.getPattern();
@@ -186,7 +159,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("\\sabc");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -196,7 +168,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("\\bblah di blah\\b");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -206,7 +177,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("helloe?");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -216,7 +186,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("liste?s?");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -226,7 +195,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("lis#e?s?");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -236,7 +204,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("liste?\\d?");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -246,7 +213,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("liste?\\s?");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -256,7 +222,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("a\\\\b");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -266,7 +231,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("\\d+ \\D+");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -276,7 +240,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("abc [A-Z]\\w+");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -286,7 +249,6 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("(MLLE\\.|Mlle\\.)");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -294,22 +256,18 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\b(MLLE\\.|Mlle\\.)", pattern.pattern());
 
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
 		wordList.add("Marcel");
 
-		new NonStrictExpectations() {
-			{
-				externalResourceFinder.getExternalWordList("FirstNames");
-				returns(externalWordList);
-				externalWordList.getWordList();
-				returns(wordList);
-			}
-		};
+		WordList nameList = new WordList("FirstNames", wordList);
+		talismaneSession.getWordListFinder().addWordList(nameList);
 
 		filter = new TokenRegexFilterWithReplacement();
+		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("(\\p{WordList(FirstNames)})");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -319,7 +277,7 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("(\\p{WordList(FirstNames,diacriticsOptional)}) +([A-Z]'\\p{Alpha}+)");
-		filter.setExternalResourceFinder(externalResourceFinder);
+		filter.setTalismaneSession(talismaneSession);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -330,7 +288,7 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testCaseSensitive(@NonStrict final ExternalResourceFinder externalResourceFinder, @NonStrict final ExternalWordList externalWordList) {
+	public void testCaseSensitive() {
 
 		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
 		filter.setRegex("hé");
@@ -360,22 +318,17 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("[Hh][EeÉé]", pattern.pattern());
 
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("apples");
 		wordList.add("oranges");
-
-		new NonStrictExpectations() {
-			{
-				externalResourceFinder.getExternalWordList("Fruit");
-				returns(externalWordList);
-				externalWordList.getWordList();
-				returns(wordList);
-			}
-		};
+		WordList fruitList = new WordList("Fruit", wordList);
+		talismaneSession.getWordListFinder().addWordList(fruitList);
 
 		filter = new TokenRegexFilterWithReplacement();
+		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("(\\p{WordList(Fruit)})hé\\w+\\b");
-		filter.setExternalResourceFinder(externalResourceFinder);
 		filter.setDiacriticSensitive(false);
 		filter.setCaseSensitive(false);
 

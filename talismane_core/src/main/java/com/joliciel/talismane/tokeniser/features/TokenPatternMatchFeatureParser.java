@@ -35,9 +35,11 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternMatch> {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokenPatternMatchFeatureParser.class);
 
-	TokenFeatureParser tokenFeatureParser;
+	private final TokenFeatureParser tokenFeatureParser;
 
-	public TokenPatternMatchFeatureParser() {
+	public TokenPatternMatchFeatureParser(TokenFeatureParser tokenFeatureParser) {
+		this.tokenFeatureParser = tokenFeatureParser;
+		this.setExternalResourceFinder(tokenFeatureParser.getTalismaneSession().getExternalResourceFinder());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -83,14 +85,6 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 	@Override
 	public void injectDependencies(Feature feature) {
 		this.tokenFeatureParser.injectDependencies(feature);
-	}
-
-	public TokenFeatureParser getTokenFeatureParser() {
-		return tokenFeatureParser;
-	}
-
-	public void setTokenFeatureParser(TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
 	}
 
 	private static class TokenPatternMatchFeatureWrapper<T> extends AbstractFeature<TokenPatternMatch, T>

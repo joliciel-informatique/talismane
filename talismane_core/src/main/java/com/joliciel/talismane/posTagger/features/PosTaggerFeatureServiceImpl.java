@@ -126,8 +126,7 @@ public class PosTaggerFeatureServiceImpl implements PosTaggerFeatureService {
 	}
 
 	private PosTaggerFeatureParser getPosTagFeatureParser() {
-		PosTaggerFeatureParser posTagFeatureParser = new PosTaggerFeatureParser();
-		posTagFeatureParser.setTokenFeatureParser(this.tokenFeatureService.getTokenFeatureParser());
+		PosTaggerFeatureParser posTagFeatureParser = new PosTaggerFeatureParser(this.tokenFeatureService.getTokenFeatureParser());
 		posTagFeatureParser.setExternalResourceFinder(externalResourceFinder);
 		return posTagFeatureParser;
 	}

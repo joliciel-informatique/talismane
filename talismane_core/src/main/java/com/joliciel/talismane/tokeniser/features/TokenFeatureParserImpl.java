@@ -22,16 +22,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
-import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 class TokenFeatureParserImpl implements TokenFeatureParser {
-	private TalismaneService talismaneService;
-
+	private final TalismaneSession talismaneSession;
 	private List<TokenPattern> patternList;
+
+	public TokenFeatureParserImpl(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -109,16 +112,13 @@ class TokenFeatureParserImpl implements TokenFeatureParser {
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		if (feature instanceof NeedsTalismaneSession) {
-			((NeedsTalismaneSession) feature).setTalismaneSession(talismaneService.getTalismaneSession());
+			((NeedsTalismaneSession) feature).setTalismaneSession(talismaneSession);
 		}
 	}
 
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
-	}
-
-	public void setTalismaneService(TalismaneService talismaneService) {
-		this.talismaneService = talismaneService;
+	@Override
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
 	}
 
 }

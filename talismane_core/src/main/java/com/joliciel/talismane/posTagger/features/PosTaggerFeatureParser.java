@@ -44,9 +44,11 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  *
  */
 public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
-	TokenFeatureParser tokenFeatureParser;
+	private final TokenFeatureParser tokenFeatureParser;
 
-	public PosTaggerFeatureParser() {
+	public PosTaggerFeatureParser(TokenFeatureParser tokenFeatureParser) {
+		this.tokenFeatureParser = tokenFeatureParser;
+		this.setExternalResourceFinder(tokenFeatureParser.getTalismaneSession().getExternalResourceFinder());
 	}
 
 	@Override
@@ -110,14 +112,6 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
 		return tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
-	}
-
-	public TokenFeatureParser getTokenFeatureParser() {
-		return tokenFeatureParser;
-	}
-
-	public void setTokenFeatureParser(TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
 	}
 
 	private static class PosTaggerFeatureWrapper<T> extends AbstractFeature<PosTaggerContext, T>
