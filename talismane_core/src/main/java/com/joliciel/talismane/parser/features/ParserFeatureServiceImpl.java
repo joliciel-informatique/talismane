@@ -81,9 +81,8 @@ public class ParserFeatureServiceImpl implements ParserFeatureServiceInternal {
 	}
 
 	public ParserFeatureParser getParserFeatureParser() {
-		ParserFeatureParser parserFeatureParser = new ParserFeatureParser();
+		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(talismaneService.getTalismaneSession());
 		parserFeatureParser.setParserFeatureServiceInternal(this);
-		parserFeatureParser.setTalismaneService(this.getTalismaneService());
 		parserFeatureParser.setExternalResourceFinder(externalResourceFinder);
 
 		return parserFeatureParser;

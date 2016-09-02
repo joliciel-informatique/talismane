@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning;
+package com.joliciel.talismane.resources;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,35 +26,24 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.JolicielException;
 
 /**
- * Finds the external resource corresponding to a given name.
+ * Finds the external wordlists corresponding to a given name.
  * 
  * @author Assaf Urieli
  *
  */
-public class ExternalResourceFinder {
-	private static final Logger LOG = LoggerFactory.getLogger(ExternalResourceFinder.class);
-	private Map<String, ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
-
-	public ExternalResource<?> getExternalResource(String name) {
-		return this.resourceMap.get(name);
-	}
-
-	public void addExternalResource(ExternalResource<?> externalResource) {
-		LOG.debug("Adding resource with name: " + externalResource.getName());
-		this.resourceMap.put(externalResource.getName(), externalResource);
-	}
-
-	public Collection<ExternalResource<?>> getExternalResources() {
-		return resourceMap.values();
-	}
+public class WordListFinder {
+	private static final Logger LOG = LoggerFactory.getLogger(WordListFinder.class);
+	private Map<String, WordList> wordListMap = new HashMap<>();
 
 	/**
-	 * Add external resources located in a scanner from a particular filename.
+	 * Add an external word list located in a scanner from a particular
+	 * filename.
 	 */
-	public void addExternalResource(String fileName, Scanner scanner) {
+	public void addWordList(String fileName, Scanner scanner) {
 		LOG.debug("Reading " + fileName);
 		String typeLine = scanner.nextLine();
 
@@ -63,14 +52,24 @@ public class ExternalResourceFinder {
 
 		String type = typeLine.substring("Type: ".length());
 
-		if ("KeyValue".equals(type)) {
-			TextFileResource textFileResource = new TextFileResource(fileName, scanner);
-			this.addExternalResource(textFileResource);
-		} else if ("KeyMultiValue".equals(type)) {
-			TextFileMultivaluedResource resource = new TextFileMultivaluedResource(fileName, scanner);
-			this.addExternalResource(resource);
+		if ("WordList".equals(type)) {
+			WordList textFileWordList = new WordList(fileName, scanner);
+			this.addWordList(textFileWordList);
 		} else {
-			throw new JolicielException("Unexpected type in file: " + fileName + ": " + type);
+			throw new TalismaneException("Unexpected type in file: " + fileName + ": " + type);
 		}
+	}
+
+	public void addWordList(WordList wordList) {
+		LOG.debug("Adding word list with name: " + wordList.getName());
+		this.wordListMap.put(wordList.getName(), wordList);
+	}
+
+	public WordList getWordList(String name) {
+		return this.wordListMap.get(name);
+	}
+
+	public Collection<WordList> getWordLists() {
+		return wordListMap.values();
 	}
 }

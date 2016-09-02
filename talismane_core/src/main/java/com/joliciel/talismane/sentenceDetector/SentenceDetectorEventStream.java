@@ -29,17 +29,26 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 
-class SentenceDetectorEventStream implements ClassificationEventStream {
+/**
+ * An event stream for sentence detector training/evaluation.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class SentenceDetectorEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorEventStream.class);
 
-	private SentenceDetectorAnnotatedCorpusReader corpusReader;
-	private Set<SentenceDetectorFeature<?>> features;
+	private final SentenceDetectorAnnotatedCorpusReader corpusReader;
+	private final Set<SentenceDetectorFeature<?>> features;
+	private final TalismaneSession talismaneSession;
+
 	private String currentSentence;
 	private String previousSentence = ". ";
 	private int currentIndex = 0;
@@ -48,12 +57,11 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 	private LinkedList<String> sentences = new LinkedList<String>();
 	int minCharactersAfterBoundary = 50;
 
-	private SentenceDetectorService sentenceDetectorService;
-
-	public SentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader, Set<SentenceDetectorFeature<?>> features) {
-		super();
+	public SentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader, Set<SentenceDetectorFeature<?>> features,
+			TalismaneSession talismaneSession) {
 		this.corpusReader = corpusReader;
 		this.features = features;
+		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
@@ -83,7 +91,7 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 			}
 			String text = previousSentence + currentSentence + moreText;
 
-			PossibleSentenceBoundary boundary = sentenceDetectorService.getPossibleSentenceBoundary(text, possibleBoundary);
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(text, possibleBoundary, talismaneSession);
 			LOG.debug("next event, boundary: " + boundary);
 
 			List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
@@ -145,14 +153,6 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 		}
 
 		return (currentSentence != null);
-	}
-
-	public SentenceDetectorService getSentenceDetectorService() {
-		return sentenceDetectorService;
-	}
-
-	public void setSentenceDetectorService(SentenceDetectorService sentenceDetectorService) {
-		this.sentenceDetectorService = sentenceDetectorService;
 	}
 
 	@Override

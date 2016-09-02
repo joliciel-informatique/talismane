@@ -16,14 +16,11 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.machineLearning;
+package com.joliciel.talismane.resources;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An external word list read from a text file.<br/>
@@ -37,41 +34,44 @@ import org.slf4j.LoggerFactory;
  * @author Assaf Urieli
  *
  */
-public class TextFileWordList implements ExternalWordList {
-	private static final long serialVersionUID = 1L;
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TextFileWordList.class);
-	List<String> wordList = new ArrayList<String>();
+public class WordList {
+	private final String name;
+	private final List<String> wordList;
 
-	private String name;
+	public WordList(String name, List<String> wordList) {
+		this.name = name;
+		this.wordList = wordList;
+	}
 
-	public TextFileWordList(String fileName, Scanner scanner) {
-		this.name = fileName;
-
+	public WordList(String fileName, Scanner scanner) {
+		String name = fileName;
+		this.wordList = new ArrayList<String>();
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (line.length() > 0 && !line.startsWith("#")) {
 				if (line.equals("Type: WordList"))
 					continue;
 				if (line.startsWith("Name: ")) {
-					this.name = line.substring("Name: ".length());
+					name = line.substring("Name: ".length());
 					continue;
 				}
 				wordList.add(line);
 			}
 		}
+
+		this.name = name;
 	}
 
-	@Override
+	/**
+	 * A unique name for this resource.
+	 */
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
+	/**
+	 * The word list itself.
+	 */
 	public List<String> getWordList() {
 		return wordList;
 	}

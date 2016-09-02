@@ -42,7 +42,6 @@ import com.joliciel.talismane.filters.TextMarker;
 import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.languageDetector.LanguageDetector;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
-import com.joliciel.talismane.languageDetector.LanguageDetectorService;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
@@ -66,7 +65,6 @@ import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -102,11 +100,9 @@ class TalismaneImpl implements Talismane {
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 
 	private TalismaneService talismaneService;
-	private SentenceDetectorService sentenceDetectorService;
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
-	private LanguageDetectorService languageDetectorService;
 
 	private boolean stopOnError = true;
 
@@ -331,8 +327,7 @@ class TalismaneImpl implements Talismane {
 						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
 						ClassificationModel languageModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						if (config.getExternalResourceFinder() != null)
-							languageModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
+						languageModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
 						languageModel.persist(modelFile);
 						break;
 					}
@@ -345,8 +340,7 @@ class TalismaneImpl implements Talismane {
 						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
 						ClassificationModel sentenceModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						if (config.getExternalResourceFinder() != null)
-							sentenceModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
+						sentenceModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
 						sentenceModel.persist(modelFile);
 						break;
 					}
@@ -358,8 +352,7 @@ class TalismaneImpl implements Talismane {
 						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
 						ClassificationModel tokeniserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						if (config.getExternalResourceFinder() != null)
-							tokeniserModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
+						tokeniserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
 						tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), config.getPatternTokeniserType().toString());
 						tokeniserModel.persist(modelFile);
 						break;
@@ -373,15 +366,14 @@ class TalismaneImpl implements Talismane {
 							ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
 							ClassificationModel posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-							if (config.getExternalResourceFinder() != null)
-								posTaggerModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
+							posTaggerModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
 							posTaggerModel.persist(modelFile);
 						} else {
 							PerceptronClassificationModelTrainer trainer = new PerceptronClassificationModelTrainer();
 
 							String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 							PerceptronModelTrainerObserver observer = new PosTaggerPerceptronModelPersister(modelDir, modelName,
-									config.getExternalResourceFinder());
+									talismaneSession.getExternalResourceFinder());
 							trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
 									config.getPerceptronObservationPoints());
 						}
@@ -405,15 +397,14 @@ class TalismaneImpl implements Talismane {
 							String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 
 							PerceptronModelTrainerObserver observer = new ParserPerceptronModelPersister(modelDir, modelName,
-									config.getExternalResourceFinder());
+									talismaneSession.getExternalResourceFinder());
 							trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
 									config.getPerceptronObservationPoints());
 							needToPersist = false;
 						}
 
 						if (needToPersist) {
-							if (config.getExternalResourceFinder() != null)
-								parserModel.setExternalResources(config.getExternalResourceFinder().getExternalResources());
+							parserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
 							parserModel.persist(modelFile);
 						}
 						break;
@@ -891,14 +882,6 @@ class TalismaneImpl implements Talismane {
 		this.parserService = parserService;
 	}
 
-	public SentenceDetectorService getSentenceDetectorService() {
-		return sentenceDetectorService;
-	}
-
-	public void setSentenceDetectorService(SentenceDetectorService sentenceDetectorService) {
-		this.sentenceDetectorService = sentenceDetectorService;
-	}
-
 	@Override
 	public boolean isStopOnError() {
 		return stopOnError;
@@ -978,13 +961,4 @@ class TalismaneImpl implements Talismane {
 			model.persist(parserModelFile);
 		}
 	}
-
-	public LanguageDetectorService getLanguageDetectorService() {
-		return languageDetectorService;
-	}
-
-	public void setLanguageDetectorService(LanguageDetectorService languageDetectorService) {
-		this.languageDetectorService = languageDetectorService;
-	}
-
 }

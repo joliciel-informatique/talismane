@@ -29,23 +29,28 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
-public class DefaultLanguageDetectorProcessor implements
-		LanguageDetectorProcessor {
+/**
+ * A processor which writes each block of text followed by a list of possible
+ * languages and probabilities.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class DefaultLanguageDetectorProcessor implements LanguageDetectorProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguageDetectorProcessor.class);
 
 	private Writer out;
-	
+
 	public DefaultLanguageDetectorProcessor(Writer out) {
 		this.out = out;
 	}
 
 	@Override
-	public void onNextText(String text, List<WeightedOutcome<Locale>> results,
-			Writer writer) {
+	public void onNextText(String text, List<WeightedOutcome<Locale>> results, Writer writer) {
 		try {
-			if (writer==null)
+			if (writer == null)
 				writer = out;
-			
+
 			writer.write(text + "\n");
 			for (WeightedOutcome<Locale> result : results) {
 				writer.write(result.getOutcome().toLanguageTag() + "\t" + result.getWeight() + "\n");

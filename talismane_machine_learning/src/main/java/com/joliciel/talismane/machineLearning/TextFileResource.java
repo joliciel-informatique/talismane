@@ -68,13 +68,7 @@ public class TextFileResource implements ExternalResource<String> {
 					i++;
 					continue;
 				}
-				if (parts.length == 1 && line.startsWith("Multivalued: ")) {
-					boolean multivalued = line.substring("Multivalued: ".length()).equalsIgnoreCase("true");
-					if (multivalued)
-						throw new JolicielException("Did not expect multivalued resource");
-					i++;
-					continue;
-				}
+
 				if (numParts < 0)
 					numParts = parts.length;
 				if (parts.length != numParts)

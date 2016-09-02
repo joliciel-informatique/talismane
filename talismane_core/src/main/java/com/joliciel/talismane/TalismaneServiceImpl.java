@@ -18,15 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.IOException;
 import java.util.Map;
 
-import com.joliciel.talismane.languageDetector.LanguageDetectorService;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorService;
-import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
@@ -37,14 +35,11 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
-	private SentenceDetectorService sentenceDetectorService;
 	private ParserFeatureService parserFeatureService;
 	private PosTaggerFeatureService posTaggerFeatureService;
-	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
 	private TokenFeatureService tokenFeatureService;
 	private TokenFilterService tokenFilterService;
 	private TokeniserPatternService tokeniserPatternService;
-	private LanguageDetectorService languageDetectorService;
 
 	private TalismaneSession talismaneSession;
 
@@ -55,8 +50,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		talismane.setParserService(this.getParserService());
 		talismane.setPosTaggerService(this.getPosTaggerService());
 		talismane.setTokeniserService(this.getTokeniserService());
-		talismane.setSentenceDetectorService(this.getSentenceDetectorService());
-		talismane.setLanguageDetectorService(this.getLanguageDetectorService());
 		return talismane;
 	}
 
@@ -91,14 +84,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		this.parserService = parserService;
 	}
 
-	public SentenceDetectorService getSentenceDetectorService() {
-		return sentenceDetectorService;
-	}
-
-	public void setSentenceDetectorService(SentenceDetectorService sentenceDetectorService) {
-		this.sentenceDetectorService = sentenceDetectorService;
-	}
-
 	@Override
 	public TalismaneSession getTalismaneSession() {
 		if (talismaneSession == null) {
@@ -109,12 +94,12 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(Config config) {
+	public TalismaneConfig getTalismaneConfig(Config config) throws ClassNotFoundException, IOException {
 		return this.getTalismaneConfig(config, null);
 	}
 
 	@Override
-	public TalismaneConfig getTalismaneConfig(Config myConfig, Map<String, String> args) {
+	public TalismaneConfig getTalismaneConfig(Config myConfig, Map<String, String> args) throws ClassNotFoundException, IOException {
 		TalismaneConfigImpl config = new TalismaneConfigImpl();
 
 		config.setTalismaneService(this);
@@ -122,13 +107,10 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setParserService(parserService);
 		config.setPosTaggerFeatureService(posTaggerFeatureService);
 		config.setPosTaggerService(posTaggerService);
-		config.setSentenceDetectorFeatureService(sentenceDetectorFeatureService);
-		config.setSentenceDetectorService(sentenceDetectorService);
 		config.setTokenFeatureService(tokenFeatureService);
 		config.setTokenFilterService(tokenFilterService);
 		config.setTokeniserPatternService(tokeniserPatternService);
 		config.setTokeniserService(tokeniserService);
-		config.setLanguageDetectorService(languageDetectorService);
 
 		if (args != null)
 			config.loadParameters(args, myConfig);
@@ -151,14 +133,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 
 	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
 		this.posTaggerFeatureService = posTaggerFeatureService;
-	}
-
-	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
-		return sentenceDetectorFeatureService;
-	}
-
-	public void setSentenceDetectorFeatureService(SentenceDetectorFeatureService sentenceDetectorFeatureService) {
-		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
 	}
 
 	public TokenFeatureService getTokenFeatureService() {
@@ -184,13 +158,4 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
 		this.tokeniserPatternService = tokeniserPatternService;
 	}
-
-	public LanguageDetectorService getLanguageDetectorService() {
-		return languageDetectorService;
-	}
-
-	public void setLanguageDetectorService(LanguageDetectorService languageDetectorService) {
-		this.languageDetectorService = languageDetectorService;
-	}
-
 }

@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
@@ -29,12 +30,13 @@ public interface TokenFeatureParser {
 
 	public void addFeatureClasses(FeatureClassContainer container);
 
-	public List<FunctionDescriptor> getModifiedDescriptors(
-			FunctionDescriptor functionDescriptor);
+	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor);
 
 	public List<TokenPattern> getPatternList();
 
 	public void setPatternList(List<TokenPattern> patternList);
 
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature);
+
+	public TalismaneSession getTalismaneSession();
 }

@@ -61,7 +61,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	@Override
 	public TokenRegexFilter getTokenRegexFilter(String regex) {
 		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
-		filter.setExternalResourceFinder(this.getExternalResourceFinder());
+		filter.setTalismaneSession(talismaneService.getTalismaneSession());
 		filter.setRegex(regex);
 		return filter;
 	}
@@ -242,7 +242,7 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	public void injectDependencies(TokenFilter tokenFilter) {
 		if (AbstractRegexFilter.class.isAssignableFrom(tokenFilter.getClass())) {
 			AbstractRegexFilter abstractRegexFilter = (AbstractRegexFilter) tokenFilter;
-			abstractRegexFilter.setExternalResourceFinder(this.getExternalResourceFinder());
+			abstractRegexFilter.setTalismaneSession(talismaneService.getTalismaneSession());
 		}
 	}
 

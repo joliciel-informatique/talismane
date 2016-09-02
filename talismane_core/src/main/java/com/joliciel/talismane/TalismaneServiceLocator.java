@@ -24,14 +24,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.languageDetector.LanguageDetectorServiceLocator;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterServiceLocator;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorServiceLocator;
-import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureServiceLocator;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
 import com.joliciel.talismane.tokeniser.features.TokeniserFeatureServiceLocator;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterServiceLocator;
@@ -55,11 +52,8 @@ public class TalismaneServiceLocator {
 	private TokeniserFeatureServiceLocator tokeniserFeatureServiceLocator;
 	private TokenFilterServiceLocator tokenFilterServiceLocator;
 	private TokeniserPatternServiceLocator tokeniserPatternServiceLocator;
-	private SentenceDetectorServiceLocator sentenceDetectorServiceLocator;
-	private SentenceDetectorFeatureServiceLocator sentenceDetectorFeatureServiceLocator;
 	private ParserServiceLocator parserServiceLocator;
 	private ParserFeatureServiceLocator parserFeatureServiceLocator;
-	private LanguageDetectorServiceLocator languageDetectorServiceLocator;
 
 	private static Map<String, TalismaneServiceLocator> instances = new HashMap<String, TalismaneServiceLocator>();
 	private String sessionId;
@@ -87,14 +81,11 @@ public class TalismaneServiceLocator {
 			talismaneService.setParserService(this.getParserServiceLocator().getParserService());
 			talismaneService.setPosTaggerService(this.getPosTaggerServiceLocator().getPosTaggerService());
 			talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
-			talismaneService.setSentenceDetectorService(this.getSentenceDetectorServiceLocator().getSentenceDetectorService());
 			talismaneService.setParserFeatureService(this.getParserFeatureServiceLocator().getParserFeatureService());
 			talismaneService.setPosTaggerFeatureService(this.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService());
-			talismaneService.setSentenceDetectorFeatureService(this.getSentenceDetectorFeatureServiceLocator().getSentenceDetectorFeatureService());
 			talismaneService.setTokenFeatureService(this.getTokenFeatureServiceLocator().getTokenFeatureService());
 			talismaneService.setTokenFilterService(this.getTokenFilterServiceLocator().getTokenFilterService());
 			talismaneService.setTokeniserPatternService(this.getTokenPatternServiceLocator().getTokeniserPatternService());
-			talismaneService.setLanguageDetectorService(this.getLanguageDetectorServiceLocator().getLanguageDetectorService());
 		}
 		return this.talismaneService;
 	}
@@ -129,27 +120,6 @@ public class TalismaneServiceLocator {
 			this.tokeniserServiceLocator = new TokeniserServiceLocator(this);
 		}
 		return tokeniserServiceLocator;
-	}
-
-	public synchronized SentenceDetectorServiceLocator getSentenceDetectorServiceLocator() {
-		if (this.sentenceDetectorServiceLocator == null) {
-			this.sentenceDetectorServiceLocator = new SentenceDetectorServiceLocator(this);
-		}
-		return sentenceDetectorServiceLocator;
-	}
-
-	public synchronized LanguageDetectorServiceLocator getLanguageDetectorServiceLocator() {
-		if (this.languageDetectorServiceLocator == null) {
-			this.languageDetectorServiceLocator = new LanguageDetectorServiceLocator(this);
-		}
-		return languageDetectorServiceLocator;
-	}
-
-	public synchronized SentenceDetectorFeatureServiceLocator getSentenceDetectorFeatureServiceLocator() {
-		if (this.sentenceDetectorFeatureServiceLocator == null) {
-			this.sentenceDetectorFeatureServiceLocator = new SentenceDetectorFeatureServiceLocator(this);
-		}
-		return sentenceDetectorFeatureServiceLocator;
 	}
 
 	public synchronized ParserServiceLocator getParserServiceLocator() {

@@ -32,7 +32,13 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
-class LanguageDetectorEventStream implements ClassificationEventStream {
+/**
+ * A ClassificationEventStream for language detection training.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class LanguageDetectorEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorEventStream.class);
 
 	private LanguageDetectorAnnotatedCorpusReader corpusReader;

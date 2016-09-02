@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
-import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -42,9 +42,11 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 
 class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrapper> {
 	private ParserFeatureServiceInternal parserFeatureServiceInternal;
-	private TalismaneService talismaneService;
+	private final TalismaneSession talismaneSession;
 
-	public ParserFeatureParser() {
+	public ParserFeatureParser(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
 	}
 
 	@Override
@@ -199,7 +201,7 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		if (feature instanceof NeedsTalismaneSession) {
-			((NeedsTalismaneSession) feature).setTalismaneSession(talismaneService.getTalismaneSession());
+			((NeedsTalismaneSession) feature).setTalismaneSession(talismaneSession);
 		}
 	}
 
@@ -223,13 +225,5 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 		}
 
 		return convertedFeature;
-	}
-
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
-	}
-
-	public void setTalismaneService(TalismaneService talismaneService) {
-		this.talismaneService = talismaneService;
 	}
 }

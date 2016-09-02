@@ -34,8 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.ExternalWordList;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.resources.WordList;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.utils.StringUtils;
@@ -60,11 +60,11 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 	private boolean caseSensitive = true;
 	private boolean diacriticSensitive = true;
 	private boolean autoWordBoundaries = false;
-	private ExternalResourceFinder externalResourceFinder;
 	private boolean excluded = false;
 
+	private TalismaneSession talismaneSession;
+
 	public AbstractRegexFilter() {
-		super();
 	}
 
 	@Override
@@ -356,7 +356,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 					firstParam = false;
 				}
 
-				ExternalWordList wordList = externalResourceFinder.getExternalWordList(wordListName);
+				WordList wordList = talismaneSession.getWordListFinder().getWordList(wordListName);
 				if (wordList == null)
 					throw new TalismaneException("Unknown word list: " + wordListName);
 
@@ -427,14 +427,6 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 			this.pattern = Pattern.compile(myRegex, Pattern.UNICODE_CHARACTER_CLASS);
 		}
 		return pattern;
-	}
-
-	public ExternalResourceFinder getExternalResourceFinder() {
-		return externalResourceFinder;
-	}
-
-	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
-		this.externalResourceFinder = externalResourceFinder;
 	}
 
 	@Override
@@ -528,5 +520,13 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 
 	public void setExcluded(boolean excluded) {
 		this.excluded = excluded;
+	}
+
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
+	public void setTalismaneSession(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 	}
 }

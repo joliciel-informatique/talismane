@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AndFeature;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.ConcatenateFeature;
@@ -42,10 +44,10 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseAndFeature() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
-		parser.setTokenFeatureParser(tokenFeatureParser);
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("And(FirstWordInSentence(),UnknownWord(),Regex(\".+ .+\"))");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
@@ -64,10 +66,10 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseWordFeature() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
-		parser.setTokenFeatureParser(tokenFeatureParser);
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("Word(\"le\",\"la\",\"les\",\"l'\")");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
@@ -86,10 +88,10 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseConcatenateFeature() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
-		parser.setTokenFeatureParser(tokenFeatureParser);
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("Concat(WordForm(),NLetterPrefix(5),NLetterSuffix(3))");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
@@ -109,10 +111,10 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testNamedFeatures() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
-		parser.setTokenFeatureParser(tokenFeatureParser);
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor(
 				"IsMonthName\tWord(\"janvier\",\"février\",\"mars\",\"avril\",\"mai\",\"juin\",\"juillet\",\"août\",\"septembre\",\"octobre\",\"novembre\",\"décembre\")");
@@ -131,10 +133,10 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testOrOperator() {
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl();
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser();
-		parser.setTokenFeatureParser(tokenFeatureParser);
+		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("(WordForm()==\"le\")|(WordForm()==\"la\")");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);

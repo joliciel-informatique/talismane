@@ -25,10 +25,11 @@ import java.util.Scanner;
 
 /**
  * A default corpus reader which assumes one sentence per line.
+ * 
  * @author Assaf Urieli
  *
  */
-class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
+public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
@@ -37,49 +38,49 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 	private int excludeIndex = -1;
 	private int crossValidationSize = 0;
 	String sentence = null;
-	
+
 	public SentencePerLineCorpusReader(Reader reader) {
 		scanner = new Scanner(reader);
 	}
-	
+
 	@Override
 	public boolean hasNextSentence() {
-		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
 			// we've reached the end, do nothing
 		} else {
 
-			while (sentence==null) {
+			while (sentence == null) {
 				if (!scanner.hasNextLine()) {
 					break;
 				}
-				
+
 				sentence = scanner.nextLine().trim();
-				if (sentence.length()==0) {
+				if (sentence.length() == 0) {
 					sentence = null;
 					continue;
 				}
-				
+
 				boolean includeMe = true;
-				
+
 				// check cross-validation
-				if (crossValidationSize>0) {
-					if (includeIndex>=0) {
+				if (crossValidationSize > 0) {
+					if (includeIndex >= 0) {
 						if (sentenceCount % crossValidationSize != includeIndex) {
 							includeMe = false;
 						}
-					} else if (excludeIndex>=0) {
+					} else if (excludeIndex >= 0) {
 						if (sentenceCount % crossValidationSize == excludeIndex) {
 							includeMe = false;
 						}
 					}
 				}
-				
-				if (startSentence>sentenceCount) {
+
+				if (startSentence > sentenceCount) {
 					includeMe = false;
 				}
 
 				sentenceCount++;
-				
+
 				if (!includeMe) {
 					sentence = null;
 					continue;
@@ -87,7 +88,7 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 
 			}
 		}
-		return sentence !=null;
+		return sentence != null;
 	}
 
 	@Override
@@ -99,13 +100,13 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
 
 		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
 		attributes.put("crossValidationSize", "" + this.crossValidationSize);
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
-		
+
 		return attributes;
 	}
 
@@ -114,42 +115,52 @@ class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusRead
 		return false;
 	}
 
+	@Override
 	public int getMaxSentenceCount() {
 		return maxSentenceCount;
 	}
 
+	@Override
 	public void setMaxSentenceCount(int maxSentenceCount) {
 		this.maxSentenceCount = maxSentenceCount;
 	}
 
+	@Override
 	public int getIncludeIndex() {
 		return includeIndex;
 	}
 
+	@Override
 	public void setIncludeIndex(int includeIndex) {
 		this.includeIndex = includeIndex;
 	}
 
+	@Override
 	public int getExcludeIndex() {
 		return excludeIndex;
 	}
 
+	@Override
 	public void setExcludeIndex(int excludeIndex) {
 		this.excludeIndex = excludeIndex;
 	}
 
+	@Override
 	public int getCrossValidationSize() {
 		return crossValidationSize;
 	}
 
+	@Override
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
 	}
 
+	@Override
 	public int getStartSentence() {
 		return startSentence;
 	}
 
+	@Override
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
 	}

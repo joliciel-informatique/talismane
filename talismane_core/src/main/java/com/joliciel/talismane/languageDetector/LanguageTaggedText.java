@@ -20,7 +20,21 @@ package com.joliciel.talismane.languageDetector;
 
 import java.util.Locale;
 
-public interface LanguageTaggedText {
-	public String getText();
-	public Locale getLanguage();
+public class LanguageTaggedText {
+	private String text;
+	private Locale language;
+
+	public LanguageTaggedText(String text, Locale language) {
+		super();
+		this.text = text;
+		this.language = language;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public Locale getLanguage() {
+		return language;
+	}
 }
