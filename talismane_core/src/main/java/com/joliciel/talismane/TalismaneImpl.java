@@ -116,10 +116,13 @@ class TalismaneImpl implements Talismane {
 
 	private boolean stopOnError = true;
 
-	private TalismaneConfig config;
+	private final TalismaneConfig config;
 
-	protected TalismaneImpl(TalismaneConfig config) {
+	private final TalismaneSession talismaneSession;
+
+	protected TalismaneImpl(TalismaneConfig config, TalismaneSession talismaneSession) {
 		this.config = config;
+		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
@@ -179,7 +182,7 @@ class TalismaneImpl implements Talismane {
 
 						while (config.getSentenceCorpusReader().hasNextSentence()) {
 							String text = config.getSentenceCorpusReader().nextSentence();
-							Sentence sentence = this.filterService.getSentence(text);
+							Sentence sentence = new Sentence(text, talismaneSession);
 							MONITOR.startTask("processSentence");
 							try {
 								this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
@@ -499,8 +502,8 @@ class TalismaneImpl implements Talismane {
 			TokenSequence tokenSequence = null;
 			PosTagSequence posTagSequence = null;
 
-			RollingSentenceProcessor rollingSentenceProcessor = this.getFilterService().getRollingSentenceProcessor(config.getFileName(),
-					config.isProcessByDefault());
+			RollingSentenceProcessor rollingSentenceProcessor = new RollingSentenceProcessor(config.getFileName(), config.isProcessByDefault(),
+					talismaneSession);
 			if (this.getReader() instanceof CurrentFileProvider) {
 				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingSentenceProcessor);
 			}
@@ -659,7 +662,7 @@ class TalismaneImpl implements Talismane {
 							// boundary happens to be a sentence boundary, hence
 							// position 0.
 							if (prevSentenceHolder.getOriginalTextSegments().size() > 0) {
-								Sentence sentence = filterService.getSentence("");
+								Sentence sentence = new Sentence(talismaneSession);
 								if (sentences.size() > 0)
 									sentence.setFile(sentences.peek().getFile());
 								StringBuilder segmentsToInsert = new StringBuilder();

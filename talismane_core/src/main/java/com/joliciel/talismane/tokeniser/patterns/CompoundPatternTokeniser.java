@@ -30,6 +30,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -94,7 +95,9 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 	 * Reads separator defaults and test patterns from the default file for this
 	 * locale.
 	 */
-	public CompoundPatternTokeniser(TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features, int beamWidth) {
+	public CompoundPatternTokeniser(TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features, int beamWidth,
+			TalismaneSession talismaneSession) {
+		super(talismaneSession);
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.features = features;

@@ -19,34 +19,11 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.Reader;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 public interface TokeniserService {
-	/**
-	 * Create a token sequence for a given sentence.
-	 */
-	public TokenSequence getTokenSequence(Sentence sentence);
-
-	/**
-	 * Create a token sequence from a given sentence, pre-separated into tokens
-	 * matching the separatorPattern.
-	 */
-	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern);
-
-	/**
-	 * Create a token sequence from a given sentence, pre-separated into tokens
-	 * matching the separatorPattern, except for the placeholders provided.
-	 */
-	public TokenSequence getTokenSequence(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders);
-
-	public PretokenisedSequence getEmptyPretokenisedSequence();
-
-	public PretokenisedSequence getEmptyPretokenisedSequence(String sentenceText);
 
 	public Tokeniser getSimpleTokeniser();
 

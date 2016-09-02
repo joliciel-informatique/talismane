@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -92,7 +93,9 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	 * Reads separator defaults and test patterns from the default file for this
 	 * locale.
 	 */
-	public IntervalPatternTokeniser(TokeniserPatternManager tokeniserPatternManager, Set<TokeniserContextFeature<?>> tokeniserContextFeatures, int beamWidth) {
+	public IntervalPatternTokeniser(TokeniserPatternManager tokeniserPatternManager, Set<TokeniserContextFeature<?>> tokeniserContextFeatures, int beamWidth,
+			TalismaneSession talismaneSession) {
+		super(talismaneSession);
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.tokeniserContextFeatures = tokeniserContextFeatures;

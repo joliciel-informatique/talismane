@@ -31,11 +31,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
@@ -370,8 +370,7 @@ public class TokenPatternImplTest {
 
 	@Test
 	public void testMatch2(@NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
-		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 
 		new NonStrictExpectations() {
@@ -381,7 +380,7 @@ public class TokenPatternImplTest {
 			}
 		};
 
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
 		TokenPatternImpl tokenPattern = new TokenPatternImpl(
 				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+", Tokeniser.SEPARATORS);
@@ -394,8 +393,7 @@ public class TokenPatternImplTest {
 
 	@Test
 	public void testMatch3(@NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
-		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 
 		new NonStrictExpectations() {
@@ -405,7 +403,7 @@ public class TokenPatternImplTest {
 			}
 		};
 
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
 		TokenPatternImpl tokenPattern = new TokenPatternImpl(
 				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+", Tokeniser.SEPARATORS);
@@ -422,8 +420,7 @@ public class TokenPatternImplTest {
 
 	@Test
 	public void testMatch4(@NonStrict final Sentence sentence) {
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
-		TokeniserService tokeniserService = locator.getTokeniserServiceLocator().getTokeniserService();
+		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 
 		new NonStrictExpectations() {
@@ -433,7 +430,7 @@ public class TokenPatternImplTest {
 			}
 		};
 
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
 		TokenPatternImpl tokenPattern = new TokenPatternImpl(".+-{(ce|je|la|le|les|leur|lui|moi|nous|toi|tu)[^-]}", Tokeniser.SEPARATORS);
 		tokenPattern.setTokeniserPatternServiceInternal(tokeniserPatternService);

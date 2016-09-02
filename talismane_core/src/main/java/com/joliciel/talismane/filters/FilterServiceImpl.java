@@ -31,39 +31,7 @@ import com.joliciel.talismane.utils.LogUtils;
 
 class FilterServiceImpl implements FilterServiceInternal {
 	private static final Logger LOG = LoggerFactory.getLogger(FilterServiceImpl.class);
-	private String outputDivider = "";
 	private TokeniserService tokeniserService;
-
-	@Override
-	public Sentence getSentence(String text) {
-		SentenceImpl sentence = new SentenceImpl();
-		sentence.setText(text);
-		sentence.setOutputDivider(this.outputDivider);
-		return sentence;
-	}
-
-	@Override
-	public Sentence getSentence() {
-		SentenceImpl sentence = new SentenceImpl();
-		sentence.setOutputDivider(this.outputDivider);
-		return sentence;
-	}
-
-	@Override
-	public SentenceHolder getSentenceHolder() {
-		SentenceHolderImpl sentenceHolder = new SentenceHolderImpl();
-		sentenceHolder.setFilterService(this);
-		sentenceHolder.setTokeniserService(tokeniserService);
-		sentenceHolder.setOutputDivider(this.outputDivider);
-		return sentenceHolder;
-	}
-
-	@Override
-	public RollingSentenceProcessor getRollingSentenceProcessor(String fileName, boolean processByDefault) {
-		RollingSentenceProcessorImpl processor = new RollingSentenceProcessorImpl(fileName, processByDefault);
-		processor.setFilterService(this);
-		return processor;
-	}
 
 	@Override
 	public TextMarkerFilter getRegexMarkerFilter(List<MarkerFilterType> filterTypes, String regex, int blockSize) {
@@ -196,16 +164,6 @@ class FilterServiceImpl implements FilterServiceInternal {
 		}
 
 		return filter;
-	}
-
-	@Override
-	public String getOutputDivider() {
-		return outputDivider;
-	}
-
-	@Override
-	public void setOutputDivider(String outputDivider) {
-		this.outputDivider = outputDivider;
 	}
 
 	public TokeniserService getTokeniserService() {

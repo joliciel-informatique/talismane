@@ -38,8 +38,8 @@ import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
-public class TokenSequenceImplTest {
-	private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceImplTest.class);
+public class TokenSequenceTest {
+	private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceTest.class);
 
 	@Test
 	public void testTokeniseSentence(@NonStrict final Sentence sentence) {
@@ -61,7 +61,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, talismaneSession);
 
 		assertEquals(14, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -167,7 +167,7 @@ public class TokenSequenceImplTest {
 				returns("The quick brown fox.");
 			}
 		};
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
 		tokenSequence.addToken(16, 19); // fox
 		tokenSequence.addToken(4, 9); // quick
 		tokenSequence.addToken(4, 9); // quick - should be ignored
@@ -219,7 +219,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, placeholders, talismaneSession);
 
 		assertEquals(19, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -360,7 +360,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, placeholders, talismaneSession);
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(6, tokenSequence.listWithWhiteSpace().size());
@@ -467,7 +467,7 @@ public class TokenSequenceImplTest {
 			}
 		};
 
-		TokenSequenceImpl tokenSequence = new TokenSequenceImpl(sentence, separatorPattern, placeholders, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, placeholders, talismaneSession);
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(4, tokenSequence.size());

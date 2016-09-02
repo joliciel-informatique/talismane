@@ -23,20 +23,20 @@ import com.joliciel.talismane.TalismaneServiceLocator;
 public class TokeniserPatternServiceLocator {
 	TokeniserPatternServiceImpl tokeniserPatternService = null;
 	private TalismaneServiceLocator talismaneServiceLocator;
-	
+
 	public TokeniserPatternServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.talismaneServiceLocator = talismaneServiceLocator;
 	}
-	
+
 	public synchronized TokeniserPatternService getTokeniserPatternService() {
-		if (tokeniserPatternService==null) {
+		if (tokeniserPatternService == null) {
 			tokeniserPatternService = new TokeniserPatternServiceImpl();
 			tokeniserPatternService.setTokeniserService(this.talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService());
 			tokeniserPatternService.setTokenFeatureService(this.talismaneServiceLocator.getTokenFeatureServiceLocator().getTokenFeatureService());
-			tokeniserPatternService.setFilterService(this.talismaneServiceLocator.getFilterServiceLocator().getFilterService());
 			tokeniserPatternService.setFeatureService(this.talismaneServiceLocator.getFeatureServiceLocator().getFeatureService());
 			tokeniserPatternService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
 			tokeniserPatternService.setMachineLearningService(this.talismaneServiceLocator.getMachineLearningServiceLocator().getMachineLearningService());
+			tokeniserPatternService.setTalismaneService(this.talismaneServiceLocator.getTalismaneService());
 		}
 		return tokeniserPatternService;
 	}

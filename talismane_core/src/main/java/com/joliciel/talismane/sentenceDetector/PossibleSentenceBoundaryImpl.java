@@ -18,58 +18,58 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.utils.StringUtils;
 
 class PossibleSentenceBoundaryImpl implements PossibleSentenceBoundary {
 	private static final int NUM_CHARS = 30;
-	private String text;
-	private int index;
+	private final String text;
+	private final int index;
 	private TokenSequence tokenSequence;
 	private String string;
 	private int tokenIndex = -1;
-	
-	private TokeniserService tokeniserService;
-	private FilterService filterService;
-	
-	public PossibleSentenceBoundaryImpl(String text, int index) {
-		super();
+
+	private final TalismaneSession talismaneSession;
+
+	public PossibleSentenceBoundaryImpl(String text, int index, TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 		this.text = text;
 		this.index = index;
 	}
+
+	@Override
 	public String getText() {
 		return text;
 	}
+
+	@Override
 	public int getIndex() {
 		return index;
 	}
-	
-	
+
 	@Override
 	public TokenSequence getTokenSequence() {
-		if (tokenSequence==null) {
-			Sentence sentence = filterService.getSentence(text);
-			tokenSequence = tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+		if (tokenSequence == null) {
+			Sentence sentence = new Sentence(text, talismaneSession);
+			tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 		}
 		return tokenSequence;
 	}
-	
-	
+
 	@Override
 	public String getBoundaryString() {
 		return "" + this.text.charAt(index);
 	}
-	
+
 	@Override
 	public int getTokenIndexWithWhitespace() {
-		if (tokenIndex<0) {
+		if (tokenIndex < 0) {
 			for (Token token : this.getTokenSequence().listWithWhiteSpace()) {
-				if (token.getStartIndex()>=index) {
+				if (token.getStartIndex() >= index) {
 					tokenIndex = token.getIndexWithWhiteSpace();
 					break;
 				}
@@ -77,41 +77,28 @@ class PossibleSentenceBoundaryImpl implements PossibleSentenceBoundary {
 		}
 		return tokenIndex;
 	}
-	
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
-	}
+
 	@Override
 	public String toString() {
-		if (string==null) {
+		if (string == null) {
 			int start1 = index - NUM_CHARS;
 			int end1 = index + NUM_CHARS;
-			
-			
-			if (start1<0) start1=0;
+
+			if (start1 < 0)
+				start1 = 0;
 			String startString = text.substring(start1, index);
 			startString = StringUtils.padLeft(startString, NUM_CHARS);
-			
+
 			String middleString = "" + text.charAt(index);
-			if (end1>=text.length()) end1 = text.length()-1;
+			if (end1 >= text.length())
+				end1 = text.length() - 1;
 			String endString = "";
-			if (end1>=0 && index+1<text.length())
-				endString = text.substring(index+1, end1);
-			
+			if (end1 >= 0 && index + 1 < text.length())
+				endString = text.substring(index + 1, end1);
+
 			string = startString + "[" + middleString + "]" + endString;
 			string = string.replace('\n', '¶');
 		}
 		return string;
 	}
-	public FilterService getFilterService() {
-		return filterService;
-	}
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
-	}
-	
-
 }

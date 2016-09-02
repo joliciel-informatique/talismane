@@ -28,7 +28,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -71,13 +71,12 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 	private TokenFilterService tokenFilterService;
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
-	private FilterService filterService;
 	private FeatureService featureService;
 
 	private MachineLearningService machineLearningService;
 
-	private TokeniserAnnotatedCorpusReader corpusReader;
-	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
+	private final TokeniserAnnotatedCorpusReader corpusReader;
+	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
 	private List<TaggedToken<TokeniserOutcome>> tokensToCheck;
 	private int currentIndex;
 	private TokenisedAtomicTokenSequence currentHistory = null;
@@ -85,9 +84,13 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 	private TokeniserPatternManager tokeniserPatternManager = null;
 	private TokenSequenceFilter tokenFilterWrapper = null;
 
-	public IntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokeniserContextFeature<?>> tokeniserContextFeatures) {
+	private final TalismaneSession talismaneSession;
+
+	public IntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokeniserContextFeature<?>> tokeniserContextFeatures,
+			TalismaneSession talismaneSession) {
 		this.corpusReader = corpusReader;
 		this.tokeniserContextFeatures = tokeniserContextFeatures;
+		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
@@ -106,9 +109,9 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 					List<Integer> tokenSplits = realSequence.getTokenSplits();
 					String text = realSequence.getText();
 					LOG.debug("Sentence: " + text);
-					Sentence sentence = filterService.getSentence(text);
+					Sentence sentence = new Sentence(text, talismaneSession);
 
-					TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+					TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 					for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
 						tokenSequenceFilter.apply(tokenSequence);
 					}
@@ -262,14 +265,6 @@ class IntervalPatternEventStream implements ClassificationEventStream {
 
 	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
-	}
-
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
 	}
 
 	public TokenFilterService getTokenFilterService() {

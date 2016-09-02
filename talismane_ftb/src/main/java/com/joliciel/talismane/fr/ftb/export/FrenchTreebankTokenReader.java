@@ -199,8 +199,8 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			if (currentPos < text.length())
 				allTokens.add(text.substring(currentPos));
 
-			com.joliciel.talismane.filters.Sentence oneSentence = this.filterService.getSentence(text);
-			TokenSequence tokenSequence = this.tokeniserService.getTokenSequence(oneSentence);
+			com.joliciel.talismane.filters.Sentence oneSentence = new com.joliciel.talismane.filters.Sentence(text, talismaneSession);
+			TokenSequence tokenSequence = new TokenSequence(oneSentence, talismaneSession);
 			List<PosTaggedToken> posTaggedTokens = new ArrayList<PosTaggedToken>();
 
 			PhraseUnitReader phraseUnitReader = new ComplexPhraseUnitReaderWithEmptyTokens(phraseUnits);

@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.MachineLearningService;
@@ -44,16 +45,15 @@ class TokenComparatorImpl implements TokenComparator {
 	private int sentenceCount;
 	private TokeniserServiceInternal tokeniserServiceInternal;
 	private MachineLearningService machineLearningService;
-	
-	private TokeniserAnnotatedCorpusReader referenceCorpusReader;
-	private TokeniserAnnotatedCorpusReader evaluationCorpusReader;
-	private TokeniserPatternManager tokeniserPatternManager;
-	
-	public TokenComparatorImpl(
-			TokeniserAnnotatedCorpusReader referenceCorpusReader,
-			TokeniserAnnotatedCorpusReader evaluationCorpusReader,
-			TokeniserPatternManager tokeniserPatternManager) {
-		super();
+
+	private final TokeniserAnnotatedCorpusReader referenceCorpusReader;
+	private final TokeniserAnnotatedCorpusReader evaluationCorpusReader;
+	private final TokeniserPatternManager tokeniserPatternManager;
+	private final TalismaneSession talismaneSession;
+
+	public TokenComparatorImpl(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
+			TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 		this.referenceCorpusReader = referenceCorpusReader;
 		this.evaluationCorpusReader = evaluationCorpusReader;
 		this.tokeniserPatternManager = tokeniserPatternManager;
@@ -64,32 +64,33 @@ class TokenComparatorImpl implements TokenComparator {
 		int sentenceIndex = 0;
 		while (referenceCorpusReader.hasNextTokenSequence()) {
 			TokenSequence realSequence = referenceCorpusReader.nextTokenSequence();
-			
+
 			TokenSequence guessedSequence = null;
 			if (evaluationCorpusReader.hasNextTokenSequence())
 				guessedSequence = evaluationCorpusReader.nextTokenSequence();
 			else {
 				throw new TalismaneException("Wrong number of sentences in eval corpus: " + realSequence.getText());
 			}
-			
+
 			Sentence sentence = realSequence.getSentence();
-			
+
 			List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
-			
-			// Initially, separate the sentence into tokens using the separators provided
-			TokenSequence realAtomicSequence = this.tokeniserServiceInternal.getTokenSequence(sentence, Tokeniser.SEPARATORS, placeholders);
-			TokenSequence guessedAtomicSequence = this.tokeniserServiceInternal.getTokenSequence(guessedSequence.getSentence(), Tokeniser.SEPARATORS, placeholders);
-			
+
+			// Initially, separate the sentence into tokens using the separators
+			// provided
+			TokenSequence realAtomicSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, placeholders, talismaneSession);
+			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), Tokeniser.SEPARATORS, placeholders, talismaneSession);
+
 			List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
-			Map<Token,Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();
+			Map<Token, Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();
 			Set<Token> matchedTokens = new HashSet<Token>();
-			
+
 			for (TokenPattern parsedPattern : tokeniserPatternManager.getParsedTestPatterns()) {
 				List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(realAtomicSequence);
 				for (TokenPatternMatchSequence matchSequence : matchesForThisPattern) {
 					matchingSequences.add(matchSequence);
 					matchedTokens.addAll(matchSequence.getTokensToCheck());
-					
+
 					Token token = null;
 					for (Token aToken : matchSequence.getTokensToCheck()) {
 						token = aToken;
@@ -97,9 +98,9 @@ class TokenComparatorImpl implements TokenComparator {
 							break;
 						}
 					}
-					
+
 					Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-					if (matchSequences==null) {
+					if (matchSequences == null) {
 						matchSequences = new TreeSet<TokenPatternMatchSequence>();
 						tokenMatchSequenceMap.put(token, matchSequences);
 					}
@@ -107,28 +108,28 @@ class TokenComparatorImpl implements TokenComparator {
 				}
 			}
 
-
 			TokenisedAtomicTokenSequence guess = tokeniserServiceInternal.getTokenisedAtomicTokenSequence(realSequence.getSentence(), 0);
-			
-			int i=0;
+
+			int i = 0;
 			int mismatches = 0;
 			for (Token token : realAtomicSequence) {
 				if (!token.getText().equals(guessedAtomicSequence.get(i).getToken().getText())) {
-					// skipped stuff at start of sentence on guess, if it's been through the parser
+					// skipped stuff at start of sentence on guess, if it's been
+					// through the parser
 					TokeniserOutcome outcome = TokeniserOutcome.SEPARATE;
 					Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
 					decision.addAuthority("_" + this.getClass().getSimpleName());
 					Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-					if (matchSequences!=null) {
+					if (matchSequences != null) {
 						decision.addAuthority("_Patterns");
 						for (TokenPatternMatchSequence matchSequence : matchSequences) {
 							decision.addAuthority(matchSequence.getTokenPattern().getName());
 						}
-					}					
+					}
 					guess.addTaggedToken(token, decision, outcome);
 					mismatches++;
 					LOG.debug("Mismatch: '" + token.getText() + "', '" + guessedAtomicSequence.get(i).getToken().getText() + "'");
-					if (mismatches>6) {
+					if (mismatches > 6) {
 						LOG.info("Real sequence: " + realSequence.getText());
 						LOG.info("Guessed sequence: " + guessedSequence.getText());
 						throw new TalismaneException("Too many mismatches for sentence: " + realSequence.getText());
@@ -136,15 +137,15 @@ class TokenComparatorImpl implements TokenComparator {
 					continue;
 				}
 				TokeniserOutcome outcome = TokeniserOutcome.JOIN;
-				
+
 				if (guessedSequence.getTokenSplits().contains(guessedAtomicSequence.get(i).getToken().getStartIndex())) {
 					outcome = TokeniserOutcome.SEPARATE;
 				}
 				Decision decision = this.machineLearningService.createDefaultDecision(outcome.name());
 				decision.addAuthority("_" + this.getClass().getSimpleName());
-				
+
 				Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-				if (matchSequences!=null) {
+				if (matchSequences != null) {
 					decision.addAuthority("_Patterns");
 					for (TokenPatternMatchSequence matchSequence : matchSequences) {
 						decision.addAuthority(matchSequence.getTokenPattern().getName());
@@ -156,15 +157,15 @@ class TokenComparatorImpl implements TokenComparator {
 
 			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = new ArrayList<TokenisedAtomicTokenSequence>();
 			guessedAtomicSequences.add(guess);
-			
+
 			for (TokenEvaluationObserver observer : observers) {
 				observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
 			}
 			sentenceIndex++;
-			if (sentenceCount>0 && sentenceIndex==sentenceCount)
+			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
 				break;
 		} // next sentence
-		
+
 		for (TokenEvaluationObserver observer : observers) {
 			observer.onEvaluationComplete();
 		}
@@ -175,10 +176,12 @@ class TokenComparatorImpl implements TokenComparator {
 		this.observers.add(observer);
 	}
 
+	@Override
 	public int getSentenceCount() {
 		return sentenceCount;
 	}
 
+	@Override
 	public void setSentenceCount(int sentenceCount) {
 		this.sentenceCount = sentenceCount;
 	}
@@ -187,8 +190,7 @@ class TokenComparatorImpl implements TokenComparator {
 		return tokeniserServiceInternal;
 	}
 
-	public void setTokeniserServiceInternal(
-			TokeniserServiceInternal tokeniserServiceInternal) {
+	public void setTokeniserServiceInternal(TokeniserServiceInternal tokeniserServiceInternal) {
 		this.tokeniserServiceInternal = tokeniserServiceInternal;
 	}
 
@@ -196,10 +198,8 @@ class TokenComparatorImpl implements TokenComparator {
 		return machineLearningService;
 	}
 
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
+	public void setMachineLearningService(MachineLearningService machineLearningService) {
 		this.machineLearningService = machineLearningService;
 	}
-	
 
 }

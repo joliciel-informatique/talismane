@@ -66,4 +66,10 @@ public interface TalismaneSession {
 
 	public void setDiacriticizer(Diacriticizer diacriticizer);
 
+	/**
+	 * A string inserted between outputs (such as a newline).
+	 */
+	public String getOutputDivider();
+
+	public void setOutputDivider(String outputDivider);
 }

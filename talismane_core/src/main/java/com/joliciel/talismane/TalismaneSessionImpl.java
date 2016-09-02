@@ -39,6 +39,7 @@ class TalismaneSessionImpl implements TalismaneSession {
 	private LinguisticRules linguisticRules;
 	private Diacriticizer diacriticizer;
 	private LexiconService lexiconService;
+	private String outputDivider = "";
 
 	@Override
 	public synchronized PosTagSet getPosTagSet() {
@@ -141,4 +142,16 @@ class TalismaneSessionImpl implements TalismaneSession {
 		this.lexiconService = lexiconService;
 	}
 
+	/**
+	 * A string inserted between outputs (such as a newline).
+	 */
+	@Override
+	public String getOutputDivider() {
+		return outputDivider;
+	}
+
+	@Override
+	public void setOutputDivider(String outputDivider) {
+		this.outputDivider = outputDivider;
+	}
 }

@@ -562,9 +562,7 @@ public class Token implements TokenWrapper {
 	 */
 
 	public Map<String, TokenAttribute<?>> getAttributes() {
-		if (this.tokenSequence instanceof AbstractTokenSequence) {
-			((AbstractTokenSequence) this.tokenSequence).addSentenceTags();
-		}
+		this.tokenSequence.addSentenceTags();
 		return attributes;
 	}
 

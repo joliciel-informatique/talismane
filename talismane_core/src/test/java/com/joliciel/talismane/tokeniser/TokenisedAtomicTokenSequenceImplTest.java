@@ -70,10 +70,10 @@ public class TokenisedAtomicTokenSequenceImplTest {
 		TokeniserServiceImpl tokeniserService = new TokeniserServiceImpl();
 		tokeniserService.setTalismaneService(talismaneService);
 
-		TokenisedAtomicTokenSequenceImpl atomicTokenSequence = new TokenisedAtomicTokenSequenceImpl(sentence);
+		TokenisedAtomicTokenSequenceImpl atomicTokenSequence = new TokenisedAtomicTokenSequenceImpl(sentence, talismaneService.getTalismaneSession());
 		atomicTokenSequence.setTokeniserServiceInternal(tokeniserService);
 
-		TokenSequence tokenSequence = tokeniserService.getTokenSequence(sentence, Tokeniser.SEPARATORS);
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneService.getTalismaneSession());
 
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {

@@ -170,7 +170,7 @@ class PosTagRegexBasedCorpusReaderImpl implements PosTagRegexBasedCorpusReader {
 						hasLine = true;
 
 						if (tokenSequence == null) {
-							tokenSequence = tokeniserService.getEmptyPretokenisedSequence();
+							tokenSequence = new PretokenisedSequence(talismaneService.getTalismaneSession());
 							posTags = new ArrayList<PosTag>();
 						}
 
