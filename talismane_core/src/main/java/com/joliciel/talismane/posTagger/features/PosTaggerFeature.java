@@ -19,13 +19,15 @@
 package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * An interface for features which depend on the current PosTaggerContext,
- * that is, the history of decisions already taken by the POS tagger.
+ * An interface for features which depend on the current PosTaggerContext, that
+ * is, the history of decisions already taken by the POS tagger.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTaggerFeature<T> extends Feature<PosTaggerContext,T> {
+public interface PosTaggerFeature<T> extends Feature<PosTaggerContext, T> {
 
 }

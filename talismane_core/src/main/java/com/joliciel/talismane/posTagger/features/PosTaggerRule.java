@@ -20,31 +20,54 @@ package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
  * A PosTaggerRule is specified by a boolean feature and a PosTag.<br/>
- * If the boolean feature evaluates to true, the token will automatically be assigned the PosTag in question,
- * without taking any further decisions.<br/>
- * Negative rules are also possible: in this case, the PosTag in question is eliminated from the set
- * of possible PosTags (unless no other PosTags are possible).
+ * If the boolean feature evaluates to true, the token will automatically be
+ * assigned the PosTag in question, without taking any further decisions.<br/>
+ * Negative rules are also possible: in this case, the PosTag in question is
+ * eliminated from the set of possible PosTags (unless no other PosTags are
+ * possible).
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTaggerRule {
+public final class PosTaggerRule {
+	private BooleanFeature<PosTaggerContext> condition;
+	private PosTag tag;
+	private boolean negative;
+
+	public PosTaggerRule(BooleanFeature<PosTaggerContext> condition, PosTag tag) {
+		this.condition = condition;
+		this.tag = tag;
+	}
+
 	/**
 	 * The condition to test.
 	 */
-	public BooleanFeature<PosTaggerContext> getCondition();
-	
+
+	public BooleanFeature<PosTaggerContext> getCondition() {
+		return condition;
+	}
+
 	/**
-	 * The tag to apply if the condition evaluates to true.
+	 * The tag to apply if the condition evaluates to true for a positive rule,
+	 * or to avoid if it is a negative rule.
 	 */
-	public PosTag getTag();
-	
+	public PosTag getTag() {
+		return tag;
+	}
+
 	/**
 	 * Is this rule a negative rule or not.
 	 */
-	public boolean isNegative();
-	public void setNegative(boolean negative);
-	
+	public boolean isNegative() {
+		return negative;
+	}
+
+	public void setNegative(boolean negative) {
+		this.negative = negative;
+	}
+
 }

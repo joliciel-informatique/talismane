@@ -36,9 +36,7 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.StringAttribute;
@@ -63,7 +61,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	private TalismaneService talismaneService;
 	private PosTaggerServiceInternal posTaggerService;
-	private PosTaggerFeatureService posTaggerFeatureService;
 	private TokeniserService tokeniserService;
 
 	private DecisionMaker decisionMaker;
@@ -158,7 +155,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						LOG.trace(sb.toString());
 					}
 
-					PosTaggerContext context = this.getPosTaggerFeatureService().getContext(token, history);
+					PosTaggerContext context = new PosTaggerContextImpl(token, history);
 					List<Decision> decisions = new ArrayList<Decision>();
 
 					boolean ruleApplied = false;
@@ -389,14 +386,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	public void setTokeniserService(TokeniserService tokeniserService) {
 		this.tokeniserService = tokeniserService;
-	}
-
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
-		return posTaggerFeatureService;
-	}
-
-	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
-		this.posTaggerFeatureService = posTaggerFeatureService;
 	}
 
 	public DecisionMaker getDecisionMaker() {

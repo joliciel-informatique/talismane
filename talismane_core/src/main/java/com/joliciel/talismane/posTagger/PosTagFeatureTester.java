@@ -17,9 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -28,7 +26,6 @@ class PosTagFeatureTester implements PosTagSequenceProcessor {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagFeatureTester.class);
 
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
-	private PosTaggerFeatureService posTaggerFeatureService;
 	private PosTaggerService posTaggerService;
 
 	private Set<String> testWords;
@@ -64,7 +61,7 @@ class PosTagFeatureTester implements PosTagSequenceProcessor {
 				LOG.debug(sb.toString());
 
 				String classification = posTaggedToken.getTag().getCode();
-				PosTaggerContext context = posTaggerFeatureService.getContext(posTaggedToken.getToken(), currentHistory);
+				PosTaggerContext context = new PosTaggerContextImpl(posTaggedToken.getToken(), currentHistory);
 				List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
 				MONITOR.startTask("check features");
 				try {
@@ -123,14 +120,6 @@ class PosTagFeatureTester implements PosTagSequenceProcessor {
 
 	public void setPosTaggerFeatures(Set<PosTaggerFeature<?>> posTaggerFeatures) {
 		this.posTaggerFeatures = posTaggerFeatures;
-	}
-
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
-		return posTaggerFeatureService;
-	}
-
-	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
-		this.posTaggerFeatureService = posTaggerFeatureService;
 	}
 
 	public PosTaggerService getPosTaggerService() {

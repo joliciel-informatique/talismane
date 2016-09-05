@@ -41,7 +41,6 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -60,7 +59,6 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternEventStream.class);
 
-	private TokenFeatureService tokenFeatureService;
 	private TokenFilterService tokenFilterService;
 	private TokeniserService tokeniserService;
 	private TokeniserPatternService tokeniserPatternService;
@@ -230,14 +228,6 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 		} finally {
 			MONITOR.endTask();
 		}
-	}
-
-	public TokenFeatureService getTokenFeatureService() {
-		return tokenFeatureService;
-	}
-
-	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
-		this.tokenFeatureService = tokenFeatureService;
 	}
 
 	public TokeniserService getTokeniserService() {

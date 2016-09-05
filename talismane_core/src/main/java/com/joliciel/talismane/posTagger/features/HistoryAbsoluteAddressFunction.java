@@ -23,34 +23,37 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * Returns a pos-tagged token from the current history by its absolute index in the sentence.
+ * Returns a pos-tagged token from the current history by its absolute index in
+ * the sentence.
+ * 
  * @author Assaf Urieli
  */
 public class HistoryAbsoluteAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggerContext> {
 	private IntegerFeature<PosTaggerContext> indexFeature = null;
-	
+
 	public HistoryAbsoluteAddressFunction(IntegerFeature<PosTaggerContext> index) {
 		this.indexFeature = index;
 		this.setName("HistoryAbs(" + indexFeature.getName() + ")");
 	}
-	
+
 	@Override
 	protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
 		FeatureResult<PosTaggedTokenWrapper> result = null;
-		
+
 		FeatureResult<Integer> indexResult = indexFeature.check(context, env);
-		if (indexResult!=null) {
+		if (indexResult != null) {
 			int n = indexResult.getOutcome();
-			if (n<0) {
+			if (n < 0) {
 				return null;
-			} else if (n>=context.getHistory().size()) {
+			} else if (n >= context.getHistory().size()) {
 				return null;
 			}
 
 			PosTaggedToken prevToken = context.getHistory().get(n);
-			result = this.generateResult(prevToken);		
+			result = this.generateResult(prevToken);
 
 		} // have n
 		return result;
@@ -62,5 +65,4 @@ public class HistoryAbsoluteAddressFunction extends AbstractPosTaggerFeature<Pos
 		return PosTaggedTokenAddressFunction.class;
 	}
 
-	
 }

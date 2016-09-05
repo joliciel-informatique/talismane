@@ -24,35 +24,39 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * Returns a pos-tagged token in the current history, at a position relative to the current token.
+ * Returns a pos-tagged token in the current history, at a position relative to
+ * the current token.
+ * 
  * @author Assaf Urieli
  */
-public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggerContext> {
+public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>
+		implements PosTaggedTokenAddressFunction<PosTaggerContext> {
 	private IntegerFeature<PosTaggerContext> offsetFeature = null;
-	
+
 	public PosTaggerHistoryAddressFunction(IntegerFeature<PosTaggerContext> offset) {
 		this.offsetFeature = offset;
 		this.setName("History(" + offsetFeature.getName() + ")");
 	}
-	
+
 	@Override
 	protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
 		FeatureResult<PosTaggedTokenWrapper> result = null;
-		
+
 		FeatureResult<Integer> offsetResult = offsetFeature.check(context, env);
-		if (offsetResult!=null) {
+		if (offsetResult != null) {
 			int n = offsetResult.getOutcome();
-			if (n>=0) {
+			if (n >= 0) {
 				throw new TalismaneException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
 			}
-			n = 0-n;
+			n = 0 - n;
 			int i = context.getToken().getIndex();
 			if (i >= n) {
-				PosTaggedToken prevToken = context.getHistory().get(i-n);
-				if (prevToken!=null)
-					result = this.generateResult(prevToken);		
+				PosTaggedToken prevToken = context.getHistory().get(i - n);
+				if (prevToken != null)
+					result = this.generateResult(prevToken);
 			}
 		} // have n
 		return result;
@@ -64,5 +68,4 @@ public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<Po
 		return PosTaggedTokenAddressFunction.class;
 	}
 
-	
 }

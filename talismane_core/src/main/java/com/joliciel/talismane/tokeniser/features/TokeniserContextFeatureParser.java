@@ -22,7 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -30,20 +33,51 @@ import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserContext> {
+public class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserContext> {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokeniserContextFeatureParser.class);
 
-	private final TokenFeatureParser tokenFeatureParser;
-	private List<TokenPattern> patternList;
-	private Map<String, TokenPattern> patternMap;
+	private final List<TokenPattern> patternList;
+	private final Map<String, TokenPattern> patternMap;
+	private final TalismaneSession talismaneSession;
 
-	public TokeniserContextFeatureParser(TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
-		this.setExternalResourceFinder(tokenFeatureParser.getTalismaneSession().getExternalResourceFinder());
+	public TokeniserContextFeatureParser(TalismaneSession talismaneSession, List<TokenPattern> patternList) {
+		this.talismaneSession = talismaneSession;
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+
+		this.patternList = patternList;
+		this.patternMap = new HashMap<String, TokenPattern>();
+		for (TokenPattern tokenPattern : this.patternList) {
+			this.patternMap.put(tokenPattern.getName(), tokenPattern);
+		}
+	}
+
+	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatureSet(List<String> featureDescriptors) {
+		Set<TokeniserContextFeature<?>> features = new TreeSet<TokeniserContextFeature<?>>();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		MONITOR.startTask("findFeatureSet");
+		try {
+			for (String featureDescriptor : featureDescriptors) {
+				if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+					List<TokeniserContextFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+					MONITOR.startTask("add features");
+					try {
+						features.addAll(myFeatures);
+					} finally {
+						MONITOR.endTask();
+					}
+				}
+			}
+		} finally {
+			MONITOR.endTask();
+		}
+		return features;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -78,18 +112,20 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		container.addFeatureClass("PatternIndexInSentence", PatternIndexInSentenceFeature.class);
 		container.addFeatureClass("TokeniserPatterns", TokeniserPatternsFeature.class);
 		container.addFeatureClass("TokeniserPatternsAndIndexes", TokeniserPatternsAndIndexesFeature.class);
-		this.tokenFeatureParser.addFeatureClasses(container);
+		TokenFeatureParser.addFeatureClasses(container);
 	}
 
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
-		return tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
+		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
+		descriptors.add(functionDescriptor);
+		return descriptors;
 	}
 
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void injectDependencies(Feature feature) {
-		this.tokenFeatureParser.injectDependencies(feature);
+		TokenFeatureParser.injectDependencies(feature, talismaneSession);
 
 		if (feature instanceof InsidePatternNgramFeature) {
 			((InsidePatternNgramFeature) feature).setPatternMap(patternMap);
@@ -127,18 +163,6 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		@Override
 		public Class<? extends Feature> getFeatureType() {
 			return wrappedFeature.getFeatureType();
-		}
-	}
-
-	public List<TokenPattern> getPatternList() {
-		return patternList;
-	}
-
-	public void setPatternList(List<TokenPattern> patternList) {
-		this.patternList = patternList;
-		this.patternMap = new HashMap<String, TokenPattern>();
-		for (TokenPattern tokenPattern : this.patternList) {
-			this.patternMap.put(tokenPattern.getName(), tokenPattern);
 		}
 	}
 

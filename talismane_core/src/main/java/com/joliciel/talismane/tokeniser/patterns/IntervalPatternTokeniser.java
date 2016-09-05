@@ -40,7 +40,6 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
-import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -78,7 +77,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	private DecisionMaker decisionMaker;
 
 	private TokeniserPatternService tokeniserPatternService;
-	private TokenFeatureService tokenFeatureService;
 
 	private TokeniserPatternManager tokeniserPatternManager;
 	private int beamWidth;
@@ -138,14 +136,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
 		this.tokeniserPatternService = tokeniserPatternService;
-	}
-
-	public TokenFeatureService getTokenFeatureService() {
-		return tokenFeatureService;
-	}
-
-	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
-		this.tokenFeatureService = tokenFeatureService;
 	}
 
 	/**

@@ -22,13 +22,11 @@ import java.io.Reader;
 
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 
 class TokeniserServiceImpl implements TokeniserServiceInternal {
-	private TokenFeatureService tokenFeatureService;
 	private TokeniserPatternService tokeniserPatternService;
 	private TokenFilterService tokenFilterService;
 	private TalismaneService talismaneService;
@@ -70,14 +68,6 @@ class TokeniserServiceImpl implements TokeniserServiceInternal {
 	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(TokenisedAtomicTokenSequence history) {
 		TokenisedAtomicTokenSequence sequence = history.cloneSequence();
 		return sequence;
-	}
-
-	public TokenFeatureService getTokenFeatureService() {
-		return tokenFeatureService;
-	}
-
-	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
-		this.tokenFeatureService = tokenFeatureService;
 	}
 
 	public TokeniserPatternService getTokeniserPatternService() {
