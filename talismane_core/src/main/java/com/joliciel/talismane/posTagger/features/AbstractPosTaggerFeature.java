@@ -20,14 +20,16 @@
 package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * An Abstract base class for features which depend on the current PosTaggerContext,
- * that is, the history of decisions already taken by the POS tagger.
+ * An Abstract base class for features which depend on the current
+ * PosTaggerContext, that is, the history of decisions already taken by the POS
+ * tagger.
+ * 
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractPosTaggerFeature<T> extends AbstractCachableFeature<PosTaggerContext,T> implements PosTaggerFeature<T> {
-
+public abstract class AbstractPosTaggerFeature<T> extends AbstractCachableFeature<PosTaggerContext, T> implements PosTaggerFeature<T> {
 
 }

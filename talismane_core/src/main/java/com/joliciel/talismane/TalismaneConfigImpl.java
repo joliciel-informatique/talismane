@@ -119,7 +119,7 @@ import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerGuessTemplateWriter;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
+import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterService;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
@@ -144,9 +144,10 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserGuessTemplateWriter;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
+import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
+import com.joliciel.talismane.tokeniser.features.TokeniserContextFeatureParser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -287,11 +288,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private TalismaneServiceInternal talismaneService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
-	private PosTaggerFeatureService posTaggerFeatureService;
 	private ParserFeatureService parserFeatureService;
 	private TokenFilterService tokenFilterService;
 	private TokeniserPatternService tokeniserPatternService;
-	private TokenFeatureService tokenFeatureService;
 	private TokeniserService tokeniserService;
 	private PosTagFilterService posTagFilterService;
 
@@ -1175,6 +1174,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	public synchronized List<PosTaggerRule> getPosTaggerRules() throws IOException {
 		if (posTaggerRules == null) {
 			posTaggerRules = new ArrayListNoNulls<PosTaggerRule>();
+			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(this.talismaneSession);
+
 			String configPath = "talismane.core.analyse.posTaggerRules";
 			List<String> textFilterPaths = config.getStringList(configPath);
 			for (String path : textFilterPaths) {
@@ -1189,7 +1190,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 							LOG.trace(ruleDescriptor);
 						}
 					}
-					List<PosTaggerRule> rules = this.getPosTaggerFeatureService().getRules(ruleDescriptors);
+					List<PosTaggerRule> rules = featureParser.getRules(ruleDescriptors);
 					posTaggerRules.addAll(rules);
 				}
 			}
@@ -1727,6 +1728,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized Set<TokeniserContextFeature<?>> getTokeniserContextFeatures() throws IOException {
 		if (tokeniserContextFeatures == null) {
+			TokeniserPatternManager tokeniserPatternManager = this.getTokeniserPatternManager();
+			TokeniserContextFeatureParser featureParser = new TokeniserContextFeatureParser(talismaneSession, tokeniserPatternManager.getParsedTestPatterns());
+
 			String configPath = "talismane.core.train.tokeniser.features";
 			InputStream tokeniserFeatureFile = this.getFileFromConfig(configPath);
 			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, this.getInputCharset())))) {
@@ -1737,9 +1741,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug(descriptor);
 				}
 
-				TokeniserPatternManager tokeniserPatternManager = this.getTokeniserPatternManager();
-				tokeniserContextFeatures = this.getTokenFeatureService().getTokeniserContextFeatureSet(featureDescriptors,
-						tokeniserPatternManager.getParsedTestPatterns());
+				tokeniserContextFeatures = featureParser.getTokeniserContextFeatureSet(featureDescriptors);
 
 				this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 			}
@@ -1750,6 +1752,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatures() throws IOException {
 		if (tokenPatternMatchFeatures == null) {
+			TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(talismaneSession);
 			String configPath = "talismane.core.train.tokeniser.features";
 			InputStream tokeniserFeatureFile = this.getFileFromConfig(configPath);
 			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, this.getInputCharset())))) {
@@ -1760,7 +1763,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug(descriptor);
 				}
 
-				tokenPatternMatchFeatures = this.getTokenFeatureService().getTokenPatternMatchFeatureSet(featureDescriptors);
+				tokenPatternMatchFeatures = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);
 
 				this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 			}
@@ -1771,6 +1774,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized Set<PosTaggerFeature<?>> getPosTaggerFeatures() throws IOException {
 		if (posTaggerFeatures == null) {
+			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(talismaneSession);
 			String configPath = "talismane.core.train.posTagger.features";
 			InputStream posTaggerFeatureFile = this.getFileFromConfig(configPath);
 			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTaggerFeatureFile, this.getInputCharset())))) {
@@ -1781,7 +1785,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug(descriptor);
 				}
 
-				posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(featureDescriptors);
+				posTaggerFeatures = featureParser.getFeatureSet(featureDescriptors);
 
 				this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 			}
@@ -2684,14 +2688,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		this.parserService = parserService;
 	}
 
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
-		return posTaggerFeatureService;
-	}
-
-	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
-		this.posTaggerFeatureService = posTaggerFeatureService;
-	}
-
 	public ParserFeatureService getParserFeatureService() {
 		return parserFeatureService;
 	}
@@ -2719,14 +2715,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
 		this.tokeniserPatternService = tokeniserPatternService;
-	}
-
-	public TokenFeatureService getTokenFeatureService() {
-		return tokenFeatureService;
-	}
-
-	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
-		this.tokenFeatureService = tokenFeatureService;
 	}
 
 	@Override

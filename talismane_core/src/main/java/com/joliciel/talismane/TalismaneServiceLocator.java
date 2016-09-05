@@ -27,10 +27,8 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterServiceLocator;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
-import com.joliciel.talismane.tokeniser.features.TokeniserFeatureServiceLocator;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterServiceLocator;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternServiceLocator;
 
@@ -45,11 +43,9 @@ public class TalismaneServiceLocator {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServiceLocator.class);
 	private TalismaneServiceImpl talismaneService;
 
-	private PosTaggerFeatureServiceLocator posTaggerFeatureServiceLocator;
 	private PosTaggerServiceLocator posTaggerServiceLocator;
 	private PosTagFilterServiceLocator posTagFilterServiceLocator;
 	private TokeniserServiceLocator tokeniserServiceLocator;
-	private TokeniserFeatureServiceLocator tokeniserFeatureServiceLocator;
 	private TokenFilterServiceLocator tokenFilterServiceLocator;
 	private TokeniserPatternServiceLocator tokeniserPatternServiceLocator;
 	private ParserServiceLocator parserServiceLocator;
@@ -82,8 +78,6 @@ public class TalismaneServiceLocator {
 			talismaneService.setPosTaggerService(this.getPosTaggerServiceLocator().getPosTaggerService());
 			talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
 			talismaneService.setParserFeatureService(this.getParserFeatureServiceLocator().getParserFeatureService());
-			talismaneService.setPosTaggerFeatureService(this.getPosTaggerFeatureServiceLocator().getPosTaggerFeatureService());
-			talismaneService.setTokenFeatureService(this.getTokenFeatureServiceLocator().getTokenFeatureService());
 			talismaneService.setTokenFilterService(this.getTokenFilterServiceLocator().getTokenFilterService());
 			talismaneService.setTokeniserPatternService(this.getTokenPatternServiceLocator().getTokeniserPatternService());
 		}
@@ -92,13 +86,6 @@ public class TalismaneServiceLocator {
 
 	public synchronized TalismaneService getTalismaneService() {
 		return this.getTalismaneServiceInternal();
-	}
-
-	public synchronized PosTaggerFeatureServiceLocator getPosTaggerFeatureServiceLocator() {
-		if (this.posTaggerFeatureServiceLocator == null) {
-			this.posTaggerFeatureServiceLocator = new PosTaggerFeatureServiceLocator(this);
-		}
-		return posTaggerFeatureServiceLocator;
 	}
 
 	public synchronized PosTaggerServiceLocator getPosTaggerServiceLocator() {
@@ -134,14 +121,6 @@ public class TalismaneServiceLocator {
 			this.parserFeatureServiceLocator = new ParserFeatureServiceLocator(this);
 		}
 		return parserFeatureServiceLocator;
-	}
-
-	public synchronized TokeniserFeatureServiceLocator getTokenFeatureServiceLocator() {
-		if (this.tokeniserFeatureServiceLocator == null) {
-			this.tokeniserFeatureServiceLocator = new TokeniserFeatureServiceLocator(this);
-		}
-		return tokeniserFeatureServiceLocator;
-
 	}
 
 	public synchronized TokenFilterServiceLocator getTokenFilterServiceLocator() {

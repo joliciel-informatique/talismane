@@ -18,18 +18,21 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * Counts the pos-tagged tokens within a certain range matching a certain criterion.<br/>
+ * Counts the pos-tagged tokens within a certain range matching a certain
+ * criterion.<br/>
  * The range is given in absolute indexes.<br/>
  * If start &gt; end, returns null.<br/>
- * If no end is provided, assumes it should go till end of the current history.<br/>
+ * If no end is provided, assumes it should go till end of the current history.
+ * <br/>
+ * 
  * @author Assaf Urieli
  *
  */
@@ -37,55 +40,56 @@ public final class HistoryCountIfFeature extends AbstractPosTaggerFeature<Intege
 	private BooleanFeature<PosTaggedTokenWrapper> criterion;
 	private IntegerFeature<PosTaggerContext> startIndexFeature = null;
 	private IntegerFeature<PosTaggerContext> endIndexFeature = null;
-	
+
 	public HistoryCountIfFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature) {
 		this.criterion = criterion;
 		this.startIndexFeature = startIndexFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + ")");
 	}
-	
-	public HistoryCountIfFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature, IntegerFeature<PosTaggerContext> endIndexFeature) {
+
+	public HistoryCountIfFeature(BooleanFeature<PosTaggedTokenWrapper> criterion, IntegerFeature<PosTaggerContext> startIndexFeature,
+			IntegerFeature<PosTaggerContext> endIndexFeature) {
 		this.criterion = criterion;
 		this.startIndexFeature = startIndexFeature;
 		this.endIndexFeature = endIndexFeature;
 		this.setName(super.getName() + "(" + criterion.getName() + "," + startIndexFeature.getName() + "," + endIndexFeature.getName() + ")");
 	}
-		
+
 	@Override
 	public FeatureResult<Integer> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
 
 		FeatureResult<Integer> featureResult = null;
-		
+
 		int startIndex = 0;
-		int endIndex = context.getHistory().size()-1;
+		int endIndex = context.getHistory().size() - 1;
 
 		FeatureResult<Integer> startIndexResult = startIndexFeature.check(context, env);
-		if (startIndexResult!=null) {
+		if (startIndexResult != null) {
 			startIndex = startIndexResult.getOutcome();
 		} else {
 			return null;
 		}
-		
-		if (endIndexFeature!=null) {
+
+		if (endIndexFeature != null) {
 			FeatureResult<Integer> endIndexResult = endIndexFeature.check(context, env);
-			if (endIndexResult!=null) {
+			if (endIndexResult != null) {
 				endIndex = endIndexResult.getOutcome();
 			} else {
 				return null;
 			}
 		}
-		
-		if (endIndex<startIndex)
+
+		if (endIndex < startIndex)
 			return null;
-		
-		if (startIndex<=0)
+
+		if (startIndex <= 0)
 			startIndex = 0;
-		
+
 		int count = 0;
-		for (int i=startIndex; i<context.getHistory().size() && i<=endIndex; i++) {
+		for (int i = startIndex; i < context.getHistory().size() && i <= endIndex; i++) {
 			PosTaggedToken oneToken = context.getHistory().get(i);
 			FeatureResult<Boolean> criterionResult = this.criterion.check(oneToken, env);
-			if (criterionResult!=null && criterionResult.getOutcome()) {
+			if (criterionResult != null && criterionResult.getOutcome()) {
 				count++;
 			}
 		}

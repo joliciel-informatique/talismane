@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -46,8 +47,7 @@ public class TokeniserContextFeatureParserTest {
 	public void testParseAndFeature() {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("And(FirstWordInSentence(),UnknownWord(),Regex(\".+ .+\"))");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
@@ -68,8 +68,7 @@ public class TokeniserContextFeatureParserTest {
 	public void testParseWordFeature() {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("Word(\"le\",\"la\",\"les\",\"l'\")");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
@@ -90,8 +89,7 @@ public class TokeniserContextFeatureParserTest {
 	public void testParseConcatenateFeature() {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("Concat(WordForm(),NLetterPrefix(5),NLetterSuffix(3))");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);
@@ -113,8 +111,7 @@ public class TokeniserContextFeatureParserTest {
 	public void testNamedFeatures() {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor(
 				"IsMonthName\tWord(\"janvier\",\"février\",\"mars\",\"avril\",\"mai\",\"juin\",\"juillet\",\"août\",\"septembre\",\"octobre\",\"novembre\",\"décembre\")");
@@ -135,8 +132,7 @@ public class TokeniserContextFeatureParserTest {
 	public void testOrOperator() {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
-		TokenFeatureParser tokenFeatureParser = new TokenFeatureParserImpl(talismaneSession);
-		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(tokenFeatureParser);
+		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("(WordForm()==\"le\")|(WordForm()==\"la\")");
 		List<Feature<TokeniserContext, ?>> features = parser.parse(descriptor);

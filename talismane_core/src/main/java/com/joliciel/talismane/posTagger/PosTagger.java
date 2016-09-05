@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
@@ -86,7 +85,7 @@ public interface PosTagger {
 
 	/**
 	 * The set of features used to describe the sequence of
-	 * {@link PosTaggerContext} encountered while pos-tagging. These have to be
+	 * {@link PosTaggerContextImpl} encountered while pos-tagging. These have to be
 	 * identical to the features used to train the previously trained
 	 * pos-tagging model.
 	 */

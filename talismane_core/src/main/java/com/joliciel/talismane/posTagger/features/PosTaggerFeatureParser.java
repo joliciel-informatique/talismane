@@ -20,7 +20,14 @@ package com.joliciel.talismane.posTagger.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -30,9 +37,12 @@ import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
+import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 import com.joliciel.talismane.tokeniser.features.TokenAddressFunction;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureParser;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
@@ -44,11 +54,85 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  *
  */
 public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
-	private final TokenFeatureParser tokenFeatureParser;
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerFeatureParser.class);
 
-	public PosTaggerFeatureParser(TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
-		this.setExternalResourceFinder(tokenFeatureParser.getTalismaneSession().getExternalResourceFinder());
+	private final TalismaneSession talismaneSession;
+
+	public PosTaggerFeatureParser(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+	}
+
+	public Set<PosTaggerFeature<?>> getFeatureSet(List<String> featureDescriptors) {
+		Set<PosTaggerFeature<?>> features = new TreeSet<PosTaggerFeature<?>>();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		for (String featureDescriptor : featureDescriptors) {
+			LOG.debug(featureDescriptor);
+			if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+				List<PosTaggerFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+				features.addAll(myFeatures);
+
+			}
+		}
+		return features;
+	}
+
+	public List<PosTaggerRule> getRules(List<String> ruleDescriptors) {
+		List<PosTaggerRule> rules = new ArrayList<PosTaggerRule>();
+
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		for (String ruleDescriptor : ruleDescriptors) {
+			LOG.debug(ruleDescriptor);
+			if (ruleDescriptor.length() > 0 && !ruleDescriptor.startsWith("#")) {
+				String[] ruleParts = ruleDescriptor.split("\t");
+				String posTagCode = ruleParts[0];
+				PosTag posTag = null;
+				boolean negative = false;
+				String descriptor = null;
+				String descriptorName = null;
+				if (ruleParts.length > 2) {
+					descriptor = ruleParts[2];
+					descriptorName = ruleParts[1];
+				} else {
+					descriptor = ruleParts[1];
+				}
+
+				if (posTagCode.length() == 0) {
+					if (descriptorName == null) {
+						throw new TalismaneException("Rule without PosTag must have a name.");
+					}
+				} else {
+					if (posTagCode.startsWith("!")) {
+						negative = true;
+						posTagCode = posTagCode.substring(1);
+					}
+					posTag = talismaneSession.getPosTagSet().getPosTag(posTagCode);
+				}
+
+				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
+				if (descriptorName != null)
+					functionDescriptor.setDescriptorName(descriptorName);
+				List<PosTaggerFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+				if (posTag != null) {
+					for (PosTaggerFeature<?> feature : myFeatures) {
+						if (feature instanceof BooleanFeature) {
+							@SuppressWarnings("unchecked")
+							BooleanFeature<PosTaggerContext> condition = (BooleanFeature<PosTaggerContext>) feature;
+							PosTaggerRule rule = new PosTaggerRule(condition, posTag);
+							rule.setNegative(negative);
+							rules.add(rule);
+						} else {
+							throw new TalismaneException("Rule must be based on a boolean feature.");
+						}
+					} // next feature
+				} // is it a rule, or just a descriptor
+			} // proper rule descriptor
+		} // next rule descriptor
+		return rules;
+
 	}
 
 	@Override
@@ -60,7 +144,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		container.addFeatureClass("HistoryHas", HistoryHasFeature.class);
 		container.addFeatureClass("HistorySearch", HistorySearchFeature.class);
 		PosTaggerFeatureParser.addPosTaggedTokenFeatureClasses(container);
-		this.tokenFeatureParser.addFeatureClasses(container);
+		TokenFeatureParser.addFeatureClasses(container);
 	}
 
 	/**
@@ -111,7 +195,9 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
-		return tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
+		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
+		descriptors.add(functionDescriptor);
+		return descriptors;
 	}
 
 	private static class PosTaggerFeatureWrapper<T> extends AbstractFeature<PosTaggerContext, T>
@@ -174,7 +260,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-		this.tokenFeatureParser.injectDependencies(feature);
+		TokenFeatureParser.injectDependencies(feature, talismaneSession);
 	}
 
 	@Override

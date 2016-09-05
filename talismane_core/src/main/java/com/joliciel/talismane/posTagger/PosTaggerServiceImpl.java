@@ -29,13 +29,12 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
+import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 class PosTaggerServiceImpl implements PosTaggerServiceInternal {
-	PosTaggerFeatureService posTaggerFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
 	TokenFilterService tokenFilterService;
@@ -44,7 +43,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTagger getPosTagger(Set<PosTaggerFeature<?>> posTaggerFeatures, DecisionMaker decisionMaker, int beamWidth) {
 		PosTaggerImpl posTagger = new PosTaggerImpl(posTaggerFeatures, decisionMaker, beamWidth);
-		posTagger.setPosTaggerFeatureService(posTaggerFeatureService);
 		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);
 		posTagger.setTalismaneService(this.getTalismaneService());
@@ -54,14 +52,15 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 
 	@Override
 	public PosTagger getPosTagger(ClassificationModel posTaggerModel, int beamWidth) {
+		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(this.talismaneService.getTalismaneSession());
 		Collection<ExternalResource<?>> externalResources = posTaggerModel.getExternalResources();
 		if (externalResources != null) {
 			for (ExternalResource<?> externalResource : externalResources) {
-				this.getPosTaggerFeatureService().getExternalResourceFinder().addExternalResource(externalResource);
+				featureParser.getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}
 
-		Set<PosTaggerFeature<?>> posTaggerFeatures = this.getPosTaggerFeatureService().getFeatureSet(posTaggerModel.getFeatureDescriptors());
+		Set<PosTaggerFeature<?>> posTaggerFeatures = featureParser.getFeatureSet(posTaggerModel.getFeatureDescriptors());
 
 		PosTagger posTagger = this.getPosTagger(posTaggerFeatures, posTaggerModel.getDecisionMaker(), beamWidth);
 		return posTagger;
@@ -90,14 +89,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 
 	}
 
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
-		return posTaggerFeatureService;
-	}
-
-	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
-		this.posTaggerFeatureService = posTaggerFeatureService;
-	}
-
 	public PosTaggerService getPosTaggerService() {
 		return posTaggerService;
 	}
@@ -117,7 +108,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public ClassificationEventStream getPosTagEventStream(PosTagAnnotatedCorpusReader corpusReader, Set<PosTaggerFeature<?>> posTaggerFeatures) {
 		PosTagEventStream eventStream = new PosTagEventStream(corpusReader, posTaggerFeatures);
-		eventStream.setPosTaggerFeatureService(posTaggerFeatureService);
 		eventStream.setPosTaggerService(posTaggerService);
 		return eventStream;
 	}
@@ -141,7 +131,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	@Override
 	public PosTagSequenceProcessor getPosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures, Set<String> testWords, File file) {
 		PosTagFeatureTester tester = new PosTagFeatureTester(posTaggerFeatures, testWords, file);
-		tester.setPosTaggerFeatureService(this.getPosTaggerFeatureService());
 		tester.setPosTaggerService(this);
 		return tester;
 	}

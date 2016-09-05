@@ -24,9 +24,7 @@ import java.util.Map;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.features.TokenFeatureService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.typesafe.config.Config;
@@ -36,8 +34,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private ParserFeatureService parserFeatureService;
-	private PosTaggerFeatureService posTaggerFeatureService;
-	private TokenFeatureService tokenFeatureService;
 	private TokenFilterService tokenFilterService;
 	private TokeniserPatternService tokeniserPatternService;
 
@@ -105,9 +101,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setTalismaneService(this);
 		config.setParserFeatureService(parserFeatureService);
 		config.setParserService(parserService);
-		config.setPosTaggerFeatureService(posTaggerFeatureService);
 		config.setPosTaggerService(posTaggerService);
-		config.setTokenFeatureService(tokenFeatureService);
 		config.setTokenFilterService(tokenFilterService);
 		config.setTokeniserPatternService(tokeniserPatternService);
 		config.setTokeniserService(tokeniserService);
@@ -125,22 +119,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 
 	public void setParserFeatureService(ParserFeatureService parserFeatureService) {
 		this.parserFeatureService = parserFeatureService;
-	}
-
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
-		return posTaggerFeatureService;
-	}
-
-	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
-		this.posTaggerFeatureService = posTaggerFeatureService;
-	}
-
-	public TokenFeatureService getTokenFeatureService() {
-		return tokenFeatureService;
-	}
-
-	public void setTokenFeatureService(TokenFeatureService tokenFeatureService) {
-		this.tokenFeatureService = tokenFeatureService;
 	}
 
 	public TokenFilterService getTokenFilterService() {

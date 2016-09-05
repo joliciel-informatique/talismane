@@ -31,9 +31,7 @@ import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
@@ -48,7 +46,6 @@ class PosTagEventStream implements ClassificationEventStream {
 
 	PosTagAnnotatedCorpusReader corpusReader;
 	Set<PosTaggerFeature<?>> posTaggerFeatures;
-	PosTaggerFeatureService posTaggerFeatureService;
 	PosTaggerService posTaggerService;
 
 	PosTagSequence currentSentence;
@@ -95,7 +92,7 @@ class PosTagEventStream implements ClassificationEventStream {
 
 				if (LOG.isDebugEnabled())
 					LOG.debug("next event, token: " + taggedToken.getToken().getText() + " : " + classification);
-				PosTaggerContext context = posTaggerFeatureService.getContext(taggedToken.getToken(), currentHistory);
+				PosTaggerContext context = new PosTaggerContextImpl(taggedToken.getToken(), currentHistory);
 
 				List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
 				MONITOR.startTask("check features");
@@ -133,14 +130,6 @@ class PosTagEventStream implements ClassificationEventStream {
 			MONITOR.endTask();
 		}
 
-	}
-
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
-		return posTaggerFeatureService;
-	}
-
-	public void setPosTaggerFeatureService(PosTaggerFeatureService posTaggerFeatureService) {
-		this.posTaggerFeatureService = posTaggerFeatureService;
 	}
 
 	public PosTaggerService getPosTaggerService() {
