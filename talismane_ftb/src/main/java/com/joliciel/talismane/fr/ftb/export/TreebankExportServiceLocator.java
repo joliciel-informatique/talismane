@@ -34,7 +34,6 @@ public class TreebankExportServiceLocator {
 			treebankUploadService.setTreebankService(treebankServiceLocator.getTreebankService());
 			treebankUploadService.setTokeniserService(treebankServiceLocator.getTokeniserService());
 			treebankUploadService.setPosTaggerService(treebankServiceLocator.getPosTaggerService());
-			treebankUploadService.setTokenFilterService(treebankServiceLocator.getTokenFilterService());
 			treebankUploadService.setTalismaneService(treebankServiceLocator.getTalismaneService());
 		}
 		return treebankUploadService;

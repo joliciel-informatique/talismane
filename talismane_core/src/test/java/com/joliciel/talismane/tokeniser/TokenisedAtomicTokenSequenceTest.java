@@ -32,8 +32,8 @@ import com.joliciel.talismane.machineLearning.Decision;
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
-public class TokenisedAtomicTokenSequenceImplTest {
-	private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceImplTest.class);
+public class TokenisedAtomicTokenSequenceTest {
+	private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceTest.class);
 
 	@Test
 	public void testGetTokenSequence(@NonStrict final Sentence sentence) {
@@ -66,7 +66,7 @@ public class TokenisedAtomicTokenSequenceImplTest {
 		TokeniserServiceImpl tokeniserService = new TokeniserServiceImpl();
 		tokeniserService.setTalismaneService(talismaneService);
 
-		TokenisedAtomicTokenSequenceImpl atomicTokenSequence = new TokenisedAtomicTokenSequenceImpl(sentence, talismaneService.getTalismaneSession());
+		TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneService.getTalismaneSession());
 		atomicTokenSequence.setTokeniserServiceInternal(tokeniserService);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneService.getTalismaneSession());

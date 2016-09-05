@@ -31,13 +31,11 @@ import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 class TreebankExportServiceImpl implements TreebankExportService {
 	private TreebankService treebankService;
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
-	private TokenFilterService tokenFilterService;
 	private TalismaneService talismaneService;
 
 	public TreebankService getTreebankService() {
@@ -72,7 +70,6 @@ class TreebankExportServiceImpl implements TreebankExportService {
 		reader.setTreebankService(this.getTreebankService());
 		reader.setTokeniserService(tokeniserService);
 		reader.setPosTaggerService(posTaggerService);
-		reader.setTokenFilterService(tokenFilterService);
 		reader.setTalismaneService(talismaneService);
 		reader.setIgnoreCase(false);
 		return reader;
@@ -129,14 +126,6 @@ class TreebankExportServiceImpl implements TreebankExportService {
 
 	public void setPosTaggerService(PosTaggerService posTaggerService) {
 		this.posTaggerService = posTaggerService;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	public TalismaneService getTalismaneService() {

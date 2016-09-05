@@ -23,21 +23,26 @@ import java.util.List;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
-class TokenFilterWrapper implements TokenSequenceFilter {
+/**
+ * A TokenSequenceFilter that wraps a list of token filters. While it won't
+ * re-assign any token boundaries, it will check each TokenFilter against each
+ * individual token, and if a match is found, will replace the text.
+ */
+public class TokenFilterWrapper implements TokenSequenceFilter {
 	List<TokenFilter> tokenFilters;
-	
+
 	public TokenFilterWrapper(List<TokenFilter> tokenFilters) {
 		this.tokenFilters = tokenFilters;
 	}
-	
+
 	@Override
 	public void apply(TokenSequence tokenSequence) {
 		for (Token token : tokenSequence) {
 			for (TokenFilter tokenFilter : this.tokenFilters) {
 				List<TokenPlaceholder> placeholders = tokenFilter.apply(token.getOriginalText());
-				if (placeholders.size()>0) {
+				if (placeholders.size() > 0) {
 					TokenPlaceholder placeholder = placeholders.iterator().next();
-					if (placeholder.getReplacement()!=null && placeholder.getStartIndex()==0 && placeholder.getEndIndex()==token.getText().length()) {
+					if (placeholder.getReplacement() != null && placeholder.getStartIndex() == 0 && placeholder.getEndIndex() == token.getText().length()) {
 						token.setText(placeholder.getReplacement());
 					}
 					break;

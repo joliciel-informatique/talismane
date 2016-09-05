@@ -34,17 +34,12 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
 
 public class PatternTokeniserTest {
 	private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniserTest.class);
 
 	@Test
 	public void testTokenise() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		TokeniserServiceLocator tokeniserServiceLocator = talismaneServiceLocator.getTokeniserServiceLocator();
-		TokeniserService tokeniserService = tokeniserServiceLocator.getTokeniserService();
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
 
 		final String sentence = "Je n'ai pas l'ourang-outan.";
@@ -53,9 +48,8 @@ public class PatternTokeniserTest {
 		separatorDefaults.put(SeparatorDecision.IS_SEPARATOR_AFTER, "'");
 
 		List<String> tokeniserPatterns = new ArrayList<String>();
-		TokeniserPatternManagerImpl patternManager = new TokeniserPatternManagerImpl(tokeniserPatterns);
-		IntervalPatternTokeniser tokeniserImpl = new IntervalPatternTokeniser(patternManager, null, 1, talismaneSession);
-		tokeniserImpl.setTokeniserService(tokeniserService);
+		TokeniserPatternManager patternManager = new TokeniserPatternManager(tokeniserPatterns);
+		IntervalPatternTokeniser tokeniserImpl = new IntervalPatternTokeniser(null, patternManager, null, 1, talismaneSession);
 		patternManager.setSeparatorDefaults(separatorDefaults);
 		List<TokenSequence> tokenSequences = tokeniserImpl.tokenise(sentence);
 		TokenSequence tokenSequence = tokenSequences.get(0);

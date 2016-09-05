@@ -18,7 +18,7 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
@@ -48,7 +48,6 @@ class TokenRegexBasedCorpusReaderImpl implements TokenRegexBasedCorpusReader {
 	private int crossValidationSize = 0;
 
 	private TokeniserService tokeniserService;
-	private TokenFilterService tokenFilterService;
 
 	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 	private final TalismaneSession talismaneSession;
@@ -112,7 +111,7 @@ class TokenRegexBasedCorpusReaderImpl implements TokenRegexBasedCorpusReader {
 						// the text of an individual token
 						// with something else
 						if (tokenFilterWrapper == null) {
-							tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.tokenFilters);
+							tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
 						}
 						tokenFilterWrapper.apply(tokenSequence);
 
@@ -236,14 +235,6 @@ class TokenRegexBasedCorpusReaderImpl implements TokenRegexBasedCorpusReader {
 
 	public void setTokeniserService(TokeniserService tokeniserService) {
 		this.tokeniserService = tokeniserService;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	@Override

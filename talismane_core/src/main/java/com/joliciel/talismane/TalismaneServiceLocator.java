@@ -29,8 +29,6 @@ import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterServiceLocator;
 import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterServiceLocator;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternServiceLocator;
 
 /**
  * Top-level locator for implementations of Talismane interfaces.
@@ -46,8 +44,6 @@ public class TalismaneServiceLocator {
 	private PosTaggerServiceLocator posTaggerServiceLocator;
 	private PosTagFilterServiceLocator posTagFilterServiceLocator;
 	private TokeniserServiceLocator tokeniserServiceLocator;
-	private TokenFilterServiceLocator tokenFilterServiceLocator;
-	private TokeniserPatternServiceLocator tokeniserPatternServiceLocator;
 	private ParserServiceLocator parserServiceLocator;
 	private ParserFeatureServiceLocator parserFeatureServiceLocator;
 
@@ -73,13 +69,11 @@ public class TalismaneServiceLocator {
 
 	TalismaneServiceInternal getTalismaneServiceInternal() {
 		if (this.talismaneService == null) {
-			this.talismaneService = new TalismaneServiceImpl();
+			this.talismaneService = new TalismaneServiceImpl(this.sessionId);
 			talismaneService.setParserService(this.getParserServiceLocator().getParserService());
 			talismaneService.setPosTaggerService(this.getPosTaggerServiceLocator().getPosTaggerService());
 			talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
 			talismaneService.setParserFeatureService(this.getParserFeatureServiceLocator().getParserFeatureService());
-			talismaneService.setTokenFilterService(this.getTokenFilterServiceLocator().getTokenFilterService());
-			talismaneService.setTokeniserPatternService(this.getTokenPatternServiceLocator().getTokeniserPatternService());
 		}
 		return this.talismaneService;
 	}
@@ -121,21 +115,6 @@ public class TalismaneServiceLocator {
 			this.parserFeatureServiceLocator = new ParserFeatureServiceLocator(this);
 		}
 		return parserFeatureServiceLocator;
-	}
-
-	public synchronized TokenFilterServiceLocator getTokenFilterServiceLocator() {
-		if (this.tokenFilterServiceLocator == null) {
-			this.tokenFilterServiceLocator = new TokenFilterServiceLocator(this);
-		}
-		return tokenFilterServiceLocator;
-	}
-
-	public synchronized TokeniserPatternServiceLocator getTokenPatternServiceLocator() {
-		if (this.tokeniserPatternServiceLocator == null) {
-			this.tokeniserPatternServiceLocator = new TokeniserPatternServiceLocator(this);
-		}
-		return tokeniserPatternServiceLocator;
-
 	}
 
 	public String getSessionId() {

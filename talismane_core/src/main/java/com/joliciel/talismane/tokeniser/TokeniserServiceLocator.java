@@ -31,8 +31,6 @@ public class TokeniserServiceLocator {
 	public synchronized TokeniserService getTokeniserService() {
 		if (tokeniserService == null) {
 			tokeniserService = new TokeniserServiceImpl();
-			tokeniserService.setTokenFilterService(this.talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService());
-			tokeniserService.setTokeniserPatternService(this.talismaneServiceLocator.getTokenPatternServiceLocator().getTokeniserPatternService());
 			tokeniserService.setTalismaneService(this.talismaneServiceLocator.getTalismaneService());
 		}
 		return tokeniserService;

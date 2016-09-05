@@ -40,9 +40,8 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -55,30 +54,29 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * 
  * @author Assaf Urieli
  */
-class CompoundPatternEventStream implements ClassificationEventStream {
+public class CompoundPatternEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternEventStream.class);
 
-	private TokenFilterService tokenFilterService;
-	private TokeniserService tokeniserService;
-	private TokeniserPatternService tokeniserPatternService;
-
 	private final TokeniserAnnotatedCorpusReader corpusReader;
 	private final Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
+
+	private final TokeniserPatternManager tokeniserPatternManager;
+	private final TokenSequenceFilter tokenFilterWrapper;
+
+	private final TalismaneSession talismaneSession;
+
 	private List<TokeniserOutcome> currentOutcomes;
 	private List<TokenPatternMatch> currentPatternMatches;
 	private int currentIndex;
 
-	private TokeniserPatternManager tokeniserPatternManager = null;
-	private TokenSequenceFilter tokenFilterWrapper = null;
-
-	private final TalismaneSession talismaneSession;
-
 	public CompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures,
-			TalismaneSession talismaneSession) {
+			TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
 		this.corpusReader = corpusReader;
 		this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
+		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.talismaneSession = talismaneSession;
+		this.tokenFilterWrapper = new TokenFilterWrapper(this.corpusReader.getTokenFilters());
 	}
 
 	@Override
@@ -107,9 +105,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 					for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
 						tokenSequenceFilter.apply(tokenSequence);
 					}
-					if (tokenFilterWrapper == null) {
-						tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.corpusReader.getTokenFilters());
-					}
+
 					tokenFilterWrapper.apply(tokenSequence);
 
 					List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
@@ -117,7 +113,7 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 					List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
 
 					// check if anything matches each pattern
-					for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
+					for (TokenPattern parsedPattern : this.tokeniserPatternManager.getParsedTestPatterns()) {
 						List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
 						for (TokenPatternMatchSequence tokenPatternMatchSequence : tokenPatternMatches) {
 							if (LOG.isTraceEnabled())
@@ -230,14 +226,6 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 		}
 	}
 
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
-	}
-
 	public List<TaggedToken<TokeniserOutcome>> getTaggedTokens(TokenSequence tokenSequence, List<Integer> tokenSplits) {
 		List<TaggedToken<TokeniserOutcome>> taggedTokens = new ArrayList<TaggedToken<TokeniserOutcome>>();
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
@@ -250,29 +238,4 @@ class CompoundPatternEventStream implements ClassificationEventStream {
 		}
 		return taggedTokens;
 	}
-
-	public TokeniserPatternManager getTokeniserPatternManager() {
-		return tokeniserPatternManager;
-	}
-
-	public void setTokeniserPatternManager(TokeniserPatternManager tokeniserPatternManager) {
-		this.tokeniserPatternManager = tokeniserPatternManager;
-	}
-
-	public TokeniserPatternService getTokeniserPatternService() {
-		return tokeniserPatternService;
-	}
-
-	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
-		this.tokeniserPatternService = tokeniserPatternService;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
-	}
-
 }

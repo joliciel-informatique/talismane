@@ -43,12 +43,8 @@ public abstract class AbstractTokeniser implements Tokeniser {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokeniser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractTokeniser.class);
 
-	private TokeniserService tokeniserService;
-
-	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
-
-	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-
+	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
+	private final List<TokenFilter> tokenFilters = new ArrayList<>();
 	private final TalismaneSession talismaneSession;
 
 	public AbstractTokeniser(TalismaneSession talismaneSession) {
@@ -154,24 +150,12 @@ public abstract class AbstractTokeniser implements Tokeniser {
 
 	protected abstract List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence);
 
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserServiceInternal) {
-		this.tokeniserService = tokeniserServiceInternal;
-	}
-
 	/**
 	 * Filters to be applied to the atoms, prior to tokenising.
 	 */
 	@Override
 	public List<TokenSequenceFilter> getTokenSequenceFilters() {
 		return tokenSequenceFilters;
-	}
-
-	public void setTokenSequenceFilters(List<TokenSequenceFilter> tokenSequenceFilters) {
-		this.tokenSequenceFilters = tokenSequenceFilters;
 	}
 
 	@Override
@@ -194,5 +178,9 @@ public abstract class AbstractTokeniser implements Tokeniser {
 		if (LOG.isTraceEnabled())
 			LOG.trace("Added filter: " + filter.toString());
 		this.tokenFilters.add(filter);
+	}
+
+	protected TalismaneSession getTalismaneSession() {
+		return talismaneSession;
 	}
 }

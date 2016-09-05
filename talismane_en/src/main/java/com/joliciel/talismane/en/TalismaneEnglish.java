@@ -87,7 +87,6 @@ public class TalismaneEnglish {
 				corpusReader.setParserService(config.getParserService());
 				corpusReader.setPosTaggerService(config.getPosTaggerService());
 				corpusReader.setTokeniserService(config.getTokeniserService());
-				corpusReader.setTokenFilterService(config.getTokenFilterService());
 				corpusReader.setTalismaneService(config.getTalismaneService());
 
 				corpusReader.setPredictTransitions(config.isPredictTransitions());

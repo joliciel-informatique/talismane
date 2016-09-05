@@ -40,13 +40,13 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
 
-public class TokenPatternImplTest {
-	private static final Logger LOG = LoggerFactory.getLogger(TokenPatternImplTest.class);
+public class TokenPatternTest {
+	private static final Logger LOG = LoggerFactory.getLogger(TokenPatternTest.class);
 
 	@Test
 	public void testParsePattern() {
 		String regexp = "(?![cdCD]\\z|qu\\z|jusqu\\z).+'.+";
-		TokenPatternImpl tokenPattern = new TokenPatternImpl(regexp, Tokeniser.SEPARATORS);
+		TokenPattern tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
 		List<Pattern> patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(3, patterns.size());
 		int i = 0;
@@ -62,7 +62,7 @@ public class TokenPatternImplTest {
 		}
 
 		regexp = "être (de|d)";
-		tokenPattern = new TokenPatternImpl(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
 		patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(3, patterns.size());
 		i = 0;
@@ -78,7 +78,7 @@ public class TokenPatternImplTest {
 		}
 
 		regexp = ".+\\.\\p";
-		tokenPattern = new TokenPatternImpl(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
 		patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(3, patterns.size());
 		i = 0;
@@ -94,7 +94,7 @@ public class TokenPatternImplTest {
 		}
 
 		regexp = ".+qu'";
-		tokenPattern = new TokenPatternImpl(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
 		patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(2, patterns.size());
 		i = 0;
@@ -108,7 +108,7 @@ public class TokenPatternImplTest {
 		}
 
 		regexp = "\\D+\\.a[ \\)]c[abc]";
-		tokenPattern = new TokenPatternImpl(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
 		patterns = tokenPattern.getParsedPattern();
 		LOG.debug(patterns.toString());
 		Assert.assertEquals(5, patterns.size());
@@ -147,7 +147,7 @@ public class TokenPatternImplTest {
 		for (String testPattern : testPatterns) {
 			LOG.debug("Test Pattern = " + testPatterns.get(i));
 
-			TokenPatternImpl tokeniserPattern = new TokenPatternImpl(testPattern, separatorPattern);
+			TokenPattern tokeniserPattern = new TokenPattern(testPattern, separatorPattern);
 
 			List<Pattern> parsedPattern = tokeniserPattern.getParsedPattern();
 			LOG.debug("Parsed Pattern = " + parsedPattern);
@@ -200,12 +200,11 @@ public class TokenPatternImplTest {
 	@Test
 	public void testMatch(@NonStrict final TokenSequence tokenSequence) {
 		final String separators = "[\\s\\p{Punct}]";
-		final List<TokenPatternMatchImpl> matches3 = new ArrayList<TokenPatternMatchImpl>();
-		final List<TokenPatternMatchImpl> matches4 = new ArrayList<TokenPatternMatchImpl>();
-		final List<TokenPatternMatchImpl> matches5 = new ArrayList<TokenPatternMatchImpl>();
-		final List<TokenPatternMatchImpl> matches6 = new ArrayList<TokenPatternMatchImpl>();
-		final List<TokenPatternMatchImpl> matches7 = new ArrayList<TokenPatternMatchImpl>();
-		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
+		final List<TokenPatternMatch> matches3 = new ArrayList<TokenPatternMatch>();
+		final List<TokenPatternMatch> matches4 = new ArrayList<TokenPatternMatch>();
+		final List<TokenPatternMatch> matches5 = new ArrayList<TokenPatternMatch>();
+		final List<TokenPatternMatch> matches6 = new ArrayList<TokenPatternMatch>();
+		final List<TokenPatternMatch> matches7 = new ArrayList<TokenPatternMatch>();
 
 		new NonStrictExpectations() {
 			Iterator<Token> i;
@@ -310,8 +309,7 @@ public class TokenPatternImplTest {
 		};
 
 		Pattern separatorPattern = Pattern.compile(separators, Pattern.UNICODE_CHARACTER_CLASS);
-		TokenPatternImpl tokeniserPatternImpl = new TokenPatternImpl(".+'.+", separatorPattern);
-		tokeniserPatternImpl.setTokeniserPatternServiceInternal(tokeniserPatternService);
+		TokenPattern tokeniserPatternImpl = new TokenPattern(".+'.+", separatorPattern);
 
 		List<TokenPatternMatchSequence> patternMatches = tokeniserPatternImpl.match(tokenSequence);
 		assertEquals(2, patternMatches.size());
@@ -371,7 +369,6 @@ public class TokenPatternImplTest {
 	@Test
 	public void testMatch2(@NonStrict final Sentence sentence) {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
-		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 
 		new NonStrictExpectations() {
 			{
@@ -382,9 +379,8 @@ public class TokenPatternImplTest {
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
-		TokenPatternImpl tokenPattern = new TokenPatternImpl(
+		TokenPattern tokenPattern = new TokenPattern(
 				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+", Tokeniser.SEPARATORS);
-		tokenPattern.setTokeniserPatternServiceInternal(tokeniserPatternService);
 
 		List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);
 		assertEquals(0, patternMatches.size());
@@ -394,7 +390,6 @@ public class TokenPatternImplTest {
 	@Test
 	public void testMatch3(@NonStrict final Sentence sentence) {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
-		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 
 		new NonStrictExpectations() {
 			{
@@ -405,9 +400,8 @@ public class TokenPatternImplTest {
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
-		TokenPatternImpl tokenPattern = new TokenPatternImpl(
+		TokenPattern tokenPattern = new TokenPattern(
 				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+", Tokeniser.SEPARATORS);
-		tokenPattern.setTokeniserPatternServiceInternal(tokeniserPatternService);
 
 		List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);
 		assertEquals(1, patternMatches.size());
@@ -421,7 +415,6 @@ public class TokenPatternImplTest {
 	@Test
 	public void testMatch4(@NonStrict final Sentence sentence) {
 		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
-		TokeniserPatternServiceInternal tokeniserPatternService = new TokeniserPatternServiceImpl();
 
 		new NonStrictExpectations() {
 			{
@@ -432,8 +425,7 @@ public class TokenPatternImplTest {
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
-		TokenPatternImpl tokenPattern = new TokenPatternImpl(".+-{(ce|je|la|le|les|leur|lui|moi|nous|toi|tu)[^-]}", Tokeniser.SEPARATORS);
-		tokenPattern.setTokeniserPatternServiceInternal(tokeniserPatternService);
+		TokenPattern tokenPattern = new TokenPattern(".+-{(ce|je|la|le|les|leur|lui|moi|nous|toi|tu)[^-]}", Tokeniser.SEPARATORS);
 
 		List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);
 		assertEquals(0, patternMatches.size());

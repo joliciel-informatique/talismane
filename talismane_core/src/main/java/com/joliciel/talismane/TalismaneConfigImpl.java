@@ -149,12 +149,16 @@ import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeatureParser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
+import com.joliciel.talismane.tokeniser.patterns.CompoundPatternEventStream;
+import com.joliciel.talismane.tokeniser.patterns.IntervalPatternEventStream;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
+import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory;
+import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.PatternTokeniserType;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -289,8 +293,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private ParserFeatureService parserFeatureService;
-	private TokenFilterService tokenFilterService;
-	private TokeniserPatternService tokeniserPatternService;
 	private TokeniserService tokeniserService;
 	private PosTagFilterService posTagFilterService;
 
@@ -1360,6 +1362,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		if (tokenSequenceFilters == null) {
 			List<String> tokenSequenceFilterDescriptors = new ArrayListNoNulls<String>();
 			tokenSequenceFilters = new ArrayListNoNulls<TokenSequenceFilter>();
+			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
 
 			String configPath = "talismane.core.analyse.tokenSequenceFilters";
 			List<String> tokenFilterPaths = config.getStringList(configPath);
@@ -1372,7 +1375,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						LOG.debug(descriptor);
 						tokenSequenceFilterDescriptors.add(descriptor);
 						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = this.getTokenFilterService().getTokenSequenceFilter(descriptor);
+							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
 								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
 							tokenSequenceFilters.add(tokenSequenceFilter);
@@ -1391,7 +1394,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						LOG.debug(descriptor);
 						tokenSequenceFilterDescriptors.add(descriptor);
 						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = this.getTokenFilterService().getTokenSequenceFilter(descriptor);
+							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
 								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
 							tokenSequenceFilters.add(tokenSequenceFilter);
@@ -1459,6 +1462,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		if (tokenFilters == null) {
 			List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
 			tokenFilters = new ArrayListNoNulls<TokenFilter>();
+			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(talismaneSession);
 
 			LOG.debug("Token filters");
 
@@ -1472,7 +1476,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				LOG.debug("From: " + path);
 				InputStream tokenFilterFile = this.getFile(configPath, path);
 				try (Scanner scanner = new Scanner(tokenFilterFile, this.getInputCharset().name())) {
-					List<TokenFilter> myFilters = this.getTokenFilterService().readTokenFilters(scanner, path, tokenFilterDescriptors);
+					List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
 					for (TokenFilter tokenFilter : myFilters) {
 						tokenFilters.add(tokenFilter);
 					}
@@ -1483,7 +1487,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			if (!tokenFiltersReplace) {
 				if (model != null) {
 					LOG.debug("From model");
-					List<String> modelDescriptors = model.getDescriptors().get(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY);
+					List<String> modelDescriptors = model.getDescriptors().get(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY);
 					String modelDescriptorString = "";
 					if (modelDescriptors != null) {
 						for (String descriptor : modelDescriptors) {
@@ -1491,7 +1495,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 						}
 					}
 					try (Scanner scanner = new Scanner(modelDescriptorString)) {
-						List<TokenFilter> myFilters = this.getTokenFilterService().readTokenFilters(scanner, tokenFilterDescriptors);
+						List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
 						for (TokenFilter tokenFilter : myFilters) {
 							tokenFilters.add(tokenFilter);
 						}
@@ -1499,7 +1503,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				}
 			}
 
-			this.getDescriptors().put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
+			this.getDescriptors().put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 
 			for (TokenFilter tokenFilter : this.additionalTokenFilters)
 				this.tokenFilters.add(tokenFilter);
@@ -1509,13 +1513,14 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	@Override
 	public synchronized void setTokenFilters(Scanner scanner) {
+		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(talismaneSession);
 		List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
 		tokenFilters = new ArrayListNoNulls<TokenFilter>();
-		List<TokenFilter> myFilters = this.getTokenFilterService().readTokenFilters(scanner, tokenFilterDescriptors);
+		List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
 		for (TokenFilter tokenFilter : myFilters) {
 			tokenFilters.add(tokenFilter);
 		}
-		this.getDescriptors().put(TokenFilterService.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
+		this.getDescriptors().put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
 	}
 
 	/**
@@ -1566,7 +1571,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				if (tokeniserModel == null)
 					throw new TalismaneException("No tokeniserModel provided");
 
-				tokeniser = this.getTokeniserPatternService().getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
+				PatternTokeniserFactory patternTokeniserFactory = new PatternTokeniserFactory(this.talismaneSession);
+				tokeniser = patternTokeniserFactory.getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
 
 				if (includeDetails) {
 					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
@@ -1672,9 +1678,9 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					LOG.debug(descriptor);
 				}
 
-				this.getDescriptors().put(TokeniserPatternService.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
+				this.getDescriptors().put(PatternTokeniserFactory.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
 
-				tokeniserPatternManager = this.getTokeniserPatternService().getPatternManager(patternDescriptors);
+				tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors);
 			}
 		}
 		return tokeniserPatternManager;
@@ -1807,12 +1813,12 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			case Tokeniser:
 				if (patternTokeniserType == PatternTokeniserType.Interval) {
 					Set<TokeniserContextFeature<?>> features = this.getTokeniserContextFeatures();
-					classificationEventStream = this.getTokeniserPatternService().getIntervalPatternEventStream(this.getTokenCorpusReader(), features,
-							this.getTokeniserPatternManager());
+					classificationEventStream = new IntervalPatternEventStream(this.getTokenCorpusReader(), features, this.getTokeniserPatternManager(),
+							this.talismaneSession);
 				} else {
 					Set<TokenPatternMatchFeature<?>> features = this.getTokenPatternMatchFeatures();
-					classificationEventStream = this.getTokeniserPatternService().getCompoundPatternEventStream(this.getTokenCorpusReader(), features,
-							this.getTokeniserPatternManager());
+					classificationEventStream = new CompoundPatternEventStream(this.getTokenCorpusReader(), features, this.getTokeniserPatternManager(),
+							this.talismaneSession);
 				}
 				break;
 			case PosTagger:
@@ -2147,7 +2153,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				tokenFilters.add(tokenFilter);
 			}
 
-			TokenSequenceFilter tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(tokenFilters);
+			TokenSequenceFilter tokenFilterWrapper = new TokenFilterWrapper(tokenFilters);
 			corpusReader.addTokenSequenceFilter(tokenFilterWrapper);
 
 			for (TokenSequenceFilter tokenSequenceFilter : this.getTokenSequenceFilters(myPosTaggerModel)) {
@@ -2255,7 +2261,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 				tokenFilters.add(tokenFilter);
 			}
 
-			TokenSequenceFilter tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(tokenFilters);
+			TokenSequenceFilter tokenFilterWrapper = new TokenFilterWrapper(tokenFilters);
 			corpusReader.addTokenSequenceFilter(tokenFilterWrapper);
 
 			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(myPosTaggerModel)) {
@@ -2696,25 +2702,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		this.parserFeatureService = parserFeatureService;
 	}
 
-	@Override
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
 	private PosTagFilterService getPosTagFilterService() {
 		return posTagFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
-	}
-
-	public TokeniserPatternService getTokeniserPatternService() {
-		return tokeniserPatternService;
-	}
-
-	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
-		this.tokeniserPatternService = tokeniserPatternService;
 	}
 
 	@Override

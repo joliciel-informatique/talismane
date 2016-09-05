@@ -160,7 +160,6 @@ public class Extensions {
 					standoffReader.setParserService(config.getParserService());
 					standoffReader.setPosTaggerService(config.getPosTaggerService());
 					standoffReader.setTokeniserService(config.getTokeniserService());
-					standoffReader.setTokenFilterService(config.getTokenFilterService());
 
 					config.setParserCorpusReader(standoffReader);
 				}
