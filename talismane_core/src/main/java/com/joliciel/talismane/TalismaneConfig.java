@@ -51,9 +51,8 @@ import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.PatternTokeniserType;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService.PatternTokeniserType;
 import com.typesafe.config.Config;
 
 /**
@@ -431,8 +430,6 @@ public interface TalismaneConfig {
 	public PosTaggerService getPosTaggerService();
 
 	public ParserService getParserService();
-
-	public TokenFilterService getTokenFilterService();
 
 	public TokeniserService getTokeniserService();
 

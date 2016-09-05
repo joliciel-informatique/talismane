@@ -34,88 +34,69 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.tokeniser.TokeniserService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
-class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterDependencyInjector {
-	private static final Logger LOG = LoggerFactory.getLogger(TokenFilterServiceImpl.class);
+public class TokenFilterFactory implements TokenFilterDependencyInjector {
+	public static final String TOKEN_FILTER_DESCRIPTOR_KEY = "token_filter";
 
-	private TalismaneService talismaneService;
-	private TokeniserService tokeniserService;
-	private ExternalResourceFinder externalResourceFinder;
-	private Map<String, Class<? extends TokenFilter>> registeredFilterTypes = new HashMap<String, Class<? extends TokenFilter>>();
-	private Map<Class<? extends TokenFilter>, TokenFilterDependencyInjector> registeredDependencyInjectors = new HashMap<Class<? extends TokenFilter>, TokenFilterDependencyInjector>();
-	private List<Class<? extends TokenSequenceFilter>> availableTokenSequenceFilters = new ArrayList<>();
+	private static final Logger LOG = LoggerFactory.getLogger(TokenFilterFactory.class);
 
-	public TokenFilterServiceImpl() {
+	private final TalismaneSession talismaneSession;
+	private final Map<String, Class<? extends TokenFilter>> registeredFilterTypes = new HashMap<String, Class<? extends TokenFilter>>();
+	private final Map<Class<? extends TokenFilter>, TokenFilterDependencyInjector> registeredDependencyInjectors = new HashMap<Class<? extends TokenFilter>, TokenFilterDependencyInjector>();
+
+	private static final Map<String, TokenFilterFactory> instances = new HashMap<>();
+
+	public static TokenFilterFactory getInstance(TalismaneSession talismaneSession) {
+		TokenFilterFactory factory = instances.get(talismaneSession.getSessionId());
+		if (factory == null) {
+			factory = new TokenFilterFactory(talismaneSession);
+			instances.put(talismaneSession.getSessionId(), factory);
+		}
+		return factory;
+	}
+
+	private TokenFilterFactory(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 		registeredFilterTypes.put(AttributeRegexFilter.class.getSimpleName(), AttributeRegexFilter.class);
 		registeredFilterTypes.put(TokenRegexFilter.class.getSimpleName(), TokenRegexFilterWithReplacement.class);
 		registeredDependencyInjectors.put(AbstractRegexFilter.class, this);
 	}
 
-	@Override
 	public TokenRegexFilter getTokenRegexFilter(String regex) {
-		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
-		filter.setTalismaneSession(talismaneService.getTalismaneSession());
-		filter.setRegex(regex);
+		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement(regex, talismaneSession);
 		return filter;
 	}
 
-	@Override
 	public TokenRegexFilter getTokenRegexFilter(String regex, String replacement) {
 		TokenRegexFilterWithReplacement filter = (TokenRegexFilterWithReplacement) this.getTokenRegexFilter(regex);
 		filter.setReplacement(replacement);
 		return filter;
 	}
 
-	@Override
-	public TokenSequenceFilter getTokenSequenceFilter(String descriptor) {
-		TokenSequenceFilter filter = null;
-		List<Class<? extends TokenSequenceFilter>> classes = new ArrayListNoNulls<Class<? extends TokenSequenceFilter>>();
-		classes.addAll(this.getAvailableTokenSequenceFilters());
-		classes.add(DiacriticRemover.class);
-		classes.add(LowercaseFilter.class);
-		classes.add(LowercaseKnownWordFilter.class);
-		classes.add(LowercaseKnownFirstWordFilter.class);
-		classes.add(QuoteNormaliser.class);
-		classes.add(UppercaseSeriesFilter.class);
-
-		for (Class<? extends TokenSequenceFilter> clazz : classes) {
-			if (descriptor.equals(clazz.getSimpleName())) {
-				try {
-					filter = clazz.newInstance();
-				} catch (InstantiationException e) {
-					LogUtils.logError(LOG, e);
-					throw new RuntimeException(e);
-				} catch (IllegalAccessException e) {
-					LogUtils.logError(LOG, e);
-					throw new RuntimeException(e);
-				}
-			}
-		}
-
-		if (filter instanceof NeedsTalismaneSession) {
-			((NeedsTalismaneSession) filter).setTalismaneSession(this.talismaneService.getTalismaneSession());
-		}
-
-		if (filter == null) {
-			throw new TalismaneException("Unknown TokenSequenceFilter: " + descriptor);
-		}
-
-		return filter;
-	}
-
-	@Override
+	/**
+	 * Reads a sequence of token filters from a scanner.
+	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner) {
 		return this.readTokenFilters(scanner, null);
 	}
 
-	@Override
+	/**
+	 * Similar to {@link #readTokenFilters(Scanner, List)}, but keeps a
+	 * reference to the file, useful for finding the location of any descriptor
+	 * errors.
+	 * 
+	 * @param file
+	 *            the file to be read
+	 * @param charset
+	 *            the charset used to read the file
+	 * @param descriptors
+	 *            a list of descriptors in which we store the descriptors added
+	 *            from this file
+	 */
 	public List<TokenFilter> readTokenFilters(File file, Charset charset, List<String> descriptors) {
 		try {
 			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)))) {
@@ -127,12 +108,18 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 		}
 	}
 
-	@Override
+	/**
+	 * Reads a sequence of token filters from a file, and stores their
+	 * descriptors in the provided paramater.
+	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors) {
 		return this.readTokenFilters(scanner, null, descriptors);
 	}
 
-	@Override
+	/**
+	 * Reads a sequence of token filters from a scanner, with a path providing
+	 * clean error reporting.
+	 */
 	public List<TokenFilter> readTokenFilters(Scanner scanner, String path, List<String> descriptors) {
 		List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
 		Map<String, String> defaultParams = new HashMap<String, String>();
@@ -178,7 +165,11 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 		return tokenFilters;
 	}
 
-	@Override
+	/**
+	 * Gets a TokenFilter corresponding to a given descriptor. The descriptor
+	 * should contain the class name, followed by any arguments, separated by
+	 * tabs.
+	 */
 	public TokenFilter getTokenFilter(String descriptor) throws TokenFilterLoadException {
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		return this.getTokenFilter(descriptor, parameterMap);
@@ -242,59 +233,36 @@ class TokenFilterServiceImpl implements TokenFilterServiceInternal, TokenFilterD
 	public void injectDependencies(TokenFilter tokenFilter) {
 		if (AbstractRegexFilter.class.isAssignableFrom(tokenFilter.getClass())) {
 			AbstractRegexFilter abstractRegexFilter = (AbstractRegexFilter) tokenFilter;
-			abstractRegexFilter.setTalismaneSession(talismaneService.getTalismaneSession());
+			abstractRegexFilter.setTalismaneSession(talismaneSession);
 		}
 	}
 
-	@Override
-	public TokenSequenceFilter getTokenSequenceFilter(List<TokenFilter> tokenFilters) {
-		TokenFilterWrapper wrapper = new TokenFilterWrapper(tokenFilters);
-		return wrapper;
-	}
-
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
-	}
-
-	public void setTalismaneService(TalismaneService talismaneService) {
-		this.talismaneService = talismaneService;
-	}
-
-	@Override
-	public ExternalResourceFinder getExternalResourceFinder() {
-		if (this.externalResourceFinder == null) {
-			this.externalResourceFinder = new ExternalResourceFinder();
-		}
-		return externalResourceFinder;
-	}
-
-	@Override
-	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
-		this.externalResourceFinder = externalResourceFinder;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
-	}
-
-	@Override
+	/**
+	 * Register a token filter class that can be loaded using
+	 * {@link #readTokenFilters(Scanner)}. The type must include a default
+	 * constructor.
+	 * 
+	 * @param name
+	 *            the name used to recognise this class
+	 * @param type
+	 *            the class to be instantiated
+	 */
 	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type) {
 		this.registeredFilterTypes.put(name, type);
 	}
 
-	@Override
+	/**
+	 * Like {@link #registerTokenFilterType(String, Class)}, but with an
+	 * additional dependency injector argument to inject dependencies prior to
+	 * loading.
+	 * 
+	 * @param dependencyInjector
+	 *            the dependency injector for this class - any TokenFilter
+	 *            assignable to this class will receive calls for this injector.
+	 */
 	public void registerTokenFilterType(String name, Class<? extends TokenFilter> type, TokenFilterDependencyInjector dependencyInjector) {
 		this.registeredFilterTypes.put(name, type);
 		this.registeredDependencyInjectors.put(type, dependencyInjector);
-	}
-
-	@Override
-	public List<Class<? extends TokenSequenceFilter>> getAvailableTokenSequenceFilters() {
-		return availableTokenSequenceFilters;
 	}
 
 }

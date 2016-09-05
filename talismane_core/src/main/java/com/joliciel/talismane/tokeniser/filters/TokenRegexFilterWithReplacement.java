@@ -23,10 +23,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.RegexUtils;
 
 class TokenRegexFilterWithReplacement extends AbstractRegexFilter {
 	String replacement;
+
+	public TokenRegexFilterWithReplacement(String regex, TalismaneSession talismaneSession) {
+		super();
+		this.setRegex(regex);
+		this.setTalismaneSession(talismaneSession);
+	}
 
 	TokenRegexFilterWithReplacement() {
 		super();

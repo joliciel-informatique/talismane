@@ -38,6 +38,7 @@ import com.joliciel.talismane.resources.WordListFinder;
  *
  */
 public class TalismaneSession {
+	private final String sessionId;
 	private Locale locale;
 	private PosTagSet posTagSet;
 	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
@@ -49,7 +50,8 @@ public class TalismaneSession {
 	private final WordListFinder wordListFinder = new WordListFinder();
 	private final ExternalResourceFinder externalResourceFinder = new ExternalResourceFinder();
 
-	TalismaneSession() {
+	TalismaneSession(String sessionId) {
+		this.sessionId = sessionId;
 	}
 
 	public synchronized PosTagSet getPosTagSet() {
@@ -159,4 +161,7 @@ public class TalismaneSession {
 		return externalResourceFinder;
 	}
 
+	public String getSessionId() {
+		return sessionId;
+	}
 }

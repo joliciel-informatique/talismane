@@ -32,7 +32,6 @@ import com.joliciel.talismane.fr.ftb.search.SearchServiceImpl;
 import com.joliciel.talismane.fr.ftb.upload.TreebankUploadServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 import com.joliciel.talismane.utils.ObjectCache;
 import com.joliciel.talismane.utils.SimpleObjectCache;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -49,7 +48,6 @@ public class TreebankServiceLocator {
 
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
-	private TokenFilterService tokenFilterService;
 	private TalismaneService talismaneService;
 
 	private static TreebankServiceLocator instance = null;
@@ -57,7 +55,6 @@ public class TreebankServiceLocator {
 	private TreebankServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
 		this.tokeniserService = talismaneServiceLocator.getTokeniserServiceLocator().getTokeniserService();
 		this.posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
-		this.tokenFilterService = talismaneServiceLocator.getTokenFilterServiceLocator().getTokenFilterService();
 		this.talismaneService = talismaneServiceLocator.getTalismaneService();
 	}
 
@@ -156,10 +153,6 @@ public class TreebankServiceLocator {
 
 	public PosTaggerService getPosTaggerService() {
 		return posTaggerService;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
 	}
 
 	public TalismaneService getTalismaneService() {

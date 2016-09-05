@@ -74,24 +74,23 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	private static final Logger LOG = LoggerFactory.getLogger(IntervalPatternTokeniser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternTokeniser.class);
 
-	private DecisionMaker decisionMaker;
+	private final DecisionMaker decisionMaker;
 
-	private TokeniserPatternService tokeniserPatternService;
+	private final TokeniserPatternManager tokeniserPatternManager;
+	private final int beamWidth;
+	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
+	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
 
-	private TokeniserPatternManager tokeniserPatternManager;
-	private int beamWidth;
-	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
-	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
-
-	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
+	private final List<ClassificationObserver> observers = new ArrayList<>();
 
 	/**
 	 * Reads separator defaults and test patterns from the default file for this
 	 * locale.
 	 */
-	public IntervalPatternTokeniser(TokeniserPatternManager tokeniserPatternManager, Set<TokeniserContextFeature<?>> tokeniserContextFeatures, int beamWidth,
-			TalismaneSession talismaneSession) {
+	public IntervalPatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager,
+			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, int beamWidth, TalismaneSession talismaneSession) {
 		super(talismaneSession);
+		this.decisionMaker = decisionMaker;
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.tokeniserContextFeatures = tokeniserContextFeatures;
@@ -113,29 +112,13 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 		return decisionMaker;
 	}
 
-	public void setDecisionMaker(DecisionMaker decisionMaker) {
-		this.decisionMaker = decisionMaker;
-	}
-
 	@Override
 	public TokeniserPatternManager getTokeniserPatternManager() {
 		return tokeniserPatternManager;
 	}
 
-	public void setTokeniserPatternManager(TokeniserPatternManager tokeniserPatternManager) {
-		this.tokeniserPatternManager = tokeniserPatternManager;
-	}
-
 	public int getBeamWidth() {
 		return beamWidth;
-	}
-
-	public TokeniserPatternService getTokeniserPatternService() {
-		return tokeniserPatternService;
-	}
-
-	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
-		this.tokeniserPatternService = tokeniserPatternService;
 	}
 
 	/**
@@ -198,7 +181,7 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 			// initially create a heap with a single, empty sequence
 			PriorityQueue<TokenisedAtomicTokenSequence> heap = new PriorityQueue<TokenisedAtomicTokenSequence>();
-			TokenisedAtomicTokenSequence emptySequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(sentence, 0);
+			TokenisedAtomicTokenSequence emptySequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
 			heap.add(emptySequence);
 			int i = 0;
 			for (Token token : initialSequence.listWithWhiteSpace()) {
@@ -265,7 +248,7 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 						for (Decision decision : decisions) {
 							TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
 
-							TokenisedAtomicTokenSequence tokenisedSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(history);
+							TokenisedAtomicTokenSequence tokenisedSequence = new TokenisedAtomicTokenSequence(history);
 							tokenisedSequence.add(taggedToken);
 							if (decision.isStatistical())
 								tokenisedSequence.addDecision(decision);
@@ -289,7 +272,7 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 			}
 		} else {
 			sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-			TokenisedAtomicTokenSequence defaultSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(sentence, 0);
+			TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
 			int i = 0;
 			for (Token token : initialSequence.listWithWhiteSpace()) {
 				Decision decision = defaultDecisions.get(i++);

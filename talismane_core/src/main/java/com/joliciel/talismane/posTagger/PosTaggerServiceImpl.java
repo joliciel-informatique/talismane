@@ -32,12 +32,10 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
-	TokenFilterService tokenFilterService;
 	TalismaneService talismaneService;
 
 	@Override
@@ -118,7 +116,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		corpusReader.setPosTaggerServiceInternal(this);
 		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
-		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
 	}
 
@@ -133,14 +130,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		PosTagFeatureTester tester = new PosTagFeatureTester(posTaggerFeatures, testWords, file);
 		tester.setPosTaggerService(this);
 		return tester;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	public TalismaneService getTalismaneService() {

@@ -48,7 +48,7 @@ class SimpleTokeniser extends AbstractTokeniser {
 		List<TokenisedAtomicTokenSequence> sequences = null;
 
 		sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-		TokenisedAtomicTokenSequence defaultSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(sentence, 0);
+		TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
 		for (Token token : initialSequence.listWithWhiteSpace()) {
 			Decision tokeniserDecision = new Decision(TokeniserOutcome.SEPARATE.name());
 			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<TokeniserOutcome>(token, tokeniserDecision,

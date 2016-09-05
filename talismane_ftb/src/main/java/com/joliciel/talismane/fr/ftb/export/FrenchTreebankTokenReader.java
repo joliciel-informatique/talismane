@@ -51,7 +51,7 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -68,7 +68,6 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private TreebankService treebankService;
 	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
-	private TokenFilterService tokenFilterService;
 	private TalismaneService talismaneService;
 
 	private FtbPosTagMapper ftbPosTagMapper;
@@ -364,7 +363,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			}
 
 			if (tokenFilterWrapper == null) {
-				tokenFilterWrapper = tokenFilterService.getTokenSequenceFilter(this.tokenFilters);
+				tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
 			}
 			tokenFilterWrapper.apply(tokenSequence);
 
@@ -544,14 +543,6 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	@Override
 	public List<TokenFilter> getTokenFilters() {
 		return this.tokenFilters;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	@Override

@@ -25,8 +25,6 @@ import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternService;
 import com.typesafe.config.Config;
 
 class TalismaneServiceImpl implements TalismaneServiceInternal {
@@ -34,10 +32,14 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private ParserFeatureService parserFeatureService;
-	private TokenFilterService tokenFilterService;
-	private TokeniserPatternService tokeniserPatternService;
 
 	private TalismaneSession talismaneSession;
+
+	private final String sessionId;
+
+	public TalismaneServiceImpl(String sessionId) {
+		this.sessionId = sessionId;
+	}
 
 	@Override
 	public Talismane getTalismane(TalismaneConfig config) {
@@ -83,7 +85,7 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 	@Override
 	public TalismaneSession getTalismaneSession() {
 		if (talismaneSession == null) {
-			TalismaneSession talismaneSession = new TalismaneSession();
+			TalismaneSession talismaneSession = new TalismaneSession(this.sessionId);
 			this.talismaneSession = talismaneSession;
 		}
 		return talismaneSession;
@@ -102,8 +104,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setParserFeatureService(parserFeatureService);
 		config.setParserService(parserService);
 		config.setPosTaggerService(posTaggerService);
-		config.setTokenFilterService(tokenFilterService);
-		config.setTokeniserPatternService(tokeniserPatternService);
 		config.setTokeniserService(tokeniserService);
 
 		if (args != null)
@@ -119,21 +119,5 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 
 	public void setParserFeatureService(ParserFeatureService parserFeatureService) {
 		this.parserFeatureService = parserFeatureService;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
-	}
-
-	public TokeniserPatternService getTokeniserPatternService() {
-		return tokeniserPatternService;
-	}
-
-	public void setTokeniserPatternService(TokeniserPatternService tokeniserPatternService) {
-		this.tokeniserPatternService = tokeniserPatternService;
 	}
 }

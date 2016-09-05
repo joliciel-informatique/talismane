@@ -47,7 +47,7 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
@@ -103,9 +103,9 @@ public class TalismaneFrench {
 		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 		TalismaneService talismaneService = locator.getTalismaneService();
 
-		TokenFilterService tokenFilterService = locator.getTokenFilterServiceLocator().getTokenFilterService();
-		tokenFilterService.getAvailableTokenSequenceFilters().add(EmptyTokenAfterDuFilter.class);
-		tokenFilterService.getAvailableTokenSequenceFilters().add(EmptyTokenBeforeDuquelFilter.class);
+		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneService.getTalismaneSession());
+		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenAfterDuFilter.class);
+		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenBeforeDuquelFilter.class);
 
 		Map<String, Object> defaultConfigParams = new HashMap<>();
 		defaultConfigParams.put("talismane.core.locale", "fr");
@@ -122,7 +122,6 @@ public class TalismaneFrench {
 				ftbDepReader.setParserService(config.getParserService());
 				ftbDepReader.setPosTaggerService(config.getPosTaggerService());
 				ftbDepReader.setTokeniserService(config.getTokeniserService());
-				ftbDepReader.setTokenFilterService(config.getTokenFilterService());
 				ftbDepReader.setTalismaneService(config.getTalismaneService());
 
 				ftbDepReader.setKeepCompoundPosTags(keepCompoundPosTags);

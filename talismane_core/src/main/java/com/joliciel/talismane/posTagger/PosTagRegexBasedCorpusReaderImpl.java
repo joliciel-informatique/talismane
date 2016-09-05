@@ -41,7 +41,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
@@ -75,7 +75,6 @@ class PosTagRegexBasedCorpusReaderImpl implements PosTagRegexBasedCorpusReader {
 	private TalismaneService talismaneService;
 	private PosTaggerServiceInternal posTaggerServiceInternal;
 	private TokeniserService tokeniserService;
-	private TokenFilterService tokenFilterService;
 
 	public PosTagRegexBasedCorpusReaderImpl(Reader reader) {
 		this.scanner = new Scanner(reader);
@@ -138,7 +137,7 @@ class PosTagRegexBasedCorpusReaderImpl implements PosTagRegexBasedCorpusReader {
 						// the text of an individual token
 						// with something else
 						if (tokenFilterWrapper == null) {
-							tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
+							tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
 						}
 						tokenFilterWrapper.apply(tokenSequence);
 
@@ -409,14 +408,6 @@ class PosTagRegexBasedCorpusReaderImpl implements PosTagRegexBasedCorpusReader {
 	@Override
 	public boolean isNewParagraph() {
 		return false;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	public TalismaneService getTalismaneService() {

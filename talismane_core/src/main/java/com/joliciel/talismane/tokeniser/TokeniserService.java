@@ -20,7 +20,6 @@ package com.joliciel.talismane.tokeniser;
 
 import java.io.Reader;
 
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 
 public interface TokeniserService {
@@ -35,10 +34,6 @@ public interface TokeniserService {
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(int initialCapacity);
 
 	public <T extends TokenTag> TaggedTokenSequence<T> getTaggedTokenSequence(TaggedTokenSequence<T> history);
-
-	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(TokenisedAtomicTokenSequence history);
-
-	public TokenisedAtomicTokenSequence getTokenisedAtomicTokenSequence(Sentence sentence, int initialCapacity);
 
 	/**
 	 * Returns a corpus reader based on the use of Regex. See class description

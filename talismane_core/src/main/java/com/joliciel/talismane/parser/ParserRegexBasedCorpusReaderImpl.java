@@ -59,7 +59,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -95,7 +95,6 @@ public class ParserRegexBasedCorpusReaderImpl implements ParserRegexBasedCorpusR
 	private ParserService parserService;
 	private PosTaggerService posTaggerService;
 	private TokeniserService tokeniserService;
-	private TokenFilterService tokenFilterService;
 
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
@@ -227,10 +226,9 @@ public class ParserRegexBasedCorpusReaderImpl implements ParserRegexBasedCorpusR
 
 									// first apply the token filters - which
 									// might replace the text of an individual
-									// token
-									// with something else
+									// token with something else
 									if (tokenFilterWrapper == null) {
-										tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
+										tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
 									}
 									tokenFilterWrapper.apply(tokenSequence);
 
@@ -928,14 +926,6 @@ public class ParserRegexBasedCorpusReaderImpl implements ParserRegexBasedCorpusR
 	@Override
 	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter) {
 		this.posTagSequenceFilters.add(posTagSequenceFilter);
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	@Override

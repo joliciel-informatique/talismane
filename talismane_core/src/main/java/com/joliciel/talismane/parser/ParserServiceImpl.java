@@ -21,14 +21,12 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.tokeniser.TokeniserService;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 public class ParserServiceImpl implements ParserServiceInternal {
 	TalismaneService talismaneService;
 	ParserFeatureService parseFeatureService;
 	PosTaggerService posTaggerService;
 	TokeniserService tokeniserService;
-	TokenFilterService tokenFilterService;
 
 	@Override
 	public DependencyArc getDependencyArc(PosTaggedToken head, PosTaggedToken dependent, String label) {
@@ -146,7 +144,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
-		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
 	}
 
@@ -157,7 +154,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		corpusReader.setTalismaneService(this.getTalismaneService());
 		corpusReader.setPosTaggerService(this.getPosTaggerService());
 		corpusReader.setTokeniserService(this.getTokeniserService());
-		corpusReader.setTokenFilterService(this.getTokenFilterService());
 		return corpusReader;
 	}
 
@@ -175,14 +171,6 @@ public class ParserServiceImpl implements ParserServiceInternal {
 
 	public void setTokeniserService(TokeniserService tokeniserService) {
 		this.tokeniserService = tokeniserService;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	@Override

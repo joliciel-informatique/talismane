@@ -48,7 +48,7 @@ import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 public class StandoffReader implements ParserAnnotatedCorpusReader {
@@ -64,7 +64,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private ParserService parserService;
 	private PosTaggerService posTaggerService;
 	private TokeniserService tokeniserService;
-	private TokenFilterService tokenFilterService;
 
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
@@ -200,7 +199,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 				// of an individual token
 				// with something else
 				if (tokenFilterWrapper == null) {
-					tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
+					tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
 				}
 				tokenFilterWrapper.apply(tokenSequence);
 
@@ -286,14 +285,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	@Override
 	public void setMaxSentenceCount(int maxSentenceCount) {
 		this.maxSentenceCount = maxSentenceCount;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
 	}
 
 	public PosTaggerService getPosTaggerService() {

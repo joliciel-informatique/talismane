@@ -106,7 +106,7 @@ class TokenComparatorImpl implements TokenComparator {
 				}
 			}
 
-			TokenisedAtomicTokenSequence guess = tokeniserServiceInternal.getTokenisedAtomicTokenSequence(realSequence.getSentence(), 0);
+			TokenisedAtomicTokenSequence guess = new TokenisedAtomicTokenSequence(realSequence.getSentence(), 0, talismaneSession);
 
 			int i = 0;
 			int mismatches = 0;
