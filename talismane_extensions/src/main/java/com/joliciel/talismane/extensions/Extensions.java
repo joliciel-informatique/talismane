@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.corpus.CorpusModifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
@@ -76,11 +74,10 @@ public class Extensions {
 		boolean commandRun = extensions.runCommand(argsMap);
 		if (!commandRun) {
 			String sessionId = "";
-			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-			TalismaneService talismaneService = locator.getTalismaneService();
+			TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
 			Config conf = ConfigFactory.load();
-			TalismaneConfig config = talismaneService.getTalismaneConfig(conf, argsMap);
+			TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
 			if (config.getCommand() == null)
 				return;
 
@@ -138,7 +135,7 @@ public class Extensions {
 			if (command == null)
 				return;
 
-			TalismaneSession talismaneSession = config.getTalismaneService().getTalismaneSession();
+			TalismaneSession talismaneSession = config.getTalismaneSession();
 
 			switch (command) {
 			case toStandoff: {
@@ -157,8 +154,6 @@ public class Extensions {
 			case fromStandoff: {
 				try (Scanner scanner = new Scanner(config.getReader())) {
 					StandoffReader standoffReader = new StandoffReader(talismaneSession, scanner);
-					standoffReader.setParserService(config.getParserService());
-					standoffReader.setPosTaggerService(config.getPosTaggerService());
 
 					config.setParserCorpusReader(standoffReader);
 				}

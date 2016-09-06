@@ -40,7 +40,7 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  *
  */
-class ParseEventStream implements ClassificationEventStream {
+public class ParseEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseEventStream.class);
 
@@ -50,12 +50,10 @@ class ParseEventStream implements ClassificationEventStream {
 	ParseConfiguration targetConfiguration;
 	ParseConfiguration currentConfiguration;
 
-	ParserServiceInternal parserServiceInternal;
-
 	int currentIndex;
 	int eventCount;
 
-	ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
+	public ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
 		this.corpusReader = corpusReader;
 		this.parseFeatures = parseFeatures;
 	}
@@ -140,13 +138,5 @@ class ParseEventStream implements ClassificationEventStream {
 
 		attributes.putAll(corpusReader.getCharacteristics());
 		return attributes;
-	}
-
-	public ParserServiceInternal getParserServiceInternal() {
-		return parserServiceInternal;
-	}
-
-	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
-		this.parserServiceInternal = parserServiceInternal;
 	}
 }

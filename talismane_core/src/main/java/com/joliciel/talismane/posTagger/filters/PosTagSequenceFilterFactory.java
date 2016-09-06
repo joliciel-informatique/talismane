@@ -27,15 +27,22 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
-class PosTagFilterServiceImpl implements PosTagFilterServiceInternal {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTagFilterServiceImpl.class);
+public class PosTagSequenceFilterFactory {
+	public static final String POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY = "postag_preprocessing_filter";
+	public static final String POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY = "postag_postprocessing_filter";
 
-	@Override
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagSequenceFilterFactory.class);
+
+	/**
+	 * Gets a PosTagSequenceFilter corresponding to a given descriptor. The
+	 * descriptor should contain the class name, followed by any arguments,
+	 * separated by tabs.
+	 */
 	public PosTagSequenceFilter getPosTagSequenceFilter(String descriptor) {
 		PosTagSequenceFilter filter = null;
 		List<Class<? extends PosTagSequenceFilter>> classes = new ArrayListNoNulls<Class<? extends PosTagSequenceFilter>>();
 		classes.add(RemoveNullEmptyTokensFilter.class);
-		
+
 		for (Class<? extends PosTagSequenceFilter> clazz : classes) {
 			if (descriptor.equals(clazz.getSimpleName())) {
 				try {
@@ -49,11 +56,11 @@ class PosTagFilterServiceImpl implements PosTagFilterServiceInternal {
 				}
 			}
 		}
-		
-		if (filter==null) {
+
+		if (filter == null) {
 			throw new TalismaneException("Unknown PosTagSequenceFilter: " + descriptor);
 		}
-		
+
 		return filter;
 	}
 

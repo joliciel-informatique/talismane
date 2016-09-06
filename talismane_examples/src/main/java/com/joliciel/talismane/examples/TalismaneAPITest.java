@@ -19,8 +19,7 @@
 package com.joliciel.talismane.examples;
 
 import com.joliciel.talismane.TalismaneConfig;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.DependencyNode;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.Parser;
@@ -50,11 +49,9 @@ public class TalismaneAPITest {
 		String sessionId = "";
 
 		// load the Talismane configuration
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance(sessionId);
-		TalismaneService talismaneService = talismaneServiceLocator.getTalismaneService();
-
+		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 		Config conf = ConfigFactory.load();
-		TalismaneConfig talismaneConfig = talismaneService.getTalismaneConfig(conf);
+		TalismaneConfig talismaneConfig = new TalismaneConfig(conf, talismaneSession);
 
 		// tokenise the text
 		Tokeniser tokeniser = talismaneConfig.getTokeniser();

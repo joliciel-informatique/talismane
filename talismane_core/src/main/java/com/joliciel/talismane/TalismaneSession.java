@@ -19,8 +19,10 @@
 package com.joliciel.talismane;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
@@ -38,6 +40,8 @@ import com.joliciel.talismane.resources.WordListFinder;
  *
  */
 public class TalismaneSession {
+	private static final Map<String, TalismaneSession> instances = new HashMap<>();
+
 	private final String sessionId;
 	private Locale locale;
 	private PosTagSet posTagSet;
@@ -50,7 +54,16 @@ public class TalismaneSession {
 	private final WordListFinder wordListFinder = new WordListFinder();
 	private final ExternalResourceFinder externalResourceFinder = new ExternalResourceFinder();
 
-	TalismaneSession(String sessionId) {
+	public static TalismaneSession getInstance(String sessionId) {
+		TalismaneSession session = instances.get(sessionId);
+		if (session == null) {
+			session = new TalismaneSession(sessionId);
+			instances.put(sessionId, session);
+		}
+		return session;
+	}
+
+	private TalismaneSession(String sessionId) {
 		this.sessionId = sessionId;
 	}
 

@@ -39,22 +39,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.GenericRules;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.DefaultPosTagMapper;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.lexicon.LexiconFile;
 import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
+import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
-import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.terminology.TermExtractorImpl.Expansion;
+import com.joliciel.talismane.terminology.TermExtractor.Expansion;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -72,14 +70,11 @@ public class TermExtractorTest {
 		InputStream configurationInputStream = getClass().getResourceAsStream("termTestCONLL.txt");
 		Reader configurationReader = new BufferedReader(new InputStreamReader(configurationInputStream, "UTF-8"));
 
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
-		TalismaneService talismaneService = locator.getTalismaneService();
 		PosTagSet tagSet = new PosTagSet(tagsetScanner);
-		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+		TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		talismaneSession.setPosTagSet(tagSet);
 
-		ParserService parserService = locator.getParserServiceLocator().getParserService();
-		TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
+		TransitionSystem transitionSystem = new ArcEagerTransitionSystem();
 		talismaneSession.setTransitionSystem(transitionSystem);
 
 		talismaneSession.setLinguisticRules(new GenericRules(talismaneSession));
@@ -126,8 +121,8 @@ public class TermExtractorTest {
 			}
 		};
 
-		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase, TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
-		termExtractor.setTalismaneService(talismaneService);
+		TermExtractor termExtractor = new TermExtractor(terminologyBase, TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH),
+				talismaneSession);
 
 		PosTaggedToken chat = configuration.getPosTagSequence().get(3);
 		assertEquals("chat", chat.getToken().getText());
@@ -326,14 +321,11 @@ public class TermExtractorTest {
 		InputStream configurationInputStream = getClass().getResourceAsStream("termTestCONLLPlural.txt");
 		Reader configurationReader = new BufferedReader(new InputStreamReader(configurationInputStream, "UTF-8"));
 
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance("");
-		TalismaneService talismaneService = locator.getTalismaneService();
 		PosTagSet tagSet = new PosTagSet(tagsetScanner);
-		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+		TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		talismaneSession.setPosTagSet(tagSet);
 
-		ParserService parserService = locator.getParserServiceLocator().getParserService();
-		TransitionSystem transitionSystem = parserService.getArcEagerTransitionSystem();
+		TransitionSystem transitionSystem = new ArcEagerTransitionSystem();
 		talismaneSession.setTransitionSystem(transitionSystem);
 
 		talismaneSession.setLinguisticRules(new GenericRules(talismaneSession));
@@ -375,8 +367,8 @@ public class TermExtractorTest {
 			}
 		};
 
-		TermExtractorImpl termExtractor = new TermExtractorImpl(terminologyBase, TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH));
-		termExtractor.setTalismaneService(talismaneService);
+		TermExtractor termExtractor = new TermExtractor(terminologyBase, TalismaneTermExtractorMain.getDefaultTerminologyProperties(Locale.FRENCH),
+				talismaneSession);
 
 		PosTaggedToken chat = configuration.getPosTagSequence().get(3);
 		assertEquals("chats", chat.getToken().getText());

@@ -39,7 +39,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
+public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 	private static final Logger LOG = LoggerFactory.getLogger(ShiftReduceTransitionSystem.class);
 	private transient Set<Transition> transitions = null;
 

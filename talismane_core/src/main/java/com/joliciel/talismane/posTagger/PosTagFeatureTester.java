@@ -21,20 +21,29 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-class PosTagFeatureTester implements PosTagSequenceProcessor {
+public class PosTagFeatureTester implements PosTagSequenceProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagFeatureTester.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagFeatureTester.class);
 
-	private Set<PosTaggerFeature<?>> posTaggerFeatures;
-	private PosTaggerService posTaggerService;
+	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
 
-	private Set<String> testWords;
+	private final Set<String> testWords;
 
-	private Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<String, Map<String, List<String>>>();
-	private File file;
+	private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<String, Map<String, List<String>>>();
+	private final File file;
 
+	/**
+	 * A feature tester, which outputs results of applying features to the items
+	 * encountered in a given corpus.
+	 * 
+	 * @param posTaggerFeatures
+	 *            the features to test
+	 * @param testWords
+	 *            limit the test to certain words only
+	 * @param file
+	 *            the file where the test results should be written
+	 */
 	public PosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures, Set<String> testWords, File file) {
-		super();
 		this.posTaggerFeatures = posTaggerFeatures;
 		this.testWords = testWords;
 		this.file = file;
@@ -110,24 +119,8 @@ class PosTagFeatureTester implements PosTagSequenceProcessor {
 		return testWords;
 	}
 
-	public void setTestWords(Set<String> testWords) {
-		this.testWords = testWords;
-	}
-
 	public Set<PosTaggerFeature<?>> getPosTaggerFeatures() {
 		return posTaggerFeatures;
-	}
-
-	public void setPosTaggerFeatures(Set<PosTaggerFeature<?>> posTaggerFeatures) {
-		this.posTaggerFeatures = posTaggerFeatures;
-	}
-
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
 	}
 
 	@Override

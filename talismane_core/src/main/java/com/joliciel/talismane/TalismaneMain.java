@@ -86,15 +86,13 @@ public class TalismaneMain {
 		LogUtils.configureLogging(logConfigPath);
 
 		String sessionId = "";
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-		TalismaneService talismaneService = locator.getTalismaneService();
-		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
 		Config config = ConfigFactory.load();
 
 		if (otherCommand == null) {
 			// regular command
-			TalismaneConfig talismaneConfig = talismaneService.getTalismaneConfig(config, argsMap);
+			TalismaneConfig talismaneConfig = new TalismaneConfig(argsMap, config, talismaneSession);
 			if (talismaneConfig.getCommand() == null)
 				return;
 

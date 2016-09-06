@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceTag;
@@ -43,7 +42,7 @@ public class TokenSequenceTest {
 
 	@Test
 	public void testTokeniseSentence(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
 
@@ -159,7 +158,7 @@ public class TokenSequenceTest {
 
 	@Test
 	public void testSimpleAddByIndex(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		new NonStrictExpectations() {
 			{
@@ -199,7 +198,7 @@ public class TokenSequenceTest {
 
 	@Test
 	public void testTokeniseSentenceWithPlaceholders(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
@@ -329,7 +328,7 @@ public class TokenSequenceTest {
 
 	@Test
 	public void testTokeniseSentenceWithPlaceholdersNoSeparators(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
@@ -428,7 +427,7 @@ public class TokenSequenceTest {
 
 	@Test
 	public void testOverlappingPlaceholders(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);

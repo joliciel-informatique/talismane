@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 
@@ -39,12 +38,11 @@ public class SentenceHolderTest {
 
 	@Before
 	public void setup() {
-		TalismaneServiceLocator.purgeInstance("");
 	}
 
 	@Test
 	public void testGetDetectedSentences() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		String originalText = "Hello  <b>World</b>. <o>Output this</o>How are you?  Fine<o>Output</o>,  ";
@@ -163,7 +161,7 @@ public class SentenceHolderTest {
 
 	@Test
 	public void testGetDetectedSentencesWithBoundaryAtEnd() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		holder.setText("Hello World.");
@@ -186,7 +184,7 @@ public class SentenceHolderTest {
 
 	@Test
 	public void testGetDetectedSentencesWithNewlines() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		holder.setText("Hello World. How are you? Fine thanks.");

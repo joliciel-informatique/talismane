@@ -36,12 +36,10 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
-import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
@@ -59,9 +57,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
 	private int crossValidationSize = 0;
-
-	private ParserService parserService;
-	private PosTaggerService posTaggerService;
 
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
@@ -283,22 +278,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	@Override
 	public void setMaxSentenceCount(int maxSentenceCount) {
 		this.maxSentenceCount = maxSentenceCount;
-	}
-
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
-	}
-
-	public ParserService getParserService() {
-		return parserService;
-	}
-
-	public void setParserService(ParserService parserService) {
-		this.parserService = parserService;
 	}
 
 	private static final class StandoffToken {

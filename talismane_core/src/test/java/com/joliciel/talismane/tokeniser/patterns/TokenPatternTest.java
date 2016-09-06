@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
@@ -368,7 +367,7 @@ public class TokenPatternTest {
 
 	@Test
 	public void testMatch2(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		new NonStrictExpectations() {
 			{
@@ -389,7 +388,7 @@ public class TokenPatternTest {
 
 	@Test
 	public void testMatch3(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		new NonStrictExpectations() {
 			{
@@ -414,7 +413,7 @@ public class TokenPatternTest {
 
 	@Test
 	public void testMatch4(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		new NonStrictExpectations() {
 			{

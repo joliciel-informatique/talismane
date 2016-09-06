@@ -40,7 +40,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-class ParseFeatureTester implements ParseConfigurationProcessor {
+public class ParseFeatureTester implements ParseConfigurationProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(ParseFeatureTester.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseConfigurationProcessor.class);
 

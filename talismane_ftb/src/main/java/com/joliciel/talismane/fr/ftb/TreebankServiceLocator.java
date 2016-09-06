@@ -20,17 +20,17 @@ package com.joliciel.talismane.fr.ftb;
 
 import java.beans.PropertyVetoException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.fr.ftb.export.TreebankExportServiceLocator;
 import com.joliciel.talismane.fr.ftb.search.SearchService;
 import com.joliciel.talismane.fr.ftb.search.SearchServiceImpl;
 import com.joliciel.talismane.fr.ftb.upload.TreebankUploadServiceLocator;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.utils.ObjectCache;
 import com.joliciel.talismane.utils.SimpleObjectCache;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -45,19 +45,20 @@ public class TreebankServiceLocator {
 	private TreebankUploadServiceLocator treebankUploadServiceLocator;
 	private TreebankExportServiceLocator treebankExportServiceLocator;
 
-	private PosTaggerService posTaggerService;
-	private TalismaneService talismaneService;
+	private static Map<String, TreebankServiceLocator> instances = new HashMap<>();
 
-	private static TreebankServiceLocator instance = null;
+	private final TalismaneSession talismaneSession;
 
-	private TreebankServiceLocator(TalismaneServiceLocator talismaneServiceLocator) {
-		this.posTaggerService = talismaneServiceLocator.getPosTaggerServiceLocator().getPosTaggerService();
-		this.talismaneService = talismaneServiceLocator.getTalismaneService();
+	private TreebankServiceLocator(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 	}
 
-	public static TreebankServiceLocator getInstance(TalismaneServiceLocator talismaneServiceLocator) {
-		if (instance == null)
-			instance = new TreebankServiceLocator(talismaneServiceLocator);
+	public static TreebankServiceLocator getInstance(TalismaneSession talismaneSession) {
+		TreebankServiceLocator instance = instances.get(talismaneSession.getSessionId());
+		if (instance == null) {
+			instance = new TreebankServiceLocator(talismaneSession);
+			instances.put(talismaneSession.getSessionId(), instance);
+		}
 		return instance;
 	}
 
@@ -144,12 +145,8 @@ public class TreebankServiceLocator {
 		return treebankExportServiceLocator;
 	}
 
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
+	public TalismaneSession getTalismaneSession() {
+		return talismaneSession;
 	}
 
 }

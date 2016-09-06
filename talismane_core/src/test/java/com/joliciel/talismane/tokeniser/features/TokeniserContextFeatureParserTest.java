@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AndFeature;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -45,7 +44,7 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseAndFeature() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -66,7 +65,7 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseWordFeature() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -87,7 +86,7 @@ public class TokeniserContextFeatureParserTest {
 
 	@Test
 	public void testParseConcatenateFeature() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -109,7 +108,7 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testNamedFeatures() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -130,7 +129,7 @@ public class TokeniserContextFeatureParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testOrOperator() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 

@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
@@ -40,7 +39,7 @@ public class PatternTokeniserTest {
 
 	@Test
 	public void testTokenise() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final String sentence = "Je n'ai pas l'ourang-outan.";
 		final Map<SeparatorDecision, String> separatorDefaults = new HashMap<SeparatorDecision, String>();

@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
 
-class TransitionLogWriter implements ParseConfigurationProcessor {
+/**
+ * Writes the list of transitions that were actually applied, one at a time.
+ */
+public class TransitionLogWriter implements ParseConfigurationProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(TransitionLogWriter.class);
 
 	Writer csvFileWriter = null;

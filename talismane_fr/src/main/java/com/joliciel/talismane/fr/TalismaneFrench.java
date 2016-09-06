@@ -33,8 +33,6 @@ import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.Extensions;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
@@ -101,10 +99,9 @@ public class TalismaneFrench {
 		extensions.pluckParameters(argsMap);
 
 		String sessionId = "";
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-		TalismaneService talismaneService = locator.getTalismaneService();
+		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
-		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneService.getTalismaneSession());
+		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
 		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenAfterDuFilter.class);
 		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenBeforeDuquelFilter.class);
 
@@ -113,11 +110,9 @@ public class TalismaneFrench {
 
 		Config conf = ConfigFactory.load().withFallback(ConfigFactory.parseMap(defaultConfigParams));
 
-		TalismaneConfig config = talismaneService.getTalismaneConfig(conf, argsMap);
+		TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
 		if (config.getCommand() == null)
 			return;
-
-		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 
 		if (corpusReaderType != null) {
 			if (corpusReaderType == CorpusFormat.ftbDep) {
@@ -138,7 +133,7 @@ public class TalismaneFrench {
 					config.setPosTagEvaluationCorpusReader(ftbDepEvaluationReader);
 				}
 			} else if (corpusReaderType == CorpusFormat.ftb) {
-				TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(locator);
+				TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneSession);
 				TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
 				TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
 				File treebankFile = new File(treebankDirPath);
@@ -153,7 +148,7 @@ public class TalismaneFrench {
 						descriptors.add(scanner.nextLine());
 				}
 
-				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneService.getTalismaneSession().getPosTagSet());
+				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneSession.getPosTagSet());
 				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper,
 						keepCompoundPosTags);
 				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);

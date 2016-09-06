@@ -20,6 +20,7 @@ package com.joliciel.talismane.posTagger;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -30,13 +31,16 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
+import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.StringAttribute;
@@ -46,34 +50,32 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
- * Performs POS tagging by applying a beam search to MaxEnt model results.
+ * Performs POS tagging by applying a beam search to statistical model results.
  * Incorporates various methods of using a lexicon to constrain results.
  * 
  * @author Assaf Urieli
  *
  */
-class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerImpl.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTaggerImpl.class);
+public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicPosTagger {
+	private static final Logger LOG = LoggerFactory.getLogger(ForwardStatisticalPosTagger.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ForwardStatisticalPosTagger.class);
 	private static final double MIN_PROB_TO_STORE = 0.001;
 	private static final DecimalFormat df = new DecimalFormat("0.0000");
 
-	private TalismaneService talismaneService;
-	private PosTaggerServiceInternal posTaggerService;
-
-	private DecisionMaker decisionMaker;
-
-	private Set<PosTaggerFeature<?>> posTaggerFeatures;
 	private List<PosTaggerRule> posTaggerRules;
 	private List<PosTaggerRule> posTaggerPositiveRules;
 	private List<PosTaggerRule> posTaggerNegativeRules;
 
-	private List<TokenSequenceFilter> preProcessingFilters = new ArrayList<TokenSequenceFilter>();
-	private List<PosTagSequenceFilter> postProcessingFilters = new ArrayList<PosTagSequenceFilter>();
+	private final List<TokenSequenceFilter> preProcessingFilters = new ArrayList<>();
+	private final List<PosTagSequenceFilter> postProcessingFilters = new ArrayList<>();
 
-	private int beamWidth;
+	private final List<ClassificationObserver> observers = new ArrayList<>();
 
-	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
+	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
+	private final DecisionMaker decisionMaker;
+	private final int beamWidth;
+
+	private final TalismaneSession talismaneSession;
 
 	/**
 	 * 
@@ -84,13 +86,35 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	 *            the decision maker used to make pos-tagging decisions
 	 * @param beamWidth
 	 *            the maximum beamwidth to consider during the beam search
-	 * @param fScoreCalculator
-	 *            an f-score calculator for evaluating results
 	 */
-	public PosTaggerImpl(Set<PosTaggerFeature<?>> posTaggerFeatures, DecisionMaker decisionMaker, int beamWidth) {
+	public ForwardStatisticalPosTagger(Set<PosTaggerFeature<?>> posTaggerFeatures, DecisionMaker decisionMaker, int beamWidth,
+			TalismaneSession talismaneSession) {
 		this.posTaggerFeatures = posTaggerFeatures;
 		this.beamWidth = beamWidth;
 		this.decisionMaker = decisionMaker;
+		this.talismaneSession = talismaneSession;
+	}
+
+	/**
+	 * Get a pos-tagger defined by a particular machine learning model.
+	 * 
+	 * @param beamWidth
+	 *            the maximum beamwidth to consider during the beam search
+	 */
+	public ForwardStatisticalPosTagger(ClassificationModel posTaggerModel, int beamWidth, TalismaneSession talismaneSession) {
+		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(talismaneSession);
+		Collection<ExternalResource<?>> externalResources = posTaggerModel.getExternalResources();
+		if (externalResources != null) {
+			for (ExternalResource<?> externalResource : externalResources) {
+				featureParser.getExternalResourceFinder().addExternalResource(externalResource);
+			}
+		}
+
+		Set<PosTaggerFeature<?>> posTaggerFeatures = featureParser.getFeatureSet(posTaggerModel.getFeatureDescriptors());
+		this.posTaggerFeatures = posTaggerFeatures;
+		this.beamWidth = beamWidth;
+		this.decisionMaker = posTaggerModel.getDecisionMaker();
+		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
@@ -309,7 +333,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 						if (LOG.isTraceEnabled())
 							LOG.trace("Outcome: " + decision.getOutcome() + ", " + decision.getProbability());
 
-						PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, talismaneService.getTalismaneSession());
+						PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, this.talismaneSession);
 						PosTagSequence sequence = new PosTagSequence(history);
 						sequence.addPosTaggedToken(posTaggedToken);
 						if (decision.isStatistical())
@@ -382,25 +406,9 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		return decisionMaker;
 	}
 
-	public void setDecisionMaker(DecisionMaker decisionMaker) {
-		this.decisionMaker = decisionMaker;
-	}
-
 	@Override
 	public int getBeamWidth() {
 		return beamWidth;
-	}
-
-	public void setBeamWidth(int beamWidth) {
-		this.beamWidth = beamWidth;
-	}
-
-	public PosTaggerServiceInternal getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerServiceInternal posTaggerService) {
-		this.posTaggerService = posTaggerService;
 	}
 
 	@Override
@@ -432,18 +440,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	}
 
 	@Override
-	public void setPosTaggerFeatures(Set<PosTaggerFeature<?>> posTaggerFeatures) {
-		this.posTaggerFeatures = posTaggerFeatures;
-	}
-
-	@Override
 	public List<TokenSequenceFilter> getPreProcessingFilters() {
 		return preProcessingFilters;
-	}
-
-	@Override
-	public void setPreProcessingFilters(List<TokenSequenceFilter> tokenFilters) {
-		this.preProcessingFilters = tokenFilters;
 	}
 
 	@Override
@@ -457,21 +455,8 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 	}
 
 	@Override
-	public void setPostProcessingFilters(List<PosTagSequenceFilter> posTagFilters) {
-		this.postProcessingFilters = posTagFilters;
-	}
-
-	@Override
 	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter) {
 		this.postProcessingFilters.add(posTagFilter);
-	}
-
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
-	}
-
-	public void setTalismaneService(TalismaneService talismaneService) {
-		this.talismaneService = talismaneService;
 	}
 
 }
