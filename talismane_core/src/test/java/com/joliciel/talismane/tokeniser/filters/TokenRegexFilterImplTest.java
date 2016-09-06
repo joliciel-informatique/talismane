@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.resources.WordList;
 import com.joliciel.talismane.tokeniser.StringAttribute;
@@ -21,7 +20,6 @@ public class TokenRegexFilterImplTest {
 
 	@Before
 	public void setup() {
-		TalismaneServiceLocator.purgeInstance("");
 	}
 
 	@Test
@@ -56,7 +54,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testWordList() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -79,7 +77,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testWordListDiacriticsOptional() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -102,7 +100,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testWordListUppercaseOptional() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -125,7 +123,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testWordListUppercaseDiacriticsOptional() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -256,7 +254,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\b(MLLE\\.|Mlle\\.)", pattern.pattern());
 
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -318,7 +316,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("[Hh][EeÉé]", pattern.pattern());
 
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("apples");

@@ -40,19 +40,27 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  * @author Assaf Urieli
  *
  */
-class PosTagEventStream implements ClassificationEventStream {
+public class PosTagEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagEventStream.class);
 
-	PosTagAnnotatedCorpusReader corpusReader;
-	Set<PosTaggerFeature<?>> posTaggerFeatures;
-	PosTaggerService posTaggerService;
+	private final PosTagAnnotatedCorpusReader corpusReader;
+	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
 
 	PosTagSequence currentSentence;
 	PosTagSequence currentHistory;
 	int currentIndex;
 
-	PosTagEventStream(PosTagAnnotatedCorpusReader corpusReader, Set<PosTaggerFeature<?>> posTaggerFeatures) {
+	/**
+	 * Create a classification event stream for a given corpus reader and set of
+	 * features.
+	 * 
+	 * @param corpusReader
+	 *            the corpus reader used to read the training corpus
+	 * @param posTaggerFeatures
+	 *            the features used to describe events in the training corpus
+	 */
+	public PosTagEventStream(PosTagAnnotatedCorpusReader corpusReader, Set<PosTaggerFeature<?>> posTaggerFeatures) {
 		this.corpusReader = corpusReader;
 		this.posTaggerFeatures = posTaggerFeatures;
 	}
@@ -130,14 +138,6 @@ class PosTagEventStream implements ClassificationEventStream {
 			MONITOR.endTask();
 		}
 
-	}
-
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
 	}
 
 	@Override

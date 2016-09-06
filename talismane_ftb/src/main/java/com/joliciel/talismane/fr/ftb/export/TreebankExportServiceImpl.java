@@ -22,26 +22,26 @@ import java.io.File;
 import java.io.Writer;
 import java.util.List;
 
-import com.joliciel.talismane.TalismaneService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
 import com.joliciel.talismane.fr.ftb.TreebankService;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 
 class TreebankExportServiceImpl implements TreebankExportService {
-	private TreebankService treebankService;
-	private PosTaggerService posTaggerService;
-	private TalismaneService talismaneService;
+	private final TreebankService treebankService;
+	private final TalismaneSession talismaneSession;
+
+	public TreebankExportServiceImpl(TreebankService treebankService, TalismaneSession talismaneSession) {
+		super();
+		this.treebankService = treebankService;
+		this.talismaneSession = talismaneSession;
+	}
 
 	public TreebankService getTreebankService() {
 		return treebankService;
-	}
-
-	public void setTreebankService(TreebankService treebankService) {
-		this.treebankService = treebankService;
 	}
 
 	@Override
@@ -64,10 +64,8 @@ class TreebankExportServiceImpl implements TreebankExportService {
 
 	@Override
 	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader) {
-		FrenchTreebankTokenReader reader = new FrenchTreebankTokenReader(treebankReader);
+		FrenchTreebankTokenReader reader = new FrenchTreebankTokenReader(treebankReader, talismaneSession);
 		reader.setTreebankService(this.getTreebankService());
-		reader.setPosTaggerService(posTaggerService);
-		reader.setTalismaneService(talismaneService);
 		reader.setIgnoreCase(false);
 		return reader;
 	}
@@ -107,21 +105,5 @@ class TreebankExportServiceImpl implements TreebankExportService {
 		reader.setUseCompoundPosTags(useCompoundPosTags);
 		reader.setFtbPosTagMapper(ftbPosTagMapper);
 		return reader;
-	}
-
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
-	}
-
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
-	}
-
-	public void setTalismaneService(TalismaneService talismaneService) {
-		this.talismaneService = talismaneService;
 	}
 }

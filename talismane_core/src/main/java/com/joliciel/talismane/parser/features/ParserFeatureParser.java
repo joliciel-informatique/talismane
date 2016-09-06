@@ -19,34 +19,144 @@
 package com.joliciel.talismane.parser.features;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.DoubleFeature;
+import com.joliciel.talismane.machineLearning.features.Dynamiser;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
+import com.joliciel.talismane.parser.Transition;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunctionWrapper;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
-class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrapper> {
-	private ParserFeatureServiceInternal parserFeatureServiceInternal;
+public class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrapper> {
+	private static final Logger LOG = LoggerFactory.getLogger(ParserFeatureParser.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserFeatureParser.class);
+
 	private final TalismaneSession talismaneSession;
 
-	public ParserFeatureParser(TalismaneSession talismaneSession) {
+	public ParserFeatureParser(TalismaneSession talismaneSession, boolean dynamise) {
 		this.talismaneSession = talismaneSession;
 		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+
+		if (dynamise) {
+			Dynamiser<ParseConfigurationWrapper> dynamiser = new ParserFeatureDynamiser(ParseConfigurationWrapper.class);
+			this.setDynamiser(dynamiser);
+		}
+	}
+
+	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors) {
+		MONITOR.startTask("getFeatures");
+		try {
+			Set<ParseConfigurationFeature<?>> parseFeatures = new TreeSet<ParseConfigurationFeature<?>>();
+			FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+			for (String featureDescriptor : featureDescriptors) {
+				if (featureDescriptor.trim().length() > 0 && !featureDescriptor.startsWith("#")) {
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+					List<ParseConfigurationFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+					parseFeatures.addAll(myFeatures);
+				}
+			}
+			return parseFeatures;
+		} finally {
+			MONITOR.endTask();
+		}
+	}
+
+	public List<ParserRule> getRules(List<String> ruleDescriptors) {
+		MONITOR.startTask("getRules");
+		try {
+			List<ParserRule> rules = new ArrayList<ParserRule>();
+
+			FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+			for (String ruleDescriptor : ruleDescriptors) {
+				LOG.debug(ruleDescriptor);
+				if (ruleDescriptor.trim().length() > 0 && !ruleDescriptor.startsWith("#")) {
+					String[] ruleParts = ruleDescriptor.split("\t");
+					String transitionCode = ruleParts[0];
+					Transition transition = null;
+					Set<Transition> transitions = null;
+					boolean negative = false;
+					String descriptor = null;
+					String descriptorName = null;
+					if (ruleParts.length > 2) {
+						descriptor = ruleParts[2];
+						descriptorName = ruleParts[1];
+					} else {
+						descriptor = ruleParts[1];
+					}
+
+					if (transitionCode.length() == 0) {
+						if (descriptorName == null) {
+							throw new TalismaneException("Rule without Transition must have a name.");
+						}
+					} else {
+						if (transitionCode.startsWith("!")) {
+							negative = true;
+							String[] transitionCodes = transitionCode.substring(1).split(";");
+							transitions = new HashSet<Transition>();
+							for (String code : transitionCodes) {
+								Transition oneTransition = talismaneSession.getTransitionSystem().getTransitionForCode(code);
+								transitions.add(oneTransition);
+							}
+							transition = transitions.iterator().next();
+						} else {
+							transition = talismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
+						}
+
+					}
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
+					if (descriptorName != null)
+						functionDescriptor.setDescriptorName(descriptorName);
+					List<ParseConfigurationFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+					if (transition != null) {
+						for (ParseConfigurationFeature<?> feature : myFeatures) {
+							if (feature instanceof BooleanFeature) {
+								@SuppressWarnings("unchecked")
+								BooleanFeature<ParseConfigurationWrapper> condition = (BooleanFeature<ParseConfigurationWrapper>) feature;
+
+								if (negative) {
+									ParserRule rule = new ParserRule(condition, transitions, true);
+									rules.add(rule);
+								} else {
+									ParserRule rule = new ParserRule(condition, transition, false);
+									rules.add(rule);
+								}
+							} else {
+								throw new TalismaneException("Rule must be based on a boolean feature.");
+							}
+						} // next feature
+					} // is it a rule, or just a descriptor
+				} // proper rule descriptor
+			} // next rule descriptor
+			return rules;
+		} finally {
+			MONITOR.endTask();
+		}
 	}
 
 	@Override
@@ -102,14 +212,6 @@ class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrappe
 			wrappedFeatures.add(wrappedFeature);
 		}
 		return wrappedFeatures;
-	}
-
-	public ParserFeatureServiceInternal getParserFeatureServiceInternal() {
-		return parserFeatureServiceInternal;
-	}
-
-	public void setParserFeatureServiceInternal(ParserFeatureServiceInternal parserFeatureServiceInternal) {
-		this.parserFeatureServiceInternal = parserFeatureServiceInternal;
 	}
 
 	@Override

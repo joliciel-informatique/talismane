@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
@@ -45,12 +45,11 @@ public class ParserDynamicSourceCodeManagerTest {
 
 	@Test
 	public void testGetBuilder() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		ParserFeatureServiceLocator parserFeatureServiceLocator = talismaneServiceLocator.getParserFeatureServiceLocator();
-		ParserFeatureServiceImpl parserFeatureService = (ParserFeatureServiceImpl) parserFeatureServiceLocator.getParserFeatureService();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+
 		String descriptorString = "PosTag(Stack[0])";
 		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
-		ParserFeatureParser featureParser = parserFeatureService.getParserFeatureParser();
+		ParserFeatureParser featureParser = new ParserFeatureParser(talismaneSession, false);
 		FunctionDescriptor descriptor = descriptorParser.parseDescriptor(descriptorString);
 		Feature<ParseConfigurationWrapper, ?> feature = featureParser.parse(descriptor).get(0);
 

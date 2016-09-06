@@ -28,8 +28,6 @@ import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.Extensions;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
@@ -70,18 +68,16 @@ public class TalismaneEnglish {
 		extensions.pluckParameters(argsMap);
 
 		String sessionId = "";
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-		TalismaneService talismaneService = locator.getTalismaneService();
+		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
 		Map<String, Object> defaultConfigParams = new HashMap<>();
 		defaultConfigParams.put("talismane.core.locale", "en");
 
 		Config conf = ConfigFactory.load().withFallback(ConfigFactory.parseMap(defaultConfigParams));
-		TalismaneConfig config = talismaneService.getTalismaneConfig(conf, argsMap);
+		TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
 		if (config.getCommand() == null)
 			return;
 
-		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 		if (corpusReaderType != null) {
 			if (corpusReaderType == CorpusFormat.pennDep) {
 				PennDepReader corpusReader = new PennDepReader(config.getReader(), talismaneSession);

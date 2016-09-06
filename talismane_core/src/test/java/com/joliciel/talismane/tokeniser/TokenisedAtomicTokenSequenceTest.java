@@ -24,8 +24,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 
@@ -62,11 +61,11 @@ public class TokenisedAtomicTokenSequenceTest {
 				TokeniserOutcome.SEPARATE // .
 		};
 
-		TalismaneService talismaneService = TalismaneServiceLocator.getInstance("").getTalismaneService();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
-		TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneService.getTalismaneSession());
+		TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneSession);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneService.getTalismaneSession());
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {

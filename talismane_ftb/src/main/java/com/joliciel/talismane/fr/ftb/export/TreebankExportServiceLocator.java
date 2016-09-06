@@ -30,10 +30,7 @@ public class TreebankExportServiceLocator {
 
 	public TreebankExportService getTreebankExportService() {
 		if (treebankUploadService == null) {
-			treebankUploadService = new TreebankExportServiceImpl();
-			treebankUploadService.setTreebankService(treebankServiceLocator.getTreebankService());
-			treebankUploadService.setPosTaggerService(treebankServiceLocator.getPosTaggerService());
-			treebankUploadService.setTalismaneService(treebankServiceLocator.getTalismaneService());
+			treebankUploadService = new TreebankExportServiceImpl(treebankServiceLocator.getTreebankService(), treebankServiceLocator.getTalismaneSession());
 		}
 		return treebankUploadService;
 	}

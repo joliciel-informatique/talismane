@@ -41,10 +41,9 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
+import com.joliciel.talismane.terminology.postgres.PostGresTerminologyBase;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
@@ -116,8 +115,7 @@ public class TalismaneTermExtractorMain {
 			}
 
 			String sessionId = "";
-			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-			TalismaneService talismaneService = locator.getTalismaneService();
+			TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
 			String inputRegex = null;
 			InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
@@ -129,10 +127,8 @@ public class TalismaneTermExtractorMain {
 
 			Config conf = ConfigFactory.parseMap(configValues).withFallback(ConfigFactory.load());
 
-			TalismaneConfig config = talismaneService.getTalismaneConfig(conf, innerArgs);
+			TalismaneConfig config = new TalismaneConfig(innerArgs, conf, talismaneSession);
 
-			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
-			TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
 			TerminologyBase terminologyBase = null;
 
 			if (projectCode == null)
@@ -142,9 +138,7 @@ public class TalismaneTermExtractorMain {
 			FileInputStream fis = new FileInputStream(file);
 			Properties dataSourceProperties = new Properties();
 			dataSourceProperties.load(fis);
-			terminologyBase = terminologyService.getPostGresTerminologyBase(projectCode, dataSourceProperties);
-
-			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+			terminologyBase = new PostGresTerminologyBase(projectCode, dataSourceProperties);
 
 			if (command.equals(Command.analyse) || command.equals(Command.extract)) {
 				Locale locale = talismaneSession.getLocale();
@@ -167,7 +161,7 @@ public class TalismaneTermExtractorMain {
 
 				Charset outputCharset = config.getOutputCharset();
 
-				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase, terminologyProperties);
+				TermExtractor termExtractor = new TermExtractor(terminologyBase, terminologyProperties, talismaneSession);
 				if (depth > 0)
 					termExtractor.setMaxDepth(depth);
 				termExtractor.setOutFilePath(termFilePath);

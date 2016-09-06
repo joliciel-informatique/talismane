@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 
 import mockit.NonStrictExpectations;
@@ -38,7 +37,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testAddNextSegment() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers = new LinkedHashSet<TextMarker>();
@@ -75,7 +74,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testAddNextSegmentWithSpace() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers = new LinkedHashSet<TextMarker>();
@@ -118,7 +117,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testAddNextSegmentWithLeftoverMarker() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -164,7 +163,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testAddNextSegmentWithLeftoverMarkerAndOutput() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -213,7 +212,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testEmbeddedMarkers() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -268,7 +267,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testNewlines() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -333,7 +332,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testUnaryMarkers() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -371,7 +370,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testReplace() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -415,7 +414,7 @@ public class RollingSentenceProcessorTest {
 
 	@Test
 	public void testNestedStackAndUnary() {
-		final TalismaneSession talismaneSession = TalismaneServiceLocator.getInstance("").getTalismaneService().getTalismaneSession();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();

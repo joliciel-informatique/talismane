@@ -41,7 +41,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  * @author Assaf Urieli
  *
  */
-class ArcEagerTransitionSystem extends AbstractTransitionSystem implements TransitionSystem {
+public class ArcEagerTransitionSystem extends AbstractTransitionSystem implements TransitionSystem {
 	private static final Logger LOG = LoggerFactory.getLogger(ArcEagerTransitionSystem.class);
 	private transient Set<Transition> transitions = null;
 
