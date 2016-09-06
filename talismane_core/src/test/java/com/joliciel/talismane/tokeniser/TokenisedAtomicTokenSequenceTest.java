@@ -63,11 +63,8 @@ public class TokenisedAtomicTokenSequenceTest {
 		};
 
 		TalismaneService talismaneService = TalismaneServiceLocator.getInstance("").getTalismaneService();
-		TokeniserServiceImpl tokeniserService = new TokeniserServiceImpl();
-		tokeniserService.setTalismaneService(talismaneService);
 
 		TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneService.getTalismaneSession());
-		atomicTokenSequence.setTokeniserServiceInternal(tokeniserService);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneService.getTalismaneSession());
 

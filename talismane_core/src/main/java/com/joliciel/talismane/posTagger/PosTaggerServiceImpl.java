@@ -19,7 +19,6 @@
 package com.joliciel.talismane.posTagger;
 
 import java.io.File;
-import java.io.Reader;
 import java.util.Collection;
 import java.util.Set;
 
@@ -30,18 +29,14 @@ import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 
 class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 	PosTaggerService posTaggerService;
-	TokeniserService tokeniserService;
 	TalismaneService talismaneService;
 
 	@Override
 	public PosTagger getPosTagger(Set<PosTaggerFeature<?>> posTaggerFeatures, DecisionMaker decisionMaker, int beamWidth) {
 		PosTaggerImpl posTagger = new PosTaggerImpl(posTaggerFeatures, decisionMaker, beamWidth);
-		posTagger.setTokeniserService(tokeniserService);
 		posTagger.setPosTaggerService(this);
 		posTagger.setTalismaneService(this.getTalismaneService());
 
@@ -70,23 +65,6 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		return evaluator;
 	}
 
-	@Override
-	public PosTagSequence getPosTagSequence(PosTagSequence history) {
-		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(history);
-		posTagSequence.setPosTaggerServiceInternal(this);
-		posTagSequence.setTalismaneService(this.getTalismaneService());
-		return posTagSequence;
-	}
-
-	@Override
-	public PosTagSequence getPosTagSequence(TokenSequence tokenSequence) {
-		PosTagSequenceImpl posTagSequence = new PosTagSequenceImpl(tokenSequence);
-		posTagSequence.setPosTaggerServiceInternal(this);
-		posTagSequence.setTalismaneService(this.getTalismaneService());
-		return posTagSequence;
-
-	}
-
 	public PosTaggerService getPosTaggerService() {
 		return posTaggerService;
 	}
@@ -95,28 +73,11 @@ class PosTaggerServiceImpl implements PosTaggerServiceInternal {
 		this.posTaggerService = posTaggerService;
 	}
 
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokenizerService) {
-		this.tokeniserService = tokenizerService;
-	}
-
 	@Override
 	public ClassificationEventStream getPosTagEventStream(PosTagAnnotatedCorpusReader corpusReader, Set<PosTaggerFeature<?>> posTaggerFeatures) {
 		PosTagEventStream eventStream = new PosTagEventStream(corpusReader, posTaggerFeatures);
 		eventStream.setPosTaggerService(posTaggerService);
 		return eventStream;
-	}
-
-	@Override
-	public PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
-		PosTagRegexBasedCorpusReaderImpl corpusReader = new PosTagRegexBasedCorpusReaderImpl(reader);
-		corpusReader.setPosTaggerServiceInternal(this);
-		corpusReader.setTalismaneService(this.getTalismaneService());
-		corpusReader.setTokeniserService(this.getTokeniserService());
-		return corpusReader;
 	}
 
 	@Override

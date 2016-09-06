@@ -159,7 +159,6 @@ public class Extensions {
 					StandoffReader standoffReader = new StandoffReader(talismaneSession, scanner);
 					standoffReader.setParserService(config.getParserService());
 					standoffReader.setPosTaggerService(config.getPosTaggerService());
-					standoffReader.setTokeniserService(config.getTokeniserService());
 
 					config.setParserCorpusReader(standoffReader);
 				}

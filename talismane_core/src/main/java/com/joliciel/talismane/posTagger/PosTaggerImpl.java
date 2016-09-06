@@ -42,7 +42,6 @@ import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
@@ -61,7 +60,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 
 	private TalismaneService talismaneService;
 	private PosTaggerServiceInternal posTaggerService;
-	private TokeniserService tokeniserService;
 
 	private DecisionMaker decisionMaker;
 
@@ -116,7 +114,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 			PriorityQueue<PosTagSequence> heap0 = new PriorityQueue<PosTagSequence>();
 			for (TokenSequence tokenSequence : tokenSequences) {
 				// add an empty PosTagSequence for each token sequence
-				PosTagSequence emptySequence = this.getPosTaggerService().getPosTagSequence(tokenSequence);
+				PosTagSequence emptySequence = new PosTagSequence(tokenSequence);
 				emptySequence.setScoringStrategy(decisionMaker.getDefaultScoringStrategy());
 				heap0.add(emptySequence);
 			}
@@ -312,7 +310,7 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 							LOG.trace("Outcome: " + decision.getOutcome() + ", " + decision.getProbability());
 
 						PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, talismaneService.getTalismaneSession());
-						PosTagSequence sequence = this.getPosTaggerService().getPosTagSequence(history);
+						PosTagSequence sequence = new PosTagSequence(history);
 						sequence.addPosTaggedToken(posTaggedToken);
 						if (decision.isStatistical())
 							sequence.addDecision(decision);
@@ -378,14 +376,6 @@ class PosTaggerImpl implements PosTagger, NonDeterministicPosTagger {
 		tokenSequences.add(tokenSequence);
 		List<PosTagSequence> posTagSequences = this.tagSentence(tokenSequences);
 		return posTagSequences.get(0);
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	public DecisionMaker getDecisionMaker() {

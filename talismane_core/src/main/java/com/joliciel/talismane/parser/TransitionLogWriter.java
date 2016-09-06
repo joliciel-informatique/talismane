@@ -14,31 +14,27 @@ import com.joliciel.talismane.utils.LogUtils;
 
 class TransitionLogWriter implements ParseConfigurationProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(TransitionLogWriter.class);
-	ParserServiceInternal parserServiceInternal;
+
 	Writer csvFileWriter = null;
 
 	public TransitionLogWriter(Writer csvFileWriter) {
 		super();
 		this.csvFileWriter = csvFileWriter;
 	}
-	
+
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration,
-			Writer writer) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 		try {
-			ParseConfiguration currentConfiguration = parserServiceInternal.getInitialConfiguration(parseConfiguration.getPosTagSequence());
-			
+			ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
+
 			csvFileWriter.write("\n");
-			csvFileWriter.write("\t"
-					+ this.getTopOfStack(currentConfiguration) + "\t"
-					+ this.getTopOfBuffer(currentConfiguration) + "\t"
-					+ "\n");
+			csvFileWriter.write("\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration) + "\t" + "\n");
 			Set<DependencyArc> dependencies = new HashSet<DependencyArc>();
 			for (Transition transition : parseConfiguration.getTransitions()) {
-				currentConfiguration = parserServiceInternal.getConfiguration(currentConfiguration);
+				currentConfiguration = new ParseConfiguration(currentConfiguration);
 				transition.apply(currentConfiguration);
 				DependencyArc newDep = null;
-				if (currentConfiguration.getDependencies().size()>dependencies.size()) {
+				if (currentConfiguration.getDependencies().size() > dependencies.size()) {
 					for (DependencyArc arc : currentConfiguration.getDependencies()) {
 						if (dependencies.contains(arc)) {
 							continue;
@@ -50,16 +46,13 @@ class TransitionLogWriter implements ParseConfigurationProcessor {
 					}
 				}
 				String newDepText = "";
-				if (newDep!=null) {
-					newDepText = newDep.getLabel()
-						+ "[" + newDep.getHead().getToken().getOriginalText().replace(' ', '_') + "|" + newDep.getHead().getTag().getCode()
-						+ "," + newDep.getDependent().getToken().getOriginalText().replace(' ', '_') + "|" + newDep.getDependent().getTag().getCode()
-						+ "]";
+				if (newDep != null) {
+					newDepText = newDep.getLabel() + "[" + newDep.getHead().getToken().getOriginalText().replace(' ', '_') + "|"
+							+ newDep.getHead().getTag().getCode() + "," + newDep.getDependent().getToken().getOriginalText().replace(' ', '_') + "|"
+							+ newDep.getDependent().getTag().getCode() + "]";
 				}
-				csvFileWriter.write(transition.getCode() + "\t"
-						+ this.getTopOfStack(currentConfiguration) + "\t"
-						+ this.getTopOfBuffer(currentConfiguration) + "\t"
-						+ newDepText + "\n");
+				csvFileWriter.write(transition.getCode() + "\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration)
+						+ "\t" + newDepText + "\n");
 			}
 			csvFileWriter.flush();
 		} catch (IOException e) {
@@ -67,34 +60,34 @@ class TransitionLogWriter implements ParseConfigurationProcessor {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private String getTopOfStack(ParseConfiguration configuration) {
 		StringBuilder sb = new StringBuilder();
 		Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
-		int i=0;
+		int i = 0;
 		while (stackIterator.hasNext()) {
-			if (i==5) {
+			if (i == 5) {
 				sb.insert(0, "... ");
 				break;
 			}
-			
+
 			PosTaggedToken token = stackIterator.next();
 			sb.insert(0, token.getToken().getOriginalText().replace(' ', '_') + "|" + token.getTag().getCode() + " ");
 			i++;
 		}
 		return sb.toString();
 	}
-	
+
 	private String getTopOfBuffer(ParseConfiguration configuration) {
 		StringBuilder sb = new StringBuilder();
 		Iterator<PosTaggedToken> bufferIterator = configuration.getBuffer().iterator();
-		int i=0;
+		int i = 0;
 		while (bufferIterator.hasNext()) {
-			if (i==5) {
+			if (i == 5) {
 				sb.append(" ...");
 				break;
 			}
-			
+
 			PosTaggedToken token = bufferIterator.next();
 			sb.append(" " + token.getToken().getOriginalText().replace(' ', '_') + "|" + token.getTag().getCode());
 			i++;
@@ -103,8 +96,6 @@ class TransitionLogWriter implements ParseConfigurationProcessor {
 		return sb.toString();
 	}
 
-
-	
 	@Override
 	public void onCompleteParse() {
 		try {
@@ -115,14 +106,5 @@ class TransitionLogWriter implements ParseConfigurationProcessor {
 			throw new RuntimeException(e);
 		}
 	}
-
-	public ParserServiceInternal getParserServiceInternal() {
-		return parserServiceInternal;
-	}
-
-	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
-		this.parserServiceInternal = parserServiceInternal;
-	}
-
 
 }

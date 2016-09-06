@@ -32,20 +32,17 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.features.TokenFeature;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
 /**
  * A token with a postag tagged onto it.<br/>
- * Note: this class only implements PosTaggerContext so that pos-tagger features
- * can combine features concerning the current pos-tagging context
- * {@link PosTaggerFeature} with features concerning the token itself
- * {@link TokenFeature}, e.g. a HistorySearchFeature searching for a token with
- * a given text preceded by a token with a given pos-tag.
+ * Note: this class naturally implements {@link PosTaggerContext} since if a
+ * token has already been pos-tagged, the once before it have been pos-tagged as
+ * well. This allows us to use the same features on the token currently being
+ * pos-tagged and tokens already pos-tagged.
  * 
  * @author Assaf Urieli
  *

@@ -25,7 +25,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 
 /**
  * A reader for the FrenchTreebank corpus, automatically converted from
@@ -37,15 +38,14 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
  * @author Assaf
  *
  */
-public class FtbDepReader extends ParserRegexBasedCorpusReaderImpl {
+public class FtbDepReader extends ParserRegexBasedCorpusReader {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(FtbDepReader.class);
 
 	private boolean keepCompoundPosTags = false;
 
-	public FtbDepReader(Reader reader) throws IOException {
-		super(reader);
-		this.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t.*\\t.*");
+	public FtbDepReader(Reader reader, TalismaneSession talismaneSession) throws IOException {
+		super("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%GOVERNOR%\\t%LABEL%\\t.*\\t.*", reader, talismaneSession);
 	}
 
 	@Override

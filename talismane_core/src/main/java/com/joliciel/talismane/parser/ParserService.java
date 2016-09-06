@@ -19,9 +19,7 @@
 package com.joliciel.talismane.parser;
 
 import java.io.File;
-import java.io.Reader;
 import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -29,15 +27,8 @@ import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
-import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 public interface ParserService {
-	/**
-	 * Gets the initial configuration for a particular pos-tagged token
-	 * sequence.
-	 */
-	public ParseConfiguration getInitialConfiguration(PosTagSequence posTagSequence);
 
 	/**
 	 * The arc-standard Shift-Reduce transition system, as described in Nivre
@@ -53,8 +44,6 @@ public interface ParserService {
 	 *
 	 */
 	public TransitionSystem getArcEagerTransitionSystem();
-
-	public DependencyArc getDependencyArc(PosTaggedToken head, PosTaggedToken dependent, String label);
 
 	public ClassificationEventStream getParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures);
 
@@ -84,10 +73,6 @@ public interface ParserService {
 	 * matching set of parse configurations!
 	 */
 	public ParseComparator getParseComparator();
-
-	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
-
-	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(File file, Charset charset);
 
 	/**
 	 * Writes the list of transitions that were actually applied, one at a time.

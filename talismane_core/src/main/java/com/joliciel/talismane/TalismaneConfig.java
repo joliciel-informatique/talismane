@@ -47,7 +47,6 @@ import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
@@ -64,16 +63,8 @@ import com.typesafe.config.Config;
  * sequence, where the modules available are: Sentence detector, Tokeniser, Pos
  * tagger, Parser.<br/>
  * There is a default input format for each start module, which can be
- * over-ridden by providing a regex for processing lines of input. The default
- * format is:<br/>
- * <li>Sentence detector: newlines indicate sentence breaks.</li>
- * <li>Tokeniser: expect exactly one token per line.</li>
- * <li>Pos tagger:
- * {@link com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader#DEFAULT_REGEX
- * default regex}</li>
- * <li>Parser:
- * {@link com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader#DEFAULT_REGEX
- * default regex}</li>
+ * over-ridden by providing a regex for processing lines of input in the
+ * command-line or configuration file.
  * 
  * @author Assaf Urieli
  *
@@ -219,22 +210,6 @@ public interface TalismaneConfig {
 	 * @throws IOException
 	 */
 	public List<ParserRule> getParserRules() throws IOException;
-
-	/**
-	 * A regex used to process the input, when pre-annotated.
-	 * 
-	 * @throws IOException
-	 */
-	public String getInputRegex() throws IOException;
-
-	public void setInputRegex(String inputRegex);
-
-	/**
-	 * A regex used to process the evaluation corpus.
-	 * 
-	 * @throws IOException
-	 */
-	public String getEvaluationRegex() throws IOException;
 
 	/**
 	 * Text marker filters are applied to raw text segments extracted from the
@@ -431,8 +406,6 @@ public interface TalismaneConfig {
 
 	public ParserService getParserService();
 
-	public TokeniserService getTokeniserService();
-
 	public TalismaneService getTalismaneService();
 
 	/**
@@ -563,5 +536,9 @@ public interface TalismaneConfig {
 	 * config. This will always be run before the others.
 	 */
 	public void prependTokenFilter(TokenFilter tokenFilter);
+
+	String getParserEvluationReaderRegex();
+
+	String getParserReaderRegex();
 
 }

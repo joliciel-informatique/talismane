@@ -119,7 +119,16 @@ public class TalismaneTermExtractorMain {
 			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 			TalismaneService talismaneService = locator.getTalismaneService();
 
-			Config conf = ConfigFactory.load();
+			String inputRegex = null;
+			InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
+			try (Scanner regexScanner = new Scanner(regexInputStream, "UTF-8")) {
+				inputRegex = regexScanner.nextLine();
+			}
+			Map<String, Object> configValues = new HashMap<>();
+			configValues.put("talismane.core.train.parser.readerRegex", inputRegex);
+
+			Config conf = ConfigFactory.parseMap(configValues).withFallback(ConfigFactory.load());
+
 			TalismaneConfig config = talismaneService.getTalismaneConfig(conf, innerArgs);
 
 			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
@@ -155,12 +164,6 @@ public class TalismaneTermExtractorMain {
 				}
 				if (depth <= 0 && !terminologyProperties.containsKey(TerminologyProperty.maxDepth))
 					throw new TalismaneException("Required argument: depth");
-
-				InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
-				try (Scanner regexScanner = new Scanner(regexInputStream, "UTF-8")) {
-					String inputRegex = regexScanner.nextLine();
-					config.setInputRegex(inputRegex);
-				}
 
 				Charset outputCharset = config.getOutputCharset();
 
@@ -226,7 +229,7 @@ public class TalismaneTermExtractorMain {
 		return terminologyProperties;
 	}
 
-	private static InputStream getInputStreamFromResource(String resource) {
+	public static InputStream getInputStreamFromResource(String resource) {
 		String path = "resources/" + resource;
 		LOG.debug("Getting " + path);
 		InputStream inputStream = TalismaneTermExtractorMain.class.getResourceAsStream(path);

@@ -45,7 +45,6 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseConfigurationProcessor.class);
 
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
-	private ParserServiceInternal parserServiceInternal;
 
 	private Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<String, Map<String, List<String>>>();
 	private File file;
@@ -59,7 +58,7 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
 
-		ParseConfiguration currentConfiguration = parserServiceInternal.getInitialConfiguration(parseConfiguration.getPosTagSequence());
+		ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
 
 		for (Transition transition : parseConfiguration.getTransitions()) {
 			StringBuilder sb = new StringBuilder();
@@ -112,7 +111,7 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 			}
 
 			// apply the transition and up the index
-			currentConfiguration = parserServiceInternal.getConfiguration(currentConfiguration);
+			currentConfiguration = new ParseConfiguration(currentConfiguration);
 			transition.apply(currentConfiguration);
 		}
 	}
@@ -146,13 +145,5 @@ class ParseFeatureTester implements ParseConfigurationProcessor {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-	}
-
-	public ParserServiceInternal getParserServiceInternal() {
-		return parserServiceInternal;
-	}
-
-	public void setParserServiceInternal(ParserServiceInternal parserServiceInternal) {
-		this.parserServiceInternal = parserServiceInternal;
 	}
 }

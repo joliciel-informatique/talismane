@@ -24,11 +24,9 @@ import java.util.Map;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
 import com.joliciel.talismane.posTagger.PosTaggerService;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.typesafe.config.Config;
 
 class TalismaneServiceImpl implements TalismaneServiceInternal {
-	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private ParserFeatureService parserFeatureService;
@@ -47,7 +45,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		talismane.setTalismaneService(this);
 		talismane.setParserService(this.getParserService());
 		talismane.setPosTaggerService(this.getPosTaggerService());
-		talismane.setTokeniserService(this.getTokeniserService());
 		return talismane;
 	}
 
@@ -56,14 +53,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		TalismaneServerImpl talismaneServer = new TalismaneServerImpl(config);
 		talismaneServer.setTalismaneService(this);
 		return talismaneServer;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	public PosTaggerService getPosTaggerService() {
@@ -104,7 +93,6 @@ class TalismaneServiceImpl implements TalismaneServiceInternal {
 		config.setParserFeatureService(parserFeatureService);
 		config.setParserService(parserService);
 		config.setPosTaggerService(posTaggerService);
-		config.setTokeniserService(tokeniserService);
 
 		if (args != null)
 			config.loadParameters(args, myConfig);

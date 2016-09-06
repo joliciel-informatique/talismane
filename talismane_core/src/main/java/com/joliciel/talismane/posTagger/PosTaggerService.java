@@ -19,14 +19,12 @@
 package com.joliciel.talismane.posTagger;
 
 import java.io.File;
-import java.io.Reader;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
  * Interface for retrieving implementations of various pos-tagger interfaces.
@@ -71,15 +69,6 @@ public interface PosTaggerService {
 	public PosTagComparator getPosTagComparator();
 
 	/**
-	 * Construct an empty pos-tag sequence, based on a given
-	 * {@link TokenSequence} that needs to be pos-tagged.
-	 * 
-	 * @param tokenSequence
-	 *            the token sequence to be pos-tagged.
-	 */
-	public PosTagSequence getPosTagSequence(TokenSequence tokenSequence);
-
-	/**
 	 * Create a classification event stream for a given corpus reader and set of
 	 * features.
 	 * 
@@ -89,12 +78,6 @@ public interface PosTaggerService {
 	 *            the features used to describe events in the training corpus
 	 */
 	public ClassificationEventStream getPosTagEventStream(PosTagAnnotatedCorpusReader corpusReader, Set<PosTaggerFeature<?>> posTaggerFeatures);
-
-	/**
-	 * Returns a corpus reader based on the use of Regex. See class description
-	 * for details.
-	 */
-	PosTagRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader);
 
 	/**
 	 * A feature tester, which outputs results of applying features to the items

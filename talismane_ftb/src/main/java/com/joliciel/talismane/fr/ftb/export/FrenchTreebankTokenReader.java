@@ -49,7 +49,6 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -66,7 +65,6 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(FrenchTreebankTokenReader.class);
 
 	private TreebankService treebankService;
-	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private TalismaneService talismaneService;
 
@@ -369,7 +367,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 			tokenSequence.finalise();
 
-			PosTagSequence posTagSequence = this.posTaggerService.getPosTagSequence(tokenSequence);
+			PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
 			int i = 0;
 			for (Token token : tokenSequence) {
 				if (LOG.isTraceEnabled())
@@ -390,7 +388,7 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 			}
 
 			if (useCompoundPosTags) {
-				PosTagSequence newSequence = this.posTaggerService.getPosTagSequence(tokenSequence);
+				PosTagSequence newSequence = new PosTagSequence(tokenSequence);
 				PosTaggedToken lastPosTaggedToken = null;
 				i = 0;
 				for (PosTaggedToken posTaggedToken : posTagSequence) {
@@ -480,14 +478,6 @@ class FrenchTreebankTokenReader implements TokeniserAnnotatedCorpusReader, PosTa
 
 	public void setIgnoreCase(boolean ignoreCase) {
 		this.ignoreCase = ignoreCase;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	public PosTaggerService getPosTaggerService() {

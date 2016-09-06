@@ -132,6 +132,7 @@ import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
+import com.joliciel.talismane.tokeniser.SimpleTokeniser;
 import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenEvaluationCorpusWriter;
 import com.joliciel.talismane.tokeniser.TokenEvaluationFScoreCalculator;
@@ -143,7 +144,6 @@ import com.joliciel.talismane.tokeniser.Tokeniser.TokeniserType;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserGuessTemplateWriter;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -227,8 +227,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private boolean propagateTokeniserBeam;
 
 	private char endBlockCharacter;
-	private String inputRegex;
-	private String evaluationRegex;
 	private int maxParseAnalysisTime;
 	private int minFreeMemory;
 	private boolean earlyStop;
@@ -293,7 +291,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 	private ParserFeatureService parserFeatureService;
-	private TokeniserService tokeniserService;
 	private PosTagFilterService posTagFilterService;
 
 	private File performanceConfigFile;
@@ -368,8 +365,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		mapping.put("lexicon", new ImmutablePair<String, Class<?>>(prefix + "lexicons", List.class));
 		mapping.put("preloadLexicons", new ImmutablePair<String, Class<?>>(prefix + "preloadLexicons", Boolean.class));
 		mapping.put("diacriticizer", new ImmutablePair<String, Class<?>>(prefix + "diacriticizer", String.class));
-		mapping.put("inputPattern", new ImmutablePair<String, Class<?>>(prefix + "inputPattern", String.class));
-		mapping.put("inputPatternFile", new ImmutablePair<String, Class<?>>(prefix + "inputPatternFile", String.class));
 		mapping.put("textFilters", new ImmutablePair<String, Class<?>>(prefix + "textFilters", List.class));
 		mapping.put("tokenFilters", new ImmutablePair<String, Class<?>>(prefix + "tokenFilters", List.class));
 		mapping.put("tokenSequenceFilters", new ImmutablePair<String, Class<?>>(prefix + "tokenSequenceFilters", List.class));
@@ -410,7 +405,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		prefix = "talismane.core.evaluate.";
 		mapping.put("evaluationFile", new ImmutablePair<String, Class<?>>(prefix + "evaluationFile", String.class));
 		mapping.put("evaluationPattern", new ImmutablePair<String, Class<?>>(prefix + "evaluationPattern", String.class));
-		mapping.put("evaluationPatternFile", new ImmutablePair<String, Class<?>>(prefix + "evaluationPatternFile", String.class));
+		mapping.put("evaluationPatternFile", new ImmutablePair<String, Class<?>>(prefix + "evaluationPatternFile", File.class));
 
 		prefix = "talismane.core.evaluate.csv.";
 		mapping.put("csvSeparator", new ImmutablePair<String, Class<?>>(prefix + "separator", String.class));
@@ -469,40 +464,77 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		for (Entry<String, String> arg : args.entrySet()) {
 			String key = arg.getKey();
 			String argValue = arg.getValue();
-			ImmutablePair<String, Class<?>> mappingType = mapping.get(key);
-			if (mappingType == null) {
-				System.err.println("Unknown argument: " + key);
-				throw new RuntimeException("Unknown argument: " + key);
-			} else if (String.class.equals(mappingType.right)) {
-				values.put(mappingType.left, argValue);
-			} else if (Integer.class.equals(mappingType.right)) {
-				values.put(mappingType.left, Integer.parseInt(argValue));
-			} else if (Double.class.equals(mappingType.right)) {
-				values.put(mappingType.left, Double.parseDouble(argValue));
-			} else if (Boolean.class.equals(mappingType.right)) {
-				values.put(mappingType.left, argValue.equalsIgnoreCase("true"));
-			} else if (List.class.equals(mappingType.right)) {
-				if (argValue.startsWith("replace:")) {
-					String paramName = mappingType.left;
-					String paramNameReplace = paramName + "Replace";
-					values.put(paramNameReplace, true);
-					argValue = argValue.substring("replace:".length());
+			if ("inputPattern".equals(key)) {
+				values.put("talismane.core.train.tokeniser.readerRegex", argValue);
+				values.put("talismane.core.train.posTagger.readerRegex", argValue);
+				values.put("talismane.core.train.parser.readerRegex", argValue);
+			} else if ("inputPatternFile".equals(key)) {
+				InputStream inputPatternFile = this.getFile("inputPatternFile", argValue);
+				String inputRegex = "";
+				try (Scanner inputPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(inputPatternFile, "UTF-8")))) {
+					if (inputPatternScanner.hasNextLine()) {
+						inputRegex = inputPatternScanner.nextLine();
+					}
 				}
-				String[] parts = argValue.split(";");
-				List<String> stringValues = new ArrayListNoNulls<>();
-				for (String part : parts)
-					stringValues.add(part);
-
-				values.put(mappingType.left, stringValues);
-			} else if (TIntList.class.equals(mappingType.right)) {
-				String[] parts = argValue.split(",");
-				List<Integer> intValues = new ArrayListNoNulls<Integer>();
-				for (String part : parts)
-					intValues.add(Integer.parseInt(part));
-
-				values.put(mappingType.left, intValues);
+				if (inputRegex == null)
+					throw new TalismaneException("No input pattern found in " + argValue);
+				values.put("talismane.core.train.tokeniser.readerRegex", inputRegex);
+				values.put("talismane.core.train.posTagger.readerRegex", inputRegex);
+				values.put("talismane.core.train.parser.readerRegex", inputRegex);
+			} else if ("evaluationPattern".equals(key)) {
+				values.put("talismane.core.evaluate.tokeniser.readerRegex", argValue);
+				values.put("talismane.core.evaluate.posTagger.readerRegex", argValue);
+				values.put("talismane.core.evaluate.parser.readerRegex", argValue);
+			} else if ("evaluationPatternFile".equals(key)) {
+				InputStream inputPatternFile = this.getFile("evaluationPatternFile", argValue);
+				String inputRegex = "";
+				try (Scanner inputPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(inputPatternFile, "UTF-8")))) {
+					if (inputPatternScanner.hasNextLine()) {
+						inputRegex = inputPatternScanner.nextLine();
+					}
+				}
+				if (inputRegex == null)
+					throw new TalismaneException("No input pattern found in " + argValue);
+				values.put("talismane.core.evaluate.tokeniser.readerRegex", inputRegex);
+				values.put("talismane.core.evaluate.posTagger.readerRegex", inputRegex);
+				values.put("talismane.core.evaluate.parser.readerRegex", inputRegex);
 			} else {
-				throw new RuntimeException("Unable to parse class " + mappingType.right.getSimpleName() + " for " + key);
+
+				ImmutablePair<String, Class<?>> mappingType = mapping.get(key);
+				if (mappingType == null) {
+					System.err.println("Unknown argument: " + key);
+					throw new RuntimeException("Unknown argument: " + key);
+				} else if (String.class.equals(mappingType.right)) {
+					values.put(mappingType.left, argValue);
+				} else if (Integer.class.equals(mappingType.right)) {
+					values.put(mappingType.left, Integer.parseInt(argValue));
+				} else if (Double.class.equals(mappingType.right)) {
+					values.put(mappingType.left, Double.parseDouble(argValue));
+				} else if (Boolean.class.equals(mappingType.right)) {
+					values.put(mappingType.left, argValue.equalsIgnoreCase("true"));
+				} else if (List.class.equals(mappingType.right)) {
+					if (argValue.startsWith("replace:")) {
+						String paramName = mappingType.left;
+						String paramNameReplace = paramName + "Replace";
+						values.put(paramNameReplace, true);
+						argValue = argValue.substring("replace:".length());
+					}
+					String[] parts = argValue.split(";");
+					List<String> stringValues = new ArrayListNoNulls<>();
+					for (String part : parts)
+						stringValues.add(part);
+
+					values.put(mappingType.left, stringValues);
+				} else if (TIntList.class.equals(mappingType.right)) {
+					String[] parts = argValue.split(",");
+					List<Integer> intValues = new ArrayListNoNulls<Integer>();
+					for (String part : parts)
+						intValues.add(Integer.parseInt(part));
+
+					values.put(mappingType.left, intValues);
+				} else {
+					throw new RuntimeException("Unable to parse class " + mappingType.right.getSimpleName() + " for " + key);
+				}
 			}
 		}
 
@@ -1226,66 +1258,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		return parserRules;
 	}
 
-	/**
-	 * A regex used to process the input, when pre-annotated.
-	 * 
-	 * @throws IOException
-	 */
-	@Override
-	public synchronized String getInputRegex() throws IOException {
-		if (inputRegex == null) {
-			String configPath = "talismane.core.analyse.inputPattern";
-			if (config.hasPath(configPath)) {
-				inputRegex = config.getString(configPath);
-			} else {
-				configPath = "talismane.core.analyse.inputPatternFile";
-				if (config.hasPath(configPath)) {
-					InputStream inputPatternFile = this.getFileFromConfig(configPath);
-					try (Scanner inputPatternScanner = new Scanner(
-							new BufferedReader(new InputStreamReader(inputPatternFile, this.getInputCharset().name())))) {
-						if (inputPatternScanner.hasNextLine()) {
-							inputRegex = inputPatternScanner.nextLine();
-						}
-					}
-					if (inputRegex == null)
-						throw new TalismaneException("No input pattern found in " + config.getString("configPath"));
-				}
-			}
-		}
-		return inputRegex;
-	}
-
-	@Override
-	public void setInputRegex(String inputRegex) {
-		this.inputRegex = inputRegex;
-	}
-
-	@Override
-	public synchronized String getEvaluationRegex() throws IOException {
-		if (evaluationRegex == null) {
-			String configPath = "talismane.core.evaluate.evaluationPattern";
-			if (config.hasPath(configPath)) {
-				evaluationRegex = config.getString(configPath);
-			} else {
-				configPath = "talismane.core.evaluate.evaluationPatternFile";
-				if (config.hasPath(configPath)) {
-					InputStream evaluationPatternFile = this.getFileFromConfig(configPath);
-					try (Scanner evaluationPatternScanner = new Scanner(
-							new BufferedReader(new InputStreamReader(evaluationPatternFile, this.getInputCharset().name())))) {
-						if (evaluationPatternScanner.hasNextLine()) {
-							evaluationRegex = evaluationPatternScanner.nextLine();
-						}
-					}
-					if (evaluationRegex == null)
-						throw new TalismaneException("No evaluation pattern found in " + config.getString(configPath));
-				} else {
-					evaluationRegex = this.getInputRegex();
-				}
-			}
-		}
-		return evaluationRegex;
-	}
-
 	@Override
 	public synchronized List<TextMarkerFilter> getTextMarkerFilters() throws IOException {
 		if (textMarkerFilters == null) {
@@ -1564,7 +1536,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 			Tokeniser tokeniser = null;
 			ClassificationModel tokeniserModel = null;
 			if (tokeniserType == TokeniserType.simple) {
-				tokeniser = this.getTokeniserService().getSimpleTokeniser();
+				tokeniser = new SimpleTokeniser(this.talismaneSession);
 			} else if (tokeniserType == TokeniserType.pattern) {
 				LOG.debug("Getting tokeniser model");
 				tokeniserModel = this.getTokeniserModel();
@@ -2051,11 +2023,12 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized TokeniserAnnotatedCorpusReader getTokenCorpusReader() throws IOException {
 		if (tokenCorpusReader == null) {
-			TokenRegexBasedCorpusReader tokenRegexCorpusReader = this.getTokeniserService().getRegexBasedCorpusReader(this.getReader());
-			if (this.getInputRegex() != null)
-				tokenRegexCorpusReader.setRegex(this.getInputRegex());
+			String configPath = "talismane.core.train.tokeniser.readerRegex";
+			String regex = config.getString(configPath);
 
-			String configPath = "talismane.core.train.tokeniser.sentenceReader";
+			TokenRegexBasedCorpusReader tokenRegexCorpusReader = new TokenRegexBasedCorpusReader(regex, this.getReader(), this.talismaneSession);
+
+			configPath = "talismane.core.train.tokeniser.sentenceReader";
 			if (config.hasPath(configPath)) {
 				InputStream sentenceReaderFile = this.getFileFromConfig(configPath);
 				Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, this.getInputCharset()));
@@ -2073,9 +2046,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized TokeniserAnnotatedCorpusReader getTokenEvaluationCorpusReader() throws IOException {
 		if (tokenEvaluationCorpusReader == null) {
-			TokenRegexBasedCorpusReader tokenRegexCorpusReader = this.getTokeniserService().getRegexBasedCorpusReader(this.getEvaluationReader());
-			if (this.getEvaluationRegex() != null)
-				tokenRegexCorpusReader.setRegex(this.getEvaluationRegex());
+			String configPath = "talismane.core.evaluate.tokeniser.readerRegex";
+			String regex = config.getString(configPath);
+
+			TokenRegexBasedCorpusReader tokenRegexCorpusReader = new TokenRegexBasedCorpusReader(regex, this.getEvaluationReader(), talismaneSession);
 
 			this.tokenEvaluationCorpusReader = tokenRegexCorpusReader;
 		}
@@ -2112,9 +2086,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized PosTagAnnotatedCorpusReader getPosTagCorpusReader() throws IOException {
 		if (posTagCorpusReader == null) {
-			PosTagRegexBasedCorpusReader posTagRegexBasedCorpusReader = this.getPosTaggerService().getRegexBasedCorpusReader(this.getReader());
-			if (this.getInputRegex() != null)
-				posTagRegexBasedCorpusReader.setRegex(this.getInputRegex());
+			String configPath = "talismane.core.train.posTagger.readerRegex";
+			String regex = config.getString(configPath);
+
+			PosTagRegexBasedCorpusReader posTagRegexBasedCorpusReader = new PosTagRegexBasedCorpusReader(regex, this.getReader(), this.talismaneSession);
 			posTagCorpusReader = posTagRegexBasedCorpusReader;
 		}
 		this.setCorpusReaderAttributes(posTagCorpusReader);
@@ -2126,9 +2101,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized PosTagAnnotatedCorpusReader getPosTagEvaluationCorpusReader() throws IOException {
 		if (posTagEvaluationCorpusReader == null) {
-			PosTagRegexBasedCorpusReader posTagRegexCorpusReader = this.getPosTaggerService().getRegexBasedCorpusReader(this.getEvaluationReader());
-			if (this.getEvaluationRegex() != null)
-				posTagRegexCorpusReader.setRegex(this.getEvaluationRegex());
+			String configPath = "talismane.core.evaluate.posTagger.readerRegex";
+			String regex = config.getString(configPath);
+
+			PosTagRegexBasedCorpusReader posTagRegexCorpusReader = new PosTagRegexBasedCorpusReader(regex, this.getEvaluationReader(), this.talismaneSession);
 			this.posTagEvaluationCorpusReader = posTagRegexCorpusReader;
 		}
 		this.addPosTagCorpusReaderFilters(posTagEvaluationCorpusReader);
@@ -2176,12 +2152,14 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized ParserAnnotatedCorpusReader getParserCorpusReader() throws IOException {
 		if (parserCorpusReader == null) {
-			ParserRegexBasedCorpusReader parserRegexCorpusReader = this.getParserService().getRegexBasedCorpusReader(this.getReader());
-			if (this.getInputRegex() != null)
-				parserRegexCorpusReader.setRegex(this.getInputRegex());
+			String configPath = "talismane.core.train.parser.readerRegex";
+			String regex = config.getString(configPath);
+
+			ParserRegexBasedCorpusReader parserRegexCorpusReader = new ParserRegexBasedCorpusReader(regex, this.getReader(), this.talismaneSession);
+
 			parserRegexCorpusReader.setPredictTransitions(predictTransitions);
 
-			String configPath = "talismane.core.process.corpusLexicalEntryRegex";
+			configPath = "talismane.core.process.corpusLexicalEntryRegex";
 			if (config.hasPath(configPath)) {
 				InputStream corpusLexicalEntryRegexFile = this.getFileFromConfig(configPath);
 
@@ -2218,9 +2196,10 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized ParserAnnotatedCorpusReader getParserEvaluationCorpusReader() throws IOException {
 		if (parserEvaluationCorpusReader == null) {
-			ParserRegexBasedCorpusReader parserRegexCorpusReader = this.getParserService().getRegexBasedCorpusReader(this.getEvaluationReader());
-			if (this.getEvaluationRegex() != null)
-				parserRegexCorpusReader.setRegex(this.getEvaluationRegex());
+			String configPath = "talismane.core.evaluate.parser.readerRegex";
+			String regex = config.getString(configPath);
+
+			ParserRegexBasedCorpusReader parserRegexCorpusReader = new ParserRegexBasedCorpusReader(regex, this.getEvaluationReader(), this.talismaneSession);
 			parserRegexCorpusReader.setPredictTransitions(predictTransitions);
 
 			this.parserEvaluationCorpusReader = parserRegexCorpusReader;
@@ -2430,7 +2409,7 @@ class TalismaneConfigImpl implements TalismaneConfig {
 	@Override
 	public synchronized TokeniserEvaluator getTokeniserEvaluator() {
 		if (tokeniserEvaluator == null) {
-			tokeniserEvaluator = this.getTokeniserService().getTokeniserEvaluator(this.getTokeniser());
+			tokeniserEvaluator = new TokeniserEvaluator(this.getTokeniser());
 
 			List<TokenEvaluationObserver> observers = this.getTokenEvaluationObservers();
 			for (TokenEvaluationObserver observer : observers)
@@ -2521,8 +2500,8 @@ class TalismaneConfigImpl implements TalismaneConfig {
 					PatternTokeniser patternTokeniser = (PatternTokeniser) tokeniser;
 					tokeniserPatternManager = patternTokeniser.getTokeniserPatternManager();
 				}
-				tokenComparator = this.getTokeniserService().getTokenComparator(this.getTokenCorpusReader(), this.getTokenEvaluationCorpusReader(),
-						tokeniserPatternManager);
+				tokenComparator = new TokenComparator(this.getTokenCorpusReader(), this.getTokenEvaluationCorpusReader(), tokeniserPatternManager,
+						this.talismaneSession);
 
 				List<TokenEvaluationObserver> observers = this.getTokenEvaluationObservers();
 				for (TokenEvaluationObserver observer : observers)
@@ -2704,15 +2683,6 @@ class TalismaneConfigImpl implements TalismaneConfig {
 
 	private PosTagFilterService getPosTagFilterService() {
 		return posTagFilterService;
-	}
-
-	@Override
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	TalismaneServiceInternal getTalismaneServiceInternal() {
@@ -3145,4 +3115,13 @@ class TalismaneConfigImpl implements TalismaneConfig {
 		return config.getString("talismane.core.analyse.languageModel");
 	}
 
+	@Override
+	public String getParserReaderRegex() {
+		return config.getString("talismane.core.train.parser.readerRegex");
+	}
+
+	@Override
+	public String getParserEvluationReaderRegex() {
+		return config.getString("talismane.core.evaluate.parser.readerRegex");
+	}
 }
