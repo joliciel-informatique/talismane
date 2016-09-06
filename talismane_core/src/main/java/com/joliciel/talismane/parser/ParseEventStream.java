@@ -68,7 +68,7 @@ class ParseEventStream implements ClassificationEventStream {
 				if (this.corpusReader.hasNextConfiguration()) {
 
 					targetConfiguration = this.corpusReader.nextConfiguration();
-					currentConfiguration = parserServiceInternal.getInitialConfiguration(targetConfiguration.getPosTagSequence());
+					currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());
 					currentIndex = 0;
 					if (currentIndex == targetConfiguration.getTransitions().size()) {
 						targetConfiguration = null;
@@ -118,7 +118,7 @@ class ParseEventStream implements ClassificationEventStream {
 				event = new ClassificationEvent(parseFeatureResults, classification);
 
 				// apply the transition and up the index
-				currentConfiguration = parserServiceInternal.getConfiguration(currentConfiguration);
+				currentConfiguration = new ParseConfiguration(currentConfiguration);
 				transition.apply(currentConfiguration);
 				currentIndex++;
 

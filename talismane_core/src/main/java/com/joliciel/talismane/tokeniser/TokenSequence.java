@@ -648,7 +648,7 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 		return lexicon;
 	}
 
-	protected TalismaneSession getTalismaneSession() {
+	public TalismaneSession getTalismaneSession() {
 		return talismaneSession;
 	}
 

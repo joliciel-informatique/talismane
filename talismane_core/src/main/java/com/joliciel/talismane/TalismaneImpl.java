@@ -71,7 +71,6 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.PatternTokeniserType;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.CSVFormatter;
@@ -100,7 +99,6 @@ class TalismaneImpl implements Talismane {
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 
 	private TalismaneService talismaneService;
-	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private ParserService parserService;
 
@@ -856,14 +854,6 @@ class TalismaneImpl implements Talismane {
 
 	public void setTalismaneService(TalismaneService talismaneService) {
 		this.talismaneService = talismaneService;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	public PosTaggerService getPosTaggerService() {

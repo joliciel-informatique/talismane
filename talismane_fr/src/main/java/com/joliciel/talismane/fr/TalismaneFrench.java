@@ -35,6 +35,7 @@ import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.Extensions;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
 import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
@@ -116,13 +117,11 @@ public class TalismaneFrench {
 		if (config.getCommand() == null)
 			return;
 
+		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+
 		if (corpusReaderType != null) {
 			if (corpusReaderType == CorpusFormat.ftbDep) {
-				FtbDepReader ftbDepReader = new FtbDepReader(config.getReader());
-				ftbDepReader.setParserService(config.getParserService());
-				ftbDepReader.setPosTaggerService(config.getPosTaggerService());
-				ftbDepReader.setTokeniserService(config.getTokeniserService());
-				ftbDepReader.setTalismaneService(config.getTalismaneService());
+				FtbDepReader ftbDepReader = new FtbDepReader(config.getReader(), talismaneSession);
 
 				ftbDepReader.setKeepCompoundPosTags(keepCompoundPosTags);
 				ftbDepReader.setPredictTransitions(config.isPredictTransitions());
@@ -133,7 +132,7 @@ public class TalismaneFrench {
 				config.setSentenceCorpusReader(ftbDepReader);
 
 				if (config.getCommand().equals(Command.compare)) {
-					FtbDepReader ftbDepEvaluationReader = new FtbDepReader(config.getEvaluationReader());
+					FtbDepReader ftbDepEvaluationReader = new FtbDepReader(config.getEvaluationReader(), talismaneSession);
 					ftbDepEvaluationReader.setKeepCompoundPosTags(keepCompoundPosTags);
 					config.setParserEvaluationCorpusReader(ftbDepEvaluationReader);
 					config.setPosTagEvaluationCorpusReader(ftbDepEvaluationReader);
@@ -166,7 +165,12 @@ public class TalismaneFrench {
 				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
 				config.setSentenceCorpusReader(sentenceCorpusReader);
 			} else if (corpusReaderType == CorpusFormat.conll || corpusReaderType == CorpusFormat.spmrl) {
-				ParserRegexBasedCorpusReader corpusReader = config.getParserService().getRegexBasedCorpusReader(config.getReader());
+				String regex = config.getParserReaderRegex();
+				if (corpusReaderType == CorpusFormat.spmrl) {
+					regex = "%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%NON_PROJ_GOVERNOR%\\t%NON_PROJ_LABEL%\\t%GOVERNOR%\\t%LABEL%";
+				}
+
+				ParserRegexBasedCorpusReader corpusReader = new ParserRegexBasedCorpusReader(regex, config.getReader(), talismaneSession);
 
 				corpusReader.setPredictTransitions(config.isPredictTransitions());
 
@@ -175,26 +179,15 @@ public class TalismaneFrench {
 				config.setTokenCorpusReader(corpusReader);
 				config.setSentenceCorpusReader(corpusReader);
 
-				if (corpusReaderType == CorpusFormat.spmrl) {
-					corpusReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%NON_PROJ_GOVERNOR%\\t%NON_PROJ_LABEL%\\t%GOVERNOR%\\t%LABEL%");
-				}
-
-				if (config.getInputRegex() != null) {
-					corpusReader.setRegex(config.getInputRegex());
-				}
-
 				if (config.getCommand().equals(Command.compare)) {
-					ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(config.getEvaluationReader());
+					String evalRegex = config.getParserEvluationReaderRegex();
+					if (corpusReaderType == CorpusFormat.spmrl) {
+						evalRegex = "%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t%NON_PROJ_GOVERNOR%\\t%NON_PROJ_LABEL%\\t%GOVERNOR%\\t%LABEL%";
+					}
+
+					ParserRegexBasedCorpusReader evaluationReader = new ParserRegexBasedCorpusReader(evalRegex, config.getEvaluationReader(), talismaneSession);
 					config.setParserEvaluationCorpusReader(evaluationReader);
 					config.setPosTagEvaluationCorpusReader(evaluationReader);
-
-					if (corpusReaderType == CorpusFormat.spmrl) {
-						evaluationReader.setRegex("%INDEX%\\t%TOKEN%\\t.*\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%");
-					}
-
-					if (config.getInputRegex() != null) {
-						evaluationReader.setRegex(config.getInputRegex());
-					}
 				}
 			} else {
 				throw new TalismaneException("Unknown corpusReader: " + corpusReaderType);

@@ -30,6 +30,7 @@ import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneService;
 import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.Extensions;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;
@@ -46,7 +47,6 @@ import com.typesafe.config.ConfigFactory;
 public class TalismaneEnglish {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneEnglish.class);
-	private static final String DEFAULT_CONLL_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%";
 
 	private enum CorpusFormat {
 		/** Penn-To-Dependency CoNLL-X format */
@@ -81,13 +81,10 @@ public class TalismaneEnglish {
 		if (config.getCommand() == null)
 			return;
 
+		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
 		if (corpusReaderType != null) {
 			if (corpusReaderType == CorpusFormat.pennDep) {
-				PennDepReader corpusReader = new PennDepReader(config.getReader());
-				corpusReader.setParserService(config.getParserService());
-				corpusReader.setPosTaggerService(config.getPosTaggerService());
-				corpusReader.setTokeniserService(config.getTokeniserService());
-				corpusReader.setTalismaneService(config.getTalismaneService());
+				PennDepReader corpusReader = new PennDepReader(config.getReader(), talismaneSession);
 
 				corpusReader.setPredictTransitions(config.isPredictTransitions());
 
@@ -96,22 +93,11 @@ public class TalismaneEnglish {
 				config.setTokenCorpusReader(corpusReader);
 				config.setSentenceCorpusReader(corpusReader);
 
-				corpusReader.setRegex(DEFAULT_CONLL_REGEX);
-
-				if (config.getInputRegex() != null) {
-					corpusReader.setRegex(config.getInputRegex());
-				}
-
 				if (config.getCommand().equals(Command.compare)) {
-					ParserRegexBasedCorpusReader evaluationReader = config.getParserService().getRegexBasedCorpusReader(config.getEvaluationReader());
+					String evalRegex = config.getParserEvluationReaderRegex();
+					ParserRegexBasedCorpusReader evaluationReader = new ParserRegexBasedCorpusReader(evalRegex, config.getEvaluationReader(), talismaneSession);
 					config.setParserEvaluationCorpusReader(evaluationReader);
 					config.setPosTagEvaluationCorpusReader(evaluationReader);
-
-					evaluationReader.setRegex(DEFAULT_CONLL_REGEX);
-
-					if (config.getInputRegex() != null) {
-						evaluationReader.setRegex(config.getInputRegex());
-					}
 				}
 			} else {
 				throw new TalismaneException("Unknown corpusReader: " + corpusReaderType);

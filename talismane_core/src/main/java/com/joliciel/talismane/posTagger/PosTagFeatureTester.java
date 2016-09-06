@@ -42,7 +42,7 @@ class PosTagFeatureTester implements PosTagSequenceProcessor {
 
 	@Override
 	public void onNextPosTagSequence(PosTagSequence posTagSequence, Writer writer) {
-		PosTagSequence currentHistory = posTaggerService.getPosTagSequence(posTagSequence.getTokenSequence());
+		PosTagSequence currentHistory = new PosTagSequence(posTagSequence.getTokenSequence());
 
 		for (PosTaggedToken posTaggedToken : posTagSequence) {
 			if (testWords.contains(posTaggedToken.getToken().getText().toLowerCase())) {

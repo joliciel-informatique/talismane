@@ -49,11 +49,14 @@ import com.joliciel.talismane.lexicon.PosTagMapper;
 import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
+import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.terminology.TermExtractorImpl.Expansion;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
@@ -107,7 +110,9 @@ public class TermExtractorTest {
 			talismaneSession.addLexicon(lexiconFile);
 		}
 
-		ParserAnnotatedCorpusReader corpusReader = parserService.getRegexBasedCorpusReader(configurationReader);
+		Config config = ConfigFactory.load();
+		String parserInputRegex = config.getString("talismane.core.train.parser.readerRegex");
+		ParserAnnotatedCorpusReader corpusReader = new ParserRegexBasedCorpusReader(parserInputRegex, configurationReader, talismaneSession);
 		corpusReader.setLexicalEntryReader(lexicalEntryReader);
 
 		ParseConfiguration configuration = corpusReader.nextConfiguration();
@@ -354,7 +359,9 @@ public class TermExtractorTest {
 
 		talismaneSession.addLexicon(lexiconFile);
 
-		ParserAnnotatedCorpusReader corpusReader = parserService.getRegexBasedCorpusReader(configurationReader);
+		Config config = ConfigFactory.load();
+		String parserInputRegex = config.getString("talismane.core.train.parser.readerRegex");
+		ParserAnnotatedCorpusReader corpusReader = new ParserRegexBasedCorpusReader(parserInputRegex, configurationReader, talismaneSession);
 		corpusReader.setLexicalEntryReader(lexicalEntryReader);
 
 		ParseConfiguration configuration = corpusReader.nextConfiguration();

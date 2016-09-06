@@ -1,9 +1,7 @@
 package com.joliciel.talismane.parser;
 
 import java.io.File;
-import java.io.Reader;
 import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
 
@@ -17,36 +15,12 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureService;
-import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggerService;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 
 public class ParserServiceImpl implements ParserServiceInternal {
 	TalismaneService talismaneService;
 	ParserFeatureService parseFeatureService;
 	PosTaggerService posTaggerService;
-	TokeniserService tokeniserService;
-
-	@Override
-	public DependencyArc getDependencyArc(PosTaggedToken head, PosTaggedToken dependent, String label) {
-		DependencyArcImpl arc = new DependencyArcImpl(head, dependent, label);
-		return arc;
-	}
-
-	@Override
-	public ParseConfiguration getInitialConfiguration(PosTagSequence posTagSequence) {
-		ParseConfigurationImpl configuration = new ParseConfigurationImpl(posTagSequence);
-		configuration.setParserServiceInternal(this);
-		return configuration;
-	}
-
-	@Override
-	public ParseConfiguration getConfiguration(ParseConfiguration history) {
-		ParseConfigurationImpl configuration = new ParseConfigurationImpl(history);
-		configuration.setParserServiceInternal(this);
-		return configuration;
-	}
 
 	@Override
 	public NonDeterministicParser getTransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem,
@@ -130,47 +104,12 @@ public class ParserServiceImpl implements ParserServiceInternal {
 		this.parseFeatureService = parseFeatureService;
 	}
 
-	@Override
-	public DependencyNode getDependencyNode(PosTaggedToken token, String label, ParseConfiguration parseConfiguration) {
-		DependencyNodeImpl dependencyNode = new DependencyNodeImpl(token, label, parseConfiguration);
-		dependencyNode.setParserServiceInternal(this);
-		return dependencyNode;
-	}
-
-	@Override
-	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(Reader reader) {
-		ParserRegexBasedCorpusReaderImpl corpusReader = new ParserRegexBasedCorpusReaderImpl(reader);
-		corpusReader.setParserService(this);
-		corpusReader.setTalismaneService(this.getTalismaneService());
-		corpusReader.setPosTaggerService(this.getPosTaggerService());
-		corpusReader.setTokeniserService(this.getTokeniserService());
-		return corpusReader;
-	}
-
-	@Override
-	public ParserRegexBasedCorpusReader getRegexBasedCorpusReader(File file, Charset charset) {
-		ParserRegexBasedCorpusReaderImpl corpusReader = new ParserRegexBasedCorpusReaderImpl(file, charset);
-		corpusReader.setParserService(this);
-		corpusReader.setTalismaneService(this.getTalismaneService());
-		corpusReader.setPosTaggerService(this.getPosTaggerService());
-		corpusReader.setTokeniserService(this.getTokeniserService());
-		return corpusReader;
-	}
-
 	public PosTaggerService getPosTaggerService() {
 		return posTaggerService;
 	}
 
 	public void setPosTaggerService(PosTaggerService posTaggerService) {
 		this.posTaggerService = posTaggerService;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	@Override
@@ -199,14 +138,12 @@ public class ParserServiceImpl implements ParserServiceInternal {
 	@Override
 	public ParseConfigurationProcessor getParseFeatureTester(Set<ParseConfigurationFeature<?>> parserFeatures, File file) {
 		ParseFeatureTester tester = new ParseFeatureTester(parserFeatures, file);
-		tester.setParserServiceInternal(this);
 		return tester;
 	}
 
 	@Override
 	public ParseConfigurationProcessor getTransitionLogWriter(Writer csvFileWriter) {
 		TransitionLogWriter processor = new TransitionLogWriter(csvFileWriter);
-		processor.setParserServiceInternal(this);
 		return processor;
 	}
 

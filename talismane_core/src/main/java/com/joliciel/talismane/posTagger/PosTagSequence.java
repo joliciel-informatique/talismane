@@ -1,82 +1,278 @@
-///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
-//
-//This file is part of Talismane.
-//
-//Talismane is free software: you can redistribute it and/or modify
-//it under the terms of the GNU Affero General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//Talismane is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU Affero General Public License for more details.
-//
-//You should have received a copy of the GNU Affero General Public License
-//along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
-//////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
+import com.joliciel.talismane.machineLearning.ScoringStrategy;
+import com.joliciel.talismane.machineLearning.Solution;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
  * A sequence of postags applied to a given token sequence.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTagSequence extends Iterable<PosTaggedToken>, Comparable<PosTagSequence>, ClassificationSolution {
+public class PosTagSequence extends ArrayList<PosTaggedToken> implements Comparable<PosTagSequence>, ClassificationSolution {
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagSequence.class);
+	private static final long serialVersionUID = 1L;
+	private double score = 0.0;
+	private boolean scoreCalculated = false;
+	private String string = null;
+	private final List<Decision> decisions = new ArrayList<>();
+	private final List<Solution> underlyingSolutions = new ArrayList<>();
+
+	@SuppressWarnings("rawtypes")
+	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
+
+	private TokenSequence tokenSequence;
+	private final TalismaneSession talismaneSession;
+
 	/**
-	 * Get the PosTaggedToken at position n.
+	 * Construct an empty pos-tag sequence, based on a given
+	 * {@link TokenSequence} that needs to be pos-tagged.
+	 * 
+	 * @param tokenSequence
+	 *            the token sequence to be pos-tagged.
 	 */
-	public PosTaggedToken get(int index);
-	
-	/**
-	 * Returns the size of the current PosTagSequence.
-	 */
-	public int size();
-	
-	/**
-	 * Add a PosTaggedToken to the end of the current sequence.
-	 */
-	public void addPosTaggedToken(PosTaggedToken posTaggedToken);
-	
-	/**
-	 * Get the Token Sequence on which this PosTagSequence is based.
-	 */
-	public TokenSequence getTokenSequence();
-	
+	public PosTagSequence(TokenSequence tokenSequence) {
+		super(tokenSequence.size());
+		this.talismaneSession = tokenSequence.getTalismaneSession();
+		this.tokenSequence = tokenSequence;
+		this.initialize();
+	}
+
+	PosTagSequence(PosTagSequence history) {
+		super(history.size() + 1);
+		this.talismaneSession = history.getTalismaneSession();
+
+		for (PosTaggedToken posTaggedToken : history)
+			this.addPosTaggedToken(posTaggedToken);
+		this.decisions.addAll(history.getDecisions());
+		this.tokenSequence = history.getTokenSequence();
+
+		this.initialize();
+	}
+
+	PosTagSequence(PosTagSequence clone, boolean fromClone) {
+		this.talismaneSession = clone.getTalismaneSession();
+		this.tokenSequence = clone.getTokenSequence().cloneTokenSequence();
+		this.initialize();
+
+		this.setScoringStrategy(clone.getScoringStrategy());
+		int i = 0;
+		for (PosTaggedToken posTaggedToken : clone) {
+			PosTaggedToken newPosTaggedToken = posTaggedToken.clonePosTaggedToken();
+			newPosTaggedToken.setToken(this.getTokenSequence().get(i++));
+			this.add(newPosTaggedToken);
+		}
+		this.decisions.addAll(clone.getDecisions());
+	}
+
+	private void initialize() {
+		if (tokenSequence.getUnderlyingAtomicTokenSequence() != null) {
+			this.underlyingSolutions.add(tokenSequence.getUnderlyingAtomicTokenSequence());
+		}
+		tokenSequence.setPosTagSequence(this);
+	}
+
 	/**
 	 * The score is calculated as the geometric mean of postag decisions,
 	 * multiplied by the score of the token sequence.
 	 */
-	public double getScore();
-	
+	@SuppressWarnings("unchecked")
+	@Override
+	public double getScore() {
+		if (!scoreCalculated) {
+			score = this.scoringStrategy.calculateScore(this);
+			scoreCalculated = true;
+		}
+		return score;
+	}
+
+	/**
+	 * Get the Token Sequence on which this PosTagSequence is based.
+	 */
+	public TokenSequence getTokenSequence() {
+		return tokenSequence;
+	}
+
 	/**
 	 * Get the next token for which no pos tag has yet been assigned.
 	 */
-	public Token getNextToken();
-	
+	public Token getNextToken() {
+		return this.tokenSequence.get(this.size());
+	}
+
+	@Override
+	public int compareTo(PosTagSequence o) {
+		if (this.getScore() < o.getScore()) {
+			return 1;
+		} else if (this.getScore() > o.getScore()) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+
+	@Override
+	public synchronized String toString() {
+		if (string == null) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("Sequence: ");
+			for (PosTaggedToken taggedToken : this) {
+				builder.append(taggedToken.toString());
+				builder.append(", ");
+			}
+			string = builder.toString();
+		}
+		return string;
+	}
+
 	/**
-	 * Prepend a root to this PosTagSequence, unless there's a root already,
-	 * and return the prepended root.
+	 * Prepend a root to this PosTagSequence, unless there's a root already, and
+	 * return the prepended root.
 	 */
-	public PosTaggedToken prependRoot();
-	
+	public PosTaggedToken prependRoot() {
+		PosTaggedToken rootToken = null;
+		if (this.size() > 0) {
+			rootToken = this.get(0);
+			if (!rootToken.getTag().equals(PosTag.ROOT_POS_TAG))
+				rootToken = null;
+		}
+		if (rootToken == null) {
+			Token emptyToken = tokenSequence.addEmptyToken(0);
+			emptyToken.setText("[ROOT]");
+			tokenSequence.setWithRoot(true);
+			tokenSequence.finalise();
+
+			Decision rootDecision = new Decision(PosTag.ROOT_POS_TAG.getCode());
+			rootToken = new PosTaggedToken(emptyToken, rootDecision, talismaneSession);
+			this.add(0, rootToken);
+			rootToken.setPosTagSequence(this);
+		}
+		this.string = null;
+		return rootToken;
+	}
+
 	/**
 	 * Remove a previously pre-pended root.
 	 */
-	public void removeRoot();
-	
+	public void removeRoot() {
+		PosTaggedToken rootToken = null;
+		if (this.size() > 0) {
+			rootToken = this.get(0);
+			if (!rootToken.getTag().equals(PosTag.ROOT_POS_TAG))
+				rootToken = null;
+		}
+		if (rootToken != null) {
+			Token emptyToken = rootToken.getToken();
+			tokenSequence.removeEmptyToken(emptyToken);
+			this.remove(0);
+			tokenSequence.setWithRoot(false);
+			tokenSequence.finalise();
+		}
+	}
+
+	@Override
+	public List<Decision> getDecisions() {
+		return this.decisions;
+	}
+
+	@Override
+	public List<Solution> getUnderlyingSolutions() {
+		return this.underlyingSolutions;
+	}
+
+	@Override
+	public void addDecision(Decision decision) {
+		this.decisions.add(decision);
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public ScoringStrategy getScoringStrategy() {
+		return scoringStrategy;
+	}
+
+	@Override
+	public void setScoringStrategy(@SuppressWarnings("rawtypes") ScoringStrategy scoringStrategy) {
+		this.scoringStrategy = scoringStrategy;
+	}
+
 	/**
-	 * Make a deep clone of this pos-tag sequence.
+	 * Add a PosTaggedToken to the end of the current sequence.
 	 */
-	public PosTagSequence clonePosTagSequence();
-	
+	public void addPosTaggedToken(PosTaggedToken posTaggedToken) {
+		this.add(posTaggedToken);
+		posTaggedToken.setPosTagSequence(this);
+		this.string = null;
+	}
+
 	/**
 	 * Remove all pos-tagged tokens that are empty and whose tag is null.
 	 */
-	public void removeEmptyPosTaggedTokens();
+	public void removeEmptyPosTaggedTokens() {
+		boolean haveEmptyTokens = false;
+		for (PosTaggedToken posTaggedToken : this) {
+			if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
+				haveEmptyTokens = true;
+				break;
+			}
+		}
+
+		if (haveEmptyTokens) {
+			List<PosTaggedToken> cloneList = new ArrayList<PosTaggedToken>();
+			this.tokenSequence = this.tokenSequence.cloneTokenSequence();
+
+			List<Token> emptyTokensToRemove = new ArrayList<Token>();
+			int i = 0;
+			for (PosTaggedToken posTaggedToken : this) {
+				Token token = tokenSequence.get(i++);
+				if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {
+					if (LOG.isDebugEnabled())
+						LOG.debug("Removing null empty pos-tagged token at position " + posTaggedToken.getToken().getStartIndex() + ": " + posTaggedToken);
+					emptyTokensToRemove.add(token);
+				} else {
+					PosTaggedToken clonedTaggedToken = posTaggedToken.clonePosTaggedToken();
+					cloneList.add(clonedTaggedToken);
+				}
+			}
+
+			for (Token token : emptyTokensToRemove) {
+				this.tokenSequence.removeEmptyToken(token);
+			}
+			this.tokenSequence.finalise();
+
+			i = 0;
+			for (PosTaggedToken posTaggedToken : cloneList) {
+				posTaggedToken.setToken(this.tokenSequence.get(i++));
+			}
+
+			this.clear();
+			this.addAll(cloneList);
+			this.string = null;
+		}
+	}
+
+	/**
+	 * Make a deep clone of this pos-tag sequence.
+	 */
+	public PosTagSequence clonePosTagSequence() {
+		PosTagSequence clone = new PosTagSequence(this, true);
+		return clone;
+	}
+
+	protected TalismaneSession getTalismaneSession() {
+		return talismaneSession;
+	}
+
 }

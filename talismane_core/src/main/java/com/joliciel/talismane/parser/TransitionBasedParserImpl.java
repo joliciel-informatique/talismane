@@ -114,7 +114,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 			PriorityQueue<ParseConfiguration> heap0 = new PriorityQueue<ParseConfiguration>();
 			for (PosTagSequence posTagSequence : posTagSequences) {
 				// add an initial ParseConfiguration for each postag sequence
-				ParseConfiguration initialConfiguration = this.getParserServiceInternal().getInitialConfiguration(posTagSequence);
+				ParseConfiguration initialConfiguration = new ParseConfiguration(posTagSequence);
 				initialConfiguration.setScoringStrategy(decisionMaker.getDefaultScoringStrategy());
 				heap0.add(initialConfiguration);
 				if (LOG.isDebugEnabled()) {
@@ -325,7 +325,7 @@ class TransitionBasedParserImpl implements TransitionBasedParser {
 
 							if (transition.checkPreconditions(history)) {
 								transitionApplied = true;
-								ParseConfiguration configuration = this.parserServiceInternal.getConfiguration(history);
+								ParseConfiguration configuration = new ParseConfiguration(history);
 								if (decision.isStatistical())
 									configuration.addDecision(decision);
 								transition.apply(configuration);

@@ -30,11 +30,9 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 
 class TreebankExportServiceImpl implements TreebankExportService {
 	private TreebankService treebankService;
-	private TokeniserService tokeniserService;
 	private PosTaggerService posTaggerService;
 	private TalismaneService talismaneService;
 
@@ -68,7 +66,6 @@ class TreebankExportServiceImpl implements TreebankExportService {
 	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader) {
 		FrenchTreebankTokenReader reader = new FrenchTreebankTokenReader(treebankReader);
 		reader.setTreebankService(this.getTreebankService());
-		reader.setTokeniserService(tokeniserService);
 		reader.setPosTaggerService(posTaggerService);
 		reader.setTalismaneService(talismaneService);
 		reader.setIgnoreCase(false);
@@ -110,14 +107,6 @@ class TreebankExportServiceImpl implements TreebankExportService {
 		reader.setUseCompoundPosTags(useCompoundPosTags);
 		reader.setFtbPosTagMapper(ftbPosTagMapper);
 		return reader;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	public PosTaggerService getPosTaggerService() {

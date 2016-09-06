@@ -38,11 +38,13 @@ import com.joliciel.talismane.machineLearning.Solution;
  * @author Assaf Urieli
  *
  */
-public class TokenisedAtomicTokenSequence extends TaggedTokenSequenceImpl<TokeniserOutcome>
-		implements TaggedTokenSequence<TokeniserOutcome>, ClassificationSolution, Comparable<TokenisedAtomicTokenSequence> {
+public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserOutcome>
+		implements ClassificationSolution, Comparable<TokenisedAtomicTokenSequence> {
 	private static final long serialVersionUID = 1L;
+
 	private final Sentence sentence;
-	private TokeniserServiceInternal tokeniserServiceInternal;
+	private final TalismaneSession talismaneSession;
+
 	private TokenSequence tokenSequence = null;
 	private List<Decision> decisions = new ArrayList<Decision>();
 	private List<Solution> underlyingSolutions = new ArrayList<Solution>();
@@ -50,8 +52,6 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequenceImpl<Tokeni
 	private ScoringStrategy scoringStrategy = new GeometricMeanScoringStrategy();
 	double score = 1.0;
 	boolean scoreCalculated = false;
-
-	private final TalismaneSession talismaneSession;
 
 	public TokenisedAtomicTokenSequence(Sentence sentence, TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
@@ -147,14 +147,6 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequenceImpl<Tokeni
 		}
 
 		return token;
-	}
-
-	public TokeniserServiceInternal getTokeniserServiceInternal() {
-		return tokeniserServiceInternal;
-	}
-
-	public void setTokeniserServiceInternal(TokeniserServiceInternal tokeniserServiceInternal) {
-		this.tokeniserServiceInternal = tokeniserServiceInternal;
 	}
 
 	@Override

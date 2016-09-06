@@ -28,7 +28,6 @@ import com.joliciel.talismane.parser.ParserServiceLocator;
 import com.joliciel.talismane.parser.features.ParserFeatureServiceLocator;
 import com.joliciel.talismane.posTagger.PosTaggerServiceLocator;
 import com.joliciel.talismane.posTagger.filters.PosTagFilterServiceLocator;
-import com.joliciel.talismane.tokeniser.TokeniserServiceLocator;
 
 /**
  * Top-level locator for implementations of Talismane interfaces.
@@ -43,7 +42,6 @@ public class TalismaneServiceLocator {
 
 	private PosTaggerServiceLocator posTaggerServiceLocator;
 	private PosTagFilterServiceLocator posTagFilterServiceLocator;
-	private TokeniserServiceLocator tokeniserServiceLocator;
 	private ParserServiceLocator parserServiceLocator;
 	private ParserFeatureServiceLocator parserFeatureServiceLocator;
 
@@ -72,7 +70,6 @@ public class TalismaneServiceLocator {
 			this.talismaneService = new TalismaneServiceImpl(this.sessionId);
 			talismaneService.setParserService(this.getParserServiceLocator().getParserService());
 			talismaneService.setPosTaggerService(this.getPosTaggerServiceLocator().getPosTaggerService());
-			talismaneService.setTokeniserService(this.getTokeniserServiceLocator().getTokeniserService());
 			talismaneService.setParserFeatureService(this.getParserFeatureServiceLocator().getParserFeatureService());
 		}
 		return this.talismaneService;
@@ -94,13 +91,6 @@ public class TalismaneServiceLocator {
 			this.posTagFilterServiceLocator = new PosTagFilterServiceLocator(this);
 		}
 		return posTagFilterServiceLocator;
-	}
-
-	public synchronized TokeniserServiceLocator getTokeniserServiceLocator() {
-		if (this.tokeniserServiceLocator == null) {
-			this.tokeniserServiceLocator = new TokeniserServiceLocator(this);
-		}
-		return tokeniserServiceLocator;
 	}
 
 	public synchronized ParserServiceLocator getParserServiceLocator() {

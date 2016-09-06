@@ -18,14 +18,5 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import com.joliciel.talismane.posTagger.PosTaggedToken;
-
-interface ParserServiceInternal extends ParserService {	
-	/**
-	 * Clones an existing configuration.
-	 */
-	public ParseConfiguration getConfiguration(ParseConfiguration history);
-	
-	public DependencyNode getDependencyNode(PosTaggedToken token, String label,
-			ParseConfiguration parseConfiguration);
+interface ParserServiceInternal extends ParserService {
 }

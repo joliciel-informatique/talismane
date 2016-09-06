@@ -46,7 +46,6 @@ import com.joliciel.talismane.posTagger.UnknownPosTagException;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -63,7 +62,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 	private ParserService parserService;
 	private PosTaggerService posTaggerService;
-	private TokeniserService tokeniserService;
 
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
@@ -170,7 +168,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 			if (configuration == null && sentenceIndex < sentences.size()) {
 
 				PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
-				PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence);
+				PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
 				Map<String, PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
 
 				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
@@ -213,7 +211,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 				tokenSequence.finalise();
 
-				configuration = this.getParserService().getInitialConfiguration(posTagSequence);
+				configuration = new ParseConfiguration(posTagSequence);
 
 				for (StandoffToken standoffToken : tokens) {
 					StandoffRelation relation = relationMap.get(standoffToken.id);
@@ -293,14 +291,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 	public void setPosTaggerService(PosTaggerService posTaggerService) {
 		this.posTaggerService = posTaggerService;
-	}
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
 	}
 
 	public ParserService getParserService() {
