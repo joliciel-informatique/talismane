@@ -58,6 +58,21 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
+	public void testApplyWithConsecutiveDollars() {
+		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
+		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
+		filter.setReplacement("\\$Email$2$1");
+		String text = "My address is joe.schmoe@test.com.";
+		List<TokenPlaceholder> placeholders = filter.apply(text);
+		LOG.debug(placeholders);
+		assertEquals(1, placeholders.size());
+		TokenPlaceholder placeholder = placeholders.iterator().next();
+		assertEquals(14, placeholder.getStartIndex());
+		assertEquals(33, placeholder.getEndIndex());
+		assertEquals("$Email@test.comjoe.schmoe", placeholder.getReplacement());
+	}
+
+	@Test
 	public void testWordList(@NonStrict final ExternalResourceFinder externalResourceFinder, @NonStrict final ExternalWordList externalWordList) {
 
 		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
