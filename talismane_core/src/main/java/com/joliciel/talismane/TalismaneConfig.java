@@ -327,7 +327,12 @@ public class TalismaneConfig {
 
 	private String csvEncoding;
 
-	private static final Map<String, Diacriticizer> diacriticizerMap = new HashMap<String, Diacriticizer>();
+	// various static maps for ensuring we don't load the same large resource
+	// multiple times if multiple talismane configurations share the same
+	// resource
+	private static final Map<String, Diacriticizer> diacriticizerMap = new HashMap<>();
+	private static final Map<String, List<PosTaggerLexicon>> lexiconMap = new HashMap<>();
+	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 
 	private final TalismaneSession talismaneSession;
 
@@ -858,10 +863,16 @@ public class TalismaneConfig {
 		configPath = "talismane.core.analyse.lexicons";
 		List<String> lexiconPaths = config.getStringList(configPath);
 		for (String lexiconPath : lexiconPaths) {
-			InputStream lexiconFile = this.getFile(configPath, lexiconPath);
+			List<PosTaggerLexicon> lexicons = lexiconMap.get(lexiconPath);
 
-			LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
-			List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(new ZipInputStream(lexiconFile));
+			if (lexicons == null) {
+				InputStream lexiconFile = this.getFile(configPath, lexiconPath);
+
+				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
+				lexicons = lexiconDeserializer.deserializeLexicons(new ZipInputStream(lexiconFile));
+				lexiconMap.put(lexiconPath, lexicons);
+			}
+
 			for (PosTaggerLexicon oneLexicon : lexicons) {
 				talismaneSession.addLexicon(oneLexicon);
 			}
@@ -1583,9 +1594,14 @@ public class TalismaneConfig {
 			LOG.debug("Getting languageDetector model");
 
 			String configPath = "talismane.core.analyse.languageModel";
-			InputStream languageModelFile = this.getFileFromConfig(configPath);
-			MachineLearningModelFactory factory = new MachineLearningModelFactory();
-			languageModel = factory.getClassificationModel(new ZipInputStream(languageModelFile));
+			String modelFilePath = config.getString(configPath);
+			languageModel = modelMap.get(modelFilePath);
+			if (languageModel == null) {
+				InputStream languageModelFile = this.getFileFromConfig(configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				languageModel = factory.getClassificationModel(new ZipInputStream(languageModelFile));
+				modelMap.put(modelFilePath, languageModel);
+			}
 		}
 		return languageModel;
 	}
@@ -1595,9 +1611,14 @@ public class TalismaneConfig {
 			LOG.debug("Getting sentenceDetector model");
 
 			String configPath = "talismane.core.analyse.sentenceModel";
-			InputStream sentenceModelFile = this.getFileFromConfig(configPath);
-			MachineLearningModelFactory factory = new MachineLearningModelFactory();
-			sentenceModel = factory.getClassificationModel(new ZipInputStream(sentenceModelFile));
+			String modelFilePath = config.getString(configPath);
+			sentenceModel = modelMap.get(modelFilePath);
+			if (sentenceModel == null) {
+				InputStream sentenceModelFile = this.getFileFromConfig(configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				sentenceModel = factory.getClassificationModel(new ZipInputStream(sentenceModelFile));
+				modelMap.put(modelFilePath, sentenceModel);
+			}
 		}
 		return sentenceModel;
 	}
@@ -1607,9 +1628,14 @@ public class TalismaneConfig {
 			LOG.debug("Getting tokeniser model");
 
 			String configPath = "talismane.core.analyse.tokeniserModel";
-			InputStream tokeniserModelFile = this.getFileFromConfig(configPath);
-			MachineLearningModelFactory factory = new MachineLearningModelFactory();
-			tokeniserModel = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
+			String modelFilePath = config.getString(configPath);
+			tokeniserModel = modelMap.get(modelFilePath);
+			if (tokeniserModel == null) {
+				InputStream tokeniserModelFile = this.getFileFromConfig(configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				tokeniserModel = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
+				modelMap.put(modelFilePath, tokeniserModel);
+			}
 		}
 		return tokeniserModel;
 	}
@@ -1619,9 +1645,14 @@ public class TalismaneConfig {
 			LOG.debug("Getting posTagger model");
 
 			String configPath = "talismane.core.analyse.posTaggerModel";
-			InputStream posTaggerModelFile = this.getFileFromConfig(configPath);
-			MachineLearningModelFactory factory = new MachineLearningModelFactory();
-			posTaggerModel = factory.getClassificationModel(new ZipInputStream(posTaggerModelFile));
+			String modelFilePath = config.getString(configPath);
+			posTaggerModel = modelMap.get(modelFilePath);
+			if (posTaggerModel == null) {
+				InputStream posTaggerModelFile = this.getFileFromConfig(configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				posTaggerModel = factory.getClassificationModel(new ZipInputStream(posTaggerModelFile));
+				modelMap.put(modelFilePath, posTaggerModel);
+			}
 		}
 		return posTaggerModel;
 	}
@@ -1631,9 +1662,14 @@ public class TalismaneConfig {
 			LOG.debug("Getting parser model");
 
 			String configPath = "talismane.core.analyse.parserModel";
-			InputStream parserModelFile = this.getFileFromConfig(configPath);
-			MachineLearningModelFactory factory = new MachineLearningModelFactory();
-			parserModel = factory.getClassificationModel(new ZipInputStream(parserModelFile));
+			String modelFilePath = config.getString(configPath);
+			parserModel = modelMap.get(modelFilePath);
+			if (parserModel == null) {
+				InputStream posTaggerModelFile = this.getFileFromConfig(configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				parserModel = factory.getClassificationModel(new ZipInputStream(posTaggerModelFile));
+				modelMap.put(modelFilePath, parserModel);
+			}
 
 			talismaneSession.setTransitionSystem(TransitionSystem.getTransitionSystem(parserModel));
 		}
