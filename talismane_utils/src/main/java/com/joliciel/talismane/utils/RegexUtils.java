@@ -55,7 +55,8 @@ public class RegexUtils {
 					} else if (c == '$' && !backslash) {
 						if (dollar) {
 							int groupNumber = Integer.parseInt(group);
-							sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
+							if (matcher.start(groupNumber) >= 0)
+								sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
 							group = "";
 						}
 						dollar = true;
@@ -64,7 +65,8 @@ public class RegexUtils {
 					} else {
 						if (dollar) {
 							int groupNumber = Integer.parseInt(group);
-							sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
+							if (matcher.start(groupNumber) >= 0)
+								sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
 							group = "";
 						}
 						sb.append(c);
@@ -74,7 +76,8 @@ public class RegexUtils {
 				} // next character
 				if (dollar) {
 					int groupNumber = Integer.parseInt(group);
-					sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
+					if (matcher.start(groupNumber) >= 0)
+						sb.append(text.substring(matcher.start(groupNumber), matcher.end(groupNumber)));
 				}
 
 				newText = sb.toString();

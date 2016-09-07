@@ -68,8 +68,29 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
+	public void testApplyWithUnmatchingGroups() {
+		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
+		filter.setRegex("\\b(\\d)(\\d)?\\b");
+		filter.setReplacement("Number$1$2");
+		String text = "Two-digit number: 42. One-digit number: 7.";
+		List<TokenPlaceholder> placeholders = filter.apply(text);
+		System.out.println(placeholders);
+		assertEquals(2, placeholders.size());
+
+		TokenPlaceholder placeholder = placeholders.get(0);
+		assertEquals("Two-digit number: ".length(), placeholder.getStartIndex());
+		assertEquals("Two-digit number: 42".length(), placeholder.getEndIndex());
+		assertEquals("Number42", placeholder.getReplacement());
+		placeholder = placeholders.get(1);
+		assertEquals("Two-digit number: 42. One-digit number: ".length(), placeholder.getStartIndex());
+		assertEquals("Two-digit number: 42. One-digit number: 7".length(), placeholder.getEndIndex());
+		assertEquals("Number7", placeholder.getReplacement());
+	}
+
+	@Test
 	public void testWordList() {
 		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
