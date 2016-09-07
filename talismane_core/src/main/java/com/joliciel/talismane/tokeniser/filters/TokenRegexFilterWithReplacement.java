@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.RegexUtils;
 
 class TokenRegexFilterWithReplacement extends AbstractRegexFilter {
@@ -47,9 +46,9 @@ class TokenRegexFilterWithReplacement extends AbstractRegexFilter {
 	}
 
 	@Override
-	public void loadInternal(Map<String, String> parameters, List<String> tabs) {
+	public void loadInternal(Map<String, String> parameters, List<String> tabs) throws TokenFilterLoadException {
 		if (tabs.size() < 1 || tabs.size() > 2)
-			throw new TalismaneException(
+			throw new TokenFilterLoadException(
 					"Wrong number of additional tabs for " + TokenRegexFilter.class.getSimpleName() + ". Expected 1 or 2, but was " + tabs.size());
 
 		if (tabs.size() == 2) {

@@ -482,7 +482,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 	@Override
 	public void load(Map<String, String> parameters, List<String> tabs) throws TokenFilterLoadException {
 		if (tabs.size() < 1)
-			throw new TalismaneException(
+			throw new TokenFilterLoadException(
 					"Wrong number of additional tabs for " + TokenRegexFilter.class.getSimpleName() + ". Expected at least 1, but was " + tabs.size());
 		this.setRegex(tabs.get(0));
 
