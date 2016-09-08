@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.joliciel.talismane</groupId>
 		<artifactId>talismane-parent</artifactId>
-		<version>2.6.2b</version>
+		<version>3.0.0b</version>
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<build>
@@ -70,16 +70,24 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-machine-learning</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-vfs2</artifactId>
 		</dependency>
 		<dependency>
 			<!-- Must be before junit! -->
@@ -91,10 +99,6 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
 		</dependency>
 	</dependencies>
 </project>

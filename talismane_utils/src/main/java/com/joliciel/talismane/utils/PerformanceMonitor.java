@@ -35,8 +35,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitors the performance of various sub-tasks within an application run.<br/>
@@ -51,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class PerformanceMonitor {
-	private static final Log LOG = LogFactory.getLog(PerformanceMonitor.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PerformanceMonitor.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	
 	private static Deque<Task> tasks = new ArrayDeque<Task>();

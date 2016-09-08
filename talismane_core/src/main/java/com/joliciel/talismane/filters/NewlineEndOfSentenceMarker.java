@@ -18,14 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
+import java.util.Arrays;
+
 /**
  * Replace any newline with a sentence break.
+ * 
  * @author Assaf Urieli
  *
  */
-class NewlineEndOfSentenceMarker extends RegexMarkerFilter {
-	public NewlineEndOfSentenceMarker() {
-		super(new MarkerFilterType[] {MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK},
-				"\r\n|[\r\n]");
+public class NewlineEndOfSentenceMarker extends RegexMarkerFilter {
+	public NewlineEndOfSentenceMarker(int blockSize) {
+		super(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }), "\r\n|[\r\n]", 0, blockSize);
 	}
 }

@@ -18,25 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
-import com.joliciel.talismane.machineLearning.MachineLearningModel.MachineLearningModelType;
-
 /**
- * Machine learning algorithms supported by Talimane.
+ * Machine learning algorithms supported by Talismane.
  *
  */
 public enum MachineLearningAlgorithm {
-	MaxEnt(MachineLearningModelType.Classification),
-	LinearSVM(MachineLearningModelType.Classification),
-	LinearSVMOneVsRest(MachineLearningModelType.Classification),
-	Perceptron(MachineLearningModelType.Classification),
-	PerceptronRanking(MachineLearningModelType.Ranking),
-	OpenNLPPerceptron(MachineLearningModelType.Classification);
-	
-	private MachineLearningModelType modelType;
-	private MachineLearningAlgorithm(MachineLearningModelType modelType) {
-		this.modelType = modelType;
-	}
-	public MachineLearningModelType getModelType() {
-		return modelType;
-	}
+	MaxEnt, LinearSVM, Perceptron,
+	/**
+	 * This algorithm should not be used directly: it is only used to indicate
+	 * the stored LinearSVM model was oneVsRest.
+	 */
+	LinearSVMOneVsRest;
 }

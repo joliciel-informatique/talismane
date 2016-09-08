@@ -21,12 +21,12 @@ package com.joliciel.talismane.fr.ftb.util;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 public class DaoUtils {
-	private static final Log LOG = LogFactory.getLog(DaoUtils.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DaoUtils.class);
 
 	public static void LogParameters(Map<String, Object> paramMap) {
 		if (LOG.isDebugEnabled()) {

@@ -26,63 +26,62 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.parser.ParserRegexBasedCorpusReaderImpl;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 
 /**
- * A reader for the Penn-to-Dependency corpus, automatically converted from constituent trees to dependencies as
- * per Richard Johansson and Pierre Nugues,
- * Extended Constituent-to-dependency Conversion for English,
- * Proceedings of NODALIDA 2007,
- * May 25-26, 2007, Tartu, Estonia,
- * <a href="http://nlp.cs.lth.se/software/treebank_converter/">http://nlp.cs.lth.se/software/treebank_converter/</a>
+ * A reader for the Penn-to-Dependency corpus, automatically converted from
+ * constituent trees to dependencies as per Richard Johansson and Pierre Nugues,
+ * Extended Constituent-to-dependency Conversion for English, Proceedings of
+ * NODALIDA 2007, May 25-26, 2007, Tartu, Estonia,
+ * <a href="http://nlp.cs.lth.se/software/treebank_converter/">http://nlp.cs.lth
+ * .se/software/treebank_converter/</a>
  * 
  * @author Assaf Urieli
  *
  */
-public class PennDepReader extends ParserRegexBasedCorpusReaderImpl {
-    @SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(PennDepReader.class);
+public class PennDepReader extends ParserRegexBasedCorpusReader {
+	@SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(PennDepReader.class);
 	private static final String DEFAULT_CONLL_REGEX = "%INDEX%\\t%TOKEN%\\t.*\\t%POSTAG%\\t.*\\t.*\\t.*\\t.*\\t%GOVERNOR%\\t%LABEL%";
-    
-    private boolean keepCompoundPosTags = false;
-    private Set<String> punctuationMarks = new HashSet<String>();
-    private Set<String> symbolNouns = new HashSet<String>();
-    private Set<String> currencyNouns = new HashSet<String>();
-    
-	public PennDepReader(File conllFile, Charset charset) throws IOException {
-		super(conllFile, charset);
+
+	private boolean keepCompoundPosTags = false;
+	private Set<String> punctuationMarks = new HashSet<String>();
+	private Set<String> symbolNouns = new HashSet<String>();
+	private Set<String> currencyNouns = new HashSet<String>();
+
+	public PennDepReader(File conllFile, Charset charset, TalismaneSession talismaneSession) throws IOException {
+		super(DEFAULT_CONLL_REGEX, conllFile, charset, talismaneSession);
 		this.initialize();
 	}
 
-	public PennDepReader(File conllFile, String encoding) throws IOException {
-		this(conllFile, Charset.forName(encoding));
+	public PennDepReader(File conllFile, String encoding, TalismaneSession talismaneSession) throws IOException {
+		this(conllFile, Charset.forName(encoding), talismaneSession);
 	}
-	
-	public PennDepReader(Reader reader) throws IOException {
-		super(reader);
+
+	public PennDepReader(Reader reader, TalismaneSession talismaneSession) throws IOException {
+		super(DEFAULT_CONLL_REGEX, reader, talismaneSession);
 		this.initialize();
 	}
 
 	private void initialize() {
-		this.setRegex(DEFAULT_CONLL_REGEX);
-		String[] puncts = new String[] {",", ".", ";", ":", "(", ")", "''", "``", "-", "/", "!", "?", "<", ">", "&", "*", "+", "-", "="};
+		String[] puncts = new String[] { ",", ".", ";", ":", "(", ")", "''", "``", "-", "/", "!", "?", "<", ">", "&", "*", "+", "-", "=" };
 		for (String punct : puncts) {
 			punctuationMarks.add(punct);
 		}
-		String[] symbols = new String[] {"%"};
+		String[] symbols = new String[] { "%" };
 		for (String symbol : symbols) {
 			symbolNouns.add(symbol);
 		}
-		String[] currencies = new String[] {"$", "£", "¥", "#"};
+		String[] currencies = new String[] { "$", "£", "¥", "#" };
 		for (String currency : currencies) {
 			currencyNouns.add(currency);
 		}
-		
-	}
 
+	}
 
 	@Override
 	protected boolean checkDataLine(ParseDataLine dataLine) {
@@ -105,19 +104,17 @@ public class PennDepReader extends ParserRegexBasedCorpusReaderImpl {
 		}
 	}
 
-
 	public boolean isKeepCompoundPosTags() {
 		return keepCompoundPosTags;
 	}
 
-
 	public void setKeepCompoundPosTags(boolean keepCompoundPosTags) {
 		this.keepCompoundPosTags = keepCompoundPosTags;
 	}
-	
+
 	@Override
 	protected String readWord(String rawWord) {
 		return rawWord;
 	}
-	
+
 }

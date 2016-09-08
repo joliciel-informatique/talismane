@@ -18,13 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.Decision;
 
 public abstract class AbstractTransition implements Transition {
-	private static final Log LOG = LogFactory.getLog(AbstractTransition.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractTransition.class);
 	private Decision decision;
 
 	@Override

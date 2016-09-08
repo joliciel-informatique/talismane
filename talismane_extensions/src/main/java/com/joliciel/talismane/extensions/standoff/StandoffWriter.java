@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.output.ParseConfigurationOutput;
 import com.joliciel.talismane.parser.DependencyArc;
@@ -46,7 +46,7 @@ import freemarker.template.TemplateException;
 import freemarker.template.Version;
 
 public class StandoffWriter implements ParseConfigurationProcessor {
-	private static final Log LOG = LogFactory.getLog(StandoffWriter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(StandoffWriter.class);
 	private Template template;
 	private int sentenceCount = 0;
 	private int tokenCount = 0;

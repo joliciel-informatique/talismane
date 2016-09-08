@@ -18,40 +18,46 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.util.List;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 
-
 /**
- * A simplistic implementation of a Tokeniser, using only TokenFilters and default decisions.
+ * A simplistic implementation of a Tokeniser, using only TokenFilters and
+ * default decisions.
+ * 
  * @author Assaf Urieli
  *
  */
-class SimpleTokeniser extends AbstractTokeniser {
+public class SimpleTokeniser extends AbstractTokeniser {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(SimpleTokeniser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SimpleTokeniser.class);
+
+	public SimpleTokeniser(TalismaneSession talismaneSession) {
+		super(talismaneSession);
+	}
 
 	@Override
 	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) {
 		List<TokenisedAtomicTokenSequence> sequences = null;
 
 		sequences = new ArrayList<TokenisedAtomicTokenSequence>();
-		TokenisedAtomicTokenSequence defaultSequence = this.getTokeniserService().getTokenisedAtomicTokenSequence(sentence, 0);
+		TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(sentence, 0, this.getTalismaneSession());
 		for (Token token : initialSequence.listWithWhiteSpace()) {
-			Decision tokeniserDecision = this.getMachineLearningService().createDefaultDecision(TokeniserOutcome.SEPARATE.name());
-			TaggedToken<TokeniserOutcome> taggedToken = this.getTokeniserService().getTaggedToken(token, tokeniserDecision);
+			Decision tokeniserDecision = new Decision(TokeniserOutcome.SEPARATE.name());
+			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<TokeniserOutcome>(token, tokeniserDecision,
+					TokeniserOutcome.valueOf(tokeniserDecision.getOutcome()));
 			defaultSequence.add(taggedToken);
 		}
 		sequences.add(defaultSequence);
-		
+
 		return sequences;
 	}
 
-	
-	
 }

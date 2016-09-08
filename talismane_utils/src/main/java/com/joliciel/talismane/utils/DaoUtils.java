@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Various generic data access utilities.
@@ -36,7 +36,7 @@ public class DaoUtils {
 	public enum LogLevel {
 		TRACE, DEBUG, INFO
 	}
-    private static final Log LOG = LogFactory.getLog(DaoUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DaoUtils.class);
 
     public static void LogParameters(Map<String,Object> paramMap) {
         if (LOG.isDebugEnabled()) {
@@ -76,7 +76,7 @@ public class DaoUtils {
         }
     }
     
-    public static void LogParameters(Map<String,Object> paramMap, Log log) {
+    public static void LogParameters(Map<String,Object> paramMap, Logger log) {
         if (log.isTraceEnabled()) {
             for (Object obj : paramMap.entrySet()) {
                 @SuppressWarnings("rawtypes")

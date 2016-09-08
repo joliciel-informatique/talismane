@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Performs clustering on a dataset using the DBSCAN algorithm and Euclidean distance for similarity.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class DBSCANClusterer<T> {
-	private static final Log LOG = LogFactory.getLog(DBSCANClusterer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DBSCANClusterer.class);
 
 	List<T> objectSet;
 	List<double[]> dataSet;

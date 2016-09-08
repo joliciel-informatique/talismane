@@ -49,8 +49,6 @@ public interface TextMarkerFilter {
 	 */
 	public int getBlockSize();
 
-	public void setBlockSize(int blockSize);
-
 	/**
 	 * If the filter adds a tag, the attribute to add.
 	 */

@@ -14,14 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.CSVFormatter;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -37,7 +36,7 @@ public class SpmrlCoordinationAnnotator {
 	@SuppressWarnings("unused")
 	private static NumberFormat format = NumberFormat.getInstance(Locale.ENGLISH);
 
-	private static final Log LOG = LogFactory.getLog(SpmrlCoordinationAnnotator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SpmrlCoordinationAnnotator.class);
 
 	private static enum Option {
 		PrevConjunctGov, ConjunctionGov, PrevConjunctGovNoCommas, None
@@ -59,14 +58,9 @@ public class SpmrlCoordinationAnnotator {
 	}
 
 	public void calc(Map<String, String> argMap) throws Exception {
-
 		String logConfigPath = argMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		}
+		argMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		String refFilePath = null;
 		Option option = Option.None;
@@ -189,7 +183,7 @@ public class SpmrlCoordinationAnnotator {
 
 							if (coordinatorCount > 1) {
 								LOG.debug("### fix ###");
-								LOG.debug(refLine);
+								LOG.debug(refLine.toString());
 								ConllLine lastConjunct = refLine;
 								for (ConllLine coordinator : coordinators) {
 									if (coordinator.label.equals("coord")) {
@@ -213,7 +207,7 @@ public class SpmrlCoordinationAnnotator {
 										if (nextConjunct != null) {
 											lastConjunct = nextConjunct;
 										}
-										LOG.debug(nextConjunct);
+										LOG.debug(nextConjunct.toString());
 									} else if (coordinator.label.equals("ponct")) {
 										// non coordinators
 										coordinator.nonProjectiveGovernor = lastConjunct.index;

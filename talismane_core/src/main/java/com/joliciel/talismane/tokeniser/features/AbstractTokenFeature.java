@@ -19,8 +19,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -33,7 +33,7 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  */
 public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<TokenWrapper,Y> implements TokenFeature<Y> {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(AbstractTokenFeature.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokenFeature.class);
 	private TokenAddressFunction<TokenWrapper> addressFunction;
 	
 	@Override

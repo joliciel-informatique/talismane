@@ -18,18 +18,45 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * An environment giving a feature access to any variables that were
- * set during top-level feature initialisation.
+ * An environment giving a feature access to any variables that were set during
+ * top-level feature initialisation.
+ * 
  * @author Assaf
  *
  */
-public interface RuntimeEnvironment {
-	public Object getValue(String variableName);
-	public void setValue(String variableName, Object value);
+public class RuntimeEnvironment {
+	private Map<String, Object> variableMap = new HashMap<String, Object>();
+	private String key = null;
+
+	public Object getValue(String variableName) {
+		return variableMap.get(variableName);
+	}
+
+	public void setValue(String variableName, Object value) {
+		variableMap.put(variableName, value);
+		key = null;
+	}
 
 	/**
 	 * A key uniquely describing this environment.
 	 */
-	public String getKey();
+	public String getKey() {
+		if (key == null) {
+			if (variableMap.size() == 0)
+				key = "";
+			else {
+				StringBuilder sb = new StringBuilder();
+				for (String variable : variableMap.keySet()) {
+					sb.append("|" + variable + ":" + variableMap.get(variable).toString());
+				}
+				key = sb.toString();
+			}
+		}
+		return key;
+	}
+
 }

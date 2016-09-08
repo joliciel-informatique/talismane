@@ -28,25 +28,24 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.typesafe.config.Config;
+
 /**
- * A machine learning model, capable of providing a DecisionMaker, and encapsluating
- * all of the information required to analyse mew data (e.g. feature descriptors).
+ * A machine learning model, capable of providing a DecisionMaker, and
+ * encapsluating all of the information required to analyse mew data (e.g.
+ * feature descriptors).
+ * 
  * @author Assaf Urieli
  *
  */
 public interface MachineLearningModel {
-	public enum MachineLearningModelType {
-		Classification,
-		Ranking
-	}
-	
 	public static final String FEATURE_DESCRIPTOR_KEY = "feature";
-	
+
 	/**
 	 * Persist this model to an OutputStream.
 	 */
 	public void persist(OutputStream outputStream);
-	
+
 	/**
 	 * Persist this model to a file.
 	 */
@@ -61,7 +60,7 @@ public interface MachineLearningModel {
 	 * Add a defining attribute to this model.
 	 */
 	public void addModelAttribute(String name, Object value);
-	
+
 	/**
 	 * Get this model's dependencies.
 	 */
@@ -76,7 +75,7 @@ public interface MachineLearningModel {
 	 * A map of all descriptors required to apply this model to new data.
 	 */
 	public Map<String, List<String>> getDescriptors();
-	
+
 	/**
 	 * Get the list of feature descriptors for this model.
 	 */
@@ -86,28 +85,31 @@ public interface MachineLearningModel {
 	 * The machine learning algorithm implemented by this model.
 	 */
 	public MachineLearningAlgorithm getAlgorithm();
-	
+
+	/**
+	 * The configuration used to construct this model, useful for retraining a
+	 * new model using the identical config.
+	 */
+	public Config getConfig();
+
 	/**
 	 * External resources used by this model.
 	 */
 	public Collection<ExternalResource<?>> getExternalResources();
+
 	public void setExternalResources(Collection<ExternalResource<?>> externalResources);
-	
+
 	public ExternalResourceFinder getExternalResourceFinder();
-	
+
 	/**
 	 * Load some aspect of this model from a zip entry.
+	 * 
 	 * @return true if entry loaded, false otherwise
 	 */
 	boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException;
-	
+
 	/**
 	 * Called when load from a zip file has been completed.
 	 */
 	public void onLoadComplete();
-	
-	/**
-	 * The training parameters used to train this model.
-	 */
-	public Map<String,Object> getTrainingParameters();
 }

@@ -24,28 +24,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
-class LanguageDetectorEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(LanguageDetectorEventStream.class);
+/**
+ * A ClassificationEventStream for language detection training.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class LanguageDetectorEventStream implements ClassificationEventStream {
+	private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectorEventStream.class);
 
-    private LanguageDetectorAnnotatedCorpusReader corpusReader;
+	private LanguageDetectorAnnotatedCorpusReader corpusReader;
 	private Set<LanguageDetectorFeature<?>> features;
-	
-	private MachineLearningService machineLearningService;
-	private FeatureService featureService;
 
-	public LanguageDetectorEventStream(
-			LanguageDetectorAnnotatedCorpusReader corpusReader,
-			Set<LanguageDetectorFeature<?>> features) {
+	public LanguageDetectorEventStream(LanguageDetectorAnnotatedCorpusReader corpusReader, Set<LanguageDetectorFeature<?>> features) {
 		super();
 		this.corpusReader = corpusReader;
 		this.features = features;
@@ -61,9 +60,9 @@ class LanguageDetectorEventStream implements ClassificationEventStream {
 		LanguageTaggedText languageTaggedText = this.corpusReader.nextText();
 		List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
 		for (LanguageDetectorFeature<?> feature : features) {
-			RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+			RuntimeEnvironment env = new RuntimeEnvironment();
 			FeatureResult<?> featureResult = feature.check(languageTaggedText.getText(), env);
-			if (featureResult!=null)
+			if (featureResult != null)
 				featureResults.add(featureResult);
 		}
 		String classification = languageTaggedText.getLanguage().toLanguageTag();
@@ -74,37 +73,17 @@ class LanguageDetectorEventStream implements ClassificationEventStream {
 			}
 			LOG.trace("classification: " + classification);
 		}
-		
-		
-		ClassificationEvent event = this.machineLearningService.getClassificationEvent(featureResults, classification);
+
+		ClassificationEvent event = new ClassificationEvent(featureResults, classification);
 		return event;
 	}
 
 	@Override
 	public Map<String, String> getAttributes() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
-		attributes.put("eventStream", this.getClass().getSimpleName());		
-		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
-		
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
+		attributes.put("eventStream", this.getClass().getSimpleName());
+		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
+
 		return attributes;
 	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
-	
 }

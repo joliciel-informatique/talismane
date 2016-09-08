@@ -20,31 +20,54 @@ package com.joliciel.talismane.parser;
 
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.machineLearning.MachineLearningModel;
+
 /**
- * A set of transitions that can be applied to a configuration to give a particular set of target dependencies.
+ * A set of transitions that can be applied to a configuration to give a
+ * particular set of target dependencies.
+ * 
  * @author Assaf
  *
  */
 public interface TransitionSystem {
 	/**
-	 * Predict the transitions required to generate the set of targe dependencies for a given initial configuration,
-	 * also transforms the configuration so that it becomes a terminal configuration.
+	 * Predict the transitions required to generate the set of targe
+	 * dependencies for a given initial configuration, also transforms the
+	 * configuration so that it becomes a terminal configuration.
 	 */
 	void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies);
-	
+
 	/**
 	 * Get the transition corresponding to a particular code.
 	 */
 	public Transition getTransitionForCode(String code);
-	
+
 	/**
 	 * Get all possible transitions for this system.
 	 */
 	public Set<Transition> getTransitions();
-	
+
 	/**
 	 * A set of dependency labels for this transition system.
 	 */
 	public Set<String> getDependencyLabels();
+
 	public void setDependencyLabels(Set<String> dependencyLabels);
+
+	/**
+	 * Get the transition system corresponding to the model provided.
+	 */
+	public static TransitionSystem getTransitionSystem(MachineLearningModel model) {
+		TransitionSystem transitionSystem = null;
+		String transitionSystemClassName = (String) model.getModelAttributes().get("transitionSystem");
+		if (ShiftReduceTransitionSystem.class.getSimpleName().equalsIgnoreCase(transitionSystemClassName)) {
+			transitionSystem = new ShiftReduceTransitionSystem();
+		} else if (ArcEagerTransitionSystem.class.getSimpleName().equalsIgnoreCase(transitionSystemClassName)) {
+			transitionSystem = new ArcEagerTransitionSystem();
+		} else {
+			throw new TalismaneException("Unknown transition system: " + transitionSystemClassName);
+		}
+		return transitionSystem;
+	}
 }

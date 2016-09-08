@@ -22,34 +22,26 @@ import java.io.File;
 import java.io.Writer;
 import java.util.List;
 
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.filters.FilterService;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
 import com.joliciel.talismane.fr.ftb.TreebankService;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
-import com.joliciel.talismane.posTagger.PosTaggerService;
+import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
 
 class TreebankExportServiceImpl implements TreebankExportService {
-	private TreebankService treebankService;
-	private TokeniserService tokeniserService;
-	private PosTaggerService posTaggerService;
-	private FilterService filterService;
-	private TokenFilterService tokenFilterService;
-	private TalismaneService talismaneService;
-	private MachineLearningService machineLearningService;
+	private final TreebankService treebankService;
+	private final TalismaneSession talismaneSession;
+
+	public TreebankExportServiceImpl(TreebankService treebankService, TalismaneSession talismaneSession) {
+		super();
+		this.treebankService = treebankService;
+		this.talismaneSession = talismaneSession;
+	}
 
 	public TreebankService getTreebankService() {
 		return treebankService;
-	}
-
-	public void setTreebankService(TreebankService treebankService) {
-		this.treebankService = treebankService;
 	}
 
 	@Override
@@ -59,46 +51,35 @@ class TreebankExportServiceImpl implements TreebankExportService {
 	}
 
 	@Override
-	public FtbPosTagMapper getFtbPosTagMapper(List<String> descriptors,
-			PosTagSet posTagSet) {
+	public FtbPosTagMapper getFtbPosTagMapper(List<String> descriptors, PosTagSet posTagSet) {
 		FtbPosTagMapperImpl mapper = new FtbPosTagMapperImpl(descriptors, posTagSet);
 		return mapper;
 	}
 
 	@Override
-	public SentenceDetectorAnnotatedCorpusReader getSentenceDetectorAnnotatedCorpusReader(
-			TreebankReader treebankReader) {
+	public SentenceDetectorAnnotatedCorpusReader getSentenceDetectorAnnotatedCorpusReader(TreebankReader treebankReader) {
 		FrenchTreebankSentenceReader reader = new FrenchTreebankSentenceReader(treebankReader);
 		return reader;
 	}
 
 	@Override
-	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(
-			TreebankReader treebankReader) {
-		FrenchTreebankTokenReader reader = new FrenchTreebankTokenReader(treebankReader);
+	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader) {
+		FrenchTreebankTokenReader reader = new FrenchTreebankTokenReader(treebankReader, talismaneSession);
 		reader.setTreebankService(this.getTreebankService());
-		reader.setTokeniserService(tokeniserService);
-		reader.setPosTaggerService(posTaggerService);
-		reader.setFilterService(filterService);
-		reader.setTokenFilterService(tokenFilterService);
-		reader.setTalismaneService(talismaneService);
-    	reader.setIgnoreCase(false);
+		reader.setIgnoreCase(false);
 		return reader;
 	}
 
 	@Override
-	public PosTagAnnotatedCorpusReader getPosTagAnnotatedCorpusReader(
-			TreebankReader treebankReader,
-			FtbPosTagMapper ftbPosTagMapper) {
+	public PosTagAnnotatedCorpusReader getPosTagAnnotatedCorpusReader(TreebankReader treebankReader, FtbPosTagMapper ftbPosTagMapper) {
 		FrenchTreebankTokenReader reader = (FrenchTreebankTokenReader) this.getTokeniserAnnotatedCorpusReader(treebankReader);
 		reader.setFtbPosTagMapper(ftbPosTagMapper);
 		return reader;
 	}
-	
+
 	@Override
-	public PosTagAnnotatedCorpusReader getPosTagAnnotatedCorpusReader(
-			TreebankReader treebankReader,
-			FtbPosTagMapper ftbPosTagMapper, boolean useCompoundPosTags) {
+	public PosTagAnnotatedCorpusReader getPosTagAnnotatedCorpusReader(TreebankReader treebankReader, FtbPosTagMapper ftbPosTagMapper,
+			boolean useCompoundPosTags) {
 		FrenchTreebankTokenReader reader = (FrenchTreebankTokenReader) this.getTokeniserAnnotatedCorpusReader(treebankReader);
 		reader.setFtbPosTagMapper(ftbPosTagMapper);
 		reader.setUseCompoundPosTags(useCompoundPosTags);
@@ -106,81 +87,23 @@ class TreebankExportServiceImpl implements TreebankExportService {
 	}
 
 	@Override
-	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(
-			TreebankReader treebankReader, Writer writer) {
+	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader, Writer writer) {
 		FrenchTreebankTokenReader reader = (FrenchTreebankTokenReader) this.getTokeniserAnnotatedCorpusReader(treebankReader);
 		reader.setCsvFileErrorWriter(writer);
 		return reader;
 	}
 
 	@Override
-	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(
-			TreebankReader treebankReader, 
-			boolean useCompoundPosTags) {
+	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader, boolean useCompoundPosTags) {
 		return this.getTokeniserAnnotatedCorpusReader(treebankReader, null, useCompoundPosTags);
 	}
-	
 
 	@Override
-	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(
-			TreebankReader treebankReader, FtbPosTagMapper ftbPosTagMapper,
+	public TokeniserAnnotatedCorpusReader getTokeniserAnnotatedCorpusReader(TreebankReader treebankReader, FtbPosTagMapper ftbPosTagMapper,
 			boolean useCompoundPosTags) {
 		FrenchTreebankTokenReader reader = (FrenchTreebankTokenReader) this.getTokeniserAnnotatedCorpusReader(treebankReader);
 		reader.setUseCompoundPosTags(useCompoundPosTags);
 		reader.setFtbPosTagMapper(ftbPosTagMapper);
 		return reader;
 	}
-
-
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
-	}
-
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
-	}
-
-	public FilterService getFilterService() {
-		return filterService;
-	}
-
-	public void setFilterService(FilterService filterService) {
-		this.filterService = filterService;
-	}
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
-	}
-
-	public TalismaneService getTalismaneService() {
-		return talismaneService;
-	}
-
-	public void setTalismaneService(TalismaneService talismaneService) {
-		this.talismaneService = talismaneService;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
-
-
 }

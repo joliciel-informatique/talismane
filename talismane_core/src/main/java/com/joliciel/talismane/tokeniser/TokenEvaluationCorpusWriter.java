@@ -9,14 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class TokenEvaluationCorpusWriter implements TokenEvaluationObserver {
-	private static final Log LOG = LogFactory.getLog(TokenEvaluationCorpusWriter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TokenEvaluationCorpusWriter.class);
 	private Writer corpusWriter;
 	
 	public TokenEvaluationCorpusWriter(Writer corpusWriter) {

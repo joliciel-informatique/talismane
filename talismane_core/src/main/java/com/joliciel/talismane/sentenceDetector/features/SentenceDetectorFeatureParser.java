@@ -20,23 +20,47 @@ package com.joliciel.talismane.sentenceDetector.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
-class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
-	public SentenceDetectorFeatureParser(FeatureService featureService) {
-		super(featureService);
-	}	
-	
+/**
+ * A parser for sentence detector descriptors.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSentenceBoundary> {
+	public SentenceDetectorFeatureParser(TalismaneSession talismaneSession) {
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+	}
+
+	public Set<SentenceDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) {
+		Set<SentenceDetectorFeature<?>> features = new TreeSet<SentenceDetectorFeature<?>>();
+
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		for (String featureDescriptor : featureDescriptors) {
+			if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+				List<SentenceDetectorFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+				features.addAll(myFeatures);
+			}
+		}
+		return features;
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<SentenceDetectorFeature<?>> parseDescriptor(FunctionDescriptor functionDescriptor) {
 		List<Feature<PossibleSentenceBoundary, ?>> tokenFeatures = this.parse(functionDescriptor);
@@ -52,7 +76,7 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 		}
 		return wrappedFeatures;
 	}
-	
+
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("Initials", InitialsFeature.class);
@@ -70,9 +94,9 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 	@Override
 	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
 		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
-		
+
 		descriptors.add(functionDescriptor);
-		
+
 		return descriptors;
 	}
 
@@ -80,24 +104,22 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 		// no dependencies to inject
 	}
-	
-	private static class SentenceDetectorFeatureWrapper<T> extends AbstractFeature<PossibleSentenceBoundary, T> implements
-		SentenceDetectorFeature<T>, FeatureWrapper<PossibleSentenceBoundary, T> {
-		private Feature<PossibleSentenceBoundary,T> wrappedFeature = null;
-		
-		public SentenceDetectorFeatureWrapper(
-				Feature<PossibleSentenceBoundary, T> wrappedFeature) {
+
+	private static class SentenceDetectorFeatureWrapper<T> extends AbstractFeature<PossibleSentenceBoundary, T>
+			implements SentenceDetectorFeature<T>, FeatureWrapper<PossibleSentenceBoundary, T> {
+		private Feature<PossibleSentenceBoundary, T> wrappedFeature = null;
+
+		public SentenceDetectorFeatureWrapper(Feature<PossibleSentenceBoundary, T> wrappedFeature) {
 			super();
 			this.wrappedFeature = wrappedFeature;
 			this.setName(wrappedFeature.getName());
 			this.setCollectionName(wrappedFeature.getCollectionName());
 		}
-		
+
 		@Override
 		public FeatureResult<T> check(PossibleSentenceBoundary context, RuntimeEnvironment env) {
 			return wrappedFeature.check(context, env);
 		}
-		
 
 		@Override
 		public Feature<PossibleSentenceBoundary, T> getWrappedFeature() {
@@ -112,21 +134,17 @@ class SentenceDetectorFeatureParser extends AbstractFeatureParser<PossibleSenten
 	}
 
 	@Override
-	protected boolean canConvert(Class<?> parameterType,
-			Class<?> originalArgumentType) {
+	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
 		return false;
 	}
 
 	@Override
-	protected Feature<PossibleSentenceBoundary, ?> convertArgument(
-			Class<?> parameterType,
-			Feature<PossibleSentenceBoundary, ?> originalArgument) {
+	protected Feature<PossibleSentenceBoundary, ?> convertArgument(Class<?> parameterType, Feature<PossibleSentenceBoundary, ?> originalArgument) {
 		return null;
 	}
 
 	@Override
-	public Feature<PossibleSentenceBoundary, ?> convertFeatureCustomType(
-			Feature<PossibleSentenceBoundary, ?> feature) {
+	public Feature<PossibleSentenceBoundary, ?> convertFeatureCustomType(Feature<PossibleSentenceBoundary, ?> feature) {
 		return null;
 	}
 }

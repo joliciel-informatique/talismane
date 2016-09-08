@@ -27,8 +27,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.fr.ftb.EntityNotFoundException;
 import com.joliciel.talismane.fr.ftb.Sentence;
@@ -38,7 +38,7 @@ import com.joliciel.talismane.fr.ftb.TreebankService;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class TreebankRawTextAssigner {
-    private static final Log LOG = LogFactory.getLog(TreebankRawTextAssigner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TreebankRawTextAssigner.class);
 	private TreebankService treebankService;
 
 	private String rawTextDirectory;

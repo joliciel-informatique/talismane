@@ -35,8 +35,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -57,7 +57,7 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializable {
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(PosTaggerStatistics.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerStatistics.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	
 	private Set<String> words = new TreeSet<String>();

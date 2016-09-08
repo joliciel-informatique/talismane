@@ -24,41 +24,42 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
 import opennlp.model.MaxentModel;
 
 /**
- * A wrapper for a maxent model and the features used to train it -
- * useful since the same features need to be used when evaluating on the basis on this model.
- * Also contains the attributes describing how the model was trained, for reference purposes.
+ * A wrapper for a maxent model and the features used to train it - useful since
+ * the same features need to be used when evaluating on the basis on this model.
+ * Also contains the attributes describing how the model was trained, for
+ * reference purposes.
  * 
- * @param T the decision type to be made by this model
  * @author Assaf Urieli
  *
  */
-class MaximumEntropyModel extends AbstractOpenNLPModel {
-	private static final Log LOG = LogFactory.getLog(MaximumEntropyModel.class);
-	
+public class MaximumEntropyModel extends AbstractOpenNLPModel {
+	private static final Logger LOG = LoggerFactory.getLogger(MaximumEntropyModel.class);
+
 	/**
 	 * Default constructor for factory.
 	 */
-	MaximumEntropyModel() {}
-	
+	public MaximumEntropyModel() {
+	}
+
 	/**
 	 * Construct from a newly trained model including the feature descriptors.
 	 */
-	MaximumEntropyModel(MaxentModel model,
-			Map<String,List<String>> descriptors,
-			Map<String,Object> trainingParameters) {
-		super(model, descriptors, trainingParameters);
+	MaximumEntropyModel(MaxentModel model, Config config, Map<String, List<String>> descriptors) {
+		super(model, config, descriptors);
 	}
-	
+
 	@Override
 	public MachineLearningAlgorithm getAlgorithm() {
 		return MachineLearningAlgorithm.MaxEnt;
@@ -69,7 +70,7 @@ class MaximumEntropyModel extends AbstractOpenNLPModel {
 		MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
 		return observer;
 	}
-	
+
 	@Override
 	public void writeModelToStream(OutputStream outputStream) {
 		try {
@@ -89,5 +90,9 @@ class MaximumEntropyModel extends AbstractOpenNLPModel {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public void onLoadComplete() {
 	}
 }

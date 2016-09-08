@@ -4,22 +4,22 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.tokeniser.StringAttribute;
 
 public class RegexMarkerFilterTest {
-	private static final Log LOG = LogFactory.getLog(RegexMarkerFilterTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RegexMarkerFilterTest.class);
 
 	@Test
 	public void testApply() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>.*?</skip>");
+		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>.*?</skip>", 0, 1000);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(4, textMarkers.size());
 		int i = 0;
@@ -43,11 +43,11 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApplyWithGroup() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>(.*?)</skip>");
+		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>(.*?)</skip>", 0, 1000);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		int i = 0;
 		for (TextMarker textMarker : textMarkers) {
@@ -72,12 +72,12 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApplyWithReplacement() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.REPLACE, "<skip>(.*?)</skip>", 0);
+		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.REPLACE, "<skip>(.*?)</skip>", 0, 1000);
 		filter.setReplacement("Skipped:$1");
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(6, textMarkers.size());
 		int i = 0;
@@ -109,12 +109,12 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testTag() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.TAG, "<skip>(.*?)</skip>", 0);
+		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.TAG, "<skip>(.*?)</skip>", 0, 1000);
 		filter.setTag("TAG1", new StringAttribute("x"));
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(4, textMarkers.size());
 		int i = 0;
@@ -146,11 +146,11 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testUnaryOperatorsStop() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.STOP, "<skip>");
+		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.STOP, "<skip>", 0, 1000);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(2, textMarkers.size());
 		int i = 0;
@@ -168,11 +168,11 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testUnaryOperatorsStart() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.START, "</skip>");
+		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.START, "</skip>", 0, 1000);
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>!";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers);
+		LOG.debug(textMarkers.toString());
 
 		assertEquals(2, textMarkers.size());
 		int i = 0;
