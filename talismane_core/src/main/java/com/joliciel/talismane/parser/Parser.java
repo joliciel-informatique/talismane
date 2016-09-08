@@ -27,12 +27,14 @@ import com.joliciel.talismane.parser.features.ParserRule;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
- * A syntax parser which takes a pos tag sequence and provides a parse configuration.
+ * A syntax parser which takes a pos tag sequence and provides a parse
+ * configuration.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface Parser {
-	
+
 	public enum ParseComparisonStrategyType {
 		/**
 		 * Comparison based on number of transitions applied.
@@ -43,7 +45,8 @@ public interface Parser {
 		 */
 		bufferSize,
 		/**
-		 * Comparison based on number of elements remaining on both the stack and the buffer.
+		 * Comparison based on number of elements remaining on both the stack
+		 * and the buffer.
 		 */
 		stackAndBufferSize,
 		/**
@@ -51,59 +54,59 @@ public interface Parser {
 		 */
 		dependencyCount
 	}
-	
+
 	/**
-	 * Analyse a pos-tag sequence,
-	 * and return the most likely parse configuration for the sentence.
-	 * @param posTagSequence the likely pos-tag sequence for this sentence.
+	 * Analyse a pos-tag sequence, and return the most likely parse
+	 * configuration for the sentence.
+	 * 
+	 * @param posTagSequence
+	 *            the likely pos-tag sequence for this sentence.
 	 * @return the most likely parse configuration for this sentence
 	 */
 	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence);
-	
 
 	/**
 	 * The maximum size of the beam to be used during analysis.
 	 */
 	public abstract int getBeamWidth();
-	
+
 	public void addObserver(ClassificationObserver observer);
-	
+
 	/**
 	 * The transition system used by this parser to make parse decisions.
 	 */
 	public TransitionSystem getTransitionSystem();
-	
+
 	/**
-	 * The maximum time alloted per sentence for parse tree analysis, in seconds.
-	 * Will be ignored if set to 0.
-	 * If analysis jumps out because of time-out, there will be a parse-forest instead of a parse-tree,
-	 * with several nodes left unattached.
+	 * The maximum time alloted per sentence for parse tree analysis, in
+	 * seconds. Will be ignored if set to 0. If analysis jumps out because of
+	 * time-out, there will be a parse-forest instead of a parse-tree, with
+	 * several nodes left unattached.
 	 */
 	public int getMaxAnalysisTimePerSentence();
+
 	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence);
-	
+
 	/**
-	 * The minimum amount of remaining free memory to continue a parse, in kilobytes.
-	 * Will be ignored is set to 0.
-	 * If analysis jumps out because of free memory descends below this limit,
-	 * there will be a parse-forest instead of a parse-tree,
-	 * with several nodes left unattached.
+	 * The minimum amount of remaining free memory to continue a parse, in
+	 * kilobytes. Will be ignored is set to 0. If analysis jumps out because of
+	 * free memory descends below this limit, there will be a parse-forest
+	 * instead of a parse-tree, with several nodes left unattached.
 	 */
 	public int getMinFreeMemory();
+
 	public void setMinFreeMemory(int minFreeMemory);
-	
+
 	/**
 	 * Rules to apply while parsing (in place of the probablistic classifier).
 	 */
 	public List<ParserRule> getParserRules();
+
 	public void setParserRules(List<ParserRule> parserRules);
-	
+
 	public ParseComparisonStrategy getParseComparisonStrategy();
-	public void setParseComparisonStrategy(
-			ParseComparisonStrategy parseComparisonStrategy);
 
-
-	public abstract void setParseFeatures(Set<ParseConfigurationFeature<?>> parseFeatures);
+	public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy);
 
 	public abstract Set<ParseConfigurationFeature<?>> getParseFeatures();
 }

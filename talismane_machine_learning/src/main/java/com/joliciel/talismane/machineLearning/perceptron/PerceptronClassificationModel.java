@@ -31,41 +31,35 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.AbstractMachineLearningModel;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
-class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
-	private static final Log LOG = LogFactory.getLog(PerceptronClassificationModel.class);
+public class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
+	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker decisionMaker;
 	private transient Set<String> outcomeNames = null;
-	
-	private MachineLearningService machineLearningService;
 
-	
-	PerceptronClassificationModel() { }
-	
-	public PerceptronClassificationModel(PerceptronModelParameters params,
-			Map<String, List<String>> descriptors,
-			Map<String,Object> trainingParameters) {
+	public PerceptronClassificationModel() {
+	}
+
+	public PerceptronClassificationModel(PerceptronModelParameters params, Config config, Map<String, List<String>> descriptors) {
+		super(config, descriptors);
 		this.params = params;
-		this.setDescriptors(descriptors);
-		this.setTrainingParameters(trainingParameters);
 	}
 
 	@Override
 	public DecisionMaker getDecisionMaker() {
-		if (decisionMaker==null) {
-			decisionMaker = new PerceptronDecisionMaker(params);
-			decisionMaker.setMachineLearningService(this.getMachineLearningService());
+		if (decisionMaker == null) {
+			decisionMaker = new PerceptronDecisionMaker(params, this.getPerceptronScoring());
 		}
 		return decisionMaker;
 	}
@@ -92,7 +86,7 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 
 	@Override
@@ -119,24 +113,21 @@ class PerceptronClassificationModel extends AbstractMachineLearningModel impleme
 
 	@Override
 	public Set<String> getOutcomeNames() {
-		if (this.outcomeNames==null) {
+		if (this.outcomeNames == null) {
 			this.outcomeNames = new TreeSet<String>(this.params.getOutcomes());
 		}
 		return this.outcomeNames;
 	}
 
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
 	@Override
 	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
 	}
-	
-	
+
+	public PerceptronScoring getPerceptronScoring() {
+		return (PerceptronScoring) this.getModelAttributes().get("scoring");
+	}
+
+	@Override
+	public void onLoadComplete() {
+	}
 }

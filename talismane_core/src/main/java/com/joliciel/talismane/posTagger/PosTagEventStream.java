@@ -24,42 +24,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.posTagger.features.PosTaggerFeatureService;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A corpus event stream for postagging.
+ * 
  * @author Assaf Urieli
  *
  */
-class PosTagEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(PosTagEventStream.class);
+public class PosTagEventStream implements ClassificationEventStream {
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagEventStream.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagEventStream.class);
 
-    PosTagAnnotatedCorpusReader corpusReader;
-	Set<PosTaggerFeature<?>> posTaggerFeatures;
-	PosTaggerFeatureService posTaggerFeatureService;
-	PosTaggerService posTaggerService;
-	MachineLearningService machineLearningService;
-	FeatureService featureService;
-	
+	private final PosTagAnnotatedCorpusReader corpusReader;
+	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
+
 	PosTagSequence currentSentence;
 	PosTagSequence currentHistory;
 	int currentIndex;
-	
-	PosTagEventStream(PosTagAnnotatedCorpusReader corpusReader,
-			Set<PosTaggerFeature<?>> posTaggerFeatures) {
+
+	/**
+	 * Create a classification event stream for a given corpus reader and set of
+	 * features.
+	 * 
+	 * @param corpusReader
+	 *            the corpus reader used to read the training corpus
+	 * @param posTaggerFeatures
+	 *            the features used to describe events in the training corpus
+	 */
+	public PosTagEventStream(PosTagAnnotatedCorpusReader corpusReader, Set<PosTaggerFeature<?>> posTaggerFeatures) {
 		this.corpusReader = corpusReader;
 		this.posTaggerFeatures = posTaggerFeatures;
 	}
@@ -68,13 +69,13 @@ class PosTagEventStream implements ClassificationEventStream {
 	public boolean hasNext() {
 		MONITOR.startTask("hasNext");
 		try {
-			while (currentSentence==null) {
+			while (currentSentence == null) {
 				if (this.corpusReader.hasNextPosTagSequence()) {
 					currentSentence = this.corpusReader.nextPosTagSequence();
 					if (LOG.isDebugEnabled())
 						LOG.debug("### next sentence: " + currentSentence.getTokenSequence().getSentence());
 					currentIndex = 0;
-					currentHistory = posTaggerService.getPosTagSequence(currentSentence.getTokenSequence());
+					currentHistory = new PosTagSequence(currentSentence.getTokenSequence());
 					if (currentIndex == currentSentence.size()) {
 						currentSentence = null;
 					}
@@ -82,7 +83,7 @@ class PosTagEventStream implements ClassificationEventStream {
 					break;
 				}
 			}
-			return currentSentence!=null;
+			return currentSentence != null;
 		} finally {
 			MONITOR.endTask();
 		}
@@ -96,39 +97,39 @@ class PosTagEventStream implements ClassificationEventStream {
 			if (this.hasNext()) {
 				PosTaggedToken taggedToken = currentSentence.get(currentIndex++);
 				String classification = taggedToken.getTag().getCode();
-	
+
 				if (LOG.isDebugEnabled())
 					LOG.debug("next event, token: " + taggedToken.getToken().getText() + " : " + classification);
-				PosTaggerContext context = posTaggerFeatureService.getContext(taggedToken.getToken(), currentHistory);
-				
+				PosTaggerContext context = new PosTaggerContextImpl(taggedToken.getToken(), currentHistory);
+
 				List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
 				MONITOR.startTask("check features");
 				try {
 					for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
 						MONITOR.startTask(posTaggerFeature.getCollectionName());
 						try {
-							RuntimeEnvironment env = featureService.getRuntimeEnvironment();
+							RuntimeEnvironment env = new RuntimeEnvironment();
 							FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
-							if (featureResult!=null)
+							if (featureResult != null)
 								posTagFeatureResults.add(featureResult);
 						} finally {
 							MONITOR.endTask();
 						}
 					}
 				} finally {
-					MONITOR.endTask();					
+					MONITOR.endTask();
 				}
-				
+
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Token: " + taggedToken.getToken().getText());
 					for (FeatureResult<?> result : posTagFeatureResults) {
 						LOG.trace(result.toString());
 					}
-				}			
-				event = machineLearningService.getClassificationEvent(posTagFeatureResults, classification);
-				
+				}
+				event = new ClassificationEvent(posTagFeatureResults, classification);
+
 				currentHistory.addPosTaggedToken(taggedToken);
-				if (currentIndex==currentSentence.size()) {
+				if (currentIndex == currentSentence.size()) {
 					currentSentence = null;
 				}
 			}
@@ -139,47 +140,12 @@ class PosTagEventStream implements ClassificationEventStream {
 
 	}
 
-	public PosTaggerFeatureService getPosTaggerFeatureService() {
-		return posTaggerFeatureService;
-	}
-
-	public void setPosTaggerFeatureService(
-			PosTaggerFeatureService posTaggerFeatureService) {
-		this.posTaggerFeatureService = posTaggerFeatureService;
-	}
-
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
-	}
-
 	@Override
 	public Map<String, String> getAttributes() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
-		attributes.put("eventStream", this.getClass().getSimpleName());		
-		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
-		
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
+		attributes.put("eventStream", this.getClass().getSimpleName());
+		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
+
 		return attributes;
 	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
-	}
-
 }

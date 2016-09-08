@@ -50,6 +50,15 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.terminology.Context;
+import com.joliciel.talismane.terminology.Term;
+import com.joliciel.talismane.terminology.TerminologyBase;
+import com.joliciel.talismane.terminology.postgres.PostGresTerminologyBase;
+import com.joliciel.talismane.utils.CSVFormatter;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -76,20 +85,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.terminology.Context;
-import com.joliciel.talismane.terminology.Term;
-import com.joliciel.talismane.terminology.TerminologyBase;
-import com.joliciel.talismane.terminology.TerminologyService;
-import com.joliciel.talismane.terminology.TerminologyServiceLocator;
-import com.joliciel.talismane.utils.CSVFormatter;
-
 @SuppressWarnings("restriction")
 public class TerminologyViewerController {
-	private static final Log LOG = LogFactory.getLog(TerminologyViewerController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TerminologyViewerController.class);
 	private static CSVFormatter CSV = new CSVFormatter();
 
 	@FXML
@@ -135,8 +133,7 @@ public class TerminologyViewerController {
 		if (!iniFile.exists())
 			iniFile.createNewFile();
 		else {
-			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(iniFile),
-					"UTF-8")));
+			Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(iniFile), "UTF-8")));
 
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
@@ -168,16 +165,13 @@ public class TerminologyViewerController {
 	@FXML
 	protected void handleMenuFileDatabaseAction(ActionEvent event) {
 		String sessionId = "";
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
 
-		TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
-		TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
 		Properties props = new Properties();
 		props.put("jdbc.driverClassName", "org.postgresql.Driver");
 		props.put("jdbc.url", databaseURL);
 		props.put("jdbc.username", databaseUsername);
 		props.put("jdbc.password", databasePassword);
-		terminologyBase = terminologyService.getPostGresTerminologyBase(projectCode, props);
+		terminologyBase = new PostGresTerminologyBase(projectCode, props);
 		this.onNewTermingologyBase();
 	}
 
@@ -263,8 +257,7 @@ public class TerminologyViewerController {
 
 		if (haveCriteria) {
 			this.setSelectedTerm();
-			List<Term> terms = terminologyBase.findTerms(minFrequency, searchText, maxLexicalWords, marked,
-					markedExpansions);
+			List<Term> terms = terminologyBase.findTerms(minFrequency, searchText, maxLexicalWords, marked, markedExpansions);
 			tblTerms.setItems(FXCollections.observableArrayList(this.wrapTerms(terms)));
 			this.pushTermTable();
 		} else {
@@ -365,8 +358,7 @@ public class TerminologyViewerController {
 				CSV.setCsvSeparator(csvSeparator);
 				Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
 				ObservableList<Term> terms = tblTerms.getItems();
-				writer.append(CSV.format("Term") + CSV.format("Frequency") + CSV.format("Expansions")
-						+ CSV.format("Contexts") + "\n");
+				writer.append(CSV.format("Term") + CSV.format("Frequency") + CSV.format("Expansions") + CSV.format("Contexts") + "\n");
 				for (Term term : terms) {
 					if (term instanceof TermWrapper) {
 						term = ((TermWrapper) term).getWrappedTerm();

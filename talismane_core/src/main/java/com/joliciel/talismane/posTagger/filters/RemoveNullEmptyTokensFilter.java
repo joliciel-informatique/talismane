@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.filters;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
@@ -31,7 +31,7 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
  */
 public class RemoveNullEmptyTokensFilter implements PosTagSequenceFilter {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(RemoveNullEmptyTokensFilter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RemoveNullEmptyTokensFilter.class);
 
 	@Override
 	public void apply(PosTagSequence posTagSequence) {

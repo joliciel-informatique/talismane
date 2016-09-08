@@ -18,30 +18,23 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.JolicielException;
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
  * An external resource read from a text file.<br/>
+ * The first line must be "Type: KeyValue". <br/>
  * The default name will be the filename.<br/>
  * If a line starts with the string "Name: ", the default name will be replaced
  * by this name.<br/>
- * If a line starts with the string "Multivalued: true", an exception gets
- * thrown.<br/>
  * All lines starting with # are skipped.<br/>
  * Any other line will be broken up by tabs:<br/>
  * One tab per key component, and the last tab is the class.<br/>
@@ -51,56 +44,46 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  */
 public class TextFileResource implements ExternalResource<String> {
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(TextFileResource.class);
+	@SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(TextFileResource.class);
 	Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
 	Map<String, String> resultMap = new HashMap<String, String>();
 
 	private String name;
 
-	public TextFileResource(File file) {
-		try {
-			this.name = file.getName();
+	public TextFileResource(String fileName, Scanner scanner) {
+		this.name = fileName;
 
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
-				int numParts = -1;
-				int i = 1;
-				while (scanner.hasNextLine()) {
-					String line = scanner.nextLine();
-					if (line.length() > 0 && !line.startsWith("#")) {
-						StringBuilder sb = new StringBuilder();
-						String[] parts = line.split("\t");
-						if (parts.length == 1 && line.startsWith("Name: ")) {
-							this.name = line.substring("Name: ".length());
-							i++;
-							continue;
-						}
-						if (parts.length == 1 && line.startsWith("Multivalued: ")) {
-							boolean multivalued = line.substring("Multivalued: ".length()).equalsIgnoreCase("true");
-							if (multivalued)
-								throw new JolicielException("Did not expect multivalued resource");
-							i++;
-							continue;
-						}
-						if (numParts < 0)
-							numParts = parts.length;
-						if (parts.length != numParts)
-							throw new JolicielException("Wrong number of elements on line " + i + " in file: " + file.getName());
-
-						for (int j = 0; j < numParts - 1; j++) {
-							sb.append(parts[j]);
-							sb.append("|");
-						}
-						String key = sb.toString();
-						String value = parts[numParts - 1];
-						resultMap.put(key, value);
-
-					}
+		int numParts = -1;
+		int i = 1;
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			if (line.equals("Type: KeyValue"))
+				continue;
+			if (line.length() > 0 && !line.startsWith("#")) {
+				StringBuilder sb = new StringBuilder();
+				String[] parts = line.split("\t");
+				if (parts.length == 1 && line.startsWith("Name: ")) {
+					this.name = line.substring("Name: ".length());
 					i++;
+					continue;
 				}
+
+				if (numParts < 0)
+					numParts = parts.length;
+				if (parts.length != numParts)
+					throw new JolicielException("Wrong number of elements on line " + i + " in file: " + fileName);
+
+				for (int j = 0; j < numParts - 1; j++) {
+					sb.append(parts[j]);
+					sb.append("|");
+				}
+				String key = sb.toString();
+				String value = parts[numParts - 1];
+				resultMap.put(key, value);
+
 			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			i++;
 		}
 	}
 

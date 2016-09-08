@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -31,7 +31,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class LeftArcEagerTransition extends AbstractTransition implements Transition {
-	private static final Log LOG = LogFactory.getLog(LeftArcEagerTransition.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LeftArcEagerTransition.class);
 	private String label;
 	private String name;
 	

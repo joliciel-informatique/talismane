@@ -24,12 +24,19 @@ import java.util.Map;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 
 /**
- * A place-holder that will be replaced by a proper token when tokenising.
+ * A place-holder that will be replaced by a proper token when tokenising.<br/>
+ * A placeholder where {@link #isSingleToken()} returns false is an attribute
+ * placeholder, which only adds attributes. In this case, only a single
+ * attribute of a given key can be added per token. If two attribute
+ * placeholders overlap and assign the same key, the one with the lower start
+ * index is privileged for all tokens, and the other one is skipped for all
+ * tokens. If they have the same start index, the one with the higher end index
+ * is priveleged for all tokens, and the other one is skipped for all tokens.
  * 
  * @author Assaf Urieli
  *
  */
-public class TokenPlaceholder {
+public class TokenPlaceholder implements Comparable<TokenPlaceholder> {
 	private int startIndex;
 	private int endIndex;
 	private String replacement;
@@ -114,5 +121,19 @@ public class TokenPlaceholder {
 	public String toString() {
 		return "TokenPlaceholder [startIndex=" + startIndex + ", endIndex=" + endIndex + ", replacement=" + replacement + ", regex=" + regex
 				+ ", possibleSentenceBoundary=" + possibleSentenceBoundary + ", singleToken=" + singleToken + ", attributes=" + attributes + "]";
+	}
+
+	/**
+	 * Comparison order is: order by start index. If start indexes are
+	 * identical, order by reverse end index (to give precedence to longer
+	 * attributes).
+	 */
+	@Override
+	public int compareTo(TokenPlaceholder o) {
+		if (this.startIndex != o.startIndex)
+			return this.startIndex - o.startIndex;
+		if (this.endIndex != o.endIndex)
+			return o.endIndex - this.endIndex;
+		return this.hashCode() - o.hashCode();
 	}
 }

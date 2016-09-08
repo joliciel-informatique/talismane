@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Takes the geometric mean of the individual decision scores, and multiplies it by the scores of underlying solutions.
@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class GeometricMeanScoringStrategy implements ScoringStrategy<ClassificationSolution> {
-	private static final Log LOG = LogFactory.getLog(GeometricMeanScoringStrategy.class);
+	private static final Logger LOG = LoggerFactory.getLogger(GeometricMeanScoringStrategy.class);
 
 	@Override
 	public double calculateScore(ClassificationSolution solution) {

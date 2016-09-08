@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Special transition for ungoverned punctuation, so as not to consider it explicitly as depending on root,
@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class ForceReduceTransition extends AbstractTransition implements Transition {
-	private static final Log LOG = LogFactory.getLog(ForceReduceTransition.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ForceReduceTransition.class);
 	private static String name = "ForceReduce";
 	
 	public ForceReduceTransition() {

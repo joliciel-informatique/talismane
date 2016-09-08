@@ -24,90 +24,90 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 
 /**
- * A server that processes the text which is sent on a socket.
- * The assumption is that the text should be handled as a single independent block.
- * If the text consists of the command "@SHUTDOWN", the thread will instruct the TalismaneServer which created it to shut down
- * as soon as all current threads are finished processing.
+ * A server that processes the text which is sent on a socket. The assumption is
+ * that the text should be handled as a single independent block. If the text
+ * consists of the command "@SHUTDOWN", the thread will instruct the
+ * TalismaneServer which created it to shut down as soon as all current threads
+ * are finished processing.
+ * 
  * @author Assaf Urieli
  *
  */
 class TalismaneServerThread extends Thread {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(TalismaneServerThread.class);
-    private Socket socket = null;
-    private TalismaneServer server = null;
-    private TalismaneConfig config = null;
-    private TalismaneServiceInternal talismaneService;
-    
-    public TalismaneServerThread(TalismaneServer server, TalismaneConfig config, Socket socket) {
-        super("TalismaneServerThread");
-        this.server = server;
-        this.socket = socket;
-        this.config = config;
-    }
-     
-    public void run() {
-    	try {
-	        OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), config.getOutputCharset());
-	        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), config.getInputCharset()));
-            
-	        Talismane talismane = talismaneService.getTalismane(config);
-	        // Set the various processors from the server, in case they were set to override the default
-	        talismane.setParseConfigurationProcessor(this.server.getParseConfigurationProcessor());
-	        talismane.setPosTagSequenceProcessor(this.server.getPosTagSequenceProcessor());
-	        talismane.setTokenSequenceProcessor(this.server.getTokenSequenceProcessor());
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
+	private final Socket socket;
+	private final TalismaneServer server;
+	private final TalismaneConfig config;
+	private final TalismaneSession talismaneSession;
 
-	        // For the sentence processor, wrap it in a processor that checks for a shut down command
-	        SentenceProcessor sentenceProcessor = this.server.getSentenceProcessor();
-	        if (sentenceProcessor==null)
-	        	sentenceProcessor = config.getSentenceProcessor();
-	        ShutDownListener listener = new ShutDownListener(this.server, sentenceProcessor);
-	        talismane.setSentenceProcessor(listener);
-	        
-	        talismane.setStopOnError(this.server.isStopOnError());
-	        talismane.setReader(in);
-	        talismane.setWriter(out);
-	        
-	        talismane.process();
-	        
-	    	socket.close();
-	    } catch (IOException e) {
-	        throw new RuntimeException(e);
-	    }
-    }
-    
-    private static final class ShutDownListener implements SentenceProcessor {
-    	TalismaneServer server;
-    	SentenceProcessor wrappedProcessor;
-    	
-    	public ShutDownListener(TalismaneServer server, SentenceProcessor sentenceProcessor) {
-    		this.server = server;
-    		this.wrappedProcessor = sentenceProcessor;
-    	}
-    	
-		@Override
-		public void onNextSentence(Sentence sentence, Writer writer) {
-        	if (sentence.getText().equals("@SHUTDOWN")) {
-        		server.setListening(false);
-        	} else {
-        		if (wrappedProcessor!=null)
-        			wrappedProcessor.onNextSentence(sentence, writer);
-        	}
-		}
-    }
-
-	public TalismaneServiceInternal getTalismaneService() {
-		return talismaneService;
+	public TalismaneServerThread(TalismaneServer server, TalismaneConfig config, TalismaneSession talismaneSession, Socket socket) {
+		super("TalismaneServerThread");
+		this.server = server;
+		this.socket = socket;
+		this.config = config;
+		this.talismaneSession = talismaneSession;
 	}
 
-	public void setTalismaneService(TalismaneServiceInternal talismaneService) {
-		this.talismaneService = talismaneService;
+	@Override
+	public void run() {
+		try {
+			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), config.getOutputCharset());
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), config.getInputCharset()));
+
+			Talismane talismane = new Talismane(config, talismaneSession);
+
+			// Set the various processors from the server, in case they were set
+			// to override the default
+			talismane.setParseConfigurationProcessor(this.server.getParseConfigurationProcessor());
+			talismane.setPosTagSequenceProcessor(this.server.getPosTagSequenceProcessor());
+			talismane.setTokenSequenceProcessor(this.server.getTokenSequenceProcessor());
+
+			// For the sentence processor, wrap it in a processor that checks
+			// for a shut down command
+			SentenceProcessor sentenceProcessor = this.server.getSentenceProcessor();
+			if (sentenceProcessor == null)
+				sentenceProcessor = config.getSentenceProcessor();
+			ShutDownListener listener = new ShutDownListener(this.server, sentenceProcessor);
+			talismane.setSentenceProcessor(listener);
+
+			talismane.setStopOnError(this.server.isStopOnError());
+			talismane.setReader(in);
+			talismane.setWriter(out);
+
+			talismane.process();
+
+			socket.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static final class ShutDownListener implements SentenceProcessor {
+		TalismaneServer server;
+		SentenceProcessor wrappedProcessor;
+
+		public ShutDownListener(TalismaneServer server, SentenceProcessor sentenceProcessor) {
+			this.server = server;
+			this.wrappedProcessor = sentenceProcessor;
+		}
+
+		@Override
+		public void onNextSentence(Sentence sentence, Writer writer) {
+			if (sentence.getText().equals("@SHUTDOWN")) {
+				server.setListening(false);
+			} else {
+				if (wrappedProcessor != null)
+					wrappedProcessor.onNextSentence(sentence, writer);
+			}
+		}
 	}
 }

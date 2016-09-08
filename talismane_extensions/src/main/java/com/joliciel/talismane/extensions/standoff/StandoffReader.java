@@ -26,34 +26,30 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
-import com.joliciel.talismane.parser.ParserService;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.posTagger.PosTaggerService;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokeniserService;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterService;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 public class StandoffReader implements ParserAnnotatedCorpusReader {
-    private static final Log LOG = LogFactory.getLog(StandoffReader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
 	private int sentenceCount = 0;
@@ -61,64 +57,61 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private int includeIndex = -1;
 	private int excludeIndex = -1;
 	private int crossValidationSize = 0;
-	
-	private ParserService parserService;
-	private PosTaggerService posTaggerService;
-	private TokeniserService tokeniserService;
-	private TokenFilterService tokenFilterService;
-	private MachineLearningService machineLearningService;
-	
+
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
-	
+
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
 	private TokenSequenceFilter tokenFilterWrapper = null;
-	
+
 	private Map<String, StandoffToken> tokenMap = new HashMap<String, StandoffReader.StandoffToken>();
 	private Map<String, StandoffRelation> relationMap = new HashMap<String, StandoffReader.StandoffRelation>();
 	private Map<String, StandoffRelation> idRelationMap = new HashMap<String, StandoffReader.StandoffRelation>();
 	private Map<String, String> notes = new HashMap<String, String>();
-	
+
 	private List<List<StandoffToken>> sentences = new ArrayList<List<StandoffReader.StandoffToken>>();
-	
+
+	private TalismaneSession talismaneSession;
+
 	public StandoffReader(TalismaneSession talismaneSession, Scanner scanner) {
+		this.talismaneSession = talismaneSession;
 		PosTagSet posTagSet = talismaneSession.getPosTagSet();
-		
-		Map<Integer,StandoffToken> sortedTokens = new TreeMap<Integer, StandoffReader.StandoffToken>();
+
+		Map<Integer, StandoffToken> sortedTokens = new TreeMap<Integer, StandoffReader.StandoffToken>();
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (line.startsWith("T")) {
-				
+
 				String[] parts = line.split("[\\t]");
 				String id = parts[0];
 				String[] posTagParts = parts[1].split(" ");
 				String posTagCode = posTagParts[0].replace('_', '+');
 				int startPos = Integer.parseInt(posTagParts[1]);
 				String text = parts[2];
-				
-  				PosTag posTag = null;
-  				if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
-  					posTag = PosTag.ROOT_POS_TAG;
-  				} else {
-    				try {
-    					posTag = posTagSet.getPosTag(posTagCode);
-    				} catch (UnknownPosTagException upte) {
-    					throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
-    				}
-  				}
-  				
-  				StandoffToken token = new StandoffToken();
-  				token.posTag = posTag;
-  				token.text = text;
-  				token.id = id;
-  				
-  				sortedTokens.put(startPos, token);
-  				tokenMap.put(id, token);
-  				
+
+				PosTag posTag = null;
+				if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
+					posTag = PosTag.ROOT_POS_TAG;
+				} else {
+					try {
+						posTag = posTagSet.getPosTag(posTagCode);
+					} catch (UnknownPosTagException upte) {
+						throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
+					}
+				}
+
+				StandoffToken token = new StandoffToken();
+				token.posTag = posTag;
+				token.text = text;
+				token.id = id;
+
+				sortedTokens.put(startPos, token);
+				tokenMap.put(id, token);
+
 			} else if (line.startsWith("R")) {
-				
+
 				String[] parts = line.split("[\\t :]");
 				String id = parts[0];
 				String label = parts[1];
@@ -137,7 +130,7 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 				notes.put(itemId, note);
 			}
 		}
-		
+
 		for (String itemId : notes.keySet()) {
 			String comment = notes.get(itemId);
 			if (itemId.startsWith("R")) {
@@ -148,92 +141,93 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 				token.comment = comment;
 			}
 		}
-		
+
 		List<StandoffToken> currentSentence = null;
 		for (StandoffToken token : sortedTokens.values()) {
 			if (token.text.equals("ROOT")) {
-				if (currentSentence!=null)
+				if (currentSentence != null)
 					sentences.add(currentSentence);
 				currentSentence = new ArrayList<StandoffReader.StandoffToken>();
 			}
 			currentSentence.add(token);
 		}
-		if (currentSentence!=null)
+		if (currentSentence != null)
 			sentences.add(currentSentence);
 	}
-	
+
 	@Override
 	public boolean hasNextConfiguration() {
-		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
 			// we've reached the end, do nothing
 		} else {
-			if (configuration==null && sentenceIndex<sentences.size()) {
-				
-				PretokenisedSequence tokenSequence = this.getTokeniserService().getEmptyPretokenisedSequence();
-				PosTagSequence posTagSequence = this.getPosTaggerService().getPosTagSequence(tokenSequence);
-				Map<String,PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
-				
+			if (configuration == null && sentenceIndex < sentences.size()) {
+
+				PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
+				PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
+				Map<String, PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
+
 				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
-				
+
 				for (StandoffToken standoffToken : tokens) {
 					Token token = tokenSequence.addToken(standoffToken.text);
-					Decision posTagDecision = machineLearningService.createDefaultDecision(standoffToken.posTag.getCode());
-					PosTaggedToken posTaggedToken = this.getPosTaggerService().getPosTaggedToken(token, posTagDecision);
+					Decision posTagDecision = new Decision(standoffToken.posTag.getCode());
+					PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
+
 					if (LOG.isTraceEnabled()) {
 						LOG.trace(posTaggedToken.toString());
 					}
-					
+
 					posTaggedToken.setComment(standoffToken.comment);
-					
+
 					posTagSequence.addPosTaggedToken(posTaggedToken);
 					idTokenMap.put(standoffToken.id, posTaggedToken);
-					LOG.debug("Found token " + standoffToken.id + ", " + posTaggedToken);					
+					LOG.debug("Found token " + standoffToken.id + ", " + posTaggedToken);
 				}
-				
-				tokenSequence.setWithRoot(true);							
+
+				tokenSequence.setWithRoot(true);
 
 				tokenSequence.cleanSlate();
-				
-				// first apply the token filters - which might replace the text of an individual token
+
+				// first apply the token filters - which might replace the text
+				// of an individual token
 				// with something else
-				if (tokenFilterWrapper==null) {
-					tokenFilterWrapper = this.getTokenFilterService().getTokenSequenceFilter(this.tokenFilters);
+				if (tokenFilterWrapper == null) {
+					tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
 				}
 				tokenFilterWrapper.apply(tokenSequence);
-				
+
 				for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 					tokenFilter.apply(tokenSequence);
 				}
-				
-				if (tokenSequence.getTokensAdded().size()>0) {
+
+				if (tokenSequence.getTokensAdded().size() > 0) {
 					throw new TalismaneException("Added tokens not currently supported by StandoffReader");
 				}
-				
+
 				tokenSequence.finalise();
-				
-				configuration = this.getParserService().getInitialConfiguration(posTagSequence);
+
+				configuration = new ParseConfiguration(posTagSequence);
 
 				for (StandoffToken standoffToken : tokens) {
 					StandoffRelation relation = relationMap.get(standoffToken.id);
-					if (relation!=null) {
+					if (relation != null) {
 						PosTaggedToken head = idTokenMap.get(relation.fromToken);
 						PosTaggedToken dependent = idTokenMap.get(relation.toToken);
-						if (head==null) {
+						if (head == null) {
 							throw new TalismaneException("No token found for head id: " + relation.fromToken);
 						}
-						if (dependent==null) {
+						if (dependent == null) {
 							throw new TalismaneException("No token found for dependent id: " + relation.toToken);
 						}
 						DependencyArc arc = configuration.addDependency(head, dependent, relation.label, null);
 						arc.setComment(relation.comment);
 					}
 				}
-	
+
 			}
 		}
-		return (configuration!=null);
+		return (configuration != null);
 	}
-
 
 	@Override
 	public ParseConfiguration nextConfiguration() {
@@ -245,24 +239,24 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		return nextConfiguration;
 	}
 
+	@Override
 	public void addTokenFilter(TokenFilter tokenFilter) {
 		this.tokenFilters.add(tokenFilter);
 	}
-	
+
 	@Override
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
 		this.tokenSequenceFilters.add(tokenFilter);
 	}
 
 	@Override
-	public void addPosTagSequenceFilter(
-			PosTagSequenceFilter posTagSequenceFilter) {
+	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter) {
 		this.posTagSequenceFilters.add(posTagSequenceFilter);
 	}
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
 		return attributes;
 	}
 
@@ -286,47 +280,13 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		this.maxSentenceCount = maxSentenceCount;
 	}
 
-
-	public TokenFilterService getTokenFilterService() {
-		return tokenFilterService;
-	}
-
-
-	public void setTokenFilterService(TokenFilterService tokenFilterService) {
-		this.tokenFilterService = tokenFilterService;
-	}
-
-	public PosTaggerService getPosTaggerService() {
-		return posTaggerService;
-	}
-
-	public void setPosTaggerService(PosTaggerService posTaggerService) {
-		this.posTaggerService = posTaggerService;
-	}
-	
-	public TokeniserService getTokeniserService() {
-		return tokeniserService;
-	}
-
-	public void setTokeniserService(TokeniserService tokeniserService) {
-		this.tokeniserService = tokeniserService;
-	}
-
-	public ParserService getParserService() {
-		return parserService;
-	}
-
-	public void setParserService(ParserService parserService) {
-		this.parserService = parserService;
-	}
-	
 	private static final class StandoffToken {
 		public PosTag posTag;
 		public String text;
 		public String id;
 		public String comment = "";
 	}
-	
+
 	private static final class StandoffRelation {
 		public String label;
 		public String fromToken;
@@ -334,26 +294,32 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		public String comment = "";
 	}
 
+	@Override
 	public int getIncludeIndex() {
 		return includeIndex;
 	}
 
+	@Override
 	public void setIncludeIndex(int includeIndex) {
 		this.includeIndex = includeIndex;
 	}
 
+	@Override
 	public int getExcludeIndex() {
 		return excludeIndex;
 	}
 
+	@Override
 	public void setExcludeIndex(int excludeIndex) {
 		this.excludeIndex = excludeIndex;
 	}
 
+	@Override
 	public int getCrossValidationSize() {
 		return crossValidationSize;
 	}
 
+	@Override
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
 	}
@@ -363,22 +329,14 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		throw new TalismaneException("rewind operation not supported by " + this.getClass().getName());
 	}
 
+	@Override
 	public int getStartSentence() {
 		return startSentence;
 	}
 
+	@Override
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
 	}
 
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-	
-	
 }

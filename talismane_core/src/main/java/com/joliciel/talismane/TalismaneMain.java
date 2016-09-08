@@ -19,37 +19,28 @@
 package com.joliciel.talismane;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.Talismane;
-import com.joliciel.talismane.TalismaneConfig;
-import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
-import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
-import com.joliciel.talismane.lexicon.LexiconService;
-import com.joliciel.talismane.lexicon.LexiconServiceLocator;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Direct entry point for Talismane from the command line.
@@ -58,7 +49,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class TalismaneMain {
-	private static final Log LOG = LogFactory.getLog(TalismaneMain.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
 	private enum OtherCommand {
 		serializeLexicon, testLexicon, serializeDiacriticizer, testDiacriticizer,
@@ -71,12 +62,12 @@ public class TalismaneMain {
 			System.out.println("Talismane usage instructions: ");
 			System.out.println("* indicates optional, + indicates default value");
 			System.out.println("");
-			System.out
-					.println("Usage: command=analyse *startModule=[sentence+|tokenise|postag|parse] *endModule=[sentence|tokenise|postag|parse+] *inFile=[inFilePath, stdin if missing] *outFile=[outFilePath, stdout if missing] *template=[outputTemplatePath]");
+			System.out.println(
+					"Usage: command=analyse *startModule=[sentence+|tokenise|postag|parse] *endModule=[sentence|tokenise|postag|parse+] *inFile=[inFilePath, stdin if missing] *outFile=[outFilePath, stdout if missing] *template=[outputTemplatePath]");
 			System.out.println("");
 			System.out.println("Additional optional parameters:");
-			System.out
-					.println(" *encoding=[UTF-8, ...] *includeDetails=[true|false+] posTaggerRules*=[posTaggerRuleFilePath] textFilters*=[regexFilterFilePath] *sentenceModel=[path] *tokeniserModel=[path] *posTaggerModel=[path] *parserModel=[path] *inputPatternFile=[inputPatternFilePath] *posTagSet=[posTagSetPath]");
+			System.out.println(
+					" *encoding=[UTF-8, ...] *includeDetails=[true|false+] posTaggerRules*=[posTaggerRuleFilePath] textFilters*=[regexFilterFilePath] *sentenceModel=[path] *tokeniserModel=[path] *posTaggerModel=[path] *parserModel=[path] *inputPatternFile=[inputPatternFilePath] *posTagSet=[posTagSetPath]");
 			return;
 		}
 
@@ -90,36 +81,26 @@ public class TalismaneMain {
 			}
 		}
 
-		// Configure log4j
 		String logConfigPath = argsMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argsMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		} else {
-			Properties props = new Properties();
-			InputStream stream = TalismaneMain.class.getResourceAsStream("resources/default-log4j.properties");
-			props.load(stream);
-			PropertyConfigurator.configure(props);
-		}
+		argsMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		String sessionId = "";
-		TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-		TalismaneService talismaneService = locator.getTalismaneService();
-		TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
+
+		Config config = ConfigFactory.load();
 
 		if (otherCommand == null) {
 			// regular command
-			TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
-			if (config.getCommand() == null)
+			TalismaneConfig talismaneConfig = new TalismaneConfig(argsMap, config, talismaneSession);
+			if (talismaneConfig.getCommand() == null)
 				return;
 
-			PerformanceMonitor.start(config.getPerformanceConfigFile());
-			if (config.getPerformanceConfigFile() != null && PerformanceMonitor.getFilePath() == null)
-				PerformanceMonitor.setFilePath(config.getBaseName() + ".performance.csv");
+			PerformanceMonitor.start(talismaneConfig.getPerformanceConfigFile());
+			if (talismaneConfig.getPerformanceConfigFile() != null && PerformanceMonitor.getFilePath() == null)
+				PerformanceMonitor.setFilePath(talismaneConfig.getBaseName() + ".performance.csv");
 			try {
-				Talismane talismane = config.getTalismane();
+				Talismane talismane = talismaneConfig.getTalismane();
 				talismane.process();
 			} finally {
 				PerformanceMonitor.end();
@@ -196,9 +177,8 @@ public class TalismaneMain {
 						lexiconChain.addLexicon(oneLexicon);
 					lexicon = lexiconChain;
 				}
-				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
-				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
-				Diacriticizer diacriticizer = lexiconService.getDiacriticizer(talismaneSession, lexicon);
+
+				Diacriticizer diacriticizer = new Diacriticizer(lexicon);
 
 				File outFile = new File(outFilePath);
 				File outDir = outFile.getParentFile();
@@ -238,9 +218,8 @@ public class TalismaneMain {
 					throw new TalismaneException("Missing argument: words");
 
 				File inFile = new File(inFilePath);
-				LexiconServiceLocator lexiconServiceLocator = new LexiconServiceLocator(locator);
-				LexiconService lexiconService = lexiconServiceLocator.getLexiconService();
-				Diacriticizer diacriticizer = lexiconService.deserializeDiacriticizer(inFile, talismaneSession);
+
+				Diacriticizer diacriticizer = Diacriticizer.deserialize(inFile);
 
 				for (String word : wordList) {
 					LOG.info("################");

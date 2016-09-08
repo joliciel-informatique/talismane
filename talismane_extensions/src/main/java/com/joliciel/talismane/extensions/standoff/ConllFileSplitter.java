@@ -31,8 +31,8 @@ import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.LogUtils;
@@ -45,7 +45,7 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class ConllFileSplitter {
-	private static final Log LOG = LogFactory.getLog(ConllFileSplitter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ConllFileSplitter.class);
 
 	private static DecimalFormat df = new DecimalFormat("000");
 

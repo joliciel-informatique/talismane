@@ -1,42 +1,74 @@
-///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
-//
-//This file is part of Talismane.
-//
-//Talismane is free software: you can redistribute it and/or modify
-//it under the terms of the GNU Affero General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//Talismane is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU Affero General Public License for more details.
-//
-//You should have received a copy of the GNU Affero General Public License
-//along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
-//////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * An interface for comparing two pos-tagged corpora, one of which is considered a reference.
+ * An interface for comparing two pos-tagged corpora, one of which is considered
+ * a reference.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTagComparator {
+public class PosTagComparator {
+	@SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagComparator.class);
+	private int sentenceCount = 0;
+
+	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
+
 	/**
 	 * Evaluate the evaluation corpus against the reference corpus.
-	 * @param evaluationCorpusReader for reading manually tagged tokens from a corpus
+	 * 
+	 * @param evaluationCorpusReader
+	 *            for reading manually tagged tokens from a corpus
 	 */
-	public void evaluate(PosTagAnnotatedCorpusReader referenceCorpusReader,
-			PosTagAnnotatedCorpusReader evaluationCorpusReader);
+	public void evaluate(PosTagAnnotatedCorpusReader referenceCorpusReader, PosTagAnnotatedCorpusReader evaluationCorpusReader) {
+		int sentenceIndex = 0;
+		while (referenceCorpusReader.hasNextPosTagSequence()) {
+			PosTagSequence realPosTagSequence = referenceCorpusReader.nextPosTagSequence();
+			PosTagSequence guessedPosTagSequence = evaluationCorpusReader.nextPosTagSequence();
 
-	public abstract void addObserver(PosTagEvaluationObserver observer);
+			List<PosTagSequence> guessedSequences = new ArrayList<PosTagSequence>();
+			guessedSequences.add(guessedPosTagSequence);
+			for (PosTagEvaluationObserver observer : this.observers) {
+				observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
+			}
+			sentenceIndex++;
+			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
+				break;
+		}
+
+		for (PosTagEvaluationObserver observer : this.observers) {
+			observer.onEvaluationComplete();
+		}
+	}
+
+	public List<PosTagEvaluationObserver> getObservers() {
+		return observers;
+	}
+
+	public void setObservers(List<PosTagEvaluationObserver> observers) {
+		this.observers = observers;
+	}
+
+	public void addObserver(PosTagEvaluationObserver observer) {
+		this.observers.add(observer);
+	}
 
 	/**
-	 * If set, will limit the maximum number of sentences that will be evaluated.
-	 * Default is 0 = all sentences.
+	 * If set, will limit the maximum number of sentences that will be
+	 * evaluated. Default is 0 = all sentences.
 	 */
-	public abstract void setSentenceCount(int sentenceCount);
-	public abstract int getSentenceCount();
+	public int getSentenceCount() {
+		return sentenceCount;
+	}
+
+	public void setSentenceCount(int sentenceCount) {
+		this.sentenceCount = sentenceCount;
+	}
+
 }

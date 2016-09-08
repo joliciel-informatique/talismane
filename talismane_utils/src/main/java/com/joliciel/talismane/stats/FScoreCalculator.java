@@ -34,8 +34,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.joliciel.talismane.utils.CSVFormatter;
@@ -48,7 +48,7 @@ import com.joliciel.talismane.utils.JolicielException;
  *
  */
 public class FScoreCalculator<E> {
-	private static final Log LOG = LogFactory.getLog(FScoreCalculator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FScoreCalculator.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	Map<E, Map<E, Integer>> falsePositives = new HashMap<E, Map<E, Integer>>();
 	Map<E, Map<E, Integer>> falseNegatives = new HashMap<E, Map<E, Integer>>();

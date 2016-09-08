@@ -20,26 +20,55 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternMatch> {
+public class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternMatch> {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokenPatternMatchFeatureParser.class);
 
-	TokenFeatureParser tokenFeatureParser;
-	
-	public TokenPatternMatchFeatureParser(FeatureService featureService) {
-		super(featureService);
-	}	
+	private final TalismaneSession talismaneSession;
+
+	public TokenPatternMatchFeatureParser(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+	}
+
+	public Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatureSet(List<String> featureDescriptors) {
+		Set<TokenPatternMatchFeature<?>> features = new TreeSet<TokenPatternMatchFeature<?>>();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		MONITOR.startTask("findFeatureSet");
+		try {
+			for (String featureDescriptor : featureDescriptors) {
+				if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+					List<TokenPatternMatchFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+					MONITOR.startTask("add features");
+					try {
+						features.addAll(myFeatures);
+					} finally {
+						MONITOR.endTask();
+					}
+				}
+			}
+		} finally {
+			MONITOR.endTask();
+		}
+		return features;
+	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<TokenPatternMatchFeature<?>> parseDescriptor(FunctionDescriptor descriptor) {
@@ -48,7 +77,7 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 			List<TokenPatternMatchFeature<?>> wrappedFeatures = new ArrayList<TokenPatternMatchFeature<?>>();
 
 			List<Feature<TokenPatternMatch, ?>> tokenPatternMatchFeatures = this.parse(descriptor);
-			
+
 			for (Feature<TokenPatternMatch, ?> tokenPatternMatchFeature : tokenPatternMatchFeatures) {
 				TokenPatternMatchFeature<?> wrappedFeature = null;
 				if (tokenPatternMatchFeature instanceof TokenPatternMatchFeature) {
@@ -65,7 +94,6 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 		}
 	}
 
-
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("CurrentPattern", PatternNameFeature.class);
@@ -73,48 +101,38 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 		container.addFeatureClass("PatternOffset", PatternMatchOffsetAddressFunction.class);
 		container.addFeatureClass("PatternWordForm", PatternMatchWordFormFeature.class);
 		container.addFeatureClass("PatternIndexInSentence", PatternMatchIndexInSentenceFeature.class);
-		this.tokenFeatureParser.addFeatureClasses(container);
-	}
-	
-	@Override
-	public List<FunctionDescriptor> getModifiedDescriptors(
-			FunctionDescriptor functionDescriptor) {
-		return tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
+		TokenFeatureParser.addFeatureClasses(container);
 	}
 
+	@Override
+	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
+		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
+		descriptors.add(functionDescriptor);
+		return descriptors;
+	}
 
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void injectDependencies(Feature feature) {
-		this.tokenFeatureParser.injectDependencies(feature);
-	}
-	
-	public TokenFeatureParser getTokenFeatureParser() {
-		return tokenFeatureParser;
+		TokenFeatureParser.injectDependencies(feature, talismaneSession);
 	}
 
-	public void setTokenFeatureParser(
-			TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
-	}
+	private static class TokenPatternMatchFeatureWrapper<T> extends AbstractFeature<TokenPatternMatch, T>
+			implements TokenPatternMatchFeature<T>, FeatureWrapper<TokenPatternMatch, T> {
+		private Feature<TokenPatternMatch, T> wrappedFeature = null;
 
-	private static class TokenPatternMatchFeatureWrapper<T> extends AbstractFeature<TokenPatternMatch,T> implements
-		TokenPatternMatchFeature<T>, FeatureWrapper<TokenPatternMatch, T> {
-		private Feature<TokenPatternMatch,T> wrappedFeature = null;
-		
-		public TokenPatternMatchFeatureWrapper(
-				Feature<TokenPatternMatch, T> wrappedFeature) {
+		public TokenPatternMatchFeatureWrapper(Feature<TokenPatternMatch, T> wrappedFeature) {
 			super();
 			this.wrappedFeature = wrappedFeature;
 			this.setName(wrappedFeature.getName());
 			this.setCollectionName(wrappedFeature.getCollectionName());
 		}
-		
+
 		@Override
 		public FeatureResult<T> check(TokenPatternMatch context, RuntimeEnvironment env) {
 			return wrappedFeature.check(context, env);
 		}
-		
+
 		@Override
 		public Feature<TokenPatternMatch, T> getWrappedFeature() {
 			return wrappedFeature;
@@ -128,23 +146,18 @@ class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternM
 	}
 
 	@Override
-	protected boolean canConvert(Class<?> parameterType,
-			Class<?> originalArgumentType) {
+	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
 		return false;
 	}
 
 	@Override
-	protected Feature<TokenPatternMatch, ?> convertArgument(
-			Class<?> parameterType,
-			Feature<TokenPatternMatch, ?> originalArgument) {
+	protected Feature<TokenPatternMatch, ?> convertArgument(Class<?> parameterType, Feature<TokenPatternMatch, ?> originalArgument) {
 		return null;
 	}
 
 	@Override
-	public Feature<TokenPatternMatch, ?> convertFeatureCustomType(
-			Feature<TokenPatternMatch, ?> feature) {
+	public Feature<TokenPatternMatch, ?> convertFeatureCustomType(Feature<TokenPatternMatch, ?> feature) {
 		return null;
 	}
 
-	
 }

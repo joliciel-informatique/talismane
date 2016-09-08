@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.posTagger.features.PosTaggerContext;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
@@ -77,46 +76,36 @@ public interface PosTagger {
 	 * @return a List of TaggedToken reflecting the PosTags applied to the
 	 *         tokens.
 	 */
-	public abstract PosTagSequence tagSentence(TokenSequence tokenSequence);
+	public PosTagSequence tagSentence(TokenSequence tokenSequence);
 
 	/**
 	 * Add an analysis observer to this pos tagger.
 	 */
-	public abstract void addObserver(ClassificationObserver observer);
+	public void addObserver(ClassificationObserver observer);
 
 	/**
 	 * The set of features used to describe the sequence of
-	 * {@link PosTaggerContext} encountered while pos-tagging. These have to be
-	 * identical to the features used to train the previously trained
+	 * {@link PosTaggerContextImpl} encountered while pos-tagging. These have to
+	 * be identical to the features used to train the previously trained
 	 * pos-tagging model.
 	 */
-	public abstract Set<PosTaggerFeature<?>> getPosTaggerFeatures();
-
-	/**
-	 * @see #getPosTaggerFeatures()
-	 */
-	public void setPosTaggerFeatures(Set<PosTaggerFeature<?>> posTaggerFeatures);
+	public Set<PosTaggerFeature<?>> getPosTaggerFeatures();
 
 	/**
 	 * @see #getPosTaggerRules()
 	 */
-	public abstract void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
+	public void setPosTaggerRules(List<PosTaggerRule> posTaggerRules);
 
 	/**
 	 * Rules to be applied during pos-tagging, used to override the statistical
 	 * model for phenomena under-represented in the training corpus.
 	 */
-	public abstract List<PosTaggerRule> getPosTaggerRules();
+	public List<PosTaggerRule> getPosTaggerRules();
 
 	/**
 	 * Filters to be applied to the token sequences prior to pos-tagging.
 	 */
 	public List<TokenSequenceFilter> getPreProcessingFilters();
-
-	/**
-	 * @see #getPreProcessingFilters()
-	 */
-	public void setPreProcessingFilters(List<TokenSequenceFilter> tokenFilters);
 
 	/**
 	 * Add a pre-processing filter.
@@ -127,11 +116,6 @@ public interface PosTagger {
 	 * Filters to be applied to the final pos-tag sequences after pos-tagging.
 	 */
 	public List<PosTagSequenceFilter> getPostProcessingFilters();
-
-	/**
-	 * @see #getPostProcessingFilters()
-	 */
-	public void setPostProcessingFilters(List<PosTagSequenceFilter> posTagFilters);
 
 	/**
 	 * Add a post-processing filter.

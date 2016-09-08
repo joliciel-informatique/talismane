@@ -29,10 +29,11 @@ import java.util.Scanner;
 
 /**
  * A default corpus reader which assumes one text per line.
+ * 
  * @author Assaf Urieli
  *
  */
-class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
+public class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
 	private Locale currentLocale;
 	private int maxSentenceCount = 0;
@@ -42,26 +43,26 @@ class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
 	private int excludeIndex = -1;
 	private int crossValidationSize = 0;
 	private String sentence = null;
-	private Map<Locale,Reader> readerMap;
+	private Map<Locale, Reader> readerMap;
 	private Iterator<Locale> localeIterator;
-	
-	public TextPerLineCorpusReader(Map<Locale,Reader> readerMap) {
+
+	public TextPerLineCorpusReader(Map<Locale, Reader> readerMap) {
 		this.readerMap = readerMap;
 		this.localeIterator = readerMap.keySet().iterator();
 	}
-	
+
 	@Override
 	public boolean hasNextText() {
-		if (maxSentenceCount>0 && sentenceCount>=maxSentenceCount) {
+		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
 			// we've reached the end, do nothing
 		} else {
-			while (sentence==null) {
-				if (scanner!=null && !scanner.hasNextLine()) {
+			while (sentence == null) {
+				if (scanner != null && !scanner.hasNextLine()) {
 					scanner.close();
-					scanner=null;
+					scanner = null;
 				}
-				
-				while (scanner==null) {
+
+				while (scanner == null) {
 					if (localeIterator.hasNext()) {
 						currentLocale = localeIterator.next();
 						Reader reader = readerMap.get(currentLocale);
@@ -75,39 +76,39 @@ class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
 						break;
 					}
 				}
-				if (scanner==null)
+				if (scanner == null)
 					break;
-				
+
 				sentence = scanner.nextLine().trim();
 				sentence = sentence.toLowerCase(Locale.ENGLISH);
 				sentence = Normalizer.normalize(sentence, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-				
-				if (sentence.length()==0) {
+
+				if (sentence.length() == 0) {
 					sentence = null;
 					continue;
 				}
-				
+
 				boolean includeMe = true;
-				
+
 				// check cross-validation
-				if (crossValidationSize>0) {
-					if (includeIndex>=0) {
+				if (crossValidationSize > 0) {
+					if (includeIndex >= 0) {
 						if (sentenceCount % crossValidationSize != includeIndex) {
 							includeMe = false;
 						}
-					} else if (excludeIndex>=0) {
+					} else if (excludeIndex >= 0) {
 						if (sentenceCount % crossValidationSize == excludeIndex) {
 							includeMe = false;
 						}
 					}
 				}
-				
-				if (startSentence>sentenceCount) {
+
+				if (startSentence > sentenceCount) {
 					includeMe = false;
 				}
 
 				sentenceCount++;
-				
+
 				if (!includeMe) {
 					sentence = null;
 					continue;
@@ -115,65 +116,75 @@ class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
 
 			}
 		}
-		return sentence !=null;
+		return sentence != null;
 	}
 
 	@Override
 	public LanguageTaggedText nextText() {
 		String currentSentence = sentence;
 		sentence = null;
-		LanguageTaggedText languageTaggedText = new LanguageTaggedTextImpl(currentSentence, currentLocale);
+		LanguageTaggedText languageTaggedText = new LanguageTaggedText(currentSentence, currentLocale);
 		return languageTaggedText;
 	}
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
 
 		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
 		attributes.put("crossValidationSize", "" + this.crossValidationSize);
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
-		
+
 		return attributes;
 	}
 
+	@Override
 	public int getMaxSentenceCount() {
 		return maxSentenceCount;
 	}
 
+	@Override
 	public void setMaxSentenceCount(int maxSentenceCount) {
 		this.maxSentenceCount = maxSentenceCount;
 	}
 
+	@Override
 	public int getIncludeIndex() {
 		return includeIndex;
 	}
 
+	@Override
 	public void setIncludeIndex(int includeIndex) {
 		this.includeIndex = includeIndex;
 	}
 
+	@Override
 	public int getExcludeIndex() {
 		return excludeIndex;
 	}
 
+	@Override
 	public void setExcludeIndex(int excludeIndex) {
 		this.excludeIndex = excludeIndex;
 	}
 
+	@Override
 	public int getCrossValidationSize() {
 		return crossValidationSize;
 	}
 
+	@Override
 	public void setCrossValidationSize(int crossValidationSize) {
 		this.crossValidationSize = crossValidationSize;
 	}
 
+	@Override
 	public int getStartSentence() {
 		return startSentence;
 	}
 
+	@Override
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
 	}

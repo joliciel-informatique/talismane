@@ -19,8 +19,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 
@@ -31,6 +31,6 @@ import com.joliciel.talismane.machineLearning.features.AbstractFeature;
  */
 public abstract class AbstractLanguageDetectorFeature<Y> extends AbstractFeature<String,Y> implements LanguageDetectorFeature<Y> {
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(AbstractLanguageDetectorFeature.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractLanguageDetectorFeature.class);
 
 }

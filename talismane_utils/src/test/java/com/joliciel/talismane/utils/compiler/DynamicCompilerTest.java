@@ -30,12 +30,12 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 public class DynamicCompilerTest {
-	private static final Log LOG = LogFactory.getLog(DynamicCompilerTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DynamicCompilerTest.class);
 	public static class DiagnositicsLogger implements DiagnosticListener<JavaFileObject>
 	{
 		private List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<Diagnostic<? extends JavaFileObject>>();

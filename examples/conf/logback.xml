@@ -1,0 +1,37 @@
+<configuration>
+
+	<appender name="javalog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/talismane.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover. Make sure the path matches the one in the file element or else
+             the rollover logs are placed in the working directory. -->
+            <fileNamePattern>logs/talismane_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>5MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%date %level %logger %thread %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%date %level %logger %thread %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="com.joliciel" level="DEBUG" />
+
+	<root level="INFO">
+		<appender-ref ref="javalog" />
+		<appender-ref ref="console" />
+	</root>
+</configuration>

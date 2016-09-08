@@ -18,29 +18,59 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
-import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.utils.JolicielException;
 
 /**
  * Finds the external resource corresponding to a given name.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface ExternalResourceFinder {
+public class ExternalResourceFinder {
+	private static final Logger LOG = LoggerFactory.getLogger(ExternalResourceFinder.class);
+	private Map<String, ExternalResource<?>> resourceMap = new HashMap<String, ExternalResource<?>>();
+
+	public ExternalResource<?> getExternalResource(String name) {
+		return this.resourceMap.get(name);
+	}
+
+	public void addExternalResource(ExternalResource<?> externalResource) {
+		LOG.debug("Adding resource with name: " + externalResource.getName());
+		this.resourceMap.put(externalResource.getName(), externalResource);
+	}
+
+	public Collection<ExternalResource<?>> getExternalResources() {
+		return resourceMap.values();
+	}
+
 	/**
-	 * Add external resources located in a file or directory.
+	 * Add external resources located in a scanner from a particular filename.
 	 */
-	public void addExternalResources(File file);
-	
-	public ExternalResource<?> getExternalResource(String name);
-	
-	public void addExternalResource(ExternalResource<?> externalResource);
-	
-	public Collection<ExternalResource<?>> getExternalResources();
-	
-	public ExternalWordList	getExternalWordList(String name);
-	
-	public void addExternalWordList(ExternalWordList externalWordList);
-	
-	public Collection<ExternalWordList> getExternalWordLists();
+	public void addExternalResource(String fileName, Scanner scanner) {
+		LOG.debug("Reading " + fileName);
+		String typeLine = scanner.nextLine();
+
+		if (!typeLine.startsWith("Type: "))
+			throw new JolicielException("In file " + fileName + ", expected line starting with \"Type: \"");
+
+		String type = typeLine.substring("Type: ".length());
+
+		if ("KeyValue".equals(type)) {
+			TextFileResource textFileResource = new TextFileResource(fileName, scanner);
+			this.addExternalResource(textFileResource);
+		} else if ("KeyMultiValue".equals(type)) {
+			TextFileMultivaluedResource resource = new TextFileMultivaluedResource(fileName, scanner);
+			this.addExternalResource(resource);
+		} else {
+			throw new JolicielException("Unexpected type in file: " + fileName + ": " + type);
+		}
+	}
 }

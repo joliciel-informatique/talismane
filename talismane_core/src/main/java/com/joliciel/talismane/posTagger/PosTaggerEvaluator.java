@@ -18,42 +18,197 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * An interface for evaluating a given pos tagger.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTaggerEvaluator {
+public class PosTaggerEvaluator {
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerEvaluator.class);
+	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTaggerEvaluator.class);
+
+	private final PosTagger posTagger;
+	private Tokeniser tokeniser;
+	private boolean propagateBeam = false;
+	private int sentenceCount = 0;
+
+	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
+
+	/**
+	 */
+	public PosTaggerEvaluator(PosTagger posTagger) {
+		this.posTagger = posTagger;
+	}
+
 	/**
 	 * Evaluate a given pos tagger.
-	 * @param reader for reading manually tagged tokens from a corpus
+	 * 
+	 * @param corpusReader
+	 *            for reading manually tagged tokens from a corpus
 	 */
-	public void evaluate(PosTagAnnotatedCorpusReader reader);
+	public void evaluate(PosTagAnnotatedCorpusReader corpusReader) {
+		int sentenceIndex = 0;
+		while (corpusReader.hasNextPosTagSequence()) {
+			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
+
+			List<TokenSequence> tokenSequences = null;
+			List<PosTagSequence> guessedSequences = null;
+
+			TokenSequence tokenSequence = realPosTagSequence.getTokenSequence();
+			PosTagSequence guessedSequence = null;
+
+			if (this.tokeniser != null) {
+				MONITOR.startTask("tokenise");
+				try {
+					tokenSequences = tokeniser.tokenise(tokenSequence.getText());
+				} finally {
+					MONITOR.endTask();
+				}
+
+				tokenSequence = tokenSequences.get(0);
+				if (!propagateBeam) {
+					tokenSequences = new ArrayList<TokenSequence>();
+					tokenSequences.add(tokenSequence);
+				}
+			} else {
+				tokenSequences = new ArrayList<TokenSequence>();
+				tokenSequences.add(tokenSequence);
+			}
+
+			if (posTagger instanceof NonDeterministicPosTagger) {
+				NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
+				MONITOR.startTask("posTag");
+				try {
+					guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+				} finally {
+					MONITOR.endTask();
+				}
+				guessedSequence = guessedSequences.get(0);
+			} else {
+				MONITOR.startTask("posTag");
+				try {
+					guessedSequence = posTagger.tagSentence(tokenSequence);
+				} finally {
+					MONITOR.endTask();
+				}
+			}
+
+			if (LOG.isDebugEnabled()) {
+				StringBuilder stringBuilder = new StringBuilder();
+				for (PosTaggedToken posTaggedToken : guessedSequence) {
+					Set<String> lemmas = new TreeSet<String>();
+					stringBuilder.append(posTaggedToken.getToken().getOriginalText());
+					stringBuilder.append("[" + posTaggedToken.getTag());
+
+					List<LexicalEntry> entries = posTaggedToken.getLexicalEntries();
+					boolean dropCurrentWord = false;
+					if (entries.size() > 1)
+						dropCurrentWord = true;
+					for (LexicalEntry entry : posTaggedToken.getLexicalEntries()) {
+						if (!lemmas.contains(entry.getLemma())) {
+							if (dropCurrentWord && posTaggedToken.getToken().getText().equals(entry.getLemma())) {
+								dropCurrentWord = false;
+								continue;
+							}
+							stringBuilder.append("|" + entry.getLemma());
+							// stringBuilder.append("/" + entry.getCategory());
+							stringBuilder.append("/" + entry.getMorphology());
+							lemmas.add(entry.getLemma());
+						}
+					}
+					stringBuilder.append("] ");
+				}
+				LOG.debug(stringBuilder.toString());
+			}
+
+			MONITOR.startTask("observe");
+			try {
+				for (PosTagEvaluationObserver observer : this.observers) {
+					observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
+				}
+			} finally {
+				MONITOR.endTask();
+			}
+
+			sentenceIndex++;
+			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
+				break;
+		} // next sentence
+
+		MONITOR.startTask("onEvaluationComplete");
+		try {
+			for (PosTagEvaluationObserver observer : this.observers) {
+				observer.onEvaluationComplete();
+			}
+		} finally {
+			MONITOR.endTask();
+		}
+	}
+
+	public PosTagger getPosTagger() {
+		return posTagger;
+	}
 
 	/**
 	 * A tokeniser to tokenise the sentences brought back by the corpus reader,
 	 * rather than automatically using their existing tokenisation.
 	 */
-	public abstract Tokeniser getTokeniser();
-	public abstract void setTokeniser(Tokeniser tokeniser);
+	public Tokeniser getTokeniser() {
+		return tokeniser;
+	}
+
+	public void setTokeniser(Tokeniser tokeniser) {
+		this.tokeniser = tokeniser;
+	}
 
 	/**
-	 * Should the pos tagger take the tokeniser's full beam as it's input,
-	 * or only the best guess.
+	 * Should the pos tagger take the tokeniser's full beam as it's input, or
+	 * only the best guess.
 	 */
-	public abstract boolean isPropagateBeam();
-	public abstract void setPropagateBeam(boolean propagateBeam);
+	public boolean isPropagateBeam() {
+		return propagateBeam;
+	}
 
-	public abstract void addObserver(PosTagEvaluationObserver observer);
+	public void setPropagateBeam(boolean propagateBeam) {
+		this.propagateBeam = propagateBeam;
+	}
+
+	public List<PosTagEvaluationObserver> getObservers() {
+		return observers;
+	}
+
+	public void setObservers(List<PosTagEvaluationObserver> observers) {
+		this.observers = observers;
+	}
+
+	public void addObserver(PosTagEvaluationObserver observer) {
+		this.observers.add(observer);
+	}
 
 	/**
-	 * If set, will limit the maximum number of sentences that will be evaluated.
-	 * Default is 0 = all sentences.
+	 * If set, will limit the maximum number of sentences that will be
+	 * evaluated. Default is 0 = all sentences.
 	 */
-	public abstract void setSentenceCount(int sentenceCount);
-	public abstract int getSentenceCount();
+	public int getSentenceCount() {
+		return sentenceCount;
+	}
 
-	public PosTagger getPosTagger();
+	public void setSentenceCount(int sentenceCount) {
+		this.sentenceCount = sentenceCount;
+	}
+
 }

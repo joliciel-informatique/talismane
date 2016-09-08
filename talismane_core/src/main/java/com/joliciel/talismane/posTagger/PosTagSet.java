@@ -18,19 +18,45 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.utils.LogUtils;
 
 /**
- * <p>A tag set to be used for pos tagging.
- * The default format for reading a PosTagSet from a file is as follows:</p>
- * <p>All lines starting with # are ignored.
- * The first line read is the PosTagSet name.
- * The second line read is the PosTagSet locale.</p>
- * All further lines are postags, in a tab delimited format shown below:</p>
- * <pre>PosTag	description	PosTagOpenClassIndicator</pre>
- * <p>For example:</p>
+ * <p>
+ * A tag set to be used for pos tagging. The default format for reading a
+ * PosTagSet from a file is as follows:
+ * </p>
+ * <p>
+ * All lines starting with # are ignored. The first line read is the PosTagSet
+ * name. The second line read is the PosTagSet locale.
+ * </p>
+ * All further lines are postags, in a tab delimited format shown below:
+ * </p>
+ * 
+ * <pre>
+ * PosTag	description	PosTagOpenClassIndicator
+ * </pre>
+ * <p>
+ * For example:
+ * </p>
+ * 
  * <pre>
  * # Example of a PosTagSet file
  * Talismane 2013
@@ -47,24 +73,145 @@ import java.util.Set;
  * @author Assaf Urieli
  *
  */
-public interface PosTagSet extends Serializable {
+public class PosTagSet implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private static final Logger LOG = LoggerFactory.getLogger(PosTagSet.class);
+
+	private String name;
+	private Locale locale;
+	private Set<PosTag> tags = new TreeSet<>();
+	private Map<String, PosTag> tagMap = null;
+
+	/**
+	 * Loads a PosTagSet from a file or list of strings. The file has the
+	 * following format: <BR/>
+	 * First row: PosTagSet name<BR/>
+	 * Second row: PosTagSet ISO 2 letter language code<BR/>
+	 * Remaining rows:<BR/>
+	 * PosTagCode tab description tab OPEN/CLOSED<BR/>
+	 * e.g.<BR/>
+	 * ADJ adjectif OPEN<BR/>
+	 */
+	public PosTagSet(File file) {
+		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
+			this.load(scanner);
+		} catch (IOException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Same as getPosTageSet(file), but replaces file with a scanner.
+	 */
+	public PosTagSet(Scanner scanner) {
+		this.load(scanner);
+	}
+
+	/**
+	 * Same as getPosTagSet(File), but replaces the file with a List of Strings.
+	 */
+	public PosTagSet(List<String> descriptors) {
+		this.load(descriptors);
+	}
+
+	void load(Scanner scanner) {
+		List<String> descriptors = new ArrayList<String>();
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			descriptors.add(line);
+		}
+		this.load(descriptors);
+	}
+
+	void load(List<String> descriptors) {
+		boolean nameFound = false;
+		boolean localeFound = false;
+		for (String descriptor : descriptors) {
+			LOG.debug(descriptor);
+			if (descriptor.startsWith("#")) {
+				continue;
+			}
+
+			if (!nameFound) {
+				this.name = descriptor;
+				nameFound = true;
+			} else if (!localeFound) {
+				this.locale = new Locale(descriptor);
+				localeFound = true;
+			} else {
+				String[] parts = descriptor.split("\t");
+				tags.add(new PosTag(parts[0], parts[1], PosTagOpenClassIndicator.valueOf(parts[2])));
+			}
+		}
+	}
+
 	/**
 	 * Name of this posTagSet.
 	 */
-	public String getName();
-	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	/**
 	 * The locale to which this PosTagSet applies.
 	 */
-	public Locale getLocale();
-	
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
 	/**
 	 * Returns the full tagset.
 	 */
-	Set<PosTag> getTags();
-	
+	public Set<PosTag> getTags() {
+		return tags;
+	}
+
 	/**
 	 * Return the PosTag corresponding to a given code.
 	 */
-	PosTag getPosTag(String code);
+	public PosTag getPosTag(String code) {
+		if (tagMap == null) {
+			tagMap = new HashMap<>();
+			for (PosTag posTag : this.getTags()) {
+				tagMap.put(posTag.getCode(), posTag);
+			}
+			tagMap.put(PosTag.ROOT_POS_TAG_CODE, PosTag.ROOT_POS_TAG);
+		}
+		PosTag posTag = tagMap.get(code);
+		if (posTag == null) {
+			throw new UnknownPosTagException("Unknown PosTag: " + code);
+		}
+		return posTag;
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PosTagSet other = (PosTagSet) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
 }

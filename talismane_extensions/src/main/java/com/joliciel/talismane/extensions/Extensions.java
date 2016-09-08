@@ -34,14 +34,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.corpus.CorpusModifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
@@ -50,15 +48,15 @@ import com.joliciel.talismane.extensions.corpus.PosTaggerStatistics;
 import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
 import com.joliciel.talismane.extensions.standoff.StandoffReader;
 import com.joliciel.talismane.extensions.standoff.StandoffWriter;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
-import com.joliciel.talismane.machineLearning.MachineLearningServiceLocator;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class Extensions {
-	private static final Log LOG = LogFactory.getLog(Extensions.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Extensions.class);
 	String referenceStatsPath = null;
 	String corpusRulesPath = null;
 	ExtendedCommand command = null;
@@ -76,10 +74,10 @@ public class Extensions {
 		boolean commandRun = extensions.runCommand(argsMap);
 		if (!commandRun) {
 			String sessionId = "";
-			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-			TalismaneService talismaneService = locator.getTalismaneService();
+			TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
-			TalismaneConfig config = talismaneService.getTalismaneConfig(argsMap, sessionId);
+			Config conf = ConfigFactory.load();
+			TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
 			if (config.getCommand() == null)
 				return;
 
@@ -137,9 +135,7 @@ public class Extensions {
 			if (command == null)
 				return;
 
-			TalismaneSession talismaneSession = config.getTalismaneService().getTalismaneSession();
-			MachineLearningServiceLocator machineLearningServiceLocator = MachineLearningServiceLocator.getInstance();
-			MachineLearningService machineLearningService = machineLearningServiceLocator.getMachineLearningService();
+			TalismaneSession talismaneSession = config.getTalismaneSession();
 
 			switch (command) {
 			case toStandoff: {
@@ -158,11 +154,6 @@ public class Extensions {
 			case fromStandoff: {
 				try (Scanner scanner = new Scanner(config.getReader())) {
 					StandoffReader standoffReader = new StandoffReader(talismaneSession, scanner);
-					standoffReader.setParserService(config.getParserService());
-					standoffReader.setPosTaggerService(config.getPosTaggerService());
-					standoffReader.setTokeniserService(config.getTokeniserService());
-					standoffReader.setTokenFilterService(config.getTokenFilterService());
-					standoffReader.setMachineLearningService(machineLearningService);
 
 					config.setParserCorpusReader(standoffReader);
 				}

@@ -18,31 +18,37 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
-import com.joliciel.talismane.machineLearning.MachineLearningService;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
-import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureService;
 
-class SentenceDetectorEventStream implements ClassificationEventStream {
-    private static final Log LOG = LogFactory.getLog(SentenceDetectorEventStream.class);
-    
-	private SentenceDetectorAnnotatedCorpusReader corpusReader;
-	private Set<SentenceDetectorFeature<?>> features;
+/**
+ * An event stream for sentence detector training/evaluation.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class SentenceDetectorEventStream implements ClassificationEventStream {
+	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorEventStream.class);
+
+	private final SentenceDetectorAnnotatedCorpusReader corpusReader;
+	private final Set<SentenceDetectorFeature<?>> features;
+	private final TalismaneSession talismaneSession;
+
 	private String currentSentence;
 	private String previousSentence = ". ";
 	private int currentIndex = 0;
@@ -50,18 +56,12 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 	private int realBoundary = -1;
 	private LinkedList<String> sentences = new LinkedList<String>();
 	int minCharactersAfterBoundary = 50;
-	
-	private SentenceDetectorService sentenceDetectorService;
-	private SentenceDetectorFeatureService sentenceDetectorFeatureService;
-	private MachineLearningService machineLearningService;
-	private FeatureService featureService;
-	
-	public SentenceDetectorEventStream(
-			SentenceDetectorAnnotatedCorpusReader corpusReader,
-			Set<SentenceDetectorFeature<?>> features) {
-		super();
+
+	public SentenceDetectorEventStream(SentenceDetectorAnnotatedCorpusReader corpusReader, Set<SentenceDetectorFeature<?>> features,
+			TalismaneSession talismaneSession) {
 		this.corpusReader = corpusReader;
 		this.features = features;
+		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
@@ -69,12 +69,12 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			int possibleBoundary = possibleBoundaries.get(currentIndex++);
-			
+
 			String moreText = "";
 			int sentenceIndex = 0;
 			while (moreText.length() < minCharactersAfterBoundary) {
 				String nextSentence = "";
-				if (sentenceIndex<sentences.size()) {
+				if (sentenceIndex < sentences.size()) {
 					nextSentence = sentences.get(sentenceIndex);
 				} else if (corpusReader.hasNextSentence()) {
 					nextSentence = corpusReader.nextSentence();
@@ -82,37 +82,37 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 				} else {
 					break;
 				}
-				if (nextSentence.startsWith(" ")||nextSentence.startsWith("\n"))
+				if (nextSentence.startsWith(" ") || nextSentence.startsWith("\n"))
 					moreText += sentences.get(sentenceIndex);
 				else
 					moreText += " " + sentences.get(sentenceIndex);
-					
+
 				sentenceIndex++;
 			}
 			String text = previousSentence + currentSentence + moreText;
-			
-			PossibleSentenceBoundary boundary = sentenceDetectorService.getPossibleSentenceBoundary(text, possibleBoundary);
+
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(text, possibleBoundary, talismaneSession);
 			LOG.debug("next event, boundary: " + boundary);
 
 			List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
 			for (SentenceDetectorFeature<?> feature : features) {
-				RuntimeEnvironment env = this.featureService.getRuntimeEnvironment();
+				RuntimeEnvironment env = new RuntimeEnvironment();
 				FeatureResult<?> featureResult = feature.check(boundary, env);
-				if (featureResult!=null)
+				if (featureResult != null)
 					featureResults.add(featureResult);
 			}
 			if (LOG.isTraceEnabled()) {
 				for (FeatureResult<?> result : featureResults) {
 					LOG.trace(result.toString());
 				}
-			}			
+			}
 			String classification = SentenceDetectorOutcome.IS_NOT_BOUNDARY.name();
-			if (possibleBoundary==realBoundary)
+			if (possibleBoundary == realBoundary)
 				classification = SentenceDetectorOutcome.IS_BOUNDARY.name();
-			
-			event = this.machineLearningService.getClassificationEvent(featureResults, classification);
-			
-			if (currentIndex==possibleBoundaries.size()) {
+
+			event = new ClassificationEvent(featureResults, classification);
+
+			if (currentIndex == possibleBoundaries.size()) {
 				if (currentSentence.endsWith(" "))
 					previousSentence = currentSentence;
 				else
@@ -125,7 +125,7 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 
 	@Override
 	public boolean hasNext() {
-		while (currentSentence==null) {
+		while (currentSentence == null) {
 			currentIndex = 0;
 			possibleBoundaries = new ArrayList<Integer>();
 			if (!sentences.isEmpty()) {
@@ -135,68 +135,33 @@ class SentenceDetectorEventStream implements ClassificationEventStream {
 			} else {
 				break;
 			}
-			if (currentSentence!=null) {
+			if (currentSentence != null) {
 				Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(currentSentence);
-				
+
 				while (matcher.find()) {
 					possibleBoundaries.add(previousSentence.length() + matcher.start());
 				}
 				realBoundary = previousSentence.length() + currentSentence.length() - 1;
 			}
-			if (possibleBoundaries.size()==0) {
+			if (possibleBoundaries.size() == 0) {
 				if (currentSentence.endsWith(" "))
 					previousSentence = currentSentence;
 				else
 					previousSentence = currentSentence + " ";
-				currentSentence=null;
+				currentSentence = null;
 			}
 		}
-		
-		return (currentSentence!=null);
-	}
 
-	public SentenceDetectorService getSentenceDetectorService() {
-		return sentenceDetectorService;
-	}
-
-	public void setSentenceDetectorService(
-			SentenceDetectorService sentenceDetectorService) {
-		this.sentenceDetectorService = sentenceDetectorService;
-	}
-
-	public SentenceDetectorFeatureService getSentenceDetectorFeatureService() {
-		return sentenceDetectorFeatureService;
-	}
-
-	public void setSentenceDetectorFeatureService(
-			SentenceDetectorFeatureService sentenceDetectorFeatureService) {
-		this.sentenceDetectorFeatureService = sentenceDetectorFeatureService;
+		return (currentSentence != null);
 	}
 
 	@Override
 	public Map<String, String> getAttributes() {
-		Map<String,String> attributes = new LinkedHashMap<String, String>();
-		attributes.put("eventStream", this.getClass().getSimpleName());		
-		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());		
-		
+		Map<String, String> attributes = new LinkedHashMap<String, String>();
+		attributes.put("eventStream", this.getClass().getSimpleName());
+		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
+
 		return attributes;
-	}
-
-	public MachineLearningService getMachineLearningService() {
-		return machineLearningService;
-	}
-
-	public void setMachineLearningService(
-			MachineLearningService machineLearningService) {
-		this.machineLearningService = machineLearningService;
-	}
-
-	public FeatureService getFeatureService() {
-		return featureService;
-	}
-
-	public void setFeatureService(FeatureService featureService) {
-		this.featureService = featureService;
 	}
 
 }

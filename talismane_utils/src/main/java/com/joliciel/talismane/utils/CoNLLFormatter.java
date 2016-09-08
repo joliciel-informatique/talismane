@@ -23,24 +23,23 @@ public class CoNLLFormatter {
 	 * Convert a string to CoNLL format.
 	 */
 	public static String toCoNLL(String text) {
-		String conllText = text.replace("_", "&und;");
-		conllText = conllText.replace(' ', '_');
-		if (conllText.length()==0)
+		String conllText = text;
+		if (conllText.equals("_"))
+			conllText = "&und;";
+		else if (conllText.length() == 0)
 			conllText = "_";
 		return conllText;
 	}
-	
+
 	/**
 	 * Convert a string from CoNLL format.
 	 */
 	public static String fromCoNLL(String conllText) {
-		String text = null;
-		if (conllText.equals("_")) {
+		String text = conllText;
+		if (conllText.equals("_"))
 			text = "";
-		} else {
-			text = conllText.replace('_', ' ');
-			text = text.replace("&und;", "_");
-		}
+		else if (conllText.equals("&und;"))
+			text = "_";
 		return text;
 	}
 }

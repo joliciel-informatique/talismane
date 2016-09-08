@@ -8,14 +8,14 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.compiler.DynamicCompiler;
 
 public abstract class AbstractDynamiser<T> implements Dynamiser<T> {
-	private static final Log LOG = LogFactory.getLog(AbstractDynamiser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractDynamiser.class);
 
 	private int classIndex = 0;
 	private DynamicCompiler compiler;

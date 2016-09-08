@@ -35,21 +35,22 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneService;
-import com.joliciel.talismane.TalismaneServiceLocator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.terminology.TermExtractor.TerminologyProperty;
+import com.joliciel.talismane.terminology.postgres.PostGresTerminologyBase;
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TalismaneTermExtractorMain {
-	private static final Log LOG = LogFactory.getLog(TalismaneTermExtractorMain.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TalismaneTermExtractorMain.class);
 
 	private enum Command {
 		analyse, extract, list
@@ -67,12 +68,8 @@ public class TalismaneTermExtractorMain {
 		Map<String, String> argMap = StringUtils.convertArgs(args);
 
 		String logConfigPath = argMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		}
+		argMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		Map<String, String> innerArgs = new HashMap<String, String>();
 		for (Entry<String, String> argEntry : argMap.entrySet()) {
@@ -118,13 +115,20 @@ public class TalismaneTermExtractorMain {
 			}
 
 			String sessionId = "";
-			TalismaneServiceLocator locator = TalismaneServiceLocator.getInstance(sessionId);
-			TalismaneService talismaneService = locator.getTalismaneService();
+			TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
-			TalismaneConfig config = talismaneService.getTalismaneConfig(innerArgs, sessionId);
+			String inputRegex = null;
+			InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
+			try (Scanner regexScanner = new Scanner(regexInputStream, "UTF-8")) {
+				inputRegex = regexScanner.nextLine();
+			}
+			Map<String, Object> configValues = new HashMap<>();
+			configValues.put("talismane.core.train.parser.readerRegex", inputRegex);
 
-			TerminologyServiceLocator terminologyServiceLocator = TerminologyServiceLocator.getInstance(locator);
-			TerminologyService terminologyService = terminologyServiceLocator.getTerminologyService();
+			Config conf = ConfigFactory.parseMap(configValues).withFallback(ConfigFactory.load());
+
+			TalismaneConfig config = new TalismaneConfig(innerArgs, conf, talismaneSession);
+
 			TerminologyBase terminologyBase = null;
 
 			if (projectCode == null)
@@ -134,9 +138,7 @@ public class TalismaneTermExtractorMain {
 			FileInputStream fis = new FileInputStream(file);
 			Properties dataSourceProperties = new Properties();
 			dataSourceProperties.load(fis);
-			terminologyBase = terminologyService.getPostGresTerminologyBase(projectCode, dataSourceProperties);
-
-			TalismaneSession talismaneSession = talismaneService.getTalismaneSession();
+			terminologyBase = new PostGresTerminologyBase(projectCode, dataSourceProperties);
 
 			if (command.equals(Command.analyse) || command.equals(Command.extract)) {
 				Locale locale = talismaneSession.getLocale();
@@ -157,15 +159,9 @@ public class TalismaneTermExtractorMain {
 				if (depth <= 0 && !terminologyProperties.containsKey(TerminologyProperty.maxDepth))
 					throw new TalismaneException("Required argument: depth");
 
-				InputStream regexInputStream = getInputStreamFromResource("parser_conll_with_location_input_regex.txt");
-				try (Scanner regexScanner = new Scanner(regexInputStream, "UTF-8")) {
-					String inputRegex = regexScanner.nextLine();
-					config.setInputRegex(inputRegex);
-				}
-
 				Charset outputCharset = config.getOutputCharset();
 
-				TermExtractor termExtractor = terminologyService.getTermExtractor(terminologyBase, terminologyProperties);
+				TermExtractor termExtractor = new TermExtractor(terminologyBase, terminologyProperties, talismaneSession);
 				if (depth > 0)
 					termExtractor.setMaxDepth(depth);
 				termExtractor.setOutFilePath(termFilePath);
@@ -227,7 +223,7 @@ public class TalismaneTermExtractorMain {
 		return terminologyProperties;
 	}
 
-	private static InputStream getInputStreamFromResource(String resource) {
+	public static InputStream getInputStreamFromResource(String resource) {
 		String path = "resources/" + resource;
 		LOG.debug("Getting " + path);
 		InputStream inputStream = TalismaneTermExtractorMain.class.getResourceAsStream(path);

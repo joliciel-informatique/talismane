@@ -18,11 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.joliciel.talismane.TalismaneServiceLocator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
@@ -36,41 +36,35 @@ public class ParserDynamicSourceCodeManagerTest {
 	public void testBasics() {
 		ParserFeatureDynamiser manager = new ParserFeatureDynamiser(ParseConfigurationWrapper.class);
 		DynamicCompiler compiler = manager.getCompiler();
-		
-		String src = "package foo.bar;\n" +
-				"import com.joliciel.talismane.parser.features.ParseConfigurationWrapper;\n" +
-				"public class Foo {\n" +
-				"  public void test(ParseConfigurationWrapper arg) {\n" +
-				"    arg.getParseConfiguration();\n" +
-				"  }\n" +
-				"}";
-		
+
+		String src = "package foo.bar;\n" + "import com.joliciel.talismane.parser.features.ParseConfigurationWrapper;\n" + "public class Foo {\n"
+				+ "  public void test(ParseConfigurationWrapper arg) {\n" + "    arg.getParseConfiguration();\n" + "  }\n" + "}";
+
 		compiler.compile("foo.bar.Foo", src, null);
 	}
-	
+
 	@Test
 	public void testGetBuilder() {
-		TalismaneServiceLocator talismaneServiceLocator = TalismaneServiceLocator.getInstance("");
-		ParserFeatureServiceLocator parserFeatureServiceLocator = talismaneServiceLocator.getParserFeatureServiceLocator();
-		ParserFeatureServiceImpl parserFeatureService = (ParserFeatureServiceImpl) parserFeatureServiceLocator.getParserFeatureService();
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+
 		String descriptorString = "PosTag(Stack[0])";
-		FunctionDescriptorParser descriptorParser = parserFeatureService.getFeatureService().getFunctionDescriptorParser();
-		ParserFeatureParser featureParser = parserFeatureService.getParserFeatureParser();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+		ParserFeatureParser featureParser = new ParserFeatureParser(talismaneSession, false);
 		FunctionDescriptor descriptor = descriptorParser.parseDescriptor(descriptorString);
-		Feature<ParseConfigurationWrapper,?> feature = featureParser.parse(descriptor).get(0);
-		
+		Feature<ParseConfigurationWrapper, ?> feature = featureParser.parse(descriptor).get(0);
+
 		ParserFeatureDynamiser manager = new ParserFeatureDynamiser(ParseConfigurationWrapper.class);
 		DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder = manager.getBuilder(feature);
-		
-		Feature<ParseConfigurationWrapper,?> newFeature = builder.getFeature();
+
+		Feature<ParseConfigurationWrapper, ?> newFeature = builder.getFeature();
 		assertTrue(StringFeature.class.isAssignableFrom(newFeature.getClass()));
-		
+
 		descriptorString = "Concat(PosTag(Stack[0]),PosTag(Buffer[0]))";
 		descriptor = descriptorParser.parseDescriptor(descriptorString);
 		feature = featureParser.parse(descriptor).get(0);
-		
+
 		builder = manager.getBuilder(feature);
-		
+
 		newFeature = builder.getFeature();
 		assertTrue(StringFeature.class.isAssignableFrom(newFeature.getClass()));
 	}

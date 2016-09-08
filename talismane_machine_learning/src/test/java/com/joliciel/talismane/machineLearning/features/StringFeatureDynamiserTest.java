@@ -18,7 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -30,18 +32,18 @@ public class StringFeatureDynamiserTest {
 		IntegerToDoubleFeature<String> stringLengthDoubleFeature = new IntegerToDoubleFeature<String>(stringLengthFeature);
 		DoubleLiteralFeature<String> doubleFeature1 = new DoubleLiteralFeature<String>(1);
 		DoubleLiteralFeature<String> doubleFeature5 = new DoubleLiteralFeature<String>(5);
-		
+
 		GreaterThanOperator<String> greaterThan = new GreaterThanOperator<String>(stringLengthDoubleFeature, doubleFeature1);
-		
+
 		LessThanOperator<String> lessThan = new LessThanOperator<String>(stringLengthDoubleFeature, doubleFeature5);
-		
+
 		AndFeature<String> andFeature = new AndFeature<String>(greaterThan, lessThan);
-		
+
 		StringFeatureDynamiser manager = new StringFeatureDynamiser(String.class);
 		DynamicSourceCodeBuilder<String> builder = manager.getBuilder(andFeature);
 		@SuppressWarnings("unchecked")
 		BooleanFeature<String> newAndFeature = (BooleanFeature<String>) builder.getFeature();
-		RuntimeEnvironment env = new RuntimeEnvironmentImpl();
+		RuntimeEnvironment env = new RuntimeEnvironment();
 		FeatureResult<Boolean> result = newAndFeature.check("blah", env);
 		assertTrue(result.getOutcome());
 		result = newAndFeature.check("a", env);
@@ -52,41 +54,39 @@ public class StringFeatureDynamiserTest {
 
 	@Test
 	public void testBuildFromParser() {
-		FeatureServiceLocator featureServiceLocator = FeatureServiceLocator.getInstance();
-		FeatureService featureService = featureServiceLocator.getFeatureService();
-		FunctionDescriptorParser functionDescriptorParser = featureService.getFunctionDescriptorParser();
-		
-		TestParser parser = new TestParser(featureService);
-		
+		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
+
+		TestParser parser = new TestParser();
+
 		FunctionDescriptor descriptor = functionDescriptorParser.parseDescriptor("IfThenElse(IsNull(Substring(5,3)),\"Null\",Substring(5,3))");
 		@SuppressWarnings("unchecked")
-		Feature<String,String> feature = (Feature<String, String>) parser.parse(descriptor).get(0);
-		
-		RuntimeEnvironment env = featureService.getRuntimeEnvironment();
+		Feature<String, String> feature = (Feature<String, String>) parser.parse(descriptor).get(0);
+
+		RuntimeEnvironment env = new RuntimeEnvironment();
 		String context = "blahdiblah";
 		String result = feature.check(context, env).getOutcome();
-		assertEquals("Null",result);
-		
+		assertEquals("Null", result);
+
 		StringFeatureDynamiser manager = new StringFeatureDynamiser(String.class);
 		DynamicSourceCodeBuilder<String> builder = manager.getBuilder(feature);
 		@SuppressWarnings("unchecked")
 		StringFeature<String> newFeature = (StringFeature<String>) builder.getFeature();
 		result = newFeature.check(context, env).getOutcome();
-		assertEquals("Null",result);
-		
+		assertEquals("Null", result);
+
 		FunctionDescriptor descriptor2 = functionDescriptorParser.parseDescriptor("IfThenElse(IsNull(Substring(3,5)),\"Null\",Substring(3,5))");
 		@SuppressWarnings("unchecked")
-		Feature<String,String> feature2 = (Feature<String, String>) parser.parse(descriptor2).get(0);
-		
-		RuntimeEnvironment env2 = featureService.getRuntimeEnvironment();
+		Feature<String, String> feature2 = (Feature<String, String>) parser.parse(descriptor2).get(0);
+
+		RuntimeEnvironment env2 = new RuntimeEnvironment();
 		String context2 = "blahdiblah";
 		String result2 = feature2.check(context2, env2).getOutcome();
-		assertEquals("hd",result2);
-		
+		assertEquals("hd", result2);
+
 		DynamicSourceCodeBuilder<String> builder2 = manager.getBuilder(feature2);
 		@SuppressWarnings("unchecked")
 		StringFeature<String> newFeature2 = (StringFeature<String>) builder2.getFeature();
 		result = newFeature2.check(context2, env2).getOutcome();
-		assertEquals("hd",result2);
+		assertEquals("hd", result2);
 	}
 }

@@ -3,13 +3,13 @@ package com.joliciel.talismane.terminology;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
 
 public class TermAnalysisWriter implements TermObserver {
-	private static final Log LOG = LogFactory.getLog(TermAnalysisWriter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TermAnalysisWriter.class);
 	private Writer writer;
 	
 	

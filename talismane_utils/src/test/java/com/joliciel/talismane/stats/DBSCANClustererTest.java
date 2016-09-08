@@ -18,15 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.stats;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
-
-import com.joliciel.talismane.stats.DBSCANClusterer;
-
-import static org.junit.Assert.*;
 
 public class DBSCANClustererTest {
 
@@ -40,18 +40,18 @@ public class DBSCANClustererTest {
 		objectSet.add(4);
 		objectSet.add(5);
 		objectSet.add(6);
-		
+
 		dataSet.add(new double[] { 3.8 });
 		dataSet.add(new double[] { 4.0 });
 		dataSet.add(new double[] { 4.2 });
 		dataSet.add(new double[] { 8.0 });
 		dataSet.add(new double[] { 8.1 });
 		dataSet.add(new double[] { 12.0 });
-		
+
 		DBSCANClusterer<Integer> clusterer = new DBSCANClusterer<Integer>(objectSet, dataSet);
 		Set<Set<Integer>> clusters = clusterer.cluster(0.3, 2, false);
 		assertEquals(2, clusters.size());
-		
+
 		for (Set<Integer> cluster : clusters) {
 			if (cluster.contains(1)) {
 				assertTrue(cluster.contains(2));
@@ -62,7 +62,7 @@ public class DBSCANClustererTest {
 				fail("Unknown cluster");
 			}
 		}
-		
+
 	}
 
 }

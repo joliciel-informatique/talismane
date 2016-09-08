@@ -29,11 +29,9 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
 
-import org.apache.log4j.PropertyConfigurator;
-
+import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -53,12 +51,8 @@ public class SpmrlProjectifier {
 
 	public void run(Map<String, String> argMap) throws Exception {
 		String logConfigPath = argMap.get("logConfigFile");
-		if (logConfigPath != null) {
-			argMap.remove("logConfigFile");
-			Properties props = new Properties();
-			props.load(new FileInputStream(logConfigPath));
-			PropertyConfigurator.configure(props);
-		}
+		argMap.remove("logConfigFile");
+		LogUtils.configureLogging(logConfigPath);
 
 		String refFilePath = null;
 		String suffix = "proj";

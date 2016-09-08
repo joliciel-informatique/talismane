@@ -23,10 +23,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -40,35 +42,48 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * An abstract superclass for machine-learning models.
+ * 
  * @author Assaf
  *
  */
 public abstract class AbstractMachineLearningModel implements MachineLearningModel {
-	private static final Log LOG = LogFactory.getLog(AbstractMachineLearningModel.class);
-	private Map<String,List<String>> descriptors = new HashMap<String, List<String>>();
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractMachineLearningModel.class);
+	private Map<String, List<String>> descriptors = new HashMap<String, List<String>>();
 	private Map<String, Object> modelAttributes = new TreeMap<String, Object>();
 	private Map<String, Object> dependencies = new HashMap<String, Object>();
 	private Collection<ExternalResource<?>> externalResources;
 	private ExternalResourceFinder externalResourceFinder;
-	private Map<String,Object> trainingParameters = new HashMap<String, Object>();
-	
-	@Override	
+	private Config config;
+
+	public AbstractMachineLearningModel() {
+		super();
+	}
+
+	public AbstractMachineLearningModel(Config config, Map<String, List<String>> descriptors) {
+		super();
+		this.descriptors = descriptors;
+		this.config = config;
+	}
+
+	@Override
 	public final void persist(File modelFile) {
 		try {
-			this.persist(new FileOutputStream(modelFile,false));
+			this.persist(new FileOutputStream(modelFile, false));
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
 			throw new RuntimeException(ioe);
 		}
 	}
-	
+
 	@Override
 	public final void persist(OutputStream outputStream) {
 		try {
@@ -79,7 +94,12 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 			writer.write(this.getAlgorithm().name());
 			writer.flush();
 			zos.flush();
-			
+
+			zos.putNextEntry(new ZipEntry("config.txt"));
+			writer.write(this.getConfig().root().render());
+			writer.flush();
+			zos.flush();
+
 			for (String descriptorKey : descriptors.keySet()) {
 				zos.putNextEntry(new ZipEntry(descriptorKey + "_descriptors.txt"));
 				List<String> descriptorList = descriptors.get(descriptorKey);
@@ -88,9 +108,9 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 					writer.flush();
 				}
 				zos.flush();
-				
+
 			}
-			
+
 			zos.putNextEntry(new ZipEntry("attributes.obj"));
 			ObjectOutputStream attributesOos = new ObjectOutputStream(zos);
 			try {
@@ -99,16 +119,7 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				attributesOos.flush();
 			}
 			zos.flush();
-			
-			zos.putNextEntry(new ZipEntry("trainingParameters.obj"));
-			ObjectOutputStream trainingOos = new ObjectOutputStream(zos);
-			try {
-				trainingOos.writeObject(this.getTrainingParameters());
-			} finally {
-				trainingOos.flush();
-			}
-			zos.flush();
-			
+
 			for (String name : this.dependencies.keySet()) {
 				Object dependency = this.dependencies.get(name);
 				zos.putNextEntry(new ZipEntry(name + "_dependency.obj"));
@@ -120,10 +131,10 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				}
 				zos.flush();
 			}
-			
+
 			this.persistOtherEntries(zos);
 
-			if (this.externalResources!=null) {
+			if (this.externalResources != null) {
 				zos.putNextEntry(new ZipEntry("externalResources.obj"));
 				ObjectOutputStream oos = new ObjectOutputStream(zos);
 				try {
@@ -133,9 +144,9 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				}
 				zos.flush();
 			}
-			
+
 			this.writeDataToStream(zos);
-			
+
 			zos.putNextEntry(new ZipEntry("model.bin"));
 			this.writeModelToStream(zos);
 			zos.flush();
@@ -146,13 +157,14 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 			throw new RuntimeException(ioe);
 		}
 	}
-	
+
+	@Override
 	public boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException {
-    	boolean loaded = true;
-    	if (ze.getName().equals("model.bin")) {
-    	    this.loadModelFromStream(zis);
-    	} else if (ze.getName().equals("externalResources.obj")) {
-    		ObjectInputStream in = new ObjectInputStream(zis);
+		boolean loaded = true;
+		if (ze.getName().equals("model.bin")) {
+			this.loadModelFromStream(zis);
+		} else if (ze.getName().equals("externalResources.obj")) {
+			ObjectInputStream in = new ObjectInputStream(zis);
 			try {
 				@SuppressWarnings("unchecked")
 				List<ExternalResource<?>> externalResources = (List<ExternalResource<?>>) in.readObject();
@@ -161,29 +173,19 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				LogUtils.logError(LOG, e);
 				throw new RuntimeException(e);
 			}
-    	} else if (ze.getName().equals("trainingParameters.obj")) {
-       		ObjectInputStream in = new ObjectInputStream(zis);
-			try {
-				@SuppressWarnings("unchecked")
-				Map<String,Object> trainingParameters = (Map<String,Object>) in.readObject();
-				this.setTrainingParameters(trainingParameters);
-			} catch (ClassNotFoundException e) {
-				LogUtils.logError(LOG, e);
-				throw new RuntimeException(e);
-			}
-    	} else if (ze.getName().endsWith("_descriptors.txt")) {
-    		String key = ze.getName().substring(0, ze.getName().length() - "_descriptors.txt".length());
-    		@SuppressWarnings("resource")
+		} else if (ze.getName().endsWith("_descriptors.txt")) {
+			String key = ze.getName().substring(0, ze.getName().length() - "_descriptors.txt".length());
+			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(zis, "UTF-8");
-    		List<String> descriptorList = new ArrayList<String>();
-    		while (scanner.hasNextLine()) {
-    			String descriptor = scanner.nextLine();
-    			descriptorList.add(descriptor);
-    		}
-    		this.getDescriptors().put(key, descriptorList);
-    	} else if (ze.getName().endsWith("_dependency.obj")) {
-    		String key = ze.getName().substring(0, ze.getName().length() - "_dependency.obj".length());
-       		ObjectInputStream in = new ObjectInputStream(zis);
+			List<String> descriptorList = new ArrayList<String>();
+			while (scanner.hasNextLine()) {
+				String descriptor = scanner.nextLine();
+				descriptorList.add(descriptor);
+			}
+			this.getDescriptors().put(key, descriptorList);
+		} else if (ze.getName().endsWith("_dependency.obj")) {
+			String key = ze.getName().substring(0, ze.getName().length() - "_dependency.obj".length());
+			ObjectInputStream in = new ObjectInputStream(zis);
 			try {
 				Object dependency = in.readObject();
 				this.dependencies.put(key, dependency);
@@ -192,10 +194,10 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 				throw new RuntimeException(e);
 			}
 		} else if (ze.getName().equals("attributes.obj")) {
-      		ObjectInputStream in = new ObjectInputStream(zis);
+			ObjectInputStream in = new ObjectInputStream(zis);
 			try {
 				@SuppressWarnings("unchecked")
-				Map<String,Object> attributes = (Map<String,Object>) in.readObject();
+				Map<String, Object> attributes = (Map<String, Object>) in.readObject();
 				this.setModelAttributes(attributes);
 			} catch (ClassNotFoundException e) {
 				LogUtils.logError(LOG, e);
@@ -203,45 +205,53 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 			}
 		} else if (ze.getName().equals("attributes.txt")) {
 			// for backwards compatibility, when attributes where always strings
-    		@SuppressWarnings("resource")
+			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(zis, "UTF-8");
-    		while (scanner.hasNextLine()) {
-    			String line = scanner.nextLine();
-    			if (line.length()>0) {	
-	    			String[] parts = line.split("\t");
-	    			String name = parts[0];
-    				String value = "";
-    				if (parts.length>1)
-    					value = parts[1];
-    				this.addModelAttribute(name, value);
-    			}
-    		}
-    	} else {
-    		loaded = this.loadDataFromStream(zis, ze);
-    	}
-    	return loaded;
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if (line.length() > 0) {
+					String[] parts = line.split("\t");
+					String name = parts[0];
+					String value = "";
+					if (parts.length > 1)
+						value = parts[1];
+					this.addModelAttribute(name, value);
+				}
+			}
+		} else if (ze.getName().equals("config.txt")) {
+			Reader reader = new InputStreamReader(zis, "UTF-8");
+
+			this.config = ConfigFactory.parseReader(reader);
+		} else {
+			loaded = this.loadDataFromStream(zis, ze);
+		}
+		return loaded;
 	}
-	
+
 	protected abstract void persistOtherEntries(ZipOutputStream zos) throws IOException;
 
 	/**
 	 * Write data to the stream that's specific to this model.
 	 */
 	public abstract void writeDataToStream(ZipOutputStream zos);
-	
+
+	@Override
 	public Map<String, List<String>> getDescriptors() {
 		return descriptors;
 	}
+
 	public void setDescriptors(Map<String, List<String>> descriptors) {
 		this.descriptors = descriptors;
 	}
+
+	@Override
 	public Map<String, Object> getModelAttributes() {
 		return modelAttributes;
 	}
+
 	public void setModelAttributes(Map<String, Object> modelAttributes) {
 		this.modelAttributes = modelAttributes;
 	}
-
 
 	@Override
 	public Map<String, Object> getDependencies() {
@@ -263,24 +273,27 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 		return this.descriptors.get(MachineLearningModel.FEATURE_DESCRIPTOR_KEY);
 	}
 
+	@Override
 	public Collection<ExternalResource<?>> getExternalResources() {
 		return externalResources;
 	}
 
+	@Override
 	public void setExternalResources(Collection<ExternalResource<?>> externalResources) {
 		this.externalResources = new ArrayList<ExternalResource<?>>(externalResources);
 	}
 
+	@Override
 	public ExternalResourceFinder getExternalResourceFinder() {
-		if (externalResourceFinder==null) {
-			externalResourceFinder = new ExternalResourceFinderImpl();
+		if (externalResourceFinder == null) {
+			externalResourceFinder = new ExternalResourceFinder();
 			for (ExternalResource<?> resource : this.externalResources) {
 				externalResourceFinder.addExternalResource(resource);
 			}
 		}
 		return externalResourceFinder;
 	}
-	
+
 	/**
 	 * Load this model's internal binary representation from an input stream.
 	 */
@@ -290,21 +303,14 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	 * Write this model's internal binary representation to an output stream.
 	 */
 	protected abstract void writeModelToStream(OutputStream outputStream);
-	
+
 	/**
 	 * Loads data from the input stream that is specific to this model type.
 	 */
 	protected abstract boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry);
 
-	public Map<String, Object> getTrainingParameters() {
-		return trainingParameters;
-	}
-
-	public void setTrainingParameters(Map<String, Object> trainingParameters) {
-		this.trainingParameters = trainingParameters;
-	}
-
 	@Override
-	public void onLoadComplete() { }
-	
+	public Config getConfig() {
+		return config;
+	}
 }

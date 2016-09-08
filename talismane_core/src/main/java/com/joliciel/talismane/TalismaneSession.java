@@ -18,48 +18,163 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import com.joliciel.talismane.lexicon.Diacriticizer;
+import com.joliciel.talismane.lexicon.EmptyLexicon;
+import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
+import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.resources.WordListFinder;
 
 /**
  * A class storing session-wide reference data.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface TalismaneSession {
+public class TalismaneSession {
+	private static final Map<String, TalismaneSession> instances = new HashMap<>();
 
-	public LanguageImplementation getImplementation();
-	public void setImplementation(LanguageImplementation implementation);
+	private final String sessionId;
+	private Locale locale;
+	private PosTagSet posTagSet;
+	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
+	private PosTaggerLexicon mergedLexicon;
+	private TransitionSystem transitionSystem;
+	private LinguisticRules linguisticRules;
+	private Diacriticizer diacriticizer;
+	private String outputDivider = "";
+	private final WordListFinder wordListFinder = new WordListFinder();
+	private final ExternalResourceFinder externalResourceFinder = new ExternalResourceFinder();
 
-	public PosTagSet getPosTagSet();
-	public void setPosTagSet(PosTagSet posTagSet);
+	public static TalismaneSession getInstance(String sessionId) {
+		TalismaneSession session = instances.get(sessionId);
+		if (session == null) {
+			session = new TalismaneSession(sessionId);
+			instances.put(sessionId, session);
+		}
+		return session;
+	}
 
-	public TransitionSystem getTransitionSystem();
-	public void setTransitionSystem(TransitionSystem transitionSystem);
+	private TalismaneSession(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	public synchronized PosTagSet getPosTagSet() {
+		if (posTagSet == null)
+			throw new TalismaneException("PosTagSet missing.");
+		return posTagSet;
+	}
+
+	public void setPosTagSet(PosTagSet posTagSet) {
+		this.posTagSet = posTagSet;
+	}
+
+	public synchronized TransitionSystem getTransitionSystem() {
+		if (transitionSystem == null)
+			throw new TalismaneException("TransitionSystem missing.");
+		return transitionSystem;
+	}
+
+	public void setTransitionSystem(TransitionSystem transitionSystem) {
+		this.transitionSystem = transitionSystem;
+	}
 
 	/**
 	 * A list of lexicons setup for the current session.
 	 */
-	public List<PosTaggerLexicon> getLexicons();
-	public void addLexicon(PosTaggerLexicon lexicon);
-	
+	public synchronized List<PosTaggerLexicon> getLexicons() {
+		return lexicons;
+	}
+
+	public void addLexicon(PosTaggerLexicon lexicon) {
+		this.lexicons.add(lexicon);
+	}
+
+	public Locale getLocale() {
+		if (locale == null && this.getPosTagSet() != null) {
+			locale = this.getPosTagSet().getLocale();
+		}
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	public synchronized LinguisticRules getLinguisticRules() {
+		if (linguisticRules == null) {
+			linguisticRules = new GenericRules(this);
+		}
+		return linguisticRules;
+	}
+
+	public void setLinguisticRules(LinguisticRules linguisticRules) {
+		this.linguisticRules = linguisticRules;
+	}
+
 	/**
-	 * Get a lexicon which merges all of the lexicons added, prioritised in the order in which they were added.
+	 * Get a lexicon which merges all of the lexicons added, prioritised in the
+	 * order in which they were added.
 	 */
-	public PosTaggerLexicon getMergedLexicon();
+	public synchronized PosTaggerLexicon getMergedLexicon() {
+		if (mergedLexicon == null) {
+			List<PosTaggerLexicon> lexicons = this.getLexicons();
+			if (lexicons.size() == 0)
+				mergedLexicon = new EmptyLexicon();
+			else if (lexicons.size() == 1)
+				mergedLexicon = lexicons.get(0);
+			else {
+				LexiconChain lexiconChain = new LexiconChain();
+				for (PosTaggerLexicon lexicon : lexicons) {
+					lexiconChain.addLexicon(lexicon);
+				}
+				mergedLexicon = lexiconChain;
+			}
+		}
+		return mergedLexicon;
+	}
 
-	public Locale getLocale();
-	public void setLocale(Locale locale);
+	public Diacriticizer getDiacriticizer() {
+		if (diacriticizer == null) {
+			diacriticizer = new Diacriticizer(this.getMergedLexicon());
+			diacriticizer.setLocale(this.getLocale());
+		}
+		return diacriticizer;
+	}
 
-	public LinguisticRules getLinguisticRules();
-	public void setLinguisticRules(LinguisticRules linguisticRules);
-	
-	public Diacriticizer getDiacriticizer();
-	public void setDiacriticizer(Diacriticizer diacriticizer);
+	public void setDiacriticizer(Diacriticizer diacriticizer) {
+		this.diacriticizer = diacriticizer;
+	}
 
+	/**
+	 * A string inserted between outputs (such as a newline).
+	 */
+
+	public String getOutputDivider() {
+		return outputDivider;
+	}
+
+	public void setOutputDivider(String outputDivider) {
+		this.outputDivider = outputDivider;
+	}
+
+	public WordListFinder getWordListFinder() {
+		return wordListFinder;
+	}
+
+	public ExternalResourceFinder getExternalResourceFinder() {
+		return externalResourceFinder;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
 }

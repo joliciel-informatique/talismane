@@ -36,8 +36,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.joliciel.talismane.TalismaneSession;
@@ -57,7 +57,7 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class CorpusStatistics implements ParseConfigurationProcessor, Serializable {
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(CorpusStatistics.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CorpusStatistics.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	
 	private Set<String> words = new TreeSet<String>();

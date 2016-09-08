@@ -22,29 +22,63 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.utils.PerformanceMonitor;
 
-class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserContext> {
+public class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserContext> {
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokeniserContextFeatureParser.class);
 
-	TokenFeatureParser tokenFeatureParser;
-	private List<TokenPattern> patternList;
-	private Map<String,TokenPattern> patternMap;
-	
-	public TokeniserContextFeatureParser(FeatureService featureService) {
-		super(featureService);
-	}	
+	private final List<TokenPattern> patternList;
+	private final Map<String, TokenPattern> patternMap;
+	private final TalismaneSession talismaneSession;
+
+	public TokeniserContextFeatureParser(TalismaneSession talismaneSession, List<TokenPattern> patternList) {
+		this.talismaneSession = talismaneSession;
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+
+		this.patternList = patternList;
+		this.patternMap = new HashMap<String, TokenPattern>();
+		for (TokenPattern tokenPattern : this.patternList) {
+			this.patternMap.put(tokenPattern.getName(), tokenPattern);
+		}
+	}
+
+	public Set<TokeniserContextFeature<?>> getTokeniserContextFeatureSet(List<String> featureDescriptors) {
+		Set<TokeniserContextFeature<?>> features = new TreeSet<TokeniserContextFeature<?>>();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		MONITOR.startTask("findFeatureSet");
+		try {
+			for (String featureDescriptor : featureDescriptors) {
+				if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+					List<TokeniserContextFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+					MONITOR.startTask("add features");
+					try {
+						features.addAll(myFeatures);
+					} finally {
+						MONITOR.endTask();
+					}
+				}
+			}
+		} finally {
+			MONITOR.endTask();
+		}
+		return features;
+	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<TokeniserContextFeature<?>> parseDescriptor(FunctionDescriptor descriptor) {
@@ -53,7 +87,7 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 			List<TokeniserContextFeature<?>> wrappedFeatures = new ArrayList<TokeniserContextFeature<?>>();
 
 			List<Feature<TokeniserContext, ?>> tokeniserContextFeatures = this.parse(descriptor);
-			
+
 			for (Feature<TokeniserContext, ?> tokeniserContextFeature : tokeniserContextFeatures) {
 				TokeniserContextFeature<?> wrappedFeature = null;
 				if (tokeniserContextFeature instanceof TokeniserContextFeature) {
@@ -70,7 +104,6 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		}
 	}
 
-
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("InsidePatternNgram", InsidePatternNgramFeature.class);
@@ -79,20 +112,20 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 		container.addFeatureClass("PatternIndexInSentence", PatternIndexInSentenceFeature.class);
 		container.addFeatureClass("TokeniserPatterns", TokeniserPatternsFeature.class);
 		container.addFeatureClass("TokeniserPatternsAndIndexes", TokeniserPatternsAndIndexesFeature.class);
-		this.tokenFeatureParser.addFeatureClasses(container);
-	}
-	
-	@Override
-	public List<FunctionDescriptor> getModifiedDescriptors(
-			FunctionDescriptor functionDescriptor) {
-		return tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
+		TokenFeatureParser.addFeatureClasses(container);
 	}
 
+	@Override
+	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
+		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
+		descriptors.add(functionDescriptor);
+		return descriptors;
+	}
 
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void injectDependencies(Feature feature) {
-		this.tokenFeatureParser.injectDependencies(feature);
+		TokenFeatureParser.injectDependencies(feature, talismaneSession);
 
 		if (feature instanceof InsidePatternNgramFeature) {
 			((InsidePatternNgramFeature) feature).setPatternMap(patternMap);
@@ -104,33 +137,23 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 			((PatternOffsetAddressFunction) feature).setPatternMap(patternMap);
 		}
 	}
-	
-	public TokenFeatureParser getTokenFeatureParser() {
-		return tokenFeatureParser;
-	}
 
-	public void setTokenFeatureParser(
-			TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
-	}
+	private static class TokeniserContextFeatureWrapper<T> extends AbstractFeature<TokeniserContext, T>
+			implements TokeniserContextFeature<T>, FeatureWrapper<TokeniserContext, T> {
+		private Feature<TokeniserContext, T> wrappedFeature = null;
 
-	private static class TokeniserContextFeatureWrapper<T> extends AbstractFeature<TokeniserContext,T> implements
-		TokeniserContextFeature<T>, FeatureWrapper<TokeniserContext, T> {
-		private Feature<TokeniserContext,T> wrappedFeature = null;
-		
-		public TokeniserContextFeatureWrapper(
-				Feature<TokeniserContext, T> wrappedFeature) {
+		public TokeniserContextFeatureWrapper(Feature<TokeniserContext, T> wrappedFeature) {
 			super();
 			this.wrappedFeature = wrappedFeature;
 			this.setName(wrappedFeature.getName());
 			this.setCollectionName(wrappedFeature.getCollectionName());
 		}
-		
+
 		@Override
 		public FeatureResult<T> check(TokeniserContext context, RuntimeEnvironment env) {
 			return wrappedFeature.check(context, env);
 		}
-		
+
 		@Override
 		public Feature<TokeniserContext, T> getWrappedFeature() {
 			return wrappedFeature;
@@ -142,37 +165,20 @@ class TokeniserContextFeatureParser extends AbstractFeatureParser<TokeniserConte
 			return wrappedFeature.getFeatureType();
 		}
 	}
-	
-	public List<TokenPattern> getPatternList() {
-		return patternList;
-	}
-
-	public void setPatternList(List<TokenPattern> patternList) {
-		this.patternList = patternList;
-		this.patternMap = new HashMap<String, TokenPattern>();
-		for (TokenPattern tokenPattern : this.patternList) {
-			this.patternMap.put(tokenPattern.getName(), tokenPattern);
-		}
-	}
 
 	@Override
-	protected boolean canConvert(Class<?> parameterType,
-			Class<?> originalArgumentType) {
+	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
 		return false;
 	}
 
 	@Override
-	protected Feature<TokeniserContext, ?> convertArgument(
-			Class<?> parameterType,
-			Feature<TokeniserContext, ?> originalArgument) {
+	protected Feature<TokeniserContext, ?> convertArgument(Class<?> parameterType, Feature<TokeniserContext, ?> originalArgument) {
 		return null;
 	}
 
 	@Override
-	public Feature<TokeniserContext, ?> convertFeatureCustomType(
-			Feature<TokeniserContext, ?> feature) {
+	public Feature<TokeniserContext, ?> convertFeatureCustomType(Feature<TokeniserContext, ?> feature) {
 		return null;
 	}
 
-	
 }

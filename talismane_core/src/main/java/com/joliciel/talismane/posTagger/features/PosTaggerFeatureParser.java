@@ -20,7 +20,14 @@ package com.joliciel.talismane.posTagger.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
@@ -28,27 +35,105 @@ import com.joliciel.talismane.machineLearning.features.DoubleFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
-import com.joliciel.talismane.machineLearning.features.FeatureService;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
+import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
+import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 import com.joliciel.talismane.tokeniser.features.TokenAddressFunction;
 import com.joliciel.talismane.tokeniser.features.TokenFeatureParser;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
  * A feature parser for PosTaggerContext features.
+ * 
  * @author Assaf Urieli
  *
  */
 public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerContext> {
-	TokenFeatureParser tokenFeatureParser;
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerFeatureParser.class);
 
-	public PosTaggerFeatureParser(FeatureService featureService) {
-		super(featureService);
-	}	
+	private final TalismaneSession talismaneSession;
+
+	public PosTaggerFeatureParser(TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
+		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+	}
+
+	public Set<PosTaggerFeature<?>> getFeatureSet(List<String> featureDescriptors) {
+		Set<PosTaggerFeature<?>> features = new TreeSet<PosTaggerFeature<?>>();
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		for (String featureDescriptor : featureDescriptors) {
+			LOG.debug(featureDescriptor);
+			if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+				List<PosTaggerFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+				features.addAll(myFeatures);
+
+			}
+		}
+		return features;
+	}
+
+	public List<PosTaggerRule> getRules(List<String> ruleDescriptors) {
+		List<PosTaggerRule> rules = new ArrayList<PosTaggerRule>();
+
+		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+
+		for (String ruleDescriptor : ruleDescriptors) {
+			LOG.debug(ruleDescriptor);
+			if (ruleDescriptor.length() > 0 && !ruleDescriptor.startsWith("#")) {
+				String[] ruleParts = ruleDescriptor.split("\t");
+				String posTagCode = ruleParts[0];
+				PosTag posTag = null;
+				boolean negative = false;
+				String descriptor = null;
+				String descriptorName = null;
+				if (ruleParts.length > 2) {
+					descriptor = ruleParts[2];
+					descriptorName = ruleParts[1];
+				} else {
+					descriptor = ruleParts[1];
+				}
+
+				if (posTagCode.length() == 0) {
+					if (descriptorName == null) {
+						throw new TalismaneException("Rule without PosTag must have a name.");
+					}
+				} else {
+					if (posTagCode.startsWith("!")) {
+						negative = true;
+						posTagCode = posTagCode.substring(1);
+					}
+					posTag = talismaneSession.getPosTagSet().getPosTag(posTagCode);
+				}
+
+				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
+				if (descriptorName != null)
+					functionDescriptor.setDescriptorName(descriptorName);
+				List<PosTaggerFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+				if (posTag != null) {
+					for (PosTaggerFeature<?> feature : myFeatures) {
+						if (feature instanceof BooleanFeature) {
+							@SuppressWarnings("unchecked")
+							BooleanFeature<PosTaggerContext> condition = (BooleanFeature<PosTaggerContext>) feature;
+							PosTaggerRule rule = new PosTaggerRule(condition, posTag);
+							rule.setNegative(negative);
+							rules.add(rule);
+						} else {
+							throw new TalismaneException("Rule must be based on a boolean feature.");
+						}
+					} // next feature
+				} // is it a rule, or just a descriptor
+			} // proper rule descriptor
+		} // next rule descriptor
+		return rules;
+
+	}
 
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
@@ -59,9 +144,9 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		container.addFeatureClass("HistoryHas", HistoryHasFeature.class);
 		container.addFeatureClass("HistorySearch", HistorySearchFeature.class);
 		PosTaggerFeatureParser.addPosTaggedTokenFeatureClasses(container);
-		this.tokenFeatureParser.addFeatureClasses(container);
+		TokenFeatureParser.addFeatureClasses(container);
 	}
-	
+
 	/**
 	 * Add pos-tagged token feature classes to the container provided.
 	 */
@@ -79,8 +164,8 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		container.addFeatureClass("SubCategory", LexicalSubCategoryFeature.class);
 		container.addFeatureClass("PossessorNumber", PossessorNumberFeature.class);
 		container.addFeatureClass("Index", TokenIndexFeature.class);
-		container.addFeatureClass("WordForm", WordFormFeature.class);	
-		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);		
+		container.addFeatureClass("WordForm", WordFormFeature.class);
+		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);
 		container.addFeatureClass("TokenHas", HistoryHasFeature.class);
 	}
 
@@ -109,37 +194,28 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 	}
 
 	@Override
-	public List<FunctionDescriptor> getModifiedDescriptors(
-			FunctionDescriptor functionDescriptor) {
-		return tokenFeatureParser.getModifiedDescriptors(functionDescriptor);
+	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
+		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
+		descriptors.add(functionDescriptor);
+		return descriptors;
 	}
 
-	public TokenFeatureParser getTokenFeatureParser() {
-		return tokenFeatureParser;
-	}
+	private static class PosTaggerFeatureWrapper<T> extends AbstractFeature<PosTaggerContext, T>
+			implements PosTaggerFeature<T>, FeatureWrapper<PosTaggerContext, T> {
+		private Feature<PosTaggerContext, T> wrappedFeature = null;
 
-	public void setTokenFeatureParser(
-			TokenFeatureParser tokenFeatureParser) {
-		this.tokenFeatureParser = tokenFeatureParser;
-	}
-
-	private static class PosTaggerFeatureWrapper<T> extends AbstractFeature<PosTaggerContext,T> implements
-		PosTaggerFeature<T>, FeatureWrapper<PosTaggerContext, T> {
-		private Feature<PosTaggerContext,T> wrappedFeature = null;
-		
-		public PosTaggerFeatureWrapper(
-				Feature<PosTaggerContext, T> wrappedFeature) {
+		public PosTaggerFeatureWrapper(Feature<PosTaggerContext, T> wrappedFeature) {
 			super();
 			this.wrappedFeature = wrappedFeature;
 			this.setName(wrappedFeature.getName());
 			this.setCollectionName(wrappedFeature.getCollectionName());
 		}
-		
+
 		@Override
 		public FeatureResult<T> check(PosTaggerContext context, RuntimeEnvironment env) {
 			return wrappedFeature.check(context, env);
 		}
-		
+
 		@Override
 		public Feature<PosTaggerContext, T> getWrappedFeature() {
 			return this.wrappedFeature;
@@ -155,55 +231,47 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		public String toString() {
 			return wrappedFeature.toString();
 		}
-		
-		
+
 	}
-	
+
 	private class PosTaggerBooleanFeatureWrapper extends PosTaggerFeatureWrapper<Boolean> implements BooleanFeature<PosTaggerContext> {
-		public PosTaggerBooleanFeatureWrapper(
-				Feature<PosTaggerContext, Boolean> wrappedFeature) {
+		public PosTaggerBooleanFeatureWrapper(Feature<PosTaggerContext, Boolean> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
-	
+
 	private class PosTaggerStringFeatureWrapper extends PosTaggerFeatureWrapper<String> implements StringFeature<PosTaggerContext> {
-		public PosTaggerStringFeatureWrapper(
-				Feature<PosTaggerContext, String> wrappedFeature) {
+		public PosTaggerStringFeatureWrapper(Feature<PosTaggerContext, String> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
-	
+
 	private class PosTaggerDoubleFeatureWrapper extends PosTaggerFeatureWrapper<Double> implements DoubleFeature<PosTaggerContext> {
-		public PosTaggerDoubleFeatureWrapper(
-				Feature<PosTaggerContext, Double> wrappedFeature) {
+		public PosTaggerDoubleFeatureWrapper(Feature<PosTaggerContext, Double> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
-	
+
 	private class PosTaggerIntegerFeatureWrapper extends PosTaggerFeatureWrapper<Integer> implements IntegerFeature<PosTaggerContext> {
-		public PosTaggerIntegerFeatureWrapper(
-				Feature<PosTaggerContext, Integer> wrappedFeature) {
+		public PosTaggerIntegerFeatureWrapper(Feature<PosTaggerContext, Integer> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
 
 	@Override
 	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-		this.tokenFeatureParser.injectDependencies(feature);
+		TokenFeatureParser.injectDependencies(feature, talismaneSession);
 	}
 
 	@Override
-	protected boolean canConvert(Class<?> parameterType,
-			Class<?> originalArgumentType) {
+	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
 		if (TokenAddressFunction.class.isAssignableFrom(parameterType) && PosTaggedTokenAddressFunction.class.isAssignableFrom(originalArgumentType))
 			return true;
 		return false;
 	}
 
 	@Override
-	protected Feature<PosTaggerContext, ?> convertArgument(
-			Class<?> parameterType,
-			Feature<PosTaggerContext, ?> originalArgument) {
+	protected Feature<PosTaggerContext, ?> convertArgument(Class<?> parameterType, Feature<PosTaggerContext, ?> originalArgument) {
 		if (TokenAddressFunction.class.isAssignableFrom(parameterType) && (originalArgument instanceof PosTaggedTokenAddressFunction)) {
 			@SuppressWarnings("unchecked")
 			PosTaggedTokenAddressFunction<PosTaggerContext> originalAddressFunction = (PosTaggedTokenAddressFunction<PosTaggerContext>) originalArgument;
@@ -212,32 +280,31 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		}
 		return null;
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Feature<PosTaggerContext, ?> convertFeatureCustomType(
-			Feature<PosTaggerContext, ?> feature) {
+	public Feature<PosTaggerContext, ?> convertFeatureCustomType(Feature<PosTaggerContext, ?> feature) {
 		Feature<PosTaggerContext, ?> convertedFeature = feature;
 		if (feature.getFeatureType().equals(PosTaggedTokenAddressFunction.class) && !(feature instanceof PosTaggedTokenAddressFunction)) {
 			convertedFeature = new PosTaggedTokenAddressFunctionWrapper<PosTaggerContext>((Feature<PosTaggerContext, PosTaggedTokenWrapper>) feature);
 		}
 		return convertedFeature;
 	}
-	
-	private static final class TokenAddressFunctionWrapper extends AbstractFeature<PosTaggerContext,TokenWrapper> implements TokenAddressFunction<PosTaggerContext> {
+
+	private static final class TokenAddressFunctionWrapper extends AbstractFeature<PosTaggerContext, TokenWrapper>
+			implements TokenAddressFunction<PosTaggerContext> {
 		PosTaggedTokenAddressFunction<PosTaggerContext> posTaggedTokenAddressFunction = null;
+
 		public TokenAddressFunctionWrapper(PosTaggedTokenAddressFunction<PosTaggerContext> posTaggedTokenAddressFunction) {
 			this.posTaggedTokenAddressFunction = posTaggedTokenAddressFunction;
 			this.setName(this.posTaggedTokenAddressFunction.getName());
 		}
-		
+
 		@Override
-		public FeatureResult<TokenWrapper> check(PosTaggerContext context,
-				RuntimeEnvironment env) {
+		public FeatureResult<TokenWrapper> check(PosTaggerContext context, RuntimeEnvironment env) {
 			FeatureResult<PosTaggedTokenWrapper> posTaggedTokenResult = posTaggedTokenAddressFunction.check(context, env);
 			FeatureResult<TokenWrapper> result = null;
-			if (posTaggedTokenResult!=null) {
+			if (posTaggedTokenResult != null) {
 				result = this.generateResult(posTaggedTokenResult.getOutcome().getPosTaggedToken());
 			}
 			return result;
