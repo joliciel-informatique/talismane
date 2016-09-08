@@ -34,12 +34,13 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
-public class TokenFilterFactory implements TokenFilterDependencyInjector {
+public class TokenFilterFactory {
 	public static final String TOKEN_FILTER_DESCRIPTOR_KEY = "token_filter";
 
 	private static final Logger LOG = LoggerFactory.getLogger(TokenFilterFactory.class);
@@ -62,17 +63,16 @@ public class TokenFilterFactory implements TokenFilterDependencyInjector {
 	private TokenFilterFactory(TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
 		registeredFilterTypes.put(AttributeRegexFilter.class.getSimpleName(), AttributeRegexFilter.class);
-		registeredFilterTypes.put(TokenRegexFilter.class.getSimpleName(), TokenRegexFilterWithReplacement.class);
-		registeredDependencyInjectors.put(AbstractRegexFilter.class, this);
+		registeredFilterTypes.put(TokenRegexFilter.class.getSimpleName(), TokenRegexFilterImpl.class);
 	}
 
 	public TokenRegexFilter getTokenRegexFilter(String regex) {
-		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement(regex, talismaneSession);
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl(regex, talismaneSession);
 		return filter;
 	}
 
 	public TokenRegexFilter getTokenRegexFilter(String regex, String replacement) {
-		TokenRegexFilterWithReplacement filter = (TokenRegexFilterWithReplacement) this.getTokenRegexFilter(regex);
+		TokenRegexFilterImpl filter = (TokenRegexFilterImpl) this.getTokenRegexFilter(regex);
 		filter.setReplacement(replacement);
 		return filter;
 	}
@@ -201,6 +201,10 @@ public class TokenFilterFactory implements TokenFilterDependencyInjector {
 			}
 			TokenFilter filter = clazz.newInstance();
 
+			if (NeedsTalismaneSession.class.isAssignableFrom(filter.getClass())) {
+				((NeedsTalismaneSession) filter).setTalismaneSession(talismaneSession);
+			}
+
 			for (Entry<Class<? extends TokenFilter>, TokenFilterDependencyInjector> entry : this.registeredDependencyInjectors.entrySet()) {
 				Class<? extends TokenFilter> tokenFilterClass = entry.getKey();
 				TokenFilterDependencyInjector dependencyInjector = entry.getValue();
@@ -226,14 +230,6 @@ public class TokenFilterFactory implements TokenFilterDependencyInjector {
 		} catch (IllegalArgumentException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public void injectDependencies(TokenFilter tokenFilter) {
-		if (AbstractRegexFilter.class.isAssignableFrom(tokenFilter.getClass())) {
-			AbstractRegexFilter abstractRegexFilter = (AbstractRegexFilter) tokenFilter;
-			abstractRegexFilter.setTalismaneSession(talismaneSession);
 		}
 	}
 

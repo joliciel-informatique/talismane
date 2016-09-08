@@ -25,16 +25,30 @@ import java.util.regex.Matcher;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.RegexUtils;
 
-class TokenRegexFilterWithReplacement extends AbstractRegexFilter {
+/**
+ * A default implementation for token regex filters. It tokenises the matched
+ * group as a single separate token, and offers the possibility of a replacement
+ * string to replace the token text.
+ * 
+ * See {@link RegexUtils#getReplacement(String, String, Matcher)} for handling
+ * of the replacement string.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class TokenRegexFilterImpl extends AbstractRegexFilter {
 	String replacement;
 
-	public TokenRegexFilterWithReplacement(String regex, TalismaneSession talismaneSession) {
-		super();
-		this.setRegex(regex);
-		this.setTalismaneSession(talismaneSession);
+	public TokenRegexFilterImpl(String regex, TalismaneSession talismaneSession) {
+		super(regex, talismaneSession);
 	}
 
-	TokenRegexFilterWithReplacement() {
+	public TokenRegexFilterImpl(String regex, String replacement, TalismaneSession talismaneSession) {
+		this(regex, talismaneSession);
+		this.setReplacement(replacement);
+	}
+
+	TokenRegexFilterImpl() {
 		super();
 	}
 
