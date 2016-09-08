@@ -18,6 +18,7 @@ com.joliciel.talismane.machineLearning
 com.joliciel.talismane.machineLearning.features
 com.joliciel.talismane.machineLearning.linearsvm
 com.joliciel.talismane.machineLearning.maxent
+com.joliciel.talismane.machineLearning.maxent.custom
 com.joliciel.talismane.machineLearning.perceptron
 com.joliciel.talismane.output
 com.joliciel.talismane.parser
