@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.resources.WordList;
@@ -48,7 +49,7 @@ import com.joliciel.talismane.utils.StringUtils;
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractRegexFilter implements TokenRegexFilter {
+public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTalismaneSession {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractRegexFilter.class);
 	private static Pattern wordListPattern = Pattern.compile("\\\\p\\{WordList\\((.*?)\\)\\}", Pattern.UNICODE_CHARACTER_CLASS);
 	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
@@ -64,6 +65,22 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 
 	private TalismaneSession talismaneSession;
 
+	/**
+	 * A constructor with the minimum required data. This is the constructor to
+	 * be used when creating filters directly in code.
+	 * 
+	 * @param regex
+	 * @param talismaneSession
+	 */
+	public AbstractRegexFilter(String regex, TalismaneSession talismaneSession) {
+		this.regex = regex;
+		this.talismaneSession = talismaneSession;
+	}
+
+	/**
+	 * A constructor used when automatically generating filters from
+	 * descriptors.
+	 */
 	public AbstractRegexFilter() {
 	}
 
@@ -522,10 +539,12 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter {
 		this.excluded = excluded;
 	}
 
+	@Override
 	public TalismaneSession getTalismaneSession() {
 		return talismaneSession;
 	}
 
+	@Override
 	public void setTalismaneSession(TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
 	}

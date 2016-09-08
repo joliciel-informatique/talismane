@@ -21,6 +21,8 @@ package com.joliciel.talismane.tokeniser.filters;
 import java.util.List;
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneSession;
+
 /**
  * A TokenRegexFilter which only adds attributes to contained tokens, without
  * delimiting a single token. Note that replacements will be ignored in this
@@ -30,6 +32,10 @@ import java.util.Map;
  *
  */
 public class AttributeRegexFilter extends AbstractRegexFilter {
+	public AttributeRegexFilter(String regex, TalismaneSession talismaneSession) {
+		super(regex, talismaneSession);
+	}
+
 	AttributeRegexFilter() {
 		super();
 	}

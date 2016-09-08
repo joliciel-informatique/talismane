@@ -24,7 +24,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testApply() {
-		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b");
 		filter.setReplacement("Email");
 		String text = "My address is joe.schmoe@test.com.";
@@ -39,7 +39,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testApplyWithDollars() {
-		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
 		filter.setReplacement("\\$Email$2:$1");
 		String text = "My address is joe.schmoe@test.com.";
@@ -54,7 +54,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testApplyWithConsecutiveDollars() {
-		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
 		filter.setReplacement("\\$Email$2$1");
 		String text = "My address is joe.schmoe@test.com.";
@@ -69,7 +69,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testApplyWithUnmatchingGroups() {
-		TokenRegexFilterWithReplacement filter = new TokenRegexFilterWithReplacement();
+		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b(\\d)(\\d)?\\b");
 		filter.setReplacement("Number$1$2");
 		String text = "Two-digit number: 42. One-digit number: 7.";
@@ -101,7 +101,7 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		talismaneSession.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("\\b(\\p{WordList(FirstNames)}) [A-Z]\\w+\\b");
 
@@ -124,7 +124,7 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		talismaneSession.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b");
 
@@ -147,7 +147,7 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		talismaneSession.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b");
 
@@ -170,7 +170,7 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		talismaneSession.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b");
 
@@ -182,7 +182,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testAutoWordBoundaries() {
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("hello 123");
 		filter.setAutoWordBoundaries(true);
 
@@ -191,7 +191,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\bhello 123\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\sabc");
 		filter.setAutoWordBoundaries(true);
 
@@ -200,7 +200,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\sabc\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\bblah di blah\\b");
 		filter.setAutoWordBoundaries(true);
 
@@ -209,7 +209,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\bblah di blah\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("helloe?");
 		filter.setAutoWordBoundaries(true);
 
@@ -218,7 +218,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\bhelloe?\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("liste?s?");
 		filter.setAutoWordBoundaries(true);
 
@@ -227,7 +227,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\bliste?s?\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("lis#e?s?");
 		filter.setAutoWordBoundaries(true);
 
@@ -236,7 +236,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\blis#e?s?", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("liste?\\d?");
 		filter.setAutoWordBoundaries(true);
 
@@ -245,7 +245,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\bliste?\\d?\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("liste?\\s?");
 		filter.setAutoWordBoundaries(true);
 
@@ -254,7 +254,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\bliste?\\s?", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("a\\\\b");
 		filter.setAutoWordBoundaries(true);
 
@@ -263,7 +263,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\ba\\\\b\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\d+ \\D+");
 		filter.setAutoWordBoundaries(true);
 
@@ -272,7 +272,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\b\\d+ \\D+", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("abc [A-Z]\\w+");
 		filter.setAutoWordBoundaries(true);
 
@@ -281,7 +281,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\babc [A-Z]\\w+\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("(MLLE\\.|Mlle\\.)");
 		filter.setAutoWordBoundaries(true);
 
@@ -299,7 +299,7 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		talismaneSession.getWordListFinder().addWordList(nameList);
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("(\\p{WordList(FirstNames)})");
 		filter.setAutoWordBoundaries(true);
@@ -309,7 +309,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\b(Chloé|Marcel)\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("(\\p{WordList(FirstNames,diacriticsOptional)}) +([A-Z]'\\p{Alpha}+)");
 		filter.setTalismaneSession(talismaneSession);
 		filter.setAutoWordBoundaries(true);
@@ -324,7 +324,7 @@ public class TokenRegexFilterImplTest {
 	@Test
 	public void testCaseSensitive() {
 
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("hé");
 		filter.setCaseSensitive(false);
 
@@ -333,7 +333,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("[Hh][EÉé]", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("hé");
 		filter.setDiacriticSensitive(false);
 
@@ -342,7 +342,7 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("h[eé]", pattern.pattern());
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setRegex("hé");
 		filter.setDiacriticSensitive(false);
 		filter.setCaseSensitive(false);
@@ -360,7 +360,7 @@ public class TokenRegexFilterImplTest {
 		WordList fruitList = new WordList("Fruit", wordList);
 		talismaneSession.getWordListFinder().addWordList(fruitList);
 
-		filter = new TokenRegexFilterWithReplacement();
+		filter = new TokenRegexFilterImpl();
 		filter.setTalismaneSession(talismaneSession);
 		filter.setRegex("(\\p{WordList(Fruit)})hé\\w+\\b");
 		filter.setDiacriticSensitive(false);
@@ -375,7 +375,7 @@ public class TokenRegexFilterImplTest {
 
 	@Test
 	public void testStartOfInput() {
-		AbstractRegexFilter filter = new TokenRegexFilterWithReplacement();
+		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("^Résumé\\.");
 		filter.addAttribute("TAG", new StringAttribute("skip"));
 		String text = "Résumé. Résumé des attaques";
