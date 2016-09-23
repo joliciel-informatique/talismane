@@ -102,6 +102,15 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 					placeholder.addAttribute(key, tokenAttribute);
 				}
 				placeholders.add(placeholder);
+
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("Regex: " + this.regex);
+					LOG.trace("Next match: " + text.substring(matcher.start(), matcher.end()).replace('\n', '¶').replace('\r', '¶'));
+					if (matcher.start() != start || matcher.end() != end) {
+						LOG.trace("But matching group: " + text.substring(start, end).replace('\n', '¶').replace('\r', '¶'));
+					}
+					LOG.trace("Placeholder: " + placeholder.toString());
+				}
 			}
 			lastStart = start;
 		}
@@ -441,6 +450,10 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 			} // next match
 			regexBuilder.append(myRegex.substring(lastIndex));
 			myRegex = regexBuilder.toString();
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Replaced regex " + this.regex + " with: ");
+				LOG.trace(myRegex);
+			}
 			this.pattern = Pattern.compile(myRegex, Pattern.UNICODE_CHARACTER_CLASS);
 		}
 		return pattern;
