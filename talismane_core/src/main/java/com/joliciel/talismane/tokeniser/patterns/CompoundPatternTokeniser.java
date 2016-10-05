@@ -42,6 +42,7 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
+import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -81,9 +82,9 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 	private final TokeniserPatternManager tokeniserPatternManager;
 	private final int beamWidth;
 	private final Set<TokenPatternMatchFeature<?>> features;
-	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
+	private final List<TokenSequenceFilter> tokenSequenceFilters;
 
-	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
+	private final List<ClassificationObserver> observers;
 
 	/**
 	 * Reads separator defaults and test patterns from the default file for this
@@ -96,6 +97,18 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.features = features;
+		this.tokenSequenceFilters = new ArrayList<>();
+		this.observers = new ArrayList<>();
+	}
+
+	CompoundPatternTokeniser(CompoundPatternTokeniser tokeniser) {
+		super(tokeniser);
+		this.decisionMaker = tokeniser.decisionMaker;
+		this.tokeniserPatternManager = tokeniser.tokeniserPatternManager;
+		this.beamWidth = tokeniser.beamWidth;
+		this.features = new HashSet<>(tokeniser.features);
+		this.tokenSequenceFilters = new ArrayList<>(tokeniser.tokenSequenceFilters);
+		this.observers = new ArrayList<>(tokeniser.observers);
 	}
 
 	TokenisedAtomicTokenSequence applyDecision(Token token, Decision decision, TokenisedAtomicTokenSequence history, TokenPatternMatchSequence matchSequence,
@@ -495,6 +508,11 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 			sequences.add(defaultSequence);
 		} // have decision maker?
 		return sequences;
+	}
+
+	@Override
+	public Tokeniser cloneTokeniser() {
+		return new CompoundPatternTokeniser(this);
 	}
 
 }
