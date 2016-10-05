@@ -108,5 +108,7 @@ public interface Parser {
 
 	public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy);
 
-	public abstract Set<ParseConfigurationFeature<?>> getParseFeatures();
+	public Set<ParseConfigurationFeature<?>> getParseFeatures();
+
+	public Parser cloneParser();
 }

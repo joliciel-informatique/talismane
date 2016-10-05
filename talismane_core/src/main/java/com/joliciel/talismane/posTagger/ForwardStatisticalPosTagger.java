@@ -21,6 +21,7 @@ package com.joliciel.talismane.posTagger;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -66,10 +67,10 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	private List<PosTaggerRule> posTaggerPositiveRules;
 	private List<PosTaggerRule> posTaggerNegativeRules;
 
-	private final List<TokenSequenceFilter> preProcessingFilters = new ArrayList<>();
-	private final List<PosTagSequenceFilter> postProcessingFilters = new ArrayList<>();
+	private final List<TokenSequenceFilter> preProcessingFilters;
+	private final List<PosTagSequenceFilter> postProcessingFilters;
 
-	private final List<ClassificationObserver> observers = new ArrayList<>();
+	private final List<ClassificationObserver> observers;
 
 	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
 	private final DecisionMaker decisionMaker;
@@ -93,6 +94,22 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 		this.beamWidth = beamWidth;
 		this.decisionMaker = decisionMaker;
 		this.talismaneSession = talismaneSession;
+		this.observers = new ArrayList<>();
+		this.preProcessingFilters = new ArrayList<>();
+		this.postProcessingFilters = new ArrayList<>();
+	}
+
+	ForwardStatisticalPosTagger(ForwardStatisticalPosTagger posTagger) {
+		this.posTaggerFeatures = new HashSet<>(posTagger.posTaggerFeatures);
+		this.beamWidth = posTagger.beamWidth;
+		this.decisionMaker = posTagger.decisionMaker;
+		this.talismaneSession = posTagger.talismaneSession;
+		this.observers = posTagger.observers;
+		this.preProcessingFilters = new ArrayList<>(posTagger.preProcessingFilters);
+		this.postProcessingFilters = new ArrayList<>(posTagger.postProcessingFilters);
+		this.posTaggerRules = new ArrayList<>(posTagger.posTaggerRules);
+		this.posTaggerPositiveRules = new ArrayList<>(posTagger.posTaggerPositiveRules);
+		this.posTaggerNegativeRules = new ArrayList<>(posTagger.posTaggerNegativeRules);
 	}
 
 	/**
@@ -115,6 +132,9 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 		this.beamWidth = beamWidth;
 		this.decisionMaker = posTaggerModel.getDecisionMaker();
 		this.talismaneSession = talismaneSession;
+		this.observers = new ArrayList<>();
+		this.preProcessingFilters = new ArrayList<>();
+		this.postProcessingFilters = new ArrayList<>();
 	}
 
 	@Override
@@ -457,6 +477,11 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	@Override
 	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter) {
 		this.postProcessingFilters.add(posTagFilter);
+	}
+
+	@Override
+	public PosTagger clonePosTagger() {
+		return new ForwardStatisticalPosTagger(this);
 	}
 
 }

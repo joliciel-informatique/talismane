@@ -121,4 +121,6 @@ public interface PosTagger {
 	 * Add a post-processing filter.
 	 */
 	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter);
+
+	public PosTagger clonePosTagger();
 }

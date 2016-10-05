@@ -327,6 +327,11 @@ public class TalismaneConfig {
 
 	private String csvEncoding;
 
+	private SentenceDetector sentenceDetector;
+	private Tokeniser tokeniser;
+	private PosTagger posTagger;
+	private Parser parser;
+
 	// various static maps for ensuring we don't load the same large resource
 	// multiple times if multiple talismane configurations share the same
 	// resource
@@ -1531,11 +1536,13 @@ public class TalismaneConfig {
 
 	public SentenceDetector getSentenceDetector() {
 		try {
-			ClassificationModel sentenceModel = this.getSentenceDetectorModel();
-			SentenceDetector sentenceDetector = new SentenceDetector(sentenceModel, talismaneSession);
+			if (this.sentenceDetector == null) {
+				ClassificationModel sentenceModel = this.getSentenceDetectorModel();
+				this.sentenceDetector = new SentenceDetector(sentenceModel, talismaneSession);
+			}
 
-			return sentenceDetector;
-		} catch (Exception e) {
+			return this.sentenceDetector.cloneSentenceDetector();
+		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
@@ -1547,43 +1554,44 @@ public class TalismaneConfig {
 
 	public Tokeniser getTokeniser() {
 		try {
-			Tokeniser tokeniser = null;
-			ClassificationModel tokeniserModel = null;
-			if (tokeniserType == TokeniserType.simple) {
-				tokeniser = new SimpleTokeniser(this.talismaneSession);
-			} else if (tokeniserType == TokeniserType.pattern) {
-				LOG.debug("Getting tokeniser model");
-				tokeniserModel = this.getTokeniserModel();
-				if (tokeniserModel == null)
-					throw new TalismaneException("No tokeniserModel provided");
+			if (this.tokeniser == null) {
+				ClassificationModel tokeniserModel = null;
+				if (tokeniserType == TokeniserType.simple) {
+					tokeniser = new SimpleTokeniser(this.talismaneSession);
+				} else if (tokeniserType == TokeniserType.pattern) {
+					LOG.debug("Getting tokeniser model");
+					tokeniserModel = this.getTokeniserModel();
+					if (tokeniserModel == null)
+						throw new TalismaneException("No tokeniserModel provided");
 
-				PatternTokeniserFactory patternTokeniserFactory = new PatternTokeniserFactory(this.talismaneSession);
-				tokeniser = patternTokeniserFactory.getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
+					PatternTokeniserFactory patternTokeniserFactory = new PatternTokeniserFactory(this.talismaneSession);
+					tokeniser = patternTokeniserFactory.getPatternTokeniser(tokeniserModel, tokeniserBeamWidth);
 
-				if (includeDetails) {
-					String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
-					File detailsFile = new File(this.getOutDir(), detailsFilePath);
-					detailsFile.delete();
-					ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
-					tokeniser.addObserver(observer);
+					if (includeDetails) {
+						String detailsFilePath = this.getBaseName() + "_tokeniser_details.txt";
+						File detailsFile = new File(this.getOutDir(), detailsFilePath);
+						detailsFile.delete();
+						ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
+						tokeniser.addObserver(observer);
+					}
+				} else {
+					throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
 				}
-			} else {
-				throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
-			}
 
-			for (TokenFilter tokenFilter : this.getTokenFilters(tokeniserModel)) {
-				tokeniser.addTokenFilter(tokenFilter);
-				if (this.needsSentenceDetector()) {
-					this.getSentenceDetector().addTokenFilter(tokenFilter);
+				for (TokenFilter tokenFilter : this.getTokenFilters(tokeniserModel)) {
+					tokeniser.addTokenFilter(tokenFilter);
+					if (this.needsSentenceDetector()) {
+						this.getSentenceDetector().addTokenFilter(tokenFilter);
+					}
+				}
+
+				for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(tokeniserModel)) {
+					tokeniser.addTokenSequenceFilter(tokenFilter);
 				}
 			}
 
-			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(tokeniserModel)) {
-				tokeniser.addTokenSequenceFilter(tokenFilter);
-			}
-
-			return tokeniser;
-		} catch (Exception e) {
+			return tokeniser.cloneTokeniser();
+		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
@@ -1844,32 +1852,32 @@ public class TalismaneConfig {
 
 	public PosTagger getPosTagger() {
 		try {
-			PosTagger posTagger = null;
+			if (this.posTagger == null) {
+				ClassificationModel posTaggerModel = this.getPosTaggerModel();
+				if (posTaggerModel == null)
+					throw new TalismaneException("No posTaggerModel provided");
 
-			ClassificationModel posTaggerModel = this.getPosTaggerModel();
-			if (posTaggerModel == null)
-				throw new TalismaneException("No posTaggerModel provided");
+				posTagger = new ForwardStatisticalPosTagger(posTaggerModel, posTaggerBeamWidth, this.talismaneSession);
 
-			posTagger = new ForwardStatisticalPosTagger(posTaggerModel, posTaggerBeamWidth, this.talismaneSession);
+				for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(posTaggerModel)) {
+					posTagger.addPreProcessingFilter(tokenFilter);
+				}
 
-			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(posTaggerModel)) {
-				posTagger.addPreProcessingFilter(tokenFilter);
+				for (PosTagSequenceFilter posTagFilter : this.getPosTagSequenceFilters(posTaggerModel)) {
+					posTagger.addPostProcessingFilter(posTagFilter);
+				}
+
+				posTagger.setPosTaggerRules(this.getPosTaggerRules());
+
+				if (includeDetails) {
+					String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
+					File detailsFile = new File(this.getOutDir(), detailsFilePath);
+					detailsFile.delete();
+					ClassificationObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
+					posTagger.addObserver(observer);
+				}
 			}
-
-			for (PosTagSequenceFilter posTagFilter : this.getPosTagSequenceFilters(posTaggerModel)) {
-				posTagger.addPostProcessingFilter(posTagFilter);
-			}
-
-			posTagger.setPosTaggerRules(this.getPosTaggerRules());
-
-			if (includeDetails) {
-				String detailsFilePath = this.getBaseName() + "_posTagger_details.txt";
-				File detailsFile = new File(this.getOutDir(), detailsFilePath);
-				detailsFile.delete();
-				ClassificationObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
-				posTagger.addObserver(observer);
-			}
-			return posTagger;
+			return posTagger.clonePosTagger();
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -1882,37 +1890,38 @@ public class TalismaneConfig {
 
 	public Parser getParser() {
 		try {
-			Parser parser = null;
-			ClassificationModel parserModel = this.getParserModel();
-			if (parserModel == null)
-				throw new TalismaneException("No parserModel provided");
+			if (this.parser == null) {
+				ClassificationModel parserModel = this.getParserModel();
+				if (parserModel == null)
+					throw new TalismaneException("No parserModel provided");
 
-			parser = new TransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures, talismaneSession);
-			parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
-			parser.setMinFreeMemory(minFreeMemory);
+				parser = new TransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures, talismaneSession);
+				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
+				parser.setMinFreeMemory(minFreeMemory);
 
-			parser.setParserRules(this.getParserRules());
+				parser.setParserRules(this.getParserRules());
 
-			if (parser instanceof TransitionBasedParser) {
-				TransitionBasedParser transitionBasedParser = (TransitionBasedParser) parser;
-				transitionBasedParser.setEarlyStop(earlyStop);
+				if (parser instanceof TransitionBasedParser) {
+					TransitionBasedParser transitionBasedParser = (TransitionBasedParser) parser;
+					transitionBasedParser.setEarlyStop(earlyStop);
+				}
+
+				if (parseComparisonStrategyType != null) {
+					ParseComparisonStrategy parseComparisonStrategy = ParseComparisonStrategy.forType(parseComparisonStrategyType);
+					parser.setParseComparisonStrategy(parseComparisonStrategy);
+				}
+
+				if (includeDetails && parserModel instanceof ClassificationModel) {
+					String detailsFilePath = this.getBaseName() + "_parser_details.txt";
+					File detailsFile = new File(this.getOutDir(), detailsFilePath);
+					detailsFile.delete();
+					ClassificationModel classificationModel = parserModel;
+					ClassificationObserver observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
+					parser.addObserver(observer);
+				}
 			}
 
-			if (parseComparisonStrategyType != null) {
-				ParseComparisonStrategy parseComparisonStrategy = ParseComparisonStrategy.forType(parseComparisonStrategyType);
-				parser.setParseComparisonStrategy(parseComparisonStrategy);
-			}
-
-			if (includeDetails && parserModel instanceof ClassificationModel) {
-				String detailsFilePath = this.getBaseName() + "_parser_details.txt";
-				File detailsFile = new File(this.getOutDir(), detailsFilePath);
-				detailsFile.delete();
-				ClassificationModel classificationModel = parserModel;
-				ClassificationObserver observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
-				parser.addObserver(observer);
-			}
-
-			return parser;
+			return parser.cloneParser();
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

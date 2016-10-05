@@ -43,12 +43,20 @@ public abstract class AbstractTokeniser implements Tokeniser {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokeniser.class);
 	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractTokeniser.class);
 
-	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-	private final List<TokenFilter> tokenFilters = new ArrayList<>();
+	private final List<TokenSequenceFilter> tokenSequenceFilters;
+	private final List<TokenFilter> tokenFilters;
 	private final TalismaneSession talismaneSession;
 
 	public AbstractTokeniser(TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
+		this.tokenFilters = new ArrayList<>();
+		this.tokenSequenceFilters = new ArrayList<>();
+	}
+
+	protected AbstractTokeniser(AbstractTokeniser tokeniser) {
+		this.talismaneSession = tokeniser.talismaneSession;
+		this.tokenFilters = new ArrayList<>(tokeniser.tokenFilters);
+		this.tokenSequenceFilters = new ArrayList<>(tokeniser.tokenSequenceFilters);
 	}
 
 	@Override

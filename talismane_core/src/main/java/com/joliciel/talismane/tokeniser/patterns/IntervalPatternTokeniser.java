@@ -39,6 +39,7 @@ import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
+import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
@@ -79,9 +80,9 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	private final TokeniserPatternManager tokeniserPatternManager;
 	private final int beamWidth;
 	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
-	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
+	private final List<TokenSequenceFilter> tokenSequenceFilters;
 
-	private final List<ClassificationObserver> observers = new ArrayList<>();
+	private final List<ClassificationObserver> observers;
 
 	/**
 	 * Reads separator defaults and test patterns from the default file for this
@@ -94,6 +95,18 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.tokeniserContextFeatures = tokeniserContextFeatures;
+		this.tokenSequenceFilters = new ArrayList<>();
+		this.observers = new ArrayList<>();
+	}
+
+	IntervalPatternTokeniser(IntervalPatternTokeniser tokeniser) {
+		super(tokeniser);
+		this.decisionMaker = tokeniser.decisionMaker;
+		this.tokeniserPatternManager = tokeniser.tokeniserPatternManager;
+		this.beamWidth = tokeniser.beamWidth;
+		this.tokeniserContextFeatures = new HashSet<>(tokeniser.tokeniserContextFeatures);
+		this.tokenSequenceFilters = new ArrayList<>(tokeniser.tokenSequenceFilters);
+		this.observers = new ArrayList<>(tokeniser.observers);
 	}
 
 	/**
@@ -283,6 +296,11 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 			sequences.add(defaultSequence);
 		} // have decision maker?
 		return sequences;
+	}
+
+	@Override
+	public Tokeniser cloneTokeniser() {
+		return new IntervalPatternTokeniser(this);
 	}
 
 }
