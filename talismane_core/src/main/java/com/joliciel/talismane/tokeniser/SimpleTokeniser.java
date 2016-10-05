@@ -43,6 +43,10 @@ public class SimpleTokeniser extends AbstractTokeniser {
 		super(talismaneSession);
 	}
 
+	SimpleTokeniser(SimpleTokeniser tokeniser) {
+		super(tokeniser);
+	}
+
 	@Override
 	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) {
 		List<TokenisedAtomicTokenSequence> sequences = null;
@@ -58,6 +62,11 @@ public class SimpleTokeniser extends AbstractTokeniser {
 		sequences.add(defaultSequence);
 
 		return sequences;
+	}
+
+	@Override
+	public Tokeniser cloneTokeniser() {
+		return new SimpleTokeniser(this);
 	}
 
 }

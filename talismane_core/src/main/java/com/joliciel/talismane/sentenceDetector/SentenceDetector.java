@@ -68,12 +68,13 @@ public class SentenceDetector {
 	private final Set<SentenceDetectorFeature<?>> features;
 	private final TalismaneSession talismaneSession;
 
-	private List<TokenFilter> preTokeniserFilters = new ArrayList<TokenFilter>();
+	private final List<TokenFilter> preTokeniserFilters;
 
 	public SentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features, TalismaneSession talismaneSession) {
 		this.decisionMaker = decisionMaker;
 		this.features = features;
 		this.talismaneSession = talismaneSession;
+		this.preTokeniserFilters = new ArrayList<TokenFilter>();
 	}
 
 	public SentenceDetector(ClassificationModel sentenceModel, TalismaneSession talismaneSession) {
@@ -92,6 +93,14 @@ public class SentenceDetector {
 
 		this.features = parser.getFeatureSet(sentenceModel.getFeatureDescriptors());
 		this.decisionMaker = sentenceModel.getDecisionMaker();
+		this.preTokeniserFilters = new ArrayList<TokenFilter>();
+	}
+
+	SentenceDetector(SentenceDetector sentenceDetector) {
+		this.talismaneSession = sentenceDetector.talismaneSession;
+		this.features = new HashSet<>(sentenceDetector.features);
+		this.decisionMaker = sentenceDetector.decisionMaker;
+		this.preTokeniserFilters = new ArrayList<>(sentenceDetector.preTokeniserFilters);
 	}
 
 	/**
@@ -212,4 +221,7 @@ public class SentenceDetector {
 		this.preTokeniserFilters.add(filter);
 	}
 
+	public SentenceDetector cloneSentenceDetector() {
+		return new SentenceDetector(this);
+	}
 }

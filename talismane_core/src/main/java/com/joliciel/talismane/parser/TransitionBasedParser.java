@@ -71,7 +71,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
 	private ParseComparisonStrategy parseComparisonStrategy = new BufferSizeComparisonStrategy();
 
-	private List<ClassificationObserver> observers = new ArrayList<ClassificationObserver>();
+	private final List<ClassificationObserver> observers;
 	private int maxAnalysisTimePerSentence = 60;
 	private int minFreeMemory = 64;
 	private static final int KILOBYTE = 1024;
@@ -87,6 +87,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 		this.parseFeatures = parseFeatures;
 		this.beamWidth = beamWidth;
 		this.talismaneSession = talismaneSession;
+		this.observers = new ArrayList<>();
 	}
 
 	/**
@@ -107,6 +108,24 @@ public class TransitionBasedParser implements NonDeterministicParser {
 		}
 
 		this.parseFeatures = parserFeatureParser.getFeatures(model.getFeatureDescriptors());
+		this.observers = new ArrayList<>();
+	}
+
+	TransitionBasedParser(TransitionBasedParser parser) {
+		this.decisionMaker = parser.decisionMaker;
+		this.transitionSystem = parser.transitionSystem;
+		this.parseFeatures = new HashSet<>(parser.parseFeatures);
+		this.beamWidth = parser.beamWidth;
+		this.talismaneSession = parser.talismaneSession;
+		this.observers = new ArrayList<>(parser.observers);
+		this.parserRules = new ArrayList<>(parser.parserRules);
+		this.parserPositiveRules = new ArrayList<>(parser.parserPositiveRules);
+		this.parserNegativeRules = new ArrayList<>(parser.parserNegativeRules);
+
+		this.parseComparisonStrategy = parser.parseComparisonStrategy;
+
+		this.maxAnalysisTimePerSentence = parser.maxAnalysisTimePerSentence;
+		this.minFreeMemory = parser.minFreeMemory;
 	}
 
 	@Override
@@ -531,6 +550,11 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	@Override
 	public Set<ParseConfigurationFeature<?>> getParseFeatures() {
 		return parseFeatures;
+	}
+
+	@Override
+	public Parser cloneParser() {
+		return new TransitionBasedParser(this);
 	}
 
 }
