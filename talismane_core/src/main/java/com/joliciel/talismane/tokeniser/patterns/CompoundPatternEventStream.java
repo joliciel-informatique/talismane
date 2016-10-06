@@ -43,7 +43,6 @@ import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * An event stream for tokenising, using patterns to identify potential
@@ -56,8 +55,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public class CompoundPatternEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternEventStream.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternEventStream.class);
-
 	private final TokeniserAnnotatedCorpusReader corpusReader;
 	private final Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
 
@@ -81,97 +78,92 @@ public class CompoundPatternEventStream implements ClassificationEventStream {
 
 	@Override
 	public boolean hasNext() {
-		MONITOR.startTask("hasNext");
-		try {
-			if (currentPatternMatches != null) {
-				if (currentIndex == currentPatternMatches.size()) {
-					currentPatternMatches = null;
-				}
+		if (currentPatternMatches != null) {
+			if (currentIndex == currentPatternMatches.size()) {
+				currentPatternMatches = null;
 			}
-			while (currentPatternMatches == null) {
-				if (this.corpusReader.hasNextTokenSequence()) {
-					currentPatternMatches = new ArrayList<TokenPatternMatch>();
-					currentOutcomes = new ArrayList<TokeniserOutcome>();
-					currentIndex = 0;
+		}
+		while (currentPatternMatches == null) {
+			if (this.corpusReader.hasNextTokenSequence()) {
+				currentPatternMatches = new ArrayList<TokenPatternMatch>();
+				currentOutcomes = new ArrayList<TokeniserOutcome>();
+				currentIndex = 0;
 
-					TokenSequence realSequence = corpusReader.nextTokenSequence();
+				TokenSequence realSequence = corpusReader.nextTokenSequence();
 
-					List<Integer> tokenSplits = realSequence.getTokenSplits();
-					String text = realSequence.getText();
-					LOG.debug("Sentence: " + text);
-					Sentence sentence = new Sentence(text, talismaneSession);
+				List<Integer> tokenSplits = realSequence.getTokenSplits();
+				String text = realSequence.getText();
+				LOG.debug("Sentence: " + text);
+				Sentence sentence = new Sentence(text, talismaneSession);
 
-					TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
-					for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
-						tokenSequenceFilter.apply(tokenSequence);
-					}
+				TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+				for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
+					tokenSequenceFilter.apply(tokenSequence);
+				}
 
-					tokenFilterWrapper.apply(tokenSequence);
+				tokenFilterWrapper.apply(tokenSequence);
 
-					List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
+				List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
 
-					List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
+				List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
 
-					// check if anything matches each pattern
-					for (TokenPattern parsedPattern : this.tokeniserPatternManager.getParsedTestPatterns()) {
-						List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
-						for (TokenPatternMatchSequence tokenPatternMatchSequence : tokenPatternMatches) {
-							if (LOG.isTraceEnabled())
-								LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatchSequence.getTokenSequence());
+				// check if anything matches each pattern
+				for (TokenPattern parsedPattern : this.tokeniserPatternManager.getParsedTestPatterns()) {
+					List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
+					for (TokenPatternMatchSequence tokenPatternMatchSequence : tokenPatternMatches) {
+						if (LOG.isTraceEnabled())
+							LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatchSequence.getTokenSequence());
 
-							// check if entire pattern is separated or joined
-							TokeniserOutcome outcome = null;
-							TokeniserOutcome defaultOutcome = null;
-							boolean haveMismatch = false;
-							TokenPatternMatch tokenPatternMatch = null;
-							for (Token token : tokenPatternMatchSequence.getTokensToCheck()) {
-								if (tokenPatternMatch == null) {
-									for (TokenPatternMatch patternMatch : tokenPatternMatchSequence.getTokenPatternMatches()) {
-										if (patternMatch.getToken().equals(token)) {
-											tokenPatternMatch = patternMatch;
-											break;
-										}
+						// check if entire pattern is separated or joined
+						TokeniserOutcome outcome = null;
+						TokeniserOutcome defaultOutcome = null;
+						boolean haveMismatch = false;
+						TokenPatternMatch tokenPatternMatch = null;
+						for (Token token : tokenPatternMatchSequence.getTokensToCheck()) {
+							if (tokenPatternMatch == null) {
+								for (TokenPatternMatch patternMatch : tokenPatternMatchSequence.getTokenPatternMatches()) {
+									if (patternMatch.getToken().equals(token)) {
+										tokenPatternMatch = patternMatch;
+										break;
 									}
 								}
-								TaggedToken<TokeniserOutcome> taggedToken = currentSentence.get(token.getIndexWithWhiteSpace());
-								if (outcome == null) {
-									outcome = taggedToken.getTag();
-									defaultOutcome = defaultOutcomes.get(token.getIndexWithWhiteSpace());
-								} else if (taggedToken.getTag() != outcome) {
-									// this should only happen when two patterns
-									// overlap:
-									// e.g. "aussi bien que" and "bien que", or
-									// "plutot que" and "plutot que de"
-									// AND the outer pattern is separated, while
-									// the inner pattern is joined
-									LOG.debug("Mismatch in pattern: " + tokenPatternMatch + ", " + taggedToken);
-									haveMismatch = true;
-								}
 							}
-							currentPatternMatches.add(tokenPatternMatch);
-
-							if (haveMismatch) {
-								currentOutcomes.add(defaultOutcome);
-							} else {
-								currentOutcomes.add(outcome);
+							TaggedToken<TokeniserOutcome> taggedToken = currentSentence.get(token.getIndexWithWhiteSpace());
+							if (outcome == null) {
+								outcome = taggedToken.getTag();
+								defaultOutcome = defaultOutcomes.get(token.getIndexWithWhiteSpace());
+							} else if (taggedToken.getTag() != outcome) {
+								// this should only happen when two patterns
+								// overlap:
+								// e.g. "aussi bien que" and "bien que", or
+								// "plutot que" and "plutot que de"
+								// AND the outer pattern is separated, while
+								// the inner pattern is joined
+								LOG.debug("Mismatch in pattern: " + tokenPatternMatch + ", " + taggedToken);
+								haveMismatch = true;
 							}
-
 						}
-					} // next pattern
+						currentPatternMatches.add(tokenPatternMatch);
 
-					if (currentPatternMatches.size() == 0) {
-						currentPatternMatches = null;
-						currentOutcomes = null;
+						if (haveMismatch) {
+							currentOutcomes.add(defaultOutcome);
+						} else {
+							currentOutcomes.add(outcome);
+						}
+
 					}
-				} else {
-					break;
-				}
-			}
+				} // next pattern
 
-			return currentPatternMatches != null;
-		} finally {
-			MONITOR.endTask();
+				if (currentPatternMatches.size() == 0) {
+					currentPatternMatches = null;
+					currentOutcomes = null;
+				}
+			} else {
+				break;
+			}
 		}
+
+		return currentPatternMatches != null;
 	}
 
 	@Override
@@ -187,43 +179,33 @@ public class CompoundPatternEventStream implements ClassificationEventStream {
 
 	@Override
 	public ClassificationEvent next() {
-		MONITOR.startTask("next");
-		try {
-			ClassificationEvent event = null;
-			if (this.hasNext()) {
-				TokenPatternMatch tokenPatternMatch = currentPatternMatches.get(currentIndex);
-				TokeniserOutcome outcome = currentOutcomes.get(currentIndex);
-				String classification = outcome.name();
+		ClassificationEvent event = null;
+		if (this.hasNext()) {
+			TokenPatternMatch tokenPatternMatch = currentPatternMatches.get(currentIndex);
+			TokeniserOutcome outcome = currentOutcomes.get(currentIndex);
+			String classification = outcome.name();
 
-				LOG.debug("next event, pattern match: " + tokenPatternMatch.toString() + ", outcome:" + classification);
-				List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
-				MONITOR.startTask("check features");
-				try {
-					for (TokenPatternMatchFeature<?> feature : tokenPatternMatchFeatures) {
-						RuntimeEnvironment env = new RuntimeEnvironment();
-						FeatureResult<?> featureResult = feature.check(tokenPatternMatch, env);
-						if (featureResult != null) {
-							tokenFeatureResults.add(featureResult);
-							if (LOG.isTraceEnabled()) {
-								LOG.trace(featureResult.toString());
-							}
-						}
+			LOG.debug("next event, pattern match: " + tokenPatternMatch.toString() + ", outcome:" + classification);
+			List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
+			for (TokenPatternMatchFeature<?> feature : tokenPatternMatchFeatures) {
+				RuntimeEnvironment env = new RuntimeEnvironment();
+				FeatureResult<?> featureResult = feature.check(tokenPatternMatch, env);
+				if (featureResult != null) {
+					tokenFeatureResults.add(featureResult);
+					if (LOG.isTraceEnabled()) {
+						LOG.trace(featureResult.toString());
 					}
-				} finally {
-					MONITOR.endTask();
-				}
-
-				event = new ClassificationEvent(tokenFeatureResults, classification);
-
-				currentIndex++;
-				if (currentIndex == currentPatternMatches.size()) {
-					currentPatternMatches = null;
 				}
 			}
-			return event;
-		} finally {
-			MONITOR.endTask();
+
+			event = new ClassificationEvent(tokenFeatureResults, classification);
+
+			currentIndex++;
+			if (currentIndex == currentPatternMatches.size()) {
+				currentPatternMatches = null;
+			}
 		}
+		return event;
 	}
 
 	public List<TaggedToken<TokeniserOutcome>> getTaggedTokens(TokenSequence tokenSequence, List<Integer> tokenSplits) {

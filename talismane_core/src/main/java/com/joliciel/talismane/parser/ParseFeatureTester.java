@@ -38,11 +38,9 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class ParseFeatureTester implements ParseConfigurationProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(ParseFeatureTester.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseConfigurationProcessor.class);
 
 	private Set<ParseConfigurationFeature<?>> parseFeatures;
 
@@ -79,18 +77,13 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 
 			List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
 			for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
-				MONITOR.startTask(parseFeature.getName());
-				try {
-					RuntimeEnvironment env = new RuntimeEnvironment();
-					FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
-					if (featureResult != null) {
-						parseFeatureResults.add(featureResult);
-						if (LOG.isTraceEnabled()) {
-							LOG.trace(featureResult.toString());
-						}
+				RuntimeEnvironment env = new RuntimeEnvironment();
+				FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
+				if (featureResult != null) {
+					parseFeatureResults.add(featureResult);
+					if (LOG.isTraceEnabled()) {
+						LOG.trace(featureResult.toString());
 					}
-				} finally {
-					MONITOR.endTask();
 				}
 			}
 

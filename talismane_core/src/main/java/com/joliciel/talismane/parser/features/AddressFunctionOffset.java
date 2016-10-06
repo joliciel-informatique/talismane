@@ -27,17 +27,20 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
- * Retrieves the token offset from the current token by <i>n</i> (in the linear sentence),
- * where <i>n</i> can be negative (before the current token) or positive (after the current token).<br/>
+ * Retrieves the token offset from the current token by <i>n</i> (in the linear
+ * sentence), where <i>n</i> can be negative (before the current token) or
+ * positive (after the current token).<br/>
  * The "current token" is returned by the address function.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class AddressFunctionOffset extends AbstractAddressFunction {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	private IntegerFeature<ParseConfigurationWrapper> offsetFeature;
-	
-	public AddressFunctionOffset(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, IntegerFeature<ParseConfigurationWrapper> offsetFeature) {
+
+	public AddressFunctionOffset(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
+			IntegerFeature<ParseConfigurationWrapper> offsetFeature) {
 		super();
 		this.addressFunction = addressFunction;
 		this.offsetFeature = offsetFeature;
@@ -45,24 +48,24 @@ public final class AddressFunctionOffset extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> offsetResult = offsetFeature.check(configuration, env);
-		if (addressResult!=null && offsetResult!=null) {
+		if (addressResult != null && offsetResult != null) {
 			int offset = offsetResult.getOutcome();
 			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
-			
+
 			int refIndex = referenceToken.getToken().getIndex();
 			int index = refIndex + offset;
-			if (index>=0 && index<configuration.getPosTagSequence().size()) {
+			if (index >= 0 && index < configuration.getPosTagSequence().size()) {
 				resultToken = configuration.getPosTagSequence().get(index);
 			}
 		}
 
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}

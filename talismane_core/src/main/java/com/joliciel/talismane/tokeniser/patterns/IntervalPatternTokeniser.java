@@ -44,7 +44,6 @@ import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * The interval pattern tokeniser first splits the text into individual tokens
@@ -73,7 +72,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class IntervalPatternTokeniser extends AbstractTokeniser implements PatternTokeniser {
 	private static final Logger LOG = LoggerFactory.getLogger(IntervalPatternTokeniser.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternTokeniser.class);
 
 	private final DecisionMaker decisionMaker;
 
@@ -168,25 +166,20 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 		// For each test pattern, see if anything in the sentence matches it
 		if (this.decisionMaker != null) {
 			Set<Token> tokensToCheck = new HashSet<Token>();
-			MONITOR.startTask("pattern matching");
-			try {
-				for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
-					Set<Token> tokensToCheckForThisPattern = new HashSet<Token>();
-					List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(initialSequence);
-					for (TokenPatternMatchSequence tokenPatternMatch : matchesForThisPattern) {
-						if (LOG.isTraceEnabled())
-							tokensToCheckForThisPattern.addAll(tokenPatternMatch.getTokensToCheck());
-						tokensToCheck.addAll(tokenPatternMatch.getTokensToCheck());
-					}
-					if (LOG.isTraceEnabled()) {
-						if (tokensToCheckForThisPattern.size() > 0) {
-							LOG.trace("Parsed pattern: " + parsedPattern);
-							LOG.trace("tokensToCheck: " + tokensToCheckForThisPattern);
-						}
+			for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
+				Set<Token> tokensToCheckForThisPattern = new HashSet<Token>();
+				List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(initialSequence);
+				for (TokenPatternMatchSequence tokenPatternMatch : matchesForThisPattern) {
+					if (LOG.isTraceEnabled())
+						tokensToCheckForThisPattern.addAll(tokenPatternMatch.getTokensToCheck());
+					tokensToCheck.addAll(tokenPatternMatch.getTokensToCheck());
+				}
+				if (LOG.isTraceEnabled()) {
+					if (tokensToCheckForThisPattern.size() > 0) {
+						LOG.trace("Parsed pattern: " + parsedPattern);
+						LOG.trace("tokensToCheck: " + tokensToCheckForThisPattern);
 					}
 				}
-			} finally {
-				MONITOR.endTask();
 			}
 
 			// we want to create the n most likely token sequences
@@ -216,59 +209,44 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 						// test the features on the current token
 						TokeniserContext context = new TokeniserContext(token, history);
 						List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
-						MONITOR.startTask("analyse features");
-						try {
-							for (TokeniserContextFeature<?> feature : tokeniserContextFeatures) {
-								RuntimeEnvironment env = new RuntimeEnvironment();
-								FeatureResult<?> featureResult = feature.check(context, env);
-								if (featureResult != null) {
-									tokenFeatureResults.add(featureResult);
-								}
+						for (TokeniserContextFeature<?> feature : tokeniserContextFeatures) {
+							RuntimeEnvironment env = new RuntimeEnvironment();
+							FeatureResult<?> featureResult = feature.check(context, env);
+							if (featureResult != null) {
+								tokenFeatureResults.add(featureResult);
 							}
-
-							if (LOG.isTraceEnabled()) {
-								for (FeatureResult<?> featureResult : tokenFeatureResults) {
-									LOG.trace(featureResult.toString());
-								}
-							}
-						} finally {
-							MONITOR.endTask();
 						}
 
-						MONITOR.startTask("make decision");
-						try {
-							decisions = this.decisionMaker.decide(tokenFeatureResults);
-
-							for (ClassificationObserver observer : this.observers)
-								observer.onAnalyse(token, tokenFeatureResults, decisions);
-
-							for (Decision decision : decisions) {
-								decision.addAuthority(this.getClass().getSimpleName());
-								for (TokenPatternMatch tokenMatch : token.getMatches()) {
-									decision.addAuthority(tokenMatch.getPattern().toString());
-								}
+						if (LOG.isTraceEnabled()) {
+							for (FeatureResult<?> featureResult : tokenFeatureResults) {
+								LOG.trace(featureResult.toString());
 							}
-						} finally {
-							MONITOR.endTask();
+						}
+
+						decisions = this.decisionMaker.decide(tokenFeatureResults);
+
+						for (ClassificationObserver observer : this.observers)
+							observer.onAnalyse(token, tokenFeatureResults, decisions);
+
+						for (Decision decision : decisions) {
+							decision.addAuthority(this.getClass().getSimpleName());
+							for (TokenPatternMatch tokenMatch : token.getMatches()) {
+								decision.addAuthority(tokenMatch.getPattern().toString());
+							}
 						}
 					} else {
 						decisions = new ArrayList<Decision>();
 						decisions.add(defaultDecisions.get(i));
 					}
 
-					MONITOR.startTask("heap sort");
-					try {
-						for (Decision decision : decisions) {
-							TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
+					for (Decision decision : decisions) {
+						TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
 
-							TokenisedAtomicTokenSequence tokenisedSequence = new TokenisedAtomicTokenSequence(history);
-							tokenisedSequence.add(taggedToken);
-							if (decision.isStatistical())
-								tokenisedSequence.addDecision(decision);
-							heap.add(tokenisedSequence);
-						}
-					} finally {
-						MONITOR.endTask();
+						TokenisedAtomicTokenSequence tokenisedSequence = new TokenisedAtomicTokenSequence(history);
+						tokenisedSequence.add(taggedToken);
+						if (decision.isStatistical())
+							tokenisedSequence.addDecision(decision);
+						heap.add(tokenisedSequence);
 					}
 
 				} // next sequence in the old heap

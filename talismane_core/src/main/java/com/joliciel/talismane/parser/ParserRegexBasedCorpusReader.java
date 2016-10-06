@@ -63,7 +63,6 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 
 /**
@@ -95,7 +94,6 @@ import com.joliciel.talismane.utils.io.CurrentFileObserver;
 public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader, PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader,
 		SentenceDetectorAnnotatedCorpusReader, CurrentFileObserver {
 	private static final Logger LOG = LoggerFactory.getLogger(ParserRegexBasedCorpusReader.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserRegexBasedCorpusReader.class);
 	private static final String INDEX_PLACEHOLDER = "%INDEX%";
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
 	private static final String GOVERNOR_PLACEHOLDER = "%GOVERNOR%";
@@ -160,345 +158,339 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 
 	@Override
 	public boolean hasNextConfiguration() {
-		MONITOR.startTask("hasNextConfiguration");
-		try {
-			if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
-				// we've reached the end, do nothing
-			} else {
+		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
+			// we've reached the end, do nothing
+		} else {
+			while (configuration == null) {
+				List<ParseDataLine> dataLines = new ArrayList<ParseDataLine>();
+				List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
+				boolean hasLine = false;
+				if (!this.hasNextLine())
+					break;
+
+				int sentenceStartLineNumber = lineNumber;
 				while (configuration == null) {
-					List<ParseDataLine> dataLines = new ArrayList<ParseDataLine>();
-					List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
-					boolean hasLine = false;
-					if (!this.hasNextLine())
+					// break out when there's no next line & nothing in the
+					// buffer to process
+					if (!this.hasNextLine() && !hasLine)
 						break;
 
-					int sentenceStartLineNumber = lineNumber;
-					while (configuration == null) {
-						// break out when there's no next line & nothing in the
-						// buffer to process
-						if (!this.hasNextLine() && !hasLine)
-							break;
+					String line = "";
+					if (this.hasNextLine())
+						line = this.nextLine().replace("\r", "");
 
-						String line = "";
-						if (this.hasNextLine())
-							line = this.nextLine().replace("\r", "");
+					lineNumber++;
+					if (line.trim().length() == 0) {
+						if (!hasLine)
+							continue;
 
-						lineNumber++;
-						if (line.trim().length() == 0) {
-							if (!hasLine)
-								continue;
+						// end of sentence
 
-							// end of sentence
-
-							// check cross-validation
-							boolean includeMe = true;
-							if (crossValidationSize > 0) {
-								if (includeIndex >= 0) {
-									if (totalSentenceCount % crossValidationSize != includeIndex) {
-										includeMe = false;
-									}
-								} else if (excludeIndex >= 0) {
-									if (totalSentenceCount % crossValidationSize == excludeIndex) {
-										includeMe = false;
-									}
+						// check cross-validation
+						boolean includeMe = true;
+						if (crossValidationSize > 0) {
+							if (includeIndex >= 0) {
+								if (totalSentenceCount % crossValidationSize != includeIndex) {
+									includeMe = false;
 								}
-							}
-
-							if (totalSentenceCount < startSentence) {
-								includeMe = false;
-							}
-
-							totalSentenceCount++;
-							if (LOG.isTraceEnabled())
-								LOG.trace("totalSentenceCount: " + totalSentenceCount);
-
-							if (!includeMe) {
-								dataLines = new ArrayList<ParseDataLine>();
-								lexicalEntries = new ArrayList<LexicalEntry>();
-								hasLine = false;
-								continue;
-							}
-
-							// construct the configuration
-							if (dataLines.size() > 0) {
-								boolean badConfig = false;
-								for (ParseDataLine dataLine : dataLines) {
-									badConfig = !this.checkDataLine(dataLine);
-									if (badConfig) {
-										dataLines = new ArrayList<ParseDataLine>();
-										hasLine = false;
-										break;
-									}
-								}
-
-								if (!badConfig) {
-									PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
-
-									int maxIndex = 0;
-									for (ParseDataLine dataLine : dataLines) {
-										Token token = tokenSequence.addToken(dataLine.getWord());
-										dataLine.setToken(token);
-										if (dataLine.getIndex() > maxIndex)
-											maxIndex = dataLine.getIndex();
-										token.setFileName(dataLine.getOriginalFileName());
-										token.setLineNumber(dataLine.getOriginalLineNumber());
-										token.setColumnNumber(dataLine.getOriginalColumnNumber());
-										token.setLineNumberEnd(dataLine.getOriginalEndLineNumber());
-										token.setColumnNumberEnd(dataLine.getOriginalEndColumnNumber());
-									}
-									LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount - 1) + ") (Line " + (sentenceStartLineNumber + 1)
-											+ "): " + tokenSequence.getText());
-
-									tokenSequence.cleanSlate();
-
-									// first apply the token filters - which
-									// might replace the text of an individual
-									// token with something else
-									if (tokenFilterWrapper == null) {
-										tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
-									}
-									tokenFilterWrapper.apply(tokenSequence);
-
-									for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-										tokenFilter.apply(tokenSequence);
-									}
-
-									if (tokenSequence.getTokensAdded().size() > 0) {
-										// create an empty data line for each
-										// empty token that was added by the
-										// filters
-										List<ParseDataLine> newDataLines = new ArrayList<ParseDataLine>();
-										int i = 0;
-										ParseDataLine lastDataLine = null;
-										for (Token token : tokenSequence) {
-											if (tokenSequence.getTokensAdded().contains(token)) {
-												ParseDataLine emptyDataLine = new ParseDataLine();
-												emptyDataLine.setToken(token);
-												emptyDataLine.setWord("");
-												emptyDataLine.setIndex(++maxIndex);
-												if (lastDataLine != null)
-													emptyDataLine.setLineNumber(lastDataLine.getLineNumber());
-												else
-													emptyDataLine.setLineNumber(sentenceStartLineNumber);
-												newDataLines.add(emptyDataLine);
-											} else {
-												lastDataLine = dataLines.get(i++);
-												newDataLines.add(lastDataLine);
-											}
-										}
-										dataLines = newDataLines;
-									}
-
-									boolean hasSkip = false;
-									for (int i = 0; i < dataLines.size(); i++) {
-										this.updateDataLine(dataLines, i);
-										ParseDataLine dataLine = dataLines.get(i);
-										if (dataLine.getWord().equals("") && dataLine.getPosTagCode().equals(""))
-											dataLine.setSkip(true);
-										if (dataLine.isSkip())
-											hasSkip = true;
-									}
-
-									if (hasSkip) {
-										List<ParseDataLine> newDataLines = new ArrayList<ParseDataLine>();
-										for (ParseDataLine dataLine : dataLines) {
-											if (dataLine.isSkip()) {
-												tokenSequence.removeEmptyToken(dataLine.getToken());
-											} else {
-												newDataLines.add(dataLine);
-											}
-										}
-										dataLines = newDataLines;
-									}
-
-									if (LOG.isTraceEnabled()) {
-										LOG.trace("Data lines after update:");
-										for (ParseDataLine dataLine : dataLines) {
-											LOG.trace(dataLine.toString());
-										}
-									}
-
-									tokenSequence.getSentence().setStartLineNumber(sentenceStartLineNumber + 1);
-
-									PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
-									Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
-									int i = 0;
-									int lexicalEntryIndex = 0;
-									PosTagSet posTagSet = talismaneSession.getPosTagSet();
-									for (ParseDataLine dataLine : dataLines) {
-										Token token = tokenSequence.get(i);
-
-										PosTag posTag = null;
-										try {
-											posTag = posTagSet.getPosTag(dataLine.getPosTagCode());
-										} catch (UnknownPosTagException upte) {
-											String fileName = "";
-											if (currentFile != null)
-												fileName = currentFile.getPath();
-
-											throw new TalismaneException(
-													"Unknown posTag, " + fileName + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
-										}
-										Decision posTagDecision = new Decision(posTag.getCode());
-										PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
-										if (LOG.isTraceEnabled()) {
-											LOG.trace(posTaggedToken.toString());
-										}
-
-										posTaggedToken.setComment(dataLine.getPosTagComment());
-
-										// set the lexical entry if we have one
-										if (this.lexicalEntryReader != null) {
-											List<LexicalEntry> lexicalEntrySet = new ArrayList<LexicalEntry>(1);
-											if (!tokenSequence.getTokensAdded().contains(token)) {
-												lexicalEntrySet.add(lexicalEntries.get(lexicalEntryIndex++));
-											}
-											posTaggedToken.setLexicalEntries(lexicalEntrySet);
-										}
-										posTagSequence.addPosTaggedToken(posTaggedToken);
-										idTokenMap.put(dataLine.getIndex(), posTaggedToken);
-										i++;
-									}
-
-									for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
-										posTagSequenceFilter.apply(posTagSequence);
-									}
-
-									PosTaggedToken rootToken = posTagSequence.prependRoot();
-									idTokenMap.put(0, rootToken);
-
-									TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
-									Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
-									for (ParseDataLine dataLine : dataLines) {
-										PosTaggedToken head = idTokenMap.get(dataLine.getGovernorIndex());
-										PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
-
-										if (transitionSystem.getDependencyLabels().size() > 1) {
-											if (dataLine.getDependencyLabel().length() > 0
-													&& !transitionSystem.getDependencyLabels().contains(dataLine.getDependencyLabel())) {
-												throw new TalismaneException("Unknown dependency label, " + (currentFile == null ? "" : currentFile.getPath())
-														+ ", on line " + dataLine.getLineNumber() + ": " + dataLine.getDependencyLabel());
-											}
-											if (dataLine.getNonProjectiveLabel().length() > 0
-													&& !transitionSystem.getDependencyLabels().contains(dataLine.getNonProjectiveLabel())) {
-												throw new TalismaneException("Unknown dependency label, " + (currentFile == null ? "" : currentFile.getPath())
-														+ ", on line " + dataLine.getLineNumber() + ": " + dataLine.getNonProjectiveLabel());
-											}
-
-										}
-										DependencyArc arc = new DependencyArc(head, dependent, dataLine.getDependencyLabel());
-										if (LOG.isTraceEnabled())
-											LOG.trace(arc.toString());
-										dependencies.add(arc);
-										arc.setComment(dataLine.getDependencyComment());
-									}
-
-									configuration = new ParseConfiguration(posTagSequence);
-									if (this.predictTransitions) {
-										transitionSystem.predictTransitions(configuration, dependencies);
-									} else {
-										for (DependencyArc arc : dependencies) {
-											configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
-										}
-									}
-
-									// Add manual non-projective dependencies,
-									// if there are any
-									if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
-										Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
-										if (LOG.isTraceEnabled())
-											LOG.trace("Non projective dependencies: ");
-
-										for (ParseDataLine dataLine : dataLines) {
-											PosTaggedToken head = idTokenMap.get(dataLine.getNonProjectiveGovernorIndex());
-											PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
-											DependencyArc nonProjArc = new DependencyArc(head, dependent, dataLine.getNonProjectiveLabel());
-											if (LOG.isTraceEnabled())
-												LOG.trace(nonProjArc.toString());
-											nonProjDeps.add(nonProjArc);
-											nonProjArc.setComment(dataLine.getDependencyComment());
-										}
-
-										for (DependencyArc nonProjArc : nonProjDeps) {
-											configuration.addManualNonProjectiveDependency(nonProjArc.getHead(), nonProjArc.getDependent(),
-													nonProjArc.getLabel());
-										}
-									}
-
-									sentenceCount++;
-								} // is the configuration a valid one
-							} // have we data lines?
-						} else {
-							// add a token to the current sentence
-							hasLine = true;
-							if (totalSentenceCount >= startSentence) {
-								Matcher matcher = this.getPattern().matcher(line);
-								if (!matcher.matches())
-									throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
-
-								if (matcher.groupCount() != placeholderIndexMap.size()) {
-									throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount()
-											+ ") on line " + lineNumber);
-								}
-
-								int index = Integer.parseInt(matcher.group(placeholderIndexMap.get(INDEX_PLACEHOLDER)));
-								String rawWord = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-								String word = this.readWord(rawWord);
-								String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
-								String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
-								if (depLabel.equals("_"))
-									depLabel = "";
-								int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(GOVERNOR_PLACEHOLDER)));
-
-								ParseDataLine dataLine = new ParseDataLine();
-								dataLine.setLineNumber(this.lineNumber);
-								dataLine.setIndex(index);
-								dataLine.setWord(word);
-								dataLine.setPosTagCode(posTagCode);
-								dataLine.setDependencyLabel(depLabel);
-								dataLine.setGovernorIndex(governorIndex);
-								if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
-									int nonProjectiveGovernorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(NON_PROJ_GOVERNOR_PLACEHOLDER)));
-									dataLine.setNonProjectiveGovernorIndex(nonProjectiveGovernorIndex);
-								}
-								if (placeholderIndexMap.containsKey(NON_PROJ_LABEL_PLACEHOLDER)) {
-									String nonProjLabel = matcher.group(placeholderIndexMap.get(NON_PROJ_LABEL_PLACEHOLDER));
-									if (nonProjLabel.equals("_"))
-										nonProjLabel = "";
-									dataLine.setNonProjectiveLabel(nonProjLabel);
-								}
-
-								if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER))
-									dataLine.setOriginalFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
-								if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER))
-									dataLine.setOriginalLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
-								if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER))
-									dataLine.setOriginalColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
-								if (placeholderIndexMap.containsKey(END_ROW_PLACEHOLDER))
-									dataLine.setOriginalEndLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(END_ROW_PLACEHOLDER))));
-								if (placeholderIndexMap.containsKey(END_COLUMN_PLACEHOLDER))
-									dataLine.setOriginalEndColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(END_COLUMN_PLACEHOLDER))));
-								if (placeholderIndexMap.containsKey(POSTAG_COMMENT_PLACEHOLDER))
-									dataLine.setPosTagComment(matcher.group(placeholderIndexMap.get(POSTAG_COMMENT_PLACEHOLDER)));
-								if (placeholderIndexMap.containsKey(DEP_COMMENT_PLACEHOLDER))
-									dataLine.setDependencyComment(matcher.group(placeholderIndexMap.get(DEP_COMMENT_PLACEHOLDER)));
-
-								dataLines.add(dataLine);
-
-								if (this.lexicalEntryReader != null) {
-									LexicalEntry lexicalEntry = this.lexicalEntryReader.readEntry(line);
-									lexicalEntries.add(lexicalEntry);
+							} else if (excludeIndex >= 0) {
+								if (totalSentenceCount % crossValidationSize == excludeIndex) {
+									includeMe = false;
 								}
 							}
 						}
-					}
-				} // is configuration still null?
-			} // have we reached the max sentence count?
 
-			return configuration != null;
-		} finally {
-			MONITOR.endTask();
-		}
+						if (totalSentenceCount < startSentence) {
+							includeMe = false;
+						}
+
+						totalSentenceCount++;
+						if (LOG.isTraceEnabled())
+							LOG.trace("totalSentenceCount: " + totalSentenceCount);
+
+						if (!includeMe) {
+							dataLines = new ArrayList<ParseDataLine>();
+							lexicalEntries = new ArrayList<LexicalEntry>();
+							hasLine = false;
+							continue;
+						}
+
+						// construct the configuration
+						if (dataLines.size() > 0) {
+							boolean badConfig = false;
+							for (ParseDataLine dataLine : dataLines) {
+								badConfig = !this.checkDataLine(dataLine);
+								if (badConfig) {
+									dataLines = new ArrayList<ParseDataLine>();
+									hasLine = false;
+									break;
+								}
+							}
+
+							if (!badConfig) {
+								PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
+
+								int maxIndex = 0;
+								for (ParseDataLine dataLine : dataLines) {
+									Token token = tokenSequence.addToken(dataLine.getWord());
+									dataLine.setToken(token);
+									if (dataLine.getIndex() > maxIndex)
+										maxIndex = dataLine.getIndex();
+									token.setFileName(dataLine.getOriginalFileName());
+									token.setLineNumber(dataLine.getOriginalLineNumber());
+									token.setColumnNumber(dataLine.getOriginalColumnNumber());
+									token.setLineNumberEnd(dataLine.getOriginalEndLineNumber());
+									token.setColumnNumberEnd(dataLine.getOriginalEndColumnNumber());
+								}
+								LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount - 1) + ") (Line " + (sentenceStartLineNumber + 1)
+										+ "): " + tokenSequence.getText());
+
+								tokenSequence.cleanSlate();
+
+								// first apply the token filters - which
+								// might replace the text of an individual
+								// token with something else
+								if (tokenFilterWrapper == null) {
+									tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
+								}
+								tokenFilterWrapper.apply(tokenSequence);
+
+								for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+									tokenFilter.apply(tokenSequence);
+								}
+
+								if (tokenSequence.getTokensAdded().size() > 0) {
+									// create an empty data line for each
+									// empty token that was added by the
+									// filters
+									List<ParseDataLine> newDataLines = new ArrayList<ParseDataLine>();
+									int i = 0;
+									ParseDataLine lastDataLine = null;
+									for (Token token : tokenSequence) {
+										if (tokenSequence.getTokensAdded().contains(token)) {
+											ParseDataLine emptyDataLine = new ParseDataLine();
+											emptyDataLine.setToken(token);
+											emptyDataLine.setWord("");
+											emptyDataLine.setIndex(++maxIndex);
+											if (lastDataLine != null)
+												emptyDataLine.setLineNumber(lastDataLine.getLineNumber());
+											else
+												emptyDataLine.setLineNumber(sentenceStartLineNumber);
+											newDataLines.add(emptyDataLine);
+										} else {
+											lastDataLine = dataLines.get(i++);
+											newDataLines.add(lastDataLine);
+										}
+									}
+									dataLines = newDataLines;
+								}
+
+								boolean hasSkip = false;
+								for (int i = 0; i < dataLines.size(); i++) {
+									this.updateDataLine(dataLines, i);
+									ParseDataLine dataLine = dataLines.get(i);
+									if (dataLine.getWord().equals("") && dataLine.getPosTagCode().equals(""))
+										dataLine.setSkip(true);
+									if (dataLine.isSkip())
+										hasSkip = true;
+								}
+
+								if (hasSkip) {
+									List<ParseDataLine> newDataLines = new ArrayList<ParseDataLine>();
+									for (ParseDataLine dataLine : dataLines) {
+										if (dataLine.isSkip()) {
+											tokenSequence.removeEmptyToken(dataLine.getToken());
+										} else {
+											newDataLines.add(dataLine);
+										}
+									}
+									dataLines = newDataLines;
+								}
+
+								if (LOG.isTraceEnabled()) {
+									LOG.trace("Data lines after update:");
+									for (ParseDataLine dataLine : dataLines) {
+										LOG.trace(dataLine.toString());
+									}
+								}
+
+								tokenSequence.getSentence().setStartLineNumber(sentenceStartLineNumber + 1);
+
+								PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
+								Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
+								int i = 0;
+								int lexicalEntryIndex = 0;
+								PosTagSet posTagSet = talismaneSession.getPosTagSet();
+								for (ParseDataLine dataLine : dataLines) {
+									Token token = tokenSequence.get(i);
+
+									PosTag posTag = null;
+									try {
+										posTag = posTagSet.getPosTag(dataLine.getPosTagCode());
+									} catch (UnknownPosTagException upte) {
+										String fileName = "";
+										if (currentFile != null)
+											fileName = currentFile.getPath();
+
+										throw new TalismaneException(
+												"Unknown posTag, " + fileName + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
+									}
+									Decision posTagDecision = new Decision(posTag.getCode());
+									PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
+									if (LOG.isTraceEnabled()) {
+										LOG.trace(posTaggedToken.toString());
+									}
+
+									posTaggedToken.setComment(dataLine.getPosTagComment());
+
+									// set the lexical entry if we have one
+									if (this.lexicalEntryReader != null) {
+										List<LexicalEntry> lexicalEntrySet = new ArrayList<LexicalEntry>(1);
+										if (!tokenSequence.getTokensAdded().contains(token)) {
+											lexicalEntrySet.add(lexicalEntries.get(lexicalEntryIndex++));
+										}
+										posTaggedToken.setLexicalEntries(lexicalEntrySet);
+									}
+									posTagSequence.addPosTaggedToken(posTaggedToken);
+									idTokenMap.put(dataLine.getIndex(), posTaggedToken);
+									i++;
+								}
+
+								for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+									posTagSequenceFilter.apply(posTagSequence);
+								}
+
+								PosTaggedToken rootToken = posTagSequence.prependRoot();
+								idTokenMap.put(0, rootToken);
+
+								TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
+								Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
+								for (ParseDataLine dataLine : dataLines) {
+									PosTaggedToken head = idTokenMap.get(dataLine.getGovernorIndex());
+									PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
+
+									if (transitionSystem.getDependencyLabels().size() > 1) {
+										if (dataLine.getDependencyLabel().length() > 0
+												&& !transitionSystem.getDependencyLabels().contains(dataLine.getDependencyLabel())) {
+											throw new TalismaneException("Unknown dependency label, " + (currentFile == null ? "" : currentFile.getPath())
+													+ ", on line " + dataLine.getLineNumber() + ": " + dataLine.getDependencyLabel());
+										}
+										if (dataLine.getNonProjectiveLabel().length() > 0
+												&& !transitionSystem.getDependencyLabels().contains(dataLine.getNonProjectiveLabel())) {
+											throw new TalismaneException("Unknown dependency label, " + (currentFile == null ? "" : currentFile.getPath())
+													+ ", on line " + dataLine.getLineNumber() + ": " + dataLine.getNonProjectiveLabel());
+										}
+
+									}
+									DependencyArc arc = new DependencyArc(head, dependent, dataLine.getDependencyLabel());
+									if (LOG.isTraceEnabled())
+										LOG.trace(arc.toString());
+									dependencies.add(arc);
+									arc.setComment(dataLine.getDependencyComment());
+								}
+
+								configuration = new ParseConfiguration(posTagSequence);
+								if (this.predictTransitions) {
+									transitionSystem.predictTransitions(configuration, dependencies);
+								} else {
+									for (DependencyArc arc : dependencies) {
+										configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
+									}
+								}
+
+								// Add manual non-projective dependencies,
+								// if there are any
+								if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
+									Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
+									if (LOG.isTraceEnabled())
+										LOG.trace("Non projective dependencies: ");
+
+									for (ParseDataLine dataLine : dataLines) {
+										PosTaggedToken head = idTokenMap.get(dataLine.getNonProjectiveGovernorIndex());
+										PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
+										DependencyArc nonProjArc = new DependencyArc(head, dependent, dataLine.getNonProjectiveLabel());
+										if (LOG.isTraceEnabled())
+											LOG.trace(nonProjArc.toString());
+										nonProjDeps.add(nonProjArc);
+										nonProjArc.setComment(dataLine.getDependencyComment());
+									}
+
+									for (DependencyArc nonProjArc : nonProjDeps) {
+										configuration.addManualNonProjectiveDependency(nonProjArc.getHead(), nonProjArc.getDependent(), nonProjArc.getLabel());
+									}
+								}
+
+								sentenceCount++;
+							} // is the configuration a valid one
+						} // have we data lines?
+					} else {
+						// add a token to the current sentence
+						hasLine = true;
+						if (totalSentenceCount >= startSentence) {
+							Matcher matcher = this.getPattern().matcher(line);
+							if (!matcher.matches())
+								throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
+
+							if (matcher.groupCount() != placeholderIndexMap.size()) {
+								throw new TalismaneException(
+										"Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+							}
+
+							int index = Integer.parseInt(matcher.group(placeholderIndexMap.get(INDEX_PLACEHOLDER)));
+							String rawWord = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+							String word = this.readWord(rawWord);
+							String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
+							String depLabel = matcher.group(placeholderIndexMap.get(LABEL_PLACEHOLDER));
+							if (depLabel.equals("_"))
+								depLabel = "";
+							int governorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(GOVERNOR_PLACEHOLDER)));
+
+							ParseDataLine dataLine = new ParseDataLine();
+							dataLine.setLineNumber(this.lineNumber);
+							dataLine.setIndex(index);
+							dataLine.setWord(word);
+							dataLine.setPosTagCode(posTagCode);
+							dataLine.setDependencyLabel(depLabel);
+							dataLine.setGovernorIndex(governorIndex);
+							if (placeholderIndexMap.containsKey(NON_PROJ_GOVERNOR_PLACEHOLDER)) {
+								int nonProjectiveGovernorIndex = Integer.parseInt(matcher.group(placeholderIndexMap.get(NON_PROJ_GOVERNOR_PLACEHOLDER)));
+								dataLine.setNonProjectiveGovernorIndex(nonProjectiveGovernorIndex);
+							}
+							if (placeholderIndexMap.containsKey(NON_PROJ_LABEL_PLACEHOLDER)) {
+								String nonProjLabel = matcher.group(placeholderIndexMap.get(NON_PROJ_LABEL_PLACEHOLDER));
+								if (nonProjLabel.equals("_"))
+									nonProjLabel = "";
+								dataLine.setNonProjectiveLabel(nonProjLabel);
+							}
+
+							if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER))
+								dataLine.setOriginalFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+							if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER))
+								dataLine.setOriginalLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+							if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER))
+								dataLine.setOriginalColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
+							if (placeholderIndexMap.containsKey(END_ROW_PLACEHOLDER))
+								dataLine.setOriginalEndLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(END_ROW_PLACEHOLDER))));
+							if (placeholderIndexMap.containsKey(END_COLUMN_PLACEHOLDER))
+								dataLine.setOriginalEndColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(END_COLUMN_PLACEHOLDER))));
+							if (placeholderIndexMap.containsKey(POSTAG_COMMENT_PLACEHOLDER))
+								dataLine.setPosTagComment(matcher.group(placeholderIndexMap.get(POSTAG_COMMENT_PLACEHOLDER)));
+							if (placeholderIndexMap.containsKey(DEP_COMMENT_PLACEHOLDER))
+								dataLine.setDependencyComment(matcher.group(placeholderIndexMap.get(DEP_COMMENT_PLACEHOLDER)));
+
+							dataLines.add(dataLine);
+
+							if (this.lexicalEntryReader != null) {
+								LexicalEntry lexicalEntry = this.lexicalEntryReader.readEntry(line);
+								lexicalEntries.add(lexicalEntry);
+							}
+						}
+					}
+				}
+			} // is configuration still null?
+		} // have we reached the max sentence count?
+
+		return configuration != null;
 	}
 
 	/**

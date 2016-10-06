@@ -73,7 +73,6 @@ import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.Pattern
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.WeightedOutcome;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
@@ -164,7 +163,6 @@ public class Talismane {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Talismane.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(Talismane.class);
 
 	private Reader reader;
 	private Writer writer;
@@ -209,284 +207,216 @@ public class Talismane {
 
 			switch (config.getCommand()) {
 			case analyse:
-				MONITOR.startTask("analyse");
-				try {
-					switch (config.getModule()) {
-					case LanguageDetector:
-						LanguageDetector languageDetector = config.getLanguageDetector();
-						if (this.getLanguageDetectorProcessor() == null)
-							throw new TalismaneException("Cannot analyse language detector output without a language detector processor!");
+				switch (config.getModule()) {
+				case LanguageDetector:
+					LanguageDetector languageDetector = config.getLanguageDetector();
+					if (this.getLanguageDetectorProcessor() == null)
+						throw new TalismaneException("Cannot analyse language detector output without a language detector processor!");
 
-						while (config.getSentenceCorpusReader().hasNextSentence()) {
-							String sentence = config.getSentenceCorpusReader().nextSentence();
-							MONITOR.startTask("processLanguages");
-							try {
-								List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
-								this.getLanguageDetectorProcessor().onNextText(sentence, results, this.getWriter());
-							} finally {
-								MONITOR.endTask();
-							}
-						}
-						break;
-					default:
-						this.analyse(config);
+					while (config.getSentenceCorpusReader().hasNextSentence()) {
+						String sentence = config.getSentenceCorpusReader().nextSentence();
+
+						List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
+						this.getLanguageDetectorProcessor().onNextText(sentence, results, this.getWriter());
 					}
-				} finally {
-					MONITOR.endTask();
+					break;
+				default:
+					this.analyse(config);
 				}
+
 				break;
 			case process:
-				MONITOR.startTask("process");
-				try {
-					switch (config.getModule()) {
-					case SentenceDetector:
-						if (this.getSentenceProcessor() == null)
-							throw new TalismaneException("Cannot process sentence detector output without a sentence processor!");
+				switch (config.getModule()) {
+				case SentenceDetector:
+					if (this.getSentenceProcessor() == null)
+						throw new TalismaneException("Cannot process sentence detector output without a sentence processor!");
 
-						while (config.getSentenceCorpusReader().hasNextSentence()) {
-							String text = config.getSentenceCorpusReader().nextSentence();
-							Sentence sentence = new Sentence(text, talismaneSession);
-							MONITOR.startTask("processSentence");
-							try {
-								this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
-							} finally {
-								MONITOR.endTask();
-							}
-						}
-						break;
-					case Tokeniser:
-						if (this.getTokenSequenceProcessor() == null)
-							throw new TalismaneException("Cannot process tokeniser output without a token sequence processor!");
-
-						while (config.getTokenCorpusReader().hasNextTokenSequence()) {
-							TokenSequence tokenSequence = config.getTokenCorpusReader().nextTokenSequence();
-							MONITOR.startTask("processTokenSequence");
-							try {
-								this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence, this.getWriter());
-							} finally {
-								MONITOR.endTask();
-							}
-						}
-						break;
-					case PosTagger:
-						if (this.getPosTagSequenceProcessor() == null)
-							throw new TalismaneException("Cannot process pos-tagger output without a pos-tag sequence processor!");
-
-						try {
-							while (config.getPosTagCorpusReader().hasNextPosTagSequence()) {
-								PosTagSequence posTagSequence = config.getPosTagCorpusReader().nextPosTagSequence();
-								MONITOR.startTask("processPosTagSequence");
-								try {
-									this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence, this.getWriter());
-								} finally {
-									MONITOR.endTask();
-								}
-							}
-						} finally {
-							this.getPosTagSequenceProcessor().onCompleteAnalysis();
-						}
-						break;
-					case Parser:
-						if (this.getParseConfigurationProcessor() == null)
-							throw new TalismaneException("Cannot process parser output without a parse configuration processor!");
-						try {
-							if (config.getParserCorpusReader() instanceof CurrentFileObserver && config.getReader() instanceof CurrentFileProvider)
-								((CurrentFileProvider) config.getReader()).addCurrentFileObserver((CurrentFileObserver) config.getParserCorpusReader());
-
-							while (config.getParserCorpusReader().hasNextConfiguration()) {
-								ParseConfiguration parseConfiguration = config.getParserCorpusReader().nextConfiguration();
-								MONITOR.startTask("processParseConfiguration");
-								try {
-									this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration, this.getWriter());
-								} finally {
-									MONITOR.endTask();
-								}
-							}
-						} finally {
-							this.getParseConfigurationProcessor().onCompleteParse();
-						}
-						break;
-					default:
-						throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
+					while (config.getSentenceCorpusReader().hasNextSentence()) {
+						String text = config.getSentenceCorpusReader().nextSentence();
+						Sentence sentence = new Sentence(text, talismaneSession);
+						this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
 					}
-				} finally {
-					MONITOR.endTask();
+					break;
+				case Tokeniser:
+					if (this.getTokenSequenceProcessor() == null)
+						throw new TalismaneException("Cannot process tokeniser output without a token sequence processor!");
+
+					while (config.getTokenCorpusReader().hasNextTokenSequence()) {
+						TokenSequence tokenSequence = config.getTokenCorpusReader().nextTokenSequence();
+						this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence, this.getWriter());
+					}
+					break;
+				case PosTagger:
+					if (this.getPosTagSequenceProcessor() == null)
+						throw new TalismaneException("Cannot process pos-tagger output without a pos-tag sequence processor!");
+
+					try {
+						while (config.getPosTagCorpusReader().hasNextPosTagSequence()) {
+							PosTagSequence posTagSequence = config.getPosTagCorpusReader().nextPosTagSequence();
+							this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence, this.getWriter());
+						}
+					} finally {
+						this.getPosTagSequenceProcessor().onCompleteAnalysis();
+					}
+					break;
+				case Parser:
+					if (this.getParseConfigurationProcessor() == null)
+						throw new TalismaneException("Cannot process parser output without a parse configuration processor!");
+					try {
+						if (config.getParserCorpusReader() instanceof CurrentFileObserver && config.getReader() instanceof CurrentFileProvider)
+							((CurrentFileProvider) config.getReader()).addCurrentFileObserver((CurrentFileObserver) config.getParserCorpusReader());
+
+						while (config.getParserCorpusReader().hasNextConfiguration()) {
+							ParseConfiguration parseConfiguration = config.getParserCorpusReader().nextConfiguration();
+							this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration, this.getWriter());
+						}
+					} finally {
+						this.getParseConfigurationProcessor().onCompleteParse();
+					}
+					break;
+				default:
+					throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
 				}
 				break;
 			case evaluate:
-				MONITOR.startTask("evaluate");
-				try {
-					switch (config.getModule()) {
-					case SentenceDetector:
-						SentenceDetectorEvaluator sentenceDetectorEvaluator = config.getSentenceDetectorEvaluator();
-						MONITOR.startTask("sentenceDetectorEvaluate");
-						try {
-							File sentenceErrorFile = new File(config.getOutDir(), config.getBaseName() + "_errors.txt");
-							Writer sentenceErrorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
-							sentenceDetectorEvaluator.evaluate(config.getSentenceCorpusReader(), sentenceErrorWriter);
-							sentenceErrorWriter.flush();
-							sentenceErrorWriter.close();
-						} finally {
-							MONITOR.endTask();
-						}
-						break;
-					case Tokeniser:
-						TokeniserEvaluator tokeniserEvaluator = config.getTokeniserEvaluator();
-						MONITOR.startTask("tokeniserEvaluate");
-						try {
-							tokeniserEvaluator.evaluate(config.getTokenCorpusReader());
-						} finally {
-							MONITOR.endTask();
-						}
-						break;
-					case PosTagger:
-						PosTaggerEvaluator posTaggerEvaluator = config.getPosTaggerEvaluator();
-						MONITOR.startTask("posTaggerEvaluate");
-						try {
-							posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());
-						} finally {
-							MONITOR.endTask();
-						}
-						break;
-					case Parser:
-						ParserEvaluator parserEvaluator = config.getParserEvaluator();
-						MONITOR.startTask("parserEvaluate");
-						try {
-							parserEvaluator.evaluate(config.getParserCorpusReader());
-						} finally {
-							MONITOR.endTask();
-						}
-						break;
-					default:
-						throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
-					}
-				} finally {
-					MONITOR.endTask();
+				switch (config.getModule()) {
+				case SentenceDetector:
+					SentenceDetectorEvaluator sentenceDetectorEvaluator = config.getSentenceDetectorEvaluator();
+					File sentenceErrorFile = new File(config.getOutDir(), config.getBaseName() + "_errors.txt");
+					Writer sentenceErrorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
+					sentenceDetectorEvaluator.evaluate(config.getSentenceCorpusReader(), sentenceErrorWriter);
+					sentenceErrorWriter.flush();
+					sentenceErrorWriter.close();
+					break;
+				case Tokeniser:
+					TokeniserEvaluator tokeniserEvaluator = config.getTokeniserEvaluator();
+					tokeniserEvaluator.evaluate(config.getTokenCorpusReader());
+					break;
+				case PosTagger:
+					PosTaggerEvaluator posTaggerEvaluator = config.getPosTaggerEvaluator();
+					posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());
+					break;
+				case Parser:
+					ParserEvaluator parserEvaluator = config.getParserEvaluator();
+					parserEvaluator.evaluate(config.getParserCorpusReader());
+					break;
+				default:
+					throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
 				}
 				break;
 			case compare:
-				MONITOR.startTask("compare");
-				try {
-					switch (config.getModule()) {
-					case Tokeniser:
-						TokenComparator tokenComparator = config.getTokenComparator();
-						tokenComparator.compare();
-						break;
-					case PosTagger:
-						PosTagComparator posTagComparator = config.getPosTagComparator();
-						posTagComparator.evaluate(config.getPosTagCorpusReader(), config.getPosTagEvaluationCorpusReader());
-						break;
-					case Parser:
-						ParseComparator parseComparator = config.getParseComparator();
-						parseComparator.evaluate(config.getParserCorpusReader(), config.getParserEvaluationCorpusReader());
-						break;
-					default:
-						throw new TalismaneException("Command 'compare' does not yet support module: " + config.getModule());
-					}
-				} finally {
-					MONITOR.endTask();
+				switch (config.getModule()) {
+				case Tokeniser:
+					TokenComparator tokenComparator = config.getTokenComparator();
+					tokenComparator.compare();
+					break;
+				case PosTagger:
+					PosTagComparator posTagComparator = config.getPosTagComparator();
+					posTagComparator.evaluate(config.getPosTagCorpusReader(), config.getPosTagEvaluationCorpusReader());
+					break;
+				case Parser:
+					ParseComparator parseComparator = config.getParseComparator();
+					parseComparator.evaluate(config.getParserCorpusReader(), config.getParserEvaluationCorpusReader());
+					break;
+				default:
+					throw new TalismaneException("Command 'compare' does not yet support module: " + config.getModule());
 				}
 				break;
 			case train:
-				MONITOR.startTask("train");
-				try {
-					switch (config.getModule()) {
-					case LanguageDetector: {
-						File modelFile = new File(config.getLanguageModelFilePath());
-						File modelDir = modelFile.getParentFile();
-						modelDir.mkdirs();
+				switch (config.getModule()) {
+				case LanguageDetector: {
+					File modelFile = new File(config.getLanguageModelFilePath());
+					File modelDir = modelFile.getParentFile();
+					modelDir.mkdirs();
 
+					ModelTrainerFactory factory = new ModelTrainerFactory();
+					ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
+
+					ClassificationModel languageModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
+					languageModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+					languageModel.persist(modelFile);
+					break;
+				}
+				case SentenceDetector: {
+					File modelFile = new File(config.getSentenceModelFilePath());
+					File modelDir = modelFile.getParentFile();
+					modelDir.mkdirs();
+
+					ModelTrainerFactory factory = new ModelTrainerFactory();
+					ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
+
+					ClassificationModel sentenceModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
+					sentenceModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+					sentenceModel.persist(modelFile);
+					break;
+				}
+				case Tokeniser: {
+					File modelFile = new File(config.getTokeniserModelFilePath());
+					File modelDir = modelFile.getParentFile();
+					modelDir.mkdirs();
+					ModelTrainerFactory factory = new ModelTrainerFactory();
+					ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
+
+					ClassificationModel tokeniserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
+					tokeniserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+					tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), config.getPatternTokeniserType().toString());
+					tokeniserModel.persist(modelFile);
+					break;
+				}
+				case PosTagger: {
+					File modelFile = new File(config.getPosTaggerModelFilePath());
+					File modelDir = modelFile.getParentFile();
+					modelDir.mkdirs();
+					if (config.getPerceptronObservationPoints().size() == 0) {
 						ModelTrainerFactory factory = new ModelTrainerFactory();
 						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
-						ClassificationModel languageModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						languageModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
-						languageModel.persist(modelFile);
-						break;
-					}
-					case SentenceDetector: {
-						File modelFile = new File(config.getSentenceModelFilePath());
-						File modelDir = modelFile.getParentFile();
-						modelDir.mkdirs();
+						ClassificationModel posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
+						posTaggerModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+						posTaggerModel.persist(modelFile);
+					} else {
+						PerceptronClassificationModelTrainer trainer = new PerceptronClassificationModelTrainer();
 
+						String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
+						PerceptronModelTrainerObserver observer = new PosTaggerPerceptronModelPersister(modelDir, modelName,
+								talismaneSession.getExternalResourceFinder());
+						trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
+								config.getPerceptronObservationPoints());
+					}
+					break;
+				}
+				case Parser: {
+					MachineLearningModel parserModel = null;
+					File modelFile = new File(config.getParserModelFilePath());
+					File modelDir = modelFile.getParentFile();
+					modelDir.mkdirs();
+
+					boolean needToPersist = true;
+					if (config.getPerceptronObservationPoints().size() == 0) {
 						ModelTrainerFactory factory = new ModelTrainerFactory();
 						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
-						ClassificationModel sentenceModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						sentenceModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
-						sentenceModel.persist(modelFile);
-						break;
+						parserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
+					} else {
+						PerceptronClassificationModelTrainer trainer = new PerceptronClassificationModelTrainer();
+
+						String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
+
+						PerceptronModelTrainerObserver observer = new ParserPerceptronModelPersister(modelDir, modelName,
+								talismaneSession.getExternalResourceFinder());
+						trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
+								config.getPerceptronObservationPoints());
+						needToPersist = false;
 					}
-					case Tokeniser: {
-						File modelFile = new File(config.getTokeniserModelFilePath());
-						File modelDir = modelFile.getParentFile();
-						modelDir.mkdirs();
-						ModelTrainerFactory factory = new ModelTrainerFactory();
-						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
-						ClassificationModel tokeniserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						tokeniserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
-						tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), config.getPatternTokeniserType().toString());
-						tokeniserModel.persist(modelFile);
-						break;
+					if (needToPersist) {
+						parserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+						parserModel.persist(modelFile);
 					}
-					case PosTagger: {
-						File modelFile = new File(config.getPosTaggerModelFilePath());
-						File modelDir = modelFile.getParentFile();
-						modelDir.mkdirs();
-						if (config.getPerceptronObservationPoints().size() == 0) {
-							ModelTrainerFactory factory = new ModelTrainerFactory();
-							ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
-
-							ClassificationModel posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-							posTaggerModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
-							posTaggerModel.persist(modelFile);
-						} else {
-							PerceptronClassificationModelTrainer trainer = new PerceptronClassificationModelTrainer();
-
-							String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
-							PerceptronModelTrainerObserver observer = new PosTaggerPerceptronModelPersister(modelDir, modelName,
-									talismaneSession.getExternalResourceFinder());
-							trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
-									config.getPerceptronObservationPoints());
-						}
-						break;
-					}
-					case Parser: {
-						MachineLearningModel parserModel = null;
-						File modelFile = new File(config.getParserModelFilePath());
-						File modelDir = modelFile.getParentFile();
-						modelDir.mkdirs();
-
-						boolean needToPersist = true;
-						if (config.getPerceptronObservationPoints().size() == 0) {
-							ModelTrainerFactory factory = new ModelTrainerFactory();
-							ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
-
-							parserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						} else {
-							PerceptronClassificationModelTrainer trainer = new PerceptronClassificationModelTrainer();
-
-							String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
-
-							PerceptronModelTrainerObserver observer = new ParserPerceptronModelPersister(modelDir, modelName,
-									talismaneSession.getExternalResourceFinder());
-							trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
-									config.getPerceptronObservationPoints());
-							needToPersist = false;
-						}
-
-						if (needToPersist) {
-							parserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
-							parserModel.persist(modelFile);
-						}
-						break;
-					}
-					default:
-						throw new TalismaneException("Command 'train' does not yet support module: " + config.getModule());
-					}
-				} finally {
-					MONITOR.endTask();
+					break;
+				}
+				default:
+					throw new TalismaneException("Command 'train' does not yet support module: " + config.getModule());
 				}
 				break;
 			default:
@@ -734,7 +664,7 @@ public class Talismane {
 						}
 						prevSentenceHolder = sentenceHolder;
 					} // we have at least 3 text segments (should always be the
-					  // case once we get started)
+						// case once we get started)
 				} else if (config.getStartModule().equals(Module.PosTagger)) {
 					if (config.getTokenCorpusReader().hasNextTokenSequence()) {
 						tokenSequence = config.getTokenCorpusReader().nextTokenSequence();

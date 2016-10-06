@@ -40,24 +40,23 @@ import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
- * Used to deserialize a zip file containing an ordered set of lexicons serialized by the {@link LexiconSerializer}.
+ * Used to deserialize a zip file containing an ordered set of lexicons
+ * serialized by the {@link LexiconSerializer}.
+ * 
  * @author Assaf Urieli
  *
  */
 public class LexiconDeserializer {
 	private static final Logger LOG = LoggerFactory.getLogger(LexiconDeserializer.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LexiconDeserializer.class);
-	
+
 	private TalismaneSession talismaneSession;
-	
+
 	public LexiconDeserializer(TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
 	}
-	
 
 	public List<PosTaggerLexicon> deserializeLexicons(File lexiconFile) {
 		if (!lexiconFile.exists())
@@ -71,38 +70,37 @@ public class LexiconDeserializer {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public List<PosTaggerLexicon> deserializeLexicons(ZipInputStream zis) {
-		MONITOR.startTask("deserializeLexicons");
 		try {
 			List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
-			Map<String,PosTaggerLexicon> lexiconMap = new HashMap<String, PosTaggerLexicon>();
+			Map<String, PosTaggerLexicon> lexiconMap = new HashMap<String, PosTaggerLexicon>();
 			String[] lexiconNames = null;
-			
+
 			ZipEntry ze = null;
-		    while ((ze = zis.getNextEntry()) != null) {
-		    	LOG.debug(ze.getName());
-		    	if (ze.getName().endsWith(".obj")) {
-		    		LOG.debug("deserializing " + ze.getName());
+			while ((ze = zis.getNextEntry()) != null) {
+				LOG.debug(ze.getName());
+				if (ze.getName().endsWith(".obj")) {
+					LOG.debug("deserializing " + ze.getName());
 					ObjectInputStream in = new ObjectInputStream(zis);
-					PosTaggerLexicon lexicon = (PosTaggerLexicon)in.readObject();
+					PosTaggerLexicon lexicon = (PosTaggerLexicon) in.readObject();
 					lexiconMap.put(lexicon.getName(), lexicon);
-		    	} else if (ze.getName().equals("lexicon.properties")) {
-		    		Reader reader = new BufferedReader(new InputStreamReader(zis, "UTF-8"));
-		    		Properties props = new Properties();
-		    		props.load(reader);
-		    		Map<String,String> properties = StringUtils.getArgMap(props);
-		    		lexiconNames = properties.get("lexicons").split(",");
-		    	}
-		    }
-			
-		    for (String lexiconName : lexiconNames) {
-		    	PosTaggerLexicon lexicon = lexiconMap.get(lexiconName);
+				} else if (ze.getName().equals("lexicon.properties")) {
+					Reader reader = new BufferedReader(new InputStreamReader(zis, "UTF-8"));
+					Properties props = new Properties();
+					props.load(reader);
+					Map<String, String> properties = StringUtils.getArgMap(props);
+					lexiconNames = properties.get("lexicons").split(",");
+				}
+			}
+
+			for (String lexiconName : lexiconNames) {
+				PosTaggerLexicon lexicon = lexiconMap.get(lexiconName);
 				if (lexicon instanceof NeedsTalismaneSession)
 					((NeedsTalismaneSession) lexicon).setTalismaneSession(talismaneSession);
-		    	lexicons.add(lexicon);
-		    }
-		    
+				lexicons.add(lexicon);
+			}
+
 			return lexicons;
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
@@ -110,8 +108,6 @@ public class LexiconDeserializer {
 		} catch (ClassNotFoundException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
-		} finally {
-			MONITOR.endTask();
 		}
 	}
 }

@@ -30,12 +30,13 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the left-most left-hand dependent of the reference token.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class AddressFunctionLDep extends AbstractAddressFunction {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
-	
+
 	public AddressFunctionLDep(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		super();
 		this.addressFunction = addressFunction;
@@ -43,37 +44,35 @@ public final class AddressFunctionLDep extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
-		if (addressResult!=null) {
+		if (addressResult != null) {
 			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
 			List<PosTaggedToken> leftDependents = configuration.getLeftDependents(referenceToken);
-			if (leftDependents.size()>0)
+			if (leftDependents.size() > 0)
 				resultToken = leftDependents.get(0);
 		}
 
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}
-	
+
 	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
-			String variableName) {
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
 		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null) {" );
+		builder.append("if (" + address + "!=null) {");
 		builder.indent();
 		String leftDependents = builder.getVarName("leftDependents");
 		builder.addImport(List.class);
-		
+
 		builder.append("List<PosTaggedToken> " + leftDependents + " = context.getParseConfiguration().getLeftDependents(" + address + ".getPosTaggedToken());");
 		builder.append("if (" + leftDependents + ".size()>0)");
 		builder.indent();
-		builder.append(		variableName + " = " + leftDependents + ".get(0);");
+		builder.append(variableName + " = " + leftDependents + ".get(0);");
 		builder.outdent();
 		builder.outdent();
 		builder.append("}");

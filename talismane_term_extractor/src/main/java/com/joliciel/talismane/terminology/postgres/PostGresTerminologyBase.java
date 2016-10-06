@@ -48,12 +48,10 @@ import com.joliciel.talismane.terminology.Term;
 import com.joliciel.talismane.terminology.TermFrequencyComparator;
 import com.joliciel.talismane.terminology.TerminologyBase;
 import com.joliciel.talismane.utils.DaoUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class PostGresTerminologyBase implements TerminologyBase {
 	private static final Logger LOG = LoggerFactory.getLogger(PostGresTerminologyBase.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PostGresTerminologyBase.class);
 
 	private DataSource dataSource;
 
@@ -85,67 +83,62 @@ public class PostGresTerminologyBase implements TerminologyBase {
 
 	@Override
 	public List<Term> findTerms(int frequencyThreshold, String searchText, final int maxLexicalWords, Boolean marked, Boolean markedExpansions) {
-		MONITOR.startTask("getTerms");
-		try {
-			NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
-			String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
-					+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " WHERE projectfile_project_id = :term_project_id";
-			if (marked != null && markedExpansions != null && marked && markedExpansions) {
-				sql += " AND term_marked = :term_marked";
-				if (searchText != null && searchText.length() > 0)
-					sql += " AND term_text LIKE :term_text";
-				sql += " GROUP BY " + SELECT_TERM_ONLY;
-			} else {
-				if (searchText != null && searchText.length() > 0)
-					sql += " AND term_text LIKE :term_text";
-				if (marked != null && marked)
-					sql += " AND term_marked = :term_marked";
-				if (maxLexicalWords > 0)
-					sql += " AND term_lexical_words <= :max_lexical_words";
-				sql += " GROUP BY " + SELECT_TERM_ONLY;
-				if (frequencyThreshold > 0)
-					sql += " HAVING count(context_id) >= :term_frequency";
-			}
-
-			sql += " ORDER BY term_frequency DESC, term_text";
-			MapSqlParameterSource paramSource = new MapSqlParameterSource();
-			if (frequencyThreshold > 0)
-				paramSource.addValue("term_frequency", frequencyThreshold);
+		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
+		String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
+				+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " WHERE projectfile_project_id = :term_project_id";
+		if (marked != null && markedExpansions != null && marked && markedExpansions) {
+			sql += " AND term_marked = :term_marked";
 			if (searchText != null && searchText.length() > 0)
-				paramSource.addValue("term_text", searchText + "%");
+				sql += " AND term_text LIKE :term_text";
+			sql += " GROUP BY " + SELECT_TERM_ONLY;
+		} else {
+			if (searchText != null && searchText.length() > 0)
+				sql += " AND term_text LIKE :term_text";
 			if (marked != null && marked)
-				paramSource.addValue("term_marked", true);
+				sql += " AND term_marked = :term_marked";
 			if (maxLexicalWords > 0)
-				paramSource.addValue("max_lexical_words", maxLexicalWords);
-
-			paramSource.addValue("term_project_id", this.getCurrentProjectId());
-
-			LOG.trace(sql);
-			LogParameters(paramSource);
-			TermMapper termMapper = new TermMapper();
-			SqlRowSet rs = jt.queryForRowSet(sql, paramSource);
-			List<Term> terms = new ArrayList<Term>();
-			while (rs.next()) {
-				PostGresTerm term = termMapper.mapRow(rs);
-				terms.add(term);
-			}
-
-			if (marked != null && markedExpansions != null && marked && markedExpansions) {
-				this.addParents(terms);
-				List<Term> termsWithFrequency = new ArrayList<Term>();
-				for (Term term : terms) {
-					int maxAncestorFrequency = this.getMaxAncestorFrequency(term);
-					if (maxAncestorFrequency >= frequencyThreshold)
-						termsWithFrequency.add(term);
-				}
-				terms = termsWithFrequency;
-			}
-
-			this.addHeadAndExpansionCounts(terms);
-			return terms;
-		} finally {
-			MONITOR.endTask();
+				sql += " AND term_lexical_words <= :max_lexical_words";
+			sql += " GROUP BY " + SELECT_TERM_ONLY;
+			if (frequencyThreshold > 0)
+				sql += " HAVING count(context_id) >= :term_frequency";
 		}
+
+		sql += " ORDER BY term_frequency DESC, term_text";
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		if (frequencyThreshold > 0)
+			paramSource.addValue("term_frequency", frequencyThreshold);
+		if (searchText != null && searchText.length() > 0)
+			paramSource.addValue("term_text", searchText + "%");
+		if (marked != null && marked)
+			paramSource.addValue("term_marked", true);
+		if (maxLexicalWords > 0)
+			paramSource.addValue("max_lexical_words", maxLexicalWords);
+
+		paramSource.addValue("term_project_id", this.getCurrentProjectId());
+
+		LOG.trace(sql);
+		LogParameters(paramSource);
+		TermMapper termMapper = new TermMapper();
+		SqlRowSet rs = jt.queryForRowSet(sql, paramSource);
+		List<Term> terms = new ArrayList<Term>();
+		while (rs.next()) {
+			PostGresTerm term = termMapper.mapRow(rs);
+			terms.add(term);
+		}
+
+		if (marked != null && markedExpansions != null && marked && markedExpansions) {
+			this.addParents(terms);
+			List<Term> termsWithFrequency = new ArrayList<Term>();
+			for (Term term : terms) {
+				int maxAncestorFrequency = this.getMaxAncestorFrequency(term);
+				if (maxAncestorFrequency >= frequencyThreshold)
+					termsWithFrequency.add(term);
+			}
+			terms = termsWithFrequency;
+		}
+
+		this.addHeadAndExpansionCounts(terms);
+		return terms;
 	}
 
 	void addHeadAndExpansionCounts(Collection<Term> terms) {
@@ -246,159 +239,118 @@ public class PostGresTerminologyBase implements TerminologyBase {
 
 	@Override
 	public Term findTerm(final String text) {
-		MONITOR.startTask("getTerm");
-		try {
-			if (text == null || text.trim().length() == 0)
-				throw new TalismaneException("Cannot get an empty term");
+		if (text == null || text.trim().length() == 0)
+			throw new TalismaneException("Cannot get an empty term");
 
-			Term term = this.loadTerm(text);
-			if (term == null) {
-				PostGresTerm postGresTerm = this.newTerm();
-				postGresTerm.setText(text);
-				postGresTerm.getHeads();
-				postGresTerm.getExpansions();
-				term = postGresTerm;
-			}
-			return term;
-		} finally {
-			MONITOR.endTask();
+		Term term = this.loadTerm(text);
+		if (term == null) {
+			PostGresTerm postGresTerm = this.newTerm();
+			postGresTerm.setText(text);
+			postGresTerm.getHeads();
+			postGresTerm.getExpansions();
+			term = postGresTerm;
 		}
+		return term;
 	}
 
 	@Override
 	public void storeTerm(Term term) {
-		MONITOR.startTask("storeTerm");
-		try {
-			PostGresTerm termInternal = (PostGresTerm) term;
-			this.saveTerm(termInternal);
-			this.saveExpansions(termInternal);
-			this.saveHeads(termInternal);
-
-		} finally {
-			MONITOR.endTask();
-		}
+		PostGresTerm termInternal = (PostGresTerm) term;
+		this.saveTerm(termInternal);
+		this.saveExpansions(termInternal);
+		this.saveHeads(termInternal);
 	}
 
 	@Override
 	public void storeContext(Context context) {
-		MONITOR.startTask("storeContext");
-		try {
-			this.saveContext((PostGresContext) context);
-		} finally {
-			MONITOR.endTask();
-		}
+		this.saveContext((PostGresContext) context);
 	}
 
 	@Override
 	public void commit() {
-		MONITOR.startTask("commit");
-		try {
-			// nothing to do here, not being transactional about it
-		} finally {
-			MONITOR.endTask();
-		}
+		// nothing to do here, not being transactional about it
 	}
 
 	@Override
 	public Set<Term> getParents(final Term term) {
-		MONITOR.startTask("getParents");
-		try {
-			NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
-			String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
-					+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " INNER JOIN term_expansions ON term_id = termexp_term_id"
-					+ " WHERE projectfile_project_id = :term_project_id" + " AND termexp_expansion_id = :term_id" + " GROUP BY " + SELECT_TERM_ONLY
-					+ " ORDER BY term_text";
-			MapSqlParameterSource paramSource = new MapSqlParameterSource();
-			paramSource.addValue("term_id", ((PostGresTerm) term).getId());
-			paramSource.addValue("term_project_id", this.getCurrentProjectId());
+		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
+		String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
+				+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " INNER JOIN term_expansions ON term_id = termexp_term_id"
+				+ " WHERE projectfile_project_id = :term_project_id" + " AND termexp_expansion_id = :term_id" + " GROUP BY " + SELECT_TERM_ONLY
+				+ " ORDER BY term_text";
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("term_id", ((PostGresTerm) term).getId());
+		paramSource.addValue("term_project_id", this.getCurrentProjectId());
 
-			LOG.trace(sql);
-			LogParameters(paramSource);
-			List<Term> terms = jt.query(sql, paramSource, new TermMapper());
+		LOG.trace(sql);
+		LogParameters(paramSource);
+		List<Term> terms = jt.query(sql, paramSource, new TermMapper());
 
-			this.addHeadAndExpansionCounts(terms);
+		this.addHeadAndExpansionCounts(terms);
 
-			Set<Term> termSet = new TreeSet<Term>(new TermFrequencyComparator());
-			termSet.addAll(terms);
+		Set<Term> termSet = new TreeSet<Term>(new TermFrequencyComparator());
+		termSet.addAll(terms);
 
-			return termSet;
-		} finally {
-			MONITOR.endTask();
-		}
+		return termSet;
 	}
 
 	@Override
 	public Set<Term> getExpansions(Term term) {
-		MONITOR.startTask("getExpansions");
-		try {
-			NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
-			String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
-					+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " INNER JOIN term_expansions ON term_id = termexp_expansion_id"
-					+ " WHERE projectfile_project_id = :term_project_id" + " AND termexp_term_id = :term_id" + " GROUP BY " + SELECT_TERM_ONLY
-					+ " ORDER BY term_text";
-			MapSqlParameterSource paramSource = new MapSqlParameterSource();
-			paramSource.addValue("term_id", ((PostGresTerm) term).getId());
-			paramSource.addValue("term_project_id", this.getCurrentProjectId());
+		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
+		String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
+				+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " INNER JOIN term_expansions ON term_id = termexp_expansion_id"
+				+ " WHERE projectfile_project_id = :term_project_id" + " AND termexp_term_id = :term_id" + " GROUP BY " + SELECT_TERM_ONLY
+				+ " ORDER BY term_text";
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("term_id", ((PostGresTerm) term).getId());
+		paramSource.addValue("term_project_id", this.getCurrentProjectId());
 
-			LOG.trace(sql);
-			LogParameters(paramSource);
-			List<Term> terms = jt.query(sql, paramSource, new TermMapper());
-			this.addHeadAndExpansionCounts(terms);
+		LOG.trace(sql);
+		LogParameters(paramSource);
+		List<Term> terms = jt.query(sql, paramSource, new TermMapper());
+		this.addHeadAndExpansionCounts(terms);
 
-			Set<Term> termSet = new TreeSet<Term>(new TermFrequencyComparator());
-			termSet.addAll(terms);
-			return termSet;
-		} finally {
-			MONITOR.endTask();
-		}
+		Set<Term> termSet = new TreeSet<Term>(new TermFrequencyComparator());
+		termSet.addAll(terms);
+		return termSet;
 	}
 
 	@Override
 	public Set<Term> getHeads(Term term) {
-		MONITOR.startTask("getHeads");
-		try {
-			NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
-			String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
-					+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " INNER JOIN term_heads ON term_id = termhead_head_id"
-					+ " WHERE projectfile_project_id = :term_project_id" + " AND termhead_term_id = :term_id" + " GROUP BY " + SELECT_TERM_ONLY
-					+ " ORDER BY term_text";
-			MapSqlParameterSource paramSource = new MapSqlParameterSource();
-			paramSource.addValue("term_id", ((PostGresTerm) term).getId());
-			paramSource.addValue("term_project_id", this.getCurrentProjectId());
+		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
+		String sql = "SELECT " + SELECT_TERM + " FROM term" + " INNER JOIN context ON context_term_id = term_id"
+				+ " INNER JOIN projectfile ON context_file_id = projectfile_file_id" + " INNER JOIN term_heads ON term_id = termhead_head_id"
+				+ " WHERE projectfile_project_id = :term_project_id" + " AND termhead_term_id = :term_id" + " GROUP BY " + SELECT_TERM_ONLY
+				+ " ORDER BY term_text";
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("term_id", ((PostGresTerm) term).getId());
+		paramSource.addValue("term_project_id", this.getCurrentProjectId());
 
-			LOG.trace(sql);
-			LogParameters(paramSource);
+		LOG.trace(sql);
+		LogParameters(paramSource);
 
-			List<Term> terms = jt.query(sql, paramSource, new TermMapper());
-			this.addHeadAndExpansionCounts(terms);
+		List<Term> terms = jt.query(sql, paramSource, new TermMapper());
+		this.addHeadAndExpansionCounts(terms);
 
-			Set<Term> termSet = new TreeSet<Term>(new TermFrequencyComparator());
-			termSet.addAll(terms);
-			return termSet;
-		} finally {
-			MONITOR.endTask();
-		}
+		Set<Term> termSet = new TreeSet<Term>(new TermFrequencyComparator());
+		termSet.addAll(terms);
+		return termSet;
 	}
 
 	@Override
 	public List<Context> getContexts(Term term) {
-		MONITOR.startTask("getContexts");
-		try {
-			NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
-			String sql = "SELECT " + SELECT_CONTEXT + " FROM context" + " INNER JOIN projectfile ON context_file_id = projectfile_file_id"
-					+ " WHERE projectfile_project_id = :term_project_id" + " AND context_term_id = :context_term_id" + " ORDER BY context_id";
-			MapSqlParameterSource paramSource = new MapSqlParameterSource();
-			paramSource.addValue("context_term_id", ((PostGresTerm) term).getId());
-			paramSource.addValue("term_project_id", this.getCurrentProjectId());
+		NamedParameterJdbcTemplate jt = new NamedParameterJdbcTemplate(this.getDataSource());
+		String sql = "SELECT " + SELECT_CONTEXT + " FROM context" + " INNER JOIN projectfile ON context_file_id = projectfile_file_id"
+				+ " WHERE projectfile_project_id = :term_project_id" + " AND context_term_id = :context_term_id" + " ORDER BY context_id";
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("context_term_id", ((PostGresTerm) term).getId());
+		paramSource.addValue("term_project_id", this.getCurrentProjectId());
 
-			LOG.trace(sql);
-			LogParameters(paramSource);
-			List<Context> contexts = jt.query(sql, paramSource, new ContextMapper());
+		LOG.trace(sql);
+		LogParameters(paramSource);
+		List<Context> contexts = jt.query(sql, paramSource, new ContextMapper());
 
-			return contexts;
-		} finally {
-			MONITOR.endTask();
-		}
+		return contexts;
 	}
 
 	Term loadTerm(int termId) {
