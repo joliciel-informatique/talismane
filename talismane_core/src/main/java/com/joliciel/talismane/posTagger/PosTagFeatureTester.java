@@ -19,11 +19,9 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class PosTagFeatureTester implements PosTagSequenceProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagFeatureTester.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagFeatureTester.class);
 
 	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
 
@@ -72,21 +70,11 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
 				String classification = posTaggedToken.getTag().getCode();
 				PosTaggerContext context = new PosTaggerContextImpl(posTaggedToken.getToken(), currentHistory);
 				List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
-				MONITOR.startTask("check features");
-				try {
-					for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
-						MONITOR.startTask(posTaggerFeature.getCollectionName());
-						try {
-							RuntimeEnvironment env = new RuntimeEnvironment();
-							FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
-							if (featureResult != null)
-								posTagFeatureResults.add(featureResult);
-						} finally {
-							MONITOR.endTask();
-						}
-					}
-				} finally {
-					MONITOR.endTask();
+				for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
+					RuntimeEnvironment env = new RuntimeEnvironment();
+					FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
+					if (featureResult != null)
+						posTagFeatureResults.add(featureResult);
 				}
 
 				if (LOG.isTraceEnabled()) {

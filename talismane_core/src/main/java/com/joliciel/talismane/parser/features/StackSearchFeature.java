@@ -29,58 +29,59 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
- * Looks at all items on the stack above a certain index,
- * and returns the first one meeting a criterion.
- * If no index is provided, will start at Stack[1] (just one behind the top-of-stack)
+ * Looks at all items on the stack above a certain index, and returns the first
+ * one meeting a criterion. If no index is provided, will start at Stack[1]
+ * (just one behind the top-of-stack)
+ * 
  * @author Assaf Urieli
  *
  */
 public final class StackSearchFeature extends AbstractAddressFunction {
 	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
 	private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
-	
+
 	public StackSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
 		super();
 		this.criterionFeature = criterionFeature;
-		
-		this.setName(super.getName() +"(" + criterionFeature.getName() + ")");
+
+		this.setName(super.getName() + "(" + criterionFeature.getName() + ")");
 	}
 
 	public StackSearchFeature(IntegerFeature<ParseConfigurationWrapper> indexFeature, BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
 		super();
 		this.indexFeature = indexFeature;
 		this.criterionFeature = criterionFeature;
-		
-		this.setName(super.getName() +"(" + indexFeature.getName() + "," + criterionFeature.getName() + ")");
+
+		this.setName(super.getName() + "(" + indexFeature.getName() + "," + criterionFeature.getName() + ")");
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 
-		int index=1;
-		if (indexFeature!=null) {
+		int index = 1;
+		if (indexFeature != null) {
 			FeatureResult<Integer> indexResult = indexFeature.check(wrapper, env);
-			if (indexResult==null)
+			if (indexResult == null)
 				return null;
 			index = indexResult.getOutcome();
 		}
-		
+
 		Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
-		
+
 		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
 		parseConfigurationAddress.setParseConfiguration(configuration);
 
-		int i=-1;
+		int i = -1;
 		PosTaggedToken resultToken = null;
 		while (stackIterator.hasNext()) {
 			PosTaggedToken token = stackIterator.next();
 			i++;
-			if (i<index)
+			if (i < index)
 				continue;
 			parseConfigurationAddress.setPosTaggedToken(token);
 			FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
-			if (criterionResult!=null) {
+			if (criterionResult != null) {
 				boolean criterion = criterionResult.getOutcome();
 				if (criterion) {
 					resultToken = token;
@@ -90,7 +91,7 @@ public final class StackSearchFeature extends AbstractAddressFunction {
 		}
 
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}

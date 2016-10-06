@@ -43,7 +43,6 @@ import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.filters.UppercaseSeriesFilter;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * Extracts all noun phrases from a given parse configuration.
@@ -110,7 +109,6 @@ public class TermExtractor implements ParseConfigurationProcessor {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TermExtractor.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TermExtractor.class);
 
 	private static final int DEFAULT_MAX_DEPTH = 8;
 	private int maxDepth = DEFAULT_MAX_DEPTH;
@@ -192,112 +190,97 @@ public class TermExtractor implements ParseConfigurationProcessor {
 
 	@Override
 	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
-		MONITOR.startTask("onNextParseConfiguration");
-		try {
-			for (TermObserver termObserver : termObservers) {
-				termObserver.onNewContext(parseConfiguration.getPosTagSequence().getTokenSequence().getText());
-			}
-
-			// find all nouns
-			List<PosTaggedToken> nouns = new ArrayList<PosTaggedToken>();
-			for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
-				if (nominalTags.contains(posTaggedToken.getTag().getCode())) {
-					nouns.add(posTaggedToken);
-				}
-			}
-
-			Map<PosTaggedToken, List<Expansion>> expansionsPerNoun = new HashMap<PosTaggedToken, List<Expansion>>();
-			for (PosTaggedToken noun : nouns) {
-				this.getExpansionStrings(noun, parseConfiguration, 0, expansionsPerNoun);
-			} // next noun head
-		} finally {
-			MONITOR.endTask();
+		for (TermObserver termObserver : termObservers) {
+			termObserver.onNewContext(parseConfiguration.getPosTagSequence().getTokenSequence().getText());
 		}
+
+		// find all nouns
+		List<PosTaggedToken> nouns = new ArrayList<PosTaggedToken>();
+		for (PosTaggedToken posTaggedToken : parseConfiguration.getPosTagSequence()) {
+			if (nominalTags.contains(posTaggedToken.getTag().getCode())) {
+				nouns.add(posTaggedToken);
+			}
+		}
+
+		Map<PosTaggedToken, List<Expansion>> expansionsPerNoun = new HashMap<PosTaggedToken, List<Expansion>>();
+		for (PosTaggedToken noun : nouns) {
+			this.getExpansionStrings(noun, parseConfiguration, 0, expansionsPerNoun);
+		} // next noun head
 	}
 
 	Set<String> getExpansionStrings(PosTaggedToken noun, ParseConfiguration parseConfiguration, int depth,
 			Map<PosTaggedToken, List<Expansion>> expansionsPerNoun) {
 		Set<String> nounPhrases = null;
-		List<Expansion> expansions = null;
-		MONITOR.startTask("find expansions");
-		try {
-			expansions = this.getExpansions(noun, parseConfiguration, 0, expansionsPerNoun);
-		} finally {
-			MONITOR.endTask();
-		}
-		MONITOR.startTask("find phrases");
-		try {
-			nounPhrases = new TreeSet<String>();
+		List<Expansion> expansions = this.getExpansions(noun, parseConfiguration, 0, expansionsPerNoun);
 
-			for (Expansion expansion : expansions) {
-				DependencyNode node = expansion.getNode();
-				Term term = terminologyBase.findTerm(expansion.display());
-				if (term.isNew()) {
-					term.setLexicalWordCount(expansion.getLexicalWordCount());
-					term.save();
-				}
+		nounPhrases = new TreeSet<String>();
 
-				Token firstToken = node.getFirstToken().getToken();
-
-				Context context = terminologyBase.findContext(term, firstToken.getFileName(), firstToken.getLineNumber(), firstToken.getColumnNumber());
-
-				if (context.isNew()) {
-					Token lastToken = node.getLastToken().getToken();
-
-					context.setEndLineNumber(lastToken.getLineNumberEnd());
-					context.setEndColumnNumber(lastToken.getColumnNumberEnd());
-
-					int startIndex = firstToken.getIndex();
-					startIndex -= TOKEN_BUFFER_FOR_CONTEXT;
-					if (startIndex < 0)
-						startIndex = 0;
-
-					int endIndex = lastToken.getIndex();
-					endIndex += TOKEN_BUFFER_FOR_CONTEXT;
-					if (endIndex >= parseConfiguration.getPosTagSequence().getTokenSequence().size())
-						endIndex = parseConfiguration.getPosTagSequence().getTokenSequence().size() - 1;
-
-					Token startToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(startIndex);
-					Token endToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(endIndex);
-					String textSegment = parseConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().substring(startToken.getStartIndex(),
-							endToken.getEndIndex());
-					context.setTextSegment(textSegment);
-					context.save();
-				}
-
-				term.addContext(context);
-
-				for (TermObserver termObserver : termObservers) {
-					termObserver.onNewTerm(term);
-				}
-
-				for (Expansion parent : expansion.getParents()) {
-					Term parentTerm = terminologyBase.findTerm(parent.display());
-					if (parentTerm.isNew()) {
-						parentTerm.setLexicalWordCount(parent.getLexicalWordCount());
-					}
-					parentTerm.addExpansion(term);
-					parentTerm.save();
-				}
-
-				for (Expansion child : expansion.getChildren()) {
-					Term childTerm = terminologyBase.findTerm(child.display());
-					if (childTerm.isNew()) {
-						childTerm.setLexicalWordCount(child.getLexicalWordCount());
-					}
-					childTerm.addHead(term);
-					childTerm.save();
-				}
-
-				terminologyBase.commit();
-
-				String nounPhrase = expansion.display();
-				nounPhrases.add(nounPhrase);
+		for (Expansion expansion : expansions) {
+			DependencyNode node = expansion.getNode();
+			Term term = terminologyBase.findTerm(expansion.display());
+			if (term.isNew()) {
+				term.setLexicalWordCount(expansion.getLexicalWordCount());
+				term.save();
 			}
-			return nounPhrases;
-		} finally {
-			MONITOR.endTask();
+
+			Token firstToken = node.getFirstToken().getToken();
+
+			Context context = terminologyBase.findContext(term, firstToken.getFileName(), firstToken.getLineNumber(), firstToken.getColumnNumber());
+
+			if (context.isNew()) {
+				Token lastToken = node.getLastToken().getToken();
+
+				context.setEndLineNumber(lastToken.getLineNumberEnd());
+				context.setEndColumnNumber(lastToken.getColumnNumberEnd());
+
+				int startIndex = firstToken.getIndex();
+				startIndex -= TOKEN_BUFFER_FOR_CONTEXT;
+				if (startIndex < 0)
+					startIndex = 0;
+
+				int endIndex = lastToken.getIndex();
+				endIndex += TOKEN_BUFFER_FOR_CONTEXT;
+				if (endIndex >= parseConfiguration.getPosTagSequence().getTokenSequence().size())
+					endIndex = parseConfiguration.getPosTagSequence().getTokenSequence().size() - 1;
+
+				Token startToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(startIndex);
+				Token endToken = parseConfiguration.getPosTagSequence().getTokenSequence().get(endIndex);
+				String textSegment = parseConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().substring(startToken.getStartIndex(),
+						endToken.getEndIndex());
+				context.setTextSegment(textSegment);
+				context.save();
+			}
+
+			term.addContext(context);
+
+			for (TermObserver termObserver : termObservers) {
+				termObserver.onNewTerm(term);
+			}
+
+			for (Expansion parent : expansion.getParents()) {
+				Term parentTerm = terminologyBase.findTerm(parent.display());
+				if (parentTerm.isNew()) {
+					parentTerm.setLexicalWordCount(parent.getLexicalWordCount());
+				}
+				parentTerm.addExpansion(term);
+				parentTerm.save();
+			}
+
+			for (Expansion child : expansion.getChildren()) {
+				Term childTerm = terminologyBase.findTerm(child.display());
+				if (childTerm.isNew()) {
+					childTerm.setLexicalWordCount(child.getLexicalWordCount());
+				}
+				childTerm.addHead(term);
+				childTerm.save();
+			}
+
+			terminologyBase.commit();
+
+			String nounPhrase = expansion.display();
+			nounPhrases.add(nounPhrase);
 		}
+		return nounPhrases;
 	}
 
 	/**
@@ -599,7 +582,7 @@ public class TermExtractor implements ParseConfigurationProcessor {
 							}
 						}
 					} // is this some sort of plural entry that needs to be
-					  // singularised?
+						// singularised?
 
 					if (lastToken == null) {
 						stringBuilder.append(tokenText);

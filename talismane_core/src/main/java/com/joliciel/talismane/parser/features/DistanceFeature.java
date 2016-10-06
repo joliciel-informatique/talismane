@@ -26,36 +26,35 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
- * Returns the distance between the token referred to by addressFunction1 and the token
- * referred to by addressFunction2, as an absolute value from 0 to n.
+ * Returns the distance between the token referred to by addressFunction1 and
+ * the token referred to by addressFunction2, as an absolute value from 0 to n.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class DistanceFeature extends AbstractParseConfigurationFeature<Integer>
-		implements IntegerFeature<ParseConfigurationWrapper> {
+public final class DistanceFeature extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1;
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2;
-	
+
 	public DistanceFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1,
 			PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2) {
 		super();
 		this.addressFunction1 = addressFunction1;
 		this.addressFunction2 = addressFunction2;
-		
+
 		this.setName(super.getName() + "(" + addressFunction1.getName() + "," + addressFunction2.getName() + ")");
 	}
 
-
 	@Override
-	public FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		FeatureResult<PosTaggedTokenWrapper> tokenResult1 = addressFunction1.check(wrapper, env);
 		FeatureResult<PosTaggedTokenWrapper> tokenResult2 = addressFunction2.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
-		if (tokenResult1!=null && tokenResult2!=null) {
+		if (tokenResult1 != null && tokenResult2 != null) {
 			PosTaggedToken posTaggedToken1 = tokenResult1.getOutcome().getPosTaggedToken();
 			PosTaggedToken posTaggedToken2 = tokenResult2.getOutcome().getPosTaggedToken();
 			int distance = posTaggedToken2.getToken().getIndex() - posTaggedToken1.getToken().getIndex();
-			if (distance<0)
+			if (distance < 0)
 				distance = 0 - distance;
 			featureResult = this.generateResult(distance);
 		}

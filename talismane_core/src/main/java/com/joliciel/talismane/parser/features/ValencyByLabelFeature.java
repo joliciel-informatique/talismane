@@ -29,14 +29,16 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Returns the number of dependents for a given head and label.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class ValencyByLabelFeature extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	private StringFeature<ParseConfigurationWrapper> dependencyLabelFeature;
-	
-	public ValencyByLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
+
+	public ValencyByLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
+			StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
 		super();
 		this.addressFunction = addressFunction;
 		this.dependencyLabelFeature = dependencyLabelFeature;
@@ -44,13 +46,13 @@ public final class ValencyByLabelFeature extends AbstractParseConfigurationFeatu
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();		
+	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
-		if (tokenResult!=null) {
+		if (tokenResult != null) {
 			FeatureResult<String> depLabelResult = dependencyLabelFeature.check(wrapper, env);
-			if (depLabelResult!=null) {
+			if (depLabelResult != null) {
 				PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
 				String label = depLabelResult.getOutcome();
 				int valency = configuration.getDependents(posTaggedToken, label).size();
@@ -72,8 +74,7 @@ public final class ValencyByLabelFeature extends AbstractParseConfigurationFeatu
 		return dependencyLabelFeature;
 	}
 
-	public void setDependencyLabelFeature(
-			StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
+	public void setDependencyLabelFeature(StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
 		this.dependencyLabelFeature = dependencyLabelFeature;
 	}
 

@@ -46,7 +46,6 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * The compound pattern tokeniser first splits the text into individual tokens
@@ -75,7 +74,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 class CompoundPatternTokeniser extends AbstractTokeniser implements PatternTokeniser {
 	private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternTokeniser.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(CompoundPatternTokeniser.class);
 
 	private final DecisionMaker decisionMaker;
 
@@ -197,41 +195,36 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 			Map<TokenPatternMatchSequence, TokenPatternMatch> primaryMatchMap = new HashMap<TokenPatternMatchSequence, TokenPatternMatch>();
 			Set<Token> matchedTokens = new HashSet<Token>();
 
-			MONITOR.startTask("pattern matching");
-			try {
-				for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
-					List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(initialSequence);
-					for (TokenPatternMatchSequence matchSequence : matchesForThisPattern) {
-						if (matchSequence.getTokensToCheck().size() > 0) {
-							matchingSequences.add(matchSequence);
-							matchedTokens.addAll(matchSequence.getTokensToCheck());
+			for (TokenPattern parsedPattern : this.getTokeniserPatternManager().getParsedTestPatterns()) {
+				List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(initialSequence);
+				for (TokenPatternMatchSequence matchSequence : matchesForThisPattern) {
+					if (matchSequence.getTokensToCheck().size() > 0) {
+						matchingSequences.add(matchSequence);
+						matchedTokens.addAll(matchSequence.getTokensToCheck());
 
-							TokenPatternMatch primaryMatch = null;
-							Token token = matchSequence.getTokensToCheck().get(0);
+						TokenPatternMatch primaryMatch = null;
+						Token token = matchSequence.getTokensToCheck().get(0);
 
-							Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-							if (matchSequences == null) {
-								matchSequences = new TreeSet<TokenPatternMatchSequence>();
-								tokenMatchSequenceMap.put(token, matchSequences);
-							}
-							matchSequences.add(matchSequence);
-
-							for (TokenPatternMatch patternMatch : matchSequence.getTokenPatternMatches()) {
-								if (patternMatch.getToken().equals(token)) {
-									primaryMatch = patternMatch;
-									break;
-								}
-							}
-
-							if (LOG.isTraceEnabled()) {
-								LOG.trace("Found match: " + primaryMatch);
-							}
-							primaryMatchMap.put(matchSequence, primaryMatch);
+						Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
+						if (matchSequences == null) {
+							matchSequences = new TreeSet<TokenPatternMatchSequence>();
+							tokenMatchSequenceMap.put(token, matchSequences);
 						}
+						matchSequences.add(matchSequence);
+
+						for (TokenPatternMatch patternMatch : matchSequence.getTokenPatternMatches()) {
+							if (patternMatch.getToken().equals(token)) {
+								primaryMatch = patternMatch;
+								break;
+							}
+						}
+
+						if (LOG.isTraceEnabled()) {
+							LOG.trace("Found match: " + primaryMatch);
+						}
+						primaryMatchMap.put(matchSequence, primaryMatch);
 					}
 				}
-			} finally {
-				MONITOR.endTask();
 			}
 
 			// we want to create the n most likely token sequences
@@ -242,40 +235,29 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 				TokenPatternMatch match = primaryMatchMap.get(matchSequence);
 				LOG.debug("next pattern match: " + match.toString());
 				List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
-				MONITOR.startTask("analyse features");
-				try {
-					for (TokenPatternMatchFeature<?> feature : features) {
-						RuntimeEnvironment env = new RuntimeEnvironment();
-						FeatureResult<?> featureResult = feature.check(match, env);
-						if (featureResult != null) {
-							tokenFeatureResults.add(featureResult);
-						}
+				for (TokenPatternMatchFeature<?> feature : features) {
+					RuntimeEnvironment env = new RuntimeEnvironment();
+					FeatureResult<?> featureResult = feature.check(match, env);
+					if (featureResult != null) {
+						tokenFeatureResults.add(featureResult);
 					}
-
-					if (LOG.isTraceEnabled()) {
-						for (FeatureResult<?> featureResult : tokenFeatureResults) {
-							LOG.trace(featureResult.toString());
-						}
-					}
-				} finally {
-					MONITOR.endTask();
 				}
 
-				List<Decision> decisions = null;
-				MONITOR.startTask("make decision");
-				try {
-					decisions = this.decisionMaker.decide(tokenFeatureResults);
-
-					for (ClassificationObserver observer : this.observers)
-						observer.onAnalyse(match.getToken(), tokenFeatureResults, decisions);
-
-					for (Decision decision : decisions) {
-						decision.addAuthority("_" + this.getClass().getSimpleName());
-						decision.addAuthority("_" + "Patterns");
-						decision.addAuthority(match.getPattern().getName());
+				if (LOG.isTraceEnabled()) {
+					for (FeatureResult<?> featureResult : tokenFeatureResults) {
+						LOG.trace(featureResult.toString());
 					}
-				} finally {
-					MONITOR.endTask();
+				}
+
+				List<Decision> decisions = this.decisionMaker.decide(tokenFeatureResults);
+
+				for (ClassificationObserver observer : this.observers)
+					observer.onAnalyse(match.getToken(), tokenFeatureResults, decisions);
+
+				for (Decision decision : decisions) {
+					decision.addAuthority("_" + this.getClass().getSimpleName());
+					decision.addAuthority("_" + "Patterns");
+					decision.addAuthority(match.getPattern().getName());
 				}
 
 				matchSequenceDecisionMap.put(matchSequence, decisions);
@@ -312,180 +294,175 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 
 				// limit the heap breadth to K
 				int maxSequences = previousHeap.size() > this.getBeamWidth() ? this.getBeamWidth() : previousHeap.size();
-				MONITOR.startTask("heap sort");
-				try {
-					for (int j = 0; j < maxSequences; j++) {
-						TokenisedAtomicTokenSequence history = previousHeap.poll();
+				for (int j = 0; j < maxSequences; j++) {
+					TokenisedAtomicTokenSequence history = previousHeap.poll();
 
-						// Find the separating & non-separating decisions
-						if (history.size() > i) {
-							// token already added as part of a sequence
-							// introduced by another token
-							heap.add(history);
-						} else if (tokenMatchSequenceMap.containsKey(token)) {
-							// token begins one or more match sequences
-							// these are ordered from shortest to longest (via
-							// TreeSet)
-							List<TokenPatternMatchSequence> matchSequences = new ArrayList<TokenPatternMatchSequence>(tokenMatchSequenceMap.get(token));
+					// Find the separating & non-separating decisions
+					if (history.size() > i) {
+						// token already added as part of a sequence
+						// introduced by another token
+						heap.add(history);
+					} else if (tokenMatchSequenceMap.containsKey(token)) {
+						// token begins one or more match sequences
+						// these are ordered from shortest to longest (via
+						// TreeSet)
+						List<TokenPatternMatchSequence> matchSequences = new ArrayList<TokenPatternMatchSequence>(tokenMatchSequenceMap.get(token));
 
-							// Since sequences P1..Pn contain each other,
-							// there can be exactly matchSequences.size()
-							// consistent solutions
-							// Assume the default is separate
-							// 0: all separate
-							// 1: join P1, separate rest
-							// 2: join P2, separate rest
-							// ...
-							// n: join Pn
-							// We need to add each of these to the heap
-							// by taking the product of all probabilities
-							// consistent with each solution
-							// The probabities for each solution are (j=join,
-							// s=separate)
-							// All separate: s1 x s2 x ... x sn
-							// P1: j1 x s2 x ... x sn
-							// P2: j1 x j2 x ... x sn
-							// ...
-							// Pn: j1 x j2 x ... x jn
-							// Any solution of the form s1 x j2 would be
-							// inconsistent, and is not considered
-							// If Pi and Pj start and end on the exact same
-							// token, then the solution for both is
-							// Pi: j1 x ... x ji x jj x sj+1 ... x sn
-							// Pj: j1 x ... x ji x jj x sj+1 ... x sn
-							// Note of course that we're never likely to have
-							// more than two Ps here,
-							// but we need a solution for more just to be sure
-							// to be sure
-							TokeniserOutcome defaultOutcome = TokeniserOutcome.valueOf(defaultDecisions.get(token.getIndexWithWhiteSpace()).getOutcome());
-							TokeniserOutcome otherOutcome = null;
-							if (defaultOutcome == TokeniserOutcome.SEPARATE)
-								otherOutcome = TokeniserOutcome.JOIN;
-							else
-								otherOutcome = TokeniserOutcome.SEPARATE;
+						// Since sequences P1..Pn contain each other,
+						// there can be exactly matchSequences.size()
+						// consistent solutions
+						// Assume the default is separate
+						// 0: all separate
+						// 1: join P1, separate rest
+						// 2: join P2, separate rest
+						// ...
+						// n: join Pn
+						// We need to add each of these to the heap
+						// by taking the product of all probabilities
+						// consistent with each solution
+						// The probabities for each solution are (j=join,
+						// s=separate)
+						// All separate: s1 x s2 x ... x sn
+						// P1: j1 x s2 x ... x sn
+						// P2: j1 x j2 x ... x sn
+						// ...
+						// Pn: j1 x j2 x ... x jn
+						// Any solution of the form s1 x j2 would be
+						// inconsistent, and is not considered
+						// If Pi and Pj start and end on the exact same
+						// token, then the solution for both is
+						// Pi: j1 x ... x ji x jj x sj+1 ... x sn
+						// Pj: j1 x ... x ji x jj x sj+1 ... x sn
+						// Note of course that we're never likely to have
+						// more than two Ps here,
+						// but we need a solution for more just to be sure
+						// to be sure
+						TokeniserOutcome defaultOutcome = TokeniserOutcome.valueOf(defaultDecisions.get(token.getIndexWithWhiteSpace()).getOutcome());
+						TokeniserOutcome otherOutcome = null;
+						if (defaultOutcome == TokeniserOutcome.SEPARATE)
+							otherOutcome = TokeniserOutcome.JOIN;
+						else
+							otherOutcome = TokeniserOutcome.SEPARATE;
 
-							double[] decisionProbs = new double[matchSequences.size() + 1];
-							for (int k = 0; k < decisionProbs.length; k++)
-								decisionProbs[k] = 1;
+						double[] decisionProbs = new double[matchSequences.size() + 1];
+						for (int k = 0; k < decisionProbs.length; k++)
+							decisionProbs[k] = 1;
 
-							// Note: k0 = default decision (e.g. separate all),
-							// k1=first pattern
-							// p1 = first pattern
-							int p = 1;
-							int prevEndIndex = -1;
-							for (TokenPatternMatchSequence matchSequence : matchSequences) {
-								int endIndex = matchSequence.getTokensToCheck().get(matchSequence.getTokensToCheck().size() - 1).getEndIndex();
-								List<Decision> decisions = matchSequenceDecisionMap.get(matchSequence);
-								for (Decision decision : decisions) {
-									for (int k = 0; k < decisionProbs.length; k++) {
-										if (decision.getOutcome().equals(defaultOutcome.name())) {
-											// e.g. separate in most cases
-											if (k < p && endIndex > prevEndIndex)
-												decisionProbs[k] *= decision.getProbability();
-											else if (k + 1 < p && endIndex <= prevEndIndex)
-												decisionProbs[k] *= decision.getProbability();
-										} else {
-											// e.g. join in most cases
-											if (k >= p && endIndex > prevEndIndex)
-												decisionProbs[k] *= decision.getProbability();
-											else if (k + 1 >= p && endIndex <= prevEndIndex)
-												decisionProbs[k] *= decision.getProbability();
-										}
-									} // next k
-								} // next decision (only 2 of these)
-								prevEndIndex = endIndex;
-								p++;
-							}
-
-							// transform to probability distribution
-							double sumProbs = 0;
-							for (int k = 0; k < decisionProbs.length; k++)
-								sumProbs += decisionProbs[k];
-
-							if (sumProbs > 0)
-								for (int k = 0; k < decisionProbs.length; k++)
-									decisionProbs[k] /= sumProbs;
-
-							// Apply default decision
-							// Since this is the default decision for all tokens
-							// in the sequence, we don't add the other tokens
-							// for now,
-							// so as to allow them
-							// to get examined one at a time, just in case one
-							// of them starts its own separate sequence
-							Decision defaultDecision = new Decision(defaultOutcome.name(), decisionProbs[0]);
-							defaultDecision.addAuthority("_" + this.getClass().getSimpleName());
-							defaultDecision.addAuthority("_" + "Patterns");
-							for (TokenPatternMatchSequence matchSequence : matchSequences) {
-								defaultDecision.addAuthority(matchSequence.getTokenPattern().getName());
-							}
-
-							TaggedToken<TokeniserOutcome> defaultTaggedToken = new TaggedToken<>(token, defaultDecision,
-									TokeniserOutcome.valueOf(defaultDecision.getOutcome()));
-							TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(history);
-							defaultSequence.add(defaultTaggedToken);
-							defaultSequence.addDecision(defaultDecision);
-							heap.add(defaultSequence);
-
-							// Apply one non-default decision per match sequence
-							for (int k = 0; k < matchSequences.size(); k++) {
-								TokenPatternMatchSequence matchSequence = matchSequences.get(k);
-								double prob = decisionProbs[k + 1];
-								Decision decision = new Decision(otherOutcome.name(), prob);
-								decision.addAuthority("_" + this.getClass().getSimpleName());
-								decision.addAuthority("_" + "Patterns");
-								decision.addAuthority(matchSequence.getTokenPattern().getName());
-
-								TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
-
-								TokenisedAtomicTokenSequence newSequence = new TokenisedAtomicTokenSequence(history);
-								newSequence.add(taggedToken);
-								newSequence.addDecision(decision);
-
-								// The decision is NOT the default decision for
-								// all tokens in the sequence, add all other
-								// tokens
-								// in this sequence to the solution
-								for (Token tokenInSequence : matchSequence.getTokensToCheck()) {
-									if (tokenInSequence.equals(token)) {
-										continue;
+						// Note: k0 = default decision (e.g. separate all),
+						// k1=first pattern
+						// p1 = first pattern
+						int p = 1;
+						int prevEndIndex = -1;
+						for (TokenPatternMatchSequence matchSequence : matchSequences) {
+							int endIndex = matchSequence.getTokensToCheck().get(matchSequence.getTokensToCheck().size() - 1).getEndIndex();
+							List<Decision> decisions = matchSequenceDecisionMap.get(matchSequence);
+							for (Decision decision : decisions) {
+								for (int k = 0; k < decisionProbs.length; k++) {
+									if (decision.getOutcome().equals(defaultOutcome.name())) {
+										// e.g. separate in most cases
+										if (k < p && endIndex > prevEndIndex)
+											decisionProbs[k] *= decision.getProbability();
+										else if (k + 1 < p && endIndex <= prevEndIndex)
+											decisionProbs[k] *= decision.getProbability();
+									} else {
+										// e.g. join in most cases
+										if (k >= p && endIndex > prevEndIndex)
+											decisionProbs[k] *= decision.getProbability();
+										else if (k + 1 >= p && endIndex <= prevEndIndex)
+											decisionProbs[k] *= decision.getProbability();
 									}
-									Decision decisionInSequence = new Decision(decision.getOutcome());
-									decisionInSequence.addAuthority("_" + this.getClass().getSimpleName());
-									decisionInSequence.addAuthority("_" + "DecisionInSequence");
-									decisionInSequence.addAuthority("_" + "DecisionInSequence_non_default");
-									decisionInSequence.addAuthority("_" + "Patterns");
-									TaggedToken<TokeniserOutcome> taggedTokenInSequence = new TaggedToken<>(tokenInSequence, decisionInSequence,
-											TokeniserOutcome.valueOf(decisionInSequence.getOutcome()));
+								} // next k
+							} // next decision (only 2 of these)
+							prevEndIndex = endIndex;
+							p++;
+						}
 
-									newSequence.add(taggedTokenInSequence);
-								}
+						// transform to probability distribution
+						double sumProbs = 0;
+						for (int k = 0; k < decisionProbs.length; k++)
+							sumProbs += decisionProbs[k];
 
-								heap.add(newSequence);
+						if (sumProbs > 0)
+							for (int k = 0; k < decisionProbs.length; k++)
+								decisionProbs[k] /= sumProbs;
 
-							} // next sequence
-						} else {
-							// token doesn't start match sequence, and hasn't
-							// already been added to the current sequence
-							Decision decision = defaultDecisions.get(i);
-							if (matchedTokens.contains(token)) {
-								decision = new Decision(decision.getOutcome());
-								decision.addAuthority("_" + this.getClass().getSimpleName());
-								decision.addAuthority("_" + "DecisionInSequence");
-								decision.addAuthority("_" + "DecisionInSequence_default");
-								decision.addAuthority("_" + "Patterns");
-							}
+						// Apply default decision
+						// Since this is the default decision for all tokens
+						// in the sequence, we don't add the other tokens
+						// for now,
+						// so as to allow them
+						// to get examined one at a time, just in case one
+						// of them starts its own separate sequence
+						Decision defaultDecision = new Decision(defaultOutcome.name(), decisionProbs[0]);
+						defaultDecision.addAuthority("_" + this.getClass().getSimpleName());
+						defaultDecision.addAuthority("_" + "Patterns");
+						for (TokenPatternMatchSequence matchSequence : matchSequences) {
+							defaultDecision.addAuthority(matchSequence.getTokenPattern().getName());
+						}
+
+						TaggedToken<TokeniserOutcome> defaultTaggedToken = new TaggedToken<>(token, defaultDecision,
+								TokeniserOutcome.valueOf(defaultDecision.getOutcome()));
+						TokenisedAtomicTokenSequence defaultSequence = new TokenisedAtomicTokenSequence(history);
+						defaultSequence.add(defaultTaggedToken);
+						defaultSequence.addDecision(defaultDecision);
+						heap.add(defaultSequence);
+
+						// Apply one non-default decision per match sequence
+						for (int k = 0; k < matchSequences.size(); k++) {
+							TokenPatternMatchSequence matchSequence = matchSequences.get(k);
+							double prob = decisionProbs[k + 1];
+							Decision decision = new Decision(otherOutcome.name(), prob);
+							decision.addAuthority("_" + this.getClass().getSimpleName());
+							decision.addAuthority("_" + "Patterns");
+							decision.addAuthority(matchSequence.getTokenPattern().getName());
+
 							TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
 
 							TokenisedAtomicTokenSequence newSequence = new TokenisedAtomicTokenSequence(history);
 							newSequence.add(taggedToken);
-							heap.add(newSequence);
-						}
+							newSequence.addDecision(decision);
 
-					} // next sequence in the old heap
-				} finally {
-					MONITOR.endTask();
-				}
+							// The decision is NOT the default decision for
+							// all tokens in the sequence, add all other
+							// tokens
+							// in this sequence to the solution
+							for (Token tokenInSequence : matchSequence.getTokensToCheck()) {
+								if (tokenInSequence.equals(token)) {
+									continue;
+								}
+								Decision decisionInSequence = new Decision(decision.getOutcome());
+								decisionInSequence.addAuthority("_" + this.getClass().getSimpleName());
+								decisionInSequence.addAuthority("_" + "DecisionInSequence");
+								decisionInSequence.addAuthority("_" + "DecisionInSequence_non_default");
+								decisionInSequence.addAuthority("_" + "Patterns");
+								TaggedToken<TokeniserOutcome> taggedTokenInSequence = new TaggedToken<>(tokenInSequence, decisionInSequence,
+										TokeniserOutcome.valueOf(decisionInSequence.getOutcome()));
+
+								newSequence.add(taggedTokenInSequence);
+							}
+
+							heap.add(newSequence);
+
+						} // next sequence
+					} else {
+						// token doesn't start match sequence, and hasn't
+						// already been added to the current sequence
+						Decision decision = defaultDecisions.get(i);
+						if (matchedTokens.contains(token)) {
+							decision = new Decision(decision.getOutcome());
+							decision.addAuthority("_" + this.getClass().getSimpleName());
+							decision.addAuthority("_" + "DecisionInSequence");
+							decision.addAuthority("_" + "DecisionInSequence_default");
+							decision.addAuthority("_" + "Patterns");
+						}
+						TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
+
+						TokenisedAtomicTokenSequence newSequence = new TokenisedAtomicTokenSequence(history);
+						newSequence.add(taggedToken);
+						heap.add(newSequence);
+					}
+
+				} // next sequence in the old heap
 			} // next token
 
 			sequences = new ArrayList<TokenisedAtomicTokenSequence>();

@@ -18,20 +18,20 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
-import com.joliciel.talismane.machineLearning.features.AbstractMonitorableFeature;
+import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
-abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractMonitorableFeature<ParseConfigurationWrapper,T>
+abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractFeature<ParseConfigurationWrapper, T>
 		implements ParseConfigurationAddressFeature<T> {
 	PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
-	
-	public AbstractParseConfigurationAddressFeature (PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+
+	public AbstractParseConfigurationAddressFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		this.addressFunction = addressFunction;
 	}
-	
+
 	public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
 		return addressFunction;
 	}
@@ -39,10 +39,10 @@ abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractMonit
 	public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		this.addressFunction = addressFunction;
 	}
-	
+
 	protected PosTaggedTokenWrapper getToken(ParseConfigurationWrapper parseConfiguration, RuntimeEnvironment env) {
 		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(parseConfiguration, env);
-		if (tokenResult==null)
+		if (tokenResult == null)
 			return null;
 		return tokenResult.getOutcome();
 	}

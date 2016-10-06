@@ -28,12 +28,13 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Returns the number of dependents.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
-	
+
 	public ValencyFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		super();
 		this.addressFunction = addressFunction;
@@ -41,11 +42,11 @@ public final class ValencyFeature extends AbstractParseConfigurationFeature<Inte
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();		
+	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
-		if (tokenResult!=null) {
+		if (tokenResult != null) {
 			PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
 			int valency = configuration.getDependents(posTaggedToken).size();
 			featureResult = this.generateResult(valency);

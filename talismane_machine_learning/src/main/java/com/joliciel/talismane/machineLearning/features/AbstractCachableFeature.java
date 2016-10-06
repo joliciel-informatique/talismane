@@ -18,15 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
-import com.joliciel.talismane.utils.PerformanceMonitor;
-
 /**
- * In addition to AbstractFeature, allows us to cache the feature result in the context
- * to avoid multiple checking, and logs performance.
+ * In addition to AbstractFeature, allows us to cache the feature result in the
+ * context to avoid multiple checking, and logs performance.
+ * 
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y> {
+public abstract class AbstractCachableFeature<T, Y> extends AbstractFeature<T, Y> {
 	public AbstractCachableFeature() {
 		super();
 	}
@@ -34,26 +33,19 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 	@Override
 	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Y> featureResult = this.checkInCache(context, env);
-		if (featureResult==null) {
-			PerformanceMonitor monitor = PerformanceMonitor.getMonitor(this.getClass());
-			monitor.startTask("check");
-			try {
-				featureResult = this.checkInternal(context, env);
-			} finally {
-				monitor.endTask();
-			}
+		if (featureResult == null) {
+			featureResult = this.checkInternal(context, env);
 			this.putInCache(context, featureResult, env);
-		} else if (featureResult.getOutcome()==null) {
+		} else if (featureResult.getOutcome() == null) {
 			// a NullFeatureResult was stored in the cache
 			featureResult = null;
 		}
-		return featureResult;		
+		return featureResult;
 	}
 
-
 	/**
-	 * Override if this feature result should be cached within the context
-	 * to avoid checking multiple times.
+	 * Override if this feature result should be cached within the context to
+	 * avoid checking multiple times.
 	 */
 	protected FeatureResult<Y> checkInCache(T context, RuntimeEnvironment env) {
 		if (context instanceof HasFeatureCache) {
@@ -61,14 +53,14 @@ public abstract class AbstractCachableFeature<T,Y> extends AbstractFeature<T, Y>
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Override if this feature result should be cached within the context
-	 * to avoid checking multiple times.
-	 */	
+	 * Override if this feature result should be cached within the context to
+	 * avoid checking multiple times.
+	 */
 	protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
 		if (context instanceof HasFeatureCache) {
-			if (featureResult==null)
+			if (featureResult == null)
 				featureResult = new NullFeatureResult<Y>();
 			((HasFeatureCache) context).putResultInCache(this, featureResult, env);
 		}

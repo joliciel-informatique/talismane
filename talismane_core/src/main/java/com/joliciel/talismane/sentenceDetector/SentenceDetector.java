@@ -43,7 +43,6 @@ import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * Detect sentence boundaries within a textual block. The linefeed character
@@ -62,7 +61,6 @@ public class SentenceDetector {
 	public static final Pattern POSSIBLE_BOUNDARIES = Pattern.compile("[\\.\\?\\!\"\\)\\]\\}»—―”″\n]");
 
 	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetector.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(SentenceDetector.class);
 
 	private final DecisionMaker decisionMaker;
 	private final Set<SentenceDetectorFeature<?>> features;
@@ -119,86 +117,81 @@ public class SentenceDetector {
 	 *         (prevText + text + nextText).
 	 */
 	public List<Integer> detectSentences(String prevText, String text, String moreText) {
-		MONITOR.startTask("detectSentences");
-		try {
-			String context = prevText + text + moreText;
+		String context = prevText + text + moreText;
 
-			// we only want one placeholder per start index - the first one that
-			// gets added
-			Map<Integer, TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
-			for (TokenFilter filter : this.preTokeniserFilters) {
-				List<TokenPlaceholder> myPlaceholders = filter.apply(context);
-				for (TokenPlaceholder placeholder : myPlaceholders) {
-					if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
-						placeholderMap.put(placeholder.getStartIndex(), placeholder);
-					}
+		// we only want one placeholder per start index - the first one that
+		// gets added
+		Map<Integer, TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
+		for (TokenFilter filter : this.preTokeniserFilters) {
+			List<TokenPlaceholder> myPlaceholders = filter.apply(context);
+			for (TokenPlaceholder placeholder : myPlaceholders) {
+				if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
+					placeholderMap.put(placeholder.getStartIndex(), placeholder);
 				}
 			}
-
-			Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text);
-			Set<Integer> possibleBoundaries = new HashSet<Integer>();
-			List<Integer> guessedBoundaries = new ArrayList<Integer>();
-
-			while (matcher.find()) {
-				// Only add possible boundaries if they're not inside a
-				// placeholder
-				// Note that we allow boundaries at the last position of the
-				// placeholder (placeholder.getEndIndex()-1)
-				boolean inPlaceholder = false;
-				int position = prevText.length() + matcher.start();
-				for (TokenPlaceholder placeholder : placeholderMap.values()) {
-					int endPos = placeholder.getEndIndex();
-					if (placeholder.isPossibleSentenceBoundary()) {
-						endPos -= 1;
-					}
-					if (placeholder.getStartIndex() <= position && position < endPos) {
-						inPlaceholder = true;
-						break;
-					}
-				}
-				if (!inPlaceholder)
-					possibleBoundaries.add(position);
-			}
-
-			for (int possibleBoundary : possibleBoundaries) {
-				PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, talismaneSession);
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Testing boundary: " + boundary);
-					LOG.trace(" at position: " + possibleBoundary);
-				}
-
-				List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
-				for (SentenceDetectorFeature<?> feature : features) {
-					RuntimeEnvironment env = new RuntimeEnvironment();
-					FeatureResult<?> featureResult = feature.check(boundary, env);
-					if (featureResult != null)
-						featureResults.add(featureResult);
-				}
-				if (LOG.isTraceEnabled()) {
-					for (FeatureResult<?> result : featureResults) {
-						LOG.trace(result.toString());
-					}
-				}
-
-				List<Decision> decisions = this.decisionMaker.decide(featureResults);
-				if (LOG.isTraceEnabled()) {
-					for (Decision decision : decisions) {
-						LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
-					}
-				}
-
-				if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
-					guessedBoundaries.add(possibleBoundary - prevText.length());
-					if (LOG.isTraceEnabled()) {
-						LOG.trace("Adding boundary: " + possibleBoundary);
-					}
-				}
-			} // have we a possible boundary at this position?
-
-			return guessedBoundaries;
-		} finally {
-			MONITOR.endTask();
 		}
+
+		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text);
+		Set<Integer> possibleBoundaries = new HashSet<Integer>();
+		List<Integer> guessedBoundaries = new ArrayList<Integer>();
+
+		while (matcher.find()) {
+			// Only add possible boundaries if they're not inside a
+			// placeholder
+			// Note that we allow boundaries at the last position of the
+			// placeholder (placeholder.getEndIndex()-1)
+			boolean inPlaceholder = false;
+			int position = prevText.length() + matcher.start();
+			for (TokenPlaceholder placeholder : placeholderMap.values()) {
+				int endPos = placeholder.getEndIndex();
+				if (placeholder.isPossibleSentenceBoundary()) {
+					endPos -= 1;
+				}
+				if (placeholder.getStartIndex() <= position && position < endPos) {
+					inPlaceholder = true;
+					break;
+				}
+			}
+			if (!inPlaceholder)
+				possibleBoundaries.add(position);
+		}
+
+		for (int possibleBoundary : possibleBoundaries) {
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, talismaneSession);
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Testing boundary: " + boundary);
+				LOG.trace(" at position: " + possibleBoundary);
+			}
+
+			List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
+			for (SentenceDetectorFeature<?> feature : features) {
+				RuntimeEnvironment env = new RuntimeEnvironment();
+				FeatureResult<?> featureResult = feature.check(boundary, env);
+				if (featureResult != null)
+					featureResults.add(featureResult);
+			}
+			if (LOG.isTraceEnabled()) {
+				for (FeatureResult<?> result : featureResults) {
+					LOG.trace(result.toString());
+				}
+			}
+
+			List<Decision> decisions = this.decisionMaker.decide(featureResults);
+			if (LOG.isTraceEnabled()) {
+				for (Decision decision : decisions) {
+					LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
+				}
+			}
+
+			if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
+				guessedBoundaries.add(possibleBoundary - prevText.length());
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("Adding boundary: " + possibleBoundary);
+				}
+			}
+		} // have we a possible boundary at this position?
+
+		return guessedBoundaries;
 	}
 
 	public DecisionMaker getDecisionMaker() {

@@ -30,12 +30,13 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the nth item from the buffer.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class AddressFunctionBuffer extends AbstractAddressFunction {
 	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
-	
+
 	public AddressFunctionBuffer(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
 		super();
 		this.indexFeature = indexFeature;
@@ -43,15 +44,15 @@ public final class AddressFunctionBuffer extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
-		if (indexResult!=null) {
+		if (indexResult != null) {
 			int index = indexResult.getOutcome();
-			
+
 			Iterator<PosTaggedToken> bufferIterator = configuration.getBuffer().iterator();
-			for (int i=0; i<=index; i++) {
+			for (int i = 0; i <= index; i++) {
 				if (!bufferIterator.hasNext()) {
 					resultToken = null;
 					break;
@@ -60,39 +61,36 @@ public final class AddressFunctionBuffer extends AbstractAddressFunction {
 			}
 		}
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}
 
-
 	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
-			String variableName) {
-		
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
+
 		String indexName = builder.addFeatureVariable(indexFeature, "index");
-		
+
 		builder.append("if (" + indexName + "!=null) {");
 		builder.indent();
 		String bufferIterator = builder.getVarName("bufferIterator");
 		builder.addImport(Iterator.class);
 		builder.addImport(PosTaggedToken.class);
-		
-		builder.append(	"Iterator<PosTaggedToken> " + bufferIterator + " = context.getParseConfiguration().getBuffer().iterator();");
-		
-		builder.append(	"for (int i=0; i<=" + indexName + "; i++) {");
+
+		builder.append("Iterator<PosTaggedToken> " + bufferIterator + " = context.getParseConfiguration().getBuffer().iterator();");
+
+		builder.append("for (int i=0; i<=" + indexName + "; i++) {");
 		builder.indent();
-		builder.append(		"if (!" + bufferIterator + ".hasNext()) {");
+		builder.append("if (!" + bufferIterator + ".hasNext()) {");
 		builder.indent();
-		builder.append(			variableName + " = null;");
-		builder.append(			"break;");
-	    builder.outdent();
-		builder.append(		"}");
-		builder.append(	variableName + " = " + bufferIterator + ".next();");
+		builder.append(variableName + " = null;");
+		builder.append("break;");
 		builder.outdent();
 		builder.append("}");
-		
+		builder.append(variableName + " = " + bufferIterator + ".next();");
+		builder.outdent();
+		builder.append("}");
+
 		builder.outdent();
 		builder.append("}");
 		return true;

@@ -30,28 +30,29 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the nth item from the stack.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class AddressFunctionStack extends AbstractAddressFunction {
 	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
-	
+
 	public AddressFunctionStack(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
 		super();
 		this.indexFeature = indexFeature;
 		this.setName("Stack[" + indexFeature.getName() + "]");
 	}
-	
+
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(wrapper, env);
-		if (indexResult!=null) {
+		if (indexResult != null) {
 			int index = indexResult.getOutcome();
 			Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
-			
-			for (int i=0; i<=index; i++) {
+
+			for (int i = 0; i <= index; i++) {
 				if (!stackIterator.hasNext()) {
 					resultToken = null;
 					break;
@@ -60,42 +61,39 @@ public final class AddressFunctionStack extends AbstractAddressFunction {
 			}
 		}
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}
 
 	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
-			String variableName) {
-		
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
+
 		String indexName = builder.addFeatureVariable(indexFeature, "index");
-		
+
 		builder.append("if (" + indexName + "!=null) {");
 		builder.indent();
 		String stackIterator = builder.getVarName("stackIterator");
 		builder.addImport(Iterator.class);
 		builder.addImport(PosTaggedToken.class);
-		
-		builder.append(	"Iterator<PosTaggedToken> " + stackIterator + " = context.getParseConfiguration().getStack().iterator();");
-		
-		builder.append(	"for (int i=0; i<=" + indexName + "; i++) {");
+
+		builder.append("Iterator<PosTaggedToken> " + stackIterator + " = context.getParseConfiguration().getStack().iterator();");
+
+		builder.append("for (int i=0; i<=" + indexName + "; i++) {");
 		builder.indent();
-		builder.append(		"if (!" + stackIterator + ".hasNext()) {");
+		builder.append("if (!" + stackIterator + ".hasNext()) {");
 		builder.indent();
-		builder.append(			variableName + " = null;");
-		builder.append(			"break;");
-	    builder.outdent();
-		builder.append(		"}");
-		builder.append(	variableName + " = " + stackIterator + ".next();");
+		builder.append(variableName + " = null;");
+		builder.append("break;");
 		builder.outdent();
 		builder.append("}");
-		
+		builder.append(variableName + " = " + stackIterator + ".next();");
+		builder.outdent();
+		builder.append("}");
+
 		builder.outdent();
 		builder.append("}");
 		return true;
 	}
-	
-	
+
 }
