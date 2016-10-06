@@ -18,13 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.fr;
 
-import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,17 +31,9 @@ import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.Extensions;
-import com.joliciel.talismane.fr.ftb.TreebankReader;
-import com.joliciel.talismane.fr.ftb.TreebankServiceLocator;
-import com.joliciel.talismane.fr.ftb.export.FtbPosTagMapper;
-import com.joliciel.talismane.fr.ftb.export.TreebankExportService;
-import com.joliciel.talismane.fr.ftb.upload.TreebankUploadService;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenAfterDuFilter;
 import com.joliciel.talismane.fr.tokeniser.filters.EmptyTokenBeforeDuquelFilter;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
-import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -64,8 +52,6 @@ public class TalismaneFrench {
 	private enum CorpusFormat {
 		/** CoNLL-X format */
 		conll,
-		/** French Treebank XML reader */
-		ftb,
 		/** French Treebank converted to dependencies */
 		ftbDep,
 		/** SPMRL format */
@@ -75,16 +61,11 @@ public class TalismaneFrench {
 	public static void main(String[] args) throws Exception {
 		Map<String, String> argsMap = StringUtils.convertArgs(args);
 		CorpusFormat corpusReaderType = null;
-		String treebankDirPath = null;
 		boolean keepCompoundPosTags = true;
 
 		if (argsMap.containsKey("corpusReader")) {
 			corpusReaderType = CorpusFormat.valueOf(argsMap.get("corpusReader"));
 			argsMap.remove("corpusReader");
-		}
-		if (argsMap.containsKey("treebankDir")) {
-			treebankDirPath = argsMap.get("treebankDir");
-			argsMap.remove("treebankDir");
 		}
 		if (argsMap.containsKey("keepCompoundPosTags")) {
 			keepCompoundPosTags = argsMap.get("keepCompoundPosTags").equalsIgnoreCase("true");
@@ -132,33 +113,6 @@ public class TalismaneFrench {
 					config.setParserEvaluationCorpusReader(ftbDepEvaluationReader);
 					config.setPosTagEvaluationCorpusReader(ftbDepEvaluationReader);
 				}
-			} else if (corpusReaderType == CorpusFormat.ftb) {
-				TreebankServiceLocator treebankServiceLocator = TreebankServiceLocator.getInstance(talismaneSession);
-				TreebankUploadService treebankUploadService = treebankServiceLocator.getTreebankUploadServiceLocator().getTreebankUploadService();
-				TreebankExportService treebankExportService = treebankServiceLocator.getTreebankExportServiceLocator().getTreebankExportService();
-				File treebankFile = new File(treebankDirPath);
-				TreebankReader treebankReader = treebankUploadService.getXmlReader(treebankFile);
-
-				// we prepare both the tokeniser and pos-tag readers, just in
-				// case they are needed
-				List<String> descriptors = null;
-				try (InputStream posTagMapStream = TalismaneFrench.getFtbPosTagMapFromStream(); Scanner scanner = new Scanner(posTagMapStream, "UTF-8")) {
-					descriptors = new ArrayList<String>();
-					while (scanner.hasNextLine())
-						descriptors.add(scanner.nextLine());
-				}
-
-				FtbPosTagMapper ftbPosTagMapper = treebankExportService.getFtbPosTagMapper(descriptors, talismaneSession.getPosTagSet());
-				PosTagAnnotatedCorpusReader posTagAnnotatedCorpusReader = treebankExportService.getPosTagAnnotatedCorpusReader(treebankReader, ftbPosTagMapper,
-						keepCompoundPosTags);
-				config.setPosTagCorpusReader(posTagAnnotatedCorpusReader);
-
-				TokeniserAnnotatedCorpusReader tokenCorpusReader = treebankExportService.getTokeniserAnnotatedCorpusReader(treebankReader, ftbPosTagMapper,
-						keepCompoundPosTags);
-				config.setTokenCorpusReader(tokenCorpusReader);
-
-				SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader = treebankExportService.getSentenceDetectorAnnotatedCorpusReader(treebankReader);
-				config.setSentenceCorpusReader(sentenceCorpusReader);
 			} else if (corpusReaderType == CorpusFormat.conll || corpusReaderType == CorpusFormat.spmrl) {
 				String regex = config.getParserReaderRegex();
 				if (corpusReaderType == CorpusFormat.spmrl) {

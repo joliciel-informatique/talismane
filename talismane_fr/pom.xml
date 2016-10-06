@@ -72,10 +72,6 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>com.joliciel.talismane</groupId>
-			<artifactId>talismane-ftb</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.googlecode.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
 			<scope>test</scope>
@@ -84,6 +80,10 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.joliciel.talismane</groupId>
+			<artifactId>talismane-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
