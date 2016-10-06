@@ -54,10 +54,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
-			<artifactId>talismane-ftb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-machine-learning</artifactId>
 		</dependency>
 		<dependency>

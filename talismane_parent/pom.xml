@@ -14,7 +14,6 @@
 		<module>../talismane_core</module>
 		<module>../talismane_machine_learning</module>
 		<module>../talismane_utils</module>
-		<module>../talismane_ftb</module>
 		<module>../talismane_fr</module>
 		<module>../talismane_en</module>
 		<module>../talismane_term_extractor</module>
@@ -93,11 +92,6 @@
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-fr</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.joliciel.talismane</groupId>
-				<artifactId>talismane-ftb</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
