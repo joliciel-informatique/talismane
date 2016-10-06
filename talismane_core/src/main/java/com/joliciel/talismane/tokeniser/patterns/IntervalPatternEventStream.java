@@ -46,7 +46,6 @@ import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * An event stream for tokenising, using patterns to identify intervals that
@@ -61,7 +60,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public class IntervalPatternEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(IntervalPatternEventStream.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(IntervalPatternEventStream.class);
 
 	private final TokeniserAnnotatedCorpusReader corpusReader;
 	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
@@ -86,67 +84,62 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 
 	@Override
 	public boolean hasNext() {
-		MONITOR.startTask("hasNext");
-		try {
-			if (tokensToCheck != null) {
-				if (currentIndex == tokensToCheck.size()) {
-					tokensToCheck = null;
-				}
+		if (tokensToCheck != null) {
+			if (currentIndex == tokensToCheck.size()) {
+				tokensToCheck = null;
 			}
-			while (tokensToCheck == null) {
-				if (this.corpusReader.hasNextTokenSequence()) {
-					TokenSequence realSequence = corpusReader.nextTokenSequence();
+		}
+		while (tokensToCheck == null) {
+			if (this.corpusReader.hasNextTokenSequence()) {
+				TokenSequence realSequence = corpusReader.nextTokenSequence();
 
-					List<Integer> tokenSplits = realSequence.getTokenSplits();
-					String text = realSequence.getText();
-					LOG.debug("Sentence: " + text);
-					Sentence sentence = new Sentence(text, talismaneSession);
+				List<Integer> tokenSplits = realSequence.getTokenSplits();
+				String text = realSequence.getText();
+				LOG.debug("Sentence: " + text);
+				Sentence sentence = new Sentence(text, talismaneSession);
 
-					TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
-					for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
-						tokenSequenceFilter.apply(tokenSequence);
+				TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+				for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
+					tokenSequenceFilter.apply(tokenSequence);
+				}
+				tokenFilterWrapper.apply(tokenSequence);
+
+				List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
+				currentHistory = new TokenisedAtomicTokenSequence(sentence, tokenSequence.size(), this.talismaneSession);
+
+				// check if anything matches each pattern
+				Set<Token> patternMatchingTokens = new TreeSet<Token>();
+				for (TokenPattern parsedPattern : this.tokeniserPatternManager.getParsedTestPatterns()) {
+					List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
+					for (TokenPatternMatchSequence tokenPatternMatch : tokenPatternMatches) {
+						if (LOG.isTraceEnabled())
+							LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatch.getTokenSequence());
+						patternMatchingTokens.addAll(tokenPatternMatch.getTokensToCheck());
 					}
-					tokenFilterWrapper.apply(tokenSequence);
+				} // next pattern
 
-					List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
-					currentHistory = new TokenisedAtomicTokenSequence(sentence, tokenSequence.size(), this.talismaneSession);
-
-					// check if anything matches each pattern
-					Set<Token> patternMatchingTokens = new TreeSet<Token>();
-					for (TokenPattern parsedPattern : this.tokeniserPatternManager.getParsedTestPatterns()) {
-						List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
-						for (TokenPatternMatchSequence tokenPatternMatch : tokenPatternMatches) {
-							if (LOG.isTraceEnabled())
-								LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatch.getTokenSequence());
-							patternMatchingTokens.addAll(tokenPatternMatch.getTokensToCheck());
+				if (patternMatchingTokens.size() > 0) {
+					tokensToCheck = new ArrayList<TaggedToken<TokeniserOutcome>>();
+					for (Token token : patternMatchingTokens) {
+						for (TaggedToken<TokeniserOutcome> taggedToken : currentSentence) {
+							if (taggedToken.getToken().equals(token))
+								tokensToCheck.add(taggedToken);
 						}
-					} // next pattern
+					}
 
-					if (patternMatchingTokens.size() > 0) {
-						tokensToCheck = new ArrayList<TaggedToken<TokeniserOutcome>>();
-						for (Token token : patternMatchingTokens) {
-							for (TaggedToken<TokeniserOutcome> taggedToken : currentSentence) {
-								if (taggedToken.getToken().equals(token))
-									tokensToCheck.add(taggedToken);
-							}
-						}
-
-						currentIndex = 0;
-						if (tokensToCheck.size() == 0) {
-							tokensToCheck = null;
-						}
-					} else {
+					currentIndex = 0;
+					if (tokensToCheck.size() == 0) {
 						tokensToCheck = null;
 					}
 				} else {
-					break;
+					tokensToCheck = null;
 				}
+			} else {
+				break;
 			}
-
-			return tokensToCheck != null;
-		} finally {
-			MONITOR.endTask();
 		}
+
+		return tokensToCheck != null;
 	}
 
 	@Override
@@ -162,43 +155,33 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 
 	@Override
 	public ClassificationEvent next() {
-		MONITOR.startTask("next");
-		try {
-			ClassificationEvent event = null;
-			if (this.hasNext()) {
-				TaggedToken<TokeniserOutcome> taggedToken = tokensToCheck.get(currentIndex++);
-				TokeniserContext context = new TokeniserContext(taggedToken.getToken(), currentHistory);
+		ClassificationEvent event = null;
+		if (this.hasNext()) {
+			TaggedToken<TokeniserOutcome> taggedToken = tokensToCheck.get(currentIndex++);
+			TokeniserContext context = new TokeniserContext(taggedToken.getToken(), currentHistory);
 
-				LOG.debug("next event, token: " + taggedToken.getToken().getText());
-				List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
-				MONITOR.startTask("check features");
-				try {
-					for (TokeniserContextFeature<?> tokeniserContextFeature : tokeniserContextFeatures) {
-						RuntimeEnvironment env = new RuntimeEnvironment();
-						FeatureResult<?> featureResult = tokeniserContextFeature.check(context, env);
-						if (featureResult != null) {
-							tokenFeatureResults.add(featureResult);
-							if (LOG.isTraceEnabled()) {
-								LOG.trace(featureResult.toString());
-							}
-						}
+			LOG.debug("next event, token: " + taggedToken.getToken().getText());
+			List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
+			for (TokeniserContextFeature<?> tokeniserContextFeature : tokeniserContextFeatures) {
+				RuntimeEnvironment env = new RuntimeEnvironment();
+				FeatureResult<?> featureResult = tokeniserContextFeature.check(context, env);
+				if (featureResult != null) {
+					tokenFeatureResults.add(featureResult);
+					if (LOG.isTraceEnabled()) {
+						LOG.trace(featureResult.toString());
 					}
-				} finally {
-					MONITOR.endTask();
-				}
-
-				String classification = taggedToken.getTag().name();
-				event = new ClassificationEvent(tokenFeatureResults, classification);
-
-				currentHistory.add(taggedToken);
-				if (currentIndex == tokensToCheck.size()) {
-					tokensToCheck = null;
 				}
 			}
-			return event;
-		} finally {
-			MONITOR.endTask();
+
+			String classification = taggedToken.getTag().name();
+			event = new ClassificationEvent(tokenFeatureResults, classification);
+
+			currentHistory.add(taggedToken);
+			if (currentIndex == tokensToCheck.size()) {
+				tokensToCheck = null;
+			}
 		}
+		return event;
 	}
 
 	public List<TaggedToken<TokeniserOutcome>> getTaggedTokens(TokenSequence tokenSequence, List<Integer> tokenSplits) {

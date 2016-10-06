@@ -30,7 +30,6 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * An abstract tokeniser, applying filters correctly, but leaving actual
@@ -41,7 +40,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public abstract class AbstractTokeniser implements Tokeniser {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokeniser.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(AbstractTokeniser.class);
 
 	private final List<TokenSequenceFilter> tokenSequenceFilters;
 	private final List<TokenFilter> tokenFilters;
@@ -95,65 +93,60 @@ public abstract class AbstractTokeniser implements Tokeniser {
 
 	@Override
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
-		MONITOR.startTask("tokeniseWithDecisions");
-		try {
-			// apply any pre-tokenisation decisions via filters
-			// we only want one placeholder per start index - the first one that
-			// gets added
-			List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
+		// apply any pre-tokenisation decisions via filters
+		// we only want one placeholder per start index - the first one that
+		// gets added
+		List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
 
-			for (TokenFilter tokenFilter : this.tokenFilters) {
-				List<TokenPlaceholder> myPlaceholders = tokenFilter.apply(sentence.getText());
-				placeholders.addAll(myPlaceholders);
-				if (LOG.isTraceEnabled()) {
-					if (myPlaceholders.size() > 0) {
-						LOG.trace("TokenFilter: " + tokenFilter);
-						LOG.trace("placeholders: " + myPlaceholders);
-					}
+		for (TokenFilter tokenFilter : this.tokenFilters) {
+			List<TokenPlaceholder> myPlaceholders = tokenFilter.apply(sentence.getText());
+			placeholders.addAll(myPlaceholders);
+			if (LOG.isTraceEnabled()) {
+				if (myPlaceholders.size() > 0) {
+					LOG.trace("TokenFilter: " + tokenFilter);
+					LOG.trace("placeholders: " + myPlaceholders);
 				}
 			}
-
-			// Initially, separate the sentence into tokens using the separators
-			// provided
-			TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, placeholders, this.talismaneSession);
-
-			// apply any pre-processing filters that have been added
-			for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
-				tokenSequenceFilter.apply(tokenSequence);
-			}
-
-			List<TokenisedAtomicTokenSequence> sequences = this.tokeniseInternal(tokenSequence, sentence);
-
-			LOG.debug("####Final token sequences:");
-			int j = 1;
-			for (TokenisedAtomicTokenSequence sequence : sequences) {
-				TokenSequence newTokenSequence = sequence.inferTokenSequence();
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Token sequence " + (j++));
-					LOG.debug("Atomic sequence: " + sequence);
-					LOG.debug("Resulting sequence: " + newTokenSequence);
-				}
-				// need to re-apply the pre-processing filters, because the
-				// tokens are all new
-				// Question: why can't we conserve the initial tokens when they
-				// haven't changed at all?
-				// Answer: because the tokenSequence and index in the sequence
-				// is referenced by the token.
-				// Question: should we create a separate class, Token and
-				// TokenInSequence,
-				// one with index & sequence access & one without?
-				for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
-					tokenSequenceFilter.apply(newTokenSequence);
-				}
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("After filters: " + newTokenSequence);
-				}
-			}
-
-			return sequences;
-		} finally {
-			MONITOR.endTask();
 		}
+
+		// Initially, separate the sentence into tokens using the separators
+		// provided
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, placeholders, this.talismaneSession);
+
+		// apply any pre-processing filters that have been added
+		for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+			tokenSequenceFilter.apply(tokenSequence);
+		}
+
+		List<TokenisedAtomicTokenSequence> sequences = this.tokeniseInternal(tokenSequence, sentence);
+
+		LOG.debug("####Final token sequences:");
+		int j = 1;
+		for (TokenisedAtomicTokenSequence sequence : sequences) {
+			TokenSequence newTokenSequence = sequence.inferTokenSequence();
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Token sequence " + (j++));
+				LOG.debug("Atomic sequence: " + sequence);
+				LOG.debug("Resulting sequence: " + newTokenSequence);
+			}
+			// need to re-apply the pre-processing filters, because the
+			// tokens are all new
+			// Question: why can't we conserve the initial tokens when they
+			// haven't changed at all?
+			// Answer: because the tokenSequence and index in the sequence
+			// is referenced by the token.
+			// Question: should we create a separate class, Token and
+			// TokenInSequence,
+			// one with index & sequence access & one without?
+			for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+				tokenSequenceFilter.apply(newTokenSequence);
+			}
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("After filters: " + newTokenSequence);
+			}
+		}
+
+		return sequences;
 	}
 
 	protected abstract List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence);

@@ -29,13 +29,13 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
- * The dependency label of a given token's governing dependency,
- * where the token is referenced by address.
+ * The dependency label of a given token's governing dependency, where the token
+ * is referenced by address.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String>
-implements StringFeature<ParseConfigurationWrapper> {
+public final class DependencyLabelFeature extends AbstractParseConfigurationAddressFeature<String> implements StringFeature<ParseConfigurationWrapper> {
 
 	public DependencyLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		super(addressFunction);
@@ -44,41 +44,39 @@ implements StringFeature<ParseConfigurationWrapper> {
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<String> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(wrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
+		if (posTaggedToken == null)
 			return null;
 
 		FeatureResult<String> featureResult = null;
 
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		DependencyArc arc = configuration.getGoverningDependency(posTaggedToken);
-		if (arc!=null) {
+		if (arc != null) {
 			String label = arc.getLabel();
-			if (label==null)
+			if (label == null)
 				label = "null";
 			featureResult = this.generateResult(label);
 		}
-		
+
 		return featureResult;
 	}
-	
+
 	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
-			String variableName) {
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
 		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null) {" );
+		builder.append("if (" + address + "!=null) {");
 		builder.indent();
 		String arc = builder.getVarName("arc");
 		builder.addImport(DependencyArc.class);
-		builder.append(		"DependencyArc " + arc + " = context.getParseConfiguration().getGoverningDependency(" + address + ".getPosTaggedToken());");
+		builder.append("DependencyArc " + arc + " = context.getParseConfiguration().getGoverningDependency(" + address + ".getPosTaggedToken());");
 		builder.append("if (" + arc + "!=null)");
 		builder.indent();
-		builder.append(		variableName + " = " + arc + ".getLabel()==null ? \"null\" : " + arc + ".getLabel();");
+		builder.append(variableName + " = " + arc + ".getLabel()==null ? \"null\" : " + arc + ".getLabel();");
 		builder.outdent();
 		builder.outdent();
 		builder.append("}");

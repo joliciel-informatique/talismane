@@ -29,15 +29,15 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Returns the number of dependents already matching a certain criterion.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class DependencyCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
-	
-	public DependencyCountIf(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
-			BooleanFeature<ParseConfigurationAddress> criterion) {
+
+	public DependencyCountIf(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, BooleanFeature<ParseConfigurationAddress> criterion) {
 		super();
 		this.addressFunction = addressFunction;
 		this.criterion = criterion;
@@ -45,11 +45,11 @@ public final class DependencyCountIf extends AbstractParseConfigurationFeature<I
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();		
+	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;
-		if (tokenResult!=null) {
+		if (tokenResult != null) {
 			PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
 			int countMatching = 0;
 			for (PosTaggedToken dependent : configuration.getDependents(posTaggedToken)) {
@@ -57,7 +57,7 @@ public final class DependencyCountIf extends AbstractParseConfigurationFeature<I
 				parseConfigurationAddress.setParseConfiguration(configuration);
 				parseConfigurationAddress.setPosTaggedToken(dependent);
 				FeatureResult<Boolean> criterionResult = criterion.check(parseConfigurationAddress, env);
-				if (criterionResult!=null && criterionResult.getOutcome())
+				if (criterionResult != null && criterionResult.getOutcome())
 					countMatching++;
 			}
 			featureResult = this.generateResult(countMatching);

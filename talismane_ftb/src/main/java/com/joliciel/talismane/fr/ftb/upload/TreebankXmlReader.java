@@ -49,11 +49,9 @@ import com.joliciel.talismane.fr.ftb.TreebankFile;
 import com.joliciel.talismane.fr.ftb.TreebankReader;
 import com.joliciel.talismane.fr.ftb.TreebankService;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 class TreebankXmlReader implements TreebankReader {
 	private static final Logger LOG = LoggerFactory.getLogger(TreebankXmlReader.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TreebankXmlReader.class);
 
 	private TreebankFile treebankFile;
 	private TreebankService treebankService;
@@ -94,72 +92,67 @@ class TreebankXmlReader implements TreebankReader {
 	 */
 	@Override
 	public boolean hasNextSentence() {
-		MONITOR.startTask("hasNextSentence");
-		try {
-			if (sentenceCount > 0 && currentSentenceCount == sentenceCount)
-				return false;
+		if (sentenceCount > 0 && currentSentenceCount == sentenceCount)
+			return false;
 
-			if (eventReader == null)
-				this.getNextEventReader();
+		if (eventReader == null)
+			this.getNextEventReader();
 
-			boolean sentenceClosed = false;
-			while (eventReader != null && !sentenceClosed) {
-				while (eventReader.hasNext() && !sentenceClosed) {
-					XMLEvent xmlEvent;
-					try {
-						xmlEvent = eventReader.nextEvent();
-					} catch (XMLStreamException e) {
-						LogUtils.logError(LOG, e);
-						throw new RuntimeException(e);
-					}
-					switch (xmlEvent.getEventType()) {
-					case XMLEvent.START_ELEMENT:
-						StartElement startElementEvent = xmlEvent.asStartElement();
-						this.startElement(startElementEvent);
-						break;
-					case XMLEvent.END_ELEMENT:
-						EndElement endElementEvent = xmlEvent.asEndElement();
-						sentenceClosed = this.endElement(endElementEvent);
-						break;
-					case XMLEvent.PROCESSING_INSTRUCTION:
-						break;
-					case XMLEvent.CHARACTERS:
-						Characters charactersEvent = xmlEvent.asCharacters();
-						this.characters(charactersEvent);
-						break;
-					case XMLEvent.COMMENT:
-						break;
-					case XMLEvent.START_DOCUMENT:
-						break;
-					case XMLEvent.END_DOCUMENT:
-						break;
-					case XMLEvent.ENTITY_REFERENCE:
-						break;
-					case XMLEvent.ATTRIBUTE:
-						break;
-					case XMLEvent.DTD:
-						break;
-					case XMLEvent.CDATA:
-						break;
-					case XMLEvent.SPACE:
-						break;
-					}
+		boolean sentenceClosed = false;
+		while (eventReader != null && !sentenceClosed) {
+			while (eventReader.hasNext() && !sentenceClosed) {
+				XMLEvent xmlEvent;
+				try {
+					xmlEvent = eventReader.nextEvent();
+				} catch (XMLStreamException e) {
+					LogUtils.logError(LOG, e);
+					throw new RuntimeException(e);
 				}
-				if (!eventReader.hasNext()) {
-					eventReader = null;
-					this.getNextEventReader();
-				}
-				if (sentenceNumber != null && sentenceNumber.length() > 0 && sentenceClosed) {
-					if (!sentenceNumber.equals(sentence.getSentenceNumber())) {
-						sentenceClosed = false;
-						sentence = null;
-					}
+				switch (xmlEvent.getEventType()) {
+				case XMLEvent.START_ELEMENT:
+					StartElement startElementEvent = xmlEvent.asStartElement();
+					this.startElement(startElementEvent);
+					break;
+				case XMLEvent.END_ELEMENT:
+					EndElement endElementEvent = xmlEvent.asEndElement();
+					sentenceClosed = this.endElement(endElementEvent);
+					break;
+				case XMLEvent.PROCESSING_INSTRUCTION:
+					break;
+				case XMLEvent.CHARACTERS:
+					Characters charactersEvent = xmlEvent.asCharacters();
+					this.characters(charactersEvent);
+					break;
+				case XMLEvent.COMMENT:
+					break;
+				case XMLEvent.START_DOCUMENT:
+					break;
+				case XMLEvent.END_DOCUMENT:
+					break;
+				case XMLEvent.ENTITY_REFERENCE:
+					break;
+				case XMLEvent.ATTRIBUTE:
+					break;
+				case XMLEvent.DTD:
+					break;
+				case XMLEvent.CDATA:
+					break;
+				case XMLEvent.SPACE:
+					break;
 				}
 			}
-			return sentenceClosed;
-		} finally {
-			MONITOR.endTask();
+			if (!eventReader.hasNext()) {
+				eventReader = null;
+				this.getNextEventReader();
+			}
+			if (sentenceNumber != null && sentenceNumber.length() > 0 && sentenceClosed) {
+				if (!sentenceNumber.equals(sentence.getSentenceNumber())) {
+					sentenceClosed = false;
+					sentence = null;
+				}
+			}
 		}
+		return sentenceClosed;
 	}
 
 	void getNextEventReader() {

@@ -37,7 +37,6 @@ import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -96,15 +95,8 @@ public class TalismaneMain {
 			if (talismaneConfig.getCommand() == null)
 				return;
 
-			PerformanceMonitor.start(talismaneConfig.getPerformanceConfigFile());
-			if (talismaneConfig.getPerformanceConfigFile() != null && PerformanceMonitor.getFilePath() == null)
-				PerformanceMonitor.setFilePath(talismaneConfig.getBaseName() + ".performance.csv");
-			try {
-				Talismane talismane = talismaneConfig.getTalismane();
-				talismane.process();
-			} finally {
-				PerformanceMonitor.end();
-			}
+			Talismane talismane = talismaneConfig.getTalismane();
+			talismane.process();
 		} else {
 			// other command
 			switch (otherCommand) {

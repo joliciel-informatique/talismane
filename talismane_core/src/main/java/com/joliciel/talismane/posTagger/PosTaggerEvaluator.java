@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * An interface for evaluating a given pos tagger.
@@ -39,7 +38,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public class PosTaggerEvaluator {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerEvaluator.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTaggerEvaluator.class);
 
 	private final PosTagger posTagger;
 	private Tokeniser tokeniser;
@@ -72,12 +70,7 @@ public class PosTaggerEvaluator {
 			PosTagSequence guessedSequence = null;
 
 			if (this.tokeniser != null) {
-				MONITOR.startTask("tokenise");
-				try {
-					tokenSequences = tokeniser.tokenise(tokenSequence.getText());
-				} finally {
-					MONITOR.endTask();
-				}
+				tokenSequences = tokeniser.tokenise(tokenSequence.getText());
 
 				tokenSequence = tokenSequences.get(0);
 				if (!propagateBeam) {
@@ -91,20 +84,10 @@ public class PosTaggerEvaluator {
 
 			if (posTagger instanceof NonDeterministicPosTagger) {
 				NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-				MONITOR.startTask("posTag");
-				try {
-					guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
-				} finally {
-					MONITOR.endTask();
-				}
+				guessedSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
 				guessedSequence = guessedSequences.get(0);
 			} else {
-				MONITOR.startTask("posTag");
-				try {
-					guessedSequence = posTagger.tagSentence(tokenSequence);
-				} finally {
-					MONITOR.endTask();
-				}
+				guessedSequence = posTagger.tagSentence(tokenSequence);
 			}
 
 			if (LOG.isDebugEnabled()) {
@@ -135,13 +118,8 @@ public class PosTaggerEvaluator {
 				LOG.debug(stringBuilder.toString());
 			}
 
-			MONITOR.startTask("observe");
-			try {
-				for (PosTagEvaluationObserver observer : this.observers) {
-					observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
-				}
-			} finally {
-				MONITOR.endTask();
+			for (PosTagEvaluationObserver observer : this.observers) {
+				observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
 			}
 
 			sentenceIndex++;
@@ -149,13 +127,8 @@ public class PosTaggerEvaluator {
 				break;
 		} // next sentence
 
-		MONITOR.startTask("onEvaluationComplete");
-		try {
-			for (PosTagEvaluationObserver observer : this.observers) {
-				observer.onEvaluationComplete();
-			}
-		} finally {
-			MONITOR.endTask();
+		for (PosTagEvaluationObserver observer : this.observers) {
+			observer.onEvaluationComplete();
 		}
 	}
 

@@ -27,12 +27,13 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the nth pos-tagged token in the sequence of tokens.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class AddressFunctionSequence extends AbstractAddressFunction {
 	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
-	
+
 	public AddressFunctionSequence(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
 		super();
 		this.indexFeature = indexFeature;
@@ -40,17 +41,17 @@ public final class AddressFunctionSequence extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
-		if (indexResult!=null) {
+		if (indexResult != null) {
 			int index = indexResult.getOutcome();
-			if (index>=0 && index<configuration.getPosTagSequence().size())
+			if (index >= 0 && index < configuration.getPosTagSequence().size())
 				resultToken = configuration.getPosTagSequence().get(index);
 		}
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}

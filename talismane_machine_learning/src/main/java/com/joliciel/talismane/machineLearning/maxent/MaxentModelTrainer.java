@@ -32,7 +32,6 @@ import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.maxent.custom.GISTrainer;
 import com.joliciel.talismane.machineLearning.maxent.custom.TwoPassRealValueDataIndexer;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.typesafe.config.Config;
 
 import opennlp.model.DataIndexer;
@@ -49,7 +48,6 @@ import opennlp.model.MaxentModel;
 public class MaxentModelTrainer implements ClassificationModelTrainer {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(MaxentModelTrainer.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(MaxentModelTrainer.class);
 
 	private int iterations;
 	private int cutoff;
@@ -78,12 +76,8 @@ public class MaxentModelTrainer implements ClassificationModelTrainer {
 			} else if (this.getSigma() > 0) {
 				trainer.setGaussianSigma(this.getSigma());
 			}
-			MONITOR.startTask("train");
-			try {
-				maxentModel = trainer.trainModel(iterations, dataIndexer, cutoff);
-			} finally {
-				MONITOR.endTask();
-			}
+
+			maxentModel = trainer.trainModel(iterations, dataIndexer, cutoff);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

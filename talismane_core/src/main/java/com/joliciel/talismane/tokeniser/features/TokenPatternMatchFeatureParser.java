@@ -34,11 +34,8 @@ import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 public class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenPatternMatch> {
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(TokenPatternMatchFeatureParser.class);
-
 	private final TalismaneSession talismaneSession;
 
 	public TokenPatternMatchFeatureParser(TalismaneSession talismaneSession) {
@@ -50,48 +47,33 @@ public class TokenPatternMatchFeatureParser extends AbstractFeatureParser<TokenP
 		Set<TokenPatternMatchFeature<?>> features = new TreeSet<TokenPatternMatchFeature<?>>();
 		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 
-		MONITOR.startTask("findFeatureSet");
-		try {
-			for (String featureDescriptor : featureDescriptors) {
-				if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
-					FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
-					List<TokenPatternMatchFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
-					MONITOR.startTask("add features");
-					try {
-						features.addAll(myFeatures);
-					} finally {
-						MONITOR.endTask();
-					}
-				}
+		for (String featureDescriptor : featureDescriptors) {
+			if (featureDescriptor.length() > 0 && !featureDescriptor.startsWith("#")) {
+				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+				List<TokenPatternMatchFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+				features.addAll(myFeatures);
 			}
-		} finally {
-			MONITOR.endTask();
 		}
 		return features;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<TokenPatternMatchFeature<?>> parseDescriptor(FunctionDescriptor descriptor) {
-		MONITOR.startTask("parseDescriptor");
-		try {
-			List<TokenPatternMatchFeature<?>> wrappedFeatures = new ArrayList<TokenPatternMatchFeature<?>>();
+		List<TokenPatternMatchFeature<?>> wrappedFeatures = new ArrayList<TokenPatternMatchFeature<?>>();
 
-			List<Feature<TokenPatternMatch, ?>> tokenPatternMatchFeatures = this.parse(descriptor);
+		List<Feature<TokenPatternMatch, ?>> tokenPatternMatchFeatures = this.parse(descriptor);
 
-			for (Feature<TokenPatternMatch, ?> tokenPatternMatchFeature : tokenPatternMatchFeatures) {
-				TokenPatternMatchFeature<?> wrappedFeature = null;
-				if (tokenPatternMatchFeature instanceof TokenPatternMatchFeature) {
-					wrappedFeature = (TokenPatternMatchFeature<?>) tokenPatternMatchFeature;
-				} else {
-					wrappedFeature = new TokenPatternMatchFeatureWrapper(tokenPatternMatchFeature);
-				}
-				wrappedFeatures.add(wrappedFeature);
+		for (Feature<TokenPatternMatch, ?> tokenPatternMatchFeature : tokenPatternMatchFeatures) {
+			TokenPatternMatchFeature<?> wrappedFeature = null;
+			if (tokenPatternMatchFeature instanceof TokenPatternMatchFeature) {
+				wrappedFeature = (TokenPatternMatchFeature<?>) tokenPatternMatchFeature;
+			} else {
+				wrappedFeature = new TokenPatternMatchFeatureWrapper(tokenPatternMatchFeature);
 			}
-
-			return wrappedFeatures;
-		} finally {
-			MONITOR.endTask();
+			wrappedFeatures.add(wrappedFeature);
 		}
+
+		return wrappedFeatures;
 	}
 
 	@Override

@@ -33,7 +33,6 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
@@ -44,7 +43,6 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  */
 public class LanguageDetector {
 	private static final Logger LOG = LoggerFactory.getLogger(LanguageDetector.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(LanguageDetector.class);
 
 	private final DecisionMaker decisionMaker;
 	private final Set<LanguageDetectorFeature<?>> features;
@@ -68,46 +66,40 @@ public class LanguageDetector {
 	 * Return a probability distribution of languages for a given text.
 	 */
 	public List<WeightedOutcome<Locale>> detectLanguages(String text) {
-		MONITOR.startTask("detectLanguages");
-		try {
-
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Testing text: " + text);
-			}
-
-			text = text.toLowerCase(Locale.ENGLISH);
-			text = Normalizer.normalize(text, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-
-			List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
-			for (LanguageDetectorFeature<?> feature : features) {
-				RuntimeEnvironment env = new RuntimeEnvironment();
-				FeatureResult<?> featureResult = feature.check(text, env);
-				if (featureResult != null)
-					featureResults.add(featureResult);
-			}
-			if (LOG.isTraceEnabled()) {
-				for (FeatureResult<?> result : featureResults) {
-					LOG.trace(result.toString());
-				}
-			}
-
-			List<Decision> decisions = this.decisionMaker.decide(featureResults);
-			if (LOG.isTraceEnabled()) {
-				for (Decision decision : decisions) {
-					LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
-				}
-			}
-
-			List<WeightedOutcome<Locale>> results = new ArrayList<WeightedOutcome<Locale>>();
-			for (Decision decision : decisions) {
-				Locale locale = Locale.forLanguageTag(decision.getOutcome());
-				results.add(new WeightedOutcome<Locale>(locale, decision.getProbability()));
-			}
-
-			return results;
-		} finally {
-			MONITOR.endTask();
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("Testing text: " + text);
 		}
+
+		text = text.toLowerCase(Locale.ENGLISH);
+		text = Normalizer.normalize(text, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+
+		List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
+		for (LanguageDetectorFeature<?> feature : features) {
+			RuntimeEnvironment env = new RuntimeEnvironment();
+			FeatureResult<?> featureResult = feature.check(text, env);
+			if (featureResult != null)
+				featureResults.add(featureResult);
+		}
+		if (LOG.isTraceEnabled()) {
+			for (FeatureResult<?> result : featureResults) {
+				LOG.trace(result.toString());
+			}
+		}
+
+		List<Decision> decisions = this.decisionMaker.decide(featureResults);
+		if (LOG.isTraceEnabled()) {
+			for (Decision decision : decisions) {
+				LOG.trace(decision.getOutcome() + ": " + decision.getProbability());
+			}
+		}
+
+		List<WeightedOutcome<Locale>> results = new ArrayList<WeightedOutcome<Locale>>();
+		for (Decision decision : decisions) {
+			Locale locale = Locale.forLanguageTag(decision.getOutcome());
+			results.add(new WeightedOutcome<Locale>(locale, decision.getProbability()));
+		}
+
+		return results;
 	}
 
 	public DecisionMaker getDecisionMaker() {
