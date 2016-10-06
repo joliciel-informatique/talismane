@@ -32,7 +32,6 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A classification event stream for parse configurations.
@@ -42,7 +41,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public class ParseEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParseEventStream.class);
 
 	ParserAnnotatedCorpusReader corpusReader;
 	Set<ParseConfigurationFeature<?>> parseFeatures;
@@ -60,74 +58,59 @@ public class ParseEventStream implements ClassificationEventStream {
 
 	@Override
 	public boolean hasNext() {
-		MONITOR.startTask("hasNext");
-		try {
-			while (targetConfiguration == null) {
-				if (this.corpusReader.hasNextConfiguration()) {
+		while (targetConfiguration == null) {
+			if (this.corpusReader.hasNextConfiguration()) {
 
-					targetConfiguration = this.corpusReader.nextConfiguration();
-					currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());
-					currentIndex = 0;
-					if (currentIndex == targetConfiguration.getTransitions().size()) {
-						targetConfiguration = null;
-					}
-				} else {
-					break;
+				targetConfiguration = this.corpusReader.nextConfiguration();
+				currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());
+				currentIndex = 0;
+				if (currentIndex == targetConfiguration.getTransitions().size()) {
+					targetConfiguration = null;
 				}
+			} else {
+				break;
 			}
-
-			if (targetConfiguration == null) {
-				LOG.debug("Event stream reading complete");
-			}
-			return targetConfiguration != null;
-		} finally {
-			MONITOR.endTask();
 		}
+
+		if (targetConfiguration == null) {
+			LOG.debug("Event stream reading complete");
+		}
+		return targetConfiguration != null;
 	}
 
 	@Override
 	public ClassificationEvent next() {
-		MONITOR.startTask("next");
-		try {
-			ClassificationEvent event = null;
-			if (this.hasNext()) {
-				eventCount++;
-				LOG.debug("Event " + eventCount + ": " + currentConfiguration.toString());
+		ClassificationEvent event = null;
+		if (this.hasNext()) {
+			eventCount++;
+			LOG.debug("Event " + eventCount + ": " + currentConfiguration.toString());
 
-				List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
-				for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
-					MONITOR.startTask(parseFeature.getName());
-					try {
-						RuntimeEnvironment env = new RuntimeEnvironment();
-						FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
-						if (featureResult != null) {
-							parseFeatureResults.add(featureResult);
-							if (LOG.isTraceEnabled()) {
-								LOG.trace(featureResult.toString());
-							}
-						}
-					} finally {
-						MONITOR.endTask();
+			List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
+			for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
+				RuntimeEnvironment env = new RuntimeEnvironment();
+				FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
+				if (featureResult != null) {
+					parseFeatureResults.add(featureResult);
+					if (LOG.isTraceEnabled()) {
+						LOG.trace(featureResult.toString());
 					}
 				}
-
-				Transition transition = targetConfiguration.getTransitions().get(currentIndex);
-				String classification = transition.getCode();
-				event = new ClassificationEvent(parseFeatureResults, classification);
-
-				// apply the transition and up the index
-				currentConfiguration = new ParseConfiguration(currentConfiguration);
-				transition.apply(currentConfiguration);
-				currentIndex++;
-
-				if (currentIndex == targetConfiguration.getTransitions().size()) {
-					targetConfiguration = null;
-				}
 			}
-			return event;
-		} finally {
-			MONITOR.endTask();
+
+			Transition transition = targetConfiguration.getTransitions().get(currentIndex);
+			String classification = transition.getCode();
+			event = new ClassificationEvent(parseFeatureResults, classification);
+
+			// apply the transition and up the index
+			currentConfiguration = new ParseConfiguration(currentConfiguration);
+			transition.apply(currentConfiguration);
+			currentIndex++;
+
+			if (currentIndex == targetConfiguration.getTransitions().size()) {
+				targetConfiguration = null;
+			}
 		}
+		return event;
 	}
 
 	@Override

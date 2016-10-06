@@ -27,38 +27,40 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
- * Looks at all of the refernence token's dependencies in left-to-right sequence,
- * and returns the first one matching certain criteria.
+ * Looks at all of the refernence token's dependencies in left-to-right
+ * sequence, and returns the first one matching certain criteria.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class DependencySearchFeature extends AbstractAddressFunction {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature;
 	private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
-	
-	public DependencySearchFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature, BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
+
+	public DependencySearchFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature,
+			BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
 		super();
 		this.referenceTokenFeature = referenceTokenFeature;
 		this.criterionFeature = criterionFeature;
-		
-		this.setName(super.getName() +"(" + referenceTokenFeature.getName() + "," + criterionFeature.getName() + ")");
+
+		this.setName(super.getName() + "(" + referenceTokenFeature.getName() + "," + criterionFeature.getName() + ")");
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedTokenWrapper> referenceTokenResult = referenceTokenFeature.check(configuration, env);
-		
-		if (referenceTokenResult!=null) {
+
+		if (referenceTokenResult != null) {
 			PosTaggedToken referenceToken = referenceTokenResult.getOutcome().getPosTaggedToken();
-			
+
 			ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
 			parseConfigurationAddress.setParseConfiguration(configuration);
 			for (PosTaggedToken dependent : configuration.getDependents(referenceToken)) {
 				parseConfigurationAddress.setPosTaggedToken(dependent);
 				FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
-				if (criterionResult!=null) {
+				if (criterionResult != null) {
 					boolean criterion = criterionResult.getOutcome();
 					if (criterion) {
 						resultToken = dependent;
@@ -68,7 +70,7 @@ public final class DependencySearchFeature extends AbstractAddressFunction {
 			}
 		}
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}

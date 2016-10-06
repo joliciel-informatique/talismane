@@ -32,7 +32,6 @@ import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * A corpus event stream for postagging.
@@ -42,7 +41,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
  */
 public class PosTagEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagEventStream.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(PosTagEventStream.class);
 
 	private final PosTagAnnotatedCorpusReader corpusReader;
 	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
@@ -67,77 +65,56 @@ public class PosTagEventStream implements ClassificationEventStream {
 
 	@Override
 	public boolean hasNext() {
-		MONITOR.startTask("hasNext");
-		try {
-			while (currentSentence == null) {
-				if (this.corpusReader.hasNextPosTagSequence()) {
-					currentSentence = this.corpusReader.nextPosTagSequence();
-					if (LOG.isDebugEnabled())
-						LOG.debug("### next sentence: " + currentSentence.getTokenSequence().getSentence());
-					currentIndex = 0;
-					currentHistory = new PosTagSequence(currentSentence.getTokenSequence());
-					if (currentIndex == currentSentence.size()) {
-						currentSentence = null;
-					}
-				} else {
-					break;
+		while (currentSentence == null) {
+			if (this.corpusReader.hasNextPosTagSequence()) {
+				currentSentence = this.corpusReader.nextPosTagSequence();
+				if (LOG.isDebugEnabled())
+					LOG.debug("### next sentence: " + currentSentence.getTokenSequence().getSentence());
+				currentIndex = 0;
+				currentHistory = new PosTagSequence(currentSentence.getTokenSequence());
+				if (currentIndex == currentSentence.size()) {
+					currentSentence = null;
 				}
+			} else {
+				break;
 			}
-			return currentSentence != null;
-		} finally {
-			MONITOR.endTask();
 		}
+		return currentSentence != null;
 	}
 
 	@Override
 	public ClassificationEvent next() {
-		MONITOR.startTask("next");
-		try {
-			ClassificationEvent event = null;
-			if (this.hasNext()) {
-				PosTaggedToken taggedToken = currentSentence.get(currentIndex++);
-				String classification = taggedToken.getTag().getCode();
+		ClassificationEvent event = null;
+		if (this.hasNext()) {
+			PosTaggedToken taggedToken = currentSentence.get(currentIndex++);
+			String classification = taggedToken.getTag().getCode();
 
-				if (LOG.isDebugEnabled())
-					LOG.debug("next event, token: " + taggedToken.getToken().getText() + " : " + classification);
-				PosTaggerContext context = new PosTaggerContextImpl(taggedToken.getToken(), currentHistory);
+			if (LOG.isDebugEnabled())
+				LOG.debug("next event, token: " + taggedToken.getToken().getText() + " : " + classification);
+			PosTaggerContext context = new PosTaggerContextImpl(taggedToken.getToken(), currentHistory);
 
-				List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
-				MONITOR.startTask("check features");
-				try {
-					for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
-						MONITOR.startTask(posTaggerFeature.getCollectionName());
-						try {
-							RuntimeEnvironment env = new RuntimeEnvironment();
-							FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
-							if (featureResult != null)
-								posTagFeatureResults.add(featureResult);
-						} finally {
-							MONITOR.endTask();
-						}
-					}
-				} finally {
-					MONITOR.endTask();
-				}
+			List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
+			for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
+				RuntimeEnvironment env = new RuntimeEnvironment();
+				FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
+				if (featureResult != null)
+					posTagFeatureResults.add(featureResult);
+			}
 
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Token: " + taggedToken.getToken().getText());
-					for (FeatureResult<?> result : posTagFeatureResults) {
-						LOG.trace(result.toString());
-					}
-				}
-				event = new ClassificationEvent(posTagFeatureResults, classification);
-
-				currentHistory.addPosTaggedToken(taggedToken);
-				if (currentIndex == currentSentence.size()) {
-					currentSentence = null;
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Token: " + taggedToken.getToken().getText());
+				for (FeatureResult<?> result : posTagFeatureResults) {
+					LOG.trace(result.toString());
 				}
 			}
-			return event;
-		} finally {
-			MONITOR.endTask();
-		}
+			event = new ClassificationEvent(posTagFeatureResults, classification);
 
+			currentHistory.addPosTaggedToken(taggedToken);
+			if (currentIndex == currentSentence.size()) {
+				currentSentence = null;
+			}
+		}
+		return event;
 	}
 
 	@Override

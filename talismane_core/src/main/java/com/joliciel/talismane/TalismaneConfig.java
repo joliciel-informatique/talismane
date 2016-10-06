@@ -306,7 +306,6 @@ public class TalismaneConfig {
 	private boolean tokenCorpusReaderFiltersAdded = false;
 	private boolean parserCorpusReaderDecorated = false;
 
-	private File performanceConfigFile;
 	private ParseComparisonStrategyType parseComparisonStrategyType;
 	private boolean includeLexiconCoverage;
 	private boolean includeUnknownWordResults;
@@ -349,12 +348,6 @@ public class TalismaneConfig {
 			// don't do default configuration - only call this of not null
 			args.remove("logConfigFile");
 			LogUtils.configureLogging(logConfigPath);
-		}
-
-		String performanceConfigPath = args.get("performanceConfigFile");
-		if (performanceConfigPath != null && performanceConfigPath.length() > 0) {
-			args.remove("performanceConfigFile");
-			performanceConfigFile = new File(performanceConfigPath);
 		}
 
 		Map<String, Object> values = new HashMap<>();
@@ -2808,14 +2801,6 @@ public class TalismaneConfig {
 
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;
-	}
-
-	public File getPerformanceConfigFile() {
-		return performanceConfigFile;
-	}
-
-	public void setPerformanceConfigFile(File performanceConfigFile) {
-		this.performanceConfigFile = performanceConfigFile;
 	}
 
 	/**

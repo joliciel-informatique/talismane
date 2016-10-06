@@ -31,7 +31,6 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.utils.PerformanceMonitor;
 
 /**
  * Evaluate a parser.
@@ -42,7 +41,6 @@ import com.joliciel.talismane.utils.PerformanceMonitor;
 public class ParserEvaluator {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(ParserEvaluator.class);
-	private static final PerformanceMonitor MONITOR = PerformanceMonitor.getMonitor(ParserEvaluator.class);
 	private Parser parser;
 	private PosTagger posTagger;
 	private Tokeniser tokeniser;
@@ -64,12 +62,7 @@ public class ParserEvaluator {
 
 				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
 
-				MONITOR.startTask("tokenise");
-				try {
-					tokenSequences = tokeniser.tokenise(sentence);
-				} finally {
-					MONITOR.endTask();
-				}
+				tokenSequences = tokeniser.tokenise(sentence);
 
 				if (!propagateBeam) {
 					TokenSequence tokenSequence = tokenSequences.get(0);
@@ -86,12 +79,8 @@ public class ParserEvaluator {
 			if (posTagger != null) {
 				if (posTagger instanceof NonDeterministicPosTagger) {
 					NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
-					MONITOR.startTask("posTag");
-					try {
-						posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
-					} finally {
-						MONITOR.endTask();
-					}
+					posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
+
 					if (!propagateBeam) {
 						PosTagSequence posTagSequence = posTagSequences.get(0);
 						posTagSequences = new ArrayList<PosTagSequence>();
@@ -100,12 +89,7 @@ public class ParserEvaluator {
 				} else {
 					posTagSequences = new ArrayList<PosTagSequence>();
 					PosTagSequence posTagSequence = null;
-					MONITOR.startTask("posTag");
-					try {
-						posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
-					} finally {
-						MONITOR.endTask();
-					}
+					posTagSequence = posTagger.tagSentence(tokenSequences.get(0));
 					posTagSequences.add(posTagSequence);
 				}
 			} else {
@@ -114,43 +98,22 @@ public class ParserEvaluator {
 				posTagSequences.add(posTagSequence);
 			}
 
-			MONITOR.startTask("onParseStart");
-			try {
-				for (ParseEvaluationObserver observer : this.observers) {
-					observer.onParseStart(realConfiguration, posTagSequences);
-				}
-			} finally {
-				MONITOR.endTask();
+			for (ParseEvaluationObserver observer : this.observers) {
+				observer.onParseStart(realConfiguration, posTagSequences);
 			}
 
 			List<ParseConfiguration> guessedConfigurations = null;
 			if (parser instanceof NonDeterministicParser) {
 				NonDeterministicParser nonDeterministicParser = (NonDeterministicParser) parser;
-				MONITOR.startTask("parse");
-				try {
-					guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
-				} finally {
-					MONITOR.endTask();
-				}
+				guessedConfigurations = nonDeterministicParser.parseSentence(posTagSequences);
 			} else {
-				ParseConfiguration bestGuess = null;
-				MONITOR.startTask("parse");
-				try {
-					bestGuess = parser.parseSentence(posTagSequences.get(0));
-				} finally {
-					MONITOR.endTask();
-				}
+				ParseConfiguration bestGuess = parser.parseSentence(posTagSequences.get(0));
 				guessedConfigurations = new ArrayList<ParseConfiguration>();
 				guessedConfigurations.add(bestGuess);
 			}
 
-			MONITOR.startTask("observe");
-			try {
-				for (ParseEvaluationObserver observer : this.observers) {
-					observer.onParseEnd(realConfiguration, guessedConfigurations);
-				}
-			} finally {
-				MONITOR.endTask();
+			for (ParseEvaluationObserver observer : this.observers) {
+				observer.onParseEnd(realConfiguration, guessedConfigurations);
 			}
 
 			sentenceIndex++;
@@ -158,13 +121,8 @@ public class ParserEvaluator {
 				break;
 		} // next sentence
 
-		MONITOR.startTask("onEvaluationComplete");
-		try {
-			for (ParseEvaluationObserver observer : this.observers) {
-				observer.onEvaluationComplete();
-			}
-		} finally {
-			MONITOR.endTask();
+		for (ParseEvaluationObserver observer : this.observers) {
+			observer.onEvaluationComplete();
 		}
 	}
 

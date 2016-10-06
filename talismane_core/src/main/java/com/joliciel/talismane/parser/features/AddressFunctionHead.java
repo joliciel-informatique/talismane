@@ -28,12 +28,13 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 /**
  * Retrieves the head (or governor) of the reference token.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class AddressFunctionHead extends AbstractAddressFunction {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
-	
+
 	public AddressFunctionHead(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
 		super();
 		this.addressFunction = addressFunction;
@@ -41,30 +42,28 @@ public final class AddressFunctionHead extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedTokenWrapper> addressResult = addressFunction.check(wrapper, env);
-		if (addressResult!=null) {
+		if (addressResult != null) {
 			PosTaggedToken referenceToken = addressResult.getOutcome().getPosTaggedToken();
 			resultToken = configuration.getHead(referenceToken);
 		}
 
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken!=null)
+		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}
 
 	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder,
-			String variableName) {
+	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
 		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null) {" );
+		builder.append("if (" + address + "!=null) {");
 		builder.indent();
 
-		builder.append(		variableName + " = context.getParseConfiguration().getHead(" + address + ".getPosTaggedToken());");
+		builder.append(variableName + " = context.getParseConfiguration().getHead(" + address + ".getPosTaggedToken());");
 		builder.outdent();
 		builder.append("}");
 		return true;
