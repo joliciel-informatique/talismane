@@ -122,6 +122,10 @@ public class DiacriticizerImplTest {
 		assertEquals("à", resultList.get(0));
 		assertEquals("a", resultList.get(1));
 
+		// test with combining diacritics
+		results = diacriticizer.diacriticize("mange\u0301");
+		assertEquals(1, results.size());
+		assertTrue(results.contains("mangé"));
 	}
 
 }

@@ -54,6 +54,12 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 
 	@Override
 	public Set<String> diacriticize(String originalWord) {
+		// TODO: this code relies on usage of precomposed characters only
+		// where there is a one-to-one equivalence in length between all strings, whether decorated or not
+		// In order to make this function for the latin alphabet, we recompose any combining diacriticals
+		// However this is not an ideal solution, as many alphabets do not contain precomposed characters
+		originalWord = this.recompose(originalWord);
+		
 		String undecorated = DiacriticRemover.removeDiacritics(originalWord);
 		String key = undecorated.toLowerCase();
 		String lowercase = originalWord.toLowerCase();
@@ -122,8 +128,80 @@ class DiacriticizerImpl implements Diacriticizer, Serializable {
 				values = new HashSet<String>();
 				map.put(key, values);
 			}
-			values.add(entry.getWord());
+			values.add(this.recompose(entry.getWord()));
 		}
+	}
+	
+	private String recompose(String original) {
+		String recomposed = original;
+		if (recomposed.indexOf('\u0300')>=0) {
+			recomposed = recomposed.replaceAll("a\u0300", "à");
+			recomposed = recomposed.replaceAll("e\u0300", "è");
+			recomposed = recomposed.replaceAll("i\u0300", "ì");
+			recomposed = recomposed.replaceAll("o\u0300", "ò");
+			recomposed = recomposed.replaceAll("u\u0300", "ù");
+			recomposed = recomposed.replaceAll("A\u0300", "À");
+			recomposed = recomposed.replaceAll("E\u0300", "È");
+			recomposed = recomposed.replaceAll("I\u0300", "Ì");
+			recomposed = recomposed.replaceAll("O\u0300", "Ò");
+			recomposed = recomposed.replaceAll("U\u0300", "Ù");
+		}
+		if (recomposed.indexOf('\u0301')>=0) {
+			recomposed = recomposed.replaceAll("a\u0301", "á");
+			recomposed = recomposed.replaceAll("e\u0301", "é");
+			recomposed = recomposed.replaceAll("i\u0301", "í");
+			recomposed = recomposed.replaceAll("o\u0301", "ó");
+			recomposed = recomposed.replaceAll("u\u0301", "ú");
+			recomposed = recomposed.replaceAll("A\u0301", "Á");
+			recomposed = recomposed.replaceAll("E\u0301", "É");
+			recomposed = recomposed.replaceAll("I\u0301", "Í");
+			recomposed = recomposed.replaceAll("O\u0301", "Ó");
+			recomposed = recomposed.replaceAll("U\u0301", "Ú");
+		}
+		if (recomposed.indexOf('\u0302')>=0) {
+			recomposed = recomposed.replaceAll("a\u0302", "â");
+			recomposed = recomposed.replaceAll("e\u0302", "ê");
+			recomposed = recomposed.replaceAll("i\u0302", "î");
+			recomposed = recomposed.replaceAll("o\u0302", "ô");
+			recomposed = recomposed.replaceAll("u\u0302", "û");
+			recomposed = recomposed.replaceAll("A\u0302", "Â");
+			recomposed = recomposed.replaceAll("E\u0302", "Ê");
+			recomposed = recomposed.replaceAll("I\u0302", "Î");
+			recomposed = recomposed.replaceAll("O\u0302", "Ô");
+			recomposed = recomposed.replaceAll("U\u0302", "Û");
+		}
+		if (recomposed.indexOf('\u0308')>=0) {
+			recomposed = recomposed.replaceAll("a\u0308", "ä");
+			recomposed = recomposed.replaceAll("e\u0308", "ë");
+			recomposed = recomposed.replaceAll("i\u0308", "ï");
+			recomposed = recomposed.replaceAll("o\u0308", "ö");
+			recomposed = recomposed.replaceAll("u\u0308", "ü");
+			recomposed = recomposed.replaceAll("A\u0308", "Ä");
+			recomposed = recomposed.replaceAll("E\u0308", "Ë");
+			recomposed = recomposed.replaceAll("I\u0308", "Ï");
+			recomposed = recomposed.replaceAll("O\u0308", "Ö");
+			recomposed = recomposed.replaceAll("U\u0308", "Ü");
+		}
+		if (recomposed.indexOf('\u0327')>=0) {
+			recomposed = recomposed.replaceAll("c\u0327", "ç");
+			recomposed = recomposed.replaceAll("C\u0327", "Ç");
+		}
+		if (recomposed.indexOf('\u0303')>=0) {
+			recomposed = recomposed.replaceAll("a\u0303", "ã");
+			recomposed = recomposed.replaceAll("e\u0303", "ẽ");
+			recomposed = recomposed.replaceAll("i\u0303", "ĩ");
+			recomposed = recomposed.replaceAll("n\u0303", "ñ");
+			recomposed = recomposed.replaceAll("o\u0303", "õ");
+			recomposed = recomposed.replaceAll("u\u0303", "ũ");
+			recomposed = recomposed.replaceAll("A\u0303", "Ã");
+			recomposed = recomposed.replaceAll("E\u0303", "Ẽ");
+			recomposed = recomposed.replaceAll("I\u0303", "Ĩ");
+			recomposed = recomposed.replaceAll("N\u0303", "Ñ");
+			recomposed = recomposed.replaceAll("O\u0303", "Õ");
+			recomposed = recomposed.replaceAll("U\u0303", "Ũ");
+		}
+
+		return recomposed;
 	}
 
 	@Override
