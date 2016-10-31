@@ -16,9 +16,7 @@
 		<module>../talismane_utils</module>
 		<module>../talismane_fr</module>
 		<module>../talismane_en</module>
-		<module>../talismane_term_extractor</module>
 		<module>../talismane_extensions</module>
-		<module>../talismane_term_viewer</module>
 		<module>../talismane_examples</module>
 		<module>../talismane_distribution</module>
 	</modules>
@@ -107,16 +105,6 @@
 			<dependency>
 				<groupId>com.joliciel.talismane</groupId>
 				<artifactId>talismane-examples</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.joliciel.talismane</groupId>
-				<artifactId>talismane-term-extractor</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.joliciel.talismane</groupId>
-				<artifactId>talismane-term-viewer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
