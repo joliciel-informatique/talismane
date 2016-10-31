@@ -1,4 +1,4 @@
-﻿--select * from text;
+--select * from text;
 --select * from term;
 --select * from term_expansions;
 --select * from term_heads;
