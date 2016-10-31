@@ -16,10 +16,7 @@
 				<include>com.joliciel.talismane:talismane-en</include>
 				<include>com.joliciel.talismane:talismane-extensions</include>
 				<include>com.joliciel.talismane:talismane-fr</include>
-				<include>com.joliciel.talismane:talismane-ftb</include>
 				<include>com.joliciel.talismane:talismane-machine-learning</include>
-				<include>com.joliciel.talismane:talismane-term-extractor</include>
-				<include>com.joliciel.talismane:talismane-term-viewer</include>
 				<include>com.joliciel.talismane:talismane-utils</include>
 			</includes>
 			<binaries>
