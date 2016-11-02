@@ -1,0 +1,12 @@
+language: java
+
+# move to the parent module before running the `mvn test` command
+before_script: cd talismane_parent
+
+# build and run the tests
+script: mvn test
+
+branches:
+  only:
+    - master
+    - dev
