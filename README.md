@@ -1,5 +1,7 @@
 ![Talismane Logo](https://raw.githubusercontent.com/wiki/urieli/talismane/pics/TalismaneLogo300px.png)
 
+[![Build Status](https://travis-ci.org/urieli/talismane.png?branch=master)](https://travis-ci.org/urieli/talismane)
+
 Talismane is a natural language processing framework with sentence detector, tokeniser, pos-tagger and dependency syntax parser. Current available language packs include French and English.
 
 **Sample input:**
