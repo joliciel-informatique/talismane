@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.TalismaneSession;
 
 /**
@@ -40,7 +41,7 @@ import com.joliciel.talismane.TalismaneSession;
  * @author Assaf Urieli
  *
  */
-public class Sentence {
+public class Sentence extends AnnotatedText {
 	public static final String WHITE_SPACE = "\\s\ufeff";
 
 	private static final Logger LOG = LoggerFactory.getLogger(Sentence.class);
@@ -67,6 +68,7 @@ public class Sentence {
 	}
 
 	public Sentence(String text, TalismaneSession talismaneSession) {
+		super(text);
 		this.talismaneSession = talismaneSession;
 		this.text = text;
 	}
@@ -77,6 +79,7 @@ public class Sentence {
 	 * The sentence text.
 	 */
 
+	@Override
 	public String getText() {
 		return this.text;
 	}

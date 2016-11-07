@@ -156,7 +156,6 @@ import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeatureParser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.tokeniser.patterns.CompoundPatternEventStream;
@@ -2154,9 +2153,6 @@ public class TalismaneConfig {
 				tokenFilters.add(tokenFilter);
 			}
 
-			TokenSequenceFilter tokenFilterWrapper = new TokenFilterWrapper(tokenFilters);
-			corpusReader.addTokenSequenceFilter(tokenFilterWrapper);
-
 			for (TokenSequenceFilter tokenSequenceFilter : this.getTokenSequenceFilters(myPosTaggerModel)) {
 				corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
 			}
@@ -2261,9 +2257,6 @@ public class TalismaneConfig {
 			for (TokenFilter tokenFilter : this.getTokenFilters(myPosTaggerModel)) {
 				tokenFilters.add(tokenFilter);
 			}
-
-			TokenSequenceFilter tokenFilterWrapper = new TokenFilterWrapper(tokenFilters);
-			corpusReader.addTokenSequenceFilter(tokenFilterWrapper);
 
 			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(myPosTaggerModel)) {
 				corpusReader.addTokenSequenceFilter(tokenFilter);

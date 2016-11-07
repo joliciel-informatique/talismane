@@ -46,6 +46,7 @@ import freemarker.template.Version;
 
 /**
  * Processes output by writing via a freemarker template.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -56,22 +57,22 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	private int tokenCount = 0;
 	private int relationCount = 0;
 	private int characterCount = 0;
-	
+
 	public FreemarkerTemplateWriter(Reader templateReader) {
 		super();
 		try {
 			Configuration cfg = new Configuration(new Version(2, 3, 23));
 			cfg.setCacheStorage(new NullCacheStorage());
 			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
-	
+
 			this.template = new Template("freemarkerTemplate", templateReader, cfg);
 		} catch (IOException ioe) {
 			LogUtils.logError(LOG, ioe);
 			throw new RuntimeException(ioe);
 		}
 	}
-	
-	void process(Map<String,Object> model, Writer writer) {
+
+	void process(Map<String, Object> model, Writer writer) {
 		try {
 			template.process(model, writer);
 			writer.flush();
@@ -89,7 +90,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("Outputting: " + parseConfiguration.toString());
 		}
-		Map<String,Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<String, Object>();
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);
 		model.put("configuration", parseConfiguration);
@@ -104,28 +105,28 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 		characterCount += parseConfiguration.getSentence().getText().length();
 		sentenceCount += 1;
 	}
-	
+
 	@Override
 	public void onNextPosTagSequence(PosTagSequence posTagSequence, Writer writer) {
-		Map<String,Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sentence", posTagSequence);
-		model.put("text", posTagSequence.getTokenSequence().getText());
+		model.put("text", posTagSequence.getTokenSequence().getSentence().getText());
 		model.put("LOG", LOG);
 		this.process(model, writer);
 	}
 
 	@Override
 	public void onNextTokenSequence(TokenSequence tokenSequence, Writer writer) {
-		Map<String,Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sentence", tokenSequence);
-		model.put("text", tokenSequence.getText());
+		model.put("text", tokenSequence.getSentence().getText());
 		model.put("LOG", LOG);
 		this.process(model, writer);
 	}
 
 	@Override
 	public void onNextSentence(Sentence sentence, Writer writer) {
-		Map<String,Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sentence", sentence);
 		model.put("LOG", LOG);
 		this.process(model, writer);

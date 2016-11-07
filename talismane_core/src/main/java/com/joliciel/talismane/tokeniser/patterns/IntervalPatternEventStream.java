@@ -44,7 +44,6 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokeniserContext;
 import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -65,8 +64,6 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
 
 	private final TokeniserPatternManager tokeniserPatternManager;
-	private final TokenSequenceFilter tokenFilterWrapper;
-
 	private final TalismaneSession talismaneSession;
 
 	private List<TaggedToken<TokeniserOutcome>> tokensToCheck;
@@ -79,7 +76,6 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 		this.tokeniserContextFeatures = tokeniserContextFeatures;
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.talismaneSession = talismaneSession;
-		this.tokenFilterWrapper = new TokenFilterWrapper(this.corpusReader.getTokenFilters());
 	}
 
 	@Override
@@ -94,7 +90,7 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 				TokenSequence realSequence = corpusReader.nextTokenSequence();
 
 				List<Integer> tokenSplits = realSequence.getTokenSplits();
-				String text = realSequence.getText();
+				String text = realSequence.getSentence().getText();
 				LOG.debug("Sentence: " + text);
 				Sentence sentence = new Sentence(text, talismaneSession);
 
@@ -102,7 +98,6 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 				for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
 					tokenSequenceFilter.apply(tokenSequence);
 				}
-				tokenFilterWrapper.apply(tokenSequence);
 
 				List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
 				currentHistory = new TokenisedAtomicTokenSequence(sentence, tokenSequence.size(), this.talismaneSession);

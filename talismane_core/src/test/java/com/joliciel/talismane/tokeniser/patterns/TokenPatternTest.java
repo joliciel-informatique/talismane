@@ -366,15 +366,9 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch2(@NonStrict final Sentence sentence) {
+	public void testMatch2() {
 		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
-
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Qu'ensuite il aille...");
-			}
-		};
+		final Sentence sentence = new Sentence("Qu'ensuite il aille...", talismaneSession);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
@@ -387,15 +381,9 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch3(@NonStrict final Sentence sentence) {
+	public void testMatch3() {
 		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
-
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Z'ensuite il aille...");
-			}
-		};
+		final Sentence sentence = new Sentence("Z'ensuite il aille...", talismaneSession);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 
@@ -412,15 +400,9 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch4(@NonStrict final Sentence sentence) {
+	public void testMatch4() {
 		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
-
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Aix-les-Bains");
-			}
-		};
+		final Sentence sentence = new Sentence("Aix-les-Bains", talismaneSession);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
 

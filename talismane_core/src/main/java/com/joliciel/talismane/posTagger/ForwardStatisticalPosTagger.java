@@ -143,7 +143,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 			}
 		}
 
-		int sentenceLength = tokenSequences.get(0).getText().length();
+		int sentenceLength = tokenSequences.get(0).getSentence().getText().length();
 
 		TreeMap<Double, PriorityQueue<PosTagSequence>> heaps = new TreeMap<Double, PriorityQueue<PosTagSequence>>();
 

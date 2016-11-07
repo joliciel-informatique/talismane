@@ -14,11 +14,12 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 
@@ -52,7 +53,6 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 
 	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
 	private final List<TokenFilter> tokenFilters = new ArrayList<>();
-	private TokenSequenceFilter tokenFilterWrapper = null;
 
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
@@ -111,16 +111,39 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 			// we've reached the end, do nothing
 		} else {
 			while (tokenSequence == null) {
-				boolean hasLine = false;
+				List<TokenTuple> tuples = new ArrayList<>();
 				if (!scanner.hasNextLine())
 					break;
-				while (scanner.hasNextLine() || hasLine) {
+				while (scanner.hasNextLine() || tuples.size() > 0) {
 					String line = "";
 					if (scanner.hasNextLine())
 						line = scanner.nextLine().replace("\r", "");
 					lineNumber++;
-					if (line.length() == 0) {
-						if (!hasLine)
+					if (line.length() > 0) {
+
+						Matcher matcher = this.getPattern().matcher(line);
+						if (!matcher.matches())
+							throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
+
+						if (matcher.groupCount() != placeholderIndexMap.size()) {
+							throw new TalismaneException(
+									"Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+						}
+
+						String word = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
+						word = CoNLLFormatter.fromCoNLL(word);
+
+						TokenTuple tuple = new TokenTuple(word);
+
+						if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER))
+							tuple.fileName = (matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
+						if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER))
+							tuple.lineNumber = (Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
+						if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER))
+							tuple.columnNumber = (Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
+						tuples.add(tuple);
+					} else {
+						if (tuples.size() == 0)
 							continue;
 
 						// end of sentence
@@ -148,20 +171,44 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 						LOG.debug("sentenceCount: " + sentenceCount);
 
 						if (!includeMe) {
-							hasLine = false;
+							tuples = new ArrayList<>();
 							tokenSequence = null;
 							continue;
 						}
 
-						tokenSequence.cleanSlate();
+						Sentence sentence = null;
+						if (sentenceReader != null && sentenceReader.hasNextSentence()) {
+							sentence = new Sentence(sentenceReader.nextSentence(), talismaneSession);
+						} else {
+							LinguisticRules rules = talismaneSession.getLinguisticRules();
+							if (rules == null)
+								throw new TalismaneException("Linguistic rules have not been set.");
 
-						// first apply the token filters - which might replace
-						// the text of an individual token
-						// with something else
-						if (tokenFilterWrapper == null) {
-							tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
+							String text = "";
+							for (TokenTuple tuple : tuples) {
+								String word = tuple.word;
+								// check if a space should be added before this
+								// token
+
+								if (rules.shouldAddSpace(text, word))
+									text += " ";
+								text += word;
+							}
+							sentence = new Sentence(text, talismaneSession);
 						}
-						tokenFilterWrapper.apply(tokenSequence);
+
+						for (TokenFilter tokenFilter : this.tokenFilters) {
+							tokenFilter.annotate(sentence);
+						}
+
+						tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
+						for (TokenTuple tuple : tuples) {
+							Token token = tokenSequence.addToken(tuple.word);
+							token.setFileName(tuple.fileName);
+							token.setLineNumber(tuple.lineNumber);
+							token.setColumnNumber(tuple.columnNumber);
+						}
+						tokenSequence.cleanSlate();
 
 						// now apply the token sequence filters
 						for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
@@ -169,41 +216,22 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 						}
 
 						break;
-					} else {
-						hasLine = true;
-
-						if (tokenSequence == null) {
-							if (sentenceReader != null && sentenceReader.hasNextSentence()) {
-								tokenSequence = new PretokenisedSequence(sentenceReader.nextSentence(), talismaneSession);
-							} else {
-								tokenSequence = new PretokenisedSequence(talismaneSession);
-							}
-						}
-
-						Matcher matcher = this.getPattern().matcher(line);
-						if (!matcher.matches())
-							throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
-
-						if (matcher.groupCount() != placeholderIndexMap.size()) {
-							throw new TalismaneException(
-									"Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
-						}
-
-						String word = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-						word = CoNLLFormatter.fromCoNLL(word);
-						Token token = tokenSequence.addToken(word);
-
-						if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER))
-							token.setFileName(matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
-						if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER))
-							token.setLineNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
-						if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER))
-							token.setColumnNumber(Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
 					}
 				}
 			}
 		}
 		return (tokenSequence != null);
+	}
+
+	private static final class TokenTuple {
+		public TokenTuple(String word) {
+			this.word = word;
+		}
+
+		public String word;
+		public String fileName;
+		public int lineNumber = -1;
+		public int columnNumber = -1;
 	}
 
 	@Override

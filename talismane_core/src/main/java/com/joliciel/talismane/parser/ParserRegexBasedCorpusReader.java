@@ -41,8 +41,10 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -59,7 +61,6 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.CoNLLFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -132,7 +133,6 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
-	private TokenSequenceFilter tokenFilterWrapper = null;
 
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 
@@ -142,6 +142,8 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 
 	private final TalismaneSession talismaneSession;
 	private final String regex;
+
+	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 
 	public ParserRegexBasedCorpusReader(String regex, File corpusLocation, Charset charset, TalismaneSession talismaneSession) {
 		this.corpusLocation = corpusLocation;
@@ -228,9 +230,34 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 							}
 
 							if (!badConfig) {
-								PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
+								Sentence sentence = null;
+								if (sentenceReader != null && sentenceReader.hasNextSentence()) {
+									sentence = new Sentence(sentenceReader.nextSentence(), talismaneSession);
+								} else {
+									LinguisticRules rules = talismaneSession.getLinguisticRules();
+									if (rules == null)
+										throw new TalismaneException("Linguistic rules have not been set.");
+
+									String text = "";
+									for (ParseDataLine dataLine : dataLines) {
+										String word = dataLine.getWord();
+										// check if a space should be added
+										// before this
+										// token
+
+										if (rules.shouldAddSpace(text, word))
+											text += " ";
+										text += word;
+									}
+									sentence = new Sentence(text, talismaneSession);
+								}
+
+								for (TokenFilter tokenFilter : this.tokenFilters) {
+									tokenFilter.annotate(sentence);
+								}
 
 								int maxIndex = 0;
+								PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
 								for (ParseDataLine dataLine : dataLines) {
 									Token token = tokenSequence.addToken(dataLine.getWord());
 									dataLine.setToken(token);
@@ -242,18 +269,10 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 									token.setLineNumberEnd(dataLine.getOriginalEndLineNumber());
 									token.setColumnNumberEnd(dataLine.getOriginalEndColumnNumber());
 								}
-								LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount - 1) + ") (Line " + (sentenceStartLineNumber + 1)
-										+ "): " + tokenSequence.getText());
-
 								tokenSequence.cleanSlate();
 
-								// first apply the token filters - which
-								// might replace the text of an individual
-								// token with something else
-								if (tokenFilterWrapper == null) {
-									tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
-								}
-								tokenFilterWrapper.apply(tokenSequence);
+								LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount - 1) + ") (Line " + (sentenceStartLineNumber + 1)
+										+ "): " + tokenSequence.getSentence().getText());
 
 								for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 									tokenFilter.apply(tokenSequence);
@@ -950,7 +969,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 
 	@Override
 	public String nextSentence() {
-		return this.nextTokenSequence().getText();
+		return this.nextTokenSequence().getSentence().getText();
 	}
 
 	@Override
@@ -1043,4 +1062,15 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 		lineNumber = 0;
 	}
 
+	/**
+	 * If provided, will assign sentences with the original white space to the
+	 * token sequences.
+	 */
+	public SentenceDetectorAnnotatedCorpusReader getSentenceReader() {
+		return sentenceReader;
+	}
+
+	public void setSentenceReader(SentenceDetectorAnnotatedCorpusReader sentenceReader) {
+		this.sentenceReader = sentenceReader;
+	}
 }

@@ -29,8 +29,10 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.parser.DependencyArc;
@@ -45,7 +47,6 @@ import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 public class StandoffReader implements ParserAnnotatedCorpusReader {
@@ -64,7 +65,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
 	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
 	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
-	private TokenSequenceFilter tokenFilterWrapper = null;
 
 	private Map<String, StandoffToken> tokenMap = new HashMap<String, StandoffReader.StandoffToken>();
 	private Map<String, StandoffRelation> relationMap = new HashMap<String, StandoffReader.StandoffRelation>();
@@ -162,11 +162,31 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 		} else {
 			if (configuration == null && sentenceIndex < sentences.size()) {
 
-				PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
+				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
+
+				LinguisticRules rules = talismaneSession.getLinguisticRules();
+				if (rules == null)
+					throw new TalismaneException("Linguistic rules have not been set.");
+
+				String text = "";
+				for (StandoffToken standoffToken : tokens) {
+					String word = standoffToken.text;
+					// check if a space should be added before this
+					// token
+
+					if (rules.shouldAddSpace(text, word))
+						text += " ";
+					text += word;
+				}
+				Sentence sentence = new Sentence(text, talismaneSession);
+
+				for (TokenFilter tokenFilter : this.tokenFilters) {
+					tokenFilter.annotate(sentence);
+				}
+
+				PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
 				PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
 				Map<String, PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
-
-				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
 
 				for (StandoffToken standoffToken : tokens) {
 					Token token = tokenSequence.addToken(standoffToken.text);
@@ -187,14 +207,6 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 				tokenSequence.setWithRoot(true);
 
 				tokenSequence.cleanSlate();
-
-				// first apply the token filters - which might replace the text
-				// of an individual token
-				// with something else
-				if (tokenFilterWrapper == null) {
-					tokenFilterWrapper = new TokenFilterWrapper(this.tokenFilters);
-				}
-				tokenFilterWrapper.apply(tokenSequence);
 
 				for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
 					tokenFilter.apply(tokenSequence);

@@ -70,7 +70,7 @@ public class PosTaggerEvaluator {
 			PosTagSequence guessedSequence = null;
 
 			if (this.tokeniser != null) {
-				tokenSequences = tokeniser.tokenise(tokenSequence.getText());
+				tokenSequences = tokeniser.tokenise(tokenSequence.getSentence());
 
 				tokenSequence = tokenSequences.get(0);
 				if (!propagateBeam) {

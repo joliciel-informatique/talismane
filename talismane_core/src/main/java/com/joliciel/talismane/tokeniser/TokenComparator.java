@@ -33,7 +33,6 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchSequence;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
@@ -75,17 +74,15 @@ public class TokenComparator {
 			if (evaluationCorpusReader.hasNextTokenSequence())
 				guessedSequence = evaluationCorpusReader.nextTokenSequence();
 			else {
-				throw new TalismaneException("Wrong number of sentences in eval corpus: " + realSequence.getText());
+				throw new TalismaneException("Wrong number of sentences in eval corpus: " + realSequence.getSentence().getText());
 			}
 
 			Sentence sentence = realSequence.getSentence();
 
-			List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
-
 			// Initially, separate the sentence into tokens using the separators
 			// provided
-			TokenSequence realAtomicSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, placeholders, talismaneSession);
-			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), Tokeniser.SEPARATORS, placeholders, talismaneSession);
+			TokenSequence realAtomicSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), Tokeniser.SEPARATORS, talismaneSession);
 
 			List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
 			Map<Token, Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();
@@ -136,9 +133,9 @@ public class TokenComparator {
 					mismatches++;
 					LOG.debug("Mismatch: '" + token.getText() + "', '" + guessedAtomicSequence.get(i).getToken().getText() + "'");
 					if (mismatches > 6) {
-						LOG.info("Real sequence: " + realSequence.getText());
-						LOG.info("Guessed sequence: " + guessedSequence.getText());
-						throw new TalismaneException("Too many mismatches for sentence: " + realSequence.getText());
+						LOG.info("Real sequence: " + realSequence.getSentence().getText());
+						LOG.info("Guessed sequence: " + guessedSequence.getSentence().getText());
+						throw new TalismaneException("Too many mismatches for sentence: " + realSequence.getSentence().getText());
 					}
 					continue;
 				}

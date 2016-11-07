@@ -67,9 +67,9 @@ public class TextMarkerFilterFactory {
 					if (parts[4].indexOf('=') >= 0) {
 						String attribute = parts[4].substring(0, parts[4].indexOf('='));
 						String value = parts[4].substring(parts[4].indexOf('=') + 1);
-						filter.setTag(attribute, new StringAttribute(value));
+						filter.setTag(attribute, new StringAttribute(attribute, value));
 					} else {
-						filter.setTag(parts[4], new StringAttribute(""));
+						filter.setTag(parts[4], new StringAttribute(parts[4], ""));
 					}
 				}
 			} else if (parts.length == minParams) {
@@ -80,9 +80,9 @@ public class TextMarkerFilterFactory {
 					if (parts[3].indexOf('=') >= 0) {
 						String attribute = parts[3].substring(0, parts[3].indexOf('='));
 						String value = parts[3].substring(parts[3].indexOf('=') + 1);
-						filter.setTag(attribute, new StringAttribute(value));
+						filter.setTag(attribute, new StringAttribute(attribute, value));
 					} else {
-						filter.setTag(parts[3], new StringAttribute(""));
+						filter.setTag(parts[3], new StringAttribute(parts[4], ""));
 					}
 				}
 			} else {
