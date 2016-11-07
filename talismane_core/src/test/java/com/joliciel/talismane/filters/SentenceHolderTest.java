@@ -66,11 +66,11 @@ public class SentenceHolderTest {
 		holder.addSentenceBoundary("Hello  World.".length() - 1);
 		holder.addSentenceBoundary("Hello  World. How are you?".length() - 1);
 
-		holder.addTagStart("State", new StringAttribute("OK"), "Hello  World. ".length());
-		holder.addTagEnd("State", new StringAttribute("OK"), "Hello  World. How are you".length());
+		holder.addTagStart("State", new StringAttribute("State", "OK"), "Hello  World. ".length());
+		holder.addTagEnd("State", new StringAttribute("State", "OK"), "Hello  World. How are you".length());
 
-		holder.addTagStart("VerbIs", new StringAttribute(""), "Hello  World. How ".length());
-		holder.addTagEnd("VerbIs", new StringAttribute(""), "Hello  World. How are".length());
+		holder.addTagStart("VerbIs", new StringAttribute("VerbIs", ""), "Hello  World. How ".length());
+		holder.addTagEnd("VerbIs", new StringAttribute("VerbIs", ""), "Hello  World. How are".length());
 
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {

@@ -28,7 +28,6 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -93,25 +92,18 @@ public abstract class AbstractTokeniser implements Tokeniser {
 
 	@Override
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
-		// apply any pre-tokenisation decisions via filters
-		// we only want one placeholder per start index - the first one that
-		// gets added
-		List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
-
+		// annotate the sentence for pre token filters
 		for (TokenFilter tokenFilter : this.tokenFilters) {
-			List<TokenPlaceholder> myPlaceholders = tokenFilter.apply(sentence.getText());
-			placeholders.addAll(myPlaceholders);
+			tokenFilter.annotate(sentence);
 			if (LOG.isTraceEnabled()) {
-				if (myPlaceholders.size() > 0) {
-					LOG.trace("TokenFilter: " + tokenFilter);
-					LOG.trace("placeholders: " + myPlaceholders);
-				}
+				LOG.trace("TokenFilter: " + tokenFilter);
+				LOG.trace("annotations: " + sentence.getAnnotations());
 			}
 		}
 
 		// Initially, separate the sentence into tokens using the separators
 		// provided
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, placeholders, this.talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, this.talismaneSession);
 
 		// apply any pre-processing filters that have been added
 		for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {

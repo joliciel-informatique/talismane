@@ -21,7 +21,6 @@ package com.joliciel.talismane.tokeniser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
@@ -36,53 +35,45 @@ import com.joliciel.talismane.filters.Sentence;
 public class PretokenisedSequence extends TokenSequence {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(PretokenisedSequence.class);
-	private static final long serialVersionUID = 2675309892340757939L;
+	private static final long serialVersionUID = 1L;
 
-	public PretokenisedSequence(PretokenisedSequence sequenceToClone) {
+	PretokenisedSequence(PretokenisedSequence sequenceToClone) {
 		super(sequenceToClone);
-		if (this.getText().length() > 0)
-			this.textProvided = true;
 	}
 
-	public PretokenisedSequence(TalismaneSession talismaneSession) {
-		this("", talismaneSession);
-	}
-
-	public PretokenisedSequence(String text, TalismaneSession talismaneSession) {
-		super(new Sentence(text, talismaneSession), talismaneSession);
-		if (text.length() > 0)
-			this.textProvided = true;
+	public PretokenisedSequence(Sentence sentence, TalismaneSession talismaneSession) {
+		super(sentence, talismaneSession);
 	}
 
 	@Override
 	public Token addToken(int start, int end) {
 		throw new TalismaneException("Cannot add tokens by index");
-
 	}
 
 	/**
-	 * Adds a token to the current sequence, where the sequence is constructed
-	 * from unit tokens, rather than from an existing sentence. Will
-	 * automatically attempt to add the correct whitespace prior to this token.
+	 * Called when reconstructing a sentence from a previously annotated corpus,
+	 * adding the next string.
 	 */
-	public Token addToken(String tokenText) {
-		Token token = null;
+	public Token addToken(String string) {
+		String text = this.getSentence().getText();
 
-		if (this.size() == 0) {
-			// do nothing
-		} else if (!textProvided) {
-			// check if a space should be added before this token
-			LinguisticRules rules = this.getTalismaneSession().getLinguisticRules();
-			if (rules == null)
-				throw new TalismaneException("Linguistic rules have not been set.");
+		int start = 0;
+		if (this.size() > 0)
+			start = this.get(this.size() - 1).getEndIndex();
 
-			if (rules.shouldAddSpace(this, tokenText))
-				this.addTokenInternal(" ");
-
+		for (; start < text.length(); start++) {
+			char c = text.charAt(start);
+			if (!Character.isWhitespace(c)) {
+				break;
+			}
 		}
-		token = this.addTokenInternal(tokenText);
+		int end = start + string.length();
 
-		return token;
+		if (!text.substring(start, end).equals(string)) {
+			throw new TalismaneException("Add token failed: Expected '" + string + "' but was '" + text.substring(start, end) + "' in sentence: " + text);
+		}
+
+		return this.addToken(start, end);
 	}
 
 	@Override

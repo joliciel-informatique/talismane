@@ -33,20 +33,11 @@ import com.joliciel.talismane.TalismaneSession;
  */
 public class AttributeRegexFilter extends AbstractRegexFilter {
 	public AttributeRegexFilter(String regex, TalismaneSession talismaneSession) {
-		super(regex, talismaneSession);
+		super(regex, talismaneSession, false);
 	}
 
 	AttributeRegexFilter() {
-		super();
-	}
-
-	@Override
-	public List<TokenPlaceholder> apply(String text) {
-		List<TokenPlaceholder> placeholders = super.apply(text);
-		for (TokenPlaceholder placeholder : placeholders) {
-			placeholder.setSingleToken(false);
-		}
-		return placeholders;
+		super(false);
 	}
 
 	@Override

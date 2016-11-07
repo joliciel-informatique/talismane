@@ -52,7 +52,7 @@ public class TokeniserEvaluator {
 		int sentenceIndex = 0;
 		while (corpusReader.hasNextTokenSequence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
-			String sentence = realSequence.getText();
+			String sentence = realSequence.getSentence().getText();
 
 			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = this.getGuessedAtomicSequences(sentence);
 

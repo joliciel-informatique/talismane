@@ -20,43 +20,33 @@ package com.joliciel.talismane;
 
 import java.util.Locale;
 
-import com.joliciel.talismane.LinguisticRules;
-import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-
 public class GenericRules implements LinguisticRules {
 	TalismaneSession talismaneSession;
-	
+
 	public GenericRules(TalismaneSession talismaneSession) {
 		super();
 		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
-	public boolean shouldAddSpace(TokenSequence tokenSequence, String currentToken) {
-		// Double quotes are tricky because they could be opening or closing quotations. Most of the time we can simply 
+	public boolean shouldAddSpace(String text, String word) {
+		// Double quotes are tricky because they could be opening or closing
+		// quotations. Most of the time we can simply
 		// count quotes, but not if there's a sentence break inside a quotation.
-		// We'll assume single quote are always actual quotes, since apostrophes would not be tokenised separately.
-		String previousToken = tokenSequence.get(tokenSequence.size()-1).getOriginalText();
-
-		if (currentToken.equals(".")||currentToken.equals(",")
-				|| currentToken.equals(")")||currentToken.equals("]")
-				|| currentToken.equals("}")||currentToken.equals("”")
-				|| previousToken.equals("“")
-				|| previousToken.equals("(") || previousToken.equals("[")
-				|| previousToken.equals("{")
-				|| currentToken.length()==0)
+		// We'll assume single quote are always actual quotes, since apostrophes
+		// would not be tokenised separately.
+		if (word.equals(".") || word.equals(",") || word.equals(")") || word.equals("]") || word.equals("}") || word.equals("”") || text.endsWith("“")
+				|| text.endsWith("(") || text.endsWith("[") || text.endsWith("{") || word.length() == 0)
 			return false;
-		
-		if (currentToken.equals("'") || currentToken.equals("\"")) {
+
+		if (word.equals("'") || word.equals("\"")) {
 			int prevCount = 0;
-			for (Token token : tokenSequence) {
-				if (token.getOriginalText().equals(currentToken)) {
+			for (int i = 0; i < text.length(); i++) {
+				char c = text.charAt(i);
+				if (c == word.charAt(0))
 					prevCount++;
-				}
 			}
-			
+
 			if (prevCount % 2 == 0) {
 				// even number of quotes, add space before this one
 				return true;
@@ -65,15 +55,16 @@ public class GenericRules implements LinguisticRules {
 				return false;
 			}
 		}
-		
-		if (previousToken.equals("'") || previousToken.equals("\"")) {
+
+		if (text.endsWith("'") || text.endsWith("\"")) {
+			char lastTextChar = text.charAt(text.length() - 1);
 			int prevCount = 0;
-			for (Token token : tokenSequence) {
-				if (token.getOriginalText().equals(currentToken)) {
+			for (int i = 0; i < text.length(); i++) {
+				char c = text.charAt(i);
+				if (c == lastTextChar)
 					prevCount++;
-				}
 			}
-			
+
 			if (prevCount % 2 == 0) {
 				// even number of quotes, add space after the quote
 				return true;
@@ -82,22 +73,19 @@ public class GenericRules implements LinguisticRules {
 				return false;
 			}
 		}
-		
+
 		Locale locale = this.talismaneSession.getLocale();
 		if (locale.getLanguage().equals("fr")) {
-			if (currentToken.equals(":") || currentToken.equals("?")
-					|| currentToken.equals("!"))
-				return true;			
+			if (word.equals(":") || word.equals("?") || word.equals("!"))
+				return true;
 		}
-		
-		if (currentToken.equals(":") || currentToken.equals("?")
-				|| currentToken.equals("!"))
+
+		if (word.equals(":") || word.equals("?") || word.equals("!"))
 			return false;
-		
-		if (previousToken.endsWith("'")||previousToken.endsWith("’")
-				||currentToken.startsWith("'")||currentToken.startsWith("’"))
+
+		if (text.endsWith("'") || text.endsWith("’") || word.startsWith("'") || word.startsWith("’"))
 			return false;
-		
+
 		return true;
 	}
 
@@ -107,9 +95,9 @@ public class GenericRules implements LinguisticRules {
 		if (locale.getLanguage().equals("fr")) {
 			String result = adjective;
 			if (adjective.endsWith("aux")) {
-				result = adjective.substring(0, adjective.length()-3) + "al";
+				result = adjective.substring(0, adjective.length() - 3) + "al";
 			} else if (adjective.endsWith("s")) {
-				result = adjective.substring(0, adjective.length()-1);
+				result = adjective.substring(0, adjective.length() - 1);
 			}
 			return result;
 		} else {
@@ -124,29 +112,29 @@ public class GenericRules implements LinguisticRules {
 		if (locale.getLanguage().equals("fr")) {
 			switch (c) {
 			case 'E':
-				lowerCaseChars = new char[] {'e', 'é', 'ê', 'è', 'ë'};
+				lowerCaseChars = new char[] { 'e', 'é', 'ê', 'è', 'ë' };
 				break;
 			case 'A':
-				lowerCaseChars = new char[] {'à', 'a', 'â', 'á'};
+				lowerCaseChars = new char[] { 'à', 'a', 'â', 'á' };
 				break;
 			case 'O':
-				lowerCaseChars  = new char[] {'o', 'ô', 'ò', 'ó'};
+				lowerCaseChars = new char[] { 'o', 'ô', 'ò', 'ó' };
 				break;
 			case 'I':
-				lowerCaseChars  = new char[] {'i', 'î', 'ï', 'í'};
+				lowerCaseChars = new char[] { 'i', 'î', 'ï', 'í' };
 				break;
 			case 'U':
-				lowerCaseChars = new char[] {'u', 'ú', 'ü'};
+				lowerCaseChars = new char[] { 'u', 'ú', 'ü' };
 				break;
 			case 'C':
-				lowerCaseChars = new char[] {'c', 'ç'};
+				lowerCaseChars = new char[] { 'c', 'ç' };
 				break;
 			default:
-				lowerCaseChars = new char[] {Character.toLowerCase(c)};
+				lowerCaseChars = new char[] { Character.toLowerCase(c) };
 				break;
 			}
 		} else {
-			lowerCaseChars = new char[] {Character.toLowerCase(c)};
+			lowerCaseChars = new char[] { Character.toLowerCase(c) };
 		}
 		return lowerCaseChars;
 	}

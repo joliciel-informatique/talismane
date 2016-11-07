@@ -20,10 +20,8 @@ package com.joliciel.talismane.sentenceDetector;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +29,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -119,17 +119,30 @@ public class SentenceDetector {
 	public List<Integer> detectSentences(String prevText, String text, String moreText) {
 		String context = prevText + text + moreText;
 
+		// TODO: this should have been pre-annotated, but for now we'll annotate
+		// it here
+		AnnotatedText annotatedContext = new AnnotatedText(context);
+
 		// we only want one placeholder per start index - the first one that
 		// gets added
-		Map<Integer, TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
 		for (TokenFilter filter : this.preTokeniserFilters) {
-			List<TokenPlaceholder> myPlaceholders = filter.apply(context);
-			for (TokenPlaceholder placeholder : myPlaceholders) {
-				if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
-					placeholderMap.put(placeholder.getStartIndex(), placeholder);
-				}
-			}
+			filter.annotate(annotatedContext);
 		}
+		List<Annotation<TokenPlaceholder>> placeholders = annotatedContext.getAnnotations(TokenPlaceholder.class);
+
+		List<Annotation<TokenPlaceholder>> newPlaceholders = new ArrayList<>();
+
+		Annotation<TokenPlaceholder> lastPlaceholder = null;
+		for (Annotation<TokenPlaceholder> placeholder : placeholders) {
+			// take the first placeholder at this start index only
+			// thus declaration order is the order at which they're
+			// applied
+			if (lastPlaceholder == null || placeholder.getStart() > lastPlaceholder.getStart()) {
+				newPlaceholders.add(placeholder);
+			}
+			lastPlaceholder = placeholder;
+		}
+		placeholders = newPlaceholders;
 
 		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text);
 		Set<Integer> possibleBoundaries = new HashSet<Integer>();
@@ -142,12 +155,12 @@ public class SentenceDetector {
 			// placeholder (placeholder.getEndIndex()-1)
 			boolean inPlaceholder = false;
 			int position = prevText.length() + matcher.start();
-			for (TokenPlaceholder placeholder : placeholderMap.values()) {
-				int endPos = placeholder.getEndIndex();
-				if (placeholder.isPossibleSentenceBoundary()) {
+			for (Annotation<TokenPlaceholder> placeholder : placeholders) {
+				int endPos = placeholder.getEnd();
+				if (placeholder.getData().isPossibleSentenceBoundary()) {
 					endPos -= 1;
 				}
-				if (placeholder.getStartIndex() <= position && position < endPos) {
+				if (placeholder.getStart() <= position && position < endPos) {
 					inPlaceholder = true;
 					break;
 				}

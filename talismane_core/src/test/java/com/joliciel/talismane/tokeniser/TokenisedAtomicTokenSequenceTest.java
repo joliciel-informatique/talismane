@@ -28,20 +28,14 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
 
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
-
 public class TokenisedAtomicTokenSequenceTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceTest.class);
 
 	@Test
-	public void testGetTokenSequence(@NonStrict final Sentence sentence) {
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Je n'ai pas encore l'ourang-outan.");
-			}
-		};
+	public void testGetTokenSequence() {
+
+		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+		final Sentence sentence = new Sentence("Je n'ai pas encore l'ourang-outan.", talismaneSession);
 
 		TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] { TokeniserOutcome.SEPARATE, // Je
 				TokeniserOutcome.SEPARATE, // _
@@ -60,8 +54,6 @@ public class TokenisedAtomicTokenSequenceTest {
 				TokeniserOutcome.JOIN, // outan
 				TokeniserOutcome.SEPARATE // .
 		};
-
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneSession);
 

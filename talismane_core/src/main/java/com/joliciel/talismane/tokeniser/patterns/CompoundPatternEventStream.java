@@ -41,7 +41,6 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -59,7 +58,6 @@ public class CompoundPatternEventStream implements ClassificationEventStream {
 	private final Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
 
 	private final TokeniserPatternManager tokeniserPatternManager;
-	private final TokenSequenceFilter tokenFilterWrapper;
 
 	private final TalismaneSession talismaneSession;
 
@@ -73,7 +71,6 @@ public class CompoundPatternEventStream implements ClassificationEventStream {
 		this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.talismaneSession = talismaneSession;
-		this.tokenFilterWrapper = new TokenFilterWrapper(this.corpusReader.getTokenFilters());
 	}
 
 	@Override
@@ -92,7 +89,7 @@ public class CompoundPatternEventStream implements ClassificationEventStream {
 				TokenSequence realSequence = corpusReader.nextTokenSequence();
 
 				List<Integer> tokenSplits = realSequence.getTokenSplits();
-				String text = realSequence.getText();
+				String text = realSequence.getSentence().getText();
 				LOG.debug("Sentence: " + text);
 				Sentence sentence = new Sentence(text, talismaneSession);
 
@@ -100,8 +97,6 @@ public class CompoundPatternEventStream implements ClassificationEventStream {
 				for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
 					tokenSequenceFilter.apply(tokenSequence);
 				}
-
-				tokenFilterWrapper.apply(tokenSequence);
 
 				List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
 

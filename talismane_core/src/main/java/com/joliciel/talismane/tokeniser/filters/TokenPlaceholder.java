@@ -18,37 +18,18 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.joliciel.talismane.tokeniser.TokenAttribute;
-
 /**
- * A place-holder that will be replaced by a proper token when tokenising.<br/>
- * A placeholder where {@link #isSingleToken()} returns false is an attribute
- * placeholder, which only adds attributes. In this case, only a single
- * attribute of a given key can be added per token. If two attribute
- * placeholders overlap and assign the same key, the one with the lower start
- * index is privileged for all tokens, and the other one is skipped for all
- * tokens. If they have the same start index, the one with the higher end index
- * is priveleged for all tokens, and the other one is skipped for all tokens.
+ * A place-holder that will be replaced by a proper token when tokenising.
  * 
  * @author Assaf Urieli
  *
  */
-public class TokenPlaceholder implements Comparable<TokenPlaceholder> {
-	private int startIndex;
-	private int endIndex;
+public class TokenPlaceholder {
 	private String replacement;
 	private String regex;
 	private boolean possibleSentenceBoundary = true;
-	private boolean singleToken = true;
-	private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
 
-	public TokenPlaceholder(int startIndex, int endIndex, String replacement, String regex) {
-		super();
-		this.startIndex = startIndex;
-		this.endIndex = endIndex;
+	public TokenPlaceholder(String replacement, String regex) {
 		this.replacement = replacement;
 		this.regex = regex;
 	}
@@ -58,20 +39,6 @@ public class TokenPlaceholder implements Comparable<TokenPlaceholder> {
 	 */
 	public String getReplacement() {
 		return this.replacement;
-	}
-
-	/**
-	 * Start index for this placeholder.
-	 */
-	public int getStartIndex() {
-		return this.startIndex;
-	}
-
-	/**
-	 * The index just after this placeholder ends.
-	 */
-	public int getEndIndex() {
-		return this.endIndex;
 	}
 
 	/**
@@ -93,47 +60,8 @@ public class TokenPlaceholder implements Comparable<TokenPlaceholder> {
 		this.possibleSentenceBoundary = possibleSentenceBoundary;
 	}
 
-	/**
-	 * Set of attributes to be assigned to tokens recognised by this regex
-	 * filter.
-	 */
-	public Map<String, TokenAttribute<?>> getAttributes() {
-		return this.attributes;
-	}
-
-	public void addAttribute(String key, TokenAttribute<?> value) {
-		this.attributes.put(key, value);
-	}
-
-	/**
-	 * Should this placeholder be interpreted as a single token, or should it
-	 * simply be used to add attributes to all tokens matched by it.
-	 */
-	public boolean isSingleToken() {
-		return this.singleToken;
-	}
-
-	public void setSingleToken(boolean singleToken) {
-		this.singleToken = singleToken;
-	}
-
 	@Override
 	public String toString() {
-		return "TokenPlaceholder [startIndex=" + startIndex + ", endIndex=" + endIndex + ", replacement=" + replacement + ", regex=" + regex
-				+ ", possibleSentenceBoundary=" + possibleSentenceBoundary + ", singleToken=" + singleToken + ", attributes=" + attributes + "]";
-	}
-
-	/**
-	 * Comparison order is: order by start index. If start indexes are
-	 * identical, order by reverse end index (to give precedence to longer
-	 * attributes).
-	 */
-	@Override
-	public int compareTo(TokenPlaceholder o) {
-		if (this.startIndex != o.startIndex)
-			return this.startIndex - o.startIndex;
-		if (this.endIndex != o.endIndex)
-			return o.endIndex - this.endIndex;
-		return this.hashCode() - o.hashCode();
+		return "TokenPlaceholder [replacement=" + replacement + ", regex=" + regex + ", possibleSentenceBoundary=" + possibleSentenceBoundary + "]";
 	}
 }

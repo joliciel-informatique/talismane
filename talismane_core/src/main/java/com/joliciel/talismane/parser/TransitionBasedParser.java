@@ -190,7 +190,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
 			long analysisTime = System.currentTimeMillis() - startTime;
 			if (maxAnalysisTimePerSentence > 0 && analysisTime > maxAnalysisTimeMilliseconds) {
-				LOG.info("Parse tree analysis took too long for sentence: " + tokenSequence.getText());
+				LOG.info("Parse tree analysis took too long for sentence: " + tokenSequence.getSentence().getText());
 				LOG.info("Breaking out after " + maxAnalysisTimePerSentence + " seconds.");
 				finished = true;
 			}
@@ -198,7 +198,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 			if (minFreeMemory > 0) {
 				long freeMemory = Runtime.getRuntime().freeMemory();
 				if (freeMemory < minFreeMemoryBytes) {
-					LOG.info("Not enough memory left to parse sentence: " + tokenSequence.getText());
+					LOG.info("Not enough memory left to parse sentence: " + tokenSequence.getSentence().getText());
 					LOG.info("Min free memory (bytes):" + minFreeMemoryBytes);
 					LOG.info("Current free memory (bytes): " + freeMemory);
 					finished = true;
