@@ -34,7 +34,6 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.tokeniser.AbstractTokeniser;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -70,12 +69,10 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-class IntervalPatternTokeniser extends AbstractTokeniser implements PatternTokeniser {
+class IntervalPatternTokeniser extends PatternTokeniser {
 	private static final Logger LOG = LoggerFactory.getLogger(IntervalPatternTokeniser.class);
 
 	private final DecisionMaker decisionMaker;
-
-	private final TokeniserPatternManager tokeniserPatternManager;
 	private final int beamWidth;
 	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
 	private final List<TokenSequenceFilter> tokenSequenceFilters;
@@ -88,9 +85,8 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	 */
 	public IntervalPatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager,
 			Set<TokeniserContextFeature<?>> tokeniserContextFeatures, int beamWidth, TalismaneSession talismaneSession) {
-		super(talismaneSession);
+		super(talismaneSession, tokeniserPatternManager);
 		this.decisionMaker = decisionMaker;
-		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.tokeniserContextFeatures = tokeniserContextFeatures;
 		this.tokenSequenceFilters = new ArrayList<>();
@@ -100,7 +96,6 @@ class IntervalPatternTokeniser extends AbstractTokeniser implements PatternToken
 	IntervalPatternTokeniser(IntervalPatternTokeniser tokeniser) {
 		super(tokeniser);
 		this.decisionMaker = tokeniser.decisionMaker;
-		this.tokeniserPatternManager = tokeniser.tokeniserPatternManager;
 		this.beamWidth = tokeniser.beamWidth;
 		this.tokeniserContextFeatures = new HashSet<>(tokeniser.tokeniserContextFeatures);
 		this.tokenSequenceFilters = new ArrayList<>(tokeniser.tokenSequenceFilters);

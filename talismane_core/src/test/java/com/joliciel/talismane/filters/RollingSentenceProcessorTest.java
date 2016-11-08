@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import mockit.NonStrictExpectations;
 
@@ -36,14 +38,19 @@ public class RollingSentenceProcessorTest {
 	private static final Logger LOG = LoggerFactory.getLogger(RollingSentenceProcessorTest.class);
 
 	@Test
-	public void testAddNextSegment() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegment() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers = new LinkedHashSet<TextMarker>();
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2;
+
 			{
 				textMarker1.getType();
 				returns(TextMarkerType.PUSH_SKIP);
@@ -73,14 +80,19 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testAddNextSegmentWithSpace() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegmentWithSpace() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers = new LinkedHashSet<TextMarker>();
 
 		new NonStrictExpectations() {
 			TextMarker textMarker0, textMarker1, textMarker2;
+
 			{
 				textMarker0.getType();
 				returns(TextMarkerType.SPACE);
@@ -116,8 +128,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testAddNextSegmentWithLeftoverMarker() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegmentWithLeftoverMarker() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -125,6 +141,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3;
+
 			{
 				textMarker1.getType();
 				returns(TextMarkerType.PUSH_SKIP);
@@ -162,8 +179,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testAddNextSegmentWithLeftoverMarkerAndOutput() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegmentWithLeftoverMarkerAndOutput() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -171,6 +192,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4;
+
 			{
 				textMarker1.getType();
 				returns(TextMarkerType.PUSH_SKIP);
@@ -211,8 +233,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testEmbeddedMarkers() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testEmbeddedMarkers() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -220,6 +246,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7, textMarker8, textMarker9, textMarker10;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7,
 						textMarker8, textMarker9, textMarker10 };
@@ -266,8 +293,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testNewlines() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testNewlines() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -331,8 +362,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testUnaryMarkers() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testUnaryMarkers() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -340,6 +375,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3, textMarker4 };
 
@@ -369,8 +405,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testReplace() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testReplace() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -378,6 +418,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3 };
 
@@ -413,8 +454,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testNestedStackAndUnary() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testNestedStackAndUnary() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -422,6 +467,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7, textMarker8, textMarker9, textMarker10;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7,
 						textMarker8, textMarker9, textMarker10 };

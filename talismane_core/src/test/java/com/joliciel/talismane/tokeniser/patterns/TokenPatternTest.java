@@ -35,6 +35,8 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
@@ -366,8 +368,12 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch2() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testMatch2() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Qu'ensuite il aille...", talismaneSession);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
@@ -381,8 +387,12 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch3() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testMatch3() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Z'ensuite il aille...", talismaneSession);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
@@ -400,8 +410,12 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch4() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testMatch4() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Aix-les-Bains", talismaneSession);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);

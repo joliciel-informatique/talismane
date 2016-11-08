@@ -49,8 +49,8 @@ public class TalismaneAPITest {
 		String sessionId = "";
 
 		// load the Talismane configuration
-		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 		Config conf = ConfigFactory.load();
+		TalismaneSession talismaneSession = new TalismaneSession(conf, sessionId);
 		TalismaneConfig talismaneConfig = new TalismaneConfig(conf, talismaneSession);
 
 		// tokenise the text

@@ -33,13 +33,19 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class PatternTokeniserTest {
 	private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniserTest.class);
 
 	@Test
-	public void testTokenise() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testTokenise() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final String sentence = "Je n'ai pas l'ourang-outan.";
 		final Map<SeparatorDecision, String> separatorDefaults = new HashMap<SeparatorDecision, String>();

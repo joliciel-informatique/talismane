@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.StringAttribute;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class SentenceHolderTest {
 	private static final Logger LOG = LoggerFactory.getLogger(SentenceHolderTest.class);
@@ -41,8 +43,12 @@ public class SentenceHolderTest {
 	}
 
 	@Test
-	public void testGetDetectedSentences() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testGetDetectedSentences() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		String originalText = "Hello  <b>World</b>. <o>Output this</o>How are you?  Fine<o>Output</o>,  ";
@@ -160,8 +166,12 @@ public class SentenceHolderTest {
 	}
 
 	@Test
-	public void testGetDetectedSentencesWithBoundaryAtEnd() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testGetDetectedSentencesWithBoundaryAtEnd() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		holder.setText("Hello World.");
@@ -183,8 +193,12 @@ public class SentenceHolderTest {
 	}
 
 	@Test
-	public void testGetDetectedSentencesWithNewlines() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testGetDetectedSentencesWithNewlines() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		holder.setText("Hello World. How are you? Fine thanks.");
