@@ -37,7 +37,6 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.tokeniser.AbstractTokeniser;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -72,12 +71,10 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-class CompoundPatternTokeniser extends AbstractTokeniser implements PatternTokeniser {
+class CompoundPatternTokeniser extends PatternTokeniser {
 	private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternTokeniser.class);
 
 	private final DecisionMaker decisionMaker;
-
-	private final TokeniserPatternManager tokeniserPatternManager;
 	private final int beamWidth;
 	private final Set<TokenPatternMatchFeature<?>> features;
 	private final List<TokenSequenceFilter> tokenSequenceFilters;
@@ -90,9 +87,8 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 	 */
 	public CompoundPatternTokeniser(DecisionMaker decisionMaker, TokeniserPatternManager tokeniserPatternManager, Set<TokenPatternMatchFeature<?>> features,
 			int beamWidth, TalismaneSession talismaneSession) {
-		super(talismaneSession);
+		super(talismaneSession, tokeniserPatternManager);
 		this.decisionMaker = decisionMaker;
-		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.beamWidth = beamWidth;
 		this.features = features;
 		this.tokenSequenceFilters = new ArrayList<>();
@@ -102,7 +98,6 @@ class CompoundPatternTokeniser extends AbstractTokeniser implements PatternToken
 	CompoundPatternTokeniser(CompoundPatternTokeniser tokeniser) {
 		super(tokeniser);
 		this.decisionMaker = tokeniser.decisionMaker;
-		this.tokeniserPatternManager = tokeniser.tokeniserPatternManager;
 		this.beamWidth = tokeniser.beamWidth;
 		this.features = new HashSet<>(tokeniser.features);
 		this.tokenSequenceFilters = new ArrayList<>(tokeniser.tokenSequenceFilters);

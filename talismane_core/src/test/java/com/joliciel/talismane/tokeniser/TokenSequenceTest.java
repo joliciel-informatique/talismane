@@ -34,13 +34,19 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TokenSequenceTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceTest.class);
 
 	@Test
-	public void testTokeniseSentence() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testTokeniseSentence() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan.", talismaneSession);
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
@@ -146,8 +152,12 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testSimpleAddByIndex() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testSimpleAddByIndex() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("The quick brown fox.", talismaneSession);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
@@ -181,8 +191,12 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testTokeniseSentenceWithPlaceholders() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testTokeniseSentenceWithPlaceholders() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Write to me at joe.schome@test.com, otherwise go to http://test.com.", talismaneSession);
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators);
@@ -306,8 +320,12 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testTokeniseSentenceWithPlaceholdersNoSeparators() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testTokeniseSentenceWithPlaceholdersNoSeparators() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Il t’aime.", talismaneSession);
 
 		final String separators = "[\\s\\p{Punct}]";
@@ -398,8 +416,12 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testOverlappingPlaceholders() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testOverlappingPlaceholders() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Pakistan International Airlines Company", talismaneSession);
 
 		final String separators = "[\\s\\p{Punct}]";

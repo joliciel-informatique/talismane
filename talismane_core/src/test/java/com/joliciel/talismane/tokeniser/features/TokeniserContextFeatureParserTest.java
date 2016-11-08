@@ -38,13 +38,19 @@ import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.OrFeatureAllowNulls;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TokeniserContextFeatureParserTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokeniserContextFeatureParserTest.class);
 
 	@Test
-	public void testParseAndFeature() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testParseAndFeature() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -64,8 +70,12 @@ public class TokeniserContextFeatureParserTest {
 	}
 
 	@Test
-	public void testParseWordFeature() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testParseWordFeature() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -85,8 +95,12 @@ public class TokeniserContextFeatureParserTest {
 	}
 
 	@Test
-	public void testParseConcatenateFeature() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testParseConcatenateFeature() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -107,8 +121,12 @@ public class TokeniserContextFeatureParserTest {
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testNamedFeatures() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testNamedFeatures() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 
@@ -128,8 +146,12 @@ public class TokeniserContextFeatureParserTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testOrOperator() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testOrOperator() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 		TokeniserContextFeatureParser parser = new TokeniserContextFeatureParser(talismaneSession, new ArrayList<>());
 

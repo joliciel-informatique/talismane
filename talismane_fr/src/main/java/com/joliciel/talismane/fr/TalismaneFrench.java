@@ -79,17 +79,17 @@ public class TalismaneFrench {
 		Extensions extensions = new Extensions();
 		extensions.pluckParameters(argsMap);
 
-		String sessionId = "";
-		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
-
-		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
-		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenAfterDuFilter.class);
-		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenBeforeDuquelFilter.class);
-
 		Map<String, Object> defaultConfigParams = new HashMap<>();
 		defaultConfigParams.put("talismane.core.locale", "fr");
 
 		Config conf = ConfigFactory.load().withFallback(ConfigFactory.parseMap(defaultConfigParams));
+
+		String sessionId = "";
+		TalismaneSession talismaneSession = new TalismaneSession(conf, sessionId);
+
+		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
+		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenAfterDuFilter.class);
+		tokenSequenceFilterFactory.getAvailableTokenSequenceFilters().add(EmptyTokenBeforeDuquelFilter.class);
 
 		TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
 		if (config.getCommand() == null)

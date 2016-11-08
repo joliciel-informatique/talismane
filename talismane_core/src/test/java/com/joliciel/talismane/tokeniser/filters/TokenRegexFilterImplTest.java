@@ -17,6 +17,8 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.resources.WordList;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TokenRegexFilterImplTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexFilterImplTest.class);
@@ -98,8 +100,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordList() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordList() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -121,8 +127,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListDiacriticsOptional() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordListDiacriticsOptional() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -144,8 +154,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListUppercaseOptional() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordListUppercaseOptional() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -167,8 +181,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListUppercaseDiacriticsOptional() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordListUppercaseDiacriticsOptional() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -190,7 +208,13 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testAutoWordBoundaries() {
+	public void testAutoWordBoundaries() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("hello 123");
 		filter.setAutoWordBoundaries(true);
@@ -299,8 +323,6 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\b(MLLE\\.|Mlle\\.)", pattern.pattern());
 
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
-
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
 		wordList.add("Marcel");
@@ -331,7 +353,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testCaseSensitive() {
+	public void testCaseSensitive() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("hé");
@@ -360,8 +387,6 @@ public class TokenRegexFilterImplTest {
 		LOG.debug(pattern.pattern());
 
 		assertEquals("[Hh][EeÉé]", pattern.pattern());
-
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("apples");

@@ -27,14 +27,19 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TokenisedAtomicTokenSequenceTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceTest.class);
 
 	@Test
-	public void testGetTokenSequence() {
+	public void testGetTokenSequence() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Je n'ai pas encore l'ourang-outan.", talismaneSession);
 
 		TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] { TokeniserOutcome.SEPARATE, // Je

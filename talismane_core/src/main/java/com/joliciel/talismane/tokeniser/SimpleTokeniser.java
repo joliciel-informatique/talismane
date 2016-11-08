@@ -35,7 +35,7 @@ import com.joliciel.talismane.machineLearning.Decision;
  * @author Assaf Urieli
  *
  */
-public class SimpleTokeniser extends AbstractTokeniser {
+public class SimpleTokeniser extends Tokeniser {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(SimpleTokeniser.class);
 

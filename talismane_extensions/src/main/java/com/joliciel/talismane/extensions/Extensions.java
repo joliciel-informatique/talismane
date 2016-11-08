@@ -62,7 +62,14 @@ public class Extensions {
 	ExtendedCommand command = null;
 
 	public enum ExtendedCommand {
-		toStandoff, toStandoffSentences, fromStandoff, splitConllFile, corpusStatistics, posTaggerStatistics, modifyCorpus, projectify
+		toStandoff,
+		toStandoffSentences,
+		fromStandoff,
+		splitConllFile,
+		corpusStatistics,
+		posTaggerStatistics,
+		modifyCorpus,
+		projectify
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -74,9 +81,9 @@ public class Extensions {
 		boolean commandRun = extensions.runCommand(argsMap);
 		if (!commandRun) {
 			String sessionId = "";
-			TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
 
 			Config conf = ConfigFactory.load();
+			TalismaneSession talismaneSession = new TalismaneSession(conf, sessionId);
 			TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
 			if (config.getCommand() == null)
 				return;
@@ -169,13 +176,13 @@ public class Extensions {
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
 
-				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
+				File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
 				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
-				File serializationFile = new File(config.getOutDir(), config.getBaseName() + "_stats.zip");
+				File serializationFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
@@ -195,13 +202,13 @@ public class Extensions {
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
 
-				File csvFile = new File(config.getOutDir(), config.getBaseName() + "_stats.csv");
+				File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
 				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
-				File serializationFile = new File(config.getOutDir(), config.getBaseName() + "_stats.zip");
+				File serializationFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 

@@ -98,7 +98,11 @@ public class Talismane {
 	 *
 	 */
 	public enum Module {
-		LanguageDetector, SentenceDetector, Tokeniser, PosTagger, Parser
+		LanguageDetector,
+		SentenceDetector,
+		Tokeniser,
+		PosTagger,
+		Parser
 	}
 
 	/**
@@ -282,7 +286,7 @@ public class Talismane {
 				switch (config.getModule()) {
 				case SentenceDetector:
 					SentenceDetectorEvaluator sentenceDetectorEvaluator = config.getSentenceDetectorEvaluator();
-					File sentenceErrorFile = new File(config.getOutDir(), config.getBaseName() + "_errors.txt");
+					File sentenceErrorFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_errors.txt");
 					Writer sentenceErrorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
 					sentenceDetectorEvaluator.evaluate(config.getSentenceCorpusReader(), sentenceErrorWriter);
 					sentenceErrorWriter.flush();
@@ -433,7 +437,7 @@ public class Talismane {
 			if (config.isLogStats()) {
 				try {
 					Writer csvFileWriter = null;
-					File csvFile = new File(config.getOutDir(), config.getBaseName() + ".stats.csv");
+					File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".stats.csv");
 
 					csvFile.delete();
 					csvFile.createNewFile();
@@ -489,7 +493,7 @@ public class Talismane {
 			TokenSequence tokenSequence = null;
 			PosTagSequence posTagSequence = null;
 
-			RollingSentenceProcessor rollingSentenceProcessor = new RollingSentenceProcessor(config.getFileName(), config.isProcessByDefault(),
+			RollingSentenceProcessor rollingSentenceProcessor = new RollingSentenceProcessor(talismaneSession.getFileName(), config.isProcessByDefault(),
 					talismaneSession);
 			if (this.getReader() instanceof CurrentFileProvider) {
 				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingSentenceProcessor);

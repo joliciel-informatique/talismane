@@ -18,8 +18,23 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 
-public interface PatternTokeniser extends Tokeniser {
-	public TokeniserPatternManager getTokeniserPatternManager();
+public abstract class PatternTokeniser extends Tokeniser {
+	protected final TokeniserPatternManager tokeniserPatternManager;
+
+	PatternTokeniser(PatternTokeniser that) {
+		super(that.getTalismaneSession());
+		this.tokeniserPatternManager = that.tokeniserPatternManager;
+	}
+
+	public PatternTokeniser(TalismaneSession talismaneSession, TokeniserPatternManager tokeniserPatternManager) {
+		super(talismaneSession);
+		this.tokeniserPatternManager = tokeniserPatternManager;
+	}
+
+	public TokeniserPatternManager getTokeniserPatternManager() {
+		return this.tokeniserPatternManager;
+	}
 }

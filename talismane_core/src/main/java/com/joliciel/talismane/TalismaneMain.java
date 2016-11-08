@@ -51,7 +51,10 @@ public class TalismaneMain {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
 	private enum OtherCommand {
-		serializeLexicon, testLexicon, serializeDiacriticizer, testDiacriticizer,
+		serializeLexicon,
+		testLexicon,
+		serializeDiacriticizer,
+		testDiacriticizer,
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -84,10 +87,9 @@ public class TalismaneMain {
 		argsMap.remove("logConfigFile");
 		LogUtils.configureLogging(logConfigPath);
 
-		String sessionId = "";
-		TalismaneSession talismaneSession = TalismaneSession.getInstance(sessionId);
-
 		Config config = ConfigFactory.load();
+		String sessionId = "";
+		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
 		if (otherCommand == null) {
 			// regular command
@@ -106,29 +108,19 @@ public class TalismaneMain {
 				break;
 			}
 			case testLexicon: {
-				String lexiconFilePath = null;
 				String[] wordList = null;
 				for (String argName : argsMap.keySet()) {
 					String argValue = argsMap.get(argName);
-					if (argName.equals("lexicon")) {
-						lexiconFilePath = argValue;
-					} else if (argName.equals("words")) {
+					if (argName.equals("words")) {
 						wordList = argValue.split(",");
 					} else {
 						throw new TalismaneException("Unknown argument: " + argName);
 					}
 				}
 
-				if (lexiconFilePath == null)
-					throw new TalismaneException("Missing argument: lexicon");
 				if (wordList == null)
 					throw new TalismaneException("Missing argument: words");
 
-				File lexiconFile = new File(lexiconFilePath);
-				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(talismaneSession);
-				List<PosTaggerLexicon> lexicons = lexiconDeserializer.deserializeLexicons(lexiconFile);
-				for (PosTaggerLexicon lexicon : lexicons)
-					talismaneSession.addLexicon(lexicon);
 				PosTaggerLexicon mergedLexicon = talismaneSession.getMergedLexicon();
 				for (String word : wordList) {
 					LOG.info("################");
