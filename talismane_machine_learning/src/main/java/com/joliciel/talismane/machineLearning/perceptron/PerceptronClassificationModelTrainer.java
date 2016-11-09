@@ -52,7 +52,10 @@ public class PerceptronClassificationModelTrainer implements ClassificationModel
 	 *
 	 */
 	public enum PerceptronModelParameter {
-		Iterations(Integer.class), Cutoff(Integer.class), Tolerance(Double.class), AverageAtIntervals(Boolean.class);
+		Iterations(Integer.class),
+		Cutoff(Integer.class),
+		Tolerance(Double.class),
+		AverageAtIntervals(Boolean.class);
 
 		private Class<?> parameterType;
 
@@ -436,13 +439,12 @@ public class PerceptronClassificationModelTrainer implements ClassificationModel
 	public void setParameters(Config config) {
 		this.config = config;
 
-		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
-		Config perceptronConfig = machineLearningConfig.getConfig("perceptron");
+		Config perceptronConfig = config.getConfig("Perceptron");
 
-		this.setCutoff(machineLearningConfig.getInt("cutoff"));
+		this.setCutoff(config.getInt("cutoff"));
 		this.setIterations(perceptronConfig.getInt("iterations"));
 		this.setTolerance(perceptronConfig.getDouble("tolerance"));
-		this.setAverageAtIntervals(perceptronConfig.getBoolean("averageAtIntervals"));
+		this.setAverageAtIntervals(perceptronConfig.getBoolean("average-at-intervals"));
 		this.setScoring(PerceptronScoring.valueOf(perceptronConfig.getString("scoring")));
 	}
 

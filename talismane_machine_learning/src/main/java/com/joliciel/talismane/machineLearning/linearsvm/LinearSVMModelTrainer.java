@@ -524,15 +524,14 @@ public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
 	@Override
 	public void setParameters(Config config) {
 		this.config = config;
-		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
-		Config linearSVMConfig = machineLearningConfig.getConfig("linearSVM");
+		Config linearSVMConfig = config.getConfig("LinearSVM");
 
-		this.setCutoff(machineLearningConfig.getInt("cutoff"));
-		this.setSolverType(LinearSVMSolverType.valueOf(linearSVMConfig.getString("solverType")));
+		this.setCutoff(config.getInt("cutoff"));
+		this.setSolverType(LinearSVMSolverType.valueOf(linearSVMConfig.getString("solver-type")));
 		this.setConstraintViolationCost(linearSVMConfig.getDouble("cost"));
 		this.setEpsilon(linearSVMConfig.getDouble("epsilon"));
-		this.setBalanceEventCounts(linearSVMConfig.getBoolean("balanceEventCounts"));
-		this.setOneVsRest(linearSVMConfig.getBoolean("oneVsRest"));
+		this.setBalanceEventCounts(linearSVMConfig.getBoolean("balance-event-counts"));
+		this.setOneVsRest(linearSVMConfig.getBoolean("one-vs-rest"));
 	}
 
 	@Override

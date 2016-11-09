@@ -14,14 +14,13 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.CoNLLFormatter;
 
 /**
  * A corpus reader that expects one token per line, and analyses the line
@@ -52,7 +51,7 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 	private PretokenisedSequence tokenSequence = null;
 
 	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-	private final List<TokenFilter> tokenFilters = new ArrayList<>();
+	private final List<Annotator> preAnnotators = new ArrayList<>();
 
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
@@ -97,10 +96,10 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 			placeholderIndexMap.put(placeholderName, i++);
 		}
 
-		String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*)");
-		regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
-		regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
-		regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
+		String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*?)");
+		regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+?)");
+		regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+?)");
+		regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+?)");
 
 		this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
 	}
@@ -125,13 +124,13 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 						if (!matcher.matches())
 							throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
 
-						if (matcher.groupCount() != placeholderIndexMap.size()) {
-							throw new TalismaneException(
-									"Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+						if (matcher.groupCount() < placeholderIndexMap.size()) {
+							throw new TalismaneException("Expected at least " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount()
+									+ ") on line " + lineNumber);
 						}
 
 						String word = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-						word = CoNLLFormatter.fromCoNLL(word);
+						word = talismaneSession.getCoNLLFormatter().fromCoNLL(word);
 
 						TokenTuple tuple = new TokenTuple(word);
 
@@ -197,8 +196,8 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 							sentence = new Sentence(text, talismaneSession);
 						}
 
-						for (TokenFilter tokenFilter : this.tokenFilters) {
-							tokenFilter.annotate(sentence);
+						for (Annotator annotator : this.preAnnotators) {
+							annotator.annotate(sentence);
 						}
 
 						tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
@@ -232,6 +231,11 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 		public String fileName;
 		public int lineNumber = -1;
 		public int columnNumber = -1;
+
+		@Override
+		public String toString() {
+			return "TokenTuple [word=" + word + ", fileName=" + fileName + ", lineNumber=" + lineNumber + ", columnNumber=" + columnNumber + "]";
+		}
 	}
 
 	@Override
@@ -247,8 +251,8 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 	}
 
 	@Override
-	public void addTokenFilter(TokenFilter tokenFilter) {
-		this.tokenFilters.add(tokenFilter);
+	public void addPreAnnotator(Annotator annotator) {
+		this.preAnnotators.add(annotator);
 	}
 
 	@Override
@@ -257,8 +261,8 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 	}
 
 	@Override
-	public List<TokenFilter> getTokenFilters() {
-		return this.tokenFilters;
+	public List<Annotator> getPreAnnotators() {
+		return this.preAnnotators;
 	}
 
 	/**
@@ -288,8 +292,8 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 			i++;
 		}
 		i = 0;
-		for (TokenFilter tokenFilter : this.tokenFilters) {
-			attributes.put("TokenFilter" + i, "" + tokenFilter.getClass().getSimpleName());
+		for (Annotator annotator : this.preAnnotators) {
+			attributes.put("pre-Annotator" + i, "" + annotator.getClass().getSimpleName());
 
 			i++;
 		}

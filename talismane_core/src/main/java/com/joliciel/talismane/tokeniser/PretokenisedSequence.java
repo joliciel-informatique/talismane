@@ -45,11 +45,6 @@ public class PretokenisedSequence extends TokenSequence {
 		super(sentence, talismaneSession);
 	}
 
-	@Override
-	public Token addToken(int start, int end) {
-		throw new TalismaneException("Cannot add tokens by index");
-	}
-
 	/**
 	 * Called when reconstructing a sentence from a previously annotated corpus,
 	 * adding the next string.

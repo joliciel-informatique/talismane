@@ -47,7 +47,6 @@ import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory;
-import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
@@ -285,7 +284,6 @@ public abstract class Tokeniser {
 			} else if (tokeniserType == TokeniserType.pattern) {
 				int beamWidth = tokeniserConfig.getInt("beam-width");
 				LOG.debug("Getting tokeniser model");
-				LOG.debug("Getting tokeniser model");
 
 				String configPath = "talismane.core.tokeniser.model";
 				String modelFilePath = config.getString(configPath);
@@ -346,8 +344,8 @@ public abstract class Tokeniser {
 				}
 			}
 
-			List<String> tokenSequenceFilterDescriptors = new ArrayListNoNulls<>();
-			List<TokenSequenceFilter> tokenSequenceFilters = new ArrayListNoNulls<>();
+			List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
+			List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
 			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
 
 			configPath = "talismane.core.tokeniser.post-annotators";
@@ -386,6 +384,10 @@ public abstract class Tokeniser {
 						}
 					}
 				}
+			}
+
+			for (TokenSequenceFilter tokenSequenceFilter : tokenSequenceFilters) {
+				tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
 			}
 		}
 

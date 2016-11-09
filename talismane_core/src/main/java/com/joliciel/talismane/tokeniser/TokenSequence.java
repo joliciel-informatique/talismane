@@ -361,9 +361,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 			this.remove(tokenToRemove);
 		}
 
-		Token token = new Token(string, this, this.size(), this.getLexicon());
-		token.setStartIndex(start);
-		token.setEndIndex(end);
+		Token token = new Token(string, this, this.size(), start, end, this.getLexicon(), talismaneSession);
 		token.setIndexWithWhiteSpace(prevTokenIndex + 1);
 
 		this.listWithWhiteSpace.add(prevTokenIndex + 1, token);

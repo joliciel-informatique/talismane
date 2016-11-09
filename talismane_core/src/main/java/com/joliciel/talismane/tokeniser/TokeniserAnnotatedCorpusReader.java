@@ -18,45 +18,161 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.joliciel.talismane.AnnotatedCorpusReader;
+import com.joliciel.talismane.Annotator;
+import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading tokenized sentences from a corpus.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
+	public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
+
 	/**
 	 * Is there another sentence to be read?
 	 */
 	public boolean hasNextTokenSequence();
-	
+
 	/***
 	 * Reads the next token sequence from the corpus.
 	 */
 	public TokenSequence nextTokenSequence();
-	
+
 	/**
-	 * These filters will be applied to each token sequence returned by the corpus prior to being returned.
+	 * These filters will be applied to each token sequence returned by the
+	 * corpus prior to being returned.
 	 */
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
 
 	/**
-	 * These filters will not be used to detect tokens, as token boundaries are provided by the corpus.
-	 * They will, on the other hand, be used to replace token text.
+	 * These annotators will not be used to detect tokens, as token boundaries
+	 * are provided by the corpus. They will, on the other hand, be used to
+	 * replace token text.
 	 */
-	public void addTokenFilter(TokenFilter tokenFilter);
-	
+	public void addPreAnnotator(Annotator annotator);
+
 	/**
 	 * @see #addTokenSequenceFilter(TokenSequenceFilter)
 	 */
 	public List<TokenSequenceFilter> getTokenSequenceFilters();
-	
+
 	/**
-	 * #see {@link #addTokenFilter(TokenFilter)}
+	 * #see {@link #addPreAnnotator(Annotator)}
 	 */
-	public List<TokenFilter> getTokenFilters();
+	public List<Annotator> getPreAnnotators();
+
+	/**
+	 * It is assumed the configuration will contain the following keys:
+	 * <ul>
+	 * <li>preannotated-input-pattern: the pattern used for reading the file
+	 * </li>
+	 * <li>pre-annotators: annotators to apply prior to tokenising</li>
+	 * <li>post-annotators: annotators to apply after tokenising</li>
+	 * </ul>
+	 * 
+	 * @param config
+	 * @return
+	 * @throws IOException
+	 */
+	public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession talismaneSession) throws IOException {
+		final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
+		String configPath = "preannotated-input-pattern";
+		String regex = config.getString(configPath);
+
+		TokenRegexBasedCorpusReader corpusReader = new TokenRegexBasedCorpusReader(regex, reader, talismaneSession);
+
+		configPath = "sentence-reader";
+		if (config.hasPath(configPath)) {
+			InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
+			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, talismaneSession.getInputCharset()));
+			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader);
+			corpusReader.setSentenceReader(sentenceReader);
+		}
+
+		corpusReader.setMaxSentenceCount(config.getInt("sentence-count"));
+		corpusReader.setStartSentence(config.getInt("start-sentence"));
+		int crossValidationSize = config.getInt("cross-validation.fold-count");
+		if (crossValidationSize > 0)
+			corpusReader.setCrossValidationSize(crossValidationSize);
+		int includeIndex = -1;
+		if (config.hasPath("cross-validation.include-index"))
+			includeIndex = config.getInt("cross-validation.include-index");
+		if (includeIndex >= 0)
+			corpusReader.setIncludeIndex(includeIndex);
+		int excludeIndex = -1;
+		if (config.hasPath("cross-validation.exclude-index"))
+			excludeIndex = config.getInt("cross-validation.exclude-index");
+		if (excludeIndex >= 0)
+			corpusReader.setExcludeIndex(excludeIndex);
+
+		List<String> tokenFilterDescriptors = new ArrayList<>();
+		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(talismaneSession);
+
+		LOG.debug("tokenFilters");
+		configPath = "pre-annotators";
+		List<String> tokenFilterPaths = config.getStringList(configPath);
+		for (String path : tokenFilterPaths) {
+			LOG.debug("From: " + path);
+			InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
+			try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
+				List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
+				for (TokenFilter tokenFilter : myFilters) {
+					corpusReader.addPreAnnotator(tokenFilter);
+				}
+			}
+		}
+
+		List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
+		List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
+		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
+
+		configPath = "post-annotators";
+		List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
+		for (String path : tokenSequenceFilterPaths) {
+			LOG.debug("From: " + path);
+			InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
+			try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
+				while (scanner.hasNextLine()) {
+					String descriptor = scanner.nextLine();
+					LOG.debug(descriptor);
+					tokenSequenceFilterDescriptors.add(descriptor);
+					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
+						TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
+						if (tokenSequenceFilter instanceof NeedsTalismaneSession)
+							((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+						tokenSequenceFilters.add(tokenSequenceFilter);
+					}
+				}
+			}
+		}
+
+		for (TokenSequenceFilter tokenSequenceFilter : tokenSequenceFilters) {
+			corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
+		}
+		return corpusReader;
+	}
 }

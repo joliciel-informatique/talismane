@@ -19,13 +19,14 @@
 package com.joliciel.talismane.parser;
 
 import com.joliciel.talismane.AnnotatedCorpusReader;
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * An interface for reading ParseConfigurations from sentences in a corpus.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -34,24 +35,26 @@ public interface ParserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 	 * Is there another sentence to be read?
 	 */
 	public boolean hasNextConfiguration();
-	
+
 	/**
-	 * Read the ParseConfiguration from the next sentence in the training corpus.
+	 * Read the ParseConfiguration from the next sentence in the training
+	 * corpus.
 	 */
 	public ParseConfiguration nextConfiguration();
-	
-	public void addTokenFilter(TokenFilter tokenFilter);
-	
+
+	public void addPreAnnotator(Annotator annotator);
+
 	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
-	
+
 	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
-	
+
 	/**
 	 * If provided, will read a lexical entry for each pos-tagged token.
 	 */
 	public LexicalEntryReader getLexicalEntryReader();
+
 	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
-	
+
 	/**
 	 * Take this reader back to its initial position.
 	 */

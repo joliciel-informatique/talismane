@@ -69,7 +69,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.PatternTokeniserType;
+import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserTrainer;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -355,16 +355,8 @@ public class Talismane {
 					break;
 				}
 				case Tokeniser: {
-					File modelFile = new File(config.getTokeniserModelFilePath());
-					File modelDir = modelFile.getParentFile();
-					modelDir.mkdirs();
-					ModelTrainerFactory factory = new ModelTrainerFactory();
-					ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
-
-					ClassificationModel tokeniserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-					tokeniserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
-					tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), config.getPatternTokeniserType().toString());
-					tokeniserModel.persist(modelFile);
+					PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(config.getConfig(), talismaneSession);
+					trainer.trainModel();
 					break;
 				}
 				case PosTagger: {
