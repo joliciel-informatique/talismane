@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -38,7 +39,6 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
-import com.joliciel.talismane.utils.CoNLLFormatter;
 
 /**
  * A token is a single parsing unit, which can have dependents and a governor.
@@ -65,7 +65,7 @@ public class Token implements TokenWrapper {
 	private static Pattern whiteSpacePattern = Pattern.compile("[\\s\ufeff]+", Pattern.UNICODE_CHARACTER_CLASS);
 
 	private String text;
-	private String originalText;
+	private final String originalText;
 	private String conllText;
 	private int index;
 	private int indexWithWhiteSpace;
@@ -73,14 +73,14 @@ public class Token implements TokenWrapper {
 	private Set<PosTag> possiblePosTags;
 	private Map<PosTag, Integer> frequencies;
 	private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
-	private boolean separator = false;
-	private boolean whiteSpace = false;
+	private boolean separator;
+	private final boolean whiteSpace;
 	private List<TokenPatternMatch> matches = null;
 	private Map<String, List<TokenPatternMatch>> matchesPerPattern = null;
 	private List<TaggedToken<TokeniserOutcome>> atomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
 
-	private int startIndex = 0;
-	private int endIndex = 0;
+	private final int startIndex;
+	private final int endIndex;
 
 	private String fileName = null;
 	private Integer lineNumber = null;
@@ -92,9 +92,11 @@ public class Token implements TokenWrapper {
 	private double probability = -1;
 	private Map<String, TokenAttribute<?>> attributes = new HashMap<String, TokenAttribute<?>>();
 
-	private PosTaggerLexicon lexicon;
+	private final PosTaggerLexicon lexicon;
+	private final TalismaneSession talismaneSession;
 
 	Token(Token tokenToClone) {
+		this.talismaneSession = tokenToClone.talismaneSession;
 		this.text = tokenToClone.text;
 		this.originalText = tokenToClone.originalText;
 		this.index = tokenToClone.index;
@@ -117,19 +119,20 @@ public class Token implements TokenWrapper {
 		this.lexicon = tokenToClone.lexicon;
 	}
 
-	Token(String text, TokenSequence tokenSequence, PosTaggerLexicon lexicon) {
-		this(text, tokenSequence, 0, lexicon);
-	}
-
-	Token(String text, TokenSequence tokenSequence, int index, PosTaggerLexicon lexicon) {
+	Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, TalismaneSession talismaneSession) {
+		this.talismaneSession = talismaneSession;
 		this.text = text;
 		this.originalText = text;
 		this.tokenSequence = tokenSequence;
 		this.index = index;
+		this.startIndex = startIndex;
+		this.endIndex = endIndex;
 		if (text.length() == 0)
 			this.whiteSpace = false;
 		else if (whiteSpacePattern.matcher(text).matches())
 			this.whiteSpace = true;
+		else
+			this.whiteSpace = false;
 
 		this.lexicon = lexicon;
 	}
@@ -187,8 +190,7 @@ public class Token implements TokenWrapper {
 	/**
 	 * The token sequence containing this token.
 	 */
-
-	public void setTokenSequence(TokenSequence tokenSequence) {
+	void setTokenSequence(TokenSequence tokenSequence) {
 		this.tokenSequence = tokenSequence;
 	}
 
@@ -200,7 +202,6 @@ public class Token implements TokenWrapper {
 	/**
 	 * A set of possible postags (assigned externally by a lexicon).
 	 */
-
 	public Set<PosTag> getPossiblePosTags() {
 		if (possiblePosTags == null) {
 			possiblePosTags = lexicon.findPossiblePosTags(this.getText());
@@ -213,7 +214,6 @@ public class Token implements TokenWrapper {
 	 * A list of postags and counts for this token in a training corpus
 	 * (assigned externally by a statistics service).
 	 */
-
 	public Map<PosTag, Integer> getFrequencies() {
 		return frequencies;
 	}
@@ -242,25 +242,15 @@ public class Token implements TokenWrapper {
 	/**
 	 * The start index of this token within the enclosing sentence.
 	 */
-
 	public int getStartIndex() {
 		return startIndex;
-	}
-
-	public void setStartIndex(int startIndex) {
-		this.startIndex = startIndex;
 	}
 
 	/**
 	 * The end index of this token within the enclosing sentence.
 	 */
-
 	public int getEndIndex() {
 		return endIndex;
-	}
-
-	public void setEndIndex(int endIndex) {
-		this.endIndex = endIndex;
 	}
 
 	/**
@@ -530,7 +520,7 @@ public class Token implements TokenWrapper {
 
 	public String getTextForCoNLL() {
 		if (conllText == null) {
-			conllText = CoNLLFormatter.toCoNLL(originalText);
+			conllText = talismaneSession.getCoNLLFormatter().toCoNLL(originalText);
 		}
 		return conllText;
 	}

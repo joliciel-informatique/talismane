@@ -44,7 +44,6 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.CoNLLFormatter;
 
 /**
  * A corpus reader that expects one pos-tagged token per line, and analyses the
@@ -166,7 +165,7 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 						}
 
 						String word = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-						word = CoNLLFormatter.fromCoNLL(word);
+						word = talismaneSession.getCoNLLFormatter().fromCoNLL(word);
 						String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
 
 						PosTagSet posTagSet = talismaneSession.getPosTagSet();

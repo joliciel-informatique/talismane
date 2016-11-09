@@ -35,7 +35,6 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.utils.CoNLLFormatter;
 
 /**
  * A token with a postag tagged onto it.<br/>
@@ -47,7 +46,7 @@ import com.joliciel.talismane.utils.CoNLLFormatter;
  * @author Assaf Urieli
  *
  */
-public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedTokenWrapper, HasFeatureCache, PosTaggerContext {
+public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedTokenWrapper, HasFeatureCache, PosTaggerContext {
 	private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
 	private List<LexicalEntry> lexicalEntries = null;
@@ -223,7 +222,7 @@ public class PosTaggedToken extends TaggedToken<PosTag> implements PosTaggedToke
 				if (lexicalEntry != null)
 					lemma = lexicalEntry.getLemma();
 			}
-			conllLemma = CoNLLFormatter.toCoNLL(lemma);
+			conllLemma = talismaneSession.getCoNLLFormatter().toCoNLL(lemma);
 
 		}
 		return conllLemma;

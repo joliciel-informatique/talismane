@@ -140,13 +140,11 @@ public class MaxentModelTrainer implements ClassificationModelTrainer {
 	@Override
 	public void setParameters(Config config) {
 		this.config = config;
+		Config maxentConfig = config.getConfig("MaxEnt");
 
-		Config machineLearningConfig = config.getConfig("talismane.machineLearning");
-		Config maxentConfig = machineLearningConfig.getConfig("maxent");
-
-		this.setCutoff(machineLearningConfig.getInt("cutoff"));
+		this.setCutoff(config.getInt("cutoff"));
 		this.setIterations(maxentConfig.getInt("iterations"));
 		this.setSigma(maxentConfig.getDouble("sigma"));
-		this.setSmoothing(maxentConfig.getDouble("sigma"));
+		this.setSmoothing(maxentConfig.getDouble("smoothing"));
 	}
 }

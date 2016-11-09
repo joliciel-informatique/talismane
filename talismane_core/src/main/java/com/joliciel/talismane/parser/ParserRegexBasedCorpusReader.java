@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
@@ -60,9 +61,7 @@ import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.utils.CoNLLFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 
@@ -130,9 +129,9 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 	private boolean needsToReturnBlankLine = false;
 	private File currentFile;
 
-	private List<TokenFilter> tokenFilters = new ArrayList<TokenFilter>();
-	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<TokenSequenceFilter>();
-	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<PosTagSequenceFilter>();
+	private List<Annotator> preannotators = new ArrayList<>();
+	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
+	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<>();
 
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 
@@ -252,8 +251,8 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 									sentence = new Sentence(text, talismaneSession);
 								}
 
-								for (TokenFilter tokenFilter : this.tokenFilters) {
-									tokenFilter.annotate(sentence);
+								for (Annotator annotator : this.preannotators) {
+									annotator.annotate(sentence);
 								}
 
 								int maxIndex = 0;
@@ -723,8 +722,8 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 	}
 
 	@Override
-	public void addTokenFilter(TokenFilter tokenFilter) {
-		this.tokenFilters.add(tokenFilter);
+	public void addPreAnnotator(Annotator annotator) {
+		this.preannotators.add(annotator);
 	}
 
 	@Override
@@ -983,12 +982,12 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 	}
 
 	@Override
-	public List<TokenFilter> getTokenFilters() {
-		return this.tokenFilters;
+	public List<Annotator> getPreAnnotators() {
+		return this.preannotators;
 	}
 
 	protected String readWord(String rawWord) {
-		return CoNLLFormatter.fromCoNLL(rawWord);
+		return talismaneSession.getCoNLLFormatter().fromCoNLL(rawWord);
 	}
 
 	/**

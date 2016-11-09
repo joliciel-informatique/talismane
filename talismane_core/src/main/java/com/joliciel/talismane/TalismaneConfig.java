@@ -133,18 +133,11 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.TokeniserGuessTemplateWriter;
-import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
-import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
-import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
-import com.joliciel.talismane.tokeniser.features.TokeniserContextFeatureParser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
-import com.joliciel.talismane.tokeniser.patterns.CompoundPatternEventStream;
-import com.joliciel.talismane.tokeniser.patterns.IntervalPatternEventStream;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.PatternTokeniserType;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
@@ -271,11 +264,8 @@ public class TalismaneConfig {
 	private Set<String> testWords;
 	private Set<LanguageDetectorFeature<?>> languageFeatures;
 	private Set<SentenceDetectorFeature<?>> sentenceFeatures;
-	private Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
-	private Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
 	private Set<ParseConfigurationFeature<?>> parserFeatures;
-	private TokeniserPatternManager tokeniserPatternManager;
 	private ClassificationEventStream classificationEventStream;
 	private PatternTokeniserType patternTokeniserType;
 
@@ -350,7 +340,6 @@ public class TalismaneConfig {
 		mapping.put("dependencyLabels", new ImmutablePair<String, Class<?>>(prefix + "dependencyLabels", String.class));
 		mapping.put("languageModel", new ImmutablePair<String, Class<?>>(prefix + "languageModel", String.class));
 		mapping.put("sentenceModel", new ImmutablePair<String, Class<?>>(prefix + "sentenceModel", String.class));
-		mapping.put("tokeniserModel", new ImmutablePair<String, Class<?>>(prefix + "tokeniserModel", String.class));
 		mapping.put("posTaggerModel", new ImmutablePair<String, Class<?>>(prefix + "posTaggerModel", String.class));
 		mapping.put("parserModel", new ImmutablePair<String, Class<?>>(prefix + "parserModel", String.class));
 		mapping.put("lexicon", new ImmutablePair<String, Class<?>>(prefix + "lexicons", List.class));
@@ -1432,26 +1421,6 @@ public class TalismaneConfig {
 		return parserModel;
 	}
 
-	public synchronized TokeniserPatternManager getTokeniserPatternManager() throws IOException {
-		if (tokeniserPatternManager == null) {
-			String configPath = "talismane.core.train.tokeniser.patterns";
-			InputStream tokeniserPatternFile = ConfigUtils.getFileFromConfig(config, configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserPatternFile, this.getInputCharset())))) {
-				List<String> patternDescriptors = new ArrayListNoNulls<String>();
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					patternDescriptors.add(descriptor);
-					LOG.debug(descriptor);
-				}
-
-				this.getDescriptors().put(PatternTokeniserFactory.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
-
-				tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors);
-			}
-		}
-		return tokeniserPatternManager;
-	}
-
 	public synchronized Set<LanguageDetectorFeature<?>> getLanguageDetectorFeatures() throws IOException {
 		if (languageFeatures == null) {
 			String configPath = "talismane.core.train.languageDetector.features";
@@ -1495,50 +1464,6 @@ public class TalismaneConfig {
 		return sentenceFeatures;
 	}
 
-	public synchronized Set<TokeniserContextFeature<?>> getTokeniserContextFeatures() throws IOException {
-		if (tokeniserContextFeatures == null) {
-			TokeniserPatternManager tokeniserPatternManager = this.getTokeniserPatternManager();
-			TokeniserContextFeatureParser featureParser = new TokeniserContextFeatureParser(talismaneSession, tokeniserPatternManager.getParsedTestPatterns());
-
-			String configPath = "talismane.core.train.tokeniser.features";
-			InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, this.getInputCharset())))) {
-				List<String> featureDescriptors = new ArrayListNoNulls<String>();
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					featureDescriptors.add(descriptor);
-					LOG.debug(descriptor);
-				}
-
-				tokeniserContextFeatures = featureParser.getTokeniserContextFeatureSet(featureDescriptors);
-
-				this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-			}
-		}
-		return tokeniserContextFeatures;
-	}
-
-	public synchronized Set<TokenPatternMatchFeature<?>> getTokenPatternMatchFeatures() throws IOException {
-		if (tokenPatternMatchFeatures == null) {
-			TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(talismaneSession);
-			String configPath = "talismane.core.train.tokeniser.features";
-			InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, this.getInputCharset())))) {
-				List<String> featureDescriptors = new ArrayListNoNulls<String>();
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					featureDescriptors.add(descriptor);
-					LOG.debug(descriptor);
-				}
-
-				tokenPatternMatchFeatures = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);
-
-				this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-			}
-		}
-		return tokenPatternMatchFeatures;
-	}
-
 	public synchronized Set<PosTaggerFeature<?>> getPosTaggerFeatures() throws IOException {
 		if (posTaggerFeatures == null) {
 			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(talismaneSession);
@@ -1569,17 +1494,6 @@ public class TalismaneConfig {
 			case SentenceDetector:
 				classificationEventStream = new SentenceDetectorEventStream(this.getSentenceCorpusReader(), this.getSentenceDetectorFeatures(),
 						talismaneSession);
-				break;
-			case Tokeniser:
-				if (patternTokeniserType == PatternTokeniserType.Interval) {
-					Set<TokeniserContextFeature<?>> features = this.getTokeniserContextFeatures();
-					classificationEventStream = new IntervalPatternEventStream(this.getTokenCorpusReader(), features, this.getTokeniserPatternManager(),
-							this.talismaneSession);
-				} else {
-					Set<TokenPatternMatchFeature<?>> features = this.getTokenPatternMatchFeatures();
-					classificationEventStream = new CompoundPatternEventStream(this.getTokenCorpusReader(), features, this.getTokeniserPatternManager(),
-							this.talismaneSession);
-				}
 				break;
 			case PosTagger:
 				classificationEventStream = new PosTagEventStream(this.getPosTagCorpusReader(), this.getPosTaggerFeatures());
@@ -1851,7 +1765,7 @@ public class TalismaneConfig {
 			}
 
 			for (TokenFilter tokenFilter : this.getTokenFilters(myTokeniserModel)) {
-				corpusReader.addTokenFilter(tokenFilter);
+				corpusReader.addPreAnnotator(tokenFilter);
 			}
 
 			for (TokenSequenceFilter tokenSequenceFilter : this.getTokenSequenceFilters(myTokeniserModel)) {

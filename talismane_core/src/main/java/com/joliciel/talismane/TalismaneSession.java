@@ -20,10 +20,12 @@ package com.joliciel.talismane;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,12 +47,14 @@ import com.joliciel.talismane.lexicon.LexiconChain;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.output.CoNLLFormatter;
 import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
 import com.joliciel.talismane.parser.ShiftReduceTransitionSystem;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.resources.WordListFinder;
 import com.joliciel.talismane.utils.ConfigUtils;
+import com.joliciel.talismane.utils.io.DirectoryReader;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -69,6 +73,7 @@ public class TalismaneSession {
 	private static final Map<String, Diacriticizer> diacriticizerMap = new HashMap<>();
 	private static final Map<String, List<PosTaggerLexicon>> lexiconMap = new HashMap<>();
 
+	private final Config config;
 	private final String sessionId;
 	private final Locale locale;
 	private final PosTagSet posTagSet;
@@ -87,6 +92,8 @@ public class TalismaneSession {
 	private final String fileName;
 	private final File outDir;
 	private final Map<String, String> lowercasePreferences = new HashMap<>();
+	private final char endBlockCharCode;
+	private final CoNLLFormatter coNLLFormatter;
 
 	/**
 	 * 
@@ -105,6 +112,7 @@ public class TalismaneSession {
 	 */
 	public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException {
 		this.sessionId = sessionId;
+		this.config = config;
 
 		config.checkValid(ConfigFactory.defaultReference(), "talismane.core");
 
@@ -134,10 +142,11 @@ public class TalismaneSession {
 
 		this.suffix = talismaneConfig.getString("suffix");
 
-		if (talismaneConfig.hasPath("in-file"))
+		if (talismaneConfig.hasPath("in-file")) {
 			fileName = talismaneConfig.getString("in-file");
-		else
+		} else {
 			fileName = "";
+		}
 
 		String baseName = "Talismane";
 		String baseNamePath = null;
@@ -157,13 +166,13 @@ public class TalismaneSession {
 
 		this.baseName = baseName + this.suffix;
 
-		String configPath = "talismane.core.outDir";
+		String configPath = "talismane.core.out-dir";
 		if (config.hasPath(configPath)) {
 			String outDirPath = config.getString(configPath);
 			outDir = new File(outDirPath);
 			outDir.mkdirs();
 		} else {
-			configPath = "talismane.core.outFile";
+			configPath = "talismane.core.out-file";
 			if (config.hasPath(configPath)) {
 				String outFilePath = config.getString(configPath);
 				File outFile = new File(outFilePath);
@@ -316,6 +325,14 @@ public class TalismaneSession {
 		}
 		this.diacriticizer = diacriticizer;
 
+		String endBlockCharacter = talismaneConfig.getString("analysis.end-block-char-code");
+		if (endBlockCharacter.length() > 1) {
+			throw new IllegalArgumentException("end block character must be a single character");
+		}
+		this.endBlockCharCode = endBlockCharacter.charAt(0);
+
+		boolean spacesToUnderscores = talismaneConfig.getBoolean("conll.spaces-to-underscores");
+		this.coNLLFormatter = new CoNLLFormatter(spacesToUnderscores);
 	}
 
 	public synchronized PosTagSet getPosTagSet() {
@@ -448,5 +465,59 @@ public class TalismaneSession {
 	 */
 	public synchronized File getOutDir() {
 		return outDir;
+	}
+
+	/**
+	 * The reader to be used to read the data for analysis.
+	 * 
+	 * @throws IOException
+	 */
+	public Reader getReader() throws IOException {
+		return this.getReader(true);
+	}
+
+	/**
+	 * The reader to be used to read the data for training.
+	 * 
+	 * @throws IOException
+	 */
+	public Reader getTrainingReader() throws IOException {
+		return this.getReader(false);
+	}
+
+	private Reader getReader(boolean forAnalysis) throws IOException {
+		Reader reader = null;
+		String configPath = "talismane.core.in-file";
+		if (config.hasPath(configPath)) {
+			InputStream inFile = ConfigUtils.getFileFromConfig(config, configPath);
+			reader = new BufferedReader(new InputStreamReader(inFile, this.getInputCharset()));
+		} else {
+			configPath = "talismane.core.in-dir";
+			if (config.hasPath(configPath)) {
+				String inDirPath = config.getString(configPath);
+				File inDir = new File(inDirPath);
+				if (!inDir.exists())
+					throw new FileNotFoundException("inDir does not exist: " + inDirPath);
+				if (!inDir.isDirectory())
+					throw new FileNotFoundException("inDir must be a directory, not a file - use inFile instead: " + inDirPath);
+
+				@SuppressWarnings("resource")
+				DirectoryReader directoryReader = new DirectoryReader(inDir, this.getInputCharset());
+				if (forAnalysis) {
+
+					directoryReader.setEndOfFileString("\n" + this.endBlockCharCode);
+				} else {
+					directoryReader.setEndOfFileString("\n");
+				}
+				reader = directoryReader;
+			} else {
+				reader = new BufferedReader(new InputStreamReader(System.in, this.getInputCharset()));
+			}
+		}
+		return reader;
+	}
+
+	public CoNLLFormatter getCoNLLFormatter() {
+		return coNLLFormatter;
 	}
 }
