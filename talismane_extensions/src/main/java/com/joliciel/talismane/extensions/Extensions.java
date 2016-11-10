@@ -159,11 +159,8 @@ public class Extensions {
 				break;
 			}
 			case fromStandoff: {
-				try (Scanner scanner = new Scanner(config.getReader())) {
-					StandoffReader standoffReader = new StandoffReader(talismaneSession, scanner);
-
-					config.setParserCorpusReader(standoffReader);
-				}
+				StandoffReader standoffReader = new StandoffReader(config.getReader(), config.getConfig(), talismaneSession);
+				config.setParserCorpusReader(standoffReader);
 				break;
 			}
 			case corpusStatistics: {

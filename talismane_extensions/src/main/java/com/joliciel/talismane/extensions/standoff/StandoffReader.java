@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.extensions.standoff;
 
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -47,9 +48,11 @@ import com.joliciel.talismane.posTagger.UnknownPosTagException;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.typesafe.config.Config;
 
-public class StandoffReader implements ParserAnnotatedCorpusReader {
+public class StandoffReader extends ParserAnnotatedCorpusReader {
 	private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
@@ -75,59 +78,62 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 
 	private TalismaneSession talismaneSession;
 
-	public StandoffReader(TalismaneSession talismaneSession, Scanner scanner) {
+	public StandoffReader(Reader reader, Config config, TalismaneSession talismaneSession) {
+		super(reader, config, talismaneSession);
 		this.talismaneSession = talismaneSession;
 		PosTagSet posTagSet = talismaneSession.getPosTagSet();
 
 		Map<Integer, StandoffToken> sortedTokens = new TreeMap<>();
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.startsWith("T")) {
+		try (Scanner scanner = new Scanner(reader)) {
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if (line.startsWith("T")) {
 
-				String[] parts = line.split("[\\t]");
-				String id = parts[0];
-				String[] posTagParts = parts[1].split(" ");
-				String posTagCode = posTagParts[0].replace('_', '+');
-				int startPos = Integer.parseInt(posTagParts[1]);
-				String text = parts[2];
+					String[] parts = line.split("[\\t]");
+					String id = parts[0];
+					String[] posTagParts = parts[1].split(" ");
+					String posTagCode = posTagParts[0].replace('_', '+');
+					int startPos = Integer.parseInt(posTagParts[1]);
+					String text = parts[2];
 
-				PosTag posTag = null;
-				if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
-					posTag = PosTag.ROOT_POS_TAG;
-				} else {
-					try {
-						posTag = posTagSet.getPosTag(posTagCode);
-					} catch (UnknownPosTagException upte) {
-						throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
+					PosTag posTag = null;
+					if (posTagCode.equalsIgnoreCase(PosTag.ROOT_POS_TAG_CODE)) {
+						posTag = PosTag.ROOT_POS_TAG;
+					} else {
+						try {
+							posTag = posTagSet.getPosTag(posTagCode);
+						} catch (UnknownPosTagException upte) {
+							throw new TalismaneException("Unknown posTag on line " + lineNumber + ": " + posTagCode);
+						}
 					}
+
+					StandoffToken token = new StandoffToken();
+					token.posTag = posTag;
+					token.text = text;
+					token.id = id;
+
+					sortedTokens.put(startPos, token);
+					tokenMap.put(id, token);
+
+				} else if (line.startsWith("R")) {
+
+					String[] parts = line.split("[\\t :]");
+					String id = parts[0];
+					String label = parts[1];
+					String headId = parts[3];
+					String dependentId = parts[5];
+					StandoffRelation relation = new StandoffRelation();
+					relation.fromToken = headId;
+					relation.toToken = dependentId;
+					relation.label = label;
+					idRelationMap.put(id, relation);
+					relationMap.put(dependentId, relation);
+				} else if (line.startsWith("#")) {
+					String[] parts = line.split("\t");
+					String itemId = parts[1].substring("AnnotatorNotes ".length());
+					String note = parts[2];
+					notes.put(itemId, note);
 				}
-
-				StandoffToken token = new StandoffToken();
-				token.posTag = posTag;
-				token.text = text;
-				token.id = id;
-
-				sortedTokens.put(startPos, token);
-				tokenMap.put(id, token);
-
-			} else if (line.startsWith("R")) {
-
-				String[] parts = line.split("[\\t :]");
-				String id = parts[0];
-				String label = parts[1];
-				String headId = parts[3];
-				String dependentId = parts[5];
-				StandoffRelation relation = new StandoffRelation();
-				relation.fromToken = headId;
-				relation.toToken = dependentId;
-				relation.label = label;
-				idRelationMap.put(id, relation);
-				relationMap.put(dependentId, relation);
-			} else if (line.startsWith("#")) {
-				String[] parts = line.split("\t");
-				String itemId = parts[1].substring("AnnotatorNotes ".length());
-				String note = parts[2];
-				notes.put(itemId, note);
 			}
 		}
 
@@ -349,6 +355,26 @@ public class StandoffReader implements ParserAnnotatedCorpusReader {
 	@Override
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
+	}
+
+	@Override
+	public boolean hasNextPosTagSequence() {
+		return this.hasNextConfiguration();
+	}
+
+	@Override
+	public PosTagSequence nextPosTagSequence() {
+		return this.nextConfiguration().getPosTagSequence();
+	}
+
+	@Override
+	public boolean hasNextTokenSequence() {
+		return this.hasNextConfiguration();
+	}
+
+	@Override
+	public TokenSequence nextTokenSequence() {
+		return this.nextConfiguration().getPosTagSequence().getTokenSequence();
 	}
 
 }

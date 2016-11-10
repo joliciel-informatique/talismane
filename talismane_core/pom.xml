@@ -90,6 +90,10 @@
 			<artifactId>commons-vfs2</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.jopt-simple</groupId>
+			<artifactId>jopt-simple</artifactId>
+		</dependency>
+		<dependency>
 			<!-- Must be before junit! -->
 			<groupId>com.googlecode.jmockit</groupId>
 			<artifactId>jmockit</artifactId>

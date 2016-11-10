@@ -61,16 +61,17 @@ import com.typesafe.config.ConfigFactory;
 public class PatternTokeniserTrainer {
 	private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniserTrainer.class);
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 	private final Config tokeniserConfig;
 	private final File modelFile;
 	private final PatternTokeniserType patternTokeniserType;
 	private final ClassificationEventStream eventStream;
 	private final Map<String, List<String>> descriptors;
 
-	public PatternTokeniserTrainer(Config config, TalismaneSession talismaneSession) throws IOException {
+	public PatternTokeniserTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+		Config config = session.getConfig();
 		this.tokeniserConfig = config.getConfig("talismane.core.tokeniser");
-		this.talismaneSession = talismaneSession;
+		this.session = session;
 		this.modelFile = new File(tokeniserConfig.getString("model"));
 		this.patternTokeniserType = PatternTokeniserType.valueOf(tokeniserConfig.getString("pattern-tokeniser-type"));
 
@@ -103,25 +104,25 @@ public class PatternTokeniserTrainer {
 			}
 		}
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(talismaneSession.getTrainingReader(),
-				tokeniserConfig.getConfig("train"), talismaneSession);
+		TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(),
+				tokeniserConfig.getConfig("train"), session);
 		if (patternTokeniserType == PatternTokeniserType.Interval) {
-			TokeniserContextFeatureParser featureParser = new TokeniserContextFeatureParser(talismaneSession, tokeniserPatternManager.getParsedTestPatterns());
+			TokeniserContextFeatureParser featureParser = new TokeniserContextFeatureParser(session, tokeniserPatternManager.getParsedTestPatterns());
 			Set<TokeniserContextFeature<?>> features = featureParser.getTokeniserContextFeatureSet(featureDescriptors);
-			eventStream = new IntervalPatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.talismaneSession);
+			eventStream = new IntervalPatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.session);
 		} else {
-			TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(talismaneSession);
+			TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
 			Set<TokenPatternMatchFeature<?>> features = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);
-			eventStream = new CompoundPatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.talismaneSession);
+			eventStream = new CompoundPatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.session);
 		}
 	}
 
-	public ClassificationModel trainModel() {
+	public ClassificationModel train() {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(tokeniserConfig.getConfig("train.machine-learning"));
 
 		ClassificationModel tokeniserModel = trainer.trainModel(eventStream, descriptors);
-		tokeniserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+		tokeniserModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 		tokeniserModel.getModelAttributes().put(PatternTokeniserType.class.getSimpleName(), patternTokeniserType.toString());
 
 		File modelDir = modelFile.getParentFile();
@@ -141,7 +142,7 @@ public class PatternTokeniserTrainer {
 		String sessionId = "";
 		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
-		PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(config, talismaneSession);
-		trainer.trainModel();
+		PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(talismaneSession);
+		trainer.train();
 	}
 }

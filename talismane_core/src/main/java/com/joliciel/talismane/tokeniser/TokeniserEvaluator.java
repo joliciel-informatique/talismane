@@ -18,11 +18,20 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * An interface for evaluating a given tokeniser.
@@ -34,12 +43,25 @@ public class TokeniserEvaluator {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TokeniserEvaluator.class);
 	private final Tokeniser tokeniser;
-	private int sentenceCount = 0;
+	private final TokeniserAnnotatedCorpusReader corpusReader;
 
-	private final List<TokenEvaluationObserver> observers = new ArrayList<>();
+	private final List<TokenEvaluationObserver> observers;
 
-	public TokeniserEvaluator(Tokeniser tokeniser) {
+	public TokeniserEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+		Config config = session.getConfig();
+		this.tokeniser = Tokeniser.getInstance(session);
+		this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(session);
+
+		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.tokeniser.evaluate.eval-file");
+		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+		this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
+	}
+
+	public TokeniserEvaluator(Tokeniser tokeniser, TokeniserAnnotatedCorpusReader corpusReader) {
 		this.tokeniser = tokeniser;
+		this.observers = new ArrayList<>();
+		this.corpusReader = corpusReader;
 	}
 
 	/**
@@ -48,20 +70,16 @@ public class TokeniserEvaluator {
 	 * @param corpusReader
 	 *            for reading manually separated tokens from a corpus
 	 */
-	public void evaluate(TokeniserAnnotatedCorpusReader corpusReader) {
-		int sentenceIndex = 0;
+	public void evaluate() {
 		while (corpusReader.hasNextTokenSequence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
 			String sentence = realSequence.getSentence().getText();
 
-			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = this.getGuessedAtomicSequences(sentence);
+			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
 
 			for (TokenEvaluationObserver observer : observers) {
 				observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
 			}
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
 		} // next sentence
 
 		for (TokenEvaluationObserver observer : observers) {
@@ -69,33 +87,8 @@ public class TokeniserEvaluator {
 		}
 	}
 
-	private List<TokenisedAtomicTokenSequence> getGuessedAtomicSequences(String sentence) {
-		List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
-
-		// TODO: we'd like to evaluate the effect of propagation on tokenising.
-		// To do this, we either need to copy the entire processing chain from
-		// TalismaneImpl here
-		// or refactor so we can call it from within here.
-		// A better method might be to implement the evaluator as a
-		// PosTagSequenceProcessor, ParseConfigurationProcessor, etc.
-		// and use:
-		// ParseConfiguration.getPosTagSequence().getTokenSequence().getUnderlyingAtomicTokenSequence();
-		// but in this case, we'd need to somehow retain the "realSequence" for
-		// comparison
-
-		return guessedAtomicSequences;
-	}
-
 	public Tokeniser getTokeniser() {
 		return tokeniser;
-	}
-
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
 	}
 
 	public void addObserver(TokenEvaluationObserver observer) {
