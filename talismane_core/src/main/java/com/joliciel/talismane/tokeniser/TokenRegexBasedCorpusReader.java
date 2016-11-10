@@ -1,5 +1,9 @@
 package com.joliciel.talismane.tokeniser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +24,10 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * A corpus reader that expects one token per line, and analyses the line
@@ -40,7 +47,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusReader {
+public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexBasedCorpusReader.class);
 
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
@@ -49,9 +56,6 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 	private PretokenisedSequence tokenSequence = null;
-
-	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-	private final List<Annotator> preAnnotators = new ArrayList<>();
 
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
@@ -68,10 +72,20 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 	private final TalismaneSession talismaneSession;
 	private final Pattern pattern;
 
-	public TokenRegexBasedCorpusReader(String regex, Reader reader, TalismaneSession talismaneSession) {
-		this.regex = regex;
-		this.talismaneSession = talismaneSession;
+	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
+		super(reader, config, session);
+
+		this.regex = config.getString("preannotated-pattern");
+		this.talismaneSession = session;
 		this.scanner = new Scanner(reader);
+
+		String configPath = "sentence-reader";
+		if (config.hasPath(configPath)) {
+			InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
+			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, session.getInputCharset()));
+			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader);
+			this.sentenceReader = sentenceReader;
+		}
 
 		// construct a pattern based on the regex
 		int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);
@@ -243,26 +257,6 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 		TokenSequence nextSequence = tokenSequence;
 		tokenSequence = null;
 		return nextSequence;
-	}
-
-	@Override
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.tokenSequenceFilters.add(tokenFilter);
-	}
-
-	@Override
-	public void addPreAnnotator(Annotator annotator) {
-		this.preAnnotators.add(annotator);
-	}
-
-	@Override
-	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		return this.tokenSequenceFilters;
-	}
-
-	@Override
-	public List<Annotator> getPreAnnotators() {
-		return this.preAnnotators;
 	}
 
 	/**

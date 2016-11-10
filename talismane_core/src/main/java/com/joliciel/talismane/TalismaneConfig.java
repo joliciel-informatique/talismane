@@ -123,30 +123,17 @@ import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
-import com.joliciel.talismane.tokeniser.TokenComparator;
-import com.joliciel.talismane.tokeniser.TokenEvaluationCorpusWriter;
-import com.joliciel.talismane.tokeniser.TokenEvaluationFScoreCalculator;
-import com.joliciel.talismane.tokeniser.TokenEvaluationObserver;
-import com.joliciel.talismane.tokeniser.TokenRegexBasedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
-import com.joliciel.talismane.tokeniser.TokeniserGuessTemplateWriter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.PatternTokeniserType;
-import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
-import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.joliciel.talismane.utils.io.DirectoryReader;
-import com.joliciel.talismane.utils.io.DirectoryWriter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -180,18 +167,14 @@ public class TalismaneConfig {
 
 	private ParserEvaluator parserEvaluator;
 	private PosTaggerEvaluator posTaggerEvaluator;
-	private TokeniserEvaluator tokeniserEvaluator;
 	private SentenceDetectorEvaluator sentenceDetectorEvaluator;
 	private ParseComparator parseComparator;
 	private PosTagComparator posTagComparator;
-	private TokenComparator tokenComparator;
 
-	private TokeniserAnnotatedCorpusReader tokenCorpusReader;
 	private PosTagAnnotatedCorpusReader posTagCorpusReader;
 	private ParserAnnotatedCorpusReader parserCorpusReader;
 	private ParserAnnotatedCorpusReader parserEvaluationCorpusReader;
 	private PosTagAnnotatedCorpusReader posTagEvaluationCorpusReader;
-	private TokeniserAnnotatedCorpusReader tokenEvaluationCorpusReader;
 	private SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader;
 	private LanguageDetectorAnnotatedCorpusReader languageCorpusReader;
 
@@ -226,7 +209,6 @@ public class TalismaneConfig {
 	private boolean earlyStop;
 
 	private Reader reader;
-	private Writer writer;
 	private Reader evaluationReader;
 
 	private String sentenceTemplateName = "sentence_template.ftl";
@@ -271,7 +253,6 @@ public class TalismaneConfig {
 
 	private boolean parserCorpusReaderFiltersAdded = false;
 	private boolean posTagCorpusReaderFiltersAdded = false;
-	private boolean tokenCorpusReaderFiltersAdded = false;
 	private boolean parserCorpusReaderDecorated = false;
 
 	private ParseComparisonStrategyType parseComparisonStrategyType;
@@ -292,8 +273,6 @@ public class TalismaneConfig {
 
 	private Locale locale;
 
-	private String csvEncoding;
-
 	private SentenceDetector sentenceDetector;
 	private PosTagger posTagger;
 	private Parser parser;
@@ -303,17 +282,10 @@ public class TalismaneConfig {
 	// resource
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
 	public TalismaneConfig(Map<String, String> args, Config config, TalismaneSession talismaneSession) throws ClassNotFoundException, IOException {
-		this.talismaneSession = talismaneSession;
-
-		String logConfigPath = args.get("logConfigFile");
-		if (logConfigPath != null && logConfigPath.length() > 0) {
-			// don't do default configuration - only call this of not null
-			args.remove("logConfigFile");
-			LogUtils.configureLogging(logConfigPath);
-		}
+		this.session = talismaneSession;
 
 		Map<String, Object> values = new HashMap<>();
 		Map<String, ImmutablePair<String, Class<?>>> mapping = new HashMap<>();
@@ -388,7 +360,7 @@ public class TalismaneConfig {
 
 		prefix = "talismane.core.evaluate.csv.";
 		mapping.put("csvSeparator", new ImmutablePair<String, Class<?>>(prefix + "separator", String.class));
-		mapping.put("csvEncoding", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
+		mapping.put("talismaneSession.getCsvCharset()", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
 		mapping.put("outputLocale", new ImmutablePair<String, Class<?>>(prefix + "locale", String.class));
 
 		prefix = "talismane.core.evaluate.posTagger.";
@@ -522,7 +494,7 @@ public class TalismaneConfig {
 	}
 
 	public TalismaneConfig(Config config, TalismaneSession talismaneSession) throws IOException, ClassNotFoundException {
-		this.talismaneSession = talismaneSession;
+		this.session = talismaneSession;
 		this.loadParameters(config);
 	}
 
@@ -552,15 +524,15 @@ public class TalismaneConfig {
 			if (moduleString.length() == 0) {
 				// do nothing
 			} else if (moduleString.equalsIgnoreCase("sentence") || moduleString.equalsIgnoreCase("sentenceDetector"))
-				module = Talismane.Module.SentenceDetector;
+				module = Talismane.Module.sentenceDetector;
 			else if (moduleString.equalsIgnoreCase("tokenise") || moduleString.equalsIgnoreCase("tokeniser"))
-				module = Talismane.Module.Tokeniser;
+				module = Talismane.Module.tokeniser;
 			else if (moduleString.equalsIgnoreCase("postag") || moduleString.equalsIgnoreCase("posTagger"))
-				module = Talismane.Module.PosTagger;
+				module = Talismane.Module.posTagger;
 			else if (moduleString.equalsIgnoreCase("parse") || moduleString.equalsIgnoreCase("parser"))
-				module = Talismane.Module.Parser;
+				module = Talismane.Module.parser;
 			else if (moduleString.equalsIgnoreCase("language") || moduleString.equalsIgnoreCase("languageDetector"))
-				module = Talismane.Module.LanguageDetector;
+				module = Talismane.Module.languageDetector;
 			else
 				throw new TalismaneException("Unknown module: " + moduleString);
 		}
@@ -589,13 +561,13 @@ public class TalismaneConfig {
 		String startModuleString = analyseConfig.getString("startModule");
 
 		if (startModuleString.equalsIgnoreCase("sentence") || startModuleString.equalsIgnoreCase("sentenceDetector"))
-			startModule = Talismane.Module.SentenceDetector;
+			startModule = Talismane.Module.sentenceDetector;
 		else if (startModuleString.equalsIgnoreCase("tokenise") || startModuleString.equalsIgnoreCase("tokeniser"))
-			startModule = Talismane.Module.Tokeniser;
+			startModule = Talismane.Module.tokeniser;
 		else if (startModuleString.equalsIgnoreCase("postag") || startModuleString.equalsIgnoreCase("posTagger"))
-			startModule = Talismane.Module.PosTagger;
+			startModule = Talismane.Module.posTagger;
 		else if (startModuleString.equalsIgnoreCase("parse") || startModuleString.equalsIgnoreCase("parser"))
-			startModule = Talismane.Module.Parser;
+			startModule = Talismane.Module.parser;
 		else
 			throw new TalismaneException("Unknown startModule: " + startModuleString);
 
@@ -605,13 +577,13 @@ public class TalismaneConfig {
 		String endModuleString = analyseConfig.getString("endModule");
 
 		if (endModuleString.equalsIgnoreCase("sentence") || endModuleString.equalsIgnoreCase("sentenceDetector"))
-			endModule = Talismane.Module.SentenceDetector;
+			endModule = Talismane.Module.sentenceDetector;
 		else if (endModuleString.equalsIgnoreCase("tokenise") || endModuleString.equalsIgnoreCase("tokeniser"))
-			endModule = Talismane.Module.Tokeniser;
+			endModule = Talismane.Module.tokeniser;
 		else if (endModuleString.equalsIgnoreCase("postag") || endModuleString.equalsIgnoreCase("posTagger"))
-			endModule = Talismane.Module.PosTagger;
+			endModule = Talismane.Module.posTagger;
 		else if (endModuleString.equalsIgnoreCase("parse") || endModuleString.equalsIgnoreCase("parser"))
-			endModule = Talismane.Module.Parser;
+			endModule = Talismane.Module.parser;
 		else
 			throw new TalismaneException("Unknown endModule: " + endModuleString);
 
@@ -636,7 +608,7 @@ public class TalismaneConfig {
 		String outputDivider = analyseConfig.getString("outputDivider");
 		if (outputDivider.equals("NEWLINE"))
 			outputDivider = "\n";
-		talismaneSession.setOutputDivider(outputDivider);
+		session.setOutputDivider(outputDivider);
 
 		beamWidth = analyseConfig.getInt("beamWidth");
 		posTaggerBeamWidth = analyseConfig.getInt("posTaggerBeamWidth");
@@ -650,18 +622,6 @@ public class TalismaneConfig {
 		minFreeMemory = analyseConfig.getInt("parser.minFreeMemory");
 		parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(analyseConfig.getString("parser.comparisonStrategy"));
 		earlyStop = analyseConfig.getBoolean("parser.earlyStop");
-
-		String csvSeparator = evaluateConfig.getString("csv.separator");
-		if (evaluateConfig.hasPath("csv.encoding"))
-			csvEncoding = evaluateConfig.getString("csv.encoding");
-		else
-			csvEncoding = Charset.defaultCharset().name();
-
-		Locale outputLocale = null;
-		if (evaluateConfig.hasPath("csv.locale")) {
-			String csvLocaleString = evaluateConfig.getString("csv.locale");
-			outputLocale = Locale.forLanguageTag(csvLocaleString);
-		}
 
 		includeLexiconCoverage = evaluateConfig.getBoolean("posTagger.includeLexiconCoverage");
 		includeUnknownWordResults = evaluateConfig.getBoolean("posTagger.includeUnknownWordResults");
@@ -710,29 +670,29 @@ public class TalismaneConfig {
 			module = endModule;
 
 		if (command == Command.train) {
-			if (module == Module.LanguageDetector) {
+			if (module == Module.languageDetector) {
 				if (!config.hasPath("talismane.core.analyse.languageModel"))
 					throw new TalismaneException("talismane.core.analyse.languageModel is required when training a language model");
 				if (!config.hasPath("talismane.core.train.languageDetector.features"))
 					throw new TalismaneException("talismane.core.train.languageDetector.features is required when training a language model");
 				if (!config.hasPath("talismane.core.train.languageDetector.languageCorpusMap"))
 					throw new TalismaneException("talismane.core.train.languageDetector.languageCorpusMap is required when training a language model");
-			} else if (module == Module.SentenceDetector) {
+			} else if (module == Module.sentenceDetector) {
 				if (!config.hasPath("talismane.core.analyse.sentenceModel"))
 					throw new TalismaneException("talismane.core.analyse.sentenceModel is required when training a sentence model");
 				if (!config.hasPath("talismane.core.train.sentenceDetector.features"))
 					throw new TalismaneException("talismane.core.train.sentenceDetector.features is required when training a sentence model");
-			} else if (module == Module.Tokeniser) {
+			} else if (module == Module.tokeniser) {
 				if (!config.hasPath("talismane.core.analyse.tokeniserModel"))
 					throw new TalismaneException("talismane.core.analyse.tokeniserModel is required when training a tokeniser model");
 				if (!config.hasPath("talismane.core.train.tokeniser.features"))
 					throw new TalismaneException("talismane.core.train.tokeniser.features is required when training a tokeniser model");
-			} else if (module == Module.PosTagger) {
+			} else if (module == Module.posTagger) {
 				if (!config.hasPath("talismane.core.analyse.posTaggerModel"))
 					throw new TalismaneException("talismane.core.analyse.posTaggerModel is required when training a posTagger model");
 				if (!config.hasPath("talismane.core.train.posTagger.features"))
 					throw new TalismaneException("talismane.core.train.posTagger.features is required when training a posTagger model");
-			} else if (module == Module.Parser) {
+			} else if (module == Module.parser) {
 				this.predictTransitions = true;
 
 				if (!config.hasPath("talismane.core.analyse.parserModel"))
@@ -766,11 +726,6 @@ public class TalismaneConfig {
 		if (parserBeamWidth < 0)
 			parserBeamWidth = beamWidth;
 
-		if (csvSeparator.length() > 0)
-			CSVFormatter.setGlobalCsvSeparator(csvSeparator);
-
-		if (outputLocale != null)
-			CSVFormatter.setGlobalLocale(outputLocale);
 	}
 
 	/**
@@ -967,45 +922,10 @@ public class TalismaneConfig {
 		return evaluationReader;
 	}
 
-	public Writer getWriter() throws IOException {
-		if (writer == null) {
-			String configPath = "talismane.core.outFile";
-			if (config.hasPath(configPath)) {
-				String outFilePath = config.getString(configPath);
-				File outFile = new File(outFilePath);
-				File outDir = outFile.getParentFile();
-				if (outDir != null)
-					outDir.mkdirs();
-				outFile.delete();
-				outFile.createNewFile();
-
-				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), this.getOutputCharset()));
-			} else {
-				String configPathOutDir = "talismane.core.outDir";
-				String configPathInDir = "talismane.core.inDir";
-				if (config.hasPath(configPathOutDir) && config.hasPath(configPathInDir) && (this.getReader() instanceof CurrentFileProvider)
-						&& command != Command.evaluate) {
-					String outDirPath = config.getString(configPathOutDir);
-					String inDirPath = config.getString(configPathInDir);
-
-					File outDir = new File(outDirPath);
-					outDir.mkdirs();
-					File inDir = new File(inDirPath);
-
-					DirectoryWriter directoryWriter = new DirectoryWriter(inDir, outDir, talismaneSession.getSuffix(), this.getOutputCharset());
-					writer = directoryWriter;
-				} else {
-					writer = new BufferedWriter(new OutputStreamWriter(System.out, this.getOutputCharset()));
-				}
-			}
-		}
-		return writer;
-	}
-
 	public synchronized List<PosTaggerRule> getPosTaggerRules() throws IOException {
 		if (posTaggerRules == null) {
 			posTaggerRules = new ArrayListNoNulls<PosTaggerRule>();
-			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(this.talismaneSession);
+			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(this.session);
 
 			String configPath = "talismane.core.analyse.posTaggerRules";
 			List<String> textFilterPaths = config.getStringList(configPath);
@@ -1033,7 +953,7 @@ public class TalismaneConfig {
 		if (parserRules == null) {
 			parserRules = new ArrayListNoNulls<ParserRule>();
 
-			ParserFeatureParser parserFeatureParser = new ParserFeatureParser(this.talismaneSession, this.dynamiseFeatures);
+			ParserFeatureParser parserFeatureParser = new ParserFeatureParser(this.session, this.dynamiseFeatures);
 
 			String configPath = "talismane.core.analyse.parserRules";
 			List<String> textFilterPaths = config.getStringList(configPath);
@@ -1129,7 +1049,7 @@ public class TalismaneConfig {
 		if (tokenSequenceFilters == null) {
 			List<String> tokenSequenceFilterDescriptors = new ArrayListNoNulls<String>();
 			tokenSequenceFilters = new ArrayListNoNulls<TokenSequenceFilter>();
-			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
+			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
 
 			String configPath = "talismane.core.analyse.tokenSequenceFilters";
 			List<String> tokenFilterPaths = config.getStringList(configPath);
@@ -1144,7 +1064,7 @@ public class TalismaneConfig {
 						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
 							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
 							tokenSequenceFilters.add(tokenSequenceFilter);
 						}
 					}
@@ -1163,7 +1083,7 @@ public class TalismaneConfig {
 						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
 							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
 							tokenSequenceFilters.add(tokenSequenceFilter);
 						}
 					}
@@ -1230,7 +1150,7 @@ public class TalismaneConfig {
 		if (tokenFilters == null) {
 			List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
 			tokenFilters = new ArrayListNoNulls<TokenFilter>();
-			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(talismaneSession);
+			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 
 			LOG.debug("Token filters");
 
@@ -1283,7 +1203,7 @@ public class TalismaneConfig {
 	 * Set all token filters replacing those loaded from the model or config.
 	 */
 	public synchronized void setTokenFilters(Scanner scanner) {
-		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(talismaneSession);
+		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 		List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
 		tokenFilters = new ArrayListNoNulls<TokenFilter>();
 		List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
@@ -1317,7 +1237,7 @@ public class TalismaneConfig {
 		try {
 			if (this.sentenceDetector == null) {
 				ClassificationModel sentenceModel = this.getSentenceDetectorModel();
-				this.sentenceDetector = new SentenceDetector(sentenceModel, talismaneSession);
+				this.sentenceDetector = new SentenceDetector(sentenceModel, session);
 			}
 
 			return this.sentenceDetector.cloneSentenceDetector();
@@ -1325,15 +1245,6 @@ public class TalismaneConfig {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
-	}
-
-	/**
-	 * The tokeniser to use for analysis.
-	 * 
-	 * @throws IOException
-	 */
-	public Tokeniser getTokeniser() throws IOException {
-		return Tokeniser.getTokeniser(config, talismaneSession);
 	}
 
 	synchronized ClassificationModel getLanguageModel() throws IOException {
@@ -1455,7 +1366,7 @@ public class TalismaneConfig {
 					LOG.debug(descriptor);
 				}
 
-				SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(talismaneSession);
+				SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(session);
 				sentenceFeatures = parser.getFeatureSet(featureDescriptors);
 
 				this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
@@ -1466,7 +1377,7 @@ public class TalismaneConfig {
 
 	public synchronized Set<PosTaggerFeature<?>> getPosTaggerFeatures() throws IOException {
 		if (posTaggerFeatures == null) {
-			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(talismaneSession);
+			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
 			String configPath = "talismane.core.train.posTagger.features";
 			InputStream posTaggerFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
 			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTaggerFeatureFile, this.getInputCharset())))) {
@@ -1488,17 +1399,16 @@ public class TalismaneConfig {
 	public synchronized ClassificationEventStream getClassificationEventStream() throws IOException {
 		if (this.classificationEventStream == null) {
 			switch (this.getModule()) {
-			case LanguageDetector:
+			case languageDetector:
 				classificationEventStream = new LanguageDetectorEventStream(this.getLanguageCorpusReader(), this.getLanguageDetectorFeatures());
 				break;
-			case SentenceDetector:
-				classificationEventStream = new SentenceDetectorEventStream(this.getSentenceCorpusReader(), this.getSentenceDetectorFeatures(),
-						talismaneSession);
+			case sentenceDetector:
+				classificationEventStream = new SentenceDetectorEventStream(this.getSentenceCorpusReader(), this.getSentenceDetectorFeatures(), session);
 				break;
-			case PosTagger:
+			case posTagger:
 				classificationEventStream = new PosTagEventStream(this.getPosTagCorpusReader(), this.getPosTaggerFeatures());
 				break;
-			case Parser:
+			case parser:
 				classificationEventStream = new ParseEventStream(this.getParserCorpusReader(), this.getParserFeatures());
 				break;
 			default:
@@ -1519,7 +1429,7 @@ public class TalismaneConfig {
 				if (posTaggerModel == null)
 					throw new TalismaneException("No posTaggerModel provided");
 
-				posTagger = new ForwardStatisticalPosTagger(posTaggerModel, posTaggerBeamWidth, this.talismaneSession);
+				posTagger = new ForwardStatisticalPosTagger(posTaggerModel, posTaggerBeamWidth, this.session);
 
 				for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(posTaggerModel)) {
 					posTagger.addPreProcessingFilter(tokenFilter);
@@ -1532,8 +1442,8 @@ public class TalismaneConfig {
 				posTagger.setPosTaggerRules(this.getPosTaggerRules());
 
 				if (includeDetails) {
-					String detailsFilePath = talismaneSession.getBaseName() + "_posTagger_details.txt";
-					File detailsFile = new File(talismaneSession.getOutDir(), detailsFilePath);
+					String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
+					File detailsFile = new File(session.getOutDir(), detailsFilePath);
 					detailsFile.delete();
 					ClassificationObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
 					posTagger.addObserver(observer);
@@ -1557,7 +1467,7 @@ public class TalismaneConfig {
 				if (parserModel == null)
 					throw new TalismaneException("No parserModel provided");
 
-				parser = new TransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures, talismaneSession);
+				parser = new TransitionBasedParser(parserModel, parserBeamWidth, dynamiseFeatures, session);
 				parser.setMaxAnalysisTimePerSentence(maxParseAnalysisTime);
 				parser.setMinFreeMemory(minFreeMemory);
 
@@ -1574,8 +1484,8 @@ public class TalismaneConfig {
 				}
 
 				if (includeDetails && parserModel instanceof ClassificationModel) {
-					String detailsFilePath = talismaneSession.getBaseName() + "_parser_details.txt";
-					File detailsFile = new File(talismaneSession.getOutDir(), detailsFilePath);
+					String detailsFilePath = session.getBaseName() + "_parser_details.txt";
+					File detailsFile = new File(session.getOutDir(), detailsFilePath);
 					detailsFile.delete();
 					ClassificationModel classificationModel = parserModel;
 					ClassificationObserver observer = classificationModel.getDetailedAnalysisObserver(detailsFile);
@@ -1592,7 +1502,7 @@ public class TalismaneConfig {
 
 	public synchronized Set<ParseConfigurationFeature<?>> getParserFeatures() throws IOException {
 		if (parserFeatures == null) {
-			ParserFeatureParser parserFeatureParser = new ParserFeatureParser(this.talismaneSession, this.dynamiseFeatures);
+			ParserFeatureParser parserFeatureParser = new ParserFeatureParser(this.session, this.dynamiseFeatures);
 
 			String configPath = "talismane.core.train.parser.features";
 			InputStream parserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
@@ -1631,7 +1541,7 @@ public class TalismaneConfig {
 	}
 
 	public synchronized SentenceProcessor getSentenceProcessor() throws IOException {
-		if (sentenceProcessor == null && endModule.equals(Module.SentenceDetector)) {
+		if (sentenceProcessor == null && endModule.equals(Module.sentenceDetector)) {
 			Reader templateReader = null;
 			String configPath = "talismane.core.analyse.template";
 			if (config.hasPath(configPath)) {
@@ -1646,7 +1556,7 @@ public class TalismaneConfig {
 	}
 
 	public synchronized TokenSequenceProcessor getTokenSequenceProcessor() throws IOException {
-		if (tokenSequenceProcessor == null && endModule.equals(Module.Tokeniser)) {
+		if (tokenSequenceProcessor == null && endModule.equals(Module.tokeniser)) {
 			Reader templateReader = null;
 			String configPath = "talismane.core.analyse.template";
 			if (config.hasPath(configPath)) {
@@ -1662,9 +1572,9 @@ public class TalismaneConfig {
 	}
 
 	public synchronized PosTagSequenceProcessor getPosTagSequenceProcessor() throws IOException {
-		if (posTagSequenceProcessor == null && endModule.equals(Module.PosTagger)) {
+		if (posTagSequenceProcessor == null && endModule.equals(Module.posTagger)) {
 			if (this.option == Option.posTagFeatureTester) {
-				File file = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_featureTest.txt");
+				File file = new File(session.getOutDir(), session.getBaseName() + "_featureTest.txt");
 				posTagSequenceProcessor = new PosTagFeatureTester(this.getPosTaggerFeatures(), this.testWords, file);
 			} else {
 				Reader templateReader = null;
@@ -1682,7 +1592,7 @@ public class TalismaneConfig {
 	}
 
 	public synchronized ParseConfigurationProcessor getParseConfigurationProcessor() throws IOException {
-		if (parseConfigurationProcessor == null && endModule.equals(Module.Parser)) {
+		if (parseConfigurationProcessor == null && endModule.equals(Module.parser)) {
 			if (option.equals(Option.output)) {
 				Reader templateReader = null;
 				String configPath = "talismane.core.analyse.template";
@@ -1694,7 +1604,7 @@ public class TalismaneConfig {
 				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
 				parseConfigurationProcessor = templateWriter;
 			} else if (option.equals(Option.parseFeatureTester)) {
-				File file = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_featureTest.txt");
+				File file = new File(session.getOutDir(), session.getBaseName() + "_featureTest.txt");
 				parseConfigurationProcessor = new ParseFeatureTester(this.getParserFeatures(), file);
 			} else {
 				throw new TalismaneException("Unknown option: " + option.toString());
@@ -1704,11 +1614,11 @@ public class TalismaneConfig {
 				ParseConfigurationProcessorChain chain = new ParseConfigurationProcessorChain();
 				chain.addProcessor(parseConfigurationProcessor);
 
-				File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_transitions.csv");
+				File csvFile = new File(session.getOutDir(), session.getBaseName() + "_transitions.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
 
-				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), csvEncoding));
+				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
 				ParseConfigurationProcessor transitionLogWriter = new TransitionLogWriter(csvFileWriter);
 
 				chain.addProcessor(transitionLogWriter);
@@ -1719,72 +1629,12 @@ public class TalismaneConfig {
 		return parseConfigurationProcessor;
 	}
 
-	public synchronized TokeniserAnnotatedCorpusReader getTokenCorpusReader() throws IOException {
-		if (tokenCorpusReader == null) {
-			String configPath = "talismane.core.train.tokeniser.readerRegex";
-			String regex = config.getString(configPath);
-
-			TokenRegexBasedCorpusReader tokenRegexCorpusReader = new TokenRegexBasedCorpusReader(regex, this.getReader(), this.talismaneSession);
-
-			configPath = "talismane.core.train.tokeniser.sentenceReader";
-			if (config.hasPath(configPath)) {
-				InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
-				Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, this.getInputCharset()));
-				SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader);
-				tokenRegexCorpusReader.setSentenceReader(sentenceReader);
-			}
-			this.tokenCorpusReader = tokenRegexCorpusReader;
-		}
-		this.setCorpusReaderAttributes(tokenCorpusReader);
-
-		this.addTokenCorpusReaderFilters(tokenCorpusReader);
-		return tokenCorpusReader;
-	}
-
-	public synchronized TokeniserAnnotatedCorpusReader getTokenEvaluationCorpusReader() throws IOException {
-		if (tokenEvaluationCorpusReader == null) {
-			String configPath = "talismane.core.evaluate.tokeniser.readerRegex";
-			String regex = config.getString(configPath);
-
-			TokenRegexBasedCorpusReader tokenRegexCorpusReader = new TokenRegexBasedCorpusReader(regex, this.getEvaluationReader(), talismaneSession);
-
-			this.tokenEvaluationCorpusReader = tokenRegexCorpusReader;
-		}
-		this.setCorpusReaderAttributes(tokenEvaluationCorpusReader);
-
-		this.addTokenCorpusReaderFilters(tokenEvaluationCorpusReader);
-		return tokenEvaluationCorpusReader;
-	}
-
-	synchronized void addTokenCorpusReaderFilters(TokeniserAnnotatedCorpusReader corpusReader) throws IOException {
-		if (!tokenCorpusReaderFiltersAdded) {
-			MachineLearningModel myTokeniserModel = null;
-
-			if (command != Command.train) {
-				myTokeniserModel = this.getTokeniserModel();
-			}
-
-			for (TokenFilter tokenFilter : this.getTokenFilters(myTokeniserModel)) {
-				corpusReader.addPreAnnotator(tokenFilter);
-			}
-
-			for (TokenSequenceFilter tokenSequenceFilter : this.getTokenSequenceFilters(myTokeniserModel)) {
-				corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
-			}
-			this.tokenCorpusReaderFiltersAdded = true;
-		}
-	}
-
-	public void setTokenCorpusReader(TokeniserAnnotatedCorpusReader tokenCorpusReader) {
-		this.tokenCorpusReader = tokenCorpusReader;
-	}
-
 	public synchronized PosTagAnnotatedCorpusReader getPosTagCorpusReader() throws IOException {
 		if (posTagCorpusReader == null) {
 			String configPath = "talismane.core.train.posTagger.readerRegex";
 			String regex = config.getString(configPath);
 
-			PosTagRegexBasedCorpusReader posTagRegexBasedCorpusReader = new PosTagRegexBasedCorpusReader(regex, this.getReader(), this.talismaneSession);
+			PosTagRegexBasedCorpusReader posTagRegexBasedCorpusReader = new PosTagRegexBasedCorpusReader(this.getReader(), this.config, this.session);
 			posTagCorpusReader = posTagRegexBasedCorpusReader;
 		}
 		this.setCorpusReaderAttributes(posTagCorpusReader);
@@ -1798,7 +1648,7 @@ public class TalismaneConfig {
 			String configPath = "talismane.core.evaluate.posTagger.readerRegex";
 			String regex = config.getString(configPath);
 
-			PosTagRegexBasedCorpusReader posTagRegexCorpusReader = new PosTagRegexBasedCorpusReader(regex, this.getEvaluationReader(), this.talismaneSession);
+			PosTagRegexBasedCorpusReader posTagRegexCorpusReader = new PosTagRegexBasedCorpusReader(this.getEvaluationReader(), this.config, this.session);
 			this.posTagEvaluationCorpusReader = posTagRegexCorpusReader;
 		}
 		this.addPosTagCorpusReaderFilters(posTagEvaluationCorpusReader);
@@ -1809,9 +1659,9 @@ public class TalismaneConfig {
 		if (!posTagCorpusReaderFiltersAdded) {
 			MachineLearningModel myPosTaggerModel = null;
 			if (this.getCommand() != Command.train) {
-				if (this.getStartModule().equals(Module.Tokeniser)) {
+				if (this.getStartModule().equals(Module.tokeniser)) {
 					myPosTaggerModel = this.getPosTaggerModel();
-				} else if (this.getStartModule().equals(Module.PosTagger)) {
+				} else if (this.getStartModule().equals(Module.posTagger)) {
 					myPosTaggerModel = this.getPosTaggerModel();
 				} else {
 					myPosTaggerModel = this.getParserModel();
@@ -1846,7 +1696,7 @@ public class TalismaneConfig {
 			String configPath = "talismane.core.train.parser.readerRegex";
 			String regex = config.getString(configPath);
 
-			ParserRegexBasedCorpusReader parserRegexCorpusReader = new ParserRegexBasedCorpusReader(regex, this.getReader(), this.talismaneSession);
+			ParserRegexBasedCorpusReader parserRegexCorpusReader = new ParserRegexBasedCorpusReader(this.getReader(), this.config, this.session);
 
 			parserRegexCorpusReader.setPredictTransitions(predictTransitions);
 
@@ -1889,7 +1739,7 @@ public class TalismaneConfig {
 			String configPath = "talismane.core.evaluate.parser.readerRegex";
 			String regex = config.getString(configPath);
 
-			ParserRegexBasedCorpusReader parserRegexCorpusReader = new ParserRegexBasedCorpusReader(regex, this.getEvaluationReader(), this.talismaneSession);
+			ParserRegexBasedCorpusReader parserRegexCorpusReader = new ParserRegexBasedCorpusReader(this.getEvaluationReader(), this.config, this.session);
 			parserRegexCorpusReader.setPredictTransitions(predictTransitions);
 
 			this.parserEvaluationCorpusReader = parserRegexCorpusReader;
@@ -1911,10 +1761,10 @@ public class TalismaneConfig {
 			MachineLearningModel myPosTaggerModel = null;
 			MachineLearningModel myParserModel = null;
 			if (this.getCommand() != Command.train) {
-				if (this.getStartModule().equals(Module.Tokeniser)) {
+				if (this.getStartModule().equals(Module.tokeniser)) {
 					myPosTaggerModel = this.getPosTaggerModel();
 					myParserModel = this.getParserModel();
-				} else if (this.getStartModule().equals(Module.PosTagger)) {
+				} else if (this.getStartModule().equals(Module.posTagger)) {
 					myPosTaggerModel = this.getPosTaggerModel();
 					myParserModel = this.getParserModel();
 				} else {
@@ -1954,23 +1804,23 @@ public class TalismaneConfig {
 		try {
 			if (parserEvaluator == null) {
 				parserEvaluator = new ParserEvaluator();
-				if (startModule.equals(Module.Tokeniser)) {
-					parserEvaluator.setTokeniser(this.getTokeniser());
+				if (startModule.equals(Module.tokeniser)) {
+					parserEvaluator.setTokeniser(Tokeniser.getInstance(session));
 					parserEvaluator.setPosTagger(this.getPosTagger());
-				} else if (startModule.equals(Module.PosTagger)) {
+				} else if (startModule.equals(Module.posTagger)) {
 					parserEvaluator.setPosTagger(this.getPosTagger());
 				}
 				parserEvaluator.setParser(this.getParser());
 
 				ParseTimeByLengthObserver parseTimeByLengthObserver = new ParseTimeByLengthObserver();
 				if (includeTimePerToken) {
-					File timePerTokenFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".timePerToken.csv");
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false), csvEncoding));
+					File timePerTokenFile = new File(session.getOutDir(), session.getBaseName() + ".timePerToken.csv");
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false), session.getCsvCharset()));
 					parseTimeByLengthObserver.setWriter(csvFileWriter);
 				}
 				parserEvaluator.addObserver(parseTimeByLengthObserver);
 
-				File fscoreFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".fscores.csv");
+				File fscoreFile = new File(session.getOutDir(), session.getBaseName() + ".fscores.csv");
 
 				ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
 				parseFScoreCalculator.setLabeledEvaluation(this.labeledEvaluation);
@@ -1982,10 +1832,10 @@ public class TalismaneConfig {
 				parserEvaluator.addObserver(parseFScoreCalculator);
 
 				if (outputGuesses) {
-					File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_sentences.csv");
+					File csvFile = new File(session.getOutDir(), session.getBaseName() + "_sentences.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), csvEncoding));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
 					int guessCount = 1;
 					if (outputGuessCount > 0)
 						guessCount = outputGuessCount;
@@ -2001,10 +1851,10 @@ public class TalismaneConfig {
 				}
 
 				if (includeDistanceFScores) {
-					File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_distances.csv");
+					File csvFile = new File(session.getOutDir(), session.getBaseName() + "_distances.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), csvEncoding));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
 					ParserFScoreCalculatorByDistance calculator = new ParserFScoreCalculatorByDistance(csvFileWriter);
 					calculator.setLabeledEvaluation(this.labeledEvaluation);
 					if (skipLabel != null)
@@ -2013,10 +1863,10 @@ public class TalismaneConfig {
 				}
 
 				if (includeTransitionLog) {
-					File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_transitions.csv");
+					File csvFile = new File(session.getOutDir(), session.getBaseName() + "_transitions.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), csvEncoding));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
 					ParseConfigurationProcessor transitionLogWriter = new TransitionLogWriter(csvFileWriter);
 					ParseEvaluationObserverImpl observer = new ParseEvaluationObserverImpl(transitionLogWriter);
 					observer.setWriter(csvFileWriter);
@@ -2033,10 +1883,10 @@ public class TalismaneConfig {
 					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(parserTemplateName)));
 				}
 
-				File freemarkerFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_output.txt");
+				File freemarkerFile = new File(session.getOutDir(), session.getBaseName() + "_output.txt");
 				freemarkerFile.delete();
 				freemarkerFile.createNewFile();
-				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), csvEncoding));
+				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), session.getCsvCharset()));
 				ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(freemakerFileWriter, templateReader);
 				parserEvaluator.addObserver(templateWriter);
 				parserEvaluator.setSentenceCount(maxSentenceCount);
@@ -2058,7 +1908,7 @@ public class TalismaneConfig {
 		try {
 			if (parseComparator == null) {
 				parseComparator = new ParseComparator();
-				File fscoreFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".fscores.csv");
+				File fscoreFile = new File(session.getOutDir(), session.getBaseName() + ".fscores.csv");
 
 				ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
 				parseFScoreCalculator.setLabeledEvaluation(this.labeledEvaluation);
@@ -2066,10 +1916,10 @@ public class TalismaneConfig {
 				parseComparator.addObserver(parseFScoreCalculator);
 
 				if (includeDistanceFScores) {
-					File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".distances.csv");
+					File csvFile = new File(session.getOutDir(), session.getBaseName() + ".distances.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), csvEncoding));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
 					ParserFScoreCalculatorByDistance calculator = new ParserFScoreCalculatorByDistance(csvFileWriter);
 					calculator.setLabeledEvaluation(this.labeledEvaluation);
 					calculator.setSkipLabel(skipLabel);
@@ -2087,25 +1937,6 @@ public class TalismaneConfig {
 	}
 
 	/**
-	 * Get a tokeniser evaluator if command=evaluate and endModule=tokeniser.
-	 * 
-	 * @throws IOException
-	 */
-
-	public synchronized TokeniserEvaluator getTokeniserEvaluator() throws IOException {
-		if (tokeniserEvaluator == null) {
-			tokeniserEvaluator = new TokeniserEvaluator(this.getTokeniser());
-
-			List<TokenEvaluationObserver> observers = this.getTokenEvaluationObservers();
-			for (TokenEvaluationObserver observer : observers)
-				tokeniserEvaluator.addObserver(observer);
-
-			tokeniserEvaluator.setSentenceCount(maxSentenceCount);
-		}
-		return tokeniserEvaluator;
-	}
-
-	/**
 	 * Get a sentence detector evaluator if command=evaluate and
 	 * endModule=sentenceDetector.
 	 */
@@ -2117,91 +1948,6 @@ public class TalismaneConfig {
 		return sentenceDetectorEvaluator;
 	}
 
-	private List<TokenEvaluationObserver> getTokenEvaluationObservers() {
-		try {
-			List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
-			Writer errorFileWriter = null;
-			File errorFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".errorList.txt");
-			errorFile.delete();
-			errorFile.createNewFile();
-			errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false), "UTF8"));
-
-			Writer csvErrorFileWriter = null;
-			File csvErrorFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".errors.csv");
-			csvErrorFile.delete();
-			csvErrorFile.createNewFile();
-			csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false), csvEncoding));
-
-			File fScoreFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".fscores.csv");
-
-			TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
-			tokenFScoreCalculator.setErrorWriter(errorFileWriter);
-			tokenFScoreCalculator.setCsvErrorWriter(csvErrorFileWriter);
-			tokenFScoreCalculator.setFScoreFile(fScoreFile);
-			observers.add(tokenFScoreCalculator);
-
-			Writer corpusFileWriter = null;
-			File corpusFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".corpus.txt");
-			corpusFile.delete();
-			corpusFile.createNewFile();
-			corpusFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(corpusFile, false), "UTF8"));
-
-			TokenEvaluationCorpusWriter corpusWriter = new TokenEvaluationCorpusWriter(corpusFileWriter);
-			observers.add(corpusWriter);
-
-			Reader templateReader = null;
-			String configPath = "talismane.core.analyse.template";
-			if (config.hasPath(configPath)) {
-				templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-			} else {
-				templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(tokeniserTemplateName)));
-			}
-
-			File freemarkerFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_output.txt");
-			freemarkerFile.delete();
-			freemarkerFile.createNewFile();
-			Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), "UTF8"));
-			TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(freemakerFileWriter, templateReader);
-			observers.add(templateWriter);
-
-			return observers;
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Get a token comparator if command=compare and endModule=parser.
-	 */
-
-	public synchronized TokenComparator getTokenComparator() {
-		try {
-			if (tokenComparator == null) {
-				TokeniserPatternManager tokeniserPatternManager = null;
-
-				Tokeniser tokeniser = this.getTokeniser();
-				if (tokeniser instanceof PatternTokeniser) {
-					PatternTokeniser patternTokeniser = (PatternTokeniser) tokeniser;
-					tokeniserPatternManager = patternTokeniser.getTokeniserPatternManager();
-				}
-				tokenComparator = new TokenComparator(this.getTokenCorpusReader(), this.getTokenEvaluationCorpusReader(), tokeniserPatternManager,
-						this.talismaneSession);
-
-				List<TokenEvaluationObserver> observers = this.getTokenEvaluationObservers();
-				for (TokenEvaluationObserver observer : observers)
-					tokenComparator.addObserver(observer);
-
-				tokenComparator.setSentenceCount(maxSentenceCount);
-			}
-
-			return tokenComparator;
-		} catch (Exception e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-
 	/**
 	 * Get a pos-tagger evaluator if command=evaluate and endModule=posTagger.
 	 */
@@ -2211,15 +1957,15 @@ public class TalismaneConfig {
 			if (posTaggerEvaluator == null) {
 				posTaggerEvaluator = new PosTaggerEvaluator(this.getPosTagger());
 
-				if (startModule.equals(Module.Tokeniser)) {
-					posTaggerEvaluator.setTokeniser(this.getTokeniser());
+				if (startModule.equals(Module.tokeniser)) {
+					posTaggerEvaluator.setTokeniser(Tokeniser.getInstance(session));
 				}
 
 				if (outputGuesses) {
-					File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_sentences.csv");
+					File csvFile = new File(session.getOutDir(), session.getBaseName() + "_sentences.csv");
 					csvFile.delete();
 					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), csvEncoding));
+					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
 
 					int guessCount = 1;
 					if (outputGuessCount > 0)
@@ -2231,13 +1977,13 @@ public class TalismaneConfig {
 					posTaggerEvaluator.addObserver(sentenceWriter);
 				}
 
-				File fscoreFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_fscores.csv");
+				File fscoreFile = new File(session.getOutDir(), session.getBaseName() + "_fscores.csv");
 
 				PosTagEvaluationFScoreCalculator posTagFScoreCalculator = new PosTagEvaluationFScoreCalculator(fscoreFile);
 				if (includeUnknownWordResults) {
-					File fscoreUnknownWordFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_unknown.csv");
+					File fscoreUnknownWordFile = new File(session.getOutDir(), session.getBaseName() + "_unknown.csv");
 					posTagFScoreCalculator.setFScoreUnknownInLexiconFile(fscoreUnknownWordFile);
-					File fscoreKnownWordFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_known.csv");
+					File fscoreKnownWordFile = new File(session.getOutDir(), session.getBaseName() + "_known.csv");
 					posTagFScoreCalculator.setFScoreKnownInLexiconFile(fscoreKnownWordFile);
 				}
 
@@ -2251,7 +1997,7 @@ public class TalismaneConfig {
 					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(posTaggerTemplateName)));
 				}
 
-				File freemarkerFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_output.txt");
+				File freemarkerFile = new File(session.getOutDir(), session.getBaseName() + "_output.txt");
 				freemarkerFile.delete();
 				freemarkerFile.createNewFile();
 				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), "UTF8"));
@@ -2259,7 +2005,7 @@ public class TalismaneConfig {
 				posTaggerEvaluator.addObserver(templateWriter);
 
 				if (includeLexiconCoverage) {
-					File lexiconCoverageFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".lexiconCoverage.csv");
+					File lexiconCoverageFile = new File(session.getOutDir(), session.getBaseName() + ".lexiconCoverage.csv");
 					PosTagEvaluationLexicalCoverageTester lexiconCoverageTester = new PosTagEvaluationLexicalCoverageTester(lexiconCoverageFile);
 					posTaggerEvaluator.addObserver(lexiconCoverageTester);
 				}
@@ -2282,7 +2028,7 @@ public class TalismaneConfig {
 		try {
 			if (posTagComparator == null) {
 				posTagComparator = new PosTagComparator();
-				File fscoreFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".fscores.csv");
+				File fscoreFile = new File(session.getOutDir(), session.getBaseName() + ".fscores.csv");
 
 				PosTagEvaluationFScoreCalculator fScoreCalculator = new PosTagEvaluationFScoreCalculator(fscoreFile);
 
@@ -2304,7 +2050,7 @@ public class TalismaneConfig {
 	 */
 
 	public boolean needsSentenceDetector() {
-		return startModule.compareTo(Module.SentenceDetector) <= 0 && endModule.compareTo(Module.SentenceDetector) >= 0;
+		return startModule.compareTo(Module.sentenceDetector) <= 0 && endModule.compareTo(Module.sentenceDetector) >= 0;
 	}
 
 	/**
@@ -2313,7 +2059,7 @@ public class TalismaneConfig {
 	 */
 
 	public boolean needsTokeniser() {
-		return startModule.compareTo(Module.Tokeniser) <= 0 && endModule.compareTo(Module.Tokeniser) >= 0;
+		return startModule.compareTo(Module.tokeniser) <= 0 && endModule.compareTo(Module.tokeniser) >= 0;
 	}
 
 	/**
@@ -2322,7 +2068,7 @@ public class TalismaneConfig {
 	 */
 
 	public boolean needsPosTagger() {
-		return startModule.compareTo(Module.PosTagger) <= 0 && endModule.compareTo(Module.PosTagger) >= 0;
+		return startModule.compareTo(Module.posTagger) <= 0 && endModule.compareTo(Module.posTagger) >= 0;
 	}
 
 	/**
@@ -2331,7 +2077,7 @@ public class TalismaneConfig {
 	 */
 
 	public boolean needsParser() {
-		return startModule.compareTo(Module.Parser) <= 0 && endModule.compareTo(Module.Parser) >= 0;
+		return startModule.compareTo(Module.parser) <= 0 && endModule.compareTo(Module.parser) >= 0;
 	}
 
 	private static InputStream getInputStreamFromResource(String resource) {
@@ -2445,9 +2191,9 @@ public class TalismaneConfig {
 	public Talismane getTalismane() {
 		Talismane talismane = null;
 		if (this.getMode() == Mode.normal) {
-			talismane = new Talismane(this, talismaneSession);
+			talismane = new Talismane(this, session);
 		} else if (this.getMode() == Mode.server) {
-			talismane = new TalismaneServer(this, talismaneSession);
+			talismane = new TalismaneServer(this, session);
 		} else {
 			throw new TalismaneException("Unknown mode: " + this.getMode().name());
 		}
@@ -2497,8 +2243,8 @@ public class TalismaneConfig {
 			if (preloadLexicon) {
 				LOG.info("Loading lexicon");
 				// ping the lexicon to load it
-				talismaneSession.getMergedLexicon();
-				talismaneSession.getDiacriticizer();
+				session.getMergedLexicon();
+				session.getDiacriticizer();
 			}
 
 			// ping the models to load them
@@ -2510,9 +2256,7 @@ public class TalismaneConfig {
 			}
 			if (this.needsTokeniser()) {
 				LOG.info("Loading tokeniser");
-				if (this.getTokeniser() == null) {
-					throw new TalismaneException("Tokeniser not provided.");
-				}
+				Tokeniser.getInstance(session);
 			}
 			if (this.needsPosTagger()) {
 				LOG.info("Loading pos tagger");
@@ -2543,7 +2287,7 @@ public class TalismaneConfig {
 
 	public synchronized LanguageDetectorProcessor getLanguageDetectorProcessor() throws IOException {
 		if (this.languageDetectorProcessor == null) {
-			this.languageDetectorProcessor = new DefaultLanguageDetectorProcessor(this.getWriter());
+			this.languageDetectorProcessor = new DefaultLanguageDetectorProcessor(session.getWriter());
 		}
 		return this.languageDetectorProcessor;
 	}
@@ -2610,6 +2354,6 @@ public class TalismaneConfig {
 	}
 
 	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
+		return session;
 	}
 }

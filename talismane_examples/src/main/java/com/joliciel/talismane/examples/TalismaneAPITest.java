@@ -54,7 +54,7 @@ public class TalismaneAPITest {
 		TalismaneConfig talismaneConfig = new TalismaneConfig(conf, talismaneSession);
 
 		// tokenise the text
-		Tokeniser tokeniser = talismaneConfig.getTokeniser();
+		Tokeniser tokeniser = Tokeniser.getInstance(talismaneSession);
 		TokenSequence tokenSequence = tokeniser.tokeniseText(text);
 
 		// pos-tag the token sequence

@@ -18,27 +18,40 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import com.joliciel.talismane.AnnotatedCorpusReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading tokenized and tagged sentences from a corpus.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTagAnnotatedCorpusReader extends AnnotatedCorpusReader {
+public abstract class PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusReader {
+	public PosTagAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
+	}
+
+	final List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<>();
+
 	/**
 	 * Is there another sentence to be read?
 	 */
-	public boolean hasNextPosTagSequence();
-	
+	public abstract boolean hasNextPosTagSequence();
+
 	/**
-	 * Read the list of tagged tokens from next sentence from the training corpus.
+	 * Read the list of tagged tokens from next sentence from the training
+	 * corpus.
 	 */
-	public PosTagSequence nextPosTagSequence();
-	
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
-	
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
+	public abstract PosTagSequence nextPosTagSequence();
+
+	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter) {
+		this.posTagSequenceFilters.add(posTagSequenceFilter);
+	}
 }

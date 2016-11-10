@@ -18,23 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.en;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.joliciel.talismane.Talismane;
-import com.joliciel.talismane.Talismane.Command;
-import com.joliciel.talismane.TalismaneConfig;
-import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.extensions.Extensions;
-import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
-import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.StringUtils;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import com.joliciel.talismane.TalismaneMain;
 
 /**
  * The default English implementation of Talismane.
@@ -43,66 +27,8 @@ import com.typesafe.config.ConfigFactory;
  *
  */
 public class TalismaneEnglish {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TalismaneEnglish.class);
-
-	private enum CorpusFormat {
-		/** Penn-To-Dependency CoNLL-X format */
-		pennDep,
-	}
 
 	public static void main(String[] args) throws Exception {
-		Map<String, String> argsMap = StringUtils.convertArgs(args);
-		CorpusFormat corpusReaderType = null;
-
-		if (argsMap.containsKey("corpusReader")) {
-			corpusReaderType = CorpusFormat.valueOf(argsMap.get("corpusReader"));
-			argsMap.remove("corpusReader");
-		}
-
-		String logConfigPath = argsMap.get("logConfigFile");
-		argsMap.remove("logConfigFile");
-		LogUtils.configureLogging(logConfigPath);
-
-		Extensions extensions = new Extensions();
-		extensions.pluckParameters(argsMap);
-
-		Map<String, Object> defaultConfigParams = new HashMap<>();
-		defaultConfigParams.put("talismane.core.locale", "en");
-
-		Config conf = ConfigFactory.load().withFallback(ConfigFactory.parseMap(defaultConfigParams));
-		String sessionId = "";
-		TalismaneSession talismaneSession = new TalismaneSession(conf, sessionId);
-
-		TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
-		if (config.getCommand() == null)
-			return;
-
-		if (corpusReaderType != null) {
-			if (corpusReaderType == CorpusFormat.pennDep) {
-				PennDepReader corpusReader = new PennDepReader(config.getReader(), talismaneSession);
-
-				corpusReader.setPredictTransitions(config.isPredictTransitions());
-
-				config.setParserCorpusReader(corpusReader);
-				config.setPosTagCorpusReader(corpusReader);
-				config.setTokenCorpusReader(corpusReader);
-				config.setSentenceCorpusReader(corpusReader);
-
-				if (config.getCommand().equals(Command.compare)) {
-					String evalRegex = config.getParserEvluationReaderRegex();
-					ParserRegexBasedCorpusReader evaluationReader = new ParserRegexBasedCorpusReader(evalRegex, config.getEvaluationReader(), talismaneSession);
-					config.setParserEvaluationCorpusReader(evaluationReader);
-					config.setPosTagEvaluationCorpusReader(evaluationReader);
-				}
-			} else {
-				throw new TalismaneException("Unknown corpusReader: " + corpusReaderType);
-			}
-		}
-		Talismane talismane = config.getTalismane();
-
-		extensions.prepareCommand(config, talismane);
-
-		talismane.process();
+		TalismaneMain.main(args);
 	}
 }

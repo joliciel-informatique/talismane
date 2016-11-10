@@ -19,13 +19,17 @@
 package com.joliciel.talismane;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +45,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Talismane.Command;
+import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
@@ -53,8 +59,11 @@ import com.joliciel.talismane.parser.ShiftReduceTransitionSystem;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.resources.WordListFinder;
+import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.joliciel.talismane.utils.io.DirectoryReader;
+import com.joliciel.talismane.utils.io.DirectoryWriter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -76,6 +85,9 @@ public class TalismaneSession {
 	private final Config config;
 	private final String sessionId;
 	private final Locale locale;
+	private final Command command;
+	private final Module module;
+	private final int port;
 	private final PosTagSet posTagSet;
 	private final List<PosTaggerLexicon> lexicons = new ArrayList<>();
 	private final PosTaggerLexicon mergedLexicon;
@@ -94,6 +106,7 @@ public class TalismaneSession {
 	private final Map<String, String> lowercasePreferences = new HashMap<>();
 	private final char endBlockCharCode;
 	private final CoNLLFormatter coNLLFormatter;
+	private final Charset csvCharset;
 
 	/**
 	 * 
@@ -117,6 +130,15 @@ public class TalismaneSession {
 		config.checkValid(ConfigFactory.defaultReference(), "talismane.core");
 
 		Config talismaneConfig = config.getConfig("talismane.core");
+		this.command = Command.valueOf(talismaneConfig.getString("command"));
+
+		if (talismaneConfig.hasPath("module")) {
+			this.module = Module.valueOf(talismaneConfig.getString("module"));
+		} else {
+			this.module = null;
+		}
+
+		this.port = talismaneConfig.getInt("port");
 
 		String encoding = null;
 		if (talismaneConfig.hasPath("encoding"))
@@ -333,6 +355,24 @@ public class TalismaneSession {
 
 		boolean spacesToUnderscores = talismaneConfig.getBoolean("conll.spaces-to-underscores");
 		this.coNLLFormatter = new CoNLLFormatter(spacesToUnderscores);
+
+		String csvSeparator = talismaneConfig.getString("csv.separator");
+		if (talismaneConfig.hasPath("csv.encoding"))
+			csvCharset = Charset.forName(talismaneConfig.getString("csv.encoding"));
+		else
+			csvCharset = Charset.defaultCharset();
+
+		Locale outputLocale = null;
+		if (talismaneConfig.hasPath("csv.locale")) {
+			String csvLocaleString = talismaneConfig.getString("csv.locale");
+			outputLocale = Locale.forLanguageTag(csvLocaleString);
+		}
+
+		if (csvSeparator.length() > 0)
+			CSVFormatter.setGlobalCsvSeparator(csvSeparator);
+
+		if (outputLocale != null)
+			CSVFormatter.setGlobalLocale(outputLocale);
 	}
 
 	public synchronized PosTagSet getPosTagSet() {
@@ -517,7 +557,82 @@ public class TalismaneSession {
 		return reader;
 	}
 
+	public Writer getWriter() throws IOException {
+		Writer writer = null;
+		String configPath = "talismane.core.out-file";
+		if (config.hasPath(configPath)) {
+			String outFilePath = config.getString(configPath);
+			File outFile = new File(outFilePath);
+			File outDir = outFile.getParentFile();
+			if (outDir != null)
+				outDir.mkdirs();
+			outFile.delete();
+			outFile.createNewFile();
+
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), this.getOutputCharset()));
+		} else {
+			String configPathOutDir = "talismane.core.out-dir";
+			String configPathInDir = "talismane.core.in-dir";
+			if (config.hasPath(configPathOutDir) && config.hasPath(configPathInDir) && (this.getReader() instanceof CurrentFileProvider)
+					&& command != Command.evaluate) {
+				String outDirPath = config.getString(configPathOutDir);
+				String inDirPath = config.getString(configPathInDir);
+
+				File outDir = new File(outDirPath);
+				outDir.mkdirs();
+				File inDir = new File(inDirPath);
+
+				@SuppressWarnings("resource")
+				DirectoryWriter directoryWriter = new DirectoryWriter(inDir, outDir, this.getSuffix(), this.getOutputCharset());
+				writer = directoryWriter;
+			} else {
+				writer = new BufferedWriter(new OutputStreamWriter(System.out, this.getOutputCharset()));
+			}
+		}
+		return writer;
+	}
+
+	/**
+	 * A formatter for CoNLL output and input.
+	 */
 	public CoNLLFormatter getCoNLLFormatter() {
 		return coNLLFormatter;
 	}
+
+	/**
+	 * The charset for CSV file output.
+	 */
+	public Charset getCsvCharset() {
+		return csvCharset;
+	}
+
+	/**
+	 * Which command to run.
+	 */
+	public Command getCommand() {
+		return command;
+	}
+
+	/**
+	 * Which port Talismane should listen on in server mode.
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	/**
+	 * The configuration used to construct this session.
+	 */
+	public Config getConfig() {
+		return config;
+	}
+
+	/**
+	 * The module for which to apply the command (for single-module commands,
+	 * such as train).
+	 */
+	public Module getModule() {
+		return module;
+	}
+
 }

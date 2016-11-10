@@ -18,6 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,9 +38,13 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.tokeniser.Tokeniser.TokeniserType;
+import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchSequence;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * An interface for comparing two tokenised corpora, one of which is considered
@@ -47,16 +56,41 @@ import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
 public class TokenComparator {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenComparator.class);
 	private final List<TokenEvaluationObserver> observers = new ArrayList<>();
-	private int sentenceCount;
 
 	private final TokeniserAnnotatedCorpusReader referenceCorpusReader;
 	private final TokeniserAnnotatedCorpusReader evaluationCorpusReader;
 	private final TokeniserPatternManager tokeniserPatternManager;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
+
+	public TokenComparator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+		this.session = session;
+		Config config = session.getConfig();
+		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+		TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
+
+		Tokeniser tokeniser = Tokeniser.getInstance(session);
+
+		if (tokeniserType == TokeniserType.pattern) {
+			PatternTokeniser patternTokeniser = (PatternTokeniser) tokeniser;
+			this.tokeniserPatternManager = patternTokeniser.getTokeniserPatternManager();
+		} else {
+			this.tokeniserPatternManager = null;
+		}
+		this.referenceCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), tokeniserConfig.getConfig("input"), session);
+
+		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.tokeniser.evaluate.eval-file");
+		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+		this.evaluationCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("evaluate"), session);
+
+		List<TokenEvaluationObserver> observers = TokenEvaluationObserver.getTokenEvaluationObservers(session);
+		for (TokenEvaluationObserver observer : observers)
+			this.addObserver(observer);
+
+	}
 
 	public TokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
 			TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
+		this.session = talismaneSession;
 		this.referenceCorpusReader = referenceCorpusReader;
 		this.evaluationCorpusReader = evaluationCorpusReader;
 		this.tokeniserPatternManager = tokeniserPatternManager;
@@ -66,7 +100,6 @@ public class TokenComparator {
 	 * Evaluate the evaluation corpus against the reference corpus.
 	 */
 	public void compare() {
-		int sentenceIndex = 0;
 		while (referenceCorpusReader.hasNextTokenSequence()) {
 			TokenSequence realSequence = referenceCorpusReader.nextTokenSequence();
 
@@ -81,8 +114,8 @@ public class TokenComparator {
 
 			// Initially, separate the sentence into tokens using the separators
 			// provided
-			TokenSequence realAtomicSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
-			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), Tokeniser.SEPARATORS, talismaneSession);
+			TokenSequence realAtomicSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, session);
+			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), Tokeniser.SEPARATORS, session);
 
 			List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
 			Map<Token, Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();
@@ -111,7 +144,7 @@ public class TokenComparator {
 				}
 			}
 
-			TokenisedAtomicTokenSequence guess = new TokenisedAtomicTokenSequence(realSequence.getSentence(), 0, talismaneSession);
+			TokenisedAtomicTokenSequence guess = new TokenisedAtomicTokenSequence(realSequence.getSentence(), 0, session);
 
 			int i = 0;
 			int mismatches = 0;
@@ -164,9 +197,6 @@ public class TokenComparator {
 			for (TokenEvaluationObserver observer : observers) {
 				observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
 			}
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
 		} // next sentence
 
 		for (TokenEvaluationObserver observer : observers) {
@@ -177,17 +207,4 @@ public class TokenComparator {
 	public void addObserver(TokenEvaluationObserver observer) {
 		this.observers.add(observer);
 	}
-
-	/**
-	 * If set, will limit the maximum number of sentences that will be
-	 * evaluated. Default is 0 = all sentences.
-	 */
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
-	}
-
 }

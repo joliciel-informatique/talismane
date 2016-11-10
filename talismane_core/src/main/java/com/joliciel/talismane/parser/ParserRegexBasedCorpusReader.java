@@ -50,7 +50,6 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTag;
-import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -60,10 +59,10 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusRe
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.typesafe.config.Config;
 
 /**
  * A corpus reader that expects one pos-tagged token with dependency info per
@@ -91,8 +90,7 @@ import com.joliciel.talismane.utils.io.CurrentFileObserver;
  * @author Assaf Urieli
  *
  */
-public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader, PosTagAnnotatedCorpusReader, TokeniserAnnotatedCorpusReader,
-		SentenceDetectorAnnotatedCorpusReader, CurrentFileObserver {
+public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader implements SentenceDetectorAnnotatedCorpusReader, CurrentFileObserver {
 	private static final Logger LOG = LoggerFactory.getLogger(ParserRegexBasedCorpusReader.class);
 	private static final String INDEX_PLACEHOLDER = "%INDEX%";
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
@@ -139,21 +137,19 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 
 	private boolean predictTransitions = true;
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 	private final String regex;
 
 	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 
-	public ParserRegexBasedCorpusReader(String regex, File corpusLocation, Charset charset, TalismaneSession talismaneSession) {
-		this.corpusLocation = corpusLocation;
-		this.charset = charset;
-		this.regex = regex;
-		this.talismaneSession = talismaneSession;
+	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		this(config.getString("preannotated-pattern"), reader, config, session);
 	}
 
-	public ParserRegexBasedCorpusReader(String regex, Reader reader, TalismaneSession talismaneSession) {
+	public ParserRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
 		this.regex = regex;
-		this.talismaneSession = talismaneSession;
+		this.session = session;
 		this.scanner = new Scanner(reader);
 	}
 
@@ -231,9 +227,9 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 							if (!badConfig) {
 								Sentence sentence = null;
 								if (sentenceReader != null && sentenceReader.hasNextSentence()) {
-									sentence = new Sentence(sentenceReader.nextSentence(), talismaneSession);
+									sentence = new Sentence(sentenceReader.nextSentence(), session);
 								} else {
-									LinguisticRules rules = talismaneSession.getLinguisticRules();
+									LinguisticRules rules = session.getLinguisticRules();
 									if (rules == null)
 										throw new TalismaneException("Linguistic rules have not been set.");
 
@@ -248,7 +244,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 											text += " ";
 										text += word;
 									}
-									sentence = new Sentence(text, talismaneSession);
+									sentence = new Sentence(text, session);
 								}
 
 								for (Annotator annotator : this.preannotators) {
@@ -256,7 +252,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 								}
 
 								int maxIndex = 0;
-								PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
+								PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, session);
 								for (ParseDataLine dataLine : dataLines) {
 									Token token = tokenSequence.addToken(dataLine.getWord());
 									dataLine.setToken(token);
@@ -338,7 +334,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 								Map<Integer, PosTaggedToken> idTokenMap = new HashMap<Integer, PosTaggedToken>();
 								int i = 0;
 								int lexicalEntryIndex = 0;
-								PosTagSet posTagSet = talismaneSession.getPosTagSet();
+								PosTagSet posTagSet = session.getPosTagSet();
 								for (ParseDataLine dataLine : dataLines) {
 									Token token = tokenSequence.get(i);
 
@@ -354,7 +350,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 												"Unknown posTag, " + fileName + ", on line " + dataLine.getLineNumber() + ": " + dataLine.getPosTagCode());
 									}
 									Decision posTagDecision = new Decision(posTag.getCode());
-									PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
+									PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, session);
 									if (LOG.isTraceEnabled()) {
 										LOG.trace(posTaggedToken.toString());
 									}
@@ -381,7 +377,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 								PosTaggedToken rootToken = posTagSequence.prependRoot();
 								idTokenMap.put(0, rootToken);
 
-								TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
+								TransitionSystem transitionSystem = session.getTransitionSystem();
 								Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
 								for (ParseDataLine dataLine : dataLines) {
 									PosTaggedToken head = idTokenMap.get(dataLine.getGovernorIndex());
@@ -739,7 +735,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 		attributes.put("crossValidationSize", "" + this.crossValidationSize);
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
-		attributes.put("transitionSystem", talismaneSession.getTransitionSystem().getClass().getSimpleName());
+		attributes.put("transitionSystem", session.getTransitionSystem().getClass().getSimpleName());
 
 		int i = 0;
 		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
@@ -820,19 +816,19 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 			}
 
 			String regexWithGroups = regex.replace(INDEX_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(TOKEN_PLACEHOLDER, "(.*)");
-			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(TOKEN_PLACEHOLDER, "(.*?)");
+			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+?)");
+			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.*?)");
 			regexWithGroups = regexWithGroups.replace(GOVERNOR_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(NON_PROJ_LABEL_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(NON_PROJ_LABEL_PLACEHOLDER, "(.*?)");
 			regexWithGroups = regexWithGroups.replace(NON_PROJ_GOVERNOR_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+?)");
 			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(END_ROW_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(END_COLUMN_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(POSTAG_COMMENT_PLACEHOLDER, "(.*)");
-			regexWithGroups = regexWithGroups.replace(DEP_COMMENT_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(POSTAG_COMMENT_PLACEHOLDER, "(.*?)");
+			regexWithGroups = regexWithGroups.replace(DEP_COMMENT_PLACEHOLDER, "(.*?)");
 
 			this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
 		}
@@ -987,7 +983,7 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 	}
 
 	protected String readWord(String rawWord) {
-		return talismaneSession.getCoNLLFormatter().fromCoNLL(rawWord);
+		return session.getCoNLLFormatter().fromCoNLL(rawWord);
 	}
 
 	/**

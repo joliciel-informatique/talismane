@@ -18,11 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import com.joliciel.talismane.AnnotatedCorpusReader;
-import com.joliciel.talismane.Annotator;
+import java.io.Reader;
+
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading ParseConfigurations from sentences in a corpus.
@@ -30,33 +32,34 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public interface ParserAnnotatedCorpusReader extends AnnotatedCorpusReader {
+public abstract class ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader {
+	public ParserAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
+	}
+
 	/**
 	 * Is there another sentence to be read?
 	 */
-	public boolean hasNextConfiguration();
+	public abstract boolean hasNextConfiguration();
 
 	/**
 	 * Read the ParseConfiguration from the next sentence in the training
 	 * corpus.
 	 */
-	public ParseConfiguration nextConfiguration();
+	public abstract ParseConfiguration nextConfiguration();
 
-	public void addPreAnnotator(Annotator annotator);
-
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
-
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
+	@Override
+	public abstract void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
 
 	/**
 	 * If provided, will read a lexical entry for each pos-tagged token.
 	 */
-	public LexicalEntryReader getLexicalEntryReader();
+	public abstract LexicalEntryReader getLexicalEntryReader();
 
-	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
+	public abstract void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
 
 	/**
 	 * Take this reader back to its initial position.
 	 */
-	public void rewind();
+	public abstract void rewind();
 }

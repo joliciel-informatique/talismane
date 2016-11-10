@@ -262,25 +262,24 @@ public abstract class Tokeniser {
 	/**
 	 * Build a tokeniser using the configuration provided.
 	 * 
-	 * @param config
-	 *            configuration for building the tokeniser.
-	 * @param talismaneSession
+	 * @param session
 	 *            current session
 	 * @return a tokeniser to be used - each call returns a separate tokeniser
 	 * @throws IOException
 	 *             if problems occurred reading the model
 	 */
-	public static Tokeniser getTokeniser(Config config, TalismaneSession talismaneSession) throws IOException {
+	public static Tokeniser getInstance(TalismaneSession session) throws IOException {
 		Tokeniser tokeniser = null;
-		if (talismaneSession.getSessionId() != null)
-			tokeniser = tokeniserMap.get(talismaneSession.getSessionId());
+		if (session.getSessionId() != null)
+			tokeniser = tokeniserMap.get(session.getSessionId());
 		if (tokeniser == null) {
+			Config config = session.getConfig();
 			Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 			TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
 
 			ClassificationModel tokeniserModel = null;
 			if (tokeniserType == TokeniserType.simple) {
-				tokeniser = new SimpleTokeniser(talismaneSession);
+				tokeniser = new SimpleTokeniser(session);
 			} else if (tokeniserType == TokeniserType.pattern) {
 				int beamWidth = tokeniserConfig.getInt("beam-width");
 				LOG.debug("Getting tokeniser model");
@@ -295,13 +294,13 @@ public abstract class Tokeniser {
 					modelMap.put(modelFilePath, tokeniserModel);
 				}
 
-				PatternTokeniserFactory patternTokeniserFactory = new PatternTokeniserFactory(talismaneSession);
+				PatternTokeniserFactory patternTokeniserFactory = new PatternTokeniserFactory(session);
 				tokeniser = patternTokeniserFactory.getPatternTokeniser(tokeniserModel, beamWidth);
 
 				boolean includeDetails = tokeniserConfig.getBoolean("include-details");
 				if (includeDetails) {
-					String detailsFilePath = talismaneSession.getBaseName() + "_tokeniser_details.txt";
-					File detailsFile = new File(talismaneSession.getOutDir(), detailsFilePath);
+					String detailsFilePath = session.getBaseName() + "_tokeniser_details.txt";
+					File detailsFile = new File(session.getOutDir(), detailsFilePath);
 					detailsFile.delete();
 					ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
 					tokeniser.addObserver(observer);
@@ -311,7 +310,7 @@ public abstract class Tokeniser {
 			}
 
 			List<String> tokenFilterDescriptors = new ArrayList<>();
-			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(talismaneSession);
+			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 
 			LOG.debug("tokenFilters");
 			String configPath = "talismane.core.tokeniser.pre-annotators";
@@ -346,7 +345,7 @@ public abstract class Tokeniser {
 
 			List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
 			List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
+			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
 
 			configPath = "talismane.core.tokeniser.post-annotators";
 			List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
@@ -361,7 +360,7 @@ public abstract class Tokeniser {
 						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
 							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
 							tokenSequenceFilters.add(tokenSequenceFilter);
 						}
 					}
@@ -379,7 +378,7 @@ public abstract class Tokeniser {
 						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
 							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
 							tokenSequenceFilters.add(tokenSequenceFilter);
 						}
 					}

@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
@@ -42,8 +43,8 @@ import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusRe
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.typesafe.config.Config;
 
 /**
  * A corpus reader that expects one pos-tagged token per line, and analyses the
@@ -64,7 +65,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * @author Assaf Urieli
  *
  */
-public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader {
+public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagRegexBasedCorpusReader.class);
 
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
@@ -74,9 +75,6 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
 
 	private PosTagSequence posTagSequence = null;
-	private final List<TokenFilter> tokenFilters = new ArrayList<>();
-	private final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-	private final List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<>();
 
 	private int lineNumber = 0;
 	private int maxSentenceCount = 0;
@@ -91,14 +89,16 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 	private final String regex;
 	private final Pattern pattern;
 	private final Scanner scanner;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
 	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 
-	public PosTagRegexBasedCorpusReader(String regex, Reader reader, TalismaneSession talismaneSession) {
-		this.regex = regex;
+	public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
+
 		this.scanner = new Scanner(reader);
-		this.talismaneSession = talismaneSession;
+		this.session = session;
+		this.regex = config.getString("preannotated-pattern");
 
 		// construct the input regex
 		int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);
@@ -165,10 +165,10 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 						}
 
 						String word = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-						word = talismaneSession.getCoNLLFormatter().fromCoNLL(word);
+						word = session.getCoNLLFormatter().fromCoNLL(word);
 						String posTagCode = matcher.group(placeholderIndexMap.get(POSTAG_PLACEHOLDER));
 
-						PosTagSet posTagSet = talismaneSession.getPosTagSet();
+						PosTagSet posTagSet = session.getPosTagSet();
 						PosTag posTag = null;
 						try {
 							posTag = posTagSet.getPosTag(posTagCode);
@@ -220,9 +220,9 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 
 						Sentence sentence = null;
 						if (sentenceReader != null && sentenceReader.hasNextSentence()) {
-							sentence = new Sentence(sentenceReader.nextSentence(), talismaneSession);
+							sentence = new Sentence(sentenceReader.nextSentence(), session);
 						} else {
-							LinguisticRules rules = talismaneSession.getLinguisticRules();
+							LinguisticRules rules = session.getLinguisticRules();
 							if (rules == null)
 								throw new TalismaneException("Linguistic rules have not been set.");
 
@@ -236,14 +236,14 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 									text += " ";
 								text += word;
 							}
-							sentence = new Sentence(text, talismaneSession);
+							sentence = new Sentence(text, session);
 						}
 
-						for (TokenFilter tokenFilter : this.tokenFilters) {
+						for (Annotator tokenFilter : this.preAnnotators) {
 							tokenFilter.annotate(sentence);
 						}
 
-						tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
+						tokenSequence = new PretokenisedSequence(sentence, session);
 						for (TokenTuple tuple : tuples) {
 							Token token = tokenSequence.addToken(tuple.word);
 							token.setFileName(tuple.fileName);
@@ -263,12 +263,12 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 							Token token = tokenSequence.get(i++);
 							if (tokenSequence.getTokensAdded().contains(token)) {
 								Decision nullDecision = new Decision(PosTag.NULL_POS_TAG.getCode());
-								PosTaggedToken emptyToken = new PosTaggedToken(token, nullDecision, talismaneSession);
+								PosTaggedToken emptyToken = new PosTaggedToken(token, nullDecision, session);
 								posTagSequence.addPosTaggedToken(emptyToken);
 								token = tokenSequence.get(i++);
 							}
 							Decision corpusDecision = new Decision(posTag.getCode());
-							PosTaggedToken posTaggedToken = new PosTaggedToken(token, corpusDecision, talismaneSession);
+							PosTaggedToken posTaggedToken = new PosTaggedToken(token, corpusDecision, session);
 							posTagSequence.addPosTaggedToken(posTaggedToken);
 						}
 
@@ -371,7 +371,7 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 		attributes.put("crossValidationSize", "" + this.crossValidationSize);
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
-		attributes.put("tagset", talismaneSession.getPosTagSet().getName());
+		attributes.put("tagset", session.getPosTagSet().getName());
 
 		int i = 0;
 		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
@@ -398,25 +398,15 @@ public class PosTagRegexBasedCorpusReader implements PosTagAnnotatedCorpusReader
 		this.startSentence = startSentence;
 	}
 
+	@Override
 	public boolean hasNextTokenSequence() {
 		return this.hasNextPosTagSequence();
 	}
 
+	@Override
 	public TokenSequence nextTokenSequence() {
 		TokenSequence tokenSequence = this.nextPosTagSequence().getTokenSequence();
 		return tokenSequence;
-	}
-
-	public void addTokenFilter(TokenFilter tokenFilter) {
-		this.tokenFilters.add(tokenFilter);
-	}
-
-	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		return tokenSequenceFilters;
-	}
-
-	public List<TokenFilter> getTokenFilters() {
-		return tokenFilters;
 	}
 
 	public boolean hasNextSentence() {

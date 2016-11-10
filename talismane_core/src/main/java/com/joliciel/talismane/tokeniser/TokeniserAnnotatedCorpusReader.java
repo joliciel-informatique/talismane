@@ -18,11 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -34,8 +33,6 @@ import com.joliciel.talismane.AnnotatedCorpusReader;
 import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
-import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -49,69 +46,84 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
+public abstract class TokeniserAnnotatedCorpusReader implements AnnotatedCorpusReader {
+	protected final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
+	protected final List<Annotator> preAnnotators = new ArrayList<>();
+
 	public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
+
+	public TokeniserAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+
+	}
 
 	/**
 	 * Is there another sentence to be read?
 	 */
-	public boolean hasNextTokenSequence();
+	public abstract boolean hasNextTokenSequence();
 
 	/***
 	 * Reads the next token sequence from the corpus.
 	 */
-	public TokenSequence nextTokenSequence();
+	public abstract TokenSequence nextTokenSequence();
 
 	/**
 	 * These filters will be applied to each token sequence returned by the
 	 * corpus prior to being returned.
 	 */
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter) {
+		this.tokenSequenceFilters.add(tokenSequenceFilter);
+	}
 
 	/**
 	 * These annotators will not be used to detect tokens, as token boundaries
 	 * are provided by the corpus. They will, on the other hand, be used to
 	 * replace token text.
 	 */
-	public void addPreAnnotator(Annotator annotator);
+	public void addPreAnnotator(Annotator annotator) {
+		this.preAnnotators.add(annotator);
+	}
 
 	/**
 	 * @see #addTokenSequenceFilter(TokenSequenceFilter)
 	 */
-	public List<TokenSequenceFilter> getTokenSequenceFilters();
+	public List<TokenSequenceFilter> getTokenSequenceFilters() {
+		return this.tokenSequenceFilters;
+	}
 
 	/**
 	 * #see {@link #addPreAnnotator(Annotator)}
 	 */
-	public List<Annotator> getPreAnnotators();
+	public List<Annotator> getPreAnnotators() {
+		return this.preAnnotators;
+	}
 
 	/**
 	 * It is assumed the configuration will contain the following keys:
 	 * <ul>
-	 * <li>preannotated-input-pattern: the pattern used for reading the file
-	 * </li>
+	 * <li>corpus-reader: the sub-class to construct</li>
 	 * <li>pre-annotators: annotators to apply prior to tokenising</li>
 	 * <li>post-annotators: annotators to apply after tokenising</li>
 	 * </ul>
 	 * 
 	 * @param config
+	 *            the specific configuration section from which we're building a
+	 *            reader
 	 * @return
 	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws ReflectiveOperationException
 	 */
-	public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession talismaneSession) throws IOException {
+	public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+			throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
-		String configPath = "preannotated-input-pattern";
-		String regex = config.getString(configPath);
 
-		TokenRegexBasedCorpusReader corpusReader = new TokenRegexBasedCorpusReader(regex, reader, talismaneSession);
+		String className = config.getString("corpus-reader");
 
-		configPath = "sentence-reader";
-		if (config.hasPath(configPath)) {
-			InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
-			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, talismaneSession.getInputCharset()));
-			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader);
-			corpusReader.setSentenceReader(sentenceReader);
-		}
+		@SuppressWarnings("unchecked")
+		Class<? extends TokeniserAnnotatedCorpusReader> clazz = (Class<? extends TokeniserAnnotatedCorpusReader>) Class.forName(className);
+		Constructor<? extends TokeniserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+
+		TokeniserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
 
 		corpusReader.setMaxSentenceCount(config.getInt("sentence-count"));
 		corpusReader.setStartSentence(config.getInt("start-sentence"));
@@ -130,10 +142,10 @@ public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 			corpusReader.setExcludeIndex(excludeIndex);
 
 		List<String> tokenFilterDescriptors = new ArrayList<>();
-		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(talismaneSession);
+		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 
-		LOG.debug("tokenFilters");
-		configPath = "pre-annotators";
+		LOG.debug("pre-annotators");
+		String configPath = "pre-annotators";
 		List<String> tokenFilterPaths = config.getStringList(configPath);
 		for (String path : tokenFilterPaths) {
 			LOG.debug("From: " + path);
@@ -148,8 +160,9 @@ public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 
 		List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
 		List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(talismaneSession);
+		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
 
+		LOG.debug("post-annotators");
 		configPath = "post-annotators";
 		List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
 		for (String path : tokenSequenceFilterPaths) {
@@ -163,7 +176,7 @@ public interface TokeniserAnnotatedCorpusReader extends AnnotatedCorpusReader {
 					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
 						TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 						if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-							((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(talismaneSession);
+							((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
 						tokenSequenceFilters.add(tokenSequenceFilter);
 					}
 				}
