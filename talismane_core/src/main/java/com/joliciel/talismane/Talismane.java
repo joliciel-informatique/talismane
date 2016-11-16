@@ -139,7 +139,7 @@ public class Talismane {
 		compare
 	}
 
-	public enum Option {
+	public enum ProcessingOption {
 		/**
 		 * Simply output what you read, usually changing the format.
 		 */
@@ -164,6 +164,29 @@ public class Talismane {
 		 * Server listening on port, and processing input as it comes.
 		 */
 		server
+	}
+
+	/**
+	 * How to output the Talismane analysis
+	 */
+	public enum BuiltInTemplate {
+		/**
+		 * Standard CoNLL-X output.
+		 */
+		standard,
+		/**
+		 * Include extra columns for the original file location of each token.
+		 */
+		with_location,
+		/**
+		 * Include extra columns for the probability of each decision.
+		 */
+		with_prob,
+		/**
+		 * Include extra columns for user-supplied comments in the training
+		 * corpus.
+		 */
+		with_comments
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(Talismane.class);

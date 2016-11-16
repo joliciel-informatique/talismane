@@ -46,10 +46,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Talismane.BuiltInTemplate;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Mode;
 import com.joliciel.talismane.Talismane.Module;
-import com.joliciel.talismane.Talismane.Option;
+import com.joliciel.talismane.Talismane.ProcessingOption;
 import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
 import com.joliciel.talismane.filters.MarkerFilterType;
 import com.joliciel.talismane.filters.NewlineEndOfSentenceMarker;
@@ -158,7 +159,7 @@ public class TalismaneConfig {
 	private Config config;
 
 	private Command command;
-	private Option option;
+	private ProcessingOption option;
 	private Mode mode;
 
 	private Module startModule;
@@ -360,7 +361,7 @@ public class TalismaneConfig {
 
 		prefix = "talismane.core.evaluate.csv.";
 		mapping.put("csvSeparator", new ImmutablePair<String, Class<?>>(prefix + "separator", String.class));
-		mapping.put("talismaneSession.getCsvCharset()", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
+		mapping.put("csvEncoding", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
 		mapping.put("outputLocale", new ImmutablePair<String, Class<?>>(prefix + "locale", String.class));
 
 		prefix = "talismane.core.evaluate.posTagger.";
@@ -429,9 +430,9 @@ public class TalismaneConfig {
 				}
 				if (inputRegex == null)
 					throw new TalismaneException("No input pattern found in " + argValue);
-				values.put("talismane.core.train.tokeniser.readerRegex", inputRegex);
-				values.put("talismane.core.train.posTagger.readerRegex", inputRegex);
-				values.put("talismane.core.train.parser.readerRegex", inputRegex);
+				values.put("talismane.core.train.tokeniser.input.preannotated-pattern", inputRegex);
+				values.put("talismane.core.train.pos-tagger.input.preannotated-pattern", inputRegex);
+				values.put("talismane.core.train.parser.input.preannotated-pattern", inputRegex);
 			} else if ("evaluationPattern".equals(key)) {
 				values.put("talismane.core.evaluate.tokeniser.readerRegex", argValue);
 				values.put("talismane.core.evaluate.posTagger.readerRegex", argValue);
@@ -601,7 +602,28 @@ public class TalismaneConfig {
 		maxSentenceCount = analyseConfig.getInt("sentenceCount");
 		startSentence = analyseConfig.getInt("startSentence");
 
-		String builtInTemplate = analyseConfig.getString("builtInTemplate");
+		BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(analyseConfig.getString("builtInTemplate"));
+		switch (builtInTemplate) {
+		case standard:
+			// don't change defaults
+			break;
+		case with_location:
+			tokeniserTemplateName = "tokeniser_template_with_location.ftl";
+			posTaggerTemplateName = "posTagger_template_with_location.ftl";
+			parserTemplateName = "parser_conll_template_with_location.ftl";
+			break;
+		case with_prob:
+			tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
+			posTaggerTemplateName = "posTagger_template_with_prob.ftl";
+			parserTemplateName = "parser_conll_template_with_prob.ftl";
+			break;
+		case with_comments:
+			posTaggerTemplateName = "posTagger_template_with_comments.ftl";
+			parserTemplateName = "parser_conll_template_with_comments.ftl";
+			break;
+		default:
+			throw new TalismaneException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
+		}
 
 		includeDetails = analyseConfig.getBoolean("includeDetails");
 
@@ -645,7 +667,7 @@ public class TalismaneConfig {
 		outputGuesses = evaluateConfig.getBoolean("outputGuesses");
 		outputGuessCount = evaluateConfig.getInt("outputGuessCount");
 
-		option = Option.valueOf(processConfig.getString("option"));
+		option = ProcessingOption.valueOf(processConfig.getString("option"));
 		predictTransitions = processConfig.getBoolean("predictTransitions");
 
 		List<String> testWordList = processConfig.getStringList("posTagFeatureTester.testWords");
@@ -699,25 +721,6 @@ public class TalismaneConfig {
 					throw new TalismaneException("talismane.core.analyse.parserModel is required when training a parser model");
 				if (!config.hasPath("talismane.core.train.parser.features"))
 					throw new TalismaneException("talismane.core.train.parser.features is required when training a parser model");
-			}
-		}
-
-		if (builtInTemplate.length() > 0) {
-			if (builtInTemplate.equalsIgnoreCase("default")) {
-				// don't change defaults
-			} else if (builtInTemplate.equalsIgnoreCase("with_location")) {
-				tokeniserTemplateName = "tokeniser_template_with_location.ftl";
-				posTaggerTemplateName = "posTagger_template_with_location.ftl";
-				parserTemplateName = "parser_conll_template_with_location.ftl";
-			} else if (builtInTemplate.equalsIgnoreCase("with_prob")) {
-				tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
-				posTaggerTemplateName = "posTagger_template_with_prob.ftl";
-				parserTemplateName = "parser_conll_template_with_prob.ftl";
-			} else if (builtInTemplate.equalsIgnoreCase("with_comments")) {
-				posTaggerTemplateName = "posTagger_template_with_comments.ftl";
-				parserTemplateName = "parser_conll_template_with_comments.ftl";
-			} else {
-				throw new TalismaneException("Unknown builtInTemplate: " + builtInTemplate);
 			}
 		}
 
@@ -1573,7 +1576,7 @@ public class TalismaneConfig {
 
 	public synchronized PosTagSequenceProcessor getPosTagSequenceProcessor() throws IOException {
 		if (posTagSequenceProcessor == null && endModule.equals(Module.posTagger)) {
-			if (this.option == Option.posTagFeatureTester) {
+			if (this.option == ProcessingOption.posTagFeatureTester) {
 				File file = new File(session.getOutDir(), session.getBaseName() + "_featureTest.txt");
 				posTagSequenceProcessor = new PosTagFeatureTester(this.getPosTaggerFeatures(), this.testWords, file);
 			} else {
@@ -1593,7 +1596,7 @@ public class TalismaneConfig {
 
 	public synchronized ParseConfigurationProcessor getParseConfigurationProcessor() throws IOException {
 		if (parseConfigurationProcessor == null && endModule.equals(Module.parser)) {
-			if (option.equals(Option.output)) {
+			if (option.equals(ProcessingOption.output)) {
 				Reader templateReader = null;
 				String configPath = "talismane.core.analyse.template";
 				if (config.hasPath(configPath)) {
@@ -1603,7 +1606,7 @@ public class TalismaneConfig {
 				}
 				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
 				parseConfigurationProcessor = templateWriter;
-			} else if (option.equals(Option.parseFeatureTester)) {
+			} else if (option.equals(ProcessingOption.parseFeatureTester)) {
 				File file = new File(session.getOutDir(), session.getBaseName() + "_featureTest.txt");
 				parseConfigurationProcessor = new ParseFeatureTester(this.getParserFeatures(), file);
 			} else {

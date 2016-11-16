@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import com.joliciel.talismane.Talismane;
+import com.joliciel.talismane.Talismane.BuiltInTemplate;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
@@ -53,16 +54,20 @@ public interface TokenSequenceProcessor {
 		if (config.hasPath(configPath)) {
 			templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
 		} else {
-			String tokeniserTemplateName = "tokeniser_template.ftl";
-			String builtInTemplate = tokeniserConfig.getString("built-in-template");
-			if (builtInTemplate.equalsIgnoreCase("default")) {
-				// don't change defaults
-			} else if (builtInTemplate.equalsIgnoreCase("with_location")) {
+			String tokeniserTemplateName = null;
+			BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(tokeniserConfig.getString("built-in-template"));
+			switch (builtInTemplate) {
+			case standard:
+				tokeniserTemplateName = "tokeniser_template.ftl";
+				break;
+			case with_location:
 				tokeniserTemplateName = "tokeniser_template_with_location.ftl";
-			} else if (builtInTemplate.equalsIgnoreCase("with_prob")) {
+				break;
+			case with_prob:
 				tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
-			} else {
-				throw new TalismaneException("Unknown builtInTemplate: " + builtInTemplate);
+				break;
+			default:
+				throw new TalismaneException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
 			}
 
 			String path = "output/" + tokeniserTemplateName;
