@@ -55,6 +55,21 @@ public interface Parser {
 		dependencyCount
 	}
 
+	public enum PredictTransitions {
+		/**
+		 * Always predict transitions.
+		 */
+		yes,
+		/**
+		 * Never predict transitions.
+		 */
+		no,
+		/**
+		 * Predict transitions if training, no otherwise.
+		 */
+		depends
+	}
+
 	/**
 	 * Analyse a pos-tag sequence, and return the most likely parse
 	 * configuration for the sentence.

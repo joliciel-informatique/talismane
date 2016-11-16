@@ -79,7 +79,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 		this.talismaneSession = session;
 		this.scanner = new Scanner(reader);
 
-		String configPath = "sentence-reader";
+		String configPath = "sentence-file";
 		if (config.hasPath(configPath)) {
 			InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
 			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, session.getInputCharset()));
