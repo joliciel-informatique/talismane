@@ -39,11 +39,16 @@ import com.joliciel.talismane.Talismane.BuiltInTemplate;
 import com.joliciel.talismane.Talismane.Mode;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.Talismane.ProcessingOption;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.parser.Parser.PredictTransitions;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorTrainer;
+import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
@@ -507,11 +512,15 @@ public class TalismaneMain {
 			TalismaneConfig talismaneConfig = new TalismaneConfig(config, session);
 			Talismane talismane = talismaneConfig.getTalismane();
 			talismane.process();
-
 			break;
 		}
 		case train: {
 			switch (session.getModule()) {
+			case sentenceDetector: {
+				SentenceDetectorTrainer trainer = new SentenceDetectorTrainer(session);
+				trainer.train();
+				break;
+			}
 			case tokeniser: {
 				PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(session);
 				trainer.train();
@@ -522,9 +531,15 @@ public class TalismaneMain {
 		}
 		case evaluate: {
 			switch (session.getModule()) {
+			case sentenceDetector: {
+				SentenceDetectorEvaluator evaluator = new SentenceDetectorEvaluator(session);
+				evaluator.evaluate();
+				break;
+			}
 			case tokeniser: {
 				TokeniserEvaluator evaluator = new TokeniserEvaluator(session);
 				evaluator.evaluate();
+				break;
 			}
 			}
 			break;
@@ -534,12 +549,27 @@ public class TalismaneMain {
 			case tokeniser: {
 				TokenComparator comparator = new TokenComparator(session);
 				comparator.compare();
+				break;
 			}
+			default:
+				throw new TalismaneException("Command 'compare' does not yet support module: " + session.getModule());
 			}
 			break;
 		}
 		case process: {
 			switch (session.getModule()) {
+			case sentenceDetector: {
+				SentenceProcessor sentenceProcessor = SentenceProcessor.getProcessor(session);
+
+				SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+						config.getConfig("talismane.core.sentence-detector.input"), session);
+				while (corpusReader.hasNextSentence()) {
+					String text = corpusReader.nextSentence();
+					Sentence sentence = new Sentence(text, session);
+					sentenceProcessor.onNextSentence(sentence, session.getWriter());
+				}
+				break;
+			}
 			case tokeniser: {
 				TokenSequenceProcessor tokenSequenceProcessor = TokenSequenceProcessor.getProcessor(session);
 				TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getReader(),

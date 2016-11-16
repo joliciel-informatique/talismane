@@ -62,15 +62,13 @@ import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenComparator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserTrainer;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
@@ -204,11 +202,11 @@ public class Talismane {
 
 	private final TalismaneConfig config;
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
 	protected Talismane(TalismaneConfig config, TalismaneSession talismaneSession) {
 		this.config = config;
-		this.talismaneSession = talismaneSession;
+		this.session = talismaneSession;
 	}
 
 	/**
@@ -221,8 +219,10 @@ public class Talismane {
 		try {
 			if (this.getLanguageDetectorProcessor() == null)
 				this.setLanguageDetectorProcessor(config.getLanguageDetectorProcessor());
-			if (this.getSentenceProcessor() == null)
-				this.setSentenceProcessor(config.getSentenceProcessor());
+			if (this.getSentenceProcessor() == null) {
+				SentenceProcessor sentenceProcessor = SentenceProcessor.getProcessor(session);
+				this.setSentenceProcessor(sentenceProcessor);
+			}
 			if (this.getTokenSequenceProcessor() == null)
 				this.setTokenSequenceProcessor(config.getTokenSequenceProcessor());
 			if (this.getPosTagSequenceProcessor() == null)
@@ -241,8 +241,10 @@ public class Talismane {
 					if (this.getLanguageDetectorProcessor() == null)
 						throw new TalismaneException("Cannot analyse language detector output without a language detector processor!");
 
-					while (config.getSentenceCorpusReader().hasNextSentence()) {
-						String sentence = config.getSentenceCorpusReader().nextSentence();
+					SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+							config.getConfig().getConfig("talismane.core.language-detector.input"), session);
+					while (corpusReader.hasNextSentence()) {
+						String sentence = corpusReader.nextSentence();
 
 						List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
 						this.getLanguageDetectorProcessor().onNextText(sentence, results, this.getWriter());
@@ -255,27 +257,6 @@ public class Talismane {
 				break;
 			case process:
 				switch (config.getModule()) {
-				case sentenceDetector:
-					if (this.getSentenceProcessor() == null)
-						throw new TalismaneException("Cannot process sentence detector output without a sentence processor!");
-
-					while (config.getSentenceCorpusReader().hasNextSentence()) {
-						String text = config.getSentenceCorpusReader().nextSentence();
-						Sentence sentence = new Sentence(text, talismaneSession);
-						this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
-					}
-					break;
-				case tokeniser: {
-					if (this.getTokenSequenceProcessor() == null)
-						throw new TalismaneException("Cannot process tokeniser output without a token sequence processor!");
-					TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(talismaneSession.getReader(),
-							config.getConfig().getConfig("talismane.core.tokeniser.evaluate"), talismaneSession);
-					while (tokenCorpusReader.hasNextTokenSequence()) {
-						TokenSequence tokenSequence = tokenCorpusReader.nextTokenSequence();
-						this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence, this.getWriter());
-					}
-					break;
-				}
 				case posTagger:
 					if (this.getPosTagSequenceProcessor() == null)
 						throw new TalismaneException("Cannot process pos-tagger output without a pos-tag sequence processor!");
@@ -310,18 +291,6 @@ public class Talismane {
 				break;
 			case evaluate:
 				switch (config.getModule()) {
-				case sentenceDetector:
-					SentenceDetectorEvaluator sentenceDetectorEvaluator = config.getSentenceDetectorEvaluator();
-					File sentenceErrorFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_errors.txt");
-					Writer sentenceErrorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
-					sentenceDetectorEvaluator.evaluate(config.getSentenceCorpusReader(), sentenceErrorWriter);
-					sentenceErrorWriter.flush();
-					sentenceErrorWriter.close();
-					break;
-				case tokeniser:
-					TokeniserEvaluator tokeniserEvaluator = new TokeniserEvaluator(talismaneSession);
-					tokeniserEvaluator.evaluate();
-					break;
 				case posTagger:
 					PosTaggerEvaluator posTaggerEvaluator = config.getPosTaggerEvaluator();
 					posTaggerEvaluator.evaluate(config.getPosTagCorpusReader());
@@ -337,7 +306,7 @@ public class Talismane {
 			case compare:
 				switch (config.getModule()) {
 				case tokeniser:
-					TokenComparator tokenComparator = new TokenComparator(talismaneSession);
+					TokenComparator tokenComparator = new TokenComparator(session);
 					tokenComparator.compare();
 					break;
 				case posTagger:
@@ -363,26 +332,8 @@ public class Talismane {
 					ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
 					ClassificationModel languageModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-					languageModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+					languageModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 					languageModel.persist(modelFile);
-					break;
-				}
-				case sentenceDetector: {
-					File modelFile = new File(config.getSentenceModelFilePath());
-					File modelDir = modelFile.getParentFile();
-					modelDir.mkdirs();
-
-					ModelTrainerFactory factory = new ModelTrainerFactory();
-					ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
-
-					ClassificationModel sentenceModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-					sentenceModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
-					sentenceModel.persist(modelFile);
-					break;
-				}
-				case tokeniser: {
-					PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(talismaneSession);
-					trainer.train();
 					break;
 				}
 				case posTagger: {
@@ -394,14 +345,14 @@ public class Talismane {
 						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
 
 						ClassificationModel posTaggerModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-						posTaggerModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+						posTaggerModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 						posTaggerModel.persist(modelFile);
 					} else {
 						PerceptronClassificationModelTrainer trainer = new PerceptronClassificationModelTrainer();
 
 						String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 						PerceptronModelTrainerObserver observer = new PosTaggerPerceptronModelPersister(modelDir, modelName,
-								talismaneSession.getExternalResourceFinder());
+								session.getExternalResourceFinder());
 						trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
 								config.getPerceptronObservationPoints());
 					}
@@ -424,15 +375,14 @@ public class Talismane {
 
 						String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
 
-						PerceptronModelTrainerObserver observer = new ParserPerceptronModelPersister(modelDir, modelName,
-								talismaneSession.getExternalResourceFinder());
+						PerceptronModelTrainerObserver observer = new ParserPerceptronModelPersister(modelDir, modelName, session.getExternalResourceFinder());
 						trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
 								config.getPerceptronObservationPoints());
 						needToPersist = false;
 					}
 
 					if (needToPersist) {
-						parserModel.setExternalResources(talismaneSession.getExternalResourceFinder().getExternalResources());
+						parserModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 						parserModel.persist(modelFile);
 					}
 					break;
@@ -455,7 +405,7 @@ public class Talismane {
 			if (config.isLogStats()) {
 				try {
 					Writer csvFileWriter = null;
-					File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + ".stats.csv");
+					File csvFile = new File(session.getOutDir(), session.getBaseName() + ".stats.csv");
 
 					csvFile.delete();
 					csvFile.createNewFile();
@@ -477,9 +427,9 @@ public class Talismane {
 			PosTagger posTagger = null;
 			Parser parser = null;
 			if (config.needsSentenceDetector())
-				sentenceDetector = config.getSentenceDetector();
+				sentenceDetector = SentenceDetector.getInstance(session);
 			if (config.needsTokeniser())
-				tokeniser = Tokeniser.getInstance(talismaneSession);
+				tokeniser = Tokeniser.getInstance(session);
 			if (config.needsPosTagger())
 				posTagger = config.getPosTagger();
 			if (config.needsParser())
@@ -489,8 +439,8 @@ public class Talismane {
 			if (config.getStartModule().equals(Module.posTagger)) {
 				// TODO: should not use the evaluate reader - need a standard
 				// reader vs a compare reader
-				tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(talismaneSession.getReader(),
-						config.getConfig().getConfig("talismane.core.tokeniser.evaluate"), talismaneSession);
+				tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+						config.getConfig().getConfig("talismane.core.tokeniser.evaluate"), session);
 			}
 
 			if (config.getEndModule().equals(Module.sentenceDetector)) {
@@ -519,8 +469,7 @@ public class Talismane {
 			TokenSequence tokenSequence = null;
 			PosTagSequence posTagSequence = null;
 
-			RollingSentenceProcessor rollingSentenceProcessor = new RollingSentenceProcessor(talismaneSession.getFileName(), config.isProcessByDefault(),
-					talismaneSession);
+			RollingSentenceProcessor rollingSentenceProcessor = new RollingSentenceProcessor(session.getFileName(), config.isProcessByDefault(), session);
 			if (this.getReader() instanceof CurrentFileProvider) {
 				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingSentenceProcessor);
 			}
@@ -679,7 +628,7 @@ public class Talismane {
 							// boundary happens to be a sentence boundary, hence
 							// position 0.
 							if (prevSentenceHolder.getOriginalTextSegments().size() > 0) {
-								Sentence sentence = new Sentence(talismaneSession);
+								Sentence sentence = new Sentence(session);
 								if (sentences.size() > 0)
 									sentence.setFile(sentences.peek().getFile());
 								StringBuilder segmentsToInsert = new StringBuilder();
@@ -926,7 +875,7 @@ public class Talismane {
 	 */
 	public Writer getWriter() throws IOException {
 		if (this.writer == null)
-			this.writer = talismaneSession.getWriter();
+			this.writer = session.getWriter();
 		return writer;
 	}
 

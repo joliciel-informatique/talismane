@@ -377,4 +377,19 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 		return this.nextConfiguration().getPosTagSequence().getTokenSequence();
 	}
 
+	@Override
+	public boolean hasNextSentence() {
+		return this.hasNextConfiguration();
+	}
+
+	@Override
+	public String nextSentence() {
+		return this.nextConfiguration().getPosTagSequence().getTokenSequence().getSentence().getText();
+	}
+
+	@Override
+	public boolean isNewParagraph() {
+		return false;
+	}
+
 }

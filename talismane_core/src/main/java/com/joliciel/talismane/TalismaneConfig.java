@@ -117,13 +117,6 @@ import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorEventStream;
-import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
-import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
-import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
-import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
@@ -168,7 +161,6 @@ public class TalismaneConfig {
 
 	private ParserEvaluator parserEvaluator;
 	private PosTaggerEvaluator posTaggerEvaluator;
-	private SentenceDetectorEvaluator sentenceDetectorEvaluator;
 	private ParseComparator parseComparator;
 	private PosTagComparator posTagComparator;
 
@@ -176,17 +168,14 @@ public class TalismaneConfig {
 	private ParserAnnotatedCorpusReader parserCorpusReader;
 	private ParserAnnotatedCorpusReader parserEvaluationCorpusReader;
 	private PosTagAnnotatedCorpusReader posTagEvaluationCorpusReader;
-	private SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader;
 	private LanguageDetectorAnnotatedCorpusReader languageCorpusReader;
 
 	private LanguageDetectorProcessor languageDetectorProcessor;
-	private SentenceProcessor sentenceProcessor;
 	private TokenSequenceProcessor tokenSequenceProcessor;
 	private PosTagSequenceProcessor posTagSequenceProcessor;
 	private ParseConfigurationProcessor parseConfigurationProcessor;
 
 	private ClassificationModel languageModel;
-	private ClassificationModel sentenceModel;
 	private ClassificationModel tokeniserModel;
 	private ClassificationModel posTaggerModel;
 	private ClassificationModel parserModel;
@@ -212,7 +201,6 @@ public class TalismaneConfig {
 	private Reader reader;
 	private Reader evaluationReader;
 
-	private String sentenceTemplateName = "sentence_template.ftl";
 	private String tokeniserTemplateName = "tokeniser_template.ftl";
 	private String posTaggerTemplateName = "posTagger_template.ftl";
 	private String parserTemplateName = "parser_conll_template.ftl";
@@ -246,7 +234,6 @@ public class TalismaneConfig {
 
 	private Set<String> testWords;
 	private Set<LanguageDetectorFeature<?>> languageFeatures;
-	private Set<SentenceDetectorFeature<?>> sentenceFeatures;
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
 	private Set<ParseConfigurationFeature<?>> parserFeatures;
 	private ClassificationEventStream classificationEventStream;
@@ -274,7 +261,6 @@ public class TalismaneConfig {
 
 	private Locale locale;
 
-	private SentenceDetector sentenceDetector;
 	private PosTagger posTagger;
 	private Parser parser;
 
@@ -1232,24 +1218,6 @@ public class TalismaneConfig {
 		}
 	}
 
-	/**
-	 * The sentence detector to use for analysis.
-	 */
-
-	public SentenceDetector getSentenceDetector() {
-		try {
-			if (this.sentenceDetector == null) {
-				ClassificationModel sentenceModel = this.getSentenceDetectorModel();
-				this.sentenceDetector = new SentenceDetector(sentenceModel, session);
-			}
-
-			return this.sentenceDetector.cloneSentenceDetector();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-
 	synchronized ClassificationModel getLanguageModel() throws IOException {
 		if (languageModel == null) {
 			LOG.debug("Getting languageDetector model");
@@ -1265,23 +1233,6 @@ public class TalismaneConfig {
 			}
 		}
 		return languageModel;
-	}
-
-	synchronized ClassificationModel getSentenceDetectorModel() throws IOException {
-		if (sentenceModel == null) {
-			LOG.debug("Getting sentenceDetector model");
-
-			String configPath = "talismane.core.analyse.sentenceModel";
-			String modelFilePath = config.getString(configPath);
-			sentenceModel = modelMap.get(modelFilePath);
-			if (sentenceModel == null) {
-				InputStream sentenceModelFile = ConfigUtils.getFileFromConfig(config, configPath);
-				MachineLearningModelFactory factory = new MachineLearningModelFactory();
-				sentenceModel = factory.getClassificationModel(new ZipInputStream(sentenceModelFile));
-				modelMap.put(modelFilePath, sentenceModel);
-			}
-		}
-		return sentenceModel;
 	}
 
 	synchronized ClassificationModel getTokeniserModel() throws IOException {
@@ -1356,28 +1307,6 @@ public class TalismaneConfig {
 		return languageFeatures;
 	}
 
-	public synchronized Set<SentenceDetectorFeature<?>> getSentenceDetectorFeatures() throws IOException {
-		if (sentenceFeatures == null) {
-			String configPath = "talismane.core.train.sentenceDetector.features";
-
-			InputStream sentenceFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(sentenceFeatureFile, this.getInputCharset())))) {
-				List<String> featureDescriptors = new ArrayListNoNulls<String>();
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					featureDescriptors.add(descriptor);
-					LOG.debug(descriptor);
-				}
-
-				SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(session);
-				sentenceFeatures = parser.getFeatureSet(featureDescriptors);
-
-				this.getDescriptors().put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-			}
-		}
-		return sentenceFeatures;
-	}
-
 	public synchronized Set<PosTaggerFeature<?>> getPosTaggerFeatures() throws IOException {
 		if (posTaggerFeatures == null) {
 			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
@@ -1404,9 +1333,6 @@ public class TalismaneConfig {
 			switch (this.getModule()) {
 			case languageDetector:
 				classificationEventStream = new LanguageDetectorEventStream(this.getLanguageCorpusReader(), this.getLanguageDetectorFeatures());
-				break;
-			case sentenceDetector:
-				classificationEventStream = new SentenceDetectorEventStream(this.getSentenceCorpusReader(), this.getSentenceDetectorFeatures(), session);
 				break;
 			case posTagger:
 				classificationEventStream = new PosTagEventStream(this.getPosTagCorpusReader(), this.getPosTaggerFeatures());
@@ -1541,21 +1467,6 @@ public class TalismaneConfig {
 
 	public void setMaxParseAnalysisTime(int maxParseAnalysisTime) {
 		this.maxParseAnalysisTime = maxParseAnalysisTime;
-	}
-
-	public synchronized SentenceProcessor getSentenceProcessor() throws IOException {
-		if (sentenceProcessor == null && endModule.equals(Module.sentenceDetector)) {
-			Reader templateReader = null;
-			String configPath = "talismane.core.analyse.template";
-			if (config.hasPath(configPath)) {
-				templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-			} else {
-				templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(sentenceTemplateName)));
-			}
-			FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
-			sentenceProcessor = templateWriter;
-		}
-		return sentenceProcessor;
 	}
 
 	public synchronized TokenSequenceProcessor getTokenSequenceProcessor() throws IOException {
@@ -1940,18 +1851,6 @@ public class TalismaneConfig {
 	}
 
 	/**
-	 * Get a sentence detector evaluator if command=evaluate and
-	 * endModule=sentenceDetector.
-	 */
-
-	public synchronized SentenceDetectorEvaluator getSentenceDetectorEvaluator() {
-		if (sentenceDetectorEvaluator == null) {
-			sentenceDetectorEvaluator = new SentenceDetectorEvaluator(this.getSentenceDetector());
-		}
-		return sentenceDetectorEvaluator;
-	}
-
-	/**
 	 * Get a pos-tagger evaluator if command=evaluate and endModule=posTagger.
 	 */
 
@@ -2124,18 +2023,6 @@ public class TalismaneConfig {
 		}
 	}
 
-	public synchronized SentenceDetectorAnnotatedCorpusReader getSentenceCorpusReader() {
-		if (sentenceCorpusReader == null) {
-			sentenceCorpusReader = new SentencePerLineCorpusReader(this.getReader());
-		}
-		this.setCorpusReaderAttributes(sentenceCorpusReader);
-		return sentenceCorpusReader;
-	}
-
-	public void setSentenceCorpusReader(SentenceDetectorAnnotatedCorpusReader sentenceCorpusReader) {
-		this.sentenceCorpusReader = sentenceCorpusReader;
-	}
-
 	public int getPosTaggerBeamWidth() {
 		return posTaggerBeamWidth;
 	}
@@ -2253,9 +2140,7 @@ public class TalismaneConfig {
 			// ping the models to load them
 			if (this.needsSentenceDetector()) {
 				LOG.info("Loading sentence detector");
-				if (this.getSentenceDetector() == null) {
-					throw new TalismaneException("Sentence detector not provided.");
-				}
+				SentenceDetector.getInstance(session);
 			}
 			if (this.needsTokeniser()) {
 				LOG.info("Loading tokeniser");
@@ -2334,10 +2219,6 @@ public class TalismaneConfig {
 
 	public String getTokeniserModelFilePath() {
 		return config.getString("talismane.core.analyse.tokeniserModel");
-	}
-
-	public String getSentenceModelFilePath() {
-		return config.getString("talismane.core.analyse.sentenceModel");
 	}
 
 	public String getParserModelFilePath() {

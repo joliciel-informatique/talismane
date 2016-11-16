@@ -18,31 +18,42 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * Detect sentence boundaries within a textual block. The linefeed character
@@ -62,23 +73,67 @@ public class SentenceDetector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetector.class);
 
+	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
+	private static final Map<String, SentenceDetector> sentenceDetectorMap = new HashMap<>();
+
 	private final DecisionMaker decisionMaker;
 	private final Set<SentenceDetectorFeature<?>> features;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
-	private final List<TokenFilter> preTokeniserFilters;
+	private final List<Annotator> preannotators;
+	private final List<Annotator> modelPreannotators;
 
-	public SentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features, TalismaneSession talismaneSession) {
-		this.decisionMaker = decisionMaker;
-		this.features = features;
-		this.talismaneSession = talismaneSession;
-		this.preTokeniserFilters = new ArrayList<TokenFilter>();
+	public static SentenceDetector getInstance(TalismaneSession session) throws IOException {
+		SentenceDetector sentenceDetector = null;
+		if (session.getSessionId() != null)
+			sentenceDetector = sentenceDetectorMap.get(session.getSessionId());
+		if (sentenceDetector == null) {
+			Config config = session.getConfig();
+
+			String configPath = "talismane.core.sentence-detector.model";
+			String modelFilePath = config.getString(configPath);
+			ClassificationModel sentenceModel = modelMap.get(modelFilePath);
+			if (sentenceModel == null) {
+				InputStream modelFile = ConfigUtils.getFileFromConfig(config, configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				sentenceModel = factory.getClassificationModel(new ZipInputStream(modelFile));
+				modelMap.put(modelFilePath, sentenceModel);
+			}
+
+			sentenceDetector = new SentenceDetector(sentenceModel, session);
+
+			List<String> tokenFilterDescriptors = new ArrayList<>();
+			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
+
+			LOG.debug("tokenFilters");
+			configPath = "talismane.core.sentence-detector.pre-annotators";
+			List<String> tokenFilterPaths = config.getStringList(configPath);
+			for (String path : tokenFilterPaths) {
+				LOG.debug("From: " + path);
+				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
+				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
+					List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
+					for (TokenFilter tokenFilter : myFilters) {
+						sentenceDetector.addPreAnnotator(tokenFilter);
+					}
+				}
+			}
+		}
+		return sentenceDetector.cloneSentenceDetector();
 	}
 
-	public SentenceDetector(ClassificationModel sentenceModel, TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
+	public SentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features, TalismaneSession session) {
+		this.decisionMaker = decisionMaker;
+		this.features = features;
+		this.session = session;
+		this.preannotators = new ArrayList<Annotator>();
+		this.modelPreannotators = new ArrayList<Annotator>();
+	}
 
-		SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(talismaneSession);
+	public SentenceDetector(ClassificationModel sentenceModel, TalismaneSession session) {
+		this.session = session;
+
+		SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(session);
 
 		Collection<ExternalResource<?>> externalResources = sentenceModel.getExternalResources();
 		if (externalResources != null) {
@@ -91,14 +146,32 @@ public class SentenceDetector {
 
 		this.features = parser.getFeatureSet(sentenceModel.getFeatureDescriptors());
 		this.decisionMaker = sentenceModel.getDecisionMaker();
-		this.preTokeniserFilters = new ArrayList<TokenFilter>();
+		this.preannotators = new ArrayList<Annotator>();
+		this.modelPreannotators = new ArrayList<Annotator>();
+
+		List<String> tokenFilterDescriptors = new ArrayList<>();
+		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
+		List<String> modelDescriptors = sentenceModel.getDescriptors().get(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY);
+		String modelDescriptorString = "";
+		if (modelDescriptors != null) {
+			for (String descriptor : modelDescriptors) {
+				modelDescriptorString += descriptor + "\n";
+			}
+		}
+		try (Scanner scanner = new Scanner(modelDescriptorString)) {
+			List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
+			for (TokenFilter tokenFilter : myFilters) {
+				this.modelPreannotators.add(tokenFilter);
+			}
+		}
 	}
 
 	SentenceDetector(SentenceDetector sentenceDetector) {
-		this.talismaneSession = sentenceDetector.talismaneSession;
+		this.session = sentenceDetector.session;
 		this.features = new HashSet<>(sentenceDetector.features);
 		this.decisionMaker = sentenceDetector.decisionMaker;
-		this.preTokeniserFilters = new ArrayList<>(sentenceDetector.preTokeniserFilters);
+		this.preannotators = new ArrayList<>(sentenceDetector.preannotators);
+		this.modelPreannotators = new ArrayList<>(sentenceDetector.modelPreannotators);
 	}
 
 	/**
@@ -123,11 +196,13 @@ public class SentenceDetector {
 		// it here
 		AnnotatedText annotatedContext = new AnnotatedText(context);
 
-		// we only want one placeholder per start index - the first one that
-		// gets added
-		for (TokenFilter filter : this.preTokeniserFilters) {
-			filter.annotate(annotatedContext);
+		for (Annotator annotator : this.preannotators) {
+			annotator.annotate(annotatedContext);
 		}
+		for (Annotator annotator : this.modelPreannotators) {
+			annotator.annotate(annotatedContext);
+		}
+
 		List<Annotation<TokenPlaceholder>> placeholders = annotatedContext.getAnnotations(TokenPlaceholder.class);
 
 		List<Annotation<TokenPlaceholder>> newPlaceholders = new ArrayList<>();
@@ -170,7 +245,7 @@ public class SentenceDetector {
 		}
 
 		for (int possibleBoundary : possibleBoundaries) {
-			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, talismaneSession);
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, session);
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Testing boundary: " + boundary);
 				LOG.trace(" at position: " + possibleBoundary);
@@ -219,12 +294,12 @@ public class SentenceDetector {
 	 * Token filters mark certain portions of the raw text as entire tokens - a
 	 * sentence break will never be detected inside such a token.
 	 */
-	public List<TokenFilter> getTokenFilters() {
-		return preTokeniserFilters;
+	public List<Annotator> getPreAnnotators() {
+		return preannotators;
 	}
 
-	public void addTokenFilter(TokenFilter filter) {
-		this.preTokeniserFilters.add(filter);
+	public void addPreAnnotator(Annotator filter) {
+		this.preannotators.add(filter);
 	}
 
 	public SentenceDetector cloneSentenceDetector() {

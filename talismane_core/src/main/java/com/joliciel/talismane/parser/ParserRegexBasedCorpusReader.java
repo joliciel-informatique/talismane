@@ -90,7 +90,7 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader implements SentenceDetectorAnnotatedCorpusReader, CurrentFileObserver {
+public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader implements CurrentFileObserver {
 	private static final Logger LOG = LoggerFactory.getLogger(ParserRegexBasedCorpusReader.class);
 	private static final String INDEX_PLACEHOLDER = "%INDEX%";
 	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
