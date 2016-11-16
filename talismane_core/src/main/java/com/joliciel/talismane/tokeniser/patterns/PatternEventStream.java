@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,55 +37,55 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.TokenisedAtomicTokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
-import com.joliciel.talismane.tokeniser.features.TokeniserContext;
-import com.joliciel.talismane.tokeniser.features.TokeniserContextFeature;
+import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
- * An event stream for tokenising, using patterns to identify intervals that
- * need to be examined. An interval is simply the space between two tokens. This
- * reduces the tokeniser decision to binary decision: separate or join. Unlike
- * the Compound event stream, we create one event per token interval inside a
- * pattern match. By convention, a feature being tested on a token is assumed to
- * test the interval between the token and the one preceding it.
+ * An event stream for tokenising, using patterns to identify potential
+ * compounds that need to be examined. This reduces the tokeniser decision to
+ * binary decision: separate or join. Unlike the Interval stream, we generate
+ * one event per pattern match. The advantage is that inconsistent compounds
+ * become virtually impossible, even lower down on the beam.
  * 
  * @author Assaf Urieli
- *
  */
-public class IntervalPatternEventStream implements ClassificationEventStream {
-	private static final Logger LOG = LoggerFactory.getLogger(IntervalPatternEventStream.class);
-
+public class PatternEventStream implements ClassificationEventStream {
+	private static final Logger LOG = LoggerFactory.getLogger(PatternEventStream.class);
 	private final TokeniserAnnotatedCorpusReader corpusReader;
-	private final Set<TokeniserContextFeature<?>> tokeniserContextFeatures;
+	private final Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
 
 	private final TokeniserPatternManager tokeniserPatternManager;
+
 	private final TalismaneSession talismaneSession;
 
-	private List<TaggedToken<TokeniserOutcome>> tokensToCheck;
+	private List<TokeniserOutcome> currentOutcomes;
+	private List<TokenPatternMatch> currentPatternMatches;
 	private int currentIndex;
-	private TokenisedAtomicTokenSequence currentHistory = null;
 
-	public IntervalPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokeniserContextFeature<?>> tokeniserContextFeatures,
+	public PatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures,
 			TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
 		this.corpusReader = corpusReader;
-		this.tokeniserContextFeatures = tokeniserContextFeatures;
+		this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
 		this.tokeniserPatternManager = tokeniserPatternManager;
 		this.talismaneSession = talismaneSession;
 	}
 
 	@Override
 	public boolean hasNext() {
-		if (tokensToCheck != null) {
-			if (currentIndex == tokensToCheck.size()) {
-				tokensToCheck = null;
+		if (currentPatternMatches != null) {
+			if (currentIndex == currentPatternMatches.size()) {
+				currentPatternMatches = null;
 			}
 		}
-		while (tokensToCheck == null) {
+		while (currentPatternMatches == null) {
 			if (this.corpusReader.hasNextTokenSequence()) {
+				currentPatternMatches = new ArrayList<TokenPatternMatch>();
+				currentOutcomes = new ArrayList<TokeniserOutcome>();
+				currentIndex = 0;
+
 				TokenSequence realSequence = corpusReader.nextTokenSequence();
 
 				List<Integer> tokenSplits = realSequence.getTokenSplits();
@@ -99,42 +98,67 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 					tokenSequenceFilter.apply(tokenSequence);
 				}
 
+				List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
+
 				List<TaggedToken<TokeniserOutcome>> currentSentence = this.getTaggedTokens(tokenSequence, tokenSplits);
-				currentHistory = new TokenisedAtomicTokenSequence(sentence, tokenSequence.size(), this.talismaneSession);
 
 				// check if anything matches each pattern
-				Set<Token> patternMatchingTokens = new TreeSet<Token>();
 				for (TokenPattern parsedPattern : this.tokeniserPatternManager.getParsedTestPatterns()) {
 					List<TokenPatternMatchSequence> tokenPatternMatches = parsedPattern.match(tokenSequence);
-					for (TokenPatternMatchSequence tokenPatternMatch : tokenPatternMatches) {
+					for (TokenPatternMatchSequence tokenPatternMatchSequence : tokenPatternMatches) {
 						if (LOG.isTraceEnabled())
-							LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatch.getTokenSequence());
-						patternMatchingTokens.addAll(tokenPatternMatch.getTokensToCheck());
+							LOG.trace("Matched pattern: " + parsedPattern + ": " + tokenPatternMatchSequence.getTokenSequence());
+
+						// check if entire pattern is separated or joined
+						TokeniserOutcome outcome = null;
+						TokeniserOutcome defaultOutcome = null;
+						boolean haveMismatch = false;
+						TokenPatternMatch tokenPatternMatch = null;
+						for (Token token : tokenPatternMatchSequence.getTokensToCheck()) {
+							if (tokenPatternMatch == null) {
+								for (TokenPatternMatch patternMatch : tokenPatternMatchSequence.getTokenPatternMatches()) {
+									if (patternMatch.getToken().equals(token)) {
+										tokenPatternMatch = patternMatch;
+										break;
+									}
+								}
+							}
+							TaggedToken<TokeniserOutcome> taggedToken = currentSentence.get(token.getIndexWithWhiteSpace());
+							if (outcome == null) {
+								outcome = taggedToken.getTag();
+								defaultOutcome = defaultOutcomes.get(token.getIndexWithWhiteSpace());
+							} else if (taggedToken.getTag() != outcome) {
+								// this should only happen when two patterns
+								// overlap:
+								// e.g. "aussi bien que" and "bien que", or
+								// "plutot que" and "plutot que de"
+								// AND the outer pattern is separated, while
+								// the inner pattern is joined
+								LOG.debug("Mismatch in pattern: " + tokenPatternMatch + ", " + taggedToken);
+								haveMismatch = true;
+							}
+						}
+						currentPatternMatches.add(tokenPatternMatch);
+
+						if (haveMismatch) {
+							currentOutcomes.add(defaultOutcome);
+						} else {
+							currentOutcomes.add(outcome);
+						}
+
 					}
 				} // next pattern
 
-				if (patternMatchingTokens.size() > 0) {
-					tokensToCheck = new ArrayList<TaggedToken<TokeniserOutcome>>();
-					for (Token token : patternMatchingTokens) {
-						for (TaggedToken<TokeniserOutcome> taggedToken : currentSentence) {
-							if (taggedToken.getToken().equals(token))
-								tokensToCheck.add(taggedToken);
-						}
-					}
-
-					currentIndex = 0;
-					if (tokensToCheck.size() == 0) {
-						tokensToCheck = null;
-					}
-				} else {
-					tokensToCheck = null;
+				if (currentPatternMatches.size() == 0) {
+					currentPatternMatches = null;
+					currentOutcomes = null;
 				}
 			} else {
 				break;
 			}
 		}
 
-		return tokensToCheck != null;
+		return currentPatternMatches != null;
 	}
 
 	@Override
@@ -152,14 +176,15 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 	public ClassificationEvent next() {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
-			TaggedToken<TokeniserOutcome> taggedToken = tokensToCheck.get(currentIndex++);
-			TokeniserContext context = new TokeniserContext(taggedToken.getToken(), currentHistory);
+			TokenPatternMatch tokenPatternMatch = currentPatternMatches.get(currentIndex);
+			TokeniserOutcome outcome = currentOutcomes.get(currentIndex);
+			String classification = outcome.name();
 
-			LOG.debug("next event, token: " + taggedToken.getToken().getText());
+			LOG.debug("next event, pattern match: " + tokenPatternMatch.toString() + ", outcome:" + classification);
 			List<FeatureResult<?>> tokenFeatureResults = new ArrayList<FeatureResult<?>>();
-			for (TokeniserContextFeature<?> tokeniserContextFeature : tokeniserContextFeatures) {
+			for (TokenPatternMatchFeature<?> feature : tokenPatternMatchFeatures) {
 				RuntimeEnvironment env = new RuntimeEnvironment();
-				FeatureResult<?> featureResult = tokeniserContextFeature.check(context, env);
+				FeatureResult<?> featureResult = feature.check(tokenPatternMatch, env);
 				if (featureResult != null) {
 					tokenFeatureResults.add(featureResult);
 					if (LOG.isTraceEnabled()) {
@@ -168,12 +193,11 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 				}
 			}
 
-			String classification = taggedToken.getTag().name();
 			event = new ClassificationEvent(tokenFeatureResults, classification);
 
-			currentHistory.add(taggedToken);
-			if (currentIndex == tokensToCheck.size()) {
-				tokensToCheck = null;
+			currentIndex++;
+			if (currentIndex == currentPatternMatches.size()) {
+				currentPatternMatches = null;
 			}
 		}
 		return event;
@@ -187,7 +211,6 @@ public class IntervalPatternEventStream implements ClassificationEventStream {
 				outcome = TokeniserOutcome.SEPARATE;
 			Decision decision = new Decision(outcome.name());
 			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
-
 			taggedTokens.add(taggedToken);
 		}
 		return taggedTokens;

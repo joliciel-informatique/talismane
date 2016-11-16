@@ -46,7 +46,7 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory;
+import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
@@ -294,10 +294,9 @@ public abstract class Tokeniser {
 					modelMap.put(modelFilePath, tokeniserModel);
 				}
 
-				PatternTokeniserFactory patternTokeniserFactory = new PatternTokeniserFactory(session);
-				tokeniser = patternTokeniserFactory.getPatternTokeniser(tokeniserModel, beamWidth);
+				tokeniser = new PatternTokeniser(tokeniserModel, beamWidth, session);
 
-				boolean includeDetails = tokeniserConfig.getBoolean("include-details");
+				boolean includeDetails = tokeniserConfig.getBoolean("output.include-details");
 				if (includeDetails) {
 					String detailsFilePath = session.getBaseName() + "_tokeniser_details.txt";
 					File detailsFile = new File(session.getOutDir(), detailsFilePath);
