@@ -83,7 +83,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 		if (config.hasPath(configPath)) {
 			InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
 			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, session.getInputCharset()));
-			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader);
+			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader, config, session);
 			this.sentenceReader = sentenceReader;
 		}
 
@@ -354,5 +354,20 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 	@Override
 	public void setStartSentence(int startSentence) {
 		this.startSentence = startSentence;
+	}
+
+	@Override
+	public boolean hasNextSentence() {
+		return this.hasNextTokenSequence();
+	}
+
+	@Override
+	public String nextSentence() {
+		return this.nextTokenSequence().getSentence().getText();
+	}
+
+	@Override
+	public boolean isNewParagraph() {
+		return false;
 	}
 }

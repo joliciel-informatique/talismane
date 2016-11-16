@@ -33,6 +33,7 @@ import com.joliciel.talismane.AnnotatedCorpusReader;
 import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
@@ -46,14 +47,14 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public abstract class TokeniserAnnotatedCorpusReader implements AnnotatedCorpusReader {
+public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotatedCorpusReader implements AnnotatedCorpusReader {
 	protected final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
 	protected final List<Annotator> preAnnotators = new ArrayList<>();
 
 	public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
 
 	public TokeniserAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
-
+		super(reader, config, session);
 	}
 
 	/**
@@ -98,20 +99,19 @@ public abstract class TokeniserAnnotatedCorpusReader implements AnnotatedCorpusR
 	}
 
 	/**
-	 * It is assumed the configuration will contain the following keys:
-	 * <ul>
-	 * <li>corpus-reader: the sub-class to construct</li>
-	 * <li>pre-annotators: annotators to apply prior to tokenising</li>
-	 * <li>post-annotators: annotators to apply after tokenising</li>
-	 * </ul>
+	 * Builds an annotated corpus reader for a particular Reader and Config,
+	 * where the config is the local namespace. For configuration example, see
+	 * talismane.core.tokeniser.input in reference.conf.
 	 * 
 	 * @param config
-	 *            the specific configuration section from which we're building a
+	 *            the local configuration section from which we're building a
 	 *            reader
-	 * @return
 	 * @throws IOException
+	 *             problem reading the files referred in the configuration
 	 * @throws ClassNotFoundException
+	 *             if the corpus-reader class was not found
 	 * @throws ReflectiveOperationException
+	 *             if the corpus-reader class could not be instantiated
 	 */
 	public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
 			throws IOException, ClassNotFoundException, ReflectiveOperationException {

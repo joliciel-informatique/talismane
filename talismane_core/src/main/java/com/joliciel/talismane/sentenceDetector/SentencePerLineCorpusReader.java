@@ -23,13 +23,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.joliciel.talismane.TalismaneSession;
+import com.typesafe.config.Config;
+
 /**
  * A default corpus reader which assumes one sentence per line.
  * 
  * @author Assaf Urieli
  *
  */
-public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
+public class SentencePerLineCorpusReader extends SentenceDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
@@ -39,7 +42,8 @@ public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCor
 	private int crossValidationSize = 0;
 	String sentence = null;
 
-	public SentencePerLineCorpusReader(Reader reader) {
+	public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
 		scanner = new Scanner(reader);
 	}
 

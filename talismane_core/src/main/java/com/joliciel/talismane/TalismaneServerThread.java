@@ -75,7 +75,7 @@ class TalismaneServerThread extends Thread {
 			// for a shut down command
 			SentenceProcessor sentenceProcessor = this.server.getSentenceProcessor();
 			if (sentenceProcessor == null)
-				sentenceProcessor = config.getSentenceProcessor();
+				sentenceProcessor = SentenceProcessor.getProcessor(talismaneSession);
 			ShutDownListener listener = new ShutDownListener(this.server, sentenceProcessor);
 			talismane.setSentenceProcessor(listener);
 
