@@ -123,7 +123,6 @@ import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
-import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserFactory.PatternTokeniserType;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
@@ -237,7 +236,6 @@ public class TalismaneConfig {
 	private Set<PosTaggerFeature<?>> posTaggerFeatures;
 	private Set<ParseConfigurationFeature<?>> parserFeatures;
 	private ClassificationEventStream classificationEventStream;
-	private PatternTokeniserType patternTokeniserType;
 
 	private boolean parserCorpusReaderFiltersAdded = false;
 	private boolean posTagCorpusReaderFiltersAdded = false;
@@ -2099,10 +2097,6 @@ public class TalismaneConfig {
 
 	public List<Integer> getPerceptronObservationPoints() {
 		return perceptronObservationPoints;
-	}
-
-	public PatternTokeniserType getPatternTokeniserType() {
-		return patternTokeniserType;
 	}
 
 	/**
