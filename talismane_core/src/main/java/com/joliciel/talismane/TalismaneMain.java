@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -41,6 +42,9 @@ import com.joliciel.talismane.Talismane.Mode;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.Talismane.ProcessingOption;
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.languageDetector.LanguageDetector;
+import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
+import com.joliciel.talismane.languageDetector.LanguageDetectorTrainer;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
@@ -69,6 +73,7 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserTrainer;
 import com.joliciel.talismane.utils.LogUtils;
+import com.joliciel.talismane.utils.WeightedOutcome;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -525,13 +530,39 @@ public class TalismaneMain {
 
 		switch (session.getCommand()) {
 		case analyse: {
-			TalismaneConfig talismaneConfig = new TalismaneConfig(config, session);
-			Talismane talismane = talismaneConfig.getTalismane();
-			talismane.process();
+			switch (session.getModule()) {
+			case languageDetector: {
+				Writer writer = session.getWriter();
+				LanguageDetector languageDetector = LanguageDetector.getInstance(session);
+				LanguageDetectorProcessor processor = LanguageDetectorProcessor.getProcessor(session);
+
+				SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+						config.getConfig("talismane.core.language-detector.input"), session);
+				while (corpusReader.hasNextSentence()) {
+					String sentence = corpusReader.nextSentence();
+
+					List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
+					processor.onNextText(sentence, results, writer);
+				}
+				break;
+			}
+			default:
+				TalismaneConfig talismaneConfig = new TalismaneConfig(config, session);
+				Talismane talismane = talismaneConfig.getTalismane();
+				talismane.analyse(talismaneConfig);
+				break;
+			}
+
 			break;
+
 		}
 		case train: {
 			switch (session.getModule()) {
+			case languageDetector: {
+				LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(session);
+				trainer.train();
+				break;
+			}
 			case sentenceDetector: {
 				SentenceDetectorTrainer trainer = new SentenceDetectorTrainer(session);
 				trainer.train();
@@ -577,6 +608,8 @@ public class TalismaneMain {
 				evaluator.evaluate();
 				break;
 			}
+			default:
+				throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
 			}
 			break;
 		}

@@ -28,7 +28,6 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -40,11 +39,7 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceHolder;
 import com.joliciel.talismane.filters.TextMarker;
 import com.joliciel.talismane.filters.TextMarkerFilter;
-import com.joliciel.talismane.languageDetector.LanguageDetector;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
-import com.joliciel.talismane.machineLearning.ClassificationModel;
-import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -57,7 +52,6 @@ import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
-import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
@@ -66,7 +60,6 @@ import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.WeightedOutcome;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
 
@@ -227,65 +220,7 @@ public class Talismane {
 
 			switch (config.getCommand()) {
 			case analyse:
-				switch (config.getModule()) {
-				case languageDetector:
-					LanguageDetector languageDetector = config.getLanguageDetector();
-					if (this.getLanguageDetectorProcessor() == null)
-						throw new TalismaneException("Cannot analyse language detector output without a language detector processor!");
-
-					SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-							config.getConfig().getConfig("talismane.core.language-detector.input"), session);
-					while (corpusReader.hasNextSentence()) {
-						String sentence = corpusReader.nextSentence();
-
-						List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
-						this.getLanguageDetectorProcessor().onNextText(sentence, results, this.getWriter());
-					}
-					break;
-				default:
-					this.analyse(config);
-				}
-
-				break;
-			case process:
-				switch (config.getModule()) {
-				case parser:
-					if (this.getParseConfigurationProcessor() == null)
-						throw new TalismaneException("Cannot process parser output without a parse configuration processor!");
-					try {
-						if (config.getParserCorpusReader() instanceof CurrentFileObserver && config.getReader() instanceof CurrentFileProvider)
-							((CurrentFileProvider) config.getReader()).addCurrentFileObserver((CurrentFileObserver) config.getParserCorpusReader());
-
-						while (config.getParserCorpusReader().hasNextConfiguration()) {
-							ParseConfiguration parseConfiguration = config.getParserCorpusReader().nextConfiguration();
-							this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration, this.getWriter());
-						}
-					} finally {
-						this.getParseConfigurationProcessor().onCompleteParse();
-					}
-					break;
-				default:
-					throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
-				}
-				break;
-			case train:
-				switch (config.getModule()) {
-				case languageDetector: {
-					File modelFile = new File(config.getLanguageModelFilePath());
-					File modelDir = modelFile.getParentFile();
-					modelDir.mkdirs();
-
-					ModelTrainerFactory factory = new ModelTrainerFactory();
-					ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
-
-					ClassificationModel languageModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-					languageModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
-					languageModel.persist(modelFile);
-					break;
-				}
-				default:
-					throw new TalismaneException("Command 'train' does not yet support module: " + config.getModule());
-				}
+				this.analyse(config);
 				break;
 			default:
 				throw new TalismaneException("Unsupported command: " + config.getCommand());

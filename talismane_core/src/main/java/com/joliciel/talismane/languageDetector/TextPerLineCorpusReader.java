@@ -18,14 +18,25 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * A default corpus reader which assumes one text per line.
@@ -33,7 +44,7 @@ import java.util.Scanner;
  * @author Assaf Urieli
  *
  */
-public class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
+public class TextPerLineCorpusReader extends LanguageDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
 	private Locale currentLocale;
 	private int maxSentenceCount = 0;
@@ -46,7 +57,29 @@ public class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusR
 	private Map<Locale, Reader> readerMap;
 	private Iterator<Locale> localeIterator;
 
-	public TextPerLineCorpusReader(Map<Locale, Reader> readerMap) {
+	public TextPerLineCorpusReader(Config config, TalismaneSession session) throws IOException {
+		super(config, session);
+		String configPath = "language-corpus-map";
+		InputStream languageCorpusMapFile = ConfigUtils.getFileFromConfig(config, configPath);
+		try (Scanner languageCorpusMapScanner = new Scanner(new BufferedReader(new InputStreamReader(languageCorpusMapFile, "UTF-8")))) {
+
+			this.readerMap = new HashMap<>();
+			while (languageCorpusMapScanner.hasNextLine()) {
+				String line = languageCorpusMapScanner.nextLine();
+				String[] parts = line.split("\t");
+				Locale locale = Locale.forLanguageTag(parts[0]);
+				String corpusPath = parts[1];
+				InputStream corpusFile = new FileInputStream(new File(corpusPath));
+				Reader corpusReader = new BufferedReader(new InputStreamReader(corpusFile, session.getInputCharset().name()));
+				readerMap.put(locale, corpusReader);
+			}
+		}
+
+		this.localeIterator = readerMap.keySet().iterator();
+	}
+
+	public TextPerLineCorpusReader(Map<Locale, Reader> readerMap, TalismaneSession session) {
+		super(null, session);
 		this.readerMap = readerMap;
 		this.localeIterator = readerMap.keySet().iterator();
 	}
