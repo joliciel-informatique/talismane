@@ -23,7 +23,6 @@ import java.io.Reader;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.typesafe.config.Config;
 
 /**
@@ -47,9 +46,6 @@ public abstract class ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusR
 	 * corpus.
 	 */
 	public abstract ParseConfiguration nextConfiguration();
-
-	@Override
-	public abstract void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
 
 	/**
 	 * If provided, will read a lexical entry for each pos-tagged token.

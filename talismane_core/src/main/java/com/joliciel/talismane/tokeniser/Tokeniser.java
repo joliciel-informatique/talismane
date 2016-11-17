@@ -29,6 +29,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -308,7 +309,6 @@ public abstract class Tokeniser {
 				throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
 			}
 
-			List<String> tokenFilterDescriptors = new ArrayList<>();
 			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 
 			LOG.debug("tokenFilters");
@@ -318,9 +318,9 @@ public abstract class Tokeniser {
 				LOG.debug("From: " + path);
 				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
 				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
-					List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
-					for (TokenFilter tokenFilter : myFilters) {
-						tokeniser.addPreAnnotator(tokenFilter);
+					List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
+					for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
+						tokeniser.addPreAnnotator(tokenFilterPair.getLeft());
 					}
 				}
 			}
@@ -335,9 +335,9 @@ public abstract class Tokeniser {
 					}
 				}
 				try (Scanner scanner = new Scanner(modelDescriptorString)) {
-					List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
-					for (TokenFilter tokenFilter : myFilters) {
-						tokeniser.addPreAnnotator(tokenFilter);
+					List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner);
+					for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
+						tokeniser.addPreAnnotator(tokenFilterPair.getLeft());
 					}
 				}
 			}
@@ -368,7 +368,7 @@ public abstract class Tokeniser {
 
 			if (tokeniserModel != null) {
 				LOG.debug("From model");
-				List<String> modelDescriptors = tokeniserModel.getDescriptors().get(PosTagSequenceFilterFactory.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
+				List<String> modelDescriptors = tokeniserModel.getDescriptors().get(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
 
 				if (modelDescriptors != null) {
 					for (String descriptor : modelDescriptors) {

@@ -45,6 +45,12 @@ import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.parser.Parser.PredictTransitions;
+import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
+import com.joliciel.talismane.posTagger.PosTagComparator;
+import com.joliciel.talismane.posTagger.PosTagSequence;
+import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
+import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
+import com.joliciel.talismane.posTagger.PosTaggerTrainer;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorTrainer;
@@ -104,8 +110,8 @@ public class TalismaneMain {
 
 		OptionSpec<Module> moduleOption = parser.accepts("module", "training / evaluation / processing module: " + Arrays.toString(Module.values()))
 				.availableIf("train", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
-		OptionSpec<Module> startModuleOption = parser.accepts("startModule", "where to start analysis: " + Arrays.toString(Module.values()))
-				.availableIf("analyse").withRequiredArg().ofType(Module.class);
+		OptionSpec<Module> startModuleOption = parser.accepts("startModule", "where to start analysis (or evaluation): " + Arrays.toString(Module.values()))
+				.availableIf("analyse", "evaluate").withRequiredArg().ofType(Module.class);
 		OptionSpec<Module> endModuleOption = parser.accepts("endModule", "where to end analysis: " + Arrays.toString(Module.values())).availableIf("analyse")
 				.withRequiredArg().ofType(Module.class);
 
@@ -288,8 +294,11 @@ public class TalismaneMain {
 			values.put("talismane.core.command", "process");
 		if (options.has(moduleOption))
 			values.put("talismane.core.module", options.valueOf(moduleOption).name());
-		if (options.has(startModuleOption))
+		if (options.has(startModuleOption)) {
 			values.put("talismane.core.analysis.start-module", options.valueOf(startModuleOption).name());
+			values.put("talismane.core.pos-tagger.evaluate.start-module", options.valueOf(startModuleOption).name());
+			values.put("talismane.core.parser.evaluate.start-module", options.valueOf(startModuleOption).name());
+		}
 		if (options.has(endModuleOption))
 			values.put("talismane.core.analysis.end-module", options.valueOf(endModuleOption).name());
 		if (options.has(modeOption))
@@ -526,6 +535,11 @@ public class TalismaneMain {
 				trainer.train();
 				break;
 			}
+			case posTagger: {
+				PosTaggerTrainer trainer = new PosTaggerTrainer(session);
+				trainer.train();
+				break;
+			}
 			}
 			break;
 		}
@@ -541,6 +555,10 @@ public class TalismaneMain {
 				evaluator.evaluate();
 				break;
 			}
+			case posTagger:
+				PosTaggerEvaluator posTaggerEvaluator = new PosTaggerEvaluator(session);
+				posTaggerEvaluator.evaluate();
+				break;
 			}
 			break;
 		}
@@ -551,6 +569,10 @@ public class TalismaneMain {
 				comparator.compare();
 				break;
 			}
+			case posTagger:
+				PosTagComparator posTagComparator = new PosTagComparator(session);
+				posTagComparator.evaluate();
+				break;
 			default:
 				throw new TalismaneException("Command 'compare' does not yet support module: " + session.getModule());
 			}
@@ -559,26 +581,41 @@ public class TalismaneMain {
 		case process: {
 			switch (session.getModule()) {
 			case sentenceDetector: {
-				SentenceProcessor sentenceProcessor = SentenceProcessor.getProcessor(session);
+				SentenceProcessor processor = SentenceProcessor.getProcessor(session);
 
 				SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
 						config.getConfig("talismane.core.sentence-detector.input"), session);
 				while (corpusReader.hasNextSentence()) {
 					String text = corpusReader.nextSentence();
 					Sentence sentence = new Sentence(text, session);
-					sentenceProcessor.onNextSentence(sentence, session.getWriter());
+					processor.onNextSentence(sentence, session.getWriter());
 				}
 				break;
 			}
 			case tokeniser: {
-				TokenSequenceProcessor tokenSequenceProcessor = TokenSequenceProcessor.getProcessor(session);
-				TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+				TokenSequenceProcessor processor = TokenSequenceProcessor.getProcessor(session);
+				TokeniserAnnotatedCorpusReader corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
 						config.getConfig("talismane.core.tokeniser.input"), session);
-				while (tokenCorpusReader.hasNextTokenSequence()) {
-					TokenSequence tokenSequence = tokenCorpusReader.nextTokenSequence();
-					tokenSequenceProcessor.onNextTokenSequence(tokenSequence, session.getWriter());
+				while (corpusReader.hasNextTokenSequence()) {
+					TokenSequence tokenSequence = corpusReader.nextTokenSequence();
+					processor.onNextTokenSequence(tokenSequence, session.getWriter());
 				}
 
+				break;
+			}
+			case posTagger: {
+				PosTagSequenceProcessor processor = PosTagSequenceProcessor.getProcessor(session);
+
+				PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+						config.getConfig("talismane.core.pos-tagger.input"), session);
+				try {
+					while (corpusReader.hasNextPosTagSequence()) {
+						PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
+						processor.onNextPosTagSequence(posTagSequence, session.getWriter());
+					}
+				} finally {
+					processor.onCompleteAnalysis();
+				}
 				break;
 			}
 			}

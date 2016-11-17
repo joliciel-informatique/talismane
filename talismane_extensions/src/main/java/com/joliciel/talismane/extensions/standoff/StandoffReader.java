@@ -45,7 +45,6 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -64,10 +63,6 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
-
-	private List<Annotator> preAnnotators = new ArrayList<>();
-	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<>();
 
 	private Map<String, StandoffToken> tokenMap = new HashMap<>();
 	private Map<String, StandoffRelation> relationMap = new HashMap<>();
@@ -255,21 +250,6 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 			configuration = null;
 		}
 		return nextConfiguration;
-	}
-
-	@Override
-	public void addPreAnnotator(Annotator annotator) {
-		this.preAnnotators.add(annotator);
-	}
-
-	@Override
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.tokenSequenceFilters.add(tokenFilter);
-	}
-
-	@Override
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter) {
-		this.posTagSequenceFilters.add(posTagSequenceFilter);
 	}
 
 	@Override

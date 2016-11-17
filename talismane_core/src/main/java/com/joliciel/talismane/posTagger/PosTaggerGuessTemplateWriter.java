@@ -18,37 +18,32 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.posTagger;
 
-import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
-
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 
 /**
  * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
  * using a freemarker template.
+ * 
  * @author Assaf Urieli
  *
  */
 public class PosTaggerGuessTemplateWriter implements PosTagEvaluationObserver {
-	FreemarkerTemplateWriter freemarkerTemplateWriter;
 	Writer writer;
-	
-	public PosTaggerGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
+	PosTagSequenceProcessor processor;
+
+	public PosTaggerGuessTemplateWriter(PosTagSequenceProcessor processor, Writer writer) {
+		this.processor = processor;
 		this.writer = writer;
 	}
 
 	@Override
-	public void onNextPosTagSequence(PosTagSequence realSequence,
-			List<PosTagSequence> guessedSequences) {
-		freemarkerTemplateWriter.onNextPosTagSequence(guessedSequences.get(0), writer);
+	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) {
+		processor.onNextPosTagSequence(guessedSequences.get(0), writer);
 	}
 
 	@Override
 	public void onEvaluationComplete() {
-		freemarkerTemplateWriter.onCompleteParse();
 	}
-
 
 }

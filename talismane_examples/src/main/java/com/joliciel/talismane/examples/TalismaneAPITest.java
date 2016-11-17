@@ -25,6 +25,7 @@ import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.Parser;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
+import com.joliciel.talismane.posTagger.PosTaggers;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.typesafe.config.Config;
@@ -58,7 +59,7 @@ public class TalismaneAPITest {
 		TokenSequence tokenSequence = tokeniser.tokeniseText(text);
 
 		// pos-tag the token sequence
-		PosTagger posTagger = talismaneConfig.getPosTagger();
+		PosTagger posTagger = PosTaggers.getPosTagger(talismaneSession);
 		PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequence);
 		System.out.println(posTagSequence);
 

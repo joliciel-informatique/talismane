@@ -272,7 +272,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 							posTagSequence.addPosTaggedToken(posTaggedToken);
 						}
 
-						for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+						for (PosTagSequenceFilter posTagSequenceFilter : this.getPosTagSequenceFilters()) {
 							posTagSequenceFilter.apply(posTagSequence);
 						}
 					}
@@ -305,22 +305,12 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 		return nextSentence;
 	}
 
-	@Override
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.tokenSequenceFilters.add(tokenFilter);
-	}
-
 	public String getRegex() {
 		return regex;
 	}
 
 	public Pattern getPattern() {
 		return pattern;
-	}
-
-	@Override
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter) {
-		this.posTagSequenceFilters.add(posTagSequenceFilter);
 	}
 
 	@Override
@@ -374,13 +364,13 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 		attributes.put("tagset", session.getPosTagSet().getName());
 
 		int i = 0;
-		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+		for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters()) {
 			attributes.put("TokenSequenceFilter" + i, "" + tokenFilter.getClass().getSimpleName());
 
 			i++;
 		}
 		i = 0;
-		for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+		for (PosTagSequenceFilter posTagSequenceFilter : this.getPosTagSequenceFilters()) {
 			attributes.put("PosTagSequenceFilter" + i, "" + posTagSequenceFilter.getClass().getSimpleName());
 
 			i++;
@@ -409,14 +399,17 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 		return tokenSequence;
 	}
 
+	@Override
 	public boolean hasNextSentence() {
 		return this.hasNextPosTagSequence();
 	}
 
+	@Override
 	public String nextSentence() {
 		return this.nextTokenSequence().getSentence().getText();
 	}
 
+	@Override
 	public boolean isNewParagraph() {
 		return false;
 	}
