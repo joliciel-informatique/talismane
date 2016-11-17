@@ -55,8 +55,6 @@ public class ParserEvaluator {
 	private final Parser parser;
 	private final PosTagger posTagger;
 	private final Tokeniser tokeniser;
-	private final boolean propagateTokeniserBeam;
-	private final boolean propagateBeam;
 
 	private final List<ParseEvaluationObserver> observers;
 
@@ -83,9 +81,6 @@ public class ParserEvaluator {
 		} else {
 			posTagger = null;
 		}
-
-		propagateTokeniserBeam = config.getBoolean("talismane.core.pos-tagger.propagate-tokeniser-beam");
-		propagateBeam = parserConfig.getBoolean("propagate-pos-tagger-beam");
 	}
 
 	public ParserEvaluator(ParserAnnotatedCorpusReader corpusReader, Parser parser, PosTagger posTagger, Tokeniser tokeniser, boolean propagateTokeniserBeam,
@@ -94,8 +89,6 @@ public class ParserEvaluator {
 		this.parser = parser;
 		this.posTagger = posTagger;
 		this.tokeniser = tokeniser;
-		this.propagateTokeniserBeam = propagateTokeniserBeam;
-		this.propagateBeam = propagateBeam;
 		this.observers = new ArrayList<>();
 	}
 
@@ -112,12 +105,6 @@ public class ParserEvaluator {
 				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
 
 				tokenSequences = tokeniser.tokenise(sentence);
-
-				if (!propagateTokeniserBeam) {
-					TokenSequence tokenSequence = tokenSequences.get(0);
-					tokenSequences = new ArrayList<TokenSequence>();
-					tokenSequences.add(tokenSequence);
-				}
 			} else {
 				tokenSequences = new ArrayList<TokenSequence>();
 				PosTagSequence posTagSequence = realConfiguration.getPosTagSequence().clonePosTagSequence();
@@ -129,12 +116,6 @@ public class ParserEvaluator {
 				if (posTagger instanceof NonDeterministicPosTagger) {
 					NonDeterministicPosTagger nonDeterministicPosTagger = (NonDeterministicPosTagger) posTagger;
 					posTagSequences = nonDeterministicPosTagger.tagSentence(tokenSequences);
-
-					if (!propagateBeam) {
-						PosTagSequence posTagSequence = posTagSequences.get(0);
-						posTagSequences = new ArrayList<PosTagSequence>();
-						posTagSequences.add(posTagSequence);
-					}
 				} else {
 					posTagSequences = new ArrayList<PosTagSequence>();
 					PosTagSequence posTagSequence = null;
@@ -196,14 +177,6 @@ public class ParserEvaluator {
 
 	public void addObserver(ParseEvaluationObserver observer) {
 		this.observers.add(observer);
-	}
-
-	/**
-	 * Should the beam be propagated from one module to the next, e.g. from the
-	 * pos-tagger to the parser.
-	 */
-	public boolean isPropagateBeam() {
-		return propagateBeam;
 	}
 
 }

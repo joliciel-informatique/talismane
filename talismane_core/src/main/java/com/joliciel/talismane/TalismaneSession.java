@@ -347,7 +347,7 @@ public class TalismaneSession {
 		}
 		this.diacriticizer = diacriticizer;
 
-		String endBlockCharacter = talismaneConfig.getString("analysis.end-block-char-code");
+		String endBlockCharacter = talismaneConfig.getString("end-block-char-code");
 		if (endBlockCharacter.length() > 1) {
 			throw new IllegalArgumentException("end block character must be a single character");
 		}
@@ -633,6 +633,14 @@ public class TalismaneSession {
 	 */
 	public Module getModule() {
 		return module;
+	}
+
+	/**
+	 * A character (typically non-printing) which will mark a stop in the input
+	 * stream and set-off analysis, such as the form-feed character.
+	 */
+	public char getEndBlockCharacter() {
+		return endBlockCharCode;
 	}
 
 }

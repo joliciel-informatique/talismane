@@ -65,6 +65,7 @@ public class PosTaggers {
 			Config config = session.getConfig();
 			Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 			int beamWidth = posTaggerConfig.getInt("beam-width");
+			boolean propagateTokeniserBeam = posTaggerConfig.getBoolean("propagate-tokeniser-beam");
 
 			String configPath = "talismane.core.pos-tagger.model";
 			String modelFilePath = config.getString(configPath);
@@ -77,7 +78,7 @@ public class PosTaggers {
 				modelMap.put(modelFilePath, model);
 			}
 
-			posTagger = new ForwardStatisticalPosTagger(model, beamWidth, session);
+			posTagger = new ForwardStatisticalPosTagger(model, beamWidth, propagateTokeniserBeam, session);
 
 			boolean includeDetails = posTaggerConfig.getBoolean("output.include-details");
 			if (includeDetails) {
