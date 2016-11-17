@@ -49,6 +49,7 @@ import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
 import com.joliciel.talismane.extensions.standoff.StandoffReader;
 import com.joliciel.talismane.extensions.standoff.StandoffWriter;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
+import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -142,7 +143,7 @@ public class Extensions {
 			if (command == null)
 				return;
 
-			TalismaneSession talismaneSession = config.getTalismaneSession();
+			TalismaneSession session = config.getTalismaneSession();
 
 			switch (command) {
 			case toStandoff: {
@@ -159,12 +160,12 @@ public class Extensions {
 				break;
 			}
 			case fromStandoff: {
-				StandoffReader standoffReader = new StandoffReader(config.getReader(), config.getConfig(), talismaneSession);
+				StandoffReader standoffReader = new StandoffReader(config.getReader(), config.getConfig(), session);
 				config.setParserCorpusReader(standoffReader);
 				break;
 			}
 			case corpusStatistics: {
-				CorpusStatistics stats = new CorpusStatistics(talismaneSession);
+				CorpusStatistics stats = new CorpusStatistics(session);
 
 				if (referenceStatsPath != null) {
 					File referenceStatsFile = new File(referenceStatsPath);
@@ -173,13 +174,13 @@ public class Extensions {
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
 
-				File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.csv");
+				File csvFile = new File(session.getOutDir(), session.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
 				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
-				File serializationFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.zip");
+				File serializationFile = new File(session.getOutDir(), session.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
@@ -190,7 +191,7 @@ public class Extensions {
 				break;
 			}
 			case posTaggerStatistics: {
-				PosTaggerStatistics stats = new PosTaggerStatistics(talismaneSession);
+				PosTaggerStatistics stats = new PosTaggerStatistics(session);
 
 				if (referenceStatsPath != null) {
 					File referenceStatsFile = new File(referenceStatsPath);
@@ -199,13 +200,13 @@ public class Extensions {
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
 
-				File csvFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.csv");
+				File csvFile = new File(session.getOutDir(), session.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
 				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
-				File serializationFile = new File(talismaneSession.getOutDir(), talismaneSession.getBaseName() + "_stats.zip");
+				File serializationFile = new File(session.getOutDir(), session.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
@@ -224,12 +225,12 @@ public class Extensions {
 					corpusRules.add(scanner.nextLine());
 				}
 				scanner.close();
-				CorpusModifier corpusModifier = new CorpusModifier(config.getParseConfigurationProcessor(), corpusRules);
+				CorpusModifier corpusModifier = new CorpusModifier(ParseConfigurationProcessor.getProcessor(session), corpusRules);
 				talismane.setParseConfigurationProcessor(corpusModifier);
 				break;
 			}
 			case projectify: {
-				CorpusProjectifier projectifier = new CorpusProjectifier(config.getParseConfigurationProcessor());
+				CorpusProjectifier projectifier = new CorpusProjectifier(ParseConfigurationProcessor.getProcessor(session));
 				talismane.setParseConfigurationProcessor(projectifier);
 				break;
 			}

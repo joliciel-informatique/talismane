@@ -18,42 +18,38 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.parser;
 
-import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
- * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
- * using a freemarker template.
+ * Simply a wrapper for the ParseConfigurationProcessor, writing the best guess
+ * using the processor.
+ * 
  * @author Assaf Urieli
  *
  */
-public class ParseEvaluationGuessTemplateWriter implements
-		ParseEvaluationObserver {
-	FreemarkerTemplateWriter freemarkerTemplateWriter;
-	Writer writer;
-	
-	public ParseEvaluationGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
+public class ParseEvaluationGuessTemplateWriter implements ParseEvaluationObserver {
+	private final ParseConfigurationProcessor processor;
+	private final Writer writer;
+
+	public ParseEvaluationGuessTemplateWriter(ParseConfigurationProcessor processor, Writer writer) {
+		this.processor = processor;
 		this.writer = writer;
 	}
-	
+
 	@Override
-	public void onParseEnd(ParseConfiguration realConfiguration,
-			List<ParseConfiguration> guessedConfigurations) {
-		freemarkerTemplateWriter.onNextParseConfiguration(guessedConfigurations.get(0), writer);
+	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) {
+		processor.onNextParseConfiguration(guessedConfigurations.get(0), writer);
 	}
 
 	@Override
 	public void onEvaluationComplete() {
-		freemarkerTemplateWriter.onCompleteParse();
+		processor.onCompleteParse();
 	}
 
 	@Override
-	public void onParseStart(ParseConfiguration realConfiguration,
-			List<PosTagSequence> posTagSequences) {
+	public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences) {
 	}
 }

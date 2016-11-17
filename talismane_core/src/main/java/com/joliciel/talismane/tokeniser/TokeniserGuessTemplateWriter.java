@@ -22,8 +22,8 @@ import java.io.Writer;
 import java.util.List;
 
 /**
- * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
- * using a freemarker template.
+ * Simply a wrapper for the TokenSequenceProcessor, writing the best guess using
+ * the processor.
  * 
  * @author Assaf Urieli
  *

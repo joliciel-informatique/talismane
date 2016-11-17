@@ -1,24 +1,33 @@
 package com.joliciel.talismane.posTagger;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
+import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
+import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
 public class PosTagFeatureTester implements PosTagSequenceProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagFeatureTester.class);
@@ -27,8 +36,31 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
 
 	private final Set<String> testWords;
 
-	private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<String, Map<String, List<String>>>();
+	private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
 	private final File file;
+
+	public PosTagFeatureTester(TalismaneSession session, File file) throws IOException {
+		Config config = session.getConfig();
+		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+
+		String configPath = "talismane.core.pos-tagger.train.features";
+		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
+		List<String> featureDescriptors = new ArrayList<>();
+		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
+
+			while (scanner.hasNextLine()) {
+				String descriptor = scanner.nextLine();
+				featureDescriptors.add(descriptor);
+				LOG.debug(descriptor);
+			}
+		}
+
+		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+		this.posTaggerFeatures = featureParser.getFeatureSet(featureDescriptors);
+		this.testWords = new HashSet<>(posTaggerConfig.getStringList("output.test-words"));
+
+		this.file = file;
+	}
 
 	/**
 	 * A feature tester, which outputs results of applying features to the items

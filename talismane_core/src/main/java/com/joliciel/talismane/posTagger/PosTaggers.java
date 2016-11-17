@@ -65,10 +65,10 @@ public class PosTaggers {
 			Config config = session.getConfig();
 			Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 			int beamWidth = posTaggerConfig.getInt("beam-width");
-			LOG.debug("Getting tokeniser model");
 
 			String configPath = "talismane.core.pos-tagger.model";
 			String modelFilePath = config.getString(configPath);
+			LOG.debug("Getting pos-tagger model from " + modelFilePath);
 			ClassificationModel model = modelMap.get(modelFilePath);
 			if (model == null) {
 				InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
@@ -155,6 +155,8 @@ public class PosTaggers {
 			}
 			posTagger.setPosTaggerRules(posTaggerRules);
 
+			if (session.getSessionId() != null)
+				posTaggerMap.put(session.getSessionId(), posTagger);
 		}
 		return posTagger.clonePosTagger();
 	}

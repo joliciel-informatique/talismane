@@ -18,11 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.examples;
 
-import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.DependencyNode;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.Parser;
+import com.joliciel.talismane.parser.Parsers;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
@@ -51,20 +51,19 @@ public class TalismaneAPITest {
 
 		// load the Talismane configuration
 		Config conf = ConfigFactory.load();
-		TalismaneSession talismaneSession = new TalismaneSession(conf, sessionId);
-		TalismaneConfig talismaneConfig = new TalismaneConfig(conf, talismaneSession);
+		TalismaneSession session = new TalismaneSession(conf, sessionId);
 
 		// tokenise the text
-		Tokeniser tokeniser = Tokeniser.getInstance(talismaneSession);
+		Tokeniser tokeniser = Tokeniser.getInstance(session);
 		TokenSequence tokenSequence = tokeniser.tokeniseText(text);
 
 		// pos-tag the token sequence
-		PosTagger posTagger = PosTaggers.getPosTagger(talismaneSession);
+		PosTagger posTagger = PosTaggers.getPosTagger(session);
 		PosTagSequence posTagSequence = posTagger.tagSentence(tokenSequence);
 		System.out.println(posTagSequence);
 
 		// parse the pos-tag sequence
-		Parser parser = talismaneConfig.getParser();
+		Parser parser = Parsers.getParser(session);
 		ParseConfiguration parseConfiguration = parser.parseSentence(posTagSequence);
 		DependencyNode dependencyNode = parseConfiguration.getParseTree();
 		System.out.println(dependencyNode);

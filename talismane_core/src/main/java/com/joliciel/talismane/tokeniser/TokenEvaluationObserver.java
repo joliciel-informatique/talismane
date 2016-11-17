@@ -79,7 +79,7 @@ public interface TokenEvaluationObserver {
 		File freemarkerFile = new File(session.getOutDir(), session.getBaseName() + "_output.txt");
 		freemarkerFile.delete();
 		freemarkerFile.createNewFile();
-		Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), "UTF8"));
+		Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), session.getOutputCharset()));
 		TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(processor, freemakerFileWriter);
 		observers.add(templateWriter);
 

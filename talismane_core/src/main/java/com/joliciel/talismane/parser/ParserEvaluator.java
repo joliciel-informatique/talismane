@@ -18,19 +18,29 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
+import com.joliciel.talismane.posTagger.PosTaggers;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * Evaluate a parser.
@@ -41,16 +51,55 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 public class ParserEvaluator {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(ParserEvaluator.class);
-	private Parser parser;
-	private PosTagger posTagger;
-	private Tokeniser tokeniser;
-	private boolean propagateBeam = true;
-	private int sentenceCount = 0;
+	private final ParserAnnotatedCorpusReader corpusReader;
+	private final Parser parser;
+	private final PosTagger posTagger;
+	private final Tokeniser tokeniser;
+	private final boolean propagateTokeniserBeam;
+	private final boolean propagateBeam;
 
-	private List<ParseEvaluationObserver> observers = new ArrayList<ParseEvaluationObserver>();
+	private final List<ParseEvaluationObserver> observers;
 
-	public void evaluate(ParserAnnotatedCorpusReader corpusReader) {
-		int sentenceIndex = 0;
+	public ParserEvaluator(TalismaneSession session) throws ClassNotFoundException, IOException, ReflectiveOperationException {
+		Config config = session.getConfig();
+		Config parserConfig = config.getConfig("talismane.core.parser");
+		Config evalConfig = parserConfig.getConfig("evaluate");
+
+		this.observers = ParseEvaluationObserver.getObservers(session);
+		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.parser.evaluate.eval-file");
+		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+		this.corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("input"), session);
+
+		this.parser = Parsers.getParser(session);
+
+		Module startModule = Module.valueOf(evalConfig.getString("start-module"));
+		if (startModule == Module.tokeniser) {
+			tokeniser = Tokeniser.getInstance(session);
+		} else {
+			tokeniser = null;
+		}
+		if (startModule == Module.tokeniser || startModule == Module.posTagger) {
+			posTagger = PosTaggers.getPosTagger(session);
+		} else {
+			posTagger = null;
+		}
+
+		propagateTokeniserBeam = config.getBoolean("talismane.core.pos-tagger.propagate-tokeniser-beam");
+		propagateBeam = parserConfig.getBoolean("propagate-pos-tagger-beam");
+	}
+
+	public ParserEvaluator(ParserAnnotatedCorpusReader corpusReader, Parser parser, PosTagger posTagger, Tokeniser tokeniser, boolean propagateTokeniserBeam,
+			boolean propagateBeam) {
+		this.corpusReader = corpusReader;
+		this.parser = parser;
+		this.posTagger = posTagger;
+		this.tokeniser = tokeniser;
+		this.propagateTokeniserBeam = propagateTokeniserBeam;
+		this.propagateBeam = propagateBeam;
+		this.observers = new ArrayList<>();
+	}
+
+	public void evaluate() {
 		while (corpusReader.hasNextConfiguration()) {
 			ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
 
@@ -64,7 +113,7 @@ public class ParserEvaluator {
 
 				tokenSequences = tokeniser.tokenise(sentence);
 
-				if (!propagateBeam) {
+				if (!propagateTokeniserBeam) {
 					TokenSequence tokenSequence = tokenSequences.get(0);
 					tokenSequences = new ArrayList<TokenSequence>();
 					tokenSequences.add(tokenSequence);
@@ -115,10 +164,6 @@ public class ParserEvaluator {
 			for (ParseEvaluationObserver observer : this.observers) {
 				observer.onParseEnd(realConfiguration, guessedConfigurations);
 			}
-
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
 		} // next sentence
 
 		for (ParseEvaluationObserver observer : this.observers) {
@@ -130,19 +175,11 @@ public class ParserEvaluator {
 		return parser;
 	}
 
-	public void setParser(Parser parser) {
-		this.parser = parser;
-	}
-
 	/**
 	 * If provided, will apply pos-tagging as part of the evaluation.
 	 */
 	public PosTagger getPosTagger() {
 		return posTagger;
-	}
-
-	public void setPosTagger(PosTagger posTagger) {
-		this.posTagger = posTagger;
 	}
 
 	/**
@@ -153,16 +190,8 @@ public class ParserEvaluator {
 		return tokeniser;
 	}
 
-	public void setTokeniser(Tokeniser tokeniser) {
-		this.tokeniser = tokeniser;
-	}
-
 	public List<ParseEvaluationObserver> getObservers() {
 		return observers;
-	}
-
-	public void setObservers(List<ParseEvaluationObserver> observers) {
-		this.observers = observers;
 	}
 
 	public void addObserver(ParseEvaluationObserver observer) {
@@ -175,22 +204,6 @@ public class ParserEvaluator {
 	 */
 	public boolean isPropagateBeam() {
 		return propagateBeam;
-	}
-
-	public void setPropagateBeam(boolean propagateBeam) {
-		this.propagateBeam = propagateBeam;
-	}
-
-	/**
-	 * The maximum number of sentences to evaluate. Default is 0, which means
-	 * all.
-	 */
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
 	}
 
 }

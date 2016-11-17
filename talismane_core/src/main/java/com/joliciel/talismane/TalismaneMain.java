@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +45,13 @@ import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
 import com.joliciel.talismane.lexicon.LexiconSerializer;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
+import com.joliciel.talismane.parser.ParseComparator;
+import com.joliciel.talismane.parser.ParseConfiguration;
+import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser.PredictTransitions;
+import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
+import com.joliciel.talismane.parser.ParserEvaluator;
+import com.joliciel.talismane.parser.ParserTrainer;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagComparator;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -540,6 +547,11 @@ public class TalismaneMain {
 				trainer.train();
 				break;
 			}
+			case parser: {
+				ParserTrainer trainer = new ParserTrainer(session);
+				trainer.train();
+				break;
+			}
 			}
 			break;
 		}
@@ -555,10 +567,16 @@ public class TalismaneMain {
 				evaluator.evaluate();
 				break;
 			}
-			case posTagger:
-				PosTaggerEvaluator posTaggerEvaluator = new PosTaggerEvaluator(session);
-				posTaggerEvaluator.evaluate();
+			case posTagger: {
+				PosTaggerEvaluator evaluator = new PosTaggerEvaluator(session);
+				evaluator.evaluate();
 				break;
+			}
+			case parser: {
+				ParserEvaluator evaluator = new ParserEvaluator(session);
+				evaluator.evaluate();
+				break;
+			}
 			}
 			break;
 		}
@@ -569,16 +587,23 @@ public class TalismaneMain {
 				comparator.compare();
 				break;
 			}
-			case posTagger:
-				PosTagComparator posTagComparator = new PosTagComparator(session);
-				posTagComparator.evaluate();
+			case posTagger: {
+				PosTagComparator comparator = new PosTagComparator(session);
+				comparator.evaluate();
 				break;
+			}
+			case parser: {
+				ParseComparator comparator = new ParseComparator(session);
+				comparator.evaluate();
+				break;
+			}
 			default:
-				throw new TalismaneException("Command 'compare' does not yet support module: " + session.getModule());
+				throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
 			}
 			break;
 		}
 		case process: {
+			Writer writer = session.getWriter();
 			switch (session.getModule()) {
 			case sentenceDetector: {
 				SentenceProcessor processor = SentenceProcessor.getProcessor(session);
@@ -588,7 +613,7 @@ public class TalismaneMain {
 				while (corpusReader.hasNextSentence()) {
 					String text = corpusReader.nextSentence();
 					Sentence sentence = new Sentence(text, session);
-					processor.onNextSentence(sentence, session.getWriter());
+					processor.onNextSentence(sentence, writer);
 				}
 				break;
 			}
@@ -598,7 +623,7 @@ public class TalismaneMain {
 						config.getConfig("talismane.core.tokeniser.input"), session);
 				while (corpusReader.hasNextTokenSequence()) {
 					TokenSequence tokenSequence = corpusReader.nextTokenSequence();
-					processor.onNextTokenSequence(tokenSequence, session.getWriter());
+					processor.onNextTokenSequence(tokenSequence, writer);
 				}
 
 				break;
@@ -611,13 +636,30 @@ public class TalismaneMain {
 				try {
 					while (corpusReader.hasNextPosTagSequence()) {
 						PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
-						processor.onNextPosTagSequence(posTagSequence, session.getWriter());
+						processor.onNextPosTagSequence(posTagSequence, writer);
 					}
 				} finally {
 					processor.onCompleteAnalysis();
 				}
 				break;
 			}
+			case parser: {
+				ParseConfigurationProcessor processor = ParseConfigurationProcessor.getProcessor(session);
+
+				ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+						config.getConfig("talismane.core.parser.input"), session);
+				try {
+					while (corpusReader.hasNextConfiguration()) {
+						ParseConfiguration configuration = corpusReader.nextConfiguration();
+						processor.onNextParseConfiguration(configuration, writer);
+					}
+				} finally {
+					processor.onCompleteParse();
+				}
+				break;
+			}
+			default:
+				throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
 			}
 			break;
 		}

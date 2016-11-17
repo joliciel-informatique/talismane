@@ -118,6 +118,9 @@ public class SentenceDetector {
 					}
 				}
 			}
+
+			if (session.getSessionId() != null)
+				sentenceDetectorMap.put(session.getSessionId(), sentenceDetector);
 		}
 		return sentenceDetector.cloneSentenceDetector();
 	}

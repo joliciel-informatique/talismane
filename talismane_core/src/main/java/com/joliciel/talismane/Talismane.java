@@ -44,17 +44,12 @@ import com.joliciel.talismane.languageDetector.LanguageDetector;
 import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
-import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronClassificationModelTrainer;
-import com.joliciel.talismane.machineLearning.perceptron.PerceptronModelTrainerObserver;
 import com.joliciel.talismane.parser.NonDeterministicParser;
-import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.parser.Parser;
-import com.joliciel.talismane.parser.ParserEvaluator;
+import com.joliciel.talismane.parser.Parsers;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -218,16 +213,14 @@ public class Talismane {
 		try {
 			if (this.getLanguageDetectorProcessor() == null)
 				this.setLanguageDetectorProcessor(config.getLanguageDetectorProcessor());
-			if (this.getSentenceProcessor() == null) {
-				SentenceProcessor sentenceProcessor = SentenceProcessor.getProcessor(session);
-				this.setSentenceProcessor(sentenceProcessor);
-			}
+			if (this.getSentenceProcessor() == null)
+				this.setSentenceProcessor(SentenceProcessor.getProcessor(session));
 			if (this.getTokenSequenceProcessor() == null)
-				this.setTokenSequenceProcessor(config.getTokenSequenceProcessor());
+				this.setTokenSequenceProcessor(TokenSequenceProcessor.getProcessor(session));
 			if (this.getPosTagSequenceProcessor() == null)
-				this.setPosTagSequenceProcessor(config.getPosTagSequenceProcessor());
+				this.setPosTagSequenceProcessor(PosTagSequenceProcessor.getProcessor(session));
 			if (this.getParseConfigurationProcessor() == null)
-				this.setParseConfigurationProcessor(config.getParseConfigurationProcessor());
+				this.setParseConfigurationProcessor(ParseConfigurationProcessor.getProcessor(session));
 
 			// kick-off writer creation if required
 			this.getWriter();
@@ -275,26 +268,6 @@ public class Talismane {
 					throw new TalismaneException("Command 'process' does not yet support module: " + config.getModule());
 				}
 				break;
-			case evaluate:
-				switch (config.getModule()) {
-				case parser:
-					ParserEvaluator parserEvaluator = config.getParserEvaluator();
-					parserEvaluator.evaluate(config.getParserCorpusReader());
-					break;
-				default:
-					throw new TalismaneException("Command 'evaluate' does not yet support module: " + config.getModule());
-				}
-				break;
-			case compare:
-				switch (config.getModule()) {
-				case parser:
-					ParseComparator parseComparator = config.getParseComparator();
-					parseComparator.evaluate(config.getParserCorpusReader(), config.getParserEvaluationCorpusReader());
-					break;
-				default:
-					throw new TalismaneException("Command 'compare' does not yet support module: " + config.getModule());
-				}
-				break;
 			case train:
 				switch (config.getModule()) {
 				case languageDetector: {
@@ -308,35 +281,6 @@ public class Talismane {
 					ClassificationModel languageModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
 					languageModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 					languageModel.persist(modelFile);
-					break;
-				}
-				case parser: {
-					MachineLearningModel parserModel = null;
-					File modelFile = new File(config.getParserModelFilePath());
-					File modelDir = modelFile.getParentFile();
-					modelDir.mkdirs();
-
-					boolean needToPersist = true;
-					if (config.getPerceptronObservationPoints().size() == 0) {
-						ModelTrainerFactory factory = new ModelTrainerFactory();
-						ClassificationModelTrainer trainer = factory.constructTrainer(config.getConfig());
-
-						parserModel = trainer.trainModel(config.getClassificationEventStream(), config.getDescriptors());
-					} else {
-						PerceptronClassificationModelTrainer trainer = new PerceptronClassificationModelTrainer();
-
-						String modelName = modelFile.getName().substring(0, modelFile.getName().lastIndexOf('.'));
-
-						PerceptronModelTrainerObserver observer = new ParserPerceptronModelPersister(modelDir, modelName, session.getExternalResourceFinder());
-						trainer.trainModelsWithObserver(config.getClassificationEventStream(), config.getDescriptors(), observer,
-								config.getPerceptronObservationPoints());
-						needToPersist = false;
-					}
-
-					if (needToPersist) {
-						parserModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
-						parserModel.persist(modelFile);
-					}
 					break;
 				}
 				default:
@@ -385,7 +329,7 @@ public class Talismane {
 			if (config.needsPosTagger())
 				posTagger = PosTaggers.getPosTagger(session);
 			if (config.needsParser())
-				parser = config.getParser();
+				parser = Parsers.getParser(session);
 
 			TokeniserAnnotatedCorpusReader tokenCorpusReader = null;
 			if (config.getStartModule().equals(Module.posTagger)) {
@@ -813,10 +757,12 @@ public class Talismane {
 
 	/**
 	 * The reader to be used for input by this instance of Talismane.
+	 * 
+	 * @throws IOException
 	 */
-	public Reader getReader() {
+	public Reader getReader() throws IOException {
 		if (this.reader == null)
-			this.reader = config.getReader();
+			this.reader = session.getReader();
 		return reader;
 	}
 
@@ -837,28 +783,5 @@ public class Talismane {
 
 	public void setWriter(Writer writer) {
 		this.writer = writer;
-	}
-
-	private static final class ParserPerceptronModelPersister implements PerceptronModelTrainerObserver {
-		File outDir;
-		ExternalResourceFinder externalResourceFinder;
-		String baseName;
-
-		public ParserPerceptronModelPersister(File outDir, String baseName, ExternalResourceFinder externalResourceFinder) {
-			super();
-			this.outDir = outDir;
-			this.baseName = baseName;
-			this.externalResourceFinder = externalResourceFinder;
-		}
-
-		@Override
-		public void onNextModel(ClassificationModel model, int iterations) {
-			this.outDir.mkdirs();
-			File parserModelFile = new File(outDir, baseName + "_i" + iterations + ".zip");
-			if (externalResourceFinder != null)
-				model.setExternalResources(externalResourceFinder.getExternalResources());
-			LOG.info("Writing model " + parserModelFile.getName());
-			model.persist(parserModelFile);
-		}
 	}
 }
