@@ -718,16 +718,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 	}
 
 	@Override
-	public void addPreAnnotator(Annotator annotator) {
-		this.preannotators.add(annotator);
-	}
-
-	@Override
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter) {
-		this.tokenSequenceFilters.add(tokenFilter);
-	}
-
-	@Override
 	public Map<String, String> getCharacteristics() {
 		Map<String, String> attributes = new LinkedHashMap<String, String>();
 
@@ -926,11 +916,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 	@Override
 	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader) {
 		this.lexicalEntryReader = lexicalEntryReader;
-	}
-
-	@Override
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter) {
-		this.posTagSequenceFilters.add(posTagSequenceFilter);
 	}
 
 	@Override

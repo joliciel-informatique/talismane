@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -44,14 +45,17 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 
 /**
- * Performs POS tagging by applying a beam search to statistical model results.
- * Incorporates various methods of using a lexicon to constrain results.
+ * Performs part-of-speech tagging by applying a beam search to statistical
+ * model results. Incorporates various methods of using a lexicon to constrain
+ * results.
  * 
  * @author Assaf Urieli
  *
@@ -67,6 +71,8 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 
 	private final List<TokenSequenceFilter> preProcessingFilters;
 	private final List<PosTagSequenceFilter> postProcessingFilters;
+	private final List<TokenSequenceFilter> modelPreProcessingFilters;
+	private final List<PosTagSequenceFilter> modelPostProcessingFilters;
 
 	private final List<ClassificationObserver> observers;
 
@@ -74,7 +80,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	private final DecisionMaker decisionMaker;
 	private final int beamWidth;
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
 	/**
 	 * 
@@ -91,20 +97,24 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 		this.posTaggerFeatures = posTaggerFeatures;
 		this.beamWidth = beamWidth;
 		this.decisionMaker = decisionMaker;
-		this.talismaneSession = talismaneSession;
+		this.session = talismaneSession;
 		this.observers = new ArrayList<>();
 		this.preProcessingFilters = new ArrayList<>();
 		this.postProcessingFilters = new ArrayList<>();
+		this.modelPreProcessingFilters = new ArrayList<>();
+		this.modelPostProcessingFilters = new ArrayList<>();
 	}
 
 	ForwardStatisticalPosTagger(ForwardStatisticalPosTagger posTagger) {
 		this.posTaggerFeatures = new HashSet<>(posTagger.posTaggerFeatures);
 		this.beamWidth = posTagger.beamWidth;
 		this.decisionMaker = posTagger.decisionMaker;
-		this.talismaneSession = posTagger.talismaneSession;
+		this.session = posTagger.session;
 		this.observers = posTagger.observers;
 		this.preProcessingFilters = new ArrayList<>(posTagger.preProcessingFilters);
 		this.postProcessingFilters = new ArrayList<>(posTagger.postProcessingFilters);
+		this.modelPreProcessingFilters = new ArrayList<>(posTagger.modelPreProcessingFilters);
+		this.modelPostProcessingFilters = new ArrayList<>(posTagger.modelPostProcessingFilters);
 		this.posTaggerRules = new ArrayList<>(posTagger.posTaggerRules);
 		this.posTaggerPositiveRules = new ArrayList<>(posTagger.posTaggerPositiveRules);
 		this.posTaggerNegativeRules = new ArrayList<>(posTagger.posTaggerNegativeRules);
@@ -116,29 +126,67 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	 * @param beamWidth
 	 *            the maximum beamwidth to consider during the beam search
 	 */
-	public ForwardStatisticalPosTagger(ClassificationModel posTaggerModel, int beamWidth, TalismaneSession talismaneSession) {
-		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(talismaneSession);
-		Collection<ExternalResource<?>> externalResources = posTaggerModel.getExternalResources();
+	public ForwardStatisticalPosTagger(ClassificationModel model, int beamWidth, TalismaneSession session) {
+		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+		Collection<ExternalResource<?>> externalResources = model.getExternalResources();
 		if (externalResources != null) {
 			for (ExternalResource<?> externalResource : externalResources) {
 				featureParser.getExternalResourceFinder().addExternalResource(externalResource);
 			}
 		}
 
-		Set<PosTaggerFeature<?>> posTaggerFeatures = featureParser.getFeatureSet(posTaggerModel.getFeatureDescriptors());
+		Set<PosTaggerFeature<?>> posTaggerFeatures = featureParser.getFeatureSet(model.getFeatureDescriptors());
 		this.posTaggerFeatures = posTaggerFeatures;
 		this.beamWidth = beamWidth;
-		this.decisionMaker = posTaggerModel.getDecisionMaker();
-		this.talismaneSession = talismaneSession;
+		this.decisionMaker = model.getDecisionMaker();
+		this.session = session;
 		this.observers = new ArrayList<>();
 		this.preProcessingFilters = new ArrayList<>();
 		this.postProcessingFilters = new ArrayList<>();
+		this.modelPreProcessingFilters = new ArrayList<>();
+		this.modelPostProcessingFilters = new ArrayList<>();
+
+		LOG.debug("posTagger pre-processing filters");
+		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
+		List<String> preProcessingDescriptors = model.getDescriptors().get(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
+
+		if (preProcessingDescriptors != null) {
+			for (String descriptor : preProcessingDescriptors) {
+				LOG.debug(descriptor);
+				if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
+					TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
+					if (tokenSequenceFilter instanceof NeedsTalismaneSession)
+						((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
+					modelPreProcessingFilters.add(tokenSequenceFilter);
+				}
+			}
+		}
+
+		LOG.debug("posTagger post-processing filters");
+		PosTagSequenceFilterFactory factory = new PosTagSequenceFilterFactory();
+		List<String> postProcessingDescriptors = model.getDescriptors().get(PosTagSequenceFilterFactory.POSTAG_SEQUENCE_FILTER_DESCRIPTOR_KEY);
+
+		if (postProcessingDescriptors != null) {
+			for (String descriptor : postProcessingDescriptors) {
+				LOG.debug(descriptor);
+				if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
+					PosTagSequenceFilter filter = factory.getPosTagSequenceFilter(descriptor);
+					modelPostProcessingFilters.add(filter);
+				}
+			}
+		}
 	}
 
 	@Override
 	public List<PosTagSequence> tagSentence(List<TokenSequence> tokenSequences) {
 		for (TokenSequence tokenSequence : tokenSequences) {
 			for (TokenSequenceFilter tokenFilter : this.preProcessingFilters) {
+				tokenFilter.apply(tokenSequence);
+			}
+		}
+
+		for (TokenSequence tokenSequence : tokenSequences) {
+			for (TokenSequenceFilter tokenFilter : this.modelPreProcessingFilters) {
 				tokenFilter.apply(tokenSequence);
 			}
 		}
@@ -314,7 +362,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 					if (LOG.isTraceEnabled())
 						LOG.trace("Outcome: " + decision.getOutcome() + ", " + decision.getProbability());
 
-					PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, this.talismaneSession);
+					PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, this.session);
 					PosTagSequence sequence = new PosTagSequence(history);
 					sequence.addPosTaggedToken(posTaggedToken);
 					if (decision.isStatistical())
@@ -361,6 +409,8 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 				LOG.debug("Sequence before filters: " + sequence);
 			}
 			for (PosTagSequenceFilter filter : this.postProcessingFilters)
+				filter.apply(sequence);
+			for (PosTagSequenceFilter filter : this.modelPostProcessingFilters)
 				filter.apply(sequence);
 
 			if (LOG.isDebugEnabled()) {

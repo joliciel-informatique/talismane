@@ -32,6 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,6 @@ public class SentenceDetector {
 
 			sentenceDetector = new SentenceDetector(sentenceModel, session);
 
-			List<String> tokenFilterDescriptors = new ArrayList<>();
 			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 
 			LOG.debug("tokenFilters");
@@ -112,9 +112,9 @@ public class SentenceDetector {
 				LOG.debug("From: " + path);
 				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
 				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
-					List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
-					for (TokenFilter tokenFilter : myFilters) {
-						sentenceDetector.addPreAnnotator(tokenFilter);
+					List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
+					for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
+						sentenceDetector.addPreAnnotator(tokenFilterPair.getLeft());
 					}
 				}
 			}
@@ -149,7 +149,6 @@ public class SentenceDetector {
 		this.preannotators = new ArrayList<Annotator>();
 		this.modelPreannotators = new ArrayList<Annotator>();
 
-		List<String> tokenFilterDescriptors = new ArrayList<>();
 		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 		List<String> modelDescriptors = sentenceModel.getDescriptors().get(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY);
 		String modelDescriptorString = "";
@@ -159,9 +158,9 @@ public class SentenceDetector {
 			}
 		}
 		try (Scanner scanner = new Scanner(modelDescriptorString)) {
-			List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
-			for (TokenFilter tokenFilter : myFilters) {
-				this.modelPreannotators.add(tokenFilter);
+			List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner);
+			for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
+				this.modelPreannotators.add(tokenFilterPair.getLeft());
 			}
 		}
 	}

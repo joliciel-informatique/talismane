@@ -84,7 +84,7 @@ public class Extensions {
 
 			Config conf = ConfigFactory.load();
 			TalismaneSession talismaneSession = new TalismaneSession(conf, sessionId);
-			TalismaneConfig config = new TalismaneConfig(argsMap, conf, talismaneSession);
+			TalismaneConfig config = new TalismaneConfig(conf, talismaneSession);
 			if (config.getCommand() == null)
 				return;
 

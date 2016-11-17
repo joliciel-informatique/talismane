@@ -37,12 +37,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,40 +95,22 @@ import com.joliciel.talismane.parser.TransitionLogWriter;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureParser;
 import com.joliciel.talismane.parser.features.ParserRule;
-import com.joliciel.talismane.posTagger.ForwardStatisticalPosTagger;
-import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
-import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
-import com.joliciel.talismane.posTagger.PosTagComparator;
-import com.joliciel.talismane.posTagger.PosTagEvaluationFScoreCalculator;
-import com.joliciel.talismane.posTagger.PosTagEvaluationLexicalCoverageTester;
-import com.joliciel.talismane.posTagger.PosTagEvaluationSentenceWriter;
-import com.joliciel.talismane.posTagger.PosTagEventStream;
 import com.joliciel.talismane.posTagger.PosTagFeatureTester;
-import com.joliciel.talismane.posTagger.PosTagRegexBasedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
-import com.joliciel.talismane.posTagger.PosTagger;
-import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
-import com.joliciel.talismane.posTagger.PosTaggerGuessTemplateWriter;
+import com.joliciel.talismane.posTagger.PosTaggers;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.DirectoryReader;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import gnu.trove.list.TIntList;
 
 /**
  * A class for loading, storing and translating configuration information to be
@@ -159,14 +139,10 @@ public class TalismaneConfig {
 	private Module module;
 
 	private ParserEvaluator parserEvaluator;
-	private PosTaggerEvaluator posTaggerEvaluator;
 	private ParseComparator parseComparator;
-	private PosTagComparator posTagComparator;
 
-	private PosTagAnnotatedCorpusReader posTagCorpusReader;
 	private ParserAnnotatedCorpusReader parserCorpusReader;
 	private ParserAnnotatedCorpusReader parserEvaluationCorpusReader;
-	private PosTagAnnotatedCorpusReader posTagEvaluationCorpusReader;
 	private LanguageDetectorAnnotatedCorpusReader languageCorpusReader;
 
 	private LanguageDetectorProcessor languageDetectorProcessor;
@@ -218,8 +194,6 @@ public class TalismaneConfig {
 	private List<TokenFilter> tokenFilters;
 	private List<TokenFilter> additionalTokenFilters = new ArrayListNoNulls<TokenFilter>();
 	private List<TokenFilter> prependedTokenFilters = new ArrayListNoNulls<TokenFilter>();
-	private List<TokenSequenceFilter> tokenSequenceFilters;
-	private List<PosTagSequenceFilter> posTaggerPostProcessingFilters;
 	private boolean includeDistanceFScores;
 	private boolean includeTransitionLog;
 	private boolean predictTransitions;
@@ -238,12 +212,9 @@ public class TalismaneConfig {
 	private ClassificationEventStream classificationEventStream;
 
 	private boolean parserCorpusReaderFiltersAdded = false;
-	private boolean posTagCorpusReaderFiltersAdded = false;
 	private boolean parserCorpusReaderDecorated = false;
 
 	private ParseComparisonStrategyType parseComparisonStrategyType;
-	private boolean includeLexiconCoverage;
-	private boolean includeUnknownWordResults;
 	private boolean includeTimePerToken;
 
 	// server parameters
@@ -259,7 +230,6 @@ public class TalismaneConfig {
 
 	private Locale locale;
 
-	private PosTagger posTagger;
 	private Parser parser;
 
 	// various static maps for ensuring we don't load the same large resource
@@ -268,215 +238,6 @@ public class TalismaneConfig {
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 
 	private final TalismaneSession session;
-
-	public TalismaneConfig(Map<String, String> args, Config config, TalismaneSession talismaneSession) throws ClassNotFoundException, IOException {
-		this.session = talismaneSession;
-
-		Map<String, Object> values = new HashMap<>();
-		Map<String, ImmutablePair<String, Class<?>>> mapping = new HashMap<>();
-
-		String prefix = "talismane.core.";
-		mapping.put("command", new ImmutablePair<String, Class<?>>(prefix + "command", String.class));
-		mapping.put("mode", new ImmutablePair<String, Class<?>>(prefix + "mode", String.class));
-		mapping.put("port", new ImmutablePair<String, Class<?>>(prefix + "port", Integer.class));
-		mapping.put("module", new ImmutablePair<String, Class<?>>(prefix + "module", String.class));
-		mapping.put("inFile", new ImmutablePair<String, Class<?>>(prefix + "inFile", String.class));
-		mapping.put("inDir", new ImmutablePair<String, Class<?>>(prefix + "inDir", String.class));
-		mapping.put("outFile", new ImmutablePair<String, Class<?>>(prefix + "outFile", String.class));
-		mapping.put("outDir", new ImmutablePair<String, Class<?>>(prefix + "outDir", String.class));
-		mapping.put("encoding", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
-		mapping.put("inputEncoding", new ImmutablePair<String, Class<?>>(prefix + "inputEncoding", String.class));
-		mapping.put("outputEncoding", new ImmutablePair<String, Class<?>>(prefix + "outputEncoding", String.class));
-		mapping.put("locale", new ImmutablePair<String, Class<?>>(prefix + "locale", String.class));
-
-		prefix = "talismane.core.analyse.";
-		mapping.put("startModule", new ImmutablePair<String, Class<?>>(prefix + "startModule", String.class));
-		mapping.put("endModule", new ImmutablePair<String, Class<?>>(prefix + "endModule", String.class));
-		mapping.put("posTagSet", new ImmutablePair<String, Class<?>>(prefix + "posTagSet", String.class));
-		mapping.put("transitionSystem", new ImmutablePair<String, Class<?>>(prefix + "transitionSystem", String.class));
-		mapping.put("dependencyLabels", new ImmutablePair<String, Class<?>>(prefix + "dependencyLabels", String.class));
-		mapping.put("languageModel", new ImmutablePair<String, Class<?>>(prefix + "languageModel", String.class));
-		mapping.put("sentenceModel", new ImmutablePair<String, Class<?>>(prefix + "sentenceModel", String.class));
-		mapping.put("posTaggerModel", new ImmutablePair<String, Class<?>>(prefix + "posTaggerModel", String.class));
-		mapping.put("parserModel", new ImmutablePair<String, Class<?>>(prefix + "parserModel", String.class));
-		mapping.put("lexicon", new ImmutablePair<String, Class<?>>(prefix + "lexicons", List.class));
-		mapping.put("diacriticizer", new ImmutablePair<String, Class<?>>(prefix + "diacriticizer", String.class));
-		mapping.put("textFilters", new ImmutablePair<String, Class<?>>(prefix + "textFilters", List.class));
-		mapping.put("tokenFilters", new ImmutablePair<String, Class<?>>(prefix + "tokenFilters", List.class));
-		mapping.put("tokenSequenceFilters", new ImmutablePair<String, Class<?>>(prefix + "tokenSequenceFilters", List.class));
-		mapping.put("posTagSequenceFilters", new ImmutablePair<String, Class<?>>(prefix + "posTagSequenceFilters", List.class));
-		mapping.put("externalResources", new ImmutablePair<String, Class<?>>(prefix + "externalResources", List.class));
-		mapping.put("newline", new ImmutablePair<String, Class<?>>(prefix + "newline", String.class));
-		mapping.put("processByDefault", new ImmutablePair<String, Class<?>>(prefix + "processByDefault", Boolean.class));
-		mapping.put("endBlockCharCode", new ImmutablePair<String, Class<?>>(prefix + "endBlockCharCode", String.class));
-		mapping.put("blockSize", new ImmutablePair<String, Class<?>>(prefix + "blockSize", Integer.class));
-		mapping.put("sentenceCount", new ImmutablePair<String, Class<?>>(prefix + "sentenceCount", Integer.class));
-		mapping.put("startSentence", new ImmutablePair<String, Class<?>>(prefix + "startSentence", Integer.class));
-		mapping.put("builtInTemplate", new ImmutablePair<String, Class<?>>(prefix + "builtInTemplate", String.class));
-		mapping.put("template", new ImmutablePair<String, Class<?>>(prefix + "template", String.class));
-		mapping.put("includeDetails", new ImmutablePair<String, Class<?>>(prefix + "includeDetails", Boolean.class));
-		mapping.put("posTaggerRules", new ImmutablePair<String, Class<?>>(prefix + "posTaggerRules", List.class));
-		mapping.put("parserRules", new ImmutablePair<String, Class<?>>(prefix + "parserRules", List.class));
-		mapping.put("fileName", new ImmutablePair<String, Class<?>>(prefix + "fileName", String.class));
-		mapping.put("suffix", new ImmutablePair<String, Class<?>>(prefix + "suffix", String.class));
-		mapping.put("outputDivider", new ImmutablePair<String, Class<?>>(prefix + "outputDivider", String.class));
-		mapping.put("beamWidth", new ImmutablePair<String, Class<?>>(prefix + "beamWidth", Integer.class));
-		mapping.put("tokeniserBeamWidth", new ImmutablePair<String, Class<?>>(prefix + "tokeniserBeamWidth", Integer.class));
-		mapping.put("posTaggerBeamWidth", new ImmutablePair<String, Class<?>>(prefix + "posTaggerBeamWidth", Integer.class));
-		mapping.put("parserBeamWidth", new ImmutablePair<String, Class<?>>(prefix + "parserBeamWidth", Integer.class));
-		mapping.put("propagateBeam", new ImmutablePair<String, Class<?>>(prefix + "propagateBeam", Boolean.class));
-		mapping.put("propagateTokeniserBeam", new ImmutablePair<String, Class<?>>(prefix + "propagateTokeniserBeam", Boolean.class));
-		mapping.put("dynamiseFeatures", new ImmutablePair<String, Class<?>>(prefix + "dynamiseFeatures", Boolean.class));
-
-		prefix = "talismane.core.analyse.tokeniser";
-		mapping.put("tokeniserType", new ImmutablePair<String, Class<?>>(prefix + "type", String.class));
-		mapping.put("patternTokeniserType", new ImmutablePair<String, Class<?>>(prefix + "patternTokeniserType", String.class));
-
-		prefix = "talismane.core.analyse.parser";
-		mapping.put("maxParseAnalysisTime", new ImmutablePair<String, Class<?>>(prefix + "maxAnalysisTime", Integer.class));
-		mapping.put("minFreeMemory", new ImmutablePair<String, Class<?>>(prefix + "minFreeMemory", Integer.class));
-		mapping.put("parseComparisonStrategy", new ImmutablePair<String, Class<?>>(prefix + "comparisonStrategy", String.class));
-		mapping.put("earlyStop", new ImmutablePair<String, Class<?>>(prefix + "earlyStop", Boolean.class));
-
-		prefix = "talismane.core.evaluate.";
-		mapping.put("evaluationFile", new ImmutablePair<String, Class<?>>(prefix + "evaluationFile", String.class));
-		mapping.put("evaluationPattern", new ImmutablePair<String, Class<?>>(prefix + "evaluationPattern", String.class));
-		mapping.put("evaluationPatternFile", new ImmutablePair<String, Class<?>>(prefix + "evaluationPatternFile", File.class));
-
-		prefix = "talismane.core.evaluate.csv.";
-		mapping.put("csvSeparator", new ImmutablePair<String, Class<?>>(prefix + "separator", String.class));
-		mapping.put("csvEncoding", new ImmutablePair<String, Class<?>>(prefix + "encoding", String.class));
-		mapping.put("outputLocale", new ImmutablePair<String, Class<?>>(prefix + "locale", String.class));
-
-		prefix = "talismane.core.evaluate.posTagger.";
-		mapping.put("includeUnknownWordResults", new ImmutablePair<String, Class<?>>(prefix + "includeUnknownWordResults", Boolean.class));
-		mapping.put("includeLexiconCoverage", new ImmutablePair<String, Class<?>>(prefix + "includeLexiconCoverage", Boolean.class));
-
-		prefix = "talismane.core.evaluate.parser.";
-		mapping.put("labeledEvaluation", new ImmutablePair<String, Class<?>>(prefix + "labeledEvaluation", Boolean.class));
-		mapping.put("includeTimePerToken", new ImmutablePair<String, Class<?>>(prefix + "includeTimePerToken", Boolean.class));
-		mapping.put("includeDistanceFScores", new ImmutablePair<String, Class<?>>(prefix + "includeDistanceFScores", Boolean.class));
-		mapping.put("skipLabel", new ImmutablePair<String, Class<?>>(prefix + "skipLabel", String.class));
-		mapping.put("includeTransitionLog", new ImmutablePair<String, Class<?>>(prefix + "includeTransitionLog", Boolean.class));
-		mapping.put("errorLabels", new ImmutablePair<String, Class<?>>(prefix + "errorLabels", List.class));
-
-		prefix = "talismane.core.evaluate.crossValidation.";
-		mapping.put("crossValidationSize", new ImmutablePair<String, Class<?>>(prefix + "foldCount", Integer.class));
-		mapping.put("includeIndex", new ImmutablePair<String, Class<?>>(prefix + "includeIndex", Integer.class));
-		mapping.put("excludeIndex", new ImmutablePair<String, Class<?>>(prefix + "excludeIndex", Integer.class));
-
-		prefix = "talismane.core.evaluate.";
-		mapping.put("outputGuesses", new ImmutablePair<String, Class<?>>(prefix + "outputGuesses", Boolean.class));
-		mapping.put("outputGuessCount", new ImmutablePair<String, Class<?>>(prefix + "outputGuessCount", Integer.class));
-
-		prefix = "talismane.core.process.";
-		mapping.put("option", new ImmutablePair<String, Class<?>>(prefix + "option", String.class));
-		mapping.put("predictTransitions", new ImmutablePair<String, Class<?>>(prefix + "predictTransitions", Boolean.class));
-		mapping.put("corpusLexicalEntryRegex", new ImmutablePair<String, Class<?>>(prefix + "corpusLexicalEntryRegex", String.class));
-		mapping.put("testWords", new ImmutablePair<String, Class<?>>(prefix + "posTagFeatureTester.testWords", List.class));
-
-		prefix = "talismane.core.train.";
-		mapping.put("languageFeatures", new ImmutablePair<String, Class<?>>(prefix + "languageDetector.features", String.class));
-		mapping.put("languageCorpusMap", new ImmutablePair<String, Class<?>>(prefix + "languageDetector.languageCorpusMap", String.class));
-		mapping.put("sentenceFeatures", new ImmutablePair<String, Class<?>>(prefix + "sentenceDetector.features", String.class));
-		mapping.put("sentenceReader", new ImmutablePair<String, Class<?>>(prefix + "tokeniser.sentenceReader", String.class));
-		mapping.put("tokeniserFeatures", new ImmutablePair<String, Class<?>>(prefix + "tokeniser.features", String.class));
-		mapping.put("tokeniserPatterns", new ImmutablePair<String, Class<?>>(prefix + "tokeniser.patterns", String.class));
-		mapping.put("posTaggerFeatures", new ImmutablePair<String, Class<?>>(prefix + "posTagger.features", String.class));
-		mapping.put("parserFeatures", new ImmutablePair<String, Class<?>>(prefix + "parser.features", String.class));
-		mapping.put("perceptronObservationPoints", new ImmutablePair<String, Class<?>>(prefix + "perceptronObservationPoints", TIntList.class));
-
-		prefix = "talismane.core.";
-		mapping.put("logStats", new ImmutablePair<String, Class<?>>(prefix + "logStats", Boolean.class));
-
-		prefix = "talismane.machineLearning.";
-		mapping.put("algorithm", new ImmutablePair<String, Class<?>>(prefix + "algorithm", String.class));
-		mapping.put("cutoff", new ImmutablePair<String, Class<?>>(prefix + "cutoff", Integer.class));
-		mapping.put("linearSVMEpsilon", new ImmutablePair<String, Class<?>>(prefix + "linearSVM.epsilon", Double.class));
-		mapping.put("linearSVMCost", new ImmutablePair<String, Class<?>>(prefix + "linearSVM.cost", Double.class));
-		mapping.put("oneVsRest", new ImmutablePair<String, Class<?>>(prefix + "linearSVM.oneVsRest", Boolean.class));
-		mapping.put("iterations", new ImmutablePair<String, Class<?>>(prefix + "maxent.iterations", Integer.class));
-
-		for (Entry<String, String> arg : args.entrySet()) {
-			String key = arg.getKey();
-			String argValue = arg.getValue();
-			if ("inputPattern".equals(key)) {
-				values.put("talismane.core.train.tokeniser.readerRegex", argValue);
-				values.put("talismane.core.train.posTagger.readerRegex", argValue);
-				values.put("talismane.core.train.parser.readerRegex", argValue);
-			} else if ("inputPatternFile".equals(key)) {
-				InputStream inputPatternFile = ConfigUtils.getFile(config, "inputPatternFile", argValue);
-				String inputRegex = "";
-				try (Scanner inputPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(inputPatternFile, "UTF-8")))) {
-					if (inputPatternScanner.hasNextLine()) {
-						inputRegex = inputPatternScanner.nextLine();
-					}
-				}
-				if (inputRegex == null)
-					throw new TalismaneException("No input pattern found in " + argValue);
-				values.put("talismane.core.train.tokeniser.input.preannotated-pattern", inputRegex);
-				values.put("talismane.core.train.pos-tagger.input.preannotated-pattern", inputRegex);
-				values.put("talismane.core.train.parser.input.preannotated-pattern", inputRegex);
-			} else if ("evaluationPattern".equals(key)) {
-				values.put("talismane.core.evaluate.tokeniser.readerRegex", argValue);
-				values.put("talismane.core.evaluate.posTagger.readerRegex", argValue);
-				values.put("talismane.core.evaluate.parser.readerRegex", argValue);
-			} else if ("evaluationPatternFile".equals(key)) {
-				InputStream inputPatternFile = ConfigUtils.getFile(config, "evaluationPatternFile", argValue);
-				String inputRegex = "";
-				try (Scanner inputPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(inputPatternFile, "UTF-8")))) {
-					if (inputPatternScanner.hasNextLine()) {
-						inputRegex = inputPatternScanner.nextLine();
-					}
-				}
-				if (inputRegex == null)
-					throw new TalismaneException("No input pattern found in " + argValue);
-				values.put("talismane.core.evaluate.tokeniser.readerRegex", inputRegex);
-				values.put("talismane.core.evaluate.posTagger.readerRegex", inputRegex);
-				values.put("talismane.core.evaluate.parser.readerRegex", inputRegex);
-			} else {
-
-				ImmutablePair<String, Class<?>> mappingType = mapping.get(key);
-				if (mappingType == null) {
-					System.err.println("Unknown argument: " + key);
-					throw new RuntimeException("Unknown argument: " + key);
-				} else if (String.class.equals(mappingType.right)) {
-					values.put(mappingType.left, argValue);
-				} else if (Integer.class.equals(mappingType.right)) {
-					values.put(mappingType.left, Integer.parseInt(argValue));
-				} else if (Double.class.equals(mappingType.right)) {
-					values.put(mappingType.left, Double.parseDouble(argValue));
-				} else if (Boolean.class.equals(mappingType.right)) {
-					values.put(mappingType.left, argValue.equalsIgnoreCase("true"));
-				} else if (List.class.equals(mappingType.right)) {
-					if (argValue.startsWith("replace:")) {
-						String paramName = mappingType.left;
-						String paramNameReplace = paramName + "Replace";
-						values.put(paramNameReplace, true);
-						argValue = argValue.substring("replace:".length());
-					}
-					String[] parts = argValue.split(";");
-					List<String> stringValues = new ArrayListNoNulls<>();
-					for (String part : parts)
-						stringValues.add(part);
-
-					values.put(mappingType.left, stringValues);
-				} else if (TIntList.class.equals(mappingType.right)) {
-					String[] parts = argValue.split(",");
-					List<Integer> intValues = new ArrayListNoNulls<Integer>();
-					for (String part : parts)
-						intValues.add(Integer.parseInt(part));
-
-					values.put(mappingType.left, intValues);
-				} else {
-					throw new RuntimeException("Unable to parse class " + mappingType.right.getSimpleName() + " for " + key);
-				}
-			}
-		}
-
-		Config commandLineConfig = ConfigFactory.parseMap(values, "command-line parameters").withFallback(config);
-		this.loadParameters(commandLineConfig);
-	}
 
 	public TalismaneConfig(Config config, TalismaneSession talismaneSession) throws IOException, ClassNotFoundException {
 		this.session = talismaneSession;
@@ -628,9 +389,6 @@ public class TalismaneConfig {
 		minFreeMemory = analyseConfig.getInt("parser.minFreeMemory");
 		parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(analyseConfig.getString("parser.comparisonStrategy"));
 		earlyStop = analyseConfig.getBoolean("parser.earlyStop");
-
-		includeLexiconCoverage = evaluateConfig.getBoolean("posTagger.includeLexiconCoverage");
-		includeUnknownWordResults = evaluateConfig.getBoolean("posTagger.includeUnknownWordResults");
 
 		labeledEvaluation = evaluateConfig.getBoolean("parser.labeledEvaluation");
 		includeTimePerToken = evaluateConfig.getBoolean("parser.includeTimePerToken");
@@ -1028,179 +786,6 @@ public class TalismaneConfig {
 	}
 
 	/**
-	 * TokenFilters to be applied during analysis.
-	 * 
-	 * @throws IOException
-	 */
-	private synchronized List<TokenSequenceFilter> getTokenSequenceFilters(MachineLearningModel model) throws IOException {
-		if (tokenSequenceFilters == null) {
-			List<String> tokenSequenceFilterDescriptors = new ArrayListNoNulls<String>();
-			tokenSequenceFilters = new ArrayListNoNulls<TokenSequenceFilter>();
-			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
-
-			String configPath = "talismane.core.analyse.tokenSequenceFilters";
-			List<String> tokenFilterPaths = config.getStringList(configPath);
-			for (String path : tokenFilterPaths) {
-				LOG.debug("From: " + path);
-				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, this.getInputCharset().name())) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						tokenSequenceFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
-							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
-							tokenSequenceFilters.add(tokenSequenceFilter);
-						}
-					}
-				}
-			}
-
-			boolean tokenSequenceFiltersReplace = config.getBoolean("talismane.core.analyse.tokenFiltersReplace");
-			if (!tokenSequenceFiltersReplace && model != null) {
-				LOG.debug("From model");
-				List<String> modelDescriptors = model.getDescriptors().get(PosTagSequenceFilterFactory.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY);
-
-				if (modelDescriptors != null) {
-					for (String descriptor : modelDescriptors) {
-						LOG.debug(descriptor);
-						tokenSequenceFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
-							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
-							tokenSequenceFilters.add(tokenSequenceFilter);
-						}
-					}
-				}
-			}
-
-			this.getDescriptors().put(PosTagSequenceFilterFactory.POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY, tokenSequenceFilterDescriptors);
-		}
-		return tokenSequenceFilters;
-	}
-
-	private synchronized List<PosTagSequenceFilter> getPosTagSequenceFilters(MachineLearningModel model) throws IOException {
-		if (posTaggerPostProcessingFilters == null) {
-			List<String> posTaggerPostProcessingFilterDescriptors = new ArrayListNoNulls<String>();
-			posTaggerPostProcessingFilters = new ArrayListNoNulls<PosTagSequenceFilter>();
-			PosTagSequenceFilterFactory factory = new PosTagSequenceFilterFactory();
-
-			String configPath = "talismane.core.analyse.posTagSequenceFilters";
-			List<String> posTagSequenceFilterrPaths = config.getStringList(configPath);
-			for (String path : posTagSequenceFilterrPaths) {
-				LOG.debug("From: " + path);
-				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, this.getInputCharset().name())) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						posTaggerPostProcessingFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							PosTagSequenceFilter filter = factory.getPosTagSequenceFilter(descriptor);
-							posTaggerPostProcessingFilters.add(filter);
-						}
-					}
-				}
-			}
-
-			boolean posTagSequenceFiltersReplace = config.getBoolean("talismane.core.analyse.posTagSequenceFiltersReplace");
-			if (!posTagSequenceFiltersReplace && model != null) {
-				List<String> modelDescriptors = model.getDescriptors().get(PosTagSequenceFilterFactory.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY);
-
-				if (modelDescriptors != null) {
-					for (String descriptor : modelDescriptors) {
-						LOG.debug(descriptor);
-						posTaggerPostProcessingFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							PosTagSequenceFilter filter = factory.getPosTagSequenceFilter(descriptor);
-							posTaggerPostProcessingFilters.add(filter);
-						}
-					}
-				}
-			}
-
-			this.getDescriptors().put(PosTagSequenceFilterFactory.POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY, posTaggerPostProcessingFilterDescriptors);
-		}
-
-		return posTaggerPostProcessingFilters;
-	}
-
-	/**
-	 * TokenFilters to be applied during analysis.
-	 * 
-	 * @throws IOException
-	 */
-	private synchronized List<TokenFilter> getTokenFilters(MachineLearningModel model) throws IOException {
-		if (tokenFilters == null) {
-			List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
-			tokenFilters = new ArrayListNoNulls<TokenFilter>();
-			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
-
-			LOG.debug("Token filters");
-
-			for (TokenFilter tokenFilter : this.prependedTokenFilters)
-				this.tokenFilters.add(tokenFilter);
-
-			LOG.debug("tokenFilters");
-			String configPath = "talismane.core.analyse.tokenFilters";
-			List<String> tokenFilterPaths = config.getStringList(configPath);
-			for (String path : tokenFilterPaths) {
-				LOG.debug("From: " + path);
-				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, this.getInputCharset().name())) {
-					List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
-					for (TokenFilter tokenFilter : myFilters) {
-						tokenFilters.add(tokenFilter);
-					}
-				}
-			}
-
-			boolean tokenFiltersReplace = config.getBoolean("talismane.core.analyse.tokenFiltersReplace");
-			if (!tokenFiltersReplace) {
-				if (model != null) {
-					LOG.debug("From model");
-					List<String> modelDescriptors = model.getDescriptors().get(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY);
-					String modelDescriptorString = "";
-					if (modelDescriptors != null) {
-						for (String descriptor : modelDescriptors) {
-							modelDescriptorString += descriptor + "\n";
-						}
-					}
-					try (Scanner scanner = new Scanner(modelDescriptorString)) {
-						List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
-						for (TokenFilter tokenFilter : myFilters) {
-							tokenFilters.add(tokenFilter);
-						}
-					}
-				}
-			}
-
-			this.getDescriptors().put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
-
-			for (TokenFilter tokenFilter : this.additionalTokenFilters)
-				this.tokenFilters.add(tokenFilter);
-		}
-		return tokenFilters;
-	}
-
-	/**
-	 * Set all token filters replacing those loaded from the model or config.
-	 */
-	public synchronized void setTokenFilters(Scanner scanner) {
-		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
-		List<String> tokenFilterDescriptors = new ArrayListNoNulls<String>();
-		tokenFilters = new ArrayListNoNulls<TokenFilter>();
-		List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, tokenFilterDescriptors);
-		for (TokenFilter tokenFilter : myFilters) {
-			tokenFilters.add(tokenFilter);
-		}
-		this.getDescriptors().put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, tokenFilterDescriptors);
-	}
-
-	/**
 	 * The language detector to use for analysis.
 	 */
 
@@ -1332,9 +917,6 @@ public class TalismaneConfig {
 			case languageDetector:
 				classificationEventStream = new LanguageDetectorEventStream(this.getLanguageCorpusReader(), this.getLanguageDetectorFeatures());
 				break;
-			case posTagger:
-				classificationEventStream = new PosTagEventStream(this.getPosTagCorpusReader(), this.getPosTaggerFeatures());
-				break;
 			case parser:
 				classificationEventStream = new ParseEventStream(this.getParserCorpusReader(), this.getParserFeatures());
 				break;
@@ -1343,44 +925,6 @@ public class TalismaneConfig {
 			}
 		}
 		return classificationEventStream;
-	}
-
-	/**
-	 * The pos-tagger to use for analysis.
-	 */
-
-	public PosTagger getPosTagger() {
-		try {
-			if (this.posTagger == null) {
-				ClassificationModel posTaggerModel = this.getPosTaggerModel();
-				if (posTaggerModel == null)
-					throw new TalismaneException("No posTaggerModel provided");
-
-				posTagger = new ForwardStatisticalPosTagger(posTaggerModel, posTaggerBeamWidth, this.session);
-
-				for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(posTaggerModel)) {
-					posTagger.addPreProcessingFilter(tokenFilter);
-				}
-
-				for (PosTagSequenceFilter posTagFilter : this.getPosTagSequenceFilters(posTaggerModel)) {
-					posTagger.addPostProcessingFilter(posTagFilter);
-				}
-
-				posTagger.setPosTaggerRules(this.getPosTaggerRules());
-
-				if (includeDetails) {
-					String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
-					File detailsFile = new File(session.getOutDir(), detailsFilePath);
-					detailsFile.delete();
-					ClassificationObserver observer = posTaggerModel.getDetailedAnalysisObserver(detailsFile);
-					posTagger.addObserver(observer);
-				}
-			}
-			return posTagger.clonePosTagger();
-		} catch (Exception e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**
@@ -1541,62 +1085,6 @@ public class TalismaneConfig {
 		return parseConfigurationProcessor;
 	}
 
-	public synchronized PosTagAnnotatedCorpusReader getPosTagCorpusReader() throws IOException {
-		if (posTagCorpusReader == null) {
-			String configPath = "talismane.core.train.posTagger.readerRegex";
-			String regex = config.getString(configPath);
-
-			PosTagRegexBasedCorpusReader posTagRegexBasedCorpusReader = new PosTagRegexBasedCorpusReader(this.getReader(), this.config, this.session);
-			posTagCorpusReader = posTagRegexBasedCorpusReader;
-		}
-		this.setCorpusReaderAttributes(posTagCorpusReader);
-
-		this.addPosTagCorpusReaderFilters(posTagCorpusReader);
-		return posTagCorpusReader;
-	}
-
-	public synchronized PosTagAnnotatedCorpusReader getPosTagEvaluationCorpusReader() throws IOException {
-		if (posTagEvaluationCorpusReader == null) {
-			String configPath = "talismane.core.evaluate.posTagger.readerRegex";
-			String regex = config.getString(configPath);
-
-			PosTagRegexBasedCorpusReader posTagRegexCorpusReader = new PosTagRegexBasedCorpusReader(this.getEvaluationReader(), this.config, this.session);
-			this.posTagEvaluationCorpusReader = posTagRegexCorpusReader;
-		}
-		this.addPosTagCorpusReaderFilters(posTagEvaluationCorpusReader);
-		return posTagEvaluationCorpusReader;
-	}
-
-	synchronized void addPosTagCorpusReaderFilters(PosTagAnnotatedCorpusReader corpusReader) throws IOException {
-		if (!posTagCorpusReaderFiltersAdded) {
-			MachineLearningModel myPosTaggerModel = null;
-			if (this.getCommand() != Command.train) {
-				if (this.getStartModule().equals(Module.tokeniser)) {
-					myPosTaggerModel = this.getPosTaggerModel();
-				} else if (this.getStartModule().equals(Module.posTagger)) {
-					myPosTaggerModel = this.getPosTaggerModel();
-				} else {
-					myPosTaggerModel = this.getParserModel();
-				}
-			} // do the models exist already?
-
-			List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
-			for (TokenFilter tokenFilter : this.getTokenFilters(myPosTaggerModel)) {
-				tokenFilters.add(tokenFilter);
-			}
-
-			for (TokenSequenceFilter tokenSequenceFilter : this.getTokenSequenceFilters(myPosTaggerModel)) {
-				corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
-			}
-
-			for (PosTagSequenceFilter posTagSequenceFilter : this.getPosTagSequenceFilters(myPosTaggerModel)) {
-				corpusReader.addPosTagSequenceFilter(posTagSequenceFilter);
-			}
-
-			posTagCorpusReaderFiltersAdded = true;
-		}
-	}
-
 	/**
 	 * A parser corpus reader to read a corpus pre-annotated in dependencies.
 	 * 
@@ -1664,10 +1152,6 @@ public class TalismaneConfig {
 		this.parserEvaluationCorpusReader = parserEvaluationCorpusReader;
 	}
 
-	public void setPosTagEvaluationCorpusReader(PosTagAnnotatedCorpusReader posTagEvaluationCorpusReader) {
-		this.posTagEvaluationCorpusReader = posTagEvaluationCorpusReader;
-	}
-
 	synchronized void addParserCorpusReaderFilters(ParserAnnotatedCorpusReader corpusReader) throws IOException {
 		if (!parserCorpusReaderFiltersAdded) {
 			MachineLearningModel myPosTaggerModel = null;
@@ -1685,23 +1169,8 @@ public class TalismaneConfig {
 				}
 			} // models exist already?
 
-			List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
-			for (TokenFilter tokenFilter : this.getTokenFilters(myPosTaggerModel)) {
-				tokenFilters.add(tokenFilter);
-			}
-
-			for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters(myPosTaggerModel)) {
-				corpusReader.addTokenSequenceFilter(tokenFilter);
-			}
-			for (PosTagSequenceFilter posTagSequenceFilter : this.getPosTagSequenceFilters(myParserModel)) {
-				corpusReader.addPosTagSequenceFilter(posTagSequenceFilter);
-			}
 			parserCorpusReaderFiltersAdded = true;
 		}
-	}
-
-	public void setPosTagCorpusReader(PosTagAnnotatedCorpusReader posTagCorpusReader) {
-		this.posTagCorpusReader = posTagCorpusReader;
 	}
 
 	public void setParserCorpusReader(ParserAnnotatedCorpusReader parserCorpusReader) {
@@ -1718,9 +1187,9 @@ public class TalismaneConfig {
 				parserEvaluator = new ParserEvaluator();
 				if (startModule.equals(Module.tokeniser)) {
 					parserEvaluator.setTokeniser(Tokeniser.getInstance(session));
-					parserEvaluator.setPosTagger(this.getPosTagger());
+					parserEvaluator.setPosTagger(PosTaggers.getPosTagger(session));
 				} else if (startModule.equals(Module.posTagger)) {
-					parserEvaluator.setPosTagger(this.getPosTagger());
+					parserEvaluator.setPosTagger(PosTaggers.getPosTagger(session));
 				}
 				parserEvaluator.setParser(this.getParser());
 
@@ -1842,102 +1311,6 @@ public class TalismaneConfig {
 			}
 
 			return parseComparator;
-		} catch (Exception e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Get a pos-tagger evaluator if command=evaluate and endModule=posTagger.
-	 */
-
-	public synchronized PosTaggerEvaluator getPosTaggerEvaluator() {
-		try {
-			if (posTaggerEvaluator == null) {
-				posTaggerEvaluator = new PosTaggerEvaluator(this.getPosTagger());
-
-				if (startModule.equals(Module.tokeniser)) {
-					posTaggerEvaluator.setTokeniser(Tokeniser.getInstance(session));
-				}
-
-				if (outputGuesses) {
-					File csvFile = new File(session.getOutDir(), session.getBaseName() + "_sentences.csv");
-					csvFile.delete();
-					csvFile.createNewFile();
-					Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
-
-					int guessCount = 1;
-					if (outputGuessCount > 0)
-						guessCount = outputGuessCount;
-					else if (posTaggerEvaluator.getPosTagger() instanceof NonDeterministicPosTagger)
-						guessCount = ((NonDeterministicPosTagger) posTaggerEvaluator.getPosTagger()).getBeamWidth();
-
-					PosTagEvaluationSentenceWriter sentenceWriter = new PosTagEvaluationSentenceWriter(csvFileWriter, guessCount);
-					posTaggerEvaluator.addObserver(sentenceWriter);
-				}
-
-				File fscoreFile = new File(session.getOutDir(), session.getBaseName() + "_fscores.csv");
-
-				PosTagEvaluationFScoreCalculator posTagFScoreCalculator = new PosTagEvaluationFScoreCalculator(fscoreFile);
-				if (includeUnknownWordResults) {
-					File fscoreUnknownWordFile = new File(session.getOutDir(), session.getBaseName() + "_unknown.csv");
-					posTagFScoreCalculator.setFScoreUnknownInLexiconFile(fscoreUnknownWordFile);
-					File fscoreKnownWordFile = new File(session.getOutDir(), session.getBaseName() + "_known.csv");
-					posTagFScoreCalculator.setFScoreKnownInLexiconFile(fscoreKnownWordFile);
-				}
-
-				posTaggerEvaluator.addObserver(posTagFScoreCalculator);
-
-				Reader templateReader = null;
-				String configPath = "talismane.core.analyse.template";
-				if (config.hasPath(configPath)) {
-					templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-				} else {
-					templateReader = new BufferedReader(new InputStreamReader(getInputStreamFromResource(posTaggerTemplateName)));
-				}
-
-				File freemarkerFile = new File(session.getOutDir(), session.getBaseName() + "_output.txt");
-				freemarkerFile.delete();
-				freemarkerFile.createNewFile();
-				Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), "UTF8"));
-				PosTaggerGuessTemplateWriter templateWriter = new PosTaggerGuessTemplateWriter(freemakerFileWriter, templateReader);
-				posTaggerEvaluator.addObserver(templateWriter);
-
-				if (includeLexiconCoverage) {
-					File lexiconCoverageFile = new File(session.getOutDir(), session.getBaseName() + ".lexiconCoverage.csv");
-					PosTagEvaluationLexicalCoverageTester lexiconCoverageTester = new PosTagEvaluationLexicalCoverageTester(lexiconCoverageFile);
-					posTaggerEvaluator.addObserver(lexiconCoverageTester);
-				}
-
-				posTaggerEvaluator.setPropagateBeam(propagateBeam);
-				posTaggerEvaluator.setSentenceCount(maxSentenceCount);
-			}
-			return posTaggerEvaluator;
-		} catch (Exception e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Get a pos-tag comparator if command=compare and endModule=parser.
-	 */
-
-	public synchronized PosTagComparator getPosTagComparator() {
-		try {
-			if (posTagComparator == null) {
-				posTagComparator = new PosTagComparator();
-				File fscoreFile = new File(session.getOutDir(), session.getBaseName() + ".fscores.csv");
-
-				PosTagEvaluationFScoreCalculator fScoreCalculator = new PosTagEvaluationFScoreCalculator(fscoreFile);
-
-				posTagComparator.addObserver(fScoreCalculator);
-
-				posTagComparator.setSentenceCount(maxSentenceCount);
-			}
-
-			return posTagComparator;
 		} catch (Exception e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
@@ -2142,9 +1515,7 @@ public class TalismaneConfig {
 			}
 			if (this.needsPosTagger()) {
 				LOG.info("Loading pos tagger");
-				if (this.getPosTagger() == null) {
-					throw new TalismaneException("Pos-tagger not provided.");
-				}
+				PosTaggers.getPosTagger(session);
 			}
 			if (this.needsParser()) {
 				LOG.info("Loading parser");

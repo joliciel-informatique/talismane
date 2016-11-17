@@ -28,8 +28,8 @@ import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class PosTagSequenceFilterFactory {
-	public static final String POSTAG_PREPROCESSING_FILTER_DESCRIPTOR_KEY = "postag_preprocessing_filter";
-	public static final String POSTAG_POSTPROCESSING_FILTER_DESCRIPTOR_KEY = "postag_postprocessing_filter";
+	public static final String TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY = "postag_preprocessing_filter";
+	public static final String POSTAG_SEQUENCE_FILTER_DESCRIPTOR_KEY = "postag_postprocessing_filter";
 
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagSequenceFilterFactory.class);
 

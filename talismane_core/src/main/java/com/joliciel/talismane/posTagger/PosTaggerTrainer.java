@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser.patterns;
+package com.joliciel.talismane.posTagger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,10 +39,9 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
+import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
+import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
-import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
-import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
-import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
@@ -57,38 +56,23 @@ import com.typesafe.config.ConfigFactory;
  * @author Assaf Urieli
  *
  */
-public class PatternTokeniserTrainer {
-	private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniserTrainer.class);
+public class PosTaggerTrainer {
+	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerTrainer.class);
 
 	private final TalismaneSession session;
-	private final Config tokeniserConfig;
+	private final Config posTaggerConfig;
 	private final File modelFile;
 	private final ClassificationEventStream eventStream;
 	private final Map<String, List<String>> descriptors;
 
-	public PatternTokeniserTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public PosTaggerTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
-		this.tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+		this.posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 		this.session = session;
-		this.modelFile = new File(tokeniserConfig.getString("model"));
+		this.modelFile = new File(posTaggerConfig.getString("model"));
 		this.descriptors = new HashMap<>();
 
-		String configPath = "talismane.core.tokeniser.train.patterns";
-		InputStream tokeniserPatternFile = ConfigUtils.getFileFromConfig(config, configPath);
-		List<String> patternDescriptors = new ArrayList<>();
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserPatternFile, "UTF-8")))) {
-			while (scanner.hasNextLine()) {
-				String descriptor = scanner.nextLine();
-				patternDescriptors.add(descriptor);
-				LOG.debug(descriptor);
-			}
-		}
-
-		descriptors.put(PatternTokeniser.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
-
-		TokeniserPatternManager tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors);
-
-		configPath = "talismane.core.tokeniser.train.features";
+		String configPath = "talismane.core.pos-tagger.train.features";
 		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
 		List<String> featureDescriptors = new ArrayList<>();
 		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
@@ -100,20 +84,21 @@ public class PatternTokeniserTrainer {
 			}
 		}
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(),
-				tokeniserConfig.getConfig("train"), session);
+		PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), posTaggerConfig.getConfig("train"),
+				session);
 
-		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, tokenCorpusReader.getPreAnnotatorDescriptors());
-		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenCorpusReader.getTokenSequenceFilterDescriptors());
+		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, corpusReader.getPreAnnotatorDescriptors());
+		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, corpusReader.getTokenSequenceFilterDescriptors());
+		descriptors.put(PosTagSequenceFilterFactory.POSTAG_SEQUENCE_FILTER_DESCRIPTOR_KEY, corpusReader.getPosTagSequenceFilterDescriptors());
 
-		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
-		Set<TokenPatternMatchFeature<?>> features = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);
-		eventStream = new PatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.session);
+		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+		Set<PosTaggerFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
+		eventStream = new PosTagEventStream(corpusReader, features);
 	}
 
 	public ClassificationModel train() {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
-		ClassificationModelTrainer trainer = factory.constructTrainer(tokeniserConfig.getConfig("train.machine-learning"));
+		ClassificationModelTrainer trainer = factory.constructTrainer(posTaggerConfig.getConfig("train.machine-learning"));
 
 		ClassificationModel tokeniserModel = trainer.trainModel(eventStream, descriptors);
 		tokeniserModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
@@ -135,7 +120,7 @@ public class PatternTokeniserTrainer {
 		String sessionId = "";
 		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
 
-		PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(talismaneSession);
+		PosTaggerTrainer trainer = new PosTaggerTrainer(talismaneSession);
 		trainer.train();
 	}
 }

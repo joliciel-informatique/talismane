@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,8 @@ import com.typesafe.config.Config;
 public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotatedCorpusReader implements AnnotatedCorpusReader {
 	protected final List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
 	protected final List<Annotator> preAnnotators = new ArrayList<>();
+	private final List<String> preAnnotatorDescriptors = new ArrayList<>();
+	private final List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
 
 	public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
 
@@ -71,8 +74,9 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 	 * These filters will be applied to each token sequence returned by the
 	 * corpus prior to being returned.
 	 */
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter) {
+	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter, String descriptor) {
 		this.tokenSequenceFilters.add(tokenSequenceFilter);
+		this.tokenSequenceFilterDescriptors.add(descriptor);
 	}
 
 	/**
@@ -80,8 +84,9 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 	 * are provided by the corpus. They will, on the other hand, be used to
 	 * replace token text.
 	 */
-	public void addPreAnnotator(Annotator annotator) {
+	public void addPreAnnotator(Annotator annotator, String descriptor) {
 		this.preAnnotators.add(annotator);
+		this.preAnnotatorDescriptors.add(descriptor);
 	}
 
 	/**
@@ -141,7 +146,6 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 		if (excludeIndex >= 0)
 			corpusReader.setExcludeIndex(excludeIndex);
 
-		List<String> tokenFilterDescriptors = new ArrayList<>();
 		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
 
 		LOG.debug("pre-annotators");
@@ -151,19 +155,18 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 			LOG.debug("From: " + path);
 			InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
 			try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
-				List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
-				for (TokenFilter tokenFilter : myFilters) {
-					corpusReader.addPreAnnotator(tokenFilter);
+				List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
+				for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
+					corpusReader.addPreAnnotator(tokenFilterPair.getLeft(), tokenFilterPair.getRight());
 				}
 			}
 		}
 
 		List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
-		List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
 		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
 
-		LOG.debug("post-annotators");
-		configPath = "post-annotators";
+		LOG.debug("token-sequence-filters");
+		configPath = "token-sequence-filters";
 		List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
 		for (String path : tokenSequenceFilterPaths) {
 			LOG.debug("From: " + path);
@@ -177,15 +180,20 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 						TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
 						if (tokenSequenceFilter instanceof NeedsTalismaneSession)
 							((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
-						tokenSequenceFilters.add(tokenSequenceFilter);
+						corpusReader.addTokenSequenceFilter(tokenSequenceFilter, descriptor);
 					}
 				}
 			}
 		}
-
-		for (TokenSequenceFilter tokenSequenceFilter : tokenSequenceFilters) {
-			corpusReader.addTokenSequenceFilter(tokenSequenceFilter);
-		}
 		return corpusReader;
 	}
+
+	public List<String> getPreAnnotatorDescriptors() {
+		return preAnnotatorDescriptors;
+	}
+
+	public List<String> getTokenSequenceFilterDescriptors() {
+		return tokenSequenceFilterDescriptors;
+	}
+
 }
