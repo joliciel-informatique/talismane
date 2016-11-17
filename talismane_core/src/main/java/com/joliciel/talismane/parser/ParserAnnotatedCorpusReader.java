@@ -18,7 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
@@ -58,4 +60,42 @@ public abstract class ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusR
 	 * Take this reader back to its initial position.
 	 */
 	public abstract void rewind();
+
+	/**
+	 * Builds an annotated corpus reader for a particular Reader and Config,
+	 * where the config is the local namespace. For configuration example, see
+	 * talismane.core.tokeniser.input in reference.conf.
+	 * 
+	 * @param config
+	 *            the local configuration section from which we're building a
+	 *            reader
+	 * @throws IOException
+	 *             problem reading the files referred in the configuration
+	 * @throws ClassNotFoundException
+	 *             if the corpus-reader class was not found
+	 * @throws ReflectiveOperationException
+	 *             if the corpus-reader class could not be instantiated
+	 */
+	public static ParserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+			throws IOException, ClassNotFoundException, ReflectiveOperationException {
+		String className = config.getString("corpus-reader");
+
+		@SuppressWarnings("unchecked")
+		Class<? extends ParserAnnotatedCorpusReader> clazz = (Class<? extends ParserAnnotatedCorpusReader>) Class.forName(className);
+		Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+
+		ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+		ParserAnnotatedCorpusReader.addAnnotators(corpusReader, config, session);
+		return corpusReader;
+	}
+
+	/**
+	 * Add annotators as specified in the config to the corpus reader.
+	 * 
+	 * @throws IOException
+	 *             problem reading the files referred in the configuration
+	 */
+	public static void addAnnotators(ParserAnnotatedCorpusReader corpusReader, Config config, TalismaneSession session) throws IOException {
+		PosTagAnnotatedCorpusReader.addAnnotators(corpusReader, config, session);
+	}
 }

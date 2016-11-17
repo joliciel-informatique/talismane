@@ -120,8 +120,6 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 	 */
 	public static TokeniserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
 			throws IOException, ClassNotFoundException, ReflectiveOperationException {
-		final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
-
 		String className = config.getString("corpus-reader");
 
 		@SuppressWarnings("unchecked")
@@ -129,7 +127,18 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 		Constructor<? extends TokeniserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
 
 		TokeniserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+		TokeniserAnnotatedCorpusReader.addAnnotators(corpusReader, config, session);
 
+		return corpusReader;
+	}
+
+	/**
+	 * Add annotators as specified in the config to the corpus reader.
+	 * 
+	 * @throws IOException
+	 *             problem reading the files referred in the configuration
+	 */
+	public static void addAnnotators(TokeniserAnnotatedCorpusReader corpusReader, Config config, TalismaneSession session) throws IOException {
 		corpusReader.setMaxSentenceCount(config.getInt("sentence-count"));
 		corpusReader.setStartSentence(config.getInt("start-sentence"));
 		int crossValidationSize = config.getInt("cross-validation.fold-count");
@@ -153,8 +162,8 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 		List<String> tokenFilterPaths = config.getStringList(configPath);
 		for (String path : tokenFilterPaths) {
 			LOG.debug("From: " + path);
-			InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
+			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
+			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
 				List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
 				for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
 					corpusReader.addPreAnnotator(tokenFilterPair.getLeft(), tokenFilterPair.getRight());
@@ -170,8 +179,8 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 		List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
 		for (String path : tokenSequenceFilterPaths) {
 			LOG.debug("From: " + path);
-			InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
+			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
+			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
 					LOG.debug(descriptor);
@@ -185,7 +194,6 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 				}
 			}
 		}
-		return corpusReader;
 	}
 
 	public List<String> getPreAnnotatorDescriptors() {
