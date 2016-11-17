@@ -81,13 +81,11 @@ public abstract class PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorp
 	 *            reader
 	 * @throws IOException
 	 *             problem reading the files referred in the configuration
-	 * @throws ClassNotFoundException
-	 *             if the corpus-reader class was not found
 	 * @throws ReflectiveOperationException
 	 *             if the corpus-reader class could not be instantiated
 	 */
 	public static PosTagAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException {
+			throws IOException, ReflectiveOperationException {
 		String className = config.getString("corpus-reader");
 
 		@SuppressWarnings("unchecked")

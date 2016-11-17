@@ -23,17 +23,31 @@ import java.util.List;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
- * A non-deterministic parser, which analyses multiple pos-tagging possibilities for this sentence,
- * and returns multiple parse configurations.
+ * A non-deterministic parser, which analyses multiple pos-tagging possibilities
+ * for this sentence, and returns multiple parse configurations.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface NonDeterministicParser extends Parser {
 	/**
-	 * Analyse a list of pos-tag sequences, each of which represents one possibility of tagging a given sentence,
-	 * and return the n most likely parse configurations for the sentence.
-	 * @param posTagSequences the n most likely pos-tag sequences for this sentence.
+	 * Analyse a list of pos-tag sequences, each of which represents one
+	 * possibility of tagging a given sentence, and return the n most likely
+	 * parse configurations for the sentence.
+	 * 
+	 * @param posTagSequences
+	 *            the n most likely pos-tag sequences for this sentence.
 	 * @return the n most likely parse sequences for this sentence
 	 */
-	public abstract List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences);
+	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences);
+
+	/**
+	 * The maximum size of the beam to be used during analysis.
+	 */
+	public int getBeamWidth();
+
+	/**
+	 * Should the full pos-tagger beam be propagated as input into the parser.
+	 */
+	public boolean isPropagatePosTaggerBeam();
 }

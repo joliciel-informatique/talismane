@@ -19,10 +19,13 @@
 package com.joliciel.talismane;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,6 +75,7 @@ import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserEvaluator;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniserTrainer;
+import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
 import com.typesafe.config.Config;
@@ -88,7 +92,6 @@ import joptsimple.OptionSpec;
  *
  */
 public class TalismaneMain {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
 	public static void main(String[] args) throws Exception {
@@ -524,178 +527,201 @@ public class TalismaneMain {
 			LogUtils.configureLogging(options.valueOf(logConfigFileSpec));
 
 		Config config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
-
+		long startTime = System.currentTimeMillis();
 		String sessionId = "";
 		TalismaneSession session = new TalismaneSession(config, sessionId);
 
-		switch (session.getCommand()) {
-		case analyse: {
-			switch (session.getModule()) {
-			case languageDetector: {
+		try {
+			switch (session.getCommand()) {
+			case analyse: {
+				switch (session.getModule()) {
+				case languageDetector: {
+					Writer writer = session.getWriter();
+					LanguageDetector languageDetector = LanguageDetector.getInstance(session);
+					LanguageDetectorProcessor processor = LanguageDetectorProcessor.getProcessor(session);
+
+					SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+							config.getConfig("talismane.core.language-detector.input"), session);
+					while (corpusReader.hasNextSentence()) {
+						String sentence = corpusReader.nextSentence();
+
+						List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
+						processor.onNextText(sentence, results, writer);
+					}
+					break;
+				}
+				default:
+					Talismane talismane = new Talismane(session);
+					talismane.analyse();
+					break;
+				}
+
+				break;
+
+			}
+			case train: {
+				switch (session.getModule()) {
+				case languageDetector: {
+					LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(session);
+					trainer.train();
+					break;
+				}
+				case sentenceDetector: {
+					SentenceDetectorTrainer trainer = new SentenceDetectorTrainer(session);
+					trainer.train();
+					break;
+				}
+				case tokeniser: {
+					PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(session);
+					trainer.train();
+					break;
+				}
+				case posTagger: {
+					PosTaggerTrainer trainer = new PosTaggerTrainer(session);
+					trainer.train();
+					break;
+				}
+				case parser: {
+					ParserTrainer trainer = new ParserTrainer(session);
+					trainer.train();
+					break;
+				}
+				}
+				break;
+			}
+			case evaluate: {
+				switch (session.getModule()) {
+				case sentenceDetector: {
+					SentenceDetectorEvaluator evaluator = new SentenceDetectorEvaluator(session);
+					evaluator.evaluate();
+					break;
+				}
+				case tokeniser: {
+					TokeniserEvaluator evaluator = new TokeniserEvaluator(session);
+					evaluator.evaluate();
+					break;
+				}
+				case posTagger: {
+					PosTaggerEvaluator evaluator = new PosTaggerEvaluator(session);
+					evaluator.evaluate();
+					break;
+				}
+				case parser: {
+					ParserEvaluator evaluator = new ParserEvaluator(session);
+					evaluator.evaluate();
+					break;
+				}
+				default:
+					throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
+				}
+				break;
+			}
+			case compare: {
+				switch (session.getModule()) {
+				case tokeniser: {
+					TokenComparator comparator = new TokenComparator(session);
+					comparator.compare();
+					break;
+				}
+				case posTagger: {
+					PosTagComparator comparator = new PosTagComparator(session);
+					comparator.evaluate();
+					break;
+				}
+				case parser: {
+					ParseComparator comparator = new ParseComparator(session);
+					comparator.evaluate();
+					break;
+				}
+				default:
+					throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
+				}
+				break;
+			}
+			case process: {
 				Writer writer = session.getWriter();
-				LanguageDetector languageDetector = LanguageDetector.getInstance(session);
-				LanguageDetectorProcessor processor = LanguageDetectorProcessor.getProcessor(session);
+				switch (session.getModule()) {
+				case sentenceDetector: {
+					SentenceProcessor processor = SentenceProcessor.getProcessor(session);
 
-				SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-						config.getConfig("talismane.core.language-detector.input"), session);
-				while (corpusReader.hasNextSentence()) {
-					String sentence = corpusReader.nextSentence();
-
-					List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
-					processor.onNextText(sentence, results, writer);
-				}
-				break;
-			}
-			default:
-				TalismaneConfig talismaneConfig = new TalismaneConfig(config, session);
-				Talismane talismane = talismaneConfig.getTalismane();
-				talismane.analyse(talismaneConfig);
-				break;
-			}
-
-			break;
-
-		}
-		case train: {
-			switch (session.getModule()) {
-			case languageDetector: {
-				LanguageDetectorTrainer trainer = new LanguageDetectorTrainer(session);
-				trainer.train();
-				break;
-			}
-			case sentenceDetector: {
-				SentenceDetectorTrainer trainer = new SentenceDetectorTrainer(session);
-				trainer.train();
-				break;
-			}
-			case tokeniser: {
-				PatternTokeniserTrainer trainer = new PatternTokeniserTrainer(session);
-				trainer.train();
-				break;
-			}
-			case posTagger: {
-				PosTaggerTrainer trainer = new PosTaggerTrainer(session);
-				trainer.train();
-				break;
-			}
-			case parser: {
-				ParserTrainer trainer = new ParserTrainer(session);
-				trainer.train();
-				break;
-			}
-			}
-			break;
-		}
-		case evaluate: {
-			switch (session.getModule()) {
-			case sentenceDetector: {
-				SentenceDetectorEvaluator evaluator = new SentenceDetectorEvaluator(session);
-				evaluator.evaluate();
-				break;
-			}
-			case tokeniser: {
-				TokeniserEvaluator evaluator = new TokeniserEvaluator(session);
-				evaluator.evaluate();
-				break;
-			}
-			case posTagger: {
-				PosTaggerEvaluator evaluator = new PosTaggerEvaluator(session);
-				evaluator.evaluate();
-				break;
-			}
-			case parser: {
-				ParserEvaluator evaluator = new ParserEvaluator(session);
-				evaluator.evaluate();
-				break;
-			}
-			default:
-				throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
-			}
-			break;
-		}
-		case compare: {
-			switch (session.getModule()) {
-			case tokeniser: {
-				TokenComparator comparator = new TokenComparator(session);
-				comparator.compare();
-				break;
-			}
-			case posTagger: {
-				PosTagComparator comparator = new PosTagComparator(session);
-				comparator.evaluate();
-				break;
-			}
-			case parser: {
-				ParseComparator comparator = new ParseComparator(session);
-				comparator.evaluate();
-				break;
-			}
-			default:
-				throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
-			}
-			break;
-		}
-		case process: {
-			Writer writer = session.getWriter();
-			switch (session.getModule()) {
-			case sentenceDetector: {
-				SentenceProcessor processor = SentenceProcessor.getProcessor(session);
-
-				SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-						config.getConfig("talismane.core.sentence-detector.input"), session);
-				while (corpusReader.hasNextSentence()) {
-					String text = corpusReader.nextSentence();
-					Sentence sentence = new Sentence(text, session);
-					processor.onNextSentence(sentence, writer);
-				}
-				break;
-			}
-			case tokeniser: {
-				TokenSequenceProcessor processor = TokenSequenceProcessor.getProcessor(session);
-				TokeniserAnnotatedCorpusReader corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-						config.getConfig("talismane.core.tokeniser.input"), session);
-				while (corpusReader.hasNextTokenSequence()) {
-					TokenSequence tokenSequence = corpusReader.nextTokenSequence();
-					processor.onNextTokenSequence(tokenSequence, writer);
-				}
-
-				break;
-			}
-			case posTagger: {
-				PosTagSequenceProcessor processor = PosTagSequenceProcessor.getProcessor(session);
-
-				PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-						config.getConfig("talismane.core.pos-tagger.input"), session);
-				try {
-					while (corpusReader.hasNextPosTagSequence()) {
-						PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
-						processor.onNextPosTagSequence(posTagSequence, writer);
+					SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+							config.getConfig("talismane.core.sentence-detector.input"), session);
+					while (corpusReader.hasNextSentence()) {
+						String text = corpusReader.nextSentence();
+						Sentence sentence = new Sentence(text, session);
+						processor.onNextSentence(sentence, writer);
 					}
-				} finally {
-					processor.onCompleteAnalysis();
+					break;
 				}
-				break;
-			}
-			case parser: {
-				ParseConfigurationProcessor processor = ParseConfigurationProcessor.getProcessor(session);
-
-				ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-						config.getConfig("talismane.core.parser.input"), session);
-				try {
-					while (corpusReader.hasNextConfiguration()) {
-						ParseConfiguration configuration = corpusReader.nextConfiguration();
-						processor.onNextParseConfiguration(configuration, writer);
+				case tokeniser: {
+					TokenSequenceProcessor processor = TokenSequenceProcessor.getProcessor(session);
+					TokeniserAnnotatedCorpusReader corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+							config.getConfig("talismane.core.tokeniser.input"), session);
+					while (corpusReader.hasNextTokenSequence()) {
+						TokenSequence tokenSequence = corpusReader.nextTokenSequence();
+						processor.onNextTokenSequence(tokenSequence, writer);
 					}
-				} finally {
-					processor.onCompleteParse();
+
+					break;
+				}
+				case posTagger: {
+					PosTagSequenceProcessor processor = PosTagSequenceProcessor.getProcessor(session);
+
+					PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+							config.getConfig("talismane.core.pos-tagger.input"), session);
+					try {
+						while (corpusReader.hasNextPosTagSequence()) {
+							PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
+							processor.onNextPosTagSequence(posTagSequence, writer);
+						}
+					} finally {
+						processor.onCompleteAnalysis();
+					}
+					break;
+				}
+				case parser: {
+					ParseConfigurationProcessor processor = ParseConfigurationProcessor.getProcessor(session);
+
+					ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
+							config.getConfig("talismane.core.parser.input"), session);
+					try {
+						while (corpusReader.hasNextConfiguration()) {
+							ParseConfiguration configuration = corpusReader.nextConfiguration();
+							processor.onNextParseConfiguration(configuration, writer);
+						}
+					} finally {
+						processor.onCompleteParse();
+					}
+					break;
+				}
+				default:
+					throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
 				}
 				break;
 			}
-			default:
-				throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
 			}
-			break;
-		}
+		} finally {
+
+			long endTime = System.currentTimeMillis();
+			long totalTime = endTime - startTime;
+			LOG.debug("Total time for Talismane.process(): " + totalTime);
+
+			if (config.getBoolean("talismane.core.output.log-execution-time")) {
+				try {
+					CSVFormatter CSV = new CSVFormatter();
+					Writer csvFileWriter = null;
+					File csvFile = new File(session.getOutDir(), session.getBaseName() + ".stats.csv");
+
+					csvFile.delete();
+					csvFile.createNewFile();
+					csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
+					csvFileWriter.write(CSV.format("total time") + CSV.format(totalTime) + "\n");
+					csvFileWriter.flush();
+					csvFileWriter.close();
+				} catch (Exception e) {
+					LogUtils.logError(LOG, e);
+				}
+			}
 		}
 	}
 }

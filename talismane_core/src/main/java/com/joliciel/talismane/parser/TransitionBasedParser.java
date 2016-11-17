@@ -65,13 +65,14 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	private final TransitionSystem transitionSystem;
 	private final Set<ParseConfigurationFeature<?>> parseFeatures;
 	private final int beamWidth;
+	private final boolean propagatePosTaggerBeam;
 	private final TalismaneSession talismaneSession;
 
-	private ParseComparisonStrategy parseComparisonStrategy = new BufferSizeComparisonStrategy();
+	private ParseComparisonStrategy parseComparisonStrategy;
 
 	private final List<ClassificationObserver> observers;
-	private int maxAnalysisTimePerSentence = 60;
-	private int minFreeMemory = 64;
+	private final int maxAnalysisTimePerSentence;
+	private final int minFreeMemory;
 	private static final int KILOBYTE = 1024;
 
 	private List<ParserRule> parserRules;
@@ -79,11 +80,16 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	private List<ParserRule> parserNegativeRules;
 
 	public TransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth,
+			boolean propagatePosTaggerBeam, ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory,
 			TalismaneSession talismaneSession) {
 		this.decisionMaker = decisionMaker;
 		this.transitionSystem = transitionSystem;
 		this.parseFeatures = parseFeatures;
 		this.beamWidth = beamWidth;
+		this.propagatePosTaggerBeam = propagatePosTaggerBeam;
+		this.parseComparisonStrategy = parseComparisonStrategy;
+		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
+		this.minFreeMemory = minFreeMemory;
 		this.talismaneSession = talismaneSession;
 		this.observers = new ArrayList<>();
 	}
@@ -91,9 +97,14 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	/**
 	 * Read a non-deterministic parser directly from a model.
 	 */
-	public TransitionBasedParser(ClassificationModel model, int beamWidth, boolean dynamiseFeatures, TalismaneSession talismaneSession) {
+	public TransitionBasedParser(ClassificationModel model, int beamWidth, boolean dynamiseFeatures, boolean propagatePosTaggerBeam,
+			ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory, TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
 		this.beamWidth = beamWidth;
+		this.propagatePosTaggerBeam = propagatePosTaggerBeam;
+		this.parseComparisonStrategy = parseComparisonStrategy;
+		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
+		this.minFreeMemory = minFreeMemory;
 		this.transitionSystem = TransitionSystem.getTransitionSystem(model);
 		this.decisionMaker = model.getDecisionMaker();
 
@@ -114,6 +125,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 		this.transitionSystem = parser.transitionSystem;
 		this.parseFeatures = new HashSet<>(parser.parseFeatures);
 		this.beamWidth = parser.beamWidth;
+		this.propagatePosTaggerBeam = parser.propagatePosTaggerBeam;
 		this.talismaneSession = parser.talismaneSession;
 		this.observers = new ArrayList<>(parser.observers);
 		this.parserRules = new ArrayList<>(parser.parserRules);
@@ -136,7 +148,15 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) {
+	public List<ParseConfiguration> parseSentence(List<PosTagSequence> input) {
+		List<PosTagSequence> posTagSequences = null;
+		if (this.propagatePosTaggerBeam) {
+			posTagSequences = input;
+		} else {
+			posTagSequences = new ArrayList<>(1);
+			posTagSequences.add(input.get(0));
+		}
+
 		long startTime = System.currentTimeMillis();
 		int maxAnalysisTimeMilliseconds = maxAnalysisTimePerSentence * 1000;
 		int minFreeMemoryBytes = minFreeMemory * KILOBYTE;
@@ -458,18 +478,8 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence) {
-		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
-	}
-
-	@Override
 	public int getMinFreeMemory() {
 		return minFreeMemory;
-	}
-
-	@Override
-	public void setMinFreeMemory(int minFreeMemory) {
-		this.minFreeMemory = minFreeMemory;
 	}
 
 	@Override
@@ -520,6 +530,11 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	@Override
 	public Parser cloneParser() {
 		return new TransitionBasedParser(this);
+	}
+
+	@Override
+	public boolean isPropagatePosTaggerBeam() {
+		return propagatePosTaggerBeam;
 	}
 
 }

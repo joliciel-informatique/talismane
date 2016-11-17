@@ -46,24 +46,22 @@ class TalismaneServerThread extends Thread {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
 	private final Socket socket;
 	private final TalismaneServer server;
-	private final TalismaneConfig config;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
-	public TalismaneServerThread(TalismaneServer server, TalismaneConfig config, TalismaneSession talismaneSession, Socket socket) {
+	public TalismaneServerThread(TalismaneServer server, TalismaneSession session, Socket socket) {
 		super("TalismaneServerThread");
 		this.server = server;
 		this.socket = socket;
-		this.config = config;
-		this.talismaneSession = talismaneSession;
+		this.session = session;
 	}
 
 	@Override
 	public void run() {
 		try {
-			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), config.getOutputCharset());
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), config.getInputCharset()));
+			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), session.getOutputCharset());
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), session.getInputCharset()));
 
-			Talismane talismane = new Talismane(config, talismaneSession);
+			Talismane talismane = new Talismane(session);
 
 			// Set the various processors from the server, in case they were set
 			// to override the default
@@ -75,18 +73,17 @@ class TalismaneServerThread extends Thread {
 			// for a shut down command
 			SentenceProcessor sentenceProcessor = this.server.getSentenceProcessor();
 			if (sentenceProcessor == null)
-				sentenceProcessor = SentenceProcessor.getProcessor(talismaneSession);
+				sentenceProcessor = SentenceProcessor.getProcessor(session);
 			ShutDownListener listener = new ShutDownListener(this.server, sentenceProcessor);
 			talismane.setSentenceProcessor(listener);
 
-			talismane.setStopOnError(this.server.isStopOnError());
 			talismane.setReader(in);
 			talismane.setWriter(out);
 
-			talismane.process();
+			talismane.analyse();
 
 			socket.close();
-		} catch (IOException e) {
+		} catch (IOException | ReflectiveOperationException e) {
 			throw new RuntimeException(e);
 		}
 	}

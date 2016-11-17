@@ -51,7 +51,6 @@ public class PosTaggerEvaluator {
 	private final PosTagger posTagger;
 	private final PosTagAnnotatedCorpusReader corpusReader;
 	private final Tokeniser tokeniser;
-	private final boolean propagateBeam;
 
 	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
 
@@ -71,17 +70,14 @@ public class PosTaggerEvaluator {
 			this.tokeniser = Tokeniser.getInstance(session);
 		else
 			this.tokeniser = null;
-
-		this.propagateBeam = posTaggerConfig.getBoolean("propagate-tokeniser-beam");
 	}
 
 	/**
 	 */
-	public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, boolean propagateBeam) {
+	public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser) {
 		this.posTagger = posTagger;
 		this.corpusReader = corpusReader;
 		this.tokeniser = tokeniser;
-		this.propagateBeam = propagateBeam;
 	}
 
 	/**
@@ -102,12 +98,7 @@ public class PosTaggerEvaluator {
 
 			if (this.tokeniser != null) {
 				tokenSequences = tokeniser.tokenise(tokenSequence.getSentence());
-
 				tokenSequence = tokenSequences.get(0);
-				if (!propagateBeam) {
-					tokenSequences = new ArrayList<TokenSequence>();
-					tokenSequences.add(tokenSequence);
-				}
 			} else {
 				tokenSequences = new ArrayList<TokenSequence>();
 				tokenSequences.add(tokenSequence);
@@ -169,14 +160,6 @@ public class PosTaggerEvaluator {
 	 */
 	public Tokeniser getTokeniser() {
 		return tokeniser;
-	}
-
-	/**
-	 * Should the pos tagger take the tokeniser's full beam as it's input, or
-	 * only the best guess.
-	 */
-	public boolean isPropagateBeam() {
-		return propagateBeam;
 	}
 
 	public List<PosTagEvaluationObserver> getObservers() {

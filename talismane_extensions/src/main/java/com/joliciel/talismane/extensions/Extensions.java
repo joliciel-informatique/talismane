@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane;
-import com.joliciel.talismane.TalismaneConfig;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.corpus.CorpusModifier;
@@ -50,7 +49,6 @@ import com.joliciel.talismane.extensions.standoff.StandoffReader;
 import com.joliciel.talismane.extensions.standoff.StandoffWriter;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
-import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
@@ -84,16 +82,13 @@ public class Extensions {
 			String sessionId = "";
 
 			Config conf = ConfigFactory.load();
-			TalismaneSession talismaneSession = new TalismaneSession(conf, sessionId);
-			TalismaneConfig config = new TalismaneConfig(conf, talismaneSession);
-			if (config.getCommand() == null)
-				return;
+			TalismaneSession session = new TalismaneSession(conf, sessionId);
 
-			Talismane talismane = config.getTalismane();
+			Talismane talismane = new Talismane(session);
 
-			extensions.prepareCommand(config, talismane);
+			extensions.prepareCommand(session, talismane);
 
-			talismane.process();
+			talismane.analyse();
 		}
 	}
 
@@ -138,12 +133,10 @@ public class Extensions {
 	 * To be called just before running the Talismane command, to prepare
 	 * anything specifically required for extensions to function correctly.
 	 */
-	public void prepareCommand(TalismaneConfig config, Talismane talismane) {
+	public void prepareCommand(TalismaneSession session, Talismane talismane) {
 		try {
 			if (command == null)
 				return;
-
-			TalismaneSession session = config.getTalismaneSession();
 
 			switch (command) {
 			case toStandoff: {
@@ -160,8 +153,8 @@ public class Extensions {
 				break;
 			}
 			case fromStandoff: {
-				StandoffReader standoffReader = new StandoffReader(config.getReader(), config.getConfig(), session);
-				config.setParserCorpusReader(standoffReader);
+				StandoffReader standoffReader = new StandoffReader(session.getReader(), session.getConfig(), session);
+				// config.setParserCorpusReader(standoffReader);
 				break;
 			}
 			case corpusStatistics: {
@@ -183,9 +176,6 @@ public class Extensions {
 				File serializationFile = new File(session.getOutDir(), session.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
-
-				ParserRegexBasedCorpusReader corpusReader = (ParserRegexBasedCorpusReader) config.getParserCorpusReader();
-				corpusReader.setPredictTransitions(false);
 
 				talismane.setParseConfigurationProcessor(stats);
 				break;

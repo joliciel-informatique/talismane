@@ -48,20 +48,18 @@ public abstract class LanguageDetectorAnnotatedCorpusReader implements Annotated
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,
 	 * where the config is the local namespace. For configuration example, see
-	 * talismane.core.sentence-detector.input in reference.conf.
+	 * talismane.core.language-detector.input in reference.conf.
 	 * 
 	 * @param config
 	 *            the local configuration section from which we're building a
 	 *            reader
 	 * @throws IOException
 	 *             problem reading the files referred in the configuration
-	 * @throws ClassNotFoundException
-	 *             if the corpus-reader class was not found
 	 * @throws ReflectiveOperationException
 	 *             if the corpus-reader class could not be instantiated
 	 */
 	public static LanguageDetectorAnnotatedCorpusReader getCorpusReader(Config config, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException {
+			throws IOException, ReflectiveOperationException {
 		String className = config.getString("corpus-reader");
 
 		@SuppressWarnings("unchecked")
