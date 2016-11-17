@@ -20,7 +20,6 @@ package com.joliciel.talismane;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1012,25 +1011,8 @@ public class TalismaneConfig {
 	public synchronized LanguageDetectorAnnotatedCorpusReader getLanguageCorpusReader() {
 		try {
 			if (languageCorpusReader == null) {
-				String configPath = "talismane.core.train.languageDetector.languageCorpusMap";
-				InputStream languageCorpusMapFile = ConfigUtils.getFileFromConfig(config, configPath);
-				try (Scanner languageCorpusMapScanner = new Scanner(
-						new BufferedReader(new InputStreamReader(languageCorpusMapFile, this.getInputCharset().name())))) {
-
-					Map<Locale, Reader> languageMap = new HashMap<Locale, Reader>();
-					while (languageCorpusMapScanner.hasNextLine()) {
-						String line = languageCorpusMapScanner.nextLine();
-						String[] parts = line.split("\t");
-						Locale locale = Locale.forLanguageTag(parts[0]);
-						String corpusPath = parts[1];
-						InputStream corpusFile = new FileInputStream(new File(corpusPath));
-						Reader corpusReader = new BufferedReader(new InputStreamReader(corpusFile, this.getInputCharset().name()));
-						languageMap.put(locale, corpusReader);
-					}
-					languageCorpusReader = new TextPerLineCorpusReader(languageMap);
-				}
+				languageCorpusReader = new TextPerLineCorpusReader(config, session);
 			}
-			this.setCorpusReaderAttributes(languageCorpusReader);
 			return languageCorpusReader;
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
