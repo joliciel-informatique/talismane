@@ -283,10 +283,10 @@ public abstract class Tokeniser {
 				tokeniser = new SimpleTokeniser(session);
 			} else if (tokeniserType == TokeniserType.pattern) {
 				int beamWidth = tokeniserConfig.getInt("beam-width");
-				LOG.debug("Getting tokeniser model");
 
 				String configPath = "talismane.core.tokeniser.model";
 				String modelFilePath = config.getString(configPath);
+				LOG.debug("Getting tokeniser model from " + modelFilePath);
 				tokeniserModel = modelMap.get(modelFilePath);
 				if (tokeniserModel == null) {
 					InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
@@ -387,6 +387,9 @@ public abstract class Tokeniser {
 			for (TokenSequenceFilter tokenSequenceFilter : tokenSequenceFilters) {
 				tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
 			}
+
+			if (session.getSessionId() != null)
+				tokeniserMap.put(session.getSessionId(), tokeniser);
 		}
 
 		return tokeniser.cloneTokeniser();

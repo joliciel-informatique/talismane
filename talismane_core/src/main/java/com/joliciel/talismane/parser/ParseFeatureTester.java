@@ -18,37 +18,67 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
+import com.joliciel.talismane.parser.features.ParserFeatureParser;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
 
 public class ParseFeatureTester implements ParseConfigurationProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(ParseFeatureTester.class);
 
-	private Set<ParseConfigurationFeature<?>> parseFeatures;
+	private final Set<ParseConfigurationFeature<?>> parseFeatures;
 
-	private Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<String, Map<String, List<String>>>();
-	private File file;
+	private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
+	private final File file;
+
+	public ParseFeatureTester(TalismaneSession session, File file) throws IOException {
+		Config config = session.getConfig();
+		Config parserConfig = config.getConfig("talismane.core.parser");
+
+		boolean dynamiseFeatures = parserConfig.getBoolean("dynamise-features");
+
+		String configPath = "talismane.core.parser.train.features";
+		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
+		List<String> featureDescriptors = new ArrayList<>();
+		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
+
+			while (scanner.hasNextLine()) {
+				String descriptor = scanner.nextLine();
+				featureDescriptors.add(descriptor);
+				LOG.debug(descriptor);
+			}
+		}
+
+		ParserFeatureParser featureParser = new ParserFeatureParser(session, dynamiseFeatures);
+		this.parseFeatures = featureParser.getFeatures(featureDescriptors);
+		this.file = file;
+	}
 
 	public ParseFeatureTester(Set<ParseConfigurationFeature<?>> parseFeatures, File file) {
-		super();
 		this.parseFeatures = parseFeatures;
 		this.file = file;
 	}

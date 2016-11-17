@@ -19,6 +19,7 @@
 package com.joliciel.talismane.posTagger;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,6 +28,7 @@ import java.io.Writer;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
+import com.joliciel.talismane.Talismane.ProcessingOption;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
@@ -55,38 +57,53 @@ public interface PosTagSequenceProcessor {
 		Config config = session.getConfig();
 		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 
-		Reader templateReader = null;
-		String configPath = "talismane.core.pos-tagger.template";
-		if (config.hasPath(configPath)) {
-			templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-		} else {
-			String templateName = null;
-			BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("built-in-template"));
-			switch (builtInTemplate) {
-			case standard:
-				templateName = "posTagger_template.ftl";
-				break;
-			case with_location:
-				templateName = "posTagger_template_with_location.ftl";
-				break;
-			case with_prob:
-				templateName = "posTagger_template_with_prob.ftl";
-				break;
-			case with_comments:
-				templateName = "posTagger_template_with_comments.ftl";
-				break;
-			default:
-				throw new TalismaneException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
+		PosTagSequenceProcessor processor = null;
+		ProcessingOption option = ProcessingOption.valueOf(posTaggerConfig.getString("output.option"));
+
+		switch (option) {
+		case output: {
+			Reader templateReader = null;
+			String configPath = "talismane.core.pos-tagger.template";
+			if (config.hasPath(configPath)) {
+				templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
+			} else {
+				String templateName = null;
+				BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("built-in-template"));
+				switch (builtInTemplate) {
+				case standard:
+					templateName = "posTagger_template.ftl";
+					break;
+				case with_location:
+					templateName = "posTagger_template_with_location.ftl";
+					break;
+				case with_prob:
+					templateName = "posTagger_template_with_prob.ftl";
+					break;
+				case with_comments:
+					templateName = "posTagger_template_with_comments.ftl";
+					break;
+				default:
+					throw new TalismaneException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
+				}
+
+				String path = "output/" + templateName;
+				InputStream inputStream = Talismane.class.getResourceAsStream(path);
+				if (inputStream == null)
+					throw new TalismaneException("Resource not found in classpath: " + path);
+				templateReader = new BufferedReader(new InputStreamReader(inputStream));
 			}
-
-			String path = "output/" + templateName;
-			InputStream inputStream = Talismane.class.getResourceAsStream(path);
-			if (inputStream == null)
-				throw new TalismaneException("Resource not found in classpath: " + path);
-			templateReader = new BufferedReader(new InputStreamReader(inputStream));
+			processor = new FreemarkerTemplateWriter(templateReader);
+			break;
 		}
-
-		FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
-		return templateWriter;
+		case posTagFeatureTester: {
+			File file = new File(session.getOutDir(), session.getBaseName() + "_featureTest.txt");
+			processor = new PosTagFeatureTester(session, file);
+			break;
+		}
+		default: {
+			throw new TalismaneException("Unknown option: " + option.toString());
+		}
+		}
+		return processor;
 	}
 }
