@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.joliciel.talismane</groupId>
 	<artifactId>talismane-parent</artifactId>
-	<version>3.0.1</version>
+	<version>3.0.2</version>
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -198,7 +198,7 @@
 		<developerConnection>urieli</developerConnection>
 		<url>https://github.com/urieli/talismane</url>
 		<connection>https://github.com/urieli/talismane.git</connection>
-		<tag>v3.0.0b</tag>
+		<tag>v${project.version}</tag>
 	</scm>
 	<url>https://github.com/urieli/talismane</url>
 	<description>Natural language processing framework with sentence detector, tokeniser, pos-tagger and dependency parser, including default language packs for French and English syntax parsing.</description>
