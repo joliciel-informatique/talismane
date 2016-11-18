@@ -826,7 +826,7 @@ public class TalismaneConfig {
 		String configPath = "talismane.core.analyse.posTagSet";
 		if (config.hasPath(configPath)) {
 			InputStream posTagSetFile = this.getFileFromConfig(configPath);
-			try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, this.getInputCharset().name())))) {
+			try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, "UTF-8")))) {
 
 				PosTagSet posTagSet = new PosTagSet(posTagSetScanner);
 				talismaneSession.setPosTagSet(posTagSet);
@@ -1226,7 +1226,7 @@ public class TalismaneConfig {
 			for (String path : textFilterPaths) {
 				LOG.debug("From: " + path);
 				InputStream textFilterFile = this.getFile(configPath, path);
-				try (Scanner scanner = new Scanner(textFilterFile, this.getInputCharset().name())) {
+				try (Scanner scanner = new Scanner(textFilterFile, "UTF-8")) {
 					List<String> ruleDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String ruleDescriptor = scanner.nextLine();
@@ -1254,7 +1254,7 @@ public class TalismaneConfig {
 			for (String path : textFilterPaths) {
 				LOG.debug("From: " + path);
 				InputStream textFilterFile = this.getFile(configPath, path);
-				try (Scanner scanner = new Scanner(textFilterFile, this.getInputCharset().name())) {
+				try (Scanner scanner = new Scanner(textFilterFile, "UTF-8")) {
 					List<String> ruleDescriptors = new ArrayListNoNulls<String>();
 					while (scanner.hasNextLine()) {
 						String ruleDescriptor = scanner.nextLine();
@@ -1298,7 +1298,7 @@ public class TalismaneConfig {
 			for (String path : textFilterPaths) {
 				LOG.debug("From: " + path);
 				InputStream textFilterFile = this.getFile(configPath, path);
-				try (Scanner scanner = new Scanner(textFilterFile, this.getInputCharset().name())) {
+				try (Scanner scanner = new Scanner(textFilterFile, "UTF-8")) {
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						LOG.debug(descriptor);
@@ -1350,7 +1350,7 @@ public class TalismaneConfig {
 			for (String path : tokenFilterPaths) {
 				LOG.debug("From: " + path);
 				InputStream tokenFilterFile = this.getFile(configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, this.getInputCharset().name())) {
+				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						LOG.debug(descriptor);
@@ -1400,7 +1400,7 @@ public class TalismaneConfig {
 			for (String path : posTagSequenceFilterrPaths) {
 				LOG.debug("From: " + path);
 				InputStream tokenFilterFile = this.getFile(configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, this.getInputCharset().name())) {
+				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
 					while (scanner.hasNextLine()) {
 						String descriptor = scanner.nextLine();
 						LOG.debug(descriptor);
@@ -1457,7 +1457,7 @@ public class TalismaneConfig {
 			for (String path : tokenFilterPaths) {
 				LOG.debug("From: " + path);
 				InputStream tokenFilterFile = this.getFile(configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, this.getInputCharset().name())) {
+				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
 					List<TokenFilter> myFilters = tokenFilterFactory.readTokenFilters(scanner, path, tokenFilterDescriptors);
 					for (TokenFilter tokenFilter : myFilters) {
 						tokenFilters.add(tokenFilter);
@@ -1681,7 +1681,7 @@ public class TalismaneConfig {
 		if (tokeniserPatternManager == null) {
 			String configPath = "talismane.core.train.tokeniser.patterns";
 			InputStream tokeniserPatternFile = this.getFileFromConfig(configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserPatternFile, this.getInputCharset())))) {
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserPatternFile, "UTF-8")))) {
 				List<String> patternDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -1701,7 +1701,7 @@ public class TalismaneConfig {
 		if (languageFeatures == null) {
 			String configPath = "talismane.core.train.languageDetector.features";
 			InputStream languageFeatureFile = this.getFileFromConfig(configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(languageFeatureFile, this.getInputCharset())))) {
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(languageFeatureFile, "UTF-8")))) {
 				List<String> featureDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -1723,7 +1723,7 @@ public class TalismaneConfig {
 			String configPath = "talismane.core.train.sentenceDetector.features";
 
 			InputStream sentenceFeatureFile = this.getFileFromConfig(configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(sentenceFeatureFile, this.getInputCharset())))) {
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(sentenceFeatureFile, "UTF-8")))) {
 				List<String> featureDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -1747,7 +1747,7 @@ public class TalismaneConfig {
 
 			String configPath = "talismane.core.train.tokeniser.features";
 			InputStream tokeniserFeatureFile = this.getFileFromConfig(configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, this.getInputCharset())))) {
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
 				List<String> featureDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -1768,7 +1768,7 @@ public class TalismaneConfig {
 			TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(talismaneSession);
 			String configPath = "talismane.core.train.tokeniser.features";
 			InputStream tokeniserFeatureFile = this.getFileFromConfig(configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, this.getInputCharset())))) {
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
 				List<String> featureDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -1789,7 +1789,7 @@ public class TalismaneConfig {
 			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(talismaneSession);
 			String configPath = "talismane.core.train.posTagger.features";
 			InputStream posTaggerFeatureFile = this.getFileFromConfig(configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTaggerFeatureFile, this.getInputCharset())))) {
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(posTaggerFeatureFile, "UTF-8")))) {
 				List<String> featureDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
@@ -1927,7 +1927,7 @@ public class TalismaneConfig {
 
 			String configPath = "talismane.core.train.parser.features";
 			InputStream parserFeatureFile = this.getFileFromConfig(configPath);
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(parserFeatureFile, this.getInputCharset())))) {
+			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(parserFeatureFile, "UTF-8")))) {
 				List<String> featureDescriptors = new ArrayListNoNulls<String>();
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
