@@ -24,12 +24,10 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenRegexFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * The PosTagger's task is to add part-of-speech tags to words within a
@@ -101,26 +99,6 @@ public interface PosTagger {
 	 * model for phenomena under-represented in the training corpus.
 	 */
 	public List<PosTaggerRule> getPosTaggerRules();
-
-	/**
-	 * Filters to be applied to the token sequences prior to pos-tagging.
-	 */
-	public List<TokenSequenceFilter> getPreProcessingFilters();
-
-	/**
-	 * Add a pre-processing filter.
-	 */
-	public void addPreProcessingFilter(TokenSequenceFilter tokenFilter);
-
-	/**
-	 * Filters to be applied to the final pos-tag sequences after pos-tagging.
-	 */
-	public List<PosTagSequenceFilter> getPostProcessingFilters();
-
-	/**
-	 * Add a post-processing filter.
-	 */
-	public void addPostProcessingFilter(PosTagSequenceFilter posTagFilter);
 
 	public PosTagger clonePosTagger();
 }

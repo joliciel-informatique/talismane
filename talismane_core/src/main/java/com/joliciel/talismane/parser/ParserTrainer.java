@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,9 +90,15 @@ public class ParserTrainer {
 		ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), parserConfig.getConfig("train"),
 				session);
 
-		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, corpusReader.getPreAnnotatorDescriptors());
-		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, corpusReader.getTokenSequenceFilterDescriptors());
-		descriptors.put(PosTagSequenceFilterFactory.POSTAG_SEQUENCE_FILTER_DESCRIPTOR_KEY, corpusReader.getPosTagSequenceFilterDescriptors());
+		// add descriptors for various filters
+		// these are for reference purpose only, as we no longer read filters
+		// out of the model
+		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
+				session.getTextAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
+		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY,
+				session.getTokenSequenceFiltersWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
+		descriptors.put(PosTagSequenceFilterFactory.POSTAG_SEQUENCE_FILTER_DESCRIPTOR_KEY,
+				session.getPosTagSequenceFiltersWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 
 		ParserFeatureParser featureParser = new ParserFeatureParser(session, dynamiseFeatures);
 		Set<ParseConfigurationFeature<?>> features = featureParser.getFeatures(featureDescriptors);

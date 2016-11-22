@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
@@ -73,8 +74,16 @@ public class PosTaggerEvaluator {
 	}
 
 	/**
+	 * 
+	 * @param posTagger
+	 * @param corpusReader
+	 *            for reading manually tagged tokens from a corpus
+	 * 
+	 * @param tokeniser
+	 *            if not null, evaluate tokenisation as well.
+	 * @param session
 	 */
-	public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser) {
+	public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, TalismaneSession session) {
 		this.posTagger = posTagger;
 		this.corpusReader = corpusReader;
 		this.tokeniser = tokeniser;
@@ -83,8 +92,6 @@ public class PosTaggerEvaluator {
 	/**
 	 * Evaluate a given pos tagger.
 	 * 
-	 * @param corpusReader
-	 *            for reading manually tagged tokens from a corpus
 	 */
 	public void evaluate() {
 		while (corpusReader.hasNextPosTagSequence()) {
@@ -97,7 +104,9 @@ public class PosTaggerEvaluator {
 			PosTagSequence guessedSequence = null;
 
 			if (this.tokeniser != null) {
-				tokenSequences = tokeniser.tokenise(tokenSequence.getSentence());
+				Sentence sentence = tokenSequence.getSentence();
+
+				tokenSequences = tokeniser.tokenise(sentence);
 				tokenSequence = tokenSequences.get(0);
 			} else {
 				tokenSequences = new ArrayList<TokenSequence>();

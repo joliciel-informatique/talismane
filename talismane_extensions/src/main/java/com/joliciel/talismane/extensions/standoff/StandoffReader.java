@@ -45,6 +45,7 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
+import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -71,12 +72,12 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 
 	private List<List<StandoffToken>> sentences = new ArrayList<>();
 
-	private TalismaneSession talismaneSession;
+	private TalismaneSession session;
 
-	public StandoffReader(Reader reader, Config config, TalismaneSession talismaneSession) {
-		super(reader, config, talismaneSession);
-		this.talismaneSession = talismaneSession;
-		PosTagSet posTagSet = talismaneSession.getPosTagSet();
+	public StandoffReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
+		this.session = session;
+		PosTagSet posTagSet = session.getPosTagSet();
 
 		Map<Integer, StandoffToken> sortedTokens = new TreeMap<>();
 		try (Scanner scanner = new Scanner(reader)) {
@@ -165,7 +166,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 
 				List<StandoffToken> tokens = sentences.get(sentenceIndex++);
 
-				LinguisticRules rules = talismaneSession.getLinguisticRules();
+				LinguisticRules rules = session.getLinguisticRules();
 				if (rules == null)
 					throw new TalismaneException("Linguistic rules have not been set.");
 
@@ -179,20 +180,20 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 						text += " ";
 					text += word;
 				}
-				Sentence sentence = new Sentence(text, talismaneSession);
+				Sentence sentence = new Sentence(text, session);
 
-				for (Annotator annotator : this.preAnnotators) {
+				for (Annotator annotator : session.getTextAnnotators()) {
 					annotator.annotate(sentence);
 				}
 
-				PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
+				PretokenisedSequence tokenSequence = new PretokenisedSequence(sentence, session);
 				PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
 				Map<String, PosTaggedToken> idTokenMap = new HashMap<String, PosTaggedToken>();
 
 				for (StandoffToken standoffToken : tokens) {
 					Token token = tokenSequence.addToken(standoffToken.text);
 					Decision posTagDecision = new Decision(standoffToken.posTag.getCode());
-					PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, talismaneSession);
+					PosTaggedToken posTaggedToken = new PosTaggedToken(token, posTagDecision, session);
 
 					if (LOG.isTraceEnabled()) {
 						LOG.trace(posTaggedToken.toString());
@@ -209,7 +210,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 
 				tokenSequence.cleanSlate();
 
-				for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+				for (TokenSequenceFilter tokenFilter : session.getTokenSequenceFilters()) {
 					tokenFilter.apply(tokenSequence);
 				}
 
@@ -218,6 +219,10 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 				}
 
 				tokenSequence.finalise();
+
+				for (PosTagSequenceFilter filter : session.getPosTagSequenceFilters()) {
+					filter.apply(posTagSequence);
+				}
 
 				configuration = new ParseConfiguration(posTagSequence);
 
@@ -364,7 +369,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 
 	@Override
 	public String nextSentence() {
-		return this.nextConfiguration().getPosTagSequence().getTokenSequence().getSentence().getText();
+		return this.nextConfiguration().getPosTagSequence().getTokenSequence().getSentence().getText().toString();
 	}
 
 	@Override

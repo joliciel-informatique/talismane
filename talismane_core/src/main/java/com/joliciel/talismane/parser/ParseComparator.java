@@ -82,8 +82,8 @@ public class ParseComparator {
 			double ratio = realLength > guessedLength ? guessedLength / realLength : realLength / guessedLength;
 			if (ratio < 0.9) {
 				LOG.info("Mismatched sentences");
-				LOG.info(realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText());
-				LOG.info(guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText());
+				LOG.info(realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
+				LOG.info(guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
 
 				throw new TalismaneException("Mismatched sentences");
 			}

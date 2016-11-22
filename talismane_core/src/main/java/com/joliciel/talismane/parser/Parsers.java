@@ -83,7 +83,7 @@ public class Parsers {
 			int maxAnalysisTimePerSentence = parserConfig.getInt("max-analysis-time");
 			int minFreeMemory = parserConfig.getInt("min-free-memory");
 
-			TransitionBasedParser transitionBasedParser = new TransitionBasedParser(model, beamWidth, propagatePosTaggerBeam, dynamiseFeatures,
+			TransitionBasedParser transitionBasedParser = new TransitionBasedParser(model, beamWidth, dynamiseFeatures, propagatePosTaggerBeam,
 					parseComparisonStrategy, maxAnalysisTimePerSentence, minFreeMemory, session);
 			parser = transitionBasedParser;
 

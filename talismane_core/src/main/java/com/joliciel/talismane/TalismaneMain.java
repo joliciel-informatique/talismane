@@ -197,9 +197,9 @@ public class TalismaneMain {
 		OptionSpec<Integer> excludeIndexOption = parser.accepts("excludeIndex", "cross-validation index to exclude for training").availableIf("train")
 				.withRequiredArg().ofType(Integer.class);
 
-		OptionSpec<Module> builtInTemplateOption = parser
-				.accepts("builtInTemplate", "pre-defined output template: " + Arrays.toString(BuiltInTemplate.values()))
-				.availableIf("analyse", "evaluate", "compare", "process").withRequiredArg().ofType(Module.class);
+		OptionSpec<BuiltInTemplate> builtInTemplateOption = parser
+				.accepts("builtInTemplate", "pre-defined output template: " + Arrays.toString(BuiltInTemplate.values())).availableUnless("train")
+				.withRequiredArg().ofType(BuiltInTemplate.class);
 
 		OptionSpec<File> templateOption = parser.accepts("template", "user-defined template for output").availableUnless("train", "builtInTemplate")
 				.withRequiredArg().ofType(File.class);
@@ -354,43 +354,61 @@ public class TalismaneMain {
 
 		if (options.has(textFiltersOption)) {
 			List<String> textFilterPaths = options.valuesOf(textFiltersOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-			values.put("talismane.core.analysis.text-filters", textFilterPaths);
+			values.put("talismane.core.annotators.text-filters", textFilterPaths);
 		}
 
 		if (options.has(tokenFiltersOption)) {
 			List<String> tokenFilterPaths = options.valuesOf(tokenFiltersOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-			values.put("talismane.core.tokeniser.pre-annotators", tokenFilterPaths);
+			values.put("talismane.core.annotators.text-annotators", tokenFilterPaths);
 		}
 
 		if (options.has(tokenSequenceFiltersOption)) {
 			List<String> tokenSequenceFilterPaths = options.valuesOf(tokenSequenceFiltersOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
-			values.put("talismane.core.tokeniser.post-annotators", tokenSequenceFilterPaths);
+			values.put("talismane.core.annotators.token-sequence-filters", tokenSequenceFilterPaths);
 		}
 
+		List<String> inputLocations = Arrays.asList("talismane.core.input", "talismane.core.language-detector.input", "talismane.core.language-detector.train",
+				"talismane.core.language-detector.evaluate", "talismane.core.sentence-detector.input", "talismane.core.sentence-detector.train",
+				"talismane.core.sentence-detector.evaluate", "talismane.core.tokeniser.input", "talismane.core.tokeniser.train",
+				"talismane.core.tokeniser.evaluate", "talismane.core.pos-tagger.input", "talismane.core.pos-tagger.train", "talismane.core.pos-tagger.evaluate",
+				"talismane.core.parser.input", "talismane.core.parser.train", "talismane.core.parser.evaluate");
+
+		List<String> outputLocations = Arrays.asList("talismane.core.output", "talismane.core.language-detector.output",
+				"talismane.core.sentence-detector.output", "talismane.core.tokeniser.output", "talismane.core.pos-tagger.output",
+				"talismane.core.parser.output");
+
 		if (options.has(newlineOption))
-			values.put("talismane.core.analysis.newline", options.valueOf(newlineOption));
+			values.put("talismane.core.newline", options.valueOf(newlineOption));
 		if (options.has(processByDefaultOption))
 			values.put("talismane.core.analysis.process-by-default", options.valueOf(processByDefaultOption));
 		if (options.has(blockSizeOption))
-			values.put("talismane.core.analysis.block-size", options.valueOf(blockSizeOption));
+			values.put("talismane.core.block-size", options.valueOf(blockSizeOption));
 		if (options.has(sentenceCountOption))
-			values.put("talismane.core.input.sentence-count", options.valueOf(sentenceCountOption));
+			for (String inputLocation : inputLocations)
+				values.put(inputLocation + ".sentence-count", options.valueOf(sentenceCountOption));
+
 		if (options.has(startSentenceOption))
-			values.put("talismane.core.input.start-sentence", options.valueOf(startSentenceOption));
+			for (String inputLocation : inputLocations)
+				values.put(inputLocation + ".start-sentence", options.valueOf(startSentenceOption));
+
 		if (options.has(crossValidationSizeOption))
-			values.put("talismane.core.input.cross-validation.fold-count", options.valueOf(crossValidationSizeOption));
+			for (String inputLocation : inputLocations)
+				values.put(inputLocation + ".cross-validation.fold-count", options.valueOf(crossValidationSizeOption));
 		if (options.has(includeIndexOption))
-			values.put("talismane.core.input.cross-validation.include-index", options.valueOf(includeIndexOption));
+			for (String inputLocation : inputLocations)
+				values.put(inputLocation + ".cross-validation.include-index", options.valueOf(includeIndexOption));
+
 		if (options.has(excludeIndexOption))
-			values.put("talismane.core.input.cross-validation.exclude-index", options.valueOf(excludeIndexOption));
+			for (String inputLocation : inputLocations)
+				values.put(inputLocation + ".cross-validation.exclude-index", options.valueOf(excludeIndexOption));
+
 		if (options.has(builtInTemplateOption))
-			values.put("talismane.core.output.built-in-template", options.valueOf(builtInTemplateOption).name());
-		if (options.has(templateOption)) {
-			values.put("talismane.core.sentence-detector.output.template", options.valueOf(templateOption).getPath());
-			values.put("talismane.core.tokeniser.output.template", options.valueOf(templateOption).getPath());
-			values.put("talismane.core.pos-tagger.output.template", options.valueOf(templateOption).getPath());
-			values.put("talismane.core.parser.output.template", options.valueOf(templateOption).getPath());
-		}
+			for (String outputLocation : outputLocations)
+				values.put(outputLocation + ".built-in-template", options.valueOf(builtInTemplateOption).name());
+
+		if (options.has(templateOption))
+			for (String outputLocation : outputLocations)
+				values.put(outputLocation + ".template", options.valueOf(templateOption).getPath());
 
 		if (options.has(posTaggerRulesOption)) {
 			List<String> posTaggerRulePaths = options.valuesOf(posTaggerRulesOption).stream().map(f -> f.getPath()).collect(Collectors.toList());
@@ -404,7 +422,8 @@ public class TalismaneMain {
 		if (options.has(suffixOption))
 			values.put("talismane.core.suffix", options.valueOf(suffixOption));
 		if (options.has(outputDividerOption))
-			values.put("talismane.core.output.output-divider", options.valueOf(outputDividerOption));
+			for (String outputLocation : outputLocations)
+				values.put(outputLocation + ".output-divider", options.valueOf(outputDividerOption));
 
 		if (options.has(beamWidthOption)) {
 			values.put("talismane.core.pos-tagger.beam-width", options.valueOf(beamWidthOption));
@@ -527,6 +546,8 @@ public class TalismaneMain {
 			LogUtils.configureLogging(options.valueOf(logConfigFileSpec));
 
 		Config config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
+		if (LOG.isTraceEnabled())
+			LOG.trace(config.root().render());
 		long startTime = System.currentTimeMillis();
 		String sessionId = "";
 		TalismaneSession session = new TalismaneSession(config, sessionId);
@@ -534,8 +555,14 @@ public class TalismaneMain {
 		try {
 			switch (session.getCommand()) {
 			case analyse: {
-				switch (session.getModule()) {
-				case languageDetector: {
+				Module startModule = Module.valueOf(config.getString("talismane.core.analysis.start-module"));
+				Module endModule = Module.valueOf(config.getString("talismane.core.analysis.end-module"));
+
+				if (startModule == Module.languageDetector) {
+					if (endModule != Module.languageDetector)
+						throw new TalismaneException(
+								"Talismane does not currently support analysis starting with " + startModule.name() + " and ending with another module.");
+
 					Writer writer = session.getWriter();
 					LanguageDetector languageDetector = LanguageDetector.getInstance(session);
 					LanguageDetectorProcessor processor = LanguageDetectorProcessor.getProcessor(session);
@@ -548,16 +575,12 @@ public class TalismaneMain {
 						List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
 						processor.onNextText(sentence, results, writer);
 					}
-					break;
-				}
-				default:
+				} else {
 					Talismane talismane = new Talismane(session);
 					talismane.analyse();
-					break;
 				}
 
 				break;
-
 			}
 			case train: {
 				switch (session.getModule()) {

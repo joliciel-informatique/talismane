@@ -83,17 +83,6 @@ public abstract class ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusR
 		Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
 
 		ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
-		ParserAnnotatedCorpusReader.addAnnotators(corpusReader, config, session);
 		return corpusReader;
-	}
-
-	/**
-	 * Add annotators as specified in the config to the corpus reader.
-	 * 
-	 * @throws IOException
-	 *             problem reading the files referred in the configuration
-	 */
-	public static void addAnnotators(ParserAnnotatedCorpusReader corpusReader, Config config, TalismaneSession session) throws IOException {
-		PosTagAnnotatedCorpusReader.addAnnotators(corpusReader, config, session);
 	}
 }

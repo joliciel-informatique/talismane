@@ -239,7 +239,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 							sentence = new Sentence(text, session);
 						}
 
-						for (Annotator tokenFilter : this.preAnnotators) {
+						for (Annotator tokenFilter : session.getTextAnnotators()) {
 							tokenFilter.annotate(sentence);
 						}
 
@@ -252,7 +252,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 						}
 						tokenSequence.cleanSlate();
 
-						for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+						for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
 							tokenSequenceFilter.apply(tokenSequence);
 						}
 
@@ -272,7 +272,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 							posTagSequence.addPosTaggedToken(posTaggedToken);
 						}
 
-						for (PosTagSequenceFilter posTagSequenceFilter : this.getPosTagSequenceFilters()) {
+						for (PosTagSequenceFilter posTagSequenceFilter : session.getPosTagSequenceFilters()) {
 							posTagSequenceFilter.apply(posTagSequence);
 						}
 					}
@@ -362,19 +362,6 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
 		attributes.put("tagset", session.getPosTagSet().getName());
-
-		int i = 0;
-		for (TokenSequenceFilter tokenFilter : this.getTokenSequenceFilters()) {
-			attributes.put("TokenSequenceFilter" + i, "" + tokenFilter.getClass().getSimpleName());
-
-			i++;
-		}
-		i = 0;
-		for (PosTagSequenceFilter posTagSequenceFilter : this.getPosTagSequenceFilters()) {
-			attributes.put("PosTagSequenceFilter" + i, "" + posTagSequenceFilter.getClass().getSimpleName());
-
-			i++;
-		}
 		return attributes;
 	}
 
@@ -406,7 +393,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 
 	@Override
 	public String nextSentence() {
-		return this.nextTokenSequence().getSentence().getText();
+		return this.nextTokenSequence().getSentence().getText().toString();
 	}
 
 	@Override

@@ -43,6 +43,15 @@ public class PosTagComparator {
 		this.observers = PosTagEvaluationObserver.getObservers(session);
 	}
 
+	/**
+	 * 
+	 * @param referenceCorpusReader
+	 *            for reading manually tagged tokens from a reference corpus
+	 * 
+	 * @param evaluationCorpusReader
+	 *            for reading manually tagged tokens from another pos-tagged
+	 *            corpus
+	 */
 	public PosTagComparator(PosTagAnnotatedCorpusReader referenceCorpusReader, PosTagAnnotatedCorpusReader evaluationCorpusReader) {
 		this.referenceCorpusReader = referenceCorpusReader;
 		this.evaluationCorpusReader = evaluationCorpusReader;
@@ -51,9 +60,6 @@ public class PosTagComparator {
 
 	/**
 	 * Evaluate the evaluation corpus against the reference corpus.
-	 * 
-	 * @param evaluationCorpusReader
-	 *            for reading manually tagged tokens from a corpus
 	 */
 	public void evaluate() {
 		while (referenceCorpusReader.hasNextPosTagSequence()) {

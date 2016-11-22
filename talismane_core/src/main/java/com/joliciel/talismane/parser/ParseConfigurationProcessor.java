@@ -69,12 +69,12 @@ public interface ParseConfigurationProcessor {
 		switch (option) {
 		case output: {
 			Reader templateReader = null;
-			String configPath = "talismane.core.parser.template";
+			String configPath = "talismane.core.parser.output.template";
 			if (config.hasPath(configPath)) {
 				templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
 			} else {
 				String templateName = null;
-				BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(parserConfig.getString("built-in-template"));
+				BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(parserConfig.getString("output.built-in-template"));
 				switch (builtInTemplate) {
 				case standard:
 					templateName = "parser_conll_template.ftl";
@@ -95,7 +95,7 @@ public interface ParseConfigurationProcessor {
 				String path = "output/" + templateName;
 				InputStream inputStream = Talismane.class.getResourceAsStream(path);
 				if (inputStream == null)
-					throw new TalismaneException("Resource not found in classpath: " + path);
+					throw new IOException("Resource not found in classpath: " + path);
 				templateReader = new BufferedReader(new InputStreamReader(inputStream));
 			}
 			processor = new FreemarkerTemplateWriter(templateReader);

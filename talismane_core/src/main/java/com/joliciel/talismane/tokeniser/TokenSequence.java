@@ -136,7 +136,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 	public TokenSequence(Sentence sentence, Pattern separatorPattern, TalismaneSession talismaneSession) {
 		this(sentence, talismaneSession);
 
-		String text = sentence.getText();
+		CharSequence text = sentence.getText();
 		Matcher matcher = separatorPattern.matcher(text);
 		Set<Integer> separatorMatches = new HashSet<Integer>();
 		while (matcher.find())
@@ -337,7 +337,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 		if (!allowEmpty && start == end)
 			return null;
 
-		String string = this.sentence.getText().substring(start, end);
+		String string = this.sentence.getText().subSequence(start, end).toString();
 
 		List<Token> tokensToRemove = new ArrayList<Token>();
 

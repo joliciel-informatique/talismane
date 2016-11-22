@@ -50,7 +50,7 @@ public class PretokenisedSequence extends TokenSequence {
 	 * adding the next string.
 	 */
 	public Token addToken(String string) {
-		String text = this.getSentence().getText();
+		CharSequence text = this.getSentence().getText();
 
 		int start = 0;
 		if (this.size() > 0)
@@ -64,8 +64,8 @@ public class PretokenisedSequence extends TokenSequence {
 		}
 		int end = start + string.length();
 
-		if (!text.substring(start, end).equals(string)) {
-			throw new TalismaneException("Add token failed: Expected '" + string + "' but was '" + text.substring(start, end) + "' in sentence: " + text);
+		if (!string.equals(text.subSequence(start, end).toString())) {
+			throw new TalismaneException("Add token failed: Expected '" + string + "' but was '" + text.subSequence(start, end) + "' in sentence: " + text);
 		}
 
 		return this.addToken(start, end);

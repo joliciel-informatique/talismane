@@ -63,12 +63,12 @@ public interface PosTagSequenceProcessor {
 		switch (option) {
 		case output: {
 			Reader templateReader = null;
-			String configPath = "talismane.core.pos-tagger.template";
+			String configPath = "talismane.core.pos-tagger.output.template";
 			if (config.hasPath(configPath)) {
 				templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
 			} else {
 				String templateName = null;
-				BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("built-in-template"));
+				BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("output.built-in-template"));
 				switch (builtInTemplate) {
 				case standard:
 					templateName = "posTagger_template.ftl";
@@ -89,7 +89,7 @@ public interface PosTagSequenceProcessor {
 				String path = "output/" + templateName;
 				InputStream inputStream = Talismane.class.getResourceAsStream(path);
 				if (inputStream == null)
-					throw new TalismaneException("Resource not found in classpath: " + path);
+					throw new IOException("Resource not found in classpath: " + path);
 				templateReader = new BufferedReader(new InputStreamReader(inputStream));
 			}
 			processor = new FreemarkerTemplateWriter(templateReader);
