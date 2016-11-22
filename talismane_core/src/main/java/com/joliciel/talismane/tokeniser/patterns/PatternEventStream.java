@@ -59,18 +59,18 @@ public class PatternEventStream implements ClassificationEventStream {
 
 	private final TokeniserPatternManager tokeniserPatternManager;
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
 	private List<TokeniserOutcome> currentOutcomes;
 	private List<TokenPatternMatch> currentPatternMatches;
 	private int currentIndex;
 
 	public PatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures,
-			TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
+			TokeniserPatternManager tokeniserPatternManager, TalismaneSession session) {
 		this.corpusReader = corpusReader;
 		this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
 		this.tokeniserPatternManager = tokeniserPatternManager;
-		this.talismaneSession = talismaneSession;
+		this.session = session;
 	}
 
 	@Override
@@ -89,12 +89,12 @@ public class PatternEventStream implements ClassificationEventStream {
 				TokenSequence realSequence = corpusReader.nextTokenSequence();
 
 				List<Integer> tokenSplits = realSequence.getTokenSplits();
-				String text = realSequence.getSentence().getText();
+				String text = realSequence.getSentence().getText().toString();
 				LOG.debug("Sentence: " + text);
-				Sentence sentence = new Sentence(text, talismaneSession);
+				Sentence sentence = new Sentence(text, session);
 
-				TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
-				for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
+				TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, session);
+				for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
 					tokenSequenceFilter.apply(tokenSequence);
 				}
 

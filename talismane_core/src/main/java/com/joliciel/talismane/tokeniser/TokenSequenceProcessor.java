@@ -50,12 +50,12 @@ public interface TokenSequenceProcessor {
 		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 
 		Reader templateReader = null;
-		String configPath = "talismane.core.tokeniser.template";
+		String configPath = "talismane.core.tokeniser.output.template";
 		if (config.hasPath(configPath)) {
 			templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
 		} else {
 			String tokeniserTemplateName = null;
-			BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(tokeniserConfig.getString("built-in-template"));
+			BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(tokeniserConfig.getString("output.built-in-template"));
 			switch (builtInTemplate) {
 			case standard:
 				tokeniserTemplateName = "tokeniser_template.ftl";
@@ -73,7 +73,7 @@ public interface TokenSequenceProcessor {
 			String path = "output/" + tokeniserTemplateName;
 			InputStream inputStream = Talismane.class.getResourceAsStream(path);
 			if (inputStream == null)
-				throw new TalismaneException("Resource not found in classpath: " + path);
+				throw new IOException("Resource not found in classpath: " + path);
 			templateReader = new BufferedReader(new InputStreamReader(inputStream));
 		}
 

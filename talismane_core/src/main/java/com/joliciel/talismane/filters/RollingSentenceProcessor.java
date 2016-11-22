@@ -293,7 +293,7 @@ public class RollingSentenceProcessor implements CurrentFileObserver {
 		String finalProcessedText = processedText.toString();
 		if (LOG.isTraceEnabled())
 			LOG.trace("Text after processing: " + finalProcessedText);
-		sentenceHolder.setText(finalProcessedText);
+		sentenceHolder.setProcessedText(finalProcessedText);
 
 		int lastIndex = 0;
 		int lastOriginalIndex = 0;
@@ -306,9 +306,9 @@ public class RollingSentenceProcessor implements CurrentFileObserver {
 			lastIndex = insertionPoint.getKey();
 			lastOriginalIndex = insertionPoint.getValue();
 		}
-		if (lastIndex < sentenceHolder.getText().length()) {
+		if (lastIndex < sentenceHolder.getProcessedText().length()) {
 			int j = 0;
-			for (int i = lastIndex; i < sentenceHolder.getText().length(); i++) {
+			for (int i = lastIndex; i < sentenceHolder.getProcessedText().length(); i++) {
 				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
 				j++;
 			}

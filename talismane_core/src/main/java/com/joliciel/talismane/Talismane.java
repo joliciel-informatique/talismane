@@ -20,32 +20,21 @@ package com.joliciel.talismane;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
-import com.joliciel.talismane.filters.MarkerFilterType;
-import com.joliciel.talismane.filters.NewlineEndOfSentenceMarker;
-import com.joliciel.talismane.filters.NewlineSpaceMarker;
-import com.joliciel.talismane.filters.OtherWhiteSpaceFilter;
-import com.joliciel.talismane.filters.RegexMarkerFilter;
 import com.joliciel.talismane.filters.RollingSentenceProcessor;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceHolder;
 import com.joliciel.talismane.filters.TextMarker;
 import com.joliciel.talismane.filters.TextMarkerFilter;
-import com.joliciel.talismane.filters.TextMarkerFilterFactory;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -57,6 +46,7 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
+import com.joliciel.talismane.sentenceDetector.RollingTextBlock;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -64,7 +54,6 @@ import com.joliciel.talismane.tokeniser.TokenSequenceProcessor;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
@@ -198,9 +187,6 @@ public class Talismane {
 	private final Module endModule;
 
 	private final boolean processByDefault;
-	private final int blockSize;
-	private final List<TextMarkerFilter> textMarkerFilters;
-	private final MarkerFilterType newlineMarker;
 
 	private final int sentenceCount;
 	private final TokeniserAnnotatedCorpusReader tokenCorpusReader;
@@ -214,9 +200,12 @@ public class Talismane {
 		this.startModule = Module.valueOf(analyseConfig.getString("start-module"));
 		this.endModule = Module.valueOf(analyseConfig.getString("end-module"));
 
+		if (startModule.compareTo(endModule) > 0) {
+			throw new TalismaneException("Start-module (" + startModule.name() + ") cannot come after end-module (" + endModule.name() + ")");
+		}
+
 		this.processByDefault = analyseConfig.getBoolean("process-by-default");
 		this.stopOnError = analyseConfig.getBoolean("stop-on-error");
-		this.blockSize = analyseConfig.getInt("block-size");
 		this.sentenceCount = config.getInt("talismane.core.input.sentence-count");
 
 		if (this.startModule.equals(Module.posTagger)) {
@@ -230,43 +219,6 @@ public class Talismane {
 			posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getReader(), config.getConfig("talismane.core.pos-tagger.input"), session);
 		} else {
 			posTagCorpusReader = null;
-		}
-
-		this.textMarkerFilters = new ArrayList<>();
-		// insert sentence breaks at end of block
-		this.textMarkerFilters.add(new RegexMarkerFilter(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }),
-				"" + session.getEndBlockCharacter(), 0, blockSize));
-
-		// handle newline as requested
-		newlineMarker = MarkerFilterType.valueOf(analyseConfig.getString("newline"));
-		if (newlineMarker.equals(MarkerFilterType.SENTENCE_BREAK))
-			this.textMarkerFilters.add(new NewlineEndOfSentenceMarker(blockSize));
-		else if (newlineMarker.equals(MarkerFilterType.SPACE))
-			this.textMarkerFilters.add(new NewlineSpaceMarker(blockSize));
-
-		// get rid of duplicate white-space always
-		this.textMarkerFilters.add(new DuplicateWhiteSpaceFilter(blockSize));
-
-		// replace tabs with white space
-		this.textMarkerFilters.add(new OtherWhiteSpaceFilter(blockSize));
-
-		TextMarkerFilterFactory factory = new TextMarkerFilterFactory();
-
-		String configPath = "talismane.core.analyse.textFilters";
-		List<String> textFilterPaths = config.getStringList(configPath);
-		for (String path : textFilterPaths) {
-			LOG.debug("From: " + path);
-			InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					LOG.debug(descriptor);
-					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-						TextMarkerFilter textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
-						this.textMarkerFilters.add(textMarkerFilter);
-					}
-				}
-			}
 		}
 	}
 
@@ -355,7 +307,7 @@ public class Talismane {
 					}
 
 					// have sentence detector
-					if (finished || (Character.isWhitespace(c) && c != '\r' && c != '\n' && stringBuilder.length() > this.blockSize)
+					if (finished || (Character.isWhitespace(c) && c != '\r' && c != '\n' && stringBuilder.length() > session.getBlockSize())
 							|| c == session.getEndBlockCharacter()) {
 						if (c == session.getEndBlockCharacter())
 							stringBuilder.append(c);
@@ -394,7 +346,7 @@ public class Talismane {
 						}
 
 						Set<TextMarker> textMarkers = new TreeSet<TextMarker>();
-						for (TextMarkerFilter textMarkerFilter : this.textMarkerFilters) {
+						for (TextMarkerFilter textMarkerFilter : session.getTextFilters()) {
 							Set<TextMarker> result = textMarkerFilter.apply(prevText, text, nextText);
 							textMarkers.addAll(result);
 						}
@@ -407,7 +359,7 @@ public class Talismane {
 						SentenceHolder sentenceHolder = rollingSentenceProcessor.addNextSegment(text, textMarkers);
 						prevProcessedText = processedText;
 						processedText = nextProcessedText;
-						nextProcessedText = sentenceHolder.getText();
+						nextProcessedText = sentenceHolder.getProcessedText().toString();
 
 						if (LOG.isTraceEnabled()) {
 							LOG.trace("prevProcessedText: " + prevProcessedText);
@@ -419,7 +371,11 @@ public class Talismane {
 
 						if (prevSentenceHolder != null) {
 							if (this.startModule.equals(Module.sentenceDetector)) {
-								List<Integer> sentenceBreaks = sentenceDetector.detectSentences(prevProcessedText, processedText, nextProcessedText);
+								RollingTextBlock textBlock = new RollingTextBlock(prevProcessedText, processedText, nextProcessedText);
+								for (Annotator annotator : session.getTextAnnotators())
+									annotator.annotate(textBlock);
+
+								List<Integer> sentenceBreaks = sentenceDetector.detectSentences(textBlock);
 								for (int sentenceBreak : sentenceBreaks) {
 									prevSentenceHolder.addSentenceBoundary(sentenceBreak);
 								}
@@ -451,12 +407,17 @@ public class Talismane {
 							// boundary happens to be a sentence boundary, hence
 							// position 0.
 							if (prevSentenceHolder.getOriginalTextSegments().size() > 0) {
-								Sentence sentence = new Sentence(session);
-								if (sentences.size() > 0)
-									sentence.setFile(sentences.peek().getFile());
+								String fileName = "";
+								File file = null;
+								if (sentences.size() > 0) {
+									Sentence lastSentence = sentences.peek();
+									fileName = lastSentence.getFileName();
+									file = lastSentence.getFile();
+								}
+
+								Sentence sentence = new Sentence("", fileName, file, session);
 								StringBuilder segmentsToInsert = new StringBuilder();
-								if (prevSentenceHolder.getLeftoverOriginalText() != null)
-									segmentsToInsert.append(prevSentenceHolder.getLeftoverOriginalText());
+
 								for (String originalTextSegment : prevSentenceHolder.getOriginalTextSegments().values()) {
 									segmentsToInsert.append(originalTextSegment);
 								}
@@ -496,6 +457,10 @@ public class Talismane {
 					if (this.startModule.compareTo(Module.tokeniser) <= 0 && this.endModule.compareTo(Module.sentenceDetector) >= 0) {
 						sentence = sentences.poll();
 						LOG.debug("Sentence: " + sentence);
+
+						for (Annotator annotator : session.getTextAnnotators())
+							annotator.annotate(sentence);
+
 						if (sentence.getLeftoverOriginalText() != null) {
 							this.getWriter().append(sentence.getLeftoverOriginalText() + "\n");
 						}
@@ -505,7 +470,7 @@ public class Talismane {
 							((CurrentFileObserver) this.getWriter()).onNextFile(currentFile);
 						}
 
-						if (this.getSentenceProcessor() != null)
+						if (this.endModule == Module.sentenceDetector)
 							this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
 					} // need to read next sentence
 
@@ -514,7 +479,7 @@ public class Talismane {
 						tokenSequences = tokeniser.tokenise(sentence);
 						tokenSequence = tokenSequences.get(0);
 
-						if (this.getTokenSequenceProcessor() != null) {
+						if (this.endModule == Module.tokeniser) {
 							this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence, this.getWriter());
 						}
 					} // need to tokenise ?
@@ -535,7 +500,7 @@ public class Talismane {
 							posTagSequence = posTagger.tagSentence(tokenSequence);
 						}
 
-						if (posTagSequenceProcessor != null) {
+						if (this.endModule == Module.posTagger) {
 							posTagSequenceProcessor.onNextPosTagSequence(posTagSequence, this.getWriter());
 						}
 
@@ -559,7 +524,7 @@ public class Talismane {
 								parseConfiguration = parser.parseSentence(posTagSequence);
 							}
 
-							if (this.getParseConfigurationProcessor() != null) {
+							if (this.endModule == Module.parser) {
 								this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration, this.getWriter());
 							}
 						} catch (Exception e) {
@@ -739,20 +704,6 @@ public class Talismane {
 		this.writer = writer;
 	}
 
-	/**
-	 * The minimum block size, in characters, to process by the sentence
-	 * detector. Filters are applied to a concatenation of the previous block,
-	 * the current block, and the next block prior to sentence detection, in
-	 * order to ensure that a filter which crosses block boundaries is correctly
-	 * applied. It is not legal to have a filter which matches text greater than
-	 * a block size, since this could result in a filter which stops analysis
-	 * but doesn't start it again correctly, or vice versa. Block size can be
-	 * increased if really big filters are really required. Default is 1000.
-	 */
-	public int getBlockSize() {
-		return blockSize;
-	}
-
 	public Module getStartModule() {
 		return startModule;
 	}
@@ -763,14 +714,6 @@ public class Talismane {
 
 	public boolean isProcessByDefault() {
 		return processByDefault;
-	}
-
-	public List<TextMarkerFilter> getTextMarkerFilters() {
-		return textMarkerFilters;
-	}
-
-	public MarkerFilterType getNewlineMarker() {
-		return newlineMarker;
 	}
 
 	public int getSentenceCount() {

@@ -47,7 +47,7 @@ public class AnnotatedText {
 	/**
 	 * Text to which annotations have been applied.
 	 */
-	public CharSequence getText() {
+	public final CharSequence getText() {
 		return text;
 	}
 

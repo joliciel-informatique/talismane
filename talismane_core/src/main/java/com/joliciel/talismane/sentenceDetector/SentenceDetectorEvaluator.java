@@ -38,6 +38,7 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -58,8 +59,10 @@ public class SentenceDetectorEvaluator {
 	private final int minCharactersAfterBoundary = 50;
 
 	private static final int NUM_CHARS = 30;
+	private final TalismaneSession session;
 
 	public SentenceDetectorEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+		this.session = session;
 		Config config = session.getConfig();
 		this.sentenceDetector = SentenceDetector.getInstance(session);
 		Config sentenceConfig = config.getConfig("talismane.core.sentence-detector");
@@ -71,7 +74,17 @@ public class SentenceDetectorEvaluator {
 		this.errorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
 	}
 
-	public SentenceDetectorEvaluator(SentenceDetector sentenceDetector, SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter) {
+	/**
+	 * 
+	 * @param sentenceDetector
+	 * @param corpusReader
+	 *            for reading manually separated sentences from a corpus
+	 * @param errorWriter
+	 * @param session
+	 */
+	public SentenceDetectorEvaluator(SentenceDetector sentenceDetector, SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter,
+			TalismaneSession session) {
+		this.session = session;
 		this.sentenceDetector = sentenceDetector;
 		this.corpusReader = corpusReader;
 		this.errorWriter = errorWriter;
@@ -80,8 +93,6 @@ public class SentenceDetectorEvaluator {
 	/**
 	 * Evaluate a given sentence detector.
 	 * 
-	 * @param corpusReader
-	 *            for reading manually separated sentences from a corpus
 	 * @return an f-score calculator for this sentence detector
 	 */
 	public FScoreCalculator<SentenceDetectorOutcome> evaluate() {
@@ -135,8 +146,11 @@ public class SentenceDetectorEvaluator {
 			}
 
 			String text = previousSentence + sentence + moreText;
+			RollingTextBlock textBlock = new RollingTextBlock(previousSentence, sentence, moreText);
+			for (Annotator annotator : session.getTextAnnotators())
+				annotator.annotate(textBlock);
 
-			List<Integer> guessedBoundaries = this.sentenceDetector.detectSentences(previousSentence, sentence, moreText);
+			List<Integer> guessedBoundaries = this.sentenceDetector.detectSentences(textBlock);
 			for (int possibleBoundary : possibleBoundaries) {
 				SentenceDetectorOutcome expected = SentenceDetectorOutcome.IS_NOT_BOUNDARY;
 				SentenceDetectorOutcome guessed = SentenceDetectorOutcome.IS_NOT_BOUNDARY;

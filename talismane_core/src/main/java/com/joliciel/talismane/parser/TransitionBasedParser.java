@@ -66,7 +66,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	private final Set<ParseConfigurationFeature<?>> parseFeatures;
 	private final int beamWidth;
 	private final boolean propagatePosTaggerBeam;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
 	private ParseComparisonStrategy parseComparisonStrategy;
 
@@ -81,7 +81,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 
 	public TransitionBasedParser(DecisionMaker decisionMaker, TransitionSystem transitionSystem, Set<ParseConfigurationFeature<?>> parseFeatures, int beamWidth,
 			boolean propagatePosTaggerBeam, ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory,
-			TalismaneSession talismaneSession) {
+			TalismaneSession session) {
 		this.decisionMaker = decisionMaker;
 		this.transitionSystem = transitionSystem;
 		this.parseFeatures = parseFeatures;
@@ -90,7 +90,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 		this.parseComparisonStrategy = parseComparisonStrategy;
 		this.maxAnalysisTimePerSentence = maxAnalysisTimePerSentence;
 		this.minFreeMemory = minFreeMemory;
-		this.talismaneSession = talismaneSession;
+		this.session = session;
 		this.observers = new ArrayList<>();
 	}
 
@@ -98,8 +98,8 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	 * Read a non-deterministic parser directly from a model.
 	 */
 	public TransitionBasedParser(ClassificationModel model, int beamWidth, boolean dynamiseFeatures, boolean propagatePosTaggerBeam,
-			ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory, TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
+			ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory, TalismaneSession session) {
+		this.session = session;
 		this.beamWidth = beamWidth;
 		this.propagatePosTaggerBeam = propagatePosTaggerBeam;
 		this.parseComparisonStrategy = parseComparisonStrategy;
@@ -108,7 +108,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 		this.transitionSystem = TransitionSystem.getTransitionSystem(model);
 		this.decisionMaker = model.getDecisionMaker();
 
-		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(talismaneSession, dynamiseFeatures);
+		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(session, dynamiseFeatures);
 		Collection<ExternalResource<?>> externalResources = model.getExternalResources();
 		if (externalResources != null) {
 			for (ExternalResource<?> externalResource : externalResources) {
@@ -126,7 +126,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 		this.parseFeatures = new HashSet<>(parser.parseFeatures);
 		this.beamWidth = parser.beamWidth;
 		this.propagatePosTaggerBeam = parser.propagatePosTaggerBeam;
-		this.talismaneSession = parser.talismaneSession;
+		this.session = parser.session;
 		this.observers = new ArrayList<>(parser.observers);
 		this.parserRules = new ArrayList<>(parser.parserRules);
 		this.parserPositiveRules = new ArrayList<>(parser.parserPositiveRules);
@@ -333,7 +333,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 				} // has a positive rule been applied?
 
 				boolean transitionApplied = false;
-				TransitionSystem transitionSystem = this.talismaneSession.getTransitionSystem();
+				TransitionSystem transitionSystem = this.session.getTransitionSystem();
 
 				// add new configuration to the heap, one for each valid
 				// transition

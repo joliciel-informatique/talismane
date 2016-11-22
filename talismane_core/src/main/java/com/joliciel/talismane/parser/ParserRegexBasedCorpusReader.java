@@ -127,10 +127,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 	private boolean needsToReturnBlankLine = false;
 	private File currentFile;
 
-	private List<Annotator> preannotators = new ArrayList<>();
-	private List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-	private List<PosTagSequenceFilter> posTagSequenceFilters = new ArrayList<>();
-
 	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
 
 	private LexicalEntryReader lexicalEntryReader;
@@ -247,7 +243,7 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 									sentence = new Sentence(text, session);
 								}
 
-								for (Annotator annotator : this.preannotators) {
+								for (Annotator annotator : session.getTextAnnotators()) {
 									annotator.annotate(sentence);
 								}
 
@@ -269,7 +265,7 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 								LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount - 1) + ") (Line " + (sentenceStartLineNumber + 1)
 										+ "): " + tokenSequence.getSentence().getText());
 
-								for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+								for (TokenSequenceFilter tokenFilter : session.getTokenSequenceFilters()) {
 									tokenFilter.apply(tokenSequence);
 								}
 
@@ -370,7 +366,7 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 									i++;
 								}
 
-								for (PosTagSequenceFilter posTagSequenceFilter : this.posTagSequenceFilters) {
+								for (PosTagSequenceFilter posTagSequenceFilter : session.getPosTagSequenceFilters()) {
 									posTagSequenceFilter.apply(posTagSequence);
 								}
 
@@ -727,12 +723,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 		attributes.put("excludeIndex", "" + this.excludeIndex);
 		attributes.put("transitionSystem", session.getTransitionSystem().getClass().getSimpleName());
 
-		int i = 0;
-		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-			attributes.put("filter" + i, "" + tokenFilter.getClass().getSimpleName());
-
-			i++;
-		}
 		return attributes;
 	}
 
@@ -949,22 +939,12 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 
 	@Override
 	public String nextSentence() {
-		return this.nextTokenSequence().getSentence().getText();
+		return this.nextTokenSequence().getSentence().getText().toString();
 	}
 
 	@Override
 	public boolean isNewParagraph() {
 		return false;
-	}
-
-	@Override
-	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		return this.tokenSequenceFilters;
-	}
-
-	@Override
-	public List<Annotator> getPreAnnotators() {
-		return this.preannotators;
 	}
 
 	protected String readWord(String rawWord) {

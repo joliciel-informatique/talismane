@@ -31,17 +31,12 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
@@ -87,50 +82,6 @@ public class PosTaggers {
 				detailsFile.delete();
 				ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
 				posTagger.addObserver(observer);
-			}
-
-			List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
-			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
-
-			configPath = "talismane.core.pos-tagger.pre-annotators";
-			List<String> tokenFilterPaths = config.getStringList(configPath);
-			for (String path : tokenFilterPaths) {
-				LOG.debug("From: " + path);
-				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, session.getInputCharset().name())) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						tokenSequenceFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
-							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
-							posTagger.addPreProcessingFilter(tokenSequenceFilter);
-						}
-					}
-				}
-			}
-
-			List<String> posTaggerPostProcessingFilterDescriptors = new ArrayList<>();
-			PosTagSequenceFilterFactory factory = new PosTagSequenceFilterFactory();
-
-			configPath = "talismane.core.pos-tagger.post-annotators";
-			List<String> posTagSequenceFilterrPaths = config.getStringList(configPath);
-			for (String path : posTagSequenceFilterrPaths) {
-				LOG.debug("From: " + path);
-				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, session.getInputCharset().name())) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						posTaggerPostProcessingFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							PosTagSequenceFilter filter = factory.getPosTagSequenceFilter(descriptor);
-							posTagger.addPostProcessingFilter(filter);
-						}
-					}
-				}
 			}
 
 			List<PosTaggerRule> posTaggerRules = new ArrayList<>();

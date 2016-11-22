@@ -86,17 +86,13 @@ public class TokenFilterFactory {
 	}
 
 	/**
-	 * Similar to {@link #readTokenFilters(Scanner, List)}, but keeps a
-	 * reference to the file, useful for finding the location of any descriptor
-	 * errors.
+	 * Similar to {@link #readTokenFilters(Scanner)}, but keeps a reference to
+	 * the file, useful for finding the location of any descriptor errors.
 	 * 
 	 * @param file
 	 *            the file to be read
 	 * @param charset
 	 *            the charset used to read the file
-	 * @param descriptors
-	 *            a list of descriptors in which we store the descriptors added
-	 *            from this file
 	 */
 	public List<Pair<TokenFilter, String>> readTokenFilters(File file, Charset charset) {
 		try {

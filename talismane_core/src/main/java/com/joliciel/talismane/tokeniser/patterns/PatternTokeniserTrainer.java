@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,8 +104,13 @@ public class PatternTokeniserTrainer {
 		TokeniserAnnotatedCorpusReader tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(),
 				tokeniserConfig.getConfig("train"), session);
 
-		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY, tokenCorpusReader.getPreAnnotatorDescriptors());
-		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY, tokenCorpusReader.getTokenSequenceFilterDescriptors());
+		// add descriptors for various filters
+		// these are for reference purpose only, as we no longer read filters
+		// out of the model
+		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
+				session.getTextAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
+		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY,
+				session.getTokenSequenceFiltersWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 
 		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
 		Set<TokenPatternMatchFeature<?>> features = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);

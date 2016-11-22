@@ -25,34 +25,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.Annotator;
-import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
- * A Tokeniser splits a sentence up into tokens (parsing units).
+ * A Tokeniser splits a sentence up into tokens (parsing units).<br/>
+ * <br/>
+ * The Tokeniser must recognise the following annotations in the sentence
+ * provided:<br/>
+ * <ul>
+ * <li>{@link TokenPlaceholder}: will get replaced by a token.</li>
+ * <li>{@link TokenAttribute}: will add attributes to all tokens contained
+ * within its span.</li>
+ * </ul>
  * 
  * @author Assaf Urieli
  *
@@ -73,20 +73,14 @@ public abstract class Tokeniser {
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 	private static final Map<String, Tokeniser> tokeniserMap = new HashMap<>();
 
-	private final List<TokenSequenceFilter> tokenSequenceFilters;
-	private final List<Annotator> preAnnotators;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
-	public Tokeniser(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-		this.preAnnotators = new ArrayList<>();
-		this.tokenSequenceFilters = new ArrayList<>();
+	public Tokeniser(TalismaneSession session) {
+		this.session = session;
 	}
 
 	protected Tokeniser(Tokeniser tokeniser) {
-		this.talismaneSession = tokeniser.talismaneSession;
-		this.preAnnotators = new ArrayList<>(tokeniser.preAnnotators);
-		this.tokenSequenceFilters = new ArrayList<>(tokeniser.tokenSequenceFilters);
+		this.session = tokeniser.session;
 	}
 
 	/**
@@ -106,7 +100,7 @@ public abstract class Tokeniser {
 	 */
 
 	public List<TokenSequence> tokenise(String text) {
-		Sentence sentence = new Sentence(text, talismaneSession);
+		Sentence sentence = new Sentence(text, session);
 		return this.tokenise(sentence);
 	}
 
@@ -149,7 +143,7 @@ public abstract class Tokeniser {
 	 */
 
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text) {
-		Sentence sentence = new Sentence(text, talismaneSession);
+		Sentence sentence = new Sentence(text, session);
 		return this.tokeniseWithDecisions(sentence);
 	}
 
@@ -159,21 +153,12 @@ public abstract class Tokeniser {
 	 */
 
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
-		// annotate the sentence for pre token filters
-		for (Annotator annotator : this.preAnnotators) {
-			annotator.annotate(sentence);
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("TokenFilter: " + annotator);
-				LOG.trace("annotations: " + sentence.getAnnotations());
-			}
-		}
-
 		// Initially, separate the sentence into tokens using the separators
 		// provided
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, this.talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, this.session);
 
 		// apply any pre-processing filters that have been added
-		for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+		for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
 			tokenSequenceFilter.apply(tokenSequence);
 		}
 
@@ -197,7 +182,7 @@ public abstract class Tokeniser {
 			// Question: should we create a separate class, Token and
 			// TokenInSequence,
 			// one with index & sequence access & one without?
-			for (TokenSequenceFilter tokenSequenceFilter : this.tokenSequenceFilters) {
+			for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
 				tokenSequenceFilter.apply(newTokenSequence);
 			}
 			if (LOG.isDebugEnabled()) {
@@ -210,52 +195,12 @@ public abstract class Tokeniser {
 
 	protected abstract List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence);
 
-	/**
-	 * Filters to be applied to the atomic token sequences, prior to tokenising.
-	 * These filters will either add empty tokens at given places, or change the
-	 * token text. Note that these filters will be applied to the token
-	 * sequences produced by the tokeniser as well.
-	 */
-	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		return tokenSequenceFilters;
-	}
-
-	/**
-	 * See {@link #getTokenSequenceFilters()}.
-	 */
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter) {
-		this.tokenSequenceFilters.add(tokenSequenceFilter);
-	}
-
 	public void addObserver(ClassificationObserver observer) {
 		// nothing to do here
 	}
 
-	/**
-	 * Annotators that will be applied before tokenising.<br/>
-	 * The Tokeniser must recognise the following annotations:<br/>
-	 * <ul>
-	 * <li>{@link TokenPlaceholder}: will get replaced by a token.</li>
-	 * <li>{@link TokenAttribute}: will add attributes to all tokens contained
-	 * within its span.</li>
-	 * </ul>
-	 */
-	public List<Annotator> getPreAnnotators() {
-		return preAnnotators;
-	}
-
-	/**
-	 * Adds an annotator at the end of the current list returned by
-	 * {@link #getPreAnnotators()}.
-	 */
-	public void addPreAnnotator(Annotator filter) {
-		if (LOG.isTraceEnabled())
-			LOG.trace("Added filter: " + filter.toString());
-		this.preAnnotators.add(filter);
-	}
-
 	protected TalismaneSession getTalismaneSession() {
-		return talismaneSession;
+		return session;
 	}
 
 	public abstract Tokeniser cloneTokeniser();
@@ -307,85 +252,6 @@ public abstract class Tokeniser {
 				}
 			} else {
 				throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
-			}
-
-			TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(session);
-
-			LOG.debug("tokenFilters");
-			String configPath = "talismane.core.tokeniser.pre-annotators";
-			List<String> tokenFilterPaths = config.getStringList(configPath);
-			for (String path : tokenFilterPaths) {
-				LOG.debug("From: " + path);
-				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
-					List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
-					for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
-						tokeniser.addPreAnnotator(tokenFilterPair.getLeft());
-					}
-				}
-			}
-
-			if (tokeniserModel != null) {
-				LOG.debug("From model");
-				List<String> modelDescriptors = tokeniserModel.getDescriptors().get(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY);
-				String modelDescriptorString = "";
-				if (modelDescriptors != null) {
-					for (String descriptor : modelDescriptors) {
-						modelDescriptorString += descriptor + "\n";
-					}
-				}
-				try (Scanner scanner = new Scanner(modelDescriptorString)) {
-					List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner);
-					for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
-						tokeniser.addPreAnnotator(tokenFilterPair.getLeft());
-					}
-				}
-			}
-
-			List<String> tokenSequenceFilterDescriptors = new ArrayList<>();
-			List<TokenSequenceFilter> tokenSequenceFilters = new ArrayList<>();
-			TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(session);
-
-			configPath = "talismane.core.tokeniser.post-annotators";
-			List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
-			for (String path : tokenSequenceFilterPaths) {
-				LOG.debug("From: " + path);
-				InputStream tokenFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(tokenFilterFile, "UTF-8")) {
-					while (scanner.hasNextLine()) {
-						String descriptor = scanner.nextLine();
-						LOG.debug(descriptor);
-						tokenSequenceFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
-							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
-							tokenSequenceFilters.add(tokenSequenceFilter);
-						}
-					}
-				}
-			}
-
-			if (tokeniserModel != null) {
-				LOG.debug("From model");
-				List<String> modelDescriptors = tokeniserModel.getDescriptors().get(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY);
-
-				if (modelDescriptors != null) {
-					for (String descriptor : modelDescriptors) {
-						LOG.debug(descriptor);
-						tokenSequenceFilterDescriptors.add(descriptor);
-						if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-							TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
-							if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-								((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(session);
-							tokenSequenceFilters.add(tokenSequenceFilter);
-						}
-					}
-				}
-			}
-
-			for (TokenSequenceFilter tokenSequenceFilter : tokenSequenceFilters) {
-				tokeniser.addTokenSequenceFilter(tokenSequenceFilter);
 			}
 
 			if (session.getSessionId() != null)

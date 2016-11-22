@@ -29,6 +29,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
@@ -49,7 +50,6 @@ import com.typesafe.config.Config;
  *
  */
 public class ParserEvaluator {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(ParserEvaluator.class);
 	private final ParserAnnotatedCorpusReader corpusReader;
 	private final Parser parser;
@@ -57,8 +57,10 @@ public class ParserEvaluator {
 	private final Tokeniser tokeniser;
 
 	private final List<ParseEvaluationObserver> observers;
+	private final TalismaneSession session;
 
 	public ParserEvaluator(TalismaneSession session) throws ClassNotFoundException, IOException, ReflectiveOperationException {
+		this.session = session;
 		Config config = session.getConfig();
 		Config parserConfig = config.getConfig("talismane.core.parser");
 		Config evalConfig = parserConfig.getConfig("evaluate");
@@ -84,7 +86,8 @@ public class ParserEvaluator {
 	}
 
 	public ParserEvaluator(ParserAnnotatedCorpusReader corpusReader, Parser parser, PosTagger posTagger, Tokeniser tokeniser, boolean propagateTokeniserBeam,
-			boolean propagateBeam) {
+			boolean propagateBeam, TalismaneSession session) {
+		this.session = session;
 		this.corpusReader = corpusReader;
 		this.parser = parser;
 		this.posTagger = posTagger;
@@ -103,6 +106,15 @@ public class ParserEvaluator {
 					throw new TalismaneException("Cannot evaluate with tokeniser but no pos-tagger");
 
 				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
+
+				// annotate the sentence for pre token filters
+				for (Annotator annotator : session.getTextAnnotators()) {
+					annotator.annotate(sentence);
+					if (LOG.isTraceEnabled()) {
+						LOG.trace("TokenFilter: " + annotator);
+						LOG.trace("annotations: " + sentence.getAnnotations());
+					}
+				}
 
 				tokenSequences = tokeniser.tokenise(sentence);
 			} else {

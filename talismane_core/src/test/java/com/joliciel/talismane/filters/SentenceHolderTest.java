@@ -52,9 +52,9 @@ public class SentenceHolderTest {
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
 		String originalText = "Hello  <b>World</b>. <o>Output this</o>How are you?  Fine<o>Output</o>,  ";
-		holder.setText("Hello  World. How are you?  Fine,  ");
+		holder.setProcessedText("Hello  World. How are you?  Fine,  ");
 
-		for (int i = 0; i < holder.getText().length(); i++) {
+		for (int i = 0; i < holder.getProcessedText().length(); i++) {
 			if (i < "Hello  ".length())
 				holder.addOriginalIndex(i);
 			else if (i < "Hello  World".length())
@@ -80,7 +80,7 @@ public class SentenceHolderTest {
 
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
-			LOG.debug(sentence.getText());
+			LOG.debug(sentence.getText().toString());
 		}
 		assertEquals(3, sentences.size());
 
@@ -121,8 +121,8 @@ public class SentenceHolderTest {
 		SentenceHolder holder2 = new SentenceHolder(talismaneSession);
 
 		String originalText2 = "thanks, and you";
-		holder2.setText("thanks, and you");
-		for (int i = 0; i < holder2.getText().length(); i++) {
+		holder2.setProcessedText("thanks, and you");
+		for (int i = 0; i < holder2.getProcessedText().length(); i++) {
 			holder2.addOriginalIndex(originalText.length() + i);
 		}
 		sentences = holder2.getDetectedSentences(leftover);
@@ -140,8 +140,8 @@ public class SentenceHolderTest {
 		SentenceHolder holder3 = new SentenceHolder(talismaneSession);
 
 		String originalText3 = "? Grand.";
-		holder3.setText(originalText3);
-		for (int i = 0; i < holder2.getText().length(); i++) {
+		holder3.setProcessedText(originalText3);
+		for (int i = 0; i < holder2.getProcessedText().length(); i++) {
 			holder3.addOriginalIndex(originalText.length() + originalText2.length() + i);
 		}
 		holder3.addSentenceBoundary("?".length() - 1);
@@ -174,9 +174,9 @@ public class SentenceHolderTest {
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
-		holder.setText("Hello World.");
+		holder.setProcessedText("Hello World.");
 
-		for (int i = 0; i < holder.getText().length(); i++) {
+		for (int i = 0; i < holder.getProcessedText().length(); i++) {
 			holder.addOriginalIndex(i);
 		}
 
@@ -184,7 +184,7 @@ public class SentenceHolderTest {
 
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
-			LOG.debug(sentence.getText());
+			LOG.debug(sentence.getText().toString());
 		}
 		assertEquals(1, sentences.size());
 
@@ -201,9 +201,9 @@ public class SentenceHolderTest {
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		SentenceHolder holder = new SentenceHolder(talismaneSession);
 
-		holder.setText("Hello World. How are you? Fine thanks.");
+		holder.setProcessedText("Hello World. How are you? Fine thanks.");
 
-		for (int i = 0; i < holder.getText().length(); i++) {
+		for (int i = 0; i < holder.getProcessedText().length(); i++) {
 			holder.addOriginalIndex(i);
 		}
 
@@ -217,7 +217,7 @@ public class SentenceHolderTest {
 
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
-			LOG.debug(sentence.getText());
+			LOG.debug(sentence.getText().toString());
 		}
 		assertEquals(3, sentences.size());
 

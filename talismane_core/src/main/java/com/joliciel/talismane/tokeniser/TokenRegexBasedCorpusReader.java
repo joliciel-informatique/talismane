@@ -71,10 +71,11 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 	private final Scanner scanner;
 	private final TalismaneSession talismaneSession;
 	private final Pattern pattern;
+	private final TalismaneSession session;
 
 	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
 		super(reader, config, session);
-
+		this.session = session;
 		this.regex = config.getString("preannotated-pattern");
 		this.talismaneSession = session;
 		this.scanner = new Scanner(reader);
@@ -210,7 +211,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 							sentence = new Sentence(text, talismaneSession);
 						}
 
-						for (Annotator annotator : this.preAnnotators) {
+						for (Annotator annotator : session.getTextAnnotators()) {
 							annotator.annotate(sentence);
 						}
 
@@ -224,7 +225,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 						tokenSequence.cleanSlate();
 
 						// now apply the token sequence filters
-						for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
+						for (TokenSequenceFilter tokenFilter : session.getTokenSequenceFilters()) {
 							tokenFilter.apply(tokenSequence);
 						}
 
@@ -278,19 +279,6 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 		attributes.put("crossValidationSize", "" + this.crossValidationSize);
 		attributes.put("includeIndex", "" + this.includeIndex);
 		attributes.put("excludeIndex", "" + this.excludeIndex);
-
-		int i = 0;
-		for (TokenSequenceFilter tokenFilter : this.tokenSequenceFilters) {
-			attributes.put("TokenSequenceFilter" + i, "" + tokenFilter.getClass().getSimpleName());
-
-			i++;
-		}
-		i = 0;
-		for (Annotator annotator : this.preAnnotators) {
-			attributes.put("pre-Annotator" + i, "" + annotator.getClass().getSimpleName());
-
-			i++;
-		}
 		return attributes;
 	}
 
@@ -363,7 +351,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 
 	@Override
 	public String nextSentence() {
-		return this.nextTokenSequence().getSentence().getText();
+		return this.nextTokenSequence().getSentence().getText().toString();
 	}
 
 	@Override

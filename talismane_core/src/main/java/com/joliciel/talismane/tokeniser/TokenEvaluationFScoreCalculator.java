@@ -57,7 +57,7 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) {
 
 		List<Integer> realSplits = realSequence.getTokenSplits();
-		String sentence = realSequence.getSentence().getText();
+		String sentence = realSequence.getSentence().getText().toString();
 
 		TokenisedAtomicTokenSequence tokeniserAtomicTokenSequence = guessedAtomicSequences.get(0);
 		TokenSequence guessedSequence = tokeniserAtomicTokenSequence.inferTokenSequence();

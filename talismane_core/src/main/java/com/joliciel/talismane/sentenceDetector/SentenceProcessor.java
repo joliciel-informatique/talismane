@@ -26,7 +26,6 @@ import java.io.Reader;
 import java.io.Writer;
 
 import com.joliciel.talismane.Talismane;
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
@@ -48,7 +47,7 @@ public interface SentenceProcessor {
 	public static SentenceProcessor getProcessor(TalismaneSession session) throws IOException {
 		Config config = session.getConfig();
 		Reader templateReader = null;
-		String configPath = "talismane.core.sentence-detector.template";
+		String configPath = "talismane.core.sentence-detector.output.template";
 		if (config.hasPath(configPath)) {
 			templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
 		} else {
@@ -56,7 +55,7 @@ public interface SentenceProcessor {
 			String path = "output/" + sentenceTemplateName;
 			InputStream inputStream = Talismane.class.getResourceAsStream(path);
 			if (inputStream == null)
-				throw new TalismaneException("Resource not found in classpath: " + path);
+				throw new IOException("Resource not found in classpath: " + path);
 			templateReader = new BufferedReader(new InputStreamReader(inputStream));
 
 		}

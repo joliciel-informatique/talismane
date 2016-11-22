@@ -58,6 +58,13 @@ public class TokeniserEvaluator {
 		this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
 	}
 
+	/**
+	 * 
+	 * @param tokeniser
+	 *            the tokeniser to evaluate
+	 * @param corpusReader
+	 *            for reading manually separated tokens from a corpus
+	 */
 	public TokeniserEvaluator(Tokeniser tokeniser, TokeniserAnnotatedCorpusReader corpusReader) {
 		this.tokeniser = tokeniser;
 		this.observers = new ArrayList<>();
@@ -66,14 +73,11 @@ public class TokeniserEvaluator {
 
 	/**
 	 * Evaluate a given tokeniser.
-	 * 
-	 * @param corpusReader
-	 *            for reading manually separated tokens from a corpus
 	 */
 	public void evaluate() {
 		while (corpusReader.hasNextTokenSequence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
-			String sentence = realSequence.getSentence().getText();
+			String sentence = realSequence.getSentence().getText().toString();
 
 			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
 
