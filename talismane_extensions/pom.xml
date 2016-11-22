@@ -78,6 +78,10 @@
 	</parent>
 	<dependencies>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-core</artifactId>
 		</dependency>
