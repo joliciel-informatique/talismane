@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.joliciel.talismane</groupId>
 		<artifactId>talismane-parent</artifactId>
-		<version>3.0.3-SNAPSHOT</version>
+		<version>3.0.2</version>
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<build>
@@ -63,6 +63,10 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
 		<dependency>
 			<!-- Must be before junit! -->
 			<groupId>com.googlecode.jmockit</groupId>
