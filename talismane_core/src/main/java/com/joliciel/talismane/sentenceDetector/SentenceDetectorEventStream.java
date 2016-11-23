@@ -77,7 +77,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
 				if (sentenceIndex < sentences.size()) {
 					nextSentence = sentences.get(sentenceIndex);
 				} else if (corpusReader.hasNextSentence()) {
-					nextSentence = corpusReader.nextSentence();
+					nextSentence = corpusReader.nextSentence().getText().toString();
 					sentences.add(nextSentence);
 				} else {
 					break;
@@ -131,7 +131,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
 			if (!sentences.isEmpty()) {
 				currentSentence = sentences.poll();
 			} else if (corpusReader.hasNextSentence()) {
-				currentSentence = corpusReader.nextSentence();
+				currentSentence = corpusReader.nextSentence().getText().toString();
 			} else {
 				break;
 			}

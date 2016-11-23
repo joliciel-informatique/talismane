@@ -220,7 +220,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 
 						Sentence sentence = null;
 						if (sentenceReader != null && sentenceReader.hasNextSentence()) {
-							sentence = new Sentence(sentenceReader.nextSentence(), session);
+							sentence = sentenceReader.nextSentence();
 						} else {
 							LinguisticRules rules = session.getLinguisticRules();
 							if (rules == null)
@@ -392,8 +392,8 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 	}
 
 	@Override
-	public String nextSentence() {
-		return this.nextTokenSequence().getSentence().getText().toString();
+	public Sentence nextSentence() {
+		return this.nextTokenSequence().getSentence();
 	}
 
 	@Override

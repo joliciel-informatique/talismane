@@ -87,7 +87,7 @@ public class PatternTokeniserTrainer {
 
 		descriptors.put(PatternTokeniser.PATTERN_DESCRIPTOR_KEY, patternDescriptors);
 
-		TokeniserPatternManager tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors);
+		TokeniserPatternManager tokeniserPatternManager = new TokeniserPatternManager(patternDescriptors, session);
 
 		configPath = "talismane.core.tokeniser.train.features";
 		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);

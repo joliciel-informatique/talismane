@@ -192,7 +192,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 
 						Sentence sentence = null;
 						if (sentenceReader != null && sentenceReader.hasNextSentence()) {
-							sentence = new Sentence(sentenceReader.nextSentence(), talismaneSession);
+							sentence = sentenceReader.nextSentence();
 						} else {
 							LinguisticRules rules = talismaneSession.getLinguisticRules();
 							if (rules == null)
@@ -223,6 +223,11 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 							token.setColumnNumber(tuple.columnNumber);
 						}
 						tokenSequence.cleanSlate();
+
+						if (LOG.isTraceEnabled()) {
+							LOG.trace("Next sentence: " + sentence.getText().toString());
+							LOG.trace("Tokenised: " + tokenSequence.toString());
+						}
 
 						// now apply the token sequence filters
 						for (TokenSequenceFilter tokenFilter : session.getTokenSequenceFilters()) {
@@ -350,8 +355,8 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 	}
 
 	@Override
-	public String nextSentence() {
-		return this.nextTokenSequence().getSentence().getText().toString();
+	public Sentence nextSentence() {
+		return this.nextTokenSequence().getSentence();
 	}
 
 	@Override

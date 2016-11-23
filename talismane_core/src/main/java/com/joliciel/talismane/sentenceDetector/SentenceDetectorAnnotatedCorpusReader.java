@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 
 import com.joliciel.talismane.AnnotatedCorpusReader;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.typesafe.config.Config;
 
 /**
@@ -44,7 +45,7 @@ public abstract class SentenceDetectorAnnotatedCorpusReader implements Annotated
 	/**
 	 * Reads the next sentence from the corpus.
 	 */
-	public abstract String nextSentence();
+	public abstract Sentence nextSentence();
 
 	/**
 	 * Is the last sentence read the start of a new paragraph?

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -48,14 +47,13 @@ public class TokenSequenceTest {
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan.", talismaneSession);
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
 		StringAttribute value = new StringAttribute("Animal", "Singe");
 		SentenceTag<String> sentenceTag = new SentenceTag<String>("Je n'ai pas l'".length(), "Animal", value);
 		sentenceTag.setEndIndex("Je n'ai pas l'ourang-outan".length());
 		sentence.getSentenceTags().add(sentenceTag);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
 
 		assertEquals(14, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -198,8 +196,6 @@ public class TokenSequenceTest {
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Write to me at joe.schome@test.com, otherwise go to http://test.com.", talismaneSession);
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
 
 		final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Write to me at ".length(), "Write to me at joe.schome@test.com".length(),
@@ -211,7 +207,8 @@ public class TokenSequenceTest {
 
 		sentence.addAnnotations(placeholders);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
 
 		assertEquals(19, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -328,9 +325,6 @@ public class TokenSequenceTest {
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Il t’aime.", talismaneSession);
 
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
-
 		final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
 		Annotation<StringAttribute> annotation1 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("phrase", "verbal"));
 		annotations.add(annotation1);
@@ -349,7 +343,9 @@ public class TokenSequenceTest {
 		sentence.addAnnotations(annotations);
 		sentence.addAnnotations(placeholders);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
+
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(6, tokenSequence.listWithWhiteSpace().size());
@@ -424,9 +420,6 @@ public class TokenSequenceTest {
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Pakistan International Airlines Company", talismaneSession);
 
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
-
 		final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
 		Annotation<StringAttribute> annotation1 = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("namedEntity", "place"));
 		Annotation<StringAttribute> annotation1b = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("startsWithP", "true"));
@@ -456,7 +449,9 @@ public class TokenSequenceTest {
 		annotations.add(annotation4);
 		sentence.addAnnotations(annotations);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
+
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(4, tokenSequence.size());

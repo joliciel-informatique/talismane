@@ -18,15 +18,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +31,10 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -63,15 +57,10 @@ public abstract class Tokeniser {
 		pattern
 	};
 
-	/**
-	 * A list of possible separators for tokens.
-	 */
-	public static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}«»_‒–—―‛“”„‟′″‴‹›‘’‚*\ufeff]", Pattern.UNICODE_CHARACTER_CLASS);
-
 	private static final Logger LOG = LoggerFactory.getLogger(Tokeniser.class);
 
-	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 	private static final Map<String, Tokeniser> tokeniserMap = new HashMap<>();
+	private static final Map<String, Pattern> tokenSeparatorMap = new HashMap<>();
 
 	private final TalismaneSession session;
 
@@ -155,7 +144,8 @@ public abstract class Tokeniser {
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
 		// Initially, separate the sentence into tokens using the separators
 		// provided
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, this.session);
+		TokenSequence tokenSequence = new TokenSequence(sentence, this.session);
+		tokenSequence.findDefaultTokens();
 
 		// apply any pre-processing filters that have been added
 		for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
@@ -223,33 +213,10 @@ public abstract class Tokeniser {
 			Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 			TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
 
-			ClassificationModel tokeniserModel = null;
 			if (tokeniserType == TokeniserType.simple) {
 				tokeniser = new SimpleTokeniser(session);
 			} else if (tokeniserType == TokeniserType.pattern) {
-				int beamWidth = tokeniserConfig.getInt("beam-width");
-
-				String configPath = "talismane.core.tokeniser.model";
-				String modelFilePath = config.getString(configPath);
-				LOG.debug("Getting tokeniser model from " + modelFilePath);
-				tokeniserModel = modelMap.get(modelFilePath);
-				if (tokeniserModel == null) {
-					InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
-					MachineLearningModelFactory factory = new MachineLearningModelFactory();
-					tokeniserModel = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
-					modelMap.put(modelFilePath, tokeniserModel);
-				}
-
-				tokeniser = new PatternTokeniser(tokeniserModel, beamWidth, session);
-
-				boolean includeDetails = tokeniserConfig.getBoolean("output.include-details");
-				if (includeDetails) {
-					String detailsFilePath = session.getBaseName() + "_tokeniser_details.txt";
-					File detailsFile = new File(session.getOutDir(), detailsFilePath);
-					detailsFile.delete();
-					ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
-					tokeniser.addObserver(observer);
-				}
+				tokeniser = new PatternTokeniser(session);
 			} else {
 				throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
 			}
@@ -259,5 +226,19 @@ public abstract class Tokeniser {
 		}
 
 		return tokeniser.cloneTokeniser();
+	}
+
+	/**
+	 * A pattern matching default separators for tokens.
+	 */
+	public static Pattern getTokenSeparators(TalismaneSession session) {
+		Pattern tokenSeparators = tokenSeparatorMap.get(session.getSessionId());
+		if (tokenSeparators == null) {
+			Config config = session.getConfig();
+			String separatorRegex = config.getString("talismane.core.tokeniser.separators");
+			tokenSeparators = Pattern.compile(separatorRegex, Pattern.UNICODE_CHARACTER_CLASS);
+			tokenSeparatorMap.put(session.getSessionId(), tokenSeparators);
+		}
+		return tokenSeparators;
 	}
 }

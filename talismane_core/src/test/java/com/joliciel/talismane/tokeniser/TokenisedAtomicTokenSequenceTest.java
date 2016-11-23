@@ -62,7 +62,8 @@ public class TokenisedAtomicTokenSequenceTest {
 
 		TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneSession);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
 
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
