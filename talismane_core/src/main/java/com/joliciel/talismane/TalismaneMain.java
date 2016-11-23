@@ -454,55 +454,48 @@ public class TalismaneMain {
 		if (options.has(earlyStopOption))
 			values.put("talismane.core.parser.early-stop", options.valueOf(earlyStopOption));
 
-		if (options.has(inputPatternFileOption)) {
-			InputStream inputPatternFile = new FileInputStream(options.valueOf(inputPatternFileOption));
-			String inputRegex = "";
-			try (Scanner inputPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(inputPatternFile, "UTF-8")))) {
-				if (inputPatternScanner.hasNextLine()) {
-					inputRegex = inputPatternScanner.nextLine();
+		if (options.has(inputPatternFileOption) || options.has(inputPatternOption)) {
+			String inputRegex = null;
+			if (options.has(inputPatternFileOption)) {
+				InputStream inputPatternFile = new FileInputStream(options.valueOf(inputPatternFileOption));
+				try (Scanner inputPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(inputPatternFile, "UTF-8")))) {
+					if (inputPatternScanner.hasNextLine()) {
+						inputRegex = inputPatternScanner.nextLine();
+					}
 				}
+				if (inputRegex == null)
+					throw new TalismaneException("No input pattern found in " + options.valueOf(inputPatternFileOption).getPath());
+			} else {
+				inputRegex = options.valueOf(inputPatternOption);
 			}
-			if (inputRegex == null)
-				throw new TalismaneException("No input pattern found in " + options.valueOf(inputPatternFileOption).getPath());
 			values.put("talismane.core.tokeniser.input.preannotated-pattern", inputRegex);
-			values.put("talismane.core.posTagger.input.preannotated-pattern", inputRegex);
+			values.put("talismane.core.pos-tagger.input.preannotated-pattern", inputRegex);
 			values.put("talismane.core.parser.input.preannotated-pattern", inputRegex);
 			values.put("talismane.core.tokeniser.train.preannotated-pattern", inputRegex);
-			values.put("talismane.core.posTagger.train.preannotated-pattern", inputRegex);
+			values.put("talismane.core.pos-tagger.train.preannotated-pattern", inputRegex);
 			values.put("talismane.core.parser.train.preannotated-pattern", inputRegex);
 			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", inputRegex);
-			values.put("talismane.core.posTagger.evaluate.preannotated-pattern", inputRegex);
-			values.put("talismane.core.parser.evaluate.preannotated-pattern", inputRegex);
-		} else if (options.has(inputPatternOption)) {
-			String inputRegex = options.valueOf(inputPatternOption);
-			values.put("talismane.core.tokeniser.input.preannotated-pattern", inputRegex);
-			values.put("talismane.core.posTagger.input.preannotated-pattern", inputRegex);
-			values.put("talismane.core.parser.input.preannotated-pattern", inputRegex);
-			values.put("talismane.core.tokeniser.train.preannotated-pattern", inputRegex);
-			values.put("talismane.core.posTagger.train.preannotated-pattern", inputRegex);
-			values.put("talismane.core.parser.train.preannotated-pattern", inputRegex);
-			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", inputRegex);
-			values.put("talismane.core.posTagger.evaluate.preannotated-pattern", inputRegex);
+			values.put("talismane.core.pos-tagger.evaluate.preannotated-pattern", inputRegex);
 			values.put("talismane.core.parser.evaluate.preannotated-pattern", inputRegex);
 		}
 
-		if (options.has(evalPatternFileOption)) {
-			InputStream evalPatternFile = new FileInputStream(options.valueOf(evalPatternFileOption));
-			String evalRegex = "";
-			try (Scanner evalPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(evalPatternFile, "UTF-8")))) {
-				if (evalPatternScanner.hasNextLine()) {
-					evalRegex = evalPatternScanner.nextLine();
+		if (options.has(evalPatternFileOption) || options.has(evalPatternOption)) {
+			String evalRegex = null;
+
+			if (options.has(evalPatternFileOption)) {
+				InputStream evalPatternFile = new FileInputStream(options.valueOf(evalPatternFileOption));
+				try (Scanner evalPatternScanner = new Scanner(new BufferedReader(new InputStreamReader(evalPatternFile, "UTF-8")))) {
+					if (evalPatternScanner.hasNextLine()) {
+						evalRegex = evalPatternScanner.nextLine();
+					}
 				}
+				if (evalRegex == null)
+					throw new TalismaneException("No eval pattern found in " + options.valueOf(evalPatternFileOption).getPath());
+			} else {
+				evalRegex = options.valueOf(evalPatternOption);
 			}
-			if (evalRegex == null)
-				throw new TalismaneException("No eval pattern found in " + options.valueOf(evalPatternFileOption).getPath());
 			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", evalRegex);
-			values.put("talismane.core.posTagger.evaluate.preannotated-pattern", evalRegex);
-			values.put("talismane.core.parser.evaluate.preannotated-pattern", evalRegex);
-		} else if (options.has(evalPatternOption)) {
-			String evalRegex = options.valueOf(evalPatternOption);
-			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", evalRegex);
-			values.put("talismane.core.posTagger.evaluate.preannotated-pattern", evalRegex);
+			values.put("talismane.core.pos-tagger.evaluate.preannotated-pattern", evalRegex);
 			values.put("talismane.core.parser.evaluate.preannotated-pattern", evalRegex);
 		}
 

@@ -123,9 +123,17 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 		if (columnNumberPos >= 0)
 			placeholderMap.put(columnNumberPos, COLUMN_PLACEHOLDER);
 
+		for (int j = 0; j < regex.length(); j++) {
+			if (regex.charAt(j) == '(') {
+				placeholderMap.put(j, "");
+			}
+		}
 		int i = 1;
-		for (String placeholderName : placeholderMap.values()) {
-			placeholderIndexMap.put(placeholderName, i++);
+		for (int placeholderIndex : placeholderMap.keySet()) {
+			String placeholderName = placeholderMap.get(placeholderIndex);
+			if (placeholderName.length() > 0)
+				placeholderIndexMap.put(placeholderName, i);
+			i++;
 		}
 
 		String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*?)");

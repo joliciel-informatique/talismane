@@ -790,9 +790,17 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 			if (depCommentPos >= 0)
 				placeholderMap.put(depCommentPos, DEP_COMMENT_PLACEHOLDER);
 
+			for (int j = 0; j < regex.length(); j++) {
+				if (regex.charAt(j) == '(') {
+					placeholderMap.put(j, "");
+				}
+			}
 			int i = 1;
-			for (String placeholderName : placeholderMap.values()) {
-				placeholderIndexMap.put(placeholderName, i++);
+			for (int placeholderIndex : placeholderMap.keySet()) {
+				String placeholderName = placeholderMap.get(placeholderIndex);
+				if (placeholderName.length() > 0)
+					placeholderIndexMap.put(placeholderName, i);
+				i++;
 			}
 
 			String regexWithGroups = regex.replace(INDEX_PLACEHOLDER, "(\\d+)");
