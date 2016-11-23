@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
@@ -77,7 +78,7 @@ public class TokeniserEvaluator {
 	public void evaluate() {
 		while (corpusReader.hasNextTokenSequence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
-			String sentence = realSequence.getSentence().getText().toString();
+			Sentence sentence = realSequence.getSentence();
 
 			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
 

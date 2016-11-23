@@ -114,8 +114,10 @@ public class TokenComparator {
 
 			// Initially, separate the sentence into tokens using the separators
 			// provided
-			TokenSequence realAtomicSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, session);
-			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), Tokeniser.SEPARATORS, session);
+			TokenSequence realAtomicSequence = new TokenSequence(sentence, session);
+			realAtomicSequence.findDefaultTokens();
+			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), session);
+			guessedAtomicSequence.findDefaultTokens();
 
 			List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
 			Map<Token, Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();

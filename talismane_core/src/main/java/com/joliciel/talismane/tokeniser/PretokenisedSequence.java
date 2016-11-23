@@ -56,17 +56,36 @@ public class PretokenisedSequence extends TokenSequence {
 		if (this.size() > 0)
 			start = this.get(this.size() - 1).getEndIndex();
 
+		// jump forward to first non-whitespace character
 		for (; start < text.length(); start++) {
 			char c = text.charAt(start);
-			if (!Character.isWhitespace(c)) {
+			if (!Character.isWhitespace(c))
+				break;
+		}
+
+		// if the string begins with whitespace
+		// go backwards along whitespace to match string
+		for (int i = 0; i < string.length(); i++) {
+			char s = string.charAt(i);
+			if (Character.isWhitespace(s)) {
+				start--;
+				char t = text.charAt(start);
+				if (!Character.isWhitespace(t))
+					break;
+			} else {
 				break;
 			}
 		}
+
 		int end = start + string.length();
 
-		if (!string.equals(text.subSequence(start, end).toString())) {
-			throw new TalismaneException("Add token failed: Expected '" + string + "' but was '" + text.subSequence(start, end) + "' in sentence: " + text);
-		}
+		if (end > text.length())
+			throw new TalismaneException("Add token failed: Expected |" + string + "| at positions " + start + ", " + end + ", but only remaining text (length "
+					+ text.length() + ") is |" + text.subSequence(start, text.length()) + "| in sentence: |" + text + "|");
+
+		if (!string.equals(text.subSequence(start, end).toString()))
+			throw new TalismaneException(
+					"Add token failed: Expected |" + string + "| but was |" + text.subSequence(start, end) + "| in sentence: |" + text + "|");
 
 		return this.addToken(start, end);
 	}

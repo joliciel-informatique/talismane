@@ -107,7 +107,7 @@ public class SentenceDetectorEvaluator {
 		String sentence = null;
 		String previousSentence = ". ";
 		if (corpusReader.hasNextSentence())
-			sentence = corpusReader.nextSentence();
+			sentence = corpusReader.nextSentence().getText().toString();
 
 		sentences.add(sentence);
 		while (!sentences.isEmpty()) {
@@ -132,7 +132,7 @@ public class SentenceDetectorEvaluator {
 				if (sentenceIndex < sentences.size()) {
 					nextSentence = sentences.get(sentenceIndex);
 				} else if (corpusReader.hasNextSentence()) {
-					nextSentence = corpusReader.nextSentence();
+					nextSentence = corpusReader.nextSentence().getText().toString();
 
 					sentences.add(nextSentence);
 				} else {

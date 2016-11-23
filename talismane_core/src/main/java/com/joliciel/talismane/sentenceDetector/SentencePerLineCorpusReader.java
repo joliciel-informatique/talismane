@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.typesafe.config.Config;
 
 /**
@@ -33,7 +34,7 @@ import com.typesafe.config.Config;
  *
  */
 public class SentencePerLineCorpusReader extends SentenceDetectorAnnotatedCorpusReader {
-	private Scanner scanner;
+	private final Scanner scanner;
 	private int maxSentenceCount = 0;
 	private int startSentence = 0;
 	private int sentenceCount = 0;
@@ -41,10 +42,12 @@ public class SentencePerLineCorpusReader extends SentenceDetectorAnnotatedCorpus
 	private int excludeIndex = -1;
 	private int crossValidationSize = 0;
 	String sentence = null;
+	private final TalismaneSession session;
 
 	public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
 		super(reader, config, session);
-		scanner = new Scanner(reader);
+		this.session = session;
+		this.scanner = new Scanner(reader);
 	}
 
 	@Override
@@ -96,10 +99,10 @@ public class SentencePerLineCorpusReader extends SentenceDetectorAnnotatedCorpus
 	}
 
 	@Override
-	public String nextSentence() {
+	public Sentence nextSentence() {
 		String currentSentence = sentence;
 		sentence = null;
-		return currentSentence;
+		return new Sentence(currentSentence, session);
 	}
 
 	@Override

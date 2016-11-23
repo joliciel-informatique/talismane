@@ -23,6 +23,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -41,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
+import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Mode;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.Talismane.ProcessingOption;
@@ -94,6 +96,8 @@ import joptsimple.OptionSpec;
 public class TalismaneMain {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneMain.class);
 
+	private final Config config;
+
 	public static void main(String[] args) throws Exception {
 		if (args.length > 0) {
 			Set<String> argSet = new HashSet<>(Arrays.asList(args));
@@ -116,6 +120,7 @@ public class TalismaneMain {
 		}
 
 		OptionParser parser = new OptionParser();
+
 		parser.accepts("analyse", "analyse text");
 		parser.accepts("train", "train model").availableUnless("analyse");
 		parser.accepts("evaluate", "evaluate annotated corpus").availableUnless("analyse", "train");
@@ -298,15 +303,15 @@ public class TalismaneMain {
 
 		Map<String, Object> values = new HashMap<>();
 		if (options.has("analyse"))
-			values.put("talismane.core.command", "analyse");
+			values.put("talismane.core.command", Command.analyse.name());
 		if (options.has("train"))
-			values.put("talismane.core.command", "train");
+			values.put("talismane.core.command", Command.train.name());
 		if (options.has("evaluate"))
-			values.put("talismane.core.command", "evaluate");
+			values.put("talismane.core.command", Command.evaluate.name());
 		if (options.has("compare"))
-			values.put("talismane.core.command", "compare");
+			values.put("talismane.core.command", Command.compare.name());
 		if (options.has("process"))
-			values.put("talismane.core.command", "process");
+			values.put("talismane.core.command", Command.process.name());
 		if (options.has(moduleOption))
 			values.put("talismane.core.module", options.valueOf(moduleOption).name());
 		if (options.has(startModuleOption)) {
@@ -320,8 +325,16 @@ public class TalismaneMain {
 			values.put("talismane.core.mode", options.valueOf(modeOption).name());
 		if (options.has(portOption))
 			values.put("talismane.core.port", options.valueOf(portOption));
-		if (options.has(inFileOption))
+
+		if (options.has(inFileOption)) {
 			values.put("talismane.core.in-file", options.valueOf(inFileOption).getPath());
+			values.put("talismane.core.language-detector.evaluate.eval-file", options.valueOf(inFileOption).getPath());
+			values.put("talismane.core.sentence-detector.evaluate.eval-file", options.valueOf(inFileOption).getPath());
+			values.put("talismane.core.tokeniser.evaluate.eval-file", options.valueOf(inFileOption).getPath());
+			values.put("talismane.core.pos-tagger.evaluate.eval-file", options.valueOf(inFileOption).getPath());
+			values.put("talismane.core.parser.evaluate.eval-file", options.valueOf(inFileOption).getPath());
+		}
+
 		if (options.has(inDirOption))
 			values.put("talismane.core.in-dir", options.valueOf(inDirOption).getPath());
 		if (options.has(outFileOption))
@@ -454,11 +467,23 @@ public class TalismaneMain {
 			values.put("talismane.core.tokeniser.input.preannotated-pattern", inputRegex);
 			values.put("talismane.core.posTagger.input.preannotated-pattern", inputRegex);
 			values.put("talismane.core.parser.input.preannotated-pattern", inputRegex);
+			values.put("talismane.core.tokeniser.train.preannotated-pattern", inputRegex);
+			values.put("talismane.core.posTagger.train.preannotated-pattern", inputRegex);
+			values.put("talismane.core.parser.train.preannotated-pattern", inputRegex);
+			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", inputRegex);
+			values.put("talismane.core.posTagger.evaluate.preannotated-pattern", inputRegex);
+			values.put("talismane.core.parser.evaluate.preannotated-pattern", inputRegex);
 		} else if (options.has(inputPatternOption)) {
 			String inputRegex = options.valueOf(inputPatternOption);
 			values.put("talismane.core.tokeniser.input.preannotated-pattern", inputRegex);
 			values.put("talismane.core.posTagger.input.preannotated-pattern", inputRegex);
 			values.put("talismane.core.parser.input.preannotated-pattern", inputRegex);
+			values.put("talismane.core.tokeniser.train.preannotated-pattern", inputRegex);
+			values.put("talismane.core.posTagger.train.preannotated-pattern", inputRegex);
+			values.put("talismane.core.parser.train.preannotated-pattern", inputRegex);
+			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", inputRegex);
+			values.put("talismane.core.posTagger.evaluate.preannotated-pattern", inputRegex);
+			values.put("talismane.core.parser.evaluate.preannotated-pattern", inputRegex);
 		}
 
 		if (options.has(evalPatternFileOption)) {
@@ -518,7 +543,7 @@ public class TalismaneMain {
 			values.put("talismane.core.parser.train.features", options.valueOf(featuresOption).getPath());
 		}
 		if (options.has(tokeniserPatternsOption))
-			values.put("talismane.core.pos-tagger.train.patterns", options.valueOf(tokeniserPatternsOption).getPath());
+			values.put("talismane.core.tokeniser.train.patterns", options.valueOf(tokeniserPatternsOption).getPath());
 		if (options.has(sentenceFileOption))
 			values.put("talismane.core.tokeniser.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
 		if (options.has(languageCorpusMapOption))
@@ -546,6 +571,15 @@ public class TalismaneMain {
 			LogUtils.configureLogging(options.valueOf(logConfigFileSpec));
 
 		Config config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
+		TalismaneMain talismaneMain = new TalismaneMain(config);
+		talismaneMain.execute();
+	}
+
+	public TalismaneMain(Config config) {
+		this.config = config;
+	}
+
+	public void execute() throws IOException, ReflectiveOperationException {
 		if (LOG.isTraceEnabled())
 			LOG.trace(config.root().render());
 		long startTime = System.currentTimeMillis();
@@ -570,7 +604,7 @@ public class TalismaneMain {
 					SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
 							config.getConfig("talismane.core.language-detector.input"), session);
 					while (corpusReader.hasNextSentence()) {
-						String sentence = corpusReader.nextSentence();
+						String sentence = corpusReader.nextSentence().getText().toString();
 
 						List<WeightedOutcome<Locale>> results = languageDetector.detectLanguages(sentence);
 						processor.onNextText(sentence, results, writer);
@@ -670,8 +704,7 @@ public class TalismaneMain {
 					SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getReader(),
 							config.getConfig("talismane.core.sentence-detector.input"), session);
 					while (corpusReader.hasNextSentence()) {
-						String text = corpusReader.nextSentence();
-						Sentence sentence = new Sentence(text, session);
+						Sentence sentence = corpusReader.nextSentence();
 						processor.onNextSentence(sentence, writer);
 					}
 					break;
@@ -747,4 +780,5 @@ public class TalismaneMain {
 			}
 		}
 	}
+
 }

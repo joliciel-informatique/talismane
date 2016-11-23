@@ -21,18 +21,18 @@ package com.joliciel.talismane.tokeniser.patterns;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.tokeniser.SeparatorDecision;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -45,22 +45,26 @@ public class PatternTokeniserTest {
 		ConfigFactory.invalidateCaches();
 		final Config config = ConfigFactory.load();
 
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final TalismaneSession session = new TalismaneSession(config, "");
 
-		final String sentence = "Je n'ai pas l'ourang-outan.";
-		final Map<SeparatorDecision, String> separatorDefaults = new HashMap<SeparatorDecision, String>();
-		separatorDefaults.put(SeparatorDecision.IS_NOT_SEPARATOR, "-");
-		separatorDefaults.put(SeparatorDecision.IS_SEPARATOR_AFTER, "'");
+		final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan sur www.google.com.", session);
+		List<Annotation<TokenPlaceholder>> annotations = new ArrayList<>();
+		Annotation<TokenPlaceholder> annotation = new Annotation<TokenPlaceholder>("Je n'ai pas l'ourang-outan sur ".length(),
+				"Je n'ai pas l'ourang-outan sur www.google.com".length(), new TokenPlaceholder("URL", ""));
+		annotations.add(annotation);
+		sentence.addAnnotations(annotations);
 
 		List<String> tokeniserPatterns = new ArrayList<String>();
-		TokeniserPatternManager patternManager = new TokeniserPatternManager(tokeniserPatterns);
-		PatternTokeniser tokeniserImpl = new PatternTokeniser(null, patternManager, null, 1, talismaneSession);
-		patternManager.setSeparatorDefaults(separatorDefaults);
-		List<TokenSequence> tokenSequences = tokeniserImpl.tokenise(sentence);
+		tokeniserPatterns.add("IS_NOT_SEPARATOR -_");
+		tokeniserPatterns.add("IS_SEPARATOR_AFTER '");
+
+		TokeniserPatternManager patternManager = new TokeniserPatternManager(tokeniserPatterns, session);
+		PatternTokeniser tokeniser = new PatternTokeniser(null, patternManager, null, 1, session);
+		List<TokenSequence> tokenSequences = tokeniser.tokenise(sentence);
 		TokenSequence tokenSequence = tokenSequences.get(0);
 		LOG.debug(tokenSequence.toString());
 
-		assertEquals(7, tokenSequence.size());
+		assertEquals(9, tokenSequence.size());
 
 		int i = 0;
 		for (Token token : tokenSequence) {
@@ -77,6 +81,10 @@ public class PatternTokeniserTest {
 			} else if (i == 5) {
 				assertEquals("ourang-outan", token.getText());
 			} else if (i == 6) {
+				assertEquals("sur", token.getText());
+			} else if (i == 7) {
+				assertEquals("URL", token.getText());
+			} else if (i == 8) {
 				assertEquals(".", token.getText());
 			}
 			i++;

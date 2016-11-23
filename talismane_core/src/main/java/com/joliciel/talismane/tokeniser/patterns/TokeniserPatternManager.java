@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -61,22 +62,21 @@ import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 public class TokeniserPatternManager {
 	private static final Logger LOG = LoggerFactory.getLogger(TokeniserPatternManager.class);
 
-	private Map<SeparatorDecision, String> separatorDefaults;
+	private final Map<SeparatorDecision, String> separatorDefaults;
 	private Map<SeparatorDecision, Pattern> separatorDefaultPatterns;
-	private List<String> descriptors;
-	private List<String> testPatterns;
+	private final List<String> descriptors;
+	private final List<String> testPatterns;
 
 	private List<TokenPattern> parsedTestPatterns;
+	private final TalismaneSession session;
 
 	/**
 	 * Reads separator defaults and test patterns from a list of strings.
 	 */
-	public TokeniserPatternManager(List<String> patternDescriptors) {
+	public TokeniserPatternManager(List<String> patternDescriptors, TalismaneSession session) {
 		this.descriptors = patternDescriptors;
-		this.configure(patternDescriptors);
-	}
+		this.session = session;
 
-	private void configure(List<String> patternDescriptors) {
 		String[] separatorDecisions = new String[] { SeparatorDecision.IS_NOT_SEPARATOR.toString(), SeparatorDecision.IS_SEPARATOR_AFTER.toString(),
 				SeparatorDecision.IS_SEPARATOR_BEFORE.toString() };
 		List<String> testPatterns = new ArrayList<String>();
@@ -143,7 +143,7 @@ public class TokeniserPatternManager {
 					pattern = parts[2];
 				}
 
-				TokenPattern parsedPattern = new TokenPattern(pattern, Tokeniser.SEPARATORS);
+				TokenPattern parsedPattern = new TokenPattern(pattern, Tokeniser.getTokenSeparators(session));
 				if (name != null)
 					parsedPattern.setName(name);
 				if (groupName != null)
@@ -163,10 +163,11 @@ public class TokeniserPatternManager {
 
 		// Assign each separator its default value
 		TokeniserOutcome nextOutcome = TokeniserOutcome.SEPARATE;
+		Pattern tokenSeparators = Tokeniser.getTokenSeparators(session);
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 
 			TokeniserOutcome outcome = null;
-			if (Tokeniser.SEPARATORS.matcher(token.getText()).matches()) {
+			if (tokenSeparators.matcher(token.getText()).matches()) {
 				boolean defaultValueFound = false;
 				for (Entry<SeparatorDecision, Pattern> entry : this.getSeparatorDefaultPatterns().entrySet()) {
 					if (entry.getValue().matcher(token.getText()).matches()) {
@@ -206,10 +207,6 @@ public class TokeniserPatternManager {
 
 		}
 		return defaultOutcomes;
-	}
-
-	public void setSeparatorDefaults(Map<SeparatorDecision, String> separatorDefaults) {
-		this.separatorDefaults = separatorDefaults;
 	}
 
 	protected Map<SeparatorDecision, Pattern> getSeparatorDefaultPatterns() {

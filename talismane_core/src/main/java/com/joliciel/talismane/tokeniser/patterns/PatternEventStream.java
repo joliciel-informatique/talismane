@@ -37,7 +37,6 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
@@ -93,7 +92,8 @@ public class PatternEventStream implements ClassificationEventStream {
 				LOG.debug("Sentence: " + text);
 				Sentence sentence = new Sentence(text, session);
 
-				TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, session);
+				TokenSequence tokenSequence = new TokenSequence(sentence, session);
+				tokenSequence.findDefaultTokens();
 				for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
 					tokenSequenceFilter.apply(tokenSequence);
 				}

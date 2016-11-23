@@ -18,6 +18,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +30,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +42,7 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
+import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.TaggedToken;
@@ -48,6 +53,8 @@ import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * The compound pattern tokeniser first splits the text into individual tokens
@@ -74,6 +81,7 @@ public class PatternTokeniser extends Tokeniser {
 	public static final String PATTERN_DESCRIPTOR_KEY = "pattern";
 
 	private static final Logger LOG = LoggerFactory.getLogger(PatternTokeniser.class);
+	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 
 	private final TokeniserPatternManager tokeniserPatternManager;
 	private final DecisionMaker decisionMaker;
@@ -82,12 +90,26 @@ public class PatternTokeniser extends Tokeniser {
 
 	private final List<ClassificationObserver> observers;
 
-	public PatternTokeniser(ClassificationModel tokeniserModel, int beamWidth, TalismaneSession talismaneSession) {
-		super(talismaneSession);
-		this.decisionMaker = tokeniserModel.getDecisionMaker();
-		this.beamWidth = beamWidth;
+	public PatternTokeniser(TalismaneSession session) throws IOException {
+		super(session);
+		Config config = session.getConfig();
+		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+		this.beamWidth = tokeniserConfig.getInt("beam-width");
 
-		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(talismaneSession);
+		String configPath = "talismane.core.tokeniser.model";
+		String modelFilePath = config.getString(configPath);
+		LOG.debug("Getting tokeniser model from " + modelFilePath);
+		ClassificationModel tokeniserModel = modelMap.get(modelFilePath);
+		if (tokeniserModel == null) {
+			InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
+			MachineLearningModelFactory factory = new MachineLearningModelFactory();
+			tokeniserModel = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
+			modelMap.put(modelFilePath, tokeniserModel);
+		}
+
+		this.decisionMaker = tokeniserModel.getDecisionMaker();
+
+		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
 		Collection<ExternalResource<?>> externalResources = tokeniserModel.getExternalResources();
 		if (externalResources != null) {
 			for (ExternalResource<?> externalResource : externalResources) {
@@ -95,7 +117,33 @@ public class PatternTokeniser extends Tokeniser {
 			}
 		}
 		this.features = featureParser.getTokenPatternMatchFeatureSet(tokeniserModel.getFeatureDescriptors());
-		this.tokeniserPatternManager = new TokeniserPatternManager(tokeniserModel.getDescriptors().get(PATTERN_DESCRIPTOR_KEY));
+		this.tokeniserPatternManager = new TokeniserPatternManager(tokeniserModel.getDescriptors().get(PATTERN_DESCRIPTOR_KEY), session);
+		this.observers = new ArrayList<>();
+
+		boolean includeDetails = tokeniserConfig.getBoolean("output.include-details");
+		if (includeDetails) {
+			String detailsFilePath = session.getBaseName() + "_tokeniser_details.txt";
+			File detailsFile = new File(session.getOutDir(), detailsFilePath);
+			detailsFile.delete();
+			ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
+			this.addObserver(observer);
+		}
+	}
+
+	public PatternTokeniser(ClassificationModel tokeniserModel, int beamWidth, TalismaneSession session) {
+		super(session);
+		this.decisionMaker = tokeniserModel.getDecisionMaker();
+		this.beamWidth = beamWidth;
+
+		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
+		Collection<ExternalResource<?>> externalResources = tokeniserModel.getExternalResources();
+		if (externalResources != null) {
+			for (ExternalResource<?> externalResource : externalResources) {
+				featureParser.getExternalResourceFinder().addExternalResource(externalResource);
+			}
+		}
+		this.features = featureParser.getTokenPatternMatchFeatureSet(tokeniserModel.getFeatureDescriptors());
+		this.tokeniserPatternManager = new TokeniserPatternManager(tokeniserModel.getDescriptors().get(PATTERN_DESCRIPTOR_KEY), session);
 		this.observers = new ArrayList<>();
 	}
 

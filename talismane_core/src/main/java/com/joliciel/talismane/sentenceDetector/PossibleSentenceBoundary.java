@@ -22,7 +22,6 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.utils.StringUtils;
 
 public class PossibleSentenceBoundary {
@@ -63,7 +62,8 @@ public class PossibleSentenceBoundary {
 	public TokenSequence getTokenSequence() {
 		if (tokenSequence == null) {
 			Sentence sentence = new Sentence(text.toString(), talismaneSession);
-			tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+			tokenSequence = new TokenSequence(sentence, talismaneSession);
+			tokenSequence.findDefaultTokens();
 		}
 		return tokenSequence;
 	}
