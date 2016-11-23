@@ -501,7 +501,7 @@ public class Talismane {
 						}
 
 						if (this.endModule == Module.posTagger) {
-							posTagSequenceProcessor.onNextPosTagSequence(posTagSequence, this.getWriter());
+							this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence, this.getWriter());
 						}
 
 						tokenSequence = null;
