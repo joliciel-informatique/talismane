@@ -73,10 +73,14 @@
 	<parent>
 		<groupId>com.joliciel.talismane</groupId>
 		<artifactId>talismane-parent</artifactId>
-		<version>3.0.3-SNAPSHOT</version>
+		<version>3.0.2</version>
 		<relativePath>../talismane_parent</relativePath>
 	</parent>
 	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.joliciel.talismane</groupId>
 			<artifactId>talismane-core</artifactId>

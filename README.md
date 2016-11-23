@@ -1,6 +1,6 @@
-![Talismane Logo](https://raw.githubusercontent.com/wiki/urieli/talismane/pics/TalismaneLogo300px.png)
+![Talismane Logo](https://raw.githubusercontent.com/wiki/joliciel-informatique/talismane/pics/TalismaneLogo300px.png)
 
-[![Build Status](https://travis-ci.org/urieli/talismane.png?branch=master)](https://travis-ci.org/urieli/talismane)
+[![Build Status](https://travis-ci.org/joliciel-informatique/talismane.png?branch=master)](https://travis-ci.org/joliciel-informatique/talismane)
 
 Talismane is a natural language processing framework with sentence detector, tokeniser, pos-tagger and dependency syntax parser. Current available language packs include French and English.
 
@@ -27,18 +27,18 @@ Talismane is a natural language processing framework with sentence detector, tok
 16	.	.	PONCT	PONCT		15	ponct	15	ponct
 </pre>
 
-**Downloads**: The latest release and language packs can be downloaded on the [releases pages](https://github.com/urieli/talismane/releases).
+**Downloads**: The latest release and language packs can be downloaded on the [releases pages](https://github.com/joliciel-informatique/talismane/releases).
 
-**Wiki**: Simple instructions for use can be found on the [Talismane wiki](https://github.com/urieli/talismane/wiki).
+**Wiki**: Simple instructions for use can be found on the [Talismane wiki](https://github.com/joliciel-informatique/talismane/wiki).
 
-**Command-line usage**: follow the [setup instructions](https://github.com/urieli/talismane/wiki/Setup), and then run a command similar to the following:
+**Command-line usage**: follow the [setup instructions](https://github.com/joliciel-informatique/talismane/wiki/Setup), and then run a command similar to the following:
 <pre>java -Xmx1G -Dconfig.file=talismane-fr-X.X.X.conf -jar talismane-core-X.X.X.jar encoding=UTF8 inFile=data/frTest.txt outFile=data/frTest.tal</pre>
 
-**Calling from Java**: For syntax analysis within Java code via the API, see this [Java code example](https://github.com/urieli/talismane/blob/master/talismane_examples/src/main/java/com/joliciel/talismane/examples/TalismaneAPITest.java).
+**Calling from Java**: For syntax analysis within Java code via the API, see this [Java code example](https://github.com/joliciel-informatique/talismane/blob/master/talismane_examples/src/main/java/com/joliciel/talismane/examples/TalismaneAPITest.java).
 
-**JavaDoc API**: You may also consult the [full JavaDoc API](http://urieli.github.io/talismane/api/) online.
+**JavaDoc API**: You may also consult the [full JavaDoc API](http://joliciel-informatique.github.io/talismane/api/) online.
 
-**User's manual**: A full users's manual can be found on the [GitHub Talismane project page](http://urieli.github.io/talismane/).
+**User's manual**: A full users's manual can be found on the [GitHub Talismane project page](http://joliciel-informatique.github.io/talismane/).
 
 **Additional information** on the project can be found on the [CLLE-ERSS laboratory Talismane project home page](http://redac.univ-tlse2.fr/applications/talismane.html).
 
