@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,15 +16,24 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser.features;
+package com.joliciel.talismane;
 
-import com.joliciel.talismane.machineLearning.features.Feature;
+import java.util.List;
 
 /**
- * A tokeniser feature which takes the history of current decisions into account.
+ * For getting notified whenever annotations are added.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface TokeniserContextFeature<Y> extends Feature<TokeniserContext,Y> {
-
+public interface AnnotationObserver {
+	/**
+	 * An event fired whenever annotations are added to the observed subject.
+	 * 
+	 * @param subject
+	 *            the text to which annotations are about to be added
+	 * @param annotations
+	 *            the annotations getting added
+	 */
+	public <T> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations);
 }

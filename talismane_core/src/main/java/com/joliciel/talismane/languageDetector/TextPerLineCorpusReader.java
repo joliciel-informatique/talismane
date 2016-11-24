@@ -18,14 +18,24 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * A default corpus reader which assumes one text per line.
@@ -33,27 +43,45 @@ import java.util.Scanner;
  * @author Assaf Urieli
  *
  */
-public class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
+public class TextPerLineCorpusReader extends LanguageDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
 	private Locale currentLocale;
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
+
 	private int sentenceCount = 0;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
-	private int crossValidationSize = 0;
 	private String sentence = null;
 	private Map<Locale, Reader> readerMap;
 	private Iterator<Locale> localeIterator;
 
-	public TextPerLineCorpusReader(Map<Locale, Reader> readerMap) {
+	public TextPerLineCorpusReader(Config config, TalismaneSession session) throws IOException {
+		super(config, session);
+		String configPath = "language-corpus-map";
+		InputStream languageCorpusMapFile = ConfigUtils.getFileFromConfig(config, configPath);
+		try (Scanner languageCorpusMapScanner = new Scanner(new BufferedReader(new InputStreamReader(languageCorpusMapFile, "UTF-8")))) {
+
+			this.readerMap = new HashMap<>();
+			while (languageCorpusMapScanner.hasNextLine()) {
+				String line = languageCorpusMapScanner.nextLine();
+				String[] parts = line.split("\t");
+				Locale locale = Locale.forLanguageTag(parts[0]);
+				String corpusPath = parts[1];
+				InputStream corpusFile = new FileInputStream(new File(corpusPath));
+				Reader corpusReader = new BufferedReader(new InputStreamReader(corpusFile, session.getInputCharset().name()));
+				readerMap.put(locale, corpusReader);
+			}
+		}
+
+		this.localeIterator = readerMap.keySet().iterator();
+	}
+
+	public TextPerLineCorpusReader(Map<Locale, Reader> readerMap, TalismaneSession session) {
+		super(null, session);
 		this.readerMap = readerMap;
 		this.localeIterator = readerMap.keySet().iterator();
 	}
 
 	@Override
 	public boolean hasNextText() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
+		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
 			while (sentence == null) {
@@ -91,19 +119,19 @@ public class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusR
 				boolean includeMe = true;
 
 				// check cross-validation
-				if (crossValidationSize > 0) {
-					if (includeIndex >= 0) {
-						if (sentenceCount % crossValidationSize != includeIndex) {
+				if (this.getCrossValidationSize() > 0) {
+					if (this.getIncludeIndex() >= 0) {
+						if (sentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
 							includeMe = false;
 						}
-					} else if (excludeIndex >= 0) {
-						if (sentenceCount % crossValidationSize == excludeIndex) {
+					} else if (this.getExcludeIndex() >= 0) {
+						if (sentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
 							includeMe = false;
 						}
 					}
 				}
 
-				if (startSentence > sentenceCount) {
+				if (this.getStartSentence() > sentenceCount) {
 					includeMe = false;
 				}
 
@@ -129,64 +157,9 @@ public class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusR
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
-
-		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
-		attributes.put("crossValidationSize", "" + this.crossValidationSize);
-		attributes.put("includeIndex", "" + this.includeIndex);
-		attributes.put("excludeIndex", "" + this.excludeIndex);
+		Map<String, String> attributes = super.getCharacteristics();
 
 		return attributes;
-	}
-
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
-
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
-
-	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
-
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
 	}
 
 }

@@ -18,37 +18,32 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.tokeniser;
 
-import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
-
 /**
- * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
- * using a freemarker template.
+ * Simply a wrapper for the TokenSequenceProcessor, writing the best guess using
+ * the processor.
+ * 
  * @author Assaf Urieli
  *
  */
 public class TokeniserGuessTemplateWriter implements TokenEvaluationObserver {
-	FreemarkerTemplateWriter freemarkerTemplateWriter;
-	Writer writer;
-	
-	public TokeniserGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
+	private final Writer writer;
+	private final TokenSequenceProcessor processor;
+
+	public TokeniserGuessTemplateWriter(TokenSequenceProcessor processor, Writer writer) {
 		this.writer = writer;
+		this.processor = processor;
 	}
 
 	@Override
 	public void onEvaluationComplete() {
-		freemarkerTemplateWriter.onCompleteParse();
 	}
 
 	@Override
-	public void onNextTokenSequence(TokenSequence realSequence,
-			List<TokenisedAtomicTokenSequence> guessedAtomicSequences) {
-		freemarkerTemplateWriter.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence(), writer);
+	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) {
+		processor.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence(), writer);
 	}
-
 
 }

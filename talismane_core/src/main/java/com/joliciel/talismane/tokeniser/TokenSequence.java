@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
@@ -28,54 +29,97 @@ import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 /**
  * A sequence of tokens. Note: by default, List iteration and associated methods
  * will only return non-whitespace tokens. For a list that includes whitespace
- * tokens, use the listWithWhiteSpace() method.
+ * tokens, use the listWithWhiteSpace() method.<br/>
+ * <br/>
+ * Only a single attribute of a given key can be added per token. If two
+ * attribute placeholders overlap and assign the same key, the one with the
+ * lower start index is privileged for all tokens, and the other one is skipped
+ * for all tokens. If they have the same start index, the one with the higher
+ * end index is priveleged for all tokens, and the other one is skipped for all
+ * tokens.
  * 
  * @author Assaf Urieli
  *
  */
-public class TokenSequence extends ArrayList<Token> implements Serializable {
+public class TokenSequence extends ArrayList<Token>implements Serializable {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenSequence.class);
 	private static final long serialVersionUID = 1L;
 
 	private List<Integer> tokenSplits;
-	private String text;
-	private Sentence sentence;
-	private List<Token> listWithWhiteSpace = new ArrayList<Token>();
+	private final Sentence sentence;
+	private final List<Token> listWithWhiteSpace;
 	private List<Token> tokensAdded = null;
 	private double score = 0;
 	private boolean scoreCalculated = false;
-	TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
+	private TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
 	private Integer atomicTokenCount = null;
 	private boolean finalised = false;
 	private boolean sentenceTagsAdded = false;
 	private boolean withRoot = false;
 	private PosTagSequence posTagSequence;
-	protected boolean textProvided = false;
+	private final Map<Integer, Annotation<TokenPlaceholder>> placeholderMap;
+	@SuppressWarnings("rawtypes")
+	private final Map<String, NavigableSet<Annotation<TokenAttribute>>> attributeOrderingMap;
 
 	private PosTaggerLexicon lexicon;
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
-	/**
-	 * Create a token sequence for a given sentence.
-	 */
-	public TokenSequence(Sentence sentence, TalismaneSession talismaneSession) {
+	public TokenSequence(Sentence sentence, TalismaneSession session) {
 		this.sentence = sentence;
-		this.talismaneSession = talismaneSession;
-		this.text = sentence.getText();
+		this.session = session;
+		this.placeholderMap = new HashMap<>();
+		this.listWithWhiteSpace = new ArrayList<>();
+
+		List<Annotation<TokenPlaceholder>> placeholders = sentence.getAnnotations(TokenPlaceholder.class);
+		if (placeholders != null) {
+			for (Annotation<TokenPlaceholder> placeholder : placeholders) {
+				// take the first placeholder at this start index only
+				// thus declaration order is the order at which they're
+				// applied
+				if (!placeholderMap.containsKey(placeholder.getStart()))
+					placeholderMap.put(placeholder.getStart(), placeholder);
+			}
+		}
+
+		@SuppressWarnings("rawtypes")
+		List<Annotation<TokenAttribute>> tokenAttributes = sentence.getAnnotations(TokenAttribute.class);
+		this.attributeOrderingMap = new HashMap<>();
+		// select order in which to add attributes, when attributes exist
+		// for identical keys
+		for (@SuppressWarnings("rawtypes")
+		Annotation<TokenAttribute> attribute : tokenAttributes) {
+			String key = attribute.getData().getKey();
+			@SuppressWarnings("rawtypes")
+			NavigableSet<Annotation<TokenAttribute>> attributeSet = attributeOrderingMap.get(key);
+			if (attributeSet == null) {
+				attributeSet = new TreeSet<>();
+				attributeOrderingMap.put(key, attributeSet);
+				attributeSet.add(attribute);
+			} else {
+				// only add one attribute per location for each attribute
+				// key
+				@SuppressWarnings("rawtypes")
+				Annotation<TokenAttribute> floor = attributeSet.floor(attribute);
+				if (floor == null || floor.compareTo(attribute) < 0) {
+					attributeSet.add(attribute);
+				}
+			}
+		}
+
 	}
 
-	public TokenSequence(TokenSequence sequenceToClone) {
-		this.talismaneSession = sequenceToClone.talismaneSession;
-		this.setText(sequenceToClone.getText());
-		this.setSentence(sequenceToClone.getSentence());
-		List<Token> listWithWhiteSpace = new ArrayList<Token>(sequenceToClone.getListWithWhiteSpace());
-		this.setListWithWhiteSpace(listWithWhiteSpace);
-		this.setScore(sequenceToClone.getScore());
-		this.setScoreCalculated(true);
-		this.setUnderlyingAtomicTokenSequence(sequenceToClone.getUnderlyingAtomicTokenSequence());
-		this.setAtomicTokenCount(sequenceToClone.getAtomicTokenCount());
-		this.setPosTagSequence(sequenceToClone.getPosTagSequence());
+	TokenSequence(TokenSequence sequenceToClone) {
+		this.session = sequenceToClone.session;
+		this.sentence = sequenceToClone.sentence;
+		this.listWithWhiteSpace = new ArrayList<>(sequenceToClone.listWithWhiteSpace);
+		this.score = sequenceToClone.score;
+		this.scoreCalculated = true;
+		this.underlyingAtomicTokenSequence = sequenceToClone.underlyingAtomicTokenSequence;
+		this.atomicTokenCount = sequenceToClone.atomicTokenCount;
+		this.posTagSequence = sequenceToClone.posTagSequence;
+		this.placeholderMap = sequenceToClone.placeholderMap;
+		this.attributeOrderingMap = sequenceToClone.attributeOrderingMap;
 
 		for (Token token : sequenceToClone) {
 			Token clone = token.cloneToken();
@@ -84,69 +128,40 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 		}
 	}
 
-	/**
-	 * Create a token sequence from a given sentence, pre-separated into tokens
-	 * matching the separatorPattern.
-	 */
-	public TokenSequence(Sentence sentence, Pattern separatorPattern, TalismaneSession talismaneSession) {
-		this(sentence, separatorPattern, null, talismaneSession);
-	}
-
-	/**
-	 * Create a token sequence from a given sentence, pre-separated into tokens
-	 * matching the separatorPattern, except for the placeholders provided.
-	 */
-	public TokenSequence(Sentence sentence, Pattern separatorPattern, List<TokenPlaceholder> placeholders, TalismaneSession talismaneSession) {
-		this(sentence, talismaneSession);
-		this.initialise(sentence.getText(), separatorPattern, placeholders);
-	}
-
-	public TokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence, TalismaneSession talismaneSession) {
-		this(sentence, talismaneSession);
+	public TokenSequence(Sentence sentence, TokenisedAtomicTokenSequence tokenisedAtomicTokenSequence, TalismaneSession session) {
+		this(sentence, session);
 		this.underlyingAtomicTokenSequence = tokenisedAtomicTokenSequence;
 	}
 
-	private void initialise(String text, Pattern separatorPattern, List<TokenPlaceholder> placeholders) {
+	/**
+	 * Add tokens from the underlying sentence, pre-separated into tokens
+	 * matching {@link Tokeniser#getTokenSeparators(TalismaneSession)} , except
+	 * wherever {@link TokenPlaceholder} annotations have been added.
+	 */
+	public void findDefaultTokens() {
+		CharSequence text = sentence.getText();
+		Pattern separatorPattern = Tokeniser.getTokenSeparators(session);
 		Matcher matcher = separatorPattern.matcher(text);
 		Set<Integer> separatorMatches = new HashSet<Integer>();
 		while (matcher.find())
 			separatorMatches.add(matcher.start());
-
-		Map<Integer, TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
-		List<TokenPlaceholder> attributePlaceholders = new ArrayList<TokenPlaceholder>();
-		if (placeholders != null) {
-			for (TokenPlaceholder placeholder : placeholders) {
-				if (placeholder.isSingleToken()) {
-					// take the first placeholder at this start index only
-					// thus declaration order is the order at which they're
-					// applied
-					if (!placeholderMap.containsKey(placeholder.getStartIndex()))
-						placeholderMap.put(placeholder.getStartIndex(), placeholder);
-				} else {
-					attributePlaceholders.add(placeholder);
-				}
-			}
-		}
 
 		int currentPos = 0;
 		for (int i = 0; i < text.length(); i++) {
 			if (placeholderMap.containsKey(i)) {
 				if (i > currentPos)
 					this.addToken(currentPos, i);
-				TokenPlaceholder placeholder = placeholderMap.get(i);
-				Token token = this.addToken(placeholder.getStartIndex(), placeholder.getEndIndex());
-				if (placeholder.getReplacement() != null)
-					token.setText(placeholder.getReplacement());
-
-				for (String key : placeholder.getAttributes().keySet())
-					token.addAttribute(key, placeholder.getAttributes().get(key));
+				Annotation<TokenPlaceholder> placeholder = placeholderMap.get(i);
+				Token token = this.addToken(placeholder.getStart(), placeholder.getEnd());
+				if (placeholder.getData().getReplacement() != null)
+					token.setText(placeholder.getData().getReplacement());
 
 				if (separatorPattern.matcher(token.getText()).matches())
 					token.setSeparator(true);
 
 				// skip until after the placeholder
-				i = placeholder.getEndIndex() - 1;
-				currentPos = placeholder.getEndIndex();
+				i = placeholder.getEnd() - 1;
+				currentPos = placeholder.getEnd();
 			} else if (separatorMatches.contains(i)) {
 				if (i > currentPos)
 					this.addToken(currentPos, i);
@@ -159,52 +174,6 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 		if (currentPos < text.length())
 			this.addToken(currentPos, text.length());
 
-		// select order in which to add attributes, when attributes exist for
-		// identical keys
-		Map<String, NavigableSet<TokenPlaceholder>> attributeOrderingMap = new HashMap<>();
-		for (TokenPlaceholder placeholder : attributePlaceholders) {
-			for (String key : placeholder.getAttributes().keySet()) {
-				NavigableSet<TokenPlaceholder> placeholderSet = attributeOrderingMap.get(key);
-				if (placeholderSet == null) {
-					placeholderSet = new TreeSet<>();
-					attributeOrderingMap.put(key, placeholderSet);
-					placeholderSet.add(placeholder);
-				} else {
-					// only add one placeholder per location for each attribute
-					// key
-					TokenPlaceholder floor = placeholderSet.floor(placeholder);
-					if (floor == null || floor.compareTo(placeholder) < 0) {
-						placeholderSet.add(placeholder);
-					}
-				}
-			}
-		}
-
-		// add any attributes provided by attribute placeholders
-		for (String key : attributeOrderingMap.keySet()) {
-			for (TokenPlaceholder placeholder : attributeOrderingMap.get(key)) {
-				for (Token token : this) {
-					if (token.getStartIndex() < placeholder.getStartIndex()) {
-						continue;
-					} else if (token.getEndIndex() <= placeholder.getEndIndex()) {
-						if (token.getAttributes().containsKey(key)) {
-							// this token already contains the key in question,
-							// only possible when two placeholders overlap
-							// in this case, the second placeholder is
-							// completely skipped
-							// so we break out of the token loop to avoid
-							// assigning the remaining tokens
-							break;
-						}
-						token.addAttribute(key, placeholder.getAttributes().get(key));
-					} else {
-						// token.getEndIndex() > placeholder.getEndIndex()
-						break;
-					}
-				}
-			}
-		}
-
 		this.finalise();
 	}
 
@@ -213,45 +182,35 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 	 */
 	@Override
 	public Token get(int index) {
-		this.finalise();
 		return super.get(index);
 	}
 
 	@Override
 	public Iterator<Token> iterator() {
-		this.finalise();
 		return super.iterator();
 	}
 
 	@Override
 	public ListIterator<Token> listIterator() {
-		this.finalise();
 		return super.listIterator();
 	}
 
 	@Override
 	public ListIterator<Token> listIterator(int index) {
-		this.finalise();
 		return super.listIterator(index);
 	}
 
 	@Override
 	public List<Token> subList(int fromIndex, int toIndex) {
-		this.finalise();
 		return super.subList(fromIndex, toIndex);
 	}
 
 	/**
 	 * Returns the token splits represented by this token sequence, where each
-	 * integer represents the symbol immediately following a token split. Only
-	 * available if this TokenSequence is associated with a sentence, e.g.
-	 * TokenSequence.getSentence()!=null.
+	 * integer represents the symbol immediately following a token split.
 	 */
 
 	public List<Integer> getTokenSplits() {
-		if (this.text == null) {
-			throw new TalismaneException("Cannot get token splits if no sentence has been set.");
-		}
 		if (this.tokenSplits == null) {
 			this.tokenSplits = new ArrayList<Integer>();
 			this.tokenSplits.add(0);
@@ -265,18 +224,6 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 	}
 
 	/**
-	 * The sentence text on which this token sequence was built.
-	 */
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	/**
 	 * A list of tokens that includes white space tokens.
 	 */
 
@@ -286,9 +233,9 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 
 	/**
 	 * Finalise a reconstructed token sequence so that all of the indexes are
-	 * correct on the component tokens.
+	 * correct on the component tokens, and so that all attributes are correctly
+	 * assigned to component tokens from the containing sentence.
 	 */
-
 	public void finalise() {
 		if (!finalised) {
 			finalised = true;
@@ -384,14 +331,12 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 		return this.addToken(start, end, false);
 	}
 
+	@SuppressWarnings("unchecked")
 	Token addToken(int start, int end, boolean allowEmpty) {
-		if (this.text == null) {
-			throw new RuntimeException("Cannot add a token by index if no sentence has been set.");
-		}
 		if (!allowEmpty && start == end)
 			return null;
 
-		String string = this.text.substring(start, end);
+		String string = this.sentence.getText().subSequence(start, end).toString();
 
 		List<Token> tokensToRemove = new ArrayList<Token>();
 
@@ -415,9 +360,7 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 			this.remove(tokenToRemove);
 		}
 
-		Token token = new Token(string, this, this.size(), this.getLexicon());
-		token.setStartIndex(start);
-		token.setEndIndex(end);
+		Token token = new Token(string, this, this.size(), start, end, this.getLexicon(), session);
 		token.setIndexWithWhiteSpace(prevTokenIndex + 1);
 
 		this.listWithWhiteSpace.add(prevTokenIndex + 1, token);
@@ -440,66 +383,42 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 			token.setIndex(prevTokenIndex + 1);
 		}
 
-		this.markModified();
+		// set token text to replacement, if required
+		if (this.placeholderMap.containsKey(token.getStartIndex())) {
+			Annotation<TokenPlaceholder> placeholder = this.placeholderMap.get(token.getStartIndex());
+			if (placeholder.getEnd() == token.getEndIndex() && placeholder.getData().getReplacement() != null) {
+				token.setText(placeholder.getData().getReplacement());
+			}
+		}
 
-		return token;
-	}
-
-	protected Token addTokenInternal(String string) {
-		// note, this is only called for PretokenisedSequence, where the
-		// sentence has to be reconstructed
-		// from an annotated corpus
-		if (this.text == null)
-			this.text = "";
-
-		Token token = new Token(string, this, this.size(), this.getLexicon());
-
-		if (this.textProvided) {
-			int currentIndex = 0;
-			if (this.size() > 0)
-				currentIndex = this.get(this.size() - 1).getEndIndex();
-			int j = 0;
-			Token whiteSpace = null;
-			for (int i = currentIndex; i < this.text.length(); i++) {
-				char c = text.charAt(i);
-				if (Character.isWhitespace(c)) {
-					whiteSpace = new Token(" ", this, this.size(), this.getLexicon());
-					whiteSpace.setStartIndex(currentIndex + j);
-					whiteSpace.setEndIndex(whiteSpace.getStartIndex() + 1);
-					this.listWithWhiteSpace().add(whiteSpace);
+		// add any attributes provided by attribute placeholders
+		for (String key : attributeOrderingMap.keySet()) {
+			for (@SuppressWarnings("rawtypes")
+			Annotation<TokenAttribute> attribute : attributeOrderingMap.get(key)) {
+				if (token.getStartIndex() < attribute.getStart()) {
+					continue;
+				} else if (token.getEndIndex() <= attribute.getEnd()) {
+					if (token.getAttributes().containsKey(key)) {
+						// this token already contains the key in
+						// question,
+						// only possible when two annotations overlap
+						// in this case, the second annotation is
+						// completely skipped
+						// so we break out of the token loop to avoid
+						// assigning the remaining tokens
+						break;
+					}
+					token.addAttribute(key, attribute.getData());
 				} else {
+					// token.getEndIndex() > placeholder.getEndIndex()
 					break;
 				}
-				j++;
 			}
-			if (whiteSpace != null) {
-				token.setStartIndex(whiteSpace.getEndIndex());
-				token.setEndIndex(whiteSpace.getEndIndex() + string.length());
-			} else {
-				token.setStartIndex(currentIndex);
-				token.setEndIndex(currentIndex + string.length());
-			}
-			if (!text.substring(token.getStartIndex(), token.getEndIndex()).equals(string)) {
-				throw new TalismaneException("Add token failed: Expected '" + string + "' but was '"
-						+ text.substring(token.getStartIndex(), token.getEndIndex()) + "' in sentence: " + text);
-			}
-
-		} else {
-			token.setStartIndex(this.getText().length());
-			token.setEndIndex(this.getText().length() + string.length());
-			this.setText(this.getText() + string);
-			this.getSentence().setText(this.getText());
-		}
-
-		this.listWithWhiteSpace().add(token);
-
-		if (!token.isWhiteSpace()) {
-			super.add(token);
-			if (tokensAdded != null)
-				tokensAdded.add(token);
 		}
 
 		this.markModified();
+		this.finalise();
+
 		return token;
 	}
 
@@ -549,30 +468,6 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 		return this.tokensAdded;
 	}
 
-	private List<Token> getListWithWhiteSpace() {
-		return listWithWhiteSpace;
-	}
-
-	private void setListWithWhiteSpace(List<Token> listWithWhiteSpace) {
-		this.listWithWhiteSpace = listWithWhiteSpace;
-	}
-
-	private void setScore(double score) {
-		this.score = score;
-	}
-
-	private void setScoreCalculated(boolean scoreCalculated) {
-		this.scoreCalculated = scoreCalculated;
-	}
-
-	private void setUnderlyingAtomicTokenSequence(TokenisedAtomicTokenSequence underlyingAtomicTokenSequence) {
-		this.underlyingAtomicTokenSequence = underlyingAtomicTokenSequence;
-	}
-
-	private void setAtomicTokenCount(Integer unitTokenCount) {
-		this.atomicTokenCount = unitTokenCount;
-	}
-
 	/**
 	 * The sentence object on which this token sequence was built, allowing us
 	 * to identify its location in the source text.
@@ -580,10 +475,6 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 
 	public Sentence getSentence() {
 		return sentence;
-	}
-
-	public void setSentence(Sentence sentence) {
-		this.sentence = sentence;
 	}
 
 	/**
@@ -649,7 +540,7 @@ public class TokenSequence extends ArrayList<Token> implements Serializable {
 	}
 
 	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
+		return session;
 	}
 
 	/**

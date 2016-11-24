@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.en;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
+import com.typesafe.config.Config;
 
 /**
  * A reader for the Penn-to-Dependency corpus, automatically converted from
@@ -38,7 +37,9 @@ import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
  * Extended Constituent-to-dependency Conversion for English, Proceedings of
  * NODALIDA 2007, May 25-26, 2007, Tartu, Estonia,
  * <a href="http://nlp.cs.lth.se/software/treebank_converter/">http://nlp.cs.lth
- * .se/software/treebank_converter/</a>
+ * .se/software/treebank_converter/</a> <br/>
+ * Can be used in the configuration file by setting corpus-reader paths to
+ * com.joliciel.talismane.en.PennDepReader
  * 
  * @author Assaf Urieli
  *
@@ -53,21 +54,9 @@ public class PennDepReader extends ParserRegexBasedCorpusReader {
 	private Set<String> symbolNouns = new HashSet<String>();
 	private Set<String> currencyNouns = new HashSet<String>();
 
-	public PennDepReader(File conllFile, Charset charset, TalismaneSession talismaneSession) throws IOException {
-		super(DEFAULT_CONLL_REGEX, conllFile, charset, talismaneSession);
-		this.initialize();
-	}
+	public PennDepReader(Reader reader, Config config, TalismaneSession talismaneSession) throws IOException {
+		super(DEFAULT_CONLL_REGEX, reader, config, talismaneSession);
 
-	public PennDepReader(File conllFile, String encoding, TalismaneSession talismaneSession) throws IOException {
-		this(conllFile, Charset.forName(encoding), talismaneSession);
-	}
-
-	public PennDepReader(Reader reader, TalismaneSession talismaneSession) throws IOException {
-		super(DEFAULT_CONLL_REGEX, reader, talismaneSession);
-		this.initialize();
-	}
-
-	private void initialize() {
 		String[] puncts = new String[] { ",", ".", ";", ":", "(", ")", "''", "``", "-", "/", "!", "?", "<", ">", "&", "*", "+", "-", "=" };
 		for (String punct : puncts) {
 			punctuationMarks.add(punct);

@@ -37,11 +37,9 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterWrapper;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
@@ -53,27 +51,25 @@ import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
  * 
  * @author Assaf Urieli
  */
-public class CompoundPatternEventStream implements ClassificationEventStream {
-	private static final Logger LOG = LoggerFactory.getLogger(CompoundPatternEventStream.class);
+public class PatternEventStream implements ClassificationEventStream {
+	private static final Logger LOG = LoggerFactory.getLogger(PatternEventStream.class);
 	private final TokeniserAnnotatedCorpusReader corpusReader;
 	private final Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures;
 
 	private final TokeniserPatternManager tokeniserPatternManager;
-	private final TokenSequenceFilter tokenFilterWrapper;
 
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
 	private List<TokeniserOutcome> currentOutcomes;
 	private List<TokenPatternMatch> currentPatternMatches;
 	private int currentIndex;
 
-	public CompoundPatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures,
-			TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
+	public PatternEventStream(TokeniserAnnotatedCorpusReader corpusReader, Set<TokenPatternMatchFeature<?>> tokenPatternMatchFeatures,
+			TokeniserPatternManager tokeniserPatternManager, TalismaneSession session) {
 		this.corpusReader = corpusReader;
 		this.tokenPatternMatchFeatures = tokenPatternMatchFeatures;
 		this.tokeniserPatternManager = tokeniserPatternManager;
-		this.talismaneSession = talismaneSession;
-		this.tokenFilterWrapper = new TokenFilterWrapper(this.corpusReader.getTokenFilters());
+		this.session = session;
 	}
 
 	@Override
@@ -92,16 +88,15 @@ public class CompoundPatternEventStream implements ClassificationEventStream {
 				TokenSequence realSequence = corpusReader.nextTokenSequence();
 
 				List<Integer> tokenSplits = realSequence.getTokenSplits();
-				String text = realSequence.getText();
+				String text = realSequence.getSentence().getText().toString();
 				LOG.debug("Sentence: " + text);
-				Sentence sentence = new Sentence(text, talismaneSession);
+				Sentence sentence = new Sentence(text, session);
 
-				TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
-				for (TokenSequenceFilter tokenSequenceFilter : this.corpusReader.getTokenSequenceFilters()) {
+				TokenSequence tokenSequence = new TokenSequence(sentence, session);
+				tokenSequence.findDefaultTokens();
+				for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
 					tokenSequenceFilter.apply(tokenSequence);
 				}
-
-				tokenFilterWrapper.apply(tokenSequence);
 
 				List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
 

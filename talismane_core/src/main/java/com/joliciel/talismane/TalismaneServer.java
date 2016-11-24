@@ -38,30 +38,27 @@ public class TalismaneServer extends Talismane {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServer.class);
 	private final int port;
 	private boolean listening = true;
-	private final TalismaneConfig config;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
-	public TalismaneServer(TalismaneConfig config, TalismaneSession talismaneSession) {
-		super(config, talismaneSession);
+	public TalismaneServer(TalismaneSession session) throws IOException, ReflectiveOperationException {
+		super(session);
 
-		this.config = config;
-		this.talismaneSession = talismaneSession;
-		this.port = config.getPort();
+		this.session = session;
+		this.port = session.getPort();
 	}
 
 	@Override
-	public void process() {
+	public void analyse() {
 		long startTime = new Date().getTime();
 		ServerSocket serverSocket = null;
 
 		try {
 			LOG.info("Starting server...");
-			config.preloadResources();
 
 			serverSocket = new ServerSocket(port);
 			LOG.info("Server started. Waiting for clients...");
 			while (listening) {
-				TalismaneServerThread thread = new TalismaneServerThread(this, config, talismaneSession, serverSocket.accept());
+				TalismaneServerThread thread = new TalismaneServerThread(this, session, serverSocket.accept());
 				thread.start();
 			}
 		} catch (IOException e) {

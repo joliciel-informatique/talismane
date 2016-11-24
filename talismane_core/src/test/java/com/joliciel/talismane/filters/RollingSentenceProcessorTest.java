@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import mockit.NonStrictExpectations;
 
@@ -36,14 +38,19 @@ public class RollingSentenceProcessorTest {
 	private static final Logger LOG = LoggerFactory.getLogger(RollingSentenceProcessorTest.class);
 
 	@Test
-	public void testAddNextSegment() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegment() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers = new LinkedHashSet<TextMarker>();
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2;
+
 			{
 				textMarker1.getType();
 				returns(TextMarkerType.PUSH_SKIP);
@@ -61,7 +68,7 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("Hello <b>World", textMarkers);
-		assertEquals("Hello World", holder.getText());
+		assertEquals("Hello World", holder.getProcessedText());
 
 		// up to World we have no text to skip
 		assertEquals("Hello".length(), holder.getOriginalIndex("Hello".length()));
@@ -73,14 +80,19 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testAddNextSegmentWithSpace() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegmentWithSpace() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers = new LinkedHashSet<TextMarker>();
 
 		new NonStrictExpectations() {
 			TextMarker textMarker0, textMarker1, textMarker2;
+
 			{
 				textMarker0.getType();
 				returns(TextMarkerType.SPACE);
@@ -104,7 +116,7 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("Hello<b>World", textMarkers);
-		assertEquals("Hello World", holder.getText());
+		assertEquals("Hello World", holder.getProcessedText());
 
 		// up to World we have no text to skip
 		assertEquals("Hello".length(), holder.getOriginalIndex("Hello".length()));
@@ -116,8 +128,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testAddNextSegmentWithLeftoverMarker() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegmentWithLeftoverMarker() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -125,6 +141,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3;
+
 			{
 				textMarker1.getType();
 				returns(TextMarkerType.PUSH_SKIP);
@@ -148,22 +165,26 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("Hello <b>World", textMarkers1);
-		assertEquals("Hello ", holder.getText());
+		assertEquals("Hello ", holder.getProcessedText());
 		assertEquals(0, holder.getOriginalTextSegments().size());
 
 		holder = processor.addNextSegment("</b>. How are you? Fine thanks.", textMarkers2);
-		assertEquals(". How are you?  Fine thanks.", holder.getText());
+		assertEquals(". How are you?  Fine thanks.", holder.getProcessedText());
 		assertEquals(0, holder.getOriginalTextSegments().size());
 
 		assertEquals("Hello <b>World</b>.".length(), holder.getOriginalIndex(".".length()));
 		assertEquals("Hello <b>World</b>. How are you? F".length(), holder.getOriginalIndex(". How are you?  F".length()));
-		assertEquals(". How are you?  Fine thanks.", holder.getText());
+		assertEquals(". How are you?  Fine thanks.", holder.getProcessedText());
 		assertEquals(". How are you?".length() - 1, holder.getSentenceBoundaries().iterator().next().intValue());
 	}
 
 	@Test
-	public void testAddNextSegmentWithLeftoverMarkerAndOutput() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testAddNextSegmentWithLeftoverMarkerAndOutput() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -171,6 +192,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4;
+
 			{
 				textMarker1.getType();
 				returns(TextMarkerType.PUSH_SKIP);
@@ -199,11 +221,11 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("Hello <b>World", textMarkers1);
-		assertEquals("Hello ", holder.getText());
+		assertEquals("Hello ", holder.getProcessedText());
 		assertEquals(0, holder.getOriginalTextSegments().size());
 
 		holder = processor.addNextSegment("</b>. How are you?", textMarkers2);
-		assertEquals(". How are you?", holder.getText());
+		assertEquals(". How are you?", holder.getProcessedText());
 		assertEquals(1, holder.getOriginalTextSegments().size());
 		assertEquals("<b>World</b>", holder.getOriginalTextSegments().get(0));
 
@@ -211,8 +233,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testEmbeddedMarkers() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testEmbeddedMarkers() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -220,6 +246,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7, textMarker8, textMarker9, textMarker10;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7,
 						textMarker8, textMarker9, textMarker10 };
@@ -251,12 +278,12 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("Normal [Stop [Output [Sta", textMarkers1);
-		assertEquals("Normal [Sta", holder.getText());
+		assertEquals("Normal [Sta", holder.getProcessedText());
 		assertEquals(1, holder.getOriginalTextSegments().size());
 		assertEquals("[Output ", holder.getOriginalTextSegments().get(7));
 
 		holder = processor.addNextSegment("rt [Output2]continue]Output3]NoOutput] done", textMarkers2);
-		assertEquals("rt ]continue] done", holder.getText());
+		assertEquals("rt ]continue] done", holder.getProcessedText());
 		for (Entry<Integer, String> originalSegment : holder.getOriginalTextSegments().entrySet()) {
 			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}
@@ -266,8 +293,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testNewlines() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testNewlines() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -331,8 +362,12 @@ public class RollingSentenceProcessorTest {
 	}
 
 	@Test
-	public void testUnaryMarkers() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testUnaryMarkers() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -340,6 +375,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3, textMarker4 };
 
@@ -362,15 +398,19 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("Hello <b>Wor", textMarkers1);
-		assertEquals("Hello Wor", holder.getText());
+		assertEquals("Hello Wor", holder.getProcessedText());
 
 		holder = processor.addNextSegment("ld</b>.", textMarkers2);
-		assertEquals("ld.", holder.getText());
+		assertEquals("ld.", holder.getProcessedText());
 	}
 
 	@Test
-	public void testReplace() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testReplace() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -378,6 +418,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3 };
 
@@ -402,19 +443,23 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("Hello <b>Wor", textMarkers1);
-		assertEquals("Hello Jim", holder.getText());
+		assertEquals("Hello Jim", holder.getProcessedText());
 		assertEquals("Hello ".length(), holder.getOriginalIndex("Hello J".length() - 1));
 		assertEquals("Hello ".length(), holder.getOriginalIndex("Hello Ji".length() - 1));
 		assertEquals("Hello ".length(), holder.getOriginalIndex("Hello Jim".length() - 1));
 
 		holder = processor.addNextSegment("ld</b>.", textMarkers2);
-		assertEquals(".", holder.getText());
+		assertEquals(".", holder.getProcessedText());
 		assertEquals("Hello <b>World</b>".length(), holder.getOriginalIndex(".".length() - 1));
 	}
 
 	@Test
-	public void testNestedStackAndUnary() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testNestedStackAndUnary() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		RollingSentenceProcessor processor = new RollingSentenceProcessor("", talismaneSession);
 
 		final Set<TextMarker> textMarkers1 = new LinkedHashSet<TextMarker>();
@@ -422,6 +467,7 @@ public class RollingSentenceProcessorTest {
 
 		new NonStrictExpectations() {
 			TextMarker textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7, textMarker8, textMarker9, textMarker10;
+
 			{
 				TextMarker[] textMarkers = new TextMarker[] { textMarker1, textMarker2, textMarker3, textMarker4, textMarker5, textMarker6, textMarker7,
 						textMarker8, textMarker9, textMarker10 };
@@ -455,14 +501,14 @@ public class RollingSentenceProcessorTest {
 		};
 
 		SentenceHolder holder = processor.addNextSegment("A[>O][>S][>I][-]", textMarkers1);
-		assertEquals("A[>O][>I]", holder.getText());
+		assertEquals("A[>O][>I]", holder.getProcessedText());
 		for (Entry<Integer, String> originalSegment : holder.getOriginalTextSegments().entrySet()) {
 			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}
 		assertEquals("[>S]", holder.getOriginalTextSegments().get(5));
 
 		holder = processor.addNextSegment("[O-][I<][O+][+][S<][O<]Z", textMarkers2);
-		assertEquals("[+][S<][O<]Z", holder.getText());
+		assertEquals("[+][S<][O<]Z", holder.getProcessedText());
 		for (Entry<Integer, String> originalSegment : holder.getOriginalTextSegments().entrySet()) {
 			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}

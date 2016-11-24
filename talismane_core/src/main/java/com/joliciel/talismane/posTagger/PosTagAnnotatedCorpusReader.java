@@ -18,27 +18,58 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import com.joliciel.talismane.AnnotatedCorpusReader;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading tokenized and tagged sentences from a corpus.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTagAnnotatedCorpusReader extends AnnotatedCorpusReader {
+public abstract class PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusReader {
+	public PosTagAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
+	}
+
 	/**
 	 * Is there another sentence to be read?
 	 */
-	public boolean hasNextPosTagSequence();
-	
+	public abstract boolean hasNextPosTagSequence();
+
 	/**
-	 * Read the list of tagged tokens from next sentence from the training corpus.
+	 * Read the list of tagged tokens from next sentence from the training
+	 * corpus.
 	 */
-	public PosTagSequence nextPosTagSequence();
-	
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
-	
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
+	public abstract PosTagSequence nextPosTagSequence();
+
+	/**
+	 * Builds an annotated corpus reader for a particular Reader and Config,
+	 * where the config is the local namespace. For configuration example, see
+	 * talismane.core.tokeniser.input in reference.conf.
+	 * 
+	 * @param config
+	 *            the local configuration section from which we're building a
+	 *            reader
+	 * @throws IOException
+	 *             problem reading the files referred in the configuration
+	 * @throws ReflectiveOperationException
+	 *             if the corpus-reader class could not be instantiated
+	 */
+	public static PosTagAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+			throws IOException, ReflectiveOperationException {
+		String className = config.getString("corpus-reader");
+
+		@SuppressWarnings("unchecked")
+		Class<? extends PosTagAnnotatedCorpusReader> clazz = (Class<? extends PosTagAnnotatedCorpusReader>) Class.forName(className);
+		Constructor<? extends PosTagAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+
+		PosTagAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+		return corpusReader;
+	}
 }

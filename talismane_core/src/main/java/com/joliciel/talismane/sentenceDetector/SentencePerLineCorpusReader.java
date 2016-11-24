@@ -19,9 +19,12 @@
 package com.joliciel.talismane.sentenceDetector;
 
 import java.io.Reader;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
+import com.typesafe.config.Config;
 
 /**
  * A default corpus reader which assumes one sentence per line.
@@ -29,23 +32,21 @@ import java.util.Scanner;
  * @author Assaf Urieli
  *
  */
-public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
-	private Scanner scanner;
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
+public class SentencePerLineCorpusReader extends SentenceDetectorAnnotatedCorpusReader {
+	private final Scanner scanner;
 	private int sentenceCount = 0;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
-	private int crossValidationSize = 0;
 	String sentence = null;
+	private final TalismaneSession session;
 
-	public SentencePerLineCorpusReader(Reader reader) {
-		scanner = new Scanner(reader);
+	public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
+		this.session = session;
+		this.scanner = new Scanner(reader);
 	}
 
 	@Override
 	public boolean hasNextSentence() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
+		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
 
@@ -63,19 +64,19 @@ public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCor
 				boolean includeMe = true;
 
 				// check cross-validation
-				if (crossValidationSize > 0) {
-					if (includeIndex >= 0) {
-						if (sentenceCount % crossValidationSize != includeIndex) {
+				if (this.getCrossValidationSize() > 0) {
+					if (this.getIncludeIndex() >= 0) {
+						if (sentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
 							includeMe = false;
 						}
-					} else if (excludeIndex >= 0) {
-						if (sentenceCount % crossValidationSize == excludeIndex) {
+					} else if (this.getExcludeIndex() >= 0) {
+						if (sentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
 							includeMe = false;
 						}
 					}
 				}
 
-				if (startSentence > sentenceCount) {
+				if (this.getStartSentence() > sentenceCount) {
 					includeMe = false;
 				}
 
@@ -92,21 +93,15 @@ public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCor
 	}
 
 	@Override
-	public String nextSentence() {
+	public Sentence nextSentence() {
 		String currentSentence = sentence;
 		sentence = null;
-		return currentSentence;
+		return new Sentence(currentSentence, session);
 	}
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
-
-		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
-		attributes.put("crossValidationSize", "" + this.crossValidationSize);
-		attributes.put("includeIndex", "" + this.includeIndex);
-		attributes.put("excludeIndex", "" + this.excludeIndex);
-
+		Map<String, String> attributes = super.getCharacteristics();
 		return attributes;
 	}
 
@@ -114,55 +109,4 @@ public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCor
 	public boolean isNewParagraph() {
 		return false;
 	}
-
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
-
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
-
-	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
-
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
-	}
-
 }

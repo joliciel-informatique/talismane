@@ -19,17 +19,75 @@
 package com.joliciel.talismane.tokeniser;
 
 /**
- * An attribute that can be tagged onto a token. Important: implementations must
- * implement equals and hashCode.
+ * An attribute that can be tagged onto a token.
  * 
  * @author Assaf Urieli
  *
  * @param <T>
- *            the content type of this attribute
+ *            the content type of this attribute, must implement hashcode and
+ *            equals
  */
-public interface TokenAttribute<T> {
+public class TokenAttribute<T> {
+	private final String key;
+	private final T value;
+
+	public TokenAttribute(String key, T value) {
+		super();
+		this.key = key;
+		this.value = value;
+	}
+
+	/**
+	 * The attribute's key
+	 * 
+	 * @return
+	 */
+	public String getKey() {
+		return key;
+	}
+
 	/**
 	 * Get this attribute's value.
 	 */
-	public T getValue();
+	public T getValue() {
+		return value;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		@SuppressWarnings("rawtypes")
+		TokenAttribute other = (TokenAttribute) obj;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "TokenAttribute [key=" + key + ", value=" + value + "]";
+	}
+
 }

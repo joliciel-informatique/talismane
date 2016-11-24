@@ -30,8 +30,8 @@ import com.joliciel.talismane.utils.RegexUtils;
  * group as a single separate token, and offers the possibility of a replacement
  * string to replace the token text.
  * 
- * See {@link RegexUtils#getReplacement(String, String, Matcher)} for handling
- * of the replacement string.
+ * See {@link RegexUtils#getReplacement(String, CharSequence, Matcher)} for
+ * handling of the replacement string.
  * 
  * @author Assaf Urieli
  *
@@ -40,7 +40,7 @@ public class TokenRegexFilterImpl extends AbstractRegexFilter {
 	String replacement;
 
 	public TokenRegexFilterImpl(String regex, TalismaneSession talismaneSession) {
-		super(regex, talismaneSession);
+		super(regex, talismaneSession, true);
 	}
 
 	public TokenRegexFilterImpl(String regex, String replacement, TalismaneSession talismaneSession) {
@@ -49,7 +49,7 @@ public class TokenRegexFilterImpl extends AbstractRegexFilter {
 	}
 
 	TokenRegexFilterImpl() {
-		super();
+		super(true);
 	}
 
 	public String getReplacement() {
@@ -61,7 +61,7 @@ public class TokenRegexFilterImpl extends AbstractRegexFilter {
 	}
 
 	@Override
-	protected String findReplacement(String text, Matcher matcher) {
+	protected String findReplacement(CharSequence text, Matcher matcher) {
 		String newText = RegexUtils.getReplacement(replacement, text, matcher);
 		return newText;
 	}

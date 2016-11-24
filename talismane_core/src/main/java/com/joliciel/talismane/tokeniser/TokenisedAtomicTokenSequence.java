@@ -109,29 +109,12 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserO
 				currentEnd = token.getEndIndex();
 			}
 			if (!isWhiteSpace) {
-				// TODO: S.MICHEL: current atomic parts contains "S.MICHEL" for
-				// "S.", " " for "MICHEL" -
-				// therefore we lose all attributes on MICHEL!
 				this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
 			} else {
 				this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
 			}
 
 			tokenSequence.finalise();
-
-			// Assign any token attributes that existed on the corresponding
-			// atomic tokens.
-			for (Token token : tokenSequence) {
-				TaggedToken<TokeniserOutcome> decisionTag = indexTokenMap.get(token.getStartIndex());
-				if (decisionTag != null) {
-					Token atomicToken = decisionTag.getToken();
-					if (atomicToken.getStartIndex() == token.getStartIndex() && atomicToken.getEndIndex() == token.getEndIndex()) {
-						for (String key : atomicToken.getAttributes().keySet()) {
-							token.addAttribute(key, atomicToken.getAttributes().get(key));
-						}
-					}
-				}
-			}
 		}
 		return tokenSequence;
 	}

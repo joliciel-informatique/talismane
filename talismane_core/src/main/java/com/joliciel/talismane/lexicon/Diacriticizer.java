@@ -20,26 +20,37 @@ package com.joliciel.talismane.lexicon;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.Collator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.filters.DiacriticRemover;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 /**
  * An interface for retrieving, for a given original word, assumed to be
@@ -57,6 +68,76 @@ public class Diacriticizer implements Serializable {
 	private Set<String> emptySet = new HashSet<String>();
 	private Map<String, String> lowercasePreferences = new HashMap<String, String>();
 	private Locale locale;
+
+	public static void main(String[] args) throws Exception {
+		OptionParser parser = new OptionParser();
+		parser.accepts("serializeDiacriticizer", "serialize diacriticizer from lexicon");
+		parser.accepts("testDiacriticizer", "test serialized diacriticizer").availableUnless("serializeDiacriticizer");
+
+		OptionSpec<String> lexiconFilesOption = parser.accepts("lexicon", "lexicon(s), semi-colon delimited").withRequiredArg().ofType(String.class)
+				.withValuesSeparatedBy(';');
+		OptionSpec<File> diacriticizerOption = parser.accepts("diacriticizer", "diacriticizer file location (in or out)").withRequiredArg().required()
+				.ofType(File.class);
+		OptionSpec<String> wordsOption = parser.accepts("words", "comma-delimited list of words to test").requiredIf("testDiacriticizer").withRequiredArg()
+				.ofType(String.class).withValuesSeparatedBy(',');
+
+		if (args.length <= 1) {
+			parser.printHelpOn(System.out);
+			return;
+		}
+
+		OptionSet options = parser.parse(args);
+
+		Config config = null;
+		if (options.has(lexiconFilesOption)) {
+			List<String> lexiconFiles = options.valuesOf(lexiconFilesOption);
+
+			Map<String, Object> values = new HashMap<>();
+			values.put("talismane.core.lexicons", lexiconFiles);
+			config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
+		} else {
+			config = ConfigFactory.load();
+		}
+
+		String sessionId = "";
+		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
+
+		File diacriticizerFile = options.valueOf(diacriticizerOption);
+		if (options.has("serializeDiacriticizer")) {
+			Diacriticizer diacriticizer = new Diacriticizer(talismaneSession.getMergedLexicon());
+
+			File outDir = diacriticizerFile.getParentFile();
+			outDir.mkdirs();
+
+			FileOutputStream fos = new FileOutputStream(diacriticizerFile);
+			ZipOutputStream zos = new ZipOutputStream(fos);
+			zos.putNextEntry(new ZipEntry("diacriticizer.obj"));
+			ObjectOutputStream out = new ObjectOutputStream(zos);
+			try {
+				out.writeObject(diacriticizer);
+			} finally {
+				out.flush();
+			}
+			zos.flush();
+			zos.close();
+		} else if (options.has("testDiacriticizer")) {
+			List<String> words = options.valuesOf(wordsOption);
+
+			Diacriticizer diacriticizer = Diacriticizer.deserialize(diacriticizerFile);
+
+			for (String word : words) {
+				LOG.info("################");
+				LOG.info("Word: " + word);
+				Set<String> entries = diacriticizer.diacriticize(word);
+				for (String entry : entries) {
+					LOG.info(entry);
+				}
+			}
+		} else {
+			System.out.println("No command provided.");
+			parser.printHelpOn(System.out);
+		}
+	}
 
 	public Diacriticizer() {
 	}

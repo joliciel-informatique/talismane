@@ -18,22 +18,31 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
+import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
+import com.typesafe.config.Config;
 
 /**
  * Detect the language of a text.
@@ -46,6 +55,34 @@ public class LanguageDetector {
 
 	private final DecisionMaker decisionMaker;
 	private final Set<LanguageDetectorFeature<?>> features;
+
+	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
+	private static final Map<String, LanguageDetector> languageDetectorMap = new HashMap<>();
+
+	public static LanguageDetector getInstance(TalismaneSession session) throws IOException {
+		LanguageDetector languageDetector = null;
+		if (session.getSessionId() != null)
+			languageDetector = languageDetectorMap.get(session.getSessionId());
+		if (languageDetector == null) {
+			Config config = session.getConfig();
+
+			String configPath = "talismane.core.language-detector.model";
+			String modelFilePath = config.getString(configPath);
+			ClassificationModel model = modelMap.get(modelFilePath);
+			if (model == null) {
+				InputStream modelFile = ConfigUtils.getFileFromConfig(config, configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				model = factory.getClassificationModel(new ZipInputStream(modelFile));
+				modelMap.put(modelFilePath, model);
+			}
+
+			languageDetector = new LanguageDetector(model);
+
+			if (session.getSessionId() != null)
+				languageDetectorMap.put(session.getSessionId(), languageDetector);
+		}
+		return languageDetector;
+	}
 
 	/**
 	 * Construct a language detector from a decision maker and set of features.

@@ -1,6 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -17,11 +16,19 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.tokeniser.features;
 
-import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
+package com.joliciel.talismane;
 
-public abstract class AbstractTokeniserContextFeature<Y> extends AbstractCachableFeature<TokeniserContext,Y>
-		implements TokeniserContextFeature<Y> {
-
+/**
+ * Implemented by classes which take an annotated text and add zero or more
+ * annotations.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public interface Annotator {
+	/**
+	 * Annotates the text provided.
+	 */
+	public void annotate(AnnotatedText annotatedText);
 }

@@ -35,6 +35,8 @@ import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import mockit.NonStrict;
 import mockit.NonStrictExpectations;
@@ -43,9 +45,15 @@ public class TokenPatternTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenPatternTest.class);
 
 	@Test
-	public void testParsePattern() {
+	public void testParsePattern() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession session = new TalismaneSession(config, "");
+
 		String regexp = "(?![cdCD]\\z|qu\\z|jusqu\\z).+'.+";
-		TokenPattern tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
+		TokenPattern tokenPattern = new TokenPattern(regexp, Tokeniser.getTokenSeparators(session));
 		List<Pattern> patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(3, patterns.size());
 		int i = 0;
@@ -61,7 +69,7 @@ public class TokenPatternTest {
 		}
 
 		regexp = "être (de|d)";
-		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.getTokenSeparators(session));
 		patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(3, patterns.size());
 		i = 0;
@@ -77,7 +85,7 @@ public class TokenPatternTest {
 		}
 
 		regexp = ".+\\.\\p";
-		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.getTokenSeparators(session));
 		patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(3, patterns.size());
 		i = 0;
@@ -87,13 +95,13 @@ public class TokenPatternTest {
 			} else if (i == 1) {
 				Assert.assertEquals("\\.", pattern.pattern());
 			} else if (i == 2) {
-				Assert.assertEquals(Tokeniser.SEPARATORS.pattern(), pattern.pattern());
+				Assert.assertEquals(Tokeniser.getTokenSeparators(session).pattern(), pattern.pattern());
 			}
 			i++;
 		}
 
 		regexp = ".+qu'";
-		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.getTokenSeparators(session));
 		patterns = tokenPattern.getParsedPattern();
 		Assert.assertEquals(2, patterns.size());
 		i = 0;
@@ -107,7 +115,7 @@ public class TokenPatternTest {
 		}
 
 		regexp = "\\D+\\.a[ \\)]c[abc]";
-		tokenPattern = new TokenPattern(regexp, Tokeniser.SEPARATORS);
+		tokenPattern = new TokenPattern(regexp, Tokeniser.getTokenSeparators(session));
 		patterns = tokenPattern.getParsedPattern();
 		LOG.debug(patterns.toString());
 		Assert.assertEquals(5, patterns.size());
@@ -366,20 +374,20 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch2(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testMatch2() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Qu'ensuite il aille...");
-			}
-		};
+		final TalismaneSession session = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Qu'ensuite il aille...", session);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, session);
+		tokenSequence.findDefaultTokens();
 
 		TokenPattern tokenPattern = new TokenPattern(
-				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+", Tokeniser.SEPARATORS);
+				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+",
+				Tokeniser.getTokenSeparators(session));
 
 		List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);
 		assertEquals(0, patternMatches.size());
@@ -387,20 +395,20 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch3(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testMatch3() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Z'ensuite il aille...");
-			}
-		};
+		final TalismaneSession session = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Z'ensuite il aille...", session);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, session);
+		tokenSequence.findDefaultTokens();
 
 		TokenPattern tokenPattern = new TokenPattern(
-				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+", Tokeniser.SEPARATORS);
+				"{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+",
+				Tokeniser.getTokenSeparators(session));
 
 		List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);
 		assertEquals(1, patternMatches.size());
@@ -412,19 +420,18 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch4(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testMatch4() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Aix-les-Bains");
-			}
-		};
+		final TalismaneSession session = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Aix-les-Bains", session);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, session);
+		tokenSequence.findDefaultTokens();
 
-		TokenPattern tokenPattern = new TokenPattern(".+-{(ce|je|la|le|les|leur|lui|moi|nous|toi|tu)[^-]}", Tokeniser.SEPARATORS);
+		TokenPattern tokenPattern = new TokenPattern(".+-{(ce|je|la|le|les|leur|lui|moi|nous|toi|tu)[^-]}", Tokeniser.getTokenSeparators(session));
 
 		List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);
 		assertEquals(0, patternMatches.size());
