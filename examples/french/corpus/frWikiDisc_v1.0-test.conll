@@ -25,8 +25,8 @@
 11	l'	le	CLO	CLO	n=s|p=3	13	obj	13	obj
 12	a	avoir	V	v	n=s|p=3|t=pst	13	aux_tps	13	aux_tps
 13	fait	faire	VPP	v	g=m|n=s|t=past	2	mod	2	mod
-14	de	de	DET	DET	n=p	15	det	15	det
-15	force	force	NC	nc	g=f|n=s	13	mod	13	mod
+14	de	de	P	p	_	13	mod	13	mod
+15	force	force	NC	nc	g=f|n=s	14	prep	14	prep
 16	:	:	PONCT	PONCT	_	15	ponct	15	ponct
 17	c’	_	CLS	_	_	18	suj	18	suj
 18	est	être	V	v	n=s|p=3|t=pst	2	mod	2	mod
@@ -577,7 +577,7 @@
 82	organisme	organisme	NC	nc	g=m|n=s	80	ats	80	ats
 83	qui	qui	PROREL	PROREL	n=s	84	suj	84	suj
 84	peut	pouvoir	V	v	n=s|p=3|t=pst	82	mod_rel	82	mod_rel
-85	le	le	DET	DET	g=m|n=s	0		0	
+85	le	le	DET	DET	g=m|n=s	86	det	86	det
 86	mieux	mieux	ADV	adv	_	87	mod	87	mod
 87	servir	servir	VINF	v	_	84	obj	84	obj
 88	de	de	P	P	_	87	de_obj	87	de_obj
@@ -703,9 +703,9 @@
 38	.	.	PONCT	PONCT	_	36	ponct	36	ponct
 
 1	Que	que	CS	CS	_	27	suj	27	suj
-2	JoleK	_	NPP	_	_	0		0	
-3	soit	soit	CC	CC	_	1	sub	1	sub
-4	capable	capable	ADJ	adj	n=s	3	dep_coord	3	dep_coord
+2	JoleK	_	NPP	_	_	3	suj	3	suj
+3	soit	soit	VS	v	_	1	sub	1	sub
+4	capable	capable	ADJ	adj	n=s	3	ats	3	ats
 5	de	de	P	P	_	4	dep	4	dep
 6	trouver	trouver	VINF	v	_	5	prep	5	prep
 7	3	#NUM#	DET	DET	n=p	10	det	10	det
@@ -728,7 +728,7 @@
 24	»	"	PONCT	PONCT	_	23	ponct	23	ponct
 25	ne	ne	ADV	ADV	_	27	mod	27	mod
 26	l'	le	CLO	CLO	n=s|p=3	27	obj	27	obj
-27	empêche	empêcher	V	v	n=s|p=13|t=pst	0		0	
+27	empêche	empêcher	V	v	n=s|p=13|t=pst	0	root	0	root
 28	pas	pas	ADV	ADV	_	27	mod	27	mod
 29	non-plus	_	ADV	_	_	27	mod	27	mod
 30	d'	de	P	P	_	27	de_obj	27	de_obj
@@ -864,7 +864,7 @@
 30	consensus	consensus	NC	nc	g=m	28	prep	28	prep
 31	scientifique	scientifique	ADJ	adj	n=s	30	mod	30	mod
 32	:	:	PONCT	PONCT	_	31	ponct	31	ponct
-33	dans	dans	P	P	_	0		0	
+33	dans	dans	P	P	_	48	mod	48	mod
 34	l'	l'	DET	DET	n=s	36	det	36	det
 35	ancienne	ancien	ADJ	adj	g=f|n=s	36	mod	36	mod
 36	version	version	NC	nc	g=f|n=s	33	prep	33	prep
@@ -911,7 +911,7 @@
 5	été	être	VPP	v	t=past	8	aux_pass	8	aux_pass
 6	tout	tout	ADV	adv	_	7	mod	7	mod
 7	simplement	simplement	ADV	advm	_	8	mod	8	mod
-8	discrédités	discréditer	VPP	v	g=m|n=p|t=past	0		0	
+8	discrédités	discréditer	VPP	v	g=m|n=p|t=past	0	root	0	root
 9	par	par	P	P	_	8	p_obj_agt	8	p_obj_agt
 10	les	les	DET	DET	n=p	11	det	11	det
 11	avis	avis	NC	nc	g=m	9	prep	9	prep
@@ -1036,7 +1036,7 @@
 13	l'	l'	DET	DET	n=s	14	det	14	det
 14	EFSA	_	NPP	_	_	12	prep	12	prep
 15	,	,	PONCT	PONCT	_	14	ponct	14	ponct
-16	Séralini	_	NPP	_	_	0		0	
+16	Séralini	_	NPP	_	_	20	suj	20	suj
 17	et	et	CC	CC	_	16	coord	16	coord
 18	sa	sa	DET	DET	g=f|n=s|p=3|poss=s	19	det	19	det
 19	clique	clique	NC	nc	g=f|n=s	17	dep_coord	17	dep_coord
