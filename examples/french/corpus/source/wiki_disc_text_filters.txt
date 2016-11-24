@@ -1,0 +1,42 @@
+RegexMarkerFilter	STOP	\{\{début citation\}\}
+RegexMarkerFilter	START	\{\{fin citation\}\}
+RegexMarkerFilter	SKIP	\{\{citation bloc\|
+RegexMarkerFilter	SKIP	(?m)\}\}$
+RegexMarkerFilter	REPLACE	\{\{\{m\|([^\}\n]*?)\|\}\}	$1
+RegexMarkerFilter	REPLACE	\{\{lien\|trad=([^\}\n]*?)\}\}	$1
+RegexMarkerFilter	REPLACE	\{\{[Cc]itation\|([^\}\n]*?)\}\}	$1
+RegexMarkerFilter	REPLACE	\{\{[Cc]ita\|([^\}\n]*?)\}\}	$1
+RegexMarkerFilter	REPLACE	\[\{\{SERVER\}\}[^ \]\n]*? ([^\]\n]*?)\]	$1
+RegexMarkerFilter	REPLACE	\{\{(?!((m)|(lien)|(citation)|(citation bloc))\|[^\}\n]*?)(?!début citation)(?!fin citation)([^\}\n]*?)\}\}	$6
+RegexMarkerFilter	SKIP	(?m)^=+
+RegexMarkerFilter	SKIP	(?m) *=+ *$
+RegexMarkerFilter	SKIP	(?m)^:+\**
+RegexMarkerFilter	SKIP	(?m)^\*+
+RegexMarkerFilter	SKIP	(?m)(--)?(—)? *(''')?\[\[[uU]tilisateur:[^\]\n]*?\]\](''')?( *\(\[\[[Dd]iscussion[ _][Uu]tilisateur:[^\]\n]*?\]\]\))? *\d+/\d+/\d+ *$
+RegexMarkerFilter	SKIP	(?m)(--)?(—)? *(''')?\[\[[uU]tilisateur:[^\]\n]*?\]\](''')?( *\(\[\[[Dd]iscussion[ _][Uu]tilisateur:[^\]\n]*?\]\]\))? *\d\d? [a-zéèû]+ \d\d\d\d à \d\d:\d\d (\([A-Z]+\))? *$
+RegexMarkerFilter	SKIP	(?m)(--)?(—)? *(''')?\[\[[uU]ser:[^\]\n]*?\]\](''')?( *\(\[\[User talk:[^\]\n]*?\]\]\))? *\d+/\d+/\d+ *$
+RegexMarkerFilter	SKIP	(?m)(--)?(—)? *(''')?\[\[[uU]ser:[^\]\n]*?\]\](''')?( *\(\[\[User talk:[^\]\n]*?\]\]\))? *\d\d? [a-zéèû]+ \d\d\d\d à \d\d:\d\d (\([A-Z]+\))? *$
+RegexMarkerFilter	SKIP	\_\_+
+RegexMarkerFilter	SKIP	(\()?\[\[[Dd]iscussion[ _][Uu]tilisateur:[^\]\n]*?\]\](\))?
+RegexMarkerFilter	SKIP	(\()?\[\[[Uu]ser[ _][Tt]alk:[^\]\n]*?\]\](\))?
+RegexMarkerFilter	SKIP	&#\d\d;
+RegexMarkerFilter	SKIP	&mdash;
+RegexMarkerFilter	SKIP	&thinsp;
+RegexMarkerFilter	SKIP	#
+RegexMarkerFilter	SKIP	@
+RegexMarkerFilter	REPLACE	\[\[[uU]tilisateur:([^\]\|#\n]*?)\|[^\]\n]*?\]\]( \| \[http[^\]\n]*?\])?	Utilisateur_$1
+RegexMarkerFilter	REPLACE	\[\[[uU]ser:([^\]\|#\n]*?)\|[^\]\n]*?\]\]( \| \[http[^\]\n]*?\])?	Utilisateur_$1
+RegexMarkerFilter	REPLACE	\[\[[uU]tilisateur:([^\]\n]*?)#([^\]\n]*?)\]\]( \| \[http[^\]\n]*?\])?	Utilisateur_X
+RegexMarkerFilter	REPLACE	\[\[[uU]ser:([^\]\n]*?)#([^\]\n]*?)\]\]( \| \[http[^\]\n]*?\])?	Utilisateur_X
+RegexMarkerFilter	REPLACE	\[\[Wikip[ée]dia:[^\]\|\n]*?\|([^\]\n]*?)\]\]	$1
+RegexMarkerFilter	REPLACE	\[\[(?!Wikip[ée]dia:[^\]\n]*?)(?![uU]tilisateur:[^\]\n]*?)(?![uU]ser:[^\]\n]*?)(?![Dd]iscussion[ _][Uu]tilisateur:[^\]\n]*?)(?![Uu]ser[ _][Tt]alk[^\]\n]*?)([^\|\]\n]+?)\]\]	"$1"
+RegexMarkerFilter	REPLACE	\[\[(?!Wikip[ée]dia:[^\]\n]*?)(?![uU]tilisateur:[^\]\n]*?)(?![uU]ser:[^\]\n]*?)(?![Dd]iscussion[ _][Uu]tilisateur:[^\]\n]*?)(?![Uu]ser[ _][Tt]alk[^\]\n]*?)([^\|\]\n]+?)\|([^\|\]\n]+?)\]\]	"$2"
+RegexMarkerFilter	REPLACE	\[http[^ \]\n]*? ([^\]\n]*?)\]	$1
+RegexMarkerFilter	REPLACE	\[(http[^ \]\n]*?)\]	$1
+RegexMarkerFilter	SKIP	\d\d? [a-zéèû]+ \d\d\d\d à \d\d:\d\d (\([A-Z]+\))?
+RegexMarkerFilter	SKIP	(?m)^ *\d+/\d+/\d+ *$
+RegexMarkerFilter	SKIP	(?m)(--)?(—)? *\[\[[uU]tilisateur:[^\]\n]*?\]\] +$
+RegexMarkerFilter	SKIP	(?m)(--)?(—)? *\[\[[uU]ser:[^\]\n]*?\]\] +$
+RegexMarkerFilter	SKIP	<[^>\n]{0,200}?>
+RegexMarkerFilter	REPLACE	(''')|('')	"
+
