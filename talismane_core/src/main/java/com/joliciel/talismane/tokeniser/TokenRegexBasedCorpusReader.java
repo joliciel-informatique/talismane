@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -58,12 +57,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 	private PretokenisedSequence tokenSequence = null;
 
 	private int lineNumber = 0;
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
 	private int sentenceCount = 0;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
-	private int crossValidationSize = 0;
 
 	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 
@@ -129,7 +123,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 
 	@Override
 	public boolean hasNextTokenSequence() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
+		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
 			while (tokenSequence == null) {
@@ -173,19 +167,19 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 						boolean includeMe = true;
 
 						// check cross-validation
-						if (crossValidationSize > 0) {
-							if (includeIndex >= 0) {
-								if (sentenceCount % crossValidationSize != includeIndex) {
+						if (this.getCrossValidationSize() > 0) {
+							if (this.getIncludeIndex() >= 0) {
+								if (sentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
 									includeMe = false;
 								}
-							} else if (excludeIndex >= 0) {
-								if (sentenceCount % crossValidationSize == excludeIndex) {
+							} else if (this.getExcludeIndex() >= 0) {
+								if (sentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
 									includeMe = false;
 								}
 							}
 						}
 
-						if (startSentence > sentenceCount) {
+						if (this.getStartSentence() > sentenceCount) {
 							includeMe = false;
 						}
 
@@ -286,53 +280,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
-
-		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
-		attributes.put("crossValidationSize", "" + this.crossValidationSize);
-		attributes.put("includeIndex", "" + this.includeIndex);
-		attributes.put("excludeIndex", "" + this.excludeIndex);
-		return attributes;
-	}
-
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
-
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
-
-	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
-
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
+		return super.getCharacteristics();
 	}
 
 	/**
@@ -345,16 +293,6 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 
 	public void setSentenceReader(SentenceDetectorAnnotatedCorpusReader sentenceReader) {
 		this.sentenceReader = sentenceReader;
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
 	}
 
 	@Override

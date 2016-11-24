@@ -28,7 +28,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -113,13 +112,8 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 	private File corpusLocation;
 	private Charset charset;
 
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int lineNumber = 0;
-	private int crossValidationSize = -1;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
 	private int totalSentenceCount = 0;
 	private String excludeFileName = null;
 	private List<File> files;
@@ -131,7 +125,7 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 
 	private LexicalEntryReader lexicalEntryReader;
 
-	private boolean predictTransitions = true;
+	private final boolean predictTransitions;
 
 	private final TalismaneSession session;
 	private final String regex;
@@ -147,11 +141,12 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 		this.regex = regex;
 		this.session = session;
 		this.scanner = new Scanner(reader);
+		this.predictTransitions = config.getBoolean("predict-transitions");
 	}
 
 	@Override
 	public boolean hasNextConfiguration() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
+		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
 			while (configuration == null) {
@@ -181,19 +176,19 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 
 						// check cross-validation
 						boolean includeMe = true;
-						if (crossValidationSize > 0) {
-							if (includeIndex >= 0) {
-								if (totalSentenceCount % crossValidationSize != includeIndex) {
+						if (this.getCrossValidationSize() > 0) {
+							if (this.getIncludeIndex() >= 0) {
+								if (totalSentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
 									includeMe = false;
 								}
-							} else if (excludeIndex >= 0) {
-								if (totalSentenceCount % crossValidationSize == excludeIndex) {
+							} else if (this.getExcludeIndex() >= 0) {
+								if (totalSentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
 									includeMe = false;
 								}
 							}
 						}
 
-						if (totalSentenceCount < startSentence) {
+						if (this.getStartSentence() > totalSentenceCount) {
 							includeMe = false;
 						}
 
@@ -436,7 +431,7 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 					} else {
 						// add a token to the current sentence
 						hasLine = true;
-						if (totalSentenceCount >= startSentence) {
+						if (totalSentenceCount >= this.getStartSentence()) {
 							Matcher matcher = this.getPattern().matcher(line);
 							if (!matcher.matches())
 								throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
@@ -699,28 +694,9 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 		}
 	}
 
-	/**
-	 * If 0, all sentences will be read - otherwise will only read a certain
-	 * number of sentences.
-	 */
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
-
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
-
 	@Override
 	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
-
-		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
-		attributes.put("crossValidationSize", "" + this.crossValidationSize);
-		attributes.put("includeIndex", "" + this.includeIndex);
-		attributes.put("excludeIndex", "" + this.excludeIndex);
+		Map<String, String> attributes = super.getCharacteristics();
 		attributes.put("transitionSystem", session.getTransitionSystem().getClass().getSimpleName());
 
 		return attributes;
@@ -968,40 +944,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 		return predictTransitions;
 	}
 
-	public void setPredictTransitions(boolean predictTransitions) {
-		this.predictTransitions = predictTransitions;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
-	}
-
-	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
-
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
 	/**
 	 * If the reader is opened based on a directory, the name of a file to
 	 * exclude when training.
@@ -1012,16 +954,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 
 	public void setExcludeFileName(String excludeFileName) {
 		this.excludeFileName = excludeFileName;
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
 	}
 
 	@Override
