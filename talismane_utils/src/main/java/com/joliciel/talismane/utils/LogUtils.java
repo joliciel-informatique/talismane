@@ -40,12 +40,18 @@ import ch.qos.logback.core.joran.spi.JoranException;
  *
  */
 public class LogUtils {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(LogUtils.class);
 	private static final int MEGABYTE = 1024 * 1024;
 	private static Marker fatal = MarkerFactory.getMarker("FATAL");
 
 	public enum LogLevel {
-		TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+		TRACE,
+		DEBUG,
+		INFO,
+		WARN,
+		ERROR,
+		FATAL
 	}
 
 	/**
@@ -148,38 +154,43 @@ public class LogUtils {
 	/**
 	 * If logConfigPath is not null, use it to configure logging. Otherwise, use
 	 * the default configuration file.
+	 * 
+	 * @throws JoranException
 	 */
-	public static void configureLogging(String logConfigPath) {
-		try {
-			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-			JoranConfigurator configurator = new JoranConfigurator();
-			configurator.setContext(loggerContext);
-			if (logConfigPath != null) {
-				File slf4jFile = new File(logConfigPath);
+	public static void configureLogging(String logConfigPath) throws JoranException {
+		File logConfigFile = null;
+		if (logConfigPath != null)
+			logConfigFile = new File(logConfigPath);
+		configureLogging(logConfigFile);
+	}
 
-				if (slf4jFile.exists()) {
-					// Call context.reset() to clear any previous configuration,
-					// e.g. default configuration
-					loggerContext.reset();
-					configurator.doConfigure(slf4jFile);
-				} else {
-					throw new JolicielException("missing logConfigFile: " + slf4jFile.getCanonicalPath());
-				}
-			} else {
-				InputStream stream = LogUtils.class.getResourceAsStream("/com/joliciel/talismane/utils/resources/default-logback.xml");
-
-				configurator.setContext(loggerContext);
+	/**
+	 * If logConfigFile is not null, use it to configure logging. Otherwise, use
+	 * the default configuration file.
+	 * 
+	 * @throws JoranException
+	 */
+	public static void configureLogging(File logConfigFile) throws JoranException {
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		JoranConfigurator configurator = new JoranConfigurator();
+		configurator.setContext(loggerContext);
+		if (logConfigFile != null) {
+			if (logConfigFile.exists()) {
 				// Call context.reset() to clear any previous configuration,
 				// e.g. default configuration
 				loggerContext.reset();
-				configurator.doConfigure(stream);
+				configurator.doConfigure(logConfigFile);
+			} else {
+				throw new JolicielException("missing logConfigFile: " + logConfigFile.getPath());
 			}
-		} catch (JoranException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+		} else {
+			InputStream stream = LogUtils.class.getResourceAsStream("/com/joliciel/talismane/utils/resources/default-logback.xml");
+
+			configurator.setContext(loggerContext);
+			// Call context.reset() to clear any previous configuration,
+			// e.g. default configuration
+			loggerContext.reset();
+			configurator.doConfigure(stream);
 		}
 	}
 }

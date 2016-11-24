@@ -31,13 +31,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.utils.ArrayListNoNulls;
 import com.joliciel.talismane.utils.LogUtils;
 
 public class TokenFilterFactory {
@@ -80,27 +81,23 @@ public class TokenFilterFactory {
 	/**
 	 * Reads a sequence of token filters from a scanner.
 	 */
-	public List<TokenFilter> readTokenFilters(Scanner scanner) {
+	public List<Pair<TokenFilter, String>> readTokenFilters(Scanner scanner) {
 		return this.readTokenFilters(scanner, null);
 	}
 
 	/**
-	 * Similar to {@link #readTokenFilters(Scanner, List)}, but keeps a
-	 * reference to the file, useful for finding the location of any descriptor
-	 * errors.
+	 * Similar to {@link #readTokenFilters(Scanner)}, but keeps a reference to
+	 * the file, useful for finding the location of any descriptor errors.
 	 * 
 	 * @param file
 	 *            the file to be read
 	 * @param charset
 	 *            the charset used to read the file
-	 * @param descriptors
-	 *            a list of descriptors in which we store the descriptors added
-	 *            from this file
 	 */
-	public List<TokenFilter> readTokenFilters(File file, Charset charset, List<String> descriptors) {
+	public List<Pair<TokenFilter, String>> readTokenFilters(File file, Charset charset) {
 		try {
 			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)))) {
-				return this.readTokenFilters(scanner, file.getCanonicalPath(), descriptors);
+				return this.readTokenFilters(scanner, file.getCanonicalPath());
 			}
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
@@ -109,28 +106,18 @@ public class TokenFilterFactory {
 	}
 
 	/**
-	 * Reads a sequence of token filters from a file, and stores their
-	 * descriptors in the provided paramater.
-	 */
-	public List<TokenFilter> readTokenFilters(Scanner scanner, List<String> descriptors) {
-		return this.readTokenFilters(scanner, null, descriptors);
-	}
-
-	/**
 	 * Reads a sequence of token filters from a scanner, with a path providing
 	 * clean error reporting.
 	 */
-	public List<TokenFilter> readTokenFilters(Scanner scanner, String path, List<String> descriptors) {
-		List<TokenFilter> tokenFilters = new ArrayListNoNulls<TokenFilter>();
+	public List<Pair<TokenFilter, String>> readTokenFilters(Scanner scanner, String path) {
+		List<Pair<TokenFilter, String>> tokenFilters = new ArrayList<>();
 		Map<String, String> defaultParams = new HashMap<String, String>();
 		int lineNumber = 0;
 		while (scanner.hasNextLine()) {
 			String descriptor = scanner.nextLine();
 			lineNumber++;
 			LOG.debug(descriptor);
-			if (descriptors != null) {
-				descriptors.add(descriptor);
-			}
+
 			if (descriptor.trim().length() == 0 || descriptor.startsWith("#"))
 				continue;
 			if (descriptor.startsWith("DefaultParameters")) {
@@ -148,9 +135,9 @@ public class TokenFilterFactory {
 				}
 			} else {
 				try {
-					TokenFilter tokenFilter = this.getTokenFilter(descriptor, defaultParams);
-					if (tokenFilter != null)
-						tokenFilters.add(tokenFilter);
+					Pair<TokenFilter, String> tokenFilterPair = this.getTokenFilter(descriptor, defaultParams);
+					if (tokenFilterPair != null)
+						tokenFilters.add(tokenFilterPair);
 				} catch (TokenFilterLoadException e) {
 					if (path != null)
 						throw new TalismaneException("Unable to parse file " + path + ", line " + lineNumber + ": " + descriptor, e);
@@ -158,9 +145,6 @@ public class TokenFilterFactory {
 				}
 			}
 		}
-		// cancel the default parameters if required
-		if (descriptors != null)
-			descriptors.add("DefaultParameters()");
 
 		return tokenFilters;
 	}
@@ -170,14 +154,14 @@ public class TokenFilterFactory {
 	 * should contain the class name, followed by any arguments, separated by
 	 * tabs.
 	 */
-	public TokenFilter getTokenFilter(String descriptor) throws TokenFilterLoadException {
+	public Pair<TokenFilter, String> getTokenFilter(String descriptor) throws TokenFilterLoadException {
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		return this.getTokenFilter(descriptor, parameterMap);
 	}
 
-	public TokenFilter getTokenFilter(String descriptor, Map<String, String> defaultParams) throws TokenFilterLoadException {
+	public Pair<TokenFilter, String> getTokenFilter(String descriptor, Map<String, String> defaultParams) throws TokenFilterLoadException {
 		try {
-			Map<String, String> myParams = new HashMap<String, String>(defaultParams);
+			Map<String, String> myParams = new HashMap<>(defaultParams);
 
 			String[] parts = descriptor.split("\t");
 			String className = parts[0];
@@ -220,7 +204,27 @@ public class TokenFilterFactory {
 
 			if (filter.isExcluded())
 				return null;
-			return filter;
+
+			// construct descriptor including default parameters
+			StringBuilder sb = new StringBuilder();
+			sb.append(className);
+			sb.append('(');
+			boolean first = true;
+			for (String key : myParams.keySet()) {
+				if (!first)
+					sb.append(',');
+				sb.append(key);
+				sb.append('=');
+				sb.append(myParams.get(key));
+				first = false;
+			}
+			sb.append(')');
+			for (String tab : tabs) {
+				sb.append('\t');
+				sb.append(tab);
+			}
+
+			return new ImmutablePair<>(filter, sb.toString());
 		} catch (InstantiationException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

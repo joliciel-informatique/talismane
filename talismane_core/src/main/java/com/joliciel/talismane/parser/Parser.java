@@ -55,6 +55,21 @@ public interface Parser {
 		dependencyCount
 	}
 
+	public enum PredictTransitions {
+		/**
+		 * Always predict transitions.
+		 */
+		yes,
+		/**
+		 * Never predict transitions.
+		 */
+		no,
+		/**
+		 * Predict transitions if training, no otherwise.
+		 */
+		depends
+	}
+
 	/**
 	 * Analyse a pos-tag sequence, and return the most likely parse
 	 * configuration for the sentence.
@@ -64,11 +79,6 @@ public interface Parser {
 	 * @return the most likely parse configuration for this sentence
 	 */
 	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence);
-
-	/**
-	 * The maximum size of the beam to be used during analysis.
-	 */
-	public abstract int getBeamWidth();
 
 	public void addObserver(ClassificationObserver observer);
 
@@ -85,8 +95,6 @@ public interface Parser {
 	 */
 	public int getMaxAnalysisTimePerSentence();
 
-	public void setMaxAnalysisTimePerSentence(int maxAnalysisTimePerSentence);
-
 	/**
 	 * The minimum amount of remaining free memory to continue a parse, in
 	 * kilobytes. Will be ignored is set to 0. If analysis jumps out because of
@@ -94,8 +102,6 @@ public interface Parser {
 	 * instead of a parse-tree, with several nodes left unattached.
 	 */
 	public int getMinFreeMemory();
-
-	public void setMinFreeMemory(int minFreeMemory);
 
 	/**
 	 * Rules to apply while parsing (in place of the probablistic classifier).

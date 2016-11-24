@@ -34,11 +34,15 @@ import com.typesafe.config.ConfigFactory;
 public class ModelTrainerFactory {
 	/**
 	 * Get a classification model trainer corresponding to a given outcome type
-	 * and a given algorithm.
+	 * and a given algorithm.<br/>
+	 * <br/>
+	 * It is assumed the config file passed will be a local configuration, whose
+	 * root is equivalent to the talismane.machine-learning key in
+	 * reference.conf
 	 */
 	public ClassificationModelTrainer constructTrainer(Config config) {
-		config.checkValid(ConfigFactory.defaultReference(), "talismane.machineLearning");
-		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("talismane.machineLearning.algorithm"));
+		config.checkValid(ConfigFactory.defaultReference().getConfig("talismane.machine-learning"));
+		MachineLearningAlgorithm algorithm = MachineLearningAlgorithm.valueOf(config.getString("algorithm"));
 		ClassificationModelTrainer modelTrainer = null;
 		switch (algorithm) {
 		case MaxEnt:

@@ -18,42 +18,71 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import com.joliciel.talismane.AnnotatedCorpusReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading ParseConfigurations from sentences in a corpus.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface ParserAnnotatedCorpusReader extends AnnotatedCorpusReader {
+public abstract class ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader {
+	public ParserAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+		super(reader, config, session);
+	}
+
 	/**
 	 * Is there another sentence to be read?
 	 */
-	public boolean hasNextConfiguration();
-	
+	public abstract boolean hasNextConfiguration();
+
 	/**
-	 * Read the ParseConfiguration from the next sentence in the training corpus.
+	 * Read the ParseConfiguration from the next sentence in the training
+	 * corpus.
 	 */
-	public ParseConfiguration nextConfiguration();
-	
-	public void addTokenFilter(TokenFilter tokenFilter);
-	
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenFilter);
-	
-	public void addPosTagSequenceFilter(PosTagSequenceFilter posTagSequenceFilter);
-	
+	public abstract ParseConfiguration nextConfiguration();
+
 	/**
 	 * If provided, will read a lexical entry for each pos-tagged token.
 	 */
-	public LexicalEntryReader getLexicalEntryReader();
-	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
-	
+	public abstract LexicalEntryReader getLexicalEntryReader();
+
+	public abstract void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
+
 	/**
 	 * Take this reader back to its initial position.
 	 */
-	public void rewind();
+	public abstract void rewind();
+
+	/**
+	 * Builds an annotated corpus reader for a particular Reader and Config,
+	 * where the config is the local namespace. For configuration example, see
+	 * talismane.core.tokeniser.input in reference.conf.
+	 * 
+	 * @param config
+	 *            the local configuration section from which we're building a
+	 *            reader
+	 * @throws IOException
+	 *             problem reading the files referred in the configuration
+	 * @throws ReflectiveOperationException
+	 *             if the corpus-reader class could not be instantiated
+	 */
+	public static ParserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+			throws IOException, ReflectiveOperationException {
+		String className = config.getString("corpus-reader");
+
+		@SuppressWarnings("unchecked")
+		Class<? extends ParserAnnotatedCorpusReader> clazz = (Class<? extends ParserAnnotatedCorpusReader>) Class.forName(className);
+		Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+
+		ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+		return corpusReader;
+	}
 }

@@ -29,6 +29,8 @@ import com.joliciel.talismane.machineLearning.features.FunctionDescriptor;
 import com.joliciel.talismane.machineLearning.features.FunctionDescriptorParser;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.utils.compiler.DynamicCompiler;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class ParserDynamicSourceCodeManagerTest {
 
@@ -44,8 +46,12 @@ public class ParserDynamicSourceCodeManagerTest {
 	}
 
 	@Test
-	public void testGetBuilder() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testGetBuilder() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		String descriptorString = "PosTag(Stack[0])";
 		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();

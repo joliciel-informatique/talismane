@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.TalismaneSession;
 
 /**
@@ -40,49 +41,42 @@ import com.joliciel.talismane.TalismaneSession;
  * @author Assaf Urieli
  *
  */
-public class Sentence {
+public class Sentence extends AnnotatedText {
 	public static final String WHITE_SPACE = "\\s\ufeff";
 
 	private static final Logger LOG = LoggerFactory.getLogger(Sentence.class);
 
-	private String text;
-	private TreeMap<Integer, String> originalTextSegments = new TreeMap<Integer, String>();
-	private List<Integer> originalIndexes = null;
-	private boolean complete = true;
-	TreeMap<Integer, Integer> newlines = new TreeMap<Integer, Integer>();
-	private String fileName = "";
-	private File file = null;
+	private final TreeMap<Integer, String> originalTextSegments;
+	private final List<Integer> originalIndexes;
+	private final boolean complete;
+	private final TreeMap<Integer, Integer> newlines;
+	private final List<SentenceTag<?>> sentenceTags;
+	private final String fileName;
+	private final File file;
 	private int startLineNumber = -1;
 	private String leftoverOriginalText;
 
-	protected final TalismaneSession talismaneSession;
+	protected final TalismaneSession session;
 
-	/**
-	 * Create a sentence with an empty string for text.
-	 * 
-	 * @param talismaneSession
-	 */
-	public Sentence(TalismaneSession talismaneSession) {
-		this("", talismaneSession);
+	public Sentence(CharSequence text, TreeMap<Integer, String> originalTextSegments, List<Integer> originalIndexes, boolean complete,
+			TreeMap<Integer, Integer> newlines, List<SentenceTag<?>> sentenceTags, String fileName, File file, TalismaneSession session) {
+		super(text);
+		this.originalTextSegments = originalTextSegments;
+		this.originalIndexes = originalIndexes;
+		this.complete = complete;
+		this.newlines = newlines;
+		this.sentenceTags = sentenceTags;
+		this.fileName = fileName;
+		this.file = file;
+		this.session = session;
 	}
 
-	public Sentence(String text, TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-		this.text = text;
+	public Sentence(CharSequence text, String fileName, File file, TalismaneSession session) {
+		this(text, new TreeMap<>(), new ArrayList<>(), true, new TreeMap<>(), new ArrayList<>(), fileName, file, session);
 	}
 
-	private List<SentenceTag<?>> sentenceTags = new ArrayList<SentenceTag<?>>();
-
-	/**
-	 * The sentence text.
-	 */
-
-	public String getText() {
-		return this.text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
+	public Sentence(CharSequence text, TalismaneSession session) {
+		this(text, "", null, session);
 	}
 
 	/**
@@ -90,7 +84,7 @@ public class Sentence {
 	 */
 
 	public int getOriginalIndex(int index) {
-		if (originalIndexes == null)
+		if (originalIndexes.size() == 0)
 			return index;
 		if (index == originalIndexes.size())
 			return originalIndexes.get(index - 1) + 1;
@@ -105,7 +99,7 @@ public class Sentence {
 	 */
 
 	public int getIndex(int originalIndex) {
-		if (originalIndexes == null)
+		if (originalIndexes.size() == 0)
 			return originalIndex;
 		int index = -1;
 		for (int i = 0; i < originalIndexes.size(); i++) {
@@ -128,38 +122,8 @@ public class Sentence {
 		return this.originalTextSegments;
 	}
 
-	/**
-	 * Add a raw text segment at a given position.
-	 */
-
-	public void addOriginalTextSegment(int index, String segment) {
-		if (LOG.isTraceEnabled())
-			LOG.trace("Adding raw segment at index " + index + ": " + segment);
-		String existingText = this.originalTextSegments.get(index);
-		if (existingText == null) {
-			this.originalTextSegments.put(index, segment);
-		} else {
-			this.originalTextSegments.put(index, existingText + talismaneSession.getOutputDivider() + segment);
-		}
-	}
-
-	void setOriginalTextSegments(TreeMap<Integer, String> originalTextSegments) {
-		this.originalTextSegments = originalTextSegments;
-	}
-
 	public List<Integer> getOriginalIndexes() {
 		return originalIndexes;
-	}
-
-	/**
-	 * Add a new original index to the current sentence. These need to be added
-	 * sequentially for every single index in the current sentence.
-	 */
-
-	public void addOriginalIndex(int originalIndex) {
-		if (this.originalIndexes == null)
-			this.originalIndexes = new ArrayList<Integer>();
-		this.originalIndexes.add(originalIndex);
 	}
 
 	/**
@@ -168,10 +132,6 @@ public class Sentence {
 
 	public boolean isComplete() {
 		return complete;
-	}
-
-	public void setComplete(boolean complete) {
-		this.complete = complete;
 	}
 
 	/**
@@ -199,15 +159,6 @@ public class Sentence {
 	}
 
 	/**
-	 * Indicate that a new line was found at a given original index in this
-	 * sentence holder, and gives the line number.
-	 */
-
-	public void addNewline(int originalIndex, int lineNumber) {
-		this.newlines.put(originalIndex, lineNumber);
-	}
-
-	/**
 	 * A map giving original index to line number mappings, for all lines
 	 * contained within this sentence.
 	 */
@@ -222,10 +173,6 @@ public class Sentence {
 
 	public String getFileName() {
 		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
 	}
 
 	/**
@@ -249,7 +196,7 @@ public class Sentence {
 			boolean firstSegment = true;
 			for (String segment : containedSegments.values()) {
 				if (!firstSegment)
-					sb.append(talismaneSession.getOutputDivider());
+					sb.append(session.getOutputDivider());
 				sb.append(segment);
 				firstSegment = false;
 			}
@@ -260,14 +207,13 @@ public class Sentence {
 
 	@Override
 	public String toString() {
-		return "SentenceImpl [text=" + text + "]";
+		return "SentenceImpl [text=" + this.getText() + "]";
 	}
 
 	/**
 	 * The line number on which this sentence started, when reading from a
 	 * previously analysed corpus (one token per line).
 	 */
-
 	public int getStartLineNumber() {
 		return startLineNumber;
 	}
@@ -282,10 +228,6 @@ public class Sentence {
 
 	public File getFile() {
 		return file;
-	}
-
-	public void setFile(File file) {
-		this.file = file;
 	}
 
 	/**

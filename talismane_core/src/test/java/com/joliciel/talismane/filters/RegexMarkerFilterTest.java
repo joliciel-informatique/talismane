@@ -110,7 +110,7 @@ public class RegexMarkerFilterTest {
 	@Test
 	public void testTag() {
 		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.TAG, "<skip>(.*?)</skip>", 0, 1000);
-		filter.setTag("TAG1", new StringAttribute("x"));
+		filter.setTag("TAG1", new StringAttribute("TAG1", "x"));
 
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
 		Set<TextMarker> textMarkers = filter.apply("", text, "");

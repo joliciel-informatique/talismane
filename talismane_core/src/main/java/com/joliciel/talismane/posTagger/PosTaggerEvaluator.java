@@ -18,6 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,9 +31,14 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * An interface for evaluating a given pos tagger.
@@ -40,26 +50,50 @@ public class PosTaggerEvaluator {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerEvaluator.class);
 
 	private final PosTagger posTagger;
-	private Tokeniser tokeniser;
-	private boolean propagateBeam = false;
-	private int sentenceCount = 0;
+	private final PosTagAnnotatedCorpusReader corpusReader;
+	private final Tokeniser tokeniser;
 
 	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
 
+	public PosTaggerEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+		Config config = session.getConfig();
+		this.observers = PosTagEvaluationObserver.getObservers(session);
+
+		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.pos-tagger.evaluate.eval-file");
+		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+		this.corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("input"), session);
+
+		this.posTagger = PosTaggers.getPosTagger(session);
+
+		Module startModule = Module.valueOf(posTaggerConfig.getString("evaluate.start-module"));
+		if (startModule == Module.tokeniser)
+			this.tokeniser = Tokeniser.getInstance(session);
+		else
+			this.tokeniser = null;
+	}
+
 	/**
+	 * 
+	 * @param posTagger
+	 * @param corpusReader
+	 *            for reading manually tagged tokens from a corpus
+	 * 
+	 * @param tokeniser
+	 *            if not null, evaluate tokenisation as well.
+	 * @param session
 	 */
-	public PosTaggerEvaluator(PosTagger posTagger) {
+	public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, TalismaneSession session) {
 		this.posTagger = posTagger;
+		this.corpusReader = corpusReader;
+		this.tokeniser = tokeniser;
 	}
 
 	/**
 	 * Evaluate a given pos tagger.
 	 * 
-	 * @param corpusReader
-	 *            for reading manually tagged tokens from a corpus
 	 */
-	public void evaluate(PosTagAnnotatedCorpusReader corpusReader) {
-		int sentenceIndex = 0;
+	public void evaluate() {
 		while (corpusReader.hasNextPosTagSequence()) {
 			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
 
@@ -70,13 +104,10 @@ public class PosTaggerEvaluator {
 			PosTagSequence guessedSequence = null;
 
 			if (this.tokeniser != null) {
-				tokenSequences = tokeniser.tokenise(tokenSequence.getText());
+				Sentence sentence = tokenSequence.getSentence();
 
+				tokenSequences = tokeniser.tokenise(sentence);
 				tokenSequence = tokenSequences.get(0);
-				if (!propagateBeam) {
-					tokenSequences = new ArrayList<TokenSequence>();
-					tokenSequences.add(tokenSequence);
-				}
 			} else {
 				tokenSequences = new ArrayList<TokenSequence>();
 				tokenSequences.add(tokenSequence);
@@ -121,10 +152,6 @@ public class PosTaggerEvaluator {
 			for (PosTagEvaluationObserver observer : this.observers) {
 				observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
 			}
-
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
 		} // next sentence
 
 		for (PosTagEvaluationObserver observer : this.observers) {
@@ -144,22 +171,6 @@ public class PosTaggerEvaluator {
 		return tokeniser;
 	}
 
-	public void setTokeniser(Tokeniser tokeniser) {
-		this.tokeniser = tokeniser;
-	}
-
-	/**
-	 * Should the pos tagger take the tokeniser's full beam as it's input, or
-	 * only the best guess.
-	 */
-	public boolean isPropagateBeam() {
-		return propagateBeam;
-	}
-
-	public void setPropagateBeam(boolean propagateBeam) {
-		this.propagateBeam = propagateBeam;
-	}
-
 	public List<PosTagEvaluationObserver> getObservers() {
 		return observers;
 	}
@@ -170,18 +181,6 @@ public class PosTaggerEvaluator {
 
 	public void addObserver(PosTagEvaluationObserver observer) {
 		this.observers.add(observer);
-	}
-
-	/**
-	 * If set, will limit the maximum number of sentences that will be
-	 * evaluated. Default is 0 = all sentences.
-	 */
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
 	}
 
 }

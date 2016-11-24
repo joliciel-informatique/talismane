@@ -21,6 +21,8 @@ package com.joliciel.talismane.tokeniser.filters;
 import java.util.List;
 import java.util.Map;
 
+import com.joliciel.talismane.Annotator;
+
 /**
  * A filter that takes raw text, and finds tokens in the text (which are
  * indicated by placeholders).<br/>
@@ -32,13 +34,7 @@ import java.util.Map;
  * @author Assaf Urieli
  *
  */
-public interface TokenFilter {
-	/**
-	 * Analyse the sentence, and provide placeholders for any tokens that will
-	 * have to be formed.
-	 */
-	public List<TokenPlaceholder> apply(String text);
-
+public interface TokenFilter extends Annotator {
 	/**
 	 * Load the token filter's state using information extracted from a
 	 * descriptor.

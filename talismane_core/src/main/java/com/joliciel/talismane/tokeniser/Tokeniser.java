@@ -18,29 +18,105 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
+import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
+import com.typesafe.config.Config;
 
 /**
- * A Tokeniser splits a sentence up into tokens (parsing units).
+ * A Tokeniser splits a sentence up into tokens (parsing units).<br/>
+ * <br/>
+ * The Tokeniser must recognise the following annotations in the sentence
+ * provided:<br/>
+ * <ul>
+ * <li>{@link TokenPlaceholder}: will get replaced by a token.</li>
+ * <li>{@link TokenAttribute}: will add attributes to all tokens contained
+ * within its span.</li>
+ * </ul>
  * 
  * @author Assaf Urieli
  *
  */
-public interface Tokeniser {
+public abstract class Tokeniser {
 	public static enum TokeniserType {
-		simple, pattern
+		simple,
+		pattern
 	};
 
+	private static final Logger LOG = LoggerFactory.getLogger(Tokeniser.class);
+
+	private static final Map<String, Tokeniser> tokeniserMap = new HashMap<>();
+	private static final Map<String, Pattern> tokenSeparatorMap = new HashMap<>();
+
+	private final TalismaneSession session;
+
+	public Tokeniser(TalismaneSession session) {
+		this.session = session;
+	}
+
+	protected Tokeniser(Tokeniser tokeniser) {
+		this.session = tokeniser.session;
+	}
+
 	/**
-	 * A list of possible separators for tokens.
+	 * Similar to {@link #tokenise(String)}, but returns only the best token
+	 * sequence.
 	 */
-	public static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}«»_‒–—―‛“”„‟′″‴‹›‘’‚*\ufeff]", Pattern.UNICODE_CHARACTER_CLASS);
+
+	public TokenSequence tokeniseText(String text) {
+		List<TokenSequence> tokenSequences = this.tokenise(text);
+		return tokenSequences.get(0);
+	}
+
+	/**
+	 * Similar to {@link #tokeniseWithDecisions(String)}, but returns the token
+	 * sequences inferred from the decisions, rather than the list of decisions
+	 * themselves.
+	 */
+
+	public List<TokenSequence> tokenise(String text) {
+		Sentence sentence = new Sentence(text, session);
+		return this.tokenise(sentence);
+	}
+
+	/**
+	 * Similar to {@link #tokenise(Sentence)}, but returns only the best token
+	 * sequence.
+	 */
+
+	public TokenSequence tokeniseSentence(Sentence sentence) {
+		List<TokenSequence> tokenSequences = this.tokenise(sentence);
+		return tokenSequences.get(0);
+	}
+
+	/**
+	 * Similar to {@link #tokeniseWithDecisions(Sentence)}, but returns the
+	 * token sequences inferred from the decisions, rather than the list of
+	 * decisions themselves.
+	 */
+
+	public List<TokenSequence> tokenise(Sentence sentence) {
+		List<TokenisedAtomicTokenSequence> decisionSequences = this.tokeniseWithDecisions(sentence);
+		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
+		for (TokenisedAtomicTokenSequence decisionSequence : decisionSequences) {
+			tokenSequences.add(decisionSequence.inferTokenSequence());
+		}
+		return tokenSequences;
+	}
 
 	/**
 	 * Tokenise a given sentence. More specifically, return up to N most likely
@@ -54,69 +130,115 @@ public interface Tokeniser {
 	 * @return a List of up to <i>n</i> TokeniserDecisionTagSequence, ordered
 	 *         from most probable to least probable
 	 */
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text);
 
-	/**
-	 * Similar to {@link #tokenise(String)}, but returns only the best token
-	 * sequence.
-	 */
-	public TokenSequence tokeniseText(String text);
-
-	/**
-	 * Similar to {@link #tokenise(Sentence)}, but returns only the best token
-	 * sequence.
-	 */
-	public TokenSequence tokeniseSentence(Sentence sentence);
-
-	/**
-	 * Similar to {@link #tokeniseWithDecisions(String)}, but returns the token
-	 * sequences inferred from the decisions, rather than the list of decisions
-	 * themselves.
-	 */
-	public List<TokenSequence> tokenise(String text);
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text) {
+		Sentence sentence = new Sentence(text, session);
+		return this.tokeniseWithDecisions(sentence);
+	}
 
 	/**
 	 * Similar to {@link #tokeniseWithDecisions(String)}, but the text to be
 	 * tokenised is contained within a Sentence object.
 	 */
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence);
+
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
+		// Initially, separate the sentence into tokens using the separators
+		// provided
+		TokenSequence tokenSequence = new TokenSequence(sentence, this.session);
+		tokenSequence.findDefaultTokens();
+
+		// apply any pre-processing filters that have been added
+		for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
+			tokenSequenceFilter.apply(tokenSequence);
+		}
+
+		List<TokenisedAtomicTokenSequence> sequences = this.tokeniseInternal(tokenSequence, sentence);
+
+		LOG.debug("####Final token sequences:");
+		int j = 1;
+		for (TokenisedAtomicTokenSequence sequence : sequences) {
+			TokenSequence newTokenSequence = sequence.inferTokenSequence();
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Token sequence " + (j++));
+				LOG.debug("Atomic sequence: " + sequence);
+				LOG.debug("Resulting sequence: " + newTokenSequence);
+			}
+			// need to re-apply the pre-processing filters, because the
+			// tokens are all new
+			// Question: why can't we conserve the initial tokens when they
+			// haven't changed at all?
+			// Answer: because the tokenSequence and index in the sequence
+			// is referenced by the token.
+			// Question: should we create a separate class, Token and
+			// TokenInSequence,
+			// one with index & sequence access & one without?
+			for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
+				tokenSequenceFilter.apply(newTokenSequence);
+			}
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("After filters: " + newTokenSequence);
+			}
+		}
+
+		return sequences;
+	}
+
+	protected abstract List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence);
+
+	public void addObserver(ClassificationObserver observer) {
+		// nothing to do here
+	}
+
+	protected TalismaneSession getTalismaneSession() {
+		return session;
+	}
+
+	public abstract Tokeniser cloneTokeniser();
 
 	/**
-	 * Similar to {@link #tokeniseWithDecisions(Sentence)}, but returns the
-	 * token sequences inferred from the decisions, rather than the list of
-	 * decisions themselves.
+	 * Build a tokeniser using the configuration provided.
+	 * 
+	 * @param session
+	 *            current session
+	 * @return a tokeniser to be used - each call returns a separate tokeniser
+	 * @throws IOException
+	 *             if problems occurred reading the model
 	 */
-	public List<TokenSequence> tokenise(Sentence sentence);
+	public static Tokeniser getInstance(TalismaneSession session) throws IOException {
+		Tokeniser tokeniser = null;
+		if (session.getSessionId() != null)
+			tokeniser = tokeniserMap.get(session.getSessionId());
+		if (tokeniser == null) {
+			Config config = session.getConfig();
+			Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+			TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
+
+			if (tokeniserType == TokeniserType.simple) {
+				tokeniser = new SimpleTokeniser(session);
+			} else if (tokeniserType == TokeniserType.pattern) {
+				tokeniser = new PatternTokeniser(session);
+			} else {
+				throw new TalismaneException("Unknown tokeniserType: " + tokeniserType);
+			}
+
+			if (session.getSessionId() != null)
+				tokeniserMap.put(session.getSessionId(), tokeniser);
+		}
+
+		return tokeniser.cloneTokeniser();
+	}
 
 	/**
-	 * Filters to be applied to the atomic token sequences, prior to tokenising.
-	 * These filters will either add empty tokens at given places, or change the
-	 * token text. Note that these filters will be applied to the token
-	 * sequences produced by the tokeniser as well.
+	 * A pattern matching default separators for tokens.
 	 */
-	public List<TokenSequenceFilter> getTokenSequenceFilters();
-
-	/**
-	 * See {@link #getTokenSequenceFilters()}.
-	 */
-	public void addTokenSequenceFilter(TokenSequenceFilter tokenSequenceFilter);
-
-	/**
-	 * Filters to be applied prior to breaking the sentence up into atomic token
-	 * sequences - these filters will mark certain portions of the sentence as
-	 * entire tokens, and the tokeniser will not take any decisions inside
-	 * these. It still may join them to other atomic tokens, to create larger
-	 * tokens.
-	 */
-	public List<TokenFilter> getTokenFilters();
-
-	/**
-	 * See {@link #getTokenFilters()}.
-	 */
-	public void addTokenFilter(TokenFilter filter);
-
-	public void addObserver(ClassificationObserver observer);
-
-	public Tokeniser cloneTokeniser();
-
+	public static Pattern getTokenSeparators(TalismaneSession session) {
+		Pattern tokenSeparators = tokenSeparatorMap.get(session.getSessionId());
+		if (tokenSeparators == null) {
+			Config config = session.getConfig();
+			String separatorRegex = config.getString("talismane.core.tokeniser.separators");
+			tokenSeparators = Pattern.compile(separatorRegex, Pattern.UNICODE_CHARACTER_CLASS);
+			tokenSeparatorMap.put(session.getSessionId(), tokenSeparators);
+		}
+		return tokenSeparators;
+	}
 }

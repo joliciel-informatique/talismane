@@ -18,7 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,8 +38,12 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotator;
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.stats.FScoreCalculator;
+import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.StringUtils;
+import com.typesafe.config.Config;
 
 /**
  * An interface for evaluating a given sentence detector.
@@ -41,22 +53,49 @@ import com.joliciel.talismane.utils.StringUtils;
  */
 public class SentenceDetectorEvaluator {
 	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetectorEvaluator.class);
-	private SentenceDetector sentenceDetector;
-	int minCharactersAfterBoundary = 50;
-	private static final int NUM_CHARS = 30;
+	private final SentenceDetector sentenceDetector;
+	private final SentenceDetectorAnnotatedCorpusReader corpusReader;
+	private final Writer errorWriter;
+	private final int minCharactersAfterBoundary = 50;
 
-	public SentenceDetectorEvaluator(SentenceDetector sentenceDetector) {
+	private static final int NUM_CHARS = 30;
+	private final TalismaneSession session;
+
+	public SentenceDetectorEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+		this.session = session;
+		Config config = session.getConfig();
+		this.sentenceDetector = SentenceDetector.getInstance(session);
+		Config sentenceConfig = config.getConfig("talismane.core.sentence-detector");
+		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.sentence-detector.evaluate.eval-file");
+		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+		this.corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(evalReader, sentenceConfig.getConfig("input"), session);
+
+		File sentenceErrorFile = new File(session.getOutDir(), session.getBaseName() + "_errors.txt");
+		this.errorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
+	}
+
+	/**
+	 * 
+	 * @param sentenceDetector
+	 * @param corpusReader
+	 *            for reading manually separated sentences from a corpus
+	 * @param errorWriter
+	 * @param session
+	 */
+	public SentenceDetectorEvaluator(SentenceDetector sentenceDetector, SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter,
+			TalismaneSession session) {
+		this.session = session;
 		this.sentenceDetector = sentenceDetector;
+		this.corpusReader = corpusReader;
+		this.errorWriter = errorWriter;
 	}
 
 	/**
 	 * Evaluate a given sentence detector.
 	 * 
-	 * @param corpusReader
-	 *            for reading manually separated sentences from a corpus
 	 * @return an f-score calculator for this sentence detector
 	 */
-	public FScoreCalculator<SentenceDetectorOutcome> evaluate(SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter) {
+	public FScoreCalculator<SentenceDetectorOutcome> evaluate() {
 		FScoreCalculator<SentenceDetectorOutcome> fScoreCalculator = new FScoreCalculator<SentenceDetectorOutcome>();
 
 		// add f-score per tagger module, to see how we do for each boundary
@@ -68,7 +107,7 @@ public class SentenceDetectorEvaluator {
 		String sentence = null;
 		String previousSentence = ". ";
 		if (corpusReader.hasNextSentence())
-			sentence = corpusReader.nextSentence();
+			sentence = corpusReader.nextSentence().getText().toString();
 
 		sentences.add(sentence);
 		while (!sentences.isEmpty()) {
@@ -93,7 +132,7 @@ public class SentenceDetectorEvaluator {
 				if (sentenceIndex < sentences.size()) {
 					nextSentence = sentences.get(sentenceIndex);
 				} else if (corpusReader.hasNextSentence()) {
-					nextSentence = corpusReader.nextSentence();
+					nextSentence = corpusReader.nextSentence().getText().toString();
 
 					sentences.add(nextSentence);
 				} else {
@@ -107,8 +146,11 @@ public class SentenceDetectorEvaluator {
 			}
 
 			String text = previousSentence + sentence + moreText;
+			RollingTextBlock textBlock = new RollingTextBlock(previousSentence, sentence, moreText);
+			for (Annotator annotator : session.getTextAnnotators())
+				annotator.annotate(textBlock);
 
-			List<Integer> guessedBoundaries = this.sentenceDetector.detectSentences(previousSentence, sentence, moreText);
+			List<Integer> guessedBoundaries = this.sentenceDetector.detectSentences(textBlock);
 			for (int possibleBoundary : possibleBoundaries) {
 				SentenceDetectorOutcome expected = SentenceDetectorOutcome.IS_NOT_BOUNDARY;
 				SentenceDetectorOutcome guessed = SentenceDetectorOutcome.IS_NOT_BOUNDARY;
@@ -199,11 +241,17 @@ public class SentenceDetectorEvaluator {
 							errorWriter.write(error + "\n");
 						}
 					}
+					errorWriter.flush();
 				} // next boundary character
+				errorWriter.close();
 			} catch (IOException ioe) {
 				throw new RuntimeException(ioe);
 			}
 		} // have error writer
 		return fScoreCalculator;
+	}
+
+	public Writer getErrorWriter() {
+		return errorWriter;
 	}
 }

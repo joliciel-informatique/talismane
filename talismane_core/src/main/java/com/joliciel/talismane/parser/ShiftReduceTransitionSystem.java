@@ -45,10 +45,12 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 
 	@Override
 	public void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies) {
-		LOG.debug("predictTransitions");
-		LOG.debug(configuration.getSentence().getText());
-		LOG.debug(configuration.toString());
-		LOG.debug(targetDependencies.toString());
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("predictTransitions");
+			LOG.debug(configuration.getSentence().getText().toString());
+			LOG.debug(configuration.toString());
+			LOG.debug(targetDependencies.toString());
+		}
 
 		Map<PosTaggedToken, DependencyArc> ungovernedTokens = new HashMap<PosTaggedToken, DependencyArc>();
 

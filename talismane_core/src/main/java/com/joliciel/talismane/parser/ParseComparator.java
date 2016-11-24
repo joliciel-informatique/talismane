@@ -18,6 +18,11 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * Compare two annotated corpora, one serving as reference and the other as an
@@ -36,12 +44,32 @@ import com.joliciel.talismane.TalismaneException;
  */
 public class ParseComparator {
 	private static final Logger LOG = LoggerFactory.getLogger(ParseComparator.class);
-	private int sentenceCount = 0;
 
-	private List<ParseEvaluationObserver> observers = new ArrayList<ParseEvaluationObserver>();
+	private final ParserAnnotatedCorpusReader referenceCorpusReader;
+	private final ParserAnnotatedCorpusReader evaluationCorpusReader;
 
-	public void evaluate(ParserAnnotatedCorpusReader referenceCorpusReader, ParserAnnotatedCorpusReader evaluationCorpusReader) {
-		int sentenceIndex = 0;
+	private final List<ParseEvaluationObserver> observers;
+
+	public ParseComparator(TalismaneSession session) throws ClassNotFoundException, IOException, ReflectiveOperationException {
+		Config config = session.getConfig();
+		Config parserConfig = config.getConfig("talismane.core.parser");
+
+		this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), parserConfig.getConfig("input"), session);
+
+		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.parser.evaluate.eval-file");
+		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+		this.evaluationCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("evaluate"), session);
+
+		this.observers = ParseEvaluationObserver.getObservers(session);
+	}
+
+	public ParseComparator(ParserAnnotatedCorpusReader referenceCorpusReader, ParserAnnotatedCorpusReader evaluationCorpusReader) {
+		this.referenceCorpusReader = referenceCorpusReader;
+		this.evaluationCorpusReader = evaluationCorpusReader;
+		this.observers = new ArrayList<>();
+	}
+
+	public void evaluate() {
 		while (referenceCorpusReader.hasNextConfiguration()) {
 			ParseConfiguration realConfiguration = referenceCorpusReader.nextConfiguration();
 			ParseConfiguration guessConfiguaration = evaluationCorpusReader.nextConfiguration();
@@ -54,8 +82,8 @@ public class ParseComparator {
 			double ratio = realLength > guessedLength ? guessedLength / realLength : realLength / guessedLength;
 			if (ratio < 0.9) {
 				LOG.info("Mismatched sentences");
-				LOG.info(realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText());
-				LOG.info(guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText());
+				LOG.info(realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
+				LOG.info(guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
 
 				throw new TalismaneException("Mismatched sentences");
 			}
@@ -63,9 +91,6 @@ public class ParseComparator {
 			for (ParseEvaluationObserver observer : this.observers) {
 				observer.onParseEnd(realConfiguration, guessConfigurations);
 			}
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
 		} // next sentence
 
 		for (ParseEvaluationObserver observer : this.observers) {
@@ -78,24 +103,8 @@ public class ParseComparator {
 		return observers;
 	}
 
-	public void setObservers(List<ParseEvaluationObserver> observers) {
-		this.observers = observers;
-	}
-
 	public void addObserver(ParseEvaluationObserver observer) {
 		this.observers.add(observer);
-	}
-
-	/**
-	 * The maximum number of sentences to evaluate. Default is 0, which means
-	 * all.
-	 */
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
 	}
 
 }

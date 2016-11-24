@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,22 +29,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.ExternalResource;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
+import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * Detect sentence boundaries within a textual block. The linefeed character
@@ -62,23 +68,48 @@ public class SentenceDetector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SentenceDetector.class);
 
+	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
+	private static final Map<String, SentenceDetector> sentenceDetectorMap = new HashMap<>();
+
 	private final DecisionMaker decisionMaker;
 	private final Set<SentenceDetectorFeature<?>> features;
-	private final TalismaneSession talismaneSession;
+	private final TalismaneSession session;
 
-	private final List<TokenFilter> preTokeniserFilters;
+	public static SentenceDetector getInstance(TalismaneSession session) throws IOException {
+		SentenceDetector sentenceDetector = null;
+		if (session.getSessionId() != null)
+			sentenceDetector = sentenceDetectorMap.get(session.getSessionId());
+		if (sentenceDetector == null) {
+			Config config = session.getConfig();
 
-	public SentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features, TalismaneSession talismaneSession) {
-		this.decisionMaker = decisionMaker;
-		this.features = features;
-		this.talismaneSession = talismaneSession;
-		this.preTokeniserFilters = new ArrayList<TokenFilter>();
+			String configPath = "talismane.core.sentence-detector.model";
+			String modelFilePath = config.getString(configPath);
+			ClassificationModel sentenceModel = modelMap.get(modelFilePath);
+			if (sentenceModel == null) {
+				InputStream modelFile = ConfigUtils.getFileFromConfig(config, configPath);
+				MachineLearningModelFactory factory = new MachineLearningModelFactory();
+				sentenceModel = factory.getClassificationModel(new ZipInputStream(modelFile));
+				modelMap.put(modelFilePath, sentenceModel);
+			}
+
+			sentenceDetector = new SentenceDetector(sentenceModel, session);
+
+			if (session.getSessionId() != null)
+				sentenceDetectorMap.put(session.getSessionId(), sentenceDetector);
+		}
+		return sentenceDetector.cloneSentenceDetector();
 	}
 
-	public SentenceDetector(ClassificationModel sentenceModel, TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
+	public SentenceDetector(DecisionMaker decisionMaker, Set<SentenceDetectorFeature<?>> features, TalismaneSession session) {
+		this.decisionMaker = decisionMaker;
+		this.features = features;
+		this.session = session;
+	}
 
-		SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(talismaneSession);
+	public SentenceDetector(ClassificationModel sentenceModel, TalismaneSession session) {
+		this.session = session;
+
+		SentenceDetectorFeatureParser parser = new SentenceDetectorFeatureParser(session);
 
 		Collection<ExternalResource<?>> externalResources = sentenceModel.getExternalResources();
 		if (externalResources != null) {
@@ -91,47 +122,43 @@ public class SentenceDetector {
 
 		this.features = parser.getFeatureSet(sentenceModel.getFeatureDescriptors());
 		this.decisionMaker = sentenceModel.getDecisionMaker();
-		this.preTokeniserFilters = new ArrayList<TokenFilter>();
 	}
 
 	SentenceDetector(SentenceDetector sentenceDetector) {
-		this.talismaneSession = sentenceDetector.talismaneSession;
+		this.session = sentenceDetector.session;
 		this.features = new HashSet<>(sentenceDetector.features);
 		this.decisionMaker = sentenceDetector.decisionMaker;
-		this.preTokeniserFilters = new ArrayList<>(sentenceDetector.preTokeniserFilters);
 	}
 
 	/**
 	 * Detect sentences within a particular textual block, given the previous
 	 * and next textual blocks.
 	 * 
-	 * @param prevText
-	 *            the previous textual block
-	 * @param text
-	 *            the current textual block
-	 * @param moreText
-	 *            the following textual block
+	 * @param textBlock
+	 *            the text block in which we want to detect sentences
 	 * @return a List of integers marking the index of the last character in
 	 *         each sentence within the current textual block. The index is
-	 *         relative to the current block only (text), not the full context
-	 *         (prevText + text + nextText).
+	 *         relative to the current block only (textBlock.getText()), not the
+	 *         full context (prevText + text + nextText).
 	 */
-	public List<Integer> detectSentences(String prevText, String text, String moreText) {
-		String context = prevText + text + moreText;
+	public List<Integer> detectSentences(RollingTextBlock textBlock) {
+		List<Annotation<TokenPlaceholder>> placeholders = textBlock.getAnnotations(TokenPlaceholder.class);
 
-		// we only want one placeholder per start index - the first one that
-		// gets added
-		Map<Integer, TokenPlaceholder> placeholderMap = new HashMap<Integer, TokenPlaceholder>();
-		for (TokenFilter filter : this.preTokeniserFilters) {
-			List<TokenPlaceholder> myPlaceholders = filter.apply(context);
-			for (TokenPlaceholder placeholder : myPlaceholders) {
-				if (!placeholderMap.containsKey(placeholder.getStartIndex())) {
-					placeholderMap.put(placeholder.getStartIndex(), placeholder);
-				}
+		List<Annotation<TokenPlaceholder>> newPlaceholders = new ArrayList<>();
+
+		Annotation<TokenPlaceholder> lastPlaceholder = null;
+		for (Annotation<TokenPlaceholder> placeholder : placeholders) {
+			// take the first placeholder at this start index only
+			// thus declaration order is the order at which they're
+			// applied
+			if (lastPlaceholder == null || placeholder.getStart() > lastPlaceholder.getStart()) {
+				newPlaceholders.add(placeholder);
 			}
+			lastPlaceholder = placeholder;
 		}
+		placeholders = newPlaceholders;
 
-		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text);
+		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(textBlock.getCurrentText());
 		Set<Integer> possibleBoundaries = new HashSet<Integer>();
 		List<Integer> guessedBoundaries = new ArrayList<Integer>();
 
@@ -141,13 +168,13 @@ public class SentenceDetector {
 			// Note that we allow boundaries at the last position of the
 			// placeholder (placeholder.getEndIndex()-1)
 			boolean inPlaceholder = false;
-			int position = prevText.length() + matcher.start();
-			for (TokenPlaceholder placeholder : placeholderMap.values()) {
-				int endPos = placeholder.getEndIndex();
-				if (placeholder.isPossibleSentenceBoundary()) {
+			int position = textBlock.getPrevText().length() + matcher.start();
+			for (Annotation<TokenPlaceholder> placeholder : placeholders) {
+				int endPos = placeholder.getEnd();
+				if (placeholder.getData().isPossibleSentenceBoundary()) {
 					endPos -= 1;
 				}
-				if (placeholder.getStartIndex() <= position && position < endPos) {
+				if (placeholder.getStart() <= position && position < endPos) {
 					inPlaceholder = true;
 					break;
 				}
@@ -157,7 +184,7 @@ public class SentenceDetector {
 		}
 
 		for (int possibleBoundary : possibleBoundaries) {
-			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, talismaneSession);
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(textBlock.getText(), possibleBoundary, session);
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Testing boundary: " + boundary);
 				LOG.trace(" at position: " + possibleBoundary);
@@ -184,7 +211,7 @@ public class SentenceDetector {
 			}
 
 			if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
-				guessedBoundaries.add(possibleBoundary - prevText.length());
+				guessedBoundaries.add(possibleBoundary - textBlock.getPrevText().length());
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Adding boundary: " + possibleBoundary);
 				}
@@ -200,18 +227,6 @@ public class SentenceDetector {
 
 	public Set<SentenceDetectorFeature<?>> getFeatures() {
 		return features;
-	}
-
-	/**
-	 * Token filters mark certain portions of the raw text as entire tokens - a
-	 * sentence break will never be detected inside such a token.
-	 */
-	public List<TokenFilter> getTokenFilters() {
-		return preTokeniserFilters;
-	}
-
-	public void addTokenFilter(TokenFilter filter) {
-		this.preTokeniserFilters.add(filter);
 	}
 
 	public SentenceDetector cloneSentenceDetector() {

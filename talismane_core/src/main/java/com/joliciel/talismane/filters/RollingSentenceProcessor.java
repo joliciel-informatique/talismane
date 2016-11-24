@@ -102,8 +102,10 @@ public class RollingSentenceProcessor implements CurrentFileObserver {
 				LOG.trace(textMarker.getType() + ", " + textMarker.getPosition());
 				LOG.trace("Stack before: " + shouldProcessStack);
 				LOG.trace("Text before: " + processedText.toString());
-				LOG.trace("Added by filter: " + textMarker.getSource().toString().replace('\n', '¶').replace('\r', '¶'));
-				LOG.trace("Match text: " + textMarker.getMatchText().replace('\n', '¶').replace('\r', '¶'));
+				if (textMarker.getSource() != null)
+					LOG.trace("Added by filter: " + textMarker.getSource().toString().replace('\n', '¶').replace('\r', '¶'));
+				if (textMarker.getMatchText() != null)
+					LOG.trace("Match text: " + textMarker.getMatchText().replace('\n', '¶').replace('\r', '¶'));
 			}
 
 			boolean shouldProcess = shouldProcessStack.peek();
@@ -293,7 +295,7 @@ public class RollingSentenceProcessor implements CurrentFileObserver {
 		String finalProcessedText = processedText.toString();
 		if (LOG.isTraceEnabled())
 			LOG.trace("Text after processing: " + finalProcessedText);
-		sentenceHolder.setText(finalProcessedText);
+		sentenceHolder.setProcessedText(finalProcessedText);
 
 		int lastIndex = 0;
 		int lastOriginalIndex = 0;
@@ -306,9 +308,9 @@ public class RollingSentenceProcessor implements CurrentFileObserver {
 			lastIndex = insertionPoint.getKey();
 			lastOriginalIndex = insertionPoint.getValue();
 		}
-		if (lastIndex < sentenceHolder.getText().length()) {
+		if (lastIndex < sentenceHolder.getProcessedText().length()) {
 			int j = 0;
-			for (int i = lastIndex; i < sentenceHolder.getText().length(); i++) {
+			for (int i = lastIndex; i < sentenceHolder.getProcessedText().length(); i++) {
 				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
 				j++;
 			}

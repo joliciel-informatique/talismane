@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
@@ -62,6 +64,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 	private boolean diacriticSensitive = true;
 	private boolean autoWordBoundaries = false;
 	private boolean excluded = false;
+	private final boolean singleToken;
 
 	private TalismaneSession talismaneSession;
 
@@ -72,57 +75,72 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 	 * @param regex
 	 * @param talismaneSession
 	 */
-	public AbstractRegexFilter(String regex, TalismaneSession talismaneSession) {
+	public AbstractRegexFilter(String regex, TalismaneSession talismaneSession, boolean singleToken) {
 		this.regex = regex;
 		this.talismaneSession = talismaneSession;
+		this.singleToken = singleToken;
 	}
 
 	/**
 	 * A constructor used when automatically generating filters from
 	 * descriptors.
 	 */
-	public AbstractRegexFilter() {
+	public AbstractRegexFilter(boolean singleToken) {
+		this.singleToken = singleToken;
 	}
 
 	@Override
-	public List<TokenPlaceholder> apply(String text) {
-		List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
+	public void annotate(AnnotatedText annotatedText) {
+		List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
+		List<Annotation<TokenAttribute<?>>> annotations = new ArrayList<>();
 
-		Matcher matcher = this.getPattern().matcher(text);
+		Matcher matcher = this.getPattern().matcher(annotatedText.getText());
 		int lastStart = -1;
 		while (matcher.find()) {
 			int start = matcher.start(groupIndex);
 			if (start > lastStart) {
 				int end = matcher.end(groupIndex);
-				String replacement = this.findReplacement(text, matcher);
-				TokenPlaceholder placeholder = new TokenPlaceholder(start, end, replacement, regex);
-				placeholder.setPossibleSentenceBoundary(this.possibleSentenceBoundary);
-				for (String key : attributes.keySet()) {
-					TokenAttribute<?> tokenAttribute = attributes.get(key);
-					placeholder.addAttribute(key, tokenAttribute);
-				}
-				placeholders.add(placeholder);
 
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Regex: " + this.regex);
-					LOG.trace("Next match: " + text.substring(matcher.start(), matcher.end()).replace('\n', '¶').replace('\r', '¶'));
+					LOG.trace("Next match: "
+							+ annotatedText.getText().subSequence(matcher.start(), matcher.end()).toString().replace('\n', '¶').replace('\r', '¶'));
 					if (matcher.start() != start || matcher.end() != end) {
-						LOG.trace("But matching group: " + text.substring(start, end).replace('\n', '¶').replace('\r', '¶'));
+						LOG.trace("But matching group: " + annotatedText.getText().subSequence(start, end).toString().replace('\n', '¶').replace('\r', '¶'));
 					}
-					LOG.trace("Placeholder: " + placeholder.toString());
 				}
+
+				if (this.singleToken) {
+					String replacement = this.findReplacement(annotatedText.getText(), matcher);
+					TokenPlaceholder placeholder = new TokenPlaceholder(replacement, regex);
+					placeholder.setPossibleSentenceBoundary(this.possibleSentenceBoundary);
+					Annotation<TokenPlaceholder> placeholderAnnotation = new Annotation<>(start, end, placeholder);
+					placeholders.add(placeholderAnnotation);
+
+					if (LOG.isTraceEnabled())
+						LOG.trace("Added placeholder: " + placeholder.toString());
+				}
+
+				for (String key : attributes.keySet()) {
+					TokenAttribute<?> attribute = attributes.get(key);
+					Annotation<TokenAttribute<?>> annotation = new Annotation<>(start, end, attribute);
+					annotations.add(annotation);
+					if (LOG.isTraceEnabled())
+						LOG.trace("Added attribute: " + attribute.toString());
+				}
+
 			}
 			lastStart = start;
 		}
-
-		return placeholders;
+		annotatedText.addAnnotations(placeholders);
+		annotatedText.addAnnotations(annotations);
 	}
 
 	/**
 	 * If the token text should be replaced, return something, otherwise return
 	 * null.
 	 */
-	protected String findReplacement(String text, Matcher matcher) {
+	protected String findReplacement(CharSequence text, Matcher matcher) {
 		return null;
 	}
 
@@ -523,7 +541,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 			} else if (paramName.equals("autoWordBoundaries")) {
 				this.setAutoWordBoundaries(Boolean.valueOf(paramValue));
 			} else {
-				this.addAttribute(paramName, new StringAttribute(paramValue));
+				this.addAttribute(paramName, new StringAttribute(paramName, paramValue));
 			}
 		}
 

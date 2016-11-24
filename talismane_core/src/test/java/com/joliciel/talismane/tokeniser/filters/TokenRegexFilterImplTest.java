@@ -11,9 +11,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.resources.WordList;
 import com.joliciel.talismane.tokeniser.StringAttribute;
+import com.joliciel.talismane.tokeniser.TokenAttribute;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TokenRegexFilterImplTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexFilterImplTest.class);
@@ -27,14 +32,15 @@ public class TokenRegexFilterImplTest {
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b");
 		filter.setReplacement("Email");
-		String text = "My address is joe.schmoe@test.com.";
-		List<TokenPlaceholder> placeholders = filter.apply(text);
-		LOG.debug(placeholders.toString());
+		AnnotatedText text = new AnnotatedText("My address is joe.schmoe@test.com.");
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
+		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
 		assertEquals(1, placeholders.size());
-		TokenPlaceholder placeholder = placeholders.iterator().next();
-		assertEquals(14, placeholder.getStartIndex());
-		assertEquals(33, placeholder.getEndIndex());
-		assertEquals("Email", placeholder.getReplacement());
+		Annotation<TokenPlaceholder> placeholder = placeholders.get(0);
+		assertEquals(14, placeholder.getStart());
+		assertEquals(33, placeholder.getEnd());
+		assertEquals("Email", placeholder.getData().getReplacement());
 	}
 
 	@Test
@@ -42,14 +48,17 @@ public class TokenRegexFilterImplTest {
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
 		filter.setReplacement("\\$Email$2:$1");
-		String text = "My address is joe.schmoe@test.com.";
-		List<TokenPlaceholder> placeholders = filter.apply(text);
+		AnnotatedText text = new AnnotatedText("My address is joe.schmoe@test.com.");
+		filter.annotate(text);
+		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
+
 		LOG.debug(placeholders.toString());
 		assertEquals(1, placeholders.size());
-		TokenPlaceholder placeholder = placeholders.iterator().next();
-		assertEquals(14, placeholder.getStartIndex());
-		assertEquals(33, placeholder.getEndIndex());
-		assertEquals("$Email@test.com:joe.schmoe", placeholder.getReplacement());
+		Annotation<TokenPlaceholder> placeholder = placeholders.get(0);
+		assertEquals(14, placeholder.getStart());
+		assertEquals(33, placeholder.getEnd());
+		assertEquals("$Email@test.com:joe.schmoe", placeholder.getData().getReplacement());
+
 	}
 
 	@Test
@@ -57,14 +66,16 @@ public class TokenRegexFilterImplTest {
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
 		filter.setReplacement("\\$Email$2$1");
-		String text = "My address is joe.schmoe@test.com.";
-		List<TokenPlaceholder> placeholders = filter.apply(text);
+		AnnotatedText text = new AnnotatedText("My address is joe.schmoe@test.com.");
+		filter.annotate(text);
+		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
+
 		LOG.debug(placeholders.toString());
 		assertEquals(1, placeholders.size());
-		TokenPlaceholder placeholder = placeholders.iterator().next();
-		assertEquals(14, placeholder.getStartIndex());
-		assertEquals(33, placeholder.getEndIndex());
-		assertEquals("$Email@test.comjoe.schmoe", placeholder.getReplacement());
+		Annotation<TokenPlaceholder> placeholder = placeholders.get(0);
+		assertEquals(14, placeholder.getStart());
+		assertEquals(33, placeholder.getEnd());
+		assertEquals("$Email@test.comjoe.schmoe", placeholder.getData().getReplacement());
 	}
 
 	@Test
@@ -72,25 +83,29 @@ public class TokenRegexFilterImplTest {
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b(\\d)(\\d)?\\b");
 		filter.setReplacement("Number$1$2");
-		String text = "Two-digit number: 42. One-digit number: 7.";
-		List<TokenPlaceholder> placeholders = filter.apply(text);
-		System.out.println(placeholders);
+		AnnotatedText text = new AnnotatedText("Two-digit number: 42. One-digit number: 7.");
+		filter.annotate(text);
+		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
+		LOG.debug(placeholders.toString());
 		assertEquals(2, placeholders.size());
 
-		TokenPlaceholder placeholder = placeholders.get(0);
-		assertEquals("Two-digit number: ".length(), placeholder.getStartIndex());
-		assertEquals("Two-digit number: 42".length(), placeholder.getEndIndex());
-		assertEquals("Number42", placeholder.getReplacement());
+		Annotation<TokenPlaceholder> placeholder = placeholders.get(0);
+		assertEquals("Two-digit number: ".length(), placeholder.getStart());
+		assertEquals("Two-digit number: 42".length(), placeholder.getEnd());
+		assertEquals("Number42", placeholder.getData().getReplacement());
 		placeholder = placeholders.get(1);
-		assertEquals("Two-digit number: 42. One-digit number: ".length(), placeholder.getStartIndex());
-		assertEquals("Two-digit number: 42. One-digit number: 7".length(), placeholder.getEndIndex());
-		assertEquals("Number7", placeholder.getReplacement());
+		assertEquals("Two-digit number: 42. One-digit number: ".length(), placeholder.getStart());
+		assertEquals("Two-digit number: 42. One-digit number: 7".length(), placeholder.getEnd());
+		assertEquals("Number7", placeholder.getData().getReplacement());
 	}
 
 	@Test
-	public void testWordList() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordList() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -112,8 +127,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListDiacriticsOptional() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordListDiacriticsOptional() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -135,8 +154,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListUppercaseOptional() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordListUppercaseOptional() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -158,8 +181,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testWordListUppercaseDiacriticsOptional() {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testWordListUppercaseDiacriticsOptional() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -181,7 +208,13 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testAutoWordBoundaries() {
+	public void testAutoWordBoundaries() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("hello 123");
 		filter.setAutoWordBoundaries(true);
@@ -290,8 +323,6 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("\\b(MLLE\\.|Mlle\\.)", pattern.pattern());
 
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
-
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
 		wordList.add("Marcel");
@@ -322,7 +353,12 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testCaseSensitive() {
+	public void testCaseSensitive() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("hé");
@@ -352,8 +388,6 @@ public class TokenRegexFilterImplTest {
 
 		assertEquals("[Hh][EeÉé]", pattern.pattern());
 
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
-
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("apples");
 		wordList.add("oranges");
@@ -377,15 +411,17 @@ public class TokenRegexFilterImplTest {
 	public void testStartOfInput() {
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("^Résumé\\.");
-		filter.addAttribute("TAG", new StringAttribute("skip"));
-		String text = "Résumé. Résumé des attaques";
-		List<TokenPlaceholder> placeholders = filter.apply(text);
-		LOG.debug(placeholders.toString());
-		assertEquals(1, placeholders.size());
-		TokenPlaceholder placeholder = placeholders.iterator().next();
-		assertEquals(0, placeholder.getStartIndex());
-		assertEquals(7, placeholder.getEndIndex());
-		assertEquals(1, placeholder.getAttributes().size());
-		assertEquals("TAG", placeholder.getAttributes().keySet().iterator().next());
+		filter.addAttribute("TAG", new StringAttribute("TAG", "skip"));
+		AnnotatedText text = new AnnotatedText("Résumé. Résumé des attaques");
+		filter.annotate(text);
+		@SuppressWarnings("rawtypes")
+		List<Annotation<TokenAttribute>> annotations = text.getAnnotations(TokenAttribute.class);
+		LOG.debug(annotations.toString());
+		assertEquals(1, annotations.size());
+		@SuppressWarnings("rawtypes")
+		Annotation<TokenAttribute> placeholder = annotations.get(0);
+		assertEquals(0, placeholder.getStart());
+		assertEquals(7, placeholder.getEnd());
+		assertEquals("TAG", placeholder.getData().getKey());
 	}
 }

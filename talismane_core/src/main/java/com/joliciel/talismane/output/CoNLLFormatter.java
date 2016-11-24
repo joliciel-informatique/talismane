@@ -16,30 +16,55 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.utils;
+package com.joliciel.talismane.output;
 
 public class CoNLLFormatter {
+	private final boolean spacesToUnderscores;
+
+	public CoNLLFormatter(boolean spacesToUnderscores) {
+		this.spacesToUnderscores = spacesToUnderscores;
+	}
+
 	/**
 	 * Convert a string to CoNLL format.
 	 */
-	public static String toCoNLL(String text) {
-		String conllText = text;
-		if (conllText.equals("_"))
-			conllText = "&und;";
-		else if (conllText.length() == 0)
-			conllText = "_";
-		return conllText;
+	public String toCoNLL(String text) {
+		if (spacesToUnderscores) {
+			String conllText = text.replace("_", "&und;");
+			conllText = conllText.replace(' ', '_');
+			if (conllText.length() == 0)
+				conllText = "_";
+			return conllText;
+		} else {
+			String conllText = text;
+			if (conllText.equals("_"))
+				conllText = "&und;";
+			else if (conllText.length() == 0)
+				conllText = "_";
+			return conllText;
+		}
 	}
 
 	/**
 	 * Convert a string from CoNLL format.
 	 */
-	public static String fromCoNLL(String conllText) {
-		String text = conllText;
-		if (conllText.equals("_"))
-			text = "";
-		else if (conllText.equals("&und;"))
-			text = "_";
-		return text;
+	public String fromCoNLL(String conllText) {
+		if (spacesToUnderscores) {
+			String text = null;
+			if (conllText.equals("_")) {
+				text = "";
+			} else {
+				text = conllText.replace('_', ' ');
+				text = text.replace("&und;", "_");
+			}
+			return text;
+		} else {
+			String text = conllText;
+			if (conllText.equals("_"))
+				text = "";
+			else if (conllText.equals("&und;"))
+				text = "_";
+			return text;
+		}
 	}
 }

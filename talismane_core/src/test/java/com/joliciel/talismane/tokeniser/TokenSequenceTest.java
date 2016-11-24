@@ -23,44 +23,37 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
-
-import mockit.NonStrict;
-import mockit.NonStrictExpectations;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class TokenSequenceTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenSequenceTest.class);
 
 	@Test
-	public void testTokeniseSentence(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
+	public void testTokeniseSentence() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("Je n'ai pas l'ourang-outan.");
-				StringAttribute value = new StringAttribute("Singe");
-				SentenceTag<String> sentenceTag = new SentenceTag<String>("Je n'ai pas l'".length(), "Animal", value);
-				sentenceTag.setEndIndex("Je n'ai pas l'ourang-outan".length());
-				List<SentenceTag<?>> sentenceTags = new ArrayList<SentenceTag<?>>();
-				sentenceTags.add(sentenceTag);
-				sentence.getSentenceTags();
-				returns(sentenceTags);
-			}
-		};
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan.", talismaneSession);
+		StringAttribute value = new StringAttribute("Animal", "Singe");
+		SentenceTag<String> sentenceTag = new SentenceTag<String>("Je n'ai pas l'".length(), "Animal", value);
+		sentenceTag.setEndIndex("Je n'ai pas l'ourang-outan".length());
+		sentence.getSentenceTags().add(sentenceTag);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
 
 		assertEquals(14, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -157,15 +150,14 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testSimpleAddByIndex(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testSimpleAddByIndex() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		new NonStrictExpectations() {
-			{
-				sentence.getText();
-				returns("The quick brown fox.");
-			}
-		};
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("The quick brown fox.", talismaneSession);
+
 		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
 		tokenSequence.addToken(16, 19); // fox
 		tokenSequence.addToken(4, 9); // quick
@@ -197,28 +189,26 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testTokeniseSentenceWithPlaceholders(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testTokeniseSentenceWithPlaceholders() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Write to me at joe.schome@test.com, otherwise go to http://test.com.", talismaneSession);
 
-		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
-		TokenPlaceholder placeholder0 = new TokenPlaceholder("Write to me at ".length(), "Write to me at joe.schome@test.com".length(), "Email", "blah");
+		final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
+		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Write to me at ".length(), "Write to me at joe.schome@test.com".length(),
+				new TokenPlaceholder("Email", "blah"));
 		placeholders.add(placeholder0);
-		TokenPlaceholder placeholder1 = new TokenPlaceholder("Write to me at joe.schome@test.com, otherwise go to ".length(),
-				"Write to me at joe.schome@test.com, otherwise go to http://test.com".length(), "URL", "blah");
+		Annotation<TokenPlaceholder> placeholder1 = new Annotation<>("Write to me at joe.schome@test.com, otherwise go to ".length(),
+				"Write to me at joe.schome@test.com, otherwise go to http://test.com".length(), new TokenPlaceholder("URL", "blah"));
 		placeholders.add(placeholder1);
 
-		new NonStrictExpectations() {
+		sentence.addAnnotations(placeholders);
 
-			{
-				sentence.getText();
-				returns("Write to me at joe.schome@test.com, otherwise go to http://test.com.");
-			}
-		};
-
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, placeholders, talismaneSession);
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
 
 		assertEquals(19, tokenSequence.listWithWhiteSpace().size());
 		assertEquals(11, tokenSequence.size());
@@ -327,39 +317,35 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testTokeniseSentenceWithPlaceholdersNoSeparators(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testTokeniseSentenceWithPlaceholdersNoSeparators() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Il t’aime.", talismaneSession);
 
-		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
-		TokenPlaceholder placeholder1 = new TokenPlaceholder("Il ".length(), "Il t’aime".length(), null, "blah");
-		placeholder1.setSingleToken(false);
-		placeholder1.addAttribute("phrase", new StringAttribute("verbal"));
-		placeholder1.addAttribute("person", new StringAttribute("3rd"));
-		placeholders.add(placeholder1);
+		final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
+		Annotation<StringAttribute> annotation1 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("phrase", "verbal"));
+		annotations.add(annotation1);
+		Annotation<StringAttribute> annotation2 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("person", "3rd"));
+		annotations.add(annotation2);
 
-		TokenPlaceholder placeholder2 = new TokenPlaceholder("Il ".length(), "Il t’".length(), null, "blah");
-		placeholder2.setSingleToken(false);
-		placeholder2.addAttribute("type", new StringAttribute("object"));
-		placeholders.add(placeholder2);
+		Annotation<StringAttribute> annotation3 = new Annotation<>("Il ".length(), "Il t’".length(), new StringAttribute("type", "object"));
+		annotations.add(annotation3);
 
-		TokenPlaceholder placeholder0 = new TokenPlaceholder("Il t".length(), "Il t’".length(), "'", "blah");
-		placeholder0.setSingleToken(true);
+		final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
+
+		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Il t".length(), "Il t’".length(), new TokenPlaceholder("'", "blah"));
 
 		placeholders.add(placeholder0);
 
-		new NonStrictExpectations() {
+		sentence.addAnnotations(annotations);
+		sentence.addAnnotations(placeholders);
 
-			{
-				sentence.getText();
-				returns("Il t’aime.");
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
 
-			}
-		};
-
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, placeholders, talismaneSession);
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(6, tokenSequence.listWithWhiteSpace().size());
@@ -426,47 +412,46 @@ public class TokenSequenceTest {
 	}
 
 	@Test
-	public void testOverlappingPlaceholders(@NonStrict final Sentence sentence) {
-		final TalismaneSession talismaneSession = TalismaneSession.getInstance("");
+	public void testOverlappingPlaceholders() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
-		final String separators = "[\\s\\p{Punct}]";
-		Pattern separatorPattern = Pattern.compile(separators);
+		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Pakistan International Airlines Company", talismaneSession);
 
-		final List<TokenPlaceholder> placeholders = new ArrayList<TokenPlaceholder>();
-		TokenPlaceholder placeholder1 = new TokenPlaceholder("".length(), "Pakistan".length(), null, "blah");
-		placeholder1.setSingleToken(false);
-		placeholder1.addAttribute("namedEntity", new StringAttribute("place"));
-		placeholder1.addAttribute("startsWithP", new StringAttribute("true"));
-		placeholders.add(placeholder1);
+		final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
+		Annotation<StringAttribute> annotation1 = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("namedEntity", "place"));
+		Annotation<StringAttribute> annotation1b = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("startsWithP", "true"));
 
-		TokenPlaceholder placeholder2 = new TokenPlaceholder("".length(), "Pakistan International Airlines".length(), null, "blah");
-		placeholder2.setSingleToken(false);
-		placeholder2.addAttribute("namedEntity", new StringAttribute("company"));
-		placeholder2.addAttribute("asianCompany", new StringAttribute("true"));
-		placeholders.add(placeholder2);
+		annotations.add(annotation1);
+		annotations.add(annotation1b);
 
-		TokenPlaceholder placeholder3 = new TokenPlaceholder("Pakistan ".length(), "Pakistan International Airlines Company".length(), null, "blah");
-		placeholder3.setSingleToken(false);
-		placeholder3.addAttribute("namedEntity", new StringAttribute("company"));
-		placeholder3.addAttribute("asianCompany", new StringAttribute("false"));
-		placeholders.add(placeholder3);
+		Annotation<StringAttribute> annotation2 = new Annotation<>("".length(), "Pakistan International Airlines".length(),
+				new StringAttribute("namedEntity", "company"));
+		Annotation<StringAttribute> annotation2b = new Annotation<>("".length(), "Pakistan International Airlines".length(),
+				new StringAttribute("asianCompany", "true"));
 
-		TokenPlaceholder placeholder4 = new TokenPlaceholder("Pakistan International Airlines ".length(), "Pakistan International Airlines Company".length(),
-				null, "blah");
-		placeholder4.setSingleToken(false);
-		placeholder4.addAttribute("shouldNotBeSkipped", new StringAttribute("true"));
-		placeholders.add(placeholder4);
+		annotations.add(annotation2);
+		annotations.add(annotation2b);
 
-		new NonStrictExpectations() {
+		Annotation<StringAttribute> annotation3 = new Annotation<>("Pakistan ".length(), "Pakistan International Airlines Company".length(),
+				new StringAttribute("namedEntity", "company"));
+		Annotation<StringAttribute> annotation3b = new Annotation<>("Pakistan ".length(), "Pakistan International Airlines Company".length(),
+				new StringAttribute("asianCompany", "false"));
 
-			{
-				sentence.getText();
-				returns("Pakistan International Airlines Company");
+		annotations.add(annotation3);
+		annotations.add(annotation3b);
 
-			}
-		};
+		Annotation<StringAttribute> annotation4 = new Annotation<>("Pakistan International Airlines ".length(),
+				"Pakistan International Airlines Company".length(), new StringAttribute("startsWithC", "true"));
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, separatorPattern, placeholders, talismaneSession);
+		annotations.add(annotation4);
+		sentence.addAnnotations(annotations);
+
+		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+		tokenSequence.findDefaultTokens();
+
 		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
 		LOG.debug(tokenSequence.toString());
 		assertEquals(4, tokenSequence.size());
@@ -493,7 +478,7 @@ public class TokenSequenceTest {
 			} else if (i == 3) {
 				assertEquals("Company", token.getText());
 				assertEquals(1, token.getAttributes().size());
-				assertEquals("true", token.getAttributes().get("shouldNotBeSkipped").getValue());
+				assertEquals("true", token.getAttributes().get("startsWithC").getValue());
 			}
 			i++;
 		}

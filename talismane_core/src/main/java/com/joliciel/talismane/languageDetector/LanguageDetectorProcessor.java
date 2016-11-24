@@ -18,14 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Locale;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
  * Any class that can process results found by a language detector.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -34,4 +37,8 @@ public interface LanguageDetectorProcessor {
 	 * Process the next text, outputting to the writer provided.
 	 */
 	public void onNextText(String text, List<WeightedOutcome<Locale>> results, Writer writer);
+
+	public static LanguageDetectorProcessor getProcessor(TalismaneSession session) throws IOException {
+		return new DefaultLanguageDetectorProcessor(session.getWriter());
+	}
 }
