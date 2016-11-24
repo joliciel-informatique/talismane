@@ -466,15 +466,9 @@ public class TalismaneMain {
 			} else {
 				inputRegex = options.valueOf(inputPatternOption);
 			}
-			values.put("talismane.core.tokeniser.input.preannotated-pattern", inputRegex);
-			values.put("talismane.core.pos-tagger.input.preannotated-pattern", inputRegex);
-			values.put("talismane.core.parser.input.preannotated-pattern", inputRegex);
-			values.put("talismane.core.tokeniser.train.preannotated-pattern", inputRegex);
-			values.put("talismane.core.pos-tagger.train.preannotated-pattern", inputRegex);
-			values.put("talismane.core.parser.train.preannotated-pattern", inputRegex);
-			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", inputRegex);
-			values.put("talismane.core.pos-tagger.evaluate.preannotated-pattern", inputRegex);
-			values.put("talismane.core.parser.evaluate.preannotated-pattern", inputRegex);
+
+			for (String inputLocation : inputLocations)
+				values.put(inputLocation + ".preannotated-pattern", inputRegex);
 		}
 
 		if (options.has(evalPatternFileOption) || options.has(evalPatternOption)) {
@@ -492,6 +486,7 @@ public class TalismaneMain {
 			} else {
 				evalRegex = options.valueOf(evalPatternOption);
 			}
+			values.put("talismane.core.sentence-detector.evaluate.preannotated-pattern", evalRegex);
 			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", evalRegex);
 			values.put("talismane.core.pos-tagger.evaluate.preannotated-pattern", evalRegex);
 			values.put("talismane.core.parser.evaluate.preannotated-pattern", evalRegex);
