@@ -191,10 +191,8 @@ public class TalismaneMain {
 				.accepts("blockSize", "The block size to use when applying filters - if a text filter regex goes beyond the blocksize, Talismane will fail.")
 				.availableIf("analyse").withRequiredArg().ofType(Integer.class);
 
-		OptionSpec<Integer> sentenceCountOption = parser.accepts("sentenceCount", "max sentences to process").availableIf("analyse").withRequiredArg()
-				.ofType(Integer.class);
-		OptionSpec<Integer> startSentenceOption = parser.accepts("startSentence", "first sentence index to process").availableIf("analyse").withRequiredArg()
-				.ofType(Integer.class);
+		OptionSpec<Integer> sentenceCountOption = parser.accepts("sentenceCount", "max sentences to process").withRequiredArg().ofType(Integer.class);
+		OptionSpec<Integer> startSentenceOption = parser.accepts("startSentence", "first sentence index to process").withRequiredArg().ofType(Integer.class);
 		OptionSpec<Integer> crossValidationSizeOption = parser.accepts("crossValidationSize", "number of cross-validation folds")
 				.availableIf("train", "evaluate").withRequiredArg().ofType(Integer.class);
 		OptionSpec<Integer> includeIndexOption = parser.accepts("includeIndex", "cross-validation index to include for evaluation").availableIf("evaluate")

@@ -135,8 +135,8 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
 	/**
 	 * Add tokens from the underlying sentence, pre-separated into tokens
-	 * matching {@link TalismaneSession#getTokenSeparators()} , except wherever
-	 * {@link TokenPlaceholder} annotations have been added.
+	 * matching {@link Tokeniser#getTokenSeparators(TalismaneSession)} , except
+	 * wherever {@link TokenPlaceholder} annotations have been added.
 	 */
 	public void findDefaultTokens() {
 		CharSequence text = sentence.getText();

@@ -41,7 +41,6 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 
 	public TokeniserAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
 		super(reader, config, session);
-		this.addAttributes(config);
 	}
 
 	/**
@@ -79,4 +78,5 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 
 		return corpusReader;
 	}
+
 }

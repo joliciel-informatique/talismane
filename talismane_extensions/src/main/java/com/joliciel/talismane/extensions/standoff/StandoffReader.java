@@ -54,13 +54,8 @@ import com.typesafe.config.Config;
 
 public class StandoffReader extends ParserAnnotatedCorpusReader {
 	private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
 	private int sentenceCount = 0;
 	private int lineNumber = 1;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
-	private int crossValidationSize = 0;
 
 	ParseConfiguration configuration = null;
 	private int sentenceIndex = 0;
@@ -159,7 +154,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 
 	@Override
 	public boolean hasNextConfiguration() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
+		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
 			if (configuration == null && sentenceIndex < sentences.size()) {
@@ -273,16 +268,6 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 		throw new RuntimeException("Not supported");
 	}
 
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
-
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
-
 	private static final class StandoffToken {
 		public PosTag posTag;
 		public String text;
@@ -298,48 +283,8 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 	}
 
 	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
-
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
-	}
-
-	@Override
 	public void rewind() {
 		throw new TalismaneException("rewind operation not supported by " + this.getClass().getName());
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
 	}
 
 	@Override
