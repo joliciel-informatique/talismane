@@ -469,7 +469,7 @@
 21	Mazouna	_	NPP	_	_	20	coord	20	coord
 22	Tlemcen	_	NPP	_	_	21	coord	21	coord
 23	etc	_	ADV	_	_	22	coord	22	coord
-24	....	_	PONCT	_	_	0		0	
+24	....	_	PONCT	_	_	23	ponct	23	ponct
 
 1	Mais	mais	CC	CC	_	32	mod	32	mod
 2	les	les	DET	DET	n=p	3	det	3	det
@@ -546,7 +546,7 @@
 5	plus_de	_	ADV	_	_	6	mod	6	mod
 6	500_000	#NUM#	DET	DET	n=p	7	det	7	det
 7	km²	_	NC	_	_	3	obj	3	obj
-8	......	_	PONCT	_	_	0		0	
+8	......	......	PONCT	PONCT	_	7	ponct	7	ponct
 9	ce	ce	PRO	PRO	_	3	mod	3	mod
 10	qui	qui	PROREL	PROREL	n=s	11	suj	11	suj
 11	représente	représenter	V	v	n=s|p=13|t=pst	9	mod_rel	9	mod_rel
@@ -649,7 +649,7 @@
 33	se	se	CLR	CLR	n=p|p=3	34	aff	34	aff
 34	trouve	trouver	V	v	n=s|p=13|t=pst	25	sub	25	sub
 35	à	à	P	P	_	34	p_obj_loc	34	p_obj_loc
-36	......	_	PONCT	_	_	0		0	
+36	......	......	PONCT	PONCT	_	35	ponct	35	ponct
 37	Alger	Alger	NPP	np	g=m|n=s	35	prep	35	prep
 38	-	-	PONCT	PONCT	_	37	ponct	37	ponct
 39	Al	Al	NPP	np	g=m|n=s	37	mod	37	mod
@@ -2368,7 +2368,7 @@
 8	ou_bien	ou_bien	CC	CC	_	1	coord	1	coord
 9	qu'	que	CS	CS	_	8	dep_coord	8	dep_coord
 10	on	on	CLS	CLS	n=s|p=3	11	suj	11	suj
-11	cherche	chercher	V	v	n=s|p=13|t=pst	0		0	
+11	cherche	chercher	V	v	n=s|p=13|t=pst	9	sub	9	sub
 12	à	à	P	P	_	11	obj	11	obj
 13	attirer	attirer	VINF	v	_	12	prep	12	prep
 14	l'	l'	DET	DET	n=s	15	det	15	det
@@ -2627,7 +2627,7 @@
 15	avant	avant	P	P	_	14	mod	14	mod
 16	,	,	PONCT	PONCT	_	15	ponct	15	ponct
 17	cela	cela	PRO	PRO	g=m|n=s	18	suj	18	suj
-18	fait	faire	V	v	n=s|p=3|t=pst	33	mod	33	mod
+18	fait	faire	V	v	n=s|p=3|t=pst	14	mod	14	mod
 19	du	du	DET	DET	g=m|n=s	20	det	20	det
 20	temps	temps	NC	nc	g=m	18	obj	18	obj
 21	3	#NUM#	DET	DET	n=p	22	det	22	det
@@ -2642,7 +2642,7 @@
 30	,	,	PONCT	PONCT	_	29	ponct	29	ponct
 31	voir	_	CC	_	_	27	coord	27	coord
 32	historique	historique	ADJ	adj	n=s	31	dep_coord	31	dep_coord
-33	était	être	V	v	n=s|p=3|t=imp	0		0	
+33	était	être	V	v	n=s|p=3|t=imp	2	mod	2	mod
 34	vide	vide	ADJ	adj	n=s	33	ats	33	ats
 35	et	et	CC	CC	_	33	coord	33	coord
 36	l'	l'	DET	DET	n=s	37	det	37	det
@@ -2661,7 +2661,7 @@
 49	,	,	PONCT	PONCT	_	48	ponct	48	ponct
 50	ce	ce	CLS	CLS	_	52	suj	52	suj
 51	n'	ne	ADV	ADV	_	52	mod	52	mod
-52	est	être	V	v	n=s|p=3|t=pst	33	mod	33	mod
+52	est	être	V	v	n=s|p=3|t=pst	2	mod	33	mod
 53	pas	pas	ADV	ADV	_	52	mod	52	mod
 54	une	une	DET	DET	g=f|n=s	55	det	55	det
 55	solution	solution	NC	nc	g=f|n=s	52	ats	52	ats
@@ -2803,7 +2803,7 @@
 31	recul	recul	NC	nc	g=m|n=s	29	obj	29	obj
 32	.	.	PONCT	PONCT	_	31	ponct	31	ponct
 
-1	Motivations	motivation	NC	nc	g=f|n=p	0		0	
+1	Motivations	motivation	NC	nc	g=f|n=p	0	root	0	root
 2	de	de	P	P	_	1	dep	1	dep
 3	la	la	DET	DET	g=f|n=s	4	det	4	det
 4	guerre	guerre	NC	nc	g=f|n=s	2	prep	2	prep
@@ -2831,7 +2831,7 @@
 21	contre	contre	P	P	_	20	dep	20	dep
 22	le	le	DET	DET	g=m|n=s	23	det	23	det
 23	terrorisme	terrorisme	NC	nc	g=m|n=s	21	prep	21	prep
-24	et	et	CC	CC	_	0		0	
+24	et	et	CC	CC	_	17	coord	17	coord
 25	vient	venir	V	v	n=s|p=3|t=pst	24	dep_coord	24	dep_coord
 26	de	de	P	P	_	25	de_obj	25	de_obj
 27	la	la	DET	DET	g=f|n=s	30	det	30	det
@@ -2927,7 +2927,7 @@
 11	priver	priver	VINF	v	_	10	prep	10	prep
 12	Al-Quaida	_	NPP	_	_	11	obj	11	obj
 13	d'	de	P	P	_	11	de_obj	11	de_obj
-14	un	un	PRO	PRO	g=m|n=s	0		0	
+14	un	un	PRO	PRO	g=m|n=s	13	prep	13	prep
 15	de	de	P	P	_	14	dep	14	dep
 16	ses	ses	DET	DET	n=p|p=3|poss=s	17	det	17	det
 17	soutients	_	NC	_	_	15	prep	15	prep
@@ -2942,7 +2942,7 @@
 26	terrorisme	terrorisme	NC	nc	g=m|n=s	24	obj	24	obj
 27	.	.	PONCT	PONCT	_	26	ponct	26	ponct
 
-1	Que	que	CS	CS	_	0		0	
+1	Que	que	CS	CS	_	0	root	0	root
 2	cela	cela	PRO	PRO	g=m|n=s	6	suj	6	suj
 3	ne	ne	ADV	ADV	_	6	mod	6	mod
 4	fut	être	V	v	n=s|p=3|t=past	6	aux_pass	6	aux_pass
@@ -3063,7 +3063,7 @@
 
 1	En_gros	en_gros	ADV	adv	_	3	mod	3	mod
 2	ça	_	CLS	_	_	3	suj	3	suj
-3	revient	revenir	V	v	n=s|p=3|t=pst	0		0	
+3	revient	revenir	V	v	n=s|p=3|t=pst	0	root	0	root
 4	à	à	P	P	_	3	a_obj	3	a_obj
 5	dire	dire	VINF	v	_	4	prep	4	prep
 6	que	que	CS	CS	_	5	obj	5	obj
@@ -3203,7 +3203,7 @@
 11	histoire	histoire	NC	nc	g=f|n=s	9	prep	9	prep
 12	de	de	P	P	_	11	dep	11	dep
 13	guerre	guerre	NC	nc	g=f|n=s	12	prep	12	prep
-14	contre	contre	P	P	_	0		0	
+14	contre	contre	P	P	_	13	dep	13	dep
 15	le	le	DET	DET	g=m|n=s	16	det	16	det
 16	terrorisme	terrorisme	NC	nc	g=m|n=s	14	prep	14	prep
 17	.	.	PONCT	PONCT	_	16	ponct	16	ponct
@@ -3235,10 +3235,10 @@
 25	existaient	exister	V	v	n=p|p=3|t=imp	19	mod_rel	19	mod_rel
 26	pas	pas	ADV	ADV	_	25	mod	25	mod
 27	,	,	PONCT	PONCT	_	26	ponct	26	ponct
-28	et	et	CC	CC	_	29	mod	29	mod
-29	oui	oui	ADV	adv	_	0		0	
+28	et	et	CC	CC	_	14	coord	14	coord
+29	oui	oui	ADV	adv	_	31	mod	31	mod
 30	ça	ça	PRO	PRO	g=m|n=s	31	suj	31	suj
-31	fait	faire	V	v	n=s|p=3|t=pst	25	mod	25	mod
+31	fait	faire	V	v	n=s|p=3|t=pst	28	dep_coord	28	dep_coord
 32	peut-être	peut-être	ADV	ADV	_	33	mod	33	mod
 33	mal	mal	ADV	adv	_	31	mod	31	mod
 34	à	à	P	P	_	33	dep	33	dep
@@ -3291,7 +3291,7 @@
 2	introduction	introduction	NC	nc	g=f|n=s	3	suj	3	suj
 3	sera	être	V	v	n=s|p=3|t=fut	5	aux_pass	5	aux_pass
 4	par_conséquent	par_conséquent	ADV	adv	_	5	mod	5	mod
-5	modifiée	modifier	VPP	v	g=f|n=s|t=past	0		0	
+5	modifiée	modifier	VPP	v	g=f|n=s|t=past	0	root	0	root
 6	avec	avec	P	P	_	5	mod	5	mod
 7	toutes	tout	ADJ	adj	g=f|n=p	9	mod	9	mod
 8	les	les	DET	DET	n=p	9	det	9	det
@@ -3319,11 +3319,11 @@
 4	Wikipedia	Wikipedia	NPP	np	g=f|n=s	3	prep	3	prep
 5	pourraient	pouvoir	V	v	n=p|p=3|t=cond	0	root	0	root
 6	-ils	ils	CLS	CLS	g=m|n=p|p=3	5	suj	5	suj
-7	à	à	P	P	_	5	mod	5	mod
-8	tout	tout	ADJ	adj	g=m|n=s	0		0	
-9	le	le	DET	DET	g=m|n=s	0		0	
+7	à	à	P	P	_	11	mod	11	mod
+8	tout	tout	ADJ	adj	g=m|n=s	10	mod	10	mod
+9	le	le	DET	DET	g=m|n=s	10	det	10	det
 10	moins	moins	ADV	adv	_	11	mod	11	mod
-11	soigner	soigner	VINF	v	_	9	mod	9	mod
+11	soigner	soigner	VINF	v	_	5	obj	5	obj
 12	leur	leur	DET	DET	n=s|p=3|poss=p	13	det	13	det
 13	français	français	NC	nc	g=m	11	obj	11	obj
 14	,	,	PONCT	PONCT	_	13	ponct	13	ponct
@@ -3427,11 +3427,11 @@
 87	"	"	PONCT	PONCT	_	86	ponct	86	ponct
 88	,	,	PONCT	PONCT	_	86	ponct	86	ponct
 89	"	"	PONCT	PONCT	_	86	ponct	86	ponct
-90	Moscou	Moscou	NPP	np	g=m|n=s	88	coord	88	coord
+90	Moscou	Moscou	NPP	np	g=m|n=s	86	coord	86	coord
 91	"	"	PONCT	PONCT	_	90	ponct	90	ponct
 92	,	,	PONCT	PONCT	_	90	ponct	90	ponct
 93	"	"	PONCT	PONCT	_	90	ponct	90	ponct
-94	Beyrouth	Beyrouth	NPP	np	g=m|n=s	92	coord	92	coord
+94	Beyrouth	Beyrouth	NPP	np	g=m|n=s	90	coord	90	coord
 95	"	"	PONCT	PONCT	_	94	ponct	94	ponct
 96	...	...	PONCT	PONCT	_	94	ponct	94	ponct
 97	également	également	ADV	advm	_	94	dep_coord	94	dep_coord
@@ -3443,7 +3443,7 @@
 103	N'Djamena	N'Djamena	NPP	np	g=m|n=s	101	coord	101	coord
 104	"	"	PONCT	PONCT	_	103	ponct	103	ponct
 105	...	...	PONCT	PONCT	_	103	ponct	103	ponct
-106	–	_	ADV	_	_	0		0	
+106	–	–	PONCT	PONCT	_	103	ponct	103	ponct
 107	mais	mais	CC	CC	_	103	dep_coord	103	dep_coord
 108	pas	pas	ADV	ADV	_	107	mod	107	mod
 109	"	"	PONCT	PONCT	_	108	ponct	108	ponct
@@ -3475,9 +3475,9 @@
 135	USA	États-Unis_d'Amérique	NPP	np	g=m|n=p	145	suj	145	suj
 136	(	(	PONCT	PONCT	_	135	ponct	135	ponct
 137	et	et	CC	CC	_	135	coord	135	coord
-138	d'	de	P	P	_	137	dep_coord	137	dep_coord
-139	autres	autres	ADJ	ADJ	n=p	0		0	
-140	pays	pays	NC	nc	g=m	139	mod	139	mod
+138	d'	de	DET	DET	_	140	det	140	det
+139	autres	autres	ADJ	ADJ	n=p	140	dep	140	dep
+140	pays	pays	NC	nc	g=m	137	dep_coord	137	dep_coord
 141	...	...	PONCT	PONCT	_	140	ponct	140	ponct
 142	)	)	PONCT	PONCT	_	140	ponct	140	ponct
 143	se	se	CLR	CLR	n=p|p=3	145	aff	145	aff
@@ -3646,13 +3646,13 @@
 39	"	"	PONCT	PONCT	_	38	ponct	38	ponct
 40	,	,	PONCT	PONCT	_	38	ponct	38	ponct
 41	tout	tout	ADV	adv	_	42	mod	42	mod
-42	comme	comme	P	P	_	56	mod	56	mod
+42	comme	comme	CS	CS	_	29	mod	29	mod
 43	la	la	DET	DET	g=f|n=s	44	det	44	det
 44	Chine	Chine	NPP	np	g=f|n=s	48	suj	48	suj
 45	s'	se	CLR	CLR	p=3	48	aff	48	aff
 46	y	y	CLO	CLO	_	48	a_obj	48	a_obj
 47	"	"	PONCT	PONCT	_	46	ponct	46	ponct
-48	préparerait	préparer	V	v	n=s|p=3|t=cond	0		0	
+48	préparerait	préparer	V	v	n=s|p=3|t=cond	42	sub	42	sub
 49	"	"	PONCT	PONCT	_	48	ponct	48	ponct
 50	tout	tout	ADV	adv	_	51	mod	51	mod
 51	aussi	aussi	ADV	adv	_	52	mod	52	mod
@@ -3836,7 +3836,7 @@
 79	.	.	PONCT	PONCT	_	78	ponct	78	ponct
 
 1	Quelques	quelques	DET	DET	n=p	2	det	2	det
-2	indications	indication	NC	nc	g=f|n=p	0		0	
+2	indications	indication	NC	nc	g=f|n=p	0	root	0	root
 3	permettant	permettre	VPR	v	t=pst	2	mod	2	mod
 4	,	,	PONCT	PONCT	_	3	ponct	3	ponct
 5	pour	pour	P	P	_	3	mod	3	mod
@@ -3844,7 +3844,7 @@
 7	Irak	Irak	NPP	np	g=m|n=s	5	prep	5	prep
 8	,	,	PONCT	PONCT	_	7	ponct	7	ponct
 9	de	de	P	P	_	3	obj	3	obj
-10	décrypter	décrypter	VINF	v	_	0	root	0	root
+10	décrypter	décrypter	VINF	v	_	9	prep	9	prep
 11	les	les	DET	DET	n=p	12	det	12	det
 12	dépêches	dépêche	NC	nc	g=f|n=p	10	obj	10	obj
 13	en	en	P	P	_	12	dep	12	dep
@@ -4128,7 +4128,7 @@
 14	passé	passé	NC	nc	g=m|n=s	12	prep	12	prep
 15	(	(	PONCT	PONCT	_	14	ponct	14	ponct
 16	ils	ils	CLS	CLS	g=m|n=p|p=3	17	suj	17	suj
-17	font	faire	V	v	n=p|p=3|t=pst	0		0	
+17	font	faire	V	v	n=p|p=3|t=pst	3	mod	3	mod
 18	en_général	en_général	ADV	ADV	_	17	mod	17	mod
 19	l'	l'	DET	DET	n=s	20	det	20	det
 20	objet	objet	NC	nc	g=m|n=s	17	obj	17	obj
@@ -4164,7 +4164,7 @@
 50	d'	de	P	P	_	49	dep	49	dep
 51	informations	information	NC	nc	g=f|n=p	50	prep	50	prep
 52	fiables	fiable	ADJ	adj	n=p	51	mod	51	mod
-53	pour	pour	P	P	_	0		0	
+53	pour	pour	P	P	_	49	dep	49	dep
 54	ces	ces	DET	DET	n=p	55	det	55	det
 55	régions	région	NC	nc	g=f|n=p	53	prep	53	prep
 56	"	"	PONCT	PONCT	_	55	ponct	55	ponct
@@ -4208,15 +4208,15 @@
 10	"	"	PONCT	PONCT	_	9	ponct	9	ponct
 11	Services	service	NC	nc	g=m|n=p	8	prep	8	prep
 12	"	"	PONCT	PONCT	_	11	ponct	11	ponct
-13	des	de	P+D	P+D	n=p	11	dep	11	dep
-14	proies	proie	NC	nc	g=f|n=p	13	prep	13	prep
+13	des	de	DET	DET	n=p	14	det	14	det
+14	proies	proie	NC	nc	g=f|n=p	7	obj	7	obj
 15	faciles	facile	ADJ	adj	n=p	14	mod	14	mod
 16	à	à	P	P	_	15	dep	15	dep
 17	manipuler	manipuler	VINF	v	_	16	prep	16	prep
 18	!	!	PONCT	PONCT	_	17	ponct	17	ponct
 
 1	Par_ailleurs	par_ailleurs	ADV	ADV	_	9	mod	9	mod
-2	et	et	CC	CC	_	0		0	
+2	et	et	CC	CC	_	1	coord	1	coord
 3	de	de	P	P	_	2	dep_coord	2	dep_coord
 4	façon	façon	NC	nc	g=f|n=s	3	prep	3	prep
 5	très	très	ADV	adv	_	6	mod	6	mod
@@ -4234,12 +4234,12 @@
 17	n'	ne	ADV	ADV	_	18	mod	18	mod
 18	est	être	V	v	n=s|p=3|t=pst	20	aux_pass	20	aux_pass
 19	pas	pas	ADV	ADV	_	18	mod	18	mod
-20	dit	dire	VPP	v	g=m|n=s|t=past	0		0	
+20	dit	dire	VPP	v	g=m|n=s|t=past	15	mod_rel	15	mod_rel
 21	peut	pouvoir	V	v	n=s|p=3|t=pst	14	sub	14	sub
 22	être	être	VINF	v	_	21	obj	21	obj
 23	plus	plus	ADV	ADV	_	24	mod	24	mod
 24	important	important	ADJ	adj	g=m|n=s	22	ats	22	ats
-25	que	que	CS	CS	_	24	dep	24	dep
+25	que	que	CS	CS	_	23	arg_comp	24	arg_comp
 26	ce	ce	PRO	PRO	_	25	sub	25	sub
 27	qui	qui	PROREL	PROREL	n=s	29	suj	29	suj
 28	est	être	V	v	n=s|p=3|t=pst	29	aux_pass	29	aux_pass
@@ -4249,13 +4249,13 @@
 32	,	,	PONCT	PONCT	_	31	ponct	31	ponct
 33	un	un	DET	DET	g=m|n=s	34	det	34	det
 34	silence	silence	NC	nc	g=m|n=s	36	suj	36	suj
-35	en	en	P	P	_	36	obj	36	obj
-36	dit	dire	V	v	n=s|p=3|t=past	0		0	
+35	en	en	CLO	CLO	_	36	obj	36	obj
+36	dit	dire	V	v	n=s|p=3|t=past	29	mod	29	mod
 37	plus	plus	ADV	ADV	_	36	mod	36	mod
-38	qu'	que	CS	CS	_	36	obj	36	obj
-39	en	_	DET	_	_	41	det	41	det
+38	qu'	que	CS	CS	_	37	arg_comp	37	arg_comp
+39	en	en	P	P	_	38	sub	38	sub
 40	long	long	ADJ	adj	g=m|n=s	41	mod	41	mod
-41	discours	discours	NC	nc	g=m	0		0	
+41	discours	discours	NC	nc	g=m	39	prep	39	prep
 42	...	...	PONCT	PONCT	_	41	ponct	41	ponct
 
 1	Les	les	DET	DET	n=p	2	det	2	det
@@ -4393,8 +4393,8 @@
 41	)	)	PONCT	PONCT	_	40	ponct	40	ponct
 42	,	,	PONCT	PONCT	_	40	ponct	40	ponct
 43	une	une	DET	DET	g=f|n=s	44	det	44	det
-44	trêve	trêve	NC	nc	g=f|n=s	45	dep	45	dep
-45	avec	avec	P	P	_	0		0	
+44	trêve	trêve	NC	nc	g=f|n=s	22	obj	22	obj
+45	avec	avec	P	P	_	44	dep	44	dep
 46	l'	l'	DET	DET	n=s	47	det	47	det
 47	armée	armée	NC	nc	g=f|n=s	45	prep	45	prep
 48	américaine	américain	ADJ	adj	g=f|n=s	47	mod	47	mod
@@ -4453,9 +4453,9 @@
 32	contre	contre	P	P	_	31	dep	31	dep
 33	les	les	DET	DET	n=p	34	det	34	det
 34	salafistes	_	NC	_	_	32	prep	32	prep
-35	en	en	P	P	_	31	dep	31	dep
+35	en	en	P	P	_	28	mod	28	mod
 36	leur	leur	PRO	PRO	n=s|p=3|poss=p	37	a_obj	37	a_obj
-37	fournissant	fournir	VPR	v	t=pst	0		0	
+37	fournissant	fournir	VPR	v	t=pst	35	prep	35	prep
 38	les	les	DET	DET	n=p	39	det	39	det
 39	renseignements	renseignement	NC	nc	g=m|n=p	37	obj	37	obj
 40	dont	dont	PROREL	PROREL	_	42	de_obj	42	de_obj
@@ -4512,7 +4512,7 @@
 47	américaine	américain	ADJ	adj	g=f|n=s	46	mod	46	mod
 48	,	,	PONCT	PONCT	_	47	ponct	47	ponct
 49	trois	trois	DET	DET	n=p	50	det	50	det
-50	fois	fois	NC	nc	g=f	0		0	
+50	fois	fois	NC	nc	g=f	32	mod	32	mod
 51	le	le	DET	DET	g=m|n=s	52	det	52	det
 52	volume	volume	NC	nc	g=m|n=s	32	mod	32	mod
 53	total	total	ADJ	adj	g=m|n=s	52	mod	52	mod
@@ -4596,7 +4596,7 @@
 14	Irak	Irak	NPP	np	g=m|n=s	11	prep	11	prep
 15	;	;	PONCT	PONCT	_	14	ponct	14	ponct
 
-1	étant	être	VPR	v	t=pst	0		0	
+1	étant	être	VPR	v	t=pst	4	mod	4	mod
 2	minoritaires	minoritaire	ADJ	adj	n=p	1	ats	1	ats
 3	,	,	PONCT	PONCT	_	2	ponct	2	ponct
 4	ils	ils	CLS	CLS	g=m|n=p|p=3	5	suj	5	suj
@@ -4628,7 +4628,7 @@
 2	Sunnites	_	NC	_	_	5	suj	5	suj
 3	baasistes	baasiste	ADJ	adj	n=p	2	mod	2	mod
 4	sont	être	V	v	n=p|p=3|t=pst	5	aux_pass	5	aux_pass
-5	soutenus	soutenir	VPP	v	g=m|n=p|t=past	0		0	
+5	soutenus	soutenir	VPP	v	g=m|n=p|t=past	0	root	0	root
 6	"	"	PONCT	PONCT	_	5	ponct	5	ponct
 7	moralement	moralement	ADV	advm	_	5	mod	5	mod
 8	"	"	PONCT	PONCT	_	7	ponct	7	ponct
@@ -4636,7 +4636,7 @@
 10	la	la	DET	DET	g=f|n=s	11	det	11	det
 11	Syrie	Syrie	NPP	np	g=f|n=s	9	prep	9	prep
 12	,	,	PONCT	PONCT	_	11	ponct	11	ponct
-13	n'	ne	ADV	ADV	_	0		0	
+13	n'	ne	ADV	ADV	_	14	mod	14	mod
 14	ayant	avoir	VPR	v	t=pst	5	mod	5	mod
 15	pas	pas	ADV	ADV	_	14	mod	14	mod
 16	besoin	besoin	NC	nc	g=m|n=s	15	obj	15	obj
@@ -4871,7 +4871,7 @@
 70	sunnites	sunnite	NC	nc	n=p	73	suj	73	suj
 71	baasistes	baasiste	ADJ	adj	n=p	70	mod	70	mod
 72	n'	ne	ADV	ADV	_	73	mod	73	mod
-73	arrêtent	arrêter	V	v	n=p|p=3|t=pst	0		0	
+73	arrêtent	arrêter	V	v	n=p|p=3|t=pst	45	mod	45	mod
 74	pas	pas	ADV	ADV	_	73	mod	73	mod
 75	de	de	P	P	_	73	obj	73	obj
 76	dénoncer	dénoncer	VINF	v	_	75	prep	75	prep
@@ -5256,9 +5256,9 @@
 52	"	"	PONCT	PONCT	_	51	ponct	51	ponct
 53	,	,	PONCT	PONCT	_	51	ponct	51	ponct
 54	celles-ci	celles-ci	PRO	PRO	g=f|n=p	40	mod	40	mod
-55	n'	ne	ADV	ADV	_	0		0	
+55	n'	ne	ADV	ADV	_	56	mod	56	mod
 56	étant	être	VPR	v	t=pst	54	mod	54	mod
-57	pas_du_tout	pas_du_tout	ADV	ADV	_	58	mod	58	mod
+57	pas_du_tout	pas_du_tout	ADV	ADV	_	56	mod	56	mod
 58	possible	possible	ADJ	adj	n=s	56	ats	56	ats
 59	contre	contre	P	P	_	54	mod	54	mod
 60	l'	l'	DET	DET	n=s	62	det	62	det
@@ -5303,8 +5303,8 @@
 16	nombreux	nombreux	ADJ	adj	g=m	12	ats	12	ats
 17	que	que	CS	CS	_	15	arg_comp	16	arg_comp
 18	les	les	DET	DET	n=p	19	det	19	det
-19	groupes	groupe	NC	nc	g=m|n=p	20	suj	20	suj
-20	soutenant	_	V	_	_	17	sub	17	sub
+19	groupes	groupe	NC	nc	g=m|n=p	17	sub	17	sub
+20	soutenant	soutenir	VPR	v	_	19	mod	19	mod
 21	le	le	DET	DET	g=m|n=s	22	det	22	det
 22	gouvernement	gouvernement	NC	nc	g=m|n=s	20	obj	20	obj
 23	d'	de	P	P	_	22	dep	22	dep
@@ -5489,7 +5489,7 @@
 34	,	,	PONCT	PONCT	_	32	ponct	32	ponct
 35	y	y	CLO	CLO	_	37	p_obj_loc	37	p_obj_loc
 36	étant	être	VPR	v	t=pst	37	aux_pass	37	aux_pass
-37	venu	venir	VPP	v	g=m|n=s|t=past	0		0	
+37	venu	venir	VPP	v	g=m|n=s|t=past	12	mod	14	mod
 38	avec	avec	P	P	_	37	mod	37	mod
 39	l'	l'	DET	DET	n=s	40	det	40	det
 40	idée	idée	NC	nc	g=f|n=s	38	prep	38	prep
@@ -5655,7 +5655,7 @@
 9	compte	compte	NC	nc	g=m|n=s	7	obj	7	obj
 10	,	,	PONCT	PONCT	_	9	ponct	9	ponct
 11	l'	l'	DET	DET	n=s	12	det	12	det
-12	Irak	Irak	NPP	np	g=m|n=s	0		0	
+12	Irak	Irak	NPP	np	g=m|n=s	13	suj	13	suj
 13	étant	_	V	_	_	7	mod	7	mod
 14	la	la	DET	DET	g=f|n=s	16	det	16	det
 15	seule	seul	ADJ	adj	g=f|n=s	16	mod	16	mod
@@ -5727,7 +5727,7 @@
 11	;	;	PONCT	PONCT	_	10	ponct	10	ponct
 
 1	tout	tout	ADV	adv	_	2	mod	2	mod
-2	ce	ce	PRO	PRO	_	0		0	
+2	ce	ce	PRO	PRO	_	9	suj	9	suj
 3	qu'	que	PROREL	PROREL	_	5	obj	5	obj
 4	on	on	CLS	CLS	n=s|p=3	5	suj	5	suj
 5	peut	pouvoir	V	v	n=s|p=3|t=pst	2	mod_rel	2	mod_rel
@@ -5758,11 +5758,11 @@
 11	"	"	PONCT	PONCT	_	10	ponct	10	ponct
 12	,	,	PONCT	PONCT	_	10	ponct	10	ponct
 13	pour	pour	P	P	_	20	mod	20	mod
-14	une_fois_qu'	_	P	_	_	13	prep	13	prep
+14	une_fois_qu'	une_fois_que	CS	CS	_	13	mod	13	mod
 15	une	une	DET	DET	g=f|n=s	16	det	16	det
 16	méthode	méthode	NC	nc	g=f|n=s	18	suj	18	suj
 17	communiste	communiste	ADJ	adj	n=s	16	mod	16	mod
-18	marche	marcher	V	v	n=s|p=13|t=pst	0		0	
+18	marche	marcher	V	v	n=s|p=13|t=pst	14	sub	14	sub
 19	,	,	PONCT	PONCT	_	18	ponct	18	ponct
 20	pourquoi	pourquoi	CS	CS	_	0	root	0	root
 21	les	les	DET	DET	n=p	22	det	22	det
@@ -5772,7 +5772,7 @@
 25	l'	le	CLO	CLO	n=s|p=3	26	obj	26	obj
 26	utiliserait	utiliser	V	v	n=s|p=3|t=cond	20	sub	20	sub
 27	pas	pas	ADV	ADV	_	26	mod	26	mod
-28	:)	_	PONCT	_	_	0		0	
+28	:)	:)	PONCT	_	_	27	ponct	27	ponct
 
 1	Au_moins	au_moins	ADV	ADV	_	6	mod	6	mod
 2	,	,	PONCT	PONCT	_	1	ponct	1	ponct
@@ -5865,7 +5865,7 @@
 11	pour	pour	P	P	_	8	dep	8	dep
 12	la	la	DET	DET	g=f|n=s	13	det	13	det
 13	désinformation	désinformation	NC	nc	g=f|n=s	11	prep	11	prep
-14	:)	_	PONCT	_	_	0		0	
+14	:)	:)	PONCT	PONCT	_	13	ponct	13	ponct
 
 1	Autre	autre	ADJ	ADJ	n=s	2	mod	2	mod
 2	sujet	sujet	NC	nc	g=m|n=s	4	mod	4	mod
@@ -5887,7 +5887,7 @@
 18	de	de	P	P	_	15	dep	15	dep
 19	Saddam	Saddam	NPP	np	g=m|n=s	18	prep	18	prep
 20	Hussein	Hussein	NPP	np	g=m|n=s	19	mod	19	mod
-21	:)	_	PONCT	_	_	0		0	
+21	:)	:)	PONCT	PONCT	_	20	ponct	20	ponct
 
 1	Voir	voir	VINF	v	_	0	root	0	root
 2	cette	cette	DET	DET	g=f|n=s	3	det	3	det
@@ -5901,7 +5901,7 @@
 10	"	"	PONCT	PONCT	_	9	ponct	9	ponct
 11	Pravda	_	NPP	_	_	8	prep	8	prep
 12	"	"	PONCT	PONCT	_	11	ponct	11	ponct
-13	:)	_	PONCT	_	_	0		0	
+13	:)	:)	PONCT	PONCT	_	12	ponct	12	ponct
 
 1	La	_	ADV	_	_	2	mod	2	mod
 2	oui	oui	ADV	adv	_	6	mod	6	mod
@@ -5951,7 +5951,7 @@
 31	autre	autre	ADJ	ADJ	n=s	32	mod	32	mod
 32	question	question	NC	nc	g=f|n=s	29	ats	29	ats
 33	)	)	PONCT	PONCT	_	32	ponct	32	ponct
-34	ou	ou	CC	CC	_	0		0	
+34	ou	ou	CC	CC	_	8	coord	8	coord
 35	de	de	P	P	_	34	dep_coord	34	dep_coord
 36	la	la	DET	DET	g=f|n=s	37	det	37	det
 37	théorie	théorie	NC	nc	g=f|n=s	35	prep	35	prep
@@ -6096,7 +6096,7 @@
 28	"	"	PONCT	PONCT	_	27	ponct	27	ponct
 29	;	;	PONCT	PONCT	_	27	ponct	27	ponct
 
-1	avec	avec	P	P	_	0		0	
+1	avec	avec	P	P	_	16	mod	16	mod
 2	la	la	DET	DET	g=f|n=s	3	det	3	det
 3	mise	mise	NC	nc	g=f|n=s	1	prep	1	prep
 4	hors	hors	P	P	_	3	dep	3	dep
@@ -6367,11 +6367,11 @@
 69	,	,	PONCT	PONCT	_	68	ponct	68	ponct
 70	cette	cette	DET	DET	g=f|n=s	72	det	72	det
 71	"	"	PONCT	PONCT	_	70	ponct	70	ponct
-72	trêve	trêve	NC	nc	g=f|n=s	0		0	
+72	trêve	trêve	NC	nc	g=f|n=s	76	suj	76	suj
 73	"	"	PONCT	PONCT	_	72	ponct	72	ponct
 74	ayant	avoir	VPR	v	t=pst	75	aux_tps	75	aux_tps
 75	été	être	VPP	v	t=past	76	aux_pass	76	aux_pass
-76	rompue	rompre	VPP	v	g=f|n=s|t=past	72	mod	72	mod
+76	rompue	rompre	VPP	v	g=f|n=s|t=past	61	mod	61	mod
 77	seulement	seulement	ADV	advm	_	76	mod	76	mod
 78	par	par	P	P	_	76	p_obj	76	p_obj
 79	deux	deux	DET	DET	n=p	80	det	80	det
@@ -6758,11 +6758,11 @@
 32	irakiens	irakien	ADJ	adj	g=m|n=p	31	dep_coord	31	dep_coord
 33	;	;	PONCT	PONCT	_	32	ponct	32	ponct
 34	ces	ces	DET	DET	n=p	35	det	35	det
-35	forces	force	NC	nc	g=f|n=p	15	mod	15	mod
+35	forces	force	NC	nc	g=f|n=p	39	suj	39	suj
 36	irakiennes	irakien	ADJ	adj	g=f|n=p	35	mod	35	mod
 37	ont	avoir	V	v	n=p|p=3|t=pst	39	aux_tps	39	aux_tps
 38	été	être	VPP	v	t=past	39	aux_pass	39	aux_pass
-39	équipées	équiper	VPP	v	g=f|n=p|t=past	0		0	
+39	équipées	équiper	VPP	v	g=f|n=p|t=past	21	coord	21	coord
 40	par	par	P	P	_	39	p_obj_agt	39	p_obj_agt
 41	les	les	DET	DET	n=p	42	det	42	det
 42	Etats-Unis	_	NPP	_	_	40	prep	40	prep
@@ -6772,7 +6772,7 @@
 46	2003	_	NC	_	_	45	dep_coord	45	dep_coord
 47	;	;	PONCT	PONCT	_	46	ponct	46	ponct
 48	elles	elles	CLS	CLS	g=f|n=p|p=3	49	suj	49	suj
-49	sont	être	V	v	n=p|p=3|t=pst	0		0	
+49	sont	être	V	v	n=p|p=3|t=pst	39	coord	39	coord
 50	toujours	toujours	ADV	adv	_	49	mod	49	mod
 51	clandestines	clandestin	ADJ	adj	g=f|n=p	49	ats	49	ats
 52	en	en	P	P	_	49	mod	49	mod
@@ -6952,13 +6952,13 @@
 45	combats	combat	NC	nc	g=m|n=p	43	obj	43	obj
 46	,	,	PONCT	PONCT	_	45	ponct	45	ponct
 47	l'	l'	DET	DET	n=s	48	det	48	det
-48	armée	armée	NC	nc	g=f|n=s	0		0	
+48	armée	armée	NC	nc	g=f|n=s	54	suj	54	suj
 49	irakienne	irakien	ADJ	adj	g=f|n=s	48	mod	48	mod
 50	s'	se	CLR	CLR	p=3	51	aff	51	aff
 51	étant	être	VPR	v	t=pst	54	aux_tps	54	aux_tps
 52	immédiatement	immédiatement	ADV	advm	_	51	mod	51	mod
 53	"	"	PONCT	PONCT	_	52	ponct	52	ponct
-54	évaporée	évaporer	VPP	v	g=f|n=s|t=past	48	mod	48	mod
+54	évaporée	évaporer	VPP	v	g=f|n=s|t=past	43	mod	43	mod
 55	"	"	PONCT	PONCT	_	54	ponct	54	ponct
 56	devant	devant	P	P	_	54	mod	54	mod
 57	les	les	DET	DET	n=p	58	det	58	det
@@ -7158,11 +7158,11 @@
 27	d'	de	P	P	_	25	dep	25	dep
 28	intervenir	intervenir	VINF	v	_	27	prep	27	prep
 29	,	,	PONCT	PONCT	_	28	ponct	28	ponct
-30	comme	comme	P	P	_	23	mod	23	mod
+30	comme	comme	CS	CS	_	23	mod	23	mod
 31	la	la	DET	DET	g=f|n=s	32	det	32	det
 32	Turquie	Turquie	NPP	np	g=f|n=s	34	suj	34	suj
 33	avait	avoir	V	v	n=s|p=3|t=imp	34	aux_tps	34	aux_tps
-34	menacer	_	VPP	_	_	0		0	
+34	menacer	menacer	VPP	_	_	30	sub	30	sub
 35	de	de	P	P	_	34	de_obj	34	de_obj
 36	le	le	CLO	CLO	g=m|n=s|p=3	37	obj	37	obj
 37	faire	faire	VINF	v	_	35	prep	35	prep
@@ -7932,7 +7932,7 @@
 22	,	,	PONCT	PONCT	_	21	ponct	21	ponct
 23	la	la	DET	DET	g=f|n=s	24	det	24	det
 24	suite	suite	NC	nc	g=f|n=s	28	suj	28	suj
-25	me	me	CLO	CLO	n=s|p=1	0		0	
+25	me	me	CLO	CLO	n=s|p=1	28	a_obj	28	a_obj
 26	l'	le	CLO	CLO	n=s|p=3	28	obj	28	obj
 27	a	avoir	V	v	n=s|p=3|t=pst	28	aux_tps	28	aux_tps
 28	confirmé	confirmer	VPP	v	g=m|n=s|t=past	21	mod	21	mod
@@ -8025,8 +8025,8 @@
 26	.	.	PONCT	PONCT	_	25	ponct	25	ponct
 
 1	Mais	mais	CC	CC	_	8	mod	8	mod
-2	le	le	DET	DET	g=m|n=s	8	mod	8	mod
-3	lendemain	lendemain	NC	nc	g=m|n=s	0		0	
+2	le	le	DET	DET	g=m|n=s	3	det	3	det
+3	lendemain	lendemain	NC	nc	g=m|n=s	8	mod	8	mod
 4	quand	quand	CS	CS	_	8	mod	8	mod
 5	je	je	CLS	CLS	n=s|p=1	6	suj	6	suj
 6	reviens	revenir	V	v	n=s|p=12|t=pst	4	sub	4	sub
@@ -8098,7 +8098,7 @@
 33	.	.	PONCT	PONCT	_	32	ponct	32	ponct
 
 1	Je	je	CLS	CLS	n=s|p=1	2	suj	2	suj
-2	préviens	prévenir	V	v	n=s|p=12|t=pst	0		0	
+2	préviens	prévenir	V	v	n=s|p=12|t=pst	0	root	0	root
 3	Jules	Jules	NPP	np	n=s	2	obj	2	obj
 4	qui	qui	PROREL	PROREL	n=s	5	suj	5	suj
 5	suivait	suivre	V	v	n=s|p=3|t=imp	3	mod_rel	3	mod_rel
@@ -8462,4 +8462,3 @@
 38	la	la	DET	DET	g=f|n=s	39	det	39	det
 39	mi-novembre	mi-novembre	NC	nc	g=f|n=s	37	prep	37	prep
 40	.	.	PONCT	PONCT	_	39	ponct	39	ponct
-
