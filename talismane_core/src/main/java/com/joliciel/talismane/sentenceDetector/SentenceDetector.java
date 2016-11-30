@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.RollingTextBlock;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -142,8 +143,9 @@ public class SentenceDetector {
 	 *         full context (prevText + text + nextText).
 	 */
 	public List<Integer> detectSentences(RollingTextBlock textBlock) {
-		List<Annotation<TokenPlaceholder>> placeholders = textBlock.getAnnotations(TokenPlaceholder.class);
+		String context = textBlock.getPrevText() + textBlock.getText() + textBlock.getNextText();
 
+		List<Annotation<TokenPlaceholder>> placeholders = textBlock.getAnnotations(TokenPlaceholder.class);
 		List<Annotation<TokenPlaceholder>> newPlaceholders = new ArrayList<>();
 
 		Annotation<TokenPlaceholder> lastPlaceholder = null;
@@ -184,7 +186,7 @@ public class SentenceDetector {
 		}
 
 		for (int possibleBoundary : possibleBoundaries) {
-			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(textBlock.getText(), possibleBoundary, session);
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, session);
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Testing boundary: " + boundary);
 				LOG.trace(" at position: " + possibleBoundary);
