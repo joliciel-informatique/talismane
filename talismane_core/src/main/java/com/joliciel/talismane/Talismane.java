@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.filters.RollingSentenceProcessor;
+import com.joliciel.talismane.filters.RollingTextBlock;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceHolder;
 import com.joliciel.talismane.filters.TextMarker;
@@ -46,7 +47,6 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
-import com.joliciel.talismane.sentenceDetector.RollingTextBlock;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -265,6 +265,9 @@ public class Talismane {
 			String processedText = "";
 			String nextProcessedText = "";
 			SentenceHolder prevSentenceHolder = null;
+			RollingTextBlock rollingTextBlock = new RollingTextBlock();
+			rollingTextBlock = rollingTextBlock.roll(prevProcessedText);
+			rollingTextBlock = rollingTextBlock.roll(processedText);
 
 			int endBlockCharacterCount = 0;
 
@@ -371,11 +374,12 @@ public class Talismane {
 
 						if (prevSentenceHolder != null) {
 							if (this.startModule.equals(Module.sentenceDetector)) {
-								RollingTextBlock textBlock = new RollingTextBlock(prevProcessedText, processedText, nextProcessedText);
-								for (Annotator annotator : session.getTextAnnotators())
-									annotator.annotate(textBlock);
+								rollingTextBlock = rollingTextBlock.roll(nextProcessedText);
 
-								List<Integer> sentenceBreaks = sentenceDetector.detectSentences(textBlock);
+								for (Annotator annotator : session.getTextAnnotators())
+									annotator.annotate(rollingTextBlock);
+
+								List<Integer> sentenceBreaks = sentenceDetector.detectSentences(rollingTextBlock);
 								for (int sentenceBreak : sentenceBreaks) {
 									prevSentenceHolder.addSentenceBoundary(sentenceBreak);
 								}

@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.RollingTextBlock;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -110,6 +111,11 @@ public class SentenceDetectorEvaluator {
 			sentence = corpusReader.nextSentence().getText().toString();
 
 		sentences.add(sentence);
+
+		RollingTextBlock textBlock = new RollingTextBlock();
+		textBlock = textBlock.roll(previousSentence);
+		textBlock = textBlock.roll(sentence);
+
 		while (!sentences.isEmpty()) {
 			sentence = sentences.poll();
 			LOG.debug("Sentence: " + sentence);
@@ -146,7 +152,9 @@ public class SentenceDetectorEvaluator {
 			}
 
 			String text = previousSentence + sentence + moreText;
-			RollingTextBlock textBlock = new RollingTextBlock(previousSentence, sentence, moreText);
+
+			textBlock = textBlock.roll(moreText);
+
 			for (Annotator annotator : session.getTextAnnotators())
 				annotator.annotate(textBlock);
 
