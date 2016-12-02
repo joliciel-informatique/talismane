@@ -92,6 +92,7 @@ public class SentenceHolder {
 	public List<Sentence> getDetectedSentences(Sentence leftover) {
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("getDetectedSentences. leftover=" + leftover);
+			LOG.trace("processedText: " + processedText);
 		}
 
 		List<Sentence> sentences = new ArrayList<Sentence>();
@@ -238,7 +239,7 @@ public class SentenceHolder {
 					session);
 
 			if (LOG.isTraceEnabled()) {
-				LOG.trace("sentence.setText |" + sentence.getText() + "|");
+				LOG.trace("sentence.setText |" + sentence.getText() + "| complete? " + sentence.isComplete());
 			}
 
 			sentences.add(sentence);

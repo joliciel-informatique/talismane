@@ -45,17 +45,17 @@ public class TextMarkerFilterFactory {
 
 		if (filterName.equals(RegexMarkerFilter.class.getSimpleName())) {
 			String[] filterTypeStrings = parts[1].split(",");
-			List<MarkerFilterType> filterTypes = new ArrayListNoNulls<MarkerFilterType>();
+			List<TextMarkType> filterTypes = new ArrayListNoNulls<TextMarkType>();
 			for (String filterTypeString : filterTypeStrings) {
-				filterTypes.add(MarkerFilterType.valueOf(filterTypeString));
+				filterTypes.add(TextMarkType.valueOf(filterTypeString));
 			}
 			boolean needsReplacement = false;
 			boolean needsTag = false;
 			int minParams = 3;
-			if (filterTypes.contains(MarkerFilterType.REPLACE)) {
+			if (filterTypes.contains(TextMarkType.REPLACE)) {
 				needsReplacement = true;
 				minParams = 4;
-			} else if (filterTypes.contains(MarkerFilterType.TAG)) {
+			} else if (filterTypes.contains(TextMarkType.TAG)) {
 				needsTag = true;
 				minParams = 4;
 			}
