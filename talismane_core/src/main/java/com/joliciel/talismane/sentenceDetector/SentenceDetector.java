@@ -36,7 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.RawTextMarker;
 import com.joliciel.talismane.filters.RollingTextBlock;
+import com.joliciel.talismane.filters.TextMarkType;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -143,6 +145,7 @@ public class SentenceDetector {
 	 *         full context (prevText + text + nextText).
 	 */
 	public List<Integer> detectSentences(RollingTextBlock textBlock) {
+		LOG.debug("detectSentences");
 		String context = textBlock.getPrevText() + textBlock.getText() + textBlock.getNextText();
 
 		List<Annotation<TokenPlaceholder>> placeholders = textBlock.getAnnotations(TokenPlaceholder.class);
@@ -161,8 +164,9 @@ public class SentenceDetector {
 		placeholders = newPlaceholders;
 
 		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(textBlock.getCurrentText());
-		Set<Integer> possibleBoundaries = new HashSet<Integer>();
+		List<Integer> possibleBoundaries = new ArrayList<Integer>();
 		List<Integer> guessedBoundaries = new ArrayList<Integer>();
+		List<Annotation<RawTextMarker>> annotations = new ArrayList<>();
 
 		while (matcher.find()) {
 			// Only add possible boundaries if they're not inside a
@@ -185,6 +189,7 @@ public class SentenceDetector {
 				possibleBoundaries.add(position);
 		}
 
+		List<PossibleSentenceBoundary> boundaries = new ArrayList<>();
 		for (int possibleBoundary : possibleBoundaries) {
 			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, session);
 			if (LOG.isTraceEnabled()) {
@@ -214,12 +219,29 @@ public class SentenceDetector {
 
 			if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
 				guessedBoundaries.add(possibleBoundary - textBlock.getPrevText().length());
+				boundaries.add(boundary);
+				RawTextMarker rawTextMarker = new RawTextMarker(TextMarkType.SENTENCE_BREAK, this.getClass().getSimpleName());
+				Annotation<RawTextMarker> annotation = new Annotation<>(possibleBoundary + 1, possibleBoundary + 1, rawTextMarker);
+				annotations.add(annotation);
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Adding boundary: " + possibleBoundary);
 				}
 			}
 		} // have we a possible boundary at this position?
 
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("prevText: " + textBlock.getPrevText().replace('\n', '¶').replace('\r', '¶'));
+			LOG.trace("currentText: " + textBlock.getCurrentText().replace('\n', '¶').replace('\r', '¶'));
+			LOG.trace("nextText: " + textBlock.getNextText().replace('\n', '¶').replace('\r', '¶'));
+			LOG.trace("context: " + context.replace('\n', '¶').replace('\r', '¶'));
+
+			for (PossibleSentenceBoundary boundary : boundaries)
+				LOG.trace("boundary: " + boundary.toString());
+		}
+		if (LOG.isDebugEnabled())
+			LOG.debug("guessedBoundaries : " + guessedBoundaries.toString());
+
+		textBlock.addAnnotations(annotations);
 		return guessedBoundaries;
 	}
 

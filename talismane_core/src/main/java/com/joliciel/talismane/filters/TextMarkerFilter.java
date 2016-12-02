@@ -30,10 +30,15 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  */
 public interface TextMarkerFilter {
 	/**
-	 * Apply the filter to the text (not to prevText or nextText), and detect
-	 * any text markers.
+	 * Adds annotations of type {@link RawTextMarker} to the textBlock.
 	 */
-	public Set<TextMarker> apply(String prevText, String text, String nextText);
+	public void annotate(RollingTextBlock textBlock);
+
+	/**
+	 * Apply the filter to the text block's current text only, and detect any
+	 * text markers.
+	 */
+	public Set<TextMarker> apply(RollingTextBlock textBlock);
 
 	/**
 	 * If the filter includes text replacement, the replacement string.

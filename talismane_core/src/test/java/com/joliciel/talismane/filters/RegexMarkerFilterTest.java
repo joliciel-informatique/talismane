@@ -8,17 +8,30 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.StringAttribute;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class RegexMarkerFilterTest {
 	private static final Logger LOG = LoggerFactory.getLogger(RegexMarkerFilterTest.class);
 
 	@Test
-	public void testApply() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>.*?</skip>", 0, 1000);
+	public void testApply() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
+		final TalismaneSession session = new TalismaneSession(config, "");
+
+		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.SKIP, "<skip>.*?</skip>", 0, 1000);
+
+		RollingTextBlock textBlock = new RollingTextBlock(session, true);
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
+		textBlock = textBlock.roll(text);
+		textBlock = textBlock.roll("");
+
+		Set<TextMarker> textMarkers = filter.apply(textBlock);
 		LOG.debug(textMarkers.toString());
 
 		assertEquals(4, textMarkers.size());
@@ -42,11 +55,21 @@ public class RegexMarkerFilterTest {
 	}
 
 	@Test
-	public void testApplyWithGroup() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.SKIP, "<skip>(.*?)</skip>", 0, 1000);
+	public void testApplyWithGroup() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
+		final TalismaneSession session = new TalismaneSession(config, "");
+
+		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.SKIP, "<skip>(.*?)</skip>", 0, 1000);
+
+		RollingTextBlock textBlock = new RollingTextBlock(session, true);
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
+		textBlock = textBlock.roll(text);
+		textBlock = textBlock.roll("");
+
+		Set<TextMarker> textMarkers = filter.apply(textBlock);
 		LOG.debug(textMarkers.toString());
 
 		int i = 0;
@@ -71,12 +94,23 @@ public class RegexMarkerFilterTest {
 	}
 
 	@Test
-	public void testApplyWithReplacement() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.REPLACE, "<skip>(.*?)</skip>", 0, 1000);
+	public void testApplyWithReplacement() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession session = new TalismaneSession(config, "");
+
+		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.REPLACE, "<skip>(.*?)</skip>", 0, 1000);
 		filter.setReplacement("Skipped:$1");
 
+		RollingTextBlock textBlock = new RollingTextBlock(session, true);
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
+		textBlock = textBlock.roll(text);
+		textBlock = textBlock.roll("");
+
+		Set<TextMarker> textMarkers = filter.apply(textBlock);
+
 		LOG.debug(textMarkers.toString());
 
 		assertEquals(6, textMarkers.size());
@@ -108,12 +142,22 @@ public class RegexMarkerFilterTest {
 	}
 
 	@Test
-	public void testTag() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.TAG, "<skip>(.*?)</skip>", 0, 1000);
+	public void testTag() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession session = new TalismaneSession(config, "");
+
+		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.TAG, "<skip>(.*?)</skip>", 0, 1000);
 		filter.setTag("TAG1", new StringAttribute("TAG1", "x"));
 
+		RollingTextBlock textBlock = new RollingTextBlock(session, true);
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
+		textBlock = textBlock.roll(text);
+		textBlock = textBlock.roll("");
+
+		Set<TextMarker> textMarkers = filter.apply(textBlock);
 		LOG.debug(textMarkers.toString());
 
 		assertEquals(4, textMarkers.size());
@@ -145,11 +189,21 @@ public class RegexMarkerFilterTest {
 	}
 
 	@Test
-	public void testUnaryOperatorsStop() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.STOP, "<skip>", 0, 1000);
+	public void testUnaryOperatorsStop() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
+		final TalismaneSession session = new TalismaneSession(config, "");
+
+		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.STOP, "<skip>", 0, 1000);
+
+		RollingTextBlock textBlock = new RollingTextBlock(session, true);
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
+		textBlock = textBlock.roll(text);
+		textBlock = textBlock.roll("");
+
+		Set<TextMarker> textMarkers = filter.apply(textBlock);
 		LOG.debug(textMarkers.toString());
 
 		assertEquals(2, textMarkers.size());
@@ -167,11 +221,21 @@ public class RegexMarkerFilterTest {
 	}
 
 	@Test
-	public void testUnaryOperatorsStart() {
-		RegexMarkerFilter filter = new RegexMarkerFilter(MarkerFilterType.START, "</skip>", 0, 1000);
+	public void testUnaryOperatorsStart() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
 
+		final TalismaneSession session = new TalismaneSession(config, "");
+
+		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.START, "</skip>", 0, 1000);
+
+		RollingTextBlock textBlock = new RollingTextBlock(session, true);
 		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>!";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
+		textBlock = textBlock.roll(text);
+		textBlock = textBlock.roll("");
+
+		Set<TextMarker> textMarkers = filter.apply(textBlock);
 		LOG.debug(textMarkers.toString());
 
 		assertEquals(2, textMarkers.size());

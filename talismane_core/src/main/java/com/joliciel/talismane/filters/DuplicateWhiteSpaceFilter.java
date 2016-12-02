@@ -26,6 +26,6 @@ package com.joliciel.talismane.filters;
  */
 public class DuplicateWhiteSpaceFilter extends RegexMarkerFilter {
 	public DuplicateWhiteSpaceFilter(int blockSize) {
-		super(MarkerFilterType.SKIP, "[" + Sentence.WHITE_SPACE + "]([" + Sentence.WHITE_SPACE + "]+)", 1, blockSize);
+		super(TextMarkType.SKIP, "[" + Sentence.WHITE_SPACE + "]([" + Sentence.WHITE_SPACE + "]+)", 1, blockSize);
 	}
 }

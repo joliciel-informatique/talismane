@@ -24,8 +24,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,6 @@ import com.joliciel.talismane.filters.RollingSentenceProcessor;
 import com.joliciel.talismane.filters.RollingTextBlock;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.filters.SentenceHolder;
-import com.joliciel.talismane.filters.TextMarker;
 import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -261,13 +258,9 @@ public class Talismane {
 			boolean finished = false;
 			int sentenceCount = 0;
 
-			String prevProcessedText = "";
-			String processedText = "";
-			String nextProcessedText = "";
 			SentenceHolder prevSentenceHolder = null;
-			RollingTextBlock rollingTextBlock = new RollingTextBlock();
-			rollingTextBlock = rollingTextBlock.roll(prevProcessedText);
-			rollingTextBlock = rollingTextBlock.roll(processedText);
+
+			RollingTextBlock rawTextBlock = new RollingTextBlock(session, this.processByDefault);
 
 			int endBlockCharacterCount = 0;
 
@@ -339,95 +332,73 @@ public class Talismane {
 						stringBuilder.append(c);
 
 					while (textSegments.size() >= 3) {
-						String prevText = textSegments.removeFirst();
-						String text = textSegments.removeFirst();
 						String nextText = textSegments.removeFirst();
+						rawTextBlock = rawTextBlock.roll(nextText);
+
 						if (LOG.isTraceEnabled()) {
-							LOG.trace("prevText: " + prevText.replace('\n', '¶').replace('\r', '¶'));
-							LOG.trace("text: " + text.replace('\n', '¶').replace('\r', '¶'));
-							LOG.trace("nextText: " + nextText.replace('\n', '¶').replace('\r', '¶'));
+							LOG.trace("prevText: " + rawTextBlock.getPrevText().replace('\n', '¶').replace('\r', '¶'));
+							LOG.trace("text: " + rawTextBlock.getCurrentText().replace('\n', '¶').replace('\r', '¶'));
+							LOG.trace("nextText: " + rawTextBlock.getNextText().replace('\n', '¶').replace('\r', '¶'));
 						}
 
-						Set<TextMarker> textMarkers = new TreeSet<TextMarker>();
 						for (TextMarkerFilter textMarkerFilter : session.getTextFilters()) {
-							Set<TextMarker> result = textMarkerFilter.apply(prevText, text, nextText);
-							textMarkers.addAll(result);
+							textMarkerFilter.annotate(rawTextBlock);
 						}
 
-						// push the text segments back onto the beginning of
-						// Deque
-						textSegments.addFirst(nextText);
-						textSegments.addFirst(text);
+						if (this.startModule.equals(Module.sentenceDetector)) {
+							sentenceDetector.detectSentences(rawTextBlock);
+						}
 
-						SentenceHolder sentenceHolder = rollingSentenceProcessor.addNextSegment(text, textMarkers);
-						prevProcessedText = processedText;
-						processedText = nextProcessedText;
-						nextProcessedText = sentenceHolder.getProcessedText().toString();
+						SentenceHolder sentenceHolder = rawTextBlock.processText();
 
 						if (LOG.isTraceEnabled()) {
-							LOG.trace("prevProcessedText: " + prevProcessedText);
-							LOG.trace("processedText: " + processedText);
-							LOG.trace("nextProcessedText: " + nextProcessedText);
+							LOG.trace("processedText: " + sentenceHolder.getProcessedText().replace('\n', '¶').replace('\r', '¶'));
 						}
 
-						boolean reallyFinished = finished && textSegments.size() == 3;
+						boolean reallyFinished = finished && textSegments.size() < 3;
 
-						if (prevSentenceHolder != null) {
-							if (this.startModule.equals(Module.sentenceDetector)) {
-								rollingTextBlock = rollingTextBlock.roll(nextProcessedText);
-
-								for (Annotator annotator : session.getTextAnnotators())
-									annotator.annotate(rollingTextBlock);
-
-								List<Integer> sentenceBreaks = sentenceDetector.detectSentences(rollingTextBlock);
-								for (int sentenceBreak : sentenceBreaks) {
-									prevSentenceHolder.addSentenceBoundary(sentenceBreak);
-								}
-							}
-
-							List<Sentence> theSentences = prevSentenceHolder.getDetectedSentences(leftover);
-							leftover = null;
-							for (Sentence sentence : theSentences) {
-								if (sentence.isComplete() || reallyFinished) {
-									sentences.add(sentence);
-									sentenceCount++;
-								} else {
-									LOG.debug("Setting leftover to: " + sentence.getText());
-									leftover = sentence;
-								}
-							}
-							if (this.sentenceCount > 0 && sentenceCount >= this.sentenceCount) {
-								finished = true;
-							}
-
-							// If we have any leftover original text segments,
-							// copy them over
-							// they are necessarily at position 0 - since
-							// otherwise they would
-							// have gotten added to the leftover sentence. The
-							// only case where
-							// there isn't a leftover sentence is the case where
-							// the sentenceHolder
-							// boundary happens to be a sentence boundary, hence
-							// position 0.
-							if (prevSentenceHolder.getOriginalTextSegments().size() > 0) {
-								String fileName = "";
-								File file = null;
-								if (sentences.size() > 0) {
-									Sentence lastSentence = sentences.peek();
-									fileName = lastSentence.getFileName();
-									file = lastSentence.getFile();
-								}
-
-								Sentence sentence = new Sentence("", fileName, file, session);
-								StringBuilder segmentsToInsert = new StringBuilder();
-
-								for (String originalTextSegment : prevSentenceHolder.getOriginalTextSegments().values()) {
-									segmentsToInsert.append(originalTextSegment);
-								}
-								sentence.setLeftoverOriginalText(segmentsToInsert.toString());
+						List<Sentence> theSentences = sentenceHolder.getDetectedSentences(leftover);
+						leftover = null;
+						for (Sentence sentence : theSentences) {
+							if (sentence.isComplete() || reallyFinished) {
 								sentences.add(sentence);
+								sentenceCount++;
+							} else {
+								LOG.debug("Setting leftover to: " + sentence.getText());
+								leftover = sentence;
 							}
+						}
+						if (this.sentenceCount > 0 && sentenceCount >= this.sentenceCount) {
+							finished = true;
+						}
+
+						// If we have any leftover original text segments,
+						// copy them over
+						// they are necessarily at position 0 - since
+						// otherwise they would
+						// have gotten added to the leftover sentence. The
+						// only case where
+						// there isn't a leftover sentence is the case where
+						// the sentenceHolder
+						// boundary happens to be a sentence boundary, hence
+						// position 0.
+						if (sentenceHolder.getOriginalTextSegments().size() > 0) {
+							String fileName = "";
+							File file = null;
+							if (sentences.size() > 0) {
+								Sentence lastSentence = sentences.peek();
+								fileName = lastSentence.getFileName();
+								file = lastSentence.getFile();
+							}
+
+							Sentence sentence = new Sentence("", fileName, file, session);
+							StringBuilder segmentsToInsert = new StringBuilder();
+
+							for (String originalTextSegment : sentenceHolder.getOriginalTextSegments().values()) {
+								segmentsToInsert.append(originalTextSegment);
+							}
+							sentence.setLeftoverOriginalText(segmentsToInsert.toString());
+							sentences.add(sentence);
 						}
 						prevSentenceHolder = sentenceHolder;
 					} // we have at least 3 text segments (should always be the

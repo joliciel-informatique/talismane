@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
-import com.joliciel.talismane.filters.MarkerFilterType;
+import com.joliciel.talismane.filters.TextMarkType;
 import com.joliciel.talismane.filters.NewlineEndOfSentenceMarker;
 import com.joliciel.talismane.filters.NewlineSpaceMarker;
 import com.joliciel.talismane.filters.OtherWhiteSpaceFilter;
@@ -125,7 +125,7 @@ public class TalismaneSession {
 	private final CoNLLFormatter coNLLFormatter;
 	private final Charset csvCharset;
 	private final int blockSize;
-	private final MarkerFilterType newlineMarker;
+	private final TextMarkType newlineMarker;
 	private final List<TextMarkerFilter> textFilters;
 	private final List<Annotator> textAnnotators;
 	private final List<Pair<String, Annotator>> textAnnotatorsWithDescriptors;
@@ -406,14 +406,14 @@ public class TalismaneSession {
 		this.blockSize = talismaneConfig.getInt("block-size");
 		this.textFilters = new ArrayList<>();
 		// insert sentence breaks at end of block
-		this.textFilters.add(new RegexMarkerFilter(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }),
+		this.textFilters.add(new RegexMarkerFilter(Arrays.asList(new TextMarkType[] { TextMarkType.SKIP, TextMarkType.SENTENCE_BREAK }),
 				"" + this.endBlockCharCode, 0, blockSize));
 
 		// handle newline as requested
-		newlineMarker = MarkerFilterType.valueOf(talismaneConfig.getString("newline"));
-		if (newlineMarker.equals(MarkerFilterType.SENTENCE_BREAK))
+		newlineMarker = TextMarkType.valueOf(talismaneConfig.getString("newline"));
+		if (newlineMarker.equals(TextMarkType.SENTENCE_BREAK))
 			this.textFilters.add(new NewlineEndOfSentenceMarker(blockSize));
-		else if (newlineMarker.equals(MarkerFilterType.SPACE))
+		else if (newlineMarker.equals(TextMarkType.SPACE))
 			this.textFilters.add(new NewlineSpaceMarker(blockSize));
 
 		// get rid of duplicate white-space always

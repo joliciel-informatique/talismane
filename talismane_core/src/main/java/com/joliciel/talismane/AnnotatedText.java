@@ -105,14 +105,16 @@ public class AnnotatedText {
 	 * @param annotations
 	 */
 	public <T> void addAnnotations(List<Annotation<T>> annotations) {
-		for (AnnotationObserver observer : observers) {
-			observer.beforeAddAnnotations(this, annotations);
+		if (annotations.size() > 0) {
+			for (AnnotationObserver observer : observers) {
+				observer.beforeAddAnnotations(this, annotations);
+			}
+			List<Annotation<?>> newAnnotations = new ArrayList<>(this.annotations.size() + annotations.size());
+			newAnnotations.addAll(this.annotations);
+			newAnnotations.addAll(annotations);
+			Collections.sort(newAnnotations);
+			this.annotations = Collections.unmodifiableList(newAnnotations);
 		}
-		List<Annotation<?>> newAnnotations = new ArrayList<>(this.annotations.size() + annotations.size());
-		newAnnotations.addAll(this.annotations);
-		newAnnotations.addAll(annotations);
-		Collections.sort(newAnnotations);
-		this.annotations = Collections.unmodifiableList(newAnnotations);
 	}
 
 	/**
