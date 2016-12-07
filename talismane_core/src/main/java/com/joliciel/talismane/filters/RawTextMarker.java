@@ -18,8 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import com.joliciel.talismane.tokeniser.TokenAttribute;
-
 /**
  * A marker added in an annotation by a TextMarkerFilter.
  * 
@@ -27,36 +25,42 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  *
  */
 public class RawTextMarker {
-	private final TextMarkType type;
+	private final RawTextMarkType type;
 	private final String source;
 	private final String insertionText;
-	private final String attribute;
-	private final TokenAttribute<?> value;
 
-	public RawTextMarker(TextMarkType type, String source) {
-		this(type, source, null, null, null);
+	public static class RawTextSentenceBreakMarker extends RawTextMarker {
+		public RawTextSentenceBreakMarker(String source) {
+			super(RawTextMarkType.SENTENCE_BREAK, source);
+		}
 	}
 
-	public RawTextMarker(TextMarkType type, String source, String insertionText) {
-		this(type, source, insertionText, null, null);
+	public static class RawTextSkipMarker extends RawTextMarker {
+		public RawTextSkipMarker(String source) {
+			super(RawTextMarkType.SKIP, source);
+		}
 	}
 
-	public RawTextMarker(TextMarkType type, String source, String attribute, TokenAttribute<?> value) {
-		this(type, source, null, attribute, value);
+	public static class RawTextReplaceMarker extends RawTextMarker {
+		public RawTextReplaceMarker(String source, String insertionText) {
+			super(RawTextMarkType.REPLACE, source, insertionText);
+		}
 	}
 
-	private RawTextMarker(TextMarkType type, String source, String insertionText, String attribute, TokenAttribute<?> value) {
+	public RawTextMarker(RawTextMarkType type, String source) {
+		this(type, source, null);
+	}
+
+	private RawTextMarker(RawTextMarkType type, String source, String insertionText) {
 		this.type = type;
 		this.source = source;
 		this.insertionText = insertionText;
-		this.attribute = attribute;
-		this.value = value;
 	}
 
 	/**
 	 * The marker type.
 	 */
-	public TextMarkType getType() {
+	public RawTextMarkType getType() {
 		return type;
 	}
 
@@ -74,23 +78,8 @@ public class RawTextMarker {
 		return insertionText;
 	}
 
-	/**
-	 * The tag attribute to add with this marker.
-	 */
-	public String getAttribute() {
-		return attribute;
-	}
-
-	/**
-	 * The tag value to add with this marker.
-	 */
-	public TokenAttribute<?> getValue() {
-		return value;
-	}
-
 	@Override
 	public String toString() {
-		return "RawTextMarker [type=" + type + ", source=" + source + ", insertionText=" + insertionText + ", attribute=" + attribute + ", value=" + value
-				+ "]";
+		return this.getClass().getSimpleName() + " [type=" + type + ", source=" + source + ", insertionText=" + insertionText + "]";
 	}
 }

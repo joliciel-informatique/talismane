@@ -21,7 +21,6 @@ import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
@@ -54,7 +53,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 	private TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
 	private Integer atomicTokenCount = null;
 	private boolean finalised = false;
-	private boolean sentenceTagsAdded = false;
 	private boolean withRoot = false;
 	private PosTagSequence posTagSequence;
 	private final Map<Integer, Annotation<TokenPlaceholder>> placeholderMap;
@@ -247,22 +245,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 			for (Token token : this) {
 				token.setIndex(i++);
 			}
-		}
-	}
-
-	void addSentenceTags() {
-		if (!sentenceTagsAdded) {
-			sentenceTagsAdded = true;
-			for (SentenceTag<?> sentenceTag : this.sentence.getSentenceTags()) {
-				for (Token token : this) {
-					if (token.getStartIndex() >= sentenceTag.getStartIndex() && token.getEndIndex() <= sentenceTag.getEndIndex()) {
-						token.addAttribute(sentenceTag.getAttribute(), sentenceTag.getValue());
-					}
-					if (token.getStartIndex() > sentenceTag.getEndIndex())
-						break;
-				}
-			}
-
 		}
 	}
 

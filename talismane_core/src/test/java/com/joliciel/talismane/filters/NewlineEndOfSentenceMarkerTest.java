@@ -2,80 +2,82 @@ package com.joliciel.talismane.filters;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneSession;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.Annotation;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextSentenceBreakMarker;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextSkipMarker;
 
 public class NewlineEndOfSentenceMarkerTest {
 	private static final Logger LOG = LoggerFactory.getLogger(NewlineEndOfSentenceMarkerTest.class);
 
 	@Test
 	public void testApply() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
-
-		final TalismaneSession session = new TalismaneSession(config, "");
-
 		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker(1000);
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "1\r\n2\r\n";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		AnnotatedText text = new AnnotatedText("1\r\n2\r\n");
 
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		assertEquals(6, textMarkers.size());
+		List<Annotation<RawTextSentenceBreakMarker>> sentenceBreaks = text.getAnnotations(RawTextSentenceBreakMarker.class);
+		assertEquals(2, sentenceBreaks.size());
 
-		textBlock = new RollingTextBlock(session, true);
-		text = "1\r2\r";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		List<Annotation<RawTextSkipMarker>> skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
 
-		textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
+		assertEquals(1, sentenceBreaks.get(0).getStart());
+		assertEquals(3, sentenceBreaks.get(0).getEnd());
+		assertEquals(1, skips.get(0).getStart());
+		assertEquals(3, skips.get(0).getEnd());
+		assertEquals(4, sentenceBreaks.get(1).getStart());
+		assertEquals(6, sentenceBreaks.get(1).getEnd());
+		assertEquals(4, skips.get(1).getStart());
+		assertEquals(6, skips.get(1).getEnd());
 
-		assertEquals(6, textMarkers.size());
+		text = new AnnotatedText("1\r2\r");
 
-		textBlock = new RollingTextBlock(session, true);
-		text = "1\n2\n";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
+		sentenceBreaks = text.getAnnotations(RawTextSentenceBreakMarker.class);
+		assertEquals(2, sentenceBreaks.size());
 
-		assertEquals(6, textMarkers.size());
+		skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
 
-	}
+		assertEquals(1, sentenceBreaks.get(0).getStart());
+		assertEquals(2, sentenceBreaks.get(0).getEnd());
+		assertEquals(1, skips.get(0).getStart());
+		assertEquals(2, skips.get(0).getEnd());
+		assertEquals(3, sentenceBreaks.get(1).getStart());
+		assertEquals(4, sentenceBreaks.get(1).getEnd());
+		assertEquals(3, skips.get(1).getStart());
+		assertEquals(4, skips.get(1).getEnd());
 
-	@Test
-	public void testApplyRealSentence() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+		text = new AnnotatedText("1\r2\r");
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker(1000);
+		sentenceBreaks = text.getAnnotations(RawTextSentenceBreakMarker.class);
+		assertEquals(2, sentenceBreaks.size());
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "Yet another test sentence.\n";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
 
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
-
-		assertEquals(3, textMarkers.size());
-
+		assertEquals(1, sentenceBreaks.get(0).getStart());
+		assertEquals(2, sentenceBreaks.get(0).getEnd());
+		assertEquals(1, skips.get(0).getStart());
+		assertEquals(2, skips.get(0).getEnd());
+		assertEquals(3, sentenceBreaks.get(1).getStart());
+		assertEquals(4, sentenceBreaks.get(1).getEnd());
+		assertEquals(3, skips.get(1).getStart());
+		assertEquals(4, skips.get(1).getEnd());
 	}
 }

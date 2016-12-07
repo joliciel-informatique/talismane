@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,18 +16,20 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.filters;
-
-import java.util.Arrays;
+package com.joliciel.talismane.sentenceDetector;
 
 /**
- * Replace any newline with a sentence break.
+ * A marker class for annotations of sentence boundaries added by the sentence
+ * detector.
  * 
  * @author Assaf Urieli
  *
  */
-public class NewlineEndOfSentenceMarker extends RegexMarkerFilter {
-	public NewlineEndOfSentenceMarker(int blockSize) {
-		super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }), "\r\n|[\r\n]", 0, blockSize);
+public class SentenceBoundary {
+
+	@Override
+	public String toString() {
+		return "SentenceBoundary";
 	}
+
 }

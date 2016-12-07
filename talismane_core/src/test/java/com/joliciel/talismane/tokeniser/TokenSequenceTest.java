@@ -19,7 +19,6 @@
 package com.joliciel.talismane.tokeniser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -47,10 +45,6 @@ public class TokenSequenceTest {
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
 		final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan.", talismaneSession);
-		StringAttribute value = new StringAttribute("Animal", "Singe");
-		SentenceTag<String> sentenceTag = new SentenceTag<String>("Je n'ai pas l'".length(), "Animal", value);
-		sentenceTag.setEndIndex("Je n'ai pas l'ourang-outan".length());
-		sentence.getSentenceTags().add(sentenceTag);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
 		tokenSequence.findDefaultTokens();
@@ -93,15 +87,12 @@ public class TokenSequenceTest {
 			} else if (i == 10) {
 				assertEquals("ourang", token.getText());
 				assertEquals(false, token.isSeparator());
-				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i == 11) {
 				assertEquals("-", token.getText());
 				assertEquals(true, token.isSeparator());
-				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i == 12) {
 				assertEquals("outan", token.getText());
 				assertEquals(false, token.isSeparator());
-				assertTrue(token.getAttributes().containsKey("Animal"));
 			} else if (i == 13) {
 				assertEquals(".", token.getText());
 				assertEquals(true, token.isSeparator());

@@ -33,7 +33,7 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public enum TextMarkType {
+public enum RawTextMarkType {
 	/**
 	 * Skip any text matching this filter (stack-based).
 	 */
