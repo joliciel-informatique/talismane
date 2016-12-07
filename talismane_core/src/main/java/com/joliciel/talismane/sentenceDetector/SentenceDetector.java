@@ -34,11 +34,9 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.RawTextMarker;
-import com.joliciel.talismane.filters.RollingTextBlock;
-import com.joliciel.talismane.filters.TextMarkType;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -54,11 +52,11 @@ import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
- * Detect sentence boundaries within a textual block. The linefeed character
- * will always be considered to be a sentence boundary. Therefore, filters prior
- * to the sentence detector should remove any arbitrary linefeeds, and insert
- * linefeeds instead of any other patterns indicating a sentence boundary (e.g.
- * XML tags).
+ * Detect sentence boundaries within an annotated text. Boundaries are added in
+ * the form of an Annotation around a SentenceBoundary, with the start position
+ * at the character indicating the boundary, and the end position one to the
+ * right.<br/>
+ * 
  * 
  * @author Assaf Urieli
  *
@@ -144,9 +142,8 @@ public class SentenceDetector {
 	 *         relative to the current block only (textBlock.getText()), not the
 	 *         full context (prevText + text + nextText).
 	 */
-	public List<Integer> detectSentences(RollingTextBlock textBlock) {
+	public List<Integer> detectSentences(AnnotatedText textBlock) {
 		LOG.debug("detectSentences");
-		String context = textBlock.getPrevText() + textBlock.getText() + textBlock.getNextText();
 
 		List<Annotation<TokenPlaceholder>> placeholders = textBlock.getAnnotations(TokenPlaceholder.class);
 		List<Annotation<TokenPlaceholder>> newPlaceholders = new ArrayList<>();
@@ -163,35 +160,37 @@ public class SentenceDetector {
 		}
 		placeholders = newPlaceholders;
 
-		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(textBlock.getCurrentText());
+		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(textBlock.getText());
 		List<Integer> possibleBoundaries = new ArrayList<Integer>();
 		List<Integer> guessedBoundaries = new ArrayList<Integer>();
-		List<Annotation<RawTextMarker>> annotations = new ArrayList<>();
+		List<Annotation<SentenceBoundary>> annotations = new ArrayList<>();
 
 		while (matcher.find()) {
 			// Only add possible boundaries if they're not inside a
 			// placeholder
 			// Note that we allow boundaries at the last position of the
 			// placeholder (placeholder.getEndIndex()-1)
-			boolean inPlaceholder = false;
-			int position = textBlock.getPrevText().length() + matcher.start();
-			for (Annotation<TokenPlaceholder> placeholder : placeholders) {
-				int endPos = placeholder.getEnd();
-				if (placeholder.getData().isPossibleSentenceBoundary()) {
-					endPos -= 1;
+			if (matcher.start() >= textBlock.getAnalysisStart() && matcher.start() < textBlock.getAnalysisEnd()) {
+				boolean inPlaceholder = false;
+				int position = matcher.start();
+				for (Annotation<TokenPlaceholder> placeholder : placeholders) {
+					int endPos = placeholder.getEnd();
+					if (placeholder.getData().isPossibleSentenceBoundary()) {
+						endPos -= 1;
+					}
+					if (placeholder.getStart() <= position && position < endPos) {
+						inPlaceholder = true;
+						break;
+					}
 				}
-				if (placeholder.getStart() <= position && position < endPos) {
-					inPlaceholder = true;
-					break;
-				}
+				if (!inPlaceholder)
+					possibleBoundaries.add(position);
 			}
-			if (!inPlaceholder)
-				possibleBoundaries.add(position);
 		}
 
 		List<PossibleSentenceBoundary> boundaries = new ArrayList<>();
 		for (int possibleBoundary : possibleBoundaries) {
-			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(context, possibleBoundary, session);
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(textBlock.getText(), possibleBoundary, session);
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Testing boundary: " + boundary);
 				LOG.trace(" at position: " + possibleBoundary);
@@ -218,10 +217,9 @@ public class SentenceDetector {
 			}
 
 			if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
-				guessedBoundaries.add(possibleBoundary - textBlock.getPrevText().length());
+				guessedBoundaries.add(possibleBoundary - textBlock.getAnalysisStart());
 				boundaries.add(boundary);
-				RawTextMarker rawTextMarker = new RawTextMarker(TextMarkType.SENTENCE_BREAK, this.getClass().getSimpleName());
-				Annotation<RawTextMarker> annotation = new Annotation<>(possibleBoundary + 1, possibleBoundary + 1, rawTextMarker);
+				Annotation<SentenceBoundary> annotation = new Annotation<>(possibleBoundary, possibleBoundary + 1, new SentenceBoundary());
 				annotations.add(annotation);
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Adding boundary: " + possibleBoundary);
@@ -230,10 +228,7 @@ public class SentenceDetector {
 		} // have we a possible boundary at this position?
 
 		if (LOG.isTraceEnabled()) {
-			LOG.trace("prevText: " + textBlock.getPrevText().replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("currentText: " + textBlock.getCurrentText().replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("nextText: " + textBlock.getNextText().replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("context: " + context.replace('\n', '¶').replace('\r', '¶'));
+			LOG.trace("context: " + textBlock.getText().toString().replace('\n', '¶').replace('\r', '¶'));
 
 			for (PossibleSentenceBoundary boundary : boundaries)
 				LOG.trace("boundary: " + boundary.toString());

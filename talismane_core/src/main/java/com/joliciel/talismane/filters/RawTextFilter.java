@@ -18,8 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import java.util.Set;
-
+import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 
 /**
@@ -28,17 +27,11 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  * @author Assaf Urieli
  *
  */
-public interface TextMarkerFilter {
+public interface RawTextFilter {
 	/**
 	 * Adds annotations of type {@link RawTextMarker} to the textBlock.
 	 */
-	public void annotate(RollingTextBlock textBlock);
-
-	/**
-	 * Apply the filter to the text block's current text only, and detect any
-	 * text markers.
-	 */
-	public Set<TextMarker> apply(RollingTextBlock textBlock);
+	public void annotate(AnnotatedText textBlock);
 
 	/**
 	 * If the filter includes text replacement, the replacement string.
@@ -55,17 +48,12 @@ public interface TextMarkerFilter {
 	public int getBlockSize();
 
 	/**
-	 * If the filter adds a tag, the attribute to add.
-	 */
-	public String getAttribute();
-
-	/**
 	 * If the filter adds a tag, the value to add.
 	 */
-	public TokenAttribute<?> getValue();
+	public TokenAttribute<?> getAttribute();
 
 	/**
 	 * Set the tag added by this filter.
 	 */
-	public void setTag(String attribute, TokenAttribute<?> value);
+	public void setAttribute(TokenAttribute<?> attribute);
 }

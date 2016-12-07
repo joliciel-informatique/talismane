@@ -2,53 +2,41 @@ package com.joliciel.talismane.filters;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.Annotation;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextReplaceMarker;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextSkipMarker;
 import com.joliciel.talismane.tokeniser.StringAttribute;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 public class RegexMarkerFilterTest {
 	private static final Logger LOG = LoggerFactory.getLogger(RegexMarkerFilterTest.class);
 
 	@Test
 	public void testApply() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+		RegexMarkerFilter filter = new RegexMarkerFilter(RawTextMarkType.SKIP, "<skip>.*?</skip>", 0, 1000);
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+		AnnotatedText text = new AnnotatedText("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>");
 
-		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.SKIP, "<skip>.*?</skip>", 0, 1000);
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		List<Annotation<RawTextSkipMarker>> skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
 
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
-
-		assertEquals(4, textMarkers.size());
 		int i = 0;
-		for (TextMarker textMarker : textMarkers) {
+		for (Annotation<RawTextSkipMarker> skip : skips) {
 			if (i == 0) {
-				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(8, textMarker.getPosition());
-			} else if (i == 1) {
-				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(28, textMarker.getPosition());
+				assertEquals("J'ai du ".length(), skip.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>".length(), skip.getEnd());
 			} else if (i == 2) {
-				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(44, textMarker.getPosition());
-			} else if (i == 3) {
-				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(64, textMarker.getPosition());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.".length(), skip.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>".length(), skip.getEnd());
 			}
 			i++;
 		}
@@ -56,86 +44,52 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testApplyWithGroup() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+		RegexMarkerFilter filter = new RegexMarkerFilter(RawTextMarkType.SKIP, "<skip>(.*?)</skip>", 1, 1000);
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+		AnnotatedText text = new AnnotatedText("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>");
 
-		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.SKIP, "<skip>(.*?)</skip>", 0, 1000);
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
-
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
+		List<Annotation<RawTextSkipMarker>> skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
 
 		int i = 0;
-		for (TextMarker textMarker : textMarkers) {
+		for (Annotation<RawTextSkipMarker> skip : skips) {
 			if (i == 0) {
-				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(8, textMarker.getPosition());
-			} else if (i == 1) {
-				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(28, textMarker.getPosition());
+				assertEquals("J'ai du <skip>".length(), skip.getStart());
+				assertEquals("J'ai du <skip>skip me".length(), skip.getEnd());
 			} else if (i == 2) {
-				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(44, textMarker.getPosition());
-			} else if (i == 3) {
-				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(64, textMarker.getPosition());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.<skip>".length(), skip.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me".length(), skip.getEnd());
 			}
 			i++;
 		}
-
-		assertEquals(4, textMarkers.size());
 	}
 
 	@Test
 	public void testApplyWithReplacement() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
-
-		final TalismaneSession session = new TalismaneSession(config, "");
-
-		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.REPLACE, "<skip>(.*?)</skip>", 0, 1000);
+		RegexMarkerFilter filter = new RegexMarkerFilter(RawTextMarkType.REPLACE, "<skip>(.*?)</skip>", 0, 1000);
 		filter.setReplacement("Skipped:$1");
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		AnnotatedText text = new AnnotatedText("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>");
 
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		LOG.debug(textMarkers.toString());
+		List<Annotation<RawTextReplaceMarker>> replaces = text.getAnnotations(RawTextReplaceMarker.class);
+		assertEquals(2, replaces.size());
 
-		assertEquals(6, textMarkers.size());
 		int i = 0;
-		for (TextMarker textMarker : textMarkers) {
+		for (Annotation<RawTextReplaceMarker> replace : replaces) {
 			if (i == 0) {
-				assertEquals(TextMarkerType.INSERT, textMarker.getType());
-				assertEquals(8, textMarker.getPosition());
-				assertEquals("Skipped:skip me", textMarker.getInsertionText());
-			} else if (i == 1) {
-				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(8, textMarker.getPosition());
+				assertEquals("J'ai du ".length(), replace.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>".length(), replace.getEnd());
+				assertEquals("Skipped:skip me", replace.getData().getInsertionText());
 			} else if (i == 2) {
-				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(28, textMarker.getPosition());
-			} else if (i == 3) {
-				assertEquals(TextMarkerType.INSERT, textMarker.getType());
-				assertEquals(44, textMarker.getPosition());
-				assertEquals("Skipped:skip this", textMarker.getInsertionText());
-			} else if (i == 4) {
-				assertEquals(TextMarkerType.PUSH_SKIP, textMarker.getType());
-				assertEquals(44, textMarker.getPosition());
-			} else if (i == 5) {
-				assertEquals(TextMarkerType.POP_SKIP, textMarker.getType());
-				assertEquals(66, textMarker.getPosition());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.".length(), replace.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>".length(), replace.getEnd());
+				assertEquals("Skipped:skip this", replace.getData().getInsertionText());
 			}
 			i++;
 		}
@@ -143,46 +97,29 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testTag() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+		RegexMarkerFilter filter = new RegexMarkerFilter(RawTextMarkType.TAG, "<skip>(.*?)</skip>", 0, 1000);
+		filter.setAttribute(new StringAttribute("TAG1", "x"));
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+		AnnotatedText text = new AnnotatedText("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>");
 
-		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.TAG, "<skip>(.*?)</skip>", 0, 1000);
-		filter.setTag("TAG1", new StringAttribute("TAG1", "x"));
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		List<Annotation<StringAttribute>> attributes = text.getAnnotations(StringAttribute.class);
+		assertEquals(2, attributes.size());
 
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
-
-		assertEquals(4, textMarkers.size());
 		int i = 0;
-		for (TextMarker textMarker : textMarkers) {
+		for (Annotation<StringAttribute> attribute : attributes) {
 			if (i == 0) {
-				assertEquals(TextMarkerType.TAG_START, textMarker.getType());
-				assertEquals(8, textMarker.getPosition());
-				assertEquals("TAG1", textMarker.getAttribute());
-				assertEquals("x", textMarker.getValue().getValue());
+				assertEquals("J'ai du ".length(), attribute.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>".length(), attribute.getEnd());
+				assertEquals("TAG1", attribute.getData().getKey());
+				assertEquals("x", attribute.getData().getValue());
 			} else if (i == 1) {
-				assertEquals(TextMarkerType.TAG_STOP, textMarker.getType());
-				assertEquals(28, textMarker.getPosition());
-				assertEquals("TAG1", textMarker.getAttribute());
-				assertEquals("x", textMarker.getValue().getValue());
-			} else if (i == 2) {
-				assertEquals(TextMarkerType.TAG_START, textMarker.getType());
-				assertEquals(44, textMarker.getPosition());
-				assertEquals("TAG1", textMarker.getAttribute());
-				assertEquals("x", textMarker.getValue().getValue());
-			} else if (i == 3) {
-				assertEquals(TextMarkerType.TAG_STOP, textMarker.getType());
-				assertEquals(66, textMarker.getPosition());
-				assertEquals("TAG1", textMarker.getAttribute());
-				assertEquals("x", textMarker.getValue().getValue());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.".length(), attribute.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>".length(), attribute.getEnd());
+				assertEquals("TAG1", attribute.getData().getKey());
+				assertEquals("x", attribute.getData().getValue());
 			}
 			i++;
 		}
@@ -190,31 +127,26 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testUnaryOperatorsStop() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+		RegexMarkerFilter filter = new RegexMarkerFilter(RawTextMarkType.STOP, "<skip>", 0, 1000);
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+		AnnotatedText text = new AnnotatedText("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>");
 
-		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.STOP, "<skip>", 0, 1000);
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		List<Annotation<RawTextMarker>> markers = text.getAnnotations(RawTextMarker.class);
+		assertEquals(2, markers.size());
 
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
-
-		assertEquals(2, textMarkers.size());
 		int i = 0;
-		for (TextMarker textMarker : textMarkers) {
+		for (Annotation<RawTextMarker> textMarker : markers) {
 			if (i == 0) {
-				assertEquals(TextMarkerType.STOP, textMarker.getType());
-				assertEquals(8, textMarker.getPosition());
+				assertEquals(RawTextMarkType.STOP, textMarker.getData().getType());
+				assertEquals("J'ai du ".length(), textMarker.getStart());
+				assertEquals("J'ai du <skip>".length(), textMarker.getEnd());
 			} else if (i == 1) {
-				assertEquals(TextMarkerType.STOP, textMarker.getType());
-				assertEquals(44, textMarker.getPosition());
+				assertEquals(RawTextMarkType.STOP, textMarker.getData().getType());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.".length(), textMarker.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.<skip>".length(), textMarker.getEnd());
 			}
 			i++;
 		}
@@ -222,31 +154,26 @@ public class RegexMarkerFilterTest {
 
 	@Test
 	public void testUnaryOperatorsStart() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+		RegexMarkerFilter filter = new RegexMarkerFilter(RawTextMarkType.START, "<skip>", 0, 1000);
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+		AnnotatedText text = new AnnotatedText("J'ai du <skip>skip me</skip>mal à le croire.<skip>skip this</skip>");
 
-		RegexMarkerFilter filter = new RegexMarkerFilter(TextMarkType.START, "</skip>", 0, 1000);
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
-		String text = "J'ai du <skip>skip me</skip>mal à le croire.<skip>skip me</skip>!";
-		textBlock = textBlock.roll(text);
-		textBlock = textBlock.roll("");
+		List<Annotation<RawTextMarker>> markers = text.getAnnotations(RawTextMarker.class);
+		assertEquals(2, markers.size());
 
-		Set<TextMarker> textMarkers = filter.apply(textBlock);
-		LOG.debug(textMarkers.toString());
-
-		assertEquals(2, textMarkers.size());
 		int i = 0;
-		for (TextMarker textMarker : textMarkers) {
+		for (Annotation<RawTextMarker> textMarker : markers) {
 			if (i == 0) {
-				assertEquals(TextMarkerType.START, textMarker.getType());
-				assertEquals(28, textMarker.getPosition());
+				assertEquals(RawTextMarkType.START, textMarker.getData().getType());
+				assertEquals("J'ai du ".length(), textMarker.getStart());
+				assertEquals("J'ai du <skip>".length(), textMarker.getEnd());
 			} else if (i == 1) {
-				assertEquals(TextMarkerType.START, textMarker.getType());
-				assertEquals(64, textMarker.getPosition());
+				assertEquals(RawTextMarkType.START, textMarker.getData().getType());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.".length(), textMarker.getStart());
+				assertEquals("J'ai du <skip>skip me</skip>mal à le croire.<skip>".length(), textMarker.getEnd());
 			}
 			i++;
 		}

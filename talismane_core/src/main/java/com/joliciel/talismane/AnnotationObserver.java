@@ -36,4 +36,6 @@ public interface AnnotationObserver {
 	 *            the annotations getting added
 	 */
 	public <T> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations);
+
+	public <T> void afterAddAnnotations(AnnotatedText subject);
 }

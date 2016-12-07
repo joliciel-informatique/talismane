@@ -28,11 +28,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.filters.RollingSentenceProcessor;
+import com.joliciel.talismane.filters.RawTextFilter;
 import com.joliciel.talismane.filters.RollingTextBlock;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.filters.SentenceHolder;
-import com.joliciel.talismane.filters.TextMarkerFilter;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -241,26 +239,15 @@ public class Talismane {
 			TokenSequence tokenSequence = null;
 			PosTagSequence posTagSequence = null;
 
-			RollingSentenceProcessor rollingSentenceProcessor = new RollingSentenceProcessor(session.getFileName(), this.processByDefault, session);
-			if (this.getReader() instanceof CurrentFileProvider) {
-				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingSentenceProcessor);
-			}
-
-			Sentence leftover = null;
-			if (this.startModule.equals(Module.sentenceDetector) || this.startModule.equals(Module.tokeniser)) {
-				// prime the sentence detector with two text segments, to ensure
-				// everything gets processed
-				textSegments.addLast("");
-				textSegments.addLast("");
-			}
-
 			StringBuilder stringBuilder = new StringBuilder();
 			boolean finished = false;
 			int sentenceCount = 0;
 
-			SentenceHolder prevSentenceHolder = null;
+			RollingTextBlock rollingTextBlock = new RollingTextBlock(session, this.processByDefault);
 
-			RollingTextBlock rawTextBlock = new RollingTextBlock(session, this.processByDefault);
+			if (this.getReader() instanceof CurrentFileProvider) {
+				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingTextBlock);
+			}
 
 			int endBlockCharacterCount = 0;
 
@@ -323,6 +310,8 @@ public class Talismane {
 							textSegments.addLast(stringBuilder.toString());
 							stringBuilder = new StringBuilder();
 						}
+						// add three final text segments to roll everything
+						// through processing
 						textSegments.addLast("");
 						textSegments.addLast("");
 						textSegments.addLast("");
@@ -331,78 +320,40 @@ public class Talismane {
 					if (c != session.getEndBlockCharacter())
 						stringBuilder.append(c);
 
-					while (textSegments.size() >= 3) {
+					while (textSegments.size() > 0) {
+						// roll in a new block 4, and roll the other blocks
+						// leftwards
 						String nextText = textSegments.removeFirst();
-						rawTextBlock = rawTextBlock.roll(nextText);
+						rollingTextBlock = rollingTextBlock.roll(nextText);
 
-						if (LOG.isTraceEnabled()) {
-							LOG.trace("prevText: " + rawTextBlock.getPrevText().replace('\n', '¶').replace('\r', '¶'));
-							LOG.trace("text: " + rawTextBlock.getCurrentText().replace('\n', '¶').replace('\r', '¶'));
-							LOG.trace("nextText: " + rawTextBlock.getNextText().replace('\n', '¶').replace('\r', '¶'));
-						}
+						// annotate block 3 with raw text filters
+						AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
 
-						for (TextMarkerFilter textMarkerFilter : session.getTextFilters()) {
+						for (RawTextFilter textMarkerFilter : session.getTextFilters()) {
 							textMarkerFilter.annotate(rawTextBlock);
 						}
 
-						if (this.startModule.equals(Module.sentenceDetector)) {
-							sentenceDetector.detectSentences(rawTextBlock);
-						}
-
-						SentenceHolder sentenceHolder = rawTextBlock.processText();
-
+						// detect sentences in block 2 using the sentence
+						// detector
+						AnnotatedText processedText = rollingTextBlock.getProcessedTextBlock();
 						if (LOG.isTraceEnabled()) {
-							LOG.trace("processedText: " + sentenceHolder.getProcessedText().replace('\n', '¶').replace('\r', '¶'));
+							LOG.trace("processedText: " + processedText.getText().toString().replace('\n', '¶').replace('\r', '¶'));
 						}
 
-						boolean reallyFinished = finished && textSegments.size() < 3;
+						if (this.startModule.equals(Module.sentenceDetector)) {
+							sentenceDetector.detectSentences(processedText);
+						}
 
-						List<Sentence> theSentences = sentenceHolder.getDetectedSentences(leftover);
-						leftover = null;
+						// get the sentences detected in block 2
+						List<Sentence> theSentences = rollingTextBlock.getDetectedSentences();
 						for (Sentence sentence : theSentences) {
-							if (sentence.isComplete() || reallyFinished) {
-								sentences.add(sentence);
-								sentenceCount++;
-							} else {
-								LOG.debug("Setting leftover to: " + sentence.getText());
-								leftover = sentence;
-							}
+							sentences.add(sentence);
+							sentenceCount++;
 						}
 						if (this.sentenceCount > 0 && sentenceCount >= this.sentenceCount) {
 							finished = true;
 						}
-
-						// If we have any leftover original text segments,
-						// copy them over
-						// they are necessarily at position 0 - since
-						// otherwise they would
-						// have gotten added to the leftover sentence. The
-						// only case where
-						// there isn't a leftover sentence is the case where
-						// the sentenceHolder
-						// boundary happens to be a sentence boundary, hence
-						// position 0.
-						if (sentenceHolder.getOriginalTextSegments().size() > 0) {
-							String fileName = "";
-							File file = null;
-							if (sentences.size() > 0) {
-								Sentence lastSentence = sentences.peek();
-								fileName = lastSentence.getFileName();
-								file = lastSentence.getFile();
-							}
-
-							Sentence sentence = new Sentence("", fileName, file, session);
-							StringBuilder segmentsToInsert = new StringBuilder();
-
-							for (String originalTextSegment : sentenceHolder.getOriginalTextSegments().values()) {
-								segmentsToInsert.append(originalTextSegment);
-							}
-							sentence.setLeftoverOriginalText(segmentsToInsert.toString());
-							sentences.add(sentence);
-						}
-						prevSentenceHolder = sentenceHolder;
-					} // we have at least 3 text segments (should always be the
-						// case once we get started)
+					} // we have at least one text segment to process
 				} else if (this.startModule.equals(Module.posTagger)) {
 					if (tokenCorpusReader.hasNextTokenSequence()) {
 						tokenSequence = tokenCorpusReader.nextTokenSequence();
@@ -520,11 +471,8 @@ public class Talismane {
 			} // next character
 
 			// Check if there's any leftover output to output!
-			if (prevSentenceHolder != null && prevSentenceHolder.getOriginalTextSegments().size() > 0) {
-				for (String segment : prevSentenceHolder.getOriginalTextSegments().values()) {
-					this.getWriter().append(segment);
-				}
-			}
+			if (rollingTextBlock.getLeftoverOriginalText().length() > 0)
+				this.getWriter().append(rollingTextBlock.getLeftoverOriginalText());
 		} finally {
 			if (parseConfigurationProcessor != null)
 				parseConfigurationProcessor.onCompleteParse();
