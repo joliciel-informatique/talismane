@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -20,17 +20,8 @@ package com.joliciel.talismane.filters;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Stack;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +29,6 @@ import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.AnnotationObserver;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.sentenceDetector.SentenceBoundary;
-import com.joliciel.talismane.utils.io.CurrentFileObserver;
 
 /**
  * A block of raw text, always containing four sub-blocks, which are rolled in
@@ -70,17 +59,50 @@ import com.joliciel.talismane.utils.io.CurrentFileObserver;
  * a processed text block boundary. Therefore, sentence detection is always
  * performed on block 2 of processed text, with blocks 1 and 3 as the left and
  * right context. The object required for sentence detection can be requested
- * through {@link #getProcessedTextBlock()}. Annotations added to this object
- * will automatically get added to the parent RollingTextBlock, hence enabling
+ * through {@link #getProcessedText()}. Annotations added to this object will
+ * automatically get added to the parent RollingTextBlock, hence enabling
  * sentence extraction.<br/>
  * <br/>
  * <br/>
+ * Typical usage:
  * 
+ * <pre>
+ * RollingTextBlock rollingTextBlock = new RollingTextBlock(session, processByDefault);
+ * List&lt;Sentence&gt; sentences = new ArrayList&lt;&gt;();
+ * 
+ * // ... find segments ...
+ * 
+ * // add three segments at the end
+ * segments.add("");
+ * segments.add("");
+ * segments.add("");
+ * for (String segment : segments) {
+ * 	// roll in a new block 4, and roll the other blocks leftwards
+ * 	rollingTextBlock = rollingTextBlock.roll(segment);
+ * 
+ * 	// annotate block 3 with raw text filters
+ * 	AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
+ * 
+ * 	for (RawTextFilter textMarkerFilter : session.getTextFilters()) {
+ * 		textMarkerFilter.annotate(rawTextBlock);
+ * 	}
+ * 
+ * 	// detect sentences in block 2 using the sentence detector
+ * 	AnnotatedText processedText = rollingTextBlock.getProcessedText();
+ * 	sentenceDetector.detectSentences(processedText);
+ * 
+ * 	// get the sentences detected in block 2
+ * 	List&lt;Sentence&gt; theSentences = rollingTextBlock.getDetectedSentences();
+ * 	for (Sentence sentence : theSentences) {
+ * 		sentences.add(sentence);
+ * 	}
+ * }
+ * </pre>
  * 
  * @author Assaf Urieli
  *
  */
-public class RollingTextBlock extends AnnotatedText implements CurrentFileObserver {
+public class RollingTextBlock extends RawTextProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(RollingTextBlock.class);
 
 	private final String block1;
@@ -88,26 +110,13 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 	private final String block3;
 	private final String block4;
 
-	private final Stack<Boolean> shouldProcessStack;
-	private final Stack<Boolean> shouldOutputStack;
-	private int originalTextIndex = 0;
-	private String leftoverOutput = "";
-	private int lineNumber = 2; // this is so that the line following the first
-								// newline character will be given 2 (and the
-								// initial line 1)
-
-	private static Pattern newlinePattern = Pattern.compile("\r\n|[\r\n]");
-	private int leftoverNewline = 0;
 	private String fileName = "";
 	private File file = null;
 
 	private final SentenceHolder sentenceHolder1;
 	private final SentenceHolder sentenceHolder2;
 	private SentenceHolder sentenceHolder3 = null;
-	private List<Annotation<SentenceBoundary>> sentenceBoundaries = new ArrayList<>();
 	private Sentence leftover;
-
-	private static final int NUM_CHARS = 30;
 
 	private final TalismaneSession session;
 
@@ -115,17 +124,13 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 	 * Creates a new RollingTextBlock with prev, current and next all set to
 	 * empty strings.
 	 */
-	public RollingTextBlock(TalismaneSession session, boolean processByDefault) {
-		super("", 0, 0, Collections.emptyList());
+	public RollingTextBlock(boolean processByDefault, TalismaneSession session) {
+		super("", processByDefault, session);
 		this.session = session;
 		this.block1 = "";
 		this.block2 = "";
 		this.block3 = "";
 		this.block4 = "";
-		this.shouldProcessStack = new Stack<>();
-		this.shouldProcessStack.push(processByDefault);
-		this.shouldOutputStack = new Stack<>();
-		this.shouldOutputStack.push(false);
 
 		this.sentenceHolder1 = new SentenceHolder(session, 0, true);
 		this.sentenceHolder1.setProcessedText("");
@@ -134,7 +139,7 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 	}
 
 	private RollingTextBlock(RollingTextBlock predecessor, String nextText, List<Annotation<?>> annotations) {
-		super(predecessor.block2 + predecessor.block3 + predecessor.block4 + nextText, predecessor.block2.length() + predecessor.block3.length(),
+		super(predecessor, predecessor.block2 + predecessor.block3 + predecessor.block4 + nextText, predecessor.block2.length() + predecessor.block3.length(),
 				predecessor.block2.length() + predecessor.block3.length() + predecessor.block4.length(), annotations);
 		this.block1 = predecessor.block2;
 		this.block2 = predecessor.block3;
@@ -142,12 +147,7 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 		this.block4 = nextText;
 
 		this.session = predecessor.session;
-		this.shouldOutputStack = predecessor.shouldOutputStack;
-		this.shouldProcessStack = predecessor.shouldProcessStack;
-		this.originalTextIndex = predecessor.originalTextIndex;
-		this.leftoverOutput = predecessor.leftoverOutput;
-		this.lineNumber = predecessor.lineNumber;
-		this.leftoverNewline = predecessor.leftoverNewline;
+
 		this.fileName = predecessor.fileName;
 		this.file = predecessor.file;
 
@@ -220,17 +220,19 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 
 			@Override
 			public <T> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations) {
-				int offset = RollingTextBlock.this.block1.length() + RollingTextBlock.this.block2.length();
-				List<Annotation<T>> newAnnotations = new ArrayList<>();
-				for (Annotation<T> annotation : annotations) {
-					Annotation<T> newAnnotation = annotation.getAnnotation(annotation.getStart() + offset, annotation.getEnd() + offset);
-					newAnnotations.add(newAnnotation);
-				}
-				RollingTextBlock.this.addAnnotations(newAnnotations);
+				if (annotations.size() > 0) {
+					int offset = RollingTextBlock.this.block1.length() + RollingTextBlock.this.block2.length();
+					List<Annotation<T>> newAnnotations = new ArrayList<>();
+					for (Annotation<T> annotation : annotations) {
+						Annotation<T> newAnnotation = annotation.getAnnotation(annotation.getStart() + offset, annotation.getEnd() + offset);
+						newAnnotations.add(newAnnotation);
+					}
+					RollingTextBlock.this.addAnnotations(newAnnotations);
 
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Annotations received: " + annotations);
-					LOG.trace("Annotations added: " + newAnnotations);
+					if (LOG.isTraceEnabled()) {
+						LOG.trace("RawTextBlock Annotations received: " + annotations);
+						LOG.trace("RawTextBlock Annotations added: " + newAnnotations);
+					}
 				}
 			}
 
@@ -247,370 +249,14 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 	 * 
 	 * @return SentenceHolder to retrieve the sentences.
 	 */
-	private SentenceHolder processText() {
+	private void processText() {
 		if (this.sentenceHolder3 != null)
-			return this.sentenceHolder3;
+			return;
 
-		LOG.debug("processText");
-		List<Annotation<RawTextMarker>> annotations = this.getAnnotations(RawTextMarker.class);
-		Map<Integer, List<Pair<Boolean, Annotation<RawTextMarker>>>> markMap = new TreeMap<>();
 		int textStartPos = this.block1.length() + this.block2.length();
 		int textEndPos = this.block1.length() + this.block2.length() + this.block3.length();
 
-		for (Annotation<RawTextMarker> annotation : annotations) {
-			if (LOG.isTraceEnabled())
-				LOG.trace("Annotation: " + annotation.toString());
-
-			if (annotation.getStart() >= textStartPos && annotation.getStart() < textEndPos) {
-				List<Pair<Boolean, Annotation<RawTextMarker>>> startMarks = markMap.get(annotation.getStart());
-				if (startMarks == null) {
-					startMarks = new ArrayList<>();
-					markMap.put(annotation.getStart(), startMarks);
-				}
-				startMarks.add(new ImmutablePair<Boolean, Annotation<RawTextMarker>>(true, annotation));
-			}
-
-			// if the matcher ends within the textblock
-			// or if the matcher ends exactly on the textblock, and the
-			// following text block is empty
-			// we add the end match
-			// the 2nd condition is to ensure we add the end match, since empty
-			// blocks can never match anything
-			if (annotation.getEnd() >= textStartPos
-					&& (annotation.getEnd() < textEndPos || (annotation.getEnd() == textEndPos && this.block3.length() > 0 && this.block4.length() == 0))) {
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("End in range: textStartPos " + textStartPos + ">= matcherEnd [[" + annotation.getEnd() + "]] < textEndPos " + textEndPos);
-				}
-				List<Pair<Boolean, Annotation<RawTextMarker>>> endMarks = markMap.get(annotation.getEnd());
-				if (endMarks == null) {
-					endMarks = new ArrayList<>();
-					markMap.put(annotation.getEnd(), endMarks);
-				}
-				endMarks.add(new ImmutablePair<Boolean, Annotation<RawTextMarker>>(false, annotation));
-			} else {
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("End out of range: textStartPos " + textStartPos + ">= matcherEnd [[" + annotation.getEnd() + "]] < textEndPos " + textEndPos);
-				}
-			}
-		}
-		List<Pair<Boolean, Annotation<RawTextMarker>>> marks = new ArrayList<>();
-		for (int key : markMap.keySet())
-			marks.addAll(markMap.get(key));
-
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("currentText: " + block3.replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("marks: " + marks.toString());
-		}
-
-		boolean endOfBlock = block4.length() == 0;
-		SentenceHolder sentenceHolder = new SentenceHolder(session, originalTextIndex, endOfBlock);
-
-		// find any newlines
-		sentenceHolder.addNewline(leftoverNewline, lineNumber - 1);
-
-		Matcher matcher = newlinePattern.matcher(block3);
-		while (matcher.find()) {
-			sentenceHolder.addNewline(originalTextIndex + matcher.end(), lineNumber++);
-			leftoverNewline = originalTextIndex + matcher.end();
-		}
-
-		Map<Integer, Integer> insertionPoints = new TreeMap<Integer, Integer>();
-		StringBuilder processedText = new StringBuilder();
-		int currentPos = 0;
-		int outputPos = 0;
-
-		for (Pair<Boolean, Annotation<RawTextMarker>> mark : marks) {
-			boolean isStart = mark.getLeft();
-			Annotation<RawTextMarker> annotation = mark.getRight();
-			RawTextMarker marker = annotation.getData();
-			int position = isStart ? annotation.getStart() : annotation.getEnd();
-			int relativePosition = position - textStartPos;
-			if (LOG.isTraceEnabled()) {
-				LOG.trace((isStart ? "Start " : "Stop ") + marker.getType() + " at " + position + ", relative pos: " + relativePosition);
-				LOG.trace("Stack before: " + shouldProcessStack);
-				LOG.trace("Text before: " + processedText.toString());
-				LOG.trace("Added by filter: " + marker.getSource());
-				LOG.trace("Match text: "
-						+ this.getText().subSequence(annotation.getStart(), annotation.getEnd()).toString().replace('\n', '¶').replace('\r', '¶'));
-			}
-
-			boolean shouldProcess = shouldProcessStack.peek();
-			boolean shouldOutput = shouldOutputStack.peek();
-
-			List<RawTextInstruction> actions = new ArrayList<>();
-			if (isStart) {
-				switch (marker.getType()) {
-				case SKIP:
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case SENTENCE_BREAK:
-					actions.add(RawTextInstruction.SENTENCE_BREAK);
-					break;
-				case SPACE:
-					actions.add(RawTextInstruction.INSERT);
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case REPLACE:
-					actions.add(RawTextInstruction.INSERT);
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case OUTPUT:
-					actions.add(RawTextInstruction.PUSH_OUTPUT);
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case INCLUDE:
-					actions.add(RawTextInstruction.PUSH_INCLUDE);
-					break;
-				case OUTPUT_START:
-					actions.add(RawTextInstruction.PUSH_OUTPUT);
-					break;
-				case STOP:
-					actions.add(RawTextInstruction.STOP);
-					break;
-				case NONE:
-				case OUTPUT_STOP:
-				case START:
-				case TAG:
-					break;
-				}
-			} else {
-				// end of annotation
-				switch (marker.getType()) {
-				case SKIP:
-				case SPACE:
-				case REPLACE:
-					actions.add(RawTextInstruction.POP_SKIP);
-					break;
-				case OUTPUT:
-					actions.add(RawTextInstruction.STOP_OUTPUT);
-					actions.add(RawTextInstruction.POP_SKIP);
-					break;
-				case INCLUDE:
-					actions.add(RawTextInstruction.POP_INCLUDE);
-					break;
-				case START:
-					actions.add(RawTextInstruction.START);
-					break;
-				case OUTPUT_STOP:
-					actions.add(RawTextInstruction.STOP_OUTPUT);
-					break;
-				case NONE:
-				case OUTPUT_START:
-				case SENTENCE_BREAK:
-				case STOP:
-				case TAG:
-					break;
-				}
-			}
-
-			for (RawTextInstruction action : actions) {
-				switch (action) {
-				case PUSH_SKIP:
-					if (shouldProcess) {
-						insertionPoints.put(processedText.length(), currentPos);
-						processedText.append(block3.substring(currentPos, relativePosition));
-						if (shouldOutput) {
-							outputPos = relativePosition;
-						}
-					}
-					shouldProcessStack.push(false);
-					break;
-				case PUSH_OUTPUT:
-					if (!shouldOutput && !shouldProcess) {
-						outputPos = relativePosition;
-					}
-					shouldOutputStack.push(true);
-					break;
-				case PUSH_INCLUDE:
-					if (!shouldProcess) {
-						currentPos = relativePosition;
-						if (shouldOutput) {
-							String outputText = block3.substring(outputPos, relativePosition);
-							this.addOutputText(sentenceHolder, processedText.length(), outputText);
-							outputPos = relativePosition;
-						}
-					}
-					shouldProcessStack.push(true);
-					break;
-				case SPACE:
-					if (shouldProcess) {
-						insertionPoints.put(processedText.length(), currentPos);
-						String leftoverText = block3.substring(currentPos, relativePosition);
-						processedText.append(leftoverText);
-						currentPos = relativePosition;
-						if (!leftoverText.endsWith(" ")) {
-							insertionPoints.put(processedText.length(), currentPos);
-							processedText.append(" ");
-						}
-					}
-					break;
-				case INSERT:
-					if (shouldProcess) {
-						insertionPoints.put(processedText.length(), currentPos);
-						String leftoverText = block3.substring(currentPos, relativePosition);
-						processedText.append(leftoverText);
-						currentPos = relativePosition;
-						for (int i = 0; i < marker.getInsertionText().length(); i++) {
-							insertionPoints.put(processedText.length() + i, currentPos);
-						}
-						if (LOG.isTraceEnabled())
-							LOG.trace("Inserting: " + marker.getInsertionText());
-						processedText.append(marker.getInsertionText());
-					}
-					break;
-				case SENTENCE_BREAK: {
-					String leftoverText = null;
-					if (shouldProcess) {
-						insertionPoints.put(processedText.length(), currentPos);
-						leftoverText = block3.substring(currentPos, relativePosition);
-						processedText.append(leftoverText);
-						currentPos = relativePosition;
-					}
-
-					// add the sentence boundary on the last character that was
-					// actually added.
-					sentenceHolder.addSentenceBoundary(processedText.length() - 1);
-					if (LOG.isTraceEnabled()) {
-						int boundary = processedText.length() - 1;
-						if (boundary >= 0) {
-							String string = null;
-							int start1 = boundary - NUM_CHARS;
-
-							if (start1 < 0)
-								start1 = 0;
-							String startString = processedText.substring(start1, boundary);
-
-							String middleString = "" + processedText.charAt(boundary);
-
-							string = startString + "[" + middleString + "]";
-							string = string.replace('\n', '¶');
-							LOG.trace("Adding sentence break at position " + boundary + ": " + string);
-						}
-					}
-					if (shouldProcess) {
-						if (!leftoverText.endsWith(" ")) {
-							insertionPoints.put(processedText.length(), currentPos);
-							processedText.append(" ");
-						}
-					}
-					break;
-				}
-				case POP_SKIP:
-				case POP_INCLUDE:
-				case STOP:
-				case START: {
-					boolean wasProcessing = shouldProcess;
-					boolean wasOutputting = shouldOutput && !shouldProcess;
-					if (action == RawTextInstruction.POP_SKIP || action == RawTextInstruction.POP_INCLUDE) {
-						shouldProcessStack.pop();
-					} else if (action == RawTextInstruction.STOP) {
-						shouldProcessStack.pop();
-						shouldProcessStack.push(false);
-					} else if (action == RawTextInstruction.START) {
-						shouldProcessStack.pop();
-						shouldProcessStack.push(true);
-					}
-					shouldProcess = shouldProcessStack.peek();
-					shouldOutput = shouldOutput && !shouldProcess;
-
-					if (wasProcessing && !shouldProcess) {
-						insertionPoints.put(processedText.length(), currentPos);
-						processedText.append(block3.substring(currentPos, relativePosition));
-					} else if (!wasProcessing && shouldProcess) {
-						currentPos = relativePosition;
-					} // shouldProcess?
-
-					if (wasOutputting && (!shouldOutput || !shouldProcess)) {
-						String outputText = block3.substring(outputPos, relativePosition);
-						this.addOutputText(sentenceHolder, processedText.length(), outputText);
-						outputPos = relativePosition;
-					} else if (!wasOutputting && (shouldOutput && !shouldProcess)) {
-						outputPos = relativePosition;
-					} // shouldOutput?
-					break;
-				}
-				case POP_OUTPUT:
-				case STOP_OUTPUT:
-				case START_OUTPUT: {
-					boolean wasOutputting = shouldOutput && !shouldProcess;
-					if (action == RawTextInstruction.POP_OUTPUT) {
-						shouldOutputStack.pop();
-					} else if (action == RawTextInstruction.STOP_OUTPUT) {
-						shouldOutputStack.pop();
-						shouldOutputStack.push(false);
-					} else if (action == RawTextInstruction.START_OUTPUT) {
-						shouldOutputStack.pop();
-						shouldOutputStack.push(true);
-					}
-					shouldOutput = shouldOutputStack.peek();
-
-					if (wasOutputting && (!shouldOutput || !shouldProcess)) {
-						String outputText = block3.substring(outputPos, relativePosition);
-						this.addOutputText(sentenceHolder, processedText.length(), outputText);
-						outputPos = relativePosition;
-					} else if (!wasOutputting && (shouldOutput && !shouldProcess)) {
-						outputPos = relativePosition;
-					} // shouldOutput?
-					break;
-				}
-				} // marker type
-
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Stack after: " + shouldProcessStack);
-					LOG.trace("Text after: " + processedText.toString());
-				}
-			} // next action
-		} // next text marker
-
-		boolean shouldProcess = shouldProcessStack.peek();
-		boolean shouldOutput = shouldOutputStack.peek();
-
-		if (shouldProcess) {
-			insertionPoints.put(processedText.length(), currentPos);
-			processedText.append(block3.substring(currentPos));
-		}
-
-		if (shouldOutput && !shouldProcess) {
-			leftoverOutput = leftoverOutput + block3.substring(outputPos);
-		}
-
-		String finalProcessedText = processedText.toString();
-		if (LOG.isTraceEnabled())
-			LOG.trace("Text after processing: " + finalProcessedText);
-		sentenceHolder.setProcessedText(finalProcessedText);
-
-		int lastIndex = 0;
-		int lastOriginalIndex = 0;
-		for (Entry<Integer, Integer> insertionPoint : insertionPoints.entrySet()) {
-			int j = 0;
-			for (int i = lastIndex; i < insertionPoint.getKey(); i++) {
-				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
-				j++;
-			}
-			lastIndex = insertionPoint.getKey();
-			lastOriginalIndex = insertionPoint.getValue();
-		}
-
-		if (lastIndex < sentenceHolder.getProcessedText().length()) {
-			int j = 0;
-			for (int i = lastIndex; i < sentenceHolder.getProcessedText().length(); i++) {
-				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
-				j++;
-			}
-		}
-
-		originalTextIndex += block3.length();
-
-		sentenceHolder.setFileName(this.fileName);
-		sentenceHolder.setFile(this.file);
-		this.sentenceHolder3 = sentenceHolder;
-		return sentenceHolder;
-
-	}
-
-	private void addOutputText(SentenceHolder holder, int position, String text) {
-		holder.addOriginalTextSegment(position, leftoverOutput + text);
-		leftoverOutput = "";
+		this.sentenceHolder3 = super.processText(textStartPos, textEndPos, this.block3, this.block4.length() == 0);
 	}
 
 	/**
@@ -625,85 +271,10 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 	 * 
 	 * @return
 	 */
-	public AnnotatedText getProcessedTextBlock() {
-		SentenceHolder sentenceHolder = this.processText();
-		StringBuilder sb = new StringBuilder();
-		String processedText1 = sentenceHolder1.getProcessedText();
-		String processedText2 = sentenceHolder2.getProcessedText();
-		String processedText3 = sentenceHolder.getProcessedText();
-		sb.append(processedText1);
-		sb.append(processedText2);
-		sb.append(processedText3);
-		String processedText = sb.toString();
-
-		List<Annotation<RawTextMarker>> myAnnotations = this.getAnnotations(RawTextMarker.class);
-		List<Annotation<RawTextMarker>> hisAnnotations = new ArrayList<>();
-
-		int block2OriginalIndex = sentenceHolder2.getOriginalStartIndex();
-		for (Annotation<RawTextMarker> myAnnotation : myAnnotations) {
-			if ((myAnnotation.getStart() >= block1.length() && myAnnotation.getStart() < block1.length() + block2.length())
-					|| ((myAnnotation.getEnd() >= block1.length() && myAnnotation.getEnd() < block1.length() + block2.length()))) {
-				int originalStart = block2OriginalIndex + myAnnotation.getStart();
-				int originalEnd = block2OriginalIndex + myAnnotation.getEnd();
-				int localStart = sentenceHolder2.getIndex(originalStart);
-				int localEnd = sentenceHolder2.getIndex(originalEnd);
-				Annotation<RawTextMarker> hisAnnotation = myAnnotation.getAnnotation(localStart, localEnd);
-				hisAnnotations.add(hisAnnotation);
-			}
-		}
-		AnnotatedText processedTextBlock = new AnnotatedText(processedText, processedText1.length(), processedText1.length() + processedText2.length());
-		processedTextBlock.addAnnotations(hisAnnotations);
-
-		processedTextBlock.addObserver(new AnnotationObserver() {
-			// an observer which adds any annotations added to the
-			// processedTextBlock back to myself, at the correct position
-			@Override
-			public <T> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations) {
-				int offset = RollingTextBlock.this.block1.length();
-				SentenceHolder sentenceHolder1 = RollingTextBlock.this.sentenceHolder1;
-				SentenceHolder sentenceHolder2 = RollingTextBlock.this.sentenceHolder2;
-				SentenceHolder sentenceHolder3 = RollingTextBlock.this.sentenceHolder3;
-				int length1 = sentenceHolder1.getProcessedText().length();
-				int length2 = sentenceHolder2.getProcessedText().length();
-
-				int sentence2HolderStart = sentenceHolder2.getOriginalStartIndex();
-				List<Annotation<T>> newAnnotations = new ArrayList<>();
-				for (Annotation<T> annotation : annotations) {
-					if (annotation.getStart() >= length1 && annotation.getStart() < length1 + length2) {
-						int originalStart = sentenceHolder2.getOriginalIndex(annotation.getStart() - length1);
-						int originalEnd = -1;
-						if (annotation.getEnd() <= length1 + length2)
-							originalEnd = sentenceHolder2.getOriginalIndex(annotation.getEnd() - length1);
-						else
-							originalEnd = sentenceHolder3.getOriginalIndex(annotation.getEnd() - (length1 + length2));
-
-						if (originalEnd >= 0) {
-							Annotation<T> newAnnotation = annotation.getAnnotation(originalStart - sentence2HolderStart + offset,
-									originalEnd - sentence2HolderStart + offset);
-							newAnnotations.add(newAnnotation);
-
-							if (annotation.getData() instanceof SentenceBoundary) {
-								@SuppressWarnings("unchecked")
-								Annotation<SentenceBoundary> sentenceBoundary = (Annotation<SentenceBoundary>) annotation;
-								sentenceBoundaries.add(sentenceBoundary);
-							}
-						}
-					}
-				}
-				RollingTextBlock.this.addAnnotations(newAnnotations);
-
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Annotations received: " + annotations);
-					LOG.trace("Annotations added: " + newAnnotations);
-				}
-			}
-
-			@Override
-			public <T> void afterAddAnnotations(AnnotatedText subject) {
-			}
-		});
-
-		return processedTextBlock;
+	@Override
+	public AnnotatedText getProcessedText() {
+		this.processText();
+		return this.getProcessedTextBlock(this.block1.length(), this.block1.length() + this.block2.length(), sentenceHolder1, sentenceHolder2, sentenceHolder3);
 	}
 
 	/**
@@ -716,9 +287,8 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 	 * @return
 	 */
 	public List<Sentence> getDetectedSentences() {
-		for (Annotation<SentenceBoundary> sentenceBoundary : sentenceBoundaries) {
-			sentenceHolder2.addSentenceBoundary(sentenceBoundary.getStart() - sentenceHolder1.getProcessedText().length());
-		}
+		this.addDetectedSentences(sentenceHolder1, sentenceHolder2);
+
 		List<Sentence> sentences = sentenceHolder2.getDetectedSentences(leftover);
 		leftover = null;
 		if (sentences.size() > 0) {
@@ -767,9 +337,7 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 	public void onNextFile(File file) {
 		this.file = file;
 		this.fileName = file.getPath();
-		this.lineNumber = 2;
-		this.originalTextIndex = 0;
-		this.leftoverNewline = 0;
+		super.onNextFile(file);
 	}
 
 	public String getLeftoverOriginalText() {
@@ -779,4 +347,5 @@ public class RollingTextBlock extends AnnotatedText implements CurrentFileObserv
 			return "";
 		}
 	}
+
 }

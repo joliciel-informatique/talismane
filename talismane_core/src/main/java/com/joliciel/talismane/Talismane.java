@@ -243,7 +243,7 @@ public class Talismane {
 			boolean finished = false;
 			int sentenceCount = 0;
 
-			RollingTextBlock rollingTextBlock = new RollingTextBlock(session, this.processByDefault);
+			RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, session);
 
 			if (this.getReader() instanceof CurrentFileProvider) {
 				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingTextBlock);
@@ -335,7 +335,7 @@ public class Talismane {
 
 						// detect sentences in block 2 using the sentence
 						// detector
-						AnnotatedText processedText = rollingTextBlock.getProcessedTextBlock();
+						AnnotatedText processedText = rollingTextBlock.getProcessedText();
 						if (LOG.isTraceEnabled()) {
 							LOG.trace("processedText: " + processedText.getText().toString().replace('\n', '¶').replace('\r', '¶'));
 						}

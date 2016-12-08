@@ -91,5 +91,5 @@ enum RawTextInstruction {
 	/**
 	 * Stop processing when you hit this marker (unless already stopped).
 	 */
-	PUSH_SKIP,
+	PUSH_SKIP
 }

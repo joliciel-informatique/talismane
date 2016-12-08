@@ -96,7 +96,7 @@ public class AnnotatedText {
 
 	/**
 	 * The point in the text beyond which annotations can begin.<br/>
-	 * More specifically, {@link Annotation#getStart()) &lt;= analysisStart.
+	 * More specifically, {@link Annotation#getStart()} &lt;= analysisStart.
 	 * <br/>
 	 * This is useful when the annotator needs more context, but must only add
 	 * annotations in a particular part of the text.
@@ -107,7 +107,7 @@ public class AnnotatedText {
 
 	/**
 	 * The point in the text beyond which no more annotations should begin.<br/>
-	 * More specifically, {@link Annotation#getStart()) &lt; analysisEnd.<br/>
+	 * More specifically, {@link Annotation#getStart()} &lt; analysisEnd.<br/>
 	 * This is useful when the annotator needs more context, but must only add
 	 * annotations in a particular part of the text.
 	 */
