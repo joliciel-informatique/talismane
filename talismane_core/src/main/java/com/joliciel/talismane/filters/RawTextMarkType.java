@@ -54,6 +54,10 @@ public enum RawTextMarkType {
 	 */
 	SENTENCE_BREAK,
 	/**
+	 * Do not allow a sentence break in this area.
+	 */
+	NO_SENTENCE_BREAK,
+	/**
 	 * Replace the text with a space. Only applies if the current text is marked
 	 * for processing.
 	 */

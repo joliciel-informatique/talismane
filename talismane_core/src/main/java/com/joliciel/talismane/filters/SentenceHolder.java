@@ -41,7 +41,7 @@ class SentenceHolder {
 	private static final Pattern duplicateWhiteSpacePattern = Pattern.compile("[" + Sentence.WHITE_SPACE + "\n\r]{2,}", Pattern.UNICODE_CHARACTER_CLASS);
 	private static final Pattern openingWhiteSpacePattern = Pattern.compile("\\A([" + Sentence.WHITE_SPACE + "\n\r]+)", Pattern.UNICODE_CHARACTER_CLASS);
 	private static final Pattern closingWhiteSpacePattern = Pattern.compile("([" + Sentence.WHITE_SPACE + "\n\r]+)\\z", Pattern.UNICODE_CHARACTER_CLASS);
-	private String processedText;
+	private String processedText = "";
 
 	private final int originalStartIndex;
 	private final List<Integer> originalIndexes = new ArrayList<>();

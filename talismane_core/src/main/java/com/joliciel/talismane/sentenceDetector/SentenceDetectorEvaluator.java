@@ -112,7 +112,7 @@ public class SentenceDetectorEvaluator {
 
 		sentences.add(sentence);
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
+		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll(previousSentence);
 		textBlock = textBlock.roll(sentence);
 

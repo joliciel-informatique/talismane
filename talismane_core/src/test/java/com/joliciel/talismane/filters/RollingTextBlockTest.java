@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.filters.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.filters.RawTextMarker.RawTextSentenceBreakMarker;
 import com.joliciel.talismane.filters.RawTextMarker.RawTextSkipMarker;
@@ -27,7 +28,7 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
+		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("One ");
 		List<Annotation<String>> annotations = new ArrayList<>();
 		annotations.add(new Annotation<String>(0, "One".length(), "1"));
@@ -86,7 +87,7 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
+		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("1 ");
 		textBlock = textBlock.roll("2 ");
 		textBlock = textBlock.roll("3<skip>skip</skip> 4<sk");
@@ -128,7 +129,7 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
+		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 
 		textBlock = textBlock.roll("1 ");
 		textBlock = textBlock.roll("2 ");
@@ -150,7 +151,7 @@ public class RollingTextBlockTest {
 		replaces.add(new Annotation<>("ip>skip</skip> ".length(), "ip>skip</skip> five".length(), new RawTextReplaceMarker("me", "5")));
 		rawTextBlock.addAnnotations(replaces);
 
-		AnnotatedText processedTextBlock = textBlock.getProcessedTextBlock();
+		AnnotatedText processedTextBlock = textBlock.getProcessedText();
 
 		// the processed text always concerns sub-blocks 1, 2 and 3
 		// at this point, sub-block 1 has already been flushed
@@ -165,7 +166,7 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		RollingTextBlock textBlock = new RollingTextBlock(session, true);
+		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("Sentence 1<sent/>Sentence 2. Sentence");
 		textBlock = textBlock.roll(" 3.");
 
@@ -188,7 +189,7 @@ public class RollingTextBlockTest {
 
 		textBlock = textBlock.roll(" Sentence 4.");
 
-		AnnotatedText processedTextBlock = textBlock.getProcessedTextBlock();
+		AnnotatedText processedTextBlock = textBlock.getProcessedText();
 		assertEquals("Sentence 1 Sentence 2. Sentence 3.", processedTextBlock.getText());
 
 		// add sentence boundaries to the processed text (as if they were added
@@ -219,7 +220,7 @@ public class RollingTextBlockTest {
 
 		// we have now rolled all text up until sentence 4 into the processed
 		// area
-		processedTextBlock = textBlock.getProcessedTextBlock();
+		processedTextBlock = textBlock.getProcessedText();
 		assertEquals("Sentence 1 Sentence 2. Sentence 3. Sentence 4.", processedTextBlock.getText());
 
 		// add a sentence boundary for "Sentence 3", this time inside the
@@ -274,4 +275,78 @@ public class RollingTextBlockTest {
 		assertEquals(" 3.".length(), sentenceBoundaries.get(0).getEnd());
 	}
 
+	@Test
+	public void testNoSentenceAnnotationLocation() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession session = new TalismaneSession(config, "");
+
+		// String text = "I see Mr. Jones and <skip/>Mrs. Smith.";
+		RollingTextBlock textBlock = new RollingTextBlock(true, session);
+		textBlock = textBlock.roll("I see ");
+		textBlock = textBlock.roll("Mr. Jones ");
+		textBlock = textBlock.roll("and <sk");
+
+		AnnotatedText rawText = textBlock.getRawTextBlock();
+		System.out.println("rawText text: " + rawText.getText());
+
+		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreaks = new ArrayList<>();
+
+		System.out.println("we add no sentence break annotations (as if they were added by a filter)");
+		noSentenceBreaks.add(new Annotation<>("".length(), "Mr.".length(), new RawTextNoSentenceBreakMarker("me")));
+		rawText.addAnnotations(noSentenceBreaks);
+
+		System.out.println("textBlock text: " + textBlock.getText());
+		System.out.println("textBlock annotations: " + textBlock.getAnnotations().toString());
+
+		textBlock = textBlock.roll("ip/>Mrs.");
+
+		rawText = textBlock.getRawTextBlock();
+		System.out.println("rawText text: " + rawText.getText());
+		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
+		skips.add(new Annotation<>("and ".length(), "and <skip/>".length(), new RawTextSkipMarker("me")));
+		rawText.addAnnotations(skips);
+
+		AnnotatedText processedTextBlock = textBlock.getProcessedText();
+		assertEquals("I see Mr. Jones and ", processedTextBlock.getText());
+		// ensure that the no sentence break text got added at the right place
+		// in the processed text
+		noSentenceBreaks = processedTextBlock.getAnnotations(RawTextNoSentenceBreakMarker.class);
+		System.out.println("Processed annotations: " + noSentenceBreaks);
+
+		assertEquals(1, noSentenceBreaks.size());
+		assertEquals("I see ".length(), noSentenceBreaks.get(0).getStart());
+		assertEquals("I see Mr.".length(), noSentenceBreaks.get(0).getEnd());
+
+		textBlock = textBlock.roll(" Smith.");
+
+		rawText = textBlock.getRawTextBlock();
+		System.out.println("rawText text: " + rawText.getText());
+		noSentenceBreaks = new ArrayList<>();
+		noSentenceBreaks.add(new Annotation<>("ip/>".length(), "ip/>Mrs.".length(), new RawTextNoSentenceBreakMarker("me")));
+		rawText.addAnnotations(noSentenceBreaks);
+
+		System.out.println("textBlock text: " + textBlock.getText());
+		System.out.println("textBlock annotations: " + textBlock.getAnnotations().toString());
+
+		textBlock = textBlock.roll("");
+
+		System.out.println("textBlock text: " + textBlock.getText());
+		System.out.println("textBlock annotations: " + textBlock.getAnnotations().toString());
+
+		processedTextBlock = textBlock.getProcessedText();
+		assertEquals("and Mrs. Smith.", processedTextBlock.getText());
+
+		// ensure that the no sentence break text got added at the right place
+		// in the processed text
+		noSentenceBreaks = processedTextBlock.getAnnotations(RawTextNoSentenceBreakMarker.class);
+		System.out.println("Processed annotations: " + noSentenceBreaks);
+
+		assertEquals(1, noSentenceBreaks.size());
+		assertEquals("and ".length(), noSentenceBreaks.get(0).getStart());
+		assertEquals("and Mrs.".length(), noSentenceBreaks.get(0).getEnd());
+
+	}
 }

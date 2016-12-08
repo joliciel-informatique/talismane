@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.filters.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.filters.RawTextMarker.RawTextSentenceBreakMarker;
 import com.joliciel.talismane.filters.RawTextMarker.RawTextSkipMarker;
@@ -133,6 +134,13 @@ public class RegexMarkerFilter implements RawTextFilter {
 						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker);
 						rawTextMarkers.add(annotation);
 						break;
+					}
+					case NO_SENTENCE_BREAK: {
+						RawTextMarker marker = new RawTextNoSentenceBreakMarker(this.toString());
+						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker);
+						rawTextMarkers.add(annotation);
+						break;
+
 					}
 					case SKIP: {
 						RawTextMarker marker = new RawTextSkipMarker(this.toString());

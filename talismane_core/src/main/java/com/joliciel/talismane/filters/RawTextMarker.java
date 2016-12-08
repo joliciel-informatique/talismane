@@ -35,6 +35,12 @@ public class RawTextMarker {
 		}
 	}
 
+	public static class RawTextNoSentenceBreakMarker extends RawTextMarker {
+		public RawTextNoSentenceBreakMarker(String source) {
+			super(RawTextMarkType.NO_SENTENCE_BREAK, source);
+		}
+	}
+
 	public static class RawTextSkipMarker extends RawTextMarker {
 		public RawTextSkipMarker(String source) {
 			super(RawTextMarkType.SKIP, source);
