@@ -213,7 +213,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 							sentence = new Sentence(text, talismaneSession);
 						}
 
-						for (Annotator annotator : session.getTextAnnotators()) {
+						for (Annotator annotator : session.getSentenceAnnotators()) {
 							annotator.annotate(sentence);
 						}
 

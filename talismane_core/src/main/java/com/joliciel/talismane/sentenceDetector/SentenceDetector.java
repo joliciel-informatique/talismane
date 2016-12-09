@@ -52,10 +52,7 @@ import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
- * Detect sentence boundaries within an annotated text. Boundaries are added in
- * the form of an Annotation around a SentenceBoundary, with the start position
- * at the character indicating the boundary, and the end position one to the
- * right.<br/>
+ * Detects sentence boundaries within an annotated text. <br/>
  * 
  * 
  * @author Assaf Urieli
@@ -132,49 +129,49 @@ public class SentenceDetector {
 	}
 
 	/**
-	 * Detect sentences within a particular textual block, given the previous
-	 * and next textual blocks.
+	 * Detect sentences within an annotated text. Boundaries are added in the
+	 * form of an Annotation around a SentenceBoundary, with the start position
+	 * (relative to the start of the annotated text) at the character indicating
+	 * the boundary, and the end position one to the right.<br/>
+	 * <br/>
+	 * Boundaries will not be detected within any annotation of type
+	 * {@link RawTextNoSentenceBreakMarker}, nor will they be detected before or
+	 * after the {@link AnnotatedText#getAnalysisStart()} and
+	 * {@link AnnotatedText#getAnalysisEnd()} respectively.
 	 * 
-	 * @param textBlock
-	 *            the text block in which we want to detect sentences
-	 * @return a List of integers marking the index of the last character in
-	 *         each sentence within the current textual block. The index is
-	 *         relative to the current block only (textBlock.getText()), not the
-	 *         full context (prevText + text + nextText).
+	 * @param text
+	 *            the annotated text in which we need to detect sentences.
+	 * @return in addition to the annotations added, we return a List of
+	 *         integers marking the start position of each sentence boundary.
 	 */
-	public List<Integer> detectSentences(AnnotatedText textBlock) {
+	public List<Integer> detectSentences(AnnotatedText text) {
 		LOG.debug("detectSentences");
 
-		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = textBlock.getAnnotations(RawTextNoSentenceBreakMarker.class);
+		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = text.getAnnotations(RawTextNoSentenceBreakMarker.class);
 
-		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(textBlock.getText());
+		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text.getText());
 		List<Integer> possibleBoundaries = new ArrayList<Integer>();
 		List<Integer> guessedBoundaries = new ArrayList<Integer>();
 		List<Annotation<SentenceBoundary>> annotations = new ArrayList<>();
 
 		while (matcher.find()) {
-			// Only add possible boundaries if they're not inside a
-			// placeholder
-			// Note that we allow boundaries at the last position of the
-			// placeholder (placeholder.getEndIndex()-1)
-			if (matcher.start() >= textBlock.getAnalysisStart() && matcher.start() < textBlock.getAnalysisEnd()) {
-				boolean inPlaceholder = false;
+			if (matcher.start() >= text.getAnalysisStart() && matcher.start() < text.getAnalysisEnd()) {
+				boolean noSentences = false;
 				int position = matcher.start();
 				for (Annotation<RawTextNoSentenceBreakMarker> noSentenceBreakMarker : noSentenceBreakMarkers) {
-					int endPos = noSentenceBreakMarker.getEnd();
-					if (noSentenceBreakMarker.getStart() <= position && position < endPos) {
-						inPlaceholder = true;
+					if (noSentenceBreakMarker.getStart() <= position && position < noSentenceBreakMarker.getEnd()) {
+						noSentences = true;
 						break;
 					}
 				}
-				if (!inPlaceholder)
+				if (!noSentences)
 					possibleBoundaries.add(position);
 			}
 		}
 
 		List<PossibleSentenceBoundary> boundaries = new ArrayList<>();
 		for (int possibleBoundary : possibleBoundaries) {
-			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(textBlock.getText(), possibleBoundary, session);
+			PossibleSentenceBoundary boundary = new PossibleSentenceBoundary(text.getText(), possibleBoundary, session);
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Testing boundary: " + boundary);
 				LOG.trace(" at position: " + possibleBoundary);
@@ -201,7 +198,7 @@ public class SentenceDetector {
 			}
 
 			if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
-				guessedBoundaries.add(possibleBoundary - textBlock.getAnalysisStart());
+				guessedBoundaries.add(possibleBoundary);
 				boundaries.add(boundary);
 				Annotation<SentenceBoundary> annotation = new Annotation<>(possibleBoundary, possibleBoundary + 1, new SentenceBoundary());
 				annotations.add(annotation);
@@ -212,7 +209,7 @@ public class SentenceDetector {
 		} // have we a possible boundary at this position?
 
 		if (LOG.isTraceEnabled()) {
-			LOG.trace("context: " + textBlock.getText().toString().replace('\n', '¶').replace('\r', '¶'));
+			LOG.trace("context: " + text.getText().toString().replace('\n', '¶').replace('\r', '¶'));
 
 			for (PossibleSentenceBoundary boundary : boundaries)
 				LOG.trace("boundary: " + boundary.toString());
@@ -220,7 +217,7 @@ public class SentenceDetector {
 		if (LOG.isDebugEnabled())
 			LOG.debug("guessedBoundaries : " + guessedBoundaries.toString());
 
-		textBlock.addAnnotations(annotations);
+		text.addAnnotations(annotations);
 		return guessedBoundaries;
 	}
 

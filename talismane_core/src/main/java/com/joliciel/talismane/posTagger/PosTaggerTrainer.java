@@ -92,7 +92,7 @@ public class PosTaggerTrainer {
 		// these are for reference purpose only, as we no longer read filters
 		// out of the model
 		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
-				session.getTextAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
+				session.getSentenceAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY,
 				session.getTokenSequenceFiltersWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 		descriptors.put(PosTagSequenceFilterFactory.POSTAG_SEQUENCE_FILTER_DESCRIPTOR_KEY,

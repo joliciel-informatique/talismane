@@ -108,7 +108,7 @@ public class ParserEvaluator {
 				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
 
 				// annotate the sentence for pre token filters
-				for (Annotator annotator : session.getTextAnnotators()) {
+				for (Annotator annotator : session.getSentenceAnnotators()) {
 					annotator.annotate(sentence);
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("TokenFilter: " + annotator);
