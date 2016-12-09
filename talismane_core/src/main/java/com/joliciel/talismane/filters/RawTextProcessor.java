@@ -56,13 +56,23 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 	private static Pattern newlinePattern = Pattern.compile("\r\n|[\r\n]");
 	private final Stack<Boolean> shouldProcessStack;
 	private final Stack<Boolean> shouldOutputStack;
-	private int originalTextIndex = 0;
+	private final int originalStartIndex;
+
+	/**
+	 * The original index just after the last block of processed text. This is
+	 * not necessarily the same as the originalStartIndex, since text be
+	 * processed in portions without changing the start index of the full block.
+	 */
+	private int originalIndexProcessed = 0;
+
 	private String leftoverOutput = "";
 
-	private int lineNumber = 2; // this is so that the line following the first
-	// newline character will be given 2 (and the
-	// initial line 1)
+	private int lineNumber = 1; // this is so that the line following the first
+	// newline character will be given 1 (and the
+	// initial line 0)
 	private int leftoverNewline = 0;
+
+	private Sentence leftover;
 
 	private static final int NUM_CHARS = 30;
 
@@ -74,18 +84,23 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 		this.shouldProcessStack.push(processByDefault);
 		this.shouldOutputStack = new Stack<>();
 		this.shouldOutputStack.push(false);
+
+		this.originalStartIndex = 0;
 	}
 
-	protected RawTextProcessor(RawTextProcessor predecessor, CharSequence text, int analysisStart, int analysisEnd, List<Annotation<?>> annotations) {
+	protected RawTextProcessor(RawTextProcessor predecessor, CharSequence text, int analysisStart, int analysisEnd, List<Annotation<?>> annotations,
+			int originalStartIndex) {
 		super(text, analysisStart, analysisEnd, annotations);
 		this.session = predecessor.session;
 
 		this.shouldOutputStack = predecessor.shouldOutputStack;
 		this.shouldProcessStack = predecessor.shouldProcessStack;
-		this.originalTextIndex = predecessor.originalTextIndex;
+		this.originalIndexProcessed = predecessor.originalIndexProcessed;
 		this.leftoverOutput = predecessor.leftoverOutput;
 		this.lineNumber = predecessor.lineNumber;
 		this.leftoverNewline = predecessor.leftoverNewline;
+		this.leftover = predecessor.leftover;
+		this.originalStartIndex = originalStartIndex;
 	}
 
 	/**
@@ -94,14 +109,15 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 	 * 
 	 * @return SentenceHolder to retrieve the sentences.
 	 */
-	protected SentenceHolder processText(int textStartPos, int textEndPos, CharSequence rawText, boolean finalBlock) {
+	protected final SentenceHolder processText(int textStartPos, int textEndPos, CharSequence rawText, boolean finalBlock) {
 		if (this.sentenceHolder != null)
 			return this.sentenceHolder;
 
 		LOG.debug("processText");
 		List<Annotation<RawTextMarker>> annotations = this.getAnnotations(RawTextMarker.class);
-		if (LOG.isTraceEnabled())
+		if (LOG.isTraceEnabled()) {
 			LOG.trace("annotations: " + annotations.toString());
+		}
 
 		Map<Integer, List<Pair<Boolean, Annotation<RawTextMarker>>>> markMap = new TreeMap<>();
 
@@ -158,15 +174,15 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 			LOG.trace("marks: " + marks.toString());
 		}
 
-		SentenceHolder sentenceHolder = new SentenceHolder(session, originalTextIndex, finalBlock);
+		SentenceHolder sentenceHolder = new SentenceHolder(session, originalIndexProcessed, finalBlock);
 
 		// find any newlines
 		sentenceHolder.addNewline(leftoverNewline, lineNumber - 1);
 
 		Matcher matcher = newlinePattern.matcher(rawText);
 		while (matcher.find()) {
-			sentenceHolder.addNewline(originalTextIndex + matcher.end(), lineNumber++);
-			leftoverNewline = originalTextIndex + matcher.end();
+			sentenceHolder.addNewline(originalIndexProcessed + matcher.end(), lineNumber++);
+			leftoverNewline = originalIndexProcessed + matcher.end();
 		}
 
 		Map<Integer, Integer> insertionPoints = new TreeMap<Integer, Integer>();
@@ -441,7 +457,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 		for (Entry<Integer, Integer> insertionPoint : insertionPoints.entrySet()) {
 			int j = 0;
 			for (int i = lastIndex; i < insertionPoint.getKey(); i++) {
-				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
+				sentenceHolder.addOriginalIndex(originalIndexProcessed + lastOriginalIndex + j);
 				j++;
 			}
 			lastIndex = insertionPoint.getKey();
@@ -451,12 +467,12 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 		if (lastIndex < sentenceHolder.getProcessedText().length()) {
 			int j = 0;
 			for (int i = lastIndex; i < sentenceHolder.getProcessedText().length(); i++) {
-				sentenceHolder.addOriginalIndex(originalTextIndex + lastOriginalIndex + j);
+				sentenceHolder.addOriginalIndex(originalIndexProcessed + lastOriginalIndex + j);
 				j++;
 			}
 		}
 
-		originalTextIndex += rawText.length();
+		originalIndexProcessed += rawText.length();
 
 		this.sentenceHolder = sentenceHolder;
 		return sentenceHolder;
@@ -469,15 +485,47 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 	}
 
 	/**
-	 * Return processed text ready for sentence detection.
+	 * The raw position in which text processing should start.
 	 * 
 	 * @return
 	 */
-	public abstract AnnotatedText getProcessedText();
+	protected abstract int getTextProcessingStart();
 
-	protected AnnotatedText getProcessedTextBlock(int textStartPos, int textEndPos, SentenceHolder prevHolder, SentenceHolder currentHolder,
-			SentenceHolder nextHolder) {
+	/**
+	 * The raw position in which text processing should end.
+	 * 
+	 * @return
+	 */
+	protected abstract int getTextProcessingEnd();
+
+	protected abstract SentenceHolder getPreviousSentenceHolder();
+
+	/**
+	 * The sentence holder in which we want to detect sentences.
+	 * 
+	 * @return
+	 */
+	protected abstract SentenceHolder getCurrentSentenceHolder();
+
+	protected abstract SentenceHolder getNextSentenceHolder();
+
+	/**
+	 * Return processed text ready for sentence detection.
+	 * 
+	 * It has sentence break and non-sentence-break annotations inherited from
+	 * the present RawTextProcessor. Any sentence-break annotations added will
+	 * automatically get reflected in the current RollingTextBlock.
+	 * 
+	 * @return
+	 */
+	public final AnnotatedText getProcessedText() {
 		LOG.trace("getProcessedTextBlock");
+
+		int textStartPos = this.getTextProcessingStart();
+		int textEndPos = this.getTextProcessingEnd();
+		SentenceHolder prevHolder = this.getPreviousSentenceHolder();
+		SentenceHolder currentHolder = this.getCurrentSentenceHolder();
+		SentenceHolder nextHolder = this.getNextSentenceHolder();
 
 		StringBuilder sb = new StringBuilder();
 		String processedText1 = prevHolder.getProcessedText();
@@ -565,16 +613,106 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 		return processedTextBlock;
 	}
 
-	public void addDetectedSentences(SentenceHolder prevHolder, SentenceHolder currentHolder) {
+	/**
+	 * Get a list of sentences currently detected. All sentences will be
+	 * complete - if the list ends with an incomplete sentence it is kept for
+	 * another round.
+	 * 
+	 * @return
+	 */
+	public final List<Sentence> getDetectedSentences() {
+		SentenceHolder prevHolder = this.getPreviousSentenceHolder();
+		SentenceHolder currentHolder = this.getCurrentSentenceHolder();
+
 		for (Annotation<SentenceBoundary> sentenceBoundary : sentenceBoundaries) {
 			currentHolder.addSentenceBoundary(sentenceBoundary.getStart() - prevHolder.getProcessedText().length());
 		}
+
+		List<Sentence> sentences = currentHolder.getDetectedSentences(leftover);
+		leftover = null;
+		if (sentences.size() > 0) {
+			Sentence lastSentence = sentences.get(sentences.size() - 1);
+			if (!lastSentence.isComplete()) {
+				leftover = lastSentence;
+				if (LOG.isTraceEnabled())
+					LOG.trace("Set leftover to: " + leftover.toString());
+				sentences.remove(sentences.size() - 1);
+			}
+		}
+
+		// ensure that sentence annotations get added to the raw text as well
+		for (Sentence sentence : sentences) {
+			sentence.addObserver(new AnnotationObserver() {
+				int myOrigin = RawTextProcessor.this.originalStartIndex;
+
+				@Override
+				public <T> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations) {
+					List<Annotation<T>> newAnnotations = new ArrayList<>();
+					for (Annotation<T> annotation : annotations) {
+						int originalStart = sentence.getOriginalIndex(annotation.getStart());
+						int originalEnd = sentence.getOriginalIndex(annotation.getEnd());
+						Annotation<T> newAnnotation = annotation.getAnnotation(originalStart - myOrigin, originalEnd - myOrigin);
+						newAnnotations.add(newAnnotation);
+					}
+					RawTextProcessor.this.addAnnotations(newAnnotations);
+				}
+
+				@Override
+				public <T> void afterAddAnnotations(AnnotatedText subject) {
+				}
+			});
+		}
+
+		// If we have any leftover original text segments, copy them over they
+		// are necessarily at position 0 - since otherwise they would
+		// have gotten added to the leftover sentence. The only case where there
+		// isn't a leftover sentence is the case where
+		// the sentenceHolder boundary happens to be a sentence boundary, hence
+		// position 0.
+		if (currentHolder.getOriginalTextSegments().size() > 0) {
+			String fileName = "";
+			File file = null;
+
+			if (leftover == null) {
+				leftover = new Sentence("", fileName, file, session);
+			}
+			StringBuilder segmentsToInsert = new StringBuilder();
+
+			if (leftover.getLeftoverOriginalText().length() > 0)
+				segmentsToInsert.append(session.getOutputDivider());
+
+			for (String originalTextSegment : currentHolder.getOriginalTextSegments().values()) {
+				segmentsToInsert.append(originalTextSegment);
+			}
+
+			leftover.setLeftoverOriginalText(leftover.getLeftoverOriginalText() + segmentsToInsert.toString());
+		}
+
+		return sentences;
+	}
+
+	public String getLeftoverOriginalText() {
+		if (leftover != null) {
+			return leftover.getLeftoverOriginalText();
+		} else {
+			return "";
+		}
+	}
+
+	/**
+	 * The index in the original file or text at which the current raw text
+	 * starts.
+	 * 
+	 * @return
+	 */
+	public int getOriginalStartIndex() {
+		return originalStartIndex;
 	}
 
 	@Override
 	public void onNextFile(File file) {
-		this.lineNumber = 2;
-		this.originalTextIndex = 0;
+		this.lineNumber = 1;
+		this.originalIndexProcessed = 0;
 		this.leftoverNewline = 0;
 	}
 }

@@ -116,7 +116,6 @@ public class RollingTextBlock extends RawTextProcessor {
 	private final SentenceHolder sentenceHolder1;
 	private final SentenceHolder sentenceHolder2;
 	private SentenceHolder sentenceHolder3 = null;
-	private Sentence leftover;
 
 	private final TalismaneSession session;
 
@@ -140,7 +139,8 @@ public class RollingTextBlock extends RawTextProcessor {
 
 	private RollingTextBlock(RollingTextBlock predecessor, String nextText, List<Annotation<?>> annotations) {
 		super(predecessor, predecessor.block2 + predecessor.block3 + predecessor.block4 + nextText, predecessor.block2.length() + predecessor.block3.length(),
-				predecessor.block2.length() + predecessor.block3.length() + predecessor.block4.length(), annotations);
+				predecessor.block2.length() + predecessor.block3.length() + predecessor.block4.length(), annotations,
+				predecessor.getOriginalStartIndex() + predecessor.block1.length());
 		this.block1 = predecessor.block2;
 		this.block2 = predecessor.block3;
 		this.block3 = predecessor.block4;
@@ -153,7 +153,6 @@ public class RollingTextBlock extends RawTextProcessor {
 
 		this.sentenceHolder1 = predecessor.sentenceHolder2;
 		this.sentenceHolder2 = predecessor.sentenceHolder3;
-		this.leftover = predecessor.leftover;
 
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("After roll: ");
@@ -182,6 +181,10 @@ public class RollingTextBlock extends RawTextProcessor {
 	 * @return a new text block as described above
 	 */
 	public RollingTextBlock roll(String nextText) {
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("roll");
+			LOG.trace("nextText: " + nextText.replace('\n', '¶').replace('\r', '¶'));
+		}
 		this.processText();
 
 		int prevLength = this.block1.length();
@@ -259,78 +262,30 @@ public class RollingTextBlock extends RawTextProcessor {
 		this.sentenceHolder3 = super.processText(textStartPos, textEndPos, this.block3, this.block4.length() == 0);
 	}
 
-	/**
-	 * Returns annotated text whose text is a combination of blocks 1, 2 and 3
-	 * of the current RollingTextBlock, but after processing via raw text
-	 * filters to convert the text to processed text, and with analysis start
-	 * and end set so that only block 2 is analysed. This annotated text is
-	 * ready to be submitted to sentence detection. It has sentence break and
-	 * non-sentence-break annotations inherited from the present
-	 * RollingTextBlock. Any sentence-break annotations added will automatically
-	 * get reflected in the current RollingTextBlock.
-	 * 
-	 * @return
-	 */
 	@Override
-	public AnnotatedText getProcessedText() {
-		this.processText();
-		return this.getProcessedTextBlock(this.block1.length(), this.block1.length() + this.block2.length(), sentenceHolder1, sentenceHolder2, sentenceHolder3);
+	protected int getTextProcessingStart() {
+		return this.block1.length();
 	}
 
-	/**
-	 * Get a list of sentences currently detected in block 2. If block 3 is
-	 * empty, any leftover text after the final detected sentence will
-	 * automatically be returned as an additional final sentence. If not, it
-	 * will be kept as a "leftover" to be added to the first sentence detected
-	 * in block 3.
-	 * 
-	 * @return
-	 */
-	public List<Sentence> getDetectedSentences() {
-		this.addDetectedSentences(sentenceHolder1, sentenceHolder2);
+	@Override
+	protected int getTextProcessingEnd() {
+		return this.block1.length() + this.block2.length();
+	}
 
-		List<Sentence> sentences = sentenceHolder2.getDetectedSentences(leftover);
-		leftover = null;
-		if (sentences.size() > 0) {
-			Sentence lastSentence = sentences.get(sentences.size() - 1);
-			if (!lastSentence.isComplete()) {
-				leftover = lastSentence;
-				if (LOG.isTraceEnabled())
-					LOG.trace("Set leftover to: " + leftover.toString());
-				sentences.remove(sentences.size() - 1);
-			}
-		}
+	@Override
+	protected SentenceHolder getPreviousSentenceHolder() {
+		return this.sentenceHolder1;
+	}
 
-		// If we have any leftover original text segments,
-		// copy them over
-		// they are necessarily at position 0 - since
-		// otherwise they would
-		// have gotten added to the leftover sentence. The
-		// only case where
-		// there isn't a leftover sentence is the case where
-		// the sentenceHolder
-		// boundary happens to be a sentence boundary, hence
-		// position 0.
-		if (sentenceHolder2.getOriginalTextSegments().size() > 0) {
-			String fileName = "";
-			File file = null;
+	@Override
+	protected SentenceHolder getCurrentSentenceHolder() {
+		return this.sentenceHolder2;
+	}
 
-			if (leftover == null) {
-				leftover = new Sentence("", fileName, file, session);
-			}
-			StringBuilder segmentsToInsert = new StringBuilder();
-
-			if (leftover.getLeftoverOriginalText().length() > 0)
-				segmentsToInsert.append(session.getOutputDivider());
-
-			for (String originalTextSegment : sentenceHolder2.getOriginalTextSegments().values()) {
-				segmentsToInsert.append(originalTextSegment);
-			}
-
-			leftover.setLeftoverOriginalText(leftover.getLeftoverOriginalText() + segmentsToInsert.toString());
-		}
-
-		return sentences;
+	@Override
+	protected SentenceHolder getNextSentenceHolder() {
+		this.processText();
+		return this.sentenceHolder3;
 	}
 
 	@Override
@@ -338,14 +293,6 @@ public class RollingTextBlock extends RawTextProcessor {
 		this.file = file;
 		this.fileName = file.getPath();
 		super.onNextFile(file);
-	}
-
-	public String getLeftoverOriginalText() {
-		if (leftover != null) {
-			return leftover.getLeftoverOriginalText();
-		} else {
-			return "";
-		}
 	}
 
 }

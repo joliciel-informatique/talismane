@@ -273,6 +273,22 @@ public class RollingTextBlockTest {
 		assertEquals(1, sentenceBoundaries.size());
 		assertEquals(" 3".length(), sentenceBoundaries.get(0).getStart());
 		assertEquals(" 3.".length(), sentenceBoundaries.get(0).getEnd());
+
+		// test that sentence annotations get added to the original raw text
+		Sentence sentence4 = sentences.get(0);
+		List<Annotation<String>> annotations = new ArrayList<>();
+		annotations.add(new Annotation<String>("Sentence ".length(), "Sentence 4".length(), "four"));
+		sentence4.addAnnotations(annotations);
+
+		System.out.println("textBlock text: " + textBlock.getText());
+		System.out.println("textBlock annotations: " + textBlock.getAnnotations().toString());
+
+		annotations = textBlock.getAnnotations(String.class);
+		assertEquals(1, annotations.size());
+		assertEquals(" 3. Sentence ".length(), annotations.get(0).getStart());
+		assertEquals(" 3. Sentence 4".length(), annotations.get(0).getEnd());
+
+		textBlock.getProcessedText();
 	}
 
 	@Test

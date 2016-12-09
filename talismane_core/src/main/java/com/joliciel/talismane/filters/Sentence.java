@@ -146,13 +146,13 @@ public class Sentence extends AnnotatedText {
 
 	/**
 	 * Returns the column number corresponding to a particular original index
-	 * inside this sentence, starting at 1.
+	 * inside this sentence, starting at 0.
 	 */
 
 	public int getColumnNumber(int originalIndex) {
 		Integer lastLineObj = this.newlines.floorKey(originalIndex);
 		if (lastLineObj != null)
-			return (originalIndex - lastLineObj.intValue()) + 1;
+			return (originalIndex - lastLineObj.intValue());
 		return -1;
 	}
 
