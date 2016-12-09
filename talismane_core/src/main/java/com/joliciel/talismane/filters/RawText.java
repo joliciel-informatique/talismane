@@ -18,9 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.filters;
 
-import java.util.List;
-
-import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.TalismaneSession;
 
 /**
@@ -71,23 +68,27 @@ public class RawText extends RawTextProcessor {
 	}
 
 	@Override
-	public AnnotatedText getProcessedText() {
-		SentenceHolder prevHolder = new SentenceHolder(session, 0, false);
-		SentenceHolder sentenceHolder = this.processText(0, text.length(), text, true);
-		SentenceHolder nextHolder = new SentenceHolder(session, text.length(), true);
-		return this.getProcessedTextBlock(0, text.length(), prevHolder, sentenceHolder, nextHolder);
+	protected int getTextProcessingStart() {
+		return 0;
 	}
 
-	/**
-	 * Get a list of sentences currently detected.
-	 * 
-	 * @return
-	 */
-	public List<Sentence> getDetectedSentences() {
-		SentenceHolder sentenceHolder = this.processText(0, text.length(), text, true);
-		SentenceHolder prevHolder = new SentenceHolder(session, 0, false);
-		this.addDetectedSentences(prevHolder, sentenceHolder);
-		List<Sentence> sentences = sentenceHolder.getDetectedSentences(null);
-		return sentences;
+	@Override
+	protected int getTextProcessingEnd() {
+		return text.length();
+	}
+
+	@Override
+	protected SentenceHolder getPreviousSentenceHolder() {
+		return new SentenceHolder(session, 0, false);
+	}
+
+	@Override
+	protected SentenceHolder getCurrentSentenceHolder() {
+		return this.processText(0, text.length(), text, true);
+	}
+
+	@Override
+	protected SentenceHolder getNextSentenceHolder() {
+		return new SentenceHolder(session, text.length(), true);
 	}
 }

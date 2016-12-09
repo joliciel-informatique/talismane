@@ -114,6 +114,17 @@ public class RawTextTest {
 
 		assertEquals("Sentence 4.", sentences.get(3).getText());
 		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3. ".length(), sentences.get(3).getOriginalIndex(0));
+
+		// test that sentence annotations get added to the original raw text
+		Sentence sentence4 = sentences.get(3);
+		List<Annotation<String>> annotations = new ArrayList<>();
+		annotations.add(new Annotation<String>("Sentence ".length(), "Sentence 4".length(), "four"));
+		sentence4.addAnnotations(annotations);
+
+		annotations = textBlock.getAnnotations(String.class);
+		assertEquals(1, annotations.size());
+		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3. Sentence ".length(), annotations.get(0).getStart());
+		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3. Sentence 4".length(), annotations.get(0).getEnd());
 	}
 
 	@Test
