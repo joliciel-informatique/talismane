@@ -241,7 +241,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 							sentence = new Sentence(text, session);
 						}
 
-						for (Annotator tokenFilter : session.getTextAnnotators()) {
+						for (Annotator tokenFilter : session.getSentenceAnnotators()) {
 							tokenFilter.annotate(sentence);
 						}
 

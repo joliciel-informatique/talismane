@@ -177,7 +177,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 				}
 				Sentence sentence = new Sentence(text, session);
 
-				for (Annotator annotator : session.getTextAnnotators()) {
+				for (Annotator annotator : session.getSentenceAnnotators()) {
 					annotator.annotate(sentence);
 				}
 

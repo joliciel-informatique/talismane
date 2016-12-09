@@ -329,7 +329,7 @@ public class Talismane {
 						// annotate block 3 with raw text filters
 						AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
 
-						for (RawTextFilter textMarkerFilter : session.getTextFilters()) {
+						for (RawTextFilter textMarkerFilter : session.getTextAnnotators()) {
 							textMarkerFilter.annotate(rawTextBlock);
 						}
 
@@ -384,7 +384,7 @@ public class Talismane {
 						sentence = sentences.poll();
 						LOG.debug("Sentence: " + sentence);
 
-						for (Annotator annotator : session.getTextAnnotators())
+						for (Annotator annotator : session.getSentenceAnnotators())
 							annotator.annotate(sentence);
 
 						if (sentence.getLeftoverOriginalText() != null) {
