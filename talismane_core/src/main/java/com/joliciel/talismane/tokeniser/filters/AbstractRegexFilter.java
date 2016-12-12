@@ -159,16 +159,6 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 	}
 
 	@Override
-	public boolean isPossibleSentenceBoundary() {
-		return possibleSentenceBoundary;
-	}
-
-	@Override
-	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary) {
-		this.possibleSentenceBoundary = possibleSentenceBoundary;
-	}
-
-	@Override
 	public int getGroupIndex() {
 		return groupIndex;
 	}
@@ -530,9 +520,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 
 		for (String paramName : parameters.keySet()) {
 			String paramValue = parameters.get(paramName);
-			if (paramName.equals("possibleSentenceBoundary")) {
-				this.setPossibleSentenceBoundary(Boolean.valueOf(paramValue));
-			} else if (paramName.equals("group")) {
+			if (paramName.equals("group")) {
 				this.setGroupIndex(Integer.parseInt(paramValue));
 			} else if (paramName.equals("caseSensitive")) {
 				this.setCaseSensitive(Boolean.valueOf(paramValue));

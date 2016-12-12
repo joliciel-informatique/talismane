@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,15 +16,20 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.posTagger.filters;
-
-import com.joliciel.talismane.posTagger.PosTagSequence;
+package com.joliciel.talismane.sentenceDetector;
 
 /**
- * A filter for applying a given transformation to a PosTagSequence.
+ * A marker class for annotations of sentence boundaries added by the sentence
+ * detector.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface PosTagSequenceFilter {
-	public void apply(PosTagSequence posTagSequence);
+public class SentenceBoundary {
+
+	@Override
+	public String toString() {
+		return "SentenceBoundary";
+	}
+
 }

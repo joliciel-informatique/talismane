@@ -56,14 +56,6 @@ public interface TokenRegexFilter extends TokenFilter {
 	public void setGroupIndex(int groupIndex);
 
 	/**
-	 * Can this regex represent a sentence boundary (at its last character that
-	 * is)?
-	 */
-	public boolean isPossibleSentenceBoundary();
-
-	public void setPossibleSentenceBoundary(boolean possibleSentenceBoundary);
-
-	/**
 	 * Set of attributes to be assigned to tokens recognised by this regex
 	 * filter.
 	 */

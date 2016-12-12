@@ -128,3 +128,8 @@ TokenRegexFilter	( »)|»	"
 #### various bullets ####
 #########################
 TokenRegexFilter	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	*
+
+#########################
+### Text normalisation ##
+#########################
+TextReplaceFilter	QuoteNormaliser	LowercaseKnownFirstWordFilter	UppercaseSeriesFilter

@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -49,7 +48,7 @@ public class SentenceHolderTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
-		SentenceHolder holder = new SentenceHolder(talismaneSession);
+		SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
 
 		String originalText = "Hello  <b>World</b>. <o>Output this</o>How are you?  Fine<o>Output</o>,  ";
 		holder.setProcessedText("Hello  World. How are you?  Fine,  ");
@@ -72,12 +71,6 @@ public class SentenceHolderTest {
 		holder.addSentenceBoundary("Hello  World.".length() - 1);
 		holder.addSentenceBoundary("Hello  World. How are you?".length() - 1);
 
-		holder.addTagStart("State", new StringAttribute("State", "OK"), "Hello  World. ".length());
-		holder.addTagEnd("State", new StringAttribute("State", "OK"), "Hello  World. How are you".length());
-
-		holder.addTagStart("VerbIs", new StringAttribute("VerbIs", ""), "Hello  World. How ".length());
-		holder.addTagEnd("VerbIs", new StringAttribute("VerbIs", ""), "Hello  World. How are".length());
-
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
 			LOG.debug(sentence.getText().toString());
@@ -97,18 +90,6 @@ public class SentenceHolderTest {
 		}
 		assertEquals("<o>Output this</o>", sentence2.getOriginalTextSegments().get(0));
 
-		for (SentenceTag<?> sentenceTag : sentence2.getSentenceTags()) {
-			LOG.debug(sentenceTag.toString());
-		}
-
-		assertEquals(2, sentence2.getSentenceTags().size());
-		assertEquals("State", sentence2.getSentenceTags().get(0).getAttribute());
-		assertEquals("".length(), sentence2.getSentenceTags().get(0).getStartIndex());
-		assertEquals("How are you".length(), sentence2.getSentenceTags().get(0).getEndIndex());
-		assertEquals("VerbIs", sentence2.getSentenceTags().get(1).getAttribute());
-		assertEquals("How ".length(), sentence2.getSentenceTags().get(1).getStartIndex());
-		assertEquals("How are".length(), sentence2.getSentenceTags().get(1).getEndIndex());
-
 		Sentence leftover = sentences.get(2);
 		assertFalse(leftover.isComplete());
 		assertEquals("Fine, ", leftover.getText());
@@ -118,7 +99,7 @@ public class SentenceHolderTest {
 		}
 		assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
 
-		SentenceHolder holder2 = new SentenceHolder(talismaneSession);
+		SentenceHolder holder2 = new SentenceHolder(talismaneSession, 0, false);
 
 		String originalText2 = "thanks, and you";
 		holder2.setProcessedText("thanks, and you");
@@ -137,7 +118,7 @@ public class SentenceHolderTest {
 		assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
 		assertFalse(leftover.isComplete());
 
-		SentenceHolder holder3 = new SentenceHolder(talismaneSession);
+		SentenceHolder holder3 = new SentenceHolder(talismaneSession, 0, false);
 
 		String originalText3 = "? Grand.";
 		holder3.setProcessedText(originalText3);
@@ -172,7 +153,7 @@ public class SentenceHolderTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
-		SentenceHolder holder = new SentenceHolder(talismaneSession);
+		SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
 
 		holder.setProcessedText("Hello World.");
 
@@ -199,7 +180,7 @@ public class SentenceHolderTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
-		SentenceHolder holder = new SentenceHolder(talismaneSession);
+		SentenceHolder holder = new SentenceHolder(talismaneSession, 0, false);
 
 		holder.setProcessedText("Hello World. How are you? Fine thanks.");
 
@@ -228,9 +209,9 @@ public class SentenceHolderTest {
 			} else if (i == 1) {
 				assertEquals("How are you?", sentence.getText());
 				assertEquals(1, sentence.getLineNumber(sentence.getOriginalIndex("How".length() - 1)));
-				assertEquals(3, sentence.getColumnNumber(sentence.getOriginalIndex("How".length() - 1)));
+				assertEquals(2, sentence.getColumnNumber(sentence.getOriginalIndex("How".length() - 1)));
 				assertEquals(2, sentence.getLineNumber(sentence.getOriginalIndex("How a".length() - 1)));
-				assertEquals(3, sentence.getColumnNumber(sentence.getOriginalIndex("How are".length() - 1)));
+				assertEquals(2, sentence.getColumnNumber(sentence.getOriginalIndex("How are".length() - 1)));
 			}
 		}
 

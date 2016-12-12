@@ -28,14 +28,14 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 
-public class TextMarkerFilterFactory {
+public class RawTextFilterFactory {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TextMarkerFilterFactory.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RawTextFilterFactory.class);
 
-	public TextMarkerFilter getTextMarkerFilter(String descriptor, int blockSize) {
-		TextMarkerFilter filter = null;
+	public RawTextFilter getTextMarkerFilter(String descriptor, int blockSize) {
+		RawTextFilter filter = null;
 
-		List<Class<? extends TextMarkerFilter>> classes = new ArrayListNoNulls<Class<? extends TextMarkerFilter>>();
+		List<Class<? extends RawTextFilter>> classes = new ArrayListNoNulls<Class<? extends RawTextFilter>>();
 		classes.add(DuplicateWhiteSpaceFilter.class);
 		classes.add(NewlineEndOfSentenceMarker.class);
 		classes.add(NewlineSpaceMarker.class);
@@ -45,17 +45,17 @@ public class TextMarkerFilterFactory {
 
 		if (filterName.equals(RegexMarkerFilter.class.getSimpleName())) {
 			String[] filterTypeStrings = parts[1].split(",");
-			List<MarkerFilterType> filterTypes = new ArrayListNoNulls<MarkerFilterType>();
+			List<RawTextMarkType> filterTypes = new ArrayListNoNulls<RawTextMarkType>();
 			for (String filterTypeString : filterTypeStrings) {
-				filterTypes.add(MarkerFilterType.valueOf(filterTypeString));
+				filterTypes.add(RawTextMarkType.valueOf(filterTypeString));
 			}
 			boolean needsReplacement = false;
 			boolean needsTag = false;
 			int minParams = 3;
-			if (filterTypes.contains(MarkerFilterType.REPLACE)) {
+			if (filterTypes.contains(RawTextMarkType.REPLACE)) {
 				needsReplacement = true;
 				minParams = 4;
-			} else if (filterTypes.contains(MarkerFilterType.TAG)) {
+			} else if (filterTypes.contains(RawTextMarkType.TAG)) {
 				needsTag = true;
 				minParams = 4;
 			}
@@ -67,9 +67,9 @@ public class TextMarkerFilterFactory {
 					if (parts[4].indexOf('=') >= 0) {
 						String attribute = parts[4].substring(0, parts[4].indexOf('='));
 						String value = parts[4].substring(parts[4].indexOf('=') + 1);
-						filter.setTag(attribute, new StringAttribute(attribute, value));
+						filter.setAttribute(new StringAttribute(attribute, value));
 					} else {
-						filter.setTag(parts[4], new StringAttribute(parts[4], ""));
+						filter.setAttribute(new StringAttribute(parts[4], ""));
 					}
 				}
 			} else if (parts.length == minParams) {
@@ -80,9 +80,9 @@ public class TextMarkerFilterFactory {
 					if (parts[3].indexOf('=') >= 0) {
 						String attribute = parts[3].substring(0, parts[3].indexOf('='));
 						String value = parts[3].substring(parts[3].indexOf('=') + 1);
-						filter.setTag(attribute, new StringAttribute(attribute, value));
+						filter.setAttribute(new StringAttribute(attribute, value));
 					} else {
-						filter.setTag(parts[3], new StringAttribute(parts[4], ""));
+						filter.setAttribute(new StringAttribute(parts[4], ""));
 					}
 				}
 			} else {
@@ -90,10 +90,10 @@ public class TextMarkerFilterFactory {
 						+ (minParams + 1) + ", but was " + parts.length);
 			}
 		} else {
-			for (Class<? extends TextMarkerFilter> clazz : classes) {
+			for (Class<? extends RawTextFilter> clazz : classes) {
 				if (filterName.equals(clazz.getSimpleName())) {
 					try {
-						Constructor<? extends TextMarkerFilter> constructor = clazz.getConstructor(Integer.class);
+						Constructor<? extends RawTextFilter> constructor = clazz.getConstructor(Integer.class);
 						filter = constructor.newInstance(blockSize);
 					} catch (ReflectiveOperationException e) {
 						throw new TalismaneException("Problem building class: " + filterName, e);

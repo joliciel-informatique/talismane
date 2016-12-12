@@ -51,13 +51,13 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
-import com.joliciel.talismane.filters.MarkerFilterType;
 import com.joliciel.talismane.filters.NewlineEndOfSentenceMarker;
 import com.joliciel.talismane.filters.NewlineSpaceMarker;
 import com.joliciel.talismane.filters.OtherWhiteSpaceFilter;
+import com.joliciel.talismane.filters.RawTextFilter;
+import com.joliciel.talismane.filters.RawTextFilterFactory;
+import com.joliciel.talismane.filters.RawTextMarkType;
 import com.joliciel.talismane.filters.RegexMarkerFilter;
-import com.joliciel.talismane.filters.TextMarkerFilter;
-import com.joliciel.talismane.filters.TextMarkerFilterFactory;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
@@ -69,13 +69,9 @@ import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
 import com.joliciel.talismane.parser.ShiftReduceTransitionSystem;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
 import com.joliciel.talismane.resources.WordListFinder;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
@@ -125,14 +121,10 @@ public class TalismaneSession {
 	private final CoNLLFormatter coNLLFormatter;
 	private final Charset csvCharset;
 	private final int blockSize;
-	private final MarkerFilterType newlineMarker;
-	private final List<TextMarkerFilter> textFilters;
-	private final List<Annotator> textAnnotators;
-	private final List<Pair<String, Annotator>> textAnnotatorsWithDescriptors;
-	private final List<TokenSequenceFilter> tokenSequenceFilters;
-	private final List<Pair<String, TokenSequenceFilter>> tokenSequenceFiltersWithDescriptors;
-	private final List<PosTagSequenceFilter> posTagSequenceFilters;
-	private final List<Pair<String, PosTagSequenceFilter>> posTagSequenceFiltersWithDescriptors;
+	private final RawTextMarkType newlineMarker;
+	private final List<RawTextFilter> textAnnotators;
+	private final List<Annotator> sentenceAnnotators;
+	private final List<Pair<String, Annotator>> sentenceAnnotatorsWithDescriptors;
 
 	/**
 	 * 
@@ -401,118 +393,65 @@ public class TalismaneSession {
 			CSVFormatter.setGlobalLocale(outputLocale);
 
 		// ##################################################################
-		// text filters
-		LOG.debug("text-filters");
+		// text annotators
+		LOG.debug("text-annotators");
 		this.blockSize = talismaneConfig.getInt("block-size");
-		this.textFilters = new ArrayList<>();
+		this.textAnnotators = new ArrayList<>();
 		// insert sentence breaks at end of block
-		this.textFilters.add(new RegexMarkerFilter(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }),
+		this.textAnnotators.add(new RegexMarkerFilter(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }),
 				"" + this.endBlockCharCode, 0, blockSize));
 
 		// handle newline as requested
-		newlineMarker = MarkerFilterType.valueOf(talismaneConfig.getString("newline"));
-		if (newlineMarker.equals(MarkerFilterType.SENTENCE_BREAK))
-			this.textFilters.add(new NewlineEndOfSentenceMarker(blockSize));
-		else if (newlineMarker.equals(MarkerFilterType.SPACE))
-			this.textFilters.add(new NewlineSpaceMarker(blockSize));
+		newlineMarker = RawTextMarkType.valueOf(talismaneConfig.getString("newline"));
+		if (newlineMarker.equals(RawTextMarkType.SENTENCE_BREAK))
+			this.textAnnotators.add(new NewlineEndOfSentenceMarker(blockSize));
+		else if (newlineMarker.equals(RawTextMarkType.SPACE))
+			this.textAnnotators.add(new NewlineSpaceMarker(blockSize));
 
 		// get rid of duplicate white-space always
-		this.textFilters.add(new DuplicateWhiteSpaceFilter(blockSize));
+		this.textAnnotators.add(new DuplicateWhiteSpaceFilter(blockSize));
 
 		// replace tabs with white space
-		this.textFilters.add(new OtherWhiteSpaceFilter(blockSize));
+		this.textAnnotators.add(new OtherWhiteSpaceFilter(blockSize));
 
-		TextMarkerFilterFactory factory = new TextMarkerFilterFactory();
+		RawTextFilterFactory factory = new RawTextFilterFactory();
 
-		configPath = "talismane.core.annotators.text-filters";
-		List<String> textFilterPaths = config.getStringList(configPath);
-		for (String path : textFilterPaths) {
+		configPath = "talismane.core.annotators.text-annotators";
+		List<String> textAnnotatorPaths = config.getStringList(configPath);
+		for (String path : textAnnotatorPaths) {
 			LOG.debug("From: " + path);
-			InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(textFilterFile, "UTF-8")) {
+			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
+			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
 				while (scanner.hasNextLine()) {
 					String descriptor = scanner.nextLine();
 					LOG.debug(descriptor);
 					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-						TextMarkerFilter textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
-						this.textFilters.add(textMarkerFilter);
+						RawTextFilter textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
+						this.textAnnotators.add(textMarkerFilter);
 					}
 				}
 			}
 		}
 
 		// ##################################################################
-		// text annotators
-		LOG.debug("text-annotators");
+		// sentence annotators
+		LOG.debug("sentence-annotators");
 		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(this);
-		this.textAnnotators = new ArrayList<>();
-		this.textAnnotatorsWithDescriptors = new ArrayList<>();
-		configPath = "talismane.core.annotators.text-annotators";
-		List<String> tokenFilterPaths = config.getStringList(configPath);
-		for (String path : tokenFilterPaths) {
+		this.sentenceAnnotators = new ArrayList<>();
+		this.sentenceAnnotatorsWithDescriptors = new ArrayList<>();
+		configPath = "talismane.core.annotators.sentence-annotators";
+		List<String> sentenceAnnotatorPaths = config.getStringList(configPath);
+		for (String path : sentenceAnnotatorPaths) {
 			LOG.debug("From: " + path);
 			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
 			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
 				List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
 				for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
-					this.textAnnotators.add(tokenFilterPair.getLeft());
-					this.textAnnotatorsWithDescriptors.add(new ImmutablePair<>(tokenFilterPair.getRight(), tokenFilterPair.getLeft()));
+					this.sentenceAnnotators.add(tokenFilterPair.getLeft());
+					this.sentenceAnnotatorsWithDescriptors.add(new ImmutablePair<>(tokenFilterPair.getRight(), tokenFilterPair.getLeft()));
 				}
 			}
 		}
-
-		// ##################################################################
-		// token sequence filters
-		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(this);
-		this.tokenSequenceFilters = new ArrayList<>();
-		this.tokenSequenceFiltersWithDescriptors = new ArrayList<>();
-
-		LOG.debug("token-sequence-filters");
-		configPath = "talismane.core.annotators.token-sequence-filters";
-		List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
-		for (String path : tokenSequenceFilterPaths) {
-			LOG.debug("From: " + path);
-			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					LOG.debug(descriptor);
-					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-						TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
-						if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-							((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(this);
-						this.tokenSequenceFilters.add(tokenSequenceFilter);
-						this.tokenSequenceFiltersWithDescriptors.add(new ImmutablePair<>(descriptor, tokenSequenceFilter));
-					}
-				}
-			}
-		}
-
-		// ##################################################################
-		// pos-tag sequence filters
-		LOG.debug("postag-sequence-filters");
-		configPath = "talismane.core.annotators.postag-sequence-filters";
-		PosTagSequenceFilterFactory posTagSequenceFilterFactory = new PosTagSequenceFilterFactory();
-		this.posTagSequenceFilters = new ArrayList<>();
-		this.posTagSequenceFiltersWithDescriptors = new ArrayList<>();
-
-		List<String> posTagSequenceFilterPaths = config.getStringList(configPath);
-		for (String path : posTagSequenceFilterPaths) {
-			LOG.debug("From: " + path);
-			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					LOG.debug(descriptor);
-					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-						PosTagSequenceFilter filter = posTagSequenceFilterFactory.getPosTagSequenceFilter(descriptor);
-						this.posTagSequenceFilters.add(filter);
-						this.posTagSequenceFiltersWithDescriptors.add(new ImmutablePair<>(descriptor, filter));
-					}
-				}
-			}
-		}
-
 	}
 
 	public synchronized PosTagSet getPosTagSet() {
@@ -571,7 +510,9 @@ public class TalismaneSession {
 	}
 
 	/**
-	 * A string inserted between outputs (such as a newline).
+	 * A string inserted between any two segments of raw text that have been
+	 * marked for output in the Talismane analysis. This could, for example, be
+	 * a newline.
 	 */
 
 	public String getOutputDivider() {
@@ -797,32 +738,15 @@ public class TalismaneSession {
 		return blockSize;
 	}
 
-	public List<TextMarkerFilter> getTextFilters() {
-		return textFilters;
-	}
-
-	public List<Annotator> getTextAnnotators() {
+	public List<RawTextFilter> getTextAnnotators() {
 		return textAnnotators;
 	}
 
-	public List<Pair<String, Annotator>> getTextAnnotatorsWithDescriptors() {
-		return textAnnotatorsWithDescriptors;
+	public List<Annotator> getSentenceAnnotators() {
+		return sentenceAnnotators;
 	}
 
-	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		return tokenSequenceFilters;
+	public List<Pair<String, Annotator>> getSentenceAnnotatorsWithDescriptors() {
+		return sentenceAnnotatorsWithDescriptors;
 	}
-
-	public List<Pair<String, TokenSequenceFilter>> getTokenSequenceFiltersWithDescriptors() {
-		return tokenSequenceFiltersWithDescriptors;
-	}
-
-	public List<PosTagSequenceFilter> getPosTagSequenceFilters() {
-		return posTagSequenceFilters;
-	}
-
-	public List<Pair<String, PosTagSequenceFilter>> getPosTagSequenceFiltersWithDescriptors() {
-		return posTagSequenceFiltersWithDescriptors;
-	}
-
 }

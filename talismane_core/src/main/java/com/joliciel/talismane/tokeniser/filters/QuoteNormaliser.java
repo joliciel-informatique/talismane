@@ -18,29 +18,30 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-
 /**
- * Normalises all unicode characters representing some sort of double quote to simple double quote,
- * some sort of single quote to a simple apostrophe,
- * and some sort of dash or hyphen to a simple minus sign.
+ * Normalises all unicode characters representing some sort of double quote to
+ * simple double quote, some sort of single quote to a simple apostrophe, and
+ * some sort of dash or hyphen to a simple minus sign.
+ * 
  * @author Assaf Urieli
  *
  */
-public class QuoteNormaliser implements TokenSequenceFilter {
+public class QuoteNormaliser implements TextReplacer {
 	Pattern doubleQuotes = Pattern.compile("[“”„‟″‴«»]");
 	Pattern singleQuotes = Pattern.compile("[‘’]");
 	Pattern dashes = Pattern.compile("[‒–—―]");
-	
+
 	@Override
-	public void apply(TokenSequence tokenSequence) {
-		for (Token token : tokenSequence) {
-			token.setText(doubleQuotes.matcher(token.getText()).replaceAll("\""));
-			token.setText(singleQuotes.matcher(token.getText()).replaceAll("'"));
-			token.setText(dashes.matcher(token.getText()).replaceAll("-"));
+	public void replace(List<String> tokens) {
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);
+			token = doubleQuotes.matcher(token).replaceAll("\"");
+			token = singleQuotes.matcher(token).replaceAll("'");
+			token = dashes.matcher(token).replaceAll("-");
+			tokens.set(i, token);
 		}
 	}
 

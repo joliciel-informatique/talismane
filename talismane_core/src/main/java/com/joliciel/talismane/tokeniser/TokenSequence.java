@@ -21,9 +21,9 @@ import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.filters.SentenceTag;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.posTagger.PosTagSequence;
+import com.joliciel.talismane.tokeniser.filters.TextReplacement;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 
 /**
@@ -54,10 +54,11 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 	private TokenisedAtomicTokenSequence underlyingAtomicTokenSequence;
 	private Integer atomicTokenCount = null;
 	private boolean finalised = false;
-	private boolean sentenceTagsAdded = false;
 	private boolean withRoot = false;
 	private PosTagSequence posTagSequence;
 	private final Map<Integer, Annotation<TokenPlaceholder>> placeholderMap;
+	private final List<Annotation<TextReplacement>> replacements;
+
 	@SuppressWarnings("rawtypes")
 	private final Map<String, NavigableSet<Annotation<TokenAttribute>>> attributeOrderingMap;
 
@@ -72,15 +73,15 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 		this.listWithWhiteSpace = new ArrayList<>();
 
 		List<Annotation<TokenPlaceholder>> placeholders = sentence.getAnnotations(TokenPlaceholder.class);
-		if (placeholders != null) {
-			for (Annotation<TokenPlaceholder> placeholder : placeholders) {
-				// take the first placeholder at this start index only
-				// thus declaration order is the order at which they're
-				// applied
-				if (!placeholderMap.containsKey(placeholder.getStart()))
-					placeholderMap.put(placeholder.getStart(), placeholder);
-			}
+		for (Annotation<TokenPlaceholder> placeholder : placeholders) {
+			// take the first placeholder at this start index only
+			// thus declaration order is the order at which they're
+			// applied
+			if (!placeholderMap.containsKey(placeholder.getStart()))
+				placeholderMap.put(placeholder.getStart(), placeholder);
 		}
+
+		this.replacements = sentence.getAnnotations(TextReplacement.class);
 
 		@SuppressWarnings("rawtypes")
 		List<Annotation<TokenAttribute>> tokenAttributes = sentence.getAnnotations(TokenAttribute.class);
@@ -119,6 +120,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 		this.atomicTokenCount = sequenceToClone.atomicTokenCount;
 		this.posTagSequence = sequenceToClone.posTagSequence;
 		this.placeholderMap = sequenceToClone.placeholderMap;
+		this.replacements = sequenceToClone.replacements;
 		this.attributeOrderingMap = sequenceToClone.attributeOrderingMap;
 
 		for (Token token : sequenceToClone) {
@@ -135,7 +137,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
 	/**
 	 * Add tokens from the underlying sentence, pre-separated into tokens
-	 * matching {@link Tokeniser#getTokenSeparators(TalismaneSession)} , except
+	 * matching {@link Tokeniser#getTokenSeparators(TalismaneSession)}, except
 	 * wherever {@link TokenPlaceholder} annotations have been added.
 	 */
 	public void findDefaultTokens() {
@@ -247,22 +249,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 			for (Token token : this) {
 				token.setIndex(i++);
 			}
-		}
-	}
-
-	void addSentenceTags() {
-		if (!sentenceTagsAdded) {
-			sentenceTagsAdded = true;
-			for (SentenceTag<?> sentenceTag : this.sentence.getSentenceTags()) {
-				for (Token token : this) {
-					if (token.getStartIndex() >= sentenceTag.getStartIndex() && token.getEndIndex() <= sentenceTag.getEndIndex()) {
-						token.addAttribute(sentenceTag.getAttribute(), sentenceTag.getValue());
-					}
-					if (token.getStartIndex() > sentenceTag.getEndIndex())
-						break;
-				}
-			}
-
 		}
 	}
 
@@ -384,10 +370,38 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 		}
 
 		// set token text to replacement, if required
+		boolean foundReplacement = false;
 		if (this.placeholderMap.containsKey(token.getStartIndex())) {
 			Annotation<TokenPlaceholder> placeholder = this.placeholderMap.get(token.getStartIndex());
 			if (placeholder.getEnd() == token.getEndIndex() && placeholder.getData().getReplacement() != null) {
 				token.setText(placeholder.getData().getReplacement());
+				foundReplacement = true;
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("Set token text to: " + token.getText() + " using " + placeholder.toString());
+				}
+			}
+		}
+
+		if (!foundReplacement) {
+			int lastReplacement = token.getStartIndex();
+			StringBuilder sb = new StringBuilder();
+			for (Annotation<TextReplacement> replacement : replacements) {
+				if (replacement.getStart() >= lastReplacement && replacement.getStart() < token.getEndIndex()) {
+					sb.append(token.getText().substring(lastReplacement - token.getStartIndex(), replacement.getStart() - token.getStartIndex()));
+					sb.append(replacement.getData().getReplacement());
+
+					if (LOG.isTraceEnabled()) {
+						LOG.trace("applied replacement: " + replacement.toString());
+					}
+					lastReplacement = replacement.getEnd();
+				}
+			}
+			if (lastReplacement > token.getStartIndex()) {
+				sb.append(token.getText().substring(lastReplacement - token.getStartIndex()));
+				token.setText(sb.toString());
+				if (LOG.isTraceEnabled()) {
+					LOG.trace("Set token text to: " + token.getText());
+				}
 			}
 		}
 

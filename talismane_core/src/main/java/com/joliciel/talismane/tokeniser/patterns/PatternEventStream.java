@@ -40,7 +40,6 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.TokeniserOutcome;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
  * An event stream for tokenising, using patterns to identify potential
@@ -94,9 +93,6 @@ public class PatternEventStream implements ClassificationEventStream {
 
 				TokenSequence tokenSequence = new TokenSequence(sentence, session);
 				tokenSequence.findDefaultTokens();
-				for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
-					tokenSequenceFilter.apply(tokenSequence);
-				}
 
 				List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(tokenSequence);
 
