@@ -22,39 +22,52 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.Diacriticizer;
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
+import com.joliciel.talismane.tokeniser.Tokeniser;
 
 /**
- * Looks for a series of 2+ words in all upper-case, and transforms them into lower-case.
- * Unknown words will be given an initial upper case.
+ * Looks for a series of 2+ words in all upper-case, and transforms them into
+ * lower-case. Unknown words will be given an initial upper case.
+ * 
  * @author Assaf Urieli
  *
  */
-public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalismaneSession {
-	private TalismaneSession talismaneSession;
-	
+public class UppercaseSeriesFilter implements TextReplacer, NeedsTalismaneSession {
+	private static final Logger LOG = LoggerFactory.getLogger(UppercaseSeriesFilter.class);
+	private TalismaneSession session;
+
+	/**
+	 * Maximum number of spaces in a single word.
+	 */
+	private static final int maxSpaces = 2;
+
 	public UppercaseSeriesFilter() {
 		super();
 	}
 
 	@Override
-	public void apply(TokenSequence tokenSequence) {
-		List<Token> upperCaseSequence = new ArrayList<Token>();
-		for (Token token : tokenSequence) {
-			String word = token.getText();
-			
-			if (word.length()==0)
+	public void replace(List<String> tokens) {
+		List<String> upperCaseSequence = new ArrayList<>();
+		int startIndex = 0;
+		int numWords = 0;
+		// add a lowercase word at the end
+		tokens.add("a");
+		for (int j = 0; j < tokens.size(); j++) {
+
+			String token = tokens.get(j);
+
+			if (token.length() == 0)
 				continue;
-			
+
 			boolean hasLowerCase = false;
 			boolean hasUpperCase = false;
-			for (int i=0; i<word.length();i++) {
-				char c = word.charAt(i);
+			for (int i = 0; i < token.length(); i++) {
+				char c = token.charAt(i);
 				if (Character.isUpperCase(c)) {
 					hasUpperCase = true;
 				}
@@ -63,51 +76,82 @@ public class UppercaseSeriesFilter implements TokenSequenceFilter, NeedsTalisman
 					break;
 				}
 			}
-			
-			if (hasUpperCase&&!hasLowerCase) {
+
+			if (hasUpperCase && !hasLowerCase) {
+				if (upperCaseSequence.size() == 0)
+					startIndex = j;
 				upperCaseSequence.add(token);
+				numWords++;
 			} else if (!hasLowerCase) {
-				// do nothing, might be punctuation or number in middle of upper case sequence
+				// might be punctuation or space or number in the middle of
+				// uppercase sequence
+				if (upperCaseSequence.size() > 0)
+					upperCaseSequence.add(token);
 			} else {
-				if (upperCaseSequence.size()>1) {
-					this.checkSequence(upperCaseSequence);
-				}
+				if (numWords > 1) {
+					for (int k = 0; k < upperCaseSequence.size(); k++) {
+						String startWord = upperCaseSequence.get(k);
+						if (startWord.length() == 1 && Character.isWhitespace(startWord.charAt(0))) {
+							continue;
+						}
+						StringBuilder wordBuilder = new StringBuilder();
+						boolean foundWord = false;
+						int numSpaces = 0;
+						for (int l = k; l < upperCaseSequence.size(); l++) {
+							String part = upperCaseSequence.get(l);
+							// don't go beyond white space
+							if (part.length() == 1 && Character.isWhitespace(part.charAt(0)))
+								numSpaces++;
+							if (numSpaces > maxSpaces)
+								break;
+
+							wordBuilder.append(part);
+							String word = wordBuilder.toString();
+							String knownWord = null;
+							Diacriticizer diacriticizer = session.getDiacriticizer();
+							Set<String> lowercaseForms = diacriticizer.diacriticize(word);
+							if (lowercaseForms.size() > 0) {
+								knownWord = lowercaseForms.iterator().next();
+								List<String> knownTokens = Tokeniser.bruteForceTokenise(knownWord, session);
+								if (knownTokens.size() == l - k + 1) {
+									// same number of tokens, we can update the
+									// existing word
+									for (int m = 0; m < knownTokens.size(); m++) {
+										tokens.set(startIndex + k + m, knownTokens.get(m));
+									}
+									foundWord = true;
+									// skip the words that were lowercased
+									k += knownTokens.size() - 1;
+									break;
+								} else {
+									LOG.debug("Different number of tokens: |" + knownTokens.toString() + "| and |" + word + "|");
+								}
+							}
+						}
+
+						if (!foundWord) {
+							if (startWord.length() > 0) {
+								String newWord = startWord.substring(0, 1) + startWord.substring(1).toLowerCase(session.getLocale());
+								tokens.set(startIndex + k, newWord);
+							}
+						}
+					} // next word in series
+				} // have series
 				upperCaseSequence.clear();
+				numWords = 0;
 			}
 		} // next token
-		if (upperCaseSequence.size()>1) {
-			this.checkSequence(upperCaseSequence);
-		}
+			// remove the lowercase word
+		tokens.remove(tokens.size() - 1);
 	}
 
-	void checkSequence(List<Token> upperCaseSequence) {
-		for (Token token : upperCaseSequence) {
-			token.setText(getKnownWord(this.talismaneSession, token.getText()));
-		}
-	}
-
+	@Override
 	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
+		return session;
 	}
 
+	@Override
 	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
-
-	public static String getKnownWord(TalismaneSession talismaneSession, String word) {
-		String knownWord = word;
-		boolean foundWord = false;
-		Diacriticizer diacriticizer = talismaneSession.getDiacriticizer();
-		Set<String> lowercaseForms = diacriticizer.diacriticize(word);
-		if (lowercaseForms.size()>0) {
-			knownWord = lowercaseForms.iterator().next();
-			foundWord = true;
-		}
-		if (!foundWord) {
-			if (word.length()>0) {
-				knownWord = word.substring(0,1) + word.substring(1).toLowerCase(talismaneSession.getLocale());
-			}
-		}
-		return knownWord;
+		this.session = talismaneSession;
 	}
 }

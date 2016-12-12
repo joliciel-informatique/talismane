@@ -40,7 +40,6 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
@@ -109,8 +108,6 @@ public class PatternTokeniserTrainer {
 		// out of the model
 		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
 				session.getSentenceAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
-		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY,
-				session.getTokenSequenceFiltersWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 
 		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
 		Set<TokenPatternMatchFeature<?>> features = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);

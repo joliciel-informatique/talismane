@@ -53,12 +53,10 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.typesafe.config.Config;
@@ -260,36 +258,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 								LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount - 1) + ") (Line " + (sentenceStartLineNumber + 1)
 										+ "): " + tokenSequence.getSentence().getText());
 
-								for (TokenSequenceFilter tokenFilter : session.getTokenSequenceFilters()) {
-									tokenFilter.apply(tokenSequence);
-								}
-
-								if (tokenSequence.getTokensAdded().size() > 0) {
-									// create an empty data line for each
-									// empty token that was added by the
-									// filters
-									List<ParseDataLine> newDataLines = new ArrayList<ParseDataLine>();
-									int i = 0;
-									ParseDataLine lastDataLine = null;
-									for (Token token : tokenSequence) {
-										if (tokenSequence.getTokensAdded().contains(token)) {
-											ParseDataLine emptyDataLine = new ParseDataLine();
-											emptyDataLine.setToken(token);
-											emptyDataLine.setWord("");
-											emptyDataLine.setIndex(++maxIndex);
-											if (lastDataLine != null)
-												emptyDataLine.setLineNumber(lastDataLine.getLineNumber());
-											else
-												emptyDataLine.setLineNumber(sentenceStartLineNumber);
-											newDataLines.add(emptyDataLine);
-										} else {
-											lastDataLine = dataLines.get(i++);
-											newDataLines.add(lastDataLine);
-										}
-									}
-									dataLines = newDataLines;
-								}
-
 								boolean hasSkip = false;
 								for (int i = 0; i < dataLines.size(); i++) {
 									this.updateDataLine(dataLines, i);
@@ -359,10 +327,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 									posTagSequence.addPosTaggedToken(posTaggedToken);
 									idTokenMap.put(dataLine.getIndex(), posTaggedToken);
 									i++;
-								}
-
-								for (PosTagSequenceFilter posTagSequenceFilter : session.getPosTagSequenceFilters()) {
-									posTagSequenceFilter.apply(posTagSequence);
 								}
 
 								PosTaggedToken rootToken = posTagSequence.prependRoot();

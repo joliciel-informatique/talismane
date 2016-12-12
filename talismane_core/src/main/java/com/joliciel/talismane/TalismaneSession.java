@@ -69,13 +69,9 @@ import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
 import com.joliciel.talismane.parser.ShiftReduceTransitionSystem;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
 import com.joliciel.talismane.resources.WordListFinder;
 import com.joliciel.talismane.tokeniser.filters.TokenFilter;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilterFactory;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
@@ -129,10 +125,6 @@ public class TalismaneSession {
 	private final List<RawTextFilter> textAnnotators;
 	private final List<Annotator> sentenceAnnotators;
 	private final List<Pair<String, Annotator>> sentenceAnnotatorsWithDescriptors;
-	private final List<TokenSequenceFilter> tokenSequenceFilters;
-	private final List<Pair<String, TokenSequenceFilter>> tokenSequenceFiltersWithDescriptors;
-	private final List<PosTagSequenceFilter> posTagSequenceFilters;
-	private final List<Pair<String, PosTagSequenceFilter>> posTagSequenceFiltersWithDescriptors;
 
 	/**
 	 * 
@@ -460,59 +452,6 @@ public class TalismaneSession {
 				}
 			}
 		}
-
-		// ##################################################################
-		// token sequence filters
-		TokenSequenceFilterFactory tokenSequenceFilterFactory = TokenSequenceFilterFactory.getInstance(this);
-		this.tokenSequenceFilters = new ArrayList<>();
-		this.tokenSequenceFiltersWithDescriptors = new ArrayList<>();
-
-		LOG.debug("token-sequence-filters");
-		configPath = "talismane.core.annotators.token-sequence-filters";
-		List<String> tokenSequenceFilterPaths = config.getStringList(configPath);
-		for (String path : tokenSequenceFilterPaths) {
-			LOG.debug("From: " + path);
-			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					LOG.debug(descriptor);
-					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-						TokenSequenceFilter tokenSequenceFilter = tokenSequenceFilterFactory.getTokenSequenceFilter(descriptor);
-						if (tokenSequenceFilter instanceof NeedsTalismaneSession)
-							((NeedsTalismaneSession) tokenSequenceFilter).setTalismaneSession(this);
-						this.tokenSequenceFilters.add(tokenSequenceFilter);
-						this.tokenSequenceFiltersWithDescriptors.add(new ImmutablePair<>(descriptor, tokenSequenceFilter));
-					}
-				}
-			}
-		}
-
-		// ##################################################################
-		// pos-tag sequence filters
-		LOG.debug("postag-sequence-filters");
-		configPath = "talismane.core.annotators.postag-sequence-filters";
-		PosTagSequenceFilterFactory posTagSequenceFilterFactory = new PosTagSequenceFilterFactory();
-		this.posTagSequenceFilters = new ArrayList<>();
-		this.posTagSequenceFiltersWithDescriptors = new ArrayList<>();
-
-		List<String> posTagSequenceFilterPaths = config.getStringList(configPath);
-		for (String path : posTagSequenceFilterPaths) {
-			LOG.debug("From: " + path);
-			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
-			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-				while (scanner.hasNextLine()) {
-					String descriptor = scanner.nextLine();
-					LOG.debug(descriptor);
-					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-						PosTagSequenceFilter filter = posTagSequenceFilterFactory.getPosTagSequenceFilter(descriptor);
-						this.posTagSequenceFilters.add(filter);
-						this.posTagSequenceFiltersWithDescriptors.add(new ImmutablePair<>(descriptor, filter));
-					}
-				}
-			}
-		}
-
 	}
 
 	public synchronized PosTagSet getPosTagSet() {
@@ -810,21 +749,4 @@ public class TalismaneSession {
 	public List<Pair<String, Annotator>> getSentenceAnnotatorsWithDescriptors() {
 		return sentenceAnnotatorsWithDescriptors;
 	}
-
-	public List<TokenSequenceFilter> getTokenSequenceFilters() {
-		return tokenSequenceFilters;
-	}
-
-	public List<Pair<String, TokenSequenceFilter>> getTokenSequenceFiltersWithDescriptors() {
-		return tokenSequenceFiltersWithDescriptors;
-	}
-
-	public List<PosTagSequenceFilter> getPosTagSequenceFilters() {
-		return posTagSequenceFilters;
-	}
-
-	public List<Pair<String, PosTagSequenceFilter>> getPosTagSequenceFiltersWithDescriptors() {
-		return posTagSequenceFiltersWithDescriptors;
-	}
-
 }

@@ -42,7 +42,6 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilterFactory;
 import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
@@ -93,10 +92,6 @@ public class PosTaggerTrainer {
 		// out of the model
 		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
 				session.getSentenceAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
-		descriptors.put(PosTagSequenceFilterFactory.TOKEN_SEQUENCE_FILTER_DESCRIPTOR_KEY,
-				session.getTokenSequenceFiltersWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
-		descriptors.put(PosTagSequenceFilterFactory.POSTAG_SEQUENCE_FILTER_DESCRIPTOR_KEY,
-				session.getPosTagSequenceFiltersWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 
 		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
 		Set<PosTaggerFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
