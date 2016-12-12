@@ -45,11 +45,9 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.UnknownPosTagException;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.typesafe.config.Config;
 
 public class StandoffReader extends ParserAnnotatedCorpusReader {
@@ -203,21 +201,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 
 				tokenSequence.setWithRoot(true);
 
-				tokenSequence.cleanSlate();
-
-				for (TokenSequenceFilter tokenFilter : session.getTokenSequenceFilters()) {
-					tokenFilter.apply(tokenSequence);
-				}
-
-				if (tokenSequence.getTokensAdded().size() > 0) {
-					throw new TalismaneException("Added tokens not currently supported by StandoffReader");
-				}
-
 				tokenSequence.finalise();
-
-				for (PosTagSequenceFilter filter : session.getPosTagSequenceFilters()) {
-					filter.apply(posTagSequence);
-				}
 
 				configuration = new ParseConfiguration(posTagSequence);
 

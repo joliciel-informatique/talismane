@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.tokeniser.filters.TextReplacement;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -470,6 +471,55 @@ public class TokenSequenceTest {
 				assertEquals("Company", token.getText());
 				assertEquals(1, token.getAttributes().size());
 				assertEquals("true", token.getAttributes().get("startsWithC").getValue());
+			}
+			i++;
+		}
+	}
+
+	@Test
+	public void testReplacmenet() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+
+		final TalismaneSession session = new TalismaneSession(config, "");
+		final Sentence sentence = new Sentence("Replacing ft0per0min with foot/minute", session);
+		List<Annotation<TextReplacement>> replacements = new ArrayList<>();
+		replacements.add(new Annotation<TextReplacement>("Replacing ".length(), "Replacing ft".length(), new TextReplacement("foot")));
+		replacements.add(new Annotation<TextReplacement>("Replacing ft".length(), "Replacing ft0per0".length(), new TextReplacement("/")));
+		replacements.add(new Annotation<TextReplacement>("Replacing ft0per0".length(), "Replacing ft0per0min".length(), new TextReplacement("minute")));
+
+		// this last replacement should be ignored, because of the placeholder
+		replacements.add(
+				new Annotation<TextReplacement>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot".length(), new TextReplacement("feet")));
+
+		sentence.addAnnotations(replacements);
+
+		List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
+		placeholders.add(new Annotation<>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot/minute".length(),
+				new TokenPlaceholder("foot_per_minute", "blah")));
+		sentence.addAnnotations(placeholders);
+
+		TokenSequence tokenSequence = new TokenSequence(sentence, session);
+		tokenSequence.findDefaultTokens();
+
+		LOG.debug(tokenSequence.listWithWhiteSpace().toString());
+		LOG.debug(tokenSequence.toString());
+		assertEquals(4, tokenSequence.size());
+
+		int i = 0;
+		for (Token token : tokenSequence) {
+			LOG.debug(token.getAttributes().toString());
+			if (i == 0) {
+				assertEquals("Replacing", token.getText());
+			} else if (i == 1) {
+				assertEquals("foot/minute", token.getText());
+				assertEquals("ft0per0min", token.getOriginalText());
+			} else if (i == 2) {
+				assertEquals("with", token.getText());
+			} else if (i == 3) {
+				assertEquals("foot_per_minute", token.getText());
+				assertEquals("foot/minute", token.getOriginalText());
 			}
 			i++;
 		}
