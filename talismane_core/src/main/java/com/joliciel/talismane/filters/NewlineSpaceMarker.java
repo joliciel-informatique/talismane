@@ -28,6 +28,6 @@ import java.util.Arrays;
  */
 public class NewlineSpaceMarker extends RegexMarkerFilter {
 	public NewlineSpaceMarker(int blockSize) {
-		super(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SPACE }), "\r\n|[\r\n]", 0, blockSize);
+		super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SPACE }), "\r\n|[\r\n]", 0, blockSize);
 	}
 }

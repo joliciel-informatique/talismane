@@ -43,7 +43,6 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -350,18 +349,14 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 		}
 
 		// apply post-processing filters
-		LOG.debug("####Final postag sequences:");
-		int j = 1;
-		for (PosTagSequence sequence : sequences) {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("Sequence " + (j++) + ", score=" + df.format(sequence.getScore()));
-				LOG.debug("Sequence before filters: " + sequence);
-			}
-			for (PosTagSequenceFilter filter : session.getPosTagSequenceFilters())
-				filter.apply(sequence);
-
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("Sequence after filters: " + sequence);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("####Final postag sequences:");
+			int j = 1;
+			for (PosTagSequence sequence : sequences) {
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Sequence " + (j++) + ", score=" + df.format(sequence.getScore()));
+					LOG.debug("Sequence: " + sequence);
+				}
 			}
 		}
 

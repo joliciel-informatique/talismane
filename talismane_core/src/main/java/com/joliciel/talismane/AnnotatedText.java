@@ -30,18 +30,53 @@ import java.util.List;
  */
 public class AnnotatedText {
 	private final CharSequence text;
+	private final int analysisStart;
+	private final int analysisEnd;
 	private List<Annotation<?>> annotations;
 	private final List<AnnotationObserver> observers = new ArrayList<>();
 
 	/**
-	 * Construct the initial instance with no annotations.
+	 * Construct an annotated text with no annotations, and analysis start at
+	 * text start, and analysis end text end.
 	 * 
 	 * @param text
 	 *            the text to annotate
 	 */
 	public AnnotatedText(CharSequence text) {
+		this(text, 0, text.length());
+	}
+
+	/**
+	 * Construct an annotated text with an explicit analysis start and end.
+	 * 
+	 * @param text
+	 *            the text to annotate
+	 * @param analysisStart
+	 *            the analysis start-point.
+	 * @param analysisEnd
+	 *            the analysis end-point
+	 */
+	public AnnotatedText(CharSequence text, int analysisStart, int analysisEnd) {
 		this.text = text;
+		this.analysisStart = analysisStart;
+		this.analysisEnd = analysisEnd;
 		this.annotations = Collections.emptyList();
+	}
+
+	/**
+	 * Construct an annotated text with an explicti analysis end and an initial
+	 * list of annotations.
+	 * 
+	 * @param text
+	 * @param analysisEnd
+	 * @param annotations
+	 */
+	public AnnotatedText(CharSequence text, int analysisStart, int analysisEnd, List<Annotation<?>> annotations) {
+		this.text = text;
+		this.analysisStart = analysisStart;
+		this.analysisEnd = analysisEnd;
+		Collections.sort(annotations);
+		this.annotations = Collections.unmodifiableList(annotations);
 	}
 
 	/**
@@ -60,19 +95,47 @@ public class AnnotatedText {
 	}
 
 	/**
+	 * The point in the text beyond which annotations can begin.<br/>
+	 * More specifically, {@link Annotation#getStart()} &lt;= analysisStart.
+	 * <br/>
+	 * This is useful when the annotator needs more context, but must only add
+	 * annotations in a particular part of the text.
+	 */
+	public int getAnalysisStart() {
+		return analysisStart;
+	}
+
+	/**
+	 * The point in the text beyond which no more annotations should begin.<br/>
+	 * More specifically, {@link Annotation#getStart()} &lt; analysisEnd.<br/>
+	 * This is useful when the annotator needs more context, but must only add
+	 * annotations in a particular part of the text.
+	 */
+	public int getAnalysisEnd() {
+		return analysisEnd;
+	}
+
+	/**
 	 * Add annotations to the current text.
 	 * 
 	 * @param annotations
 	 */
 	public <T> void addAnnotations(List<Annotation<T>> annotations) {
-		for (AnnotationObserver observer : observers) {
-			observer.beforeAddAnnotations(this, annotations);
+		if (annotations.size() > 0) {
+			for (AnnotationObserver observer : observers) {
+				observer.beforeAddAnnotations(this, annotations);
+			}
+			List<Annotation<?>> newAnnotations = new ArrayList<>(this.annotations.size() + annotations.size());
+			newAnnotations.addAll(this.annotations);
+			newAnnotations.addAll(annotations);
+			Collections.sort(newAnnotations);
+			this.annotations = Collections.unmodifiableList(newAnnotations);
+
+			for (AnnotationObserver observer : observers) {
+				observer.afterAddAnnotations(this);
+			}
+
 		}
-		List<Annotation<?>> newAnnotations = new ArrayList<>(this.annotations.size() + annotations.size());
-		newAnnotations.addAll(this.annotations);
-		newAnnotations.addAll(annotations);
-		Collections.sort(newAnnotations);
-		this.annotations = Collections.unmodifiableList(newAnnotations);
 	}
 
 	/**

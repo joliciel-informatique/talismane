@@ -47,8 +47,9 @@ public class TokenFilterFactory {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenFilterFactory.class);
 
 	private final TalismaneSession talismaneSession;
-	private final Map<String, Class<? extends TokenFilter>> registeredFilterTypes = new HashMap<String, Class<? extends TokenFilter>>();
-	private final Map<Class<? extends TokenFilter>, TokenFilterDependencyInjector> registeredDependencyInjectors = new HashMap<Class<? extends TokenFilter>, TokenFilterDependencyInjector>();
+	private final Map<String, Class<? extends TokenFilter>> registeredFilterTypes = new HashMap<>();
+	private final Map<Class<? extends TokenFilter>, TokenFilterDependencyInjector> registeredDependencyInjectors = new HashMap<>();
+	private final Map<String, Class<? extends TextReplacer>> registeredTextReplacers = new HashMap<>();
 
 	private static final Map<String, TokenFilterFactory> instances = new HashMap<>();
 
@@ -65,6 +66,15 @@ public class TokenFilterFactory {
 		this.talismaneSession = talismaneSession;
 		registeredFilterTypes.put(AttributeRegexFilter.class.getSimpleName(), AttributeRegexFilter.class);
 		registeredFilterTypes.put(TokenRegexFilter.class.getSimpleName(), TokenRegexFilterImpl.class);
+		registeredFilterTypes.put(TextReplaceFilter.class.getSimpleName(), TextReplaceFilter.class);
+
+		registeredTextReplacers.put(DiacriticRemover.class.getSimpleName(), DiacriticRemover.class);
+		registeredTextReplacers.put(LowercaseFilter.class.getSimpleName(), LowercaseFilter.class);
+		registeredTextReplacers.put(LowercaseKnownFirstWordFilter.class.getSimpleName(), LowercaseKnownFirstWordFilter.class);
+		registeredTextReplacers.put(LowercaseKnownWordFilter.class.getSimpleName(), LowercaseKnownWordFilter.class);
+		registeredTextReplacers.put(QuoteNormaliser.class.getSimpleName(), QuoteNormaliser.class);
+		registeredTextReplacers.put(UppercaseSeriesFilter.class.getSimpleName(), UppercaseSeriesFilter.class);
+
 	}
 
 	public TokenRegexFilter getTokenRegexFilter(String regex) {
@@ -183,9 +193,15 @@ public class TokenFilterFactory {
 			if (clazz == null) {
 				throw new TokenFilterLoadException("Unknown TokenFilter: " + className);
 			}
-			TokenFilter filter = clazz.newInstance();
 
-			if (NeedsTalismaneSession.class.isAssignableFrom(filter.getClass())) {
+			TokenFilter filter = null;
+			if (clazz.equals(TextReplaceFilter.class)) {
+				filter = new TextReplaceFilter(registeredTextReplacers, talismaneSession);
+			} else {
+				filter = clazz.newInstance();
+			}
+
+			if (filter instanceof NeedsTalismaneSession) {
 				((NeedsTalismaneSession) filter).setTalismaneSession(talismaneSession);
 			}
 

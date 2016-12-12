@@ -28,6 +28,6 @@ import java.util.Arrays;
  */
 public class NewlineEndOfSentenceMarker extends RegexMarkerFilter {
 	public NewlineEndOfSentenceMarker(int blockSize) {
-		super(Arrays.asList(new MarkerFilterType[] { MarkerFilterType.SKIP, MarkerFilterType.SENTENCE_BREAK }), "\r\n|[\r\n]", 0, blockSize);
+		super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }), "\r\n|[\r\n]", 0, blockSize);
 	}
 }

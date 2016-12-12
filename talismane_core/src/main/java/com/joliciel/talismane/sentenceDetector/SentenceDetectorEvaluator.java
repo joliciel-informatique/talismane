@@ -38,7 +38,7 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.Annotator;
+import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -59,10 +59,8 @@ public class SentenceDetectorEvaluator {
 	private final int minCharactersAfterBoundary = 50;
 
 	private static final int NUM_CHARS = 30;
-	private final TalismaneSession session;
 
 	public SentenceDetectorEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
-		this.session = session;
 		Config config = session.getConfig();
 		this.sentenceDetector = SentenceDetector.getInstance(session);
 		Config sentenceConfig = config.getConfig("talismane.core.sentence-detector");
@@ -84,7 +82,6 @@ public class SentenceDetectorEvaluator {
 	 */
 	public SentenceDetectorEvaluator(SentenceDetector sentenceDetector, SentenceDetectorAnnotatedCorpusReader corpusReader, Writer errorWriter,
 			TalismaneSession session) {
-		this.session = session;
 		this.sentenceDetector = sentenceDetector;
 		this.corpusReader = corpusReader;
 		this.errorWriter = errorWriter;
@@ -110,20 +107,10 @@ public class SentenceDetectorEvaluator {
 			sentence = corpusReader.nextSentence().getText().toString();
 
 		sentences.add(sentence);
+
 		while (!sentences.isEmpty()) {
 			sentence = sentences.poll();
 			LOG.debug("Sentence: " + sentence);
-
-			Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(sentence);
-			List<Integer> possibleBoundaries = new ArrayList<Integer>();
-
-			while (matcher.find()) {
-				possibleBoundaries.add(matcher.start());
-			}
-
-			int realBoundary = sentence.length() - 1;
-			if (!possibleBoundaries.contains(realBoundary))
-				possibleBoundaries.add(realBoundary);
 
 			String moreText = "";
 			int sentenceIndex = 0;
@@ -146,11 +133,21 @@ public class SentenceDetectorEvaluator {
 			}
 
 			String text = previousSentence + sentence + moreText;
-			RollingTextBlock textBlock = new RollingTextBlock(previousSentence, sentence, moreText);
-			for (Annotator annotator : session.getTextAnnotators())
-				annotator.annotate(textBlock);
+			AnnotatedText annotatedText = new AnnotatedText(text, previousSentence.length(), previousSentence.length() + sentence.length(), new ArrayList<>());
 
-			List<Integer> guessedBoundaries = this.sentenceDetector.detectSentences(textBlock);
+			Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text);
+			List<Integer> possibleBoundaries = new ArrayList<Integer>();
+
+			while (matcher.find()) {
+				if (matcher.start() >= annotatedText.getAnalysisStart() && matcher.start() < annotatedText.getAnalysisEnd())
+					possibleBoundaries.add(matcher.start());
+			}
+
+			int realBoundary = previousSentence.length() + sentence.length() - 1;
+			if (!possibleBoundaries.contains(realBoundary))
+				possibleBoundaries.add(realBoundary);
+
+			List<Integer> guessedBoundaries = this.sentenceDetector.detectSentences(annotatedText);
 			for (int possibleBoundary : possibleBoundaries) {
 				SentenceDetectorOutcome expected = SentenceDetectorOutcome.IS_NOT_BOUNDARY;
 				SentenceDetectorOutcome guessed = SentenceDetectorOutcome.IS_NOT_BOUNDARY;

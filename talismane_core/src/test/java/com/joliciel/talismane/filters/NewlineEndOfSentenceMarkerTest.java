@@ -2,48 +2,82 @@ package com.joliciel.talismane.filters;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.Annotation;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextSentenceBreakMarker;
+import com.joliciel.talismane.filters.RawTextMarker.RawTextSkipMarker;
+
 public class NewlineEndOfSentenceMarkerTest {
 	private static final Logger LOG = LoggerFactory.getLogger(NewlineEndOfSentenceMarkerTest.class);
 
 	@Test
-	public void testApply() {
+	public void testApply() throws Exception {
 		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker(1000);
 
-		String text = "1\r\n2\r\n";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers.toString());
+		AnnotatedText text = new AnnotatedText("1\r\n2\r\n");
 
-		assertEquals(6, textMarkers.size());
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-		text = "1\r2\r";
-		textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers.toString());
+		List<Annotation<RawTextSentenceBreakMarker>> sentenceBreaks = text.getAnnotations(RawTextSentenceBreakMarker.class);
+		assertEquals(2, sentenceBreaks.size());
 
-		assertEquals(6, textMarkers.size());
+		List<Annotation<RawTextSkipMarker>> skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
 
-		text = "1\n2\n";
-		textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers.toString());
+		assertEquals(1, sentenceBreaks.get(0).getStart());
+		assertEquals(3, sentenceBreaks.get(0).getEnd());
+		assertEquals(1, skips.get(0).getStart());
+		assertEquals(3, skips.get(0).getEnd());
+		assertEquals(4, sentenceBreaks.get(1).getStart());
+		assertEquals(6, sentenceBreaks.get(1).getEnd());
+		assertEquals(4, skips.get(1).getStart());
+		assertEquals(6, skips.get(1).getEnd());
 
-		assertEquals(6, textMarkers.size());
+		text = new AnnotatedText("1\r2\r");
 
-	}
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
 
-	@Test
-	public void testApplyRealSentence() {
-		NewlineEndOfSentenceMarker filter = new NewlineEndOfSentenceMarker(1000);
+		sentenceBreaks = text.getAnnotations(RawTextSentenceBreakMarker.class);
+		assertEquals(2, sentenceBreaks.size());
 
-		String text = "Yet another test sentence.\n";
-		Set<TextMarker> textMarkers = filter.apply("", text, "");
-		LOG.debug(textMarkers.toString());
+		skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
 
-		assertEquals(3, textMarkers.size());
+		assertEquals(1, sentenceBreaks.get(0).getStart());
+		assertEquals(2, sentenceBreaks.get(0).getEnd());
+		assertEquals(1, skips.get(0).getStart());
+		assertEquals(2, skips.get(0).getEnd());
+		assertEquals(3, sentenceBreaks.get(1).getStart());
+		assertEquals(4, sentenceBreaks.get(1).getEnd());
+		assertEquals(3, skips.get(1).getStart());
+		assertEquals(4, skips.get(1).getEnd());
 
+		text = new AnnotatedText("1\r2\r");
+
+		filter.annotate(text);
+		LOG.debug(text.getAnnotations().toString());
+
+		sentenceBreaks = text.getAnnotations(RawTextSentenceBreakMarker.class);
+		assertEquals(2, sentenceBreaks.size());
+
+		skips = text.getAnnotations(RawTextSkipMarker.class);
+		assertEquals(2, skips.size());
+
+		assertEquals(1, sentenceBreaks.get(0).getStart());
+		assertEquals(2, sentenceBreaks.get(0).getEnd());
+		assertEquals(1, skips.get(0).getStart());
+		assertEquals(2, skips.get(0).getEnd());
+		assertEquals(3, sentenceBreaks.get(1).getStart());
+		assertEquals(4, sentenceBreaks.get(1).getEnd());
+		assertEquals(3, skips.get(1).getStart());
+		assertEquals(4, skips.get(1).getEnd());
 	}
 }

@@ -68,6 +68,14 @@ public final class Annotation<T> implements Comparable<Annotation<?>> {
 		return data;
 	}
 
+	/**
+	 * Return a new annotation representing the current annotation data with a
+	 * different start and end.
+	 */
+	public Annotation<T> getAnnotation(int start, int end) {
+		return new Annotation<T>(start, end, this.data);
+	}
+
 	@Override
 	public int compareTo(Annotation<?> that) {
 		if (this.start != that.start)

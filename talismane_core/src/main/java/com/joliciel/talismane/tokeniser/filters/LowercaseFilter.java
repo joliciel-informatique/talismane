@@ -18,34 +18,36 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.List;
+
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
  * Puts text in lower case.
+ * 
  * @author Assaf Urieli
  *
  */
-public class LowercaseFilter implements TokenSequenceFilter, NeedsTalismaneSession {
-	TalismaneSession talismaneSession;
-	
+public class LowercaseFilter implements TextReplacer, NeedsTalismaneSession {
+	TalismaneSession session;
+
 	@Override
-	public void apply(TokenSequence tokenSequence) {
-		for (Token token : tokenSequence) {
-			token.setText(token.getText().toLowerCase(talismaneSession.getLocale()));
+	public void replace(List<String> tokens) {
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);
+			tokens.set(i, token.toLowerCase(session.getLocale()));
 		}
 	}
 
+	@Override
 	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
+		return session;
 	}
 
+	@Override
 	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
+		this.session = talismaneSession;
 	}
-
-	
 
 }

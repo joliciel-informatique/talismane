@@ -552,7 +552,6 @@ public class Token implements TokenWrapper {
 	 */
 
 	public Map<String, TokenAttribute<?>> getAttributes() {
-		this.tokenSequence.addSentenceTags();
 		return attributes;
 	}
 

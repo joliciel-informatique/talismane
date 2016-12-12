@@ -20,8 +20,8 @@ public class ExamplesMain {
 			newArgs[i-1] = args[i];
 		}
 		
-		if (className.equals(TalismaneAPITest.class.getSimpleName())) {
-			TalismaneAPITest.main(newArgs);
+		if (className.equals(TalismaneAPIExamples.class.getSimpleName())) {
+			TalismaneAPIExamples.main(newArgs);
 		} else if (className.equals(TalismaneClient.class.getSimpleName())) {
 			TalismaneClient.main(newArgs);
 		}

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -33,9 +34,11 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.typesafe.config.Config;
+
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * A Tokeniser splits a sentence up into tokens (parsing units).<br/>
@@ -147,11 +150,6 @@ public abstract class Tokeniser {
 		TokenSequence tokenSequence = new TokenSequence(sentence, this.session);
 		tokenSequence.findDefaultTokens();
 
-		// apply any pre-processing filters that have been added
-		for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
-			tokenSequenceFilter.apply(tokenSequence);
-		}
-
 		List<TokenisedAtomicTokenSequence> sequences = this.tokeniseInternal(tokenSequence, sentence);
 
 		LOG.debug("####Final token sequences:");
@@ -162,21 +160,6 @@ public abstract class Tokeniser {
 				LOG.debug("Token sequence " + (j++));
 				LOG.debug("Atomic sequence: " + sequence);
 				LOG.debug("Resulting sequence: " + newTokenSequence);
-			}
-			// need to re-apply the pre-processing filters, because the
-			// tokens are all new
-			// Question: why can't we conserve the initial tokens when they
-			// haven't changed at all?
-			// Answer: because the tokenSequence and index in the sequence
-			// is referenced by the token.
-			// Question: should we create a separate class, Token and
-			// TokenInSequence,
-			// one with index & sequence access & one without?
-			for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
-				tokenSequenceFilter.apply(newTokenSequence);
-			}
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("After filters: " + newTokenSequence);
 			}
 		}
 
@@ -240,5 +223,34 @@ public abstract class Tokeniser {
 			tokenSeparatorMap.put(session.getSessionId(), tokenSeparators);
 		}
 		return tokenSeparators;
+	}
+
+	/**
+	 * For a given text, returns a list of strings which are guaranteed not to
+	 * overlap any token boundaries, except on the unlikely occurrence when a
+	 * token placeholder cut a token in the middle of two non-separators.
+	 */
+	public static List<String> bruteForceTokenise(CharSequence text, TalismaneSession session) {
+		List<String> tokens = new ArrayList<>();
+		Pattern separatorPattern = Tokeniser.getTokenSeparators(session);
+		Matcher matcher = separatorPattern.matcher(text);
+		TIntSet separatorMatches = new TIntHashSet();
+		while (matcher.find())
+			separatorMatches.add(matcher.start());
+
+		int currentPos = 0;
+		for (int i = 0; i < text.length(); i++) {
+			if (separatorMatches.contains(i)) {
+				if (i > currentPos)
+					tokens.add(text.subSequence(currentPos, i).toString());
+				tokens.add(text.subSequence(i, i + 1).toString());
+				currentPos = i + 1;
+			}
+		}
+
+		if (currentPos < text.length())
+			tokens.add(text.subSequence(currentPos, text.length()).toString());
+
+		return tokens;
 	}
 }

@@ -24,7 +24,6 @@ import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
@@ -213,7 +212,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 							sentence = new Sentence(text, talismaneSession);
 						}
 
-						for (Annotator annotator : session.getTextAnnotators()) {
+						for (Annotator annotator : session.getSentenceAnnotators()) {
 							annotator.annotate(sentence);
 						}
 
@@ -229,11 +228,6 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 						if (LOG.isTraceEnabled()) {
 							LOG.trace("Next sentence: " + sentence.getText().toString());
 							LOG.trace("Tokenised: " + tokenSequence.toString());
-						}
-
-						// now apply the token sequence filters
-						for (TokenSequenceFilter tokenFilter : session.getTokenSequenceFilters()) {
-							tokenFilter.apply(tokenSequence);
 						}
 
 						break;

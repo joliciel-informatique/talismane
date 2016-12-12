@@ -50,7 +50,6 @@ public class Sentence extends AnnotatedText {
 	private final List<Integer> originalIndexes;
 	private final boolean complete;
 	private final TreeMap<Integer, Integer> newlines;
-	private final List<SentenceTag<?>> sentenceTags;
 	private final String fileName;
 	private final File file;
 	private int startLineNumber = -1;
@@ -59,20 +58,19 @@ public class Sentence extends AnnotatedText {
 	protected final TalismaneSession session;
 
 	public Sentence(CharSequence text, TreeMap<Integer, String> originalTextSegments, List<Integer> originalIndexes, boolean complete,
-			TreeMap<Integer, Integer> newlines, List<SentenceTag<?>> sentenceTags, String fileName, File file, TalismaneSession session) {
+			TreeMap<Integer, Integer> newlines, String fileName, File file, TalismaneSession session) {
 		super(text);
 		this.originalTextSegments = originalTextSegments;
 		this.originalIndexes = originalIndexes;
 		this.complete = complete;
 		this.newlines = newlines;
-		this.sentenceTags = sentenceTags;
 		this.fileName = fileName;
 		this.file = file;
 		this.session = session;
 	}
 
 	public Sentence(CharSequence text, String fileName, File file, TalismaneSession session) {
-		this(text, new TreeMap<>(), new ArrayList<>(), true, new TreeMap<>(), new ArrayList<>(), fileName, file, session);
+		this(text, new TreeMap<>(), new ArrayList<>(), true, new TreeMap<>(), fileName, file, session);
 	}
 
 	public Sentence(CharSequence text, TalismaneSession session) {
@@ -148,13 +146,13 @@ public class Sentence extends AnnotatedText {
 
 	/**
 	 * Returns the column number corresponding to a particular original index
-	 * inside this sentence, starting at 1.
+	 * inside this sentence, starting at 0.
 	 */
 
 	public int getColumnNumber(int originalIndex) {
 		Integer lastLineObj = this.newlines.floorKey(originalIndex);
 		if (lastLineObj != null)
-			return (originalIndex - lastLineObj.intValue()) + 1;
+			return (originalIndex - lastLineObj.intValue());
 		return -1;
 	}
 
@@ -247,13 +245,4 @@ public class Sentence extends AnnotatedText {
 			LOG.trace("setLeftoverOriginalText: " + leftoverOriginalText);
 		this.leftoverOriginalText = leftoverOriginalText;
 	}
-
-	/**
-	 * A list of tags added to this sentence.
-	 */
-
-	public List<SentenceTag<?>> getSentenceTags() {
-		return sentenceTags;
-	}
-
 }

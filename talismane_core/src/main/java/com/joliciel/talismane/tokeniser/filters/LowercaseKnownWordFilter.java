@@ -18,45 +18,47 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
+import java.util.List;
 import java.util.Set;
 
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 
 /**
- * Transforms a word with at least an initial uppercase letter into lower-case as long as it is a known word in the lexicon.
+ * Transforms a word with at least an initial uppercase letter into lower-case
+ * as long as it is a known word in the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public class LowercaseKnownWordFilter implements TokenSequenceFilter, NeedsTalismaneSession {
-	private TalismaneSession talismaneSession;
-	
+public class LowercaseKnownWordFilter implements TextReplacer, NeedsTalismaneSession {
+	private TalismaneSession session;
+
 	public LowercaseKnownWordFilter() {
 		super();
 	}
 
 	@Override
-	public void apply(TokenSequence tokenSequence) {
-		for (Token token : tokenSequence) {
-			String word = token.getText();
-			if (word.length()>0 && Character.isUpperCase(word.charAt(0))) {
-				Set<String> possibleWords = talismaneSession.getDiacriticizer().diacriticize(word);
-				if (possibleWords.size()>0)
-					token.setText(possibleWords.iterator().next());
+	public void replace(List<String> tokens) {
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);
+			if (token.length() > 0 && Character.isUpperCase(token.charAt(0))) {
+				Set<String> possibleWords = session.getDiacriticizer().diacriticize(token);
+				if (possibleWords.size() > 0) {
+					tokens.set(i, possibleWords.iterator().next());
+				}
 			}
-		} // next token
+		}
 	}
 
+	@Override
 	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
+		return session;
 	}
 
+	@Override
 	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
+		this.session = talismaneSession;
 	}
-	
-	
+
 }

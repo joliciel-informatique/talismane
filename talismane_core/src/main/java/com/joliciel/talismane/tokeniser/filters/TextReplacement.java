@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2016 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -18,14 +18,21 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.filters;
 
-import com.joliciel.talismane.tokeniser.TokenSequence;
-
 /**
- * A filter for applying a given transformation to a TokenSequence.
- * This may call token.setText(String) to any token, and add empty tokens.
+ * A marker to be used inside an annotation, indicating that the annotated
+ * section should be replaced by another text for analysis purposes.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface TokenSequenceFilter {
-	public void apply(TokenSequence tokenSequence);
+public class TextReplacement {
+	private final String replacement;
+
+	public TextReplacement(String replacement) {
+		this.replacement = replacement;
+	}
+
+	public String getReplacement() {
+		return replacement;
+	}
 }

@@ -37,12 +37,10 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.posTagger.filters.PosTagSequenceFilter;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenSequenceFilter;
 import com.typesafe.config.Config;
 
 /**
@@ -241,7 +239,7 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 							sentence = new Sentence(text, session);
 						}
 
-						for (Annotator tokenFilter : session.getTextAnnotators()) {
+						for (Annotator tokenFilter : session.getSentenceAnnotators()) {
 							tokenFilter.annotate(sentence);
 						}
 
@@ -253,10 +251,6 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 							token.setColumnNumber(tuple.columnNumber);
 						}
 						tokenSequence.cleanSlate();
-
-						for (TokenSequenceFilter tokenSequenceFilter : session.getTokenSequenceFilters()) {
-							tokenSequenceFilter.apply(tokenSequence);
-						}
 
 						posTagSequence = new PosTagSequence(tokenSequence);
 						int i = 0;
@@ -272,10 +266,6 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 							Decision corpusDecision = new Decision(posTag.getCode());
 							PosTaggedToken posTaggedToken = new PosTaggedToken(token, corpusDecision, session);
 							posTagSequence.addPosTaggedToken(posTaggedToken);
-						}
-
-						for (PosTagSequenceFilter posTagSequenceFilter : session.getPosTagSequenceFilters()) {
-							posTagSequenceFilter.apply(posTagSequence);
 						}
 					}
 				}

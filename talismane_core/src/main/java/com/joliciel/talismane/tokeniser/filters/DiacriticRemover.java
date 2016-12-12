@@ -20,23 +20,23 @@ package com.joliciel.talismane.tokeniser.filters;
 
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.List;
 import java.util.regex.Pattern;
-
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
  * Removes all diacritics from text.
+ * 
  * @author Assaf Urieli
  *
  */
-public class DiacriticRemover implements TokenSequenceFilter {
+public class DiacriticRemover implements TextReplacer {
 	private static Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-	
+
 	@Override
-	public void apply(TokenSequence tokenSequence) {
-		for (Token token : tokenSequence) {
-			token.setText(removeDiacritics(token.getText()));
+	public void replace(List<String> tokens) {
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);
+			tokens.set(i, removeDiacritics(token));
 		}
 	}
 
