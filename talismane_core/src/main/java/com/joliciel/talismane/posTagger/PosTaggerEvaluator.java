@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.utils.ConfigUtils;

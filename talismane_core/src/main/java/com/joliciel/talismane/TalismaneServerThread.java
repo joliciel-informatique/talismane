@@ -28,7 +28,7 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 
 /**

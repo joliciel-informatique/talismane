@@ -26,7 +26,7 @@ import java.util.Map;
 
 import com.joliciel.talismane.AnnotatedCorpusReader;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.rawText.Sentence;
 import com.typesafe.config.Config;
 
 /**

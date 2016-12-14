@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.rawText.Sentence;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 

@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
-import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.typesafe.config.Config;
 
