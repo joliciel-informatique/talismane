@@ -24,10 +24,10 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
+import com.joliciel.talismane.sentenceAnnotators.TokenRegexFilter;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenRegexFilter;
 
 /**
  * The PosTagger's task is to add part-of-speech tags to words within a

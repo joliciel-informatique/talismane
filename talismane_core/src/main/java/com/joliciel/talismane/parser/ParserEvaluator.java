@@ -29,15 +29,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.posTagger.NonDeterministicPosTagger;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -108,7 +108,7 @@ public class ParserEvaluator {
 				Sentence sentence = realConfiguration.getPosTagSequence().getTokenSequence().getSentence();
 
 				// annotate the sentence for pre token filters
-				for (Annotator annotator : session.getSentenceAnnotators()) {
+				for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
 					annotator.annotate(sentence);
 					if (LOG.isTraceEnabled()) {
 						LOG.trace("TokenFilter: " + annotator);

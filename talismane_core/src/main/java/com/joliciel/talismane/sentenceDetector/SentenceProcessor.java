@@ -27,8 +27,8 @@ import java.io.Writer;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 

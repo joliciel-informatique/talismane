@@ -28,9 +28,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.filters.RawTextFilter;
-import com.joliciel.talismane.filters.RollingTextBlock;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.parser.NonDeterministicParser;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -42,6 +39,10 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
+import com.joliciel.talismane.rawText.RawTextAnnotator;
+import com.joliciel.talismane.rawText.RollingTextBlock;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -329,7 +330,7 @@ public class Talismane {
 						// annotate block 3 with raw text filters
 						AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
 
-						for (RawTextFilter textMarkerFilter : session.getTextAnnotators()) {
+						for (RawTextAnnotator textMarkerFilter : session.getTextAnnotators()) {
 							textMarkerFilter.annotate(rawTextBlock);
 						}
 
@@ -384,7 +385,7 @@ public class Talismane {
 						sentence = sentences.poll();
 						LOG.debug("Sentence: " + sentence);
 
-						for (Annotator annotator : session.getSentenceAnnotators())
+						for (SentenceAnnotator annotator : session.getSentenceAnnotators())
 							annotator.annotate(sentence);
 
 						if (sentence.getLeftoverOriginalText() != null) {

@@ -17,11 +17,11 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -212,7 +212,7 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 							sentence = new Sentence(text, talismaneSession);
 						}
 
-						for (Annotator annotator : session.getSentenceAnnotators()) {
+						for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
 							annotator.annotate(sentence);
 						}
 

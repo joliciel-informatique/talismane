@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
-import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -39,6 +39,17 @@ public class SimpleTokeniserTest {
 		assertEquals("Click", tokenSequence.get(0).getText());
 		assertEquals("URL", tokenSequence.get(1).getText());
 		assertEquals("now", tokenSequence.get(2).getText());
+
+		List<Annotation<TokenBoundary>> tokenBoundaries = sentence.getAnnotations(TokenBoundary.class);
+		assertEquals(3, tokenBoundaries.size());
+
+		assertEquals("".length(), tokenBoundaries.get(0).getStart());
+		assertEquals("Click".length(), tokenBoundaries.get(0).getEnd());
+		assertEquals("Click ".length(), tokenBoundaries.get(1).getStart());
+		assertEquals("Click http://www.blah-di-blah.com".length(), tokenBoundaries.get(1).getEnd());
+		assertEquals("Click http://www.blah-di-blah.com ".length(), tokenBoundaries.get(2).getStart());
+		assertEquals("Click http://www.blah-di-blah.com now".length(), tokenBoundaries.get(2).getEnd());
+
 	}
 
 }

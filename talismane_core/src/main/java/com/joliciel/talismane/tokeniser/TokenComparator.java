@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.Tokeniser.TokeniserType;
 import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;

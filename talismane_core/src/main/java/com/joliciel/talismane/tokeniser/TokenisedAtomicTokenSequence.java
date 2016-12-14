@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.Solution;
+import com.joliciel.talismane.rawText.Sentence;
 
 /**
  * A sequence of atomic tokens tagged with tokeniser decisions, from which a

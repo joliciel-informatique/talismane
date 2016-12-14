@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.filters.TokenPlaceholder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
