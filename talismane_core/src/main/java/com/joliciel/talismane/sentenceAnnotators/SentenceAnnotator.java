@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.joliciel.talismane.Annotator;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 
 /**
@@ -36,7 +37,7 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  * @author Assaf Urieli
  *
  */
-public interface SentenceAnnotator extends Annotator {
+public interface SentenceAnnotator extends Annotator<Sentence> {
 	/**
 	 * Load the annotator's state using information extracted from a descriptor.
 	 * 

@@ -25,10 +25,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -60,7 +60,7 @@ public class TextReplaceFilter implements SentenceAnnotator {
 	}
 
 	@Override
-	public void annotate(AnnotatedText annotatedText) {
+	public void annotate(Sentence annotatedText, String... labels) {
 		List<String> tokens = Tokeniser.bruteForceTokenise(annotatedText.getText(), session);
 		List<String> originalTokens = new ArrayList<>(tokens);
 		for (TextReplacer textReplacer : textReplacers) {
@@ -73,7 +73,7 @@ public class TextReplaceFilter implements SentenceAnnotator {
 			String originalToken = originalTokens.get(i);
 			String token = tokens.get(i);
 			if (!originalToken.equals(token)) {
-				Annotation<TextReplacement> replacement = new Annotation<>(currentPos, currentPos + originalToken.length(), new TextReplacement(token));
+				Annotation<TextReplacement> replacement = new Annotation<>(currentPos, currentPos + originalToken.length(), new TextReplacement(token), labels);
 				replacements.add(replacement);
 			}
 			currentPos += originalToken.length();

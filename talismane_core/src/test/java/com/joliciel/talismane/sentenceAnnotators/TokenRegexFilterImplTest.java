@@ -6,18 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.resources.WordList;
-import com.joliciel.talismane.sentenceAnnotators.AbstractRegexFilter;
-import com.joliciel.talismane.sentenceAnnotators.TokenPlaceholder;
-import com.joliciel.talismane.sentenceAnnotators.TokenRegexFilterImpl;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.typesafe.config.Config;
@@ -26,16 +22,17 @@ import com.typesafe.config.ConfigFactory;
 public class TokenRegexFilterImplTest {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexFilterImplTest.class);
 
-	@Before
-	public void setup() {
-	}
-
 	@Test
-	public void testApply() {
+	public void testApply() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+		final TalismaneSession session = new TalismaneSession(config, "");
+
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b");
 		filter.setReplacement("Email");
-		AnnotatedText text = new AnnotatedText("My address is joe.schmoe@test.com.");
+		Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
 		filter.annotate(text);
 		LOG.debug(text.getAnnotations().toString());
 		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
@@ -47,11 +44,16 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testApplyWithDollars() {
+	public void testApplyWithDollars() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+		final TalismaneSession session = new TalismaneSession(config, "");
+
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
 		filter.setReplacement("\\$Email$2:$1");
-		AnnotatedText text = new AnnotatedText("My address is joe.schmoe@test.com.");
+		Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
 		filter.annotate(text);
 		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
 
@@ -65,11 +67,16 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testApplyWithConsecutiveDollars() {
+	public void testApplyWithConsecutiveDollars() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+		final TalismaneSession session = new TalismaneSession(config, "");
+
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
 		filter.setReplacement("\\$Email$2$1");
-		AnnotatedText text = new AnnotatedText("My address is joe.schmoe@test.com.");
+		Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
 		filter.annotate(text);
 		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
 
@@ -82,11 +89,16 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testApplyWithUnmatchingGroups() {
+	public void testApplyWithUnmatchingGroups() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+		final TalismaneSession session = new TalismaneSession(config, "");
+
 		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
 		filter.setRegex("\\b(\\d)(\\d)?\\b");
 		filter.setReplacement("Number$1$2");
-		AnnotatedText text = new AnnotatedText("Two-digit number: 42. One-digit number: 7.");
+		Sentence text = new Sentence("Two-digit number: 42. One-digit number: 7.", session);
 		filter.annotate(text);
 		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
 		LOG.debug(placeholders.toString());
@@ -107,8 +119,7 @@ public class TokenRegexFilterImplTest {
 		System.setProperty("config.file", "src/test/resources/test.conf");
 		ConfigFactory.invalidateCaches();
 		final Config config = ConfigFactory.load();
-
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final TalismaneSession session = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -117,10 +128,10 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Édouard");
 
 		WordList nameList = new WordList("FirstNames", wordList);
-		talismaneSession.getWordListFinder().addWordList(nameList);
+		session.getWordListFinder().addWordList(nameList);
 
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(talismaneSession);
+		filter.setTalismaneSession(session);
 		filter.setRegex("\\b(\\p{WordList(FirstNames)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
@@ -134,8 +145,7 @@ public class TokenRegexFilterImplTest {
 		System.setProperty("config.file", "src/test/resources/test.conf");
 		ConfigFactory.invalidateCaches();
 		final Config config = ConfigFactory.load();
-
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final TalismaneSession session = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -144,10 +154,10 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Édouard");
 
 		WordList nameList = new WordList("FirstNames", wordList);
-		talismaneSession.getWordListFinder().addWordList(nameList);
+		session.getWordListFinder().addWordList(nameList);
 
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(talismaneSession);
+		filter.setTalismaneSession(session);
 		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
@@ -161,8 +171,7 @@ public class TokenRegexFilterImplTest {
 		System.setProperty("config.file", "src/test/resources/test.conf");
 		ConfigFactory.invalidateCaches();
 		final Config config = ConfigFactory.load();
-
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final TalismaneSession session = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -171,10 +180,10 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Édouard");
 
 		WordList nameList = new WordList("FirstNames", wordList);
-		talismaneSession.getWordListFinder().addWordList(nameList);
+		session.getWordListFinder().addWordList(nameList);
 
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(talismaneSession);
+		filter.setTalismaneSession(session);
 		filter.setRegex("\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
@@ -188,8 +197,7 @@ public class TokenRegexFilterImplTest {
 		System.setProperty("config.file", "src/test/resources/test.conf");
 		ConfigFactory.invalidateCaches();
 		final Config config = ConfigFactory.load();
-
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final TalismaneSession session = new TalismaneSession(config, "");
 
 		final List<String> wordList = new ArrayList<String>();
 		wordList.add("Chloé");
@@ -198,10 +206,10 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Édouard");
 
 		WordList nameList = new WordList("FirstNames", wordList);
-		talismaneSession.getWordListFinder().addWordList(nameList);
+		session.getWordListFinder().addWordList(nameList);
 
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(talismaneSession);
+		filter.setTalismaneSession(session);
 		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b");
 
 		Pattern pattern = filter.getPattern();
@@ -215,8 +223,7 @@ public class TokenRegexFilterImplTest {
 		System.setProperty("config.file", "src/test/resources/test.conf");
 		ConfigFactory.invalidateCaches();
 		final Config config = ConfigFactory.load();
-
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final TalismaneSession session = new TalismaneSession(config, "");
 
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("hello 123");
@@ -331,10 +338,10 @@ public class TokenRegexFilterImplTest {
 		wordList.add("Marcel");
 
 		WordList nameList = new WordList("FirstNames", wordList);
-		talismaneSession.getWordListFinder().addWordList(nameList);
+		session.getWordListFinder().addWordList(nameList);
 
 		filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(talismaneSession);
+		filter.setTalismaneSession(session);
 		filter.setRegex("(\\p{WordList(FirstNames)})");
 		filter.setAutoWordBoundaries(true);
 
@@ -345,7 +352,7 @@ public class TokenRegexFilterImplTest {
 
 		filter = new TokenRegexFilterImpl();
 		filter.setRegex("(\\p{WordList(FirstNames,diacriticsOptional)}) +([A-Z]'\\p{Alpha}+)");
-		filter.setTalismaneSession(talismaneSession);
+		filter.setTalismaneSession(session);
 		filter.setAutoWordBoundaries(true);
 
 		pattern = filter.getPattern();
@@ -411,11 +418,16 @@ public class TokenRegexFilterImplTest {
 	}
 
 	@Test
-	public void testStartOfInput() {
+	public void testStartOfInput() throws Exception {
+		System.setProperty("config.file", "src/test/resources/test.conf");
+		ConfigFactory.invalidateCaches();
+		final Config config = ConfigFactory.load();
+		final TalismaneSession session = new TalismaneSession(config, "");
+
 		AbstractRegexFilter filter = new TokenRegexFilterImpl();
 		filter.setRegex("^Résumé\\.");
 		filter.addAttribute("TAG", new StringAttribute("TAG", "skip"));
-		AnnotatedText text = new AnnotatedText("Résumé. Résumé des attaques");
+		Sentence text = new Sentence("Résumé. Résumé des attaques", session);
 		filter.annotate(text);
 		@SuppressWarnings("rawtypes")
 		List<Annotation<TokenAttribute>> annotations = text.getAnnotations(TokenAttribute.class);

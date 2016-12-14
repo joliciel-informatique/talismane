@@ -49,6 +49,8 @@ public class SentenceDetectorTest {
 			}
 		};
 
+		String[] labels = new String[0];
+
 		Set<SentenceDetectorFeature<?>> features = new HashSet<>();
 
 		SentenceDetector sentenceDetector = new SentenceDetector(decisionMaker, features, session);
@@ -60,9 +62,9 @@ public class SentenceDetectorTest {
 
 		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = new ArrayList<>();
 		noSentenceBreakMarkers.add(new Annotation<RawTextNoSentenceBreakMarker>("Before analysis. Hello ".length(), "Before analysis. Hello Mr.".length(),
-				new RawTextNoSentenceBreakMarker("me")));
+				new RawTextNoSentenceBreakMarker("me"), labels));
 		noSentenceBreakMarkers.add(new Annotation<RawTextNoSentenceBreakMarker>("Before analysis. Hello Mr. Jones. How are you, ".length(),
-				"Before analysis. Hello Mr. Jones. How are you, Mr.".length(), new RawTextNoSentenceBreakMarker("me")));
+				"Before analysis. Hello Mr. Jones. How are you, Mr.".length(), new RawTextNoSentenceBreakMarker("me"), labels));
 		annotatedText.addAnnotations(noSentenceBreakMarkers);
 
 		List<Integer> sentenceBreaks = sentenceDetector.detectSentences(annotatedText);

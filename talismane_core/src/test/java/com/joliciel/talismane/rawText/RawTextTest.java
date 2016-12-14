@@ -10,8 +10,6 @@ import org.junit.Test;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.rawText.RawText;
-import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
@@ -30,17 +28,19 @@ public class RawTextTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
 		String text = "1 2 3<skip>skip</skip> 4<skip>skip</skip> five";
 		RawText rawText = new RawText(text, true, session);
 
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
-		skips.add(new Annotation<>("1 2 3".length(), "1 2 3<skip>skip</skip>".length(), new RawTextSkipMarker("me")));
-		skips.add(new Annotation<>("1 2 3<skip>skip</skip> 4".length(), "1 2 3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me")));
+		skips.add(new Annotation<>("1 2 3".length(), "1 2 3<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
+		skips.add(new Annotation<>("1 2 3<skip>skip</skip> 4".length(), "1 2 3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me"),
+				labels));
 		rawText.addAnnotations(skips);
 
 		List<Annotation<RawTextReplaceMarker>> replaces = new ArrayList<>();
 		replaces.add(new Annotation<>("1 2 3<skip>skip</skip> 4<skip>skip</skip> ".length(), "1 2 3<skip>skip</skip> 4<skip>skip</skip> five".length(),
-				new RawTextReplaceMarker("me", "5")));
+				new RawTextReplaceMarker("me", "5"), labels));
 		rawText.addAnnotations(replaces);
 
 		AnnotatedText processedTextBlock = rawText.getProcessedText();
@@ -56,6 +56,7 @@ public class RawTextTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
 		String text = "Sentence 1<sent/>Sentence 2. Sentence 3. Sentence 4.";
 		RawText textBlock = new RawText(text, true, session);
 
@@ -64,11 +65,11 @@ public class RawTextTest {
 		// we add a sentence break annotation to the raw text (as if it was
 		// added by a filter)
 		System.out.println("we add a sentence break annotation (as if it was added by a filter)");
-		sentenceBreaks.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSentenceBreakMarker("me")));
+		sentenceBreaks.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSentenceBreakMarker("me"), labels));
 		textBlock.addAnnotations(sentenceBreaks);
 
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
-		skips.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSkipMarker("me")));
+		skips.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSkipMarker("me"), labels));
 		textBlock.addAnnotations(skips);
 
 		System.out.println("textBlock text: " + textBlock.getText());
@@ -81,9 +82,9 @@ public class RawTextTest {
 		// by a sentence detector)
 		System.out.println("add sentence boundaries to the processed text (as if they were added by a sentence detector)");
 		List<Annotation<DetectedSentenceBreak>> sentenceBoundaries = new ArrayList<>();
-		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2".length(), "Sentence 1 Sentence 2.".length(), new DetectedSentenceBreak()));
-		sentenceBoundaries
-				.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new DetectedSentenceBreak()));
+		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2".length(), "Sentence 1 Sentence 2.".length(), new DetectedSentenceBreak(), labels));
+		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(),
+				new DetectedSentenceBreak(), labels));
 		processedTextBlock.addAnnotations(sentenceBoundaries);
 
 		assertEquals("Sentence 1 Sentence 2. Sentence 3. Sentence 4.", processedTextBlock.getText());
@@ -120,7 +121,7 @@ public class RawTextTest {
 		// test that sentence annotations get added to the original raw text
 		Sentence sentence4 = sentences.get(3);
 		List<Annotation<String>> annotations = new ArrayList<>();
-		annotations.add(new Annotation<String>("Sentence ".length(), "Sentence 4".length(), "four"));
+		annotations.add(new Annotation<String>("Sentence ".length(), "Sentence 4".length(), "four", labels));
 		sentence4.addAnnotations(annotations);
 
 		annotations = textBlock.getAnnotations(String.class);
@@ -137,18 +138,20 @@ public class RawTextTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
 		String text = "Mr. Jones and <skip/>Mrs. Smith.";
 		RawText textBlock = new RawText(text, true, session);
 
 		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreaks = new ArrayList<>();
 
 		System.out.println("we add no sentence break annotations (as if they were added by a filter)");
-		noSentenceBreaks.add(new Annotation<>("".length(), "Mr.".length(), new RawTextNoSentenceBreakMarker("me")));
-		noSentenceBreaks.add(new Annotation<>("Mr. Jones and <skip/>".length(), "Mr. Jones and <skip/>Mrs.".length(), new RawTextNoSentenceBreakMarker("me")));
+		noSentenceBreaks.add(new Annotation<>("".length(), "Mr.".length(), new RawTextNoSentenceBreakMarker("me"), labels));
+		noSentenceBreaks
+				.add(new Annotation<>("Mr. Jones and <skip/>".length(), "Mr. Jones and <skip/>Mrs.".length(), new RawTextNoSentenceBreakMarker("me"), labels));
 		textBlock.addAnnotations(noSentenceBreaks);
 
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
-		skips.add(new Annotation<>("Mr. Jones and ".length(), "Mr. Jones and <skip/>".length(), new RawTextSkipMarker("me")));
+		skips.add(new Annotation<>("Mr. Jones and ".length(), "Mr. Jones and <skip/>".length(), new RawTextSkipMarker("me"), labels));
 		textBlock.addAnnotations(skips);
 
 		System.out.println("textBlock text: " + textBlock.getText());
