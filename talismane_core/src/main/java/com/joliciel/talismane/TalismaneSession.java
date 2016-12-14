@@ -124,7 +124,7 @@ public class TalismaneSession {
 	private final RawTextMarkType newlineMarker;
 	private final List<RawTextAnnotator> textAnnotators;
 	private final List<SentenceAnnotator> sentenceAnnotators;
-	private final List<Pair<String, Annotator>> sentenceAnnotatorsWithDescriptors;
+	private final List<Pair<String, SentenceAnnotator>> sentenceAnnotatorsWithDescriptors;
 
 	/**
 	 * 
@@ -746,7 +746,7 @@ public class TalismaneSession {
 		return sentenceAnnotators;
 	}
 
-	public List<Pair<String, Annotator>> getSentenceAnnotatorsWithDescriptors() {
+	public List<Pair<String, SentenceAnnotator>> getSentenceAnnotatorsWithDescriptors() {
 		return sentenceAnnotatorsWithDescriptors;
 	}
 }

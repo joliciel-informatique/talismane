@@ -23,16 +23,12 @@ package com.joliciel.talismane.rawText;
  * indicating whether processing should stop or start again, and whether a hard
  * sentence break should be applied.<br/>
  * Note that declaration order is important, since SENTENCE_BREAK needs to be
- * processed prior to the others.
+ * processed after POP_SKIP for the identical position.
  * 
  * @author Assaf Urieli
  *
  */
 enum RawTextInstruction {
-	/**
-	 * Insert a sentence break when you hit this marker.
-	 */
-	SENTENCE_BREAK,
 	/**
 	 * Remove the effect of the last skip marker. If two skip markers are
 	 * nested, this has no effect. If a skip is nested in an include, this will
@@ -43,6 +39,10 @@ enum RawTextInstruction {
 	 * Start processing again when you hit this marker (unless already started).
 	 */
 	PUSH_INCLUDE,
+	/**
+	 * Insert a sentence break when you hit this marker.
+	 */
+	SENTENCE_BREAK,
 	/**
 	 * Regardless of the current top-of-stack for processing, stops processing
 	 * until either pop or end is reached.

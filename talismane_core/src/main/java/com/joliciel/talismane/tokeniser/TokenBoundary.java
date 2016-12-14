@@ -19,6 +19,7 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * A marker for token annotations.
@@ -30,9 +31,11 @@ public class TokenBoundary implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final String analysisText;
+	private final Map<String, TokenAttribute<?>> attributes;
 
-	public TokenBoundary(String analysisText) {
+	public TokenBoundary(String analysisText, Map<String, TokenAttribute<?>> attributes) {
 		this.analysisText = analysisText;
+		this.attributes = attributes;
 	}
 
 	/**
@@ -43,6 +46,25 @@ public class TokenBoundary implements Serializable {
 	 */
 	public String getAnalysisText() {
 		return analysisText;
+	}
+
+	/**
+	 * Any attributes assigned to this token.
+	 */
+	public Map<String, TokenAttribute<?>> getAttributes() {
+		return attributes;
+	}
+
+	/**
+	 * Return the attribute value corresponding to a particular key, or null if
+	 * the key is missing.
+	 */
+	public <T extends Serializable> T getAttributeValue(String key) {
+		@SuppressWarnings("unchecked")
+		TokenAttribute<T> attribute = (TokenAttribute<T>) attributes.get(key);
+		if (attribute == null)
+			return null;
+		return attribute.getValue();
 	}
 
 	@Override

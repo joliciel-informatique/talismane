@@ -187,14 +187,17 @@ public class TokenSequenceTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+
+		String[] labels = new String[0];
+
 		final Sentence sentence = new Sentence("Write to me at joe.schome@test.com, otherwise go to http://test.com.", talismaneSession);
 
 		final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Write to me at ".length(), "Write to me at joe.schome@test.com".length(),
-				new TokenPlaceholder("Email", "blah"));
+				new TokenPlaceholder("Email", "blah"), labels);
 		placeholders.add(placeholder0);
 		Annotation<TokenPlaceholder> placeholder1 = new Annotation<>("Write to me at joe.schome@test.com, otherwise go to ".length(),
-				"Write to me at joe.schome@test.com, otherwise go to http://test.com".length(), new TokenPlaceholder("URL", "blah"));
+				"Write to me at joe.schome@test.com, otherwise go to http://test.com".length(), new TokenPlaceholder("URL", "blah"), labels);
 		placeholders.add(placeholder1);
 
 		sentence.addAnnotations(placeholders);
@@ -315,20 +318,23 @@ public class TokenSequenceTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+
+		String[] labels = new String[0];
+
 		final Sentence sentence = new Sentence("Il t’aime.", talismaneSession);
 
 		final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
-		Annotation<StringAttribute> annotation1 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("phrase", "verbal"));
+		Annotation<StringAttribute> annotation1 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("phrase", "verbal"), labels);
 		annotations.add(annotation1);
-		Annotation<StringAttribute> annotation2 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("person", "3rd"));
+		Annotation<StringAttribute> annotation2 = new Annotation<>("Il ".length(), "Il t’aime".length(), new StringAttribute("person", "3rd"), labels);
 		annotations.add(annotation2);
 
-		Annotation<StringAttribute> annotation3 = new Annotation<>("Il ".length(), "Il t’".length(), new StringAttribute("type", "object"));
+		Annotation<StringAttribute> annotation3 = new Annotation<>("Il ".length(), "Il t’".length(), new StringAttribute("type", "object"), labels);
 		annotations.add(annotation3);
 
 		final List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 
-		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Il t".length(), "Il t’".length(), new TokenPlaceholder("'", "blah"));
+		Annotation<TokenPlaceholder> placeholder0 = new Annotation<>("Il t".length(), "Il t’".length(), new TokenPlaceholder("'", "blah"), labels);
 
 		placeholders.add(placeholder0);
 
@@ -410,33 +416,36 @@ public class TokenSequenceTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+
+		String[] labels = new String[0];
+
 		final Sentence sentence = new Sentence("Pakistan International Airlines Company", talismaneSession);
 
 		final List<Annotation<StringAttribute>> annotations = new ArrayList<>();
-		Annotation<StringAttribute> annotation1 = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("namedEntity", "place"));
-		Annotation<StringAttribute> annotation1b = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("startsWithP", "true"));
+		Annotation<StringAttribute> annotation1 = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("namedEntity", "place"), labels);
+		Annotation<StringAttribute> annotation1b = new Annotation<>("".length(), "Pakistan".length(), new StringAttribute("startsWithP", "true"), labels);
 
 		annotations.add(annotation1);
 		annotations.add(annotation1b);
 
 		Annotation<StringAttribute> annotation2 = new Annotation<>("".length(), "Pakistan International Airlines".length(),
-				new StringAttribute("namedEntity", "company"));
+				new StringAttribute("namedEntity", "company"), labels);
 		Annotation<StringAttribute> annotation2b = new Annotation<>("".length(), "Pakistan International Airlines".length(),
-				new StringAttribute("asianCompany", "true"));
+				new StringAttribute("asianCompany", "true"), labels);
 
 		annotations.add(annotation2);
 		annotations.add(annotation2b);
 
 		Annotation<StringAttribute> annotation3 = new Annotation<>("Pakistan ".length(), "Pakistan International Airlines Company".length(),
-				new StringAttribute("namedEntity", "company"));
+				new StringAttribute("namedEntity", "company"), labels);
 		Annotation<StringAttribute> annotation3b = new Annotation<>("Pakistan ".length(), "Pakistan International Airlines Company".length(),
-				new StringAttribute("asianCompany", "false"));
+				new StringAttribute("asianCompany", "false"), labels);
 
 		annotations.add(annotation3);
 		annotations.add(annotation3b);
 
 		Annotation<StringAttribute> annotation4 = new Annotation<>("Pakistan International Airlines ".length(),
-				"Pakistan International Airlines Company".length(), new StringAttribute("startsWithC", "true"));
+				"Pakistan International Airlines Company".length(), new StringAttribute("startsWithC", "true"), labels);
 
 		annotations.add(annotation4);
 		sentence.addAnnotations(annotations);
@@ -483,21 +492,24 @@ public class TokenSequenceTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession session = new TalismaneSession(config, "");
+
+		String[] labels = new String[0];
+
 		final Sentence sentence = new Sentence("Replacing ft0per0min with foot/minute", session);
 		List<Annotation<TextReplacement>> replacements = new ArrayList<>();
-		replacements.add(new Annotation<TextReplacement>("Replacing ".length(), "Replacing ft".length(), new TextReplacement("foot")));
-		replacements.add(new Annotation<TextReplacement>("Replacing ft".length(), "Replacing ft0per0".length(), new TextReplacement("/")));
-		replacements.add(new Annotation<TextReplacement>("Replacing ft0per0".length(), "Replacing ft0per0min".length(), new TextReplacement("minute")));
+		replacements.add(new Annotation<TextReplacement>("Replacing ".length(), "Replacing ft".length(), new TextReplacement("foot"), labels));
+		replacements.add(new Annotation<TextReplacement>("Replacing ft".length(), "Replacing ft0per0".length(), new TextReplacement("/"), labels));
+		replacements.add(new Annotation<TextReplacement>("Replacing ft0per0".length(), "Replacing ft0per0min".length(), new TextReplacement("minute"), labels));
 
 		// this last replacement should be ignored, because of the placeholder
-		replacements.add(
-				new Annotation<TextReplacement>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot".length(), new TextReplacement("feet")));
+		replacements.add(new Annotation<TextReplacement>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot".length(),
+				new TextReplacement("feet"), labels));
 
 		sentence.addAnnotations(replacements);
 
 		List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 		placeholders.add(new Annotation<>("Replacing ft0per0min with ".length(), "Replacing ft0per0min with foot/minute".length(),
-				new TokenPlaceholder("foot_per_minute", "blah")));
+				new TokenPlaceholder("foot_per_minute", "blah"), labels));
 		sentence.addAnnotations(placeholders);
 
 		TokenSequence tokenSequence = new TokenSequence(sentence, session);

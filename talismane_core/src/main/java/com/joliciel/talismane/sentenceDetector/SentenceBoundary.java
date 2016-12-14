@@ -21,13 +21,13 @@ package com.joliciel.talismane.sentenceDetector;
 import java.io.Serializable;
 
 /**
- * A marker class for annotations of sentence boundaries added by the sentence
- * detector.
+ * A marker for annotating sentences in a text, with the annotation spanning the
+ * full sentence.
  * 
  * @author Assaf Urieli
  *
  */
-public class DetectedSentenceBreak implements Serializable {
+public class SentenceBoundary implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Override

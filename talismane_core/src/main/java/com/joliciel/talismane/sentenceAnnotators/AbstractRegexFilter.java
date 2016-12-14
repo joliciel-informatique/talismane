@@ -33,11 +33,11 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.resources.WordList;
 import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
@@ -89,7 +89,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 	}
 
 	@Override
-	public void annotate(AnnotatedText annotatedText) {
+	public void annotate(Sentence annotatedText, String... labels) {
 		List<Annotation<TokenPlaceholder>> placeholders = new ArrayList<>();
 		List<Annotation<TokenAttribute<?>>> annotations = new ArrayList<>();
 
@@ -112,7 +112,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 				if (this.singleToken) {
 					String replacement = this.findReplacement(annotatedText.getText(), matcher);
 					TokenPlaceholder placeholder = new TokenPlaceholder(replacement, regex);
-					Annotation<TokenPlaceholder> placeholderAnnotation = new Annotation<>(start, end, placeholder);
+					Annotation<TokenPlaceholder> placeholderAnnotation = new Annotation<>(start, end, placeholder, labels);
 					placeholders.add(placeholderAnnotation);
 
 					if (LOG.isTraceEnabled())
@@ -121,7 +121,7 @@ public abstract class AbstractRegexFilter implements TokenRegexFilter, NeedsTali
 
 				for (String key : attributes.keySet()) {
 					TokenAttribute<?> attribute = attributes.get(key);
-					Annotation<TokenAttribute<?>> annotation = new Annotation<>(start, end, attribute);
+					Annotation<TokenAttribute<?>> annotation = new Annotation<>(start, end, attribute, labels);
 					annotations.add(annotation);
 					if (LOG.isTraceEnabled())
 						LOG.trace("Added attribute: " + attribute.toString());

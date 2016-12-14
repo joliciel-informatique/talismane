@@ -29,9 +29,12 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +42,7 @@ import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.AnnotationObserver;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.sentenceDetector.DetectedSentenceBreak;
+import com.joliciel.talismane.sentenceDetector.SentenceBoundary;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 
 /**
@@ -52,7 +55,7 @@ import com.joliciel.talismane.utils.io.CurrentFileObserver;
 public abstract class RawTextProcessor extends AnnotatedText implements CurrentFileObserver {
 	private static final Logger LOG = LoggerFactory.getLogger(RawTextProcessor.class);
 	private SentenceHolder sentenceHolder;
-	private List<Annotation<DetectedSentenceBreak>> sentenceBoundaries = new ArrayList<>();
+	private List<Annotation<SentenceBoundary>> sentenceBoundaries = new ArrayList<>();
 	private final TalismaneSession session;
 	private static Pattern newlinePattern = Pattern.compile("\r\n|[\r\n]");
 	private final Stack<Boolean> shouldProcessStack;
@@ -166,13 +169,10 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 				}
 			}
 		}
-		List<Pair<Boolean, Annotation<RawTextMarker>>> marks = new ArrayList<>();
-		for (int key : markMap.keySet())
-			marks.addAll(markMap.get(key));
 
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("currentText: " + rawText.toString().replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("marks: " + marks.toString());
+			LOG.trace("marks: " + markMap.toString());
 		}
 
 		SentenceHolder sentenceHolder = new SentenceHolder(session, originalIndexProcessed, finalBlock);
@@ -191,94 +191,115 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 		int currentPos = 0;
 		int outputPos = 0;
 
-		for (Pair<Boolean, Annotation<RawTextMarker>> mark : marks) {
-			boolean isStart = mark.getLeft();
-			Annotation<RawTextMarker> annotation = mark.getRight();
-			RawTextMarker marker = annotation.getData();
-			int position = isStart ? annotation.getStart() : annotation.getEnd();
-			int relativePosition = position - textStartPos;
-			if (LOG.isTraceEnabled()) {
-				LOG.trace((isStart ? "Start " : "Stop ") + marker.getType() + " at " + position + ", relative pos: " + relativePosition);
-				LOG.trace("Stack before: " + shouldProcessStack);
-				LOG.trace("Text before: " + processedText.toString());
-				LOG.trace("Added by filter: " + marker.getSource());
-				LOG.trace("Match text: "
-						+ this.getText().subSequence(annotation.getStart(), annotation.getEnd()).toString().replace('\n', '¶').replace('\r', '¶'));
-			}
+		for (int markPos : markMap.keySet()) {
+			List<Pair<Boolean, Annotation<RawTextMarker>>> marks = markMap.get(markPos);
 
-			boolean shouldProcess = shouldProcessStack.peek();
-			boolean shouldOutput = shouldOutputStack.peek();
+			// collect all instructions at a given position
+			List<Triple<RawTextInstruction, Annotation<RawTextMarker>, Boolean>> instructions = new ArrayList<>();
+			for (Pair<Boolean, Annotation<RawTextMarker>> mark : marks) {
+				boolean isStart = mark.getLeft();
+				Annotation<RawTextMarker> annotation = mark.getRight();
+				RawTextMarker marker = annotation.getData();
 
-			List<RawTextInstruction> actions = new ArrayList<>();
-			if (isStart) {
-				switch (marker.getType()) {
-				case SKIP:
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case SENTENCE_BREAK:
-					actions.add(RawTextInstruction.SENTENCE_BREAK);
-					break;
-				case SPACE:
-					actions.add(RawTextInstruction.INSERT);
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case REPLACE:
-					actions.add(RawTextInstruction.INSERT);
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case OUTPUT:
-					actions.add(RawTextInstruction.PUSH_OUTPUT);
-					actions.add(RawTextInstruction.PUSH_SKIP);
-					break;
-				case INCLUDE:
-					actions.add(RawTextInstruction.PUSH_INCLUDE);
-					break;
-				case OUTPUT_START:
-					actions.add(RawTextInstruction.PUSH_OUTPUT);
-					break;
-				case STOP:
-					actions.add(RawTextInstruction.STOP);
-					break;
-				case NO_SENTENCE_BREAK:
-				case NONE:
-				case OUTPUT_STOP:
-				case START:
-				case TAG:
-					break;
+				List<RawTextInstruction> actions = new ArrayList<>();
+				if (isStart) {
+					switch (marker.getType()) {
+					case SKIP:
+						actions.add(RawTextInstruction.PUSH_SKIP);
+						break;
+					case SENTENCE_BREAK:
+						break;
+					case SPACE:
+						actions.add(RawTextInstruction.INSERT);
+						actions.add(RawTextInstruction.PUSH_SKIP);
+						break;
+					case REPLACE:
+						actions.add(RawTextInstruction.INSERT);
+						actions.add(RawTextInstruction.PUSH_SKIP);
+						break;
+					case OUTPUT:
+						actions.add(RawTextInstruction.PUSH_OUTPUT);
+						actions.add(RawTextInstruction.PUSH_SKIP);
+						break;
+					case INCLUDE:
+						actions.add(RawTextInstruction.PUSH_INCLUDE);
+						break;
+					case OUTPUT_START:
+						actions.add(RawTextInstruction.PUSH_OUTPUT);
+						break;
+					case STOP:
+						actions.add(RawTextInstruction.STOP);
+						break;
+					case NO_SENTENCE_BREAK:
+					case NONE:
+					case OUTPUT_STOP:
+					case START:
+					case TAG:
+						break;
+					}
+				} else {
+					// end of annotation
+					switch (marker.getType()) {
+					case SKIP:
+					case SPACE:
+					case REPLACE:
+						actions.add(RawTextInstruction.POP_SKIP);
+						break;
+					case SENTENCE_BREAK:
+						actions.add(RawTextInstruction.SENTENCE_BREAK);
+						break;
+					case OUTPUT:
+						actions.add(RawTextInstruction.STOP_OUTPUT);
+						actions.add(RawTextInstruction.POP_SKIP);
+						break;
+					case INCLUDE:
+						actions.add(RawTextInstruction.POP_INCLUDE);
+						break;
+					case START:
+						actions.add(RawTextInstruction.START);
+						break;
+					case OUTPUT_STOP:
+						actions.add(RawTextInstruction.STOP_OUTPUT);
+						break;
+					case NO_SENTENCE_BREAK:
+					case NONE:
+					case OUTPUT_START:
+					case STOP:
+					case TAG:
+						break;
+					}
 				}
-			} else {
-				// end of annotation
-				switch (marker.getType()) {
-				case SKIP:
-				case SPACE:
-				case REPLACE:
-					actions.add(RawTextInstruction.POP_SKIP);
-					break;
-				case OUTPUT:
-					actions.add(RawTextInstruction.STOP_OUTPUT);
-					actions.add(RawTextInstruction.POP_SKIP);
-					break;
-				case INCLUDE:
-					actions.add(RawTextInstruction.POP_INCLUDE);
-					break;
-				case START:
-					actions.add(RawTextInstruction.START);
-					break;
-				case OUTPUT_STOP:
-					actions.add(RawTextInstruction.STOP_OUTPUT);
-					break;
-				case NO_SENTENCE_BREAK:
-				case NONE:
-				case OUTPUT_START:
-				case SENTENCE_BREAK:
-				case STOP:
-				case TAG:
-					break;
+
+				for (RawTextInstruction action : actions) {
+					instructions.add(new ImmutableTriple<>(action, annotation, isStart));
 				}
 			}
 
-			for (RawTextInstruction action : actions) {
-				switch (action) {
+			// sort the instructions to ensure they're applied in the correct
+			// order
+			instructions = instructions.stream().sorted((i1, i2) -> i1.getLeft().compareTo(i2.getLeft())).collect(Collectors.toList());
+
+			for (Triple<RawTextInstruction, Annotation<RawTextMarker>, Boolean> triple : instructions) {
+				RawTextInstruction instruction = triple.getLeft();
+				Annotation<RawTextMarker> annotation = triple.getMiddle();
+				RawTextMarker marker = annotation.getData();
+				boolean isStart = triple.getRight();
+				int position = isStart ? annotation.getStart() : annotation.getEnd();
+				int relativePosition = position - textStartPos;
+				if (LOG.isTraceEnabled()) {
+					LOG.trace((isStart ? "Start " : "Stop ") + marker.getType() + " at " + position + ", relative pos: " + relativePosition);
+					LOG.trace("instruction: " + instruction);
+					LOG.trace("Stack before: " + shouldProcessStack);
+					LOG.trace("Text before: " + processedText.toString());
+					LOG.trace("Added by filter: " + marker.getSource());
+					LOG.trace("Match text: "
+							+ this.getText().subSequence(annotation.getStart(), annotation.getEnd()).toString().replace('\n', '¶').replace('\r', '¶'));
+				}
+
+				boolean shouldProcess = shouldProcessStack.peek();
+				boolean shouldOutput = shouldOutputStack.peek();
+
+				switch (instruction) {
 				case PUSH_SKIP:
 					if (shouldProcess) {
 						insertionPoints.put(processedText.length(), currentPos);
@@ -333,17 +354,16 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 					}
 					break;
 				case SENTENCE_BREAK: {
-					CharSequence leftoverText = null;
 					if (shouldProcess) {
 						insertionPoints.put(processedText.length(), currentPos);
-						leftoverText = rawText.subSequence(currentPos, relativePosition);
+						CharSequence leftoverText = rawText.subSequence(currentPos, relativePosition);
 						processedText.append(leftoverText);
 						currentPos = relativePosition;
 					}
 
-					// add the sentence boundary on the last character that was
-					// actually added.
-					sentenceHolder.addSentenceBoundary(processedText.length() - 1);
+					// add the sentence boundary after the last character that
+					// was added
+					sentenceHolder.addSentenceBoundary(processedText.length());
 					if (LOG.isTraceEnabled()) {
 						int boundary = processedText.length() - 1;
 						if (boundary >= 0) {
@@ -362,7 +382,7 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 						}
 					}
 					if (shouldProcess) {
-						if (leftoverText.length() > 0 && leftoverText.charAt(leftoverText.length() - 1) != ' ') {
+						if (processedText.length() > 0 && processedText.charAt(processedText.length() - 1) != ' ') {
 							insertionPoints.put(processedText.length(), currentPos);
 							processedText.append(" ");
 						}
@@ -375,12 +395,12 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 				case START: {
 					boolean wasProcessing = shouldProcess;
 					boolean wasOutputting = shouldOutput && !shouldProcess;
-					if (action == RawTextInstruction.POP_SKIP || action == RawTextInstruction.POP_INCLUDE) {
+					if (instruction == RawTextInstruction.POP_SKIP || instruction == RawTextInstruction.POP_INCLUDE) {
 						shouldProcessStack.pop();
-					} else if (action == RawTextInstruction.STOP) {
+					} else if (instruction == RawTextInstruction.STOP) {
 						shouldProcessStack.pop();
 						shouldProcessStack.push(false);
-					} else if (action == RawTextInstruction.START) {
+					} else if (instruction == RawTextInstruction.START) {
 						shouldProcessStack.pop();
 						shouldProcessStack.push(true);
 					}
@@ -407,12 +427,12 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 				case STOP_OUTPUT:
 				case START_OUTPUT: {
 					boolean wasOutputting = shouldOutput && !shouldProcess;
-					if (action == RawTextInstruction.POP_OUTPUT) {
+					if (instruction == RawTextInstruction.POP_OUTPUT) {
 						shouldOutputStack.pop();
-					} else if (action == RawTextInstruction.STOP_OUTPUT) {
+					} else if (instruction == RawTextInstruction.STOP_OUTPUT) {
 						shouldOutputStack.pop();
 						shouldOutputStack.push(false);
-					} else if (action == RawTextInstruction.START_OUTPUT) {
+					} else if (instruction == RawTextInstruction.START_OUTPUT) {
 						shouldOutputStack.pop();
 						shouldOutputStack.push(true);
 					}
@@ -577,8 +597,12 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 				int sentence2HolderStart = currentHolder.getOriginalStartIndex();
 				List<Annotation<T>> newAnnotations = new ArrayList<>();
 				for (Annotation<T> annotation : annotations) {
-					if (annotation.getStart() >= length1 && annotation.getStart() < length1 + length2) {
-						int originalStart = currentHolder.getOriginalIndex(annotation.getStart() - length1);
+					int originalStart = -1;
+					if (annotation.getStart() < length1)
+						originalStart = prevHolder.getOriginalIndex(annotation.getStart());
+					else if (annotation.getStart() < length1 + length2)
+						originalStart = currentHolder.getOriginalIndex(annotation.getStart() - length1);
+					if (originalStart >= 0) {
 						int originalEnd = -1;
 						if (annotation.getEnd() <= length1 + length2)
 							originalEnd = currentHolder.getOriginalIndex(annotation.getEnd() - length1);
@@ -590,9 +614,9 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 									originalEnd - sentence2HolderStart + offset);
 							newAnnotations.add(newAnnotation);
 
-							if (annotation.getData() instanceof DetectedSentenceBreak) {
+							if (annotation.getData() instanceof SentenceBoundary) {
 								@SuppressWarnings("unchecked")
-								Annotation<DetectedSentenceBreak> sentenceBoundary = (Annotation<DetectedSentenceBreak>) annotation;
+								Annotation<SentenceBoundary> sentenceBoundary = (Annotation<SentenceBoundary>) annotation;
 								sentenceBoundaries.add(sentenceBoundary);
 							}
 						}
@@ -625,8 +649,9 @@ public abstract class RawTextProcessor extends AnnotatedText implements CurrentF
 		SentenceHolder prevHolder = this.getPreviousSentenceHolder();
 		SentenceHolder currentHolder = this.getCurrentSentenceHolder();
 
-		for (Annotation<DetectedSentenceBreak> sentenceBoundary : sentenceBoundaries) {
+		for (Annotation<SentenceBoundary> sentenceBoundary : sentenceBoundaries) {
 			currentHolder.addSentenceBoundary(sentenceBoundary.getStart() - prevHolder.getProcessedText().length());
+			currentHolder.addSentenceBoundary(sentenceBoundary.getEnd() - prevHolder.getProcessedText().length());
 		}
 
 		List<Sentence> sentences = currentHolder.getDetectedSentences(leftover);

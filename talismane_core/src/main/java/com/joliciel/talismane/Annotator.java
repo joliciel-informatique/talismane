@@ -26,9 +26,9 @@ package com.joliciel.talismane;
  * @author Assaf Urieli
  *
  */
-public interface Annotator {
+public interface Annotator<T extends AnnotatedText> {
 	/**
-	 * Annotates the text provided.
+	 * Annotates the text provided, and adds the labels to all annotations.
 	 */
-	public void annotate(AnnotatedText annotatedText);
+	public void annotate(T annotatedText, String... labels);
 }

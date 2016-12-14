@@ -20,6 +20,9 @@
 package com.joliciel.talismane;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Annotation added to a continuous span of text. Examples could include
@@ -39,12 +42,18 @@ public final class Annotation<T extends Serializable> implements Comparable<Anno
 	private final int start;
 	private final int end;
 	private final T data;
+	private final List<String> labels;
 
-	public Annotation(int start, int end, T data) {
+	public Annotation(int start, int end, T data, List<String> labels) {
 		super();
 		this.start = start;
 		this.end = end;
 		this.data = data;
+		this.labels = labels;
+	}
+
+	public Annotation(int start, int end, T data, String[] labels) {
+		this(start, end, data, labels.length == 0 ? Collections.emptyList() : Arrays.asList(labels));
 	}
 
 	/**
@@ -71,11 +80,18 @@ public final class Annotation<T extends Serializable> implements Comparable<Anno
 	}
 
 	/**
+	 * The labels added to this annotation.
+	 */
+	public List<String> getLabels() {
+		return labels;
+	}
+
+	/**
 	 * Return a new annotation representing the current annotation data with a
 	 * different start and end.
 	 */
 	public Annotation<T> getAnnotation(int start, int end) {
-		return new Annotation<T>(start, end, this.data);
+		return new Annotation<T>(start, end, this.data, this.labels);
 	}
 
 	@Override
