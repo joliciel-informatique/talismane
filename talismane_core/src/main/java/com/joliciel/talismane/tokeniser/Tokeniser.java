@@ -163,7 +163,7 @@ public abstract class Tokeniser {
 				// add annotations for the very first token sequence
 				List<Annotation<TokenBoundary>> tokenBoundaries = new ArrayList<>();
 				for (Token token : newTokenSequence) {
-					Annotation<TokenBoundary> tokenBoundary = new Annotation<>(token.getStartIndex(), token.getEndIndex(), new TokenBoundary());
+					Annotation<TokenBoundary> tokenBoundary = new Annotation<>(token.getStartIndex(), token.getEndIndex(), new TokenBoundary(token.getText()));
 					tokenBoundaries.add(tokenBoundary);
 				}
 				sentence.addAnnotations(tokenBoundaries);

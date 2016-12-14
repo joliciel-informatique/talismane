@@ -29,6 +29,22 @@ import java.io.Serializable;
 public class TokenBoundary implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private final String analysisText;
+
+	public TokenBoundary(String analysisText) {
+		this.analysisText = analysisText;
+	}
+
+	/**
+	 * The token's text for analysis purposes (the original text may have been
+	 * replaced by something else for analysis purposes).
+	 * 
+	 * @return
+	 */
+	public String getAnalysisText() {
+		return analysisText;
+	}
+
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName();
