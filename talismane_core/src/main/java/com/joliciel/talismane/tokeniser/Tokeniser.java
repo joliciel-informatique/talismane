@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Annotation;
+import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -57,7 +58,7 @@ import gnu.trove.set.hash.TIntHashSet;
  * @author Assaf Urieli
  *
  */
-public abstract class Tokeniser {
+public abstract class Tokeniser implements Annotator<Sentence> {
 	public static enum TokeniserType {
 		simple,
 		pattern
@@ -104,8 +105,8 @@ public abstract class Tokeniser {
 	 * sequence.
 	 */
 
-	public TokenSequence tokeniseSentence(Sentence sentence) {
-		List<TokenSequence> tokenSequences = this.tokenise(sentence);
+	public TokenSequence tokeniseSentence(Sentence sentence, String... labels) {
+		List<TokenSequence> tokenSequences = this.tokenise(sentence, labels);
 		return tokenSequences.get(0);
 	}
 
@@ -115,8 +116,8 @@ public abstract class Tokeniser {
 	 * decisions themselves.
 	 */
 
-	public List<TokenSequence> tokenise(Sentence sentence) {
-		List<TokenisedAtomicTokenSequence> decisionSequences = this.tokeniseWithDecisions(sentence);
+	public List<TokenSequence> tokenise(Sentence sentence, String... labels) {
+		List<TokenisedAtomicTokenSequence> decisionSequences = this.tokeniseWithDecisions(sentence, labels);
 		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
 		for (TokenisedAtomicTokenSequence decisionSequence : decisionSequences) {
 			tokenSequences.add(decisionSequence.inferTokenSequence());
@@ -147,7 +148,7 @@ public abstract class Tokeniser {
 	 * tokenised is contained within a Sentence object.
 	 */
 
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence) {
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence, String... labels) {
 		// Initially, separate the sentence into tokens using the separators
 		// provided
 		TokenSequence tokenSequence = new TokenSequence(sentence, this.session);
@@ -163,7 +164,8 @@ public abstract class Tokeniser {
 				// add annotations for the very first token sequence
 				List<Annotation<TokenBoundary>> tokenBoundaries = new ArrayList<>();
 				for (Token token : newTokenSequence) {
-					Annotation<TokenBoundary> tokenBoundary = new Annotation<>(token.getStartIndex(), token.getEndIndex(), new TokenBoundary(token.getText()));
+					Annotation<TokenBoundary> tokenBoundary = new Annotation<>(token.getStartIndex(), token.getEndIndex(),
+							new TokenBoundary(token.getText(), token.getAttributes()), labels);
 					tokenBoundaries.add(tokenBoundary);
 				}
 				sentence.addAnnotations(tokenBoundaries);
@@ -177,6 +179,11 @@ public abstract class Tokeniser {
 		}
 
 		return sequences;
+	}
+
+	@Override
+	public void annotate(Sentence sentence, String... labels) {
+		this.tokeniseWithDecisions(sentence, labels);
 	}
 
 	protected abstract List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence);

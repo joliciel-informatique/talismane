@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.rawText;
 
+import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 
@@ -36,7 +37,7 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  * @author Assaf Urieli
  *
  */
-public interface RawTextAnnotator extends Annotator {
+public interface RawTextAnnotator extends Annotator<AnnotatedText> {
 	/**
 	 * If the annotator indicates text to be replaced, the replacement string.
 	 */

@@ -10,8 +10,6 @@ import org.junit.Test;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.rawText.RollingTextBlock;
-import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
@@ -30,25 +28,27 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
+
 		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("One ");
 		List<Annotation<String>> annotations = new ArrayList<>();
-		annotations.add(new Annotation<String>(0, "One".length(), "1"));
+		annotations.add(new Annotation<String>(0, "One".length(), "1", labels));
 		textBlock.addAnnotations(annotations);
 
 		textBlock = textBlock.roll("Two ");
 		annotations = new ArrayList<>();
-		annotations.add(new Annotation<String>("One ".length(), "One Two".length(), "2"));
+		annotations.add(new Annotation<String>("One ".length(), "One Two".length(), "2", labels));
 		textBlock.addAnnotations(annotations);
 
 		textBlock = textBlock.roll("Three ");
 		annotations = new ArrayList<>();
-		annotations.add(new Annotation<String>("One Two ".length(), "One Two Three".length(), "3"));
+		annotations.add(new Annotation<String>("One Two ".length(), "One Two Three".length(), "3", labels));
 		textBlock.addAnnotations(annotations);
 
 		textBlock = textBlock.roll("Four ");
 		annotations = new ArrayList<>();
-		annotations.add(new Annotation<String>("One Two Three ".length(), "One Two Three Four".length(), "4"));
+		annotations.add(new Annotation<String>("One Two Three ".length(), "One Two Three Four".length(), "4", labels));
 		textBlock.addAnnotations(annotations);
 
 		textBlock = textBlock.roll("Five");
@@ -89,6 +89,8 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
+
 		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("1 ");
 		textBlock = textBlock.roll("2 ");
@@ -99,8 +101,8 @@ public class RollingTextBlockTest {
 		// so annotations are relative to these sub-blocks
 		AnnotatedText rawTextBlock = textBlock.getRawTextBlock();
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
-		skips.add(new Annotation<>("3".length(), "3<skip>skip</skip>".length(), new RawTextSkipMarker("me")));
-		skips.add(new Annotation<>("3<skip>skip</skip> 4".length(), "3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me")));
+		skips.add(new Annotation<>("3".length(), "3<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
+		skips.add(new Annotation<>("3<skip>skip</skip> 4".length(), "3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
 		rawTextBlock.addAnnotations(skips);
 
 		List<Annotation<RawTextSkipMarker>> sourceSkips = textBlock.getAnnotations(RawTextSkipMarker.class);
@@ -131,8 +133,9 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		RollingTextBlock textBlock = new RollingTextBlock(true, session);
+		String[] labels = new String[0];
 
+		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("1 ");
 		textBlock = textBlock.roll("2 ");
 		textBlock = textBlock.roll("3<skip>skip</skip> 4<sk");
@@ -142,15 +145,15 @@ public class RollingTextBlockTest {
 		// so annotations are relative to these sub-blocks
 		AnnotatedText rawTextBlock = textBlock.getRawTextBlock();
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
-		skips.add(new Annotation<>("3".length(), "3<skip>skip</skip>".length(), new RawTextSkipMarker("me")));
-		skips.add(new Annotation<>("3<skip>skip</skip> 4".length(), "3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me")));
+		skips.add(new Annotation<>("3".length(), "3<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
+		skips.add(new Annotation<>("3<skip>skip</skip> 4".length(), "3<skip>skip</skip> 4<skip>skip</skip>".length(), new RawTextSkipMarker("me"), labels));
 		rawTextBlock.addAnnotations(skips);
 
 		textBlock = textBlock.roll(" 6");
 
 		rawTextBlock = textBlock.getRawTextBlock();
 		List<Annotation<RawTextReplaceMarker>> replaces = new ArrayList<>();
-		replaces.add(new Annotation<>("ip>skip</skip> ".length(), "ip>skip</skip> five".length(), new RawTextReplaceMarker("me", "5")));
+		replaces.add(new Annotation<>("ip>skip</skip> ".length(), "ip>skip</skip> five".length(), new RawTextReplaceMarker("me", "5"), labels));
 		rawTextBlock.addAnnotations(replaces);
 
 		AnnotatedText processedTextBlock = textBlock.getProcessedText();
@@ -168,6 +171,8 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
+
 		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("Sentence 1<sent/>Sentence 2. Sentence");
 		textBlock = textBlock.roll(" 3.");
@@ -179,11 +184,11 @@ public class RollingTextBlockTest {
 
 		// we add a sentence break annotation (as if it was added by a filter)
 		System.out.println("we add a sentence break annotation (as if it was added by a filter)");
-		sentenceBreaks.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSentenceBreakMarker("me")));
+		sentenceBreaks.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSentenceBreakMarker("me"), labels));
 		rawTextBlock.addAnnotations(sentenceBreaks);
 
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
-		skips.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSkipMarker("me")));
+		skips.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSkipMarker("me"), labels));
 		rawTextBlock.addAnnotations(skips);
 
 		System.out.println("textBlock text: " + textBlock.getText());
@@ -198,12 +203,12 @@ public class RollingTextBlockTest {
 		// by a sentence detector)
 		System.out.println("add sentence boundaries to the processed text (as if they were added by a sentence detector)");
 		List<Annotation<DetectedSentenceBreak>> sentenceBoundaries = new ArrayList<>();
-		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2".length(), "Sentence 1 Sentence 2.".length(), new DetectedSentenceBreak()));
+		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2".length(), "Sentence 1 Sentence 2.".length(), new DetectedSentenceBreak(), labels));
 
 		// the boundary for "Sentence 3" is outside the analysis range, and
 		// should be ignored
-		sentenceBoundaries
-				.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new DetectedSentenceBreak()));
+		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(),
+				new DetectedSentenceBreak(), labels));
 		processedTextBlock.addAnnotations(sentenceBoundaries);
 
 		List<Sentence> sentences = textBlock.getDetectedSentences();
@@ -229,8 +234,8 @@ public class RollingTextBlockTest {
 		// analysis range.
 		System.out.println("add a sentence boundary for \"Sentence 3\", this time inside the analysis range");
 		sentenceBoundaries = new ArrayList<>();
-		sentenceBoundaries
-				.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new DetectedSentenceBreak()));
+		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(),
+				new DetectedSentenceBreak(), labels));
 		processedTextBlock.addAnnotations(sentenceBoundaries);
 
 		sentences = textBlock.getDetectedSentences();
@@ -279,7 +284,7 @@ public class RollingTextBlockTest {
 		// test that sentence annotations get added to the original raw text
 		Sentence sentence4 = sentences.get(0);
 		List<Annotation<String>> annotations = new ArrayList<>();
-		annotations.add(new Annotation<String>("Sentence ".length(), "Sentence 4".length(), "four"));
+		annotations.add(new Annotation<String>("Sentence ".length(), "Sentence 4".length(), "four", labels));
 		sentence4.addAnnotations(annotations);
 
 		System.out.println("textBlock text: " + textBlock.getText());
@@ -301,6 +306,8 @@ public class RollingTextBlockTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
+
 		// String text = "I see Mr. Jones and <skip/>Mrs. Smith.";
 		RollingTextBlock textBlock = new RollingTextBlock(true, session);
 		textBlock = textBlock.roll("I see ");
@@ -313,7 +320,7 @@ public class RollingTextBlockTest {
 		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreaks = new ArrayList<>();
 
 		System.out.println("we add no sentence break annotations (as if they were added by a filter)");
-		noSentenceBreaks.add(new Annotation<>("".length(), "Mr.".length(), new RawTextNoSentenceBreakMarker("me")));
+		noSentenceBreaks.add(new Annotation<>("".length(), "Mr.".length(), new RawTextNoSentenceBreakMarker("me"), labels));
 		rawText.addAnnotations(noSentenceBreaks);
 
 		System.out.println("textBlock text: " + textBlock.getText());
@@ -324,7 +331,7 @@ public class RollingTextBlockTest {
 		rawText = textBlock.getRawTextBlock();
 		System.out.println("rawText text: " + rawText.getText());
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
-		skips.add(new Annotation<>("and ".length(), "and <skip/>".length(), new RawTextSkipMarker("me")));
+		skips.add(new Annotation<>("and ".length(), "and <skip/>".length(), new RawTextSkipMarker("me"), labels));
 		rawText.addAnnotations(skips);
 
 		AnnotatedText processedTextBlock = textBlock.getProcessedText();
@@ -343,7 +350,7 @@ public class RollingTextBlockTest {
 		rawText = textBlock.getRawTextBlock();
 		System.out.println("rawText text: " + rawText.getText());
 		noSentenceBreaks = new ArrayList<>();
-		noSentenceBreaks.add(new Annotation<>("ip/>".length(), "ip/>Mrs.".length(), new RawTextNoSentenceBreakMarker("me")));
+		noSentenceBreaks.add(new Annotation<>("ip/>".length(), "ip/>Mrs.".length(), new RawTextNoSentenceBreakMarker("me"), labels));
 		rawText.addAnnotations(noSentenceBreaks);
 
 		System.out.println("textBlock text: " + textBlock.getText());

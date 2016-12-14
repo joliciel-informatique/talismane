@@ -23,10 +23,13 @@ public class SimpleTokeniserTest {
 		final Config config = ConfigFactory.load();
 
 		final TalismaneSession session = new TalismaneSession(config, "");
+
+		String[] labels = new String[0];
+
 		final Sentence sentence = new Sentence("Click http://www.blah-di-blah.com now", session);
 		List<Annotation<TokenPlaceholder>> annotations = new ArrayList<>();
 		Annotation<TokenPlaceholder> annotation = new Annotation<TokenPlaceholder>("Click ".length(), "Click http://www.blah-di-blah.com".length(),
-				new TokenPlaceholder("URL", ""));
+				new TokenPlaceholder("URL", ""), labels);
 		annotations.add(annotation);
 		sentence.addAnnotations(annotations);
 

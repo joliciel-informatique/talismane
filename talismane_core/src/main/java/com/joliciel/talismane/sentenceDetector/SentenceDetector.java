@@ -144,7 +144,7 @@ public class SentenceDetector {
 	 * @return in addition to the annotations added, we return a List of
 	 *         integers marking the start position of each sentence boundary.
 	 */
-	public List<Integer> detectSentences(AnnotatedText text) {
+	public List<Integer> detectSentences(AnnotatedText text, String... labels) {
 		LOG.debug("detectSentences");
 
 		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = text.getAnnotations(RawTextNoSentenceBreakMarker.class);
@@ -200,7 +200,7 @@ public class SentenceDetector {
 			if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
 				guessedBoundaries.add(possibleBoundary);
 				boundaries.add(boundary);
-				Annotation<DetectedSentenceBreak> annotation = new Annotation<>(possibleBoundary, possibleBoundary + 1, new DetectedSentenceBreak());
+				Annotation<DetectedSentenceBreak> annotation = new Annotation<>(possibleBoundary, possibleBoundary + 1, new DetectedSentenceBreak(), labels);
 				annotations.add(annotation);
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Adding boundary: " + possibleBoundary);
