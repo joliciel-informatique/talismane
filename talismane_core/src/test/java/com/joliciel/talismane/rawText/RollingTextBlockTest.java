@@ -14,7 +14,7 @@ import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSkipMarker;
-import com.joliciel.talismane.sentenceDetector.DetectedSentenceBreak;
+import com.joliciel.talismane.sentenceDetector.SentenceBoundary;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -184,7 +184,7 @@ public class RollingTextBlockTest {
 
 		// we add a sentence break annotation (as if it was added by a filter)
 		System.out.println("we add a sentence break annotation (as if it was added by a filter)");
-		sentenceBreaks.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSentenceBreakMarker("me"), labels));
+		sentenceBreaks.add(new Annotation<>("".length(), "Sentence 1<sent/>".length(), new RawTextSentenceBreakMarker("me"), labels));
 		rawTextBlock.addAnnotations(sentenceBreaks);
 
 		List<Annotation<RawTextSkipMarker>> skips = new ArrayList<>();
@@ -202,13 +202,8 @@ public class RollingTextBlockTest {
 		// add sentence boundaries to the processed text (as if they were added
 		// by a sentence detector)
 		System.out.println("add sentence boundaries to the processed text (as if they were added by a sentence detector)");
-		List<Annotation<DetectedSentenceBreak>> sentenceBoundaries = new ArrayList<>();
-		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2".length(), "Sentence 1 Sentence 2.".length(), new DetectedSentenceBreak(), labels));
-
-		// the boundary for "Sentence 3" is outside the analysis range, and
-		// should be ignored
-		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(),
-				new DetectedSentenceBreak(), labels));
+		List<Annotation<SentenceBoundary>> sentenceBoundaries = new ArrayList<>();
+		sentenceBoundaries.add(new Annotation<>("Sentence 1".length(), "Sentence 1 Sentence 2.".length(), new SentenceBoundary(), labels));
 		processedTextBlock.addAnnotations(sentenceBoundaries);
 
 		List<Sentence> sentences = textBlock.getDetectedSentences();
@@ -230,12 +225,11 @@ public class RollingTextBlockTest {
 		processedTextBlock = textBlock.getProcessedText();
 		assertEquals("Sentence 1 Sentence 2. Sentence 3. Sentence 4.", processedTextBlock.getText());
 
-		// add a sentence boundary for "Sentence 3", this time inside the
-		// analysis range.
+		// add a sentence boundary for "Sentence 3"
 		System.out.println("add a sentence boundary for \"Sentence 3\", this time inside the analysis range");
 		sentenceBoundaries = new ArrayList<>();
-		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(),
-				new DetectedSentenceBreak(), labels));
+		sentenceBoundaries
+				.add(new Annotation<>("Sentence 1 Sentence 2.".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new SentenceBoundary(), labels));
 		processedTextBlock.addAnnotations(sentenceBoundaries);
 
 		sentences = textBlock.getDetectedSentences();
@@ -251,11 +245,12 @@ public class RollingTextBlockTest {
 		// ensure that the sentence boundary annotations in the original text
 		// are in the right place
 		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3. Sentence 4.", textBlock.getText());
-		sentenceBoundaries = textBlock.getAnnotations(DetectedSentenceBreak.class);
+		sentenceBoundaries = textBlock.getAnnotations(SentenceBoundary.class);
+		System.out.println(sentenceBoundaries.toString());
 		assertEquals(2, sentenceBoundaries.size());
-		assertEquals("Sentence 1<sent/>Sentence 2".length(), sentenceBoundaries.get(0).getStart());
+		assertEquals("Sentence 1<sent/>".length(), sentenceBoundaries.get(0).getStart());
 		assertEquals("Sentence 1<sent/>Sentence 2.".length(), sentenceBoundaries.get(0).getEnd());
-		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3".length(), sentenceBoundaries.get(1).getStart());
+		assertEquals("Sentence 1<sent/>Sentence 2.".length(), sentenceBoundaries.get(1).getStart());
 		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3.".length(), sentenceBoundaries.get(1).getEnd());
 
 		// roll in a final empty block - we now have an empty block at block 3,
@@ -276,9 +271,9 @@ public class RollingTextBlockTest {
 		// ensure that the sentence boundary annotations in the original text
 		// are in the right place
 		assertEquals(" 3. Sentence 4.", textBlock.getText());
-		sentenceBoundaries = textBlock.getAnnotations(DetectedSentenceBreak.class);
+		sentenceBoundaries = textBlock.getAnnotations(SentenceBoundary.class);
 		assertEquals(1, sentenceBoundaries.size());
-		assertEquals(" 3".length(), sentenceBoundaries.get(0).getStart());
+		assertEquals("".length(), sentenceBoundaries.get(0).getStart());
 		assertEquals(" 3.".length(), sentenceBoundaries.get(0).getEnd());
 
 		// test that sentence annotations get added to the original raw text

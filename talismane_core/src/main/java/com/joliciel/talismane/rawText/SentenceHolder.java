@@ -77,7 +77,8 @@ class SentenceHolder {
 	 * Add a sentence boundary to this sentence holder.
 	 */
 	public void addSentenceBoundary(int boundary) {
-		this.sentenceBoundaries.add(boundary);
+		if (boundary >= 0)
+			this.sentenceBoundaries.add(boundary);
 	}
 
 	/**
@@ -106,7 +107,7 @@ class SentenceHolder {
 
 		List<Integer> allBoundaries = new ArrayList<Integer>();
 		for (int sentenceBoundary : sentenceBoundaries) {
-			if (sentenceBoundary < this.processedText.length())
+			if (sentenceBoundary <= this.processedText.length())
 				allBoundaries.add(sentenceBoundary);
 		}
 
@@ -116,22 +117,22 @@ class SentenceHolder {
 		if (allBoundaries.size() > 0) {
 			haveLeftOvers = false;
 			int lastSentenceBoundary = allBoundaries.get(allBoundaries.size() - 1);
-			if (lastSentenceBoundary < this.processedText.length() - 1) {
+			if (lastSentenceBoundary < this.processedText.length()) {
 				haveLeftOvers = true;
 			}
 			if (LOG.isTraceEnabled()) {
-				LOG.trace("haveLeftOvers? " + lastSentenceBoundary + " < " + (this.processedText.length() - 1) + " = " + haveLeftOvers);
+				LOG.trace("haveLeftOvers? " + lastSentenceBoundary + " < " + (this.processedText.length()) + " = " + haveLeftOvers);
 			}
 		}
 
 		// if there is leftover text, we'll add a fake "boundary" to construct
 		// the incomplete sentence
 		if (haveLeftOvers)
-			allBoundaries.add(this.processedText.length() - 1);
+			allBoundaries.add(this.processedText.length());
 
 		for (int sentenceBoundary : allBoundaries) {
 			// is this the final incomplete sentence?
-			boolean isLeftover = (!endOfBlock) && (haveLeftOvers && sentenceBoundary == this.processedText.length() - 1);
+			boolean isLeftover = (!endOfBlock) && (haveLeftOvers && sentenceBoundary == this.processedText.length());
 
 			int leftOverTextLength = 0;
 			String text = "";
@@ -140,13 +141,13 @@ class SentenceHolder {
 
 			if (leftover != null) {
 				leftOverTextLength = leftover.getText().length();
-				text = leftover.getText() + this.processedText.subSequence(currentIndex, sentenceBoundary + 1).toString();
+				text = leftover.getText() + this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
 				originalIndexes.addAll(leftover.getOriginalIndexes());
 				originalTextSegments.putAll(leftover.getOriginalTextSegments());
 
 				leftover = null;
 			} else {
-				text = this.processedText.subSequence(currentIndex, sentenceBoundary + 1).toString();
+				text = this.processedText.subSequence(currentIndex, sentenceBoundary).toString();
 			}
 
 			// handle trim & duplicate white space here
@@ -211,7 +212,7 @@ class SentenceHolder {
 			}
 
 			sentences.add(sentence);
-			currentIndex = sentenceBoundary + 1;
+			currentIndex = sentenceBoundary;
 		}
 
 		// remove any original text segments already processed
