@@ -27,18 +27,12 @@ import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.rawText.Sentence;
-import com.joliciel.talismane.rawText.SentenceHolder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 public class SentenceHolderTest {
-	private static final Logger LOG = LoggerFactory.getLogger(SentenceHolderTest.class);
-
 	@Before
 	public void setup() {
 	}
@@ -70,12 +64,12 @@ public class SentenceHolderTest {
 		holder.getOriginalTextSegments().put("Hello  World. ".length() - 1, "<o>Output this</o>");
 		holder.getOriginalTextSegments().put("Hello  World. How are you?  Fine,".length() - 1, "<o>Output</o>");
 
-		holder.addSentenceBoundary("Hello  World.".length() - 1);
-		holder.addSentenceBoundary("Hello  World. How are you?".length() - 1);
+		holder.addSentenceBoundary("Hello  World.".length());
+		holder.addSentenceBoundary("Hello  World. How are you?".length());
 
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
-			LOG.debug(sentence.getText().toString());
+			System.out.println(sentence.getText().toString());
 		}
 		assertEquals(3, sentences.size());
 
@@ -88,7 +82,7 @@ public class SentenceHolderTest {
 		assertEquals("How are you?", sentence2.getText());
 		assertEquals("Hello  <b>World</b>. <o>Output this</o>H".length(), sentence2.getOriginalIndex("H".length()));
 		for (Entry<Integer, String> originalSegment : sentence2.getOriginalTextSegments().entrySet()) {
-			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
+			System.out.println(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}
 		assertEquals("<o>Output this</o>", sentence2.getOriginalTextSegments().get(0));
 
@@ -97,7 +91,7 @@ public class SentenceHolderTest {
 		assertEquals("Fine, ", leftover.getText());
 		assertEquals("Hello  <b>World</b>. <o>Output this</o>How are you?  F".length(), leftover.getOriginalIndex("F".length()));
 		for (Entry<Integer, String> originalSegment : leftover.getOriginalTextSegments().entrySet()) {
-			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
+			System.out.println(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}
 		assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
 
@@ -115,7 +109,7 @@ public class SentenceHolderTest {
 		assertEquals("Fine, thanks, and you", leftover.getText());
 		assertEquals("Hello  <b>World</b>. <o>Output this</o>How are you?  F".length(), leftover.getOriginalIndex("F".length()));
 		for (Entry<Integer, String> originalSegment : leftover.getOriginalTextSegments().entrySet()) {
-			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
+			System.out.println(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}
 		assertEquals("<o>Output</o>", leftover.getOriginalTextSegments().get(4));
 		assertFalse(leftover.isComplete());
@@ -127,16 +121,17 @@ public class SentenceHolderTest {
 		for (int i = 0; i < holder2.getProcessedText().length(); i++) {
 			holder3.addOriginalIndex(originalText.length() + originalText2.length() + i);
 		}
-		holder3.addSentenceBoundary("?".length() - 1);
-		holder3.addSentenceBoundary("? Grand.".length() - 1);
+		holder3.addSentenceBoundary("?".length());
+		holder3.addSentenceBoundary("? Grand.".length());
 		sentences = holder3.getDetectedSentences(leftover);
+		System.out.println(sentences.toString());
 		assertEquals(2, sentences.size());
 
 		sentence1 = sentences.get(0);
 		assertEquals("Fine, thanks, and you?", sentence1.getText());
 		assertEquals("Hello  <b>World</b>. <o>Output this</o>How are you?  F".length(), sentence1.getOriginalIndex("F".length()));
 		for (Entry<Integer, String> originalSegment : sentence1.getOriginalTextSegments().entrySet()) {
-			LOG.debug(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
+			System.out.println(originalSegment.getKey() + ": \"" + originalSegment.getValue() + "\"");
 		}
 		assertEquals("<o>Output</o>", sentence1.getOriginalTextSegments().get(4));
 		assertTrue(sentence1.isComplete());
@@ -163,11 +158,11 @@ public class SentenceHolderTest {
 			holder.addOriginalIndex(i);
 		}
 
-		holder.addSentenceBoundary("Hello World.".length() - 1);
+		holder.addSentenceBoundary("Hello World.".length());
 
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
-			LOG.debug(sentence.getText().toString());
+			System.out.println(sentence.getText().toString());
 		}
 		assertEquals(1, sentences.size());
 
@@ -190,9 +185,9 @@ public class SentenceHolderTest {
 			holder.addOriginalIndex(i);
 		}
 
-		holder.addSentenceBoundary("Hello World.".length() - 1);
-		holder.addSentenceBoundary("Hello World.\nHow\nare you?".length() - 1);
-		holder.addSentenceBoundary("Hello World.\nHow\nare you? Fine\nthanks.".length() - 1);
+		holder.addSentenceBoundary("Hello World.".length());
+		holder.addSentenceBoundary("Hello World.\nHow\nare you?".length());
+		holder.addSentenceBoundary("Hello World.\nHow\nare you? Fine\nthanks.".length());
 		holder.addNewline(0, 0);
 		holder.addNewline("Hello World.\n".length(), 1);
 		holder.addNewline("Hello World.\nHow\n".length(), 2);
@@ -200,7 +195,7 @@ public class SentenceHolderTest {
 
 		List<Sentence> sentences = holder.getDetectedSentences(null);
 		for (Sentence sentence : sentences) {
-			LOG.debug(sentence.getText().toString());
+			System.out.println(sentence.getText().toString());
 		}
 		assertEquals(3, sentences.size());
 

@@ -71,7 +71,7 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
 	}
 
 	@Override
-	public void annotate(AnnotatedText textBlock) {
+	public void annotate(AnnotatedText textBlock, String... labels) {
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("Matching " + regex.replace('\n', '¶').replace('\r', '¶'));
 		}
@@ -125,37 +125,37 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
 							LOG.trace("Setting replacement to: " + insertionText);
 						}
 						RawTextMarker marker = new RawTextReplaceMarker(this.toString(), insertionText);
-						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker);
+						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker, labels);
 						rawTextMarkers.add(annotation);
 						break;
 					}
 					case SENTENCE_BREAK: {
 						RawTextMarker marker = new RawTextSentenceBreakMarker(this.toString());
-						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker);
+						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker, labels);
 						rawTextMarkers.add(annotation);
 						break;
 					}
 					case NO_SENTENCE_BREAK: {
 						RawTextMarker marker = new RawTextNoSentenceBreakMarker(this.toString());
-						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker);
+						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker, labels);
 						rawTextMarkers.add(annotation);
 						break;
 
 					}
 					case SKIP: {
 						RawTextMarker marker = new RawTextSkipMarker(this.toString());
-						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker);
+						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker, labels);
 						rawTextMarkers.add(annotation);
 						break;
 					}
 					case TAG: {
-						Annotation<TokenAttribute<?>> annotation = new Annotation<TokenAttribute<?>>(matcherStart, matcherEnd, this.attribute);
+						Annotation<TokenAttribute<?>> annotation = new Annotation<TokenAttribute<?>>(matcherStart, matcherEnd, this.attribute, labels);
 						tokenAttributes.add(annotation);
 						break;
 					}
 					default: {
 						RawTextMarker marker = new RawTextMarker(filterType, this.toString());
-						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker);
+						Annotation<RawTextMarker> annotation = new Annotation<>(matcherStart, matcherEnd, marker, labels);
 						rawTextMarkers.add(annotation);
 						break;
 					}

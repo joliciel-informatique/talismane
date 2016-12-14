@@ -47,10 +47,12 @@ public class PatternTokeniserTest {
 
 		final TalismaneSession session = new TalismaneSession(config, "");
 
+		String[] labels = new String[0];
+
 		final Sentence sentence = new Sentence("Je n'ai pas l'ourang-outan sur www.google.com.", session);
 		List<Annotation<TokenPlaceholder>> annotations = new ArrayList<>();
 		Annotation<TokenPlaceholder> annotation = new Annotation<TokenPlaceholder>("Je n'ai pas l'ourang-outan sur ".length(),
-				"Je n'ai pas l'ourang-outan sur www.google.com".length(), new TokenPlaceholder("URL", ""));
+				"Je n'ai pas l'ourang-outan sur www.google.com".length(), new TokenPlaceholder("URL", ""), labels);
 		annotations.add(annotation);
 		sentence.addAnnotations(annotations);
 
