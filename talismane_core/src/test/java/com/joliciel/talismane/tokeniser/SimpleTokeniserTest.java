@@ -45,10 +45,13 @@ public class SimpleTokeniserTest {
 
 		assertEquals("".length(), tokenBoundaries.get(0).getStart());
 		assertEquals("Click".length(), tokenBoundaries.get(0).getEnd());
+		assertEquals("Click", tokenBoundaries.get(0).getData().getAnalysisText());
 		assertEquals("Click ".length(), tokenBoundaries.get(1).getStart());
+		assertEquals("URL", tokenBoundaries.get(1).getData().getAnalysisText());
 		assertEquals("Click http://www.blah-di-blah.com".length(), tokenBoundaries.get(1).getEnd());
 		assertEquals("Click http://www.blah-di-blah.com ".length(), tokenBoundaries.get(2).getStart());
 		assertEquals("Click http://www.blah-di-blah.com now".length(), tokenBoundaries.get(2).getEnd());
+		assertEquals("now", tokenBoundaries.get(2).getData().getAnalysisText());
 
 	}
 
