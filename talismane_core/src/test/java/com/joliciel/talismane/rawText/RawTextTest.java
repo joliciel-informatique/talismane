@@ -14,7 +14,7 @@ import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSkipMarker;
-import com.joliciel.talismane.sentenceDetector.DetectedSentenceBreak;
+import com.joliciel.talismane.sentenceDetector.SentenceBoundary;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -60,11 +60,10 @@ public class RawTextTest {
 		String text = "Sentence 1<sent/>Sentence 2. Sentence 3. Sentence 4.";
 		RawText textBlock = new RawText(text, true, session);
 
-		List<Annotation<RawTextSentenceBreakMarker>> sentenceBreaks = new ArrayList<>();
-
 		// we add a sentence break annotation to the raw text (as if it was
 		// added by a filter)
 		System.out.println("we add a sentence break annotation (as if it was added by a filter)");
+		List<Annotation<RawTextSentenceBreakMarker>> sentenceBreaks = new ArrayList<>();
 		sentenceBreaks.add(new Annotation<>("Sentence 1".length(), "Sentence 1<sent/>".length(), new RawTextSentenceBreakMarker("me"), labels));
 		textBlock.addAnnotations(sentenceBreaks);
 
@@ -81,10 +80,10 @@ public class RawTextTest {
 		// add sentence boundaries to the processed text (as if they were added
 		// by a sentence detector)
 		System.out.println("add sentence boundaries to the processed text (as if they were added by a sentence detector)");
-		List<Annotation<DetectedSentenceBreak>> sentenceBoundaries = new ArrayList<>();
-		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2".length(), "Sentence 1 Sentence 2.".length(), new DetectedSentenceBreak(), labels));
-		sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2. Sentence 3".length(), "Sentence 1 Sentence 2. Sentence 3.".length(),
-				new DetectedSentenceBreak(), labels));
+		List<Annotation<SentenceBoundary>> sentenceBoundaries = new ArrayList<>();
+		sentenceBoundaries.add(new Annotation<>("Sentence 1".length(), "Sentence 1 Sentence 2.".length(), new SentenceBoundary(), labels));
+		sentenceBoundaries
+				.add(new Annotation<>("Sentence 1 Sentence 2.".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new SentenceBoundary(), labels));
 		processedTextBlock.addAnnotations(sentenceBoundaries);
 
 		assertEquals("Sentence 1 Sentence 2. Sentence 3. Sentence 4.", processedTextBlock.getText());
@@ -95,11 +94,11 @@ public class RawTextTest {
 		// ensure that the sentence boundary annotations in the original text
 		// are in the right place
 		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3. Sentence 4.", textBlock.getText());
-		sentenceBoundaries = textBlock.getAnnotations(DetectedSentenceBreak.class);
+		sentenceBoundaries = textBlock.getAnnotations(SentenceBoundary.class);
 		assertEquals(2, sentenceBoundaries.size());
-		assertEquals("Sentence 1<sent/>Sentence 2".length(), sentenceBoundaries.get(0).getStart());
+		assertEquals("Sentence 1<sent/>".length(), sentenceBoundaries.get(0).getStart());
 		assertEquals("Sentence 1<sent/>Sentence 2.".length(), sentenceBoundaries.get(0).getEnd());
-		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3".length(), sentenceBoundaries.get(1).getStart());
+		assertEquals("Sentence 1<sent/>Sentence 2.".length(), sentenceBoundaries.get(1).getStart());
 		assertEquals("Sentence 1<sent/>Sentence 2. Sentence 3.".length(), sentenceBoundaries.get(1).getEnd());
 
 		List<Sentence> sentences = textBlock.getDetectedSentences();
