@@ -101,8 +101,8 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	}
 
 	/**
-	 * Similar to {@link #tokenise(Sentence)}, but returns only the best token
-	 * sequence.
+	 * Similar to {@link #tokenise(Sentence, String...)}, but returns only the
+	 * best token sequence.
 	 */
 
 	public TokenSequence tokeniseSentence(Sentence sentence, String... labels) {
@@ -111,9 +111,9 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	}
 
 	/**
-	 * Similar to {@link #tokeniseWithDecisions(Sentence)}, but returns the
-	 * token sequences inferred from the decisions, rather than the list of
-	 * decisions themselves.
+	 * Similar to {@link #tokeniseWithDecisions(Sentence, String...)}, but
+	 * returns the token sequences inferred from the decisions, rather than the
+	 * list of decisions themselves.
 	 */
 
 	public List<TokenSequence> tokenise(Sentence sentence, String... labels) {
@@ -146,6 +146,11 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	/**
 	 * Similar to {@link #tokeniseWithDecisions(String)}, but the text to be
 	 * tokenised is contained within a Sentence object.
+	 * 
+	 * @param sentence
+	 *            the sentence to tokeniser
+	 * @param labels
+	 *            the labels to add to any annotations added.
 	 */
 
 	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence, String... labels) {
