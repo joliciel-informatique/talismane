@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -42,6 +43,8 @@ import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * A Tokeniser splits a sentence up into tokens (parsing units).<br/>
+ * <br/>
+ * It adds annotations of type {@link TokenBoundary} to the sentence.<br/>
  * <br/>
  * The Tokeniser must recognise the following annotations in the sentence
  * provided:<br/>
@@ -156,11 +159,21 @@ public abstract class Tokeniser {
 		int j = 1;
 		for (TokenisedAtomicTokenSequence sequence : sequences) {
 			TokenSequence newTokenSequence = sequence.inferTokenSequence();
+			if (j == 1) {
+				// add annotations for the very first token sequence
+				List<Annotation<TokenBoundary>> tokenBoundaries = new ArrayList<>();
+				for (Token token : newTokenSequence) {
+					Annotation<TokenBoundary> tokenBoundary = new Annotation<>(token.getStartIndex(), token.getEndIndex(), new TokenBoundary());
+					tokenBoundaries.add(tokenBoundary);
+				}
+				sentence.addAnnotations(tokenBoundaries);
+			}
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("Token sequence " + (j++));
+				LOG.debug("Token sequence " + j);
 				LOG.debug("Atomic sequence: " + sequence);
 				LOG.debug("Resulting sequence: " + newTokenSequence);
 			}
+			j++;
 		}
 
 		return sequences;
