@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,13 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
@@ -559,7 +560,7 @@ public class Token implements TokenWrapper {
 	 * Add an attribute of a given type.
 	 */
 
-	public <T> void addAttribute(String key, TokenAttribute<T> value) {
+	public <T extends Serializable> void addAttribute(String key, TokenAttribute<T> value) {
 		if (!attributes.containsKey(key))
 			attributes.put(key, value);
 	}

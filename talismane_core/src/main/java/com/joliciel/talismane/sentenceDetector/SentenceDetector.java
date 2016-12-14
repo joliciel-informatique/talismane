@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
@@ -46,6 +45,7 @@ import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.machineLearning.MachineLearningModelFactory;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -152,7 +152,7 @@ public class SentenceDetector {
 		Matcher matcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(text.getText());
 		List<Integer> possibleBoundaries = new ArrayList<Integer>();
 		List<Integer> guessedBoundaries = new ArrayList<Integer>();
-		List<Annotation<SentenceBoundary>> annotations = new ArrayList<>();
+		List<Annotation<DetectedSentenceBreak>> annotations = new ArrayList<>();
 
 		while (matcher.find()) {
 			if (matcher.start() >= text.getAnalysisStart() && matcher.start() < text.getAnalysisEnd()) {
@@ -200,7 +200,7 @@ public class SentenceDetector {
 			if (decisions.get(0).getOutcome().equals(SentenceDetectorOutcome.IS_BOUNDARY.name())) {
 				guessedBoundaries.add(possibleBoundary);
 				boundaries.add(boundary);
-				Annotation<SentenceBoundary> annotation = new Annotation<>(possibleBoundary, possibleBoundary + 1, new SentenceBoundary());
+				Annotation<DetectedSentenceBreak> annotation = new Annotation<>(possibleBoundary, possibleBoundary + 1, new DetectedSentenceBreak());
 				annotations.add(annotation);
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Adding boundary: " + possibleBoundary);

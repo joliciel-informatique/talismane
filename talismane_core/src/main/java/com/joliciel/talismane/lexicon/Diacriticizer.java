@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.tokeniser.filters.DiacriticRemover;
+import com.joliciel.talismane.sentenceAnnotators.DiacriticRemover;
 import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;

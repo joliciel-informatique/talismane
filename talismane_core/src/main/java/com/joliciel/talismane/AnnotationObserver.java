@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public interface AnnotationObserver {
 	 * @param annotations
 	 *            the annotations getting added
 	 */
-	public <T> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations);
+	public <T extends Serializable> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations);
 
-	public <T> void afterAddAnnotations(AnnotatedText subject);
+	public <T extends Serializable> void afterAddAnnotations(AnnotatedText subject);
 }

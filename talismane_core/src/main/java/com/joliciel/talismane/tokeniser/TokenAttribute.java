@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.Serializable;
+
 /**
  * An attribute that can be tagged onto a token.
  * 
@@ -27,7 +29,8 @@ package com.joliciel.talismane.tokeniser;
  *            the content type of this attribute, must implement hashcode and
  *            equals
  */
-public class TokenAttribute<T> {
+public class TokenAttribute<T extends Serializable> implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private final String key;
 	private final T value;
 

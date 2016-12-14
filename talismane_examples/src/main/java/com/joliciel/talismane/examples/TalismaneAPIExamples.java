@@ -21,11 +21,7 @@ package com.joliciel.talismane.examples;
 import java.util.List;
 
 import com.joliciel.talismane.AnnotatedText;
-import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.RawText;
-import com.joliciel.talismane.filters.RawTextFilter;
-import com.joliciel.talismane.filters.Sentence;
 import com.joliciel.talismane.parser.DependencyNode;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.Parser;
@@ -33,6 +29,10 @@ import com.joliciel.talismane.parser.Parsers;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagger;
 import com.joliciel.talismane.posTagger.PosTaggers;
+import com.joliciel.talismane.rawText.RawText;
+import com.joliciel.talismane.rawText.RawTextAnnotator;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetector;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
@@ -111,7 +111,7 @@ public class TalismaneAPIExamples {
 		// filter the text - in the case where filters are defined
 		// to skip certain parts of the text (e.g. XML) or to fix encoding
 		// issues (e.g. replace &quot; with ")
-		for (RawTextFilter filter : session.getTextAnnotators()) {
+		for (RawTextAnnotator filter : session.getTextAnnotators()) {
 			filter.annotate(rawText);
 		}
 
@@ -128,10 +128,10 @@ public class TalismaneAPIExamples {
 		List<Sentence> sentences = rawText.getDetectedSentences();
 
 		for (Sentence sentence : sentences) {
-			// apply any sentence filters to prepare the text for analysis
+			// apply any sentence annotators to prepare the text for analysis
 			// via deterministic rules (e.g. token boundaries or pos-tag
 			// assignment for a given word)
-			for (Annotator annotator : session.getSentenceAnnotators()) {
+			for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
 				annotator.annotate(sentence);
 			}
 
