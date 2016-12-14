@@ -19,6 +19,8 @@
 
 package com.joliciel.talismane;
 
+import java.io.Serializable;
+
 /**
  * Annotation added to a continuous span of text. Examples could include
  * identifying a named entity, identifying token boundaries, or identifying
@@ -33,7 +35,7 @@ package com.joliciel.talismane;
  * @param <T>
  *            the data added by this annotation
  */
-public final class Annotation<T> implements Comparable<Annotation<?>> {
+public final class Annotation<T extends Serializable> implements Comparable<Annotation<?>> {
 	private final int start;
 	private final int end;
 	private final T data;

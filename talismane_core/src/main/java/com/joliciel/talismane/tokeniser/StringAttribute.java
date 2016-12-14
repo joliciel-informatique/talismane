@@ -25,6 +25,7 @@ package com.joliciel.talismane.tokeniser;
  *
  */
 public class StringAttribute extends TokenAttribute<String> {
+	private static final long serialVersionUID = 1L;
 
 	public StringAttribute(String key, String value) {
 		super(key, value);

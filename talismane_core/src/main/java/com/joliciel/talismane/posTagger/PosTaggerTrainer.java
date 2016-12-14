@@ -42,7 +42,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -90,7 +90,7 @@ public class PosTaggerTrainer {
 		// add descriptors for various filters
 		// these are for reference purpose only, as we no longer read filters
 		// out of the model
-		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
+		descriptors.put(SentenceAnnotatorFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
 				session.getSentenceAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 
 		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);

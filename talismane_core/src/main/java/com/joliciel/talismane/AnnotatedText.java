@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -120,7 +121,7 @@ public class AnnotatedText {
 	 * 
 	 * @param annotations
 	 */
-	public <T> void addAnnotations(List<Annotation<T>> annotations) {
+	public <T extends Serializable> void addAnnotations(List<Annotation<T>> annotations) {
 		if (annotations.size() > 0) {
 			for (AnnotationObserver observer : observers) {
 				observer.beforeAddAnnotations(this, annotations);
@@ -148,7 +149,7 @@ public class AnnotatedText {
 	/**
 	 * Return all annotations of a particular type.
 	 */
-	public <T> List<Annotation<T>> getAnnotations(Class<T> clazz) {
+	public <T extends Serializable> List<Annotation<T>> getAnnotations(Class<T> clazz) {
 		List<Annotation<T>> typedAnnotations = new ArrayList<>();
 		for (Annotation<?> annotation : annotations) {
 			if (clazz.isAssignableFrom(annotation.getData().getClass())) {

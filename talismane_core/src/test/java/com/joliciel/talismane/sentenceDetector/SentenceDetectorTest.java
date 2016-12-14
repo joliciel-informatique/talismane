@@ -12,13 +12,13 @@ import org.junit.Test;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.GeometricMeanScoringStrategy;
 import com.joliciel.talismane.machineLearning.ScoringStrategy;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -71,7 +71,7 @@ public class SentenceDetectorTest {
 		assertEquals("Before analysis. Hello Mr. Jones".length(), sentenceBreaks.get(0).intValue());
 		assertEquals("Before analysis. Hello Mr. Jones. How are you, Mr. Jones".length(), sentenceBreaks.get(1).intValue());
 
-		List<Annotation<SentenceBoundary>> sentenceBoudaries = annotatedText.getAnnotations(SentenceBoundary.class);
+		List<Annotation<DetectedSentenceBreak>> sentenceBoudaries = annotatedText.getAnnotations(DetectedSentenceBreak.class);
 		assertEquals(2, sentenceBoudaries.size());
 		assertEquals("Before analysis. Hello Mr. Jones".length(), sentenceBoudaries.get(0).getStart());
 		assertEquals("Before analysis. Hello Mr. Jones.".length(), sentenceBoudaries.get(0).getEnd());

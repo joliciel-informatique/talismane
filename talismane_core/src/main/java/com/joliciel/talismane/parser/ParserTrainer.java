@@ -42,7 +42,7 @@ import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureParser;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -92,7 +92,7 @@ public class ParserTrainer {
 		// add descriptors for various filters
 		// these are for reference purpose only, as we no longer read filters
 		// out of the model
-		descriptors.put(TokenFilterFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
+		descriptors.put(SentenceAnnotatorFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
 				session.getSentenceAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
 
 		ParserFeatureParser featureParser = new ParserFeatureParser(session, dynamiseFeatures);

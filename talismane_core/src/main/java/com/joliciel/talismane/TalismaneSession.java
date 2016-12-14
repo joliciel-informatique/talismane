@@ -50,14 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
-import com.joliciel.talismane.filters.DuplicateWhiteSpaceFilter;
-import com.joliciel.talismane.filters.NewlineEndOfSentenceMarker;
-import com.joliciel.talismane.filters.NewlineSpaceMarker;
-import com.joliciel.talismane.filters.OtherWhiteSpaceFilter;
-import com.joliciel.talismane.filters.RawTextFilter;
-import com.joliciel.talismane.filters.RawTextFilterFactory;
-import com.joliciel.talismane.filters.RawTextMarkType;
-import com.joliciel.talismane.filters.RegexMarkerFilter;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
@@ -69,9 +61,17 @@ import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
 import com.joliciel.talismane.parser.ShiftReduceTransitionSystem;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
+import com.joliciel.talismane.rawText.DuplicateWhiteSpaceFilter;
+import com.joliciel.talismane.rawText.NewlineEndOfSentenceMarker;
+import com.joliciel.talismane.rawText.NewlineSpaceMarker;
+import com.joliciel.talismane.rawText.OtherWhiteSpaceFilter;
+import com.joliciel.talismane.rawText.RawTextAnnotator;
+import com.joliciel.talismane.rawText.RawTextFilterFactory;
+import com.joliciel.talismane.rawText.RawTextMarkType;
+import com.joliciel.talismane.rawText.RawTextRegexAnnotator;
 import com.joliciel.talismane.resources.WordListFinder;
-import com.joliciel.talismane.tokeniser.filters.TokenFilter;
-import com.joliciel.talismane.tokeniser.filters.TokenFilterFactory;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.io.CurrentFileProvider;
@@ -122,8 +122,8 @@ public class TalismaneSession {
 	private final Charset csvCharset;
 	private final int blockSize;
 	private final RawTextMarkType newlineMarker;
-	private final List<RawTextFilter> textAnnotators;
-	private final List<Annotator> sentenceAnnotators;
+	private final List<RawTextAnnotator> textAnnotators;
+	private final List<SentenceAnnotator> sentenceAnnotators;
 	private final List<Pair<String, Annotator>> sentenceAnnotatorsWithDescriptors;
 
 	/**
@@ -398,7 +398,7 @@ public class TalismaneSession {
 		this.blockSize = talismaneConfig.getInt("block-size");
 		this.textAnnotators = new ArrayList<>();
 		// insert sentence breaks at end of block
-		this.textAnnotators.add(new RegexMarkerFilter(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }),
+		this.textAnnotators.add(new RawTextRegexAnnotator(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }),
 				"" + this.endBlockCharCode, 0, blockSize));
 
 		// handle newline as requested
@@ -426,7 +426,7 @@ public class TalismaneSession {
 					String descriptor = scanner.nextLine();
 					LOG.debug(descriptor);
 					if (descriptor.length() > 0 && !descriptor.startsWith("#")) {
-						RawTextFilter textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
+						RawTextAnnotator textMarkerFilter = factory.getTextMarkerFilter(descriptor, blockSize);
 						this.textAnnotators.add(textMarkerFilter);
 					}
 				}
@@ -436,7 +436,7 @@ public class TalismaneSession {
 		// ##################################################################
 		// sentence annotators
 		LOG.debug("sentence-annotators");
-		TokenFilterFactory tokenFilterFactory = TokenFilterFactory.getInstance(this);
+		SentenceAnnotatorFactory tokenFilterFactory = SentenceAnnotatorFactory.getInstance(this);
 		this.sentenceAnnotators = new ArrayList<>();
 		this.sentenceAnnotatorsWithDescriptors = new ArrayList<>();
 		configPath = "talismane.core.annotators.sentence-annotators";
@@ -445,8 +445,8 @@ public class TalismaneSession {
 			LOG.debug("From: " + path);
 			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
 			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-				List<Pair<TokenFilter, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
-				for (Pair<TokenFilter, String> tokenFilterPair : myFilters) {
+				List<Pair<SentenceAnnotator, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
+				for (Pair<SentenceAnnotator, String> tokenFilterPair : myFilters) {
 					this.sentenceAnnotators.add(tokenFilterPair.getLeft());
 					this.sentenceAnnotatorsWithDescriptors.add(new ImmutablePair<>(tokenFilterPair.getRight(), tokenFilterPair.getLeft()));
 				}
@@ -738,11 +738,11 @@ public class TalismaneSession {
 		return blockSize;
 	}
 
-	public List<RawTextFilter> getTextAnnotators() {
+	public List<RawTextAnnotator> getTextAnnotators() {
 		return textAnnotators;
 	}
 
-	public List<Annotator> getSentenceAnnotators() {
+	public List<SentenceAnnotator> getSentenceAnnotators() {
 		return sentenceAnnotators;
 	}
 
