@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.rawText.Sentence;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -48,14 +45,14 @@ public class TokeniserEvaluator {
 
 	private final List<TokenEvaluationObserver> observers;
 
-	public TokeniserEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public TokeniserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+			throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
 		this.tokeniser = Tokeniser.getInstance(session);
-		this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(session);
+		this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
 
 		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
-		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.tokeniser.evaluate.eval-file");
-		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+
 		this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
 	}
 

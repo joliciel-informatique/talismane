@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +35,6 @@ import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -55,13 +52,13 @@ public class PosTaggerEvaluator {
 
 	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
 
-	public PosTaggerEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public PosTaggerEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+			throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
-		this.observers = PosTagEvaluationObserver.getObservers(session);
+		this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
 
 		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
-		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.pos-tagger.evaluate.eval-file");
-		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+
 		this.corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("input"), session);
 
 		this.posTagger = PosTaggers.getPosTagger(session);

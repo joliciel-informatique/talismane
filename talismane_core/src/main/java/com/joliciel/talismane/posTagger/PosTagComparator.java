@@ -1,9 +1,7 @@
 package com.joliciel.talismane.posTagger;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -30,17 +27,16 @@ public class PosTagComparator {
 
 	private final List<PosTagEvaluationObserver> observers;
 
-	public PosTagComparator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public PosTagComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+			throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
 		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 
-		this.referenceCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), posTaggerConfig.getConfig("input"), session);
+		this.referenceCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(referenceReader, posTaggerConfig.getConfig("input"), session);
 
-		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.pos-tagger.evaluate.eval-file");
-		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
 		this.evaluationCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("evaluate"), session);
 
-		this.observers = PosTagEvaluationObserver.getObservers(session);
+		this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
 	}
 
 	/**

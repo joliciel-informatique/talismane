@@ -43,21 +43,21 @@ public interface TokenEvaluationObserver {
 
 	public void onEvaluationComplete();
 
-	public static List<TokenEvaluationObserver> getTokenEvaluationObservers(TalismaneSession session) throws IOException {
+	public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException {
 		List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
 		Writer errorFileWriter = null;
-		File errorFile = new File(session.getOutDir(), session.getBaseName() + ".errorList.txt");
+		File errorFile = new File(outDir, session.getBaseName() + ".errorList.txt");
 		errorFile.delete();
 		errorFile.createNewFile();
 		errorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(errorFile, false), "UTF8"));
 
 		Writer csvErrorFileWriter = null;
-		File csvErrorFile = new File(session.getOutDir(), session.getBaseName() + ".errors.csv");
+		File csvErrorFile = new File(outDir, session.getBaseName() + ".errors.csv");
 		csvErrorFile.delete();
 		csvErrorFile.createNewFile();
 		csvErrorFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvErrorFile, false), session.getCsvCharset()));
 
-		File fScoreFile = new File(session.getOutDir(), session.getBaseName() + ".fscores.csv");
+		File fScoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
 
 		TokenEvaluationFScoreCalculator tokenFScoreCalculator = new TokenEvaluationFScoreCalculator();
 		tokenFScoreCalculator.setErrorWriter(errorFileWriter);
@@ -66,7 +66,7 @@ public interface TokenEvaluationObserver {
 		observers.add(tokenFScoreCalculator);
 
 		Writer corpusFileWriter = null;
-		File corpusFile = new File(session.getOutDir(), session.getBaseName() + ".corpus.txt");
+		File corpusFile = new File(outDir, session.getBaseName() + ".corpus.txt");
 		corpusFile.delete();
 		corpusFile.createNewFile();
 		corpusFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(corpusFile, false), "UTF8"));
@@ -74,14 +74,12 @@ public interface TokenEvaluationObserver {
 		TokenEvaluationCorpusWriter corpusWriter = new TokenEvaluationCorpusWriter(corpusFileWriter);
 		observers.add(corpusWriter);
 
-		TokenSequenceProcessor processor = TokenSequenceProcessor.getProcessor(session);
+		List<TokenSequenceProcessor> processors = TokenSequenceProcessor.getProcessors(null, outDir, session);
 
-		File freemarkerFile = new File(session.getOutDir(), session.getBaseName() + "_output.txt");
-		freemarkerFile.delete();
-		freemarkerFile.createNewFile();
-		Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), session.getOutputCharset()));
-		TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(processor, freemakerFileWriter);
-		observers.add(templateWriter);
+		for (TokenSequenceProcessor processor : processors) {
+			TokeniserGuessTemplateWriter templateWriter = new TokeniserGuessTemplateWriter(processor);
+			observers.add(templateWriter);
+		}
 
 		return observers;
 	}

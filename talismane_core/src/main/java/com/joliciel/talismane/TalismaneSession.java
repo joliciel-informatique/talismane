@@ -19,17 +19,11 @@
 package com.joliciel.talismane;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,9 +68,6 @@ import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
-import com.joliciel.talismane.utils.io.CurrentFileProvider;
-import com.joliciel.talismane.utils.io.DirectoryReader;
-import com.joliciel.talismane.utils.io.DirectoryWriter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -112,10 +103,8 @@ public class TalismaneSession {
 	private final ExternalResourceFinder externalResourceFinder = new ExternalResourceFinder();
 	private final Charset inputCharset;
 	private final Charset outputCharset;
-	private final String baseName;
+	private String baseName = null;
 	private final String suffix;
-	private final String fileName;
-	private final File outDir;
 	private final Map<String, String> lowercasePreferences = new HashMap<>();
 	private final char endBlockCharCode;
 	private final CoNLLFormatter coNLLFormatter;
@@ -182,53 +171,10 @@ public class TalismaneSession {
 
 		this.suffix = talismaneConfig.getString("suffix");
 
-		if (talismaneConfig.hasPath("in-file")) {
-			fileName = talismaneConfig.getString("in-file");
-		} else {
-			fileName = "";
-		}
+		this.baseName = talismaneConfig.getString("base-name") + this.suffix;
 
-		String baseName = "Talismane";
-		String baseNamePath = null;
-		if (talismaneConfig.hasPath("out-file"))
-			baseNamePath = talismaneConfig.getString("out-file");
-		else if (talismaneConfig.hasPath("in-file"))
-			baseNamePath = talismaneConfig.getString("in-file");
-
-		if (baseNamePath != null) {
-			baseNamePath = baseNamePath.replace('\\', '/');
-
-			if (baseNamePath.indexOf('.') > 0)
-				baseName = baseNamePath.substring(baseNamePath.lastIndexOf('/') + 1, baseNamePath.lastIndexOf('.'));
-			else
-				baseName = baseNamePath.substring(baseNamePath.lastIndexOf('/') + 1);
-		}
-
-		this.baseName = baseName + this.suffix;
-
-		String configPath = "talismane.core.out-dir";
-		if (config.hasPath(configPath)) {
-			String outDirPath = config.getString(configPath);
-			outDir = new File(outDirPath);
-			outDir.mkdirs();
-		} else {
-			configPath = "talismane.core.out-file";
-			if (config.hasPath(configPath)) {
-				String outFilePath = config.getString(configPath);
-				File outFile = new File(outFilePath);
-				outDir = outFile.getParentFile();
-				if (outDir != null) {
-					outDir.mkdirs();
-				}
-			} else {
-				outDir = null;
-			}
-		}
-
-		// TODO: the posTagSet should only get read from config when training
-		// when analysing with a model, it should get read from the model!
 		PosTagSet posTagSet = null;
-		configPath = "talismane.core.pos-tagger.pos-tag-set";
+		String configPath = "talismane.core.pos-tagger.pos-tag-set";
 		if (config.hasPath(configPath)) {
 			InputStream posTagSetFile = ConfigUtils.getFileFromConfig(config, configPath);
 			try (Scanner posTagSetScanner = new Scanner(new BufferedReader(new InputStreamReader(posTagSetFile, "UTF-8")))) {
@@ -238,9 +184,6 @@ public class TalismaneSession {
 		}
 		this.posTagSet = posTagSet;
 
-		// TODO: the transition system should only get read from config when
-		// training when analysing with a model, it should get read from the
-		// model!
 		String transitionSystemStr = config.getString("talismane.core.parser.transition-system");
 		TransitionSystem transitionSystem = null;
 		if (transitionSystemStr.equalsIgnoreCase("ShiftReduce")) {
@@ -572,108 +515,6 @@ public class TalismaneSession {
 	}
 
 	/**
-	 * The filename to tag against output tokens - typically the inFile if it
-	 * exists, or nothing.
-	 * 
-	 * @return
-	 */
-	public String getFileName() {
-		return fileName;
-	}
-
-	/**
-	 * The directory to which we write any output files.
-	 */
-	public synchronized File getOutDir() {
-		return outDir;
-	}
-
-	/**
-	 * The reader to be used to read the data for analysis.
-	 * 
-	 * @throws IOException
-	 */
-	public Reader getReader() throws IOException {
-		return this.getReader(true);
-	}
-
-	/**
-	 * The reader to be used to read the data for training.
-	 * 
-	 * @throws IOException
-	 */
-	public Reader getTrainingReader() throws IOException {
-		return this.getReader(false);
-	}
-
-	private Reader getReader(boolean forAnalysis) throws IOException {
-		Reader reader = null;
-		String configPath = "talismane.core.in-file";
-		if (config.hasPath(configPath)) {
-			InputStream inFile = ConfigUtils.getFileFromConfig(config, configPath);
-			reader = new BufferedReader(new InputStreamReader(inFile, this.getInputCharset()));
-		} else {
-			configPath = "talismane.core.in-dir";
-			if (config.hasPath(configPath)) {
-				String inDirPath = config.getString(configPath);
-				File inDir = new File(inDirPath);
-				if (!inDir.exists())
-					throw new FileNotFoundException("inDir does not exist: " + inDirPath);
-				if (!inDir.isDirectory())
-					throw new FileNotFoundException("inDir must be a directory, not a file - use inFile instead: " + inDirPath);
-
-				@SuppressWarnings("resource")
-				DirectoryReader directoryReader = new DirectoryReader(inDir, this.getInputCharset());
-				if (forAnalysis) {
-
-					directoryReader.setEndOfFileString("\n" + this.endBlockCharCode);
-				} else {
-					directoryReader.setEndOfFileString("\n");
-				}
-				reader = directoryReader;
-			} else {
-				reader = new BufferedReader(new InputStreamReader(System.in, this.getInputCharset()));
-			}
-		}
-		return reader;
-	}
-
-	public Writer getWriter() throws IOException {
-		Writer writer = null;
-		String configPath = "talismane.core.out-file";
-		if (config.hasPath(configPath)) {
-			String outFilePath = config.getString(configPath);
-			File outFile = new File(outFilePath);
-			File outDir = outFile.getParentFile();
-			if (outDir != null)
-				outDir.mkdirs();
-			outFile.delete();
-			outFile.createNewFile();
-
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), this.getOutputCharset()));
-		} else {
-			String configPathOutDir = "talismane.core.out-dir";
-			String configPathInDir = "talismane.core.in-dir";
-			if (config.hasPath(configPathOutDir) && config.hasPath(configPathInDir) && (this.getReader() instanceof CurrentFileProvider)
-					&& command != Command.evaluate) {
-				String outDirPath = config.getString(configPathOutDir);
-				String inDirPath = config.getString(configPathInDir);
-
-				File outDir = new File(outDirPath);
-				outDir.mkdirs();
-				File inDir = new File(inDirPath);
-
-				@SuppressWarnings("resource")
-				DirectoryWriter directoryWriter = new DirectoryWriter(inDir, outDir, this.getSuffix(), this.getOutputCharset());
-				writer = directoryWriter;
-			} else {
-				writer = new BufferedWriter(new OutputStreamWriter(System.out, this.getOutputCharset()));
-			}
-		}
-		return writer;
-	}
-
-	/**
 	 * A formatter for CoNLL output and input.
 	 */
 	public CoNLLFormatter getCoNLLFormatter() {
@@ -748,5 +589,14 @@ public class TalismaneSession {
 
 	public List<Pair<String, SentenceAnnotator>> getSentenceAnnotatorsWithDescriptors() {
 		return sentenceAnnotatorsWithDescriptors;
+	}
+
+	public void setFileForBasename(File file) {
+		if (file != null) {
+			baseName = file.getName();
+			if (baseName.indexOf('.') > 0)
+				baseName = baseName.substring(0, baseName.lastIndexOf('.'));
+			baseName += suffix;
+		}
 	}
 }

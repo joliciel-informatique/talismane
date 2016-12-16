@@ -32,14 +32,13 @@ public class PosTaggerGuessTemplateWriter implements PosTagEvaluationObserver {
 	Writer writer;
 	PosTagSequenceProcessor processor;
 
-	public PosTaggerGuessTemplateWriter(PosTagSequenceProcessor processor, Writer writer) {
+	public PosTaggerGuessTemplateWriter(PosTagSequenceProcessor processor) {
 		this.processor = processor;
-		this.writer = writer;
 	}
 
 	@Override
 	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) {
-		processor.onNextPosTagSequence(guessedSequences.get(0), writer);
+		processor.onNextPosTagSequence(guessedSequences.get(0));
 	}
 
 	@Override

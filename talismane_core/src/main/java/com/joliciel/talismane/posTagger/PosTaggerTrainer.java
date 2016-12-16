@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,10 +45,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
 import com.joliciel.talismane.utils.ConfigUtils;
-import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 /**
  * Reads various configuration parameters and enables building a pos-tagger
@@ -65,7 +63,7 @@ public class PosTaggerTrainer {
 	private final ClassificationEventStream eventStream;
 	private final Map<String, List<String>> descriptors;
 
-	public PosTaggerTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public PosTaggerTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
 		this.posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 		this.session = session;
@@ -84,8 +82,7 @@ public class PosTaggerTrainer {
 			}
 		}
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), posTaggerConfig.getConfig("train"),
-				session);
+		PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, posTaggerConfig.getConfig("train"), session);
 
 		// add descriptors for various filters
 		// these are for reference purpose only, as we no longer read filters
@@ -109,20 +106,5 @@ public class PosTaggerTrainer {
 		modelDir.mkdirs();
 		tokeniserModel.persist(modelFile);
 		return tokeniserModel;
-	}
-
-	public static void main(String[] args) throws Exception {
-		Map<String, String> argsMap = StringUtils.convertArgs(args);
-
-		String logConfigPath = argsMap.get("logConfigFile");
-		argsMap.remove("logConfigFile");
-		LogUtils.configureLogging(logConfigPath);
-
-		Config config = ConfigFactory.load();
-		String sessionId = "";
-		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
-
-		PosTaggerTrainer trainer = new PosTaggerTrainer(talismaneSession);
-		trainer.train();
 	}
 }

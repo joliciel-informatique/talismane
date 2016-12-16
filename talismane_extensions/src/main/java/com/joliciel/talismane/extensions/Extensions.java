@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.Talismane.Command;
 import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.corpus.CorpusModifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
@@ -107,12 +108,11 @@ public class Extensions {
 		parser.accepts(ExtendedCommand.projectify.name(), "automatically projectify a non-projective annotated (parsed) corpus");
 		parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("analyse", "train", "evaluate", "compare", "process").forHelp();
 
-		OptionSpec<File> inFileOption = parser.accepts("inFile", "input file").withRequiredArg().ofType(File.class);
-		OptionSpec<File> inDirOption = parser.accepts("inDir", "input directory (incompatible with inFile)").availableUnless("inFile").withRequiredArg()
+		OptionSpec<File> inFileOption = parser.accepts("inFile", "input file or directory").withRequiredArg().ofType(File.class);
+		OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg()
 				.ofType(File.class);
-		OptionSpec<File> outFileOption = parser.accepts("outFile", "output file").withRequiredArg().ofType(File.class);
-		OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory (for evaluation, or when input is inDir - incompatible with outFile)")
-				.availableUnless("outFile").withRequiredArg().ofType(File.class);
+		OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory (for writing evaluation and analysis files other than the standard output)")
+				.withRequiredArg().ofType(File.class);
 
 		OptionSpec<String> inputPatternOption = parser.accepts("inputPattern", "input pattern").withRequiredArg().ofType(String.class);
 		OptionSpec<File> inputPatternFileOption = parser.accepts("inputPatternFile", "input pattern file").availableUnless(inputPatternOption).withRequiredArg()
@@ -203,14 +203,6 @@ public class Extensions {
 			command = ExtendedCommand.toStandoffSentences;
 		}
 
-		if (options.has(inFileOption))
-			values.put("talismane.core.in-file", options.valueOf(inFileOption).getPath());
-		if (options.has(inDirOption))
-			values.put("talismane.core.in-dir", options.valueOf(inDirOption).getPath());
-		if (options.has(outFileOption))
-			values.put("talismane.core.out-file", options.valueOf(outFileOption).getPath());
-		if (options.has(outDirOption))
-			values.put("talismane.core.out-dir", options.valueOf(outDirOption).getPath());
 		if (options.has(localeOption))
 			values.put("talismane.core.locale", options.valueOf(localeOption));
 		if (options.has(encodingOption))
@@ -312,7 +304,19 @@ public class Extensions {
 			extensions.setReferenceStatsPath(options.valueOf(referenceStatsOption).getPath());
 		if (options.has(corpusRulesOption))
 			extensions.setCorpusRulesPath(options.valueOf(corpusRulesOption).getPath());
-		extensions.execute();
+
+		File inFile = null;
+		File outFile = null;
+		File outDir = null;
+		if (options.has(inFileOption))
+			inFile = options.valueOf(inFileOption);
+
+		if (options.has(outFileOption))
+			outFile = options.valueOf(outFileOption);
+		if (options.has(outDirOption))
+			outDir = options.valueOf(outDirOption);
+
+		extensions.execute(inFile, outFile, outDir);
 	}
 
 	private final Config config;
@@ -323,12 +327,16 @@ public class Extensions {
 		this.command = command;
 	}
 
-	public void execute() throws IOException, ReflectiveOperationException {
+	public void execute(File inFile, File outFile, File outDir) throws IOException, ReflectiveOperationException {
 		if (LOG.isTraceEnabled())
 			LOG.trace(config.root().render());
 		long startTime = System.currentTimeMillis();
 		String sessionId = "";
 		TalismaneSession session = new TalismaneSession(config, sessionId);
+		session.setFileForBasename(inFile);
+
+		Reader reader = TalismaneMain.getReader(inFile, true, session);
+		Writer writer = TalismaneMain.getWriter(outFile, inFile, session);
 
 		ParseConfigurationProcessor parseConfigurationProcessor = null;
 		PosTagSequenceProcessor posTagSequenceProcessor = null;
@@ -336,24 +344,27 @@ public class Extensions {
 		try {
 			switch (command) {
 			case toStandoff: {
-				StandoffWriter standoffWriter = new StandoffWriter();
+				@SuppressWarnings("resource")
+				StandoffWriter standoffWriter = new StandoffWriter(writer);
 				parseConfigurationProcessor = standoffWriter;
 				break;
 			}
 			case toStandoffSentences: {
 				InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoffSentences.ftl");
 				Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
-				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
+				@SuppressWarnings("resource")
+				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
 
 				parseConfigurationProcessor = templateWriter;
 				break;
 			}
 			case fromStandoff: {
-				StandoffReader standoffReader = new StandoffReader(session.getReader(), session.getConfig(), session);
+				StandoffReader standoffReader = new StandoffReader(reader, session.getConfig(), session);
 				parserAnnotatedCorpusReader = standoffReader;
 				break;
 			}
 			case corpusStatistics: {
+				@SuppressWarnings("resource")
 				CorpusStatistics stats = new CorpusStatistics(session);
 
 				if (referenceStatsPath != null) {
@@ -363,13 +374,13 @@ public class Extensions {
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
 
-				File csvFile = new File(session.getOutDir(), session.getBaseName() + "_stats.csv");
+				File csvFile = new File(outDir, session.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
 				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
-				File serializationFile = new File(session.getOutDir(), session.getBaseName() + "_stats.zip");
+				File serializationFile = new File(outDir, session.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
@@ -377,6 +388,7 @@ public class Extensions {
 				break;
 			}
 			case posTaggerStatistics: {
+				@SuppressWarnings("resource")
 				PosTaggerStatistics stats = new PosTaggerStatistics(session);
 
 				if (referenceStatsPath != null) {
@@ -386,13 +398,13 @@ public class Extensions {
 					stats.setReferenceLowercaseWords(referenceStats.getLowerCaseWords());
 				}
 
-				File csvFile = new File(session.getOutDir(), session.getBaseName() + "_stats.csv");
+				File csvFile = new File(outDir, session.getBaseName() + "_stats.csv");
 				csvFile.delete();
 				csvFile.createNewFile();
 				Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), "UTF8"));
 				stats.setWriter(csvFileWriter);
 
-				File serializationFile = new File(session.getOutDir(), session.getBaseName() + "_stats.zip");
+				File serializationFile = new File(outDir, session.getBaseName() + "_stats.zip");
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
@@ -411,12 +423,14 @@ public class Extensions {
 					corpusRules.add(scanner.nextLine());
 				}
 				scanner.close();
-				CorpusModifier corpusModifier = new CorpusModifier(ParseConfigurationProcessor.getProcessor(session), corpusRules);
+				@SuppressWarnings("resource")
+				CorpusModifier corpusModifier = new CorpusModifier(corpusRules);
 				parseConfigurationProcessor = corpusModifier;
 				break;
 			}
 			case projectify: {
-				CorpusProjectifier projectifier = new CorpusProjectifier(ParseConfigurationProcessor.getProcessor(session));
+				@SuppressWarnings("resource")
+				CorpusProjectifier projectifier = new CorpusProjectifier();
 				parseConfigurationProcessor = projectifier;
 				break;
 			}
@@ -425,41 +439,60 @@ public class Extensions {
 			}
 			}
 
-			Writer writer = session.getWriter();
+			IOException ioException = null;
 
 			switch (session.getModule()) {
 			case posTagger: {
+				List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
+				if (posTagSequenceProcessor != null)
+					processors.add(0, posTagSequenceProcessor);
 
-				if (posTagSequenceProcessor == null)
-					posTagSequenceProcessor = PosTagSequenceProcessor.getProcessor(session);
-
-				PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-						config.getConfig("talismane.core.pos-tagger.input"), session);
 				try {
+					PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
+							config.getConfig("talismane.core.pos-tagger.input"), session);
 					while (corpusReader.hasNextPosTagSequence()) {
 						PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
-						posTagSequenceProcessor.onNextPosTagSequence(posTagSequence, writer);
+						for (PosTagSequenceProcessor processor : processors)
+							processor.onNextPosTagSequence(posTagSequence);
 					}
 				} finally {
-					posTagSequenceProcessor.onCompleteAnalysis();
+					for (PosTagSequenceProcessor processor : processors) {
+						try {
+							processor.onCompleteAnalysis();
+							processor.close();
+						} catch (IOException e) {
+							LogUtils.logError(LOG, e);
+							ioException = e;
+						}
+					}
 				}
 				break;
 			}
 			case parser: {
-				if (parseConfigurationProcessor == null)
-					parseConfigurationProcessor = ParseConfigurationProcessor.getProcessor(session);
+				List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
 
-				if (parserAnnotatedCorpusReader == null)
-					parserAnnotatedCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getReader(),
-							config.getConfig("talismane.core.parser.input"), session);
+				if (parseConfigurationProcessor != null)
+					processors.add(0, parseConfigurationProcessor);
 
 				try {
-					while (parserAnnotatedCorpusReader.hasNextConfiguration()) {
-						ParseConfiguration configuration = parserAnnotatedCorpusReader.nextConfiguration();
-						parseConfigurationProcessor.onNextParseConfiguration(configuration, writer);
+					ParserAnnotatedCorpusReader corpusReader = parserAnnotatedCorpusReader;
+					if (corpusReader == null)
+						corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.parser.input"), session);
+					while (corpusReader.hasNextConfiguration()) {
+						ParseConfiguration configuration = corpusReader.nextConfiguration();
+						for (ParseConfigurationProcessor processor : processors)
+							processor.onNextParseConfiguration(configuration);
 					}
 				} finally {
-					parseConfigurationProcessor.onCompleteParse();
+					for (ParseConfigurationProcessor processor : processors) {
+						try {
+							processor.onCompleteParse();
+							processor.close();
+						} catch (IOException e) {
+							LogUtils.logError(LOG, e);
+							ioException = e;
+						}
+					}
 				}
 				break;
 			}
@@ -467,8 +500,10 @@ public class Extensions {
 				throw new TalismaneException("Command '" + session.getCommand() + "' does not yet support module: " + session.getModule());
 			}
 
-		} finally {
+			if (ioException != null)
+				throw ioException;
 
+		} finally {
 			long endTime = System.currentTimeMillis();
 			long totalTime = endTime - startTime;
 			LOG.debug("Total time for Talismane.process(): " + totalTime);
@@ -477,7 +512,7 @@ public class Extensions {
 				try {
 					CSVFormatter CSV = new CSVFormatter();
 					Writer csvFileWriter = null;
-					File csvFile = new File(session.getOutDir(), session.getBaseName() + ".stats.csv");
+					File csvFile = new File(outDir, session.getBaseName() + ".stats.csv");
 
 					csvFile.delete();
 					csvFile.createNewFile();
