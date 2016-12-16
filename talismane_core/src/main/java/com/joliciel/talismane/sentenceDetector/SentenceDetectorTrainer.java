@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,10 +43,7 @@ import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeature;
 import com.joliciel.talismane.sentenceDetector.features.SentenceDetectorFeatureParser;
 import com.joliciel.talismane.utils.ConfigUtils;
-import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 /**
  * Reads various configuration parameters and trains a sentence-detector model.
@@ -62,7 +60,7 @@ public class SentenceDetectorTrainer {
 	private final ClassificationEventStream eventStream;
 	private final Map<String, List<String>> descriptors;
 
-	public SentenceDetectorTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public SentenceDetectorTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
 		this.sentenceConfig = config.getConfig("talismane.core.sentence-detector");
 		this.session = session;
@@ -82,8 +80,8 @@ public class SentenceDetectorTrainer {
 			}
 		}
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(),
-				sentenceConfig.getConfig("train"), session);
+		SentenceDetectorAnnotatedCorpusReader corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(reader, sentenceConfig.getConfig("train"),
+				session);
 
 		SentenceDetectorFeatureParser featureParser = new SentenceDetectorFeatureParser(session);
 		Set<SentenceDetectorFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
@@ -101,20 +99,5 @@ public class SentenceDetectorTrainer {
 		modelDir.mkdirs();
 		model.persist(modelFile);
 		return model;
-	}
-
-	public static void main(String[] args) throws Exception {
-		Map<String, String> argsMap = StringUtils.convertArgs(args);
-
-		String logConfigPath = argsMap.get("logConfigFile");
-		argsMap.remove("logConfigFile");
-		LogUtils.configureLogging(logConfigPath);
-
-		Config config = ConfigFactory.load();
-		String sessionId = "";
-		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
-
-		SentenceDetectorTrainer trainer = new SentenceDetectorTrainer(talismaneSession);
-		trainer.train();
 	}
 }

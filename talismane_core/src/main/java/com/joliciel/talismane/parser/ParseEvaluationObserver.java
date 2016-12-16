@@ -56,7 +56,7 @@ public interface ParseEvaluationObserver {
 	 */
 	public void onEvaluationComplete();
 
-	public static List<ParseEvaluationObserver> getObservers(TalismaneSession session) throws IOException {
+	public static List<ParseEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
 		Config config = session.getConfig();
 		Config parserConfig = config.getConfig("talismane.core.parser");
 		Config evalConfig = parserConfig.getConfig("evaluate");
@@ -65,7 +65,7 @@ public interface ParseEvaluationObserver {
 
 		ParseTimeByLengthObserver parseTimeByLengthObserver = new ParseTimeByLengthObserver();
 		if (evalConfig.getBoolean("include-time-per-token")) {
-			File timePerTokenFile = new File(session.getOutDir(), session.getBaseName() + ".timePerToken.csv");
+			File timePerTokenFile = new File(outDir, session.getBaseName() + ".timePerToken.csv");
 			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false), session.getCsvCharset()));
 			parseTimeByLengthObserver.setWriter(csvFileWriter);
 		}
@@ -73,7 +73,7 @@ public interface ParseEvaluationObserver {
 
 		boolean labeledEvaluation = evalConfig.getBoolean("labeled-evaluation");
 
-		File fscoreFile = new File(session.getOutDir(), session.getBaseName() + ".fscores.csv");
+		File fscoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
 
 		ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
 		parseFScoreCalculator.setLabeledEvaluation(labeledEvaluation);
@@ -86,7 +86,7 @@ public interface ParseEvaluationObserver {
 		observers.add(parseFScoreCalculator);
 
 		if (evalConfig.getBoolean("output-guesses")) {
-			File csvFile = new File(session.getOutDir(), session.getBaseName() + "_sentences.csv");
+			File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");
 			csvFile.delete();
 			csvFile.createNewFile();
 			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
@@ -106,7 +106,7 @@ public interface ParseEvaluationObserver {
 		}
 
 		if (evalConfig.getBoolean("include-distance-fscores")) {
-			File csvFile = new File(session.getOutDir(), session.getBaseName() + "_distances.csv");
+			File csvFile = new File(outDir, session.getBaseName() + "_distances.csv");
 			csvFile.delete();
 			csvFile.createNewFile();
 			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
@@ -119,8 +119,8 @@ public interface ParseEvaluationObserver {
 			observers.add(calculator);
 		}
 
-		if (parserConfig.getBoolean("output.include-transition-log")) {
-			File csvFile = new File(session.getOutDir(), session.getBaseName() + "_transitions.csv");
+		if (evalConfig.getBoolean("include-transition-log")) {
+			File csvFile = new File(outDir, session.getBaseName() + "_transitions.csv");
 			csvFile.delete();
 			csvFile.createNewFile();
 			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
@@ -132,13 +132,11 @@ public interface ParseEvaluationObserver {
 			observers.add(observer);
 		}
 
-		ParseConfigurationProcessor processor = ParseConfigurationProcessor.getProcessor(session);
-		File freemarkerFile = new File(session.getOutDir(), session.getBaseName() + "_output.txt");
-		freemarkerFile.delete();
-		freemarkerFile.createNewFile();
-		Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), session.getOutputCharset()));
-		ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(processor, freemakerFileWriter);
-		observers.add(templateWriter);
+		List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(null, outDir, session);
+		for (ParseConfigurationProcessor processor : processors) {
+			ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(processor);
+			observers.add(templateWriter);
+		}
 
 		return observers;
 	}

@@ -22,14 +22,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.joliciel.talismane.rawText.Sentence;
-import com.joliciel.talismane.sentenceDetector.SentenceProcessor;
 
 /**
  * A server that processes the text which is sent on a socket. The assumption is
@@ -45,12 +41,10 @@ class TalismaneServerThread extends Thread {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServerThread.class);
 	private final Socket socket;
-	private final TalismaneServer server;
 	private final TalismaneSession session;
 
-	public TalismaneServerThread(TalismaneServer server, TalismaneSession session, Socket socket) {
+	public TalismaneServerThread(TalismaneSession session, Socket socket) {
 		super("TalismaneServerThread");
-		this.server = server;
 		this.socket = socket;
 		this.session = session;
 	}
@@ -61,50 +55,12 @@ class TalismaneServerThread extends Thread {
 			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), session.getOutputCharset());
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), session.getInputCharset()));
 
-			Talismane talismane = new Talismane(session);
-
-			// Set the various processors from the server, in case they were set
-			// to override the default
-			talismane.setParseConfigurationProcessor(this.server.getParseConfigurationProcessor());
-			talismane.setPosTagSequenceProcessor(this.server.getPosTagSequenceProcessor());
-			talismane.setTokenSequenceProcessor(this.server.getTokenSequenceProcessor());
-
-			// For the sentence processor, wrap it in a processor that checks
-			// for a shut down command
-			SentenceProcessor sentenceProcessor = this.server.getSentenceProcessor();
-			if (sentenceProcessor == null)
-				sentenceProcessor = SentenceProcessor.getProcessor(session);
-			ShutDownListener listener = new ShutDownListener(this.server, sentenceProcessor);
-			talismane.setSentenceProcessor(listener);
-
-			talismane.setReader(in);
-			talismane.setWriter(out);
-
-			talismane.analyse();
+			Talismane talismane = new Talismane(out, null, session);
+			talismane.analyse(in);
 
 			socket.close();
 		} catch (IOException | ReflectiveOperationException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	private static final class ShutDownListener implements SentenceProcessor {
-		TalismaneServer server;
-		SentenceProcessor wrappedProcessor;
-
-		public ShutDownListener(TalismaneServer server, SentenceProcessor sentenceProcessor) {
-			this.server = server;
-			this.wrappedProcessor = sentenceProcessor;
-		}
-
-		@Override
-		public void onNextSentence(Sentence sentence, Writer writer) {
-			if (sentence.getText().equals("@SHUTDOWN")) {
-				server.setListening(false);
-			} else {
-				if (wrappedProcessor != null)
-					wrappedProcessor.onNextSentence(sentence, writer);
-			}
 		}
 	}
 }

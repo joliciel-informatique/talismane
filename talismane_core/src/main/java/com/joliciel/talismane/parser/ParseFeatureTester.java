@@ -19,13 +19,9 @@
 package com.joliciel.talismane.parser;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,9 +49,9 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 	private final Set<ParseConfigurationFeature<?>> parseFeatures;
 
 	private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
-	private final File file;
+	private final Writer writer;
 
-	public ParseFeatureTester(TalismaneSession session, File file) throws IOException {
+	public ParseFeatureTester(TalismaneSession session, Writer writer) throws IOException {
 		Config config = session.getConfig();
 		Config parserConfig = config.getConfig("talismane.core.parser");
 
@@ -75,16 +71,16 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 
 		ParserFeatureParser featureParser = new ParserFeatureParser(session, dynamiseFeatures);
 		this.parseFeatures = featureParser.getFeatures(featureDescriptors);
-		this.file = file;
+		this.writer = writer;
 	}
 
-	public ParseFeatureTester(Set<ParseConfigurationFeature<?>> parseFeatures, File file) {
+	public ParseFeatureTester(Set<ParseConfigurationFeature<?>> parseFeatures, Writer writer) {
 		this.parseFeatures = parseFeatures;
-		this.file = file;
+		this.writer = writer;
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
 
 		ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
 
@@ -142,7 +138,6 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 	@Override
 	public void onCompleteParse() {
 		try {
-			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF8"));
 			for (String featureResult : this.featureResultMap.keySet()) {
 				writer.write("###################\n");
 				writer.write(featureResult + "\n");
@@ -163,10 +158,14 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 				}
 				writer.flush();
 			}
-			writer.close();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		writer.close();
 	}
 }

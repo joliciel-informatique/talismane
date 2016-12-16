@@ -39,18 +39,15 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 public class DefaultLanguageDetectorProcessor implements LanguageDetectorProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguageDetectorProcessor.class);
 
-	private Writer out;
+	private Writer writer;
 
-	public DefaultLanguageDetectorProcessor(Writer out) {
-		this.out = out;
+	public DefaultLanguageDetectorProcessor(Writer writer) {
+		this.writer = writer;
 	}
 
 	@Override
-	public void onNextText(String text, List<WeightedOutcome<Locale>> results, Writer writer) {
+	public void onNextText(String text, List<WeightedOutcome<Locale>> results) {
 		try {
-			if (writer == null)
-				writer = out;
-
 			writer.write(text + "\n");
 			for (WeightedOutcome<Locale> result : results) {
 				writer.write(result.getOutcome().toLanguageTag() + "\t" + result.getWeight() + "\n");
@@ -60,6 +57,11 @@ public class DefaultLanguageDetectorProcessor implements LanguageDetectorProcess
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		writer.close();
 	}
 
 }

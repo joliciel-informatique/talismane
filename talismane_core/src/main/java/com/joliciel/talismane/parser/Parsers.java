@@ -93,7 +93,7 @@ public class Parsers {
 			boolean includeDetails = parserConfig.getBoolean("output.include-details");
 			if (includeDetails) {
 				String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
-				File detailsFile = new File(session.getOutDir(), detailsFilePath);
+				File detailsFile = new File(detailsFilePath);
 				detailsFile.delete();
 				ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
 				parser.addObserver(observer);

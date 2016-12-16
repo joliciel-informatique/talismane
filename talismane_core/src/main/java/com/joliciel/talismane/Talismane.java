@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,14 +57,18 @@ import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.typesafe.config.Config;
 
 /**
- * An interface for processing a Reader from
- * {@link TalismaneSession#getReader()} and writing the analysis result to a
- * Writer from {@link TalismaneSession#getWriter()}.<br/>
- * Not thread-safe: a single Talismane cannot be used by multiple threads
- * simultaneously.<br/>
- * The output format is determined by the processor corresponding to
- * {@link #getEndModule()}.<br/>
- * This is accomplished by calling {@link #analyse()}.<br/>
+ * A class for processing a stream of data using a reader via
+ * {@link #analyse(Reader)}, and creating various outputs, with formats as
+ * defined by the configuration, with their location specified in the
+ * constructor.<br/>
+ * <br/>
+ * The processing will go from {@link #getStartModule()} to
+ * {@link #getEndModule()}. Not thread-safe.<br/>
+ * <br/>
+ * Processing will stop when the reader finishes reading, or when three
+ * consecutive {@link TalismaneSession#getEndBlockCharacter()} are encountered.
+ * <br/>
+ * <br/>
  * 
  * @author Assaf Urieli
  *
@@ -168,12 +173,10 @@ public class Talismane {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Talismane.class);
 
-	private Reader reader;
-	private Writer writer;
-	private SentenceProcessor sentenceProcessor;
-	private TokenSequenceProcessor tokenSequenceProcessor;
-	private PosTagSequenceProcessor posTagSequenceProcessor;
-	private ParseConfigurationProcessor parseConfigurationProcessor;
+	private final List<SentenceProcessor> sentenceProcessors;
+	private final List<TokenSequenceProcessor> tokenSequenceProcessors;
+	private final List<PosTagSequenceProcessor> posTagSequenceProcessors;
+	private final List<ParseConfigurationProcessor> parseConfigurationProcessors;
 
 	private final boolean stopOnError;
 
@@ -185,10 +188,21 @@ public class Talismane {
 	private final boolean processByDefault;
 
 	private final int sentenceCount;
-	private final TokeniserAnnotatedCorpusReader tokenCorpusReader;
-	private final PosTagAnnotatedCorpusReader posTagCorpusReader;
+	private final Writer writer;
 
-	public Talismane(TalismaneSession session) throws IOException, ReflectiveOperationException {
+	/**
+	 * 
+	 * @param writer
+	 *            a writer for writing the main output - if null, all output is
+	 *            written to the outDir with predefined filenames
+	 * @param outDir
+	 *            a directory for writing any additional output files specified
+	 *            in the configuration
+	 * @param session
+	 * @throws IOException
+	 * @throws ReflectiveOperationException
+	 */
+	public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException {
 		this.session = session;
 		this.config = session.getConfig();
 		Config analyseConfig = config.getConfig("talismane.core.analysis");
@@ -203,24 +217,52 @@ public class Talismane {
 		this.processByDefault = analyseConfig.getBoolean("process-by-default");
 		this.stopOnError = analyseConfig.getBoolean("stop-on-error");
 		this.sentenceCount = config.getInt("talismane.core.input.sentence-count");
+		boolean outputIntermediateModules = analyseConfig.getBoolean("output-intermediate-modules");
 
-		if (this.startModule.equals(Module.posTagger)) {
-			tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getReader(), config.getConfig("talismane.core.tokeniser.input"),
-					session);
+		if (this.endModule == Module.sentenceDetector) {
+			this.sentenceProcessors = SentenceProcessor.getProcessors(writer, outDir, session);
+		} else if (outputIntermediateModules && this.startModule.compareTo(Module.sentenceDetector) <= 0
+				&& this.endModule.compareTo(Module.sentenceDetector) >= 0) {
+			this.sentenceProcessors = SentenceProcessor.getProcessors(null, outDir, session);
 		} else {
-			tokenCorpusReader = null;
+			this.sentenceProcessors = new ArrayList<>();
+		}
+		if (this.endModule == Module.tokeniser) {
+			this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(writer, outDir, session);
+		} else if (outputIntermediateModules && this.startModule.compareTo(Module.tokeniser) <= 0 && this.endModule.compareTo(Module.tokeniser) >= 0) {
+			this.tokenSequenceProcessors = TokenSequenceProcessor.getProcessors(null, outDir, session);
+		} else {
+			this.tokenSequenceProcessors = new ArrayList<>();
+		}
+		if (this.endModule == Module.posTagger) {
+			this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
+		} else if (outputIntermediateModules && this.startModule.compareTo(Module.posTagger) <= 0 && this.endModule.compareTo(Module.posTagger) >= 0) {
+			this.posTagSequenceProcessors = PosTagSequenceProcessor.getProcessors(null, outDir, session);
+		} else {
+			this.posTagSequenceProcessors = new ArrayList<>();
+		}
+		if (this.endModule == Module.parser
+				|| (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0)) {
+			this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
+		} else if (outputIntermediateModules && this.startModule.compareTo(Module.parser) <= 0 && this.endModule.compareTo(Module.parser) >= 0) {
+			this.parseConfigurationProcessors = ParseConfigurationProcessor.getProcessors(null, outDir, session);
+		} else {
+			this.parseConfigurationProcessors = new ArrayList<>();
 		}
 
-		if (this.startModule.equals(Module.parser)) {
-			posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(session.getReader(), config.getConfig("talismane.core.pos-tagger.input"), session);
-		} else {
-			posTagCorpusReader = null;
-		}
+		this.writer = writer;
 	}
 
-	public void analyse() throws IOException {
+	/**
+	 * Analyse the data provided by this reader, as specified by the
+	 * configuration.
+	 * 
+	 * @param reader
+	 * @throws IOException
+	 * @throws ReflectiveOperationException
+	 */
+	public void analyse(Reader reader) throws IOException, ReflectiveOperationException {
 		long startTime = System.currentTimeMillis();
-		ParseConfigurationProcessor parseConfigurationProcessor = this.getParseConfigurationProcessor();
 		try {
 			SentenceDetector sentenceDetector = null;
 			Tokeniser tokeniser = null;
@@ -235,6 +277,17 @@ public class Talismane {
 			if (this.needsParser())
 				parser = Parsers.getParser(session);
 
+			TokeniserAnnotatedCorpusReader tokenCorpusReader = null;
+			PosTagAnnotatedCorpusReader posTagCorpusReader = null;
+
+			if (this.startModule.equals(Module.posTagger)) {
+				tokenCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.tokeniser.input"), session);
+			}
+
+			if (this.startModule.equals(Module.parser)) {
+				posTagCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.pos-tagger.input"), session);
+			}
+
 			LinkedList<String> textSegments = new LinkedList<String>();
 			LinkedList<Sentence> sentences = new LinkedList<Sentence>();
 			TokenSequence tokenSequence = null;
@@ -246,8 +299,8 @@ public class Talismane {
 
 			RollingTextBlock rollingTextBlock = new RollingTextBlock(this.processByDefault, session);
 
-			if (this.getReader() instanceof CurrentFileProvider) {
-				((CurrentFileProvider) this.getReader()).addCurrentFileObserver(rollingTextBlock);
+			if (reader instanceof CurrentFileProvider) {
+				((CurrentFileProvider) reader).addCurrentFileObserver(rollingTextBlock);
 			}
 
 			int endBlockCharacterCount = 0;
@@ -267,7 +320,7 @@ public class Talismane {
 					char c;
 					int r = -1;
 					try {
-						r = this.getReader().read();
+						r = reader.read();
 					} catch (IOException e) {
 						LogUtils.logError(LOG, e);
 					}
@@ -389,16 +442,17 @@ public class Talismane {
 							annotator.annotate(sentence);
 
 						if (sentence.getLeftoverOriginalText() != null) {
-							this.getWriter().append(sentence.getLeftoverOriginalText() + "\n");
+							writer.append(sentence.getLeftoverOriginalText() + "\n");
 						}
-						if (this.getWriter() instanceof CurrentFileObserver && sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
+						if (writer instanceof CurrentFileObserver && sentence.getFile() != null && !sentence.getFile().equals(currentFile)) {
 							currentFile = sentence.getFile();
 							LOG.debug("Setting current file to " + currentFile.getPath());
-							((CurrentFileObserver) this.getWriter()).onNextFile(currentFile);
+							((CurrentFileObserver) writer).onNextFile(currentFile);
 						}
 
-						if (this.endModule == Module.sentenceDetector)
-							this.getSentenceProcessor().onNextSentence(sentence, this.getWriter());
+						for (SentenceProcessor sentenceProcessor : sentenceProcessors) {
+							sentenceProcessor.onNextSentence(sentence);
+						}
 					} // need to read next sentence
 
 					List<TokenSequence> tokenSequences = null;
@@ -406,8 +460,8 @@ public class Talismane {
 						tokenSequences = tokeniser.tokenise(sentence);
 						tokenSequence = tokenSequences.get(0);
 
-						if (this.endModule == Module.tokeniser) {
-							this.getTokenSequenceProcessor().onNextTokenSequence(tokenSequence, this.getWriter());
+						for (TokenSequenceProcessor tokenSequenceProcessor : tokenSequenceProcessors) {
+							tokenSequenceProcessor.onNextTokenSequence(tokenSequence);
 						}
 					} // need to tokenise ?
 
@@ -427,8 +481,8 @@ public class Talismane {
 							posTagSequence = posTagger.tagSentence(tokenSequence);
 						}
 
-						if (this.endModule == Module.posTagger) {
-							this.getPosTagSequenceProcessor().onNextPosTagSequence(posTagSequence, this.getWriter());
+						for (PosTagSequenceProcessor posTagSequenceProcessor : this.posTagSequenceProcessors) {
+							posTagSequenceProcessor.onNextPosTagSequence(posTagSequence);
 						}
 
 						tokenSequence = null;
@@ -451,8 +505,8 @@ public class Talismane {
 								parseConfiguration = parser.parseSentence(posTagSequence);
 							}
 
-							if (this.endModule == Module.parser) {
-								this.getParseConfigurationProcessor().onNextParseConfiguration(parseConfiguration, this.getWriter());
+							for (ParseConfigurationProcessor parseConfigurationProcessor : this.parseConfigurationProcessors) {
+								parseConfigurationProcessor.onNextParseConfiguration(parseConfiguration);
 							}
 						} catch (Exception e) {
 							LogUtils.logError(LOG, e);
@@ -473,23 +527,61 @@ public class Talismane {
 
 			// Check if there's any leftover output to output!
 			if (rollingTextBlock.getLeftoverOriginalText().length() > 0)
-				this.getWriter().append(rollingTextBlock.getLeftoverOriginalText());
+				writer.append(rollingTextBlock.getLeftoverOriginalText());
 		} finally {
-			if (parseConfigurationProcessor != null)
-				parseConfigurationProcessor.onCompleteParse();
-
+			IOException exception = null;
+			try {
+				reader.close();
+				writer.flush();
+			} catch (IOException e) {
+				LogUtils.logError(LOG, e);
+				exception = e;
+			}
+			for (SentenceProcessor processor : this.sentenceProcessors)
+				try {
+					processor.close();
+				} catch (IOException e) {
+					LogUtils.logError(LOG, e);
+					exception = e;
+				}
+			for (TokenSequenceProcessor processor : this.tokenSequenceProcessors)
+				try {
+					processor.close();
+				} catch (IOException e) {
+					LogUtils.logError(LOG, e);
+					exception = e;
+				}
+			for (PosTagSequenceProcessor processor : this.posTagSequenceProcessors) {
+				try {
+					processor.onCompleteAnalysis();
+					processor.close();
+				} catch (IOException e) {
+					LogUtils.logError(LOG, e);
+					exception = e;
+				}
+			}
+			for (ParseConfigurationProcessor processor : this.parseConfigurationProcessors) {
+				try {
+					processor.onCompleteParse();
+					processor.close();
+				} catch (IOException e) {
+					LogUtils.logError(LOG, e);
+					exception = e;
+				}
+			}
 			long endTime = System.currentTimeMillis();
 			long totalTime = endTime - startTime;
 			LOG.debug("Total time for Talismane.process(): " + totalTime);
 
 			try {
-				this.getReader().close();
-				this.getWriter().flush();
-				this.getWriter().close();
-			} catch (IOException ioe2) {
-				LogUtils.logError(LOG, ioe2);
-				throw new RuntimeException(ioe2);
+				writer.close();
+			} catch (IOException e) {
+				LogUtils.logError(LOG, e);
+				exception = e;
 			}
+
+			if (exception != null)
+				throw exception;
 		}
 	}
 
@@ -526,106 +618,12 @@ public class Talismane {
 	}
 
 	/**
-	 * The sentence processor to be used if the end-module is the sentence
-	 * detector.
-	 * 
-	 * @throws IOException
-	 */
-	public SentenceProcessor getSentenceProcessor() throws IOException {
-		if (this.sentenceProcessor == null)
-			this.sentenceProcessor = SentenceProcessor.getProcessor(session);
-		return sentenceProcessor;
-	}
-
-	public void setSentenceProcessor(SentenceProcessor sentenceProcessor) {
-		this.sentenceProcessor = sentenceProcessor;
-	}
-
-	/**
-	 * The token sequence processor to be used if the end-module is the
-	 * tokeniser.
-	 * 
-	 * @throws IOException
-	 */
-	public TokenSequenceProcessor getTokenSequenceProcessor() throws IOException {
-		if (this.tokenSequenceProcessor == null)
-			this.tokenSequenceProcessor = TokenSequenceProcessor.getProcessor(session);
-		return tokenSequenceProcessor;
-	}
-
-	public void setTokenSequenceProcessor(TokenSequenceProcessor tokenSequenceProcessor) {
-		this.tokenSequenceProcessor = tokenSequenceProcessor;
-	}
-
-	/**
-	 * The pos-tag sequence processor to be used if the end-module is the
-	 * pos-tagger.
-	 * 
-	 * @throws IOException
-	 */
-	public PosTagSequenceProcessor getPosTagSequenceProcessor() throws IOException {
-		if (this.posTagSequenceProcessor == null)
-			this.posTagSequenceProcessor = PosTagSequenceProcessor.getProcessor(session);
-		return posTagSequenceProcessor;
-	}
-
-	public void setPosTagSequenceProcessor(PosTagSequenceProcessor posTagSequenceProcessor) {
-		this.posTagSequenceProcessor = posTagSequenceProcessor;
-	}
-
-	/**
-	 * The parse configuration processor to be used if the end-module is the
-	 * parser.
-	 * 
-	 * @throws IOException
-	 */
-	public ParseConfigurationProcessor getParseConfigurationProcessor() throws IOException {
-		if (this.parseConfigurationProcessor == null)
-			this.parseConfigurationProcessor = ParseConfigurationProcessor.getProcessor(session);
-		return parseConfigurationProcessor;
-	}
-
-	public void setParseConfigurationProcessor(ParseConfigurationProcessor parseConfigurationProcessor) {
-		this.parseConfigurationProcessor = parseConfigurationProcessor;
-	}
-
-	/**
 	 * If an error occurs during analysis, should Talismane stop immediately, or
 	 * try to keep going with the next sentence? Default is true (stop
 	 * immediately).
 	 */
 	public boolean isStopOnError() {
 		return stopOnError;
-	}
-
-	/**
-	 * The reader to be used for input by this instance of Talismane.
-	 * 
-	 * @throws IOException
-	 */
-	public Reader getReader() throws IOException {
-		if (this.reader == null)
-			this.reader = session.getReader();
-		return reader;
-	}
-
-	public void setReader(Reader reader) {
-		this.reader = reader;
-	}
-
-	/**
-	 * The writer to be used for output by this instance of Talismane.
-	 * 
-	 * @throws IOException
-	 */
-	public Writer getWriter() throws IOException {
-		if (this.writer == null)
-			this.writer = session.getWriter();
-		return writer;
-	}
-
-	public void setWriter(Writer writer) {
-		this.writer = writer;
 	}
 
 	public Module getStartModule() {
@@ -642,6 +640,22 @@ public class Talismane {
 
 	public int getSentenceCount() {
 		return sentenceCount;
+	}
+
+	public List<SentenceProcessor> getSentenceProcessors() {
+		return sentenceProcessors;
+	}
+
+	public List<TokenSequenceProcessor> getTokenSequenceProcessors() {
+		return tokenSequenceProcessors;
+	}
+
+	public List<PosTagSequenceProcessor> getPosTagSequenceProcessors() {
+		return posTagSequenceProcessors;
+	}
+
+	public List<ParseConfigurationProcessor> getParseConfigurationProcessors() {
+		return parseConfigurationProcessors;
 	}
 
 }

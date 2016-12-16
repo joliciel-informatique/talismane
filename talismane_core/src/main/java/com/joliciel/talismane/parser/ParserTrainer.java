@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,10 +45,7 @@ import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureParser;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
 import com.joliciel.talismane.utils.ConfigUtils;
-import com.joliciel.talismane.utils.LogUtils;
-import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 /**
  * Reads various configuration parameters and enables building a dependency
@@ -65,7 +63,7 @@ public class ParserTrainer {
 	private final ClassificationEventStream eventStream;
 	private final Map<String, List<String>> descriptors;
 
-	public ParserTrainer(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public ParserTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
 		this.parserConfig = config.getConfig("talismane.core.parser");
 		this.session = session;
@@ -86,8 +84,7 @@ public class ParserTrainer {
 			}
 		}
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), parserConfig.getConfig("train"),
-				session);
+		ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, parserConfig.getConfig("train"), session);
 
 		// add descriptors for various filters
 		// these are for reference purpose only, as we no longer read filters
@@ -111,20 +108,5 @@ public class ParserTrainer {
 		modelDir.mkdirs();
 		tokeniserModel.persist(modelFile);
 		return tokeniserModel;
-	}
-
-	public static void main(String[] args) throws Exception {
-		Map<String, String> argsMap = StringUtils.convertArgs(args);
-
-		String logConfigPath = argsMap.get("logConfigFile");
-		argsMap.remove("logConfigFile");
-		LogUtils.configureLogging(logConfigPath);
-
-		Config config = ConfigFactory.load();
-		String sessionId = "";
-		TalismaneSession talismaneSession = new TalismaneSession(config, sessionId);
-
-		ParserTrainer trainer = new ParserTrainer(talismaneSession);
-		trainer.train();
 	}
 }

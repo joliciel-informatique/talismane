@@ -123,7 +123,7 @@ public class PatternTokeniser extends Tokeniser {
 		boolean includeDetails = tokeniserConfig.getBoolean("output.include-details");
 		if (includeDetails) {
 			String detailsFilePath = session.getBaseName() + "_tokeniser_details.txt";
-			File detailsFile = new File(session.getOutDir(), detailsFilePath);
+			File detailsFile = new File(detailsFilePath);
 			detailsFile.delete();
 			ClassificationObserver observer = tokeniserModel.getDetailedAnalysisObserver(detailsFile);
 			this.addObserver(observer);
