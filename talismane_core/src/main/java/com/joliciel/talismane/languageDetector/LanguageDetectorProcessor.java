@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -32,13 +33,13 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-public interface LanguageDetectorProcessor {
+public interface LanguageDetectorProcessor extends Closeable {
 	/**
-	 * Process the next text, outputting to the writer provided.
+	 * Process the next text.
 	 */
-	public void onNextText(String text, List<WeightedOutcome<Locale>> results, Writer writer);
+	public void onNextText(String text, List<WeightedOutcome<Locale>> results);
 
-	public static LanguageDetectorProcessor getProcessor(TalismaneSession session) throws IOException {
-		return new DefaultLanguageDetectorProcessor(session.getWriter());
+	public static LanguageDetectorProcessor getProcessor(Writer writer, TalismaneSession session) throws IOException {
+		return new DefaultLanguageDetectorProcessor(writer);
 	}
 }

@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.tokeniser;
 
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -29,11 +28,9 @@ import java.util.List;
  *
  */
 public class TokeniserGuessTemplateWriter implements TokenEvaluationObserver {
-	private final Writer writer;
 	private final TokenSequenceProcessor processor;
 
-	public TokeniserGuessTemplateWriter(TokenSequenceProcessor processor, Writer writer) {
-		this.writer = writer;
+	public TokeniserGuessTemplateWriter(TokenSequenceProcessor processor) {
 		this.processor = processor;
 	}
 
@@ -43,7 +40,7 @@ public class TokeniserGuessTemplateWriter implements TokenEvaluationObserver {
 
 	@Override
 	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) {
-		processor.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence(), writer);
+		processor.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence());
 	}
 
 }

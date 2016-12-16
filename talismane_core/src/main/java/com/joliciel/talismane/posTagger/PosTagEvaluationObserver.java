@@ -44,7 +44,7 @@ public interface PosTagEvaluationObserver {
 
 	public void onEvaluationComplete();
 
-	public static List<PosTagEvaluationObserver> getObservers(TalismaneSession session) throws IOException {
+	public static List<PosTagEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
 		Config config = session.getConfig();
 		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 		Config evalConfig = posTaggerConfig.getConfig("evaluate");
@@ -53,7 +53,7 @@ public interface PosTagEvaluationObserver {
 
 		boolean outputGuesses = evalConfig.getBoolean("output-guesses");
 		if (outputGuesses) {
-			File csvFile = new File(session.getOutDir(), session.getBaseName() + "_sentences.csv");
+			File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");
 			csvFile.delete();
 			csvFile.createNewFile();
 			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
@@ -69,29 +69,26 @@ public interface PosTagEvaluationObserver {
 			observers.add(sentenceWriter);
 		}
 
-		File fscoreFile = new File(session.getOutDir(), session.getBaseName() + "_fscores.csv");
+		File fscoreFile = new File(outDir, session.getBaseName() + "_fscores.csv");
 
 		PosTagEvaluationFScoreCalculator posTagFScoreCalculator = new PosTagEvaluationFScoreCalculator(fscoreFile);
 		if (evalConfig.getBoolean("include-unknown-word-results")) {
-			File fscoreUnknownWordFile = new File(session.getOutDir(), session.getBaseName() + "_unknown.csv");
+			File fscoreUnknownWordFile = new File(outDir, session.getBaseName() + "_unknown.csv");
 			posTagFScoreCalculator.setFScoreUnknownInLexiconFile(fscoreUnknownWordFile);
-			File fscoreKnownWordFile = new File(session.getOutDir(), session.getBaseName() + "_known.csv");
+			File fscoreKnownWordFile = new File(outDir, session.getBaseName() + "_known.csv");
 			posTagFScoreCalculator.setFScoreKnownInLexiconFile(fscoreKnownWordFile);
 		}
 
 		observers.add(posTagFScoreCalculator);
 
-		PosTagSequenceProcessor processor = PosTagSequenceProcessor.getProcessor(session);
-
-		File freemarkerFile = new File(session.getOutDir(), session.getBaseName() + "_output.txt");
-		freemarkerFile.delete();
-		freemarkerFile.createNewFile();
-		Writer freemakerFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(freemarkerFile, false), session.getOutputCharset()));
-		PosTaggerGuessTemplateWriter templateWriter = new PosTaggerGuessTemplateWriter(processor, freemakerFileWriter);
-		observers.add(templateWriter);
+		List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(null, outDir, session);
+		for (PosTagSequenceProcessor processor : processors) {
+			PosTaggerGuessTemplateWriter templateWriter = new PosTaggerGuessTemplateWriter(processor);
+			observers.add(templateWriter);
+		}
 
 		if (evalConfig.getBoolean("include-lexicon-coverage")) {
-			File lexiconCoverageFile = new File(session.getOutDir(), session.getBaseName() + ".lexiconCoverage.csv");
+			File lexiconCoverageFile = new File(outDir, session.getBaseName() + ".lexiconCoverage.csv");
 			PosTagEvaluationLexicalCoverageTester lexiconCoverageTester = new PosTagEvaluationLexicalCoverageTester(lexiconCoverageFile);
 			observers.add(lexiconCoverageTester);
 		}

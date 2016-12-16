@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,6 @@ import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.joliciel.talismane.tokeniser.Tokeniser;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -59,15 +56,13 @@ public class ParserEvaluator {
 	private final List<ParseEvaluationObserver> observers;
 	private final TalismaneSession session;
 
-	public ParserEvaluator(TalismaneSession session) throws ClassNotFoundException, IOException, ReflectiveOperationException {
+	public ParserEvaluator(Reader evalReader, File outDir, TalismaneSession session) throws ClassNotFoundException, IOException, ReflectiveOperationException {
 		this.session = session;
 		Config config = session.getConfig();
 		Config parserConfig = config.getConfig("talismane.core.parser");
 		Config evalConfig = parserConfig.getConfig("evaluate");
 
-		this.observers = ParseEvaluationObserver.getObservers(session);
-		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.parser.evaluate.eval-file");
-		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
+		this.observers = ParseEvaluationObserver.getObservers(outDir, session);
 		this.corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("input"), session);
 
 		this.parser = Parsers.getParser(session);

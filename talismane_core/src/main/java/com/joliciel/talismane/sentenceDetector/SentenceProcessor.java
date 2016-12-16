@@ -19,11 +19,18 @@
 package com.joliciel.talismane.sentenceDetector;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.TalismaneSession;
@@ -38,13 +45,24 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public interface SentenceProcessor {
+public interface SentenceProcessor extends Closeable {
 	/**
-	 * Process the next sentence, outputting to the writer provided.
+	 * Process the next sentence.
 	 */
-	public void onNextSentence(Sentence sentence, Writer writer);
+	public void onNextSentence(Sentence sentence);
 
-	public static SentenceProcessor getProcessor(TalismaneSession session) throws IOException {
+	/**
+	 * 
+	 * @param writer
+	 *            if provided, the main processor will write to this writer, if
+	 *            null, the outDir will be used instead
+	 * @param outDir
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
+		List<SentenceProcessor> sentenceProcessors = new ArrayList<>();
 		Config config = session.getConfig();
 		Reader templateReader = null;
 		String configPath = "talismane.core.sentence-detector.output.template";
@@ -59,8 +77,13 @@ public interface SentenceProcessor {
 			templateReader = new BufferedReader(new InputStreamReader(inputStream));
 
 		}
-		FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader);
+		if (writer == null) {
+			File file = new File(outDir, session.getBaseName() + "_sent.txt");
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+		}
+		FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
 		SentenceProcessor sentenceProcessor = templateWriter;
-		return sentenceProcessor;
+		sentenceProcessors.add(sentenceProcessor);
+		return sentenceProcessors;
 	}
 }

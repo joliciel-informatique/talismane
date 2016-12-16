@@ -19,16 +19,22 @@
 package com.joliciel.talismane.posTagger;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
-import com.joliciel.talismane.Talismane.ProcessingOption;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
@@ -42,68 +48,94 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public interface PosTagSequenceProcessor {
+public interface PosTagSequenceProcessor extends Closeable {
+	public enum ProcessorType {
+		output,
+		posTagFeatureTester
+	}
+
 	/**
-	 * Process the next pos-tag sequence, outputting to the writer provided.
+	 * Process the next pos-tag sequence.
 	 */
-	public void onNextPosTagSequence(PosTagSequence posTagSequence, Writer writer);
+	public void onNextPosTagSequence(PosTagSequence posTagSequence);
 
 	/**
 	 * Called when analysis is complete.
 	 */
 	public void onCompleteAnalysis();
 
-	public static PosTagSequenceProcessor getProcessor(TalismaneSession session) throws IOException {
+	/**
+	 * 
+	 * @param writer
+	 *            if provided, the main processor will write to this writer, if
+	 *            null, the outDir will be used instead
+	 * @param outDir
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<PosTagSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
+		List<PosTagSequenceProcessor> processors = new ArrayList<>();
+
 		Config config = session.getConfig();
 		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 
 		PosTagSequenceProcessor processor = null;
-		ProcessingOption option = ProcessingOption.valueOf(posTaggerConfig.getString("output.option"));
+		List<ProcessorType> processorTypes = posTaggerConfig.getStringList("output.processors").stream().map(f -> ProcessorType.valueOf(f))
+				.collect(Collectors.toList());
 
-		switch (option) {
-		case output: {
-			Reader templateReader = null;
-			String configPath = "talismane.core.pos-tagger.output.template";
-			if (config.hasPath(configPath)) {
-				templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
-			} else {
-				String templateName = null;
-				BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("output.built-in-template"));
-				switch (builtInTemplate) {
-				case standard:
-					templateName = "posTagger_template.ftl";
-					break;
-				case with_location:
-					templateName = "posTagger_template_with_location.ftl";
-					break;
-				case with_prob:
-					templateName = "posTagger_template_with_prob.ftl";
-					break;
-				case with_comments:
-					templateName = "posTagger_template_with_comments.ftl";
-					break;
-				default:
-					throw new TalismaneException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
+		for (ProcessorType type : processorTypes) {
+			switch (type) {
+			case output: {
+				Reader templateReader = null;
+				String configPath = "talismane.core.pos-tagger.output.template";
+				if (config.hasPath(configPath)) {
+					templateReader = new BufferedReader(new InputStreamReader(ConfigUtils.getFileFromConfig(config, configPath)));
+				} else {
+					String templateName = null;
+					BuiltInTemplate builtInTemplate = BuiltInTemplate.valueOf(posTaggerConfig.getString("output.built-in-template"));
+					switch (builtInTemplate) {
+					case standard:
+						templateName = "posTagger_template.ftl";
+						break;
+					case with_location:
+						templateName = "posTagger_template_with_location.ftl";
+						break;
+					case with_prob:
+						templateName = "posTagger_template_with_prob.ftl";
+						break;
+					case with_comments:
+						templateName = "posTagger_template_with_comments.ftl";
+						break;
+					default:
+						throw new TalismaneException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
+					}
+
+					String path = "output/" + templateName;
+					InputStream inputStream = Talismane.class.getResourceAsStream(path);
+					if (inputStream == null)
+						throw new IOException("Resource not found in classpath: " + path);
+					templateReader = new BufferedReader(new InputStreamReader(inputStream));
 				}
 
-				String path = "output/" + templateName;
-				InputStream inputStream = Talismane.class.getResourceAsStream(path);
-				if (inputStream == null)
-					throw new IOException("Resource not found in classpath: " + path);
-				templateReader = new BufferedReader(new InputStreamReader(inputStream));
+				if (writer == null) {
+					File file = new File(outDir, session.getBaseName() + "_pos.txt");
+					writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+				}
+
+				processor = new FreemarkerTemplateWriter(templateReader, writer);
+				processors.add(processor);
+				break;
 			}
-			processor = new FreemarkerTemplateWriter(templateReader);
-			break;
+			case posTagFeatureTester: {
+				File file = new File(outDir, session.getBaseName() + "_posTagFeatureTest.txt");
+				Writer featureWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), session.getOutputCharset()));
+				processor = new PosTagFeatureTester(session, featureWriter);
+				processors.add(processor);
+				break;
+			}
+			}
 		}
-		case posTagFeatureTester: {
-			File file = new File(session.getOutDir(), session.getBaseName() + "_featureTest.txt");
-			processor = new PosTagFeatureTester(session, file);
-			break;
-		}
-		default: {
-			throw new TalismaneException("Unknown option: " + option.toString());
-		}
-		}
-		return processor;
+		return processors;
 	}
 }

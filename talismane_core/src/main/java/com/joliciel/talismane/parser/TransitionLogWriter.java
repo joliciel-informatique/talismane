@@ -26,7 +26,7 @@ public class TransitionLogWriter implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
 		try {
 			ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
 
@@ -103,11 +103,15 @@ public class TransitionLogWriter implements ParseConfigurationProcessor {
 	public void onCompleteParse() {
 		try {
 			this.csvFileWriter.flush();
-			this.csvFileWriter.close();
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.csvFileWriter.close();
 	}
 
 }

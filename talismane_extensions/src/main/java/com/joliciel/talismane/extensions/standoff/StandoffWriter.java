@@ -47,15 +47,16 @@ import freemarker.template.Version;
 
 public class StandoffWriter implements ParseConfigurationProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(StandoffWriter.class);
-	private Template template;
+	private final Template template;
+	private final Writer writer;
 	private int sentenceCount = 0;
 	private int tokenCount = 0;
 	private int relationCount = 0;
 	private int characterCount = 0;
 
-	public StandoffWriter() {
-		super();
+	public StandoffWriter(Writer writer) {
 		try {
+			this.writer = writer;
 			Configuration cfg = new Configuration(new Version(2, 3, 23));
 			cfg.setCacheStorage(new NullCacheStorage());
 			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
@@ -70,7 +71,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration, Writer writer) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
 		Map<String, Object> model = new HashMap<String, Object>();
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);
@@ -110,6 +111,11 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 
 	@Override
 	public void onCompleteParse() {
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.writer.close();
 	}
 
 }
