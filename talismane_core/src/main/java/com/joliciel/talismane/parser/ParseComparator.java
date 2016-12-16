@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -50,17 +47,16 @@ public class ParseComparator {
 
 	private final List<ParseEvaluationObserver> observers;
 
-	public ParseComparator(TalismaneSession session) throws ClassNotFoundException, IOException, ReflectiveOperationException {
+	public ParseComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+			throws ClassNotFoundException, IOException, ReflectiveOperationException {
 		Config config = session.getConfig();
 		Config parserConfig = config.getConfig("talismane.core.parser");
 
-		this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), parserConfig.getConfig("input"), session);
+		this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(referenceReader, parserConfig.getConfig("input"), session);
 
-		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.parser.evaluate.eval-file");
-		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
 		this.evaluationCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("evaluate"), session);
 
-		this.observers = ParseEvaluationObserver.getObservers(session);
+		this.observers = ParseEvaluationObserver.getObservers(outDir, session);
 	}
 
 	public ParseComparator(ParserAnnotatedCorpusReader referenceCorpusReader, ParserAnnotatedCorpusReader evaluationCorpusReader) {

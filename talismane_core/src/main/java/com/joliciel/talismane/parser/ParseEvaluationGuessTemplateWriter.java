@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.parser;
 
-import java.io.Writer;
 import java.util.List;
 
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -32,16 +31,14 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
  */
 public class ParseEvaluationGuessTemplateWriter implements ParseEvaluationObserver {
 	private final ParseConfigurationProcessor processor;
-	private final Writer writer;
 
-	public ParseEvaluationGuessTemplateWriter(ParseConfigurationProcessor processor, Writer writer) {
+	public ParseEvaluationGuessTemplateWriter(ParseConfigurationProcessor processor) {
 		this.processor = processor;
-		this.writer = writer;
 	}
 
 	@Override
 	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) {
-		processor.onNextParseConfiguration(guessedConfigurations.get(0), writer);
+		processor.onNextParseConfiguration(guessedConfigurations.get(0));
 	}
 
 	@Override

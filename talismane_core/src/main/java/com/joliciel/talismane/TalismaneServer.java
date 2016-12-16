@@ -34,20 +34,17 @@ import com.joliciel.talismane.utils.LogUtils;
  * @author Assaf Urieli
  *
  */
-public class TalismaneServer extends Talismane {
+public class TalismaneServer {
 	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServer.class);
 	private final int port;
 	private boolean listening = true;
 	private final TalismaneSession session;
 
 	public TalismaneServer(TalismaneSession session) throws IOException, ReflectiveOperationException {
-		super(session);
-
 		this.session = session;
 		this.port = session.getPort();
 	}
 
-	@Override
 	public void analyse() {
 		long startTime = new Date().getTime();
 		ServerSocket serverSocket = null;
@@ -58,7 +55,7 @@ public class TalismaneServer extends Talismane {
 			serverSocket = new ServerSocket(port);
 			LOG.info("Server started. Waiting for clients...");
 			while (listening) {
-				TalismaneServerThread thread = new TalismaneServerThread(this, session, serverSocket.accept());
+				TalismaneServerThread thread = new TalismaneServerThread(session, serverSocket.accept());
 				thread.start();
 			}
 		} catch (IOException e) {

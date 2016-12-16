@@ -106,7 +106,7 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 				}
 			}
 			if (includeMe)
-				processor.onNextParseConfiguration(guessedConfigurations.get(0), null);
+				processor.onNextParseConfiguration(guessedConfigurations.get(0));
 		} catch (IOException e) {
 			LogUtils.logError(LOG, e);
 			throw new RuntimeException(e);

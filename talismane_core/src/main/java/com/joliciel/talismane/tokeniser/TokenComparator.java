@@ -18,10 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +41,6 @@ import com.joliciel.talismane.tokeniser.patterns.PatternTokeniser;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatchSequence;
 import com.joliciel.talismane.tokeniser.patterns.TokeniserPatternManager;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -62,7 +59,8 @@ public class TokenComparator {
 	private final TokeniserPatternManager tokeniserPatternManager;
 	private final TalismaneSession session;
 
-	public TokenComparator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public TokenComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+			throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		this.session = session;
 		Config config = session.getConfig();
 		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
@@ -76,13 +74,11 @@ public class TokenComparator {
 		} else {
 			this.tokeniserPatternManager = null;
 		}
-		this.referenceCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(session.getTrainingReader(), tokeniserConfig.getConfig("input"), session);
+		this.referenceCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(referenceReader, tokeniserConfig.getConfig("input"), session);
 
-		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.tokeniser.evaluate.eval-file");
-		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
 		this.evaluationCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("evaluate"), session);
 
-		List<TokenEvaluationObserver> observers = TokenEvaluationObserver.getTokenEvaluationObservers(session);
+		List<TokenEvaluationObserver> observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
 		for (TokenEvaluationObserver observer : observers)
 			this.addObserver(observer);
 

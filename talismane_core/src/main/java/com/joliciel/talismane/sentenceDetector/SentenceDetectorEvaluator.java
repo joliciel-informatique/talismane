@@ -18,13 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -41,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.stats.FScoreCalculator;
-import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
 
@@ -60,15 +56,14 @@ public class SentenceDetectorEvaluator {
 
 	private static final int NUM_CHARS = 30;
 
-	public SentenceDetectorEvaluator(TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+	public SentenceDetectorEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+			throws IOException, ClassNotFoundException, ReflectiveOperationException {
 		Config config = session.getConfig();
 		this.sentenceDetector = SentenceDetector.getInstance(session);
 		Config sentenceConfig = config.getConfig("talismane.core.sentence-detector");
-		InputStream evalFile = ConfigUtils.getFileFromConfig(config, "talismane.core.sentence-detector.evaluate.eval-file");
-		Reader evalReader = new BufferedReader(new InputStreamReader(evalFile, session.getInputCharset()));
 		this.corpusReader = SentenceDetectorAnnotatedCorpusReader.getCorpusReader(evalReader, sentenceConfig.getConfig("input"), session);
 
-		File sentenceErrorFile = new File(session.getOutDir(), session.getBaseName() + "_errors.txt");
+		File sentenceErrorFile = new File(outDir, session.getBaseName() + "_errors.txt");
 		this.errorWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sentenceErrorFile, false), "UTF8"));
 	}
 
@@ -143,7 +138,7 @@ public class SentenceDetectorEvaluator {
 					possibleBoundaries.add(matcher.start());
 			}
 
-			int realBoundary = previousSentence.length() + sentence.length() - 1;
+			int realBoundary = previousSentence.length() + sentence.length();
 			if (!possibleBoundaries.contains(realBoundary))
 				possibleBoundaries.add(realBoundary);
 
@@ -157,7 +152,7 @@ public class SentenceDetectorEvaluator {
 					guessed = SentenceDetectorOutcome.IS_BOUNDARY;
 				fScoreCalculator.increment(expected, guessed);
 
-				String boundaryCharacter = "" + text.charAt(possibleBoundary);
+				String boundaryCharacter = "" + text.charAt(possibleBoundary - 1);
 				Matcher boundaryMatcher = SentenceDetector.POSSIBLE_BOUNDARIES.matcher(boundaryCharacter);
 				if (!boundaryMatcher.matches())
 					boundaryCharacter = "OTHER";
@@ -169,22 +164,20 @@ public class SentenceDetectorEvaluator {
 				taggerFScoreCalculator.increment(expected, guessed);
 
 				if (!expected.equals(guessed)) {
-					int relativeBoundary = previousSentence.length() + possibleBoundary;
-
-					int start1 = relativeBoundary - NUM_CHARS;
-					int end1 = relativeBoundary + NUM_CHARS;
+					int start1 = possibleBoundary - NUM_CHARS;
+					int end1 = possibleBoundary + NUM_CHARS;
 
 					if (start1 < 0)
 						start1 = 0;
-					String startString = text.substring(start1, relativeBoundary);
+					String startString = text.substring(start1, possibleBoundary - 1);
 					startString = StringUtils.padLeft(startString, NUM_CHARS);
 
-					String middleString = "" + text.charAt(relativeBoundary);
+					String middleString = "" + text.charAt(possibleBoundary - 1);
 					if (end1 >= text.length())
 						end1 = text.length() - 1;
 					String endString = "";
-					if (end1 >= 0 && relativeBoundary + 1 < text.length())
-						endString = text.substring(relativeBoundary + 1, end1);
+					if (end1 >= 0 && possibleBoundary < text.length())
+						endString = text.substring(possibleBoundary, end1);
 
 					String testText = startString + "[" + middleString + "]" + endString;
 					testText = testText.replace('\n', '¶');
