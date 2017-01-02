@@ -207,12 +207,12 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
 				}
 			} else {
 				LexicalEntry lexicalEntry = null;
-				List<LexicalEntry> entries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getOriginalText(), this.getTag());
+				List<LexicalEntry> entries = this.getTalismaneSession().getMergedLexicon().findLexicalEntries(this.getToken().getText(), this.getTag());
 				if (entries.size() > 0)
 					lexicalEntry = entries.get(0);
 				if (lexicalEntry == null) {
 					entries = this.getTalismaneSession().getMergedLexicon()
-							.findLexicalEntries(this.getToken().getOriginalText().toLowerCase(this.getTalismaneSession().getLocale()), this.getTag());
+							.findLexicalEntries(this.getToken().getText().toLowerCase(this.getTalismaneSession().getLocale()), this.getTag());
 					if (entries.size() > 0)
 						lexicalEntry = entries.get(0);
 				}
