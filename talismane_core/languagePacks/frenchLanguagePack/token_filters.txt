@@ -1,90 +1,13 @@
+DefaultParameters(caseSensitive=false)
+
 ###################################
 #### URLs and e-mail addresses ####
 ###################################
-TokenRegexFilter(featureType=url,posTag=NPP,lemma=$MAIL$)	\b((\w+[.-])*\w+@(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw)))\b	EntitéNomméeAdresseMail
-TokenRegexFilter(featureType=url,posTag=NPP,lemma=$URL$)	\b((((http)|(https)|(ftp)|(irc)|(ircs)|(gopher)|(telnet)|(nntp)|(worldwind)|(mailto)|(news)|(svn)|(git)|(mms)):\/\/)?(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw))((\/)?\/[\w%.#-]+)*\/?)(\?[\w%.#-_]+(=[\w%.#-/:_]*\w(&[\w%.#-_]+=[\w%.#-/:_]*)?\w)*)?\b	EntitéNomméeURL
-TokenRegexFilter(possibleSentenceBoundary=false,posTag=P,lemmaType=originalLower)	\bi\.e\.	$0
-TokenRegexFilter(possibleSentenceBoundary=false,posTag=P,lemmaType=originalLower)	\be\.g\.	$0
-TokenRegexFilter(posTag=PONCT,lemmaType=originalLower)	[\.\?\!]{2,}	$0
+TokenRegexFilter(featureType=url,posTag=NPP,lemma=$MAIL$,caseSensitive=true)	\b((\w+[.-])*\w+@(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw)))\b	$MAIL$
+TokenRegexFilter(featureType=url,posTag=NPP,lemma=$URL$,caseSensitive=true)	\b((((http)|(https)|(ftp)|(irc)|(ircs)|(gopher)|(telnet)|(nntp)|(worldwind)|(mailto)|(news)|(svn)|(git)|(mms)):\/\/)?(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw))((\/)?\/[\w%.#-]+)*\/?)(\?[\w%.#-_]+(=[\w%.#-/:_]*\w(&[\w%.#-_]+=[\w%.#-/:_]*)?\w)*)?\b	$URL$
 
-###################
-### Apostrophes ###
-###################
-TokenRegexFilter(caseSensitive=false)	\b(chefs?|mains?|ma[iî]tres?|hors)[ -]d'((oe|œ)uvres?)\b
-TokenRegexFilter(caseSensitive=false)	\bprud'(homme|hommes|homal|homaux|homale|homales)\b
-TokenRegexFilter(caseSensitive=false)	\b(trompes?)[ -]l'(oe|œ)il\b
-TokenRegexFilter(stem=aujourd'hui,caseSensitive=false)	\baujourd'hui\b
-TokenRegexFilter(stem=rendez-vous,caseSensitive=false)	\brendez-vous\b
-TokenRegexFilter(stem=ce,caseSensitive=false)	\bc('|e\b)
-TokenRegexFilter(stem=de,caseSensitive=false)	\bd('|e\b)
-TokenRegexFilter(stem=je,caseSensitive=false)	\bj('|e\b)
-TokenRegexFilter(stem=le,caseSensitive=false)	\bl('|e\b)
-TokenRegexFilter(stem=me,caseSensitive=false)	\bm('|e\b)
-TokenRegexFilter(stem=ne,caseSensitive=false)	\bn('|e\b)
-TokenRegexFilter(stem=se,caseSensitive=false)	\bs('|e\b)
-TokenRegexFilter(stem=te,caseSensitive=false)	\bt('|e\b)
-TokenRegexFilter(stem=que,caseSensitive=false)	\bqu('|e\b)
-TokenRegexFilter(stem=jusque,caseSensitive=false)	\bjusqu('|e\b)
-TokenRegexFilter(stem=puisque,caseSensitive=false)	\bpuisqu('|e\b)
-TokenRegexFilter(stem=lorsque,caseSensitive=false)	\blorsqu('|e\b)
-TokenRegexFilter(stem=quelque,caseSensitive=false)	\bquelqu('|e\b)
-TokenRegexFilter(stem=quoique,caseSensitive=false)	\bquoiqu('|e\b)
-
-#################
-#### Numbers ####
-#################
-TokenRegexFilter(posTag=NPP,lemma=$TEL$)	\b(\d\d\-){3,4}\d\d\b	EntitéNomméeTél
-TokenRegexFilter(posTag=NPP,lemma=$TEL$)	\b(\d\d ){3,4}\d\d\b	EntitéNomméeTél
-TokenRegexFilter(posTag=NPP,lemma=$TEL$)	\b(\d\d.){3,4}\d\d\b	EntitéNomméeTél
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b[1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+([eE][-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b[1-9][0-9]*[,\.][0-9]+([eE][-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b0[,\.][0-9]+([eE][-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower,group=1)	\s(,[0-9]+([eE][-+]?[0-9]+)?)\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+][1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+([eE][-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+][1-9][0-9]*[,\.][0-9]+([eE][-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]0?[,\.][0-9]+([eE][-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+ \d+/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+ \d+/\d+\b	999
-TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	1999-2000
-TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	1999-2000
-TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])\b	1999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b([Dd]eux|[Tt]rois|[Qq]uatre|[Cc]inq|[Ss]ix|[Ss]ept|[Hh]uit|[Nn]euf|[Dd]ix|[Oo]nze|[Dd]ouze|[Tt]reize|[Qq]uatorze|[Qq]uinze|[Ss]eize|[Vv]ingt|[Tt]rente|[Qq]uarante|[Cc]inquante|[Ss]oixante|[Ss]eptante|[Oo]ctante|[Hh]uitante|[Nn]onante|[Cc]ent|[Mm]ille|[Uu]n million|[Uu]n milliard)([ \-](un|et[ \-]un|et[ \-]une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|vingts|trente|quarante|cinquante|soixante|septante|octante|huitante|nonante|cent|cents|mille|milles|million|millions|milliard|milliards))*\b	deux
-
-##########################
-#### Grouping time expressions ####
-##########################
-TokenRegexFilter(lemma=lundi,possibleSentenceBoundary=false)	\blun\.	lundi
-TokenRegexFilter(lemma=mardi,possibleSentenceBoundary=false)	\bmar\.	lundi
-TokenRegexFilter(lemma=mercredi,possibleSentenceBoundary=false)	\bmerc\.	lundi
-TokenRegexFilter(lemma=jeudi,possibleSentenceBoundary=false)	\bjeu\.	lundi
-TokenRegexFilter(lemma=vendredi,possibleSentenceBoundary=false)	\bven\.	lundi
-TokenRegexFilter(lemma=samedi,possibleSentenceBoundary=false)	\bsam\.	lundi
-TokenRegexFilter(lemma=dimanche,possibleSentenceBoundary=false)	\bdim\.	lundi
-TokenRegexFilter(lemmaType=originalLower)	\b([Ll]undi|[Mm]ardi|[Mm]ercredi|[Jj]eudi|[Vv]endredi|[Ss]amedi|[Dd]imanche)\b	lundi
-TokenRegexFilter(lemma=janvier,possibleSentenceBoundary=false)	\b[Jj]anv\.	janvier
-TokenRegexFilter(lemma=janvier)	\b(Jj]anvier|[Jj]anv)\b	janvier
-TokenRegexFilter(lemma=février,possibleSentenceBoundary=false)	\b[Ff][eé]v\.	janvier
-TokenRegexFilter(lemma=février)	\b([Ff][eé]vrier|[Ff][eé]v)\b	janvier
-TokenRegexFilter(lemma=mars)	\b([Mm]ars)\b	janvier
-TokenRegexFilter(lemma=avril,possibleSentenceBoundary=false)	\b[Aa]vr\.	janvier
-TokenRegexFilter(lemma=avril)	\b([Aa]vril|[Aa]vr)\b	janvier
-TokenRegexFilter(lemma=mai)	\b([Mm]ai)\b	janvier
-TokenRegexFilter(lemma=juin)	\b([Jj]uin)\b	janvier
-TokenRegexFilter(lemma=juillet,possibleSentenceBoundary=false)	\b[Jj]uil\.	janvier
-TokenRegexFilter(lemma=juillet)	\b([Jj]uillet|[Jj]uil)\b	janvier
-TokenRegexFilter(lemma=août)	\b[Aa]o[uû]t\b	janvier
-TokenRegexFilter(lemma=septembre,possibleSentenceBoundary=false)	\b[Ss]ept\.	janvier
-TokenRegexFilter(lemma=septembre)	\b([Ss]eptembre|[Ss]ept)\b	janvier
-TokenRegexFilter(lemma=octobre,possibleSentenceBoundary=false)	\b[Oo]ct\.	janvier
-TokenRegexFilter(lemma=octobre)	\b([Oo]ctobre|[Oo]ct)\b	janvier
-TokenRegexFilter(lemma=novembre,possibleSentenceBoundary=false)	\b[Nn]ov\.	janvier
-TokenRegexFilter(lemma=novembre)	\b([Nn]ovembre|[Nn]ov)\b	janvier
-TokenRegexFilter(lemma=décembre,possibleSentenceBoundary=false)	\b[Dd][eé]c\.	janvier
-TokenRegexFilter(lemma=décembre)	\b([Dd][eé]cembre|[Dd]éc)\b	janvier
+TokenRegexFilter(posTag=P,lemmaType=originalLower)	\bi\.e\.\B
+TokenRegexFilter(posTag=P,lemmaType=originalLower)	\be\.g\.\B
 
 ########################
 #### Pronouns ##########
@@ -113,21 +36,105 @@ TokenRegexFilter(group=1)	\b(-il)(?!\-)\b	il
 TokenRegexFilter(group=1)	\b(-ils)(?!\-)\b	ils
 TokenRegexFilter(group=1)	\b(-on)(?!\-)\b	on
 TokenRegexFilter(group=1)	\b(?!rendez)\w+(-vous)(?!\-)\b	vous
-TokenRegexFilter(group=1)	\b(-m')(?!\-)\b	moi
-TokenRegexFilter(group=1)	\b(-t')(?!\-)\b	toi
+TokenRegexFilter(group=1)	\b(-m['’])(?!\-)\b	moi
+TokenRegexFilter(group=1)	\b(-t['’])(?!\-)\b	toi
 
-########################
+###################
+### Apostrophes ###
+###################
+TokenRegexFilter(caseSensitive=false)	\b(chefs?|mains?|ma[iî]tres?|hors)[ -]d['’]((oe|œ)uvres?)\b
+TokenRegexFilter(caseSensitive=false)	\bprud['’](homme|hommes|homal|homaux|homale|homales)\b
+TokenRegexFilter(caseSensitive=false)	\b(trompes?)[ -]l['’](oe|œ)il\b
+TokenRegexFilter(lemma=aujourd'hui,caseSensitive=false)	\baujourd['’]hui\b
+TokenRegexFilter(lemma=rendez-vous,caseSensitive=false)	\brendez-vous\b
+TokenRegexFilter(lemma=ce,caseSensitive=false)	\bc['’]	ce
+TokenRegexFilter(lemma=de,caseSensitive=false)	\bd['’]	de
+TokenRegexFilter(lemma=je,caseSensitive=false)	\bj['’]	je
+TokenRegexFilter(lemma=le,caseSensitive=false)	\bl['’]	l'
+TokenRegexFilter(lemma=me,caseSensitive=false)	\bm['’]	me
+TokenRegexFilter(lemma=ne,caseSensitive=false)	\bn['’]	ne
+TokenRegexFilter(lemma=se,caseSensitive=false)	\bs['’]	se
+TokenRegexFilter(lemma=te,caseSensitive=false)	\bt['’]	te
+TokenRegexFilter(lemma=que,caseSensitive=false)	\bqu['’]	que
+TokenRegexFilter(lemma=jusque,caseSensitive=false)	\bjusqu['’]	jusque
+TokenRegexFilter(lemma=puisque,caseSensitive=false)	\bpuisqu['’]	puisque
+TokenRegexFilter(lemma=lorsque,caseSensitive=false)	\blorsqu['’]	lorsque
+TokenRegexFilter(lemma=quelque,caseSensitive=false)	\bquelqu['’]	quelque
+TokenRegexFilter(lemma=quoique,caseSensitive=false)	\bquoiqu['’]	quoique
+
+#################
+#### Numbers ####
+#################
+TokenRegexFilter(posTag=NPP,lemma=$TEL$)	\b(\d\d\-){3,4}\d\d\b	$TEL$
+TokenRegexFilter(posTag=NPP,lemma=$TEL$)	\b(\d\d ){3,4}\d\d\b	$TEL$
+TokenRegexFilter(posTag=NPP,lemma=$TEL$)	\b(\d\d.){3,4}\d\d\b	$TEL$
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b[1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+(e[-+]?[0-9]+)?\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b[1-9][0-9]*[,\.][0-9]+(e[-+]?[0-9]+)?\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b0[,\.][0-9]+(e[-+]?[0-9]+)?\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower,group=1)	\s(,[0-9]+(e[-+]?[0-9]+)?)\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+][1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+(e[-+]?[0-9]+)?\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+][1-9][0-9]*[,\.][0-9]+(e[-+]?[0-9]+)?\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]0?[,\.][0-9]+(e[-+]?[0-9]+)?\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+ \d+/\d+\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+ \d+/\d+\b	999
+TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	1999-2000
+TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	1999-2000
+TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])\b	1999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+\b	999
+TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b(deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|trente|quarante|cinquante|soixante|septante|octante|huitante|nonante|cent|mille|un million|un milliard)([ \-](un|et[ \-]un|et[ \-]une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|vingts|trente|quarante|cinquante|soixante|septante|octante|huitante|nonante|cent|cents|mille|milles|million|millions|milliard|milliards))*\b	deux
+
+##########################
+#### Grouping time expressions ####
+##########################
+TokenRegexFilter(lemma=lundi)	\blun\.	lundi
+TokenRegexFilter(lemma=mardi)	\bmar\.	lundi
+TokenRegexFilter(lemma=mercredi)	\bmerc\.	lundi
+TokenRegexFilter(lemma=jeudi)	\bjeu\.	lundi
+TokenRegexFilter(lemma=vendredi)	\bven\.	lundi
+TokenRegexFilter(lemma=samedi)	\bsam\.	lundi
+TokenRegexFilter(lemma=dimanche)	\bdim\.	lundi
+TokenRegexFilter(lemmaType=originalLower)	\b(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b	lundi
+TokenRegexFilter(lemma=janvier)	\bjanv\.	janvier
+TokenRegexFilter(lemma=janvier)	\b(Jj]anvier|janv)\b	janvier
+TokenRegexFilter(lemma=février)	\bf[eé]v\.	janvier
+TokenRegexFilter(lemma=février)	\b(f[eé]vrier|f[eé]v)\b	janvier
+TokenRegexFilter(lemma=mars)	\b(mars)\b	janvier
+TokenRegexFilter(lemma=avril)	\bavr\.	janvier
+TokenRegexFilter(lemma=avril)	\b(avril|avr)\b	janvier
+TokenRegexFilter(lemma=mai)	\b(mai)\b	janvier
+TokenRegexFilter(lemma=juin)	\b(juin)\b	janvier
+TokenRegexFilter(lemma=juillet)	\bjuil\.	janvier
+TokenRegexFilter(lemma=juillet)	\b(juillet|juil)\b	janvier
+TokenRegexFilter(lemma=août)	\bao[uû]t\b	janvier
+TokenRegexFilter(lemma=septembre)	\bsept\.	janvier
+TokenRegexFilter(lemma=septembre)	\b(septembre|sept)\b	janvier
+TokenRegexFilter(lemma=octobre)	\boct\.	janvier
+TokenRegexFilter(lemma=octobre)	\b(octobre|oct)\b	janvier
+TokenRegexFilter(lemma=novembre)	\bnov\.	janvier
+TokenRegexFilter(lemma=novembre)	\b(novembre|nov)\b	janvier
+TokenRegexFilter(lemma=décembre)	\bd[eé]c\.	janvier
+TokenRegexFilter(lemma=décembre)	\b(d[eé]cembre|déc)\b	janvier
+
+##############################
+# Punctuation
+# Note that AttributeRegexFilters will only affect a token if the entire token is matched within the filter
+# In other words, if the token contains the match, the match has no effect
+# Thus, a token such as "j'" will not get the posTag PONCT
+
 #### various quotes ####
-########################
-TokenRegexFilter	’	'
-TokenRegexFilter	[“”„‟″‴]	"
-TokenRegexFilter	(« )|«	"
-TokenRegexFilter	( »)|»	"
+AttributeRegexFilter(posTag=PONCT)	[‘’]	'
+TokenRegexFilter(posTag=PONCT)	[“”„‟″‴]	"
+TokenRegexFilter(posTag=PONCT)	(« )|«	"
+TokenRegexFilter(posTag=PONCT)	( »)|»	"
 
-#########################
-#### various bullets ####
-#########################
-TokenRegexFilter	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	*
+AttributeRegexFilter(posTag=PONCT)	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	*
+AttributeRegexFilter(posTag=PONCT)	[‒–—―]	-
+
+# General punctuation regex
+AttributeRegexFilter(posTag=PONCT,lemmaType=originalLower)	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+
 
 #########################
 ### Text normalisation ##

@@ -201,9 +201,12 @@ public class TalismaneSession {
 			try (Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(dependencyLabelFile, "UTF-8")))) {
 				Set<String> dependencyLabels = new HashSet<String>();
 				while (depLabelScanner.hasNextLine()) {
-					String dependencyLabel = depLabelScanner.nextLine();
-					if (!dependencyLabel.startsWith("#"))
-						dependencyLabels.add(dependencyLabel);
+					String line = depLabelScanner.nextLine();
+					if (!line.startsWith("#")) {
+						String[] parts = line.split("\t");
+						if (parts.length > 0 && parts[0].length() > 0)
+							dependencyLabels.add(parts[0]);
+					}
 				}
 				transitionSystem.setDependencyLabels(dependencyLabels);
 			}
