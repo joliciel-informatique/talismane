@@ -65,7 +65,7 @@ public class AnnotatedText {
 	}
 
 	/**
-	 * Construct an annotated text with an explicti analysis end and an initial
+	 * Construct an annotated text with an explicit analysis end and an initial
 	 * list of annotations.
 	 * 
 	 * @param text
