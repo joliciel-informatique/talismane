@@ -30,22 +30,33 @@ import java.util.Map;
 public class TokenBoundary implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private final String text;
 	private final String analysisText;
 	private final Map<String, TokenAttribute<?>> attributes;
 
-	public TokenBoundary(String analysisText, Map<String, TokenAttribute<?>> attributes) {
+	public TokenBoundary(String text, String analysisText, Map<String, TokenAttribute<?>> attributes) {
+		this.text = text;
 		this.analysisText = analysisText;
 		this.attributes = attributes;
 	}
 
 	/**
-	 * The token's text for analysis purposes (the original text may have been
-	 * replaced by something else for analysis purposes).
+	 * The token's text for analysis purposes, see
+	 * {@link Token#getAnalyisText()}.
 	 * 
 	 * @return
 	 */
 	public String getAnalysisText() {
 		return analysisText;
+	}
+
+	/**
+	 * The token's processed text, see {@link Token#getText()}.
+	 * 
+	 * @return
+	 */
+	public String getText() {
+		return text;
 	}
 
 	/**

@@ -90,7 +90,7 @@ public class PosTagEventStream implements ClassificationEventStream {
 			String classification = taggedToken.getTag().getCode();
 
 			if (LOG.isDebugEnabled())
-				LOG.debug("next event, token: " + taggedToken.getToken().getText() + " : " + classification);
+				LOG.debug("next event, token: " + taggedToken.getToken().getAnalyisText() + " : " + classification);
 			PosTaggerContext context = new PosTaggerContextImpl(taggedToken.getToken(), currentHistory);
 
 			List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
@@ -102,7 +102,7 @@ public class PosTagEventStream implements ClassificationEventStream {
 			}
 
 			if (LOG.isTraceEnabled()) {
-				LOG.trace("Token: " + taggedToken.getToken().getText());
+				LOG.trace("Token: " + taggedToken.getToken().getAnalyisText());
 				for (FeatureResult<?> result : posTagFeatureResults) {
 					LOG.trace(result.toString());
 				}

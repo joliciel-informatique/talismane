@@ -36,8 +36,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.vfs2.FileObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +63,7 @@ import com.joliciel.talismane.rawText.RawTextMarkType;
 import com.joliciel.talismane.rawText.RawTextRegexAnnotator;
 import com.joliciel.talismane.resources.WordListFinder;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
-import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoader;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
@@ -113,7 +111,7 @@ public class TalismaneSession {
 	private final RawTextMarkType newlineMarker;
 	private final List<RawTextAnnotator> textAnnotators;
 	private final List<SentenceAnnotator> sentenceAnnotators;
-	private final List<Pair<String, SentenceAnnotator>> sentenceAnnotatorsWithDescriptors;
+	private final List<List<String>> sentenceAnnotatorDescriptors;
 
 	/**
 	 * 
@@ -382,19 +380,27 @@ public class TalismaneSession {
 		// ##################################################################
 		// sentence annotators
 		LOG.debug("sentence-annotators");
-		SentenceAnnotatorFactory tokenFilterFactory = SentenceAnnotatorFactory.getInstance(this);
+		SentenceAnnotatorLoader tokenFilterFactory = SentenceAnnotatorLoader.getInstance(this);
 		this.sentenceAnnotators = new ArrayList<>();
-		this.sentenceAnnotatorsWithDescriptors = new ArrayList<>();
+		this.sentenceAnnotatorDescriptors = new ArrayList<>();
 		configPath = "talismane.core.annotators.sentence-annotators";
 		List<String> sentenceAnnotatorPaths = config.getStringList(configPath);
 		for (String path : sentenceAnnotatorPaths) {
 			LOG.debug("From: " + path);
 			InputStream inputStream = ConfigUtils.getFile(config, configPath, path);
 			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-				List<Pair<SentenceAnnotator, String>> myFilters = tokenFilterFactory.readTokenFilters(scanner, path);
-				for (Pair<SentenceAnnotator, String> tokenFilterPair : myFilters) {
-					this.sentenceAnnotators.add(tokenFilterPair.getLeft());
-					this.sentenceAnnotatorsWithDescriptors.add(new ImmutablePair<>(tokenFilterPair.getRight(), tokenFilterPair.getLeft()));
+				List<SentenceAnnotator> myAnnotators = tokenFilterFactory.loadSentenceAnnotators(scanner, path);
+				for (SentenceAnnotator annotator : myAnnotators) {
+					this.sentenceAnnotators.add(annotator);
+				}
+			}
+			inputStream = ConfigUtils.getFile(config, configPath, path);
+			List<String> descriptors = new ArrayList<>();
+			sentenceAnnotatorDescriptors.add(descriptors);
+			try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					descriptors.add(line);
 				}
 			}
 		}
@@ -590,8 +596,8 @@ public class TalismaneSession {
 		return sentenceAnnotators;
 	}
 
-	public List<Pair<String, SentenceAnnotator>> getSentenceAnnotatorsWithDescriptors() {
-		return sentenceAnnotatorsWithDescriptors;
+	public List<List<String>> getSentenceAnnotatorDescriptors() {
+		return sentenceAnnotatorDescriptors;
 	}
 
 	public void setFileForBasename(File file) {

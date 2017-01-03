@@ -65,6 +65,7 @@ public class Token implements TokenWrapper {
 	private static final Logger LOG = LoggerFactory.getLogger(Token.class);
 	private static Pattern whiteSpacePattern = Pattern.compile("[\\s\ufeff]+", Pattern.UNICODE_CHARACTER_CLASS);
 
+	private String analysisText;
 	private String text;
 	private final String originalText;
 	private String conllText;
@@ -98,6 +99,7 @@ public class Token implements TokenWrapper {
 
 	Token(Token tokenToClone) {
 		this.talismaneSession = tokenToClone.talismaneSession;
+		this.analysisText = tokenToClone.analysisText;
 		this.text = tokenToClone.text;
 		this.originalText = tokenToClone.originalText;
 		this.index = tokenToClone.index;
@@ -122,7 +124,8 @@ public class Token implements TokenWrapper {
 
 	Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
-		this.text = text;
+		this.analysisText = null;
+		this.text = null;
 		this.originalText = text;
 		this.tokenSequence = tokenSequence;
 		this.index = index;
@@ -139,11 +142,39 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * The text represented by this token.
+	 * This token's text for analysis purposes. In some cases, the analysis text
+	 * might group together different tokens into a single equivalence class,
+	 * for example, you may wish to analyse all numbers identically by assigning
+	 * the analysis text to "999".<br/>
+	 * If the token's analysis text has been set, it will be returned.<br/>
+	 * Else, if the token's text has been set, it will be returned.<br/>
+	 * Else, the original text is returned.
 	 */
 
+	public String getAnalyisText() {
+		if (analysisText != null)
+			return analysisText;
+		if (text != null)
+			return text;
+		return originalText;
+	}
+
+	public void setAnalysisText(String analysisText) {
+		this.analysisText = analysisText;
+	}
+
+	/**
+	 * The token's processed text, after corrections for encoding/spelling etc.
+	 * <br/>
+	 * If the token's text has been set, it will be returned.<br/>
+	 * Else, the original text is returned.
+	 * 
+	 * @return
+	 */
 	public String getText() {
-		return text;
+		if (text != null)
+			return text;
+		return originalText;
 	}
 
 	public void setText(String text) {
@@ -151,8 +182,8 @@ public class Token implements TokenWrapper {
 	}
 
 	/**
-	 * The original text represented by this token, before filters updated it
-	 * for analysis.
+	 * The original raw text represented by this token, i.e. before it was fixed
+	 * for encoding/spelling or whatever other fixes.
 	 */
 
 	public String getOriginalText() {
@@ -197,7 +228,7 @@ public class Token implements TokenWrapper {
 
 	@Override
 	public String toString() {
-		return this.getText();
+		return this.getAnalyisText();
 	}
 
 	/**
@@ -205,7 +236,7 @@ public class Token implements TokenWrapper {
 	 */
 	public Set<PosTag> getPossiblePosTags() {
 		if (possiblePosTags == null) {
-			possiblePosTags = lexicon.findPossiblePosTags(this.getText());
+			possiblePosTags = lexicon.findPossiblePosTags(this.getAnalyisText());
 		}
 
 		return possiblePosTags;

@@ -47,7 +47,7 @@ public final class PatternMatchWordFormFeature extends AbstractCachableFeature<T
 			if (i==tokenPatternMatch.getSequence().getTokenSequence().size()-1 && tokenPatternMatch.getSequence().getTokenPattern().isSeparatorClass(i))
 				continue;
 			if (aToken!=null) {
-				unigram += aToken.getText();
+				unigram += aToken.getAnalyisText();
 			}
 		}
 		result = this.generateResult(unigram);

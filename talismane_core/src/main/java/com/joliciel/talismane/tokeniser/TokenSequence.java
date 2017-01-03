@@ -98,11 +98,10 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 				attributeOrderingMap.put(key, attributeSet);
 				attributeSet.add(attribute);
 			} else {
-				// only add one attribute per location for each attribute
-				// key
+				// do not add overlapping attributes for the same key
 				@SuppressWarnings("rawtypes")
 				Annotation<TokenAttribute> floor = attributeSet.floor(attribute);
-				if (floor == null || floor.compareTo(attribute) < 0) {
+				if (floor == null || floor.getEnd() <= attribute.getStart()) {
 					attributeSet.add(attribute);
 				}
 			}
@@ -387,7 +386,7 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 			StringBuilder sb = new StringBuilder();
 			for (Annotation<TextReplacement> replacement : replacements) {
 				if (replacement.getStart() >= lastReplacement && replacement.getStart() < token.getEndIndex()) {
-					sb.append(token.getText().substring(lastReplacement - token.getStartIndex(), replacement.getStart() - token.getStartIndex()));
+					sb.append(token.getOriginalText().substring(lastReplacement - token.getStartIndex(), replacement.getStart() - token.getStartIndex()));
 					sb.append(replacement.getData().getReplacement());
 
 					if (LOG.isTraceEnabled()) {
@@ -397,36 +396,27 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 				}
 			}
 			if (lastReplacement > token.getStartIndex()) {
-				sb.append(token.getText().substring(lastReplacement - token.getStartIndex()));
+				sb.append(token.getOriginalText().substring(lastReplacement - token.getStartIndex()));
 				token.setText(sb.toString());
 				if (LOG.isTraceEnabled()) {
-					LOG.trace("Set token text to: " + token.getText());
+					LOG.trace("Set token text to: " + token.getAnalyisText());
 				}
 			}
 		}
 
 		// add any attributes provided by attribute placeholders
 		for (String key : attributeOrderingMap.keySet()) {
+			@SuppressWarnings("rawtypes")
+			Set<Annotation<TokenAttribute>> myAttributes = attributeOrderingMap.get(key);
 			for (@SuppressWarnings("rawtypes")
-			Annotation<TokenAttribute> attribute : attributeOrderingMap.get(key)) {
-				if (token.getStartIndex() < attribute.getStart()) {
+			Annotation<TokenAttribute> attribute : myAttributes) {
+				if (attribute.getEnd() < token.getEndIndex())
 					continue;
-				} else if (token.getEndIndex() <= attribute.getEnd()) {
-					if (token.getAttributes().containsKey(key)) {
-						// this token already contains the key in
-						// question,
-						// only possible when two annotations overlap
-						// in this case, the second annotation is
-						// completely skipped
-						// so we break out of the token loop to avoid
-						// assigning the remaining tokens
-						break;
-					}
+
+				if (attribute.getStart() <= token.getStartIndex())
 					token.addAttribute(key, attribute.getData());
-				} else {
-					// token.getEndIndex() > placeholder.getEndIndex()
-					break;
-				}
+
+				break;
 			}
 		}
 
@@ -526,24 +516,6 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
 	public void setPosTagSequence(PosTagSequence posTagSequence) {
 		this.posTagSequence = posTagSequence;
-	}
-
-	/**
-	 * Returns the token sequence text after any token filters have replaced
-	 * original text with something else.
-	 */
-
-	public String getCorrectedText() {
-		StringBuilder sb = new StringBuilder();
-		int lastPos = 0;
-		for (Token token : this) {
-			if (token.getOriginalIndex() > lastPos) {
-				sb.append(" ");
-			}
-			sb.append(token.getText());
-			lastPos = token.getOriginalIndexEnd();
-		}
-		return sb.toString();
 	}
 
 	public PosTaggerLexicon getLexicon() {

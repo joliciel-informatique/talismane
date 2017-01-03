@@ -1,89 +1,90 @@
-DefaultParameters(caseSensitive=false)
+DefaultParameters	caseSensitive=false
 
 ###################################
 #### URLs and e-mail addresses ####
 ###################################
-TokenRegexFilter(featureType=url,posTag=NNP,lemma=$MAIL$,caseSensitive=true)	\b((\w+[.-])*\w+@(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw)))\b	$MAIL$
-TokenRegexFilter(featureType=url,posTag=NNP,lemma=$URL$,caseSensitive=true)	\b((((http)|(https)|(ftp)|(irc)|(ircs)|(gopher)|(telnet)|(nntp)|(worldwind)|(mailto)|(news)|(svn)|(git)|(mms)):\/\/)?(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw))((\/)?\/[\w%.#-]+)*\/?)(\?[\w%.#-_]+(=[\w%.#-/:_]*\w(&[\w%.#-_]+=[\w%.#-/:_]*)?\w)*)?\b	$URL$
+RegexTokenAnnotator	\b((\w+[.-])*\w+@(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw)))\b	analysisText=$MAIL$	featureType=url	posTag=NNP	lemma=$MAIL$	caseSensitive=true
+RegexTokenAnnotator	\b((((http)|(https)|(ftp)|(irc)|(ircs)|(gopher)|(telnet)|(nntp)|(worldwind)|(mailto)|(news)|(svn)|(git)|(mms)):\/\/)?(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw))((\/)?\/[\w%.#-]+)*\/?)(\?[\w%.#-_]+(=[\w%.#-/:_]*\w(&[\w%.#-_]+=[\w%.#-/:_]*)?\w)*)?\b	analysisText=$URL$	featureType=url	posTag=NNP	lemma=$URL$	caseSensitive=true
 
-TokenRegexFilter(posTag=IN,lemmaType=originalLower)	\bi\.e\.\B
-TokenRegexFilter(posTag=IN,lemmaType=originalLower)	\be\.g\.\B
+RegexTokenAnnotator	\bi\.e\.\B	posTag=IN	lemmaType=originalLower
+RegexTokenAnnotator	\be\.g\.\B	posTag=IN	lemmaType=originalLower
 
 #### did n't
-TokenRegexFilter(group=1)	\b([a-zA-Z]+)n't\b
-TokenRegexFilter(group=1)	\b[a-zA-Z]+(n't)\b	not
-TokenRegexFilter(group=2)	\b(that|he|she|it)('s)\b	is
+RegexTokenAnnotator	\b([a-zA-Z]+)n't\b	group=1
+RegexTokenAnnotator	\b[a-zA-Z]+(n't)\b	replacement=not	group=1
+RegexTokenAnnotator	\b(that|he|she|it)('s)\b	replacement=is	group=2
 ### George's
-TokenRegexFilter	's\b
-TokenRegexFilter	're\b	are
-TokenRegexFilter	've\b	have
-TokenRegexFilter	'd\b	would
-TokenRegexFilter	'm\b	am
-TokenRegexFilter	'll\b	will
+RegexTokenAnnotator	's\b
+RegexTokenAnnotator	're\b	replacement=are
+RegexTokenAnnotator	've\b	replacement=have
+RegexTokenAnnotator	'd\b	replacement=would
+RegexTokenAnnotator	'm\b	replacement=am
+RegexTokenAnnotator	'll\b	replacement=will
 
 ### O'Sullivan
-TokenRegexFilter(caseSensitive=true)	\b[ODL]'[A-Z][A-Za-z]+\b
+RegexTokenAnnotator	\b[ODL]'[A-Z][A-Za-z]+\b	caseSensitive=true
 
 ########################
 #### 3/4 ###############
 ########################
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+\\/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+ \d+\\/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+ \d+/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+\\/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+ \d+\\/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+/\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+ \d+/\d+\b	999
+RegexTokenAnnotator	\b\d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+ \d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+ \d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+ \d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+ \d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
 #################
 #### Numbers ####
 #################
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(( |\-| and )(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion))*\b	two
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b[1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b[1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b0\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b([1-9][0-9]{0,2}(,[0-9]{3})+)\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+][1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+][1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]0\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\.[0-9]+(e[-+]?[0-9]+)?\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]([1-9][0-9]{0,2}(,[0-9]{3})+)\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b(([1-9])|([12][0-9])|(3[01]))\b	999
-TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	1999-2000
-TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	1999-2000
-TokenRegexFilter(featureType=date,lemmaType=originalLower)	\b([12][0-9][0-9][0-9])\b	1999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	\b\d+\b	999
-TokenRegexFilter(featureType=number,lemmaType=originalLower)	[-+]\d+\b	999
+RegexTokenAnnotator	\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(( |\-| and )(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion))*\b	analysisText=two	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b[1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b[1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b0\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b([1-9][0-9]{0,2}(,[0-9]{3})+)\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+][1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+][1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]0\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]([1-9][0-9]{0,2}(,[0-9]{3})+)\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b(([1-9])|([12][0-9])|(3[01]))\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	analysisText=1999-2000	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	analysisText=1999-2000	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])\b	analysisText=1999	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
 ### Initials
-TokenRegexFilter(caseSensitive=true)	\b([A-Z]\.)+\B
+RegexTokenAnnotator	\b([A-Z]\.)+\B	caseSensitive=true
 ### 9:30
-TokenRegexFilter(lemmaType=originalLower)	\b[12]?\d:\d\d\b	9:30
+RegexTokenAnnotator	\b[12]?\d:\d\d\b	analysisText=9:30	lemmaType=originalLower
 ### AT&T
-TokenRegexFilter(caseSensitive=true)	\b[A-Z]+&[A-Z]\b
-TokenRegexFilter(group=1,caseSensitive=true)	\b((US|C|HK|NZ|AU)\$)[ ,.?!:;"'/\-\)\]\}]	$1
-TokenRegexFilter	\b\w+\-\w+\b
-TokenRegexFilter	\b(Mr|Mrs|Prof|Dr)\.
-TokenRegexFilter	\b(Jr|Sr|etc|Inc|Co|Ltd)\.
-TokenRegexFilter	\b(Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Mon|Tue|Wed|Thu|Fri|Sat)\.
+RegexTokenAnnotator	\b[A-Z]+&[A-Z]\b	caseSensitive=true
+RegexTokenAnnotator	\b((US|C|HK|NZ|AU)\$)[ ,.?!:;"'/\-\)\]\}]	replacement=$1	group=1	caseSensitive=true
+RegexTokenAnnotator	\b\w+\-\w+\b
+RegexTokenAnnotator	\b(Mr|Mrs|Prof|Dr)\.
+RegexTokenAnnotator	\b(Jr|Sr|etc|Inc|Co|Ltd)\.
+RegexTokenAnnotator	\b(Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Mon|Tue|Wed|Thu|Fri|Sat)\.
 
 ##############################
 # Punctuation
-# Note that AttributeRegexFilters will only affect a token if the entire token is matched within the filter
-# In other words, if the token contains the match, the match has no effect
-# Thus, a token such as "j'" will not get the posTag PONCT
 
 #### various quotes ####
-AttributeRegexFilter(posTag=P)	[‘’]	'
-TokenRegexFilter(posTag=P)	[“”„‟″‴]	"
-TokenRegexFilter(posTag=P)	(« )|«	"
-TokenRegexFilter(posTag=P)	( »)|»	"
+RegexTokenAnnotator	[“”„‟″‴]	replacement="	posTag=P
+RegexTokenAnnotator	(« )|«	replacement="	posTag=P
+RegexTokenAnnotator	( »)|»	replacement="	posTag=P
 
-AttributeRegexFilter(posTag=P)	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	*
-AttributeRegexFilter(posTag=P)	[‒–—―]	-
+RegexTokenAnnotator	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	replacement=*	posTag=P
+
+# Long dashes are assumed to always tokenise separately
+RegexTokenAnnotator	[‒–—―]	replacement=-	posTag=P
 
 # General punctuation regex
-AttributeRegexFilter(posTag=P,lemmaType=originalLower)	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+
+# Note that RegexAttributeAnnotators will only affect a token if the entire token is matched within the filter
+# In other words, if the token contains the match, the match has no effect
+# Thus, a token such as "j'" will not get the posTag for punctuation
+RegexAttributeAnnotator	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+	posTag=P	lemmaType=originalLower
 
 #########################
 ### Text normalisation ##

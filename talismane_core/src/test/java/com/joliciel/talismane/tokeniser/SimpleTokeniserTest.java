@@ -39,9 +39,9 @@ public class SimpleTokeniserTest {
 
 		assertEquals(3, tokenSequence.size());
 
-		assertEquals("Click", tokenSequence.get(0).getText());
-		assertEquals("URL", tokenSequence.get(1).getText());
-		assertEquals("now", tokenSequence.get(2).getText());
+		assertEquals("Click", tokenSequence.get(0).getAnalyisText());
+		assertEquals("URL", tokenSequence.get(1).getAnalyisText());
+		assertEquals("now", tokenSequence.get(2).getAnalyisText());
 
 		List<Annotation<TokenBoundary>> tokenBoundaries = sentence.getAnnotations(TokenBoundary.class);
 		assertEquals(3, tokenBoundaries.size());

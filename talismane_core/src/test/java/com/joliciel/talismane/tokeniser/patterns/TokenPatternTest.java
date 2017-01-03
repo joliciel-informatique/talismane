@@ -224,7 +224,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(0);
 				returns(token0);
-				token0.getText();
+				token0.getAnalyisText();
 				returns("Moi");
 				token0.isSeparator();
 				returns(false);
@@ -233,7 +233,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(1);
 				returns(token1);
-				token1.getText();
+				token1.getAnalyisText();
 				returns(",");
 				token1.isSeparator();
 				returns(true);
@@ -242,7 +242,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(2);
 				returns(token2);
-				token2.getText();
+				token2.getAnalyisText();
 				returns(" ");
 				token2.isSeparator();
 				returns(true);
@@ -251,7 +251,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(3);
 				returns(token3);
-				token3.getText();
+				token3.getAnalyisText();
 				returns("j");
 				token3.isSeparator();
 				returns(false);
@@ -262,7 +262,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(4);
 				returns(token4);
-				token4.getText();
+				token4.getAnalyisText();
 				returns("'");
 				token4.isSeparator();
 				returns(true);
@@ -273,7 +273,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(5);
 				returns(token5);
-				token5.getText();
+				token5.getAnalyisText();
 				returns("aim");
 				token5.isSeparator();
 				returns(false);
@@ -284,7 +284,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(6);
 				returns(token6);
-				token6.getText();
+				token6.getAnalyisText();
 				returns("'");
 				token6.isSeparator();
 				returns(true);
@@ -295,7 +295,7 @@ public class TokenPatternTest {
 
 				listWithWhiteSpaces.get(7);
 				returns(token7);
-				token7.getText();
+				token7.getAnalyisText();
 				returns("rais");
 				token7.isSeparator();
 				returns(false);
@@ -328,19 +328,19 @@ public class TokenPatternTest {
 			Token token = patternMatch.get(i);
 			if (i == 0) {
 				assertEquals(3, token.getIndex());
-				assertEquals("j", token.getText());
+				assertEquals("j", token.getAnalyisText());
 				assertEquals(1, token.getMatches().size());
 				assertEquals(0, token.getMatches().get(0).getIndex());
 			}
 			if (i == 1) {
 				assertEquals(4, token.getIndex());
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(1, token.getMatches().size());
 				assertEquals(1, token.getMatches().get(0).getIndex());
 			}
 			if (i == 2) {
 				assertEquals(5, token.getIndex());
-				assertEquals("aim", token.getText());
+				assertEquals("aim", token.getAnalyisText());
 				assertEquals(2, token.getMatches().size());
 				assertEquals(2, token.getMatches().get(0).getIndex());
 			}
@@ -353,19 +353,19 @@ public class TokenPatternTest {
 			Token token = patternMatch.get(i);
 			if (i == 0) {
 				assertEquals(5, token.getIndex());
-				assertEquals("aim", token.getText());
+				assertEquals("aim", token.getAnalyisText());
 				assertEquals(2, token.getMatches().size());
 				assertEquals(0, token.getMatches().get(1).getIndex());
 			}
 			if (i == 1) {
 				assertEquals(6, token.getIndex());
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(1, token.getMatches().size());
 				assertEquals(1, token.getMatches().get(0).getIndex());
 			}
 			if (i == 2) {
 				assertEquals(7, token.getIndex());
-				assertEquals("rais", token.getText());
+				assertEquals("rais", token.getAnalyisText());
 				assertEquals(1, token.getMatches().size());
 				assertEquals(2, token.getMatches().get(0).getIndex());
 			}
