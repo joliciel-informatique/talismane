@@ -55,7 +55,7 @@ public final class NLetterPrefixFeature extends AbstractTokenFeature<String> imp
 		if (nResult!=null) {
 			int n = nResult.getOutcome();
 			
-			String firstWord = token.getText().trim();
+			String firstWord = token.getAnalyisText().trim();
 			if (firstWord.indexOf(' ')>=0) {
 				firstWord = firstWord.substring(0, firstWord.indexOf(' '));
 			}

@@ -58,7 +58,7 @@ public final class RegexFeature extends AbstractTokenFeature<Boolean> implements
 			String regex = regexResult.getOutcome();
 			this.pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
 	
-			boolean matches = this.pattern.matcher(token.getText()).matches();
+			boolean matches = this.pattern.matcher(token.getAnalyisText()).matches();
 			result = this.generateResult(matches);
 		}
 		

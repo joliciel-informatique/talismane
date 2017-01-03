@@ -209,25 +209,25 @@ public class TokenPattern {
 		if (regex.contains(".+") || regex.contains("\\D")) {
 			// this pattern is only allowed for non-separators
 			if (!token.isSeparator())
-				return pattern.matcher(token.getText()).matches();
+				return pattern.matcher(token.getAnalyisText()).matches();
 			else
 				return false;
 		} else if (!this.separatorPattern.matcher(regex).find()) {
 			// no separators, we simply check for string equality
-			return (regex.equals(token.getText()));
+			return (regex.equals(token.getAnalyisText()));
 		} else if (regex.startsWith("\\") && !(regex.startsWith("\\d")) && !(regex.startsWith("\\s")) && !(regex.startsWith("\\p"))
 				&& !(regex.startsWith("\\b"))) {
 			// an escaped separator
-			return (regex.substring(1).equals(token.getText()));
+			return (regex.substring(1).equals(token.getAnalyisText()));
 		} else if (regex.length() == 1) {
 			// an unescaped separator
-			return (regex.equals(token.getText()));
+			return (regex.equals(token.getAnalyisText()));
 		} else if (regex.equals("\\b")) {
 			// \b matches whitespace, sentence start and sentence end
-			return (whitespacePattern.matcher(token.getText()).matches());
+			return (whitespacePattern.matcher(token.getAnalyisText()).matches());
 		} else {
 			// a true pattern
-			return (pattern.matcher(token.getText()).matches());
+			return (pattern.matcher(token.getAnalyisText()).matches());
 		}
 	}
 

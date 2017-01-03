@@ -45,7 +45,7 @@ public final class WordFormFeature extends AbstractTokenFeature<String> implemen
 		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
 		
-		String string = token.getText();
+		String string = token.getAnalyisText();
 		result = this.generateResult(string);
 
 		return result;

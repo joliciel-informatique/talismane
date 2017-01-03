@@ -314,7 +314,7 @@ public class PatternTokeniser extends Tokeniser {
 			for (int i = 0; i < initialSequence.listWithWhiteSpace().size(); i++) {
 				Token token = initialSequence.listWithWhiteSpace().get(i);
 				if (LOG.isTraceEnabled()) {
-					LOG.trace("Token : \"" + token.getText() + "\"");
+					LOG.trace("Token : \"" + token.getAnalyisText() + "\"");
 				}
 
 				// build a new heap for this iteration

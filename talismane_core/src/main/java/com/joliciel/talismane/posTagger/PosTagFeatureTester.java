@@ -80,7 +80,7 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
 		PosTagSequence currentHistory = new PosTagSequence(posTagSequence.getTokenSequence());
 
 		for (PosTaggedToken posTaggedToken : posTagSequence) {
-			if (testWords.contains(posTaggedToken.getToken().getText().toLowerCase())) {
+			if (testWords.contains(posTaggedToken.getToken().getAnalyisText().toLowerCase())) {
 				StringBuilder sb = new StringBuilder();
 				boolean foundToken = false;
 				for (PosTaggedToken taggedToken : posTagSequence) {
@@ -106,7 +106,7 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
 				}
 
 				if (LOG.isTraceEnabled()) {
-					LOG.trace("Token: " + posTaggedToken.getToken().getText());
+					LOG.trace("Token: " + posTaggedToken.getToken().getAnalyisText());
 					for (FeatureResult<?> result : posTagFeatureResults) {
 						LOG.trace(result.toString());
 					}

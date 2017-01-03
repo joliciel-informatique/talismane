@@ -167,10 +167,10 @@ public class TokeniserPatternManager {
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 
 			TokeniserOutcome outcome = null;
-			if (tokenSeparators.matcher(token.getText()).matches()) {
+			if (tokenSeparators.matcher(token.getAnalyisText()).matches()) {
 				boolean defaultValueFound = false;
 				for (Entry<SeparatorDecision, Pattern> entry : this.getSeparatorDefaultPatterns().entrySet()) {
-					if (entry.getValue().matcher(token.getText()).matches()) {
+					if (entry.getValue().matcher(token.getAnalyisText()).matches()) {
 						defaultValueFound = true;
 						SeparatorDecision defaultSeparatorDecision = entry.getKey();
 						switch (defaultSeparatorDecision) {
