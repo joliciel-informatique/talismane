@@ -65,7 +65,7 @@ public final class WordFeature extends AbstractTokenFeature<Boolean> implements 
 			FeatureResult<String> wordResult = word.check(innerWrapper, env);
 			if (wordResult!=null) {
 				String wordText = wordResult.getOutcome();
-				if (wordText.equals(token.getText())) {
+				if (wordText.equals(token.getAnalyisText())) {
 					matches = true;
 					break;
 				}

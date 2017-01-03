@@ -24,16 +24,14 @@ import java.util.regex.Pattern;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 
 /**
- * A token filter which recognises a token based on a regular expression. The
- * regular expression can also give context, with the actual token identified by
- * a group in the regex. Also, the token filter can optionally replace the token
- * contents by a replacement, which can use the $1, $2, etc. notation to
- * represent the content of different groups in the original match.
+ * A sentence annotator which identifies areas to annotate using a regular
+ * expression. The regular expression can also give context, with the actual
+ * sequence to annotate identified by a group in the regex.
  * 
  * @author Assaf Urieli
  *
  */
-public interface TokenRegexFilter extends SentenceAnnotator {
+public interface RegexAnnotator extends SentenceAnnotator {
 	/**
 	 * The regex to recognise.
 	 */
@@ -47,19 +45,17 @@ public interface TokenRegexFilter extends SentenceAnnotator {
 	public Pattern getPattern();
 
 	/**
-	 * If provided, indicates the group index to tokenise (and possibly
-	 * replace). Useful for identifying tokens by their context. Default is 0,
-	 * meaning the entire regex is tokenised and replaced.
+	 * If provided, indicates the regex capture group index. Useful for
+	 * identifying sections by their context. Default is 0, meaning the entire
+	 * regex matched.
 	 */
 	public int getGroupIndex();
 
-	public void setGroupIndex(int groupIndex);
-
 	/**
-	 * Set of attributes to be assigned to tokens recognised by this regex
-	 * filter.
+	 * Set of attributes to be assigned to tokens entirely contained in the
+	 * sequence identified by this regex.
 	 */
-	Map<String, TokenAttribute<?>> getAttributes();
+	public Map<String, TokenAttribute<?>> getAttributes();
 
 	public void addAttribute(String key, TokenAttribute<?> value);
 
@@ -73,8 +69,6 @@ public interface TokenRegexFilter extends SentenceAnnotator {
 	 */
 	public boolean isAutoWordBoundaries();
 
-	public void setAutoWordBoundaries(boolean autoWordBoundaries);
-
 	/**
 	 * If false, will replace any letter by a class containing the uppercase and
 	 * lowercase versions of the letter. If the letter has a diacritic, both the
@@ -83,19 +77,9 @@ public interface TokenRegexFilter extends SentenceAnnotator {
 	 */
 	public boolean isCaseSensitive();
 
-	public void setCaseSensitive(boolean caseSensitive);
-
 	/**
 	 * If false, will replace any adorned letter with a class containing both
 	 * unadorned and adorned versions. Default is true.
 	 */
 	public boolean isDiacriticSensitive();
-
-	public void setDiacriticSensitive(boolean diacriticSensitive);
-
-	/**
-	 * Verify that this filter can be used with the parameters provided,
-	 * otherwise throws a TalismaneException.
-	 */
-	public void verify();
 }

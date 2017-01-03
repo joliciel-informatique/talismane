@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationModelTrainer;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 import com.joliciel.talismane.machineLearning.ModelTrainerFactory;
-import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorFactory;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoader;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeature;
 import com.joliciel.talismane.tokeniser.features.TokenPatternMatchFeatureParser;
@@ -103,8 +102,10 @@ public class PatternTokeniserTrainer {
 		// add descriptors for various filters
 		// these are for reference purpose only, as we no longer read filters
 		// out of the model
-		descriptors.put(SentenceAnnotatorFactory.TOKEN_FILTER_DESCRIPTOR_KEY,
-				session.getSentenceAnnotatorsWithDescriptors().stream().map(f -> f.getLeft()).collect(Collectors.toList()));
+		List<List<String>> sentenceAnnotatorDescriptors = session.getSentenceAnnotatorDescriptors();
+		for (int i = 0; i < sentenceAnnotatorDescriptors.size(); i++) {
+			descriptors.put(SentenceAnnotatorLoader.SENTENCE_ANNOTATOR_DESCRIPTOR_KEY + i, sentenceAnnotatorDescriptors.get(i));
+		}
 
 		TokenPatternMatchFeatureParser featureParser = new TokenPatternMatchFeatureParser(session);
 		Set<TokenPatternMatchFeature<?>> features = featureParser.getTokenPatternMatchFeatureSet(featureDescriptors);

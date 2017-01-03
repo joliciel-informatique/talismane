@@ -76,7 +76,7 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 				}
 
 				if (!foundToken) {
-					LOG.info("Mismatched token :" + posTaggedToken.getToken().getText() + ", index " + posTaggedToken.getToken().getIndex());
+					LOG.info("Mismatched token :" + posTaggedToken.getToken().getOriginalText() + ", index " + posTaggedToken.getToken().getIndex());
 					mismatchedTokens += 1;
 				}
 

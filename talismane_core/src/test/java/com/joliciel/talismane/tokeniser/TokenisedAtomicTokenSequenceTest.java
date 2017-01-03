@@ -79,19 +79,19 @@ public class TokenisedAtomicTokenSequenceTest {
 		i = 0;
 		for (Token token : newTokenSequence) {
 			if (i == 0) {
-				assertEquals("Je", token.getText());
+				assertEquals("Je", token.getAnalyisText());
 			} else if (i == 1) {
-				assertEquals("n'", token.getText());
+				assertEquals("n'", token.getAnalyisText());
 			} else if (i == 2) {
-				assertEquals("ai", token.getText());
+				assertEquals("ai", token.getAnalyisText());
 			} else if (i == 3) {
-				assertEquals("pas encore", token.getText());
+				assertEquals("pas encore", token.getAnalyisText());
 			} else if (i == 4) {
-				assertEquals("l'", token.getText());
+				assertEquals("l'", token.getAnalyisText());
 			} else if (i == 5) {
-				assertEquals("ourang-outan", token.getText());
+				assertEquals("ourang-outan", token.getAnalyisText());
 			} else if (i == 6) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 			}
 			i++;
 		}

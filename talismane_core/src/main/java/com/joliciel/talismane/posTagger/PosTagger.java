@@ -24,7 +24,7 @@ import java.util.Set;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
-import com.joliciel.talismane.sentenceAnnotators.TokenRegexFilter;
+import com.joliciel.talismane.sentenceAnnotators.RegexAnnotator;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.joliciel.talismane.tokeniser.TokenSequence;
@@ -42,7 +42,7 @@ public interface PosTagger {
 	/**
 	 * If this attribute is added to a {@link Token} via
 	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link TokenRegexFilter}), the token in question will get the pos-tag in
+	 * {@link RegexAnnotator}), the token in question will get the pos-tag in
 	 * the attribute value assigned to it without consulting the statistical
 	 * model. This is an alternative to using pos-tagger rules.
 	 */
@@ -51,7 +51,7 @@ public interface PosTagger {
 	/**
 	 * If this attribute is added to a {@link Token} via
 	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link TokenRegexFilter}), and the value of this attribute is
+	 * {@link RegexAnnotator}), and the value of this attribute is
 	 * "originalLower", then the token's lemma will be set to the original
 	 * value, forced into lowercase.
 	 */
@@ -60,7 +60,7 @@ public interface PosTagger {
 	/**
 	 * If this attribute is added to a {@link Token} via
 	 * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-	 * {@link TokenRegexFilter}), and the value of this attribute is
+	 * {@link RegexAnnotator}), and the value of this attribute is
 	 * "originalLower", then the token's lemma will be set to the value
 	 * provided.
 	 */

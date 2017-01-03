@@ -45,7 +45,7 @@ public final class FirstWordInCompoundFeature extends AbstractTokenFeature<Strin
 		Token token = innerWrapper.getToken();
 		
 		FeatureResult<String> result = null;
-		String string = token.getText().trim();
+		String string = token.getAnalyisText().trim();
 		
 		if (string.indexOf(' ')>=0) {
 			String firstWord = string.substring(0, string.indexOf(' '));

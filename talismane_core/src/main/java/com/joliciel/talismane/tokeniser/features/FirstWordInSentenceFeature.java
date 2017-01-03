@@ -56,9 +56,9 @@ public final class FirstWordInSentenceFeature extends AbstractTokenFeature<Boole
 			String word0 = "";
 			String word1 = "";
 			String word2 = "";
-			if (tokenSequence.size()>0) word0 = tokenSequence.get(0).getText();
-			if (tokenSequence.size()>1) word1 = tokenSequence.get(1).getText();
-			if (tokenSequence.size()>2) word2 = tokenSequence.get(2).getText();
+			if (tokenSequence.size()>0) word0 = tokenSequence.get(0).getAnalyisText();
+			if (tokenSequence.size()>1) word1 = tokenSequence.get(1).getAnalyisText();
+			if (tokenSequence.size()>2) word2 = tokenSequence.get(2).getAnalyisText();
 			
 			boolean word0IsInteger = false;
 			try {

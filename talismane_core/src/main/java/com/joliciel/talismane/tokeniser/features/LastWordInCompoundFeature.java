@@ -46,7 +46,7 @@ public final class LastWordInCompoundFeature extends AbstractTokenFeature<String
 		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
 		
-		String string = token.getText().trim();
+		String string = token.getAnalyisText().trim();
 		
 		if (string.indexOf(' ')>=0) {
 			int lastSpace = string.lastIndexOf(' ');

@@ -78,17 +78,17 @@ public class PosTagEvaluationLexicalCoverageTester implements
 			if (tokenUnknown) {
 				fscoreUnknownInLexicon.increment(realToken.getTag().getCode(), testToken.getTag().getCode());
 				unknownWordCount++;
-				Integer countObj = unknownWords.get(realToken.getTag() + "|" + realToken.getToken().getText());
+				Integer countObj = unknownWords.get(realToken.getTag() + "|" + realToken.getToken().getAnalyisText());
 				int count = countObj==null ? 0 : countObj.intValue();
-				unknownWords.put(realToken.getTag() + "|" + realToken.getToken().getText(), count+1);
+				unknownWords.put(realToken.getTag() + "|" + realToken.getToken().getAnalyisText(), count+1);
 			} else {
 				knownWordCount++;
-				knownWords.add(realToken.getToken().getText());
+				knownWords.add(realToken.getToken().getAnalyisText());
 			}
 			
 			if (realToken.getTag().getOpenClassIndicator().isClosed()
 					&& !realToken.getToken().getPossiblePosTags().contains(realToken.getTag())) {
-				closedCategoryMismatches.add(realToken.getTag() + "|" + realToken.getToken().getText());
+				closedCategoryMismatches.add(realToken.getTag() + "|" + realToken.getToken().getAnalyisText());
 			}
 		}
 	}

@@ -71,23 +71,23 @@ public class PatternTokeniserTest {
 		int i = 0;
 		for (Token token : tokenSequence) {
 			if (i == 0) {
-				assertEquals("Je", token.getText());
+				assertEquals("Je", token.getAnalyisText());
 			} else if (i == 1) {
-				assertEquals("n'", token.getText());
+				assertEquals("n'", token.getAnalyisText());
 			} else if (i == 2) {
-				assertEquals("ai", token.getText());
+				assertEquals("ai", token.getAnalyisText());
 			} else if (i == 3) {
-				assertEquals("pas", token.getText());
+				assertEquals("pas", token.getAnalyisText());
 			} else if (i == 4) {
-				assertEquals("l'", token.getText());
+				assertEquals("l'", token.getAnalyisText());
 			} else if (i == 5) {
-				assertEquals("ourang-outan", token.getText());
+				assertEquals("ourang-outan", token.getAnalyisText());
 			} else if (i == 6) {
-				assertEquals("sur", token.getText());
+				assertEquals("sur", token.getAnalyisText());
 			} else if (i == 7) {
-				assertEquals("URL", token.getText());
+				assertEquals("URL", token.getAnalyisText());
 			} else if (i == 8) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 			}
 			i++;
 		}

@@ -101,7 +101,7 @@ public class PosTagEvaluationFScoreCalculator implements
 			}
 
 			if (LOG.isTraceEnabled()) {
-				LOG.trace("Token " + testToken.getToken().getText() + ", guessed: " + testToken.getTag().getCode() + " (" + testToken.getDecision().getProbability() + "), actual: " + realToken.getTag().getCode());
+				LOG.trace("Token " + testToken.getToken().getAnalyisText() + ", guessed: " + testToken.getTag().getCode() + " (" + testToken.getDecision().getProbability() + "), actual: " + realToken.getTag().getCode());
 			}
 			
 			String result = testToken.getTag().getCode();
@@ -114,7 +114,7 @@ public class PosTagEvaluationFScoreCalculator implements
 			else
 				fscoreKnownInLexicon.increment(realToken.getTag().getCode(), result);
 			
-			if (unknownWords!=null&&unknownWords.contains(testToken.getToken().getText()))
+			if (unknownWords!=null&&unknownWords.contains(testToken.getToken().getAnalyisText()))
 				fscoreUnknownInCorpus.increment(realToken.getTag().getCode(), result);
 		}
 	}
