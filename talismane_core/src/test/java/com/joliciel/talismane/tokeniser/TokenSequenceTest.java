@@ -56,46 +56,46 @@ public class TokenSequenceTest {
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 			if (i == 0) {
-				assertEquals("Je", token.getText());
+				assertEquals("Je", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 1) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 2) {
-				assertEquals("n", token.getText());
+				assertEquals("n", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 3) {
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 4) {
-				assertEquals("ai", token.getText());
+				assertEquals("ai", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 5) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 6) {
-				assertEquals("pas", token.getText());
+				assertEquals("pas", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 7) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 8) {
-				assertEquals("l", token.getText());
+				assertEquals("l", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 9) {
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 10) {
-				assertEquals("ourang", token.getText());
+				assertEquals("ourang", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 11) {
-				assertEquals("-", token.getText());
+				assertEquals("-", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 12) {
-				assertEquals("outan", token.getText());
+				assertEquals("outan", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 13) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			}
 			i++;
@@ -104,37 +104,37 @@ public class TokenSequenceTest {
 		i = 0;
 		for (Token token : tokenSequence) {
 			if (i == 0) {
-				assertEquals("Je", token.getText());
+				assertEquals("Je", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 1) {
-				assertEquals("n", token.getText());
+				assertEquals("n", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 2) {
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 3) {
-				assertEquals("ai", token.getText());
+				assertEquals("ai", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 4) {
-				assertEquals("pas", token.getText());
+				assertEquals("pas", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 5) {
-				assertEquals("l", token.getText());
+				assertEquals("l", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 6) {
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 7) {
-				assertEquals("ourang", token.getText());
+				assertEquals("ourang", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 8) {
-				assertEquals("-", token.getText());
+				assertEquals("-", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 9) {
-				assertEquals("outan", token.getText());
+				assertEquals("outan", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 10) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			}
 			i++;
@@ -164,9 +164,9 @@ public class TokenSequenceTest {
 		assertEquals(5, tokenSequence.size());
 		int i = 0;
 		for (Token token : tokenSequence) {
-			LOG.debug(token.getText());
+			LOG.debug(token.getAnalyisText());
 			if (i == 0) {
-				assertEquals("The", token.getText());
+				assertEquals("The", token.getAnalyisText());
 			}
 			assertEquals(i, token.getIndex());
 			i++;
@@ -211,61 +211,61 @@ public class TokenSequenceTest {
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 			if (i == 0) {
-				assertEquals("Write", token.getText());
+				assertEquals("Write", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 1) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 2) {
-				assertEquals("to", token.getText());
+				assertEquals("to", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 3) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 4) {
-				assertEquals("me", token.getText());
+				assertEquals("me", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 5) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 6) {
-				assertEquals("at", token.getText());
+				assertEquals("at", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 7) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 8) {
-				assertEquals("Email", token.getText());
+				assertEquals("Email", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 9) {
-				assertEquals(",", token.getText());
+				assertEquals(",", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 10) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 11) {
-				assertEquals("otherwise", token.getText());
+				assertEquals("otherwise", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 12) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 13) {
-				assertEquals("go", token.getText());
+				assertEquals("go", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 14) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 15) {
-				assertEquals("to", token.getText());
+				assertEquals("to", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 16) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 17) {
-				assertEquals("URL", token.getText());
+				assertEquals("URL", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 18) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			}
 			i++;
@@ -274,37 +274,37 @@ public class TokenSequenceTest {
 		i = 0;
 		for (Token token : tokenSequence) {
 			if (i == 0) {
-				assertEquals("Write", token.getText());
+				assertEquals("Write", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 1) {
-				assertEquals("to", token.getText());
+				assertEquals("to", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 2) {
-				assertEquals("me", token.getText());
+				assertEquals("me", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 3) {
-				assertEquals("at", token.getText());
+				assertEquals("at", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 4) {
-				assertEquals("Email", token.getText());
+				assertEquals("Email", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 5) {
-				assertEquals(",", token.getText());
+				assertEquals(",", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 6) {
-				assertEquals("otherwise", token.getText());
+				assertEquals("otherwise", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 7) {
-				assertEquals("go", token.getText());
+				assertEquals("go", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 8) {
-				assertEquals("to", token.getText());
+				assertEquals("to", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 9) {
-				assertEquals("URL", token.getText());
+				assertEquals("URL", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 10) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			}
 			i++;
@@ -352,35 +352,35 @@ public class TokenSequenceTest {
 		int i = 0;
 		for (Token token : tokenSequence.listWithWhiteSpace()) {
 			if (i == 0) {
-				assertEquals("Il", token.getText());
+				assertEquals("Il", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 				assertEquals(0, token.getAttributes().size());
 			} else if (i == 1) {
-				assertEquals(" ", token.getText());
+				assertEquals(" ", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 				assertEquals(0, token.getAttributes().size());
 			} else if (i == 2) {
-				assertEquals("t", token.getText());
+				assertEquals("t", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 				assertEquals(3, token.getAttributes().size());
 				assertEquals("verbal", token.getAttributes().get("phrase").getValue());
 				assertEquals("3rd", token.getAttributes().get("person").getValue());
 				assertEquals("object", token.getAttributes().get("type").getValue());
 			} else if (i == 3) {
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 				assertEquals(3, token.getAttributes().size());
 				assertEquals("verbal", token.getAttributes().get("phrase").getValue());
 				assertEquals("3rd", token.getAttributes().get("person").getValue());
 				assertEquals("object", token.getAttributes().get("type").getValue());
 			} else if (i == 4) {
-				assertEquals("aime", token.getText());
+				assertEquals("aime", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 				assertEquals(2, token.getAttributes().size());
 				assertEquals("verbal", token.getAttributes().get("phrase").getValue());
 				assertEquals("3rd", token.getAttributes().get("person").getValue());
 			} else if (i == 5) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 				assertEquals(0, token.getAttributes().size());
 			}
@@ -390,19 +390,19 @@ public class TokenSequenceTest {
 		i = 0;
 		for (Token token : tokenSequence) {
 			if (i == 0) {
-				assertEquals("Il", token.getText());
+				assertEquals("Il", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 1) {
-				assertEquals("t", token.getText());
+				assertEquals("t", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 2) {
-				assertEquals("'", token.getText());
+				assertEquals("'", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			} else if (i == 3) {
-				assertEquals("aime", token.getText());
+				assertEquals("aime", token.getAnalyisText());
 				assertEquals(false, token.isSeparator());
 			} else if (i == 4) {
-				assertEquals(".", token.getText());
+				assertEquals(".", token.getAnalyisText());
 				assertEquals(true, token.isSeparator());
 			}
 			i++;
@@ -461,23 +461,23 @@ public class TokenSequenceTest {
 		for (Token token : tokenSequence) {
 			LOG.debug(token.getAttributes().toString());
 			if (i == 0) {
-				assertEquals("Pakistan", token.getText());
+				assertEquals("Pakistan", token.getAnalyisText());
 				assertEquals(3, token.getAttributes().size());
 				assertEquals("company", token.getAttributes().get("namedEntity").getValue());
 				assertEquals("true", token.getAttributes().get("startsWithP").getValue());
 				assertEquals("true", token.getAttributes().get("asianCompany").getValue());
 			} else if (i == 1) {
-				assertEquals("International", token.getText());
+				assertEquals("International", token.getAnalyisText());
 				assertEquals(2, token.getAttributes().size());
 				assertEquals("company", token.getAttributes().get("namedEntity").getValue());
 				assertEquals("true", token.getAttributes().get("asianCompany").getValue());
 			} else if (i == 2) {
-				assertEquals("Airlines", token.getText());
+				assertEquals("Airlines", token.getAnalyisText());
 				assertEquals(2, token.getAttributes().size());
 				assertEquals("company", token.getAttributes().get("namedEntity").getValue());
 				assertEquals("true", token.getAttributes().get("asianCompany").getValue());
 			} else if (i == 3) {
-				assertEquals("Company", token.getText());
+				assertEquals("Company", token.getAnalyisText());
 				assertEquals(1, token.getAttributes().size());
 				assertEquals("true", token.getAttributes().get("startsWithC").getValue());
 			}
@@ -523,14 +523,14 @@ public class TokenSequenceTest {
 		for (Token token : tokenSequence) {
 			LOG.debug(token.getAttributes().toString());
 			if (i == 0) {
-				assertEquals("Replacing", token.getText());
+				assertEquals("Replacing", token.getAnalyisText());
 			} else if (i == 1) {
-				assertEquals("foot/minute", token.getText());
+				assertEquals("foot/minute", token.getAnalyisText());
 				assertEquals("ft0per0min", token.getOriginalText());
 			} else if (i == 2) {
-				assertEquals("with", token.getText());
+				assertEquals("with", token.getAnalyisText());
 			} else if (i == 3) {
-				assertEquals("foot_per_minute", token.getText());
+				assertEquals("foot_per_minute", token.getAnalyisText());
 				assertEquals("foot/minute", token.getOriginalText());
 			}
 			i++;

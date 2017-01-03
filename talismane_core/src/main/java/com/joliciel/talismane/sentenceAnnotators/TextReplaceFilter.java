@@ -50,13 +50,44 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class TextReplaceFilter implements SentenceAnnotator {
 	private static final Logger LOG = LoggerFactory.getLogger(TextReplaceFilter.class);
-	private List<TextReplacer> textReplacers;
+	private final List<TextReplacer> textReplacers;
 	private final Map<String, Class<? extends TextReplacer>> registeredTextReplacers;
 	private final TalismaneSession session;
 
-	public TextReplaceFilter(Map<String, Class<? extends TextReplacer>> registeredTextReplacers, TalismaneSession session) {
+	public TextReplaceFilter(Map<String, Class<? extends TextReplacer>> registeredTextReplacers, String descriptor, TalismaneSession session)
+			throws SentenceAnnotatorLoadException {
 		this.registeredTextReplacers = registeredTextReplacers;
 		this.session = session;
+
+		String[] tabs = descriptor.split("\t");
+
+		try {
+			textReplacers = new ArrayList<>();
+
+			for (int i = 1; i < tabs.length; i++) {
+				String className = tabs[i];
+				Class<? extends TextReplacer> clazz = this.registeredTextReplacers.get(className);
+				if (clazz == null) {
+					throw new SentenceAnnotatorLoadException("Unknown TextReplacer: " + className);
+				}
+
+				TextReplacer textReplacer = clazz.newInstance();
+				if (textReplacer instanceof NeedsTalismaneSession) {
+					((NeedsTalismaneSession) textReplacer).setTalismaneSession(session);
+				}
+
+				textReplacers.add(textReplacer);
+			}
+		} catch (InstantiationException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			LogUtils.logError(LOG, e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -80,36 +111,6 @@ public class TextReplaceFilter implements SentenceAnnotator {
 		}
 
 		annotatedText.addAnnotations(replacements);
-	}
-
-	@Override
-	public void load(Map<String, String> parameters, List<String> tabs) throws SentenceAnnotatorLoadException {
-		try {
-			textReplacers = new ArrayList<>();
-
-			for (String className : tabs) {
-				Class<? extends TextReplacer> clazz = this.registeredTextReplacers.get(className);
-				if (clazz == null) {
-					throw new SentenceAnnotatorLoadException("Unknown TextReplacer: " + className);
-				}
-
-				TextReplacer textReplacer = clazz.newInstance();
-				if (textReplacer instanceof NeedsTalismaneSession) {
-					((NeedsTalismaneSession) textReplacer).setTalismaneSession(session);
-				}
-
-				textReplacers.add(textReplacer);
-			}
-		} catch (InstantiationException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override

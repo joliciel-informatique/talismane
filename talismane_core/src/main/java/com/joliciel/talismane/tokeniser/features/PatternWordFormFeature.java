@@ -62,7 +62,7 @@ public final class PatternWordFormFeature extends AbstractTokenFeature<String> i
 				for (int i = 0; i<tokenPattern.getTokenCount();i++) {
 					int index = token.getIndexWithWhiteSpace() - theMatch.getIndex() + i;
 					Token aToken = token.getTokenSequence().listWithWhiteSpace().get(index);
-					unigram += aToken.getText();
+					unigram += aToken.getAnalyisText();
 				}
 				result = this.generateResult(unigram);
 			} // the current token matches the tokeniserPattern at it's first test index

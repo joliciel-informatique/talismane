@@ -18,9 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceAnnotators;
 
-import java.util.List;
-import java.util.Map;
-
 import com.joliciel.talismane.Annotator;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.TokenAttribute;
@@ -30,31 +27,19 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  * duplicate white space, etc.). It can add the following annotations:<br/>
  * <ul>
  * <li>{@link TokenPlaceholder} for a deterministic token boundary.</li>
- * <li>{@link TokenAttribute} for an arbitrary attribute added to any enclosed
- * tokens.</li>
+ * <li>{@link TokenAttribute} for an arbitrary attribute added to any fully
+ * enclosed tokens.</li>
  * </ul>
  * 
  * @author Assaf Urieli
  *
  */
 public interface SentenceAnnotator extends Annotator<Sentence> {
-	/**
-	 * Load the annotator's state using information extracted from a descriptor.
-	 * 
-	 * @param parameters
-	 *            a series of name/value parameters
-	 * @param tabs
-	 *            a list of unnamed parameters, whose placement determines their
-	 *            meaning
-	 * @throws SentenceAnnotatorLoadException
-	 *             if any loading error occurs related to the parameters or tabs
-	 */
-	public void load(Map<String, String> parameters, List<String> tabs) throws SentenceAnnotatorLoadException;
 
 	/**
-	 * Returns true if this TokenFilter should be excluded from the list of
-	 * TokenFilters for the current configuration. This will typically be set
+	 * Returns true if this SentenceAnnotator should be excluded from the list
+	 * of annotators for the current configuration. This will typically be set
 	 * during the load method, based on context specific considerations.
 	 */
-	public boolean isExcluded();
+	public abstract boolean isExcluded();
 }

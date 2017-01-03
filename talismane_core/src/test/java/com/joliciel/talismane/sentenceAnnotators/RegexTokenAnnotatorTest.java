@@ -19,8 +19,8 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class TokenRegexFilterImplTest {
-	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexFilterImplTest.class);
+public class RegexTokenAnnotatorTest {
+	private static final Logger LOG = LoggerFactory.getLogger(RegexTokenAnnotatorTest.class);
 
 	@Test
 	public void testApply() throws Exception {
@@ -29,9 +29,10 @@ public class TokenRegexFilterImplTest {
 		final Config config = ConfigFactory.load();
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
-		filter.setRegex("\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b");
-		filter.setReplacement("Email");
+		String regex = "\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{2,4}\\b";
+		String replacement = "Email";
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+
 		Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
 		filter.annotate(text);
 		LOG.debug(text.getAnnotations().toString());
@@ -50,9 +51,10 @@ public class TokenRegexFilterImplTest {
 		final Config config = ConfigFactory.load();
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
-		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
-		filter.setReplacement("\\$Email$2:$1");
+		String regex = "\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b";
+		String replacement = "\\$Email$2:$1";
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+
 		Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
 		filter.annotate(text);
 		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
@@ -73,9 +75,10 @@ public class TokenRegexFilterImplTest {
 		final Config config = ConfigFactory.load();
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
-		filter.setRegex("\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b");
-		filter.setReplacement("\\$Email$2$1");
+		String regex = "\\b([\\w.%-]+)(@[-.\\w]+\\.[A-Za-z]{2,4})\\b";
+		String replacement = "\\$Email$2$1";
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+
 		Sentence text = new Sentence("My address is joe.schmoe@test.com.", session);
 		filter.annotate(text);
 		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
@@ -95,9 +98,10 @@ public class TokenRegexFilterImplTest {
 		final Config config = ConfigFactory.load();
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		TokenRegexFilterImpl filter = new TokenRegexFilterImpl();
-		filter.setRegex("\\b(\\d)(\\d)?\\b");
-		filter.setReplacement("Number$1$2");
+		String regex = "\\b(\\d)(\\d)?\\b";
+		String replacement = "Number$1$2";
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+
 		Sentence text = new Sentence("Two-digit number: 42. One-digit number: 7.", session);
 		filter.annotate(text);
 		List<Annotation<TokenPlaceholder>> placeholders = text.getAnnotations(TokenPlaceholder.class);
@@ -130,9 +134,9 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		session.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(session);
-		filter.setRegex("\\b(\\p{WordList(FirstNames)}) [A-Z]\\w+\\b");
+		String regex = "\\b(\\p{WordList(FirstNames)}) [A-Z]\\w+\\b";
+		String replacement = null;
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -156,9 +160,9 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		session.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(session);
-		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b");
+		String regex = "\\b(\\p{WordList(FirstNames,diacriticsOptional)}) [A-Z]\\w+\\b";
+		String replacement = null;
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -182,9 +186,9 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		session.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(session);
-		filter.setRegex("\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b");
+		String regex = "\\b(\\p{WordList(FirstNames,uppercaseOptional)}) [A-Z]\\w+\\b";
+		String replacement = null;
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -208,9 +212,9 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		session.getWordListFinder().addWordList(nameList);
 
-		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(session);
-		filter.setRegex("\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b");
+		String regex = "\\b(\\p{WordList(FirstNames,diacriticsOptional,uppercaseOptional)}) [A-Z]\\w+\\b";
+		String replacement = null;
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -225,108 +229,97 @@ public class TokenRegexFilterImplTest {
 		final Config config = ConfigFactory.load();
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setRegex("hello 123");
-		filter.setAutoWordBoundaries(true);
+		String regex = "hello 123";
+		String replacement = null;
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\bhello 123\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("\\sabc");
-		filter.setAutoWordBoundaries(true);
+		regex = "\\sabc";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\sabc\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("\\bblah di blah\\b");
-		filter.setAutoWordBoundaries(true);
+		regex = "\\bblah di blah\\b";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\bblah di blah\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("helloe?");
-		filter.setAutoWordBoundaries(true);
+		regex = "helloe?";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\bhelloe?\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("liste?s?");
-		filter.setAutoWordBoundaries(true);
+		regex = "liste?s?";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\bliste?s?\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("lis#e?s?");
-		filter.setAutoWordBoundaries(true);
+		regex = "lis#e?s?";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\blis#e?s?", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("liste?\\d?");
-		filter.setAutoWordBoundaries(true);
+		regex = "liste?\\d?";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\bliste?\\d?\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("liste?\\s?");
-		filter.setAutoWordBoundaries(true);
+		regex = "liste?\\s?";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\bliste?\\s?", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("a\\\\b");
-		filter.setAutoWordBoundaries(true);
+		regex = "a\\\\b";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\ba\\\\b\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("\\d+ \\D+");
-		filter.setAutoWordBoundaries(true);
+		regex = "\\d+ \\D+";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\b\\d+ \\D+", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("abc [A-Z]\\w+");
-		filter.setAutoWordBoundaries(true);
+		regex = "abc [A-Z]\\w+";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\babc [A-Z]\\w+\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("(MLLE\\.|Mlle\\.)");
-		filter.setAutoWordBoundaries(true);
+		regex = "(MLLE\\.|Mlle\\.)";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -340,26 +333,21 @@ public class TokenRegexFilterImplTest {
 		WordList nameList = new WordList("FirstNames", wordList);
 		session.getWordListFinder().addWordList(nameList);
 
-		filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(session);
-		filter.setRegex("(\\p{WordList(FirstNames)})");
-		filter.setAutoWordBoundaries(true);
+		regex = "(\\p{WordList(FirstNames)})";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\b(Chloé|Marcel)\\b", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("(\\p{WordList(FirstNames,diacriticsOptional)}) +([A-Z]'\\p{Alpha}+)");
-		filter.setTalismaneSession(session);
-		filter.setAutoWordBoundaries(true);
+		regex = "(\\p{WordList(FirstNames,diacriticsOptional)}) +([A-Z]'\\p{Alpha}+)";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, true, true, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("\\b(Chlo[ée]|Marcel) +([A-Z]'\\p{Alpha}+)\\b", pattern.pattern());
-
 	}
 
 	@Test
@@ -368,30 +356,27 @@ public class TokenRegexFilterImplTest {
 		ConfigFactory.invalidateCaches();
 		final Config config = ConfigFactory.load();
 
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+		final TalismaneSession session = new TalismaneSession(config, "");
 
-		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setRegex("hé");
-		filter.setCaseSensitive(false);
+		String regex = "hé";
+		String replacement = null;
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, true, false, session);
 
 		Pattern pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("[Hh][EÉé]", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("hé");
-		filter.setDiacriticSensitive(false);
+		regex = "hé";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, true, false, false, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("h[eé]", pattern.pattern());
 
-		filter = new TokenRegexFilterImpl();
-		filter.setRegex("hé");
-		filter.setDiacriticSensitive(false);
-		filter.setCaseSensitive(false);
+		regex = "hé";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, false, false, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
@@ -402,19 +387,15 @@ public class TokenRegexFilterImplTest {
 		wordList.add("apples");
 		wordList.add("oranges");
 		WordList fruitList = new WordList("Fruit", wordList);
-		talismaneSession.getWordListFinder().addWordList(fruitList);
+		session.getWordListFinder().addWordList(fruitList);
 
-		filter = new TokenRegexFilterImpl();
-		filter.setTalismaneSession(talismaneSession);
-		filter.setRegex("(\\p{WordList(Fruit)})hé\\w+\\b");
-		filter.setDiacriticSensitive(false);
-		filter.setCaseSensitive(false);
+		regex = "(\\p{WordList(Fruit)})hé\\w+\\b";
+		filter = new RegexTokenAnnotator(regex, replacement, null, 0, false, false, false, session);
 
 		pattern = filter.getPattern();
 		LOG.debug(pattern.pattern());
 
 		assertEquals("(apples|oranges)[Hh][EeÉé]\\w+\\b", pattern.pattern());
-
 	}
 
 	@Test
@@ -424,8 +405,10 @@ public class TokenRegexFilterImplTest {
 		final Config config = ConfigFactory.load();
 		final TalismaneSession session = new TalismaneSession(config, "");
 
-		AbstractRegexFilter filter = new TokenRegexFilterImpl();
-		filter.setRegex("^Résumé\\.");
+		String regex = "^Résumé\\.";
+		String replacement = null;
+		RegexTokenAnnotator filter = new RegexTokenAnnotator(regex, replacement, null, session);
+
 		filter.addAttribute("TAG", new StringAttribute("TAG", "skip"));
 		Sentence text = new Sentence("Résumé. Résumé des attaques", session);
 		filter.annotate(text);

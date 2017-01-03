@@ -82,7 +82,6 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserO
 
 			int currentStart = 0;
 			int currentEnd = 0;
-			StringBuilder currentText = new StringBuilder();
 			List<TaggedToken<TokeniserOutcome>> currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
 			boolean isWhiteSpace = true;
 			for (TaggedToken<TokeniserOutcome> decisionTag : this) {
@@ -93,25 +92,21 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserO
 				if (decisionTag.getTag().equals(TokeniserOutcome.SEPARATE)) {
 					// make separation (add token)
 					if (!isWhiteSpace) {
-						this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
+						this.addToken(tokenSequence, currentStart, currentEnd, currentAtomicParts);
 						currentAtomicParts = new ArrayList<TaggedToken<TokeniserOutcome>>();
 					} else {
-						this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
+						this.addToken(tokenSequence, currentStart, currentEnd, null);
 					}
-					currentText = new StringBuilder();
-					currentText.append(token.getText());
 					currentStart = token.getStartIndex();
 					isWhiteSpace = true;
-				} else {
-					currentText.append(token.getText());
 				}
 				isWhiteSpace = isWhiteSpace && token.isWhiteSpace();
 				currentEnd = token.getEndIndex();
 			}
 			if (!isWhiteSpace) {
-				this.addToken(tokenSequence, currentStart, currentEnd, currentText, currentAtomicParts);
+				this.addToken(tokenSequence, currentStart, currentEnd, currentAtomicParts);
 			} else {
-				this.addToken(tokenSequence, currentStart, currentEnd, currentText, null);
+				this.addToken(tokenSequence, currentStart, currentEnd, null);
 			}
 
 			tokenSequence.finalise();
@@ -119,13 +114,12 @@ public class TokenisedAtomicTokenSequence extends TaggedTokenSequence<TokeniserO
 		return tokenSequence;
 	}
 
-	private Token addToken(TokenSequence tokenSequence, int start, int end, StringBuilder currentText, List<TaggedToken<TokeniserOutcome>> currentAtomicParts) {
+	private Token addToken(TokenSequence tokenSequence, int start, int end, List<TaggedToken<TokeniserOutcome>> currentAtomicParts) {
 		Token token = null;
 		if (start == end) {
 			// do nothing
 		} else {
 			token = tokenSequence.addToken(start, end);
-			token.setText(currentText.toString());
 			token.setAtomicParts(currentAtomicParts);
 		}
 

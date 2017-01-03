@@ -170,7 +170,7 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 				List<Annotation<TokenBoundary>> tokenBoundaries = new ArrayList<>();
 				for (Token token : newTokenSequence) {
 					Annotation<TokenBoundary> tokenBoundary = new Annotation<>(token.getStartIndex(), token.getEndIndex(),
-							new TokenBoundary(token.getText(), token.getAttributes()), labels);
+							new TokenBoundary(token.getText(), token.getAnalyisText(), token.getAttributes()), labels);
 					tokenBoundaries.add(tokenBoundary);
 				}
 				sentence.addAnnotations(tokenBoundaries);

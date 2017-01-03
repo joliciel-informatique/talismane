@@ -21,7 +21,7 @@ import com.joliciel.talismane.tokeniser.TokenSequence;
  * @author Assaf Urieli
  *
  */
-public class PosTagSequence extends ArrayList<PosTaggedToken> implements Comparable<PosTagSequence>, ClassificationSolution {
+public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparable<PosTagSequence>, ClassificationSolution {
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagSequence.class);
 	private static final long serialVersionUID = 1L;
 	private double score = 0.0;

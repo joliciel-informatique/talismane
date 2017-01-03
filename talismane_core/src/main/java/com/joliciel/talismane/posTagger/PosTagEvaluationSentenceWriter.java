@@ -53,7 +53,7 @@ public class PosTagEvaluationSentenceWriter implements PosTagEvaluationObserver 
 			List<PosTagSequence> guessedSequences) {
 		try {
 			for (int i = 0; i<realSequence.size(); i++) {
-				String token =  realSequence.get(i).getToken().getText();
+				String token =  realSequence.get(i).getToken().getAnalyisText();
 				csvFileWriter.write(CSV.format(token));
 			}
 			csvFileWriter.write("\n");

@@ -50,7 +50,7 @@ public final class NLetterSuffixFeature extends AbstractTokenFeature<String> imp
 			return null;
 		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
-		String lastWord = token.getText().trim();
+		String lastWord = token.getAnalyisText().trim();
 		if (lastWord.indexOf(' ')>=0) {
 			int lastSpace = lastWord.lastIndexOf(' ');
 			lastWord = lastWord.substring(lastSpace+1);

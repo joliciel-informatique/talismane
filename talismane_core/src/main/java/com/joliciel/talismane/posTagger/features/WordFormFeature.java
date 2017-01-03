@@ -44,7 +44,7 @@ public final class WordFormFeature<T> extends AbstractPosTaggedTokenFeature<T,St
 			return null;
 		
 		FeatureResult<String> featureResult = null;
-		featureResult = this.generateResult(posTaggedToken.getToken().getText());
+		featureResult = this.generateResult(posTaggedToken.getToken().getAnalyisText());
 		return featureResult;
 	}
 	
