@@ -1,4 +1,4 @@
-frWikiDisc corpus v1.0
+frWikiDisc corpus v1.1
 -------------------
 September 2014
 
@@ -26,4 +26,5 @@ Version history
 
 V1.0 September 2014
      First public release
-
+V1.1 November 2016
+     Various corrections to enable depedency parser training using the corpus (non-projective arcs in projective column, missing depenency labels, etc.)
