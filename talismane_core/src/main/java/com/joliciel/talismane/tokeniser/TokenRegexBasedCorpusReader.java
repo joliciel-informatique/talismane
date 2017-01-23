@@ -97,10 +97,10 @@ public class TokenRegexBasedCorpusReader implements TokeniserAnnotatedCorpusRead
 			placeholderIndexMap.put(placeholderName, i++);
 		}
 
-		String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*)");
-		regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
-		regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+)");
-		regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+)");
+		String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*?)");
+		regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+?)");
+		regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+?)");
+		regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+?)");
 
 		this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
 	}

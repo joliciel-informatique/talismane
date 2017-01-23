@@ -29,7 +29,7 @@ prep
 sub
 # Additional dependencies for manual annotation only
 aff_moyen
-arg_comp 
+arg_comp
 arg_cons
 mod_cleft
 mod_loc
