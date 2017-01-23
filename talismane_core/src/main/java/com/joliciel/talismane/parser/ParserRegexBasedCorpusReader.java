@@ -802,19 +802,19 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 			}
 
 			String regexWithGroups = regex.replace(INDEX_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(TOKEN_PLACEHOLDER, "(.*)");
-			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+)");
-			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(TOKEN_PLACEHOLDER, "(.*?)");
+			regexWithGroups = regexWithGroups.replace(POSTAG_PLACEHOLDER, "(.+?)");
+			regexWithGroups = regexWithGroups.replace(LABEL_PLACEHOLDER, "(.*?)");
 			regexWithGroups = regexWithGroups.replace(GOVERNOR_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(NON_PROJ_LABEL_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(NON_PROJ_LABEL_PLACEHOLDER, "(.*?)");
 			regexWithGroups = regexWithGroups.replace(NON_PROJ_GOVERNOR_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+)");
+			regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+?)");
 			regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(END_ROW_PLACEHOLDER, "(\\d+)");
 			regexWithGroups = regexWithGroups.replace(END_COLUMN_PLACEHOLDER, "(\\d+)");
-			regexWithGroups = regexWithGroups.replace(POSTAG_COMMENT_PLACEHOLDER, "(.*)");
-			regexWithGroups = regexWithGroups.replace(DEP_COMMENT_PLACEHOLDER, "(.*)");
+			regexWithGroups = regexWithGroups.replace(POSTAG_COMMENT_PLACEHOLDER, "(.*?)");
+			regexWithGroups = regexWithGroups.replace(DEP_COMMENT_PLACEHOLDER, "(.*?)");
 
 			this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
 		}
