@@ -143,6 +143,8 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 	private final TalismaneSession talismaneSession;
 	private final String regex;
 
+	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
+
 	public ParserRegexBasedCorpusReader(String regex, File corpusLocation, Charset charset, TalismaneSession talismaneSession) {
 		this.corpusLocation = corpusLocation;
 		this.charset = charset;
@@ -228,7 +230,12 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 							}
 
 							if (!badConfig) {
-								PretokenisedSequence tokenSequence = new PretokenisedSequence(talismaneSession);
+								PretokenisedSequence tokenSequence = null;
+								if (sentenceReader != null && sentenceReader.hasNextSentence()) {
+									tokenSequence = new PretokenisedSequence(sentenceReader.nextSentence(), talismaneSession);
+								} else {
+									tokenSequence = new PretokenisedSequence(talismaneSession);
+								}
 
 								int maxIndex = 0;
 								for (ParseDataLine dataLine : dataLines) {
@@ -1043,4 +1050,16 @@ public class ParserRegexBasedCorpusReader implements ParserAnnotatedCorpusReader
 		lineNumber = 0;
 	}
 
+
+	/**
+	 * If provided, will assign sentences with the original white space to the
+	 * token sequences.
+	 */
+	public SentenceDetectorAnnotatedCorpusReader getSentenceReader() {
+		return sentenceReader;
+	}
+
+	public void setSentenceReader(SentenceDetectorAnnotatedCorpusReader sentenceReader) {
+		this.sentenceReader = sentenceReader;
+	}
 }
