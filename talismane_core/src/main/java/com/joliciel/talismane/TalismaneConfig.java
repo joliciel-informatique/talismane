@@ -2194,6 +2194,14 @@ public class TalismaneConfig {
 					parserRegexCorpusReader.setLexicalEntryReader(lexicalEntryReader);
 				}
 			}
+			
+			configPath = "talismane.core.train.parser.sentenceReader";
+			if (config.hasPath(configPath)) {
+				InputStream sentenceReaderFile = this.getFileFromConfig(configPath);
+				Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, this.getInputCharset()));
+				SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader);
+				parserRegexCorpusReader.setSentenceReader(sentenceReader);
+			}
 
 			this.parserCorpusReader = parserRegexCorpusReader;
 		}
