@@ -37,6 +37,8 @@ import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.utils.LogUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import freemarker.cache.NullCacheStorage;
 import freemarker.template.Configuration;
@@ -54,7 +56,12 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 	private int relationCount = 0;
 	private int characterCount = 0;
 
+	private final String punctuationDepLabel;
+
 	public StandoffWriter(Writer writer) {
+		Config conf = ConfigFactory.load();
+		punctuationDepLabel = conf.getString("talismane.extensions.parser.punctuation-dep-label");
+
 		try {
 			this.writer = writer;
 			Configuration cfg = new Configuration(new Version(2, 3, 23));
@@ -83,7 +90,7 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 		model.put("LOG", LOG);
 		List<DependencyArc> dependencies = new ArrayList<DependencyArc>();
 		for (DependencyArc dependencyArc : parseConfiguration.getRealDependencies()) {
-			if (!dependencyArc.getLabel().equals("ponct")) {
+			if (!dependencyArc.getLabel().equals(punctuationDepLabel)) {
 				dependencies.add(dependencyArc);
 			}
 		}
