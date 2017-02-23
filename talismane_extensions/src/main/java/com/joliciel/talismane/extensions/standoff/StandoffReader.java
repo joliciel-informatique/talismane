@@ -39,6 +39,7 @@ import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTag;
+import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -49,6 +50,7 @@ import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class StandoffReader extends ParserAnnotatedCorpusReader {
 	private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
@@ -66,11 +68,15 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 	private List<List<StandoffToken>> sentences = new ArrayList<>();
 
 	private TalismaneSession session;
+	private final String punctuationDepLabel;
 
 	public StandoffReader(Reader reader, Config config, TalismaneSession session) {
 		super(reader, config, session);
 		this.session = session;
 		PosTagSet posTagSet = session.getPosTagSet();
+
+		Config conf = ConfigFactory.load();
+		punctuationDepLabel = conf.getString("talismane.extensions.parser.punctuation-dep-label");
 
 		Map<Integer, StandoffToken> sortedTokens = new TreeMap<>();
 		try (Scanner scanner = new Scanner(reader)) {
@@ -218,6 +224,15 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 						}
 						DependencyArc arc = configuration.addDependency(head, dependent, relation.label, null);
 						arc.setComment(relation.comment);
+					} else if (standoffToken.posTag.getOpenClassIndicator() == PosTagOpenClassIndicator.PUNCTUATION) {
+						PosTaggedToken dependent = idTokenMap.get(standoffToken.id);
+						for (int i = dependent.getIndex() - 1; i >= 0; i--) {
+							PosTaggedToken head = posTagSequence.get(i);
+							if (head.getTag().getOpenClassIndicator() == PosTagOpenClassIndicator.PUNCTUATION)
+								continue;
+							configuration.addDependency(head, dependent, punctuationDepLabel, null);
+							break;
+						}
 					}
 				}
 
