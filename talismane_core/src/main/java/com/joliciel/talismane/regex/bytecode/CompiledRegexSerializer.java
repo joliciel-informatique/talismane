@@ -85,7 +85,8 @@ public class CompiledRegexSerializer {
 				out.writeInt(((Jump) i).next);
 				break;
 			case MATCH:
-				// no parameter for this instruction
+				// write the match identifier
+				out.writeInt(((MatchFound) i).id);
 				break;
 			case PREDICATE:
 				// write the predicate id
@@ -146,8 +147,13 @@ public class CompiledRegexSerializer {
 				instructions[i] = new Jump(in.readInt());
 				break;
 			case MATCH:
-				// no parameter for this instruction
-				instructions[i] = MatchFound.ANONYMOUS;
+				// read the match identifier
+				int id = in.readInt();
+				if (id < 0) {
+					instructions[i] = MatchFound.ANONYMOUS;
+				} else {
+					instructions[i] = new MatchFound(id);
+				}
 				break;
 			case PREDICATE:
 				// read the predicate id

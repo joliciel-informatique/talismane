@@ -20,6 +20,7 @@ package com.joliciel.talismane.sentenceAnnotators;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -41,17 +42,14 @@ import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
- * Represents a set of compiled {@link AbstractRegexAnnotator}. The filters are
- * applied in parallel but match in declaration order. Hence, if two regular
- * expressions match at the same index in the input, the first one wins in case
+ * Represents a set of compiled {@link AbstractRegexAnnotator}. The filters are applied in parallel but match in
+ * declaration order. Hence, if two regular expressions match at the same index in the input, the first one wins in case
  * of {@link RegexAnnotator#isSingleToken()} is <code>true</code>.
  *
- * The advantage of using compiled token filters over textual resources is that
- * the input is read only once no matter how many filters are declared. The
- * compiled filters are obtained from the textual resources and behave the same.
- * They cannot be modified easily but are more efficient. During resource design
- * phase, you can use the usual textual resources. Once they are complete,
- * compile them to improve analysis performances.
+ * The advantage of using compiled token filters over textual resources is that the input is read only once no matter
+ * how many filters are declared. The compiled filters are obtained from the textual resources and behave the same. They
+ * cannot be modified easily but are more efficient. During resource design phase, you can use the usual textual
+ * resources. Once they are complete, compile them to improve analysis performances.
  * 
  * @author Lucas Satabin
  *
@@ -147,24 +145,27 @@ public class CompiledRegexAnnotators implements SentenceAnnotator {
 		int lastStart = -1;
 		for (Match match : matcher) {
 			int id = match.getId();
-			Map<String, TokenAttribute<?>> attributes = this.attributes[id];
+			Map<String, TokenAttribute<?>> attributes = id >= 0 ? this.attributes[id] : Collections.emptyMap();
 			int groupIndex = indices[id];
 			int start = match.start(groupIndex);
 			if (start > lastStart) {
 				int end = match.end(groupIndex);
 
 				if (LOG.isTraceEnabled()) {
-					LOG.trace(
-							"Next match: " + annotatedText.getText().subSequence(match.start(), match.end()).toString().replace('\n', '¶').replace('\r', '¶'));
+					LOG.trace("Next match: " + annotatedText.getText().subSequence(match.start(), match.end())
+							.toString().replace('\n', '¶').replace('\r', '¶'));
 					if (match.start() != start || match.end() != end) {
-						LOG.trace("But matching group: " + annotatedText.getText().subSequence(start, end).toString().replace('\n', '¶').replace('\r', '¶'));
+						LOG.trace("But matching group: " + annotatedText.getText().subSequence(start, end).toString()
+								.replace('\n', '¶').replace('\r', '¶'));
 					}
 				}
 
-				if (singleTokens[id]) {
+				boolean singleToken = id >= 0 ? singleTokens[id] : true;
+				if (singleToken) {
 					String replacement = this.findReplacement(id, annotatedText.getText(), match);
 					TokenPlaceholder placeholder = new TokenPlaceholder(replacement);
-					Annotation<TokenPlaceholder> placeholderAnnotation = new Annotation<>(start, end, placeholder, labels);
+					Annotation<TokenPlaceholder> placeholderAnnotation = new Annotation<>(start, end, placeholder,
+							labels);
 					placeholders.add(placeholderAnnotation);
 
 					if (LOG.isTraceEnabled())
@@ -188,7 +189,7 @@ public class CompiledRegexAnnotators implements SentenceAnnotator {
 	}
 
 	private String findReplacement(int index, CharSequence text, Match matcher) {
-		String newText = RegexUtils.getReplacement(replacements[index], text, matcher);
+		String newText = RegexUtils.getReplacement(index >= 0 ? replacements[index] : null, text, matcher);
 		return newText;
 	}
 
