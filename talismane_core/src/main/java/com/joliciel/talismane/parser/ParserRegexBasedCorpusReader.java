@@ -253,8 +253,6 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 									token.setLineNumberEnd(dataLine.getOriginalEndLineNumber());
 									token.setColumnNumberEnd(dataLine.getOriginalEndColumnNumber());
 								}
-								LOG.debug("Sentence " + (sentenceCount) + " (Abs " + (totalSentenceCount - 1) + ") (Line " + (sentenceStartLineNumber + 1)
-										+ "): " + tokenSequence.getSentence().getText());
 
 								tokenSequence.cleanSlate();
 
