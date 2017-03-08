@@ -51,9 +51,17 @@ public interface TransitionSystem {
 	/**
 	 * A set of dependency labels for this transition system.
 	 */
-	public Set<String> getDependencyLabels();
+	public DependencyLabelSet getDependencyLabelSet();
 
-	public void setDependencyLabels(Set<String> dependencyLabels);
+	public void setDependencyLabelSet(DependencyLabelSet dependencyLabelSet);
+
+	/**
+	 * The dependency labels allowed by the {@link DependencyLabelSet}, or an
+	 * empty set if no dependency label set has been set.
+	 * 
+	 * @return
+	 */
+	public Set<String> getDependencyLabels();
 
 	/**
 	 * Get the transition system corresponding to the model provided.

@@ -49,6 +49,7 @@ import com.joliciel.talismane.TalismaneMain;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.extensions.corpus.CorpusModifier;
 import com.joliciel.talismane.extensions.corpus.CorpusProjectifier;
+import com.joliciel.talismane.extensions.corpus.CorpusProjectifier.ProjectivationStrategy;
 import com.joliciel.talismane.extensions.corpus.CorpusStatistics;
 import com.joliciel.talismane.extensions.corpus.PosTaggerStatistics;
 import com.joliciel.talismane.extensions.standoff.ConllFileSplitter;
@@ -78,7 +79,6 @@ public class Extensions {
 
 	public enum ExtendedCommand {
 		toStandoff,
-		toStandoffSentences,
 		fromStandoff,
 		splitConllFile,
 		corpusStatistics,
@@ -100,13 +100,12 @@ public class Extensions {
 
 		OptionParser parser = new OptionParser();
 		parser.accepts(ExtendedCommand.toStandoff.name(), "convert CoNLL to standoff notation");
-		parser.accepts(ExtendedCommand.toStandoffSentences.name(), "convert CoNLL to standoff sentence notation");
 		parser.accepts(ExtendedCommand.fromStandoff.name(), "convert standoff to CoNLL");
 		parser.accepts(ExtendedCommand.corpusStatistics.name(), "calculate various corpus statistics from an annotated (parsed) corpus");
 		parser.accepts(ExtendedCommand.posTaggerStatistics.name(), "calculate various pos-tagger statistics from a pos-tagged corpus");
 		parser.accepts(ExtendedCommand.modifyCorpus.name(), "modify various aspects of a dependency annotation");
 		parser.accepts(ExtendedCommand.projectify.name(), "automatically projectify a non-projective annotated (parsed) corpus");
-		parser.acceptsAll(Arrays.asList("?", "help"), "show help").availableUnless("analyse", "train", "evaluate", "compare", "process").forHelp();
+		parser.acceptsAll(Arrays.asList("?", "help"), "show help").forHelp();
 
 		OptionSpec<File> inFileOption = parser.accepts("inFile", "input file or directory").withRequiredArg().ofType(File.class);
 		OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg()
@@ -137,29 +136,26 @@ public class Extensions {
 		OptionSpec<String> newlineOption = parser
 				.accepts("newline",
 						"how to handle newlines: " + "options are SPACE (will be replaced by a space) " + "and SENTENCE_BREAK (will break sentences)")
-				.availableIf("analyse").withRequiredArg().ofType(String.class);
+				.withRequiredArg().ofType(String.class);
 
 		OptionSpec<Boolean> processByDefaultOption = parser
 				.accepts("processByDefault",
 						"If true, the input file is processed from the very start (e.g. TXT files)."
 								+ "If false, we wait until a text filter tells us to start processing (e.g. XML files).")
-				.availableIf("analyse").withRequiredArg().ofType(Boolean.class);
+				.withRequiredArg().ofType(Boolean.class);
 
 		OptionSpec<Integer> blockSizeOption = parser
 				.accepts("blockSize", "The block size to use when applying filters - if a text filter regex goes beyond the blocksize, Talismane will fail.")
-				.availableIf("analyse").withRequiredArg().ofType(Integer.class);
+				.withRequiredArg().ofType(Integer.class);
 
-		OptionSpec<Integer> sentenceCountOption = parser.accepts("sentenceCount", "max sentences to process").availableIf("analyse").withRequiredArg()
-				.ofType(Integer.class);
-		OptionSpec<Integer> startSentenceOption = parser.accepts("startSentence", "first sentence index to process").availableIf("analyse").withRequiredArg()
-				.ofType(Integer.class);
+		OptionSpec<Integer> sentenceCountOption = parser.accepts("sentenceCount", "max sentences to process").withRequiredArg().ofType(Integer.class);
+		OptionSpec<Integer> startSentenceOption = parser.accepts("startSentence", "first sentence index to process").withRequiredArg().ofType(Integer.class);
 
 		OptionSpec<String> suffixOption = parser.accepts("suffix", "suffix to all output files").withRequiredArg().ofType(String.class);
 		OptionSpec<String> outputDividerOption = parser
-				.accepts("outputDivider",
-						"a string to insert between sections marked for output (e.g. XML tags to be kept in the analysed output)."
-								+ " The String NEWLINE is interpreted as \"\n\". Otherwise, used literally.")
-				.availableIf("analyse").withRequiredArg().ofType(String.class);
+				.accepts("outputDivider", "a string to insert between sections marked for output (e.g. XML tags to be kept in the analysed output)."
+						+ " The String NEWLINE is interpreted as \"\n\". Otherwise, used literally.")
+				.withRequiredArg().ofType(String.class);
 
 		OptionSpec<String> csvSeparatorOption = parser.accepts("csvSeparator", "CSV file separator in output").withRequiredArg().ofType(String.class);
 		OptionSpec<String> csvEncodingOption = parser.accepts("csvEncoding", "CSV file encoding in output").withRequiredArg().ofType(String.class);
@@ -174,6 +170,12 @@ public class Extensions {
 		OptionSpec<File> corpusRulesOption = parser.accepts("corpusRules", "file containing corpus modification rules")
 				.requiredIf(ExtendedCommand.modifyCorpus.name()).withRequiredArg().ofType(File.class);
 		OptionSpec<File> logConfigFileSpec = parser.accepts("logConfigFile", "logback configuration file").withRequiredArg().ofType(File.class);
+
+		OptionSpec<String> nonProjectiveArcSuffixOption = parser.accepts("nonProjectiveSuffix", "Suffix to add to non-projective arcs when projectifying")
+				.availableIf(ExtendedCommand.projectify.name()).withRequiredArg().ofType(String.class);
+		OptionSpec<ProjectivationStrategy> projectierStrategyOption = parser
+				.accepts("projectifierStrategy", "Strategy to select the projective head: " + Arrays.toString(ProjectivationStrategy.values()))
+				.availableIf(ExtendedCommand.projectify.name()).withRequiredArg().ofType(ProjectivationStrategy.class);
 
 		OptionSet options = parser.parse(args);
 		if (args.length == 0 || options.has("help")) {
@@ -199,8 +201,6 @@ public class Extensions {
 			command = ExtendedCommand.projectify;
 		} else if (options.has(ExtendedCommand.toStandoff.name())) {
 			command = ExtendedCommand.toStandoff;
-		} else if (options.has(ExtendedCommand.toStandoffSentences.name())) {
-			command = ExtendedCommand.toStandoffSentences;
 		}
 
 		if (options.has(localeOption))
@@ -297,6 +297,11 @@ public class Extensions {
 		if (options.has(logConfigFileSpec))
 			LogUtils.configureLogging(options.valueOf(logConfigFileSpec));
 
+		if (options.has(nonProjectiveArcSuffixOption))
+			values.put("talismane.extensions.projectifier.non-projective-arc-suffix", options.valueOf(nonProjectiveArcSuffixOption));
+		if (options.has(projectierStrategyOption))
+			values.put("talismane.extensions.projectifier.strategy", options.valueOf(projectierStrategyOption).name());
+
 		Config config = ConfigFactory.parseMap(values).withFallback(ConfigFactory.load());
 		Extensions extensions = new Extensions(config, command);
 
@@ -338,24 +343,31 @@ public class Extensions {
 		Reader reader = TalismaneMain.getReader(inFile, true, session);
 		Writer writer = TalismaneMain.getWriter(outFile, inFile, session);
 
-		ParseConfigurationProcessor parseConfigurationProcessor = null;
-		PosTagSequenceProcessor posTagSequenceProcessor = null;
+		if (outFile != null && outFile.getParentFile() != null)
+			outFile.getParentFile().mkdirs();
+
+		if (outDir != null)
+			outDir.mkdirs();
+
 		ParserAnnotatedCorpusReader parserAnnotatedCorpusReader = null;
+
+		List<ParseConfigurationProcessor> parseConfigurationProcessors = new ArrayList<>();
+		List<PosTagSequenceProcessor> posTagSequenceProcessors = new ArrayList<>();
 		try {
 			switch (command) {
 			case toStandoff: {
-				@SuppressWarnings("resource")
-				StandoffWriter standoffWriter = new StandoffWriter(writer);
-				parseConfigurationProcessor = standoffWriter;
-				break;
-			}
-			case toStandoffSentences: {
+				File standoffAnnotationFile = new File(outDir, session.getBaseName() + ".ann");
+				Writer standoffAnnotationWriter = TalismaneMain.getWriter(standoffAnnotationFile, inFile, session);
+				StandoffWriter standoffWriter = new StandoffWriter(standoffAnnotationWriter, session);
+				parseConfigurationProcessors.add(standoffWriter);
+
+				File standoffSentenceFile = new File(outDir, session.getBaseName() + ".txt");
+				Writer standoffSentenceWriter = TalismaneMain.getWriter(standoffSentenceFile, inFile, session);
 				InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoffSentences.ftl");
 				Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
-				@SuppressWarnings("resource")
-				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, writer);
+				FreemarkerTemplateWriter templateWriter = new FreemarkerTemplateWriter(templateReader, standoffSentenceWriter);
+				parseConfigurationProcessors.add(templateWriter);
 
-				parseConfigurationProcessor = templateWriter;
 				break;
 			}
 			case fromStandoff: {
@@ -364,7 +376,6 @@ public class Extensions {
 				break;
 			}
 			case corpusStatistics: {
-				@SuppressWarnings("resource")
 				CorpusStatistics stats = new CorpusStatistics(session);
 
 				if (referenceStatsPath != null) {
@@ -384,11 +395,11 @@ public class Extensions {
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
-				parseConfigurationProcessor = stats;
+				parseConfigurationProcessors.add(stats);
+
 				break;
 			}
 			case posTaggerStatistics: {
-				@SuppressWarnings("resource")
 				PosTaggerStatistics stats = new PosTaggerStatistics(session);
 
 				if (referenceStatsPath != null) {
@@ -408,7 +419,8 @@ public class Extensions {
 				serializationFile.delete();
 				stats.setSerializationFile(serializationFile);
 
-				posTagSequenceProcessor = stats;
+				posTagSequenceProcessors.add(stats);
+
 				break;
 			}
 			case modifyCorpus: {
@@ -417,21 +429,22 @@ public class Extensions {
 
 				List<String> corpusRules = new ArrayList<String>();
 				File corpusRulesFile = new File(corpusRulesPath);
-				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(corpusRulesFile), "UTF-8")));
 
-				while (scanner.hasNextLine()) {
-					corpusRules.add(scanner.nextLine());
+				try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(corpusRulesFile), "UTF-8")))) {
+					while (scanner.hasNextLine()) {
+						corpusRules.add(scanner.nextLine());
+					}
 				}
-				scanner.close();
-				@SuppressWarnings("resource")
 				CorpusModifier corpusModifier = new CorpusModifier(corpusRules);
-				parseConfigurationProcessor = corpusModifier;
+
+				parseConfigurationProcessors.add(corpusModifier);
+				parseConfigurationProcessors.addAll(ParseConfigurationProcessor.getProcessors(writer, outDir, session));
 				break;
 			}
 			case projectify: {
-				@SuppressWarnings("resource")
-				CorpusProjectifier projectifier = new CorpusProjectifier();
-				parseConfigurationProcessor = projectifier;
+				CorpusProjectifier projectifier = new CorpusProjectifier(config);
+				parseConfigurationProcessors.add(projectifier);
+				parseConfigurationProcessors.addAll(ParseConfigurationProcessor.getProcessors(writer, outDir, session));
 				break;
 			}
 			default: {
@@ -443,20 +456,16 @@ public class Extensions {
 
 			switch (session.getModule()) {
 			case posTagger: {
-				List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
-				if (posTagSequenceProcessor != null)
-					processors.add(0, posTagSequenceProcessor);
-
 				try {
 					PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
 							config.getConfig("talismane.core.pos-tagger.input"), session);
 					while (corpusReader.hasNextPosTagSequence()) {
 						PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
-						for (PosTagSequenceProcessor processor : processors)
+						for (PosTagSequenceProcessor processor : posTagSequenceProcessors)
 							processor.onNextPosTagSequence(posTagSequence);
 					}
 				} finally {
-					for (PosTagSequenceProcessor processor : processors) {
+					for (PosTagSequenceProcessor processor : posTagSequenceProcessors) {
 						try {
 							processor.onCompleteAnalysis();
 							processor.close();
@@ -469,22 +478,17 @@ public class Extensions {
 				break;
 			}
 			case parser: {
-				List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
-
-				if (parseConfigurationProcessor != null)
-					processors.add(0, parseConfigurationProcessor);
-
 				try {
 					ParserAnnotatedCorpusReader corpusReader = parserAnnotatedCorpusReader;
 					if (corpusReader == null)
 						corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.parser.input"), session);
 					while (corpusReader.hasNextConfiguration()) {
 						ParseConfiguration configuration = corpusReader.nextConfiguration();
-						for (ParseConfigurationProcessor processor : processors)
+						for (ParseConfigurationProcessor processor : parseConfigurationProcessors)
 							processor.onNextParseConfiguration(configuration);
 					}
 				} finally {
-					for (ParseConfigurationProcessor processor : processors) {
+					for (ParseConfigurationProcessor processor : parseConfigurationProcessors) {
 						try {
 							processor.onCompleteParse();
 							processor.close();

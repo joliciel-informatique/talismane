@@ -50,7 +50,6 @@ import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 public class StandoffReader extends ParserAnnotatedCorpusReader {
 	private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
@@ -74,9 +73,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 		super(reader, config, session);
 		this.session = session;
 		PosTagSet posTagSet = session.getPosTagSet();
-
-		Config conf = ConfigFactory.load();
-		punctuationDepLabel = conf.getString("talismane.extensions.parser.punctuation-dep-label");
+		punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
 
 		Map<Integer, StandoffToken> sortedTokens = new TreeMap<>();
 		try (Scanner scanner = new Scanner(reader)) {
@@ -225,13 +222,15 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 						DependencyArc arc = configuration.addDependency(head, dependent, relation.label, null);
 						arc.setComment(relation.comment);
 					} else if (standoffToken.posTag.getOpenClassIndicator() == PosTagOpenClassIndicator.PUNCTUATION) {
-						PosTaggedToken dependent = idTokenMap.get(standoffToken.id);
-						for (int i = dependent.getIndex() - 1; i >= 0; i--) {
-							PosTaggedToken head = posTagSequence.get(i);
-							if (head.getTag().getOpenClassIndicator() == PosTagOpenClassIndicator.PUNCTUATION)
-								continue;
-							configuration.addDependency(head, dependent, punctuationDepLabel, null);
-							break;
+						if (punctuationDepLabel != null) {
+							PosTaggedToken dependent = idTokenMap.get(standoffToken.id);
+							for (int i = dependent.getIndex() - 1; i >= 0; i--) {
+								PosTaggedToken head = posTagSequence.get(i);
+								if (head.getTag().getOpenClassIndicator() == PosTagOpenClassIndicator.PUNCTUATION)
+									continue;
+								configuration.addDependency(head, dependent, punctuationDepLabel, null);
+								break;
+							}
 						}
 					}
 				}
