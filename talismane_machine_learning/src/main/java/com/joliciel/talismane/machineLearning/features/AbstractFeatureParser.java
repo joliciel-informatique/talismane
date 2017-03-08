@@ -57,8 +57,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	@SuppressWarnings("rawtypes")
 	private Map<Class<? extends Feature>, Constructor<? extends Feature>[]> featureConstructors = null;
 
-	private Dynamiser<T> dynamiser = null;
-
 	public AbstractFeatureParser() {
 	}
 
@@ -591,17 +589,6 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 			}
 			features = wrappedFeatures;
 
-			// dynamise the features if manager available
-			if (dynamiser != null) {
-				List<Feature<T, ?>> dynamisedFeatures = new ArrayList<Feature<T, ?>>();
-				for (Feature<T, ?> feature : features) {
-					DynamicSourceCodeBuilder<T> builder = dynamiser.getBuilder(feature);
-					Feature<T, ?> dynamisedFeature = builder.getFeature();
-					dynamisedFeatures.add(dynamisedFeature);
-				}
-				features = dynamisedFeatures;
-			}
-
 			if (hasDescriptorName) {
 				this.namedFeatures.put(featureName, features);
 
@@ -831,7 +818,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	 */
 	public abstract List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor);
 
-	public static class RootWrapper<T, Y> extends AbstractFeature<T, Y> implements Feature<T, Y> {
+	public static class RootWrapper<T, Y> extends AbstractFeature<T, Y>implements Feature<T, Y> {
 		private Feature<T, Y> feature;
 
 		public RootWrapper(Feature<T, Y> feature) {
@@ -852,7 +839,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		}
 	}
 
-	private static class StringFeatureWrapper<T> extends AbstractFeature<T, String> implements StringFeature<T>, FeatureWrapper<T, String> {
+	private static class StringFeatureWrapper<T> extends AbstractFeature<T, String>implements StringFeature<T>, FeatureWrapper<T, String> {
 		private Feature<T, String> feature;
 
 		public StringFeatureWrapper(Feature<T, String> feature) {
@@ -873,7 +860,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 
 	}
 
-	private static class BooleanFeatureWrapper<T> extends AbstractFeature<T, Boolean> implements BooleanFeature<T>, FeatureWrapper<T, Boolean> {
+	private static class BooleanFeatureWrapper<T> extends AbstractFeature<T, Boolean>implements BooleanFeature<T>, FeatureWrapper<T, Boolean> {
 		private Feature<T, Boolean> feature;
 
 		public BooleanFeatureWrapper(Feature<T, Boolean> feature) {
@@ -893,7 +880,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		}
 	}
 
-	private static class DoubleFeatureWrapper<T> extends AbstractFeature<T, Double> implements DoubleFeature<T>, FeatureWrapper<T, Double> {
+	private static class DoubleFeatureWrapper<T> extends AbstractFeature<T, Double>implements DoubleFeature<T>, FeatureWrapper<T, Double> {
 		private Feature<T, Double> feature;
 
 		public DoubleFeatureWrapper(Feature<T, Double> feature) {
@@ -913,7 +900,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		}
 	}
 
-	private static class IntegerFeatureWrapper<T> extends AbstractFeature<T, Integer> implements IntegerFeature<T>, FeatureWrapper<T, Integer> {
+	private static class IntegerFeatureWrapper<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T>, FeatureWrapper<T, Integer> {
 		private Feature<T, Integer> feature;
 
 		public IntegerFeatureWrapper(Feature<T, Integer> feature) {
@@ -980,15 +967,4 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
 		this.externalResourceFinder = externalResourceFinder;
 	}
-
-	@Override
-	public Dynamiser<T> getDynamiser() {
-		return dynamiser;
-	}
-
-	@Override
-	public void setDynamiser(Dynamiser<T> dynamiser) {
-		this.dynamiser = dynamiser;
-	}
-
 }

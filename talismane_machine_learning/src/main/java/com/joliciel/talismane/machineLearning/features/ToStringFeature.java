@@ -19,14 +19,15 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Converts a non-string feature to a string feature.
- * If the feature result is null, will return null (rather than the string "null").
+ * Converts a non-string feature to a string feature. If the feature result is
+ * null, will return null (rather than the string "null").
+ * 
  * @author Assaf Urieli
  */
-public class ToStringFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
-	Feature<T,?> featureToString;
-	
-	public ToStringFeature(Feature<T,?> feature1) {
+public class ToStringFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
+	Feature<T, ?> featureToString;
+
+	public ToStringFeature(Feature<T, ?> feature1) {
 		super();
 		this.featureToString = feature1;
 		this.setName(super.getName() + "(" + feature1.getName() + ")");
@@ -35,28 +36,15 @@ public class ToStringFeature<T> extends AbstractCachableFeature<T, String> imple
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
-		
+
 		FeatureResult<?> result1 = featureToString.check(context, env);
-		
-		if (result1!=null) {
+
+		if (result1 != null) {
 			featureResult = this.generateResult(result1.getOutcome().toString());
 		}
 		return featureResult;
 	}
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(featureToString, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op + ".toString();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
 	public Feature<T, ?> getFeatureToString() {
 		return featureToString;
 	}
@@ -64,6 +52,5 @@ public class ToStringFeature<T> extends AbstractCachableFeature<T, String> imple
 	public void setFeatureToString(Feature<T, ?> featureToString) {
 		this.featureToString = featureToString;
 	}
-	
-	
+
 }

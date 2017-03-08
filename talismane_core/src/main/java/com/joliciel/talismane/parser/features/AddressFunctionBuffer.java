@@ -20,7 +20,6 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.Iterator;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -64,35 +63,5 @@ public final class AddressFunctionBuffer extends AbstractAddressFunction {
 		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
-	}
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
-
-		String indexName = builder.addFeatureVariable(indexFeature, "index");
-
-		builder.append("if (" + indexName + "!=null) {");
-		builder.indent();
-		String bufferIterator = builder.getVarName("bufferIterator");
-		builder.addImport(Iterator.class);
-		builder.addImport(PosTaggedToken.class);
-
-		builder.append("Iterator<PosTaggedToken> " + bufferIterator + " = context.getParseConfiguration().getBuffer().iterator();");
-
-		builder.append("for (int i=0; i<=" + indexName + "; i++) {");
-		builder.indent();
-		builder.append("if (!" + bufferIterator + ".hasNext()) {");
-		builder.indent();
-		builder.append(variableName + " = null;");
-		builder.append("break;");
-		builder.outdent();
-		builder.append("}");
-		builder.append(variableName + " = " + bufferIterator + ".next();");
-		builder.outdent();
-		builder.append("}");
-
-		builder.outdent();
-		builder.append("}");
-		return true;
 	}
 }

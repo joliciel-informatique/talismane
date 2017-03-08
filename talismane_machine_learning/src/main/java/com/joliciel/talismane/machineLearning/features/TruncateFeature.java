@@ -20,13 +20,13 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Truncates a double down to an integer.
+ * 
  * @author Assaf Urieli
  *
  */
-class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
-		IntegerFeature<T> {
+class TruncateFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
 	private DoubleFeature<T> featureToTruncate;
-	
+
 	public TruncateFeature(DoubleFeature<T> doubleFeature) {
 		super();
 		this.featureToTruncate = doubleFeature;
@@ -36,28 +36,15 @@ class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
 	@Override
 	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
-		
+
 		FeatureResult<Double> doubleResult = featureToTruncate.check(context, env);
-		if (doubleResult!=null) {
+		if (doubleResult != null) {
 			int intResult = doubleResult.getOutcome().intValue();
 			featureResult = this.generateResult(intResult);
 		}
 		return featureResult;
 	}
 
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(featureToTruncate, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op + ".intValue();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
 	public DoubleFeature<T> getDoubleFeature() {
 		return featureToTruncate;
 	}
@@ -69,6 +56,5 @@ class TruncateFeature<T> extends AbstractFeature<T, Integer> implements
 	public void setFeatureToTruncate(DoubleFeature<T> featureToTruncate) {
 		this.featureToTruncate = featureToTruncate;
 	}
-	
-	
+
 }

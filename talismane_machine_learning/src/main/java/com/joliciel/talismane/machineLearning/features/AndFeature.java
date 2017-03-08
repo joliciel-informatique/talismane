@@ -19,14 +19,15 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Combines any number boolean features using a boolean AND.
- * If any of the features is null, will return null.
+ * Combines any number boolean features using a boolean AND. If any of the
+ * features is null, will return null.
+ * 
  * @author Assaf Urieli
  *
  */
-public class AndFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
+public class AndFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	BooleanFeature<T>[] booleanFeatures;
-	
+
 	@SafeVarargs
 	public AndFeature(BooleanFeature<T>... booleanFeatures) {
 		super();
@@ -46,20 +47,21 @@ public class AndFeature<T> extends AbstractCachableFeature<T, Boolean> implement
 	@Override
 	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		boolean hasNull = false;
 		boolean booleanResult = true;
 		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
 			FeatureResult<Boolean> result = booleanFeature.check(context, env);
-			if (result==null) {
+			if (result == null) {
 				hasNull = true;
 				break;
 			}
 			booleanResult = booleanResult && result.getOutcome();
 			// not breaking out as soon as we hit a false,
-			// since if any single feature returns a null, we want to return a null
+			// since if any single feature returns a null, we want to return a
+			// null
 		}
-		
+
 		if (!hasNull) {
 			featureResult = this.generateResult(booleanResult);
 		}
@@ -68,19 +70,5 @@ public class AndFeature<T> extends AbstractCachableFeature<T, Boolean> implement
 
 	public BooleanFeature<T>[] getBooleanFeatures() {
 		return booleanFeatures;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		builder.append(variableName + "=true;");
-		for (BooleanFeature<T> booleanFeature : this.booleanFeatures) {
-			String featureName = builder.addFeatureVariable(booleanFeature, "expression");
-			
-			builder.append("if (" + featureName + "==null) " + variableName + " = null;");
-			
-			builder.append("if (" + variableName + "!=null) " + variableName + "=" + variableName + " && " + featureName + ";");
-		}
-		
-		return true;
 	}
 }

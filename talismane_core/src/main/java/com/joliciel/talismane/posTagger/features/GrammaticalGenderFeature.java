@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -26,10 +25,11 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * The grammatical gender of a given token as supplied by the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class GrammaticalGenderFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class GrammaticalGenderFeature<T> extends AbstractPosTaggedTokenFeature<T, String>implements StringFeature<T> {
 	public GrammaticalGenderFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -38,31 +38,18 @@ public final class GrammaticalGenderFeature<T> extends AbstractPosTaggedTokenFea
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
+		if (posTaggedToken == null)
 			return null;
-		
+
 		FeatureResult<String> featureResult = null;
-		
+
 		String gender = posTaggedToken.getGender();
-		if (gender!=null) {
+		if (gender != null) {
 			featureResult = this.generateResult(gender);
 		}
 		return featureResult;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getGender()!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getGender();");
-		builder.outdent();
-		builder.append("}");
-		return true;
 	}
 }
