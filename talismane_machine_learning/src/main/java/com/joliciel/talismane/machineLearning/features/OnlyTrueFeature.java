@@ -21,12 +21,13 @@ package com.joliciel.talismane.machineLearning.features;
 /**
  * If the wrapped boolean feature returns false, will convert it to a null.
  * Useful to keep the feature sparse, so that only true values return a result.
+ * 
  * @author Assaf Urieli
  *
  */
-public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
+public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	BooleanFeature<T> wrappedFeature;
-	
+
 	public OnlyTrueFeature(BooleanFeature<T> wrappedFeature) {
 		super();
 		this.wrappedFeature = wrappedFeature;
@@ -36,27 +37,15 @@ public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean> impl
 	@Override
 	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);
-		
-		if (result1!=null && result1.getOutcome().booleanValue()==true) {
+
+		if (result1 != null && result1.getOutcome().booleanValue() == true) {
 			featureResult = this.generateResult(true);
 		}
 		return featureResult;
 	}
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String result = builder.addFeatureVariable(wrappedFeature, "result");
-		
-		builder.append("if (" + result + "!=null && " + result + ".booleanValue()) {");
-		builder.indent();
-		builder.append(		variableName + " = true;");
-		builder.outdent();
-		builder.append("}");
-
-		return true;
-	}
 	public BooleanFeature<T> getWrappedFeature() {
 		return wrappedFeature;
 	}
@@ -64,6 +53,5 @@ public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean> impl
 	public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
 		this.wrappedFeature = wrappedFeature;
 	}
-	
-	
+
 }

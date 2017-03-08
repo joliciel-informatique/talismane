@@ -18,18 +18,19 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The grammatical number of the possessor of a given token as supplied by the lexicon.
+ * The grammatical number of the possessor of a given token as supplied by the
+ * lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class PossessorNumberFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class PossessorNumberFeature<T> extends AbstractPosTaggedTokenFeature<T, String>implements StringFeature<T> {
 	public PossessorNumberFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -38,33 +39,19 @@ public final class PossessorNumberFeature<T> extends AbstractPosTaggedTokenFeatu
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
+		if (posTaggedToken == null)
 			return null;
-		
+
 		FeatureResult<String> featureResult = null;
 
 		String possessorNumber = posTaggedToken.getPossessorNumber();
 
-		if (possessorNumber!=null)
+		if (possessorNumber != null)
 			featureResult = this.generateResult(possessorNumber);
-		
-		return featureResult;
-	}
-	
 
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getPossessorNumber()!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getPossessorNumber();");
-		builder.outdent();
-		builder.append("}");
-		return true;
+		return featureResult;
 	}
 }

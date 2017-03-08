@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -27,10 +26,11 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * The index of a given token in the token sequence.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class TokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T,Integer> implements IntegerFeature<T> {
+public final class TokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T, Integer>implements IntegerFeature<T> {
 	public TokenIndexFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -39,35 +39,21 @@ public final class TokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T,
 	public TokenIndexFeature() {
 		super(new ItsMeAddressFunction<T>());
 	}
-	
+
 	@Override
 	public FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
+		if (posTaggedToken == null)
 			return null;
-		
+
 		FeatureResult<Integer> featureResult = null;
 		Token token = posTaggedToken.getToken();
 		int index = token.getIndex();
 		featureResult = this.generateResult(index);
 
 		return featureResult;
-	}
-	
-
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getToken().getIndex();");
-		builder.outdent();
-		builder.append("}");
-		return true;
 	}
 }

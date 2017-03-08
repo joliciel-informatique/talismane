@@ -34,7 +34,6 @@ import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.DoubleFeature;
-import com.joliciel.talismane.machineLearning.features.Dynamiser;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -58,11 +57,6 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
 	public ParserFeatureParser(TalismaneSession talismaneSession, boolean dynamise) {
 		this.talismaneSession = talismaneSession;
 		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
-
-		if (dynamise) {
-			Dynamiser<ParseConfigurationWrapper> dynamiser = new ParserFeatureDynamiser(ParseConfigurationWrapper.class);
-			this.setDynamiser(dynamiser);
-		}
 	}
 
 	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors) {
@@ -238,7 +232,7 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
 		return descriptors;
 	}
 
-	private static class ParseConfigurationFeatureWrapper<Y> extends AbstractFeature<ParseConfigurationWrapper, Y> implements ParseConfigurationFeature<Y> {
+	private static class ParseConfigurationFeatureWrapper<Y> extends AbstractFeature<ParseConfigurationWrapper, Y>implements ParseConfigurationFeature<Y> {
 		private Feature<ParseConfigurationWrapper, Y> wrappedFeature = null;
 
 		public ParseConfigurationFeatureWrapper(Feature<ParseConfigurationWrapper, Y> wrappedFeature) {

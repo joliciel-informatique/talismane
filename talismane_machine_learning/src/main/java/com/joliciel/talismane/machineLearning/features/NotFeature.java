@@ -19,14 +19,14 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Reverses a feature using a boolean NOT.
- * If it is null, will return null.
+ * Reverses a feature using a boolean NOT. If it is null, will return null.
+ * 
  * @author Assaf Urieli
  *
  */
-public class NotFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
+public class NotFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	BooleanFeature<T> operand;
-	
+
 	public NotFeature(BooleanFeature<T> operand) {
 		super();
 		this.operand = operand;
@@ -36,26 +36,13 @@ public class NotFeature<T> extends AbstractCachableFeature<T, Boolean> implement
 	@Override
 	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		FeatureResult<Boolean> result1 = operand.check(context, env);
-		
-		if (result1!=null) {
+
+		if (result1 != null) {
 			featureResult = this.generateResult(!result1.getOutcome());
 		}
 		return featureResult;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(operand, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = !(" + op + ");");
-		builder.outdent();
-		builder.append("}");
-		return true;
 	}
 
 	public BooleanFeature<T> getOperand() {
@@ -65,6 +52,5 @@ public class NotFeature<T> extends AbstractCachableFeature<T, Boolean> implement
 	public void setOperand(BooleanFeature<T> operand) {
 		this.operand = operand;
 	}
-	
-	
+
 }

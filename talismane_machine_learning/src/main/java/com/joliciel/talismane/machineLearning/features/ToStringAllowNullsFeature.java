@@ -19,16 +19,17 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Converts a non-string feature to a string feature.
- * If the feature result is null, will return the string "null".
+ * Converts a non-string feature to a string feature. If the feature result is
+ * null, will return the string "null".
+ * 
  * @author Assaf Urieli
  */
-public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, String> implements StringFeature<T> {
+public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
 	private static final String NULL_STRING = "null";
 
-	Feature<T,?> featureToString;
-	
-	public ToStringAllowNullsFeature(Feature<T,?> feature1) {
+	Feature<T, ?> featureToString;
+
+	public ToStringAllowNullsFeature(Feature<T, ?> feature1) {
 		super();
 		this.featureToString = feature1;
 		this.setName("ToString(" + feature1.getName() + ")");
@@ -37,10 +38,10 @@ public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, Str
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
-		
+
 		FeatureResult<?> result1 = featureToString.check(context, env);
-		
-		if (result1!=null) {
+
+		if (result1 != null) {
 			featureResult = this.generateResult(result1.getOutcome().toString());
 		} else {
 			featureResult = this.generateResult(NULL_STRING);
@@ -48,24 +49,6 @@ public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, Str
 		return featureResult;
 	}
 
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(featureToString, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op + ".toString();");
-		builder.outdent();
-		builder.append("} else {");
-		builder.indent();
-		builder.append(		variableName + " = \"" + NULL_STRING + "\";");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
 	public Feature<T, ?> getFeatureToString() {
 		return featureToString;
 	}
@@ -73,6 +56,5 @@ public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, Str
 	public void setFeatureToString(Feature<T, ?> featureToString) {
 		this.featureToString = featureToString;
 	}
-	
-	
+
 }

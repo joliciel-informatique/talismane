@@ -20,12 +20,13 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * If the wrapped boolean feature returns null, will convert it to a false.
+ * 
  * @author Assaf Urieli
  *
  */
-public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
+public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	BooleanFeature<T> wrappedFeature;
-	
+
 	public NullToFalseFeature(BooleanFeature<T> feature1) {
 		super();
 		this.wrappedFeature = feature1;
@@ -35,10 +36,10 @@ public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean> i
 	@Override
 	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);
-		
-		if (result1!=null) {
+
+		if (result1 != null) {
 			featureResult = this.generateResult(result1.getOutcome());
 		} else {
 			featureResult = this.generateResult(false);
@@ -46,23 +47,6 @@ public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean> i
 		return featureResult;
 	}
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String result = builder.addFeatureVariable(wrappedFeature, "result");
-		
-		builder.append("if (" + result + "==null) {");
-		builder.indent();
-		builder.append(		variableName + " = false;");
-		builder.outdent();
-		builder.append("} else {");
-		builder.indent();
-		builder.append(		variableName + " = " + result + ";");
-		builder.outdent();
-		builder.append("}");
-
-		return true;
-	}
-	
 	public BooleanFeature<T> getWrappedFeature() {
 		return wrappedFeature;
 	}
@@ -70,6 +54,5 @@ public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean> i
 	public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
 		this.wrappedFeature = wrappedFeature;
 	}
-	
-	
+
 }
