@@ -19,15 +19,16 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * If the condition returns true, return null, else return the result of the feature provided.
+ * If the condition returns true, return null, else return the result of the
+ * feature provided.
+ * 
  * @author Assaf Urieli
  *
  */
-public class NullIfBooleanFeature<T> extends AbstractCachableFeature<T,Boolean> implements
-		BooleanFeature<T> {
+public class NullIfBooleanFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	private BooleanFeature<T> condition;
 	private BooleanFeature<T> resultFeature;
-	
+
 	public NullIfBooleanFeature(BooleanFeature<T> condition, BooleanFeature<T> resultFeature) {
 		super();
 		this.condition = condition;
@@ -38,38 +39,23 @@ public class NullIfBooleanFeature<T> extends AbstractCachableFeature<T,Boolean> 
 	@Override
 	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult!=null) {
+		if (conditionResult != null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (!conditionOutcome) {
 				FeatureResult<Boolean> thenFeatureResult = resultFeature.check(context, env);
-				if (thenFeatureResult!=null) {
+				if (thenFeatureResult != null) {
 					boolean result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			}
 		}
-		
+
 		return featureResult;
-		
+
 	}
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String cond = builder.addFeatureVariable(condition, "condition");
-		
-		builder.append("if (" + cond + "!=null && !" + cond + ") {");
-		builder.indent();
-		String result = 	builder.addFeatureVariable(resultFeature, "result");
-		
-		builder.append(		variableName + " = " + result + ";");
-		builder.outdent();
-		builder.append("}");
-
-		return true;
-	}
-	
 	public BooleanFeature<T> getCondition() {
 		return condition;
 	}
@@ -85,6 +71,5 @@ public class NullIfBooleanFeature<T> extends AbstractCachableFeature<T,Boolean> 
 	public void setResultFeature(BooleanFeature<T> resultFeature) {
 		this.resultFeature = resultFeature;
 	}
-	
-	
+
 }

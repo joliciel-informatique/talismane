@@ -20,13 +20,13 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Rounds a double to the nearest integer.
+ * 
  * @author Assaf Urieli
  *
  */
-class RoundFeature<T> extends AbstractFeature<T, Integer> implements
-		IntegerFeature<T> {
+class RoundFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
 	private DoubleFeature<T> featureToRound;
-	
+
 	public RoundFeature(DoubleFeature<T> featureToRound) {
 		super();
 		this.featureToRound = featureToRound;
@@ -36,29 +36,15 @@ class RoundFeature<T> extends AbstractFeature<T, Integer> implements
 	@Override
 	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
-		
+
 		FeatureResult<Double> doubleResult = featureToRound.check(context, env);
-		if (doubleResult!=null) {
+		if (doubleResult != null) {
 			int intResult = (int) Math.round(doubleResult.getOutcome());
 			featureResult = this.generateResult(intResult);
 		}
 		return featureResult;
 	}
 
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op = builder.addFeatureVariable(featureToRound, "operand");
-		
-		builder.append("if (" + op + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = (int) Math.round(" + op + ");");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
 	public DoubleFeature<T> getFeatureToRound() {
 		return featureToRound;
 	}
@@ -67,5 +53,4 @@ class RoundFeature<T> extends AbstractFeature<T, Integer> implements
 		this.featureToRound = featureToRound;
 	}
 
-	
 }

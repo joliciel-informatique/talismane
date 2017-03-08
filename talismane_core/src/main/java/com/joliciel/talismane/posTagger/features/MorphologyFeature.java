@@ -19,19 +19,20 @@
 package com.joliciel.talismane.posTagger.features;
 
 import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * The detailed morpho-syntaxic information of a given token as supplied by the lexicon.
+ * The detailed morpho-syntaxic information of a given token as supplied by the
+ * lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class MorphologyFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
-	
+public final class MorphologyFeature<T> extends AbstractPosTaggedTokenFeature<T, String>implements StringFeature<T> {
+
 	public MorphologyFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
@@ -40,32 +41,18 @@ public final class MorphologyFeature<T> extends AbstractPosTaggedTokenFeature<T,
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
+		if (posTaggedToken == null)
 			return null;
-		
+
 		FeatureResult<String> featureResult = null;
 		LexicalEntry lexicalEntry = posTaggedToken.getLexicalEntry();
-		if (lexicalEntry!=null) {
-				featureResult = this.generateResult(lexicalEntry.getMorphology());
+		if (lexicalEntry != null) {
+			featureResult = this.generateResult(lexicalEntry.getMorphology());
 		}
 		return featureResult;
 	}
-	
 
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getLexicalEntry()!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getLexicalEntry().getMorphology();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
 }

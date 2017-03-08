@@ -20,13 +20,13 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Wrapper for a boolean literal.
+ * 
  * @author Assaf Urieli
  *
  */
-public class BooleanLiteralFeature<T> extends AbstractFeature<T, Boolean> implements
-		BooleanFeature<T> {
+public class BooleanLiteralFeature<T> extends AbstractFeature<T, Boolean>implements BooleanFeature<T> {
 	private boolean literal;
-	
+
 	public BooleanLiteralFeature(boolean literal) {
 		super();
 		this.literal = literal;
@@ -40,11 +40,5 @@ public class BooleanLiteralFeature<T> extends AbstractFeature<T, Boolean> implem
 
 	public boolean isLiteral() {
 		return literal;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		builder.append(variableName + "=" + literal + ";");
-		return true;
 	}
 }

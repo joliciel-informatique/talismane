@@ -19,19 +19,18 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Returns operand1 != operand2.
- * For double values, an error margin of 0.0001 is allowed.
+ * Returns operand1 != operand2. For double values, an error margin of 0.0001 is
+ * allowed.
  * 
  * @author Assaf Urieli
  *
  */
-public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> implements
-		BooleanFeature<T> {
-	private Feature<T,?> operand1;
-	private Feature<T,?> operand2;
+public class NotEqualsOperator<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+	private Feature<T, ?> operand1;
+	private Feature<T, ?> operand2;
 	private double sigma = 0.0001;
 	private Class<?> operandType;
-	
+
 	public NotEqualsOperator(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
 		super();
 		this.operand1 = operand1;
@@ -39,7 +38,7 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 		this.operandType = Double.class;
 		this.setName("(" + operand1.getName() + "!=" + operand2.getName() + ")");
 	}
-	
+
 	public NotEqualsOperator(IntegerFeature<T> operand1, IntegerFeature<T> operand2) {
 		super();
 		this.operand1 = operand1;
@@ -47,7 +46,7 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 		this.operandType = Integer.class;
 		this.setName("(" + operand1.getName() + "!=" + operand2.getName() + ")");
 	}
-	
+
 	public NotEqualsOperator(StringFeature<T> operand1, StringFeature<T> operand2) {
 		super();
 		this.operand1 = operand1;
@@ -55,7 +54,7 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 		this.operandType = String.class;
 		this.setName("(" + operand1.getName() + "!=" + operand2.getName() + ")");
 	}
-	
+
 	public NotEqualsOperator(BooleanFeature<T> operand1, BooleanFeature<T> operand2) {
 		super();
 		this.operand1 = operand1;
@@ -68,12 +67,12 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 	@Override
 	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		if (operandType.equals(Double.class)) {
 			FeatureResult<Double> operand1Result = (FeatureResult<Double>) operand1.check(context, env);
 			FeatureResult<Double> operand2Result = (FeatureResult<Double>) operand2.check(context, env);
-			
-			if (operand1Result!=null && operand2Result!=null) {
+
+			if (operand1Result != null && operand2Result != null) {
 				double diff = Math.abs(operand1Result.getOutcome() - operand2Result.getOutcome());
 				boolean result = diff > sigma;
 				featureResult = this.generateResult(result);
@@ -81,50 +80,31 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 		} else if (operandType.equals(Integer.class)) {
 			FeatureResult<Integer> operand1Result = (FeatureResult<Integer>) operand1.check(context, env);
 			FeatureResult<Integer> operand2Result = (FeatureResult<Integer>) operand2.check(context, env);
-			
-			if (operand1Result!=null && operand2Result!=null) {
-				boolean result = operand1Result.getOutcome()!=operand2Result.getOutcome();
+
+			if (operand1Result != null && operand2Result != null) {
+				boolean result = operand1Result.getOutcome() != operand2Result.getOutcome();
 				featureResult = this.generateResult(result);
 			}
 		} else if (operandType.equals(String.class)) {
 			FeatureResult<String> operand1Result = (FeatureResult<String>) operand1.check(context, env);
 			FeatureResult<String> operand2Result = (FeatureResult<String>) operand2.check(context, env);
-			
-			if (operand1Result!=null && operand2Result!=null) {
+
+			if (operand1Result != null && operand2Result != null) {
 				boolean result = !operand1Result.getOutcome().equals(operand2Result.getOutcome());
 				featureResult = this.generateResult(result);
 			}
 		} else if (operandType.equals(Boolean.class)) {
 			FeatureResult<Boolean> operand1Result = (FeatureResult<Boolean>) operand1.check(context, env);
 			FeatureResult<Boolean> operand2Result = (FeatureResult<Boolean>) operand2.check(context, env);
-			
-			if (operand1Result!=null && operand2Result!=null) {
+
+			if (operand1Result != null && operand2Result != null) {
 				boolean result = !operand1Result.getOutcome().equals(operand2Result.getOutcome());
 				featureResult = this.generateResult(result);
 			}
 		}
-		
-		return featureResult;
-		
-	}
 
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op1 = builder.addFeatureVariable(operand1, "operand");
-		String op2 = builder.addFeatureVariable(operand2, "operand");
-		
-		builder.append("if (" + op1 + "!=null && " + op2 + "!=null) {");
-		builder.indent();
-		if (operandType.equals(Double.class)) {
-			builder.append(		variableName + " = (" + op1 + ".doubleValue() - " + op2 + ".doubleValue()) > " + sigma + ";");
-		} else {
-			builder.append(		variableName + " = !" + op1 + ".equals(" + op2 + ");");
-		}
-		builder.outdent();
-		builder.append("}");
-		return true;
+		return featureResult;
+
 	}
 
 	public Feature<T, ?> getOperand1() {
@@ -142,6 +122,5 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> imp
 	public void setOperand2(Feature<T, ?> operand2) {
 		this.operand2 = operand2;
 	}
-	
-	
+
 }

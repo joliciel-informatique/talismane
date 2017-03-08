@@ -20,14 +20,14 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Returns operand1 / operand2.
+ * 
  * @author Assaf Urieli
  *
  */
-public class DivideOperator<T> extends AbstractCachableFeature<T,Double> implements
-		DoubleFeature<T> {
+public class DivideOperator<T> extends AbstractCachableFeature<T, Double>implements DoubleFeature<T> {
 	private DoubleFeature<T> operand1;
 	private DoubleFeature<T> operand2;
-	
+
 	public DivideOperator(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
 		super();
 		this.operand1 = operand1;
@@ -38,33 +38,19 @@ public class DivideOperator<T> extends AbstractCachableFeature<T,Double> impleme
 	@Override
 	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
-		
+
 		FeatureResult<Double> operand1Result = operand1.check(context, env);
 		FeatureResult<Double> operand2Result = operand2.check(context, env);
-		
-		if (operand1Result!=null && operand2Result!=null) {
-			if (operand2Result.getOutcome()!=0) {
+
+		if (operand1Result != null && operand2Result != null) {
+			if (operand2Result.getOutcome() != 0) {
 				double result = operand1Result.getOutcome() / operand2Result.getOutcome();
 				featureResult = this.generateResult(result);
 			}
 		}
-		
+
 		return featureResult;
-		
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op1 = builder.addFeatureVariable(operand1, "operand");
-		String op2 = builder.addFeatureVariable(operand2, "operand");
-		
-		builder.append("if (" + op1 + "!=null && " + op2 + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op1 + " / " + op2 + ";");
-		builder.outdent();
-		builder.append("}");
-		return true;
+
 	}
 
 	public DoubleFeature<T> getOperand1() {
@@ -82,6 +68,5 @@ public class DivideOperator<T> extends AbstractCachableFeature<T,Double> impleme
 	public void setOperand2(DoubleFeature<T> operand2) {
 		this.operand2 = operand2;
 	}
-
 
 }
