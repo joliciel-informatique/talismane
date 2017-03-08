@@ -20,12 +20,12 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Wrapper for a string literal.
+ * 
  * @author Assaf Urieli
  */
-public class StringLiteralFeature<T> extends AbstractFeature<T, String> implements
-		StringFeature<T> {
+public class StringLiteralFeature<T> extends AbstractFeature<T, String>implements StringFeature<T> {
 	private String literal = null;
-	
+
 	public StringLiteralFeature(String literal) {
 		super();
 		this.literal = literal;
@@ -39,11 +39,5 @@ public class StringLiteralFeature<T> extends AbstractFeature<T, String> implemen
 
 	public String getLiteral() {
 		return literal;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		builder.append(variableName + "=\"" + literal.replace("\"", "\\\"") + "\";");
-		return true;
 	}
 }

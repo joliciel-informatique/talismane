@@ -20,7 +20,6 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.Iterator;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -65,35 +64,4 @@ public final class AddressFunctionStack extends AbstractAddressFunction {
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
 	}
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
-
-		String indexName = builder.addFeatureVariable(indexFeature, "index");
-
-		builder.append("if (" + indexName + "!=null) {");
-		builder.indent();
-		String stackIterator = builder.getVarName("stackIterator");
-		builder.addImport(Iterator.class);
-		builder.addImport(PosTaggedToken.class);
-
-		builder.append("Iterator<PosTaggedToken> " + stackIterator + " = context.getParseConfiguration().getStack().iterator();");
-
-		builder.append("for (int i=0; i<=" + indexName + "; i++) {");
-		builder.indent();
-		builder.append("if (!" + stackIterator + ".hasNext()) {");
-		builder.indent();
-		builder.append(variableName + " = null;");
-		builder.append("break;");
-		builder.outdent();
-		builder.append("}");
-		builder.append(variableName + " = " + stackIterator + ".next();");
-		builder.outdent();
-		builder.append("}");
-
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-
 }

@@ -20,7 +20,6 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.List;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -59,24 +58,5 @@ public final class AddressFunctionRDep extends AbstractAddressFunction {
 		if (resultToken != null)
 			featureResult = this.generateResult(resultToken);
 		return featureResult;
-	}
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<ParseConfigurationWrapper> builder, String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null) {");
-		builder.indent();
-		String rightDependents = builder.getVarName("rightDependents");
-		builder.addImport(List.class);
-
-		builder.append(
-				"List<PosTaggedToken> " + rightDependents + " = context.getParseConfiguration().getRightDependents(" + address + ".getPosTaggedToken());");
-		builder.append("if (" + rightDependents + ".size()>0)");
-		builder.indent();
-		builder.append(variableName + " = " + rightDependents + ".get(" + rightDependents + ".size()-1);");
-		builder.outdent();
-		builder.outdent();
-		builder.append("}");
-		return true;
 	}
 }

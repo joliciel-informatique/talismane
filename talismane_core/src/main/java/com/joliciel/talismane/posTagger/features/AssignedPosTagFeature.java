@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -26,15 +25,16 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * The pos-tag assigned to a given token.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class AssignedPosTagFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
+public final class AssignedPosTagFeature<T> extends AbstractPosTaggedTokenFeature<T, String>implements StringFeature<T> {
 	public AssignedPosTagFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
 	}
-	
+
 	public AssignedPosTagFeature() {
 		super(new ItsMeAddressFunction<T>());
 	}
@@ -42,29 +42,16 @@ public final class AssignedPosTagFeature<T> extends AbstractPosTaggedTokenFeatur
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
+		if (posTaggedToken == null)
 			return null;
-		
+
 		FeatureResult<String> featureResult = null;
 
 		featureResult = this.generateResult(posTaggedToken.getTag().getCode());
-		
-		return featureResult;
-	}
 
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String addressFunctionName = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + addressFunctionName + "!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + addressFunctionName + ".getPosTaggedToken().getTag().getCode();");
-		builder.outdent();
-		builder.append("}");
-		return true;
+		return featureResult;
 	}
 }

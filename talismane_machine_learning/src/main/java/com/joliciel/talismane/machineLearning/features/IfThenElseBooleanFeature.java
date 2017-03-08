@@ -19,16 +19,17 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Mimics an in-then-else structure - if condition is true return thenFeature result, else return elseFeature result.
+ * Mimics an in-then-else structure - if condition is true return thenFeature
+ * result, else return elseFeature result.
+ * 
  * @author Assaf Urieli
  *
  */
-public class IfThenElseBooleanFeature<T> extends AbstractCachableFeature<T,Boolean> implements
-		BooleanFeature<T> {
+public class IfThenElseBooleanFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	private BooleanFeature<T> condition;
 	private BooleanFeature<T> thenFeature;
 	private BooleanFeature<T> elseFeature;
-	
+
 	public IfThenElseBooleanFeature(BooleanFeature<T> condition, BooleanFeature<T> thenFeature, BooleanFeature<T> elseFeature) {
 		super();
 		this.condition = condition;
@@ -40,53 +41,28 @@ public class IfThenElseBooleanFeature<T> extends AbstractCachableFeature<T,Boole
 	@Override
 	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult!=null) {
+		if (conditionResult != null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (conditionOutcome) {
 				FeatureResult<Boolean> thenFeatureResult = thenFeature.check(context, env);
-				if (thenFeatureResult!=null) {
+				if (thenFeatureResult != null) {
 					boolean result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			} else {
 				FeatureResult<Boolean> elseFeatureResult = elseFeature.check(context, env);
-				if (elseFeatureResult!=null) {
+				if (elseFeatureResult != null) {
 					boolean result = elseFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			}
 		}
-		
-		
+
 		return featureResult;
-		
 	}
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String condition1 = builder.addFeatureVariable(condition, "condition");
-		
-		builder.append("if (" + condition1 + "!=null) {");
-		builder.indent();
-		builder.append(		"if (" + condition1 +") {");
-		builder.indent();
-		String thenResult = 	builder.addFeatureVariable(thenFeature, "then");
-		builder.append(			"if (" + thenResult + "!=null) " + variableName + " = " + thenResult + ";");
-		builder.outdent();
-		builder.append(		"} else {");
-		builder.indent();
-		String elseResult = 	builder.addFeatureVariable(elseFeature, "else");
-		builder.append(			"if (" + elseResult + "!=null) " + variableName + " = " + elseResult + ";");
-		builder.outdent();
-		builder.append(		"}");
-		builder.outdent();
-		builder.append("}");
-		
-		return true;
-	}
-	
 	public BooleanFeature<T> getCondition() {
 		return condition;
 	}

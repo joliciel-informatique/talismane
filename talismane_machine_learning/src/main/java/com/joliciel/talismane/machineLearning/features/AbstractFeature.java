@@ -23,23 +23,24 @@ import java.util.List;
 
 /**
  * An Abstract base class for features, basically defining feature equality.
+ * 
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<Feature<T,?>> {
+public abstract class AbstractFeature<T, Y> implements Feature<T, Y>, Comparable<Feature<T, ?>> {
 
 	private String name = null;
 	private String groupName = null;
-	private List<Feature<T,?>> arguments = new ArrayList<Feature<T,?>>();
+	private List<Feature<T, ?>> arguments = new ArrayList<Feature<T, ?>>();
 	private boolean topLevelFeature = false;
-	
+
 	public AbstractFeature() {
 		super();
 	}
 
 	@Override
 	public final String getName() {
-		if (name==null) {
+		if (name == null) {
 			name = this.getClass().getSimpleName();
 		}
 		return name;
@@ -50,14 +51,15 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 		this.name = name;
 	}
 
-	
+	@Override
 	public String getCollectionName() {
-		if (groupName==null) {
+		if (groupName == null) {
 			groupName = this.getName();
 		}
 		return groupName;
 	}
 
+	@Override
 	public void setCollectionName(String groupName) {
 		this.groupName = groupName;
 	}
@@ -71,18 +73,18 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 	public final boolean equals(Object obj) {
 		if (!(obj instanceof Feature))
 			return false;
-		Feature<?,?> feature = (Feature<?,?>) obj;
+		Feature<?, ?> feature = (Feature<?, ?>) obj;
 		return (feature.getName().equals(this.getName()));
 	}
 
 	protected final FeatureResult<Y> generateResult(Y outcome) {
-		if (outcome==null)
+		if (outcome == null)
 			return null;
 		return new FeatureResultImpl<Y>(this, outcome);
 	}
 
 	@Override
-	public final int compareTo(Feature<T,?> o) {
+	public final int compareTo(Feature<T, ?> o) {
 		return this.getName().compareTo(o.getName());
 	}
 
@@ -104,22 +106,22 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 		throw new RuntimeException("Unknown feature return type for " + this.getName());
 	}
 
-	public void addArgument(Feature<T,?> argument) {
+	@Override
+	public void addArgument(Feature<T, ?> argument) {
 		this.arguments.add(argument);
 	}
-	
-	public List<Feature<T,?>> getArguments() {
+
+	@Override
+	public List<Feature<T, ?>> getArguments() {
 		return this.arguments;
 	}
-	
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		return false;
-	}
 
+	@Override
 	public boolean isTopLevelFeature() {
 		return topLevelFeature;
 	}
 
+	@Override
 	public void setTopLevelFeature(boolean topLevelFeature) {
 		this.topLevelFeature = topLevelFeature;
 	}
@@ -128,6 +130,5 @@ public abstract class AbstractFeature<T, Y> implements Feature<T,Y>, Comparable<
 	public String toString() {
 		return this.getName();
 	}
-	
-	
+
 }

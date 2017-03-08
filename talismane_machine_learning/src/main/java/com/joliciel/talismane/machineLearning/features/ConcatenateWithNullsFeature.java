@@ -19,17 +19,17 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Merges two or more string features by concatenating their results and adding a | in between.
- * Includes the string "null" if any of the results is null.
+ * Merges two or more string features by concatenating their results and adding
+ * a | in between. Includes the string "null" if any of the results is null.
+ * 
  * @author Assaf Urieli
  *
  */
-public class ConcatenateWithNullsFeature<T> extends AbstractCachableFeature<T, String> implements
-		StringFeature<T> {
+public class ConcatenateWithNullsFeature<T> extends AbstractCachableFeature<T, String>implements StringFeature<T> {
 	private static final String NULL_RESULT = "null";
-	
+
 	StringFeature<T>[] stringFeatures;
-	
+
 	@SafeVarargs
 	public ConcatenateWithNullsFeature(StringFeature<T>... stringFeatures) {
 		super();
@@ -49,50 +49,22 @@ public class ConcatenateWithNullsFeature<T> extends AbstractCachableFeature<T, S
 	@Override
 	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<String> featureResult = null;
-		
+
 		StringBuilder sb = new StringBuilder();
 		boolean firstFeature = true;
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			if (!firstFeature)
 				sb.append("|");
 			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result==null)
+			if (result == null)
 				sb.append(NULL_RESULT);
 			else
 				sb.append(result.getOutcome());
 			firstFeature = false;
 		}
-		
+
 		featureResult = this.generateResult(sb.toString());
 		return featureResult;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		
-		String sb = builder.getVarName("sb");
-		builder.append("StringBuilder " + sb + " = new StringBuilder();");
-		boolean firstFeature = true;
-		for (StringFeature<T> stringFeature : stringFeatures) {
-			if (!firstFeature) {
-				builder.append(sb + ".append(\"|\");");
-			}
-			String stringFeatureName = builder.addFeatureVariable(stringFeature, "string");
-			
-			builder.append("if (" + stringFeatureName + "==null)");
-			builder.indent();
-			builder.append(	sb + ".append(\"" + NULL_RESULT + "\");");
-			builder.outdent();
-			builder.append("else");
-			builder.indent();
-			builder.append(	sb + ".append(" + stringFeatureName + ");");
-			builder.outdent();
-			firstFeature = false;
-		}
-		
-		builder.append(variableName + " = " + sb + ".toString();");
-		return true;
 	}
 
 	public StringFeature<T>[] getStringFeatures() {

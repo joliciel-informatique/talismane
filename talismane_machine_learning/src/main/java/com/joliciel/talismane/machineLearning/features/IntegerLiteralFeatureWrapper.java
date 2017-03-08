@@ -20,13 +20,13 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Returns the wrapped literal.
+ * 
  * @author Assaf Urieli
  *
  */
-public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T,Integer> implements
-		IntegerFeature<T> {
+public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
 	private IntegerFeature<T> integerLiteralFeature;
-	
+
 	public IntegerLiteralFeatureWrapper(IntegerFeature<T> integerLiteralFeature) {
 		super();
 		this.integerLiteralFeature = integerLiteralFeature;
@@ -36,24 +36,18 @@ public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T,Integer> 
 	@Override
 	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Integer> featureResult = null;
-		
+
 		FeatureResult<Integer> literalResult = integerLiteralFeature.check(context, env);
-		
-		if (literalResult!=null) {
+
+		if (literalResult != null) {
 			int result = literalResult.getOutcome();
 			featureResult = this.generateResult(result);
 		}
-		
+
 		return featureResult;
-		
+
 	}
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String int1 = builder.addFeatureVariable(integerLiteralFeature, "integer");
-		builder.append(variableName + "=" + int1 + ";");	
-		return true;
-	}
 	public IntegerFeature<T> getIntegerLiteralFeature() {
 		return integerLiteralFeature;
 	}
@@ -61,6 +55,5 @@ public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T,Integer> 
 	public void setIntegerLiteralFeature(IntegerFeature<T> integerLiteralFeature) {
 		this.integerLiteralFeature = integerLiteralFeature;
 	}
-	
-	
+
 }

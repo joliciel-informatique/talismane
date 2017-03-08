@@ -19,17 +19,18 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Changes a numeric feature to a value from 0 to 1,
- * where any value &lt;= minValue is set to 0, and any value &gt;= maxValue is set to 1,
- * and all other values are set to a proportional value between 0 and 1.
+ * Changes a numeric feature to a value from 0 to 1, where any value &lt;=
+ * minValue is set to 0, and any value &gt;= maxValue is set to 1, and all other
+ * values are set to a proportional value between 0 and 1.
+ * 
  * @author Assaf Urieli
  *
  */
-public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> implements DoubleFeature<T> {	
+public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double>implements DoubleFeature<T> {
 	DoubleFeature<T> featureToNormalise;
 	DoubleFeature<T> minValueFeature = new DoubleLiteralFeature<T>(0.0);
 	DoubleFeature<T> maxValueFeature = null;
-	
+
 	/**
 	 * Constructor assuming the min value is 0.
 	 */
@@ -38,7 +39,7 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 		this.maxValueFeature = maxValueFeature;
 		this.setName("Normalise(" + featureToNormalise.getName() + "," + maxValueFeature.getName() + ")");
 	}
-	
+
 	/**
 	 * Constructor providing both min and max values.
 	 */
@@ -53,19 +54,19 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 	@Override
 	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
-		
+
 		FeatureResult<Double> resultToNormalise = featureToNormalise.check(context, env);
 		FeatureResult<Double> minValueResult = minValueFeature.check(context, env);
 		FeatureResult<Double> maxValueResult = maxValueFeature.check(context, env);
-		
-		if (resultToNormalise!=null && minValueResult!=null && maxValueResult!=null) {
+
+		if (resultToNormalise != null && minValueResult != null && maxValueResult != null) {
 			double minValue = minValueResult.getOutcome();
 			double maxValue = maxValueResult.getOutcome();
 			double normalisedValue = 0.0;
 			double initialValue = resultToNormalise.getOutcome();
-			if (initialValue<minValue)
+			if (initialValue < minValue)
 				normalisedValue = 0.0;
-			else if (initialValue>maxValue)
+			else if (initialValue > maxValue)
 				normalisedValue = 1.0;
 			else {
 				normalisedValue = (initialValue - minValue) / (maxValue - minValue);
@@ -73,33 +74,6 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 			featureResult = this.generateResult(normalisedValue);
 		}
 		return featureResult;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String val = builder.addFeatureVariable(featureToNormalise, "val");
-		String min = builder.addFeatureVariable(minValueFeature, "min");
-		String max = builder.addFeatureVariable(maxValueFeature, "max");
-		
-		builder.append("if (" + val + "!=null && " + min + "!=null && " + max + "!=null) {");
-		builder.indent();
-		builder.append(variableName + " = 0.0;");
-		builder.append("if (" + val + "<" + min + ")");
-		builder.indent();
-		builder.append(		variableName + " = 0.0;");
-		builder.outdent();
-		builder.append("else if (" + val + ">" + max + ")");
-		builder.indent();
-		builder.append(		variableName + " = 1.0;");
-		builder.outdent();
-		builder.append("else");
-		builder.indent();
-		builder.append(		variableName + " = (" + val + " - " + min + ") / (" + max + " - " + min + ");");
-		builder.outdent();
-		builder.outdent();
-		builder.append("}");
-		
-		return true;
 	}
 
 	public DoubleFeature<T> getFeatureToNormalise() {
@@ -125,6 +99,5 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double> impl
 	public void setMaxValueFeature(DoubleFeature<T> maxValueFeature) {
 		this.maxValueFeature = maxValueFeature;
 	}
-	
-	
+
 }

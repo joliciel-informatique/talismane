@@ -19,17 +19,16 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Returns operand1 == operand2.
- * For double values, an error margin of 0.0001 is allowed.
+ * Returns operand1 == operand2. For double values, an error margin of 0.0001 is
+ * allowed.
  * 
  * @author Assaf Urieli
  *
  */
-public class EqualsOperatorForBoolean<T> extends AbstractCachableFeature<T,Boolean> implements
-		BooleanFeature<T> {
+public class EqualsOperatorForBoolean<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	private BooleanFeature<T> operand1;
 	private BooleanFeature<T> operand2;
-	
+
 	public EqualsOperatorForBoolean(BooleanFeature<T> operand1, BooleanFeature<T> operand2) {
 		super();
 		this.operand1 = operand1;
@@ -40,35 +39,20 @@ public class EqualsOperatorForBoolean<T> extends AbstractCachableFeature<T,Boole
 	@Override
 	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		FeatureResult<Boolean> operand1Result = operand1.check(context, env);
-		if (operand1Result!=null) {
+		if (operand1Result != null) {
 			FeatureResult<Boolean> operand2Result = operand2.check(context, env);
-			
-			if (operand2Result!=null) {
+
+			if (operand2Result != null) {
 				boolean result = operand1Result.getOutcome().equals(operand2Result.getOutcome());
 				featureResult = this.generateResult(result);
 			}
 		}
-		
-		return featureResult;
-		
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op1 = builder.addFeatureVariable(operand1, "operand");
-		String op2 = builder.addFeatureVariable(operand2, "operand");
-		
-		builder.append("if (" + op1 + "!=null && " + op2 + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = " + op1 + "==" + op2 + ";");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
 
+		return featureResult;
+
+	}
 
 	public BooleanFeature<T> getOperand1() {
 		return operand1;
@@ -85,6 +69,5 @@ public class EqualsOperatorForBoolean<T> extends AbstractCachableFeature<T,Boole
 	public void setOperand2(BooleanFeature<T> operand2) {
 		this.operand2 = operand2;
 	}
-	
-	
+
 }

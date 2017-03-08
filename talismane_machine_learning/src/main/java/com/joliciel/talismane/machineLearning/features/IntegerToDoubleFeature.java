@@ -20,13 +20,13 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Converts an integer feature to a double feature
+ * 
  * @author Assaf Urieli
  *
  */
-public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implements
-		DoubleFeature<T> {
+public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double>implements DoubleFeature<T> {
 	private IntegerFeature<T> integerFeature;
-	
+
 	public IntegerToDoubleFeature(IntegerFeature<T> integerFeature) {
 		super();
 		this.integerFeature = integerFeature;
@@ -37,26 +37,12 @@ public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double> implem
 	@Override
 	public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
 		FeatureResult<Double> featureResult = null;
-		
+
 		FeatureResult<Integer> integerResult = integerFeature.check(context, env);
-		if (integerResult!=null) {
+		if (integerResult != null) {
 			featureResult = this.generateResult(integerResult.getOutcome().doubleValue());
 		}
 		return featureResult;
-	}
-	
-
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String int1 = builder.addFeatureVariable(integerFeature, "integer");
-		
-		builder.append("if (" + int1 + "!=null) {");
-		builder.indent();
-		builder.append(variableName + "=" + int1 + ".doubleValue();");
-		builder.outdent();
-		builder.append("}");
-		
-		return true;
 	}
 
 	public IntegerFeature<T> getIntegerFeature() {
