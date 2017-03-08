@@ -63,7 +63,7 @@ NMOD
 #NOM	(nominal) - marks free ("headless") relatives and gerunds when they act nominally.
 OBJ
 OPRD
-P
+P	punctuation	Punctuation
 PMOD
 POSTHON
 PRD	(predicate) - marks any predicate that is not VP. In the do so construction, the so is annotated as a predicate.
