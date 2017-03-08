@@ -76,7 +76,7 @@ public class ConllFileSplitter {
 							hasSentence = true;
 							sentenceCount++;
 						}
-						if (writer == null || sentenceCount % sentencesPerFile == 0) {
+						if (writer == null || sentenceCount % sentencesPerFile == 1) {
 							if (writer != null) {
 								writer.flush();
 								writer.close();

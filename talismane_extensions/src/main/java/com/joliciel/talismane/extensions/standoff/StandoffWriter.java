@@ -32,13 +32,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.output.ParseConfigurationOutput;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
 import com.joliciel.talismane.utils.LogUtils;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 import freemarker.cache.NullCacheStorage;
 import freemarker.template.Configuration;
@@ -58,9 +57,8 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 
 	private final String punctuationDepLabel;
 
-	public StandoffWriter(Writer writer) {
-		Config conf = ConfigFactory.load();
-		punctuationDepLabel = conf.getString("talismane.extensions.parser.punctuation-dep-label");
+	public StandoffWriter(Writer writer, TalismaneSession session) {
+		punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
 
 		try {
 			this.writer = writer;

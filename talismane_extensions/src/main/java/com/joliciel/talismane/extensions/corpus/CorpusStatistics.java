@@ -72,6 +72,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 	private int sentenceCount;
 	private int nonProjectiveCount;
 	private int totalDepCount;
+	private int maxDepthCorpus = 0;
 	private DescriptiveStatistics sentenceLengthStats = new DescriptiveStatistics();
 	private DescriptiveStatistics syntaxDepthStats = new DescriptiveStatistics();
 	private DescriptiveStatistics maxSyntaxDepthStats = new DescriptiveStatistics();
@@ -129,7 +130,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 
 		int maxDepth = 0;
 		DescriptiveStatistics avgSyntaxDepthForSentenceStats = new DescriptiveStatistics();
-		for (DependencyArc arc : parseConfiguration.getDependencies()) {
+		for (DependencyArc arc : parseConfiguration.getNonProjectiveDependencies()) {
 			Integer countObj = depLabelCounts.get(arc.getLabel());
 			int count = countObj == null ? 0 : countObj.intValue();
 			count++;
@@ -156,11 +157,14 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 				int distance = Math.abs(arc.getHead().getToken().getIndex() - arc.getDependent().getToken().getIndex());
 				syntaxDistanceStats.addValue(distance);
 			}
-
-			maxSyntaxDepthStats.addValue(maxDepth);
-			if (avgSyntaxDepthForSentenceStats.getN() > 0)
-				avgSyntaxDepthStats.addValue(avgSyntaxDepthForSentenceStats.getMean());
 		}
+
+		maxSyntaxDepthStats.addValue(maxDepth);
+		if (avgSyntaxDepthForSentenceStats.getN() > 0)
+			avgSyntaxDepthStats.addValue(avgSyntaxDepthForSentenceStats.getMean());
+
+		if (maxDepth > maxDepthCorpus)
+			maxDepthCorpus = maxDepth;
 
 		// we cheat a little bit by only allowing each arc to count once
 		// there could be a situation where there are two independent
@@ -169,7 +173,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 		// as this phenomenon is quite rare.
 		Set<DependencyArc> nonProjectiveArcs = new HashSet<DependencyArc>();
 		int i = 0;
-		for (DependencyArc arc : parseConfiguration.getDependencies()) {
+		for (DependencyArc arc : parseConfiguration.getNonProjectiveDependencies()) {
 			i++;
 			if (arc.getHead().getTag().equals(PosTag.ROOT_POS_TAG) && (arc.getLabel() == null || arc.getLabel().length() == 0))
 				continue;
@@ -181,7 +185,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 			int startIndex = headIndex < depIndex ? headIndex : depIndex;
 			int endIndex = headIndex >= depIndex ? headIndex : depIndex;
 			int j = 0;
-			for (DependencyArc otherArc : parseConfiguration.getDependencies()) {
+			for (DependencyArc otherArc : parseConfiguration.getNonProjectiveDependencies()) {
 				j++;
 				if (j <= i)
 					continue;
@@ -255,6 +259,7 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 
 				writer.write(CSV.format("syntaxDepthMean") + CSV.format(syntaxDepthStats.getMean()) + "\n");
 				writer.write(CSV.format("syntaxDepthStdDev") + CSV.format(syntaxDepthStats.getStandardDeviation()) + "\n");
+				writer.write(CSV.format("maxSyntaxDepth") + CSV.format(maxDepthCorpus) + "\n");
 				writer.write(CSV.format("maxSyntaxDepthMean") + CSV.format(maxSyntaxDepthStats.getMean()) + "\n");
 				writer.write(CSV.format("maxSyntaxDepthStdDev") + CSV.format(maxSyntaxDepthStats.getStandardDeviation()) + "\n");
 				writer.write(CSV.format("sentAvgSyntaxDepthMean") + CSV.format(avgSyntaxDepthStats.getMean()) + "\n");

@@ -28,12 +28,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.vfs2.FileObject;
@@ -50,6 +48,7 @@ import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.output.CoNLLFormatter;
 import com.joliciel.talismane.parser.ArcEagerTransitionSystem;
+import com.joliciel.talismane.parser.DependencyLabelSet;
 import com.joliciel.talismane.parser.ShiftReduceTransitionSystem;
 import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.posTagger.PosTagSet;
@@ -197,16 +196,8 @@ public class TalismaneSession {
 		if (config.hasPath(configPath)) {
 			InputStream dependencyLabelFile = ConfigUtils.getFileFromConfig(config, configPath);
 			try (Scanner depLabelScanner = new Scanner(new BufferedReader(new InputStreamReader(dependencyLabelFile, "UTF-8")))) {
-				Set<String> dependencyLabels = new HashSet<String>();
-				while (depLabelScanner.hasNextLine()) {
-					String line = depLabelScanner.nextLine();
-					if (!line.startsWith("#")) {
-						String[] parts = line.split("\t");
-						if (parts.length > 0 && parts[0].length() > 0)
-							dependencyLabels.add(parts[0]);
-					}
-				}
-				transitionSystem.setDependencyLabels(dependencyLabels);
+				DependencyLabelSet dependencyLabelSet = new DependencyLabelSet(depLabelScanner);
+				transitionSystem.setDependencyLabelSet(dependencyLabelSet);
 			}
 		}
 
