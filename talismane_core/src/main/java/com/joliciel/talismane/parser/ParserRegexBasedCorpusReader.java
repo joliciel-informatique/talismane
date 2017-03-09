@@ -43,8 +43,11 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.lexicon.CompactLexicalEntry;
+import com.joliciel.talismane.lexicon.CompactLexicalEntrySupport;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.lexicon.WritableLexicalEntry;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -127,6 +130,7 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 
 	private final TalismaneSession session;
 	private final String regex;
+	private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
 
 	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 
@@ -451,7 +455,8 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 							dataLines.add(dataLine);
 
 							if (this.lexicalEntryReader != null) {
-								LexicalEntry lexicalEntry = this.lexicalEntryReader.readEntry(line);
+								WritableLexicalEntry lexicalEntry = new CompactLexicalEntry(lexicalEntrySupport);
+								this.lexicalEntryReader.readEntry(line, lexicalEntry);
 								lexicalEntries.add(lexicalEntry);
 							}
 						}

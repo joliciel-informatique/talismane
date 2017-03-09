@@ -157,9 +157,12 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		container.addFeatureClass("Lemma", LemmaFeature.class);
 		container.addFeatureClass("Morphology", MorphologyFeature.class);
 		container.addFeatureClass("Gender", GrammaticalGenderFeature.class);
+		container.addFeatureClass("Case", GrammaticalCaseFeature.class);
 		container.addFeatureClass("Number", GrammaticalNumberFeature.class);
 		container.addFeatureClass("Person", GrammaticalPersonFeature.class);
 		container.addFeatureClass("Tense", VerbTenseFeature.class);
+		container.addFeatureClass("Aspect", VerbAspectFeature.class);
+		container.addFeatureClass("Mood", VerbMoodFeature.class);
 		container.addFeatureClass("Category", LexicalCategoryFeature.class);
 		container.addFeatureClass("SubCategory", LexicalSubCategoryFeature.class);
 		container.addFeatureClass("PossessorNumber", PossessorNumberFeature.class);
@@ -167,6 +170,9 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		container.addFeatureClass("WordForm", WordFormFeature.class);
 		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);
 		container.addFeatureClass("TokenHas", HistoryHasFeature.class);
+		container.addFeatureClass("LexicalAttribute", LexicalAttributeFeature.class);
+		container.addFeatureClass("CombinedLexicalAttributes", CombinedLexicalAttributesFeature.class);
+
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -234,25 +240,25 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 
 	}
 
-	private class PosTaggerBooleanFeatureWrapper extends PosTaggerFeatureWrapper<Boolean> implements BooleanFeature<PosTaggerContext> {
+	private class PosTaggerBooleanFeatureWrapper extends PosTaggerFeatureWrapper<Boolean>implements BooleanFeature<PosTaggerContext> {
 		public PosTaggerBooleanFeatureWrapper(Feature<PosTaggerContext, Boolean> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
 
-	private class PosTaggerStringFeatureWrapper extends PosTaggerFeatureWrapper<String> implements StringFeature<PosTaggerContext> {
+	private class PosTaggerStringFeatureWrapper extends PosTaggerFeatureWrapper<String>implements StringFeature<PosTaggerContext> {
 		public PosTaggerStringFeatureWrapper(Feature<PosTaggerContext, String> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
 
-	private class PosTaggerDoubleFeatureWrapper extends PosTaggerFeatureWrapper<Double> implements DoubleFeature<PosTaggerContext> {
+	private class PosTaggerDoubleFeatureWrapper extends PosTaggerFeatureWrapper<Double>implements DoubleFeature<PosTaggerContext> {
 		public PosTaggerDoubleFeatureWrapper(Feature<PosTaggerContext, Double> wrappedFeature) {
 			super(wrappedFeature);
 		}
 	}
 
-	private class PosTaggerIntegerFeatureWrapper extends PosTaggerFeatureWrapper<Integer> implements IntegerFeature<PosTaggerContext> {
+	private class PosTaggerIntegerFeatureWrapper extends PosTaggerFeatureWrapper<Integer>implements IntegerFeature<PosTaggerContext> {
 		public PosTaggerIntegerFeatureWrapper(Feature<PosTaggerContext, Integer> wrappedFeature) {
 			super(wrappedFeature);
 		}

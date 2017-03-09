@@ -67,6 +67,9 @@ public interface TokenSequenceProcessor extends Closeable {
 		Config config = session.getConfig();
 		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 
+		if (outDir != null)
+			outDir.mkdirs();
+
 		Reader templateReader = null;
 		String configPath = "talismane.core.tokeniser.output.template";
 		if (config.hasPath(configPath)) {

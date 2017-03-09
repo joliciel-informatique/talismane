@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.output;
 
-import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -28,22 +27,20 @@ public final class ParseConfigurationTokenOutput {
 	private PosTaggedToken posTaggedToken;
 	private Token token;
 	private PosTag tag;
-	private LexicalEntry lexicalEntry;
 	private ParseConfigurationTokenOutput governor;
 	private DependencyArc arc;
 	private String label;
-	
+
 	private ParseConfigurationTokenOutput nonProjectiveGovernor;
 	private DependencyArc nonProjectiveArc;
 	private String nonProjectiveLabel;
-	
+
 	public ParseConfigurationTokenOutput(PosTaggedToken posTaggedToken) {
 		this.posTaggedToken = posTaggedToken;
 		this.token = posTaggedToken.getToken();
 		this.tag = posTaggedToken.getTag();
-		this.lexicalEntry = posTaggedToken.getLexicalEntry();
 	}
-	
+
 	public PosTaggedToken getPosTaggedToken() {
 		return posTaggedToken;
 	}
@@ -51,18 +48,15 @@ public final class ParseConfigurationTokenOutput {
 	public Token getToken() {
 		return token;
 	}
-	
+
 	public PosTag getTag() {
 		return tag;
-	}
-	
-	public LexicalEntry getLexicalEntry() {
-		return lexicalEntry;
 	}
 
 	public ParseConfigurationTokenOutput getGovernor() {
 		return governor;
 	}
+
 	public void setGovernor(ParseConfigurationTokenOutput governor) {
 		this.governor = governor;
 	}
@@ -78,6 +72,7 @@ public final class ParseConfigurationTokenOutput {
 	public String getLabel() {
 		return label;
 	}
+
 	public void setLabel(String label) {
 		this.label = label;
 	}
@@ -86,8 +81,7 @@ public final class ParseConfigurationTokenOutput {
 		return nonProjectiveGovernor;
 	}
 
-	public void setNonProjectiveGovernor(
-			ParseConfigurationTokenOutput nonProjectiveGovernor) {
+	public void setNonProjectiveGovernor(ParseConfigurationTokenOutput nonProjectiveGovernor) {
 		this.nonProjectiveGovernor = nonProjectiveGovernor;
 	}
 
@@ -106,6 +100,5 @@ public final class ParseConfigurationTokenOutput {
 	public void setNonProjectiveLabel(String nonProjectiveLabel) {
 		this.nonProjectiveLabel = nonProjectiveLabel;
 	}
-	
-	
+
 }
