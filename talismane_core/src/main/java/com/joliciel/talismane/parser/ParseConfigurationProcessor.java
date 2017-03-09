@@ -87,6 +87,9 @@ public interface ParseConfigurationProcessor extends Closeable {
 		List<ProcessorType> processorTypes = parserConfig.getStringList("output.processors").stream().map(f -> ProcessorType.valueOf(f))
 				.collect(Collectors.toList());
 
+		if (outDir != null)
+			outDir.mkdirs();
+
 		for (ProcessorType type : processorTypes) {
 			switch (type) {
 			case output: {

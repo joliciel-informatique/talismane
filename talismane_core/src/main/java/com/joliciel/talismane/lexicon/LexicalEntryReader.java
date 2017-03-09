@@ -20,6 +20,7 @@ package com.joliciel.talismane.lexicon;
 
 /**
  * Reads lexical entries from any source whatsoever.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -27,5 +28,5 @@ public interface LexicalEntryReader {
 	/**
 	 * Read a lexical entry directly from a block of text.
 	 */
-	public LexicalEntry readEntry(String text);
+	public void readEntry(String text, WritableLexicalEntry lexicalEntry);
 }

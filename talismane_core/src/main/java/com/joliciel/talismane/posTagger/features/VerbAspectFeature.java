@@ -16,35 +16,32 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.lexicon;
+package com.joliciel.talismane.posTagger.features;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.joliciel.talismane.lexicon.LexicalAttribute;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 
 /**
- * A status, used only to select a single entry in the case of homographs,
- * to indicate which lemma should be given preference.
+ * The verb aspect of a given token as supplied by the lexicon.
  * 
  * @author Assaf Urieli
  *
  */
-public enum LexicalEntryStatus {
-	/**
-	 * Used when no homograph exists, or when this is the most likely homograph.
-	 */
-	NEUTRAL,
-	
-	/**
-	 * This is a somewhat arbitrary decision, as between "fils" (for fil) and "fils" for (for fils) in French.
-	 */
-	SOMEWHAT_UNLIKELY,
-	
-	/**
-	 * Gives a definite preference to another homograph.
-	 */
-	UNLIKELY,
-	
-	/**
-	 * This entry should be ignored - it is not a true homograph.
-	 */
-	WRONG;
-	
-	
+public final class VerbAspectFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
+	private final List<String> attributes = new ArrayList<>(1);
+
+	public VerbAspectFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+		super(addressFunction);
+		this.setAddressFunction(addressFunction);
+		attributes.add(LexicalAttribute.Aspect.toString());
+	}
+
+	@Override
+	protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
+		return attributes;
+	}
 }

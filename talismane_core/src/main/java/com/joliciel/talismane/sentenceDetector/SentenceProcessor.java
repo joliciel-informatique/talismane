@@ -64,6 +64,10 @@ public interface SentenceProcessor extends Closeable {
 	public static List<SentenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
 		List<SentenceProcessor> sentenceProcessors = new ArrayList<>();
 		Config config = session.getConfig();
+
+		if (outDir != null)
+			outDir.mkdirs();
+
 		Reader templateReader = null;
 		String configPath = "talismane.core.sentence-detector.output.template";
 		if (config.hasPath(configPath)) {

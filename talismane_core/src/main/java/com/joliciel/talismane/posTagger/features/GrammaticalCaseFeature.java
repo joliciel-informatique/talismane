@@ -26,18 +26,18 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 
 /**
- * The grammatical person of a given token as supplied by the lexicon.
+ * The grammatical case of a given token as supplied by the lexicon.
  * 
  * @author Assaf Urieli
  *
  */
-public final class GrammaticalPersonFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
+public final class GrammaticalCaseFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
 	private final List<String> attributes = new ArrayList<>(1);
 
-	public GrammaticalPersonFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+	public GrammaticalCaseFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
-		attributes.add(LexicalAttribute.Person.toString());
+		attributes.add(LexicalAttribute.Case.toString());
 	}
 
 	@Override

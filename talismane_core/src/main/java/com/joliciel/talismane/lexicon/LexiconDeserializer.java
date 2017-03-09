@@ -98,7 +98,7 @@ public class LexiconDeserializer {
 			LOG.info("Word: " + word);
 			List<LexicalEntry> entries = mergedLexicon.getEntries(word);
 			for (LexicalEntry entry : entries) {
-				LOG.info(entry + ", Full morph: " + entry.getMorphologyForCoNLL());
+				LOG.info(entry + ", Full morph: " + entry.getMorphology());
 			}
 		}
 	}
