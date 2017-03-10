@@ -1,0 +1,52 @@
+############################################################
+# Lefff V3.2, sample file for part of the letter D only
+# Lefff was downloaded from http://alpage.inria.fr/~sagot/lefff.html
+# What is Lefff
+# =============
+# Lefff is a syntactic lexicon for French.
+# http://alexina.gforge.inria.fr/
+# 
+# Copyright and Licence
+# =====================
+# INRIA 2007
+# Lesser General Public License For Linguistic Resources
+# 
+# Authors
+# =======
+# Benoît Sagot    <Benoit.Sagot@inria.fr>
+# Lionel Clément	<Lionel.Clement@lefff.net>
+#
+# See Lefff_README.txt file for more information
+############################################################
+dame	100	nc	[pred="dame_____1<Objde:(de-sinf|de-sn),Objà:(à-sinf)>",cat=nc,@fs]	dame_____1	Default	fs	%default	nc-2f
+dame	100	v	[pred="damer_____1<Suj:cln|scompl|sinf|sn,Obj:(cla|sn)>",@imperative,@pers,cat=v,@Y2s]	damer_____1	Imperative	Y2s	%actif	v-er:std
+dame	100	v	[pred="damer_____1<Suj:cln|scompl|sinf|sn,Obj:(cla|sn)>",@pers,cat=v,@PS13s]	damer_____1	ThirdSing	PS13s	%actif	v-er:std
+dimanche	100	adv	[pred="dimanche_____1",cat=adv]	dimanche_____1	Default		%default	inv
+dimanche	100	nc	[pred="dimanche_____1",@weekday,cat=nc,@ms]	dimanche_____1	Default	ms	%default	nc-2m
+dimanches	100	nc	[pred="dimanche_____1",@weekday,cat=nc,@mp]	dimanche_____1	Default	mp	%default	nc-2m
+dimension	100	nc	[pred="dimension_____1<Objde:(de-sinf|de-sn),Objà:(à-sinf)>",cat=nc,@fs]	dimension_____1	Default	fs	%default	nc-2f
+distance	100	nc	[pred="distance_____1<Objde:(de-sinf|de-sn),Objà:(à-sinf)>",cat=nc,@fs]	distance_____1	Default	fs	%default	nc-2f
+distance	100	v	[pred="distancer_____1<Suj:cln|scompl|sinf|sn,Obj:(cla|sn)>",@imperative,@pers,cat=v,@Y2s]	distancer_____1	Imperative	Y2s	%actif	v-er:std
+distance	100	v	[pred="distancer_____1<Suj:cln|scompl|sinf|sn,Obj:(cla|sn)>",@pers,cat=v,@PS13s]	distancer_____1	ThirdSing	PS13s	%actif	v-er:std
+distance	100	v	[pred="distancer_____2<Suj:cln|sn,Obj:(cla|seréc|sn)>",@imperative,@pers,cat=v,@Y2s]	distancer_____2	Imperative	Y2s	%actif	v-er:std
+distance	100	v	[pred="distancer_____2<Suj:cln|sn,Obj:(cla|seréc|sn)>",@pers,cat=v,@PS13s]	distancer_____2	ThirdSing	PS13s	%actif	v-er:std
+distance	100	v	[pred="se distancer_____1<Suj:cln|sn,Objde:de-sn|en>",@imperative,@pers,@pron,@être,cat=v,@Y2s]	distancer_____1	Imperative	Y2s	%actif	v-er:std
+distance	100	v	[pred="se distancer_____1<Suj:cln|sn,Objde:de-sn|en>",@pers,@pron,@être,cat=v,@PS13s]	distancer_____1	ThirdSing	PS13s	%actif	v-er:std
+distances	100	nc	[pred="distance_____1<Objde:(de-sinf|de-sn),Objà:(à-sinf)>",cat=nc,@fp]	distance_____1	Default	fp	%default	nc-2f
+distances	100	v	[pred="distancer_____1<Suj:cln|scompl|sinf|sn,Obj:(cla|sn)>",@pers,cat=v,@PS2s]	distancer_____1	Default	PS2s	%actif	v-er:std
+distances	100	v	[pred="distancer_____2<Suj:cln|sn,Obj:(cla|seréc|sn)>",@pers,cat=v,@PS2s]	distancer_____2	Default	PS2s	%actif	v-er:std
+distances	100	v	[pred="se distancer_____1<Suj:cln|sn,Objde:de-sn|en>",@pers,@pron,@être,cat=v,@PS2s]	distancer_____1	Default	PS2s	%actif	v-er:std
+dure	100	adj	[pred="dur_____1<Suj:(cln|scompl|sinf|sn)>",@pers,cat=adj,@fs]	dur_____1	Default	fs	%adj_personnel	adj-4
+dure	100	adj	[pred="dur_____1<Suj:(de-sinf|scompl|sn)>",@impers,cat=adj,@fs]	dur_____1	Default	fs	%adj_impersonnel	adj-4
+dure	100	nc	[pred="dur_____1<Objde:(de-sinf|de-sn),Objà:(à-sinf)>",cat=nc,@fs]	dur_____1	Default	fs	%default	nc-4
+dure	100	nc	[pred="dure_____1<Objde:(de-sinf|de-sn),Objà:(à-sinf)>",cat=nc,@fs]	dure_____1	Default	fs	%default	nc-2f
+dure	100	v	[pred="durer_____1<Suj:cln|sn,Att:(cla|sn)>",@imperative,@pers,cat=v,@Y2s]	durer_____1	Imperative	Y2s	%actif	v-er:std
+dure	100	v	[pred="durer_____1<Suj:cln|sn,Att:(cla|sn)>",@pers,cat=v,@PS13s]	durer_____1	ThirdSing	PS13s	%actif	v-er:std
+dut	100	v	[pred="devoir_____1<Suj:cln|sn,Obj:cla|de-sinf|sn,Objà:(cld|à-sn)>",@CtrlSujObj,@pers,cat=v,@J3s]	devoir_____1	ThirdSing	J3s	%actif	v-evoir
+dut	100	v	[pred="devoir_____2<Suj:cln|scompl|sinf|sn,Obj:(cla|scompl|sinf|sn)>",@CtrlSujObj,@pers,cat=v,@J3s]	devoir_____2	ThirdSing	J3s	%actif	v-evoir
+dut	100	v	[pred="devoir___must__1<Suj:cln|scompl|sinf|sn,Obj:(cla|sinf|sn)>",@CtrlSujObj,@pers,cat=v,@J3s]	devoir___must__1	ThirdSing	J3s	%actif	v-evoir
+dut	100	v	[pred="devoir___owe1__1<Suj:cln|sn,Obj:cla|de-sinf|sn,Objà:(cld|à-sn)>",@CtrlSujObj,@pers,cat=v,@J3s]	devoir___owe1__1	ThirdSing	J3s	%actif	v-evoir
+dut	100	v	[pred="devoir___owe1__1<Suj:sinf|sn,Objà:(cld|à-sn)>se",@pers,@se_moyen,@être,cat=v,@J3s]	devoir___owe1__1	ThirdSing	J3s	%se_moyen	v-evoir
+dut	100	v	[pred="devoir___owe2__1<Suj:cln|sn,Obj:cla|de-sinf|sn,Objà:(cld|seréc|seréfl|à-sn)>",@CtrlSujObj,@pers,cat=v,@J3s]	devoir___owe2__1	ThirdSing	J3s	%actif	v-evoir
+dut	100	v	[pred="devoir___owe2__1<Suj:sinf|sn,Objà:(cld|seréc|seréfl|à-sn)>se",@pers,@se_moyen,@être,cat=v,@J3s]	devoir___owe2__1	ThirdSing	J3s	%se_moyen	v-evoir
+dut	100	v	[pred="se devoir___owe_to_each_other__1<Suj:cln|sn,Obj:cla|de-sinf|scompl|sn,Objà:cld|seréc|seréfl|à-sn>",@CtrlSujObj,@pers,@pron,@être,cat=v,@J3s]	devoir___owe_to_each_other__1	ThirdSing	J3s	%actif	v-evoir

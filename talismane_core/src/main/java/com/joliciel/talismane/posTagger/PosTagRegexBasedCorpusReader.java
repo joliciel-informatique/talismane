@@ -18,6 +18,10 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,9 +42,11 @@ import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 /**
@@ -85,12 +91,20 @@ public class PosTagRegexBasedCorpusReader extends PosTagAnnotatedCorpusReader {
 
 	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 
-	public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+	public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
 		super(reader, config, session);
 
 		this.scanner = new Scanner(reader);
 		this.session = session;
 		this.regex = config.getString("preannotated-pattern");
+
+		String configPath = "sentence-file";
+		if (config.hasPath(configPath)) {
+			InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
+			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, session.getInputCharset()));
+			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader, config, session);
+			this.sentenceReader = sentenceReader;
+		}
 
 		// construct the input regex
 		int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);

@@ -29,9 +29,7 @@ import gnu.trove.map.hash.THashMap;
 
 /**
  * A compact lexical entry, using a related {@link CompactLexicalEntrySupport}
- * to efficiently store reference data. <br/>
- * If required, {@link #getMorphologyForCoNLL()} can be overwritten to write a
- * different CoNLL-X morphological output.
+ * to efficiently store reference data.
  * 
  * @author Assaf Urieli
  *
