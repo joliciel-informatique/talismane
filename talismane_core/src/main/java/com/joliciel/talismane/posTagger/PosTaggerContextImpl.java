@@ -27,7 +27,7 @@ import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
-final class PosTaggerContextImpl implements HasFeatureCache, PosTaggerContext {
+public final class PosTaggerContextImpl implements HasFeatureCache, PosTaggerContext {
 	private final Token token;
 	private final PosTagSequence history;
 	private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();

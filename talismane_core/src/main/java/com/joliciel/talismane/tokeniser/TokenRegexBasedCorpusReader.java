@@ -285,10 +285,6 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 		return sentenceReader;
 	}
 
-	public void setSentenceReader(SentenceDetectorAnnotatedCorpusReader sentenceReader) {
-		this.sentenceReader = sentenceReader;
-	}
-
 	@Override
 	public boolean hasNextSentence() {
 		return this.hasNextTokenSequence();

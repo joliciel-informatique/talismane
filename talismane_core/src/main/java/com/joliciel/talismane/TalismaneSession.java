@@ -43,7 +43,7 @@ import com.joliciel.talismane.Talismane.Module;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.EmptyLexicon;
 import com.joliciel.talismane.lexicon.LexiconChain;
-import com.joliciel.talismane.lexicon.LexiconDeserializer;
+import com.joliciel.talismane.lexicon.LexiconReader;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.output.CoNLLFormatter;
@@ -205,13 +205,19 @@ public class TalismaneSession {
 		List<String> lexiconPaths = config.getStringList(configPath);
 		for (String lexiconPath : lexiconPaths) {
 			List<PosTaggerLexicon> lexicons = lexiconMap.get(lexiconPath);
+			LexiconReader lexiconReader = new LexiconReader(this);
 
 			if (lexicons == null) {
-				InputStream lexiconFile = ConfigUtils.getFile(config, configPath, lexiconPath);
+				if (lexiconPath.endsWith(".zip")) {
+					InputStream lexiconFile = ConfigUtils.getFile(config, configPath, lexiconPath);
 
-				LexiconDeserializer lexiconDeserializer = new LexiconDeserializer(this);
-				lexicons = lexiconDeserializer.deserializeLexicons(new ZipInputStream(lexiconFile));
-				lexiconMap.put(lexiconPath, lexicons);
+					lexicons = lexiconReader.deserializeLexicons(new ZipInputStream(lexiconFile));
+					lexiconMap.put(lexiconPath, lexicons);
+				} else {
+					// assume it's a lexicon properties file
+					File lexiconPropsFile = new File(lexiconPath);
+					lexicons = lexiconReader.readLexicons(lexiconPropsFile);
+				}
 			}
 
 			for (PosTaggerLexicon oneLexicon : lexicons) {
@@ -224,10 +230,7 @@ public class TalismaneSession {
 		else if (lexicons.size() == 1)
 			mergedLexicon = lexicons.get(0);
 		else {
-			LexiconChain lexiconChain = new LexiconChain();
-			for (PosTaggerLexicon lexicon : lexicons) {
-				lexiconChain.addLexicon(lexicon);
-			}
+			LexiconChain lexiconChain = new LexiconChain(lexicons);
 			mergedLexicon = lexiconChain;
 		}
 
