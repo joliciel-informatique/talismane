@@ -354,12 +354,12 @@ public class LexiconReader {
 					// this ensures the lexicons will be added in the correct
 					// order
 
-					try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(zis, "UTF-8")))) {
-						while (scanner.hasNextLine()) {
-							String line = scanner.nextLine();
-							if (line.length() > 0)
-								lexiconNames.add(line);
-						}
+					@SuppressWarnings("resource")
+					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(zis, "UTF-8")));
+					while (scanner.hasNextLine()) {
+						String line = scanner.nextLine();
+						if (line.length() > 0)
+							lexiconNames.add(line);
 					}
 				}
 			}
