@@ -174,6 +174,8 @@ public class SentenceAnnotatorLoader {
 				filter = new RegexAttributeAnnotator(descriptor, defaultParams, talismaneSession);
 			} else if (this.registeredFactories.containsKey(className)) {
 				filter = this.registeredFactories.get(className).construct(descriptor, defaultParams, talismaneSession);
+			} else {
+				throw new TalismaneException("Unknown sentence annotator class: " + className);
 			}
 			if (filter.isExcluded())
 				return null;
