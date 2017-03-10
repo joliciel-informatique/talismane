@@ -84,6 +84,9 @@ public interface PosTagSequenceProcessor extends Closeable {
 		List<ProcessorType> processorTypes = posTaggerConfig.getStringList("output.processors").stream().map(f -> ProcessorType.valueOf(f))
 				.collect(Collectors.toList());
 
+		if (outDir != null)
+			outDir.mkdirs();
+
 		for (ProcessorType type : processorTypes) {
 			switch (type) {
 			case output: {

@@ -53,7 +53,7 @@ import com.joliciel.talismane.languageDetector.LanguageDetectorProcessor;
 import com.joliciel.talismane.languageDetector.LanguageDetectorTrainer;
 import com.joliciel.talismane.lexicon.Diacriticizer;
 import com.joliciel.talismane.lexicon.LexiconDeserializer;
-import com.joliciel.talismane.lexicon.LexiconSerializer;
+import com.joliciel.talismane.lexicon.LexiconReader;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.parser.ParseComparator;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -106,7 +106,7 @@ public class TalismaneMain {
 		if (args.length > 0) {
 			Set<String> argSet = new HashSet<>(Arrays.asList(args));
 			if (argSet.contains("--serializeLexicon")) {
-				LexiconSerializer.main(args);
+				LexiconReader.main(args);
 				return;
 			}
 			if (argSet.contains("--testLexicon")) {
@@ -510,8 +510,11 @@ public class TalismaneMain {
 		}
 		if (options.has(tokeniserPatternsOption))
 			values.put("talismane.core.tokeniser.train.patterns", options.valueOf(tokeniserPatternsOption).getPath());
-		if (options.has(sentenceFileOption))
+		if (options.has(sentenceFileOption)) {
 			values.put("talismane.core.tokeniser.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
+			values.put("talismane.core.pos-tagger.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
+			values.put("talismane.core.parser.input.sentence-file", options.valueOf(sentenceFileOption).getPath());
+		}
 		if (options.has(languageCorpusMapOption))
 			values.put("talismane.core.language-detector.train.language-corpus-map", options.valueOf(languageCorpusMapOption).getPath());
 		if (options.has(predictTransitionsOption))

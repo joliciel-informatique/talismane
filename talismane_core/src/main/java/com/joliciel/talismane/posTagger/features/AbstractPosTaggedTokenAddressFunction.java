@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+///////////////////////////////////////////////////////////////////////////////
+//Copyright (C) 2017 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,35 +17,16 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.lexicon;
+package com.joliciel.talismane.posTagger.features;
+
+import com.joliciel.talismane.posTagger.PosTaggerContext;
 
 /**
- * A status, used only to select a single entry in the case of homographs,
- * to indicate which lemma should be given preference.
- * 
+ * An empty abstract class for easily creating address functions.
  * @author Assaf Urieli
  *
  */
-public enum LexicalEntryStatus {
-	/**
-	 * Used when no homograph exists, or when this is the most likely homograph.
-	 */
-	NEUTRAL,
-	
-	/**
-	 * This is a somewhat arbitrary decision, as between "fils" (for fil) and "fils" for (for fils) in French.
-	 */
-	SOMEWHAT_UNLIKELY,
-	
-	/**
-	 * Gives a definite preference to another homograph.
-	 */
-	UNLIKELY,
-	
-	/**
-	 * This entry should be ignored - it is not a true homograph.
-	 */
-	WRONG;
-	
-	
+public abstract class AbstractPosTaggedTokenAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>
+	implements PosTaggedTokenAddressFunction<PosTaggerContext> {
+
 }

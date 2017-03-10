@@ -16,13 +16,32 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane.lexicon;
+package com.joliciel.talismane.posTagger.features;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.joliciel.talismane.lexicon.LexicalAttribute;
+import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 
 /**
- * Allows for the generation of lexical entries of a particular type.
+ * The verb mood of a given token as supplied by the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public interface LexicalEntryFactory {
-	WritableLexicalEntry newLexicalEntry();
+public final class VerbMoodFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
+	private final List<String> attributes = new ArrayList<>(1);
+
+	public VerbMoodFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+		super(addressFunction);
+		this.setAddressFunction(addressFunction);
+		attributes.add(LexicalAttribute.Mood.toString());
+	}
+
+	@Override
+	protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
+		return attributes;
+	}
 }

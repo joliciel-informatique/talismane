@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
@@ -43,8 +44,11 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.lexicon.CompactLexicalEntry;
+import com.joliciel.talismane.lexicon.CompactLexicalEntrySupport;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.lexicon.WritableLexicalEntry;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
@@ -54,9 +58,11 @@ import com.joliciel.talismane.posTagger.UnknownPosTagException;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.tokeniser.PretokenisedSequence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.joliciel.talismane.utils.ConfigUtils;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.typesafe.config.Config;
@@ -127,19 +133,28 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 
 	private final TalismaneSession session;
 	private final String regex;
+	private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
 
 	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
 
-	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) {
+	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
 		this(config.getString("preannotated-pattern"), reader, config, session);
 	}
 
-	public ParserRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) {
+	public ParserRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException {
 		super(reader, config, session);
 		this.regex = regex;
 		this.session = session;
 		this.scanner = new Scanner(reader);
 		this.predictTransitions = config.getBoolean("predict-transitions");
+
+		String configPath = "sentence-file";
+		if (config.hasPath(configPath)) {
+			InputStream sentenceReaderFile = ConfigUtils.getFileFromConfig(config, configPath);
+			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, session.getInputCharset()));
+			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader, config, session);
+			this.sentenceReader = sentenceReader;
+		}
 	}
 
 	@Override
@@ -451,7 +466,8 @@ public class ParserRegexBasedCorpusReader extends ParserAnnotatedCorpusReader im
 							dataLines.add(dataLine);
 
 							if (this.lexicalEntryReader != null) {
-								LexicalEntry lexicalEntry = this.lexicalEntryReader.readEntry(line);
+								WritableLexicalEntry lexicalEntry = new CompactLexicalEntry(lexicalEntrySupport);
+								this.lexicalEntryReader.readEntry(line, lexicalEntry);
 								lexicalEntries.add(lexicalEntry);
 							}
 						}
