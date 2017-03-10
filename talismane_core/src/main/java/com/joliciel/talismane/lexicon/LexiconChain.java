@@ -30,14 +30,24 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 
 /**
  * A chain of lexicons that can be used to pool lexical information.
+ * 
  * @author Assaf Urieli
  *
  */
 public class LexiconChain implements PosTaggerLexicon {
 	private static final long serialVersionUID = 1L;
-	private String name = null;
-	private List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();	
-	
+	private final String name;
+	private final List<PosTaggerLexicon> lexicons;
+
+	public LexiconChain(List<PosTaggerLexicon> lexicons) {
+		this.lexicons = lexicons;
+		String name = "LexiconChain";
+		for (PosTaggerLexicon lexicon : lexicons)
+			name += "|" + lexicon.getName();
+
+		this.name = name;
+	}
+
 	@Override
 	public List<LexicalEntry> getEntries(String word) {
 		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
@@ -85,9 +95,7 @@ public class LexiconChain implements PosTaggerLexicon {
 	}
 
 	@Override
-	public List<LexicalEntry> getEntriesMatchingCriteria(
-			LexicalEntry lexicalEntry, PosTag posTag, String gender,
-			String number) {
+	public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number) {
 		List<LexicalEntry> entries = new ArrayList<LexicalEntry>();
 		for (PosTaggerLexicon lexicon : lexicons) {
 			entries.addAll(lexicon.getEntriesMatchingCriteria(lexicalEntry, posTag, gender, number));
@@ -97,7 +105,7 @@ public class LexiconChain implements PosTaggerLexicon {
 
 	@Override
 	public PosTagSet getPosTagSet() {
-		if (this.lexicons.size()>0) {
+		if (this.lexicons.size() > 0) {
 			PosTaggerLexicon lexicon = this.lexicons.get(0);
 			return lexicon.getPosTagSet();
 		}
@@ -110,13 +118,9 @@ public class LexiconChain implements PosTaggerLexicon {
 			lexicon.setPosTagSet(posTagSet);
 	}
 
-	public void addLexicon(PosTaggerLexicon lexicon) {
-		this.lexicons.add(lexicon);
-	}
-
 	@Override
 	public PosTagMapper getPosTagMapper() {
-		if (this.lexicons.size()>0) {
+		if (this.lexicons.size() > 0) {
 			PosTaggerLexicon lexicon = this.lexicons.get(0);
 			return lexicon.getPosTagMapper();
 		}
@@ -131,11 +135,6 @@ public class LexiconChain implements PosTaggerLexicon {
 
 	@Override
 	public String getName() {
-		if (this.name==null) {
-			this.name = "LexiconChain";
-			for (PosTaggerLexicon lexicon : lexicons)
-				this.name += "|" + lexicon.getName();
-		}
 		return name;
 	}
 
@@ -148,9 +147,10 @@ public class LexiconChain implements PosTaggerLexicon {
 		return new Iterator<LexicalEntry>() {
 			Iterator<PosTaggerLexicon> iLexicons = lexicons.iterator();
 			Iterator<LexicalEntry> entries = null;
+
 			@Override
 			public boolean hasNext() {
-				while (entries==null) {
+				while (entries == null) {
 					if (iLexicons.hasNext()) {
 						entries = iLexicons.next().getAllEntries();
 					} else {
@@ -179,6 +179,5 @@ public class LexiconChain implements PosTaggerLexicon {
 			}
 		};
 	}
-	
-	
+
 }

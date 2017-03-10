@@ -122,7 +122,8 @@ public class Token implements TokenWrapper {
 		this.lexicon = tokenToClone.lexicon;
 	}
 
-	Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon, TalismaneSession talismaneSession) {
+	public Token(String text, TokenSequence tokenSequence, int index, int startIndex, int endIndex, PosTaggerLexicon lexicon,
+			TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
 		this.analysisText = null;
 		this.text = null;

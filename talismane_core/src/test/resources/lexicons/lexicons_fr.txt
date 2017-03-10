@@ -1,0 +1,14 @@
+lexicons=TalismaneFrClosed,GlaffD,LefffD
+TalismaneFrClosed.file=TalismaneFrClosed.txt
+TalismaneFrClosed.regex=TalismaneFrClosed_regex.txt
+GlaffD.file=glaff-1.2.1_letterD.txt
+GlaffD.regex=glaff-1.2.1_regex.txt
+GlaffD.posTagMap=glaff-1.2.1_posTagMap.txt
+GlaffD.categories=N,V,A,R
+LefffD.file=lefff-ext-3.2_letterD.txt
+LefffD.regex=lefff-ext-3.2_regex.txt
+LefffD.posTagMap=lefff-ext-3.2_posTagMap.txt
+LefffD.exclusions=lefff-ext-3.2_exclusions.txt
+LefffD.categories=adj,adv,advneg,auxAvoir,auxEtre,nc,np,v
+LefffD.encoding=Cp1252
+LefffD.uniqueKey=Word,Lemma,Category,SubCategory,Morphology

@@ -1,0 +1,2108 @@
+############################################################
+# Assaf Urieli, TalismaneFrClosed: lexicon for closed category forms in French.
+# Version 1.0
+# Available under the free licence LGPL-LR (Lesser General Public License For Linguistic Resources)
+# which should have been included with this distribution (LGPLLR.txt) and can be downloaded at 
+# http://infolingu.univ-mlv.fr/DonneesLinguistiques/Lexiques-Grammaires/lgpllr.html
+############################################################
+¡	¡	PONCT	
+§	§	PONCT	
+°	°	NC	g=m
+±	±	P	
+¶	¶	PONCT	
+·	·	PONCT	
+¿	¿	PONCT	
+à	à	P	
+à bord d'	à bord de	P	
+à bord de	à bord de	P	
+à bord des	à bord de	P+D	n=p
+à bord du	à bord de	P+D	g=m|n=s
+à bout d'	à bout de	P	
+à bout de	à bout de	P	
+à bout des	à bout de	P+D	n=p
+à bout du	à bout de	P+D	g=m|n=s
+à côté d'	à côté de	P	
+à côté de	à côté de	P	
+à côté des	à côté de	P+D	n=p
+à côté du	à côté de	P+D	g=m|n=s
+à cause d'	à cause de	P	
+à cause de	à cause de	P	
+à cause des	à cause de	P+D	n=p
+à cause du	à cause de	P+D	g=m|n=s
+à ce stade d'	à ce stade de	P	
+à ce stade de	à ce stade de	P	
+à ce stade des	à ce stade de	P+D	n=p
+à ce stade du	à ce stade de	P+D	g=m|n=s
+à chaque fois qu'	à chaque fois que	CS	
+à chaque fois que	à chaque fois que	CS	
+à compter d'	à compter de	P	
+à compter de	à compter de	P	
+à compter des	à compter de	P+D	n=p
+à compter du	à compter de	P+D	g=m|n=s
+à concurrence d'	à concurrence de	P	
+à concurrence de	à concurrence de	P	
+à concurrence des	à concurrence de	P+D	n=p
+à concurrence du	à concurrence de	P+D	g=m|n=s
+à condition d'	à condition de	P	
+à condition de	à condition de	P	
+à condition des	à condition de	P+D	n=p
+à condition du	à condition de	P+D	g=m|n=s
+à condition qu'	à condition que	CS	
+à condition que	à condition que	CS	
+à coups d'	à coups de	P	
+à coups de	à coups de	P	
+à coups des	à coups de	P+D	n=p
+à coups du	à coups de	P+D	g=m|n=s
+à court d'	à court de	P	
+à court de	à court de	P	
+à court des	à court de	P+D	n=p
+à court du	à court de	P+D	g=m|n=s
+à défaut d'	à défaut de	P	
+à défaut de	à défaut de	P	
+à défaut des	à défaut de	P+D	n=p
+à défaut du	à défaut de	P+D	g=m|n=s
+à destination d'	à destination de	P	
+à destination de	à destination de	P	
+à destination des	à destination de	P+D	n=p
+à destination du	à destination de	P+D	g=m|n=s
+à force d'	à force de	P	
+à force de	à force de	P	
+à force des	à force de	P+D	n=p
+à force du	à force de	P+D	g=m|n=s
+à hauteur d'	à hauteur de	P	
+à hauteur de	à hauteur de	P	
+à hauteur des	à hauteur de	P+D	n=p
+à hauteur du	à hauteur de	P+D	g=m|n=s
+à l'égard d'	à l'égard de	P	
+à l'égard de	à l'égard de	P	
+à l'égard des	à l'égard de	P+D	n=p
+à l'égard du	à l'égard de	P+D	g=m|n=s
+à l'abri d'	à l'abri de	P	
+à l'abri de	à l'abri de	P	
+à l'abri des	à l'abri de	P+D	n=p
+à l'abri du	à l'abri de	P+D	g=m|n=s
+à l'aide d'	à l'aide de	P	
+à l'aide de	à l'aide de	P	
+à l'aide des	à l'aide de	P+D	n=p
+à l'aide du	à l'aide de	P+D	g=m|n=s
+à l'appel d'	à l'appel de	P	
+à l'appel de	à l'appel de	P	
+à l'appel des	à l'appel de	P+D	n=p
+à l'appel du	à l'appel de	P+D	g=m|n=s
+à l'aune d'	à l'aune de	P	
+à l'aune de	à l'aune de	P	
+à l'aune des	à l'aune de	P+D	n=p
+à l'aune du	à l'aune de	P+D	g=m|n=s
+à l'encontre d'	à l'encontre de	P	
+à l'encontre de	à l'encontre de	P	
+à l'encontre des	à l'encontre de	P+D	n=p
+à l'encontre du	à l'encontre de	P+D	g=m|n=s
+à l'entrée d'	à l'entrée de	P	
+à l'entrée de	à l'entrée de	P	
+à l'entrée des	à l'entrée de	P+D	n=p
+à l'entrée du	à l'entrée de	P+D	g=m|n=s
+à l'exception d'	à l'exception de	P	
+à l'exception de	à l'exception de	P	
+à l'exception des	à l'exception de	P+D	n=p
+à l'exception du	à l'exception de	P+D	g=m|n=s
+à l'exclusion d'	à l'exclusion de	P	
+à l'exclusion de	à l'exclusion de	P	
+à l'exclusion des	à l'exclusion de	P+D	n=p
+à l'exclusion du	à l'exclusion de	P+D	g=m|n=s
+à l'heure d'	à l'heure de	P	
+à l'heure de	à l'heure de	P	
+à l'heure des	à l'heure de	P+D	n=p
+à l'heure du	à l'heure de	P+D	g=m|n=s
+à l'heure où	à l'heure où	CS	
+à l'image d'	à l'image de	P	
+à l'image de	à l'image de	P	
+à l'image des	à l'image de	P+D	n=p
+à l'image du	à l'image de	P+D	g=m|n=s
+à l'initiative d'	à l'initiative de	P	
+à l'initiative de	à l'initiative de	P	
+à l'initiative des	à l'initiative de	P+D	n=p
+à l'initiative du	à l'initiative de	P+D	g=m|n=s
+à l'instar d'	à l'instar de	P	
+à l'instar de	à l'instar de	P	
+à l'instar des	à l'instar de	P+D	n=p
+à l'instar du	à l'instar de	P+D	g=m|n=s
+à l'insu d'	à l'insu de	P	
+à l'insu de	à l'insu de	P	
+à l'insu des	à l'insu de	P+D	n=p
+à l'insu du	à l'insu de	P+D	g=m|n=s
+à l'intérieur d'	à l'intérieur de	P	
+à l'intérieur de	à l'intérieur de	P	
+à l'intérieur des	à l'intérieur de	P+D	n=p
+à l'intérieur du	à l'intérieur de	P+D	g=m|n=s
+à l'intention d'	à l'intention de	P	
+à l'intention de	à l'intention de	P	
+à l'intention des	à l'intention de	P+D	n=p
+à l'intention du	à l'intention de	P+D	g=m|n=s
+à l'inverse d'	à l'inverse de	P	
+à l'inverse de	à l'inverse de	P	
+à l'inverse des	à l'inverse de	P+D	n=p
+à l'inverse du	à l'inverse de	P+D	g=m|n=s
+à l'issue d'	à l'issue de	P	
+à l'issue de	à l'issue de	P	
+à l'issue des	à l'issue de	P+D	n=p
+à l'issue du	à l'issue de	P+D	g=m|n=s
+à l'occasion d'	à l'occasion de	P	
+à l'occasion de	à l'occasion de	P	
+à l'occasion des	à l'occasion de	P+D	n=p
+à l'occasion du	à l'occasion de	P+D	g=m|n=s
+à l'origine d'	à l'origine de	P	
+à l'origine de	à l'origine de	P	
+à l'origine des	à l'origine de	P+D	n=p
+à l'origine du	à l'origine de	P+D	g=m|n=s
+à la base d'	à la base de	P	
+à la base de	à la base de	P	
+à la base des	à la base de	P+D	n=p
+à la base du	à la base de	P+D	g=m|n=s
+à la charge d'	à la charge de	P	
+à la charge de	à la charge de	P	
+à la charge des	à la charge de	P+D	n=p
+à la charge du	à la charge de	P+D	g=m|n=s
+à la demande d'	à la demande de	P	
+à la demande de	à la demande de	P	
+à la demande des	à la demande de	P+D	n=p
+à la demande du	à la demande de	P+D	g=m|n=s
+à la différence d'	à la différence de	P	
+à la différence de	à la différence de	P	
+à la différence des	à la différence de	P+D	n=p
+à la différence du	à la différence de	P+D	g=m|n=s
+à la disposition d'	à la disposition de	P	
+à la disposition de	à la disposition de	P	
+à la disposition des	à la disposition de	P+D	n=p
+à la disposition du	à la disposition de	P+D	g=m|n=s
+à la faveur d'	à la faveur de	P	
+à la faveur de	à la faveur de	P	
+à la faveur des	à la faveur de	P+D	n=p
+à la faveur du	à la faveur de	P+D	g=m|n=s
+à la fin d'	à la fin de	P	
+à la fin de	à la fin de	P	
+à la fin des	à la fin de	P+D	n=p
+à la fin du	à la fin de	P+D	g=m|n=s
+à la hauteur d'	à la hauteur de	P	
+à la hauteur de	à la hauteur de	P	
+à la hauteur des	à la hauteur de	P+D	n=p
+à la hauteur du	à la hauteur de	P+D	g=m|n=s
+à la limite d'	à la limite de	P	
+à la limite de	à la limite de	P	
+à la limite des	à la limite de	P+D	n=p
+à la limite du	à la limite de	P+D	g=m|n=s
+à la manière d'	à la manière de	P	
+à la manière de	à la manière de	P	
+à la manière des	à la manière de	P+D	n=p
+à la manière du	à la manière de	P+D	g=m|n=s
+à la place d'	à la place de	P	
+à la place de	à la place de	P	
+à la place des	à la place de	P+D	n=p
+à la place du	à la place de	P+D	g=m|n=s
+à la recherche d'	à la recherche de	P	
+à la recherche de	à la recherche de	P	
+à la recherche des	à la recherche de	P+D	n=p
+à la recherche du	à la recherche de	P+D	g=m|n=s
+à la suite d'	à la suite de	P	
+à la suite de	à la suite de	P	
+à la suite des	à la suite de	P+D	n=p
+à la suite du	à la suite de	P+D	g=m|n=s
+à la tête d'	à la tête de	P	
+à la tête de	à la tête de	P	
+à la tête des	à la tête de	P+D	n=p
+à la tête du	à la tête de	P+D	g=m|n=s
+à la veille d'	à la veille de	P	
+à la veille de	à la veille de	P	
+à la veille des	à la veille de	P+D	n=p
+à la veille du	à la veille de	P+D	g=m|n=s
+à même	à même	P	
+à même d'	à même de	P	
+à même de	à même de	P	
+à même des	à même de	P+D	n=p
+à même du	à même de	P+D	g=m|n=s
+à mesure qu'	à mesure que	CS	
+à mesure que	à mesure que	CS	
+à moins d'	à moins de	P	
+à moins de	à moins de	P	
+à moins des	à moins de	P+D	n=p
+à moins du	à moins de	P+D	g=m|n=s
+à moins qu'	à moins que	CS	
+à moins que	à moins que	CS	
+à partir d'	à partir de	P	
+à partir de	à partir de	P	
+à partir des	à partir de	P+D	n=p
+à partir du	à partir de	P+D	g=m|n=s
+à partir du moment où	à partir du moment où	CS	
+à présent qu'	à présent que	CS	
+à présent que	à présent que	CS	
+à proportion d'	à proportion de	P	
+à proportion de	à proportion de	P	
+à proportion des	à proportion de	P+D	n=p
+à proportion du	à proportion de	P+D	g=m|n=s
+à propos d'	à propos de	P	
+à propos de	à propos de	P	
+à propos des	à propos de	P+D	n=p
+à propos du	à propos de	P+D	g=m|n=s
+à proximité d'	à proximité de	P	
+à proximité de	à proximité de	P	
+à proximité des	à proximité de	P+D	n=p
+à proximité du	à proximité de	P+D	g=m|n=s
+à raison d'	à raison de	P	
+à raison de	à raison de	P	
+à raison des	à raison de	P+D	n=p
+à raison du	à raison de	P+D	g=m|n=s
+à savoir	à savoir	CC	
+à savoir	à savoir	P	
+à supposer qu'	à supposer que	CS	
+à supposer que	à supposer que	CS	
+à tel point qu'	à tel point que	CS	
+à tel point que	à tel point que	CS	
+à telle enseigne qu'	à telle enseigne que	CS	
+à telle enseigne que	à telle enseigne que	CS	
+à titre d'	à titre de	P	
+à titre de	à titre de	P	
+à titre des	à titre de	P+D	n=p
+à titre du	à titre de	P+D	g=m|n=s
+à travers	à travers	P	
+ç'	ça	PRO	n=s
+ça	ça	PRO	n=s
+étant donné qu'	étant donné que	CS	
+étant donné que	étant donné que	CS	
+،	,	PONCT	
+‐	-	PONCT	
+‒	-	PONCT	
+–	-	PONCT	
+—	-	PONCT	
+―	-	PONCT	
+‘	"	PONCT	
+’	"	PONCT	
+’	'	PONCT	
+“	"	PONCT	
+”	"	PONCT	
+†	†	PONCT	
+‡	‡	PONCT	
+•	•	PONCT	
+…	...	PONCT	
+‰	‰	NC	g=m
+″	"	PONCT	
+⁄	/	PONCT	
+№	№	NC	g=m|n=s
+ 、	,	PONCT	
+!	!	PONCT	
+!!	!	PONCT	
+!!!	!	PONCT	
+!?	!	PONCT	
+!?!?	!	PONCT	
+"	"	PONCT	
+$	$	NC	g=m
+%	%	NC	g=m
+&	&	CC	
+&amp;	&amp;	CC	
+'	'	PONCT	
+(	(	PONCT	
+(...)	...	PONCT	
+)	)	PONCT	
+*	*	PONCT	
++	+	ADV	
++	+	CC	
++	+	P	
++	+	PONCT	
++/-	+/-	P	
+,	,	PONCT	
+-	-	PONCT	
+-ce	ce	CLS	
+-elle	elle	CLS	g=f|p=3|n=s
+-elles	elles	CLS	g=f|p=3|n=p
+-en	en	CLO	
+-il	il	CLS	g=m|p=3|n=s
+-ils	ils	CLS	g=m|p=3|n=p
+-je	je	CLS	p=1|n=s
+-la	la	CLO	g=f|p=3|n=s
+-le	le	CLO	g=m|p=3|n=s
+-les	les	CLO	p=3|n=p
+-leur	leur	CLO	p=3|n=p
+-lui	lui	CLO	p=3|n=s
+-m'	moi	CLO	p=1|n=s
+-moi	moi	CLO	p=1|n=s
+-nous	nous	CLO	p=1|n=p
+-nous	nous	CLS	p=1|n=p
+-on	on	CLS	p=3|n=s
+-t'	toi	CLO	p=2|n=s
+-t-elle	elle	CLS	g=f|p=3|n=s
+-t-elles	elles	CLS	g=f|p=3|n=p
+-t-en	en	CLO	
+-t-il	-il	CLS	g=m|p=3|n=s
+-t-ils	ils	CLS	g=m|p=3|n=p
+-t-on	on	CLS	p=3|n=s
+-t-y	y	CLO	
+-toi	toi	CLO	p=2|n=s
+-tu	tu	CLS	p=2|n=s
+-vous	vous	CLO	p=2|n=p
+-vous	vous	CLS	p=2|n=p
+-vs	vous	CLO	p=2|n=p
+-vs	vous	CLS	p=2|n=p
+-y	y	CLO	
+.	.	PONCT	
+...	...	PONCT	
+/	/	CC	
+/	/	PONCT	
+:	:	PONCT	
+;	;	PONCT	
+<	<	P	
+<	<	PONCT	
+=	=	P	
+=	=	PONCT	
+>	>	P	
+>	>	PONCT	
+?	?	PONCT	
+?!	?	PONCT	
+?!?	?	PONCT	
+?!?!	?	PONCT	
+@	@	P	
+@	@	PONCT	
+[	[	PONCT	
+[...]	...	PONCT	
+\	/	PONCT	
+]	]	PONCT	
+^	^	PONCT	
+_	_	PONCT	
+afin d'	afin de	P	
+afin de	afin de	P	
+afin des	afin de	P+D	n=p
+afin du	afin de	P+D	g=m|n=s
+afin qu'	afin que	CS	
+afin que	afin que	CS	
+ainsi	ainsi	CS	
+ainsi qu'	ainsi que	CC	
+ainsi qu'	ainsi que	CS	
+ainsi que	ainsi que	CC	
+ainsi que	ainsi que	CS	
+alors même qu'	alors même que	CS	
+alors même que	alors même que	CS	
+alors qu'	alors que	CS	
+alors que	alors que	CS	
+après	après	P	
+après qu'	après que	CS	
+après que	après que	CS	
+apr.	après	P	
+assez d'	assez de	DET	
+assez de	assez de	DET	
+attendu	attendu	P	
+attendu qu'	attendu que	CS	
+attendu que	attendu que	CS	
+au	à	P+D	g=m|n=s
+au bénéfice d'	au bénéfice de	P	
+au bénéfice de	au bénéfice de	P	
+au bénéfice des	au bénéfice de	P+D	n=p
+au bénéfice du	au bénéfice de	P+D	g=m|n=s
+au beau milieu d'	au beau milieu de	P	
+au beau milieu de	au beau milieu de	P	
+au beau milieu des	au beau milieu de	P+D	n=p
+au beau milieu du	au beau milieu de	P+D	g=m|n=s
+au bord d'	au bord de	P	
+au bord de	au bord de	P	
+au bord des	au bord de	P+D	n=p
+au bord du	au bord de	P+D	g=m|n=s
+au bout d'	au bout de	P	
+au bout de	au bout de	P	
+au bout des	au bout de	P+D	n=p
+au bout du	au bout de	P+D	g=m|n=s
+au côté d'	au côté de	P	
+au côté de	au côté de	P	
+au côté des	au côté de	P+D	n=p
+au côté du	au côté de	P+D	g=m|n=s
+au cas où	au cas où	CS	
+au centre d'	au centre de	P	
+au centre de	au centre de	P	
+au centre des	au centre de	P+D	n=p
+au centre du	au centre de	P+D	g=m|n=s
+au coeur d'	au coeur de	P	
+au coeur de	au coeur de	P	
+au coeur des	au coeur de	P+D	n=p
+au coeur du	au coeur de	P+D	g=m|n=s
+au comble d'	au comble de	P	
+au comble de	au comble de	P	
+au comble des	au comble de	P+D	n=p
+au comble du	au comble de	P+D	g=m|n=s
+au cours d'	au cours de	P	
+au cours de	au cours de	P	
+au cours des	au cours de	P+D	n=p
+au cours du	au cours de	P+D	g=m|n=s
+au début d'	au début de	P	
+au début de	au début de	P	
+au début des	au début de	P+D	n=p
+au début du	au début de	P+D	g=m|n=s
+au détriment d'	au détriment de	P	
+au détriment de	au détriment de	P	
+au détriment des	au détriment de	P+D	n=p
+au détriment du	au détriment de	P+D	g=m|n=s
+au dehors d'	au dehors de	P	
+au dehors de	au dehors de	P	
+au dehors des	au dehors de	P+D	n=p
+au dehors du	au dehors de	P+D	g=m|n=s
+au delà d'	au delà de	P	
+au delà de	au delà de	P	
+au delà des	au delà de	P+D	n=p
+au delà du	au delà de	P+D	g=m|n=s
+au dessous d'	au dessous de	P	
+au dessous de	au dessous de	P	
+au dessous des	au dessous de	P+D	n=p
+au dessous du	au dessous de	P+D	g=m|n=s
+au dessus d'	au dessus de	P	
+au dessus de	au dessus de	P	
+au dessus des	au dessus de	P+D	n=p
+au dessus du	au dessus de	P+D	g=m|n=s
+au devant d'	au devant de	P	
+au devant de	au devant de	P	
+au devant des	au devant de	P+D	n=p
+au devant du	au devant de	P+D	g=m|n=s
+au fil d'	au fil de	P	
+au fil de	au fil de	P	
+au fil des	au fil de	P+D	n=p
+au fil du	au fil de	P+D	g=m|n=s
+au fond d'	au fond de	P	
+au fond de	au fond de	P	
+au fond des	au fond de	P+D	n=p
+au fond du	au fond de	P+D	g=m|n=s
+au fur et à mesure d'	au fur et à mesure de	P	
+au fur et à mesure de	au fur et à mesure de	P	
+au fur et à mesure des	au fur et à mesure de	P+D	n=p
+au fur et à mesure du	au fur et à mesure de	P+D	g=m|n=s
+au fur et à mesure qu'	au fur et à mesure que	CS	
+au fur et à mesure que	au fur et à mesure que	CS	
+au gré d'	au gré de	P	
+au gré de	au gré de	P	
+au gré des	au gré de	P+D	n=p
+au gré du	au gré de	P+D	g=m|n=s
+au grand dam d'	au grand dam de	P	
+au grand dam de	au grand dam de	P	
+au grand dam des	au grand dam de	P+D	n=p
+au grand dam du	au grand dam de	P+D	g=m|n=s
+au large d'	au large de	P	
+au large de	au large de	P	
+au large des	au large de	P+D	n=p
+au large du	au large de	P+D	g=m|n=s
+au lendemain d'	au lendemain de	P	
+au lendemain de	au lendemain de	P	
+au lendemain des	au lendemain de	P+D	n=p
+au lendemain du	au lendemain de	P+D	g=m|n=s
+au lieu d'	au lieu de	P	
+au lieu de	au lieu de	P	
+au lieu des	au lieu de	P+D	n=p
+au lieu du	au lieu de	P+D	g=m|n=s
+au long d'	au long de	P	
+au long de	au long de	P	
+au long des	au long de	P+D	n=p
+au long du	au long de	P+D	g=m|n=s
+au même titre qu'	au même titre que	CC	
+au même titre qu'	au même titre que	CS	
+au même titre que	au même titre que	CC	
+au même titre que	au même titre que	CS	
+au milieu d'	au milieu de	P	
+au milieu de	au milieu de	P	
+au milieu des	au milieu de	P+D	n=p
+au milieu du	au milieu de	P+D	g=m|n=s
+au moment d'	au moment de	P	
+au moment de	au moment de	P	
+au moment des	au moment de	P+D	n=p
+au moment du	au moment de	P+D	g=m|n=s
+au moment où	au moment où	CS	
+au moyen d'	au moyen de	P	
+au moyen de	au moyen de	P	
+au moyen des	au moyen de	P+D	n=p
+au moyen du	au moyen de	P+D	g=m|n=s
+au niveau d'	au niveau de	P	
+au niveau de	au niveau de	P	
+au niveau des	au niveau de	P+D	n=p
+au niveau du	au niveau de	P+D	g=m|n=s
+au nom d'	au nom de	P	
+au nom de	au nom de	P	
+au nom des	au nom de	P+D	n=p
+au nom du	au nom de	P+D	g=m|n=s
+au plus fort d'	au plus fort de	P	
+au plus fort de	au plus fort de	P	
+au plus fort des	au plus fort de	P+D	n=p
+au plus fort du	au plus fort de	P+D	g=m|n=s
+au point d'	au point de	P	
+au point de	au point de	P	
+au point des	au point de	P+D	n=p
+au point du	au point de	P+D	g=m|n=s
+au point qu'	au point que	CS	
+au point que	au point que	CS	
+au prix d'	au prix de	P	
+au prix de	au prix de	P	
+au prix des	au prix de	P+D	n=p
+au prix du	au prix de	P+D	g=m|n=s
+au profit d'	au profit de	P	
+au profit de	au profit de	P	
+au profit des	au profit de	P+D	n=p
+au profit du	au profit de	P+D	g=m|n=s
+au prorata d'	au prorata de	P	
+au prorata de	au prorata de	P	
+au prorata des	au prorata de	P+D	n=p
+au prorata du	au prorata de	P+D	g=m|n=s
+au ras d'	au ras de	P	
+au ras de	au ras de	P	
+au ras des	au ras de	P+D	n=p
+au ras du	au ras de	P+D	g=m|n=s
+au regard d'	au regard de	P	
+au regard de	au regard de	P	
+au regard des	au regard de	P+D	n=p
+au regard du	au regard de	P+D	g=m|n=s
+au risque d'	au risque de	P	
+au risque de	au risque de	P	
+au risque des	au risque de	P+D	n=p
+au risque du	au risque de	P+D	g=m|n=s
+au sein d'	au sein de	P	
+au sein de	au sein de	P	
+au sein des	au sein de	P+D	n=p
+au sein du	au sein de	P+D	g=m|n=s
+au sens d'	au sens de	P	
+au sens de	au sens de	P	
+au sens des	au sens de	P+D	n=p
+au sens du	au sens de	P+D	g=m|n=s
+au service d'	au service de	P	
+au service de	au service de	P	
+au service des	au service de	P+D	n=p
+au service du	au service de	P+D	g=m|n=s
+au sommet d'	au sommet de	P	
+au sommet de	au sommet de	P	
+au sommet des	au sommet de	P+D	n=p
+au sommet du	au sommet de	P+D	g=m|n=s
+au sortir d'	au sortir de	P	
+au sortir de	au sortir de	P	
+au sortir des	au sortir de	P+D	n=p
+au sortir du	au sortir de	P+D	g=m|n=s
+au sujet d'	au sujet de	P	
+au sujet de	au sujet de	P	
+au sujet des	au sujet de	P+D	n=p
+au sujet du	au sujet de	P+D	g=m|n=s
+au terme d'	au terme de	P	
+au terme de	au terme de	P	
+au terme des	au terme de	P+D	n=p
+au terme du	au terme de	P+D	g=m|n=s
+au titre d'	au titre de	P	
+au titre de	au titre de	P	
+au titre des	au titre de	P+D	n=p
+au titre du	au titre de	P+D	g=m|n=s
+au tréfonds d'	au tréfonds de	P	
+au tréfonds de	au tréfonds de	P	
+au tréfonds des	au tréfonds de	P+D	n=p
+au tréfonds du	au tréfonds de	P+D	g=m|n=s
+au travers d'	au travers de	P	
+au travers de	au travers de	P	
+au travers des	au travers de	P+D	n=p
+au travers du	au travers de	P+D	g=m|n=s
+au vu d'	au vu de	P	
+au vu de	au vu de	P	
+au vu des	au vu de	P+D	n=p
+au vu du	au vu de	P+D	g=m|n=s
+au vu et au su d'	au vu et au su de	P	
+au vu et au su de	au vu et au su de	P	
+au vu et au su des	au vu et au su de	P+D	n=p
+au vu et au su du	au vu et au su de	P+D	g=m|n=s
+au-delà d'	au-delà de	P	
+au-delà de	au-delà de	P	
+au-delà des	au-delà de	P+D	n=p
+au-delà du	au-delà de	P+D	g=m|n=s
+au-dessous d'	au-dessous de	P	
+au-dessous de	au-dessous de	P	
+au-dessous des	au-dessous de	P+D	n=p
+au-dessous du	au-dessous de	P+D	g=m|n=s
+au-dessus d'	au-dessus de	P	
+au-dessus de	au-dessus de	P	
+au-dessus des	au-dessus de	P+D	n=p
+au-dessus du	au-dessus de	P+D	g=m|n=s
+au-devant d'	au-devant de	P	
+au-devant de	au-devant de	P	
+au-devant des	au-devant de	P+D	n=p
+au-devant du	au-devant de	P+D	g=m|n=s
+aucun	aucun	DET	g=m|n=s
+aucun	aucun	PRO	g=m|n=s
+aucune	aucun	PRO	g=f|n=s
+aucune	aucune	DET	g=f|n=s
+auprès d'	auprès de	P	
+auprès de	auprès de	P	
+auprès des	auprès de	P+D	n=p
+auprès du	auprès de	P+D	g=m|n=s
+auquel	auquel	P+PRO	g=m|n=s
+auquel	auquel	PRO	g=m|n=s
+aussi	aussi	CS	
+aussi bien qu'	aussi bien que	CS	
+aussi bien que	aussi bien que	CS	
+aussitôt qu'	aussitôt que	CS	
+aussitôt que	aussitôt que	CS	
+autant d'	autant de	DET	
+autant de	autant de	DET	
+autant dire qu'	autant dire que	CS	
+autant dire que	autant dire que	CS	
+autant qu'	autant que	CS	
+autant que	autant que	CS	
+autour d'	autour de	P	
+autour de	autour de	P	
+autour des	autour de	P+D	n=p
+autour du	autour de	P+D	g=m|n=s
+autre	autre	PRO	g=f|n=s
+autre	autre	PRO	g=m|n=s
+autre chose	autre chose	PRO	g=m|n=s
+autres	autres	PRO	g=f|n=p
+autres	autres	PRO	g=m|n=p
+autrui	autrui	PRO	g=f|n=s
+autrui	autrui	PRO	g=m|n=s
+aux	à	P+D	n=p
+aux abords d'	aux abords de	P	
+aux abords de	aux abords de	P	
+aux abords des	aux abords de	P+D	n=p
+aux abords du	aux abords de	P+D	g=m|n=s
+aux alentours d'	aux alentours de	P	
+aux alentours de	aux alentours de	P	
+aux alentours des	aux alentours de	P+D	n=p
+aux alentours du	aux alentours de	P+D	g=m|n=s
+aux bons soins d'	aux bons soins de	P	
+aux bons soins de	aux bons soins de	P	
+aux bons soins des	aux bons soins de	P+D	n=p
+aux bons soins du	aux bons soins de	P+D	g=m|n=s
+aux côtés d'	aux côtés de	P	
+aux côtés de	aux côtés de	P	
+aux côtés des	aux côtés de	P+D	n=p
+aux côtés du	aux côtés de	P+D	g=m|n=s
+aux confins d'	aux confins de	P	
+aux confins de	aux confins de	P	
+aux confins des	aux confins de	P+D	n=p
+aux confins du	aux confins de	P+D	g=m|n=s
+aux dépens d'	aux dépens de	P	
+aux dépens de	aux dépens de	P	
+aux dépens des	aux dépens de	P+D	n=p
+aux dépens du	aux dépens de	P+D	g=m|n=s
+aux environs d'	aux environs de	P	
+aux environs de	aux environs de	P	
+aux environs des	aux environs de	P+D	n=p
+aux environs du	aux environs de	P+D	g=m|n=s
+aux yeux d'	aux yeux de	P	
+aux yeux de	aux yeux de	P	
+aux yeux des	aux yeux de	P+D	n=p
+aux yeux du	aux yeux de	P+D	g=m|n=s
+auxquelles	auquel	P+PRO	g=f|n=p
+auxquelles	auquel	PRO	g=f|n=p
+auxquels	auquel	P+PRO	g=m|n=p
+auxquels	auquel	PRO	g=m|n=p
+av.	avant	P	
+avant	avant	P	
+avant d'	avant de	P	
+avant de	avant de	P	
+avant des	avant de	P+D	n=p
+avant du	avant de	P+D	g=m|n=s
+avant même d'	avant même de	P	
+avant même de	avant même de	P	
+avant même des	avant même de	P+D	n=p
+avant même du	avant même de	P+D	g=m|n=s
+avant même qu'	avant même que	CS	
+avant même que	avant même que	CS	
+avant qu'	avant que	CS	
+avant que	avant que	CS	
+avant que d'	avant que de	P	
+avant que de	avant que de	P	
+avant que des	avant que de	P+D	n=p
+avant que du	avant que de	P+D	g=m|n=s
+avec	avec	P	
+avec l'aide d'	avec l'aide de	P	
+avec l'aide de	avec l'aide de	P	
+avec l'aide des	avec l'aide de	P+D	n=p
+avec l'aide du	avec l'aide de	P+D	g=m|n=s
+avt	avant	P	
+bcp de	beaucoup de	DET	
+beaucoup	beaucoup	PRO	g=f|n=p
+beaucoup	beaucoup	PRO	g=m|n=p
+beaucoup d'	beaucoup de	DET	
+beaucoup de	beaucoup de	DET	
+because	because	CS	
+bicause	bicause	CS	
+bien d'autre	bien d'autre	PRO	g=f|n=s
+bien d'autre	bien d'autre	PRO	g=m|n=s
+bien d'autres	bien d'autre	PRO	g=f|n=p
+bien d'autres	bien d'autre	PRO	g=m|n=p
+bien d'	bien de	DET	
+bien de	bien de	DET	
+bien des	bien de	DET	n=p
+bien du	bien de	DET	g=m|n=s
+bien qu'	bien que	CS	
+bien que	bien que	CS	
+bon nombre d'	bon nombre de	DET	n=p
+bon nombre de	bon nombre de	DET	n=p
+bref	bref	CS	
+càd	c'est à dire	CC	
+c'	ce	CLS	n=s
+c'est à dire	c'est à dire	CC	
+c'est à dire	c'est à dire	CS	
+c'est à dire qu'	c'est à dire que	CS	
+c'est à dire que	c'est à dire que	CS	
+c'est pourquoi	c'est pourquoi	CC	
+c'est pourquoi	c'est pourquoi	CS	
+c'est-à-dire	c'est à dire	CC	
+c'est-à-dire	c'est à dire	CS	
+c'est-à-dire qu'	c'est à dire que	CS	
+c'est-à-dire que	c'est à dire que	CS	
+c-à-d	c'est à dire	CC	
+c.-à.-d.	c'est à dire	CC	
+c/	contre	P	
+ca	circa	P	
+ca.	circa	P	
+car	car	CC	
+car	car	CS	
+cause d'	cause de	P	
+cause de	cause de	P	
+cause des	cause de	P+D	n=p
+cause du	cause de	P+D	g=m|n=s
+ce	ce	CLS	
+ce	ce	DET	g=m|n=s
+ce	ce	PRO	n=s
+ce qu'	ce que	CS	
+ce que	ce que	CS	
+ceci	ceci	PRO	g=m|n=s
+cela	cela	PRO	g=m|n=s
+celle	celle	PRO	g=f|n=s
+celle-ci	celle-ci	PRO	g=f|n=s
+celle-là	celle-là	PRO	g=f|n=s
+celles	celle	PRO	g=f|n=p
+celles-ci	celles-ci	PRO	g=f|n=p
+celles-là	celles-là	PRO	g=f|n=p
+celui	celui	PRO	g=m|n=s
+celui-ci	celui-ci	PRO	g=m|n=s
+celui-là	celui-là	PRO	g=m|n=s
+cependant qu'	cependant que	CS	
+cependant que	cependant que	CS	
+certain	certain	PRO	g=m|n=s
+certaine	certain	PRO	g=f|n=s
+certaines	certain	DET	g=f|n=p
+certaines	certain	PRO	g=f|n=p
+certains	certain	DET	g=m|n=p
+certains	certain	PRO	g=m|n=p
+ces	ces	DET	n=p
+cet	cet	DET	g=m|n=s
+cette	cette	DET	g=f|n=s
+ceux	ceux	PRO	g=m|n=p
+ceux-ci	ceux-ci	PRO	g=m|n=p
+ceux-là	ceux-là	PRO	g=m|n=p
+cf	cf.	P	
+cf.	cf.	P	
+ch'	je	CLS	p=1|n=s
+chacun	chacun	PRO	g=m|n=s
+chacune	chacun	PRO	g=f|n=s
+chaqu' fois qu'	chaqu' fois que	CS	
+chaqu' fois que	chaqu' fois que	CS	
+chaque	chaque	DET	n=s
+chaque fois qu'	chaque fois que	CS	
+chaque fois que	chaque fois que	CS	
+chez	chez	P	
+ci-devant	ci-devant	P	
+circa	circa	P	
+combien	combien	ADVWH	
+combien	combien	PRO	g=f|n=p
+combien	combien	PRO	g=f|n=s
+combien	combien	PRO	g=m|n=p
+combien	combien	PRO	g=m|n=s
+combien d'	combien de	DET	
+combien de	combien de	DET	
+comme	comme	CC	
+comme	comme	CS	
+comme	comme	P	
+comme s'	comme s'	CS	
+comme s'	comme si	CS	
+comme si	comme si	CS	
+comment	comment	ADVWH	
+compte tenu d'	compte tenu de	P	
+compte tenu de	compte tenu de	P	
+compte tenu des	compte tenu de	P+D	n=p
+compte tenu du	compte tenu de	P+D	g=m|n=s
+conf.	confer	P	
+confer	confer	P	
+conformément au	conformément à	P+D	g=m|n=s
+conformément aux	conformément à	P+D	n=p
+considéré qu'	considéré que	CS	
+considéré que	considéré que	CS	
+considérant qu'	considérant que	CS	
+considérant que	considérant que	CS	
+contraire au	contraire à	P+D	g=m|n=s
+contraire aux	contraire à	P+D	n=p
+contrairement au	contrairement à	P+D	g=m|n=s
+contrairement aux	contrairement à	P+D	n=p
+contre	contre	P	
+crainte de	crainte de	CS	
+dès	dès	P	
+dès avant	dès avant	P	
+dès lors qu'	dès lors que	CS	
+dès lors que	dès lors que	CS	
+dès qu'	dès que	CS	
+dès que	dès que	CS	
+d'	de	DET	n=p
+d'	de	P	
+d'après	d'après	P	
+d'aucuns	d'aucuns	PRO	g=f|n=p
+d'aucuns	d'aucuns	PRO	g=m|n=p
+d'autant plus qu'	d'autant plus que	CS	
+d'autant plus que	d'autant plus que	CS	
+d'autant qu'	d'autant que	CS	
+d'autant que	d'autant que	CS	
+d'autres	d'autre	PRO	g=f|n=p
+d'autres	d'autre	PRO	g=m|n=p
+d'avis d'	d'avis de	P	
+d'avis de	d'avis de	P	
+d'avis des	d'avis de	P+D	n=p
+d'avis du	d'avis de	P+D	g=m|n=s
+d'entre	d'entre	P	
+d'ici	d'ici	P	
+d'ici à	d'ici à	P	
+d'ici au	d'ici à	P+D	g=m|n=s
+d'ici aux	d'ici à	P+D	n=p
+d'où	d'où	CC	
+d'où	d'où	CS	
+d'où	d'où	P	
+d'un bout à l'autre d'	d'un bout à l'autre de	P	
+d'un bout à l'autre de	d'un bout à l'autre de	P	
+d'un bout à l'autre des	d'un bout à l'autre de	P+D	n=p
+d'un bout à l'autre du	d'un bout à l'autre de	P+D	g=m|n=s
+dans	dans	P	
+dans l'attente d'	dans l'attente de	P	
+dans l'attente de	dans l'attente de	P	
+dans l'attente des	dans l'attente de	P+D	n=p
+dans l'attente du	dans l'attente de	P+D	g=m|n=s
+dans l'entourage d'	dans l'entourage de	P	
+dans l'entourage de	dans l'entourage de	P	
+dans l'entourage des	dans l'entourage de	P+D	n=p
+dans l'entourage du	dans l'entourage de	P+D	g=m|n=s
+dans l'espoir d'	dans l'espoir de	P	
+dans l'espoir de	dans l'espoir de	P	
+dans l'espoir des	dans l'espoir de	P+D	n=p
+dans l'espoir du	dans l'espoir de	P+D	g=m|n=s
+dans l'intérêt d'	dans l'intérêt de	P	
+dans l'intérêt de	dans l'intérêt de	P	
+dans l'intérêt des	dans l'intérêt de	P+D	n=p
+dans l'intérêt du	dans l'intérêt de	P+D	g=m|n=s
+dans la foulée d'	dans la foulée de	P	
+dans la foulée de	dans la foulée de	P	
+dans la foulée des	dans la foulée de	P+D	n=p
+dans la foulée du	dans la foulée de	P+D	g=m|n=s
+dans la limite d'	dans la limite de	P	
+dans la limite de	dans la limite de	P	
+dans la limite des	dans la limite de	P+D	n=p
+dans la limite du	dans la limite de	P+D	g=m|n=s
+dans la mesure où	dans la mesure où	CS	
+dans la mouvance d'	dans la mouvance de	P	
+dans la mouvance de	dans la mouvance de	P	
+dans la mouvance des	dans la mouvance de	P+D	n=p
+dans la mouvance du	dans la mouvance de	P+D	g=m|n=s
+dans le but d'	dans le but de	P	
+dans le but de	dans le but de	P	
+dans le but des	dans le but de	P+D	n=p
+dans le but du	dans le but de	P+D	g=m|n=s
+dans le but qu'	dans le but que	CS	
+dans le but que	dans le but que	CS	
+dans le cadre d'	dans le cadre de	P	
+dans le cadre de	dans le cadre de	P	
+dans le cadre des	dans le cadre de	P+D	n=p
+dans le cadre du	dans le cadre de	P+D	g=m|n=s
+dans le cas d'	dans le cas de	P	
+dans le cas de	dans le cas de	P	
+dans le cas des	dans le cas de	P+D	n=p
+dans le cas du	dans le cas de	P+D	g=m|n=s
+dans le domaine d'	dans le domaine de	P	
+dans le domaine de	dans le domaine de	P	
+dans le domaine des	dans le domaine de	P+D	n=p
+dans le domaine du	dans le domaine de	P+D	g=m|n=s
+dans le giron d'	dans le giron de	P	
+dans le giron de	dans le giron de	P	
+dans le giron des	dans le giron de	P+D	n=p
+dans le giron du	dans le giron de	P+D	g=m|n=s
+dans le sens d'	dans le sens de	P	
+dans le sens de	dans le sens de	P	
+dans le sens des	dans le sens de	P+D	n=p
+dans le sens du	dans le sens de	P+D	g=m|n=s
+de	de	DET	n=p
+de	de	P	
+de ce qu'	de ce que	CS	
+de ce que	de ce que	CS	
+de chez	de chez	P	
+de derrière	de derrière	P	
+de drôle de	de drôle de	DET	n=p
+de l'autre côté d'	de l'autre côté de	P	
+de l'autre côté de	de l'autre côté de	P	
+de l'autre côté des	de l'autre côté de	P+D	n=p
+de l'autre côté du	de l'autre côté de	P+D	g=m|n=s
+de l'ordre d'	de l'ordre de	P	
+de l'ordre de	de l'ordre de	P	
+de l'ordre des	de l'ordre de	P+D	n=p
+de l'ordre du	de l'ordre de	P+D	g=m|n=s
+de la	de la	DET	g=f|n=s
+de la part d'	de la part de	P	
+de la part de	de la part de	P	
+de la part des	de la part de	P+D	n=p
+de la part du	de la part de	P+D	g=m|n=s
+de même qu'	de même que	CS	
+de même que	de même que	CS	
+de manière à	de manière à	P	
+de manière à ce qu'	de manière à ce que	CS	
+de manière à ce que	de manière à ce que	CS	
+de manière qu'	de manière que	CS	
+de manière que	de manière que	CS	
+de par	de par	P	
+de parce qu'	de parce que	CS	
+de parce que	de parce que	CS	
+de part et d'autre d'	de part et d'autre de	P	
+de part et d'autre de	de part et d'autre de	P	
+de part et d'autre des	de part et d'autre de	P+D	n=p
+de part et d'autre du	de part et d'autre de	P+D	g=m|n=s
+de plus en plus d'	de plus en plus de	P	
+de plus en plus de	de plus en plus de	P	
+de plus en plus des	de plus en plus de	P+D	n=p
+de plus en plus du	de plus en plus de	P+D	g=m|n=s
+de près	de près	P	
+de sorte qu'	de sorte que	CS	
+de sorte que	de sorte que	CS	
+de telle sorte qu'	de telle sorte que	CS	
+de telle sorte que	de telle sorte que	CS	
+de telles	de telles	DET	g=f|n=p
+de tels	de tels	DET	g=m|n=p
+depuis	depuis	P	
+depuis qu'	depuis que	CS	
+depuis que	depuis que	CS	
+derrière	derrière	P	
+des	de	P+D	n=p
+des	des	DET	n=p
+des drôle de	des drôle de	DET	n=p
+des fois qu'	des fois que	CS	
+des fois que	des fois que	CS	
+des telles	des telles	DET	g=f|n=p
+des tels	des tels	DET	g=m|n=p
+desdites	dudit	P+D	g=f|n=p
+desdits	dudit	P+D	g=m|n=p
+desquelles	duquel	P+PRO	g=f|n=p
+desquels	duquel	P+PRO	g=m|n=p
+dessous	dessous	P	
+dessus	dessus	P	
+devant	devant	P	
+devers	devers	P	
+différentes	différent	DET	g=f|n=p
+différents	différent	DET	g=m|n=p
+divers	divers	DET	g=m|n=p
+diverses	divers	DET	g=f|n=p
+dixit	dixit	P	
+donc	donc	CC	
+donc	donc	CS	
+dont	dont	PROREL	
+du	de	P+D	g=m|n=s
+du	du	DET	g=m|n=s
+du côté d'	du côté de	P	
+du côté de	du côté de	P	
+du côté des	du côté de	P+D	n=p
+du côté du	du côté de	P+D	g=m|n=s
+du fait d'	du fait de	P	
+du fait de	du fait de	P	
+du fait des	du fait de	P+D	n=p
+du fait du	du fait de	P+D	g=m|n=s
+du fait qu'	du fait que	CS	
+du fait que	du fait que	CS	
+du moment qu'	du moment que	CS	
+du moment que	du moment que	CS	
+dudit	dudit	P+D	g=m|n=s
+duquel	duquel	P+PRO	g=m|n=s
+durant	durant	P	
+elle	elle	CLS	g=f|p=3|n=s
+elle	elle	PRO	g=f|p=3|n=s
+elle-même	elle-même	PRO	g=f|p=3|n=s
+elles	elles	CLS	g=f|p=3|n=p
+elles	elles	PRO	g=f|p=3|n=p
+elles-même	elles-même	PRO	g=f|p=3|n=p
+elles-mêmes	elles-mêmes	PRO	g=f|p=3|n=p
+en	en	CLO	
+en	en	P	
+en âge d'	en âge de	P	
+en âge de	en âge de	P	
+en âge des	en âge de	P+D	n=p
+en âge du	en âge de	P+D	g=m|n=s
+en échange d'	en échange de	P	
+en échange de	en échange de	P	
+en échange des	en échange de	P+D	n=p
+en échange du	en échange de	P+D	g=m|n=s
+en absence d'	en absence de	P	
+en absence de	en absence de	P	
+en absence des	en absence de	P+D	n=p
+en absence du	en absence de	P+D	g=m|n=s
+en accord avec	en accord avec	P	
+en amont d'	en amont de	P	
+en amont de	en amont de	P	
+en amont des	en amont de	P+D	n=p
+en amont du	en amont de	P+D	g=m|n=s
+en arrière d'	en arrière de	P	
+en arrière de	en arrière de	P	
+en arrière des	en arrière de	P+D	n=p
+en arrière du	en arrière de	P+D	g=m|n=s
+en aval d'	en aval de	P	
+en aval de	en aval de	P	
+en aval des	en aval de	P+D	n=p
+en aval du	en aval de	P+D	g=m|n=s
+en avant d'	en avant de	P	
+en avant de	en avant de	P	
+en avant des	en avant de	P+D	n=p
+en avant du	en avant de	P+D	g=m|n=s
+en baisse d'	en baisse de	P	
+en baisse de	en baisse de	P	
+en baisse des	en baisse de	P+D	n=p
+en baisse du	en baisse de	P+D	g=m|n=s
+en butte au	en butte à	P+D	g=m|n=s
+en butte aux	en butte à	P+D	n=p
+en cas d'	en cas de	P	
+en cas de	en cas de	P	
+en cas des	en cas de	P+D	n=p
+en cas du	en cas de	P+D	g=m|n=s
+en ce qu'	en ce que	CS	
+en ce que	en ce que	CS	
+en ce sens qu'	en ce sens que	CS	
+en ce sens que	en ce sens que	CS	
+en charge d'	en charge de	P	
+en charge de	en charge de	P	
+en charge des	en charge de	P+D	n=p
+en charge du	en charge de	P+D	g=m|n=s
+en compagnie d'	en compagnie de	P	
+en compagnie de	en compagnie de	P	
+en compagnie des	en compagnie de	P+D	n=p
+en compagnie du	en compagnie de	P+D	g=m|n=s
+en contrebas d'	en contrebas de	P	
+en contrebas de	en contrebas de	P	
+en contrebas des	en contrebas de	P+D	n=p
+en contrebas du	en contrebas de	P+D	g=m|n=s
+en contrepartie d'	en contrepartie de	P	
+en contrepartie de	en contrepartie de	P	
+en contrepartie des	en contrepartie de	P+D	n=p
+en contrepartie du	en contrepartie de	P+D	g=m|n=s
+en cours d'	en cours de	P	
+en cours de	en cours de	P	
+en cours des	en cours de	P+D	n=p
+en cours du	en cours de	P+D	g=m|n=s
+en début d'	en début de	P	
+en début de	en début de	P	
+en début des	en début de	P+D	n=p
+en début du	en début de	P+D	g=m|n=s
+en dépit d'	en dépit de	P	
+en dépit de	en dépit de	P	
+en dépit des	en dépit de	P+D	n=p
+en dépit du	en dépit de	P+D	g=m|n=s
+en deçà d'	en deçà de	P	
+en deçà de	en deçà de	P	
+en deçà des	en deçà de	P+D	n=p
+en deçà du	en deçà de	P+D	g=m|n=s
+en dedans d'	en dedans de	P	
+en dedans de	en dedans de	P	
+en dedans des	en dedans de	P+D	n=p
+en dedans du	en dedans de	P+D	g=m|n=s
+en dehors d'	en dehors de	P	
+en dehors de	en dehors de	P	
+en dehors des	en dehors de	P+D	n=p
+en dehors du	en dehors de	P+D	g=m|n=s
+en delà d'	en delà de	P	
+en delà de	en delà de	P	
+en delà des	en delà de	P+D	n=p
+en delà du	en delà de	P+D	g=m|n=s
+en dessous	en dessous	P	
+en dessous d'	en dessous de	P	
+en dessous de	en dessous de	P	
+en dessous des	en dessous de	P+D	n=p
+en dessous du	en dessous de	P+D	g=m|n=s
+en direction d'	en direction de	P	
+en direction de	en direction de	P	
+en direction des	en direction de	P+D	n=p
+en direction du	en direction de	P+D	g=m|n=s
+en face d'	en face de	P	
+en face de	en face de	P	
+en face des	en face de	P+D	n=p
+en face du	en face de	P+D	g=m|n=s
+en fait d'	en fait de	P	
+en fait de	en fait de	P	
+en fait des	en fait de	P+D	n=p
+en fait du	en fait de	P+D	g=m|n=s
+en faveur d'	en faveur de	P	
+en faveur de	en faveur de	P	
+en faveur des	en faveur de	P+D	n=p
+en faveur du	en faveur de	P+D	g=m|n=s
+en fin d'	en fin de	P	
+en fin de	en fin de	P	
+en fin des	en fin de	P+D	n=p
+en fin du	en fin de	P+D	g=m|n=s
+en fonction d'	en fonction de	P	
+en fonction de	en fonction de	P	
+en fonction des	en fonction de	P+D	n=p
+en fonction du	en fonction de	P+D	g=m|n=s
+en forme d'	en forme de	P	
+en forme de	en forme de	P	
+en forme des	en forme de	P+D	n=p
+en forme du	en forme de	P+D	g=m|n=s
+en guise d'	en guise de	P	
+en guise de	en guise de	P	
+en guise des	en guise de	P+D	n=p
+en guise du	en guise de	P+D	g=m|n=s
+en haut d'	en haut de	P	
+en haut de	en haut de	P	
+en haut des	en haut de	P+D	n=p
+en haut du	en haut de	P+D	g=m|n=s
+en hommage à	en hommage à	P	
+en hommage au	en hommage à	P+D	g=m|n=s
+en hommage aux	en hommage à	P+D	n=p
+en instance d'	en instance de	P	
+en instance de	en instance de	P	
+en instance des	en instance de	P+D	n=p
+en instance du	en instance de	P+D	g=m|n=s
+en l'absence d'	en l'absence de	P	
+en l'absence de	en l'absence de	P	
+en l'absence des	en l'absence de	P+D	n=p
+en l'absence du	en l'absence de	P+D	g=m|n=s
+en l'espace d'	en l'espace de	P	
+en l'espace de	en l'espace de	P	
+en l'espace des	en l'espace de	P+D	n=p
+en l'espace du	en l'espace de	P+D	g=m|n=s
+en même temps qu'	en même temps que	CS	
+en même temps que	en même temps que	CS	
+en manière d'	en manière de	P	
+en manière de	en manière de	P	
+en manière des	en manière de	P+D	n=p
+en manière du	en manière de	P+D	g=m|n=s
+en manque d'	en manque de	P	
+en manque de	en manque de	P	
+en manque des	en manque de	P+D	n=p
+en manque du	en manque de	P+D	g=m|n=s
+en matière d'	en matière de	P	
+en matière de	en matière de	P	
+en matière des	en matière de	P+D	n=p
+en matière du	en matière de	P+D	g=m|n=s
+en mesure d'	en mesure de	P	
+en mesure de	en mesure de	P	
+en mesure des	en mesure de	P+D	n=p
+en mesure du	en mesure de	P+D	g=m|n=s
+en milieu d'	en milieu de	P	
+en milieu de	en milieu de	P	
+en milieu des	en milieu de	P+D	n=p
+en milieu du	en milieu de	P+D	g=m|n=s
+en outre d'	en outre de	P	
+en outre de	en outre de	P	
+en outre des	en outre de	P+D	n=p
+en outre du	en outre de	P+D	g=m|n=s
+en passe d'	en passe de	P	
+en passe de	en passe de	P	
+en passe des	en passe de	P+D	n=p
+en passe du	en passe de	P+D	g=m|n=s
+en perte d'	en perte de	P	
+en perte de	en perte de	P	
+en perte des	en perte de	P+D	n=p
+en perte du	en perte de	P+D	g=m|n=s
+en phase d'	en phase de	P	
+en phase de	en phase de	P	
+en phase des	en phase de	P+D	n=p
+en phase du	en phase de	P+D	g=m|n=s
+en plein	en plein	P	
+en plein centre d'	en plein centre de	P	
+en plein centre de	en plein centre de	P	
+en plein centre des	en plein centre de	P+D	n=p
+en plein centre du	en plein centre de	P+D	g=m|n=s
+en plein dans	en plein dans	P	
+en plein sur	en plein sur	P	
+en plus d'	en plus de	P	
+en plus de	en plus de	P	
+en plus des	en plus de	P+D	n=p
+en plus du	en plus de	P+D	g=m|n=s
+en présence d'	en présence de	P	
+en présence de	en présence de	P	
+en présence des	en présence de	P+D	n=p
+en présence du	en présence de	P+D	g=m|n=s
+en proie à	en proie à	P	
+en proie au	en proie à	P+D	g=m|n=s
+en proie aux	en proie à	P+D	n=p
+en quête d'	en quête de	P	
+en quête de	en quête de	P	
+en quête des	en quête de	P+D	n=p
+en quête du	en quête de	P+D	g=m|n=s
+en qualité d'	en qualité de	P	
+en qualité de	en qualité de	P	
+en qualité des	en qualité de	P+D	n=p
+en qualité du	en qualité de	P+D	g=m|n=s
+en règlement d'	en règlement de	P	
+en règlement de	en règlement de	P	
+en règlement des	en règlement de	P+D	n=p
+en règlement du	en règlement de	P+D	g=m|n=s
+en raison d'	en raison de	P	
+en raison de	en raison de	P	
+en raison des	en raison de	P+D	n=p
+en raison du	en raison de	P+D	g=m|n=s
+en regard d'	en regard de	P	
+en regard de	en regard de	P	
+en regard des	en regard de	P+D	n=p
+en regard du	en regard de	P+D	g=m|n=s
+en relation avec	en relation avec	P	
+en signe d'	en signe de	P	
+en signe de	en signe de	P	
+en signe des	en signe de	P+D	n=p
+en signe du	en signe de	P+D	g=m|n=s
+en sorte qu'	en sorte que	CS	
+en sorte que	en sorte que	CS	
+en tête d'	en tête de	P	
+en tête de	en tête de	P	
+en tête des	en tête de	P+D	n=p
+en tête du	en tête de	P+D	g=m|n=s
+en tant qu'	en tant qu'	P	
+en tant qu'	en tant que	CS	
+en tant que	en tant que	CS	
+en tant que	en tant que	P	
+en terme d'	en terme de	P	
+en terme de	en terme de	P	
+en terme des	en terme de	P+D	n=p
+en terme du	en terme de	P+D	g=m|n=s
+en termes d'	en termes de	P	
+en termes de	en termes de	P	
+en termes des	en termes de	P+D	n=p
+en termes du	en termes de	P+D	g=m|n=s
+en train d'	en train de	P	
+en train de	en train de	P	
+en train des	en train de	P+D	n=p
+en train du	en train de	P+D	g=m|n=s
+en travers d'	en travers de	P	
+en travers de	en travers de	P	
+en travers des	en travers de	P+D	n=p
+en travers du	en travers de	P+D	g=m|n=s
+en vertu d'	en vertu de	P	
+en vertu de	en vertu de	P	
+en vertu des	en vertu de	P+D	n=p
+en vertu du	en vertu de	P+D	g=m|n=s
+en voie d'	en voie de	P	
+en voie de	en voie de	P	
+en voie des	en voie de	P+D	n=p
+en voie du	en voie de	P+D	g=m|n=s
+en vue d'	en vue d'	CS	
+en vue de	en vue de	CS	
+en vue des	en vue de	P+D	n=p
+en vue du	en vue de	P+D	g=m|n=s
+en-deçà d'	en-deçà de	P	
+en-deçà de	en-deçà de	P	
+en-deçà des	en-deçà de	P+D	n=p
+en-deçà du	en-deçà de	P+D	g=m|n=s
+en-dessous	en dessous	P	
+en-dessous d'	en dessous de	P	
+en-dessous de	en dessous de	P	
+encore qu'	encore que	CS	
+encore que	encore que	CS	
+entre	entre	P	
+envers	envers	P	
+ergo	ergo	CC	
+et	et	CC	
+et alors	et alors	CC	
+et aussi	et aussi	CC	
+et donc	et donc	CC	
+et encore	et encore	CC	
+et même	et même	CC	
+et même	et même	CS	
+et puis	et puis	CC	
+et quelques	et quelque	PRO	g=f|n=p
+et quelques	et quelque	PRO	g=m|n=p
+et-ou	et-ou	CC	
+et/ou	et/ou	CC	
+eu égard à	eu égard à	P	
+eu égard au	eu égard à	P+D	g=m|n=s
+eu égard aux	eu égard à	P+D	n=p
+eux	eux	PRO	g=m|p=3|n=p
+eux-même	eux-même	PRO	g=m|p=3|n=p
+eux-mêmes	eux-mêmes	PRO	g=m|p=3|n=p
+excepté	excepté	P	
+exception faite d'	exception faite de	P	
+exception faite de	exception faite de	P	
+exception faite des	exception faite de	P+D	n=p
+exception faite du	exception faite de	P+D	g=m|n=s
+face à	face à	P	
+face au	face à	P+D	g=m|n=s
+face aux	face à	P+D	n=p
+faute d'	faute de	P	
+faute de	faute de	P	
+faute des	faute de	P+D	n=p
+faute du	faute de	P+D	g=m|n=s
+fois	fois	CC	
+grâce à	grâce à	P	
+grâce au	grâce à	P+D	g=m|n=s
+grâce aux	grâce à	P+D	n=p
+grand'chose	grand-chose	PRO	g=m|n=s
+grand-chose	grand-chose	PRO	g=m|n=s
+hormis	hormis	P	
+hors	hors	P	
+hors d'	hors de	P	
+hors de	hors de	P	
+hors des	hors de	P+D	n=p
+hors du	hors de	P+D	g=m|n=s
+il	il	CLS	g=m|p=3|n=s
+il y a	il y a	P	
+ils	ils	CLS	g=m|p=3|n=p
+j'	je	CLS	p=1|n=s
+je	je	CLS	p=1|n=s
+je ne sais quel	je ne sais quel	DET	g=m|n=p
+je ne sais quelle	je ne sais quel	DET	g=f|n=s
+je ne sais quelles	je ne sais quel	DET	g=m|n=s
+je ne sais quels	je ne sais quel	DET	g=f|n=p
+je ne sais qui	je ne sais qui	PRO	g=f|n=s
+je ne sais qui	je ne sais qui	PRO	g=m|n=s
+je ne sais quoi	je ne sais quoi	PRO	g=f|n=s
+je ne sais quoi	je ne sais quoi	PRO	g=m|n=s
+jusqu'à	jusqu'à	P	
+jusqu'à ce qu'	jusqu'à ce que	CS	
+jusqu'à ce que	jusqu'à ce que	CS	
+jusqu'	jusqu'	P	
+jusqu'	jusque	P	
+jusqu'au	jusqu'à	P+D	g=m|n=s
+jusqu'aux	jusqu'à	P+D	n=p
+jusqu'en	jusqu'en	P	
+jusqu'où	jusqu'où	P	
+jusque	jusque	P	
+l'	l'	CLO	p=3|n=s
+l'	l'	DET	n=s
+l'autre	l'autre	PRO	g=f|n=s
+l'autre	l'autre	PRO	g=m|n=s
+l'on	l'on	CLS	p=3|n=s
+l'un	l'un	PRO	g=m|n=s
+l'un et l'autre	l'un et l'autre	PRO	g=m|n=p
+l'un ou l'autre	l'un ou l'autre	PRO	g=m|n=p
+l'une	l'un	PRO	g=f|n=s
+l'une et l'autre	l'une et l'autre	PRO	g=f|n=p
+l'une ou l'autre	l'une ou l'autre	PRO	g=f|n=p
+la	la	CLO	g=f|p=3|n=s
+la	la	DET	g=f|n=s
+la leur	le leur	PRO	g=f|p=3|n=s
+la mienne	le  mien	PRO	g=f|p=1|n=s
+la nôtre	le nôtre	PRO	g=f|p=1|n=s
+la plupart	la plupart	PRO	g=m|n=p
+la plupart de la	la plupart de la	DET	g=m|n=p
+la plupart des	la plupart des	DET	n=p
+la plupart du	la plupart du	DET	g=m|n=s
+la sienne	le sien	PRO	g=f|p=3|n=s
+la tienne	le tien	PRO	g=f|p=2|n=s
+la vôtre	le vôtre	PRO	g=f|p=2|n=s
+ladite	ladite	DET	g=f|n=s
+laquelle	lequel	PRO	g=f|n=s
+laquelle	lequel	PROREL	g=f|n=s
+laquelle	lequel	PROWH	g=f|n=s
+le	le	CLO	g=m|p=3|n=s
+le	le	DET	g=m|n=s
+le leur	le leur	PRO	g=m|p=3|n=s
+le long d'	le long de	P	
+le long de	le long de	P	
+le long des	le long de	P+D	n=p
+le long du	le long de	P+D	g=m|n=s
+le mien	le  mien	PRO	g=m|p=1|n=s
+le moins d'	le moins de	DET	
+le moins de	le moins de	DET	
+le moins qu'	le moins que	CS	
+le moins que	le moins que	CS	
+le nôtre	le nôtre	PRO	g=m|p=1|n=s
+le plus d'	le plus de	DET	
+le plus de	le plus de	DET	
+le sien	le sien	PRO	g=m|p=3|n=s
+le temps d'	le temps de	P	
+le temps de	le temps de	P	
+le temps des	le temps de	P+D	n=p
+le temps du	le temps de	P+D	g=m|n=s
+le temps qu'	le temps que	CS	
+le temps que	le temps que	CS	
+le tien	le tien	PRO	g=m|p=2|n=s
+le vôtre	le vôtre	PRO	g=m|p=2|n=s
+ledit	ledit	DET	g=m|n=s
+lequel	lequel	PRO	g=m|n=s
+lequel	lequel	PROREL	g=m|n=s
+lequel	lequel	PROWH	g=m|n=s
+les	les	CLO	p=3|n=p
+les	les	DET	n=p
+les autres	l'autre	PRO	g=f|n=p
+les autres	l'autre	PRO	g=m|n=p
+les leurs	le leur	PRO	g=f|p=3|n=p
+les leurs	le leur	PRO	g=m|p=3|n=p
+les miennes	le mien	PRO	g=f|p=1|n=p
+les miens	le  mien	PRO	g=m|p=1|n=p
+les nôtres	le nôtre	PRO	g=f|p=1|n=p
+les nôtres	le nôtre	PRO	g=m|p=1|n=p
+les siennes	le sien	PRO	g=f|p=3|n=p
+les siens	le sien	PRO	g=m|p=3|n=p
+les tiennes	le tien	PRO	g=f|p=2|n=p
+les tiens	le tien	PRO	g=m|p=2|n=p
+les unes	les unes	PRO	g=f|n=p
+les uns	les uns	PRO	g=m|n=p
+les vôtres	le vôtre	PRO	g=f|p=2|n=p
+les vôtres	le vôtre	PRO	g=m|p=2|n=p
+lesdites	lesdites	DET	g=f|n=p
+lesdits	lesdits	DET	g=m|n=p
+lesquelles	lequel	PRO	g=f|n=p
+lesquelles	lequel	PROREL	g=f|n=p
+lesquelles	lequel	PROWH	g=f|n=p
+lesquels	lequel	PRO	g=m|n=p
+lesquels	lequel	PROREL	g=m|n=p
+lesquels	lequel	PROWH	g=f|n=p
+leur	leur	CLO	p=3|n=p
+leur	leur	DET	p=3|poss=p|n=s
+leurs	leurs	DET	p=3|poss=p|n=p
+loin d'	loin de	P	
+loin de	loin de	P	
+loin des	loin de	P+D	n=p
+loin du	loin de	P+D	g=m|n=s
+lors d'	lors de	P	
+lors de	lors de	P	
+lors des	lors de	P+D	n=p
+lors du	lors de	P+D	g=m|n=s
+lorsqu'	lorsqu'	CS	
+lorsqu'	lorsque	CS	
+lorsque	lorsque	CS	
+lui	lui	CLO	p=3|n=s
+lui	lui	PRO	g=m|p=3|n=s
+lui-même	lui-même	PRO	g=m|p=3|n=s
+même s'	même si	CS	
+même si	même si	CS	
+m'	me	CLO	p=1|n=s
+m'	me	CLR	p=1|n=s
+ma	ma	DET	g=f|p=1|poss=s|n=s
+maint	maint	DET	g=m|n=s
+mainte	maint	DET	g=f|n=s
+maintenant qu'	maintenant que	CS	
+maintenant que	maintenant que	CS	
+maintes	maint	DET	g=f|n=p
+maints	maint	DET	g=m|n=p
+mais	mais	CC	
+mais alors	mais alors	CC	
+mais aussi	mais aussi	CC	
+mais encore	mais encore	CC	
+malgré	malgré	P	
+malgré qu'	malgré que	CS	
+malgré que	malgré que	CS	
+me	me	CLO	p=1|n=s
+me	me	CLR	p=1|n=s
+mes	mes	DET	p=1|poss=s|n=p
+moi	moi	PRO	p=1|n=s
+moi-même	moi-même	PRO	p=1|n=s
+moins	moins	CC	
+moins d'	moins de	DET	
+moins de	moins de	DET	
+mon	mon	DET	g=m|p=1|poss=s|n=s
+moult	moult	DET	g=m|n=s
+moulte	moult	DET	g=f|n=s
+moultes	moult	DET	g=f|n=p
+moults	moult	DET	g=m|n=p
+moyennant	moyennant	P	
+n'	ne	ADV	
+n'importe laquelle	n'importe lequel	PRO	g=f|n=s
+n'importe lequel	n'importe lequel	PRO	g=m|n=s
+n'importe lesquelles	n'importe lequel	PRO	g=f|n=p
+n'importe lesquels	n'importe lequel	PRO	g=m|n=p
+n'importe nawak	n'importe nawak	PRO	g=m|n=s
+n'importe où	n'importe où	PRO	n=s
+n'importe quel	n'importe quel	DET	g=m|n=s
+n'importe quelle	n'importe quelle	DET	g=f|n=s
+n'importe quelles	n'importe quelles	DET	g=f|n=p
+n'importe quels	n'importe quels	DET	g=m|n=p
+n'importe qui	n'importe qui	PRO	g=f|n=s
+n'importe qui	n'importe qui	PRO	g=m|n=s
+n'importe quoi	n'importe quoi	PRO	g=f|n=s
+n'importe quoi	n'importe quoi	PRO	g=m|n=s
+ne	ne	ADV	
+ni	ni	CC	
+ni l'un ni l'autre	ni l'un ni l'autre	PRO	g=m|n=p
+ni l'une ni l'autre	ni l'une ni l'autre	PRO	g=f|n=p
+nombre d'	nombre de	DET	n=p
+nombre de	nombre de	DET	n=p
+non plus qu'	non plus que	CS	
+non plus que	non plus que	CS	
+non qu'	non que	CS	
+non que	non que	CS	
+non sans	non sans	P	
+nonobstant	nonobstant	P	
+nos	nos	DET	p=1|poss=p|n=p
+notre	notre	DET	p=1|poss=p|n=s
+nous	nous	CLO	p=1|n=p
+nous	nous	CLR	p=1|n=p
+nous	nous	CLS	p=1|n=p
+nous	nous	PRO	g=f|p=1|n=p
+nous	nous	PRO	g=m|p=1|n=p
+nous-même	nous-même	PRO	g=f|p=1|n=p
+nous-mêmes	nous-mêmes	PRO	g=f|p=1|n=p
+nul	nul	DET	g=m|n=s
+nul	nul	PRO	g=m|n=s
+nulle	nul	DET	g=f|n=s
+nulle	nul	PRO	g=f|n=s
+nulles	nul	PRO	g=f|n=p
+nuls	nuls	PRO	g=m|n=p
+où	où	ADVWH	
+où	où	PROREL	
+on	on	CLS	p=3|n=s
+on ne sais quel	on ne sais quel	DET	g=m|n=s
+on ne sais quelle	on ne sais quel	DET	g=f|n=s
+on ne sais quelles	on ne sais quel	DET	g=f|n=p
+on ne sais quels	on ne sais quel	DET	g=m|n=p
+on ne sais qui	on ne sais qui	PRO	g=f|n=s
+on ne sais qui	on ne sais qui	PRO	g=m|n=s
+on ne sais quoi	on ne sais quoi	PRO	g=f|n=s
+on ne sais quoi	on ne sais quoi	PRO	g=m|n=s
+or	or	CC	
+ou	ou	CC	
+ou alors	ou alors	CC	
+ou bien	ou bien	CC	
+ou bien encore	ou bien encore	CC	
+ou encore	ou encore	CC	
+ou/et	ou/et	CC	
+outre	outre	P	
+outre qu'	outre que	CS	
+outre que	outre que	CS	
+pac'qu'	pac'qu'	CS	
+pac'que	pac'que	CS	
+par	par	P	
+par égard à	par égard à	P	
+par égard au	par égard à	P+D	g=m|n=s
+par égard aux	par égard à	P+D	n=p
+par égard pour	par égard pour	P	
+par delà	par delà	P	
+par devers	par devers	P	
+par l'entremise d'	par l'entremise de	P	
+par l'entremise de	par l'entremise de	P	
+par l'entremise des	par l'entremise de	P+D	n=p
+par l'entremise du	par l'entremise de	P+D	g=m|n=s
+par l'intermédiaire d'	par l'intermédiaire de	P	
+par l'intermédiaire de	par l'intermédiaire de	P	
+par l'intermédiaire des	par l'intermédiaire de	P+D	n=p
+par l'intermédiaire du	par l'intermédiaire de	P+D	g=m|n=s
+par le biais d'	par le biais de	P	
+par le biais de	par le biais de	P	
+par le biais des	par le biais de	P+D	n=p
+par le biais du	par le biais de	P+D	g=m|n=s
+par le fait qu'	par le fait que	CS	
+par le fait que	par le fait que	CS	
+par le truchement d'	par le truchement de	P	
+par le truchement de	par le truchement de	P	
+par le truchement des	par le truchement de	P+D	n=p
+par le truchement du	par le truchement de	P+D	g=m|n=s
+par peur d'	par peur de	P	
+par peur de	par peur de	P	
+par peur des	par peur de	P+D	n=p
+par peur du	par peur de	P+D	g=m|n=s
+par référence au	par référence à	P+D	g=m|n=s
+par référence aux	par référence à	P+D	n=p
+par rapport à	par rapport à	P	
+par rapport au	par rapport à	P+D	g=m|n=s
+par rapport aux	par rapport à	P+D	n=p
+par suite d'	par suite de	P	
+par suite de	par suite de	P	
+par suite des	par suite de	P+D	n=p
+par suite du	par suite de	P+D	g=m|n=s
+par-delà	par-delà	P	
+par-dessous	par-dessous	P	
+par-dessus	par-dessus	P	
+par-devant	par-devant	P	
+parc'qu'	parce que	CS	
+parc'que	parce que	CS	
+parce qu'	parce que	CS	
+parce que	parce que	CS	
+parmi	parmi	P	
+partant	partant	CS	
+pas d'	pas de	DET	
+pas de	pas de	DET	
+pas grand-chose	pas grand-chose	PRO	g=f|n=s
+pas mal d'	pas mal de	DET	
+pas mal de	pas mal de	DET	
+pas un	pas un	PRO	g=m|n=s
+pas une	pas un	PRO	g=f|n=s
+pask'	parce que	CS	
+paske	parce que	CS	
+passé	passé	P	
+pcq	parce que	CS	
+pdt	pendant	P	
+pdt que	pendant que	CS	
+pendant	pendant	P	
+pendant qu'	pendant que	CS	
+pendant que	pendant que	CS	
+personne	personne	PRO	n=s
+peu d'	peu de	P	
+peu de	peu de	P	
+peu de chose	peu de chose	PRO	g=f|n=s
+peu des	peu de	P+D	n=p
+peu du	peu de	P+D	g=m|n=s
+pkoi	pourquoi	ADVWH	
+plein	plein	P	
+plein d'	plein de	DET	
+plein d'	plein de	P	
+plein de	plein de	DET	
+plein de	plein de	P	
+plus	plus	CC	
+plus d'	plus de	DET	
+plus d'	plus de	P	
+plus d'un	plus d'un	PRO	g=m|n=s
+plus d'une	plus d'un	PRO	g=f|n=s
+plus de	plus de	DET	
+plus de	plus de	P	
+plus qu'	plus que	CS	
+plus que	plus que	CS	
+plusieurs	plusieurs	DET	n=p
+plusieurs	plusieurs	PRO	g=f|n=p
+plusieurs	plusieurs	PRO	g=m|n=p
+plutôt qu'	plutôt que	CS	
+plutôt que	plutôt que	CS	
+plutôt que d'	plutôt que de	P	
+plutôt que de	plutôt que de	P	
+plutôt que des	plutôt que de	P+D	n=p
+plutôt que du	plutôt que de	P+D	g=m|n=s
+pour	pour	P	
+pour autant qu'	pour autant que	CS	
+pour autant que	pour autant que	CS	
+pour cause d'	pour cause de	P	
+pour cause de	pour cause de	P	
+pour cause des	pour cause de	P+D	n=p
+pour cause du	pour cause de	P+D	g=m|n=s
+pour ce qui est d'	pour ce qui est de	P	
+pour ce qui est de	pour ce qui est de	P	
+pour ce qui est des	pour ce qui est de	P+D	n=p
+pour ce qui est du	pour ce qui est de	P+D	g=m|n=s
+pour cette raison qu'	pour cette raison que	CS	
+pour cette raison que	pour cette raison que	CS	
+pour comble d'	pour comble de	P	
+pour comble de	pour comble de	P	
+pour comble des	pour comble de	P+D	n=p
+pour comble du	pour comble de	P+D	g=m|n=s
+pour peu qu'	pour peu que	CS	
+pour peu que	pour peu que	CS	
+pour qu'	pour que	CS	
+pour que	pour que	CS	
+pour une fois qu'	pour une fois que	CS	
+pour une fois que	pour une fois que	CS	
+pourquoi	pourquoi	ADVWH	
+pourvu qu'	pourvu que	CS	
+pourvu que	pourvu que	CS	
+près d'	près de	P	
+près de	près de	P	
+près des	près de	P+D	n=p
+près du	près de	P+D	g=m|n=s
+pr	pour	P	
+proche d'	proche de	P	
+proche de	proche de	P	
+proche des	proche de	P+D	n=p
+proche du	proche de	P+D	g=m|n=s
+puis	puis	CC	
+puis	puis	CS	
+puisqu'	puisqu'	CS	
+puisqu'	puisque	CS	
+puisque	puisque	CS	
+qd	quand	CS	
+qq	quelque	DET	
+qqc	quelque chose	PRO	g=m|n=s
+qqch	quelque chose	PRO	g=m|n=s
+qqchose	quelque chose	PRO	g=m|n=s
+qqes	quelque	DET	n=p
+qqn	quelqu'un	PRO	g=m|n=s
+qqs	quelques	DET	n=p
+qu'	que	CS	
+qu'	que	PROREL	
+qu'	que	PROWH	
+quand	quand	ADVWH	
+quand	quand	CS	
+quand bien même	quand bien même	CS	
+quant à	quant à	CS	
+quant au	quant à	P+D	g=m|n=s
+quant aux	quant à	P+D	n=p
+quantité d'	quantité de	DET	n=p
+quantité de	quantité de	DET	n=p
+que	que	CS	
+que	que	PROREL	
+que	que	PROWH	
+que dalle	que dalle	PRO	g=m|n=s
+que pouic	que pouic	PRO	g=m|n=s
+quel	quel	DETWH	g=m|n=s
+quelle	quel	DETWH	g=f|n=s
+quelles	quel	DETWH	g=f|n=p
+quelqu'	quelque	DET	n=s
+quelqu'un	quelqu'un	PRO	g=m|n=s
+quelqu'une	quelqu'un	PRO	g=f|n=s
+quelqu'une	quelqu'une	PRO	g=f|n=s
+quelque	quelque	DET	n=s
+quelque chose	quelque chose	PRO	g=m|n=s
+quelques	quelques	DET	n=p
+quelques-unes	quelqu'un	PRO	g=f|n=p
+quelques-unes	quelques-unes	PRO	g=f|n=p
+quelques-uns	quelqu'un	PRO	g=m|n=p
+quelques-uns	quelques-uns	PRO	g=f|n=p
+quels	quel	DETWH	g=m|n=p
+question	question	P	
+qui	qui	PROREL	n=s
+qui	qui	PROWH	n=s
+qui de droit	qui de droit	PRO	g=m|n=s
+qui que ce soit	qui que ce soit	PRO	g=f|n=s
+qui que ce soit	qui que ce soit	PRO	g=m|n=s
+quiconque	quiconque	PRO	g=f|n=s
+quiconque	quiconque	PRO	g=m|n=s
+quoi	quoi	PROREL	
+quoi	quoi	PROWH	
+quoi qu'	quoi que	CS	
+quoi que	quoi que	CS	
+quoiqu'	quoiqu'	CS	
+quoiqu'	quoique	CS	
+quoique	quoique	CS	
+reste à savoir si	reste à savoir si	CS	
+rien	rien	PRO	g=m|n=s
+s'	si	CS	
+s'	se	CLR	p=3
+s/s	sous	P	
+sa	sa	DET	g=f|p=3|poss=s|n=s
+sans	sans	P	
+sans parler d'	sans parler de	P	
+sans parler de	sans parler de	P	
+sans parler des	sans parler de	P+D	n=p
+sans parler du	sans parler de	P+D	g=m|n=s
+sans qu'	sans que	CS	
+sans que	sans que	CS	
+sauf	sauf	P	
+sauf à	sauf à	P	
+sauf au	sauf à	P+D	g=m|n=s
+sauf aux	sauf à	P+D	n=p
+sauf qu'	sauf que	CS	
+sauf que	sauf que	CS	
+savoir	savoir	CS	
+se	se	CLR	p=3|n=p
+se	se	CLR	p=3|n=s
+selon	selon	P	
+selon qu'	selon que	CS	
+selon que	selon que	CS	
+ses	ses	DET	p=3|poss=s|n=p
+si	si	CS	
+si bien qu'	si bien que	CS	
+si bien que	si bien que	CS	
+si jamais	si jamais	CS	
+si peu qu'	si peu que	CS	
+si peu que	si peu que	CS	
+si près d'	si près de	P	
+si près de	si près de	P	
+si près des	si près de	P+D	n=p
+si près du	si près de	P+D	g=m|n=s
+sinon	sinon	CC	
+sinon	sinon	CS	
+sinon qu'	sinon que	CS	
+sinon que	sinon que	CS	
+sitôt qu'	sitôt que	CS	
+sitôt que	sitôt que	CS	
+soi	soi	PRO	p=3|n=s
+soi-même	soi-même	PRO	p=3|n=s
+soit	soit	CC	
+soit	soit	CS	
+son	son	DET	g=m|p=3|poss=s|n=s
+sous	sous	P	
+sous couvert d'	sous couvert de	P	
+sous couvert de	sous couvert de	P	
+sous couvert des	sous couvert de	P+D	n=p
+sous couvert du	sous couvert de	P+D	g=m|n=s
+sous forme d'	sous forme de	P	
+sous forme de	sous forme de	P	
+sous forme des	sous forme de	P+D	n=p
+sous forme du	sous forme de	P+D	g=m|n=s
+sous l'égide d'	sous l'égide de	P	
+sous l'égide de	sous l'égide de	P	
+sous l'égide des	sous l'égide de	P+D	n=p
+sous l'égide du	sous l'égide de	P+D	g=m|n=s
+sous l'effet d'	sous l'effet de	P	
+sous l'effet de	sous l'effet de	P	
+sous l'effet des	sous l'effet de	P+D	n=p
+sous l'effet du	sous l'effet de	P+D	g=m|n=s
+sous l'impulsion d'	sous l'impulsion de	P	
+sous l'impulsion de	sous l'impulsion de	P	
+sous l'impulsion des	sous l'impulsion de	P+D	n=p
+sous l'impulsion du	sous l'impulsion de	P+D	g=m|n=s
+sous la direction d'	sous la direction de	P	
+sous la direction de	sous la direction de	P	
+sous la direction des	sous la direction de	P+D	n=p
+sous la direction du	sous la direction de	P+D	g=m|n=s
+sous la forme d'	sous la forme de	P	
+sous la forme de	sous la forme de	P	
+sous la forme des	sous la forme de	P+D	n=p
+sous la forme du	sous la forme de	P+D	g=m|n=s
+sous la houlette d'	sous la houlette de	P	
+sous la houlette de	sous la houlette de	P	
+sous la houlette des	sous la houlette de	P+D	n=p
+sous la houlette du	sous la houlette de	P+D	g=m|n=s
+sous la pression d'	sous la pression de	P	
+sous la pression de	sous la pression de	P	
+sous la pression des	sous la pression de	P+D	n=p
+sous la pression du	sous la pression de	P+D	g=m|n=s
+sous le coup d'	sous le coup de	P	
+sous le coup de	sous le coup de	P	
+sous le coup des	sous le coup de	P+D	n=p
+sous le coup du	sous le coup de	P+D	g=m|n=s
+sous le nom d'	sous le nom de	P	
+sous le nom de	sous le nom de	P	
+sous le nom des	sous le nom de	P+D	n=p
+sous le nom du	sous le nom de	P+D	g=m|n=s
+sous le signe d'	sous le signe de	P	
+sous le signe de	sous le signe de	P	
+sous le signe des	sous le signe de	P+D	n=p
+sous le signe du	sous le signe de	P+D	g=m|n=s
+sous peine d'	sous peine de	P	
+sous peine de	sous peine de	P	
+sous peine des	sous peine de	P+D	n=p
+sous peine du	sous peine de	P+D	g=m|n=s
+sous prétexte d'	sous prétexte de	P	
+sous prétexte de	sous prétexte de	P	
+sous prétexte des	sous prétexte de	P+D	n=p
+sous prétexte du	sous prétexte de	P+D	g=m|n=s
+sous prétexte qu'	sous prétexte que	CS	
+sous prétexte que	sous prétexte que	CS	
+sous réserve d'	sous réserve de	P	
+sous réserve de	sous réserve de	P	
+sous réserve des	sous réserve de	P+D	n=p
+sous réserve du	sous réserve de	P+D	g=m|n=s
+sous réserve qu'	sous réserve que	CS	
+sous réserve que	sous réserve que	CS	
+suite à	suite à	P	
+suite au	suite à	P+D	g=m|n=s
+suite aux	suite à	P+D	n=p
+suivant	suivant	P	
+suivant qu'	suivant que	CS	
+suivant que	suivant que	CS	
+sur	sur	P	
+sur fond d'	sur fond de	P	
+sur fond de	sur fond de	P	
+sur fond des	sur fond de	P+D	n=p
+sur fond du	sur fond de	P+D	g=m|n=s
+sur la place d'	sur la place de	P	
+sur la place de	sur la place de	P	
+sur la place des	sur la place de	P+D	n=p
+sur la place du	sur la place de	P+D	g=m|n=s
+sur la voie d'	sur la voie de	P	
+sur la voie de	sur la voie de	P	
+sur la voie des	sur la voie de	P+D	n=p
+sur la voie du	sur la voie de	P+D	g=m|n=s
+sur le point d'	sur le point de	P	
+sur le point de	sur le point de	P	
+sur le point des	sur le point de	P+D	n=p
+sur le point du	sur le point de	P+D	g=m|n=s
+t'	te	CLO	p=2|n=s
+t'	te	CLR	p=2|n=s
+t'	tu	CLS	p=2|n=s
+ta	ta	DET	g=f|p=2|poss=s|n=s
+tandis	tandis	P	
+tandis qu'	tandis que	CS	
+tandis que	tandis que	CS	
+tant d'	tant de	DET	
+tant de	tant de	DET	
+tant et si bien qu'	tant et si bien que	CS	
+tant et si bien que	tant et si bien que	CS	
+tant qu'	tant que	CS	
+tant que	tant que	CS	
+te	te	CLO	p=2|n=s
+te	te	CLR	p=2|n=s
+tel	tel	DET	g=m|n=s
+tel	tel	PRO	g=m|n=s
+tel et tel	tel et tel	DET	g=m|n=s
+tel et tel	tel et tel	PRO	g=m|n=s
+tel ou tel	tel ou tel	DET	g=m|n=s
+tel ou tel	tel ou tel	PRO	g=m|n=s
+tel qu'	tel que	CS	
+tel que	tel que	CS	
+telle	tel	PRO	g=f|n=s
+telle	telle	DET	g=f|n=s
+telle et telle	telle et telle	DET	g=f|n=s
+telle et telle	telle et telle	PRO	g=f|n=s
+telle ou telle	telle ou telle	DET	g=f|n=s
+telle ou telle	telle ou telle	PRO	g=f|n=s
+telle qu'	telle que	CS	
+telle que	telle que	CS	
+telles	telles	DET	g=f|n=p
+telles	telles	PRO	g=f|n=p
+telles et telles	telles et telles	DET	g=f|n=p
+telles et telles	telles et telles	PRO	g=f|n=p
+telles ou telles	telles ou telles	DET	g=f|n=p
+telles ou telles	telles ou telles	PRO	g=f|n=p
+telles qu'	telles que	CS	
+telles que	telles que	CS	
+tels	tels	DET	g=m|n=p
+tels	tels	PRO	g=m|n=p
+tels et tels	tels et tels	DET	g=m|n=p
+tels et tels	tels et tels	PRO	g=m|n=p
+tels ou tels	tels ou tels	DET	g=m|n=p
+tels ou tels	tels ou tels	PRO	g=m|n=p
+tels qu'	tels que	CS	
+tels que	tels que	CS	
+tes	tes	DET	p=2|poss=s|n=p
+toi	toi	PRO	p=2|n=s
+toi-même	toi-même	PRO	p=2|n=s
+ton	ton	DET	g=m|p=2|poss=s|n=s
+tous	tous	DET	g=m|n=p
+tous	tout	PRO	g=m|n=p
+tout	tout	DET	g=m|n=s
+tout	tout	PRO	g=m|n=s
+tout au bout d'	tout au bout de	P	
+tout au bout de	tout au bout de	P	
+tout au bout des	tout au bout de	P+D	n=p
+tout au bout du	tout au bout de	P+D	g=m|n=s
+tout au long d'	tout au long de	P	
+tout au long de	tout au long de	P	
+tout au long des	tout au long de	P+D	n=p
+tout au long du	tout au long de	P+D	g=m|n=s
+tout comme	tout comme	CC	
+tout en haut d'	tout en haut de	P	
+tout en haut de	tout en haut de	P	
+tout en haut des	tout en haut de	P+D	n=p
+tout en haut du	tout en haut de	P+D	g=m|n=s
+tout le monde	tout le monde	PRO	g=m|n=s
+tout plein d'	tout plein de	P	
+tout plein de	tout plein de	P	
+tout plein des	tout plein de	P+D	n=p
+tout plein du	tout plein de	P+D	g=m|n=s
+tout près d'	tout près de	P	
+tout près de	tout près de	P	
+tout près des	tout près de	P+D	n=p
+tout près du	tout près de	P+D	g=m|n=s
+tout un chacun	tout un chacun	PRO	g=m|n=s
+toute	tout	PRO	g=f|n=s
+toute	toute	DET	g=f|n=s
+toutes	tout	PRO	g=f|n=p
+toutes	toutes	DET	g=f|n=p
+tu	tu	CLS	p=2|n=s
+un	un	DET	g=m|n=s
+un	un	PRO	g=m|n=s
+un autre	un autre	PRO	g=m|n=s
+un peu d'	un peu de	DET	
+un peu de	un peu de	DET	
+un tel	un tel	DET	g=m|n=s
+un tel	untel	PRO	g=m|n=s
+une	un	PRO	g=f|n=s
+une	une	DET	g=f|n=s
+une	une	PRO	g=f|n=s
+une autre	un autre	PRO	g=f|n=s
+une bonne	un bon	PRO	g=f|n=s
+une fois qu'	une fois que	CS	
+une fois que	une fois que	CS	
+une telle	une telle	DET	g=f|n=s
+une telle	untel	PRO	g=f|n=s
+unes	unes	PRO	g=f|n=p
+unetelle	untel	PRO	g=f|n=s
+uns	uns	PRO	g=m|n=p
+untel	untel	PRO	g=m|n=s
+vers	vers	P	
+versus	versus	P	
+via	via	P	
+vis à vis d'	vis-à-vis de	P	
+vis à vis de	vis-à-vis de	P	
+vis-à-vis	vis-à-vis	P	
+vis-à-vis d'	vis-à-vis de	P	
+vis-à-vis de	vis-à-vis de	P	
+vis-à-vis des	vis-à-vis de	P+D	n=p
+vis-à-vis du	vis-à-vis de	P+D	g=m|n=s
+voici	voici	P	
+voilà	voilà	P	
+voire	voire	CC	
+voire même	voire même	CC	
+vos	vos	DET	p=2|poss=p|n=p
+vot'	votre	DET	p=2|poss=p|n=s
+votre	votre	DET	p=2|poss=p|n=s
+vous	vous	CLO	p=2|n=p
+vous	vous	CLR	p=2|n=p
+vous	vous	CLS	p=2|n=p
+vous	vous	PRO	g=f|p=2|n=p
+vous	vous	PRO	g=m|p=2|n=p
+vous-même	vous-même	PRO	g=m|p=2|n=p
+vous-mêmes	vous-mêmes	PRO	g=m|p=2|n=p
+vs	versus	P	
+vs.	versus	P	
+vu	vu	P	
+y	y	CLO	
+y compris	y compris	P	
+{	{	PONCT	
+|	|	PONCT	
+}	}	PONCT	
+#### Nombres (mieux gérés par des expressions régulières) ####
+deux	deux	DET	n=p
+trois	trois	DET	n=p
+quatre	quatre	DET	n=p
+cinq	cinq	DET	n=p
+six	six	DET	n=p
+sept	sept	DET	n=p
+huit	huit	DET	n=p
+neuf	neuf	DET	n=p
+dix	dix	DET	n=p
+onze	onze	DET	n=p
+douze	douze	DET	n=p
+treize	treize	DET	n=p
+quatorze	quatorze	DET	n=p
+quinze	quinze	DET	n=p
+seize	seize	DET	n=p
+dix-sept	dix-sept	DET	n=p
+dix-huit	dix-huit	DET	n=p
+dix-neuf	dix-neuf	DET	n=p
+vingt	vingt	DET	n=p
+trente	trente	DET	n=p
+quarante	quarante	DET	n=p
+cinquante	cinquante	DET	n=p
+soixante	soixante	DET	n=p
+soixante-dix	soixante-dix	DET	n=p
+septante	septante	DET	n=p
+quatre-vingt	quatre-vingt	DET	n=p
+octante	octante	DET	n=p
+huitante	huitante	DET	n=p
+nonante	nonante	DET	n=p
+quatre-vingt-dix	quatre-vingt-dix	DET	n=p
+nonante	nonante	DET	n=p
+cent	cent	DET	n=p
+mille	mille	DET	n=p
+deux	deux	PRO	n=p
+trois	trois	PRO	n=p
+quatre	quatre	PRO	n=p
+cinq	cinq	PRO	n=p
+six	six	PRO	n=p
+sept	sept	PRO	n=p
+huit	huit	PRO	n=p
+neuf	neuf	PRO	n=p
+dix	dix	PRO	n=p
+onze	onze	PRO	n=p
+douze	douze	PRO	n=p
+treize	treize	PRO	n=p
+quatorze	quatorze	PRO	n=p
+quinze	quinze	PRO	n=p
+seize	seize	PRO	n=p
+dix-sept	dix-sept	PRO	n=p
+dix-huit	dix-huit	PRO	n=p
+dix-neuf	dix-neuf	PRO	n=p
+vingt	vingt	PRO	n=p
+trente	trente	PRO	n=p
+quarante	quarante	PRO	n=p
+cinquante	cinquante	PRO	n=p
+soixante	soixante	PRO	n=p
+soixante-dix	soixante-dix	PRO	n=p
+septante	septante	PRO	n=p
+quatre-vingt	quatre-vingt	PRO	n=p
+octante	octante	PRO	n=p
+huitante	huitante	PRO	n=p
+nonante	nonante	PRO	n=p
+quatre-vingt-dix	quatre-vingt-dix	PRO	n=p
+nonante	nonante	PRO	n=p
+cent	cent	PRO	n=p
+mille	mille	PRO	n=p
+deux	deux	ADJ	n=p
+trois	trois	ADJ	n=p
+quatre	quatre	ADJ	n=p
+cinq	cinq	ADJ	n=p
+six	six	ADJ	n=p
+sept	sept	ADJ	n=p
+huit	huit	ADJ	n=p
+neuf	neuf	ADJ	n=p
+dix	dix	ADJ	n=p
+onze	onze	ADJ	n=p
+douze	douze	ADJ	n=p
+treize	treize	ADJ	n=p
+quatorze	quatorze	ADJ	n=p
+quinze	quinze	ADJ	n=p
+seize	seize	ADJ	n=p
+dix-sept	dix-sept	ADJ	n=p
+dix-huit	dix-huit	ADJ	n=p
+dix-neuf	dix-neuf	ADJ	n=p
+vingt	vingt	ADJ	n=p
+trente	trente	ADJ	n=p
+quarante	quarante	ADJ	n=p
+cinquante	cinquante	ADJ	n=p
+soixante	soixante	ADJ	n=p
+soixante-dix	soixante-dix	ADJ	n=p
+septante	septante	ADJ	n=p
+quatre-vingt	quatre-vingt	ADJ	n=p
+octante	octante	ADJ	n=p
+huitante	huitante	ADJ	n=p
+nonante	nonante	ADJ	n=p
+quatre-vingt-dix	quatre-vingt-dix	ADJ	n=p
+nonante	nonante	ADJ	n=p
+cent	cent	ADJ	n=p
+mille	mille	ADJ	n=p
