@@ -69,8 +69,6 @@ public class ParserTrainer {
 		this.modelFile = new File(parserConfig.getString("model"));
 		this.descriptors = new HashMap<>();
 
-		boolean dynamiseFeatures = parserConfig.getBoolean("dynamise-features");
-
 		String configPath = "talismane.core.parser.train.features";
 		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
 		List<String> featureDescriptors = new ArrayList<>();
@@ -93,7 +91,7 @@ public class ParserTrainer {
 			descriptors.put(SentenceAnnotatorLoader.SENTENCE_ANNOTATOR_DESCRIPTOR_KEY + i, sentenceAnnotatorDescriptors.get(i));
 		}
 
-		ParserFeatureParser featureParser = new ParserFeatureParser(session, dynamiseFeatures);
+		ParserFeatureParser featureParser = new ParserFeatureParser(session);
 		Set<ParseConfigurationFeature<?>> features = featureParser.getFeatures(featureDescriptors);
 		eventStream = new ParseEventStream(corpusReader, features);
 	}

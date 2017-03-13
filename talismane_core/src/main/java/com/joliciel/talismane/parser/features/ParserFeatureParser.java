@@ -54,7 +54,7 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
 
 	private final TalismaneSession talismaneSession;
 
-	public ParserFeatureParser(TalismaneSession talismaneSession, boolean dynamise) {
+	public ParserFeatureParser(TalismaneSession talismaneSession) {
 		this.talismaneSession = talismaneSession;
 		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
 	}
