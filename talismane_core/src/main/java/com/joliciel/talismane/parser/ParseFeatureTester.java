@@ -53,10 +53,6 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 
 	public ParseFeatureTester(TalismaneSession session, Writer writer) throws IOException {
 		Config config = session.getConfig();
-		Config parserConfig = config.getConfig("talismane.core.parser");
-
-		boolean dynamiseFeatures = parserConfig.getBoolean("dynamise-features");
-
 		String configPath = "talismane.core.parser.train.features";
 		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
 		List<String> featureDescriptors = new ArrayList<>();
@@ -69,7 +65,7 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 			}
 		}
 
-		ParserFeatureParser featureParser = new ParserFeatureParser(session, dynamiseFeatures);
+		ParserFeatureParser featureParser = new ParserFeatureParser(session);
 		this.parseFeatures = featureParser.getFeatures(featureDescriptors);
 		this.writer = writer;
 	}

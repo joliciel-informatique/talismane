@@ -97,8 +97,8 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	/**
 	 * Read a non-deterministic parser directly from a model.
 	 */
-	public TransitionBasedParser(ClassificationModel model, int beamWidth, boolean dynamiseFeatures, boolean propagatePosTaggerBeam,
-			ParseComparisonStrategy parseComparisonStrategy, int maxAnalysisTimePerSentence, int minFreeMemory, TalismaneSession session) {
+	public TransitionBasedParser(ClassificationModel model, int beamWidth, boolean propagatePosTaggerBeam, ParseComparisonStrategy parseComparisonStrategy,
+			int maxAnalysisTimePerSentence, int minFreeMemory, TalismaneSession session) {
 		this.session = session;
 		this.beamWidth = beamWidth;
 		this.propagatePosTaggerBeam = propagatePosTaggerBeam;
@@ -108,7 +108,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 		this.transitionSystem = TransitionSystem.getTransitionSystem(model);
 		this.decisionMaker = model.getDecisionMaker();
 
-		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(session, dynamiseFeatures);
+		ParserFeatureParser parserFeatureParser = new ParserFeatureParser(session);
 		Collection<ExternalResource<?>> externalResources = model.getExternalResources();
 		if (externalResources != null) {
 			for (ExternalResource<?> externalResource : externalResources) {

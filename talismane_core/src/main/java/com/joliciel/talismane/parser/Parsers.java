@@ -75,16 +75,14 @@ public class Parsers {
 			int beamWidth = parserConfig.getInt("beam-width");
 			boolean propagatePosTaggerBeam = parserConfig.getBoolean("propagate-pos-tagger-beam");
 
-			boolean dynamiseFeatures = parserConfig.getBoolean("dynamise-features");
-
 			ParseComparisonStrategyType parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(parserConfig.getString("comparison-strategy"));
 			ParseComparisonStrategy parseComparisonStrategy = ParseComparisonStrategy.forType(parseComparisonStrategyType);
 
 			int maxAnalysisTimePerSentence = parserConfig.getInt("max-analysis-time");
 			int minFreeMemory = parserConfig.getInt("min-free-memory");
 
-			TransitionBasedParser transitionBasedParser = new TransitionBasedParser(model, beamWidth, dynamiseFeatures, propagatePosTaggerBeam,
-					parseComparisonStrategy, maxAnalysisTimePerSentence, minFreeMemory, session);
+			TransitionBasedParser transitionBasedParser = new TransitionBasedParser(model, beamWidth, propagatePosTaggerBeam, parseComparisonStrategy,
+					maxAnalysisTimePerSentence, minFreeMemory, session);
 			parser = transitionBasedParser;
 
 			transitionBasedParser.setEarlyStop(parserConfig.getBoolean("early-stop"));
@@ -100,7 +98,7 @@ public class Parsers {
 			}
 
 			List<ParserRule> parserRules = new ArrayList<>();
-			ParserFeatureParser featureParser = new ParserFeatureParser(session, dynamiseFeatures);
+			ParserFeatureParser featureParser = new ParserFeatureParser(session);
 
 			configPath = "talismane.core.parser.rules";
 			List<String> textFilterPaths = config.getStringList(configPath);
