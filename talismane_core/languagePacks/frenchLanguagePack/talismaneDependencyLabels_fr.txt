@@ -41,3 +41,6 @@ arg_cons	Utilisé pour relier une consécutive et son gouverneur adverbial
 prep	Objet d'une préposition
 sub	Object d'une conjonction de subordination
 root	Racine de la phrase
+
+# Unknown additional relations found in the French SPMRL corpus
+comp

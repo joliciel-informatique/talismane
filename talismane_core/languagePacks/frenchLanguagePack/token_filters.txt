@@ -122,20 +122,21 @@ RegexTokenAnnotator	\b(d[eé]cembre|déc)\b	analysisText=janvier	replacement=dé
 # Punctuation
 
 #### various quotes ####
-RegexTokenAnnotator	[“”„‟″‴]	replacement="	posTag=P	featureType=punctuation
-RegexTokenAnnotator	(« )|«	replacement="	posTag=P	featureType=punctuation
-RegexTokenAnnotator	( »)|»	replacement="	posTag=P	featureType=punctuation
+RegexTokenAnnotator	[“”„‟″‴]	replacement="	posTag=PONCT	featureType=punctuation
+RegexTokenAnnotator	(« )|«	replacement="	posTag=PONCT	featureType=punctuation
+RegexTokenAnnotator	( »)|»	replacement="	posTag=PONCT	featureType=punctuation
 
-RegexTokenAnnotator	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	replacement=*	posTag=P	featureType=punctuation
+RegexTokenAnnotator	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	replacement=*	posTag=PONCT	featureType=punctuation
 
 # Long dashes are assumed to always tokenise separately
-RegexTokenAnnotator	[‒–—―]	replacement=-	posTag=P	featureType=punctuation
+RegexTokenAnnotator	[‒–—―]	replacement=-	posTag=PONCT	featureType=punctuation
 
 # General punctuation regex
 # Note that RegexAttributeAnnotators will only affect a token if the entire token is matched within the filter
 # In other words, if the token contains the match, the match has no effect
 # Thus, a token such as "j'" will not get the posTag for punctuation
-RegexAttributeAnnotator	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+	posTag=P	lemmaType=originalLower	featureType=punctuation
+RegexTokenAnnotator	[.!?]+	posTag=PONCT	lemmaType=originalLower	featureType=punctuation
+RegexAttributeAnnotator	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+	posTag=PONCT	lemmaType=originalLower	featureType=punctuation
 
 #########################
 ### Text normalisation ##
