@@ -522,18 +522,53 @@ public class TalismaneMain {
 		if (options.has(testWordsOption))
 			values.put("talismane.core.pos-tagger.output.test-words", options.valuesOf(testWordsOption));
 
-		if (options.has(algorithmOption))
+		if (options.has(algorithmOption)) {
 			values.put("talismane.machine-learning.algorithm", options.valueOf(algorithmOption).name());
-		if (options.has(cutoffOption))
+			values.put("talismane.core.language-detector.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+			values.put("talismane.core.sentence-detector.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+			values.put("talismane.core.tokeniser.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+			values.put("talismane.core.pos-tagger.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+			values.put("talismane.core.parser.train.machine-learning.algorithm", options.valueOf(algorithmOption).name());
+		}
+		if (options.has(cutoffOption)) {
 			values.put("talismane.machine-learning.cutoff", options.valueOf(cutoffOption));
-		if (options.has(linearSVMEpsilonOption))
+			values.put("talismane.core.language-detector.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+			values.put("talismane.core.sentence-detector.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+			values.put("talismane.core.tokeniser.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+			values.put("talismane.core.pos-tagger.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+			values.put("talismane.core.parser.train.machine-learning.cutoff", options.valueOf(cutoffOption));
+		}
+		if (options.has(linearSVMEpsilonOption)) {
 			values.put("talismane.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
-		if (options.has(linearSVMCostOption))
+			values.put("talismane.core.language-detector.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+			values.put("talismane.core.sentence-detector.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+			values.put("talismane.core.tokeniser.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+			values.put("talismane.core.pos-tagger.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+			values.put("talismane.core.parser.train.machine-learning.LinearSVM.epsilon", options.valueOf(linearSVMEpsilonOption));
+		}
+		if (options.has(linearSVMCostOption)) {
 			values.put("talismane.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
-		if (options.has(oneVsRestOption))
+			values.put("talismane.core.language-detector.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+			values.put("talismane.core.sentence-detector.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+			values.put("talismane.core.tokeniser.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+			values.put("talismane.core.pos-tagger.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+			values.put("talismane.core.parser.train.machine-learning.LinearSVM.cost", options.valueOf(linearSVMCostOption));
+		}
+		if (options.has(oneVsRestOption)) {
 			values.put("talismane.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+			values.put("talismane.core.language-detector.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+			values.put("talismane.core.sentence-detector.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+			values.put("talismane.core.tokeniser.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+			values.put("talismane.core.pos-tagger.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+			values.put("talismane.core.parser.train.machine-learning.LinearSVM.one-vs-rest", options.valueOf(oneVsRestOption));
+		}
 		if (options.has(iterationsOption)) {
 			values.put("talismane.machine-learning.iterations", options.valueOf(iterationsOption));
+			values.put("talismane.core.language-detector.train.machine-learning.iterations", options.valueOf(iterationsOption));
+			values.put("talismane.core.sentence-detector.train.machine-learning.iterations", options.valueOf(iterationsOption));
+			values.put("talismane.core.tokeniser.train.machine-learning.iterations", options.valueOf(iterationsOption));
+			values.put("talismane.core.pos-tagger.train.machine-learning.iterations", options.valueOf(iterationsOption));
+			values.put("talismane.core.parser.train.machine-learning.iterations", options.valueOf(iterationsOption));
 		}
 
 		if (options.has(logConfigFileSpec))
