@@ -141,6 +141,37 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
 		return rules;
 	}
 
+	/**
+	 * Adds the following feature class mappings:
+	 * <ul>
+	 * <li>AncestorSearch: {@link AncestorSearchFeature}</li>
+	 * <li>BackwardSearch: {@link BackwardSearchFeature}</li>
+	 * <li>BetweenCountIf: {@link BetweenCountIf}</li>
+	 * <li>Buffer: {@link AddressFunctionBuffer}</li>
+	 * <li>Dep: {@link AddressFunctionDep}</li>
+	 * <li>DepCountIf: {@link DependencyCountIf}</li>
+	 * <li>DepLabel: {@link DependencyLabelFeature}</li>
+	 * <li>DependencyLabel: {@link DependencyLabelFeature}</li>
+	 * <li>DepLabelSet: {@link DependencyLabelSetFeature}</li>
+	 * <li>DepSearch: {@link DependencySearchFeature}</li>
+	 * <li>Distance: {@link DistanceFeature}</li>
+	 * <li>ForwardSearch: {@link ForwardSearchFeature}</li>
+	 * <li>Head: {@link AddressFunctionHead}</li>
+	 * <li>LDep: {@link AddressFunctionLDep}</li>
+	 * <li>Offset: {@link AddressFunctionOffset}</li>
+	 * <li>Placeholder: {@link ImplicitAddressFeature}</li>
+	 * <li>RDep: {@link AddressFunctionRDep}</li>
+	 * <li>Seq: {@link AddressFunctionSequence}</li>
+	 * <li>Stack: {@link AddressFunctionStack}</li>
+	 * <li>StackSearch: {@link StackSearchFeature}</li>
+	 * <li>TokenSearch: {@link TokenSearchFeature}</li>
+	 * <li>Valency: {@link ValencyFeature}</li>
+	 * <li>Valency: {@link ValencyByLabelFeature}</li>
+	 * <li>All definitions in
+	 * {@link PosTaggerFeatureParser#addPosTaggedTokenFeatureClasses(FeatureClassContainer)}
+	 * </li>
+	 * </ul>
+	 */
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("AncestorSearch", AncestorSearchFeature.class);
