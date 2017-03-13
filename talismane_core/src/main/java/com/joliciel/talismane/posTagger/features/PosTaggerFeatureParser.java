@@ -135,6 +135,21 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 
 	}
 
+	/**
+	 * Adds the following feature class mappings:
+	 * <ul>
+	 * <li>Ngram: {@link NgramFeature}</li>
+	 * <li>History: {@link PosTaggerHistoryAddressFunction}</li>
+	 * <li>HistoryAbs: {@link HistoryAbsoluteAddressFunction}</li>
+	 * <li>HistoryCountIf: {@link HistoryCountIfFeature}</li>
+	 * <li>HistoryHas: {@link HistoryHasFeature}</li>
+	 * <li>HistorySearch: {@link HistorySearchFeature}</li>
+	 * <li>All definitions in
+	 * {@link #addPosTaggedTokenFeatureClasses(FeatureClassContainer)}</li>
+	 * <li>All definitions in
+	 * {@link TokenFeatureParser#addFeatureClasses(FeatureClassContainer)}</li>
+	 * </ul>
+	 */
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
 		container.addFeatureClass("Ngram", NgramFeature.class);
@@ -148,31 +163,55 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 	}
 
 	/**
-	 * Add pos-tagged token feature classes to the container provided.
+	 * Add pos-tagged token feature classes to the container provided,
+	 * including:
+	 * <ul>
+	 * <li>Aspect: {@link VerbAspectFeature}</li>
+	 * <li>Case: {@link GrammaticalCaseFeature}</li>
+	 * <li>Category: {@link LexicalCategoryFeature}</li>
+	 * <li>ClosedClass: {@link ClosedClassFeature}</li>
+	 * <li>CombinedLexicalAttributes: {@link CombinedLexicalAttributesFeature}
+	 * </li>
+	 * <li>Gender: {@link GrammaticalGenderFeature}</li>
+	 * <li>Index: {@link TokenIndexFeature}</li>
+	 * <li>Lemma: {@link LemmaFeature}</li>
+	 * <li>LexicalAttribute: {@link LexicalAttributeFeature}</li>
+	 * <li>LexicalForm: {@link WordFormFeature}</li>
+	 * <li>Mood: {@link VerbMoodFeature}</li>
+	 * <li>Morphology: {@link MorphologyFeature}</li>
+	 * <li>Number: {@link GrammaticalNumberFeature}</li>
+	 * <li>Person: {@link GrammaticalPersonFeature}</li>
+	 * <li>PosTag: {@link AssignedPosTagFeature}</li>
+	 * <li>PosTagIn: {@link AssignedPosTagInFeature}</li>
+	 * <li>PossessorNumber: {@link PossessorNumberFeature}</li>
+	 * <li>SubCategory: {@link LexicalSubCategoryFeature}</li>
+	 * <li>Tense: {@link VerbTenseFeature}</li>
+	 * <li>TokenHas: {@link HistoryHasFeature}</li>
+	 * <li>WordForm: {@link WordFormFeature}</li>
+	 * </ul>
 	 */
 	public static void addPosTaggedTokenFeatureClasses(FeatureClassContainer container) {
-		container.addFeatureClass("PosTag", AssignedPosTagFeature.class);
-		container.addFeatureClass("PosTagIn", AssignedPosTagInFeature.class);
-		container.addFeatureClass("LexicalForm", WordFormFeature.class);
-		container.addFeatureClass("Lemma", LemmaFeature.class);
-		container.addFeatureClass("Morphology", MorphologyFeature.class);
-		container.addFeatureClass("Gender", GrammaticalGenderFeature.class);
+		container.addFeatureClass("Aspect", VerbAspectFeature.class);
 		container.addFeatureClass("Case", GrammaticalCaseFeature.class);
+		container.addFeatureClass("Category", LexicalCategoryFeature.class);
+		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);
+		container.addFeatureClass("CombinedLexicalAttributes", CombinedLexicalAttributesFeature.class);
+		container.addFeatureClass("Gender", GrammaticalGenderFeature.class);
+		container.addFeatureClass("Index", TokenIndexFeature.class);
+		container.addFeatureClass("Lemma", LemmaFeature.class);
+		container.addFeatureClass("LexicalAttribute", LexicalAttributeFeature.class);
+		container.addFeatureClass("LexicalForm", WordFormFeature.class);
+		container.addFeatureClass("Mood", VerbMoodFeature.class);
+		container.addFeatureClass("Morphology", MorphologyFeature.class);
 		container.addFeatureClass("Number", GrammaticalNumberFeature.class);
 		container.addFeatureClass("Person", GrammaticalPersonFeature.class);
-		container.addFeatureClass("Tense", VerbTenseFeature.class);
-		container.addFeatureClass("Aspect", VerbAspectFeature.class);
-		container.addFeatureClass("Mood", VerbMoodFeature.class);
-		container.addFeatureClass("Category", LexicalCategoryFeature.class);
-		container.addFeatureClass("SubCategory", LexicalSubCategoryFeature.class);
+		container.addFeatureClass("PosTag", AssignedPosTagFeature.class);
+		container.addFeatureClass("PosTagIn", AssignedPosTagInFeature.class);
 		container.addFeatureClass("PossessorNumber", PossessorNumberFeature.class);
-		container.addFeatureClass("Index", TokenIndexFeature.class);
-		container.addFeatureClass("WordForm", WordFormFeature.class);
-		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);
+		container.addFeatureClass("SubCategory", LexicalSubCategoryFeature.class);
+		container.addFeatureClass("Tense", VerbTenseFeature.class);
 		container.addFeatureClass("TokenHas", HistoryHasFeature.class);
-		container.addFeatureClass("LexicalAttribute", LexicalAttributeFeature.class);
-		container.addFeatureClass("CombinedLexicalAttributes", CombinedLexicalAttributesFeature.class);
-
+		container.addFeatureClass("WordForm", WordFormFeature.class);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

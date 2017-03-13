@@ -77,18 +77,33 @@ public class SentenceDetectorFeatureParser extends AbstractFeatureParser<Possibl
 		return wrappedFeatures;
 	}
 
+	/**
+	 * Adds the following feature class mappings:
+	 * <ul>
+	 * <li>BoundaryString: {@link BoundaryStringFeature}</li>
+	 * <li>InParentheses: {@link InParenthesesFeature}</li>
+	 * <li>Initials: {@link InitialsFeature}</li>
+	 * <li>IsStrongPunctuation: {@link IsStrongPunctuationFeature}</li>
+	 * <li>NextLetterCapital: {@link NextLetterCapitalFeature}</li>
+	 * <li>NextLetters: {@link NextLettersFeature}</li>
+	 * <li>NextTokens: {@link NextTokensFeature}</li>
+	 * <li>PreviousLetters: {@link PreviousLettersFeature}</li>
+	 * <li>PreviousTokens: {@link PreviousTokensFeature}</li>
+	 * <li>Surroundings: {@link SurroundingsFeature}</li>
+	 * </ul>
+	 */
 	@Override
 	public void addFeatureClasses(FeatureClassContainer container) {
-		container.addFeatureClass("Initials", InitialsFeature.class);
+		container.addFeatureClass("BoundaryString", BoundaryStringFeature.class);
 		container.addFeatureClass("InParentheses", InParenthesesFeature.class);
+		container.addFeatureClass("Initials", InitialsFeature.class);
 		container.addFeatureClass("IsStrongPunctuation", IsStrongPunctuationFeature.class);
 		container.addFeatureClass("NextLetterCapital", NextLetterCapitalFeature.class);
 		container.addFeatureClass("NextLetters", NextLettersFeature.class);
-		container.addFeatureClass("PreviousLetters", PreviousLettersFeature.class);
 		container.addFeatureClass("NextTokens", NextTokensFeature.class);
+		container.addFeatureClass("PreviousLetters", PreviousLettersFeature.class);
 		container.addFeatureClass("PreviousTokens", PreviousTokensFeature.class);
 		container.addFeatureClass("Surroundings", SurroundingsFeature.class);
-		container.addFeatureClass("BoundaryString", BoundaryStringFeature.class);
 	}
 
 	@Override

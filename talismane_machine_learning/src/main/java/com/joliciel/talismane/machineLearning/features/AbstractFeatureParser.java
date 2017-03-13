@@ -769,7 +769,76 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 	 * arguments, the version with the IntegerFeature arguments should always be
 	 * added first. This is only required if the class returns a different type
 	 * of feature result (e.g. int or double) depending on the arguments
-	 * provided.
+	 * provided.<br/>
+	 * 
+	 * Adds the following mappings before sub-class mappings:
+	 * <ul>
+	 * <li>-: {@link MinusIntegerOperator}</li>
+	 * <li>-: {@link MinusOperator}</li>
+	 * <li>+: {@link PlusIntegerOperator}</li>
+	 * <li>+: {@link PlusOperator}</li>
+	 * <li>*: {@link MultiplyIntegerOperator}</li>
+	 * <li>*: {@link MultiplyOperator}</li>
+	 * <li>/: {@link DivideOperator}</li>
+	 * <li>%: {@link ModuloOperator}</li>
+	 * <li>==: {@link EqualsOperatorForString}</li>
+	 * <li>==: {@link EqualsOperatorForInteger}</li>
+	 * <li>==: {@link EqualsOperatorForDouble}</li>
+	 * <li>==: {@link EqualsOperatorForBoolean}</li>
+	 * <li>!=: {@link NotEqualsOperator}</li>
+	 * <li>&gt;: {@link GreaterThanIntegerOperator}</li>
+	 * <li>&gt;: {@link GreaterThanOperator}</li>
+	 * <li>&gt;=: {@link GreaterThanOrEqualsIntegerOperator}</li>
+	 * <li>&gt;=: {@link GreaterThanOrEqualsOperator}</li>
+	 * <li>&lt;: {@link LessThanIntegerOperator}</li>
+	 * <li>&lt;: {@link LessThanOperator}</li>
+	 * <li>&lt;=: {@link LessThanOrEqualsIntegerOperator}</li>
+	 * <li>&lt;=: {@link LessThanOrEqualsOperator}</li>
+	 * <li>&amp;: {@link AndFeatureAllowNulls}</li>
+	 * <li>&amp;&amp;: {@link AndFeature}</li>
+	 * <li>|: {@link OrFeatureAllowNulls}</li>
+	 * <li>||: {@link ConcatenateFeature}</li>
+	 * <li>||: {@link OrFeature}</li>
+	 * <li>And: {@link AndFeature}</li>
+	 * <li>AndAllowNulls: {@link AndFeatureAllowNulls}</li>
+	 * <li>Concat: {@link ConcatenateFeature}</li>
+	 * <li>ConcatWithNulls: {@link ConcatenateWithNullsFeature}</li>
+	 * <li>EndsWith: {@link EndsWithFeature}</li>
+	 * <li>ExternalResource: {@link ExternalResourceFeature}</li>
+	 * <li>ExternalResourceDouble: {@link ExternalResourceDoubleFeature}</li>
+	 * <li>Graduate: {@link GraduateFeature}</li>
+	 * <li>IfThenElse: {@link IfThenElseStringFeature}</li>
+	 * <li>IfThenElse: {@link IfThenElseIntegerFeature}</li>
+	 * <li>IfThenElse: {@link IfThenElseDoubleFeature}</li>
+	 * <li>IfThenElse: {@link IfThenElseBooleanFeature}</li>
+	 * <li>InSet: {@link StringInSetFeature}</li>
+	 * <li>Integer: {@link IntegerLiteralFeatureWrapper}</li>
+	 * <li>Inverse: {@link InverseFeature}</li>
+	 * <li>IsNull: {@link IsNullFeature}</li>
+	 * <li>MultivaluedExternalResource:
+	 * {@link MultivaluedExternalResourceFeature}</li>
+	 * <li>Normalise: {@link NormaliseFeature}</li>
+	 * <li>Not: {@link NotFeature}</li>
+	 * <li>NullIf: {@link NullIfStringFeature}</li>
+	 * <li>NullIf: {@link NullIfIntegerFeature}</li>
+	 * <li>NullIf: {@link NullIfDoubleFeature}</li>
+	 * <li>NullIf: {@link NullIfBooleanFeature}</li>
+	 * <li>NullToFalse: {@link NullToFalseFeature}</li>
+	 * <li>OnlyTrue: {@link OnlyTrueFeature}</li>
+	 * <li>Or: {@link OrFeature}</li>
+	 * <li>OrAllowNulls: {@link OrFeatureAllowNulls}</li>
+	 * <li>Round: {@link RoundFeature}</li>
+	 * <li>StartsWith: {@link StartsWithFeature}</li>
+	 * <li>ToString: {@link ToStringFeature}</li>
+	 * <li>ToStringAllowNulls: {@link ToStringAllowNullsFeature}</li>
+	 * <li>Truncate: {@link TruncateFeature}</li>
+	 * </ul>
+	 * 
+	 * And the following after subclass mappings:
+	 * <ul>
+	 * <li>IfThenElse: {@link IfThenElseGenericFeature}</li>
+	 * <li>NullIf: {@link NullIfGenericFeature}</li>
+	 * </ul>
 	 */
 	public abstract void addFeatureClasses(FeatureClassContainer container);
 
