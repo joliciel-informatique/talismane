@@ -1,5 +1,7 @@
-lexicons=Dela
+lexicons=TalismaneEnClosed,Dela
+TalismaneEnClosed.file=TalismaneEnClosed.txt
+TalismaneEnClosed.regex=TalismaneEnClosed_regex.txt
 Dela.file=dela-en.zip
 Dela.regex=dela-en_regex.txt
 Dela.posTagMap=dela-en_posTagMap.txt
-
+Dela.categories=adj,adverb,noun,proper,verb

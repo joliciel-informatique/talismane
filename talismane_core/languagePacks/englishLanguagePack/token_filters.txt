@@ -27,34 +27,34 @@ RegexTokenAnnotator	\b[ODL]'[A-Z][A-Za-z]+\b	caseSensitive=true
 ########################
 #### 3/4 ###############
 ########################
-RegexTokenAnnotator	\b\d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b\d+ \d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b\d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b\d+ \d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]\d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]\d+ \d+\\/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]\d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]\d+ \d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+\\/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+ \d+\\/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+ \d+/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+\\/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+ \d+\\/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+ \d+/\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
 #################
 #### Numbers ####
 #################
-RegexTokenAnnotator	\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(( |\-| and )(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion))*\b	analysisText=two	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b[1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b[1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b0\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b([1-9][0-9]{0,2}(,[0-9]{3})+)\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+][1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+][1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]0\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]([1-9][0-9]{0,2}(,[0-9]{3})+)\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b(([1-9])|([12][0-9])|(3[01]))\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	analysisText=1999-2000	featureType=date	lemmaType=originalLower
-RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	analysisText=1999-2000	featureType=date	lemmaType=originalLower
-RegexTokenAnnotator	\b([12][0-9][0-9][0-9])\b	analysisText=1999	featureType=date	lemmaType=originalLower
-RegexTokenAnnotator	\b\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
-RegexTokenAnnotator	[-+]\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(( |\-| and )(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion))*\b	analysisText=two	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b[1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b[1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b0\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b([1-9][0-9]{0,2}(,[0-9]{3})+)\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+][1-9][0-9]{0,2}(,[0-9]{3})+\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+][1-9][0-9]*\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]0\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\.[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]([1-9][0-9]{0,2}(,[0-9]{3})+)\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b(([1-9])|([12][0-9])|(3[01]))\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	analysisText=1999-2000	posTag=CD	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	analysisText=1999-2000	posTag=CD	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])\b	analysisText=1999	posTag=CD	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+\b	analysisText=999	posTag=CD	featureType=number	lemmaType=originalLower
 ### Initials
 RegexTokenAnnotator	\b([A-Z]\.)+\B	caseSensitive=true
 ### 9:30
