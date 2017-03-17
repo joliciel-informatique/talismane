@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -36,7 +37,7 @@ public final class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
 		if (innerWrapper == null)
 			return null;

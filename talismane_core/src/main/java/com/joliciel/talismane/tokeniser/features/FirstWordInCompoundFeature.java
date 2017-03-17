@@ -18,36 +18,38 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns the first word in a compound token. If not a compound token, returns null.
+ * Returns the first word in a compound token. If not a compound token, returns
+ * null.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class FirstWordInCompoundFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
+public final class FirstWordInCompoundFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
 	public FirstWordInCompoundFeature() {
 	}
-	
+
 	public FirstWordInCompoundFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
 		this.setAddressFunction(addressFunction);
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		Token token = innerWrapper.getToken();
-		
+
 		FeatureResult<String> result = null;
 		String string = token.getAnalyisText().trim();
-		
-		if (string.indexOf(' ')>=0) {
+
+		if (string.indexOf(' ') >= 0) {
 			String firstWord = string.substring(0, string.indexOf(' '));
 			result = this.generateResult(firstWord);
 		}

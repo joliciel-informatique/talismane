@@ -18,18 +18,26 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Any context implementing this interface has a feature cache in which to cache features.
+ * Any context implementing this interface has a feature cache in which to cache
+ * features.
+ * 
  * @author Assaf Urieli
  */
 public interface HasFeatureCache {
 	/**
 	 * Get a particular feature result from the cache.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public <T,Y> FeatureResult<Y> getResultFromCache(Feature<T,Y> feature, RuntimeEnvironment env);
+	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) throws TalismaneException;
 
 	/**
 	 * Place a feature result in the cache.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public <T,Y> void putResultInCache(Feature<T,Y>feature, FeatureResult<Y> featureResult, RuntimeEnvironment env);
+	public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) throws TalismaneException;
 }

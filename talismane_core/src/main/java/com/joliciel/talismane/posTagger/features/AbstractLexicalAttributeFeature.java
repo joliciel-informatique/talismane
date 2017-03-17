@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -48,7 +49,7 @@ public abstract class AbstractLexicalAttributeFeature<T> extends AbstractPosTagg
 	}
 
 	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
 		if (innerWrapper == null)
 			return null;
@@ -98,7 +99,7 @@ public abstract class AbstractLexicalAttributeFeature<T> extends AbstractPosTagg
 		return featureResult;
 	}
 
-	protected abstract List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env);
+	protected abstract List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException;
 
 	@SuppressWarnings("rawtypes")
 	@Override

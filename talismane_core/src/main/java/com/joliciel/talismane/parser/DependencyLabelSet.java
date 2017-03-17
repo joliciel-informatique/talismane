@@ -48,8 +48,10 @@ public class DependencyLabelSet {
 	 * for punctuation (optional, may only appear once).
 	 * 
 	 * @param scanner
+	 * @throws TalismaneException
+	 *             if two or more labels were marked as Punctuation
 	 */
-	public DependencyLabelSet(Scanner scanner) {
+	public DependencyLabelSet(Scanner scanner) throws TalismaneException {
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (!line.startsWith("#") && line.length() > 0) {

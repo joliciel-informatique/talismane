@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
@@ -61,7 +60,7 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
 		if (groupIndex < 0) {
-			throw new TalismaneException("Cannot have a group index < 0: " + groupIndex);
+			throw new RuntimeException("Cannot have a group index < 0: " + groupIndex);
 		}
 		this.groupIndex = groupIndex;
 	}
@@ -71,7 +70,7 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
 	}
 
 	@Override
-	public void annotate(AnnotatedText textBlock, String... labels) {
+	public void annotate(AnnotatedText textBlock, String... labels) throws MatchTooLargeException {
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("Matching " + regex.replace('\n', '¶').replace('\r', '¶'));
 		}
@@ -107,7 +106,7 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
 						+ "Increase blockSize or change filter. "
 						+ "Maybe you need to change a greedy quantifier (e.g. .*) to a reluctant quantifier (e.g. .*?)? " + "Regex: " + regex + ". Text: "
 						+ matchText;
-				throw new TalismaneException(errorString);
+				throw new MatchTooLargeException(errorString);
 			}
 
 			if (matcherStart >= textBlock.getAnalysisStart() && matcherStart < textBlock.getAnalysisEnd()) {

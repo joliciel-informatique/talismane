@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -35,7 +36,7 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  * @author Assaf Urieli
  *
  */
-public final class NgramFeature extends AbstractPosTaggerFeature<String> implements StringFeature<PosTaggerContext> {
+public final class NgramFeature extends AbstractPosTaggerFeature<String>implements StringFeature<PosTaggerContext> {
 	static final String START_TOKEN = "[[START]]";
 	private IntegerFeature<PosTaggerContext> nFeature;
 
@@ -45,7 +46,7 @@ public final class NgramFeature extends AbstractPosTaggerFeature<String> impleme
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
+	public FeatureResult<String> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<String> result = null;
 
 		FeatureResult<Integer> nResult = nFeature.check(context, env);

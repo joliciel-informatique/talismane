@@ -79,7 +79,14 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		return features;
 	}
 
-	public List<PosTaggerRule> getRules(List<String> ruleDescriptors) {
+	/**
+	 * 
+	 * @param ruleDescriptors
+	 * @return
+	 * @throws TalismaneException
+	 *             if a rule is incorrectly configured
+	 */
+	public List<PosTaggerRule> getRules(List<String> ruleDescriptors) throws TalismaneException {
 		List<PosTaggerRule> rules = new ArrayList<PosTaggerRule>();
 
 		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
@@ -257,7 +264,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		}
 
 		@Override
-		public FeatureResult<T> check(PosTaggerContext context, RuntimeEnvironment env) {
+		public FeatureResult<T> check(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
 			return wrappedFeature.check(context, env);
 		}
 
@@ -346,7 +353,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		}
 
 		@Override
-		public FeatureResult<TokenWrapper> check(PosTaggerContext context, RuntimeEnvironment env) {
+		public FeatureResult<TokenWrapper> check(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
 			FeatureResult<PosTaggedTokenWrapper> posTaggedTokenResult = posTaggedTokenAddressFunction.check(context, env);
 			FeatureResult<TokenWrapper> result = null;
 			if (posTaggedTokenResult != null) {

@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.lexicon;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Reads lexical entries from any source whatsoever.
  * 
@@ -27,6 +29,9 @@ package com.joliciel.talismane.lexicon;
 public interface LexicalEntryReader {
 	/**
 	 * Read a lexical entry directly from a block of text.
+	 * 
+	 * @throws TalismaneException
+	 *             if no Word was found in the lexical entry
 	 */
-	public void readEntry(String text, WritableLexicalEntry lexicalEntry);
+	public void readEntry(String text, WritableLexicalEntry lexicalEntry) throws TalismaneException;
 }

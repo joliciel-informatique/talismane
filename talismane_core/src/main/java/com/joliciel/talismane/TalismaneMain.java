@@ -69,6 +69,7 @@ import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
 import com.joliciel.talismane.posTagger.PosTaggerEvaluator;
 import com.joliciel.talismane.posTagger.PosTaggerTrainer;
 import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorEvaluator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorTrainer;
@@ -598,7 +599,26 @@ public class TalismaneMain {
 		this.config = config;
 	}
 
-	public void execute(File inFile, File outFile, File outDir, File evalFile) throws IOException, ReflectiveOperationException {
+	/**
+	 * Execute Talismane based on the configuration provided.
+	 * 
+	 * @param inFile
+	 *            The file or directory to analyse
+	 * @param outFile
+	 *            The file or directory to write the analysis.
+	 * @param outDir
+	 *            The directory for writing additional output files (other than
+	 *            the main analysis).
+	 * @param evalFile
+	 * @throws IOException
+	 * @throws ReflectiveOperationException
+	 * @throws TalismaneException
+	 *             if attempt is made to start and end on two unsuported
+	 *             modules.
+	 * @throws SentenceAnnotatorLoadException
+	 */
+	public void execute(File inFile, File outFile, File outDir, File evalFile)
+			throws IOException, ReflectiveOperationException, TalismaneException, SentenceAnnotatorLoadException {
 		if (LOG.isTraceEnabled())
 			LOG.trace(config.root().render());
 		long startTime = System.currentTimeMillis();

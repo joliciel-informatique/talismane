@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
@@ -38,8 +39,11 @@ public interface ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader
 	/**
 	 * Read the ParseConfiguration from the next sentence in the training
 	 * corpus.
+	 * 
+	 * @throws TalismaneException
+	 *             if it's impossible to read the next configuration
 	 */
-	public abstract ParseConfiguration nextConfiguration();
+	public abstract ParseConfiguration nextConfiguration() throws TalismaneException;
 
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,

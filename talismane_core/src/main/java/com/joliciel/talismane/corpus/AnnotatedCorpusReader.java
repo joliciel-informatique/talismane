@@ -20,6 +20,14 @@ package com.joliciel.talismane.corpus;
 
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneException;
+
+/**
+ * An interface for reading from an annotated corpus.
+ * 
+ * @author Assaf Urieli
+ *
+ */
 public interface AnnotatedCorpusReader {
 	/**
 	 * If 0, all sentences will be read - otherwise will only read a certain
@@ -57,6 +65,9 @@ public interface AnnotatedCorpusReader {
 
 	/**
 	 * Is there another sentence to be read?
+	 * 
+	 * @throws TalismaneException
+	 *             if it's impossible to process the next sentence
 	 */
-	public boolean hasNextSentence();
+	public boolean hasNextSentence() throws TalismaneException;
 }

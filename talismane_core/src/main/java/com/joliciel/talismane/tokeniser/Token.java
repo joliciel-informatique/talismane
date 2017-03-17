@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
@@ -234,8 +235,10 @@ public class Token implements TokenWrapper {
 
 	/**
 	 * A set of possible postags (assigned externally by a lexicon).
+	 * 
+	 * @throws TalismaneException
 	 */
-	public Set<PosTag> getPossiblePosTags() {
+	public Set<PosTag> getPossiblePosTags() throws TalismaneException {
 		if (possiblePosTags == null) {
 			possiblePosTags = lexicon.findPossiblePosTags(this.getAnalyisText());
 		}

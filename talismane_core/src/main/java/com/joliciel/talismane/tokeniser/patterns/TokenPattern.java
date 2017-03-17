@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
@@ -183,7 +182,7 @@ public class TokenPattern {
 					haveMatch = false;
 				}
 			} // Current token matched start of pattern, try to match the rest
-			  // of the pattern
+				// of the pattern
 
 			if (haveMatch) {
 				TokenPatternMatchSequence tokenPatternMatchSequence = new TokenPatternMatchSequence(this, matchingSequence);
@@ -315,7 +314,7 @@ public class TokenPattern {
 			} else if (separatorPattern.matcher("" + c).find()) {
 				if (inGrouping) {
 					if (groupingHasLetters) {
-						throw new TalismaneException("Cannot mix separators and non-separators in same grouping");
+						throw new RuntimeException("Cannot mix separators and non-separators in same grouping");
 					}
 				} else {
 					// a separator

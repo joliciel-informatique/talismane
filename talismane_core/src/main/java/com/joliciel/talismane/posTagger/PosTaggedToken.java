@@ -78,8 +78,9 @@ public class PosTaggedToken extends TaggedToken<PosTag>implements PosTaggedToken
 	 *            the token to be tagged
 	 * @param decision
 	 *            the decision used to tag it
+	 * @throws UnknownPosTagException
 	 */
-	public PosTaggedToken(Token token, Decision decision, TalismaneSession talismaneSession) {
+	public PosTaggedToken(Token token, Decision decision, TalismaneSession talismaneSession) throws UnknownPosTagException {
 		super(token, decision, talismaneSession.getPosTagSet().getPosTag(decision.getOutcome()));
 		this.session = talismaneSession;
 	}

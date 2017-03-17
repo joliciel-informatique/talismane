@@ -36,6 +36,7 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -89,7 +90,7 @@ public class PerceptronClassificationModelTrainer implements ClassificationModel
 	public PerceptronClassificationModelTrainer() {
 	}
 
-	void prepareData(ClassificationEventStream eventStream) {
+	void prepareData(ClassificationEventStream eventStream) throws TalismaneException {
 		try {
 			eventFile = File.createTempFile("events", "txt");
 			eventFile.deleteOnExit();
@@ -376,14 +377,14 @@ public class PerceptronClassificationModelTrainer implements ClassificationModel
 	}
 
 	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, List<String> featureDescriptors, PerceptronModelTrainerObserver observer,
-			List<Integer> observationPoints) {
+			List<Integer> observationPoints) throws TalismaneException {
 		Map<String, List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 		this.trainModelsWithObserver(corpusEventStream, descriptors, observer, observationPoints);
 	}
 
 	public void trainModelsWithObserver(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors,
-			PerceptronModelTrainerObserver observer, List<Integer> observationPoints) {
+			PerceptronModelTrainerObserver observer, List<Integer> observationPoints) throws TalismaneException {
 		params = new PerceptronModelParameters();
 		decisionMaker = new PerceptronDecisionMaker(params, this.getScoring());
 		this.descriptors = descriptors;
@@ -400,14 +401,14 @@ public class PerceptronClassificationModelTrainer implements ClassificationModel
 	}
 
 	@Override
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) {
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) throws TalismaneException {
 		Map<String, List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 		return this.trainModel(corpusEventStream, descriptors);
 	}
 
 	@Override
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors) {
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors) throws TalismaneException {
 		params = new PerceptronModelParameters();
 		decisionMaker = new PerceptronDecisionMaker(params, this.getScoring());
 		this.descriptors = descriptors;

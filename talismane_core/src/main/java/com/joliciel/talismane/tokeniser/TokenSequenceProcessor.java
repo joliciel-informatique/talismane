@@ -34,7 +34,6 @@ import java.util.List;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -88,7 +87,7 @@ public interface TokenSequenceProcessor extends Closeable {
 				tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
 				break;
 			default:
-				throw new TalismaneException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
+				throw new RuntimeException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
 			}
 
 			String path = "output/" + tokeniserTemplateName;

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,10 +27,11 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns true if token word is any one of the words provided.<br/>
+ * 
  * @author Assaf Urieli
  *
  */
-public final class WordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class WordFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
 	StringFeature<TokenWrapper>[] words = null;
 
 	@SafeVarargs
@@ -38,24 +40,25 @@ public final class WordFeature extends AbstractTokenFeature<Boolean> implements 
 		String name = "Word(";
 		boolean firstWord = true;
 		for (StringFeature<TokenWrapper> word : words) {
-			if (!firstWord) name += ",";
+			if (!firstWord)
+				name += ",";
 			name += word.getName();
 			firstWord = false;
 		}
 		name += ")";
 		this.setName(name);
 	}
-	
+
 	@SafeVarargs
 	public WordFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... words) {
 		this(words);
 		this.setAddressFunction(addressFunction);
 	}
-	
+
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
@@ -63,7 +66,7 @@ public final class WordFeature extends AbstractTokenFeature<Boolean> implements 
 		boolean matches = false;
 		for (StringFeature<TokenWrapper> word : words) {
 			FeatureResult<String> wordResult = word.check(innerWrapper, env);
-			if (wordResult!=null) {
+			if (wordResult != null) {
 				String wordText = wordResult.getOutcome();
 				if (wordText.equals(token.getAnalyisText())) {
 					matches = true;
@@ -72,7 +75,7 @@ public final class WordFeature extends AbstractTokenFeature<Boolean> implements 
 			}
 		}
 		result = this.generateResult(matches);
-		
+
 		return result;
 	}
 

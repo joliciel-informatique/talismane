@@ -90,7 +90,7 @@ public class GenericRules implements LinguisticRules {
 	}
 
 	@Override
-	public String makeAdjectiveSingular(String adjective) {
+	public String makeAdjectiveSingular(String adjective) throws TalismaneException {
 		Locale locale = this.talismaneSession.getLocale();
 		if (locale.getLanguage().equals("fr")) {
 			String result = adjective;

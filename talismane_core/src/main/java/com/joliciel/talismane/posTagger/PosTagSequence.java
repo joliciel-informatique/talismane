@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationSolution;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -155,7 +156,13 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
 			tokenSequence.finalise();
 
 			Decision rootDecision = new Decision(PosTag.ROOT_POS_TAG.getCode());
-			rootToken = new PosTaggedToken(emptyToken, rootDecision, talismaneSession);
+			try {
+				rootToken = new PosTaggedToken(emptyToken, rootDecision, talismaneSession);
+			} catch (UnknownPosTagException e) {
+				// should never happen
+				LOG.error(e.getMessage(), e);
+				throw new RuntimeException(e);
+			}
 			this.add(0, rootToken);
 			rootToken.setPosTagSequence(this);
 		}
@@ -175,7 +182,13 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
 		}
 		if (rootToken != null) {
 			Token emptyToken = rootToken.getToken();
-			tokenSequence.removeEmptyToken(emptyToken);
+			try {
+				tokenSequence.removeEmptyToken(emptyToken);
+			} catch (TalismaneException e) {
+				// should never happen
+				LOG.error(e.getMessage(), e);
+				throw new RuntimeException(e);
+			}
 			this.remove(0);
 			tokenSequence.setWithRoot(false);
 			tokenSequence.finalise();
@@ -219,8 +232,10 @@ public class PosTagSequence extends ArrayList<PosTaggedToken>implements Comparab
 
 	/**
 	 * Remove all pos-tagged tokens that are empty and whose tag is null.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void removeEmptyPosTaggedTokens() {
+	public void removeEmptyPosTaggedTokens() throws TalismaneException {
 		boolean haveEmptyTokens = false;
 		for (PosTaggedToken posTaggedToken : this) {
 			if (posTaggedToken.getToken().isEmpty() && posTaggedToken.getTag().isEmpty()) {

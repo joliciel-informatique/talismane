@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.corpus.CorpusLine;
 import com.joliciel.talismane.corpus.CorpusLine.CorpusElement;
@@ -56,7 +57,7 @@ public class PennDepReader extends ParserRegexBasedCorpusReader {
 	private Set<String> symbolNouns = new HashSet<String>();
 	private Set<String> currencyNouns = new HashSet<String>();
 
-	public PennDepReader(Reader reader, Config config, TalismaneSession talismaneSession) throws IOException {
+	public PennDepReader(Reader reader, Config config, TalismaneSession talismaneSession) throws IOException, TalismaneException {
 		super(DEFAULT_CONLL_REGEX, reader, config, talismaneSession);
 
 		String[] puncts = new String[] { ",", ".", ";", ":", "(", ")", "''", "``", "-", "/", "!", "?", "<", ">", "&", "*", "+", "-", "=" };

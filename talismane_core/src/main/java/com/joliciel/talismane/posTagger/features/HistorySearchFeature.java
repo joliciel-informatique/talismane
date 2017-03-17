@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -41,7 +42,7 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  * @author Assaf Urieli
  *
  */
-public final class HistorySearchFeature extends AbstractPosTaggerFeature<PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggerContext> {
+public final class HistorySearchFeature extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>implements PosTaggedTokenAddressFunction<PosTaggerContext> {
 	private BooleanFeature<PosTaggedTokenWrapper> criterion;
 	private BooleanFeature<PosTaggedTokenWrapper> stopCriterion;
 	private IntegerFeature<PosTaggerContext> startIndexFeature = null;
@@ -77,7 +78,7 @@ public final class HistorySearchFeature extends AbstractPosTaggerFeature<PosTagg
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 
 		int startIndex = context.getToken().getIndex() - 1;

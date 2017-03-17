@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
@@ -42,8 +43,11 @@ public interface TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotate
 
 	/***
 	 * Reads the next token sequence from the corpus.
+	 * 
+	 * @throws TalismaneException
+	 *             if impossible to read next sequence for logical reasons
 	 */
-	public abstract TokenSequence nextTokenSequence();
+	public abstract TokenSequence nextTokenSequence() throws TalismaneException;
 
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,

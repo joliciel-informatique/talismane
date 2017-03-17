@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.AbstractFeatureParser;
@@ -132,7 +133,7 @@ public class SentenceDetectorFeatureParser extends AbstractFeatureParser<Possibl
 		}
 
 		@Override
-		public FeatureResult<T> check(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+		public FeatureResult<T> check(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
 			return wrappedFeature.check(context, env);
 		}
 

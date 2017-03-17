@@ -18,14 +18,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
-abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractFeature<ParseConfigurationWrapper, T>
-		implements ParseConfigurationAddressFeature<T> {
+abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractFeature<ParseConfigurationWrapper, T>implements ParseConfigurationAddressFeature<T> {
 	PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
 	public AbstractParseConfigurationAddressFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
@@ -40,7 +40,7 @@ abstract class AbstractParseConfigurationAddressFeature<T> extends AbstractFeatu
 		this.addressFunction = addressFunction;
 	}
 
-	protected PosTaggedTokenWrapper getToken(ParseConfigurationWrapper parseConfiguration, RuntimeEnvironment env) {
+	protected PosTaggedTokenWrapper getToken(ParseConfigurationWrapper parseConfiguration, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(parseConfiguration, env);
 		if (tokenResult == null)
 			return null;

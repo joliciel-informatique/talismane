@@ -73,15 +73,18 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 	 * <ul>
 	 * <li>preannotated-pattern</li>
 	 * </ul>
+	 * 
+	 * @throws TalismaneException
 	 */
-	public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
+	public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
 		this(config.getString("preannotated-pattern"), reader, config, session);
 	}
 
 	/**
+	 * @throws TalismaneException
 	 * @see TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(String,Reader,Config,TalismaneSession)
 	 */
-	public PosTagRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException {
+	public PosTagRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
 		super(regex, reader, config, session);
 	}
 
@@ -91,7 +94,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 	}
 
 	@Override
-	protected void processSentence(List<CorpusLine> corpusLines) {
+	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
 		super.processSentence(corpusLines);
 		posTagSequence = new PosTagSequence(tokenSequence);
 		int i = 0;
@@ -102,7 +105,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 	}
 
 	@Override
-	public PosTagSequence nextPosTagSequence() {
+	public PosTagSequence nextPosTagSequence() throws TalismaneException {
 		PosTagSequence nextSentence = null;
 		if (this.hasNextSentence()) {
 			nextSentence = posTagSequence;
@@ -125,7 +128,8 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 		return attributes;
 	}
 
-	protected PosTaggedToken convertToPosTaggedToken(CorpusLine corpusLine, PosTagSequence posTagSequence, int index, File currentFile) {
+	protected PosTaggedToken convertToPosTaggedToken(CorpusLine corpusLine, PosTagSequence posTagSequence, int index, File currentFile)
+			throws TalismaneException {
 		Token token = posTagSequence.getTokenSequence().get(index);
 
 		PosTagSet posTagSet = session.getPosTagSet();

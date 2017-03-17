@@ -21,6 +21,8 @@ package com.joliciel.talismane.posTagger;
 import java.io.Writer;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Simply a wrapper for the PosTagSequenceProcessor, writing the best guess
  * using the processor.
@@ -37,7 +39,7 @@ public class PosTaggerGuessTemplateWriter implements PosTagEvaluationObserver {
 	}
 
 	@Override
-	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) {
+	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException {
 		processor.onNextPosTagSequence(guessedSequences.get(0));
 	}
 

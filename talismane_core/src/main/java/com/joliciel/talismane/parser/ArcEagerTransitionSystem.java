@@ -26,7 +26,6 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -46,7 +45,8 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 	private transient Set<Transition> transitions = null;
 
 	@Override
-	public void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies) {
+	public void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies)
+			throws UnknownDependencyLabelException, NonPredictableParseTreeException, CircularDependencyException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("predictTransitions");
 			LOG.debug(configuration.getSentence().getText().toString());
@@ -79,6 +79,9 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 						transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
 					} catch (UnknownDependencyLabelException udle) {
 						throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
+					} catch (UnknownTransitionException e) {
+						// should never happen
+						throw new RuntimeException(e);
 					}
 					currentDep = arc;
 					break;
@@ -89,6 +92,9 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 						transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
 					} catch (UnknownDependencyLabelException udle) {
 						throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
+					} catch (UnknownTransitionException e) {
+						// should never happen
+						throw new RuntimeException(e);
 					}
 					currentDep = arc;
 					break;
@@ -110,22 +116,43 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 
 				if (!stackHeadHasDependents) {
 					if (stackHeadHasGovernor) {
-						transition = this.getTransitionForCode("Reduce");
+						try {
+							transition = this.getTransitionForCode("Reduce");
+						} catch (UnknownTransitionException e) {
+							// should never happen
+							throw new RuntimeException(e);
+						}
 					} else if (stackHeadUngoverned) {
 						// ungoverned punctuation only
-						transition = this.getTransitionForCode("ForceReduce");
+						try {
+							transition = this.getTransitionForCode("ForceReduce");
+						} catch (UnknownTransitionException e) {
+							// should never happen
+							throw new RuntimeException(e);
+						}
 						currentDep = ungovernedTokens.get(stackHead);
 					}
 				}
 			}
 
 			if (transition == null) {
-				transition = this.getTransitionForCode("Shift");
+				try {
+					transition = this.getTransitionForCode("Shift");
+				} catch (UnknownTransitionException e) {
+					// should never happen
+					throw new RuntimeException(e);
+				}
 			}
 			if (currentDep != null)
 				targetDependencies.remove(currentDep);
 
-			transition.apply(configuration);
+			try {
+				transition.apply(configuration);
+			} catch (InvalidTransitionException e) {
+				// should never happen
+				LOG.error("Should never happen", e);
+				throw new RuntimeException(e);
+			}
 
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Transition: " + transition);
@@ -134,13 +161,13 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 
 		}
 		if (targetDependencies.size() > 0) {
-			throw new RuntimeException("Wasn't able to predict: " + targetDependencies);
+			throw new NonPredictableParseTreeException("Wasn't able to predict: " + targetDependencies);
 		}
 		LOG.debug("Full prediction complete");
 	}
 
 	@Override
-	public Transition getTransitionForCode(String code) {
+	public Transition getTransitionForCode(String code) throws UnknownDependencyLabelException, UnknownTransitionException {
 		AbstractTransition transition = null;
 		String label = null;
 		if (code.indexOf('[') >= 0) {
@@ -160,7 +187,7 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 		} else if (code.startsWith("ForceReduce")) {
 			transition = new ForceReduceTransition();
 		} else {
-			throw new TalismaneException("Unknown transition name: " + code);
+			throw new UnknownTransitionException(code);
 		}
 
 		return transition;
@@ -170,11 +197,18 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 	public Set<Transition> getTransitions() {
 		if (transitions == null) {
 			transitions = new TreeSet<Transition>();
-			transitions.add(this.getTransitionForCode("Shift"));
-			transitions.add(this.getTransitionForCode("Reduce"));
-			for (String dependencyLabel : this.getDependencyLabels()) {
-				transitions.add(this.getTransitionForCode("LeftArc[" + dependencyLabel + "]"));
-				transitions.add(this.getTransitionForCode("RightArc[" + dependencyLabel + "]"));
+			try {
+				transitions.add(this.getTransitionForCode("Shift"));
+
+				transitions.add(this.getTransitionForCode("Reduce"));
+				for (String dependencyLabel : this.getDependencyLabels()) {
+					transitions.add(this.getTransitionForCode("LeftArc[" + dependencyLabel + "]"));
+					transitions.add(this.getTransitionForCode("RightArc[" + dependencyLabel + "]"));
+				}
+			} catch (UnknownDependencyLabelException | UnknownTransitionException e) {
+				// should never happen, since these are all known
+				LOG.error(e.getClass().getSimpleName(), e);
+				throw new RuntimeException(e);
 			}
 		}
 		return transitions;

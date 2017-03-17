@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * If the condition returns true, return null, else return the result of the
  * feature provided.
@@ -37,7 +39,7 @@ public class NullIfIntegerFeature<T> extends AbstractCachableFeature<T, Integer>
 	}
 
 	@Override
-	protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Integer> featureResult = null;
 
 		FeatureResult<Boolean> conditionResult = condition.check(context, env);

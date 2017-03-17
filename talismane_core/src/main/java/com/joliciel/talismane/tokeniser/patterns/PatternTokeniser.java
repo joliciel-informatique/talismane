@@ -35,6 +35,7 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -219,7 +220,7 @@ public class PatternTokeniser extends Tokeniser {
 	}
 
 	@Override
-	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) {
+	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) throws TalismaneException {
 		List<TokenisedAtomicTokenSequence> sequences;
 		// Assign each separator its default value
 		List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(initialSequence);

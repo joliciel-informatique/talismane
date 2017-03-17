@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,27 +26,28 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns the current token's index.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class TokenIndexFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper>  {	
+public final class TokenIndexFeature extends AbstractTokenFeature<Integer>implements IntegerFeature<TokenWrapper> {
 
 	public TokenIndexFeature() {
 	}
-	
+
 	public TokenIndexFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
 		this();
 		this.setAddressFunction(addressFunction);
 	}
-	
+
 	@Override
-	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		Token token = innerWrapper.getToken();
 		FeatureResult<Integer> result = null;
-		
+
 		int index = token.getIndex();
 		result = this.generateResult(index);
 

@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * A feature for testing on string contexts.
  * 
@@ -37,7 +39,7 @@ public class SubstringTestFeature extends AbstractFeature<String, String>impleme
 	}
 
 	@Override
-	public FeatureResult<String> check(String context, RuntimeEnvironment env) {
+	public FeatureResult<String> check(String context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<String> result = null;
 		FeatureResult<Integer> startResult = startFeature.check(context, env);
 		FeatureResult<Integer> endResult = endFeature.check(context, env);

@@ -39,6 +39,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
@@ -94,7 +95,7 @@ public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializabl
 	}
 
 	@Override
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) {
+	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException {
 		sentenceCount++;
 		sentenceLengthStats.addValue(posTagSequence.size());
 

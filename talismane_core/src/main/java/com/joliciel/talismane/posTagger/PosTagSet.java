@@ -177,8 +177,10 @@ public class PosTagSet implements Serializable {
 
 	/**
 	 * Return the PosTag corresponding to a given code.
+	 * 
+	 * @throws UnknownPosTagException
 	 */
-	public PosTag getPosTag(String code) {
+	public PosTag getPosTag(String code) throws UnknownPosTagException {
 		if (tagMap == null) {
 			tagMap = new HashMap<>();
 			for (PosTag posTag : this.getTags()) {

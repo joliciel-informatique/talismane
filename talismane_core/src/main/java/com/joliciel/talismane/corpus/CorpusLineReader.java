@@ -21,11 +21,15 @@ package com.joliciel.talismane.corpus;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
@@ -51,13 +55,15 @@ import com.joliciel.talismane.lexicon.WritableLexicalEntry;
  *
  */
 public class CorpusLineReader {
+	private static final Logger LOG = LoggerFactory.getLogger(CorpusLineReader.class);
 	private final String regex;
 	private final Pattern pattern;
 	private final TalismaneSession session;
 	private final LexicalEntryReader lexicalEntryReader;
 	private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
 
-	private Map<CorpusElement, Integer> placeholderIndexMap = new HashMap<>();
+	private final Map<CorpusElement, Integer> placeholderIndexMap = new HashMap<>();
+	private final List<CorpusRule> corpusRules;
 
 	/**
 	 * 
@@ -71,10 +77,14 @@ public class CorpusLineReader {
 	 *            entry out of each line
 	 * @param session
 	 *            the Talismane session
+	 * @throws TalismaneException
+	 *             if the regex is missing a required placeholder
 	 */
-	public CorpusLineReader(String regex, CorpusElement[] requiredElements, LexicalEntryReader lexicalEntryReader, TalismaneSession session) {
+	public CorpusLineReader(String regex, CorpusElement[] requiredElements, List<CorpusRule> corpusRules, LexicalEntryReader lexicalEntryReader,
+			TalismaneSession session) throws TalismaneException {
 		this.session = session;
 		this.regex = regex;
+		this.corpusRules = corpusRules;
 		this.lexicalEntryReader = lexicalEntryReader;
 
 		Set<CorpusElement> requiredElementSet = new HashSet<>(Arrays.asList(requiredElements));
@@ -119,8 +129,10 @@ public class CorpusLineReader {
 	 *            the line to read
 	 * @param lineNumber
 	 *            the line number we reached, starting at 1.
+	 * @throws TalismaneException
+	 *             if the regex wasn't matched on a given line
 	 */
-	public CorpusLine read(String line, int lineNumber) {
+	public CorpusLine read(String line, int lineNumber) throws TalismaneException {
 		Matcher matcher = this.pattern.matcher(line);
 		if (!matcher.matches())
 			throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
@@ -153,8 +165,17 @@ public class CorpusLineReader {
 			corpusLine.setLexicalEntry(lexicalEntry);
 		}
 
-		// TODO: add rules that replace elements thus no longer requiring
-		// PennTreebankReader, etc.
+		Map<CorpusElement, String> updateValues = new HashMap<>();
+		for (CorpusRule corpusRule : corpusRules) {
+			corpusRule.apply(corpusLine, updateValues);
+		}
+		for (CorpusElement element : updateValues.keySet()) {
+			String value = updateValues.get(element);
+			if (LOG.isTraceEnabled()) {
+				LOG.trace("Updating " + element.name() + " from '" + corpusLine.getElement(element) + "' to '" + value + "'");
+			}
+			corpusLine.setElement(element, value);
+		}
 
 		return corpusLine;
 	}

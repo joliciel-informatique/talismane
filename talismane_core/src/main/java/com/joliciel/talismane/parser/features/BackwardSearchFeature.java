@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -48,7 +49,7 @@ public final class BackwardSearchFeature extends AbstractAddressFunction {
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		PosTaggedToken resultToken = null;
 		FeatureResult<PosTaggedTokenWrapper> referenceTokenResult = referenceTokenFeature.check(wrapper, env);

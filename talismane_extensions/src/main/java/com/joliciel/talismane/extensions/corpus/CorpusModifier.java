@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.parser.CircularDependencyException;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -74,7 +75,7 @@ public class CorpusModifier implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws CircularDependencyException {
 
 		List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
 		for (DependencyArc arc : arcs) {
