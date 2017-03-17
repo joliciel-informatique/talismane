@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.io.CurrentFileObserver;
@@ -38,8 +39,12 @@ public interface PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusRea
 	/**
 	 * Read the list of tagged tokens from next sentence from the training
 	 * corpus.
+	 * 
+	 * @throws TalismaneException
+	 *             if it's logically impossible to read the next pos-tag
+	 *             sequence
 	 */
-	public abstract PosTagSequence nextPosTagSequence();
+	public abstract PosTagSequence nextPosTagSequence() throws TalismaneException;
 
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,

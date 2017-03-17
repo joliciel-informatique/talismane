@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Inverts a normalised double feature (whose values go from 0 to 1), giving
  * 1-result. If the result is &lt; 0, returns 0.
@@ -36,7 +38,7 @@ public class InverseFeature<T> extends AbstractCachableFeature<T, Double>impleme
 	}
 
 	@Override
-	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Double> rawOutcome = valueFeature.check(context, env);
 		FeatureResult<Double> outcome = null;
 		if (rawOutcome != null) {

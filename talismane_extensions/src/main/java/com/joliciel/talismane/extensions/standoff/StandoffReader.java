@@ -67,7 +67,7 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 	private List<List<StandoffToken>> sentences = new ArrayList<>();
 	private final String punctuationDepLabel;
 
-	public StandoffReader(Reader reader, Config config, TalismaneSession session) {
+	public StandoffReader(Reader reader, Config config, TalismaneSession session) throws TalismaneException {
 		super(config, session);
 		PosTagSet posTagSet = session.getPosTagSet();
 		punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
@@ -151,7 +151,7 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 	}
 
 	@Override
-	public boolean hasNextSentence() {
+	public boolean hasNextSentence() throws TalismaneException {
 		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
@@ -161,7 +161,7 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 
 				LinguisticRules rules = session.getLinguisticRules();
 				if (rules == null)
-					throw new TalismaneException("Linguistic rules have not been set.");
+					throw new RuntimeException("Linguistic rules have not been set.");
 
 				String text = "";
 				for (StandoffToken standoffToken : tokens) {
@@ -238,7 +238,7 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 	}
 
 	@Override
-	public ParseConfiguration nextConfiguration() {
+	public ParseConfiguration nextConfiguration() throws TalismaneException {
 		ParseConfiguration nextConfiguration = null;
 		if (this.hasNextSentence()) {
 			nextConfiguration = configuration;
@@ -268,17 +268,17 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 	}
 
 	@Override
-	public PosTagSequence nextPosTagSequence() {
+	public PosTagSequence nextPosTagSequence() throws TalismaneException {
 		return this.nextConfiguration().getPosTagSequence();
 	}
 
 	@Override
-	public TokenSequence nextTokenSequence() {
+	public TokenSequence nextTokenSequence() throws TalismaneException {
 		return this.nextConfiguration().getPosTagSequence().getTokenSequence();
 	}
 
 	@Override
-	public Sentence nextSentence() {
+	public Sentence nextSentence() throws TalismaneException {
 		return this.nextConfiguration().getPosTagSequence().getTokenSequence().getSentence();
 	}
 

@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -130,7 +131,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	}
 
 	@Override
-	public List<PosTagSequence> tagSentence(List<TokenSequence> input) {
+	public List<PosTagSequence> tagSentence(List<TokenSequence> input) throws TalismaneException {
 		List<TokenSequence> tokenSequences = null;
 		if (this.propagateTokeniserBeam) {
 			tokenSequences = input;
@@ -364,7 +365,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	}
 
 	@Override
-	public PosTagSequence tagSentence(TokenSequence tokenSequence) {
+	public PosTagSequence tagSentence(TokenSequence tokenSequence) throws TalismaneException {
 		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
 		tokenSequences.add(tokenSequence);
 		List<PosTagSequence> posTagSequences = this.tagSentence(tokenSequences);

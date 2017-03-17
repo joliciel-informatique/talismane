@@ -26,7 +26,6 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
@@ -44,7 +43,8 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 	private transient Set<Transition> transitions = null;
 
 	@Override
-	public void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies) {
+	public void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies)
+			throws UnknownDependencyLabelException, CircularDependencyException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("predictTransitions");
 			LOG.debug(configuration.getSentence().getText().toString());
@@ -74,7 +74,12 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 			for (DependencyArc arc : targetDependencies) {
 				if (arc.getHead().equals(bufferHead) && arc.getDependent().equals(stackHead)) {
 					try {
-						transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
+						try {
+							transition = this.getTransitionForCode("LeftArc[" + arc.getLabel() + "]");
+						} catch (UnknownTransitionException e) {
+							// should never happen
+							throw new RuntimeException(e);
+						}
 					} catch (UnknownDependencyLabelException udle) {
 						throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
 					}
@@ -92,7 +97,12 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 					}
 					if (!dependentHasDependents) {
 						try {
-							transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+							try {
+								transition = this.getTransitionForCode("RightArc[" + arc.getLabel() + "]");
+							} catch (UnknownTransitionException e) {
+								// should never happen
+								throw new RuntimeException(e);
+							}
 						} catch (UnknownDependencyLabelException udle) {
 							throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
 						}
@@ -107,16 +117,32 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 				boolean stackHeadUngoverned = ungovernedTokens.containsKey(stackHead);
 				if (stackHeadUngoverned) {
 					// ungoverned punctuation only
-					transition = this.getTransitionForCode("ForceReduce");
+					try {
+						transition = this.getTransitionForCode("ForceReduce");
+					} catch (UnknownTransitionException e) {
+						// should never happen
+						throw new RuntimeException(e);
+					}
 					currentDep = ungovernedTokens.get(stackHead);
 				} else {
-					transition = this.getTransitionForCode("Shift");
+					try {
+						transition = this.getTransitionForCode("Shift");
+					} catch (UnknownTransitionException e) {
+						// should never happen
+						throw new RuntimeException(e);
+					}
 				}
 			}
 			if (currentDep != null)
 				targetDependencies.remove(currentDep);
 
-			transition.apply(configuration);
+			try {
+				transition.apply(configuration);
+			} catch (InvalidTransitionException e) {
+				// should never happen
+				LOG.error("Should never happen", e);
+				throw new RuntimeException(e);
+			}
 
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Transition: " + transition);
@@ -130,7 +156,7 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 	}
 
 	@Override
-	public Transition getTransitionForCode(String code) {
+	public Transition getTransitionForCode(String code) throws UnknownDependencyLabelException, UnknownTransitionException {
 		AbstractTransition transition = null;
 		String label = null;
 		if (code.indexOf('[') >= 0) {
@@ -148,7 +174,7 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 		} else if (code.startsWith("ForceReduce")) {
 			transition = new ForceReduceTransition();
 		} else {
-			throw new TalismaneException("Unknown transition name: " + code);
+			throw new UnknownTransitionException(code);
 		}
 
 		return transition;
@@ -157,11 +183,17 @@ public class ShiftReduceTransitionSystem extends AbstractTransitionSystem {
 	@Override
 	public Set<Transition> getTransitions() {
 		if (transitions == null) {
-			transitions = new TreeSet<Transition>();
-			transitions.add(this.getTransitionForCode("Shift"));
-			for (String dependencyLabel : this.getDependencyLabels()) {
-				transitions.add(this.getTransitionForCode("LeftArc[" + dependencyLabel + "]"));
-				transitions.add(this.getTransitionForCode("RightArc[" + dependencyLabel + "]"));
+			try {
+				transitions = new TreeSet<Transition>();
+				transitions.add(this.getTransitionForCode("Shift"));
+				for (String dependencyLabel : this.getDependencyLabels()) {
+					transitions.add(this.getTransitionForCode("LeftArc[" + dependencyLabel + "]"));
+					transitions.add(this.getTransitionForCode("RightArc[" + dependencyLabel + "]"));
+				}
+			} catch (UnknownDependencyLabelException | UnknownTransitionException e) {
+				// should never happen, since these are all known
+				LOG.error(e.getClass().getSimpleName(), e);
+				throw new RuntimeException(e);
 			}
 		}
 		return transitions;

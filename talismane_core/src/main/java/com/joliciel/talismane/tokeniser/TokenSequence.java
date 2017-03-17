@@ -436,9 +436,11 @@ public class TokenSequence extends ArrayList<Token>implements Serializable {
 
 	/**
 	 * Remove an empty token from this token sequence.
+	 * 
+	 * @throws TalismaneException
+	 *             if an attempt is made to remove a non-empty token
 	 */
-
-	public void removeEmptyToken(Token emptyToken) {
+	public void removeEmptyToken(Token emptyToken) throws TalismaneException {
 		if (!emptyToken.isEmpty()) {
 			throw new TalismaneException("Can only remove empty tokens from token sequence.");
 		}

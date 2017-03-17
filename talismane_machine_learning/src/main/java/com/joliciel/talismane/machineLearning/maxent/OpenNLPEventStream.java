@@ -22,20 +22,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
+
 import opennlp.model.Event;
 import opennlp.model.EventStream;
 
 /**
- * A wrapper for a Talismane CorpusEventStream
- * to make it compatible with OpenNLP Maxent.
+ * A wrapper for a Talismane CorpusEventStream to make it compatible with
+ * OpenNLP Maxent.
+ * 
  * @author Assaf Urieli
  *
  */
 class OpenNLPEventStream implements EventStream {
+	private static final Logger LOG = LoggerFactory.getLogger(OpenNLPEventStream.class);
 	private ClassificationEventStream corpusEventStream;
-	
+
 	public OpenNLPEventStream(ClassificationEventStream corpusEventStream) {
 		super();
 		this.corpusEventStream = corpusEventStream;
@@ -43,34 +50,44 @@ class OpenNLPEventStream implements EventStream {
 
 	@Override
 	public Event next() throws IOException {
-		Event event = null;
-		if (this.corpusEventStream.hasNext()) {
-			ClassificationEvent corpusEvent = this.corpusEventStream.next();
-			
-			List<String> contextList = new ArrayList<String>();
-			List<Float> weightList = new ArrayList<Float>();
-			OpenNLPDecisionMaker.prepareData(corpusEvent.getFeatureResults(), contextList, weightList);
-			
-			String[] contexts = new String[contextList.size()];
-			float[] weights = new float[weightList.size()];
-			
-			int i = 0;
-			for (String context : contextList) {
-				contexts[i++] = context;
+		try {
+			Event event = null;
+			if (this.corpusEventStream.hasNext()) {
+				ClassificationEvent corpusEvent = this.corpusEventStream.next();
+
+				List<String> contextList = new ArrayList<String>();
+				List<Float> weightList = new ArrayList<Float>();
+				OpenNLPDecisionMaker.prepareData(corpusEvent.getFeatureResults(), contextList, weightList);
+
+				String[] contexts = new String[contextList.size()];
+				float[] weights = new float[weightList.size()];
+
+				int i = 0;
+				for (String context : contextList) {
+					contexts[i++] = context;
+				}
+				i = 0;
+				for (Float weight : weightList) {
+					weights[i++] = weight;
+				}
+
+				event = new Event(corpusEvent.getClassification(), contexts, weights);
 			}
-			i = 0;
-			for (Float weight : weightList) {
-				weights[i++]  = weight;
-			}
-			
-			event = new Event(corpusEvent.getClassification(), contexts, weights);
+			return event;
+		} catch (TalismaneException e) {
+			LOG.error(e.getMessage(), e);
+			throw new RuntimeException(e);
 		}
-		return event;
 	}
 
 	@Override
 	public boolean hasNext() throws IOException {
-		return this.corpusEventStream.hasNext();
+		try {
+			return this.corpusEventStream.hasNext();
+		} catch (TalismaneException e) {
+			LOG.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
 	}
 
 }

@@ -18,15 +18,18 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Returns true if the first string feature ends with any of the other string features.
+ * Returns true if the first string feature ends with any of the other string
+ * features.
+ * 
  * @author Assaf Urieli
  *
  */
-public class EndsWithFeature<T> extends AbstractCachableFeature<T, Boolean> implements
-		BooleanFeature<T> {
+public class EndsWithFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	StringFeature<T>[] stringFeatures;
-	
+
 	@SafeVarargs
 	public EndsWithFeature(StringFeature<T>... stringFeatures) {
 		super();
@@ -44,16 +47,16 @@ public class EndsWithFeature<T> extends AbstractCachableFeature<T, Boolean> impl
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		String string = null;
 		boolean endsWith = false;
 		boolean firstFeature = true;
-		
+
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result==null) {
+			if (result == null) {
 				if (firstFeature)
 					break;
 				else
@@ -67,12 +70,11 @@ public class EndsWithFeature<T> extends AbstractCachableFeature<T, Boolean> impl
 			}
 			firstFeature = false;
 		}
-		
-		if (string!=null)
+
+		if (string != null)
 			featureResult = this.generateResult(endsWith);
 		return featureResult;
 	}
-
 
 	public StringFeature<T>[] getStringFeatures() {
 		return stringFeatures;

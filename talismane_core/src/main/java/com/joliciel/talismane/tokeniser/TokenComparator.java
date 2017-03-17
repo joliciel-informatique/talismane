@@ -94,8 +94,10 @@ public class TokenComparator {
 
 	/**
 	 * Evaluate the evaluation corpus against the reference corpus.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void compare() {
+	public void compare() throws TalismaneException {
 		while (referenceCorpusReader.hasNextSentence()) {
 			TokenSequence realSequence = referenceCorpusReader.nextTokenSequence();
 

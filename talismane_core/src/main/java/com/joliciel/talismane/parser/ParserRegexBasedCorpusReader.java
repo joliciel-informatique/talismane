@@ -74,8 +74,10 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	 * <ul>
 	 * <li>preannotated-pattern</li>
 	 * </ul>
+	 * 
+	 * @throws TalismaneException
 	 */
-	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
+	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
 		this(config.getString("preannotated-pattern"), reader, config, session);
 	}
 
@@ -86,8 +88,10 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	 * <ul>
 	 * <li>predict-transitions</li>
 	 * </ul>
+	 * 
+	 * @throws TalismaneException
 	 */
-	public ParserRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException {
+	public ParserRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
 		super(regex, reader, config, session);
 		this.predictTransitions = config.getBoolean("predict-transitions");
 	}
@@ -98,7 +102,8 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	}
 
 	@Override
-	protected void processSentence(List<CorpusLine> corpusLines) {
+	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
+		super.processSentence(corpusLines);
 		PosTaggedToken rootToken = posTagSequence.prependRoot();
 		idTokenMap.put(0, rootToken);
 
@@ -114,14 +119,14 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 			String dependencyLabel = dataLine.getElement(CorpusElement.LABEL);
 			if (transitionSystem.getDependencyLabels().size() > 1) {
 				if (dependencyLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(dependencyLabel)) {
-					throw new TalismaneException("Unknown dependency label, " + (this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath())
-							+ ", on line " + dataLine.getLineNumber() + ": " + dependencyLabel);
+					throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()), dataLine.getLineNumber(),
+							dependencyLabel);
 				}
 
 				String nonProjectiveLabel = dataLine.getElement(CorpusElement.NON_PROJ_LABEL);
 				if (nonProjectiveLabel != null && nonProjectiveLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(nonProjectiveLabel)) {
-					throw new TalismaneException("Unknown dependency label, " + (this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath())
-							+ ", on line " + dataLine.getLineNumber() + ": " + nonProjectiveLabel);
+					throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()), dataLine.getLineNumber(),
+							dependencyLabel);
 				}
 
 			}
@@ -186,7 +191,7 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	}
 
 	@Override
-	public ParseConfiguration nextConfiguration() {
+	public ParseConfiguration nextConfiguration() throws TalismaneException {
 		ParseConfiguration nextConfiguration = null;
 		if (this.hasNextSentence()) {
 			nextConfiguration = configuration;

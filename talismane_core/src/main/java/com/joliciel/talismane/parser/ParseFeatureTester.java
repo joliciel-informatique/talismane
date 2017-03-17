@@ -33,6 +33,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -76,7 +77,7 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws TalismaneException {
 
 		ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
 
@@ -127,7 +128,12 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 
 			// apply the transition and up the index
 			currentConfiguration = new ParseConfiguration(currentConfiguration);
-			transition.apply(currentConfiguration);
+			try {
+				transition.apply(currentConfiguration);
+			} catch (InvalidTransitionException | CircularDependencyException e) {
+				LOG.error(e.getClass().getSimpleName(), e);
+				throw new RuntimeException(e);
+			}
 		}
 	}
 

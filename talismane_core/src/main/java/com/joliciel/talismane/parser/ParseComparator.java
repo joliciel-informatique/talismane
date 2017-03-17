@@ -65,7 +65,12 @@ public class ParseComparator {
 		this.observers = new ArrayList<>();
 	}
 
-	public void evaluate() {
+	/**
+	 * 
+	 * @throws TalismaneException
+	 *             if sentences mismatched in the two corpora
+	 */
+	public void evaluate() throws TalismaneException {
 		while (referenceCorpusReader.hasNextSentence()) {
 			ParseConfiguration realConfiguration = referenceCorpusReader.nextConfiguration();
 			ParseConfiguration guessConfiguaration = evaluationCorpusReader.nextConfiguration();

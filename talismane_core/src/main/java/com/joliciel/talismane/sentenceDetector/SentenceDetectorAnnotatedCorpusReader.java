@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.corpus.AnnotatedCorpusReader;
 import com.joliciel.talismane.rawText.Sentence;
@@ -39,8 +40,10 @@ public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusRe
 
 	/**
 	 * Reads the next sentence from the corpus.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public abstract Sentence nextSentence();
+	public abstract Sentence nextSentence() throws TalismaneException;
 
 	/**
 	 * Is the last sentence read the start of a new paragraph?

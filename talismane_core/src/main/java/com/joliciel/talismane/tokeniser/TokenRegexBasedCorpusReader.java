@@ -21,6 +21,7 @@ import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
 import com.joliciel.talismane.corpus.CorpusLine;
 import com.joliciel.talismane.corpus.CorpusLine.CorpusElement;
 import com.joliciel.talismane.corpus.CorpusLineReader;
+import com.joliciel.talismane.corpus.CorpusRule;
 import com.joliciel.talismane.lexicon.CompactLexicalEntry;
 import com.joliciel.talismane.lexicon.CompactLexicalEntrySupport;
 import com.joliciel.talismane.lexicon.LexicalEntryReader;
@@ -81,8 +82,10 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	 * <ul>
 	 * <li>preannotated-pattern</li>
 	 * </ul>
+	 * 
+	 * @throws TalismaneException
 	 */
-	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
+	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
 		this(config.getString("preannotated-pattern"), reader, config, session);
 	}
 
@@ -97,8 +100,9 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	 * 
 	 * @param config
 	 *            the local config for this corpus reader (local namespace)
+	 * @throws TalismaneException
 	 */
-	public TokenRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException {
+	public TokenRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
 		super(config, session);
 		this.regex = regex;
 		this.scanner = new Scanner(reader);
@@ -122,7 +126,16 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 			this.lexicalEntryReader = null;
 		}
 
-		this.corpusLineReader = new CorpusLineReader(regex, this.getRequiredElements(), lexicalEntryReader, session);
+		configPath = "corpus-rules";
+		List<CorpusRule> corpusRules = new ArrayList<>();
+		if (config.hasPath(configPath)) {
+			List<? extends Config> ruleConfigs = config.getConfigList(configPath);
+			for (Config ruleConfig : ruleConfigs) {
+				CorpusRule corpusRule = new CorpusRule(ruleConfig);
+				corpusRules.add(corpusRule);
+			}
+		}
+		this.corpusLineReader = new CorpusLineReader(regex, this.getRequiredElements(), corpusRules, lexicalEntryReader, session);
 	}
 
 	protected CorpusElement[] getRequiredElements() {
@@ -130,7 +143,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	}
 
 	@Override
-	public boolean hasNextSentence() {
+	public boolean hasNextSentence() throws TalismaneException {
 		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
@@ -215,7 +228,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 		this.needsToReturnBlankLine = true;
 	}
 
-	protected void processSentence(List<CorpusLine> corpusLines) {
+	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
 		Sentence sentence = null;
 		if (sentenceReader != null && sentenceReader.hasNextSentence()) {
 			sentence = sentenceReader.nextSentence();
@@ -249,7 +262,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	}
 
 	@Override
-	public TokenSequence nextTokenSequence() {
+	public TokenSequence nextTokenSequence() throws TalismaneException {
 		TokenSequence nextSentence = null;
 		if (this.hasNextSentence()) {
 			nextSentence = tokenSequence;
@@ -275,7 +288,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	}
 
 	@Override
-	public Sentence nextSentence() {
+	public Sentence nextSentence() throws TalismaneException {
 		return this.nextTokenSequence().getSentence();
 	}
 
@@ -295,8 +308,10 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	/**
 	 * Convert a data line into a token, and add it to the provided token
 	 * sequence.
+	 * 
+	 * @throws TalismaneException
 	 */
-	protected Token convertToToken(PretokenisedSequence tokenSequence, CorpusLine corpusLine) {
+	protected Token convertToToken(PretokenisedSequence tokenSequence, CorpusLine corpusLine) throws TalismaneException {
 		Token token = tokenSequence.addToken(corpusLine.getElement(CorpusElement.TOKEN));
 		if (corpusLine.hasElement(CorpusElement.FILENAME))
 			token.setFileName(corpusLine.getElement(CorpusElement.FILENAME));

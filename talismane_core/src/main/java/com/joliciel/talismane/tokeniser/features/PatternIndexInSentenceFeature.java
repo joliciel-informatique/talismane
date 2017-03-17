@@ -20,57 +20,62 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
  * Returns the index of the first token matching this pattern.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class PatternIndexInSentenceFeature extends AbstractTokenFeature<Integer> implements IntegerFeature<TokenWrapper> {
+public final class PatternIndexInSentenceFeature extends AbstractTokenFeature<Integer>implements IntegerFeature<TokenWrapper> {
 	StringFeature<TokenWrapper> tokenPatternFeature;
-	private Map<String,TokenPattern> patternMap;
+	private Map<String, TokenPattern> patternMap;
 
 	public PatternIndexInSentenceFeature(StringFeature<TokenWrapper> tokenPatternFeature) {
 		this.tokenPatternFeature = tokenPatternFeature;
 		this.setName(super.getName() + "(" + this.tokenPatternFeature.getName() + ")");
 	}
-	
+
 	@Override
-	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<Integer> result = null;
 		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
-		if (tokenPatternResult!=null) {
-			// If we have a token pattern, then this is the first token to be tested in that pattern
+		if (tokenPatternResult != null) {
+			// If we have a token pattern, then this is the first token to be
+			// tested in that pattern
 			TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
 
 			TokenPatternMatch theMatch = null;
 			for (TokenPatternMatch tokenMatch : token.getMatches(tokenPattern)) {
-				if (tokenMatch.getPattern().equals(tokenPattern)&&tokenMatch.getIndex()==tokenPattern.getIndexesToTest().get(0)) {
+				if (tokenMatch.getPattern().equals(tokenPattern) && tokenMatch.getIndex() == tokenPattern.getIndexesToTest().get(0)) {
 					theMatch = tokenMatch;
 					break;
 				}
 			}
-			if (theMatch!=null) {
-				// note - if a match is found, this is actually the second token in the pattern
-				// therefore, we want the index of the first token in the pattern.
+			if (theMatch != null) {
+				// note - if a match is found, this is actually the second token
+				// in the pattern
+				// therefore, we want the index of the first token in the
+				// pattern.
 				int indexWithWhiteSpace = token.getIndexWithWhiteSpace() - theMatch.getIndex();
 				Token firstToken = token.getTokenSequence().listWithWhiteSpace().get(indexWithWhiteSpace);
 				int patternIndex = firstToken.getIndex();
-				
+
 				result = this.generateResult(patternIndex);
-			} // the current token matches the tokeniserPattern at it's first test index
+			} // the current token matches the tokeniserPattern at it's first
+				// test index
 		}
 		return result;
 	}
-	
 
 	public Map<String, TokenPattern> getPatternMap() {
 		return patternMap;

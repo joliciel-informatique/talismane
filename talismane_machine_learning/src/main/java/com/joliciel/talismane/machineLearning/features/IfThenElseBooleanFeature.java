@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Mimics an in-then-else structure - if condition is true return thenFeature
  * result, else return elseFeature result.
@@ -39,7 +41,7 @@ public class IfThenElseBooleanFeature<T> extends AbstractCachableFeature<T, Bool
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<Boolean> conditionResult = condition.check(context, env);

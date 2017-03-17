@@ -28,27 +28,28 @@ public abstract class AbstractTransition implements Transition {
 	private Decision decision;
 
 	@Override
-	public void apply(ParseConfiguration configuration) {
+	public void apply(ParseConfiguration configuration) throws InvalidTransitionException, CircularDependencyException {
 		if (this.checkPreconditions(configuration)) {
 			if (LOG.isTraceEnabled())
 				LOG.trace("Applying " + this.getCode());
 			this.applyInternal(configuration);
 			configuration.getTransitions().add(this);
-		}
-		else
+		} else
 			throw new InvalidTransitionException(this, configuration);
 	}
 
-	protected abstract void applyInternal(ParseConfiguration configuration);
+	protected abstract void applyInternal(ParseConfiguration configuration) throws CircularDependencyException;
 
+	@Override
 	public Decision getDecision() {
 		return decision;
 	}
 
+	@Override
 	public void setDecision(Decision decision) {
 		this.decision = decision;
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.getCode();
@@ -83,6 +84,5 @@ public abstract class AbstractTransition implements Transition {
 			return false;
 		return true;
 	}
-	
-	
+
 }

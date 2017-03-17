@@ -18,14 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * A simple wrapper for a pos-tagged token, useful to allow multiple feature contexts to act all as a PosTaggedToken
- * for PosTaggedToken features.
+ * A simple wrapper for a pos-tagged token, useful to allow multiple feature
+ * contexts to act all as a PosTaggedToken for PosTaggedToken features.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface PosTaggedTokenWrapper {
-	public PosTaggedToken getPosTaggedToken();
+	public PosTaggedToken getPosTaggedToken() throws TalismaneException;
 }

@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -76,7 +77,7 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
 	}
 
 	@Override
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) {
+	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException {
 		PosTagSequence currentHistory = new PosTagSequence(posTagSequence.getTokenSequence());
 
 		for (PosTaggedToken posTaggedToken : posTagSequence) {

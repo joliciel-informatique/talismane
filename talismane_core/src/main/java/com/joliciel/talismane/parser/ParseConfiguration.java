@@ -405,8 +405,10 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
 	 * 
 	 * @param transition
 	 *            the transition generating this dependency
+	 * @throws CircularDependencyException
+	 *             if this would create a circular dependency
 	 */
-	public DependencyArc addDependency(PosTaggedToken head, PosTaggedToken dependent, String label, Transition transition) {
+	public DependencyArc addDependency(PosTaggedToken head, PosTaggedToken dependent, String label, Transition transition) throws CircularDependencyException {
 		DependencyArc arc = new DependencyArc(head, dependent, label);
 		this.addDependency(arc);
 		this.dependentTransitionMap.put(dependent, transition);
@@ -440,7 +442,13 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
 		return arc;
 	}
 
-	void addDependency(DependencyArc arc) {
+	/**
+	 * 
+	 * @param arc
+	 * @throws CircularDependencyException
+	 *             if this would create a circular dependency.
+	 */
+	void addDependency(DependencyArc arc) throws CircularDependencyException {
 		PosTaggedToken ancestor = arc.getHead();
 		while (ancestor != null) {
 			if (ancestor.equals(arc.getDependent())) {
@@ -461,8 +469,11 @@ public final class ParseConfiguration implements Comparable<ParseConfiguration>,
 	 * for a given token. If the transition system is capable of producing its
 	 * own non-projective dependencies there should be no need to distinguish
 	 * between projective and non-projective.
+	 * 
+	 * @throws CircularDependencyException
+	 *             if this would create a circular dependency
 	 */
-	public DependencyArc addManualNonProjectiveDependency(PosTaggedToken head, PosTaggedToken dependent, String label) {
+	public DependencyArc addManualNonProjectiveDependency(PosTaggedToken head, PosTaggedToken dependent, String label) throws CircularDependencyException {
 		DependencyArc arc = new DependencyArc(head, dependent, label);
 		PosTaggedToken ancestor = arc.getHead();
 		while (ancestor != null) {

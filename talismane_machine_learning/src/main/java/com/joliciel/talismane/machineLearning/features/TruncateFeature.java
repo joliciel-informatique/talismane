@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Truncates a double down to an integer.
  * 
@@ -34,7 +36,7 @@ class TruncateFeature<T> extends AbstractFeature<T, Integer>implements IntegerFe
 	}
 
 	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
+	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Integer> featureResult = null;
 
 		FeatureResult<Double> doubleResult = featureToTruncate.check(context, env);

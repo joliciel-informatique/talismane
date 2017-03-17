@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns the wrapped literal.
  * 
@@ -34,7 +36,7 @@ public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T, Integer>
 	}
 
 	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
+	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Integer> featureResult = null;
 
 		FeatureResult<Integer> literalResult = integerLiteralFeature.check(context, env);

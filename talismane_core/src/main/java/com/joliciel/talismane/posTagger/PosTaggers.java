@@ -31,6 +31,7 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -52,7 +53,7 @@ public class PosTaggers {
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 	private static final Map<String, PosTagger> posTaggerMap = new HashMap<>();
 
-	public static PosTagger getPosTagger(TalismaneSession session) throws IOException {
+	public static PosTagger getPosTagger(TalismaneSession session) throws IOException, TalismaneException {
 		PosTagger posTagger = null;
 		if (session.getSessionId() != null)
 			posTagger = posTaggerMap.get(session.getSessionId());

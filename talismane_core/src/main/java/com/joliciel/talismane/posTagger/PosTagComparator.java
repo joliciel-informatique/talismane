@@ -9,6 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.typesafe.config.Config;
 
@@ -56,8 +57,10 @@ public class PosTagComparator {
 
 	/**
 	 * Evaluate the evaluation corpus against the reference corpus.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void evaluate() {
+	public void evaluate() throws TalismaneException {
 		while (referenceCorpusReader.hasNextSentence()) {
 			PosTagSequence realPosTagSequence = referenceCorpusReader.nextPosTagSequence();
 			PosTagSequence guessedPosTagSequence = evaluationCorpusReader.nextPosTagSequence();

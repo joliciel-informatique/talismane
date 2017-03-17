@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Converts a non-string feature to a string feature. If the feature result is
  * null, will return the string "null".
@@ -36,7 +38,7 @@ public class ToStringAllowNullsFeature<T> extends AbstractCachableFeature<T, Str
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<String> featureResult = null;
 
 		FeatureResult<?> result1 = featureToString.check(context, env);

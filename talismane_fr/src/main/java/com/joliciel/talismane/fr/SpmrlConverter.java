@@ -492,7 +492,7 @@ public class SpmrlConverter {
 	}
 
 	private static final class ConllLine {
-		public ConllLine(String line, int lineNumber, int newLineNumber) {
+		public ConllLine(String line, int lineNumber, int newLineNumber) throws TalismaneException {
 			String[] parts = line.split("\t");
 			index = Integer.parseInt(parts[0]);
 			word = parts[1];

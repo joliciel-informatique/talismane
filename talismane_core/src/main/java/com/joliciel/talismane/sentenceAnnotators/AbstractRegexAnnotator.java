@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Annotation;
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.resources.WordList;
@@ -164,12 +163,12 @@ public abstract class AbstractRegexAnnotator implements RegexAnnotator {
 		this.autoWordBoundaries = autoWordBoundaries;
 
 		if (regex == null || regex.length() == 0)
-			throw new TalismaneException("Cannot use an empty regex for a filter");
+			throw new SentenceAnnotatorLoadException("Cannot use an empty regex for a filter");
 
 		this.pattern = this.constructPattern();
 		Matcher matcher = pattern.matcher("");
 		if (this.groupIndex > matcher.groupCount()) {
-			throw new TalismaneException("No group " + this.groupIndex + " in pattern: " + this.regex);
+			throw new SentenceAnnotatorLoadException("No group " + this.groupIndex + " in pattern: " + this.regex);
 		}
 	}
 

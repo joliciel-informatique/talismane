@@ -34,7 +34,6 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
@@ -117,7 +116,7 @@ public class ConllFileSplitter {
 		if (args.containsKey("inFile"))
 			filePath = args.get("inFile");
 		else
-			throw new TalismaneException("Missing option: inFile");
+			throw new RuntimeException("Missing option: inFile");
 
 		int startIndex = 1;
 		if (args.containsKey("startIndex")) {

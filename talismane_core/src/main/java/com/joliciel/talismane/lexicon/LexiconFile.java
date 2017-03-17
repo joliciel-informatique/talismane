@@ -70,7 +70,7 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
 		this.reader = reader;
 	}
 
-	public void load() {
+	public void load() throws TalismaneException {
 		Map<String, List<List<String>>> exclusionMap = null;
 		if (this.exclusions != null) {
 			exclusionMap = new HashMap<String, List<List<String>>>();
@@ -201,7 +201,7 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
 	}
 
 	@Override
-	public Set<PosTag> findPossiblePosTags(String word) {
+	public Set<PosTag> findPossiblePosTags(String word) throws TalismaneException {
 		// Using TreeSet as set must be ordered
 		Set<PosTag> posTags = new TreeSet<PosTag>();
 		List<LexicalEntry> entries = this.getEntries(word);
@@ -393,7 +393,7 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
 
 			@Override
 			public void remove() {
-				throw new TalismaneException("remove not supported");
+				throw new RuntimeException("remove not supported");
 			}
 		};
 	}

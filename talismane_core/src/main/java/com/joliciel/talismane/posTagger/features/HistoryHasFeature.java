@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,12 +26,13 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Checks whether a given pos-tagged token meets a certain criterion.<br/>
+ * 
  * @author Assaf Urieli
  *
  */
-public final class HistoryHasFeature<T> extends  AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T>   {
+public final class HistoryHasFeature<T> extends AbstractPosTaggedTokenFeature<T, Boolean>implements BooleanFeature<T> {
 	private BooleanFeature<PosTaggedTokenWrapper> criterion;
-		
+
 	public HistoryHasFeature(PosTaggedTokenAddressFunction<T> addressFunction, BooleanFeature<PosTaggedTokenWrapper> criterion) {
 		super(addressFunction);
 		this.criterion = criterion;
@@ -40,23 +41,22 @@ public final class HistoryHasFeature<T> extends  AbstractPosTaggedTokenFeature<T
 		this.setAddressFunction(addressFunction);
 	}
 
-	
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
+		if (posTaggedToken == null)
 			return null;
-		
+
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
-		if (criterionResult!=null) {
+		if (criterionResult != null) {
 			featureResult = this.generateResult(criterionResult.getOutcome());
 		}
-		
+
 		return featureResult;
 	}
 

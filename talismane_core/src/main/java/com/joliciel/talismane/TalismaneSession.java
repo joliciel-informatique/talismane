@@ -62,6 +62,7 @@ import com.joliciel.talismane.rawText.RawTextMarkType;
 import com.joliciel.talismane.rawText.RawTextRegexAnnotator;
 import com.joliciel.talismane.resources.WordListFinder;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoader;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -126,8 +127,12 @@ public class TalismaneSession {
 	 *             the configuration
 	 * @throws ClassNotFoundException
 	 *             if a resource contains the wrong serialized class or version
+	 * @throws TalismaneException
+	 *             if an unknown transition system was set in the configuration.
+	 * @throws SentenceAnnotatorLoadException
+	 *             if configuration error loading sentence annotators
 	 */
-	public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException {
+	public TalismaneSession(Config config, String sessionId) throws IOException, ClassNotFoundException, TalismaneException, SentenceAnnotatorLoadException {
 		this.sessionId = sessionId;
 		this.config = config;
 
@@ -400,15 +405,19 @@ public class TalismaneSession {
 		}
 	}
 
+	/**
+	 */
 	public synchronized PosTagSet getPosTagSet() {
 		if (posTagSet == null)
-			throw new TalismaneException("PosTagSet missing.");
+			throw new RuntimeException("PosTagSet missing.");
 		return posTagSet;
 	}
 
+	/**
+	 */
 	public synchronized TransitionSystem getTransitionSystem() {
 		if (transitionSystem == null)
-			throw new TalismaneException("TransitionSystem missing.");
+			throw new RuntimeException("TransitionSystem missing.");
 		return transitionSystem;
 	}
 

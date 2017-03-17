@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -65,7 +66,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() {
+	public ClassificationEvent next() throws TalismaneException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			int possibleBoundary = possibleBoundaries.get(currentIndex++);
@@ -124,7 +125,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() {
+	public boolean hasNext() throws TalismaneException {
 		while (currentSentence == null) {
 			currentIndex = 0;
 			possibleBoundaries = new ArrayList<Integer>();

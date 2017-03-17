@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//Copyright (C) 2014 Joliciel Informatique
+//Copyright (C) 2017 Joliciel Informatique
 //
 //This file is part of Talismane.
 //
@@ -16,28 +16,38 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane;
+package com.joliciel.talismane.parser;
 
-public class TalismaneException extends RuntimeException {
+import com.joliciel.talismane.TalismaneException;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4616300831200728982L;
+/**
+ * Thrown when the transition does not exist in the current transition system.
+ * 
+ * @author Assaf Urieli
+ *
+ */
+public class UnknownTransitionException extends TalismaneException {
+	private static final long serialVersionUID = 1L;
+	private String transition = "";
+	private int index;
 
-	public TalismaneException() {
+	public UnknownTransitionException(int index, String transition) {
+		super("Unknown transition: " + transition + " on index " + index);
+		this.transition = transition;
+		this.index = index;
 	}
 
-	public TalismaneException(String message) {
-		super(message);
+	public UnknownTransitionException(String transition) {
+		super("Unknown transition: " + transition);
+		this.transition = transition;
 	}
 
-	public TalismaneException(Throwable cause) {
-		super(cause);
+	public String getTransition() {
+		return transition;
 	}
 
-	public TalismaneException(String message, Throwable cause) {
-		super(message, cause);
+	public int getIndex() {
+		return index;
 	}
 
 }

@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.typesafe.config.Config;
 
@@ -39,8 +40,10 @@ import com.typesafe.config.Config;
 public interface PosTagEvaluationObserver {
 	/**
 	 * Called when the next pos-tag sequence has been processed.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences);
+	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException;
 
 	public void onEvaluationComplete();
 

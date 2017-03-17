@@ -34,6 +34,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -112,7 +113,7 @@ public class PatternTokeniserTrainer {
 		eventStream = new PatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.session);
 	}
 
-	public ClassificationModel train() {
+	public ClassificationModel train() throws TalismaneException {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(tokeniserConfig.getConfig("train.machine-learning"));
 

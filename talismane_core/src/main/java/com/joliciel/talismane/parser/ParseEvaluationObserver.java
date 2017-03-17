@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.typesafe.config.Config;
@@ -48,8 +49,10 @@ public interface ParseEvaluationObserver {
 
 	/**
 	 * Called when the next parse configuration has been processed.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations);
+	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException;
 
 	/**
 	 * Called when full evaluation has completed.

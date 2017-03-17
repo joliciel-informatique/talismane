@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Rounds a double to the nearest integer.
  * 
@@ -34,7 +36,7 @@ class RoundFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeatu
 	}
 
 	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
+	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Integer> featureResult = null;
 
 		FeatureResult<Double> doubleResult = featureToRound.check(context, env);

@@ -31,6 +31,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
@@ -139,7 +140,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public ParseConfiguration parseSentence(PosTagSequence posTagSequence) {
+	public ParseConfiguration parseSentence(PosTagSequence posTagSequence) throws TalismaneException {
 		List<PosTagSequence> posTagSequences = new ArrayList<PosTagSequence>();
 		posTagSequences.add(posTagSequence);
 		List<ParseConfiguration> parseConfigurations = this.parseSentence(posTagSequences);
@@ -148,7 +149,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public List<ParseConfiguration> parseSentence(List<PosTagSequence> input) {
+	public List<ParseConfiguration> parseSentence(List<PosTagSequence> input) throws TalismaneException {
 		List<PosTagSequence> posTagSequences = null;
 		if (this.propagatePosTaggerBeam) {
 			posTagSequences = input;
