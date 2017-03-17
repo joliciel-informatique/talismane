@@ -229,36 +229,41 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	}
 
 	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
-		Sentence sentence = null;
-		if (sentenceReader != null && sentenceReader.hasNextSentence()) {
-			sentence = sentenceReader.nextSentence();
-		} else {
-			LinguisticRules rules = session.getLinguisticRules();
-			if (rules == null)
-				throw new TalismaneException("Linguistic rules have not been set.");
+		try {
+			Sentence sentence = null;
+			if (sentenceReader != null && sentenceReader.hasNextSentence()) {
+				sentence = sentenceReader.nextSentence();
+			} else {
+				LinguisticRules rules = session.getLinguisticRules();
+				if (rules == null)
+					throw new TalismaneException("Linguistic rules have not been set.");
 
-			String text = "";
-			for (CorpusLine corpusLine : corpusLines) {
-				String word = corpusLine.getElement(CorpusElement.TOKEN);
-				// check if a space should be added before this
-				// token
+				String text = "";
+				for (CorpusLine corpusLine : corpusLines) {
+					String word = corpusLine.getElement(CorpusElement.TOKEN);
+					// check if a space should be added before this
+					// token
 
-				if (rules.shouldAddSpace(text, word))
-					text += " ";
-				text += word;
+					if (rules.shouldAddSpace(text, word))
+						text += " ";
+					text += word;
+				}
+				sentence = new Sentence(text, session);
 			}
-			sentence = new Sentence(text, session);
-		}
 
-		for (SentenceAnnotator tokenFilter : session.getSentenceAnnotators()) {
-			tokenFilter.annotate(sentence);
-		}
+			for (SentenceAnnotator tokenFilter : session.getSentenceAnnotators()) {
+				tokenFilter.annotate(sentence);
+			}
 
-		tokenSequence = new PretokenisedSequence(sentence, session);
-		for (CorpusLine corpusLine : corpusLines) {
-			this.convertToToken(tokenSequence, corpusLine);
+			tokenSequence = new PretokenisedSequence(sentence, session);
+			for (CorpusLine corpusLine : corpusLines) {
+				this.convertToToken(tokenSequence, corpusLine);
+			}
+			tokenSequence.cleanSlate();
+		} catch (TalismaneException e) {
+			this.clearSentence();
+			throw e;
 		}
-		tokenSequence.cleanSlate();
 	}
 
 	@Override

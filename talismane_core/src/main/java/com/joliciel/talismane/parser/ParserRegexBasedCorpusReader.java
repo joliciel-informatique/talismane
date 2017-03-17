@@ -103,75 +103,80 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 
 	@Override
 	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
-		super.processSentence(corpusLines);
-		PosTaggedToken rootToken = posTagSequence.prependRoot();
-		idTokenMap.put(0, rootToken);
+		try {
+			super.processSentence(corpusLines);
+			PosTaggedToken rootToken = posTagSequence.prependRoot();
+			idTokenMap.put(0, rootToken);
 
-		TransitionSystem transitionSystem = session.getTransitionSystem();
-		Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
-		for (CorpusLine dataLine : corpusLines) {
-			int headIndex = 0;
-			if (dataLine.hasElement(CorpusElement.GOVERNOR))
-				headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.GOVERNOR));
-			PosTaggedToken head = idTokenMap.get(headIndex);
-			PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
-
-			String dependencyLabel = dataLine.getElement(CorpusElement.LABEL);
-			if (transitionSystem.getDependencyLabels().size() > 1) {
-				if (dependencyLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(dependencyLabel)) {
-					throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()), dataLine.getLineNumber(),
-							dependencyLabel);
-				}
-
-				String nonProjectiveLabel = dataLine.getElement(CorpusElement.NON_PROJ_LABEL);
-				if (nonProjectiveLabel != null && nonProjectiveLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(nonProjectiveLabel)) {
-					throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()), dataLine.getLineNumber(),
-							dependencyLabel);
-				}
-
-			}
-			DependencyArc arc = new DependencyArc(head, dependent, dependencyLabel);
-			if (LOG.isTraceEnabled())
-				LOG.trace(arc.toString());
-			dependencies.add(arc);
-			if (dataLine.hasElement(CorpusElement.DEP_COMMENT))
-				arc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
-		}
-
-		configuration = new ParseConfiguration(posTagSequence);
-		if (this.predictTransitions) {
-			transitionSystem.predictTransitions(configuration, dependencies);
-		} else {
-			for (DependencyArc arc : dependencies) {
-				configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
-			}
-		}
-
-		// Add manual non-projective dependencies,
-		// if there are any
-		if (this.getCorpusLineReader().hasPlaceholder(CorpusElement.NON_PROJ_GOVERNOR)) {
-			Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
-			if (LOG.isTraceEnabled())
-				LOG.trace("Non projective dependencies: ");
-
+			TransitionSystem transitionSystem = session.getTransitionSystem();
+			Set<DependencyArc> dependencies = new TreeSet<DependencyArc>();
 			for (CorpusLine dataLine : corpusLines) {
 				int headIndex = 0;
-				if (dataLine.hasElement(CorpusElement.NON_PROJ_GOVERNOR))
-					headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.NON_PROJ_GOVERNOR));
-
+				if (dataLine.hasElement(CorpusElement.GOVERNOR))
+					headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.GOVERNOR));
 				PosTaggedToken head = idTokenMap.get(headIndex);
 				PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
-				DependencyArc nonProjArc = new DependencyArc(head, dependent, dataLine.getElement(CorpusElement.NON_PROJ_LABEL));
+
+				String dependencyLabel = dataLine.getElement(CorpusElement.LABEL);
+				if (transitionSystem.getDependencyLabels().size() > 1) {
+					if (dependencyLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(dependencyLabel)) {
+						throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()),
+								dataLine.getLineNumber(), dependencyLabel);
+					}
+
+					String nonProjectiveLabel = dataLine.getElement(CorpusElement.NON_PROJ_LABEL);
+					if (nonProjectiveLabel != null && nonProjectiveLabel.length() > 0 && !transitionSystem.getDependencyLabels().contains(nonProjectiveLabel)) {
+						throw new UnknownDependencyLabelException((this.getCurrentFile() == null ? "" : this.getCurrentFile().getPath()),
+								dataLine.getLineNumber(), dependencyLabel);
+					}
+
+				}
+				DependencyArc arc = new DependencyArc(head, dependent, dependencyLabel);
 				if (LOG.isTraceEnabled())
-					LOG.trace(nonProjArc.toString());
-				nonProjDeps.add(nonProjArc);
+					LOG.trace(arc.toString());
+				dependencies.add(arc);
 				if (dataLine.hasElement(CorpusElement.DEP_COMMENT))
-					nonProjArc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
+					arc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
 			}
 
-			for (DependencyArc nonProjArc : nonProjDeps) {
-				configuration.addManualNonProjectiveDependency(nonProjArc.getHead(), nonProjArc.getDependent(), nonProjArc.getLabel());
+			configuration = new ParseConfiguration(posTagSequence);
+			if (this.predictTransitions) {
+				transitionSystem.predictTransitions(configuration, dependencies);
+			} else {
+				for (DependencyArc arc : dependencies) {
+					configuration.addDependency(arc.getHead(), arc.getDependent(), arc.getLabel(), null);
+				}
 			}
+
+			// Add manual non-projective dependencies,
+			// if there are any
+			if (this.getCorpusLineReader().hasPlaceholder(CorpusElement.NON_PROJ_GOVERNOR)) {
+				Set<DependencyArc> nonProjDeps = new TreeSet<DependencyArc>();
+				if (LOG.isTraceEnabled())
+					LOG.trace("Non projective dependencies: ");
+
+				for (CorpusLine dataLine : corpusLines) {
+					int headIndex = 0;
+					if (dataLine.hasElement(CorpusElement.NON_PROJ_GOVERNOR))
+						headIndex = Integer.parseInt(dataLine.getElement(CorpusElement.NON_PROJ_GOVERNOR));
+
+					PosTaggedToken head = idTokenMap.get(headIndex);
+					PosTaggedToken dependent = idTokenMap.get(dataLine.getIndex());
+					DependencyArc nonProjArc = new DependencyArc(head, dependent, dataLine.getElement(CorpusElement.NON_PROJ_LABEL));
+					if (LOG.isTraceEnabled())
+						LOG.trace(nonProjArc.toString());
+					nonProjDeps.add(nonProjArc);
+					if (dataLine.hasElement(CorpusElement.DEP_COMMENT))
+						nonProjArc.setComment(dataLine.getElement(CorpusElement.DEP_COMMENT));
+				}
+
+				for (DependencyArc nonProjArc : nonProjDeps) {
+					configuration.addManualNonProjectiveDependency(nonProjArc.getHead(), nonProjArc.getDependent(), nonProjArc.getLabel());
+				}
+			}
+		} catch (TalismaneException e) {
+			this.clearSentence();
+			throw e;
 		}
 	}
 

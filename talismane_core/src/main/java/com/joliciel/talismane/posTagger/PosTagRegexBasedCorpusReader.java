@@ -95,12 +95,17 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 
 	@Override
 	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
-		super.processSentence(corpusLines);
-		posTagSequence = new PosTagSequence(tokenSequence);
-		int i = 0;
-		for (CorpusLine corpusLine : corpusLines) {
-			PosTaggedToken posTaggedToken = this.convertToPosTaggedToken(corpusLine, posTagSequence, i++, this.getCurrentFile());
-			this.idTokenMap.put(corpusLine.getIndex(), posTaggedToken);
+		try {
+			super.processSentence(corpusLines);
+			posTagSequence = new PosTagSequence(tokenSequence);
+			int i = 0;
+			for (CorpusLine corpusLine : corpusLines) {
+				PosTaggedToken posTaggedToken = this.convertToPosTaggedToken(corpusLine, posTagSequence, i++, this.getCurrentFile());
+				this.idTokenMap.put(corpusLine.getIndex(), posTaggedToken);
+			}
+		} catch (TalismaneException e) {
+			this.clearSentence();
+			throw e;
 		}
 	}
 
