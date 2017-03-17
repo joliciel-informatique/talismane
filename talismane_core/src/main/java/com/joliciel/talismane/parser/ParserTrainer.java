@@ -94,7 +94,9 @@ public class ParserTrainer {
 
 		ParserFeatureParser featureParser = new ParserFeatureParser(session);
 		Set<ParseConfigurationFeature<?>> features = featureParser.getFeatures(featureDescriptors);
-		eventStream = new ParseEventStream(corpusReader, features);
+
+		boolean skipImpossibleSentences = parserConfig.getBoolean("train.skip-impossible-sentences");
+		eventStream = new ParseEventStream(corpusReader, features, skipImpossibleSentences);
 	}
 
 	public ClassificationModel train() throws TalismaneException {
