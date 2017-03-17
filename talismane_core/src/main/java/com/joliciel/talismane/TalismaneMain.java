@@ -754,7 +754,7 @@ public class TalismaneMain {
 					try {
 						TokeniserAnnotatedCorpusReader corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(reader,
 								config.getConfig("talismane.core.tokeniser.input"), session);
-						while (corpusReader.hasNextTokenSequence()) {
+						while (corpusReader.hasNextSentence()) {
 							TokenSequence tokenSequence = corpusReader.nextTokenSequence();
 							for (TokenSequenceProcessor processor : processors)
 								processor.onNextTokenSequence(tokenSequence);
@@ -777,7 +777,7 @@ public class TalismaneMain {
 					try {
 						PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
 								config.getConfig("talismane.core.pos-tagger.input"), session);
-						while (corpusReader.hasNextPosTagSequence()) {
+						while (corpusReader.hasNextSentence()) {
 							PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
 							for (PosTagSequenceProcessor processor : processors)
 								processor.onNextPosTagSequence(posTagSequence);
@@ -801,7 +801,7 @@ public class TalismaneMain {
 					try {
 						ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader,
 								config.getConfig("talismane.core.parser.input"), session);
-						while (corpusReader.hasNextConfiguration()) {
+						while (corpusReader.hasNextSentence()) {
 							ParseConfiguration configuration = corpusReader.nextConfiguration();
 							for (ParseConfigurationProcessor processor : processors)
 								processor.onNextParseConfiguration(configuration);

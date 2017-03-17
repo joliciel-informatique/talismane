@@ -66,7 +66,7 @@ public class PosTagEventStream implements ClassificationEventStream {
 	@Override
 	public boolean hasNext() {
 		while (currentSentence == null) {
-			if (this.corpusReader.hasNextPosTagSequence()) {
+			if (this.corpusReader.hasNextSentence()) {
 				currentSentence = this.corpusReader.nextPosTagSequence();
 				if (LOG.isDebugEnabled())
 					LOG.debug("### next sentence: " + currentSentence.getTokenSequence().getSentence());

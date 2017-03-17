@@ -73,7 +73,7 @@ public class TokeniserEvaluator {
 	 * Evaluate a given tokeniser.
 	 */
 	public void evaluate() {
-		while (corpusReader.hasNextTokenSequence()) {
+		while (corpusReader.hasNextSentence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
 			Sentence sentence = realSequence.getSentence();
 

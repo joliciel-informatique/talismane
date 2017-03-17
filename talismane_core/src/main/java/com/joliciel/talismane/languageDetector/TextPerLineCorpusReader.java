@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
 import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
@@ -43,7 +44,7 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public class TextPerLineCorpusReader extends LanguageDetectorAnnotatedCorpusReader {
+public class TextPerLineCorpusReader extends AbstractAnnotatedCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
 	private Scanner scanner;
 	private Locale currentLocale;
 
@@ -160,6 +161,11 @@ public class TextPerLineCorpusReader extends LanguageDetectorAnnotatedCorpusRead
 		Map<String, String> attributes = super.getCharacteristics();
 
 		return attributes;
+	}
+
+	@Override
+	public boolean hasNextSentence() {
+		return this.hasNextText();
 	}
 
 }

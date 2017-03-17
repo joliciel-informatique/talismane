@@ -459,7 +459,7 @@ public class Extensions {
 				try {
 					PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
 							config.getConfig("talismane.core.pos-tagger.input"), session);
-					while (corpusReader.hasNextPosTagSequence()) {
+					while (corpusReader.hasNextSentence()) {
 						PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
 						for (PosTagSequenceProcessor processor : posTagSequenceProcessors)
 							processor.onNextPosTagSequence(posTagSequence);
@@ -482,7 +482,7 @@ public class Extensions {
 					ParserAnnotatedCorpusReader corpusReader = parserAnnotatedCorpusReader;
 					if (corpusReader == null)
 						corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.parser.input"), session);
-					while (corpusReader.hasNextConfiguration()) {
+					while (corpusReader.hasNextSentence()) {
 						ParseConfiguration configuration = corpusReader.nextConfiguration();
 						for (ParseConfigurationProcessor processor : parseConfigurationProcessors)
 							processor.onNextParseConfiguration(configuration);

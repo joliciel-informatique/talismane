@@ -91,7 +91,7 @@ public class ParserEvaluator {
 	}
 
 	public void evaluate() {
-		while (corpusReader.hasNextConfiguration()) {
+		while (corpusReader.hasNextSentence()) {
 			ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
 
 			List<PosTagSequence> posTagSequences = null;

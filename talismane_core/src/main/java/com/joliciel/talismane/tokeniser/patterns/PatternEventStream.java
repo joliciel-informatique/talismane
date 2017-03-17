@@ -79,7 +79,7 @@ public class PatternEventStream implements ClassificationEventStream {
 			}
 		}
 		while (currentPatternMatches == null) {
-			if (this.corpusReader.hasNextTokenSequence()) {
+			if (this.corpusReader.hasNextSentence()) {
 				currentPatternMatches = new ArrayList<TokenPatternMatch>();
 				currentOutcomes = new ArrayList<TokeniserOutcome>();
 				currentIndex = 0;

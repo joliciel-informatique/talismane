@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.CorpusLine;
+import com.joliciel.talismane.corpus.CorpusLine.CorpusElement;
 import com.joliciel.talismane.parser.ParserRegexBasedCorpusReader;
 import com.typesafe.config.Config;
 
@@ -73,23 +75,23 @@ public class PennDepReader extends ParserRegexBasedCorpusReader {
 	}
 
 	@Override
-	protected boolean checkDataLine(ParseDataLine dataLine) {
+	protected boolean checkDataLine(CorpusLine dataLine) {
 		return true;
 	}
 
 	@Override
-	protected void updateDataLine(List<ParseDataLine> dataLines, int index) {
-		ParseDataLine dataLine = dataLines.get(index);
-		if (punctuationMarks.contains(dataLine.getPosTagCode())) {
-			dataLine.setPosTagCode("P");
-		} else if (currencyNouns.contains(dataLine.getPosTagCode())) {
-			dataLine.setPosTagCode("NNS");
-			if (dataLine.getPosTagCode().equals("#")) {
-				dataLine.setWord("£");
-				dataLine.getToken().setText("£");
+	protected void updateDataLine(List<CorpusLine> dataLines, int index) {
+		CorpusLine dataLine = dataLines.get(index);
+		String posTagCode = dataLine.getElement(CorpusElement.POSTAG);
+		if (punctuationMarks.contains(posTagCode)) {
+			dataLine.setElement(CorpusElement.POSTAG, "P");
+		} else if (currencyNouns.contains(posTagCode)) {
+			dataLine.setElement(CorpusElement.POSTAG, "NNS");
+			if (posTagCode.equals("#")) {
+				dataLine.setElement(CorpusElement.TOKEN, "£");
 			}
-		} else if (symbolNouns.contains(dataLine.getPosTagCode())) {
-			dataLine.setPosTagCode("NN");
+		} else if (symbolNouns.contains(posTagCode)) {
+			dataLine.setElement(CorpusElement.POSTAG, "NN");
 		}
 	}
 

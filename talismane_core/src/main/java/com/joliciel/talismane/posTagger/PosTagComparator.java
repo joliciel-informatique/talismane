@@ -58,7 +58,7 @@ public class PosTagComparator {
 	 * Evaluate the evaluation corpus against the reference corpus.
 	 */
 	public void evaluate() {
-		while (referenceCorpusReader.hasNextPosTagSequence()) {
+		while (referenceCorpusReader.hasNextSentence()) {
 			PosTagSequence realPosTagSequence = referenceCorpusReader.nextPosTagSequence();
 			PosTagSequence guessedPosTagSequence = evaluationCorpusReader.nextPosTagSequence();
 
