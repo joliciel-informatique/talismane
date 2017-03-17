@@ -91,7 +91,7 @@ public class PosTaggerEvaluator {
 	 * 
 	 */
 	public void evaluate() {
-		while (corpusReader.hasNextPosTagSequence()) {
+		while (corpusReader.hasNextSentence()) {
 			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
 
 			List<TokenSequence> tokenSequences = null;

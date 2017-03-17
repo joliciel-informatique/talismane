@@ -16,7 +16,7 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane;
+package com.joliciel.talismane.corpus;
 
 import java.util.Map;
 
@@ -55,4 +55,8 @@ public interface AnnotatedCorpusReader {
 	 */
 	public Map<String, String> getCharacteristics();
 
+	/**
+	 * Is there another sentence to be read?
+	 */
+	public boolean hasNextSentence();
 }

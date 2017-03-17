@@ -24,6 +24,8 @@ import java.lang.reflect.Constructor;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.TokeniserAnnotatedCorpusReader;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.typesafe.config.Config;
 
 /**
@@ -32,16 +34,7 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public abstract class PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusReader {
-	public PosTagAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
-		super(reader, config, session);
-	}
-
-	/**
-	 * Is there another sentence to be read?
-	 */
-	public abstract boolean hasNextPosTagSequence();
-
+public interface PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusReader {
 	/**
 	 * Read the list of tagged tokens from next sentence from the training
 	 * corpus.
@@ -70,6 +63,9 @@ public abstract class PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorp
 		Constructor<? extends PosTagAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
 
 		PosTagAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+		if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
+			((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
+		}
 		return corpusReader;
 	}
 }

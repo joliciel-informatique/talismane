@@ -25,9 +25,10 @@ import java.lang.reflect.Constructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.AnnotatedCorpusReader;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.typesafe.config.Config;
 
 /**
@@ -36,17 +37,8 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotatedCorpusReader implements AnnotatedCorpusReader {
+public interface TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotatedCorpusReader {
 	public static final Logger LOG = LoggerFactory.getLogger(TokeniserAnnotatedCorpusReader.class);
-
-	public TokeniserAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
-		super(reader, config, session);
-	}
-
-	/**
-	 * Is there another sentence to be read?
-	 */
-	public abstract boolean hasNextTokenSequence();
 
 	/***
 	 * Reads the next token sequence from the corpus.
@@ -75,8 +67,9 @@ public abstract class TokeniserAnnotatedCorpusReader extends SentenceDetectorAnn
 		Constructor<? extends TokeniserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
 
 		TokeniserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
-
+		if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
+			((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
+		}
 		return corpusReader;
 	}
-
 }

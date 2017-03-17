@@ -409,14 +409,14 @@ public class Talismane {
 						}
 					} // we have at least one text segment to process
 				} else if (this.startModule.equals(Module.posTagger)) {
-					if (tokenCorpusReader.hasNextTokenSequence()) {
+					if (tokenCorpusReader.hasNextSentence()) {
 						tokenSequence = tokenCorpusReader.nextTokenSequence();
 					} else {
 						tokenSequence = null;
 						finished = true;
 					}
 				} else if (this.startModule.equals(Module.parser)) {
-					if (posTagCorpusReader.hasNextPosTagSequence()) {
+					if (posTagCorpusReader.hasNextSentence()) {
 						posTagSequence = posTagCorpusReader.nextPosTagSequence();
 					} else {
 						posTagSequence = null;

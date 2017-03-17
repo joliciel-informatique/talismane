@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
 import com.joliciel.talismane.machineLearning.Decision;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
@@ -51,7 +51,7 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 import com.typesafe.config.Config;
 
-public class StandoffReader extends ParserAnnotatedCorpusReader {
+public class StandoffReader extends AbstractAnnotatedCorpusReader implements ParserAnnotatedCorpusReader {
 	private static final Logger LOG = LoggerFactory.getLogger(StandoffReader.class);
 	private int sentenceCount = 0;
 	private int lineNumber = 1;
@@ -65,13 +65,10 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 	private Map<String, String> notes = new HashMap<String, String>();
 
 	private List<List<StandoffToken>> sentences = new ArrayList<>();
-
-	private TalismaneSession session;
 	private final String punctuationDepLabel;
 
 	public StandoffReader(Reader reader, Config config, TalismaneSession session) {
-		super(reader, config, session);
-		this.session = session;
+		super(config, session);
 		PosTagSet posTagSet = session.getPosTagSet();
 		punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
 
@@ -154,7 +151,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 	}
 
 	@Override
-	public boolean hasNextConfiguration() {
+	public boolean hasNextSentence() {
 		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
@@ -243,7 +240,7 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 	@Override
 	public ParseConfiguration nextConfiguration() {
 		ParseConfiguration nextConfiguration = null;
-		if (this.hasNextConfiguration()) {
+		if (this.hasNextSentence()) {
 			nextConfiguration = configuration;
 			configuration = null;
 		}
@@ -254,16 +251,6 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 	public Map<String, String> getCharacteristics() {
 		Map<String, String> attributes = new LinkedHashMap<String, String>();
 		return attributes;
-	}
-
-	@Override
-	public LexicalEntryReader getLexicalEntryReader() {
-		throw new RuntimeException("Not supported");
-	}
-
-	@Override
-	public void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader) {
-		throw new RuntimeException("Not supported");
 	}
 
 	private static final class StandoffToken {
@@ -281,33 +268,13 @@ public class StandoffReader extends ParserAnnotatedCorpusReader {
 	}
 
 	@Override
-	public void rewind() {
-		throw new TalismaneException("rewind operation not supported by " + this.getClass().getName());
-	}
-
-	@Override
-	public boolean hasNextPosTagSequence() {
-		return this.hasNextConfiguration();
-	}
-
-	@Override
 	public PosTagSequence nextPosTagSequence() {
 		return this.nextConfiguration().getPosTagSequence();
 	}
 
 	@Override
-	public boolean hasNextTokenSequence() {
-		return this.hasNextConfiguration();
-	}
-
-	@Override
 	public TokenSequence nextTokenSequence() {
 		return this.nextConfiguration().getPosTagSequence().getTokenSequence();
-	}
-
-	@Override
-	public boolean hasNextSentence() {
-		return this.hasNextConfiguration();
 	}
 
 	@Override

@@ -59,7 +59,7 @@ public class ParseEventStream implements ClassificationEventStream {
 	@Override
 	public boolean hasNext() {
 		while (targetConfiguration == null) {
-			if (this.corpusReader.hasNextConfiguration()) {
+			if (this.corpusReader.hasNextSentence()) {
 
 				targetConfiguration = this.corpusReader.nextConfiguration();
 				currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());

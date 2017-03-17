@@ -66,7 +66,7 @@ public class ParseComparator {
 	}
 
 	public void evaluate() {
-		while (referenceCorpusReader.hasNextConfiguration()) {
+		while (referenceCorpusReader.hasNextSentence()) {
 			ParseConfiguration realConfiguration = referenceCorpusReader.nextConfiguration();
 			ParseConfiguration guessConfiguaration = evaluationCorpusReader.nextConfiguration();
 			List<ParseConfiguration> guessConfigurations = new ArrayList<ParseConfiguration>();
