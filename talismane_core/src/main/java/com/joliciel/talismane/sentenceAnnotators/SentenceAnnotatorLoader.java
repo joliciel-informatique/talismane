@@ -35,7 +35,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -77,8 +76,10 @@ public class SentenceAnnotatorLoader {
 
 	/**
 	 * Reads a sequence of token filters from a scanner.
+	 * 
+	 * @throws SentenceAnnotatorLoadException
 	 */
-	public List<SentenceAnnotator> loadSentenceAnnotators(Scanner scanner) {
+	public List<SentenceAnnotator> loadSentenceAnnotators(Scanner scanner) throws SentenceAnnotatorLoadException {
 		return this.loadSentenceAnnotators(scanner, null);
 	}
 
@@ -91,8 +92,9 @@ public class SentenceAnnotatorLoader {
 	 *            the file to be read
 	 * @param charset
 	 *            the charset used to read the file
+	 * @throws SentenceAnnotatorLoadException
 	 */
-	public List<SentenceAnnotator> loadSentenceAnnotators(File file, Charset charset) {
+	public List<SentenceAnnotator> loadSentenceAnnotators(File file, Charset charset) throws SentenceAnnotatorLoadException {
 		try {
 			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)))) {
 				return this.loadSentenceAnnotators(scanner, file.getCanonicalPath());
@@ -106,8 +108,10 @@ public class SentenceAnnotatorLoader {
 	/**
 	 * Reads a sequence of token filters from a scanner, with a path providing
 	 * clean error reporting.
+	 * 
+	 * @throws SentenceAnnotatorLoadException
 	 */
-	public List<SentenceAnnotator> loadSentenceAnnotators(Scanner scanner, String path) {
+	public List<SentenceAnnotator> loadSentenceAnnotators(Scanner scanner, String path) throws SentenceAnnotatorLoadException {
 		List<SentenceAnnotator> annotators = new ArrayList<>();
 		Map<String, String> defaultParams = new HashMap<String, String>();
 		int lineNumber = 0;
@@ -126,8 +130,9 @@ public class SentenceAnnotatorLoader {
 					int equalsPos = tab.indexOf('=');
 					if (equalsPos < 0) {
 						if (path != null)
-							throw new TalismaneException("Unable to parse file " + path + ", line " + lineNumber + ": missing equals sign in " + descriptor);
-						throw new TalismaneException("Unable to parse line " + lineNumber + ": missing equals sign in " + descriptor);
+							throw new SentenceAnnotatorLoadException(
+									"Unable to parse file " + path + ", line " + lineNumber + ": missing equals sign in " + descriptor);
+						throw new SentenceAnnotatorLoadException("Unable to parse line " + lineNumber + ": missing equals sign in " + descriptor);
 					}
 
 					String paramName = tab.substring(0, tab.indexOf('='));
@@ -141,8 +146,8 @@ public class SentenceAnnotatorLoader {
 						annotators.add(annotator);
 				} catch (SentenceAnnotatorLoadException e) {
 					if (path != null)
-						throw new TalismaneException("Unable to parse file " + path + ", line " + lineNumber + ": " + descriptor, e);
-					throw new TalismaneException("Unable to parse line " + lineNumber + ": " + descriptor, e);
+						throw new SentenceAnnotatorLoadException("Unable to parse file " + path + ", line " + lineNumber + ": " + descriptor, e);
+					throw new SentenceAnnotatorLoadException("Unable to parse line " + lineNumber + ": " + descriptor, e);
 				}
 			}
 		}
@@ -175,7 +180,7 @@ public class SentenceAnnotatorLoader {
 			} else if (this.registeredFactories.containsKey(className)) {
 				filter = this.registeredFactories.get(className).construct(descriptor, defaultParams, talismaneSession);
 			} else {
-				throw new TalismaneException("Unknown sentence annotator class: " + className);
+				throw new SentenceAnnotatorLoadException("Unknown sentence annotator class: " + className);
 			}
 			if (filter.isExcluded())
 				return null;

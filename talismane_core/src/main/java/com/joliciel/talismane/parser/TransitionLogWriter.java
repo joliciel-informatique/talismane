@@ -9,6 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
 
@@ -26,7 +27,7 @@ public class TransitionLogWriter implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws TalismaneException {
 		try {
 			ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
 

@@ -3,6 +3,7 @@ package com.joliciel.talismane.posTagger.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -36,7 +37,7 @@ public class CombinedLexicalAttributesFeature<T> extends AbstractLexicalAttribut
 	}
 
 	@Override
-	protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
+	protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException {
 		List<String> attributes = new ArrayList<>(attributeNameFeatures.length);
 		for (StringFeature<PosTaggedTokenWrapper> lexicalAttributeNameFeature : attributeNameFeatures) {
 			FeatureResult<String> attributeResult = lexicalAttributeNameFeature.check(innerWrapper, env);

@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -64,9 +65,9 @@ public class PosTagEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() {
+	public boolean hasNext() throws TalismaneException {
 		while (currentSentence == null) {
-			if (this.corpusReader.hasNextPosTagSequence()) {
+			if (this.corpusReader.hasNextSentence()) {
 				currentSentence = this.corpusReader.nextPosTagSequence();
 				if (LOG.isDebugEnabled())
 					LOG.debug("### next sentence: " + currentSentence.getTokenSequence().getSentence());
@@ -83,7 +84,7 @@ public class PosTagEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() {
+	public ClassificationEvent next() throws TalismaneException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			PosTaggedToken taggedToken = currentSentence.get(currentIndex++);

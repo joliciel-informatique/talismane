@@ -21,7 +21,9 @@ package com.joliciel.talismane.parser;
 import com.joliciel.talismane.TalismaneException;
 
 /**
- * Thrown when the dependency label requested does not exist in the current set of dependency labels.
+ * Thrown when the dependency label requested does not exist in the current set
+ * of dependency labels.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -29,13 +31,18 @@ public class UnknownDependencyLabelException extends TalismaneException {
 	private static final long serialVersionUID = 1L;
 	private String dependencyLabel = "";
 	private int index;
-	
+
+	public UnknownDependencyLabelException(String fileName, int lineNumber, String dependencyLabel) {
+		super("Unknown dependency label: " + dependencyLabel + " in file " + fileName + ", line " + lineNumber);
+		this.dependencyLabel = dependencyLabel;
+	}
+
 	public UnknownDependencyLabelException(int index, String dependencyLabel) {
 		super("Unknown dependency label: " + dependencyLabel + " on index " + index);
 		this.dependencyLabel = dependencyLabel;
 		this.index = index;
 	}
-	
+
 	public UnknownDependencyLabelException(String dependencyLabel) {
 		super("Unknown dependency label: " + dependencyLabel);
 		this.dependencyLabel = dependencyLabel;
@@ -44,7 +51,7 @@ public class UnknownDependencyLabelException extends TalismaneException {
 	public String getDependencyLabel() {
 		return dependencyLabel;
 	}
-	
+
 	public int getIndex() {
 		return index;
 	}

@@ -56,8 +56,10 @@ public interface PosTagSequenceProcessor extends Closeable {
 
 	/**
 	 * Process the next pos-tag sequence.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void onNextPosTagSequence(PosTagSequence posTagSequence);
+	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException;
 
 	/**
 	 * Called when analysis is complete.
@@ -111,7 +113,7 @@ public interface PosTagSequenceProcessor extends Closeable {
 						templateName = "posTagger_template_with_comments.ftl";
 						break;
 					default:
-						throw new TalismaneException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
+						throw new RuntimeException("Unknown builtInTemplate for pos-tagger: " + builtInTemplate.name());
 					}
 
 					String path = "output/" + templateName;

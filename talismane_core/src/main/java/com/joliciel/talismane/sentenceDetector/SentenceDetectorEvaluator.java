@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.AnnotatedText;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.StringUtils;
@@ -86,8 +87,9 @@ public class SentenceDetectorEvaluator {
 	 * Evaluate a given sentence detector.
 	 * 
 	 * @return an f-score calculator for this sentence detector
+	 * @throws TalismaneException
 	 */
-	public FScoreCalculator<SentenceDetectorOutcome> evaluate() {
+	public FScoreCalculator<SentenceDetectorOutcome> evaluate() throws TalismaneException {
 		FScoreCalculator<SentenceDetectorOutcome> fScoreCalculator = new FScoreCalculator<SentenceDetectorOutcome>();
 
 		// add f-score per tagger module, to see how we do for each boundary

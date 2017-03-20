@@ -73,7 +73,7 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
 		return parseFeatures;
 	}
 
-	public List<ParserRule> getRules(List<String> ruleDescriptors) {
+	public List<ParserRule> getRules(List<String> ruleDescriptors) throws TalismaneException {
 		List<ParserRule> rules = new ArrayList<ParserRule>();
 
 		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
@@ -274,7 +274,7 @@ public class ParserFeatureParser extends AbstractFeatureParser<ParseConfiguratio
 		}
 
 		@Override
-		public FeatureResult<Y> check(ParseConfigurationWrapper context, RuntimeEnvironment env) {
+		public FeatureResult<Y> check(ParseConfigurationWrapper context, RuntimeEnvironment env) throws TalismaneException {
 			return wrappedFeature.check(context, env);
 		}
 

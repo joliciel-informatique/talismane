@@ -20,6 +20,7 @@ package com.joliciel.talismane.posTagger;
 
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
 /**
@@ -41,8 +42,11 @@ public interface NonDeterministicPosTagger extends PosTagger {
 	 * @param tokenSequences
 	 *            the n most likely token sequences for this sentence.
 	 * @return the n most likely postag sequences for this sentence
+	 * @throws UnknownPosTagException
+	 *             if an unknown pos-tag is guessed
+	 * @throws TalismaneException
 	 */
-	public abstract List<PosTagSequence> tagSentence(List<TokenSequence> tokenSequences);
+	public abstract List<PosTagSequence> tagSentence(List<TokenSequence> tokenSequences) throws UnknownPosTagException, TalismaneException;
 
 	/**
 	 * The maximum number of possible sequences returned by the pos-tagger.

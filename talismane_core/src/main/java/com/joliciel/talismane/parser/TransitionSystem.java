@@ -20,7 +20,6 @@ package com.joliciel.talismane.parser;
 
 import java.util.Set;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.MachineLearningModel;
 
 /**
@@ -35,13 +34,27 @@ public interface TransitionSystem {
 	 * Predict the transitions required to generate the set of targe
 	 * dependencies for a given initial configuration, also transforms the
 	 * configuration so that it becomes a terminal configuration.
+	 * 
+	 * @throws UnknownDependencyLabelException
+	 *             if an unknown dependency label is encountered
+	 * @throws NonPredictableParseTreeException
+	 *             if its impossible to predict the current parse tree using
+	 *             this transition system.
+	 * @throws CircularDependencyException
+	 *             if parse tree contains a circular dependency
 	 */
-	void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies);
+	void predictTransitions(ParseConfiguration configuration, Set<DependencyArc> targetDependencies)
+			throws UnknownDependencyLabelException, NonPredictableParseTreeException, CircularDependencyException;
 
 	/**
 	 * Get the transition corresponding to a particular code.
+	 * 
+	 * @throws UnknownDependencyLabelException
+	 *             if the code includes an unknown dependency label
+	 * @throws UnknownTransitionException
+	 *             if the code includes an unknown transition
 	 */
-	public Transition getTransitionForCode(String code);
+	public Transition getTransitionForCode(String code) throws UnknownDependencyLabelException, UnknownTransitionException;
 
 	/**
 	 * Get all possible transitions for this system.
@@ -74,7 +87,7 @@ public interface TransitionSystem {
 		} else if (ArcEagerTransitionSystem.class.getSimpleName().equalsIgnoreCase(transitionSystemClassName)) {
 			transitionSystem = new ArcEagerTransitionSystem();
 		} else {
-			throw new TalismaneException("Unknown transition system: " + transitionSystemClassName);
+			throw new RuntimeException("Unknown transition system: " + transitionSystemClassName);
 		}
 		return transitionSystem;
 	}

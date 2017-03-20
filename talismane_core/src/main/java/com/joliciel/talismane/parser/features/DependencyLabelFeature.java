@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -43,7 +44,7 @@ public final class DependencyLabelFeature extends AbstractParseConfigurationAddr
 	}
 
 	@Override
-	public FeatureResult<String> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<String> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
 		PosTaggedTokenWrapper innerWrapper = this.getToken(wrapper, env);
 		if (innerWrapper == null)
 			return null;

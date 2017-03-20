@@ -48,8 +48,11 @@ public class PretokenisedSequence extends TokenSequence {
 	/**
 	 * Called when reconstructing a sentence from a previously annotated corpus,
 	 * adding the next string.
+	 * 
+	 * @throws TalismaneException
+	 *             if couldn't find the token at the next sentence position
 	 */
-	public Token addToken(String string) {
+	public Token addToken(String string) throws TalismaneException {
 		CharSequence text = this.getSentence().getText();
 
 		int start = 0;

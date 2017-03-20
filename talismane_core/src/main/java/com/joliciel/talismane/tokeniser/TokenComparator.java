@@ -94,13 +94,15 @@ public class TokenComparator {
 
 	/**
 	 * Evaluate the evaluation corpus against the reference corpus.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void compare() {
-		while (referenceCorpusReader.hasNextTokenSequence()) {
+	public void compare() throws TalismaneException {
+		while (referenceCorpusReader.hasNextSentence()) {
 			TokenSequence realSequence = referenceCorpusReader.nextTokenSequence();
 
 			TokenSequence guessedSequence = null;
-			if (evaluationCorpusReader.hasNextTokenSequence())
+			if (evaluationCorpusReader.hasNextSentence())
 				guessedSequence = evaluationCorpusReader.nextTokenSequence();
 			else {
 				throw new TalismaneException("Wrong number of sentences in eval corpus: " + realSequence.getSentence().getText());

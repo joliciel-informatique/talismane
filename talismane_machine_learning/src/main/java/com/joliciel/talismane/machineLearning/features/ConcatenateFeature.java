@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Merges two or more string features by concatenating their results and adding
  * a | in between. If any of the results is null, returns a null.
@@ -45,7 +47,7 @@ public class ConcatenateFeature<T> extends AbstractCachableFeature<T, String>imp
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<String> featureResult = null;
 
 		StringBuilder sb = new StringBuilder();

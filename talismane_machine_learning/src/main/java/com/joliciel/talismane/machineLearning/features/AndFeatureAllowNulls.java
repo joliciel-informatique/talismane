@@ -18,15 +18,18 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Combines any number boolean features using a boolean AND.
- * If any of the features is null, will consider them as false.
+ * Combines any number boolean features using a boolean AND. If any of the
+ * features is null, will consider them as false.
+ * 
  * @author Assaf Urieli
  *
  */
-public class AndFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
+public class AndFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	BooleanFeature<T>[] booleanFeatures;
-	
+
 	@SafeVarargs
 	public AndFeatureAllowNulls(BooleanFeature<T>... booleanFeatures) {
 		super();
@@ -43,21 +46,21 @@ public class AndFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean>
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		boolean booleanResult = true;
 		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
 			FeatureResult<Boolean> result = booleanFeature.check(context, env);
 			boolean value = false;
-			if (result!=null) {
+			if (result != null) {
 				value = result.getOutcome();
 			}
 			booleanResult = booleanResult && value;
 			if (!booleanResult)
 				break;
 		}
-		
+
 		featureResult = this.generateResult(booleanResult);
 
 		return featureResult;

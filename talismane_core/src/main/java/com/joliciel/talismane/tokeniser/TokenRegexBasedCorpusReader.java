@@ -1,18 +1,15 @@
 package com.joliciel.talismane.tokeniser;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,57 +17,94 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.LinguisticRules;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
+import com.joliciel.talismane.corpus.CorpusLine;
+import com.joliciel.talismane.corpus.CorpusLine.CorpusElement;
+import com.joliciel.talismane.corpus.CorpusLineReader;
+import com.joliciel.talismane.corpus.CorpusRule;
+import com.joliciel.talismane.lexicon.CompactLexicalEntry;
+import com.joliciel.talismane.lexicon.CompactLexicalEntrySupport;
+import com.joliciel.talismane.lexicon.LexicalEntryReader;
+import com.joliciel.talismane.lexicon.RegexLexicalEntryReader;
+import com.joliciel.talismane.lexicon.WritableLexicalEntry;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotator;
 import com.joliciel.talismane.sentenceDetector.SentenceDetectorAnnotatedCorpusReader;
 import com.joliciel.talismane.sentenceDetector.SentencePerLineCorpusReader;
 import com.joliciel.talismane.utils.ConfigUtils;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
 import com.typesafe.config.Config;
 
 /**
  * A corpus reader that expects one token per line, and analyses the line
- * content based on a regex.<br/>
- * The regex needs to contain a capturing group indicated by the following
- * strings:<br/>
- * <li>%TOKEN%: the token - note that we assume CoNLL formatting (with
- * underscores for spaces and for empty tokens). The sequence &amp;und; should
- * be used for true underscores.</li> It can optionally contain the following
- * capturing groups as well:<br/>
- * <li>%FILENAME%: the file containing the token</li>
- * <li>%ROW%: the row containing the token</li>
- * <li>%COLUMN%: the column containing the token</li> The token placeholder will
- * be replaced by (.*). Other placeholders will be replaced by (.+) meaning no
- * empty strings allowed.
+ * content based on a regex supplied during construction, via a
+ * {@link CorpusLineReader}.<br/>
+ * 
+ * The following placeholders are required:<br/>
+ * {@link CorpusElement#TOKEN} <br/>
+ * These are included surrounded by % signs on both sides, and without the
+ * prefix "CorpusElement."<br/>
+ * 
+ * Example (note that the regex is applied to one line, so no endline is
+ * necessary):
+ * 
+ * <pre>
+ * .+\t%TOKEN%
+ * </pre>
  * 
  * @author Assaf Urieli
  *
  */
-public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader {
+public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader implements TokeniserAnnotatedCorpusReader, CurrentFileObserver {
 	private static final Logger LOG = LoggerFactory.getLogger(TokenRegexBasedCorpusReader.class);
 
-	private static final String TOKEN_PLACEHOLDER = "%TOKEN%";
-	private static final String FILENAME_PLACEHOLDER = "%FILENAME%";
-	private static final String ROW_PLACEHOLDER = "%ROW%";
-	private static final String COLUMN_PLACEHOLDER = "%COLUMN%";
-	private Map<String, Integer> placeholderIndexMap = new HashMap<String, Integer>();
-	private PretokenisedSequence tokenSequence = null;
+	protected PretokenisedSequence tokenSequence = null;
 
 	private int lineNumber = 0;
 	private int sentenceCount = 0;
 
-	private SentenceDetectorAnnotatedCorpusReader sentenceReader = null;
-
 	private final String regex;
 	private final Scanner scanner;
-	private final TalismaneSession talismaneSession;
-	private final Pattern pattern;
-	private final TalismaneSession session;
+	private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
+	private final CorpusLineReader corpusLineReader;
+	private File currentFile;
 
-	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException {
-		super(reader, config, session);
-		this.session = session;
-		this.regex = config.getString("preannotated-pattern");
-		this.talismaneSession = session;
+	private final LexicalEntryReader lexicalEntryReader;
+
+	private final SentenceDetectorAnnotatedCorpusReader sentenceReader;
+
+	private boolean needsToReturnBlankLine = false;
+
+	/**
+	 * Similar to
+	 * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(String,Reader,Config,TalismaneSession)}
+	 * , but reads the regex from the setting:
+	 * <ul>
+	 * <li>preannotated-pattern</li>
+	 * </ul>
+	 * 
+	 * @throws TalismaneException
+	 */
+	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+		this(config.getString("preannotated-pattern"), reader, config, session);
+	}
+
+	/**
+	 * Add attributes as specified in the config to the corpus reader.
+	 * Recognises the attributes:
+	 * <ul>
+	 * <li>sentence-file: where to read the correctly formatted sentences</li>
+	 * <li>corpus-lexical-entry-regex: how to read the lexical entries, see
+	 * {@link RegexLexicalEntryReader}</li>
+	 * </ul>
+	 * 
+	 * @param config
+	 *            the local config for this corpus reader (local namespace)
+	 * @throws TalismaneException
+	 */
+	public TokenRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+		super(config, session);
+		this.regex = regex;
 		this.scanner = new Scanner(reader);
 
 		String configPath = "sentence-file";
@@ -79,86 +113,61 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 			Reader sentenceFileReader = new BufferedReader(new InputStreamReader(sentenceReaderFile, session.getInputCharset()));
 			SentenceDetectorAnnotatedCorpusReader sentenceReader = new SentencePerLineCorpusReader(sentenceFileReader, config, session);
 			this.sentenceReader = sentenceReader;
+		} else {
+			this.sentenceReader = null;
 		}
 
-		// construct a pattern based on the regex
-		int tokenPos = regex.indexOf(TOKEN_PLACEHOLDER);
-		if (tokenPos < 0)
-			throw new TalismaneException("The regex must contain the string \"" + TOKEN_PLACEHOLDER + "\"");
+		configPath = "corpus-lexical-entry-regex";
+		if (config.hasPath(configPath)) {
+			InputStream lexiconRegexFile = ConfigUtils.getFileFromConfig(config, configPath);
+			Scanner regexScanner = new Scanner(new BufferedReader(new InputStreamReader(lexiconRegexFile, "UTF-8")));
+			this.lexicalEntryReader = new RegexLexicalEntryReader(regexScanner);
+		} else {
+			this.lexicalEntryReader = null;
+		}
 
-		int filenamePos = regex.indexOf(FILENAME_PLACEHOLDER);
-		int rowNumberPos = regex.indexOf(ROW_PLACEHOLDER);
-		int columnNumberPos = regex.indexOf(COLUMN_PLACEHOLDER);
-		Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
-		placeholderMap.put(tokenPos, TOKEN_PLACEHOLDER);
-
-		if (filenamePos >= 0)
-			placeholderMap.put(filenamePos, FILENAME_PLACEHOLDER);
-		if (rowNumberPos >= 0)
-			placeholderMap.put(rowNumberPos, ROW_PLACEHOLDER);
-		if (columnNumberPos >= 0)
-			placeholderMap.put(columnNumberPos, COLUMN_PLACEHOLDER);
-
-		for (int j = 0; j < regex.length(); j++) {
-			if (regex.charAt(j) == '(') {
-				placeholderMap.put(j, "");
+		configPath = "corpus-rules";
+		List<CorpusRule> corpusRules = new ArrayList<>();
+		if (config.hasPath(configPath)) {
+			List<? extends Config> ruleConfigs = config.getConfigList(configPath);
+			for (Config ruleConfig : ruleConfigs) {
+				CorpusRule corpusRule = new CorpusRule(ruleConfig);
+				corpusRules.add(corpusRule);
 			}
 		}
-		int i = 1;
-		for (int placeholderIndex : placeholderMap.keySet()) {
-			String placeholderName = placeholderMap.get(placeholderIndex);
-			if (placeholderName.length() > 0)
-				placeholderIndexMap.put(placeholderName, i);
-			i++;
-		}
+		this.corpusLineReader = new CorpusLineReader(regex, this.getRequiredElements(), corpusRules, lexicalEntryReader, session);
+	}
 
-		String regexWithGroups = regex.replace(TOKEN_PLACEHOLDER, "(.*?)");
-		regexWithGroups = regexWithGroups.replace(FILENAME_PLACEHOLDER, "(.+?)");
-		regexWithGroups = regexWithGroups.replace(ROW_PLACEHOLDER, "(.+?)");
-		regexWithGroups = regexWithGroups.replace(COLUMN_PLACEHOLDER, "(.+?)");
-
-		this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
+	protected CorpusElement[] getRequiredElements() {
+		return new CorpusElement[] { CorpusElement.TOKEN };
 	}
 
 	@Override
-	public boolean hasNextTokenSequence() {
+	public boolean hasNextSentence() throws TalismaneException {
 		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
 			while (tokenSequence == null) {
-				List<TokenTuple> tuples = new ArrayList<>();
-				if (!scanner.hasNextLine())
+				List<CorpusLine> dataLines = new ArrayList<>();
+				if (!this.hasNextLine())
 					break;
-				while (scanner.hasNextLine() || tuples.size() > 0) {
+				while ((this.hasNextLine() || dataLines.size() > 0) && tokenSequence == null) {
 					String line = "";
-					if (scanner.hasNextLine())
-						line = scanner.nextLine().replace("\r", "");
+					if (this.hasNextLine())
+						line = this.nextLine().replace("\r", "");
 					lineNumber++;
 					if (line.length() > 0) {
+						CorpusLine dataLine = corpusLineReader.read(line, lineNumber);
 
-						Matcher matcher = this.getPattern().matcher(line);
-						if (!matcher.matches())
-							throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
+						dataLines.add(dataLine);
 
-						if (matcher.groupCount() < placeholderIndexMap.size()) {
-							throw new TalismaneException("Expected at least " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount()
-									+ ") on line " + lineNumber);
+						if (this.lexicalEntryReader != null) {
+							WritableLexicalEntry lexicalEntry = new CompactLexicalEntry(lexicalEntrySupport);
+							this.lexicalEntryReader.readEntry(line, lexicalEntry);
+							dataLine.setLexicalEntry(lexicalEntry);
 						}
-
-						String word = matcher.group(placeholderIndexMap.get(TOKEN_PLACEHOLDER));
-						word = talismaneSession.getCoNLLFormatter().fromCoNLL(word);
-
-						TokenTuple tuple = new TokenTuple(word);
-
-						if (placeholderIndexMap.containsKey(FILENAME_PLACEHOLDER))
-							tuple.fileName = (matcher.group(placeholderIndexMap.get(FILENAME_PLACEHOLDER)));
-						if (placeholderIndexMap.containsKey(ROW_PLACEHOLDER))
-							tuple.lineNumber = (Integer.parseInt(matcher.group(placeholderIndexMap.get(ROW_PLACEHOLDER))));
-						if (placeholderIndexMap.containsKey(COLUMN_PLACEHOLDER))
-							tuple.columnNumber = (Integer.parseInt(matcher.group(placeholderIndexMap.get(COLUMN_PLACEHOLDER))));
-						tuples.add(tuple);
 					} else {
-						if (tuples.size() == 0)
+						if (dataLines.size() == 0)
 							continue;
 
 						// end of sentence
@@ -186,51 +195,11 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 						LOG.debug("sentenceCount: " + sentenceCount);
 
 						if (!includeMe) {
-							tuples = new ArrayList<>();
-							tokenSequence = null;
+							dataLines = new ArrayList<>();
 							continue;
 						}
 
-						Sentence sentence = null;
-						if (sentenceReader != null && sentenceReader.hasNextSentence()) {
-							sentence = sentenceReader.nextSentence();
-						} else {
-							LinguisticRules rules = talismaneSession.getLinguisticRules();
-							if (rules == null)
-								throw new TalismaneException("Linguistic rules have not been set.");
-
-							String text = "";
-							for (TokenTuple tuple : tuples) {
-								String word = tuple.word;
-								// check if a space should be added before this
-								// token
-
-								if (rules.shouldAddSpace(text, word))
-									text += " ";
-								text += word;
-							}
-							sentence = new Sentence(text, talismaneSession);
-						}
-
-						for (SentenceAnnotator annotator : session.getSentenceAnnotators()) {
-							annotator.annotate(sentence);
-						}
-
-						tokenSequence = new PretokenisedSequence(sentence, talismaneSession);
-						for (TokenTuple tuple : tuples) {
-							Token token = tokenSequence.addToken(tuple.word);
-							token.setFileName(tuple.fileName);
-							token.setLineNumber(tuple.lineNumber);
-							token.setColumnNumber(tuple.columnNumber);
-						}
-						tokenSequence.cleanSlate();
-
-						if (LOG.isTraceEnabled()) {
-							LOG.trace("Next sentence: " + sentence.getText().toString());
-							LOG.trace("Tokenised: " + tokenSequence.toString());
-						}
-
-						break;
+						this.processSentence(dataLines);
 					}
 				}
 			}
@@ -238,27 +207,77 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 		return (tokenSequence != null);
 	}
 
-	private static final class TokenTuple {
-		public TokenTuple(String word) {
-			this.word = word;
+	private boolean hasNextLine() {
+		if (needsToReturnBlankLine)
+			return true;
+		return this.scanner.hasNextLine();
+	}
+
+	private String nextLine() {
+		if (needsToReturnBlankLine) {
+			needsToReturnBlankLine = false;
+			return "";
 		}
+		return this.scanner.nextLine();
+	}
 
-		public String word;
-		public String fileName;
-		public int lineNumber = -1;
-		public int columnNumber = -1;
+	@Override
+	public void onNextFile(File file) {
+		currentFile = file;
+		lineNumber = 0;
+		this.needsToReturnBlankLine = true;
+	}
 
-		@Override
-		public String toString() {
-			return "TokenTuple [word=" + word + ", fileName=" + fileName + ", lineNumber=" + lineNumber + ", columnNumber=" + columnNumber + "]";
+	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
+		try {
+			Sentence sentence = null;
+			if (sentenceReader != null && sentenceReader.hasNextSentence()) {
+				sentence = sentenceReader.nextSentence();
+			} else {
+				LinguisticRules rules = session.getLinguisticRules();
+				if (rules == null)
+					throw new TalismaneException("Linguistic rules have not been set.");
+
+				String text = "";
+				for (CorpusLine corpusLine : corpusLines) {
+					String word = corpusLine.getElement(CorpusElement.TOKEN);
+					// check if a space should be added before this
+					// token
+
+					if (rules.shouldAddSpace(text, word))
+						text += " ";
+					text += word;
+				}
+				sentence = new Sentence(text, session);
+			}
+
+			for (SentenceAnnotator tokenFilter : session.getSentenceAnnotators()) {
+				tokenFilter.annotate(sentence);
+			}
+
+			tokenSequence = new PretokenisedSequence(sentence, session);
+			for (CorpusLine corpusLine : corpusLines) {
+				this.convertToToken(tokenSequence, corpusLine);
+			}
+			tokenSequence.cleanSlate();
+		} catch (TalismaneException e) {
+			this.clearSentence();
+			throw e;
 		}
 	}
 
 	@Override
-	public TokenSequence nextTokenSequence() {
-		TokenSequence nextSequence = tokenSequence;
-		tokenSequence = null;
-		return nextSequence;
+	public TokenSequence nextTokenSequence() throws TalismaneException {
+		TokenSequence nextSentence = null;
+		if (this.hasNextSentence()) {
+			nextSentence = tokenSequence;
+			this.clearSentence();
+		}
+		return nextSentence;
+	}
+
+	protected void clearSentence() {
+		this.tokenSequence = null;
 	}
 
 	/**
@@ -268,35 +287,47 @@ public class TokenRegexBasedCorpusReader extends TokeniserAnnotatedCorpusReader 
 		return regex;
 	}
 
-	public Pattern getPattern() {
-		return pattern;
-	}
-
 	@Override
 	public Map<String, String> getCharacteristics() {
 		return super.getCharacteristics();
 	}
 
-	/**
-	 * If provided, will assign sentences with the original white space to the
-	 * token sequences.
-	 */
-	public SentenceDetectorAnnotatedCorpusReader getSentenceReader() {
-		return sentenceReader;
-	}
-
 	@Override
-	public boolean hasNextSentence() {
-		return this.hasNextTokenSequence();
-	}
-
-	@Override
-	public Sentence nextSentence() {
+	public Sentence nextSentence() throws TalismaneException {
 		return this.nextTokenSequence().getSentence();
 	}
 
 	@Override
 	public boolean isNewParagraph() {
 		return false;
+	}
+
+	protected CorpusLineReader getCorpusLineReader() {
+		return corpusLineReader;
+	}
+
+	protected File getCurrentFile() {
+		return currentFile;
+	}
+
+	/**
+	 * Convert a data line into a token, and add it to the provided token
+	 * sequence.
+	 * 
+	 * @throws TalismaneException
+	 */
+	protected Token convertToToken(PretokenisedSequence tokenSequence, CorpusLine corpusLine) throws TalismaneException {
+		Token token = tokenSequence.addToken(corpusLine.getElement(CorpusElement.TOKEN));
+		if (corpusLine.hasElement(CorpusElement.FILENAME))
+			token.setFileName(corpusLine.getElement(CorpusElement.FILENAME));
+		if (corpusLine.hasElement(CorpusElement.ROW))
+			token.setLineNumber(Integer.parseInt(corpusLine.getElement(CorpusElement.ROW)));
+		if (corpusLine.hasElement(CorpusElement.COLUMN))
+			token.setColumnNumber(Integer.parseInt(corpusLine.getElement(CorpusElement.COLUMN)));
+		if (corpusLine.hasElement(CorpusElement.END_ROW))
+			token.setLineNumberEnd(Integer.parseInt(corpusLine.getElement(CorpusElement.END_ROW)));
+		if (corpusLine.hasElement(CorpusElement.END_COLUMN))
+			token.setColumnNumberEnd(Integer.parseInt(corpusLine.getElement(CorpusElement.END_COLUMN)));
+		return token;
 	}
 }

@@ -32,8 +32,7 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  * 
  * @author Assaf Urieli
  */
-public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>
-		implements PosTaggedTokenAddressFunction<PosTaggerContext> {
+public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>implements PosTaggedTokenAddressFunction<PosTaggerContext> {
 	private IntegerFeature<PosTaggerContext> offsetFeature = null;
 
 	public PosTaggerHistoryAddressFunction(IntegerFeature<PosTaggerContext> offset) {
@@ -42,14 +41,14 @@ public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<Po
 	}
 
 	@Override
-	protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
+	protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<PosTaggedTokenWrapper> result = null;
 
 		FeatureResult<Integer> offsetResult = offsetFeature.check(context, env);
 		if (offsetResult != null) {
 			int n = offsetResult.getOutcome();
 			if (n >= 0) {
-				throw new TalismaneException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
+				throw new RuntimeException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
 			}
 			n = 0 - n;
 			int i = context.getToken().getIndex();

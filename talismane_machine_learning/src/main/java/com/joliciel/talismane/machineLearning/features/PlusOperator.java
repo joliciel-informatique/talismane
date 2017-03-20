@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns operand1 + operand2.
  * 
@@ -35,7 +37,7 @@ public class PlusOperator<T> extends AbstractCachableFeature<T, Double>implement
 	}
 
 	@Override
-	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Double> featureResult = null;
 
 		FeatureResult<Double> operand1Result = operand1.check(context, env);

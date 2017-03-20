@@ -18,7 +18,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.parser.Parser.ParseComparisonStrategyType;
 
 /**
@@ -38,9 +37,8 @@ public interface ParseComparisonStrategy {
 			return new StackAndBufferSizeComparsionStrategy();
 		case dependencyCount:
 			return new DependencyCountComparisonStrategy();
-		default:
-			throw new TalismaneException("Unknown parse comparison strategy: " + type);
 		}
+		throw new RuntimeException("Unknown parse comparison strategy: " + type);
 	}
 
 	public int getComparisonIndex(ParseConfiguration configuration);

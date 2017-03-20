@@ -151,7 +151,7 @@ public class TestParserTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testStringCollectionFeatures() {
+	public void testStringCollectionFeatures() throws Exception {
 		FunctionDescriptorParser functionDescriptorParser = new FunctionDescriptorParser();
 
 		TestParser parser = new TestParser();

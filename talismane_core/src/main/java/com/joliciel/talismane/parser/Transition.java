@@ -22,6 +22,7 @@ import com.joliciel.talismane.machineLearning.Decision;
 
 /**
  * A single transition in a transition-based parsing system.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -30,26 +31,32 @@ public interface Transition extends Comparable<Transition> {
 	 * Check whether this transition is valid for the configuration provided.
 	 */
 	public boolean checkPreconditions(ParseConfiguration configuration);
-	
+
 	/**
 	 * Apply the transition to the configuration provided.
+	 * 
+	 * @throws InvalidTransitionException
+	 *             if transition cannot be applied in current conditions
+	 * @throws CircularDependencyException
+	 *             if this would generate a ciruclar dependency
 	 */
-	public void apply(ParseConfiguration configuration);
-	
+	public void apply(ParseConfiguration configuration) throws InvalidTransitionException, CircularDependencyException;
+
 	/**
 	 * The unique code for this transition.
 	 */
 	public String getCode();
-	
+
 	/**
-	 * Returns true if this transition reduces the elements left to process,
-	 * by removing an element permanently from either the stack or the buffer.
+	 * Returns true if this transition reduces the elements left to process, by
+	 * removing an element permanently from either the stack or the buffer.
 	 */
 	public boolean doesReduce();
-	
+
 	/**
 	 * The decision which generated this transition.
 	 */
 	public Decision getDecision();
+
 	public void setDecision(Decision decision);
 }

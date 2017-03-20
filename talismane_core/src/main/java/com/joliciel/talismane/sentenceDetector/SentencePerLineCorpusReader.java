@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
 import com.joliciel.talismane.rawText.Sentence;
 import com.typesafe.config.Config;
 
@@ -32,14 +33,14 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public class SentencePerLineCorpusReader extends SentenceDetectorAnnotatedCorpusReader {
+public class SentencePerLineCorpusReader extends AbstractAnnotatedCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
 	private final Scanner scanner;
 	private int sentenceCount = 0;
 	String sentence = null;
 	private final TalismaneSession session;
 
 	public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
-		super(reader, config, session);
+		super(config, session);
 		this.session = session;
 		this.scanner = new Scanner(reader);
 	}

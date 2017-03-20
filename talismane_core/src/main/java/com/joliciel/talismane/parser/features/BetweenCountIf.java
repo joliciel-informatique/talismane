@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
@@ -35,7 +36,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class BetweenCountIf extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
+public final class BetweenCountIf extends AbstractParseConfigurationFeature<Integer>implements IntegerFeature<ParseConfigurationWrapper> {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction1;
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction2;
 	private BooleanFeature<ParseConfigurationAddress> criterion;
@@ -50,7 +51,7 @@ public final class BetweenCountIf extends AbstractParseConfigurationFeature<Inte
 	}
 
 	@Override
-	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		FeatureResult<PosTaggedTokenWrapper> tokenResult1 = addressFunction1.check(wrapper, env);
 		FeatureResult<PosTaggedTokenWrapper> tokenResult2 = addressFunction2.check(wrapper, env);

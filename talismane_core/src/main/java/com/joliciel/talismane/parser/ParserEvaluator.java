@@ -56,7 +56,8 @@ public class ParserEvaluator {
 	private final List<ParseEvaluationObserver> observers;
 	private final TalismaneSession session;
 
-	public ParserEvaluator(Reader evalReader, File outDir, TalismaneSession session) throws ClassNotFoundException, IOException, ReflectiveOperationException {
+	public ParserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+			throws ClassNotFoundException, IOException, ReflectiveOperationException, TalismaneException {
 		this.session = session;
 		Config config = session.getConfig();
 		Config parserConfig = config.getConfig("talismane.core.parser");
@@ -90,8 +91,14 @@ public class ParserEvaluator {
 		this.observers = new ArrayList<>();
 	}
 
-	public void evaluate() {
-		while (corpusReader.hasNextConfiguration()) {
+	/**
+	 * 
+	 * @throws TalismaneException
+	 *             if an attempt is made to evaluate with a tokeniser but no
+	 *             pos-tagger
+	 */
+	public void evaluate() throws TalismaneException {
+		while (corpusReader.hasNextSentence()) {
 			ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
 
 			List<PosTagSequence> posTagSequences = null;

@@ -18,22 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceAnnotators;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Thrown when an error occurs on token feature loading.
  * 
  * @author Assaf Urieli
  *
  */
-public class SentenceAnnotatorLoadException extends Exception {
+public class SentenceAnnotatorLoadException extends TalismaneException {
 	private static final long serialVersionUID = 1L;
-
-	public SentenceAnnotatorLoadException() {
-		super();
-	}
-
-	public SentenceAnnotatorLoadException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
 
 	public SentenceAnnotatorLoadException(String message, Throwable cause) {
 		super(message, cause);
@@ -41,10 +35,6 @@ public class SentenceAnnotatorLoadException extends Exception {
 
 	public SentenceAnnotatorLoadException(String message) {
 		super(message);
-	}
-
-	public SentenceAnnotatorLoadException(Throwable cause) {
-		super(cause);
 	}
 
 }

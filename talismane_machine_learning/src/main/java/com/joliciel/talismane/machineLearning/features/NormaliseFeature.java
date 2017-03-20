@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Changes a numeric feature to a value from 0 to 1, where any value &lt;=
  * minValue is set to 0, and any value &gt;= maxValue is set to 1, and all other
@@ -52,7 +54,7 @@ public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double>imple
 	}
 
 	@Override
-	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Double> featureResult = null;
 
 		FeatureResult<Double> resultToNormalise = featureToNormalise.check(context, env);

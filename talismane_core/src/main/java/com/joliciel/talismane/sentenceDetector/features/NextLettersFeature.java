@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -40,7 +41,7 @@ public final class NextLettersFeature extends AbstractSentenceDetectorFeature<St
 	}
 
 	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<String> result = null;
 
 		FeatureResult<Integer> nResult = nFeature.check(context, env);

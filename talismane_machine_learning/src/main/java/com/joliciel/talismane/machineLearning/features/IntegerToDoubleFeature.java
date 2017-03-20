@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Converts an integer feature to a double feature
  * 
@@ -35,7 +37,7 @@ public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double>impleme
 	}
 
 	@Override
-	public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
+	public FeatureResult<Double> check(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Double> featureResult = null;
 
 		FeatureResult<Integer> integerResult = integerFeature.check(context, env);

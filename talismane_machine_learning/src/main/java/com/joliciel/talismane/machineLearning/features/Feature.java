@@ -20,6 +20,8 @@ package com.joliciel.talismane.machineLearning.features;
 
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * A single feature that checks a given object T (e.g. a token) and returns an
  * outcome. The outcome Y could be a String (handled as a nominal class), a
@@ -41,8 +43,10 @@ public interface Feature<T, Y> extends Comparable<Feature<T, ?>> {
 
 	/**
 	 * Check the feature on this context and return the result.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public FeatureResult<Y> check(T context, RuntimeEnvironment env);
+	public FeatureResult<Y> check(T context, RuntimeEnvironment env) throws TalismaneException;
 
 	/**
 	 * The name of this feature.

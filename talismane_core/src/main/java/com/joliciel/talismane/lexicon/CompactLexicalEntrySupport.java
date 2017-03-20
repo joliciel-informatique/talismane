@@ -22,8 +22,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.joliciel.talismane.TalismaneException;
-
 import gnu.trove.map.hash.THashMap;
 
 /**
@@ -96,12 +94,16 @@ public class CompactLexicalEntrySupport implements Serializable {
 		return value;
 	}
 
+	/**
+	 * @param name
+	 * @return
+	 */
 	public LexicalAttribute getAttributeForName(String name) {
 		LexicalAttribute attribute = this.nameToAttributeMap.get(name);
 		if (attribute == null) {
 			otherAttributeIndex++;
 			if (otherAttributeIndex > 8)
-				throw new TalismaneException(
+				throw new RuntimeException(
 						"Only 8 OtherAttributes allowed. Already used: " + this.nameToAttributeMap.keySet().stream().collect(Collectors.joining(", ")));
 			attribute = LexicalAttribute.valueOf("OtherAttribute" + otherAttributeIndex);
 			nameToAttributeMap.put(name, attribute);

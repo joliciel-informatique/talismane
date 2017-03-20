@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Combines two boolean features using a boolean OR. If any feature returns
  * null, will return a null.
@@ -45,7 +47,7 @@ public class OrFeature<T> extends AbstractCachableFeature<T, Boolean>implements 
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		boolean hasNull = false;

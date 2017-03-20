@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -42,8 +43,9 @@ import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 public class ParseEventStream implements ClassificationEventStream {
 	private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
 
-	ParserAnnotatedCorpusReader corpusReader;
-	Set<ParseConfigurationFeature<?>> parseFeatures;
+	private final ParserAnnotatedCorpusReader corpusReader;
+	private final Set<ParseConfigurationFeature<?>> parseFeatures;
+	private final boolean skipImpossibleSentences;
 
 	ParseConfiguration targetConfiguration;
 	ParseConfiguration currentConfiguration;
@@ -51,24 +53,33 @@ public class ParseEventStream implements ClassificationEventStream {
 	int currentIndex;
 	int eventCount;
 
-	public ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
+	public ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures, boolean skipImpossibleSentences) {
 		this.corpusReader = corpusReader;
 		this.parseFeatures = parseFeatures;
+		this.skipImpossibleSentences = skipImpossibleSentences;
 	}
 
 	@Override
-	public boolean hasNext() {
+	public boolean hasNext() throws TalismaneException {
 		while (targetConfiguration == null) {
-			if (this.corpusReader.hasNextConfiguration()) {
+			try {
+				if (this.corpusReader.hasNextSentence()) {
 
-				targetConfiguration = this.corpusReader.nextConfiguration();
-				currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());
-				currentIndex = 0;
-				if (currentIndex == targetConfiguration.getTransitions().size()) {
-					targetConfiguration = null;
+					targetConfiguration = this.corpusReader.nextConfiguration();
+					currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());
+					currentIndex = 0;
+					if (currentIndex == targetConfiguration.getTransitions().size()) {
+						targetConfiguration = null;
+					}
+				} else {
+					break;
 				}
-			} else {
-				break;
+			} catch (NonPredictableParseTreeException e) {
+				if (skipImpossibleSentences) {
+					LOG.error("Impossible sentence, skipping", e);
+					continue;
+				}
+				throw e;
 			}
 		}
 
@@ -79,7 +90,7 @@ public class ParseEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() {
+	public ClassificationEvent next() throws TalismaneException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			eventCount++;

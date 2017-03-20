@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Reverses a feature using a boolean NOT. If it is null, will return null.
  * 
@@ -34,7 +36,7 @@ public class NotFeature<T> extends AbstractCachableFeature<T, Boolean>implements
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<Boolean> result1 = operand.check(context, env);

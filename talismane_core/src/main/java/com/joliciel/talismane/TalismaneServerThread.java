@@ -59,7 +59,7 @@ class TalismaneServerThread extends Thread {
 			talismane.analyse(in);
 
 			socket.close();
-		} catch (IOException | ReflectiveOperationException e) {
+		} catch (IOException | ReflectiveOperationException | TalismaneException e) {
 			throw new RuntimeException(e);
 		}
 	}

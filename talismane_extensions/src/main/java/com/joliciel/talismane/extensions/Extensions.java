@@ -62,6 +62,7 @@ import com.joliciel.talismane.parser.ParserAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTagSequenceProcessor;
+import com.joliciel.talismane.sentenceAnnotators.SentenceAnnotatorLoadException;
 import com.joliciel.talismane.utils.CSVFormatter;
 import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
@@ -332,7 +333,8 @@ public class Extensions {
 		this.command = command;
 	}
 
-	public void execute(File inFile, File outFile, File outDir) throws IOException, ReflectiveOperationException {
+	public void execute(File inFile, File outFile, File outDir)
+			throws IOException, ReflectiveOperationException, TalismaneException, SentenceAnnotatorLoadException {
 		if (LOG.isTraceEnabled())
 			LOG.trace(config.root().render());
 		long startTime = System.currentTimeMillis();
@@ -459,7 +461,7 @@ public class Extensions {
 				try {
 					PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
 							config.getConfig("talismane.core.pos-tagger.input"), session);
-					while (corpusReader.hasNextPosTagSequence()) {
+					while (corpusReader.hasNextSentence()) {
 						PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
 						for (PosTagSequenceProcessor processor : posTagSequenceProcessors)
 							processor.onNextPosTagSequence(posTagSequence);
@@ -482,7 +484,7 @@ public class Extensions {
 					ParserAnnotatedCorpusReader corpusReader = parserAnnotatedCorpusReader;
 					if (corpusReader == null)
 						corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.parser.input"), session);
-					while (corpusReader.hasNextConfiguration()) {
+					while (corpusReader.hasNextSentence()) {
 						ParseConfiguration configuration = corpusReader.nextConfiguration();
 						for (ParseConfigurationProcessor processor : parseConfigurationProcessors)
 							processor.onNextParseConfiguration(configuration);

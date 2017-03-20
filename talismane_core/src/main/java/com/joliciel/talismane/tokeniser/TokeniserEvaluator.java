@@ -27,6 +27,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.rawText.Sentence;
 import com.typesafe.config.Config;
@@ -71,9 +72,11 @@ public class TokeniserEvaluator {
 
 	/**
 	 * Evaluate a given tokeniser.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void evaluate() {
-		while (corpusReader.hasNextTokenSequence()) {
+	public void evaluate() throws TalismaneException {
+		while (corpusReader.hasNextSentence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
 			Sentence sentence = realSequence.getSentence();
 

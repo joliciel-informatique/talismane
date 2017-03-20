@@ -36,8 +36,10 @@ public class LanguageDetectorFeatureFactory {
 	 * 
 	 * @param featureDescriptors
 	 * @return
+	 * @throws TalismaneException
+	 *             if an unknown feature descriptor is encountered
 	 */
-	public Set<LanguageDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) {
+	public Set<LanguageDetectorFeature<?>> getFeatureSet(List<String> featureDescriptors) throws TalismaneException {
 		Set<LanguageDetectorFeature<?>> features = new HashSet<LanguageDetectorFeature<?>>();
 		for (String descriptor : featureDescriptors) {
 			if (descriptor.startsWith("CharNgram")) {

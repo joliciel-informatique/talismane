@@ -9,6 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.LogUtils;
@@ -25,7 +26,7 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 	}
 
 	@Override
-	public void onParseEnd(ParseConfiguration refConfiguration, List<ParseConfiguration> guessedConfigurations) {
+	public void onParseEnd(ParseConfiguration refConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException {
 		try {
 			boolean includeMe = true;
 			if (errorLabels != null && errorLabels.size() > 0) {

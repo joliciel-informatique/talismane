@@ -20,8 +20,12 @@ package com.joliciel.talismane.machineLearning;
 
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * An interface for reading corpus classification events from a training or test corpus.
+ * An interface for reading corpus classification events from a training or test
+ * corpus.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -29,15 +33,17 @@ public interface ClassificationEventStream {
 	/**
 	 * Does this event reader have any more events to read?
 	 */
-	public boolean hasNext();
-	
+	public boolean hasNext() throws TalismaneException;
+
 	/**
 	 * The next event to read.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public ClassificationEvent next();
-	
+	public ClassificationEvent next() throws TalismaneException;
+
 	/**
 	 * Get the attributes defining this event stream.
 	 */
-	public Map<String,String> getAttributes();
+	public Map<String, String> getAttributes();
 }

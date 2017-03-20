@@ -26,6 +26,7 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Create a dependency where Stack[0] depends on Buffer[0], and pop Stack[0].
+ * 
  * @author Assaf Urieli
  *
  */
@@ -33,19 +34,18 @@ public class LeftArcTransition extends AbstractTransition implements Transition 
 	private static final Logger LOG = LoggerFactory.getLogger(LeftArcTransition.class);
 	private String label;
 	private String name;
-	
+
 	public LeftArcTransition(String label) {
 		super();
 		this.label = label;
 	}
 
 	@Override
-	protected void applyInternal(ParseConfiguration configuration) {
+	protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
 		PosTaggedToken head = configuration.getBuffer().getFirst();
 		PosTaggedToken dependent = configuration.getStack().pop();
 		configuration.addDependency(head, dependent, label, this);
 	}
-
 
 	@Override
 	public boolean checkPreconditions(ParseConfiguration configuration) {
@@ -64,22 +64,20 @@ public class LeftArcTransition extends AbstractTransition implements Transition 
 			}
 			return false;
 		}
-		
+
 		return true;
 	}
 
-
 	@Override
 	public String getCode() {
-		if (this.name==null) {
+		if (this.name == null) {
 			this.name = "LeftArc";
-			if (this.label!=null && this.label.length()>0)
+			if (this.label != null && this.label.length() > 0)
 				this.name += "[" + this.label + "]";
 		}
-		
+
 		return this.name;
 	}
-	
 
 	@Override
 	public boolean doesReduce() {

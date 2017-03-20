@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns true if a feature is null, false otherwise.
  * 
@@ -34,7 +36,7 @@ public class IsNullFeature<T> extends AbstractCachableFeature<T, Boolean>impleme
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<?> result1 = testFeature.check(context, env);

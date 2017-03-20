@@ -24,7 +24,7 @@ RB	Adverb	OPEN
 RBR	Adverb, comparative	OPEN
 RBS	Adverb, superlative	OPEN
 RP	Particle	CLOSED
-SYM	Symbol	CLOSED
+SYM	Symbol	OPEN
 TO	to	CLOSED
 UH	Interjection	OPEN
 VB	Verb, base form	OPEN

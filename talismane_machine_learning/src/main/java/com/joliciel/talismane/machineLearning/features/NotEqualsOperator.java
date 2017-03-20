@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns operand1 != operand2. For double values, an error margin of 0.0001 is
  * allowed.
@@ -65,7 +67,7 @@ public class NotEqualsOperator<T> extends AbstractCachableFeature<T, Boolean>imp
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		if (operandType.equals(Double.class)) {

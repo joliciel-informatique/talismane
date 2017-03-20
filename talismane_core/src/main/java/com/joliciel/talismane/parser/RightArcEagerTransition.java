@@ -24,8 +24,10 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
- * Create a dependency where Buffer[0] depends on Stack[0], and push Buffer[0] to the top of the stack.
- * Example: in "eat apple", create a "object" dependency obj(eat,apple), and pushes "apple" to the top of stack.
+ * Create a dependency where Buffer[0] depends on Stack[0], and push Buffer[0]
+ * to the top of the stack. Example: in "eat apple", create a "object"
+ * dependency obj(eat,apple), and pushes "apple" to the top of stack.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -33,14 +35,14 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
 	private static final Logger LOG = LoggerFactory.getLogger(RightArcEagerTransition.class);
 	private String label;
 	private String name;
-	
+
 	public RightArcEagerTransition(String label) {
 		super();
 		this.label = label;
 	}
 
 	@Override
-	protected void applyInternal(ParseConfiguration configuration) {
+	protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
 		PosTaggedToken head = configuration.getStack().peek();
 		PosTaggedToken dependent = configuration.getBuffer().pollFirst();
 		configuration.getStack().push(dependent);
@@ -55,12 +57,12 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
 			}
 			return false;
 		}
-		
+
 		PosTaggedToken topOfBuffer = configuration.getBuffer().peekFirst();
 
 		// the top-of-buffer must not yet have a governor
 		PosTaggedToken governor = configuration.getHead(topOfBuffer);
-		if (governor!=null) {
+		if (governor != null) {
 			if (LOG.isTraceEnabled()) {
 				LOG.trace("Cannot apply " + this.toString() + ": top of buffer " + topOfBuffer + " already has governor " + governor);
 			}
@@ -72,15 +74,14 @@ public class RightArcEagerTransition extends AbstractTransition implements Trans
 
 	@Override
 	public String getCode() {
-		if (this.name==null) {
+		if (this.name == null) {
 			this.name = "RightArc";
-			if (this.label!=null && this.label.length()>0)
+			if (this.label != null && this.label.length() > 0)
 				this.name += "[" + this.label + "]";
 		}
-		
+
 		return this.name;
 	}
-
 
 	@Override
 	public boolean doesReduce() {

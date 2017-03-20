@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -356,67 +357,72 @@ public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
 
 	private Feature[][] getFeatureMatrix(ClassificationEventStream corpusEventStream, TObjectIntMap<String> featureIndexMap,
 			TObjectIntMap<String> outcomeIndexMap, TIntList outcomeList, TIntIntMap featureCountMap, CountingInfo countingInfo) {
-		int maxFeatureCount = 0;
+		try {
+			int maxFeatureCount = 0;
 
-		List<Feature[]> fullFeatureList = new ArrayList<Feature[]>();
+			List<Feature[]> fullFeatureList = new ArrayList<Feature[]>();
 
-		while (corpusEventStream.hasNext()) {
-			ClassificationEvent corpusEvent = corpusEventStream.next();
-			int outcomeIndex = outcomeIndexMap.get(corpusEvent.getClassification());
-			if (outcomeIndex < 0) {
-				outcomeIndex = countingInfo.currentOutcomeIndex++;
-				outcomeIndexMap.put(corpusEvent.getClassification(), outcomeIndex);
-			}
-			outcomeList.add(outcomeIndex);
-			Map<Integer, Feature> featureList = new TreeMap<Integer, Feature>();
-			for (FeatureResult<?> featureResult : corpusEvent.getFeatureResults()) {
-				if (featureResult.getOutcome() instanceof List) {
-					@SuppressWarnings("unchecked")
-					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
-					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
-						String featureName = featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
-						double value = stringOutcome.getWeight();
-						this.addFeatureResult(featureName, value, featureList, featureIndexMap, featureCountMap, countingInfo);
-					}
-
-				} else {
-					double value = 1.0;
-					if (featureResult.getOutcome() instanceof Double) {
+			while (corpusEventStream.hasNext()) {
+				ClassificationEvent corpusEvent = corpusEventStream.next();
+				int outcomeIndex = outcomeIndexMap.get(corpusEvent.getClassification());
+				if (outcomeIndex < 0) {
+					outcomeIndex = countingInfo.currentOutcomeIndex++;
+					outcomeIndexMap.put(corpusEvent.getClassification(), outcomeIndex);
+				}
+				outcomeList.add(outcomeIndex);
+				Map<Integer, Feature> featureList = new TreeMap<Integer, Feature>();
+				for (FeatureResult<?> featureResult : corpusEvent.getFeatureResults()) {
+					if (featureResult.getOutcome() instanceof List) {
 						@SuppressWarnings("unchecked")
-						FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
-						value = doubleResult.getOutcome().doubleValue();
+						FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+						for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+							String featureName = featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome());
+							double value = stringOutcome.getWeight();
+							this.addFeatureResult(featureName, value, featureList, featureIndexMap, featureCountMap, countingInfo);
+						}
+
+					} else {
+						double value = 1.0;
+						if (featureResult.getOutcome() instanceof Double) {
+							@SuppressWarnings("unchecked")
+							FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+							value = doubleResult.getOutcome().doubleValue();
+						}
+						this.addFeatureResult(featureResult.getTrainingName(), value, featureList, featureIndexMap, featureCountMap, countingInfo);
 					}
-					this.addFeatureResult(featureResult.getTrainingName(), value, featureList, featureIndexMap, featureCountMap, countingInfo);
+				}
+				if (featureList.size() > maxFeatureCount)
+					maxFeatureCount = featureList.size();
+
+				// convert to array immediately, to avoid double storage
+				int j = 0;
+				Feature[] featureArray = new Feature[featureList.size()];
+				for (Feature feature : featureList.values()) {
+					featureArray[j] = feature;
+					j++;
+				}
+				fullFeatureList.add(featureArray);
+				countingInfo.numEvents++;
+				if (countingInfo.numEvents % 1000 == 0) {
+					LOG.debug("Processed " + countingInfo.numEvents + " events.");
 				}
 			}
-			if (featureList.size() > maxFeatureCount)
-				maxFeatureCount = featureList.size();
 
-			// convert to array immediately, to avoid double storage
-			int j = 0;
-			Feature[] featureArray = new Feature[featureList.size()];
-			for (Feature feature : featureList.values()) {
-				featureArray[j] = feature;
-				j++;
+			Feature[][] featureMatrix = new Feature[countingInfo.numEvents][];
+			int i = 0;
+			for (Feature[] featureArray : fullFeatureList) {
+				featureMatrix[i] = featureArray;
+				i++;
 			}
-			fullFeatureList.add(featureArray);
-			countingInfo.numEvents++;
-			if (countingInfo.numEvents % 1000 == 0) {
-				LOG.debug("Processed " + countingInfo.numEvents + " events.");
-			}
-		}
+			fullFeatureList = null;
 
-		Feature[][] featureMatrix = new Feature[countingInfo.numEvents][];
-		int i = 0;
-		for (Feature[] featureArray : fullFeatureList) {
-			featureMatrix[i] = featureArray;
-			i++;
+			LOG.debug("Event count: " + countingInfo.numEvents);
+			LOG.debug("Feature count: " + featureIndexMap.size());
+			return featureMatrix;
+		} catch (TalismaneException e) {
+			LOG.error(e.getMessage(), e);
+			throw new RuntimeException(e);
 		}
-		fullFeatureList = null;
-
-		LOG.debug("Event count: " + countingInfo.numEvents);
-		LOG.debug("Feature count: " + featureIndexMap.size());
-		return featureMatrix;
 	}
 
 	void addFeatureResult(String featureName, double value, Map<Integer, Feature> featureList, TObjectIntMap<String> featureIndexMap,

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -32,7 +33,7 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  * @author Assaf Urieli
  *
  */
-public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer> implements IntegerFeature<ParseConfigurationWrapper> {
+public final class ValencyFeature extends AbstractParseConfigurationFeature<Integer>implements IntegerFeature<ParseConfigurationWrapper> {
 	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
 
 	public ValencyFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
@@ -42,7 +43,7 @@ public final class ValencyFeature extends AbstractParseConfigurationFeature<Inte
 	}
 
 	@Override
-	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
+	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
 		ParseConfiguration configuration = wrapper.getParseConfiguration();
 		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
 		FeatureResult<Integer> featureResult = null;

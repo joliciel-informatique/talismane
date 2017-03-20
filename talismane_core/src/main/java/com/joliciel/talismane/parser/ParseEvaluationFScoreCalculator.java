@@ -24,7 +24,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
@@ -116,7 +115,7 @@ public class ParseEvaluationFScoreCalculator implements ParseEvaluationObserver 
 
 		if ((double) mismatchedTokens / (double) posTagSequence.size() > 0.5) {
 			// more than half of the tokens mismatched?
-			throw new TalismaneException("Too many mismatched tokens in sentence: " + posTagSequence.getTokenSequence().getSentence().getText());
+			throw new RuntimeException("Too many mismatched tokens in sentence: " + posTagSequence.getTokenSequence().getSentence().getText());
 		}
 	}
 
