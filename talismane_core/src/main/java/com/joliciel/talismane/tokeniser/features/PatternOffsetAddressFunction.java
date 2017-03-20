@@ -29,55 +29,59 @@ import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
 
 /**
- * Returns a token
- * offset from the TokeniserPattern containing the present token.<br/>
- * This allows us to find the word preceding a given compound candidate, or following a given compound candidate.<br/>
+ * Returns a token offset from the TokeniserPattern containing the present
+ * token.<br/>
+ * This allows us to find the word preceding a given compound candidate, or
+ * following a given compound candidate.<br/>
  * Returns null if the offset goes outside the token sequence.<br/>
+ * 
  * @author Assaf Urieli
  *
  */
 public final class PatternOffsetAddressFunction extends AbstractTokenAddressFunction {
 	StringFeature<TokenWrapper> tokenPatternFeature;
 	IntegerFeature<TokenWrapper> offsetFeature;
-	private Map<String,TokenPattern> patternMap;
-	
+	private Map<String, TokenPattern> patternMap;
+
 	public PatternOffsetAddressFunction(StringFeature<TokenWrapper> tokenPatternFeature, IntegerFeature<TokenWrapper> offsetFeature) {
 		this.tokenPatternFeature = tokenPatternFeature;
 		this.offsetFeature = offsetFeature;
 		this.setName("PatternOffset(" + this.tokenPatternFeature.getName() + "," + this.offsetFeature.getName() + ")");
 	}
-	
+
 	@Override
-	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<TokenWrapper> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		Token token = tokenWrapper.getToken();
 		FeatureResult<TokenWrapper> result = null;
-		
+
 		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
-		if (tokenPatternResult!=null) {
-			// If we have a token pattern, then this is the first token to be tested in that pattern
+		if (tokenPatternResult != null) {
+			// If we have a token pattern, then this is the first token to be
+			// tested in that pattern
 			TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
 			int testIndex = tokenPattern.getIndexesToTest().get(0);
-		
+
 			FeatureResult<Integer> offsetResult = offsetFeature.check(tokenWrapper, env);
-			if (offsetResult!=null) {
+			if (offsetResult != null) {
 				int offset = offsetResult.getOutcome();
-				
-				if (offset==0) {
-					throw new TalismaneException("Cannot do a pattern offset with offset of 0");
+
+				if (offset == 0) {
+					throw new RuntimeException("Cannot do a pattern offset with offset of 0");
 				}
-			
+
 				Token offsetToken = null;
 
-				// baseIndex should be the last non-whitespace word in the pattern if offset > 0
+				// baseIndex should be the last non-whitespace word in the
+				// pattern if offset > 0
 				// or the first non-whitespace word in the pattern if offset < 0
 				int baseIndex = 0;
 				int j = token.getIndexWithWhiteSpace() - testIndex;
-				for (int i=0; i<tokenPattern.getTokenCount(); i++) {
-					if (j>=0&&j<token.getTokenSequence().listWithWhiteSpace().size()) {
+				for (int i = 0; i < tokenPattern.getTokenCount(); i++) {
+					if (j >= 0 && j < token.getTokenSequence().listWithWhiteSpace().size()) {
 						Token tokenInPattern = token.getTokenSequence().listWithWhiteSpace().get(j);
 						if (!tokenInPattern.isWhiteSpace()) {
 							baseIndex = tokenInPattern.getIndex();
-							if (offset<0) {
+							if (offset < 0) {
 								break;
 							}
 						}
@@ -86,11 +90,11 @@ public final class PatternOffsetAddressFunction extends AbstractTokenAddressFunc
 				}
 
 				int offsetIndex = baseIndex + offset;
-				if (offsetIndex>=0 && offsetIndex<token.getTokenSequence().size()) {
+				if (offsetIndex >= 0 && offsetIndex < token.getTokenSequence().size()) {
 					offsetToken = token.getTokenSequence().get(offsetIndex);
 				}
 
-				if (offsetToken!=null) {
+				if (offsetToken != null) {
 					result = this.generateResult(offsetToken);
 				} // we have an offset token
 			} // we have an offset result

@@ -67,7 +67,7 @@ public class LexiconChain implements PosTaggerLexicon {
 	}
 
 	@Override
-	public Set<PosTag> findPossiblePosTags(String word) {
+	public Set<PosTag> findPossiblePosTags(String word) throws TalismaneException {
 		// Using TreeSet as set must be ordered
 		Set<PosTag> posTags = new TreeSet<PosTag>();
 		for (PosTaggerLexicon lexicon : lexicons) {
@@ -175,7 +175,7 @@ public class LexiconChain implements PosTaggerLexicon {
 
 			@Override
 			public void remove() {
-				throw new TalismaneException("remove not supported");
+				throw new RuntimeException("remove not supported");
 			}
 		};
 	}

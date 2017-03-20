@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -127,7 +128,7 @@ public final class TokenSearchFeature extends AbstractAddressFunction implements
 	}
 
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper context, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
 
 		PosTagSequence posTagSequence = context.getParseConfiguration().getPosTagSequence();

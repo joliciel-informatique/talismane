@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns operand1 == operand2 for two strings.
  * 
@@ -36,7 +38,7 @@ public class EqualsOperatorForString<T> extends AbstractCachableFeature<T, Boole
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<String> operand1Result = operand1.check(context, env);

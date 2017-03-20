@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,44 +26,45 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns true if all of this tokens classes in the lexicon are closed, false otherwise.
+ * Returns true if all of this tokens classes in the lexicon are closed, false
+ * otherwise.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class HasClosedClassesOnlyFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	
+public final class HasClosedClassesOnlyFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+
 	/**
 	 */
 	public HasClosedClassesOnlyFeature() {
 	}
-	
+
 	public HasClosedClassesOnlyFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
 		this.setAddressFunction(addressFunction);
 	}
 
-	
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
 
 		boolean hasClosedClassesOnly = false;
 
-		if (token.getPossiblePosTags().size()>0)
+		if (token.getPossiblePosTags().size() > 0)
 			hasClosedClassesOnly = true;
-		
+
 		for (PosTag posTag : token.getPossiblePosTags()) {
 			if (!posTag.getOpenClassIndicator().isClosed()) {
 				hasClosedClassesOnly = false;
 				break;
 			}
 		}
-		
+
 		result = this.generateResult(hasClosedClassesOnly);
-		
+
 		return result;
 	}
 

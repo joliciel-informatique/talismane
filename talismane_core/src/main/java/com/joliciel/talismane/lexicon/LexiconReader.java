@@ -147,8 +147,10 @@ public class LexiconReader {
 	 * @param lexiconPropsFile
 	 * @return
 	 * @throws IOException
+	 * @throws TalismaneException
+	 *             if the config files contained an unknown property
 	 */
-	public List<PosTaggerLexicon> readLexicons(File lexiconPropsFile) throws IOException {
+	public List<PosTaggerLexicon> readLexicons(File lexiconPropsFile) throws IOException, TalismaneException {
 		List<PosTaggerLexicon> lexicons = new ArrayList<>();
 
 		File lexiconDir = lexiconPropsFile.getParentFile();
@@ -325,7 +327,7 @@ public class LexiconReader {
 
 	public List<PosTaggerLexicon> deserializeLexicons(File lexiconFile) {
 		if (!lexiconFile.exists())
-			throw new TalismaneException("LexiconFile does not exist: " + lexiconFile.getPath());
+			throw new RuntimeException("LexiconFile does not exist: " + lexiconFile.getPath());
 		try {
 			FileInputStream fis = new FileInputStream(lexiconFile);
 			ZipInputStream zis = new ZipInputStream(fis);

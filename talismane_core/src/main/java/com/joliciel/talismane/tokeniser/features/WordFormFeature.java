@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
@@ -26,25 +26,26 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Simply returns the current token's text.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class WordFormFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper>  {	
+public final class WordFormFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
 	public WordFormFeature() {
 	}
-	
+
 	public WordFormFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
 		this.setAddressFunction(addressFunction);
 	}
-	
+
 	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		Token token = innerWrapper.getToken();
 		FeatureResult<String> result = null;
-		
+
 		String string = token.getAnalyisText();
 		result = this.generateResult(string);
 

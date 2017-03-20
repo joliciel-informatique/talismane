@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns operand1 &gt;= operand2.
  * 
@@ -36,7 +38,7 @@ public class GreaterThanOrEqualsOperator<T> extends AbstractCachableFeature<T, B
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<Double> operand1Result = operand1.check(context, env);

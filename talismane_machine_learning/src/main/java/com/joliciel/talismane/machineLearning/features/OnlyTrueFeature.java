@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * If the wrapped boolean feature returns false, will convert it to a null.
  * Useful to keep the feature sparse, so that only true values return a result.
@@ -35,7 +37,7 @@ public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean>imple
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);

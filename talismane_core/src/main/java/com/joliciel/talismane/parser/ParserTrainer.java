@@ -34,6 +34,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
@@ -93,10 +94,12 @@ public class ParserTrainer {
 
 		ParserFeatureParser featureParser = new ParserFeatureParser(session);
 		Set<ParseConfigurationFeature<?>> features = featureParser.getFeatures(featureDescriptors);
-		eventStream = new ParseEventStream(corpusReader, features);
+
+		boolean skipImpossibleSentences = parserConfig.getBoolean("train.skip-impossible-sentences");
+		eventStream = new ParseEventStream(corpusReader, features, skipImpossibleSentences);
 	}
 
-	public ClassificationModel train() {
+	public ClassificationModel train() throws TalismaneException {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(parserConfig.getConfig("train.machine-learning"));
 

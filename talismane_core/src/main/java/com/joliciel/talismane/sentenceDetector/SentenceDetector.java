@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
 import com.joliciel.talismane.Annotator;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -133,7 +134,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 	}
 
 	@Override
-	public void annotate(AnnotatedText annotatedText, String... labels) {
+	public void annotate(AnnotatedText annotatedText, String... labels) throws TalismaneException {
 		this.detectSentences(annotatedText, labels);
 	}
 
@@ -164,7 +165,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 	 * @return in addition to the annotations added, we return a List of
 	 *         integers marking the end position of each sentence boundary.
 	 */
-	public List<Integer> detectSentences(AnnotatedText text, String... labels) {
+	public List<Integer> detectSentences(AnnotatedText text, String... labels) throws TalismaneException {
 		LOG.debug("detectSentences");
 
 		List<Annotation<RawTextNoSentenceBreakMarker>> noSentenceBreakMarkers = text.getAnnotations(RawTextNoSentenceBreakMarker.class);

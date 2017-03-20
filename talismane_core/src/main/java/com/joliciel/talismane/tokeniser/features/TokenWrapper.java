@@ -18,15 +18,16 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.Token;
 
-
 /**
- * A simple wrapper for a token, useful to allow multiple feature contexts to act all as a TokenWrapper
- * for Token features.
+ * A simple wrapper for a token, useful to allow multiple feature contexts to
+ * act all as a TokenWrapper for Token features.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface TokenWrapper {
-	public Token getToken();
+	public Token getToken() throws TalismaneException;
 }

@@ -18,17 +18,21 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Mimics an in-then-else structure - if condition is true return thenFeature result, else return elseFeature result.
+ * Mimics an in-then-else structure - if condition is true return thenFeature
+ * result, else return elseFeature result.
+ * 
  * @author Assaf Urieli
  *
  */
-public class IfThenElseGenericFeature<T,Y> extends AbstractCachableFeature<T,Y> {
+public class IfThenElseGenericFeature<T, Y> extends AbstractCachableFeature<T, Y> {
 	private BooleanFeature<T> condition;
-	private Feature<T,Y> thenFeature;
-	private Feature<T,Y> elseFeature;
-	
-	public IfThenElseGenericFeature(BooleanFeature<T> condition, Feature<T,Y> thenFeature, Feature<T,Y> elseFeature) {
+	private Feature<T, Y> thenFeature;
+	private Feature<T, Y> elseFeature;
+
+	public IfThenElseGenericFeature(BooleanFeature<T> condition, Feature<T, Y> thenFeature, Feature<T, Y> elseFeature) {
 		super();
 		this.condition = condition;
 		this.thenFeature = thenFeature;
@@ -37,41 +41,40 @@ public class IfThenElseGenericFeature<T,Y> extends AbstractCachableFeature<T,Y> 
 	}
 
 	@Override
-	protected FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Y> featureResult = null;
-		
+
 		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult!=null) {
+		if (conditionResult != null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (conditionOutcome) {
 				FeatureResult<Y> thenFeatureResult = thenFeature.check(context, env);
-				if (thenFeatureResult!=null) {
+				if (thenFeatureResult != null) {
 					Y result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			} else {
 				FeatureResult<Y> elseFeatureResult = elseFeature.check(context, env);
-				if (elseFeatureResult!=null) {
+				if (elseFeatureResult != null) {
 					Y result = elseFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			}
 		}
-		
-		
+
 		return featureResult;
-		
+
 	}
 
 	public BooleanFeature<T> getCondition() {
 		return condition;
 	}
 
-	public Feature<T,Y> getThenFeature() {
+	public Feature<T, Y> getThenFeature() {
 		return thenFeature;
 	}
 
-	public Feature<T,Y> getElseFeature() {
+	public Feature<T, Y> getElseFeature() {
 		return elseFeature;
 	}
 
@@ -79,11 +82,11 @@ public class IfThenElseGenericFeature<T,Y> extends AbstractCachableFeature<T,Y> 
 		this.condition = condition;
 	}
 
-	public void setThenFeature(Feature<T,Y> thenFeature) {
+	public void setThenFeature(Feature<T, Y> thenFeature) {
 		this.thenFeature = thenFeature;
 	}
 
-	public void setElseFeature(Feature<T,Y> elseFeature) {
+	public void setElseFeature(Feature<T, Y> elseFeature) {
 		this.elseFeature = elseFeature;
 	}
 

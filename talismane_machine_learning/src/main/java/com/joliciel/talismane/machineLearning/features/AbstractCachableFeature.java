@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * In addition to AbstractFeature, allows us to cache the feature result in the
  * context to avoid multiple checking, and logs performance.
@@ -31,7 +33,7 @@ public abstract class AbstractCachableFeature<T, Y> extends AbstractFeature<T, Y
 	}
 
 	@Override
-	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) {
+	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Y> featureResult = this.checkInCache(context, env);
 		if (featureResult == null) {
 			featureResult = this.checkInternal(context, env);
@@ -47,7 +49,7 @@ public abstract class AbstractCachableFeature<T, Y> extends AbstractFeature<T, Y
 	 * Override if this feature result should be cached within the context to
 	 * avoid checking multiple times.
 	 */
-	protected FeatureResult<Y> checkInCache(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Y> checkInCache(T context, RuntimeEnvironment env) throws TalismaneException {
 		if (context instanceof HasFeatureCache) {
 			return ((HasFeatureCache) context).getResultFromCache(this, env);
 		}
@@ -57,8 +59,10 @@ public abstract class AbstractCachableFeature<T, Y> extends AbstractFeature<T, Y
 	/**
 	 * Override if this feature result should be cached within the context to
 	 * avoid checking multiple times.
+	 * 
+	 * @throws TalismaneException
 	 */
-	protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+	protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) throws TalismaneException {
 		if (context instanceof HasFeatureCache) {
 			if (featureResult == null)
 				featureResult = new NullFeatureResult<Y>();
@@ -66,5 +70,5 @@ public abstract class AbstractCachableFeature<T, Y> extends AbstractFeature<T, Y
 		}
 	}
 
-	protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env);
+	protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException;
 }

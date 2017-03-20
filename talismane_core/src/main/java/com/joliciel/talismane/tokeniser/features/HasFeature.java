@@ -18,19 +18,20 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 /**
  * Returns true if the token refered to by address meets the boolean criterion.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class HasFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class HasFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
 	BooleanFeature<TokenWrapper> criterion;
-	
+
 	public HasFeature(TokenAddressFunction<TokenWrapper> addressFunction, BooleanFeature<TokenWrapper> criterion) {
 		this.criterion = criterion;
 		this.setName(super.getName() + "(" + this.criterion.getName() + ")");
@@ -38,19 +39,18 @@ public final class HasFeature extends AbstractTokenFeature<Boolean> implements B
 		this.setAddressFunction(addressFunction);
 	}
 
-	
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		FeatureResult<Boolean> result = null;
-		
+
 		FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
-		if (criterionResult!=null) {
+		if (criterionResult != null) {
 			result = this.generateResult(criterionResult.getOutcome());
 		}
-		
+
 		return result;
 	}
 

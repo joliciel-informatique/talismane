@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser;
 
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
@@ -38,8 +39,18 @@ public interface NonDeterministicParser extends Parser {
 	 * @param posTagSequences
 	 *            the n most likely pos-tag sequences for this sentence.
 	 * @return the n most likely parse sequences for this sentence
+	 * @throws UnknownTransitionException
+	 *             if an attempt is made to apply an unknown transition
+	 * @throws UnknownDependencyLabelException
+	 *             if an attempt is made to apply an unknown label
+	 * @throws CircularDependencyException
+	 *             if an attempt is made to generate a circular dependency
+	 * @throws InvalidTransitionException
+	 *             if a transition is applied without meeting pre-conditions
+	 * @throws TalismaneException
 	 */
-	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences);
+	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences)
+			throws UnknownDependencyLabelException, UnknownTransitionException, InvalidTransitionException, CircularDependencyException, TalismaneException;
 
 	/**
 	 * The maximum size of the beam to be used during analysis.

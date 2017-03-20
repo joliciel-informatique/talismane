@@ -18,28 +18,29 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.FeatureWrapper;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
-public final class PosTaggedTokenAddressFunctionWrapper<T> extends AbstractFeature<T,PosTaggedTokenWrapper>
-	implements PosTaggedTokenAddressFunction<T>, FeatureWrapper<T,PosTaggedTokenWrapper> {
-	
-	private Feature<T,PosTaggedTokenWrapper> feature;
-	
-	public PosTaggedTokenAddressFunctionWrapper(Feature<T,PosTaggedTokenWrapper> feature) {
+public final class PosTaggedTokenAddressFunctionWrapper<T> extends AbstractFeature<T, PosTaggedTokenWrapper>
+		implements PosTaggedTokenAddressFunction<T>, FeatureWrapper<T, PosTaggedTokenWrapper> {
+
+	private Feature<T, PosTaggedTokenWrapper> feature;
+
+	public PosTaggedTokenAddressFunctionWrapper(Feature<T, PosTaggedTokenWrapper> feature) {
 		this.feature = feature;
 		this.setName(this.feature.getName());
 		this.addArgument(feature);
 	}
-	
+
 	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(T context, RuntimeEnvironment env) {
+	public FeatureResult<PosTaggedTokenWrapper> check(T context, RuntimeEnvironment env) throws TalismaneException {
 		return this.feature.check(context, env);
 	}
-	
+
 	@Override
 	public Feature<T, PosTaggedTokenWrapper> getWrappedFeature() {
 		return feature;

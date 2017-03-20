@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -56,7 +57,7 @@ public class LanguageDetectorEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() {
+	public ClassificationEvent next() throws TalismaneException {
 		LanguageTaggedText languageTaggedText = this.corpusReader.nextText();
 		List<FeatureResult<?>> featureResults = new ArrayList<FeatureResult<?>>();
 		for (LanguageDetectorFeature<?> feature : features) {

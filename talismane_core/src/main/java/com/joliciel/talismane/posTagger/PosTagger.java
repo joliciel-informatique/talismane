@@ -21,6 +21,7 @@ package com.joliciel.talismane.posTagger;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerRule;
@@ -73,8 +74,10 @@ public interface PosTagger {
 	 *            the List of tokens comprising the sentence.
 	 * @return a List of TaggedToken reflecting the PosTags applied to the
 	 *         tokens.
+	 * @throws UnknownPosTagException
+	 * @throws TalismaneException
 	 */
-	public PosTagSequence tagSentence(TokenSequence tokenSequence);
+	public PosTagSequence tagSentence(TokenSequence tokenSequence) throws UnknownPosTagException, TalismaneException;
 
 	/**
 	 * Add an analysis observer to this pos tagger.

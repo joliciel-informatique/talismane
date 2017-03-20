@@ -29,6 +29,8 @@ package com.joliciel.talismane;
 public interface Annotator<T extends AnnotatedText> {
 	/**
 	 * Annotates the text provided, and adds the labels to all annotations.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public void annotate(T annotatedText, String... labels);
+	public void annotate(T annotatedText, String... labels) throws TalismaneException;
 }

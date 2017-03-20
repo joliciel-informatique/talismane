@@ -102,7 +102,13 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 	private final Map<String, List<LexicalAttributePattern>> otherAttributeMap = new HashMap<String, List<LexicalAttributePattern>>();
 	private final List<LexicalAttributePattern> entryStartMap = new ArrayList<LexicalAttributePattern>();
 
-	public RegexLexicalEntryReader(Scanner regexScanner) {
+	/**
+	 * 
+	 * @param regexScanner
+	 * @throws TalismaneException
+	 *             if a lexical entry has no Word attribute.
+	 */
+	public RegexLexicalEntryReader(Scanner regexScanner) throws TalismaneException {
 		while (regexScanner.hasNextLine()) {
 			String line = regexScanner.nextLine();
 			if (line.length() > 0 && !line.startsWith("#")) {
@@ -178,7 +184,7 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
 	}
 
 	@Override
-	public void readEntry(String text, WritableLexicalEntry lexicalEntry) {
+	public void readEntry(String text, WritableLexicalEntry lexicalEntry) throws TalismaneException {
 		boolean foundWord = false;
 		for (LexicalAttribute attribute : this.attributePatternMap.keySet()) {
 			for (LexicalAttributePattern myPattern : this.attributePatternMap.get(attribute)) {

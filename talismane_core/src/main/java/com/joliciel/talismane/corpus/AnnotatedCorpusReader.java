@@ -16,10 +16,18 @@
 //You should have received a copy of the GNU Affero General Public License
 //along with Talismane.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
-package com.joliciel.talismane;
+package com.joliciel.talismane.corpus;
 
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneException;
+
+/**
+ * An interface for reading from an annotated corpus.
+ * 
+ * @author Assaf Urieli
+ *
+ */
 public interface AnnotatedCorpusReader {
 	/**
 	 * If 0, all sentences will be read - otherwise will only read a certain
@@ -55,4 +63,11 @@ public interface AnnotatedCorpusReader {
 	 */
 	public Map<String, String> getCharacteristics();
 
+	/**
+	 * Is there another sentence to be read?
+	 * 
+	 * @throws TalismaneException
+	 *             if it's impossible to process the next sentence
+	 */
+	public boolean hasNextSentence() throws TalismaneException;
 }

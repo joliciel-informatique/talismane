@@ -21,6 +21,7 @@ package com.joliciel.talismane.parser;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserRule;
@@ -77,8 +78,14 @@ public interface Parser {
 	 * @param posTagSequence
 	 *            the likely pos-tag sequence for this sentence.
 	 * @return the most likely parse configuration for this sentence
+	 * @throws CircularDependencyException
+	 * @throws InvalidTransitionException
+	 * @throws UnknownTransitionException
+	 * @throws UnknownDependencyLabelException
+	 * @throws TalismaneException
 	 */
-	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence);
+	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence)
+			throws UnknownDependencyLabelException, UnknownTransitionException, InvalidTransitionException, CircularDependencyException, TalismaneException;
 
 	public void addObserver(ClassificationObserver observer);
 

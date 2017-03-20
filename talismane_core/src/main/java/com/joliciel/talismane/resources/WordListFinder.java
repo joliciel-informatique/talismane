@@ -26,7 +26,6 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.JolicielException;
 
 /**
@@ -56,7 +55,7 @@ public class WordListFinder {
 			WordList textFileWordList = new WordList(fileName, scanner);
 			this.addWordList(textFileWordList);
 		} else {
-			throw new TalismaneException("Unexpected type in file: " + fileName + ": " + type);
+			throw new RuntimeException("Unexpected type in file: " + fileName + ": " + type);
 		}
 	}
 

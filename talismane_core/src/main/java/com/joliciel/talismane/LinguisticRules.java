@@ -24,8 +24,11 @@ public interface LinguisticRules {
 
 	/**
 	 * Attempts to make an adjective in plural form singular.
+	 * 
+	 * @throws TalismaneException
+	 *             if language is not yet supported
 	 */
-	String makeAdjectiveSingular(String adjective);
+	String makeAdjectiveSingular(String adjective) throws TalismaneException;
 
 	/**
 	 * If c is an upper-case character, return the various possible lowercase

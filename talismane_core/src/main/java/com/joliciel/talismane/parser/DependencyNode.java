@@ -84,8 +84,11 @@ public class DependencyNode implements Comparable<DependencyNode> {
 	 * dependency node. The dependent must already exist in the parse
 	 * configuration. This is useful for constructing sub-trees out of the
 	 * existing parse tree.
+	 * 
+	 * @throws TalismaneException
+	 *             if this dependent does not reflect the parse configuration
 	 */
-	public DependencyNode addDependent(PosTaggedToken dependent) {
+	public DependencyNode addDependent(PosTaggedToken dependent) throws TalismaneException {
 		DependencyArc arc = parseConfiguration.getGoverningDependency(dependent);
 		if (arc == null) {
 			throw new TalismaneException("Can only add a dependent to a dependency node if it is a true dependent in the parse configuration.");
@@ -110,7 +113,13 @@ public class DependencyNode implements Comparable<DependencyNode> {
 	 */
 	public void autoPopulate() {
 		for (PosTaggedToken dependent : parseConfiguration.getDependents(this.token)) {
-			DependencyNode childNode = this.addDependent(dependent);
+			DependencyNode childNode;
+			try {
+				childNode = this.addDependent(dependent);
+			} catch (TalismaneException e) {
+				// should never happen
+				throw new RuntimeException(e);
+			}
 			childNode.autoPopulate();
 		}
 	}

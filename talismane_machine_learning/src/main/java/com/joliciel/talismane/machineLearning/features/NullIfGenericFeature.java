@@ -18,17 +18,20 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * If the condition returns true, return null, else return the result of the feature provided.
+ * If the condition returns true, return null, else return the result of the
+ * feature provided.
+ * 
  * @author Assaf Urieli
  *
  */
-public class NullIfGenericFeature<T,Y> extends AbstractCachableFeature<T,Y> implements
-		Feature<T,Y> {
+public class NullIfGenericFeature<T, Y> extends AbstractCachableFeature<T, Y>implements Feature<T, Y> {
 	private BooleanFeature<T> condition;
-	private Feature<T,Y> resultFeature;
-	
-	public NullIfGenericFeature(BooleanFeature<T> condition, Feature<T,Y> resultFeature) {
+	private Feature<T, Y> resultFeature;
+
+	public NullIfGenericFeature(BooleanFeature<T> condition, Feature<T, Y> resultFeature) {
 		super();
 		this.condition = condition;
 		this.resultFeature = resultFeature;
@@ -36,30 +39,30 @@ public class NullIfGenericFeature<T,Y> extends AbstractCachableFeature<T,Y> impl
 	}
 
 	@Override
-	protected FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Y> featureResult = null;
-		
+
 		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult!=null) {
+		if (conditionResult != null) {
 			boolean conditionOutcome = conditionResult.getOutcome();
 			if (!conditionOutcome) {
 				FeatureResult<Y> thenFeatureResult = resultFeature.check(context, env);
-				if (thenFeatureResult!=null) {
+				if (thenFeatureResult != null) {
 					Y result = thenFeatureResult.getOutcome();
 					featureResult = this.generateResult(result);
 				}
 			}
 		}
-		
+
 		return featureResult;
-		
+
 	}
-	
+
 	public BooleanFeature<T> getCondition() {
 		return condition;
 	}
 
-	public Feature<T,Y> getResultFeature() {
+	public Feature<T, Y> getResultFeature() {
 		return resultFeature;
 	}
 
@@ -67,10 +70,9 @@ public class NullIfGenericFeature<T,Y> extends AbstractCachableFeature<T,Y> impl
 		this.condition = condition;
 	}
 
-	public void setResultFeature(Feature<T,Y> resultFeature) {
+	public void setResultFeature(Feature<T, Y> resultFeature) {
 		this.resultFeature = resultFeature;
 	}
-	
 
 	@SuppressWarnings("rawtypes")
 	@Override

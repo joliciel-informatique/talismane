@@ -21,6 +21,7 @@ package com.joliciel.talismane.tokeniser.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -30,23 +31,24 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * A StringCollectionFeature returning all of the patterns started by the current token.
+ * A StringCollectionFeature returning all of the patterns started by the
+ * current token.
+ * 
  * @author Assaf Urieli
  *
  */
-public class TokeniserPatternsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<TokenWrapper> {
+public class TokeniserPatternsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>implements StringCollectionFeature<TokenWrapper> {
 
 	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		Token token = tokenWrapper.getToken();
 		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
 		for (TokenPatternMatch tokenMatch : token.getMatches()) {
-			if (tokenMatch.getIndex()==tokenMatch.getPattern().getIndexesToTest().get(0)) {
+			if (tokenMatch.getIndex() == tokenMatch.getPattern().getIndexesToTest().get(0)) {
 				resultList.add(new WeightedOutcome<String>(tokenMatch.getPattern().getName(), 1.0));
 			}
 		}
-		
+
 		return this.generateResult(resultList);
 	}
 

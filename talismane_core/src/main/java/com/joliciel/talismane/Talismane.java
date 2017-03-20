@@ -201,8 +201,10 @@ public class Talismane {
 	 * @param session
 	 * @throws IOException
 	 * @throws ReflectiveOperationException
+	 * @throws TalismaneException
+	 *             if start module comes after end module in the configuration.
 	 */
-	public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException {
+	public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException, TalismaneException {
 		this.session = session;
 		this.config = session.getConfig();
 		Config analyseConfig = config.getConfig("talismane.core.analysis");
@@ -260,8 +262,11 @@ public class Talismane {
 	 * @param reader
 	 * @throws IOException
 	 * @throws ReflectiveOperationException
+	 * @throws TalismaneException
+	 *             if it's impossible to read a sentence from an annotated
+	 *             corpus
 	 */
-	public void analyse(Reader reader) throws IOException, ReflectiveOperationException {
+	public void analyse(Reader reader) throws IOException, ReflectiveOperationException, TalismaneException {
 		long startTime = System.currentTimeMillis();
 		try {
 			SentenceDetector sentenceDetector = null;
@@ -409,14 +414,14 @@ public class Talismane {
 						}
 					} // we have at least one text segment to process
 				} else if (this.startModule.equals(Module.posTagger)) {
-					if (tokenCorpusReader.hasNextTokenSequence()) {
+					if (tokenCorpusReader.hasNextSentence()) {
 						tokenSequence = tokenCorpusReader.nextTokenSequence();
 					} else {
 						tokenSequence = null;
 						finished = true;
 					}
 				} else if (this.startModule.equals(Module.parser)) {
-					if (posTagCorpusReader.hasNextPosTagSequence()) {
+					if (posTagCorpusReader.hasNextSentence()) {
 						posTagSequence = posTagCorpusReader.nextPosTagSequence();
 					} else {
 						posTagSequence = null;

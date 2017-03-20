@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
@@ -72,14 +73,14 @@ public class PatternEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() {
+	public boolean hasNext() throws TalismaneException {
 		if (currentPatternMatches != null) {
 			if (currentIndex == currentPatternMatches.size()) {
 				currentPatternMatches = null;
 			}
 		}
 		while (currentPatternMatches == null) {
-			if (this.corpusReader.hasNextTokenSequence()) {
+			if (this.corpusReader.hasNextSentence()) {
 				currentPatternMatches = new ArrayList<TokenPatternMatch>();
 				currentOutcomes = new ArrayList<TokeniserOutcome>();
 				currentIndex = 0;
@@ -169,7 +170,7 @@ public class PatternEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() {
+	public ClassificationEvent next() throws TalismaneException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			TokenPatternMatch tokenPatternMatch = currentPatternMatches.get(currentIndex);

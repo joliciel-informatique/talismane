@@ -1,0 +1,37 @@
+# tokeniser decision regular expressions
+# default tokeniser decisions for various separators:
+# All other separators are assumed to separate tokens on both sides (IS_SEPARATOR), unless proven otherwise
+IS_NOT_SEPARATOR -_
+IS_SEPARATOR_AFTER
+IS_SEPARATOR_BEFORE
+# For each pattern below, check if any set of n tokens matches it. If so, all of the separators inside the set are tested further.
+# For more information, see TokenPattern
+ellipses	\.\.\.
+ellipsesInParens	\(\.\.\.\)
+doubleQuotes	''
+doubleQuotes	``
+dashWithSpaces	 - 
+dashAfterSpace	 -{.+}
+dash	.+-.+
+period	.+\..+
+ampersand	.+&.+
+etc.	\b\D+\.{[ ,;?!\)/\\]}
+Jan.	(Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\.
+Mr.	(Mr|Mrs|Jr|Sr|etc|Inc|Co|Ltd|Prof|Dr)\.
+Initials	[A-Z]\.{ }
+U.K.	[A-Za-z]\.[A-Za-z]\.
+U.K.	[A-Za-z]\.[A-Za-z]\.[A-Za-z]\.
+U.K.	[A-Za-z]\.[A-Za-z]\.[A-Za-z]\.[A-Za-z]\.
+US$	(US|C|HK|NZ|AU)\$
+9:30	\d:\d\d
+9:30	\d\d:\d\d
+Possessive	{.+'}(s|re|ve|d|m|ll)
+Negative	n't
+O'Henry	[A-Z]'[A-Z][a-zA-Z]+
+(1)	\(\d\)
+(1)	\(\d\d\)
+1.	\b\d\.{ }
+1.	b\d\d\.{ }
+1,000	\d+,\d\d\d
+1,000	\d+,\d\d\d,\d\d\d
+1,000	\d+\.\d+

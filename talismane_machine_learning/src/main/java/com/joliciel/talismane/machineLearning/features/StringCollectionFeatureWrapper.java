@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.utils.JolicielException;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
@@ -36,7 +37,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  * @author Assaf Urieli
  *
  */
-class StringCollectionFeatureWrapper<T> extends AbstractFeature<T, List<WeightedOutcome<String>>> implements StringCollectionFeature<T> {
+class StringCollectionFeatureWrapper<T> extends AbstractFeature<T, List<WeightedOutcome<String>>>implements StringCollectionFeature<T> {
 	private Feature<T, ?> wrappedFeature;
 	private Set<StringCollectionFeature<T>> collectionFeatures;
 
@@ -52,7 +53,7 @@ class StringCollectionFeatureWrapper<T> extends AbstractFeature<T, List<Weighted
 	}
 
 	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> check(T context, RuntimeEnvironment env) {
+	public FeatureResult<List<WeightedOutcome<String>>> check(T context, RuntimeEnvironment env) throws TalismaneException {
 		List<WeightedOutcome<String>> finalList = new ArrayList<WeightedOutcome<String>>();
 		FeatureResult<List<WeightedOutcome<String>>> finalResult = null;
 

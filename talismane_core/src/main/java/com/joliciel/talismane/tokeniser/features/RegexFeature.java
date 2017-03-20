@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.regex.Pattern;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -28,40 +29,41 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns true if the token matches a given regular expression.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class RegexFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
+public final class RegexFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
 	StringFeature<TokenWrapper> regexFeature = null;
 	Pattern pattern = null;
-	
+
 	public RegexFeature(StringFeature<TokenWrapper> regexFeature) {
 		this.regexFeature = regexFeature;
 		this.setName(super.getName() + "(" + regexFeature.getName() + ")");
 	}
-	
+
 	public RegexFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> regexFeature) {
 		this(regexFeature);
 		this.setAddressFunction(addressFunction);
 	}
-	
+
 	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
 		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
+		if (innerWrapper == null)
 			return null;
 		Token token = innerWrapper.getToken();
 		FeatureResult<Boolean> result = null;
-		
+
 		FeatureResult<String> regexResult = regexFeature.check(innerWrapper, env);
-		if (regexResult!=null) {
+		if (regexResult != null) {
 			String regex = regexResult.getOutcome();
 			this.pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
-	
+
 			boolean matches = this.pattern.matcher(token.getAnalyisText()).matches();
 			result = this.generateResult(matches);
 		}
-		
+
 		return result;
 	}
 }

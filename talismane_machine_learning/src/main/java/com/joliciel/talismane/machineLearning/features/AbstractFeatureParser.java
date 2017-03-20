@@ -31,6 +31,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ExternalResourceFinder;
 import com.joliciel.talismane.utils.JolicielException;
 
@@ -918,7 +919,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		}
 
 		@Override
-		public FeatureResult<String> check(T context, RuntimeEnvironment env) {
+		public FeatureResult<String> check(T context, RuntimeEnvironment env) throws TalismaneException {
 			return this.feature.check(context, env);
 		}
 
@@ -939,7 +940,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		}
 
 		@Override
-		public FeatureResult<Boolean> check(T context, RuntimeEnvironment env) {
+		public FeatureResult<Boolean> check(T context, RuntimeEnvironment env) throws TalismaneException {
 			return this.feature.check(context, env);
 		}
 
@@ -959,7 +960,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		}
 
 		@Override
-		public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
+		public FeatureResult<Double> check(T context, RuntimeEnvironment env) throws TalismaneException {
 			return this.feature.check(context, env);
 		}
 
@@ -979,7 +980,7 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 		}
 
 		@Override
-		public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
+		public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
 			return this.feature.check(context, env);
 		}
 

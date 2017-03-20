@@ -18,14 +18,17 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Returns true if the first string feature starts with any of the other string features.
+ * Returns true if the first string feature starts with any of the other string
+ * features.
+ * 
  * @author Assaf Urieli
  */
-public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean> implements
-		BooleanFeature<T> {
+public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
 	StringFeature<T>[] stringFeatures;
-	
+
 	@SafeVarargs
 	public StartsWithFeature(StringFeature<T>... stringFeatures) {
 		super();
@@ -43,16 +46,16 @@ public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean> im
 	}
 
 	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
-		
+
 		String string = null;
 		boolean startsWith = false;
 		boolean firstFeature = true;
-		
+
 		for (StringFeature<T> stringFeature : stringFeatures) {
 			FeatureResult<String> result = stringFeature.check(context, env);
-			if (result==null) {
+			if (result == null) {
 				if (firstFeature)
 					break;
 				else
@@ -66,12 +69,11 @@ public class StartsWithFeature<T> extends AbstractCachableFeature<T, Boolean> im
 			}
 			firstFeature = false;
 		}
-		
-		if (string!=null)
+
+		if (string != null)
 			featureResult = this.generateResult(startsWith);
 		return featureResult;
 	}
-
 
 	public StringFeature<T>[] getStringFeatures() {
 		return stringFeatures;

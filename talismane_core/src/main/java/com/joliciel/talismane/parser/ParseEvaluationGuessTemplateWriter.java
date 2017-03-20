@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser;
 
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
@@ -37,7 +38,7 @@ public class ParseEvaluationGuessTemplateWriter implements ParseEvaluationObserv
 	}
 
 	@Override
-	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) {
+	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException {
 		processor.onNextParseConfiguration(guessedConfigurations.get(0));
 	}
 

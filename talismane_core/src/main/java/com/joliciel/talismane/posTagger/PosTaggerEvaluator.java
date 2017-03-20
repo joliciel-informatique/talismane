@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.Talismane.Module;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.LexicalEntry;
 import com.joliciel.talismane.rawText.Sentence;
@@ -53,7 +54,7 @@ public class PosTaggerEvaluator {
 	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
 
 	public PosTaggerEvaluator(Reader evalReader, File outDir, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException {
+			throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
 		Config config = session.getConfig();
 		this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
 
@@ -89,9 +90,11 @@ public class PosTaggerEvaluator {
 	/**
 	 * Evaluate a given pos tagger.
 	 * 
+	 * @throws TalismaneException
+	 * 
 	 */
-	public void evaluate() {
-		while (corpusReader.hasNextPosTagSequence()) {
+	public void evaluate() throws TalismaneException {
+		while (corpusReader.hasNextSentence()) {
 			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
 
 			List<TokenSequence> tokenSequences = null;

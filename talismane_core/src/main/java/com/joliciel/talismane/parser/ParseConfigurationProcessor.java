@@ -59,8 +59,12 @@ public interface ParseConfigurationProcessor extends Closeable {
 
 	/**
 	 * Called when the next parse configuration is available for processing.
+	 * 
+	 * @throws TalismaneException
+	 *             if an known exception occurs when processing this parse
+	 *             configuration
 	 */
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration);
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws TalismaneException;
 
 	/**
 	 * Called when parsing is complete.
@@ -114,7 +118,7 @@ public interface ParseConfigurationProcessor extends Closeable {
 						templateName = "parser_conll_template_with_comments.ftl";
 						break;
 					default:
-						throw new TalismaneException("Unknown builtInTemplate for parser: " + builtInTemplate.name());
+						throw new RuntimeException("Unknown builtInTemplate for parser: " + builtInTemplate.name());
 					}
 
 					String path = "output/" + templateName;

@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns operand1 == operand2. For double values, an error margin of 0.0001 is
  * allowed.
@@ -37,7 +39,7 @@ public class EqualsOperatorForBoolean<T> extends AbstractCachableFeature<T, Bool
 	}
 
 	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
+	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
 		FeatureResult<Boolean> featureResult = null;
 
 		FeatureResult<Boolean> operand1Result = operand1.check(context, env);

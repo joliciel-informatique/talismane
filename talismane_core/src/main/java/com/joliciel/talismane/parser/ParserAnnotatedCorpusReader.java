@@ -22,9 +22,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.lexicon.LexicalEntryReader;
 import com.joliciel.talismane.posTagger.PosTagAnnotatedCorpusReader;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
 import com.typesafe.config.Config;
 
 /**
@@ -33,33 +35,15 @@ import com.typesafe.config.Config;
  * @author Assaf Urieli
  *
  */
-public abstract class ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader {
-	public ParserAnnotatedCorpusReader(Reader reader, Config config, TalismaneSession session) {
-		super(reader, config, session);
-	}
-
-	/**
-	 * Is there another sentence to be read?
-	 */
-	public abstract boolean hasNextConfiguration();
-
+public interface ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader {
 	/**
 	 * Read the ParseConfiguration from the next sentence in the training
 	 * corpus.
+	 * 
+	 * @throws TalismaneException
+	 *             if it's impossible to read the next configuration
 	 */
-	public abstract ParseConfiguration nextConfiguration();
-
-	/**
-	 * If provided, will read a lexical entry for each pos-tagged token.
-	 */
-	public abstract LexicalEntryReader getLexicalEntryReader();
-
-	public abstract void setLexicalEntryReader(LexicalEntryReader lexicalEntryReader);
-
-	/**
-	 * Take this reader back to its initial position.
-	 */
-	public abstract void rewind();
+	public abstract ParseConfiguration nextConfiguration() throws TalismaneException;
 
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,
@@ -83,6 +67,9 @@ public abstract class ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusR
 		Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
 
 		ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+		if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
+			((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
+		}
 		return corpusReader;
 	}
 }

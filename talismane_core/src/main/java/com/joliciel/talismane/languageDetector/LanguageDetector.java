@@ -33,6 +33,7 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.Decision;
@@ -59,7 +60,7 @@ public class LanguageDetector {
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 	private static final Map<String, LanguageDetector> languageDetectorMap = new HashMap<>();
 
-	public static LanguageDetector getInstance(TalismaneSession session) throws IOException {
+	public static LanguageDetector getInstance(TalismaneSession session) throws IOException, TalismaneException {
 		LanguageDetector languageDetector = null;
 		if (session.getSessionId() != null)
 			languageDetector = languageDetectorMap.get(session.getSessionId());
@@ -94,15 +95,17 @@ public class LanguageDetector {
 
 	/**
 	 * Construct a language detector for an existing model.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public LanguageDetector(ClassificationModel languageModel) {
+	public LanguageDetector(ClassificationModel languageModel) throws TalismaneException {
 		this(languageModel.getDecisionMaker(), (new LanguageDetectorFeatureFactory()).getFeatureSet(languageModel.getFeatureDescriptors()));
 	}
 
 	/**
 	 * Return a probability distribution of languages for a given text.
 	 */
-	public List<WeightedOutcome<Locale>> detectLanguages(String text) {
+	public List<WeightedOutcome<Locale>> detectLanguages(String text) throws TalismaneException {
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("Testing text: " + text);
 		}

@@ -32,7 +32,15 @@ public class RawTextFilterFactory {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(RawTextFilterFactory.class);
 
-	public RawTextAnnotator getTextMarkerFilter(String descriptor, int blockSize) {
+	/**
+	 * 
+	 * @param descriptor
+	 * @param blockSize
+	 * @return
+	 * @throws TalismaneException
+	 *             if a descriptor is incorrectly configured
+	 */
+	public RawTextAnnotator getTextMarkerFilter(String descriptor, int blockSize) throws TalismaneException {
 		RawTextAnnotator filter = null;
 
 		List<Class<? extends RawTextAnnotator>> classes = new ArrayListNoNulls<Class<? extends RawTextAnnotator>>();
