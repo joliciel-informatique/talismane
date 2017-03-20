@@ -20,6 +20,8 @@ package com.joliciel.talismane.rawText;
 
 import java.util.Arrays;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Replace any newline with a space.
  * 
@@ -27,7 +29,7 @@ import java.util.Arrays;
  *
  */
 public class NewlineSpaceMarker extends RawTextRegexAnnotator {
-	public NewlineSpaceMarker(int blockSize) {
+	public NewlineSpaceMarker(int blockSize) throws TalismaneException {
 		super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SPACE }), "\r\n|[\r\n]", 0, blockSize);
 	}
 }

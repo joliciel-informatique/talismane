@@ -37,7 +37,6 @@ import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 import com.joliciel.talismane.utils.CSVFormatter;
-import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * An observer for testing lexicon coverage of the corpus.
@@ -46,6 +45,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public class PosTagEvaluationLexicalCoverageTester implements PosTagEvaluationObserver {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(PosTagEvaluationLexicalCoverageTester.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	private FScoreCalculator<String> fscoreUnknownInLexicon = new FScoreCalculator<String>();
@@ -94,36 +94,31 @@ public class PosTagEvaluationLexicalCoverageTester implements PosTagEvaluationOb
 	}
 
 	@Override
-	public void onEvaluationComplete() {
-		try {
-			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fScoreFile), "UTF-8"));
-			fscoreUnknownInLexicon.writeScoresToCSV(writer);
+	public void onEvaluationComplete() throws IOException {
+		Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fScoreFile), "UTF-8"));
+		fscoreUnknownInLexicon.writeScoresToCSV(writer);
 
-			writer.write("\n");
-			writer.write(CSV.format("Known") + CSV.format(knownWordCount)
-					+ CSV.format((double) knownWordCount / (double) (knownWordCount + unknownWordCount) * 100.0) + "\n");
-			writer.write(CSV.format("Unknown") + CSV.format(unknownWordCount)
-					+ CSV.format((double) unknownWordCount / (double) (knownWordCount + unknownWordCount) * 100.0) + "\n");
-			writer.write(CSV.format("Unique known") + CSV.format(knownWords.size())
-					+ CSV.format((double) knownWords.size() / (double) (knownWords.size() + unknownWords.size()) * 100.0) + "\n");
-			writer.write(CSV.format("Unique unknown") + CSV.format(unknownWords.size())
-					+ CSV.format((double) unknownWords.size() / (double) (knownWords.size() + unknownWords.size()) * 100.0) + "\n");
-			writer.write("\n");
-			writer.write("Missing closed tags\n");
-			for (String closedTagMismatch : closedCategoryMismatches) {
-				writer.write(CSV.format(closedTagMismatch) + "\n");
-			}
-			writer.write("\n");
-			writer.write("Unknown words\n");
-			for (String unknownWord : unknownWords.keySet()) {
-				writer.write(CSV.format(unknownWord) + CSV.format(unknownWords.get(unknownWord)) + "\n");
-			}
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+		writer.write("\n");
+		writer.write(CSV.format("Known") + CSV.format(knownWordCount)
+				+ CSV.format((double) knownWordCount / (double) (knownWordCount + unknownWordCount) * 100.0) + "\n");
+		writer.write(CSV.format("Unknown") + CSV.format(unknownWordCount)
+				+ CSV.format((double) unknownWordCount / (double) (knownWordCount + unknownWordCount) * 100.0) + "\n");
+		writer.write(CSV.format("Unique known") + CSV.format(knownWords.size())
+				+ CSV.format((double) knownWords.size() / (double) (knownWords.size() + unknownWords.size()) * 100.0) + "\n");
+		writer.write(CSV.format("Unique unknown") + CSV.format(unknownWords.size())
+				+ CSV.format((double) unknownWords.size() / (double) (knownWords.size() + unknownWords.size()) * 100.0) + "\n");
+		writer.write("\n");
+		writer.write("Missing closed tags\n");
+		for (String closedTagMismatch : closedCategoryMismatches) {
+			writer.write(CSV.format(closedTagMismatch) + "\n");
 		}
+		writer.write("\n");
+		writer.write("Unknown words\n");
+		for (String unknownWord : unknownWords.keySet()) {
+			writer.write(CSV.format(unknownWord) + CSV.format(unknownWords.get(unknownWord)) + "\n");
+		}
+		writer.flush();
+		writer.close();
 	}
 
 }

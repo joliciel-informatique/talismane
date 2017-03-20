@@ -41,7 +41,6 @@ import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
 import com.joliciel.talismane.parser.features.ParserFeatureParser;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.utils.ConfigUtils;
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 
 public class ParseFeatureTester implements ParseConfigurationProcessor {
@@ -128,41 +127,31 @@ public class ParseFeatureTester implements ParseConfigurationProcessor {
 
 			// apply the transition and up the index
 			currentConfiguration = new ParseConfiguration(currentConfiguration);
-			try {
-				transition.apply(currentConfiguration);
-			} catch (InvalidTransitionException | CircularDependencyException e) {
-				LOG.error(e.getClass().getSimpleName(), e);
-				throw new RuntimeException(e);
-			}
+			transition.apply(currentConfiguration);
 		}
 	}
 
 	@Override
-	public void onCompleteParse() {
-		try {
-			for (String featureResult : this.featureResultMap.keySet()) {
-				writer.write("###################\n");
-				writer.write(featureResult + "\n");
-				int totalCount = 0;
-				Map<String, List<String>> classificationMap = featureResultMap.get(featureResult);
-				for (String classification : classificationMap.keySet()) {
-					totalCount += classificationMap.get(classification).size();
-				}
-				writer.write("Total count: " + totalCount + "\n");
-				for (String classification : classificationMap.keySet()) {
-					writer.write(classification + " count:" + classificationMap.get(classification).size() + "\n");
-				}
-				for (String classification : classificationMap.keySet()) {
-					writer.write("Transition: " + classification + "\t" + classificationMap.get(classification).size() + "\n");
-					for (String sentence : classificationMap.get(classification)) {
-						writer.write(sentence + "\n");
-					}
-				}
-				writer.flush();
+	public void onCompleteParse() throws IOException {
+		for (String featureResult : this.featureResultMap.keySet()) {
+			writer.write("###################\n");
+			writer.write(featureResult + "\n");
+			int totalCount = 0;
+			Map<String, List<String>> classificationMap = featureResultMap.get(featureResult);
+			for (String classification : classificationMap.keySet()) {
+				totalCount += classificationMap.get(classification).size();
 			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			writer.write("Total count: " + totalCount + "\n");
+			for (String classification : classificationMap.keySet()) {
+				writer.write(classification + " count:" + classificationMap.get(classification).size() + "\n");
+			}
+			for (String classification : classificationMap.keySet()) {
+				writer.write("Transition: " + classification + "\t" + classificationMap.get(classification).size() + "\n");
+				for (String sentence : classificationMap.get(classification)) {
+					writer.write(sentence + "\n");
+				}
+			}
+			writer.flush();
 		}
 	}
 

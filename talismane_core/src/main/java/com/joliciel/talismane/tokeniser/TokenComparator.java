@@ -60,7 +60,7 @@ public class TokenComparator {
 	private final TalismaneSession session;
 
 	public TokenComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException {
+			throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
 		this.session = session;
 		Config config = session.getConfig();
 		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
@@ -96,8 +96,9 @@ public class TokenComparator {
 	 * Evaluate the evaluation corpus against the reference corpus.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public void compare() throws TalismaneException {
+	public void compare() throws TalismaneException, IOException {
 		while (referenceCorpusReader.hasNextSentence()) {
 			TokenSequence realSequence = referenceCorpusReader.nextTokenSequence();
 

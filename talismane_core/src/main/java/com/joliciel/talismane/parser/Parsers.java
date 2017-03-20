@@ -54,7 +54,7 @@ public class Parsers {
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 	private static final Map<String, Parser> parserMap = new HashMap<>();
 
-	public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException {
+	public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
 		Parser parser = null;
 		if (session.getSessionId() != null)
 			parser = parserMap.get(session.getSessionId());

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.posTagger;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class PosTaggerGuessTemplateWriter implements PosTagEvaluationObserver {
 	}
 
 	@Override
-	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException {
+	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException, IOException {
 		processor.onNextPosTagSequence(guessedSequences.get(0));
 	}
 

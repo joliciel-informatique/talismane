@@ -78,7 +78,7 @@ public class SentenceDetector implements Annotator<AnnotatedText> {
 	private final Set<SentenceDetectorFeature<?>> features;
 	private final TalismaneSession session;
 
-	public static SentenceDetector getInstance(TalismaneSession session) throws IOException {
+	public static SentenceDetector getInstance(TalismaneSession session) throws IOException, ClassNotFoundException {
 		SentenceDetector sentenceDetector = null;
 		if (session.getSessionId() != null)
 			sentenceDetector = sentenceDetectorMap.get(session.getSessionId());

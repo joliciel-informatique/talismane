@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
 
@@ -79,7 +80,7 @@ public class TokenPattern {
 	private String groupName;
 	private boolean startsWithSeparatorClass = false;
 
-	public TokenPattern(String regexp, Pattern separatorPattern) {
+	public TokenPattern(String regexp, Pattern separatorPattern) throws TalismaneException {
 		this.regexp = regexp;
 		this.separatorPattern = separatorPattern;
 		this.parsedPattern = this.parsePattern(this.regexp);
@@ -232,8 +233,10 @@ public class TokenPattern {
 
 	/**
 	 * Break the regexp up into chunks, where each chunk will match one token.
+	 * 
+	 * @throws TalismaneException
 	 */
-	List<Pattern> parsePattern(String regexp) {
+	List<Pattern> parsePattern(String regexp) throws TalismaneException {
 		boolean inLiteral = false;
 		boolean inException = false;
 		boolean inGrouping = false;
@@ -314,7 +317,7 @@ public class TokenPattern {
 			} else if (separatorPattern.matcher("" + c).find()) {
 				if (inGrouping) {
 					if (groupingHasLetters) {
-						throw new RuntimeException("Cannot mix separators and non-separators in same grouping");
+						throw new TalismaneException("Cannot mix separators and non-separators in same grouping");
 					}
 				} else {
 					// a separator

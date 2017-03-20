@@ -57,26 +57,20 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 
 	private final String punctuationDepLabel;
 
-	public StandoffWriter(Writer writer, TalismaneSession session) {
+	public StandoffWriter(Writer writer, TalismaneSession session) throws IOException {
 		punctuationDepLabel = session.getTransitionSystem().getDependencyLabelSet().getPunctuationLabel();
+		this.writer = writer;
+		Configuration cfg = new Configuration(new Version(2, 3, 23));
+		cfg.setCacheStorage(new NullCacheStorage());
+		cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
+		InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoff.ftl");
+		Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
 
-		try {
-			this.writer = writer;
-			Configuration cfg = new Configuration(new Version(2, 3, 23));
-			cfg.setCacheStorage(new NullCacheStorage());
-			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
-			InputStream inputStream = StandoffWriter.class.getResourceAsStream("standoff.ftl");
-			Reader templateReader = new BufferedReader(new InputStreamReader(inputStream));
-
-			this.template = new Template("freemarkerTemplate", templateReader, cfg);
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		}
+		this.template = new Template("freemarkerTemplate", templateReader, cfg);
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws IOException {
 		Map<String, Object> model = new HashMap<String, Object>();
 		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
 		model.put("sentence", output);
@@ -101,16 +95,13 @@ public class StandoffWriter implements ParseConfigurationProcessor {
 		sentenceCount += 1;
 	}
 
-	void process(Map<String, Object> model, Writer writer) {
+	void process(Map<String, Object> model, Writer writer) throws IOException {
 		try {
 			template.process(model, writer);
 			writer.flush();
 		} catch (TemplateException te) {
 			LogUtils.logError(LOG, te);
 			throw new RuntimeException(te);
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
 		}
 	}
 

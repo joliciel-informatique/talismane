@@ -59,8 +59,9 @@ public class PosTagComparator {
 	 * Evaluate the evaluation corpus against the reference corpus.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public void evaluate() throws TalismaneException {
+	public void evaluate() throws TalismaneException, IOException {
 		while (referenceCorpusReader.hasNextSentence()) {
 			PosTagSequence realPosTagSequence = referenceCorpusReader.nextPosTagSequence();
 			PosTagSequence guessedPosTagSequence = evaluationCorpusReader.nextPosTagSequence();

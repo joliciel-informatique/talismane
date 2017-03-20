@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -131,7 +132,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	}
 
 	@Override
-	public List<PosTagSequence> tagSentence(List<TokenSequence> input) throws TalismaneException {
+	public List<PosTagSequence> tagSentence(List<TokenSequence> input) throws TalismaneException, IOException {
 		List<TokenSequence> tokenSequences = null;
 		if (this.propagateTokeniserBeam) {
 			tokenSequences = input;
@@ -365,7 +366,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
 	}
 
 	@Override
-	public PosTagSequence tagSentence(TokenSequence tokenSequence) throws TalismaneException {
+	public PosTagSequence tagSentence(TokenSequence tokenSequence) throws TalismaneException, IOException {
 		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
 		tokenSequences.add(tokenSequence);
 		List<PosTagSequence> posTagSequences = this.tagSentence(tokenSequences);

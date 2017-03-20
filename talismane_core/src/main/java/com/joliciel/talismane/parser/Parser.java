@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -83,9 +84,10 @@ public interface Parser {
 	 * @throws UnknownTransitionException
 	 * @throws UnknownDependencyLabelException
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence)
-			throws UnknownDependencyLabelException, UnknownTransitionException, InvalidTransitionException, CircularDependencyException, TalismaneException;
+	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence) throws UnknownDependencyLabelException, UnknownTransitionException,
+			InvalidTransitionException, CircularDependencyException, TalismaneException, IOException;
 
 	public void addObserver(ClassificationObserver observer);
 

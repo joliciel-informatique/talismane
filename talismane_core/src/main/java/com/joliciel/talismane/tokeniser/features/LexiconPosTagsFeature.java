@@ -41,6 +41,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public final class LexiconPosTagsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>implements StringCollectionFeature<TokenWrapper> {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsFeature.class);
 
 	public LexiconPosTagsFeature() {
@@ -59,15 +60,9 @@ public final class LexiconPosTagsFeature extends AbstractTokenFeature<List<Weigh
 		FeatureResult<List<WeightedOutcome<String>>> result = null;
 		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
 
-		try {
-			for (PosTag posTag : token.getPossiblePosTags()) {
-				resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
-			}
-		} catch (TalismaneException e) {
-			LOG.error(e.getMessage(), e);
-			throw new RuntimeException(e);
+		for (PosTag posTag : token.getPossiblePosTags()) {
+			resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
 		}
-
 		if (resultList.size() > 0)
 			result = this.generateResult(resultList);
 

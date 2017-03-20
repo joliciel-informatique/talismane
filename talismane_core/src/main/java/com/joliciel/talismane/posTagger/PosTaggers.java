@@ -53,7 +53,7 @@ public class PosTaggers {
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 	private static final Map<String, PosTagger> posTaggerMap = new HashMap<>();
 
-	public static PosTagger getPosTagger(TalismaneSession session) throws IOException, TalismaneException {
+	public static PosTagger getPosTagger(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
 		PosTagger posTagger = null;
 		if (session.getSessionId() != null)
 			posTagger = posTaggerMap.get(session.getSessionId());

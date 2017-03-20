@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,7 +66,7 @@ public class PosTagEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() throws TalismaneException {
+	public boolean hasNext() throws TalismaneException, IOException {
 		while (currentSentence == null) {
 			if (this.corpusReader.hasNextSentence()) {
 				currentSentence = this.corpusReader.nextPosTagSequence();
@@ -84,7 +85,7 @@ public class PosTagEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() throws TalismaneException {
+	public ClassificationEvent next() throws TalismaneException, IOException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			PosTaggedToken taggedToken = currentSentence.get(currentIndex++);

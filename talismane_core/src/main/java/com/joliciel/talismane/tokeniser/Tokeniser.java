@@ -82,9 +82,11 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	/**
 	 * Similar to {@link #tokenise(String)}, but returns only the best token
 	 * sequence.
+	 * 
+	 * @throws IOException
 	 */
 
-	public TokenSequence tokeniseText(String text) throws TalismaneException {
+	public TokenSequence tokeniseText(String text) throws TalismaneException, IOException {
 		List<TokenSequence> tokenSequences = this.tokenise(text);
 		return tokenSequences.get(0);
 	}
@@ -93,9 +95,11 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	 * Similar to {@link #tokeniseWithDecisions(String)}, but returns the token
 	 * sequences inferred from the decisions, rather than the list of decisions
 	 * themselves.
+	 * 
+	 * @throws IOException
 	 */
 
-	public List<TokenSequence> tokenise(String text) throws TalismaneException {
+	public List<TokenSequence> tokenise(String text) throws TalismaneException, IOException {
 		Sentence sentence = new Sentence(text, session);
 		return this.tokenise(sentence);
 	}
@@ -103,9 +107,11 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	/**
 	 * Similar to {@link #tokenise(Sentence, String...)}, but returns only the
 	 * best token sequence.
+	 * 
+	 * @throws IOException
 	 */
 
-	public TokenSequence tokeniseSentence(Sentence sentence, String... labels) throws TalismaneException {
+	public TokenSequence tokeniseSentence(Sentence sentence, String... labels) throws TalismaneException, IOException {
 		List<TokenSequence> tokenSequences = this.tokenise(sentence, labels);
 		return tokenSequences.get(0);
 	}
@@ -114,9 +120,11 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	 * Similar to {@link #tokeniseWithDecisions(Sentence, String...)}, but
 	 * returns the token sequences inferred from the decisions, rather than the
 	 * list of decisions themselves.
+	 * 
+	 * @throws IOException
 	 */
 
-	public List<TokenSequence> tokenise(Sentence sentence, String... labels) throws TalismaneException {
+	public List<TokenSequence> tokenise(Sentence sentence, String... labels) throws TalismaneException, IOException {
 		List<TokenisedAtomicTokenSequence> decisionSequences = this.tokeniseWithDecisions(sentence, labels);
 		List<TokenSequence> tokenSequences = new ArrayList<TokenSequence>();
 		for (TokenisedAtomicTokenSequence decisionSequence : decisionSequences) {
@@ -136,9 +144,10 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	 *            the sentence to be tokenised
 	 * @return a List of up to <i>n</i> TokeniserDecisionTagSequence, ordered
 	 *         from most probable to least probable
+	 * @throws IOException
 	 */
 
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text) throws TalismaneException {
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(String text) throws TalismaneException, IOException {
 		Sentence sentence = new Sentence(text, session);
 		return this.tokeniseWithDecisions(sentence);
 	}
@@ -151,9 +160,10 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	 *            the sentence to tokeniser
 	 * @param labels
 	 *            the labels to add to any annotations added.
+	 * @throws IOException
 	 */
 
-	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence, String... labels) throws TalismaneException {
+	public List<TokenisedAtomicTokenSequence> tokeniseWithDecisions(Sentence sentence, String... labels) throws TalismaneException, IOException {
 		// Initially, separate the sentence into tokens using the separators
 		// provided
 		TokenSequence tokenSequence = new TokenSequence(sentence, this.session);
@@ -187,11 +197,12 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	}
 
 	@Override
-	public void annotate(Sentence sentence, String... labels) throws TalismaneException {
+	public void annotate(Sentence sentence, String... labels) throws TalismaneException, IOException {
 		this.tokeniseWithDecisions(sentence, labels);
 	}
 
-	protected abstract List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) throws TalismaneException;
+	protected abstract List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence)
+			throws TalismaneException, IOException;
 
 	public void addObserver(ClassificationObserver observer) {
 		// nothing to do here
@@ -211,8 +222,9 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 	 * @return a tokeniser to be used - each call returns a separate tokeniser
 	 * @throws IOException
 	 *             if problems occurred reading the model
+	 * @throws ClassNotFoundException
 	 */
-	public static Tokeniser getInstance(TalismaneSession session) throws IOException {
+	public static Tokeniser getInstance(TalismaneSession session) throws IOException, ClassNotFoundException {
 		Tokeniser tokeniser = null;
 		if (session.getSessionId() != null)
 			tokeniser = tokeniserMap.get(session.getSessionId());
@@ -221,12 +233,13 @@ public abstract class Tokeniser implements Annotator<Sentence> {
 			Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 			TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
 
-			if (tokeniserType == TokeniserType.simple) {
+			switch (tokeniserType) {
+			case simple:
 				tokeniser = new SimpleTokeniser(session);
-			} else if (tokeniserType == TokeniserType.pattern) {
+				break;
+			case pattern:
 				tokeniser = new PatternTokeniser(session);
-			} else {
-				throw new RuntimeException("Unknown tokeniserType: " + tokeniserType);
+				break;
 			}
 
 			if (session.getSessionId() != null)

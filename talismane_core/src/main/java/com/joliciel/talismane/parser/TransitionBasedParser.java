@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -140,7 +141,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public ParseConfiguration parseSentence(PosTagSequence posTagSequence) throws TalismaneException {
+	public ParseConfiguration parseSentence(PosTagSequence posTagSequence) throws TalismaneException, IOException {
 		List<PosTagSequence> posTagSequences = new ArrayList<PosTagSequence>();
 		posTagSequences.add(posTagSequence);
 		List<ParseConfiguration> parseConfigurations = this.parseSentence(posTagSequences);
@@ -149,7 +150,7 @@ public class TransitionBasedParser implements NonDeterministicParser {
 	}
 
 	@Override
-	public List<ParseConfiguration> parseSentence(List<PosTagSequence> input) throws TalismaneException {
+	public List<ParseConfiguration> parseSentence(List<PosTagSequence> input) throws TalismaneException, IOException {
 		List<PosTagSequence> posTagSequences = null;
 		if (this.propagatePosTaggerBeam) {
 			posTagSequences = input;

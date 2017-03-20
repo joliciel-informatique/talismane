@@ -23,7 +23,6 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeature;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 import com.joliciel.talismane.utils.ConfigUtils;
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 
 public class PosTagFeatureTester implements PosTagSequenceProcessor {
@@ -141,31 +140,26 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
 	}
 
 	@Override
-	public void onCompleteAnalysis() {
-		try {
-			for (String featureResult : this.featureResultMap.keySet()) {
-				writer.write("###################\n");
-				writer.write(featureResult + "\n");
-				int totalCount = 0;
-				Map<String, List<String>> classificationMap = featureResultMap.get(featureResult);
-				for (String classification : classificationMap.keySet()) {
-					totalCount += classificationMap.get(classification).size();
-				}
-				writer.write("Total count: " + totalCount + "\n");
-				for (String classification : classificationMap.keySet()) {
-					writer.write(classification + " count:" + classificationMap.get(classification).size() + "\n");
-				}
-				for (String classification : classificationMap.keySet()) {
-					writer.write("PosTag: " + classification + "\t" + classificationMap.get(classification).size() + "\n");
-					for (String sentence : classificationMap.get(classification)) {
-						writer.write(sentence + "\n");
-					}
-				}
-				writer.flush();
+	public void onCompleteAnalysis() throws IOException {
+		for (String featureResult : this.featureResultMap.keySet()) {
+			writer.write("###################\n");
+			writer.write(featureResult + "\n");
+			int totalCount = 0;
+			Map<String, List<String>> classificationMap = featureResultMap.get(featureResult);
+			for (String classification : classificationMap.keySet()) {
+				totalCount += classificationMap.get(classification).size();
 			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			writer.write("Total count: " + totalCount + "\n");
+			for (String classification : classificationMap.keySet()) {
+				writer.write(classification + " count:" + classificationMap.get(classification).size() + "\n");
+			}
+			for (String classification : classificationMap.keySet()) {
+				writer.write("PosTag: " + classification + "\t" + classificationMap.get(classification).size() + "\n");
+				for (String sentence : classificationMap.get(classification)) {
+					writer.write(sentence + "\n");
+				}
+			}
+			writer.flush();
 		}
 	}
 

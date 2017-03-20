@@ -91,9 +91,10 @@ public class PosTaggerEvaluator {
 	 * Evaluate a given pos tagger.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 * 
 	 */
-	public void evaluate() throws TalismaneException {
+	public void evaluate() throws TalismaneException, IOException {
 		while (corpusReader.hasNextSentence()) {
 			PosTagSequence realPosTagSequence = corpusReader.nextPosTagSequence();
 

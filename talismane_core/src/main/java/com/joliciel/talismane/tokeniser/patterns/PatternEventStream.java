@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.patterns;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,7 +74,7 @@ public class PatternEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() throws TalismaneException {
+	public boolean hasNext() throws TalismaneException, IOException {
 		if (currentPatternMatches != null) {
 			if (currentIndex == currentPatternMatches.size()) {
 				currentPatternMatches = null;
@@ -170,7 +171,7 @@ public class PatternEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() throws TalismaneException {
+	public ClassificationEvent next() throws TalismaneException, IOException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			TokenPatternMatch tokenPatternMatch = currentPatternMatches.get(currentIndex);

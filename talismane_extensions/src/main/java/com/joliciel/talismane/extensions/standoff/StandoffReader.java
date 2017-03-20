@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.extensions.standoff;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -151,7 +152,7 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 	}
 
 	@Override
-	public boolean hasNextSentence() throws TalismaneException {
+	public boolean hasNextSentence() throws TalismaneException, IOException {
 		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
@@ -238,7 +239,7 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 	}
 
 	@Override
-	public ParseConfiguration nextConfiguration() throws TalismaneException {
+	public ParseConfiguration nextConfiguration() throws TalismaneException, IOException {
 		ParseConfiguration nextConfiguration = null;
 		if (this.hasNextSentence()) {
 			nextConfiguration = configuration;
@@ -268,17 +269,17 @@ public class StandoffReader extends AbstractAnnotatedCorpusReader implements Par
 	}
 
 	@Override
-	public PosTagSequence nextPosTagSequence() throws TalismaneException {
+	public PosTagSequence nextPosTagSequence() throws TalismaneException, IOException {
 		return this.nextConfiguration().getPosTagSequence();
 	}
 
 	@Override
-	public TokenSequence nextTokenSequence() throws TalismaneException {
+	public TokenSequence nextTokenSequence() throws TalismaneException, IOException {
 		return this.nextConfiguration().getPosTagSequence().getTokenSequence();
 	}
 
 	@Override
-	public Sentence nextSentence() throws TalismaneException {
+	public Sentence nextSentence() throws TalismaneException, IOException {
 		return this.nextConfiguration().getPosTagSequence().getTokenSequence().getSentence();
 	}
 

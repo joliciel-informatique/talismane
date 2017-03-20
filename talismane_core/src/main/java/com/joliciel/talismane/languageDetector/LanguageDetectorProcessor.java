@@ -36,8 +36,10 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 public interface LanguageDetectorProcessor extends Closeable {
 	/**
 	 * Process the next text.
+	 * 
+	 * @throws IOException
 	 */
-	public void onNextText(String text, List<WeightedOutcome<Locale>> results);
+	public void onNextText(String text, List<WeightedOutcome<Locale>> results) throws IOException;
 
 	public static LanguageDetectorProcessor getProcessor(Writer writer, TalismaneSession session) throws IOException {
 		return new DefaultLanguageDetectorProcessor(writer);

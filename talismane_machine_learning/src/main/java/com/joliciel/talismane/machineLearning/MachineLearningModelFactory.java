@@ -45,14 +45,14 @@ public class MachineLearningModelFactory {
 	public MachineLearningModelFactory() {
 	}
 
-	public ClassificationModel getClassificationModel(ZipInputStream zis) {
+	public ClassificationModel getClassificationModel(ZipInputStream zis) throws ClassNotFoundException {
 		MachineLearningModel model = this.getMachineLearningModel(zis);
 		if (!(model instanceof ClassificationModel))
 			throw new JolicielException("Model in zip file not " + ClassificationModel.class.getSimpleName());
 		return (ClassificationModel) model;
 	}
 
-	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) {
+	public MachineLearningModel getMachineLearningModel(ZipInputStream zis) throws ClassNotFoundException {
 		try {
 			MachineLearningModel machineLearningModel = null;
 			ZipEntry ze = zis.getNextEntry();

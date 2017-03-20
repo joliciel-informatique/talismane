@@ -102,7 +102,7 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	}
 
 	@Override
-	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
+	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
 		try {
 			super.processSentence(corpusLines);
 			PosTaggedToken rootToken = posTagSequence.prependRoot();
@@ -196,7 +196,7 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	}
 
 	@Override
-	public ParseConfiguration nextConfiguration() throws TalismaneException {
+	public ParseConfiguration nextConfiguration() throws TalismaneException, IOException {
 		ParseConfiguration nextConfiguration = null;
 		if (this.hasNextSentence()) {
 			nextConfiguration = configuration;

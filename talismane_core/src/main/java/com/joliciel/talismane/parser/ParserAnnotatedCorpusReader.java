@@ -42,8 +42,9 @@ public interface ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader
 	 * 
 	 * @throws TalismaneException
 	 *             if it's impossible to read the next configuration
+	 * @throws IOException
 	 */
-	public abstract ParseConfiguration nextConfiguration() throws TalismaneException;
+	public abstract ParseConfiguration nextConfiguration() throws TalismaneException, IOException;
 
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,

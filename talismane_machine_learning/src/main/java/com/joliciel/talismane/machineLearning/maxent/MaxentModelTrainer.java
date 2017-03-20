@@ -57,30 +57,28 @@ public class MaxentModelTrainer implements ClassificationModelTrainer {
 	private Config config;
 
 	@Override
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) {
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) throws IOException {
 		Map<String, List<String>> descriptors = new HashMap<String, List<String>>();
 		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
 		return this.trainModel(corpusEventStream, descriptors);
 	}
 
 	@Override
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors) {
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors) throws IOException {
 		MaxentModel maxentModel = null;
 		EventStream eventStream = new OpenNLPEventStream(corpusEventStream);
-		try {
-			DataIndexer dataIndexer = new TwoPassRealValueDataIndexer(eventStream, cutoff);
-			GISTrainer trainer = new GISTrainer(true);
-			if (this.getSmoothing() > 0) {
-				trainer.setSmoothing(true);
-				trainer.setSmoothingObservation(this.getSmoothing());
-			} else if (this.getSigma() > 0) {
-				trainer.setGaussianSigma(this.getSigma());
-			}
 
-			maxentModel = trainer.trainModel(iterations, dataIndexer, cutoff);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		DataIndexer dataIndexer = new TwoPassRealValueDataIndexer(eventStream, cutoff);
+		GISTrainer trainer = new GISTrainer(true);
+		if (this.getSmoothing() > 0) {
+			trainer.setSmoothing(true);
+			trainer.setSmoothingObservation(this.getSmoothing());
+		} else if (this.getSigma() > 0) {
+			trainer.setGaussianSigma(this.getSigma());
 		}
+
+		maxentModel = trainer.trainModel(iterations, dataIndexer, cutoff);
+
 		MaximumEntropyModel model = new MaximumEntropyModel(maxentModel, config, descriptors);
 		model.addModelAttribute("cutoff", this.getCutoff());
 		model.addModelAttribute("iterations", this.getIterations());

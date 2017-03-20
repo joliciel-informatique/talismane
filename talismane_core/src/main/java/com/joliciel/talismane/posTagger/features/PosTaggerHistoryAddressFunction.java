@@ -48,7 +48,7 @@ public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<Po
 		if (offsetResult != null) {
 			int n = offsetResult.getOutcome();
 			if (n >= 0) {
-				throw new RuntimeException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
+				throw new TalismaneException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
 			}
 			n = 0 - n;
 			int i = context.getToken().getIndex();

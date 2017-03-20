@@ -43,8 +43,9 @@ public interface PosTagAnnotatedCorpusReader extends TokeniserAnnotatedCorpusRea
 	 * @throws TalismaneException
 	 *             if it's logically impossible to read the next pos-tag
 	 *             sequence
+	 * @throws IOException
 	 */
-	public abstract PosTagSequence nextPosTagSequence() throws TalismaneException;
+	public abstract PosTagSequence nextPosTagSequence() throws TalismaneException, IOException;
 
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,

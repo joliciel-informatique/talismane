@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,12 +58,12 @@ public class OutcomeEqualiserEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() throws TalismaneException {
+	public boolean hasNext() throws TalismaneException, IOException {
 		this.initialiseStream();
 		return (eventIndex < eventList.size());
 	}
 
-	void initialiseStream() throws TalismaneException {
+	void initialiseStream() throws TalismaneException, IOException {
 		if (eventList == null) {
 			Map<String, List<ClassificationEvent>> eventOutcomeMap = new HashMap<String, List<ClassificationEvent>>();
 			while (originalEventStream.hasNext()) {

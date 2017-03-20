@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.joliciel.talismane.parser.CircularDependencyException;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.parser.DependencyArc;
 import com.joliciel.talismane.parser.ParseConfiguration;
 import com.joliciel.talismane.parser.ParseConfigurationProcessor;
@@ -86,7 +86,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws CircularDependencyException {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws TalismaneException {
 
 		List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getNonProjectiveDependencies());
 
@@ -200,7 +200,7 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
 				parseConfiguration.addDependency(pair.arc1.getHead(), pair.arc1.getDependent(), pair.arc1.getLabel(), null);
 
 			} else {
-				throw new RuntimeException("Cannot deprojectify " + pair);
+				throw new TalismaneException("Cannot deprojectify " + pair + ". Could not find projective parents.");
 			}
 			parseConfiguration.clearMemory();
 

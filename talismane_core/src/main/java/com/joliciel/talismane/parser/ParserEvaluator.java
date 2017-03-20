@@ -96,8 +96,9 @@ public class ParserEvaluator {
 	 * @throws TalismaneException
 	 *             if an attempt is made to evaluate with a tokeniser but no
 	 *             pos-tagger
+	 * @throws IOException
 	 */
-	public void evaluate() throws TalismaneException {
+	public void evaluate() throws TalismaneException, IOException {
 		while (corpusReader.hasNextSentence()) {
 			ParseConfiguration realConfiguration = corpusReader.nextConfiguration();
 

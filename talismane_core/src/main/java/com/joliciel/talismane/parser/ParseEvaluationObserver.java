@@ -51,13 +51,16 @@ public interface ParseEvaluationObserver {
 	 * Called when the next parse configuration has been processed.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException;
+	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException;
 
 	/**
 	 * Called when full evaluation has completed.
+	 * 
+	 * @throws IOException
 	 */
-	public void onEvaluationComplete();
+	public void onEvaluationComplete() throws IOException;
 
 	public static List<ParseEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
 		Config config = session.getConfig();

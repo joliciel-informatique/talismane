@@ -89,7 +89,7 @@ public class SentenceDetectorTrainer {
 		eventStream = new SentenceDetectorEventStream(corpusReader, features, this.session);
 	}
 
-	public ClassificationModel train() throws TalismaneException {
+	public ClassificationModel train() throws TalismaneException, IOException {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(sentenceConfig.getConfig("train.machine-learning"));
 

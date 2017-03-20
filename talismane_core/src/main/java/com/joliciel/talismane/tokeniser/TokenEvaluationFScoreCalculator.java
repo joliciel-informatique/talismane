@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.CSVFormatter;
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -135,7 +134,7 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 	}
 
 	@Override
-	public void onEvaluationComplete() {
+	public void onEvaluationComplete() throws IOException {
 		for (String tagger : taggerFScoreCalculators.keySet()) {
 			LOG.debug("###### Tagger " + tagger);
 			FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
@@ -176,16 +175,8 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 					}
 					errorWriter.flush();
 				}
-			} catch (IOException ioe) {
-				LogUtils.logError(LOG, ioe);
-				throw new RuntimeException(ioe);
 			} finally {
-				try {
-					errorWriter.close();
-				} catch (IOException ioe) {
-					LogUtils.logError(LOG, ioe);
-					throw new RuntimeException(ioe);
-				}
+				errorWriter.close();
 			}
 		}
 
@@ -221,16 +212,8 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
 					}
 					csvErrorWriter.flush();
 				}
-			} catch (IOException ioe) {
-				LogUtils.logError(LOG, ioe);
-				throw new RuntimeException(ioe);
 			} finally {
-				try {
-					errorWriter.close();
-				} catch (IOException ioe) {
-					LogUtils.logError(LOG, ioe);
-					throw new RuntimeException(ioe);
-				}
+				errorWriter.close();
 			}
 		}
 	}

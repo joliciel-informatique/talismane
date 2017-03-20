@@ -97,7 +97,7 @@ public class PosTaggerTrainer {
 		eventStream = new PosTagEventStream(corpusReader, features);
 	}
 
-	public ClassificationModel train() throws TalismaneException {
+	public ClassificationModel train() throws TalismaneException, IOException {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(posTaggerConfig.getConfig("train.machine-learning"));
 

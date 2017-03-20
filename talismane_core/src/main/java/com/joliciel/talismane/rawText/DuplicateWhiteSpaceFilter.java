@@ -18,6 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.rawText;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Gets rid of duplicate whitespace.
  * 
@@ -25,7 +27,7 @@ package com.joliciel.talismane.rawText;
  *
  */
 public class DuplicateWhiteSpaceFilter extends RawTextRegexAnnotator {
-	public DuplicateWhiteSpaceFilter(int blockSize) {
+	public DuplicateWhiteSpaceFilter(int blockSize) throws TalismaneException {
 		super(RawTextMarkType.SKIP, "[" + Sentence.WHITE_SPACE + "]([" + Sentence.WHITE_SPACE + "]+)", 1, blockSize);
 	}
 }

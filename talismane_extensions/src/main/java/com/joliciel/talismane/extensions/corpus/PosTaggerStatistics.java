@@ -49,7 +49,6 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.utils.CSVFormatter;
-import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * A class for gathering statistics from a given corpus.
@@ -59,6 +58,7 @@ import com.joliciel.talismane.utils.LogUtils;
  */
 public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializable {
 	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerStatistics.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 
@@ -159,120 +159,105 @@ public class PosTaggerStatistics implements PosTagSequenceProcessor, Serializabl
 	}
 
 	@Override
-	public void onCompleteAnalysis() {
-		try {
-			if (writer != null) {
-				PosTagSet posTagSet = talismaneSession.getPosTagSet();
-				for (PosTag posTag : posTagSet.getTags()) {
-					if (!posTagCounts.containsKey(posTag.getCode())) {
-						posTagCounts.put(posTag.getCode(), 0);
-					}
+	public void onCompleteAnalysis() throws IOException {
+		if (writer != null) {
+			PosTagSet posTagSet = talismaneSession.getPosTagSet();
+			for (PosTag posTag : posTagSet.getTags()) {
+				if (!posTagCounts.containsKey(posTag.getCode())) {
+					posTagCounts.put(posTag.getCode(), 0);
 				}
-
-				double unknownLexiconPercent = 1;
-				if (referenceWords != null) {
-					int unknownLexiconCount = 0;
-					for (String word : words) {
-						if (!referenceWords.contains(word))
-							unknownLexiconCount++;
-					}
-					unknownLexiconPercent = (double) unknownLexiconCount / (double) words.size();
-				}
-				double unknownLowercaseLexiconPercent = 1;
-				if (referenceLowercaseWords != null) {
-					int unknownLowercaseLexiconCount = 0;
-					for (String lowercase : lowerCaseWords) {
-						if (!referenceLowercaseWords.contains(lowercase))
-							unknownLowercaseLexiconCount++;
-					}
-					unknownLowercaseLexiconPercent = (double) unknownLowercaseLexiconCount / (double) lowerCaseWords.size();
-				}
-
-				writer.write(CSV.format("sentenceCount") + CSV.format(sentenceCount) + "\n");
-				writer.write(CSV.format("sentenceLengthMean") + CSV.format(sentenceLengthStats.getMean()) + "\n");
-				writer.write(CSV.format("sentenceLengthStdDev") + CSV.format(sentenceLengthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("lexiconSize") + CSV.format(words.size()) + "\n");
-				writer.write(CSV.format("lexiconUnknownInRefCorpus") + CSV.format(unknownLexiconPercent * 100.0) + "\n");
-				writer.write(CSV.format("tokenCount") + CSV.format(tokenCount) + "\n");
-
-				double unknownTokenPercent = ((double) unknownTokenCount / (double) tokenCount) * 100.0;
-				writer.write(CSV.format("tokenUnknownInRefCorpus") + CSV.format(unknownTokenPercent) + "\n");
-
-				double unknownInLexiconPercent = ((double) unknownInLexiconCount / (double) tokenCount) * 100.0;
-				writer.write(CSV.format("tokenUnknownInRefLexicon") + CSV.format(unknownInLexiconPercent) + "\n");
-
-				writer.write(CSV.format("lowercaseLexiconSize") + CSV.format(lowerCaseWords.size()) + "\n");
-				writer.write(CSV.format("lowercaseLexiconUnknownInRefCorpus") + CSV.format(unknownLowercaseLexiconPercent * 100.0) + "\n");
-				writer.write(CSV.format("alphanumericCount") + CSV.format(alphanumericCount) + "\n");
-
-				double unknownAlphanumericPercent = ((double) unknownAlphanumericCount / (double) alphanumericCount) * 100.0;
-				writer.write(CSV.format("alphaUnknownInRefCorpus") + CSV.format(unknownAlphanumericPercent) + "\n");
-
-				double unknownAlphaInLexiconPercent = ((double) unknownAlphaInLexiconCount / (double) alphanumericCount) * 100.0;
-				writer.write(CSV.format("alphaUnknownInRefLexicon") + CSV.format(unknownAlphaInLexiconPercent) + "\n");
-
-				writer.write(CSV.format("openClassCount") + CSV.format(openClassCount) + "\n");
-
-				double openClassUnknownPercent = ((double) openClassUnknownInRefCorpus / (double) openClassCount) * 100.0;
-				writer.write(CSV.format("openClassUnknownInRefCorpus") + CSV.format(openClassUnknownPercent) + "\n");
-
-				double openClassUnknownInLexiconPercent = ((double) openClassUnknownInLexicon / (double) openClassCount) * 100.0;
-				writer.write(CSV.format("openClassUnknownInRefLexicon") + CSV.format(openClassUnknownInLexiconPercent) + "\n");
-
-				writer.write(CSV.format("closedClassCount") + CSV.format(closedClassCount) + "\n");
-
-				double closedClassUnknownPercent = ((double) closedClassUnknownInRefCorpus / (double) closedClassCount) * 100.0;
-				writer.write(CSV.format("closedClassUnknownInRefCorpus") + CSV.format(closedClassUnknownPercent) + "\n");
-
-				double closedClassUnknownInLexiconPercent = ((double) closedClassUnknownInLexicon / (double) closedClassCount) * 100.0;
-				writer.write(CSV.format("closedClassUnknownInRefLexicon") + CSV.format(closedClassUnknownInLexiconPercent) + "\n");
-
-				for (String posTag : posTagCounts.keySet()) {
-					int count = posTagCounts.get(posTag);
-					writer.write(CSV.format(posTag) + CSV.format(count) + CSV.format(((double) count / (double) tokenCount) * 100.0) + "\n");
-				}
-
-				writer.flush();
-				writer.close();
 			}
 
-			if (this.serializationFile != null) {
-				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(serializationFile, false));
-				zos.putNextEntry(new ZipEntry("Contents.obj"));
-				ObjectOutputStream oos = new ObjectOutputStream(zos);
-				try {
-					oos.writeObject(this);
-				} finally {
-					oos.flush();
+			double unknownLexiconPercent = 1;
+			if (referenceWords != null) {
+				int unknownLexiconCount = 0;
+				for (String word : words) {
+					if (!referenceWords.contains(word))
+						unknownLexiconCount++;
 				}
-				zos.flush();
-				zos.close();
+				unknownLexiconPercent = (double) unknownLexiconCount / (double) words.size();
 			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			double unknownLowercaseLexiconPercent = 1;
+			if (referenceLowercaseWords != null) {
+				int unknownLowercaseLexiconCount = 0;
+				for (String lowercase : lowerCaseWords) {
+					if (!referenceLowercaseWords.contains(lowercase))
+						unknownLowercaseLexiconCount++;
+				}
+				unknownLowercaseLexiconPercent = (double) unknownLowercaseLexiconCount / (double) lowerCaseWords.size();
+			}
+
+			writer.write(CSV.format("sentenceCount") + CSV.format(sentenceCount) + "\n");
+			writer.write(CSV.format("sentenceLengthMean") + CSV.format(sentenceLengthStats.getMean()) + "\n");
+			writer.write(CSV.format("sentenceLengthStdDev") + CSV.format(sentenceLengthStats.getStandardDeviation()) + "\n");
+			writer.write(CSV.format("lexiconSize") + CSV.format(words.size()) + "\n");
+			writer.write(CSV.format("lexiconUnknownInRefCorpus") + CSV.format(unknownLexiconPercent * 100.0) + "\n");
+			writer.write(CSV.format("tokenCount") + CSV.format(tokenCount) + "\n");
+
+			double unknownTokenPercent = ((double) unknownTokenCount / (double) tokenCount) * 100.0;
+			writer.write(CSV.format("tokenUnknownInRefCorpus") + CSV.format(unknownTokenPercent) + "\n");
+
+			double unknownInLexiconPercent = ((double) unknownInLexiconCount / (double) tokenCount) * 100.0;
+			writer.write(CSV.format("tokenUnknownInRefLexicon") + CSV.format(unknownInLexiconPercent) + "\n");
+
+			writer.write(CSV.format("lowercaseLexiconSize") + CSV.format(lowerCaseWords.size()) + "\n");
+			writer.write(CSV.format("lowercaseLexiconUnknownInRefCorpus") + CSV.format(unknownLowercaseLexiconPercent * 100.0) + "\n");
+			writer.write(CSV.format("alphanumericCount") + CSV.format(alphanumericCount) + "\n");
+
+			double unknownAlphanumericPercent = ((double) unknownAlphanumericCount / (double) alphanumericCount) * 100.0;
+			writer.write(CSV.format("alphaUnknownInRefCorpus") + CSV.format(unknownAlphanumericPercent) + "\n");
+
+			double unknownAlphaInLexiconPercent = ((double) unknownAlphaInLexiconCount / (double) alphanumericCount) * 100.0;
+			writer.write(CSV.format("alphaUnknownInRefLexicon") + CSV.format(unknownAlphaInLexiconPercent) + "\n");
+
+			writer.write(CSV.format("openClassCount") + CSV.format(openClassCount) + "\n");
+
+			double openClassUnknownPercent = ((double) openClassUnknownInRefCorpus / (double) openClassCount) * 100.0;
+			writer.write(CSV.format("openClassUnknownInRefCorpus") + CSV.format(openClassUnknownPercent) + "\n");
+
+			double openClassUnknownInLexiconPercent = ((double) openClassUnknownInLexicon / (double) openClassCount) * 100.0;
+			writer.write(CSV.format("openClassUnknownInRefLexicon") + CSV.format(openClassUnknownInLexiconPercent) + "\n");
+
+			writer.write(CSV.format("closedClassCount") + CSV.format(closedClassCount) + "\n");
+
+			double closedClassUnknownPercent = ((double) closedClassUnknownInRefCorpus / (double) closedClassCount) * 100.0;
+			writer.write(CSV.format("closedClassUnknownInRefCorpus") + CSV.format(closedClassUnknownPercent) + "\n");
+
+			double closedClassUnknownInLexiconPercent = ((double) closedClassUnknownInLexicon / (double) closedClassCount) * 100.0;
+			writer.write(CSV.format("closedClassUnknownInRefLexicon") + CSV.format(closedClassUnknownInLexiconPercent) + "\n");
+
+			for (String posTag : posTagCounts.keySet()) {
+				int count = posTagCounts.get(posTag);
+				writer.write(CSV.format(posTag) + CSV.format(count) + CSV.format(((double) count / (double) tokenCount) * 100.0) + "\n");
+			}
+
+			writer.flush();
+			writer.close();
+		}
+
+		if (this.serializationFile != null) {
+			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(serializationFile, false));
+			zos.putNextEntry(new ZipEntry("Contents.obj"));
+			ObjectOutputStream oos = new ObjectOutputStream(zos);
+			try {
+				oos.writeObject(this);
+			} finally {
+				oos.flush();
+			}
+			zos.flush();
+			zos.close();
 		}
 
 	}
 
-	public static PosTaggerStatistics loadFromFile(File inFile) {
-		try {
-			ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
-			zis.getNextEntry();
-			@SuppressWarnings("resource")
-			ObjectInputStream in = new ObjectInputStream(zis);
-			PosTaggerStatistics stats = null;
-			try {
-				stats = (PosTaggerStatistics) in.readObject();
-			} catch (ClassNotFoundException e) {
-				LogUtils.logError(LOG, e);
-				throw new RuntimeException(e);
-			}
-			return stats;
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		}
+	public static PosTaggerStatistics loadFromFile(File inFile) throws ClassNotFoundException, IOException {
+		ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
+		zis.getNextEntry();
+		@SuppressWarnings("resource")
+		ObjectInputStream in = new ObjectInputStream(zis);
+		PosTaggerStatistics stats = (PosTaggerStatistics) in.readObject();
+
+		return stats;
 	}
 
 	public Set<String> getReferenceWords() {

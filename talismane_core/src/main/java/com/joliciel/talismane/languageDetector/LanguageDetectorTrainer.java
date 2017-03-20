@@ -88,7 +88,7 @@ public class LanguageDetectorTrainer {
 		eventStream = new LanguageDetectorEventStream(corpusReader, features);
 	}
 
-	public ClassificationModel train() throws TalismaneException {
+	public ClassificationModel train() throws TalismaneException, IOException {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(languageConfig.getConfig("train.machine-learning"));
 

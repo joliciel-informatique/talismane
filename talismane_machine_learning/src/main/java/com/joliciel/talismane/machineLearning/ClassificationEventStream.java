@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.joliciel.talismane.TalismaneException;
@@ -32,15 +33,18 @@ import com.joliciel.talismane.TalismaneException;
 public interface ClassificationEventStream {
 	/**
 	 * Does this event reader have any more events to read?
+	 * 
+	 * @throws IOException
 	 */
-	public boolean hasNext() throws TalismaneException;
+	public boolean hasNext() throws TalismaneException, IOException;
 
 	/**
 	 * The next event to read.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public ClassificationEvent next() throws TalismaneException;
+	public ClassificationEvent next() throws TalismaneException, IOException;
 
 	/**
 	 * Get the attributes defining this event stream.

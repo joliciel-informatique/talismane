@@ -81,6 +81,7 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 						throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
 					} catch (UnknownTransitionException e) {
 						// should never happen
+						LOG.error(e.getMessage(), e);
 						throw new RuntimeException(e);
 					}
 					currentDep = arc;
@@ -94,6 +95,7 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 						throw new UnknownDependencyLabelException(arc.getDependent().getIndex(), arc.getLabel());
 					} catch (UnknownTransitionException e) {
 						// should never happen
+						LOG.error(e.getMessage(), e);
 						throw new RuntimeException(e);
 					}
 					currentDep = arc;
@@ -207,7 +209,7 @@ public class ArcEagerTransitionSystem extends AbstractTransitionSystem implement
 				}
 			} catch (UnknownDependencyLabelException | UnknownTransitionException e) {
 				// should never happen, since these are all known
-				LOG.error(e.getClass().getSimpleName(), e);
+				LOG.error(e.getMessage(), e);
 				throw new RuntimeException(e);
 			}
 		}

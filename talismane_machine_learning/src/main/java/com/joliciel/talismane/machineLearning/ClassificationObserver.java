@@ -18,22 +18,23 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 
 /**
- * Makes it possible to observe the decision making procedure
- * for a given analyser.
+ * Makes it possible to observe the decision making procedure for a given
+ * analyser.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface ClassificationObserver {
 
-	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults,
-			Collection<Decision> outcomes);
+	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults, Collection<Decision> outcomes) throws IOException;
 
-	public void onTerminate();
+	public void onTerminate() throws IOException;
 
 }

@@ -94,7 +94,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 	}
 
 	@Override
-	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
+	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
 		try {
 			super.processSentence(corpusLines);
 			posTagSequence = new PosTagSequence(tokenSequence);
@@ -110,7 +110,7 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 	}
 
 	@Override
-	public PosTagSequence nextPosTagSequence() throws TalismaneException {
+	public PosTagSequence nextPosTagSequence() throws TalismaneException, IOException {
 		PosTagSequence nextSentence = null;
 		if (this.hasNextSentence()) {
 			nextSentence = posTagSequence;
