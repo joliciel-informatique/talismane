@@ -48,8 +48,10 @@ import com.typesafe.config.Config;
 public interface SentenceProcessor extends Closeable {
 	/**
 	 * Process the next sentence.
+	 * 
+	 * @throws IOException
 	 */
-	public void onNextSentence(Sentence sentence);
+	public void onNextSentence(Sentence sentence) throws IOException;
 
 	/**
 	 * 

@@ -47,7 +47,7 @@ public class TokeniserEvaluator {
 	private final List<TokenEvaluationObserver> observers;
 
 	public TokeniserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException {
+			throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
 		Config config = session.getConfig();
 		this.tokeniser = Tokeniser.getInstance(session);
 		this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
@@ -74,8 +74,9 @@ public class TokeniserEvaluator {
 	 * Evaluate a given tokeniser.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public void evaluate() throws TalismaneException {
+	public void evaluate() throws TalismaneException, IOException {
 		while (corpusReader.hasNextSentence()) {
 			TokenSequence realSequence = corpusReader.nextTokenSequence();
 			Sentence sentence = realSequence.getSentence();

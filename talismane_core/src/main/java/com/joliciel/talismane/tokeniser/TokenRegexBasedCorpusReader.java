@@ -143,7 +143,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	}
 
 	@Override
-	public boolean hasNextSentence() throws TalismaneException {
+	public boolean hasNextSentence() throws TalismaneException, IOException {
 		if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
 			// we've reached the end, do nothing
 		} else {
@@ -228,7 +228,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 		this.needsToReturnBlankLine = true;
 	}
 
-	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException {
+	protected void processSentence(List<CorpusLine> corpusLines) throws TalismaneException, IOException {
 		try {
 			Sentence sentence = null;
 			if (sentenceReader != null && sentenceReader.hasNextSentence()) {
@@ -267,7 +267,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	}
 
 	@Override
-	public TokenSequence nextTokenSequence() throws TalismaneException {
+	public TokenSequence nextTokenSequence() throws TalismaneException, IOException {
 		TokenSequence nextSentence = null;
 		if (this.hasNextSentence()) {
 			nextSentence = tokenSequence;
@@ -293,7 +293,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	}
 
 	@Override
-	public Sentence nextSentence() throws TalismaneException {
+	public Sentence nextSentence() throws TalismaneException, IOException {
 		return this.nextTokenSequence().getSentence();
 	}
 

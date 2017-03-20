@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
@@ -137,7 +138,7 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testGetParsedPattern() {
+	public void testGetParsedPattern() throws TalismaneException {
 		final String separators = "[\\s\\p{Punct}]";
 		Pattern separatorPattern = Pattern.compile(separators, Pattern.UNICODE_CHARACTER_CLASS);
 
@@ -205,7 +206,7 @@ public class TokenPatternTest {
 	}
 
 	@Test
-	public void testMatch(@NonStrict final TokenSequence tokenSequence) {
+	public void testMatch(@NonStrict final TokenSequence tokenSequence) throws TalismaneException {
 		final String separators = "[\\s\\p{Punct}]";
 		final List<TokenPatternMatch> matches3 = new ArrayList<TokenPatternMatch>();
 		final List<TokenPatternMatch> matches4 = new ArrayList<TokenPatternMatch>();

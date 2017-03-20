@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.tokeniser.SeparatorDecision;
 import com.joliciel.talismane.tokeniser.Token;
@@ -125,8 +126,10 @@ public class TokeniserPatternManager {
 
 	/**
 	 * Test patterns after parsing.
+	 * 
+	 * @throws TalismaneException
 	 */
-	public List<TokenPattern> getParsedTestPatterns() {
+	public List<TokenPattern> getParsedTestPatterns() throws TalismaneException {
 		if (this.parsedTestPatterns == null && this.testPatterns != null) {
 			this.parsedTestPatterns = new ArrayList<TokenPattern>();
 			for (String testPattern : this.testPatterns) {

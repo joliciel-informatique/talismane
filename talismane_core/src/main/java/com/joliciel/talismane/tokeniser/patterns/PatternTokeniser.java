@@ -91,7 +91,7 @@ public class PatternTokeniser extends Tokeniser {
 
 	private final List<ClassificationObserver> observers;
 
-	public PatternTokeniser(TalismaneSession session) throws IOException {
+	public PatternTokeniser(TalismaneSession session) throws IOException, ClassNotFoundException {
 		super(session);
 		Config config = session.getConfig();
 		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
@@ -220,7 +220,7 @@ public class PatternTokeniser extends Tokeniser {
 	}
 
 	@Override
-	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) throws TalismaneException {
+	protected List<TokenisedAtomicTokenSequence> tokeniseInternal(TokenSequence initialSequence, Sentence sentence) throws TalismaneException, IOException {
 		List<TokenisedAtomicTokenSequence> sequences;
 		// Assign each separator its default value
 		List<TokeniserOutcome> defaultOutcomes = this.tokeniserPatternManager.getDefaultOutcomes(initialSequence);

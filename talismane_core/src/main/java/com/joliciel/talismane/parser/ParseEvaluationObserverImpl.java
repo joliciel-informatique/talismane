@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.LogUtils;
 
 public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(ParseEvaluationObserverImpl.class);
 
 	private final ParseConfigurationProcessor processor;
@@ -26,96 +26,90 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
 	}
 
 	@Override
-	public void onParseEnd(ParseConfiguration refConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException {
-		try {
-			boolean includeMe = true;
-			if (errorLabels != null && errorLabels.size() > 0) {
-				includeMe = false;
-				int i = 0;
-				ParseConfiguration guessConfiguration = guessedConfigurations.get(0);
+	public void onParseEnd(ParseConfiguration refConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException {
+		boolean includeMe = true;
+		if (errorLabels != null && errorLabels.size() > 0) {
+			includeMe = false;
+			int i = 0;
+			ParseConfiguration guessConfiguration = guessedConfigurations.get(0);
 
-				Set<PosTaggedToken> refTokensToExplain = new HashSet<PosTaggedToken>();
-				Set<PosTaggedToken> guessTokensToExplain = new HashSet<PosTaggedToken>();
-				Set<PosTaggedToken> refTokensToHighlight = new HashSet<PosTaggedToken>();
-				Set<PosTaggedToken> guessTokensToHighlight = new HashSet<PosTaggedToken>();
-				for (PosTaggedToken refToken : refConfiguration.getPosTagSequence()) {
-					if (i != 0) {
-						DependencyArc refArc = refConfiguration.getGoverningDependency(refToken);
-						if (refArc != null) {
-							PosTaggedToken guessToken = guessConfiguration.getPosTagSequence().get(i);
-							if (errorLabels.contains(refArc.getLabel())) {
-								DependencyArc guessArc = guessConfiguration.getGoverningDependency(guessToken);
-								if (guessArc == null || !refArc.getLabel().equals(guessArc.getLabel())
-										|| (refArc.getHead() == null && guessArc.getHead() != null) || (refArc.getHead() != null && guessArc.getHead() == null)
-										|| refArc.getHead().getIndex() != guessArc.getHead().getIndex()) {
-									refTokensToExplain.add(refToken);
-									if (refArc.getHead() != null)
-										refTokensToHighlight.add(refArc.getHead());
-									guessTokensToExplain.add(guessToken);
-									if (guessArc != null && guessArc.getHead() != null)
-										guessTokensToHighlight.add(guessArc.getHead());
-									includeMe = true;
-								}
+			Set<PosTaggedToken> refTokensToExplain = new HashSet<PosTaggedToken>();
+			Set<PosTaggedToken> guessTokensToExplain = new HashSet<PosTaggedToken>();
+			Set<PosTaggedToken> refTokensToHighlight = new HashSet<PosTaggedToken>();
+			Set<PosTaggedToken> guessTokensToHighlight = new HashSet<PosTaggedToken>();
+			for (PosTaggedToken refToken : refConfiguration.getPosTagSequence()) {
+				if (i != 0) {
+					DependencyArc refArc = refConfiguration.getGoverningDependency(refToken);
+					if (refArc != null) {
+						PosTaggedToken guessToken = guessConfiguration.getPosTagSequence().get(i);
+						if (errorLabels.contains(refArc.getLabel())) {
+							DependencyArc guessArc = guessConfiguration.getGoverningDependency(guessToken);
+							if (guessArc == null || !refArc.getLabel().equals(guessArc.getLabel()) || (refArc.getHead() == null && guessArc.getHead() != null)
+									|| (refArc.getHead() != null && guessArc.getHead() == null)
+									|| refArc.getHead().getIndex() != guessArc.getHead().getIndex()) {
+								refTokensToExplain.add(refToken);
+								if (refArc.getHead() != null)
+									refTokensToHighlight.add(refArc.getHead());
+								guessTokensToExplain.add(guessToken);
+								if (guessArc != null && guessArc.getHead() != null)
+									guessTokensToHighlight.add(guessArc.getHead());
+								includeMe = true;
 							}
-						} // have refArc
-					}
-					i++;
+						}
+					} // have refArc
 				}
+				i++;
+			}
 
-				StringBuilder refBuilder = new StringBuilder();
-				for (PosTaggedToken refToken : refConfiguration.getPosTagSequence()) {
-					if (refTokensToExplain.contains(refToken)) {
-						DependencyArc refArc = refConfiguration.getGoverningDependency(refToken);
-						if (refArc == null)
-							refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
-									+ refToken.getIndex() + "|Gov0|null# ");
-						else
-							refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
-									+ refToken.getIndex() + "|Gov" + (refArc.getHead() == null ? 0 : refArc.getHead().getIndex()) + "|" + refArc.getLabel()
-									+ "# ");
-					} else if (refTokensToHighlight.contains(refToken)) {
+			StringBuilder refBuilder = new StringBuilder();
+			for (PosTaggedToken refToken : refConfiguration.getPosTagSequence()) {
+				if (refTokensToExplain.contains(refToken)) {
+					DependencyArc refArc = refConfiguration.getGoverningDependency(refToken);
+					if (refArc == null)
 						refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
-								+ refToken.getIndex() + "# ");
-					} else {
-						refBuilder.append(
-								refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + " ");
-					}
-				}
-				StringBuilder guessBuilder = new StringBuilder();
-				for (PosTaggedToken guessToken : guessConfiguration.getPosTagSequence()) {
-					if (guessTokensToExplain.contains(guessToken)) {
-						DependencyArc guessArc = guessConfiguration.getGoverningDependency(guessToken);
-						if (guessArc == null)
-							guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
-									+ guessToken.getIndex() + "|Gov0|null# ");
-						else
-							guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
-									+ guessToken.getIndex() + "|Gov" + (guessArc.getHead() == null ? 0 : guessArc.getHead().getIndex()) + "|"
-									+ guessArc.getLabel() + "# ");
-					} else if (guessTokensToHighlight.contains(guessToken)) {
-						guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
-								+ guessToken.getIndex() + "# ");
-					} else {
-						guessBuilder.append(guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
-								+ guessToken.getIndex() + " ");
-					}
-				}
-				if (includeMe) {
-					writer.write("\n");
-					writer.write(refBuilder.toString() + "\n");
-					writer.write(guessBuilder.toString() + "\n");
+								+ refToken.getIndex() + "|Gov0|null# ");
+					else
+						refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
+								+ refToken.getIndex() + "|Gov" + (refArc.getHead() == null ? 0 : refArc.getHead().getIndex()) + "|" + refArc.getLabel() + "# ");
+				} else if (refTokensToHighlight.contains(refToken)) {
+					refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
+							+ refToken.getIndex() + "# ");
+				} else {
+					refBuilder.append(
+							refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + " ");
 				}
 			}
-			if (includeMe)
-				processor.onNextParseConfiguration(guessedConfigurations.get(0));
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			StringBuilder guessBuilder = new StringBuilder();
+			for (PosTaggedToken guessToken : guessConfiguration.getPosTagSequence()) {
+				if (guessTokensToExplain.contains(guessToken)) {
+					DependencyArc guessArc = guessConfiguration.getGoverningDependency(guessToken);
+					if (guessArc == null)
+						guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
+								+ guessToken.getIndex() + "|Gov0|null# ");
+					else
+						guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
+								+ guessToken.getIndex() + "|Gov" + (guessArc.getHead() == null ? 0 : guessArc.getHead().getIndex()) + "|" + guessArc.getLabel()
+								+ "# ");
+				} else if (guessTokensToHighlight.contains(guessToken)) {
+					guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
+							+ guessToken.getIndex() + "# ");
+				} else {
+					guessBuilder.append(guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
+							+ guessToken.getIndex() + " ");
+				}
+			}
+			if (includeMe) {
+				writer.write("\n");
+				writer.write(refBuilder.toString() + "\n");
+				writer.write(guessBuilder.toString() + "\n");
+			}
 		}
+		if (includeMe)
+			processor.onNextParseConfiguration(guessedConfigurations.get(0));
 	}
 
 	@Override
-	public void onEvaluationComplete() {
+	public void onEvaluationComplete() throws IOException {
 		processor.onCompleteParse();
 	}
 

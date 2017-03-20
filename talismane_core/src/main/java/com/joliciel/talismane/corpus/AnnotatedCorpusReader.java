@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.corpus;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.joliciel.talismane.TalismaneException;
@@ -68,6 +69,7 @@ public interface AnnotatedCorpusReader {
 	 * 
 	 * @throws TalismaneException
 	 *             if it's impossible to process the next sentence
+	 * @throws IOException
 	 */
-	public boolean hasNextSentence() throws TalismaneException;
+	public boolean hasNextSentence() throws TalismaneException, IOException;
 }

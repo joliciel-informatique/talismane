@@ -48,7 +48,6 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.utils.CSVFormatter;
-import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * A class for gathering statistics from a given corpus.
@@ -218,111 +217,94 @@ public class CorpusStatistics implements ParseConfigurationProcessor, Serializab
 	}
 
 	@Override
-	public void onCompleteParse() {
-		try {
-			if (writer != null) {
-				double unknownLexiconPercent = 1;
-				if (referenceWords != null) {
-					int unknownLexiconCount = 0;
-					for (String word : words) {
-						if (!referenceWords.contains(word))
-							unknownLexiconCount++;
-					}
-					unknownLexiconPercent = (double) unknownLexiconCount / (double) words.size();
+	public void onCompleteParse() throws IOException {
+		if (writer != null) {
+			double unknownLexiconPercent = 1;
+			if (referenceWords != null) {
+				int unknownLexiconCount = 0;
+				for (String word : words) {
+					if (!referenceWords.contains(word))
+						unknownLexiconCount++;
 				}
-				double unknownLowercaseLexiconPercent = 1;
-				if (referenceLowercaseWords != null) {
-					int unknownLowercaseLexiconCount = 0;
-					for (String lowercase : lowerCaseWords) {
-						if (!referenceLowercaseWords.contains(lowercase))
-							unknownLowercaseLexiconCount++;
-					}
-					unknownLowercaseLexiconPercent = (double) unknownLowercaseLexiconCount / (double) lowerCaseWords.size();
+				unknownLexiconPercent = (double) unknownLexiconCount / (double) words.size();
+			}
+			double unknownLowercaseLexiconPercent = 1;
+			if (referenceLowercaseWords != null) {
+				int unknownLowercaseLexiconCount = 0;
+				for (String lowercase : lowerCaseWords) {
+					if (!referenceLowercaseWords.contains(lowercase))
+						unknownLowercaseLexiconCount++;
 				}
-
-				writer.write(CSV.format("sentenceCount") + CSV.format(sentenceCount) + "\n");
-				writer.write(CSV.format("sentenceLengthMean") + CSV.format(sentenceLengthStats.getMean()) + "\n");
-				writer.write(CSV.format("sentenceLengthStdDev") + CSV.format(sentenceLengthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("tokenLexiconSize") + CSV.format(words.size()) + "\n");
-				writer.write(CSV.format("tokenLexiconUnknown") + CSV.format(unknownLexiconPercent * 100.0) + "\n");
-				writer.write(CSV.format("tokenCount") + CSV.format(tokenCount) + "\n");
-
-				double unknownTokenPercent = ((double) unknownTokenCount / (double) tokenCount) * 100.0;
-				writer.write(CSV.format("tokenUnknown") + CSV.format(unknownTokenPercent) + "\n");
-
-				writer.write(CSV.format("lowercaseLexiconSize") + CSV.format(lowerCaseWords.size()) + "\n");
-				writer.write(CSV.format("lowercaseLexiconUnknown") + CSV.format(unknownLowercaseLexiconPercent * 100.0) + "\n");
-				writer.write(CSV.format("alphanumericCount") + CSV.format(alphanumericCount) + "\n");
-
-				double unknownAlphanumericPercent = ((double) unknownAlphanumericCount / (double) alphanumericCount) * 100.0;
-				writer.write(CSV.format("alphanumericUnknown") + CSV.format(unknownAlphanumericPercent) + "\n");
-
-				writer.write(CSV.format("syntaxDepthMean") + CSV.format(syntaxDepthStats.getMean()) + "\n");
-				writer.write(CSV.format("syntaxDepthStdDev") + CSV.format(syntaxDepthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("maxSyntaxDepth") + CSV.format(maxDepthCorpus) + "\n");
-				writer.write(CSV.format("maxSyntaxDepthMean") + CSV.format(maxSyntaxDepthStats.getMean()) + "\n");
-				writer.write(CSV.format("maxSyntaxDepthStdDev") + CSV.format(maxSyntaxDepthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("sentAvgSyntaxDepthMean") + CSV.format(avgSyntaxDepthStats.getMean()) + "\n");
-				writer.write(CSV.format("sentAvgSyntaxDepthStdDev") + CSV.format(avgSyntaxDepthStats.getStandardDeviation()) + "\n");
-				writer.write(CSV.format("syntaxDistanceMean") + CSV.format(syntaxDistanceStats.getMean()) + "\n");
-				writer.write(CSV.format("syntaxDistanceStdDev") + CSV.format(syntaxDistanceStats.getStandardDeviation()) + "\n");
-
-				double nonProjectivePercent = ((double) nonProjectiveCount / (double) totalDepCount) * 100.0;
-				writer.write(CSV.format("nonProjectiveCount") + CSV.format(nonProjectiveCount) + "\n");
-				writer.write(CSV.format("nonProjectivePercent") + CSV.format(nonProjectivePercent) + "\n");
-				writer.write(CSV.format("PosTagCounts") + "\n");
-
-				for (String posTag : posTagCounts.keySet()) {
-					int count = posTagCounts.get(posTag);
-					writer.write(CSV.format(posTag) + CSV.format(count) + CSV.format(((double) count / (double) tokenCount) * 100.0) + "\n");
-				}
-
-				writer.write(CSV.format("DepLabelCounts") + "\n");
-				for (String depLabel : depLabelCounts.keySet()) {
-					int count = depLabelCounts.get(depLabel);
-					writer.write(CSV.format(depLabel) + CSV.format(count) + CSV.format(((double) count / (double) totalDepCount) * 100.0) + "\n");
-				}
-				writer.flush();
-				writer.close();
+				unknownLowercaseLexiconPercent = (double) unknownLowercaseLexiconCount / (double) lowerCaseWords.size();
 			}
 
-			if (this.serializationFile != null) {
-				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(serializationFile, false));
-				zos.putNextEntry(new ZipEntry("Contents.obj"));
-				ObjectOutputStream oos = new ObjectOutputStream(zos);
-				try {
-					oos.writeObject(this);
-				} finally {
-					oos.flush();
-				}
-				zos.flush();
-				zos.close();
+			writer.write(CSV.format("sentenceCount") + CSV.format(sentenceCount) + "\n");
+			writer.write(CSV.format("sentenceLengthMean") + CSV.format(sentenceLengthStats.getMean()) + "\n");
+			writer.write(CSV.format("sentenceLengthStdDev") + CSV.format(sentenceLengthStats.getStandardDeviation()) + "\n");
+			writer.write(CSV.format("tokenLexiconSize") + CSV.format(words.size()) + "\n");
+			writer.write(CSV.format("tokenLexiconUnknown") + CSV.format(unknownLexiconPercent * 100.0) + "\n");
+			writer.write(CSV.format("tokenCount") + CSV.format(tokenCount) + "\n");
+
+			double unknownTokenPercent = ((double) unknownTokenCount / (double) tokenCount) * 100.0;
+			writer.write(CSV.format("tokenUnknown") + CSV.format(unknownTokenPercent) + "\n");
+
+			writer.write(CSV.format("lowercaseLexiconSize") + CSV.format(lowerCaseWords.size()) + "\n");
+			writer.write(CSV.format("lowercaseLexiconUnknown") + CSV.format(unknownLowercaseLexiconPercent * 100.0) + "\n");
+			writer.write(CSV.format("alphanumericCount") + CSV.format(alphanumericCount) + "\n");
+
+			double unknownAlphanumericPercent = ((double) unknownAlphanumericCount / (double) alphanumericCount) * 100.0;
+			writer.write(CSV.format("alphanumericUnknown") + CSV.format(unknownAlphanumericPercent) + "\n");
+
+			writer.write(CSV.format("syntaxDepthMean") + CSV.format(syntaxDepthStats.getMean()) + "\n");
+			writer.write(CSV.format("syntaxDepthStdDev") + CSV.format(syntaxDepthStats.getStandardDeviation()) + "\n");
+			writer.write(CSV.format("maxSyntaxDepth") + CSV.format(maxDepthCorpus) + "\n");
+			writer.write(CSV.format("maxSyntaxDepthMean") + CSV.format(maxSyntaxDepthStats.getMean()) + "\n");
+			writer.write(CSV.format("maxSyntaxDepthStdDev") + CSV.format(maxSyntaxDepthStats.getStandardDeviation()) + "\n");
+			writer.write(CSV.format("sentAvgSyntaxDepthMean") + CSV.format(avgSyntaxDepthStats.getMean()) + "\n");
+			writer.write(CSV.format("sentAvgSyntaxDepthStdDev") + CSV.format(avgSyntaxDepthStats.getStandardDeviation()) + "\n");
+			writer.write(CSV.format("syntaxDistanceMean") + CSV.format(syntaxDistanceStats.getMean()) + "\n");
+			writer.write(CSV.format("syntaxDistanceStdDev") + CSV.format(syntaxDistanceStats.getStandardDeviation()) + "\n");
+
+			double nonProjectivePercent = ((double) nonProjectiveCount / (double) totalDepCount) * 100.0;
+			writer.write(CSV.format("nonProjectiveCount") + CSV.format(nonProjectiveCount) + "\n");
+			writer.write(CSV.format("nonProjectivePercent") + CSV.format(nonProjectivePercent) + "\n");
+			writer.write(CSV.format("PosTagCounts") + "\n");
+
+			for (String posTag : posTagCounts.keySet()) {
+				int count = posTagCounts.get(posTag);
+				writer.write(CSV.format(posTag) + CSV.format(count) + CSV.format(((double) count / (double) tokenCount) * 100.0) + "\n");
 			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+
+			writer.write(CSV.format("DepLabelCounts") + "\n");
+			for (String depLabel : depLabelCounts.keySet()) {
+				int count = depLabelCounts.get(depLabel);
+				writer.write(CSV.format(depLabel) + CSV.format(count) + CSV.format(((double) count / (double) totalDepCount) * 100.0) + "\n");
+			}
+			writer.flush();
+			writer.close();
 		}
 
+		if (this.serializationFile != null) {
+			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(serializationFile, false));
+			zos.putNextEntry(new ZipEntry("Contents.obj"));
+			ObjectOutputStream oos = new ObjectOutputStream(zos);
+			try {
+				oos.writeObject(this);
+			} finally {
+				oos.flush();
+			}
+			zos.flush();
+			zos.close();
+		}
 	}
 
-	public static CorpusStatistics loadFromFile(File inFile) {
-		try {
-			ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
-			zis.getNextEntry();
-			@SuppressWarnings("resource")
-			ObjectInputStream in = new ObjectInputStream(zis);
-			CorpusStatistics stats = null;
-			try {
-				stats = (CorpusStatistics) in.readObject();
-			} catch (ClassNotFoundException e) {
-				LogUtils.logError(LOG, e);
-				throw new RuntimeException(e);
-			}
-			return stats;
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		}
+	public static CorpusStatistics loadFromFile(File inFile) throws IOException, ClassNotFoundException {
+		ZipInputStream zis = new ZipInputStream(new FileInputStream(inFile));
+		zis.getNextEntry();
+		@SuppressWarnings("resource")
+		ObjectInputStream in = new ObjectInputStream(zis);
+		CorpusStatistics stats = (CorpusStatistics) in.readObject();
+		return stats;
 	}
 
 	public Set<String> getReferenceWords() {

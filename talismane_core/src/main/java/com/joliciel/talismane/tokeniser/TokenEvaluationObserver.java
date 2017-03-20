@@ -26,6 +26,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 
@@ -38,12 +39,14 @@ import com.joliciel.talismane.utils.ArrayListNoNulls;
 public interface TokenEvaluationObserver {
 	/**
 	 * Called when the next token sequence has been processed.
+	 * 
+	 * @throws IOException
 	 */
-	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences);
+	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) throws IOException;
 
-	public void onEvaluationComplete();
+	public void onEvaluationComplete() throws IOException;
 
-	public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException {
+	public static List<TokenEvaluationObserver> getTokenEvaluationObservers(File outDir, TalismaneSession session) throws IOException, TalismaneException {
 		List<TokenEvaluationObserver> observers = new ArrayListNoNulls<TokenEvaluationObserver>();
 		Writer errorFileWriter = null;
 		File errorFile = new File(outDir, session.getBaseName() + ".errorList.txt");

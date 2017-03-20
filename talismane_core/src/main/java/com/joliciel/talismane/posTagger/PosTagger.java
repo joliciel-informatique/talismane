@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -76,8 +77,9 @@ public interface PosTagger {
 	 *         tokens.
 	 * @throws UnknownPosTagException
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public PosTagSequence tagSentence(TokenSequence tokenSequence) throws UnknownPosTagException, TalismaneException;
+	public PosTagSequence tagSentence(TokenSequence tokenSequence) throws UnknownPosTagException, TalismaneException, IOException;
 
 	/**
 	 * Add an analysis observer to this pos tagger.

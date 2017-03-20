@@ -101,18 +101,10 @@ public class LinearSVMModel extends AbstractMachineLearningModel implements Clas
 	}
 
 	@Override
-	public void loadModelFromStream(InputStream inputStream) {
+	public void loadModelFromStream(InputStream inputStream) throws IOException {
 		// load model or use it directly
-		try {
-			Reader reader = new InputStreamReader(inputStream, "UTF-8");
-			model = Model.load(reader);
-		} catch (UnsupportedEncodingException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+		Reader reader = new InputStreamReader(inputStream, "UTF-8");
+		model = Model.load(reader);
 	}
 
 	@Override
@@ -145,55 +137,42 @@ public class LinearSVMModel extends AbstractMachineLearningModel implements Clas
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
-		try {
-			boolean loaded = true;
-			if (zipEntry.getName().equals("featureIndexMap.obj")) {
-				ObjectInputStream in = new ObjectInputStream(inputStream);
-				featureIndexMap = (TObjectIntMap<String>) in.readObject();
-			} else if (zipEntry.getName().equals("outcomes.obj")) {
-				ObjectInputStream in = new ObjectInputStream(inputStream);
-				outcomes = (List<String>) in.readObject();
-			} else {
-				loaded = false;
-			}
-			return loaded;
-		} catch (ClassNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) throws IOException, ClassNotFoundException {
+		boolean loaded = true;
+		if (zipEntry.getName().equals("featureIndexMap.obj")) {
+			ObjectInputStream in = new ObjectInputStream(inputStream);
+			featureIndexMap = (TObjectIntMap<String>) in.readObject();
+		} else if (zipEntry.getName().equals("outcomes.obj")) {
+			ObjectInputStream in = new ObjectInputStream(inputStream);
+			outcomes = (List<String>) in.readObject();
+		} else {
+			loaded = false;
 		}
+		return loaded;
 	}
 
 	@Override
-	public void writeDataToStream(ZipOutputStream zos) {
+	public void writeDataToStream(ZipOutputStream zos) throws IOException {
+		zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
+		ObjectOutputStream out = new ObjectOutputStream(zos);
+
 		try {
-			zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
-			ObjectOutputStream out = new ObjectOutputStream(zos);
-
-			try {
-				out.writeObject(featureIndexMap);
-			} finally {
-				out.flush();
-			}
-
-			zos.flush();
-
-			zos.putNextEntry(new ZipEntry("outcomes.obj"));
-			out = new ObjectOutputStream(zos);
-			try {
-				out.writeObject(outcomes);
-			} finally {
-				out.flush();
-			}
-
-			zos.flush();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			out.writeObject(featureIndexMap);
+		} finally {
+			out.flush();
 		}
+
+		zos.flush();
+
+		zos.putNextEntry(new ZipEntry("outcomes.obj"));
+		out = new ObjectOutputStream(zos);
+		try {
+			out.writeObject(outcomes);
+		} finally {
+			out.flush();
+		}
+
+		zos.flush();
 
 	}
 

@@ -19,6 +19,7 @@
 package com.joliciel.talismane.machineLearning.linearsvm;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -420,6 +421,9 @@ public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
 			LOG.debug("Feature count: " + featureIndexMap.size());
 			return featureMatrix;
 		} catch (TalismaneException e) {
+			LOG.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}

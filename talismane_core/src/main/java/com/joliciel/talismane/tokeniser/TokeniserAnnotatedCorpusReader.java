@@ -46,8 +46,9 @@ public interface TokeniserAnnotatedCorpusReader extends SentenceDetectorAnnotate
 	 * 
 	 * @throws TalismaneException
 	 *             if impossible to read next sequence for logical reasons
+	 * @throws IOException
 	 */
-	public abstract TokenSequence nextTokenSequence() throws TalismaneException;
+	public abstract TokenSequence nextTokenSequence() throws TalismaneException, IOException;
 
 	/**
 	 * Builds an annotated corpus reader for a particular Reader and Config,

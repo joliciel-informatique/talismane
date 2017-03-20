@@ -93,15 +93,11 @@ public class SentenceAnnotatorLoader {
 	 * @param charset
 	 *            the charset used to read the file
 	 * @throws SentenceAnnotatorLoadException
+	 * @throws IOException
 	 */
-	public List<SentenceAnnotator> loadSentenceAnnotators(File file, Charset charset) throws SentenceAnnotatorLoadException {
-		try {
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)))) {
-				return this.loadSentenceAnnotators(scanner, file.getCanonicalPath());
-			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+	public List<SentenceAnnotator> loadSentenceAnnotators(File file, Charset charset) throws SentenceAnnotatorLoadException, IOException {
+		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), charset)))) {
+			return this.loadSentenceAnnotators(scanner, file.getCanonicalPath());
 		}
 	}
 

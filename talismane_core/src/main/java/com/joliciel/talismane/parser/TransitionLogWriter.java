@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * Writes the list of transitions that were actually applied, one at a time.
  */
 public class TransitionLogWriter implements ParseConfigurationProcessor {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(TransitionLogWriter.class);
 
 	Writer csvFileWriter = null;
@@ -27,42 +27,37 @@ public class TransitionLogWriter implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws TalismaneException {
-		try {
-			ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws TalismaneException, IOException {
+		ParseConfiguration currentConfiguration = new ParseConfiguration(parseConfiguration.getPosTagSequence());
 
-			csvFileWriter.write("\n");
-			csvFileWriter.write("\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration) + "\t" + "\n");
-			Set<DependencyArc> dependencies = new HashSet<DependencyArc>();
-			for (Transition transition : parseConfiguration.getTransitions()) {
-				currentConfiguration = new ParseConfiguration(currentConfiguration);
-				transition.apply(currentConfiguration);
-				DependencyArc newDep = null;
-				if (currentConfiguration.getDependencies().size() > dependencies.size()) {
-					for (DependencyArc arc : currentConfiguration.getDependencies()) {
-						if (dependencies.contains(arc)) {
-							continue;
-						} else {
-							dependencies.add(arc);
-							newDep = arc;
-							break;
-						}
+		csvFileWriter.write("\n");
+		csvFileWriter.write("\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration) + "\t" + "\n");
+		Set<DependencyArc> dependencies = new HashSet<DependencyArc>();
+		for (Transition transition : parseConfiguration.getTransitions()) {
+			currentConfiguration = new ParseConfiguration(currentConfiguration);
+			transition.apply(currentConfiguration);
+			DependencyArc newDep = null;
+			if (currentConfiguration.getDependencies().size() > dependencies.size()) {
+				for (DependencyArc arc : currentConfiguration.getDependencies()) {
+					if (dependencies.contains(arc)) {
+						continue;
+					} else {
+						dependencies.add(arc);
+						newDep = arc;
+						break;
 					}
 				}
-				String newDepText = "";
-				if (newDep != null) {
-					newDepText = newDep.getLabel() + "[" + newDep.getHead().getToken().getOriginalText().replace(' ', '_') + "|"
-							+ newDep.getHead().getTag().getCode() + "," + newDep.getDependent().getToken().getOriginalText().replace(' ', '_') + "|"
-							+ newDep.getDependent().getTag().getCode() + "]";
-				}
-				csvFileWriter.write(transition.getCode() + "\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration)
-						+ "\t" + newDepText + "\n");
 			}
-			csvFileWriter.flush();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			String newDepText = "";
+			if (newDep != null) {
+				newDepText = newDep.getLabel() + "[" + newDep.getHead().getToken().getOriginalText().replace(' ', '_') + "|"
+						+ newDep.getHead().getTag().getCode() + "," + newDep.getDependent().getToken().getOriginalText().replace(' ', '_') + "|"
+						+ newDep.getDependent().getTag().getCode() + "]";
+			}
+			csvFileWriter.write(transition.getCode() + "\t" + this.getTopOfStack(currentConfiguration) + "\t" + this.getTopOfBuffer(currentConfiguration) + "\t"
+					+ newDepText + "\n");
 		}
+		csvFileWriter.flush();
 	}
 
 	private String getTopOfStack(ParseConfiguration configuration) {
@@ -101,13 +96,8 @@ public class TransitionLogWriter implements ParseConfigurationProcessor {
 	}
 
 	@Override
-	public void onCompleteParse() {
-		try {
-			this.csvFileWriter.flush();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+	public void onCompleteParse() throws IOException {
+		this.csvFileWriter.flush();
 	}
 
 	@Override

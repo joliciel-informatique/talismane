@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 
 import opennlp.model.MaxentModel;
@@ -45,6 +44,7 @@ import opennlp.model.MaxentModel;
  *
  */
 public class MaximumEntropyModel extends AbstractOpenNLPModel {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(MaximumEntropyModel.class);
 
 	/**
@@ -66,30 +66,20 @@ public class MaximumEntropyModel extends AbstractOpenNLPModel {
 	}
 
 	@Override
-	public ClassificationObserver getDetailedAnalysisObserver(File file) {
+	public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException {
 		MaxentDetailedAnalysisWriter observer = new MaxentDetailedAnalysisWriter(this.getModel(), file);
 		return observer;
 	}
 
 	@Override
-	public void writeModelToStream(OutputStream outputStream) {
-		try {
-			new MaxentModelWriterWrapper(this.getModel(), outputStream).persist();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+	public void writeModelToStream(OutputStream outputStream) throws IOException {
+		new MaxentModelWriterWrapper(this.getModel(), outputStream).persist();
 	}
 
 	@Override
-	public void loadModelFromStream(InputStream inputStream) {
+	public void loadModelFromStream(InputStream inputStream) throws IOException {
 		MaxentModelReaderWrapper maxentModelReader = new MaxentModelReaderWrapper(inputStream);
-		try {
-			this.setModel(maxentModelReader.getModel());
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+		this.setModel(maxentModelReader.getModel());
 	}
 
 	@Override

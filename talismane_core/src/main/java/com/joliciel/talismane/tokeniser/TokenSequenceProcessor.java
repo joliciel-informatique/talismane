@@ -34,6 +34,7 @@ import java.util.List;
 
 import com.joliciel.talismane.Talismane;
 import com.joliciel.talismane.Talismane.BuiltInTemplate;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.output.FreemarkerTemplateWriter;
 import com.joliciel.talismane.utils.ConfigUtils;
@@ -48,8 +49,10 @@ import com.typesafe.config.Config;
 public interface TokenSequenceProcessor extends Closeable {
 	/**
 	 * Process the next token sequence.
+	 * 
+	 * @throws IOException
 	 */
-	public void onNextTokenSequence(TokenSequence tokenSequence);
+	public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException;
 
 	/**
 	 * @param writer
@@ -59,8 +62,10 @@ public interface TokenSequenceProcessor extends Closeable {
 	 * @param session
 	 * @return
 	 * @throws IOException
+	 * @throws TalismaneException
+	 *             if built-in template is unknown
 	 */
-	public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException {
+	public static List<TokenSequenceProcessor> getProcessors(Writer writer, File outDir, TalismaneSession session) throws IOException, TalismaneException {
 		List<TokenSequenceProcessor> processors = new ArrayList<>();
 
 		Config config = session.getConfig();
@@ -87,7 +92,7 @@ public interface TokenSequenceProcessor extends Closeable {
 				tokeniserTemplateName = "tokeniser_template_with_prob.ftl";
 				break;
 			default:
-				throw new RuntimeException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
+				throw new TalismaneException("Unknown builtInTemplate for tokeniser: " + builtInTemplate.name());
 			}
 
 			String path = "output/" + tokeniserTemplateName;

@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.parser;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.joliciel.talismane.TalismaneException;
@@ -38,12 +39,12 @@ public class ParseEvaluationGuessTemplateWriter implements ParseEvaluationObserv
 	}
 
 	@Override
-	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException {
+	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException {
 		processor.onNextParseConfiguration(guessedConfigurations.get(0));
 	}
 
 	@Override
-	public void onEvaluationComplete() {
+	public void onEvaluationComplete() throws IOException {
 		processor.onCompleteParse();
 	}
 

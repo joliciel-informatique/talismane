@@ -99,7 +99,7 @@ public class ParserTrainer {
 		eventStream = new ParseEventStream(corpusReader, features, skipImpossibleSentences);
 	}
 
-	public ClassificationModel train() throws TalismaneException {
+	public ClassificationModel train() throws TalismaneException, IOException {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(parserConfig.getConfig("train.machine-learning"));
 

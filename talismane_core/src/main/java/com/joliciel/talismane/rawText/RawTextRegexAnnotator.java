@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.AnnotatedText;
 import com.joliciel.talismane.Annotation;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextNoSentenceBreakMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextReplaceMarker;
 import com.joliciel.talismane.rawText.RawTextMarker.RawTextSentenceBreakMarker;
@@ -54,18 +55,18 @@ public class RawTextRegexAnnotator implements RawTextAnnotator {
 	private TokenAttribute<?> attribute;
 	private final int blockSize;
 
-	public RawTextRegexAnnotator(List<RawTextMarkType> filterTypes, String regex, int groupIndex, int blockSize) {
+	public RawTextRegexAnnotator(List<RawTextMarkType> filterTypes, String regex, int groupIndex, int blockSize) throws TalismaneException {
 		this.filterTypes = filterTypes;
 		this.blockSize = blockSize;
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
 		if (groupIndex < 0) {
-			throw new RuntimeException("Cannot have a group index < 0: " + groupIndex);
+			throw new TalismaneException("Cannot have a group index < 0: " + groupIndex);
 		}
 		this.groupIndex = groupIndex;
 	}
 
-	public RawTextRegexAnnotator(RawTextMarkType filterType, String regex, int groupIndex, int blockSize) {
+	public RawTextRegexAnnotator(RawTextMarkType filterType, String regex, int groupIndex, int blockSize) throws TalismaneException {
 		this(Arrays.asList(new RawTextMarkType[] { filterType }), regex, groupIndex, blockSize);
 	}
 

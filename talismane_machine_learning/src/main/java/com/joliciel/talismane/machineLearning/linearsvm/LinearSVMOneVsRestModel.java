@@ -47,7 +47,6 @@ import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
 import com.joliciel.talismane.utils.JolicielException;
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.io.UnclosableWriter;
 import com.typesafe.config.Config;
 
@@ -91,50 +90,34 @@ public class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implem
 	}
 
 	@Override
-	public void writeModelToStream(OutputStream outputStream) {
-		try {
-			ZipOutputStream zos = new ZipOutputStream(outputStream);
-			zos.setLevel(ZipOutputStream.STORED);
-			int i = 0;
-			for (Model model : models) {
-				LOG.debug("Writing model " + i + " for outcome " + outcomes.get(i));
-				ZipEntry zipEntry = new ZipEntry("model" + i);
-				i++;
-				zos.putNextEntry(zipEntry);
-				Writer writer = new OutputStreamWriter(zos, "UTF-8");
-				Writer unclosableWriter = new UnclosableWriter(writer);
-				model.save(unclosableWriter);
-				zos.closeEntry();
-				zos.flush();
-			}
-		} catch (UnsupportedEncodingException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+	public void writeModelToStream(OutputStream outputStream) throws IOException {
+		ZipOutputStream zos = new ZipOutputStream(outputStream);
+		zos.setLevel(ZipOutputStream.STORED);
+		int i = 0;
+		for (Model model : models) {
+			LOG.debug("Writing model " + i + " for outcome " + outcomes.get(i));
+			ZipEntry zipEntry = new ZipEntry("model" + i);
+			i++;
+			zos.putNextEntry(zipEntry);
+			Writer writer = new OutputStreamWriter(zos, "UTF-8");
+			Writer unclosableWriter = new UnclosableWriter(writer);
+			model.save(unclosableWriter);
+			zos.closeEntry();
+			zos.flush();
 		}
 	}
 
 	@Override
-	public void loadModelFromStream(InputStream inputStream) {
+	public void loadModelFromStream(InputStream inputStream) throws UnsupportedEncodingException, IOException {
 		// load model or use it directly
-		try {
-			models = new ArrayList<Model>();
-			ZipInputStream zis = new ZipInputStream(inputStream);
-			ZipEntry zipEntry = null;
-			while ((zipEntry = zis.getNextEntry()) != null) {
-				LOG.debug("Reading " + zipEntry.getName());
-				Reader reader = new InputStreamReader(zis, "UTF-8");
-				Model model = Model.load(reader);
-				models.add(model);
-			}
-		} catch (UnsupportedEncodingException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+		models = new ArrayList<Model>();
+		ZipInputStream zis = new ZipInputStream(inputStream);
+		ZipEntry zipEntry = null;
+		while ((zipEntry = zis.getNextEntry()) != null) {
+			LOG.debug("Reading " + zipEntry.getName());
+			Reader reader = new InputStreamReader(zis, "UTF-8");
+			Model model = Model.load(reader);
+			models.add(model);
 		}
 	}
 
@@ -168,56 +151,42 @@ public class LinearSVMOneVsRestModel extends AbstractMachineLearningModel implem
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
-		try {
-			boolean loaded = true;
-			if (zipEntry.getName().equals("featureIndexMap.obj")) {
-				ObjectInputStream in = new ObjectInputStream(inputStream);
-				featureIndexMap = (TObjectIntMap<String>) in.readObject();
-			} else if (zipEntry.getName().equals("outcomes.obj")) {
-				ObjectInputStream in = new ObjectInputStream(inputStream);
-				outcomes = (List<String>) in.readObject();
-			} else {
-				loaded = false;
-			}
-			return loaded;
-		} catch (ClassNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) throws IOException, ClassNotFoundException {
+		boolean loaded = true;
+		if (zipEntry.getName().equals("featureIndexMap.obj")) {
+			ObjectInputStream in = new ObjectInputStream(inputStream);
+			featureIndexMap = (TObjectIntMap<String>) in.readObject();
+		} else if (zipEntry.getName().equals("outcomes.obj")) {
+			ObjectInputStream in = new ObjectInputStream(inputStream);
+			outcomes = (List<String>) in.readObject();
+		} else {
+			loaded = false;
 		}
+		return loaded;
 	}
 
 	@Override
-	public void writeDataToStream(ZipOutputStream zos) {
+	public void writeDataToStream(ZipOutputStream zos) throws IOException {
+		zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
+		ObjectOutputStream out = new ObjectOutputStream(zos);
+
 		try {
-			zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
-			ObjectOutputStream out = new ObjectOutputStream(zos);
-
-			try {
-				out.writeObject(featureIndexMap);
-			} finally {
-				out.flush();
-			}
-
-			zos.flush();
-
-			zos.putNextEntry(new ZipEntry("outcomes.obj"));
-			out = new ObjectOutputStream(zos);
-			try {
-				out.writeObject(outcomes);
-			} finally {
-				out.flush();
-			}
-
-			zos.flush();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+			out.writeObject(featureIndexMap);
+		} finally {
+			out.flush();
 		}
 
+		zos.flush();
+
+		zos.putNextEntry(new ZipEntry("outcomes.obj"));
+		out = new ObjectOutputStream(zos);
+		try {
+			out.writeObject(outcomes);
+		} finally {
+			out.flush();
+		}
+
+		zos.flush();
 	}
 
 	@Override

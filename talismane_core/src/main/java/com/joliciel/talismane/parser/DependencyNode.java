@@ -21,6 +21,9 @@ package com.joliciel.talismane.parser;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
@@ -32,6 +35,7 @@ import com.joliciel.talismane.posTagger.PosTaggedTokenLeftToRightComparator;
  *
  */
 public class DependencyNode implements Comparable<DependencyNode> {
+	private static final Logger LOG = LoggerFactory.getLogger(DependencyNode.class);
 	private final PosTaggedToken token;
 	private final String label;
 	private DependencyNode parent;
@@ -118,6 +122,7 @@ public class DependencyNode implements Comparable<DependencyNode> {
 				childNode = this.addDependent(dependent);
 			} catch (TalismaneException e) {
 				// should never happen
+				LOG.error(e.getMessage(), e);
 				throw new RuntimeException(e);
 			}
 			childNode.autoPopulate();

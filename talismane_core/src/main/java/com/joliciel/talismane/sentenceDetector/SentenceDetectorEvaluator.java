@@ -88,8 +88,9 @@ public class SentenceDetectorEvaluator {
 	 * 
 	 * @return an f-score calculator for this sentence detector
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public FScoreCalculator<SentenceDetectorOutcome> evaluate() throws TalismaneException {
+	public FScoreCalculator<SentenceDetectorOutcome> evaluate() throws TalismaneException, IOException {
 		FScoreCalculator<SentenceDetectorOutcome> fScoreCalculator = new FScoreCalculator<SentenceDetectorOutcome>();
 
 		// add f-score per tagger module, to see how we do for each boundary
@@ -207,38 +208,33 @@ public class SentenceDetectorEvaluator {
 		} // f-scores
 
 		if (errorWriter != null) {
-			try {
-				for (String boundaryCharacter : taggerFScoreCalculators.keySet()) {
-					FScoreCalculator<SentenceDetectorOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
-					errorWriter.write("###### Tagger " + boundaryCharacter + ": f-score = " + taggerFScoreCalculator.getTotalFScore() + "\n");
-					errorWriter.write(
-							"Total " + (taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()) + "\n");
-					errorWriter.write("True + " + taggerFScoreCalculator.getTotalTruePositiveCount() + "\n");
-					errorWriter.write("False- " + taggerFScoreCalculator.getTotalFalseNegativeCount() + "\n");
-					errorWriter.write("False+ " + taggerFScoreCalculator.getTotalFalsePositiveCount() + "\n");
-					for (SentenceDetectorOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
-						errorWriter.write(outcome + " total  "
-								+ (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
-						errorWriter.write(outcome + " true + " + (taggerFScoreCalculator.getTruePositiveCount(outcome)) + "\n");
-						errorWriter.write(outcome + " false- " + (taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
-						errorWriter.write(outcome + " false+ " + (taggerFScoreCalculator.getFalsePositiveCount(outcome)) + "\n");
-						errorWriter.write(outcome + " precis " + (taggerFScoreCalculator.getPrecision(outcome)) + "\n");
-						errorWriter.write(outcome + " recall " + (taggerFScoreCalculator.getRecall(outcome)) + "\n");
-						errorWriter.write(outcome + " fscore " + (taggerFScoreCalculator.getFScore(outcome)) + "\n");
-					}
+			for (String boundaryCharacter : taggerFScoreCalculators.keySet()) {
+				FScoreCalculator<SentenceDetectorOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(boundaryCharacter);
+				errorWriter.write("###### Tagger " + boundaryCharacter + ": f-score = " + taggerFScoreCalculator.getTotalFScore() + "\n");
+				errorWriter.write("Total " + (taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()) + "\n");
+				errorWriter.write("True + " + taggerFScoreCalculator.getTotalTruePositiveCount() + "\n");
+				errorWriter.write("False- " + taggerFScoreCalculator.getTotalFalseNegativeCount() + "\n");
+				errorWriter.write("False+ " + taggerFScoreCalculator.getTotalFalsePositiveCount() + "\n");
+				for (SentenceDetectorOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
+					errorWriter.write(outcome + " total  "
+							+ (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
+					errorWriter.write(outcome + " true + " + (taggerFScoreCalculator.getTruePositiveCount(outcome)) + "\n");
+					errorWriter.write(outcome + " false- " + (taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
+					errorWriter.write(outcome + " false+ " + (taggerFScoreCalculator.getFalsePositiveCount(outcome)) + "\n");
+					errorWriter.write(outcome + " precis " + (taggerFScoreCalculator.getPrecision(outcome)) + "\n");
+					errorWriter.write(outcome + " recall " + (taggerFScoreCalculator.getRecall(outcome)) + "\n");
+					errorWriter.write(outcome + " fscore " + (taggerFScoreCalculator.getFScore(outcome)) + "\n");
+				}
 
-					List<String> errors = errorMap.get(boundaryCharacter);
-					if (errors != null) {
-						for (String error : errors) {
-							errorWriter.write(error + "\n");
-						}
+				List<String> errors = errorMap.get(boundaryCharacter);
+				if (errors != null) {
+					for (String error : errors) {
+						errorWriter.write(error + "\n");
 					}
-					errorWriter.flush();
-				} // next boundary character
-				errorWriter.close();
-			} catch (IOException ioe) {
-				throw new RuntimeException(ioe);
-			}
+				}
+				errorWriter.flush();
+			} // next boundary character
+			errorWriter.close();
 		} // have error writer
 		return fScoreCalculator;
 	}

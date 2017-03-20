@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,7 +61,7 @@ public class ParseEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() throws TalismaneException {
+	public boolean hasNext() throws TalismaneException, IOException {
 		while (targetConfiguration == null) {
 			try {
 				if (this.corpusReader.hasNextSentence()) {
@@ -90,7 +91,7 @@ public class ParseEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() throws TalismaneException {
+	public ClassificationEvent next() throws TalismaneException, IOException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			eventCount++;

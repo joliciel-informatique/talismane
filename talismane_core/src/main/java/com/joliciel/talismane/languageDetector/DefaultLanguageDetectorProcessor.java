@@ -26,7 +26,6 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
@@ -37,6 +36,7 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public class DefaultLanguageDetectorProcessor implements LanguageDetectorProcessor {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguageDetectorProcessor.class);
 
 	private Writer writer;
@@ -46,17 +46,12 @@ public class DefaultLanguageDetectorProcessor implements LanguageDetectorProcess
 	}
 
 	@Override
-	public void onNextText(String text, List<WeightedOutcome<Locale>> results) {
-		try {
-			writer.write(text + "\n");
-			for (WeightedOutcome<Locale> result : results) {
-				writer.write(result.getOutcome().toLanguageTag() + "\t" + result.getWeight() + "\n");
-			}
-			writer.flush();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+	public void onNextText(String text, List<WeightedOutcome<Locale>> results) throws IOException {
+		writer.write(text + "\n");
+		for (WeightedOutcome<Locale> result : results) {
+			writer.write(result.getOutcome().toLanguageTag() + "\t" + result.getWeight() + "\n");
 		}
+		writer.flush();
 	}
 
 	@Override

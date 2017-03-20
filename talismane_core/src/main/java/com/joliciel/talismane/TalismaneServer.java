@@ -25,8 +25,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.LogUtils;
-
 /**
  * A Talismane server, for loading all resources up front and processing
  * sentences received on the fly.
@@ -45,7 +43,7 @@ public class TalismaneServer {
 		this.port = session.getPort();
 	}
 
-	public void analyse() {
+	public void analyse() throws IOException {
 		long startTime = new Date().getTime();
 		ServerSocket serverSocket = null;
 
@@ -58,17 +56,9 @@ public class TalismaneServer {
 				TalismaneServerThread thread = new TalismaneServerThread(session, serverSocket.accept());
 				thread.start();
 			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
 		} finally {
 			if (serverSocket != null && !serverSocket.isClosed()) {
-				try {
-					serverSocket.close();
-				} catch (IOException e) {
-					LogUtils.logError(LOG, e);
-					throw new RuntimeException(e);
-				}
+				serverSocket.close();
 			}
 			LOG.info("Server shut down.");
 			long endTime = new Date().getTime();

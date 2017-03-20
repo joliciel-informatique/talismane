@@ -113,7 +113,7 @@ public class PatternTokeniserTrainer {
 		eventStream = new PatternEventStream(tokenCorpusReader, features, tokeniserPatternManager, this.session);
 	}
 
-	public ClassificationModel train() throws TalismaneException {
+	public ClassificationModel train() throws TalismaneException, IOException {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(tokeniserConfig.getConfig("train.machine-learning"));
 

@@ -30,6 +30,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.posTagger.PosTagSet;
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -325,61 +325,48 @@ public class LexiconReader {
 		}
 	}
 
-	public List<PosTaggerLexicon> deserializeLexicons(File lexiconFile) {
+	public List<PosTaggerLexicon> deserializeLexicons(File lexiconFile) throws ClassNotFoundException, UnsupportedEncodingException, IOException {
 		if (!lexiconFile.exists())
 			throw new RuntimeException("LexiconFile does not exist: " + lexiconFile.getPath());
-		try {
-			FileInputStream fis = new FileInputStream(lexiconFile);
-			ZipInputStream zis = new ZipInputStream(fis);
-			return this.deserializeLexicons(zis);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+		FileInputStream fis = new FileInputStream(lexiconFile);
+		ZipInputStream zis = new ZipInputStream(fis);
+		return this.deserializeLexicons(zis);
 	}
 
-	public List<PosTaggerLexicon> deserializeLexicons(ZipInputStream zis) {
-		try {
-			List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
-			Map<String, PosTaggerLexicon> lexiconMap = new HashMap<String, PosTaggerLexicon>();
-			List<String> lexiconNames = new ArrayList<>();
+	public List<PosTaggerLexicon> deserializeLexicons(ZipInputStream zis) throws ClassNotFoundException, UnsupportedEncodingException, IOException {
+		List<PosTaggerLexicon> lexicons = new ArrayList<PosTaggerLexicon>();
+		Map<String, PosTaggerLexicon> lexiconMap = new HashMap<String, PosTaggerLexicon>();
+		List<String> lexiconNames = new ArrayList<>();
 
-			ZipEntry ze = null;
-			while ((ze = zis.getNextEntry()) != null) {
-				LOG.debug(ze.getName());
-				if (ze.getName().endsWith(".obj")) {
-					LOG.debug("deserializing " + ze.getName());
-					ObjectInputStream in = new ObjectInputStream(zis);
-					PosTaggerLexicon lexicon = (PosTaggerLexicon) in.readObject();
-					lexiconMap.put(lexicon.getName(), lexicon);
-				} else if (ze.getName().equals("lexicons.txt")) {
-					// this ensures the lexicons will be added in the correct
-					// order
+		ZipEntry ze = null;
+		while ((ze = zis.getNextEntry()) != null) {
+			LOG.debug(ze.getName());
+			if (ze.getName().endsWith(".obj")) {
+				LOG.debug("deserializing " + ze.getName());
+				ObjectInputStream in = new ObjectInputStream(zis);
+				PosTaggerLexicon lexicon = (PosTaggerLexicon) in.readObject();
+				lexiconMap.put(lexicon.getName(), lexicon);
+			} else if (ze.getName().equals("lexicons.txt")) {
+				// this ensures the lexicons will be added in the correct
+				// order
 
-					@SuppressWarnings("resource")
-					Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(zis, "UTF-8")));
-					while (scanner.hasNextLine()) {
-						String line = scanner.nextLine();
-						if (line.length() > 0)
-							lexiconNames.add(line);
-					}
+				@SuppressWarnings("resource")
+				Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(zis, "UTF-8")));
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					if (line.length() > 0)
+						lexiconNames.add(line);
 				}
 			}
-
-			for (String lexiconName : lexiconNames) {
-				PosTaggerLexicon lexicon = lexiconMap.get(lexiconName);
-				if (lexicon instanceof NeedsTalismaneSession)
-					((NeedsTalismaneSession) lexicon).setTalismaneSession(session);
-				lexicons.add(lexicon);
-			}
-
-			return lexicons;
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
 		}
+
+		for (String lexiconName : lexiconNames) {
+			PosTaggerLexicon lexicon = lexiconMap.get(lexiconName);
+			if (lexicon instanceof NeedsTalismaneSession)
+				((NeedsTalismaneSession) lexicon).setTalismaneSession(session);
+			lexicons.add(lexicon);
+		}
+
+		return lexicons;
 	}
 }

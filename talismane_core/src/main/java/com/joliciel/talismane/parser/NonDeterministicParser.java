@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.joliciel.talismane.TalismaneException;
@@ -48,9 +49,10 @@ public interface NonDeterministicParser extends Parser {
 	 * @throws InvalidTransitionException
 	 *             if a transition is applied without meeting pre-conditions
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences)
-			throws UnknownDependencyLabelException, UnknownTransitionException, InvalidTransitionException, CircularDependencyException, TalismaneException;
+	public List<ParseConfiguration> parseSentence(List<PosTagSequence> posTagSequences) throws UnknownDependencyLabelException, UnknownTransitionException,
+			InvalidTransitionException, CircularDependencyException, TalismaneException, IOException;
 
 	/**
 	 * The maximum size of the beam to be used during analysis.

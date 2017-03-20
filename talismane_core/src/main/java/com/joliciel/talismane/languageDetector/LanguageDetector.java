@@ -60,7 +60,7 @@ public class LanguageDetector {
 	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
 	private static final Map<String, LanguageDetector> languageDetectorMap = new HashMap<>();
 
-	public static LanguageDetector getInstance(TalismaneSession session) throws IOException, TalismaneException {
+	public static LanguageDetector getInstance(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
 		LanguageDetector languageDetector = null;
 		if (session.getSessionId() != null)
 			languageDetector = languageDetectorMap.get(session.getSessionId());

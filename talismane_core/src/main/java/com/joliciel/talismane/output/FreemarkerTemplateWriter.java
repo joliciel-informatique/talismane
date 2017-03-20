@@ -59,35 +59,27 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	private int relationCount = 0;
 	private int characterCount = 0;
 
-	public FreemarkerTemplateWriter(Reader templateReader, Writer writer) {
-		try {
-			this.writer = writer;
-			Configuration cfg = new Configuration(new Version(2, 3, 23));
-			cfg.setCacheStorage(new NullCacheStorage());
-			cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
+	public FreemarkerTemplateWriter(Reader templateReader, Writer writer) throws IOException {
+		this.writer = writer;
+		Configuration cfg = new Configuration(new Version(2, 3, 23));
+		cfg.setCacheStorage(new NullCacheStorage());
+		cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
 
-			this.template = new Template("freemarkerTemplate", templateReader, cfg);
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		}
+		this.template = new Template("freemarkerTemplate", templateReader, cfg);
 	}
 
-	void process(Map<String, Object> model) {
+	void process(Map<String, Object> model) throws IOException {
 		try {
 			template.process(model, writer);
 			writer.flush();
 		} catch (TemplateException te) {
 			LogUtils.logError(LOG, te);
 			throw new RuntimeException(te);
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
 		}
 	}
 
 	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) {
+	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws IOException {
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("Outputting: " + parseConfiguration.toString());
 		}
@@ -108,7 +100,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 
 	@Override
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) {
+	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws IOException {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sentence", posTagSequence);
 		model.put("text", posTagSequence.getTokenSequence().getSentence().getText());
@@ -117,7 +109,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 
 	@Override
-	public void onNextTokenSequence(TokenSequence tokenSequence) {
+	public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sentence", tokenSequence);
 		model.put("text", tokenSequence.getSentence().getText());
@@ -126,7 +118,7 @@ public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, Po
 	}
 
 	@Override
-	public void onNextSentence(Sentence sentence) {
+	public void onNextSentence(Sentence sentence) throws IOException {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sentence", sentence);
 		model.put("LOG", LOG);

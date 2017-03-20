@@ -58,13 +58,16 @@ public interface PosTagSequenceProcessor extends Closeable {
 	 * Process the next pos-tag sequence.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException;
+	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException, IOException;
 
 	/**
 	 * Called when analysis is complete.
+	 * 
+	 * @throws IOException
 	 */
-	public void onCompleteAnalysis();
+	public void onCompleteAnalysis() throws IOException;
 
 	/**
 	 * 

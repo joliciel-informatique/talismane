@@ -41,6 +41,7 @@ import com.joliciel.talismane.posTagger.PosTag;
  *
  */
 public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper>, NeedsTalismaneSession {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagForStringFeature.class);
 	private StringFeature<TokenWrapper> posTagFeature;
 	private StringFeature<TokenWrapper> wordToCheckFeature;
@@ -71,22 +72,17 @@ public final class LexiconPosTagForStringFeature extends AbstractTokenFeature<Bo
 			return null;
 
 		FeatureResult<Boolean> result = null;
-		try {
-			FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
-			if (wordToCheckResult != null) {
-				FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
-				if (posTagResult != null) {
-					PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
-					String wordToCheck = wordToCheckResult.getOutcome();
-					PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
-					Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
-					boolean hasPosTag = (posTags.contains(posTag));
-					result = this.generateResult(hasPosTag);
-				}
+		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
+		if (wordToCheckResult != null) {
+			FeatureResult<String> posTagResult = posTagFeature.check(innerWrapper, env);
+			if (posTagResult != null) {
+				PosTag posTag = talismaneSession.getPosTagSet().getPosTag(posTagResult.getOutcome());
+				String wordToCheck = wordToCheckResult.getOutcome();
+				PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
+				Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
+				boolean hasPosTag = (posTags.contains(posTag));
+				result = this.generateResult(hasPosTag);
 			}
-		} catch (TalismaneException e) {
-			LOG.error(e.getMessage(), e);
-			throw new RuntimeException(e);
 		}
 
 		return result;

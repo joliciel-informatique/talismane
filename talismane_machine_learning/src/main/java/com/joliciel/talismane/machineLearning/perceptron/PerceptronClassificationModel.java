@@ -39,10 +39,10 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 
 public class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassificationModel.class);
 	PerceptronModelParameters params = null;
 	PerceptronDecisionMaker decisionMaker;
@@ -65,7 +65,7 @@ public class PerceptronClassificationModel extends AbstractMachineLearningModel 
 	}
 
 	@Override
-	public ClassificationObserver getDetailedAnalysisObserver(File file) {
+	public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException {
 		return new PerceptronDetailedAnalysisWriter(decisionMaker, file);
 	}
 
@@ -75,30 +75,16 @@ public class PerceptronClassificationModel extends AbstractMachineLearningModel 
 	}
 
 	@Override
-	public void loadModelFromStream(InputStream inputStream) {
-		try {
-			ObjectInputStream in = new ObjectInputStream(inputStream);
-			params = (PerceptronModelParameters) in.readObject();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-
+	public void loadModelFromStream(InputStream inputStream) throws ClassNotFoundException, IOException {
+		ObjectInputStream in = new ObjectInputStream(inputStream);
+		params = (PerceptronModelParameters) in.readObject();
 	}
 
 	@Override
-	public void writeModelToStream(OutputStream outputStream) {
-		try {
-			ObjectOutputStream out = new ObjectOutputStream(outputStream);
+	public void writeModelToStream(OutputStream outputStream) throws IOException {
+		ObjectOutputStream out = new ObjectOutputStream(outputStream);
 
-			out.writeObject(params);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+		out.writeObject(params);
 	}
 
 	@Override

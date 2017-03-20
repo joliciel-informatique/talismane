@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +42,9 @@ public interface ClassificationModelTrainer {
 	 *            the feature descriptors required to apply this model to new
 	 *            data.
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) throws TalismaneException;
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) throws TalismaneException, IOException;
 
 	/**
 	 * Return the ClassificationModel trained using the CorpusEventStream
@@ -54,8 +56,10 @@ public interface ClassificationModelTrainer {
 	 *            all of the descriptors required to perform analysis using this
 	 *            model (e.g. feature descriptors, etc.)
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors) throws TalismaneException;
+	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors)
+			throws TalismaneException, IOException;
 
 	/**
 	 * Statistical cutoff for feature inclusion: features must appear at least

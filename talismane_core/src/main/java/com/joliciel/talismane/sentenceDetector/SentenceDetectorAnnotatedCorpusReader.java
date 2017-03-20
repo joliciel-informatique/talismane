@@ -42,8 +42,9 @@ public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusRe
 	 * Reads the next sentence from the corpus.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public abstract Sentence nextSentence() throws TalismaneException;
+	public abstract Sentence nextSentence() throws TalismaneException, IOException;
 
 	/**
 	 * Is the last sentence read the start of a new paragraph?

@@ -32,7 +32,6 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.utils.CSVFormatter;
-import com.joliciel.talismane.utils.LogUtils;
 
 /**
  * Calculates the f-score for each separate distance during a parse evaluation.
@@ -41,6 +40,7 @@ import com.joliciel.talismane.utils.LogUtils;
  *
  */
 public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(ParserFScoreCalculatorByDistance.class);
 	private static final CSVFormatter CSV = new CSVFormatter();
 	Map<Integer, FScoreCalculator<String>> fscoreByDistanceMap = new TreeMap<Integer, FScoreCalculator<String>>();
@@ -142,7 +142,7 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 	}
 
 	@Override
-	public void onEvaluationComplete() {
+	public void onEvaluationComplete() throws IOException {
 		if (writer != null) {
 			Map<Integer, Integer[]> aboveBelowMap = new TreeMap<Integer, Integer[]>();
 			for (int distance : this.fscoreByDistanceMap.keySet()) {
@@ -162,36 +162,31 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
 				}
 			}
 			try {
-				try {
-					writer.write(CSV.format("distance") + CSV.format("true+") + CSV.format("false-") + CSV.format("accuracy") + CSV.format("above")
-							+ CSV.format("below") + "\n");
-					for (int distance : this.fscoreByDistanceMap.keySet()) {
-						writer.write(distance + ",");
-						FScoreCalculator<String> fScoreCalculator = this.fscoreByDistanceMap.get(distance);
-						writer.write(CSV.format(fScoreCalculator.getTotalTruePositiveCount()));
-						writer.write(CSV.format(fScoreCalculator.getTotalFalseNegativeCount()));
-						writer.write(CSV.format(fScoreCalculator.getTotalFScore() * 100.0));
+				writer.write(CSV.format("distance") + CSV.format("true+") + CSV.format("false-") + CSV.format("accuracy") + CSV.format("above")
+						+ CSV.format("below") + "\n");
+				for (int distance : this.fscoreByDistanceMap.keySet()) {
+					writer.write(distance + ",");
+					FScoreCalculator<String> fScoreCalculator = this.fscoreByDistanceMap.get(distance);
+					writer.write(CSV.format(fScoreCalculator.getTotalTruePositiveCount()));
+					writer.write(CSV.format(fScoreCalculator.getTotalFalseNegativeCount()));
+					writer.write(CSV.format(fScoreCalculator.getTotalFScore() * 100.0));
 
-						Integer[] aboveBelowMeasures = aboveBelowMap.get(distance);
-						double belowAccuracy = 0;
-						double aboveAccuracy = 0;
-						if (aboveBelowMeasures[0] > 0)
-							belowAccuracy = (double) aboveBelowMeasures[0] / ((double) aboveBelowMeasures[0] + (double) aboveBelowMeasures[1]);
-						if (aboveBelowMeasures[2] > 0)
-							aboveAccuracy = (double) aboveBelowMeasures[2] / ((double) aboveBelowMeasures[2] + (double) aboveBelowMeasures[3]);
+					Integer[] aboveBelowMeasures = aboveBelowMap.get(distance);
+					double belowAccuracy = 0;
+					double aboveAccuracy = 0;
+					if (aboveBelowMeasures[0] > 0)
+						belowAccuracy = (double) aboveBelowMeasures[0] / ((double) aboveBelowMeasures[0] + (double) aboveBelowMeasures[1]);
+					if (aboveBelowMeasures[2] > 0)
+						aboveAccuracy = (double) aboveBelowMeasures[2] / ((double) aboveBelowMeasures[2] + (double) aboveBelowMeasures[3]);
 
-						writer.write(CSV.format(aboveAccuracy * 100.0));
-						writer.write(CSV.format(belowAccuracy * 100.0));
-						writer.write("\n");
-						writer.flush();
-					}
-				} finally {
+					writer.write(CSV.format(aboveAccuracy * 100.0));
+					writer.write(CSV.format(belowAccuracy * 100.0));
+					writer.write("\n");
 					writer.flush();
-					writer.close();
 				}
-			} catch (IOException ioe) {
-				LogUtils.logError(LOG, ioe);
-				throw new RuntimeException(ioe);
+			} finally {
+				writer.flush();
+				writer.close();
 			}
 		}
 	}

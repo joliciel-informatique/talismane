@@ -34,7 +34,6 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.LogUtils;
 import com.joliciel.talismane.utils.StringUtils;
 
 /**
@@ -44,74 +43,70 @@ import com.joliciel.talismane.utils.StringUtils;
  *
  */
 public class ConllFileSplitter {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(ConllFileSplitter.class);
 
 	private static DecimalFormat df = new DecimalFormat("000");
 
-	public void split(String filePath, int startIndex, int sentencesPerFile, String encoding) {
-		try {
-			String fileBase = filePath;
-			if (filePath.indexOf('.') > 0)
-				fileBase = filePath.substring(0, filePath.lastIndexOf('.'));
-			File file = new File(filePath);
-			Writer writer = null;
-			try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding)))) {
+	public void split(String filePath, int startIndex, int sentencesPerFile, String encoding) throws IOException {
+		String fileBase = filePath;
+		if (filePath.indexOf('.') > 0)
+			fileBase = filePath.substring(0, filePath.lastIndexOf('.'));
+		File file = new File(filePath);
+		Writer writer = null;
+		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding)))) {
 
-				boolean hasSentence = false;
-				int currentFileIndex = startIndex;
+			boolean hasSentence = false;
+			int currentFileIndex = startIndex;
 
-				int sentenceCount = 0;
+			int sentenceCount = 0;
 
-				while (scanner.hasNextLine()) {
-					String line = scanner.nextLine();
-					if (line.length() == 0 && !hasSentence) {
-						continue;
-					} else if (line.length() == 0) {
-						writer.write("\n");
-						writer.flush();
-						hasSentence = false;
-					} else {
-						if (!hasSentence) {
-							hasSentence = true;
-							sentenceCount++;
-						}
-						if (writer == null || sentenceCount % sentencesPerFile == 1) {
-							if (writer != null) {
-								writer.flush();
-								writer.close();
-							}
-							File outFile = new File(fileBase + "_" + df.format(currentFileIndex) + ".tal");
-							outFile.delete();
-							outFile.createNewFile();
-
-							writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile, false), encoding));
-							currentFileIndex++;
-							hasSentence = false;
-						}
-
-						writer.write(line + "\n");
-						writer.flush();
-					}
-				}
-			} finally {
-				if (writer != null) {
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if (line.length() == 0 && !hasSentence) {
+					continue;
+				} else if (line.length() == 0) {
+					writer.write("\n");
 					writer.flush();
-					writer.close();
+					hasSentence = false;
+				} else {
+					if (!hasSentence) {
+						hasSentence = true;
+						sentenceCount++;
+					}
+					if (writer == null || sentenceCount % sentencesPerFile == 1) {
+						if (writer != null) {
+							writer.flush();
+							writer.close();
+						}
+						File outFile = new File(fileBase + "_" + df.format(currentFileIndex) + ".tal");
+						outFile.delete();
+						outFile.createNewFile();
+
+						writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile, false), encoding));
+						currentFileIndex++;
+						hasSentence = false;
+					}
+
+					writer.write(line + "\n");
+					writer.flush();
 				}
 			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
+		} finally {
+			if (writer != null) {
+				writer.flush();
+				writer.close();
+			}
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		Map<String, String> argMap = StringUtils.convertArgs(args);
 		ConllFileSplitter splitter = new ConllFileSplitter();
 		splitter.process(argMap);
 	}
 
-	public void process(Map<String, String> args) {
+	public void process(Map<String, String> args) throws IOException {
 		String filePath = null;
 		if (args.containsKey("inFile"))
 			filePath = args.get("inFile");

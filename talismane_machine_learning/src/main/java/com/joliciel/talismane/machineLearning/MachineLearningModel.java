@@ -43,13 +43,17 @@ public interface MachineLearningModel {
 
 	/**
 	 * Persist this model to an OutputStream.
+	 * 
+	 * @throws IOException
 	 */
-	public void persist(OutputStream outputStream);
+	public void persist(OutputStream outputStream) throws IOException;
 
 	/**
 	 * Persist this model to a file.
+	 * 
+	 * @throws IOException
 	 */
-	public void persist(File modelFile);
+	public void persist(File modelFile) throws IOException;
 
 	/**
 	 * Get this model's defining attributes.
@@ -105,8 +109,9 @@ public interface MachineLearningModel {
 	 * Load some aspect of this model from a zip entry.
 	 * 
 	 * @return true if entry loaded, false otherwise
+	 * @throws ClassNotFoundException
 	 */
-	boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException;
+	boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException, ClassNotFoundException;
 
 	/**
 	 * Called when load from a zip file has been completed.

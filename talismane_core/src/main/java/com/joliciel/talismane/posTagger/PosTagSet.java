@@ -36,8 +36,6 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.LogUtils;
-
 /**
  * <p>
  * A tag set to be used for pos tagging. The default format for reading a
@@ -92,12 +90,9 @@ public class PosTagSet implements Serializable {
 	 * e.g.<BR/>
 	 * ADJ adjectif OPEN<BR/>
 	 */
-	public PosTagSet(File file) {
+	public PosTagSet(File file) throws IOException {
 		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")))) {
 			this.load(scanner);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
 		}
 	}
 

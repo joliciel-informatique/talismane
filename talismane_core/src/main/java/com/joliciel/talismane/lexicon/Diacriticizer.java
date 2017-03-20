@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.sentenceAnnotators.DiacriticRemover;
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -315,32 +314,24 @@ public class Diacriticizer implements Serializable {
 
 	}
 
-	public static Diacriticizer deserialize(File inFile) {
-		try {
-			FileInputStream fis = new FileInputStream(inFile);
-			ZipInputStream zis = new ZipInputStream(fis);
-			ZipEntry ze = null;
-			Diacriticizer diacriticizer = null;
-			while ((ze = zis.getNextEntry()) != null) {
-				if (ze.getName().endsWith(".obj")) {
-					LOG.debug("deserializing " + ze.getName());
-					@SuppressWarnings("resource")
-					ObjectInputStream in = new ObjectInputStream(zis);
-					diacriticizer = (Diacriticizer) in.readObject();
+	public static Diacriticizer deserialize(File inFile) throws ClassNotFoundException, IOException {
+		FileInputStream fis = new FileInputStream(inFile);
+		ZipInputStream zis = new ZipInputStream(fis);
+		ZipEntry ze = null;
+		Diacriticizer diacriticizer = null;
+		while ((ze = zis.getNextEntry()) != null) {
+			if (ze.getName().endsWith(".obj")) {
+				LOG.debug("deserializing " + ze.getName());
+				@SuppressWarnings("resource")
+				ObjectInputStream in = new ObjectInputStream(zis);
+				diacriticizer = (Diacriticizer) in.readObject();
 
-					break;
-				}
+				break;
 			}
-			zis.close();
-
-			return diacriticizer;
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
 		}
+		zis.close();
+
+		return diacriticizer;
 	}
 
 	public Map<String, String> getLowercasePreferences() {

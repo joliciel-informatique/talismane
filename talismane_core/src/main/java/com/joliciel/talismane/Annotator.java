@@ -19,6 +19,8 @@
 
 package com.joliciel.talismane;
 
+import java.io.IOException;
+
 /**
  * Implemented by classes which take an annotated text and add zero or more
  * annotations.
@@ -31,6 +33,7 @@ public interface Annotator<T extends AnnotatedText> {
 	 * Annotates the text provided, and adds the labels to all annotations.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public void annotate(T annotatedText, String... labels) throws TalismaneException;
+	public void annotate(T annotatedText, String... labels) throws TalismaneException, IOException;
 }

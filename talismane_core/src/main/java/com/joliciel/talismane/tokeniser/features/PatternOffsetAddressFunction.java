@@ -66,7 +66,7 @@ public final class PatternOffsetAddressFunction extends AbstractTokenAddressFunc
 				int offset = offsetResult.getOutcome();
 
 				if (offset == 0) {
-					throw new RuntimeException("Cannot do a pattern offset with offset of 0");
+					throw new TalismaneException("Cannot do a pattern offset with offset of 0");
 				}
 
 				Token offsetToken = null;

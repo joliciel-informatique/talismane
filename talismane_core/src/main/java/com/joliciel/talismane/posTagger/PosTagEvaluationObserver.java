@@ -42,10 +42,11 @@ public interface PosTagEvaluationObserver {
 	 * Called when the next pos-tag sequence has been processed.
 	 * 
 	 * @throws TalismaneException
+	 * @throws IOException
 	 */
-	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException;
+	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException, IOException;
 
-	public void onEvaluationComplete();
+	public void onEvaluationComplete() throws IOException;
 
 	public static List<PosTagEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
 		Config config = session.getConfig();

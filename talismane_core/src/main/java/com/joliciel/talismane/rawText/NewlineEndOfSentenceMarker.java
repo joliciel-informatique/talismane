@@ -20,6 +20,8 @@ package com.joliciel.talismane.rawText;
 
 import java.util.Arrays;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Replace any newline with a sentence break.
  * 
@@ -27,7 +29,7 @@ import java.util.Arrays;
  *
  */
 public class NewlineEndOfSentenceMarker extends RawTextRegexAnnotator {
-	public NewlineEndOfSentenceMarker(int blockSize) {
+	public NewlineEndOfSentenceMarker(int blockSize) throws TalismaneException {
 		super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SENTENCE_BREAK }), "\r\n|[\r\n]", 0, blockSize);
 	}
 }

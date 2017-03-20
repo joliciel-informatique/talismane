@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -66,7 +67,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public ClassificationEvent next() throws TalismaneException {
+	public ClassificationEvent next() throws TalismaneException, IOException {
 		ClassificationEvent event = null;
 		if (this.hasNext()) {
 			int possibleBoundary = possibleBoundaries.get(currentIndex++);
@@ -125,7 +126,7 @@ public class SentenceDetectorEventStream implements ClassificationEventStream {
 	}
 
 	@Override
-	public boolean hasNext() throws TalismaneException {
+	public boolean hasNext() throws TalismaneException, IOException {
 		while (currentSentence == null) {
 			currentIndex = 0;
 			possibleBoundaries = new ArrayList<Integer>();

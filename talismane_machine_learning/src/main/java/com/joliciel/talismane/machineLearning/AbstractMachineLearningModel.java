@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +46,6 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -56,6 +56,7 @@ import com.typesafe.config.ConfigFactory;
  *
  */
 public abstract class AbstractMachineLearningModel implements MachineLearningModel {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractMachineLearningModel.class);
 	private Map<String, List<String>> descriptors = new HashMap<String, List<String>>();
 	private Map<String, Object> modelAttributes = new TreeMap<String, Object>();
@@ -75,104 +76,89 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 	}
 
 	@Override
-	public final void persist(File modelFile) {
-		try {
-			this.persist(new FileOutputStream(modelFile, false));
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
-		}
+	public final void persist(File modelFile) throws IOException {
+		this.persist(new FileOutputStream(modelFile, false));
 	}
 
 	@Override
-	public final void persist(OutputStream outputStream) {
-		try {
-			ZipOutputStream zos = new ZipOutputStream(outputStream);
-			Writer writer = new BufferedWriter(new OutputStreamWriter(zos, "UTF-8"));
+	public final void persist(OutputStream outputStream) throws IOException {
+		ZipOutputStream zos = new ZipOutputStream(outputStream);
+		Writer writer = new BufferedWriter(new OutputStreamWriter(zos, "UTF-8"));
 
-			zos.putNextEntry(new ZipEntry("algorithm.txt"));
-			writer.write(this.getAlgorithm().name());
-			writer.flush();
-			zos.flush();
+		zos.putNextEntry(new ZipEntry("algorithm.txt"));
+		writer.write(this.getAlgorithm().name());
+		writer.flush();
+		zos.flush();
 
-			zos.putNextEntry(new ZipEntry("config.txt"));
-			writer.write(this.getConfig().root().render());
-			writer.flush();
-			zos.flush();
+		zos.putNextEntry(new ZipEntry("config.txt"));
+		writer.write(this.getConfig().root().render());
+		writer.flush();
+		zos.flush();
 
-			for (String descriptorKey : descriptors.keySet()) {
-				zos.putNextEntry(new ZipEntry(descriptorKey + "_descriptors.txt"));
-				List<String> descriptorList = descriptors.get(descriptorKey);
-				for (String descriptor : descriptorList) {
-					writer.write(descriptor + "\n");
-					writer.flush();
-				}
-				zos.flush();
-
+		for (String descriptorKey : descriptors.keySet()) {
+			zos.putNextEntry(new ZipEntry(descriptorKey + "_descriptors.txt"));
+			List<String> descriptorList = descriptors.get(descriptorKey);
+			for (String descriptor : descriptorList) {
+				writer.write(descriptor + "\n");
+				writer.flush();
 			}
+			zos.flush();
 
-			zos.putNextEntry(new ZipEntry("attributes.obj"));
-			ObjectOutputStream attributesOos = new ObjectOutputStream(zos);
+		}
+
+		zos.putNextEntry(new ZipEntry("attributes.obj"));
+		ObjectOutputStream attributesOos = new ObjectOutputStream(zos);
+		try {
+			attributesOos.writeObject(this.getModelAttributes());
+		} finally {
+			attributesOos.flush();
+		}
+		zos.flush();
+
+		for (String name : this.dependencies.keySet()) {
+			Object dependency = this.dependencies.get(name);
+			zos.putNextEntry(new ZipEntry(name + "_dependency.obj"));
+			ObjectOutputStream oos = new ObjectOutputStream(zos);
 			try {
-				attributesOos.writeObject(this.getModelAttributes());
+				oos.writeObject(dependency);
 			} finally {
-				attributesOos.flush();
+				oos.flush();
 			}
 			zos.flush();
-
-			for (String name : this.dependencies.keySet()) {
-				Object dependency = this.dependencies.get(name);
-				zos.putNextEntry(new ZipEntry(name + "_dependency.obj"));
-				ObjectOutputStream oos = new ObjectOutputStream(zos);
-				try {
-					oos.writeObject(dependency);
-				} finally {
-					oos.flush();
-				}
-				zos.flush();
-			}
-
-			this.persistOtherEntries(zos);
-
-			if (this.externalResources != null) {
-				zos.putNextEntry(new ZipEntry("externalResources.obj"));
-				ObjectOutputStream oos = new ObjectOutputStream(zos);
-				try {
-					oos.writeObject(externalResources);
-				} finally {
-					oos.flush();
-				}
-				zos.flush();
-			}
-
-			this.writeDataToStream(zos);
-
-			zos.putNextEntry(new ZipEntry("model.bin"));
-			this.writeModelToStream(zos);
-			zos.flush();
-
-			zos.close();
-		} catch (IOException ioe) {
-			LogUtils.logError(LOG, ioe);
-			throw new RuntimeException(ioe);
 		}
+
+		this.persistOtherEntries(zos);
+
+		if (this.externalResources != null) {
+			zos.putNextEntry(new ZipEntry("externalResources.obj"));
+			ObjectOutputStream oos = new ObjectOutputStream(zos);
+			try {
+				oos.writeObject(externalResources);
+			} finally {
+				oos.flush();
+			}
+			zos.flush();
+		}
+
+		this.writeDataToStream(zos);
+
+		zos.putNextEntry(new ZipEntry("model.bin"));
+		this.writeModelToStream(zos);
+		zos.flush();
+
+		zos.close();
 	}
 
 	@Override
-	public boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException {
+	public boolean loadZipEntry(ZipInputStream zis, ZipEntry ze) throws IOException, ClassNotFoundException {
 		boolean loaded = true;
 		if (ze.getName().equals("model.bin")) {
 			this.loadModelFromStream(zis);
 		} else if (ze.getName().equals("externalResources.obj")) {
 			ObjectInputStream in = new ObjectInputStream(zis);
-			try {
-				@SuppressWarnings("unchecked")
-				List<ExternalResource<?>> externalResources = (List<ExternalResource<?>>) in.readObject();
-				this.setExternalResources(externalResources);
-			} catch (ClassNotFoundException e) {
-				LogUtils.logError(LOG, e);
-				throw new RuntimeException(e);
-			}
+			@SuppressWarnings("unchecked")
+			List<ExternalResource<?>> externalResources = (List<ExternalResource<?>>) in.readObject();
+			this.setExternalResources(externalResources);
 		} else if (ze.getName().endsWith("_descriptors.txt")) {
 			String key = ze.getName().substring(0, ze.getName().length() - "_descriptors.txt".length());
 			@SuppressWarnings("resource")
@@ -186,23 +172,15 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 		} else if (ze.getName().endsWith("_dependency.obj")) {
 			String key = ze.getName().substring(0, ze.getName().length() - "_dependency.obj".length());
 			ObjectInputStream in = new ObjectInputStream(zis);
-			try {
-				Object dependency = in.readObject();
-				this.dependencies.put(key, dependency);
-			} catch (ClassNotFoundException e) {
-				LogUtils.logError(LOG, e);
-				throw new RuntimeException(e);
-			}
+
+			Object dependency = in.readObject();
+			this.dependencies.put(key, dependency);
 		} else if (ze.getName().equals("attributes.obj")) {
 			ObjectInputStream in = new ObjectInputStream(zis);
-			try {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> attributes = (Map<String, Object>) in.readObject();
-				this.setModelAttributes(attributes);
-			} catch (ClassNotFoundException e) {
-				LogUtils.logError(LOG, e);
-				throw new RuntimeException(e);
-			}
+
+			@SuppressWarnings("unchecked")
+			Map<String, Object> attributes = (Map<String, Object>) in.readObject();
+			this.setModelAttributes(attributes);
 		} else if (ze.getName().equals("attributes.txt")) {
 			// for backwards compatibility, when attributes where always strings
 			@SuppressWarnings("resource")
@@ -232,8 +210,10 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 
 	/**
 	 * Write data to the stream that's specific to this model.
+	 * 
+	 * @throws IOException
 	 */
-	public abstract void writeDataToStream(ZipOutputStream zos);
+	public abstract void writeDataToStream(ZipOutputStream zos) throws IOException;
 
 	@Override
 	public Map<String, List<String>> getDescriptors() {
@@ -296,18 +276,27 @@ public abstract class AbstractMachineLearningModel implements MachineLearningMod
 
 	/**
 	 * Load this model's internal binary representation from an input stream.
+	 * 
+	 * @throws UnsupportedEncodingException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
-	protected abstract void loadModelFromStream(InputStream inputStream);
+	protected abstract void loadModelFromStream(InputStream inputStream) throws UnsupportedEncodingException, IOException, ClassNotFoundException;
 
 	/**
 	 * Write this model's internal binary representation to an output stream.
+	 * 
+	 * @throws IOException
 	 */
-	protected abstract void writeModelToStream(OutputStream outputStream);
+	protected abstract void writeModelToStream(OutputStream outputStream) throws IOException;
 
 	/**
 	 * Loads data from the input stream that is specific to this model type.
+	 * 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
-	protected abstract boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry);
+	protected abstract boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) throws IOException, ClassNotFoundException;
 
 	@Override
 	public Config getConfig() {
