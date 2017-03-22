@@ -141,7 +141,7 @@ public class MaxentModelTrainer implements ClassificationModelTrainer {
 		Config maxentConfig = config.getConfig("MaxEnt");
 
 		this.setCutoff(config.getInt("cutoff"));
-		this.setIterations(maxentConfig.getInt("iterations"));
+		this.setIterations(config.getInt("iterations"));
 		this.setSigma(maxentConfig.getDouble("sigma"));
 		this.setSmoothing(maxentConfig.getDouble("smoothing"));
 	}
