@@ -443,7 +443,7 @@ public class PerceptronClassificationModelTrainer implements ClassificationModel
 		Config perceptronConfig = config.getConfig("Perceptron");
 
 		this.setCutoff(config.getInt("cutoff"));
-		this.setIterations(perceptronConfig.getInt("iterations"));
+		this.setIterations(config.getInt("iterations"));
 		this.setTolerance(perceptronConfig.getDouble("tolerance"));
 		this.setAverageAtIntervals(perceptronConfig.getBoolean("average-at-intervals"));
 		this.setScoring(PerceptronScoring.valueOf(perceptronConfig.getString("scoring")));
