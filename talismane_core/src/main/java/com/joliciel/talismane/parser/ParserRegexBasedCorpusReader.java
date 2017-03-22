@@ -68,22 +68,8 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	private final boolean predictTransitions;
 
 	/**
-	 * Similar to
-	 * {@link ParserRegexBasedCorpusReader#ParserRegexBasedCorpusReader(String,Reader,Config,TalismaneSession)}
-	 * , but reads the regex from the setting:
-	 * <ul>
-	 * <li>preannotated-pattern</li>
-	 * </ul>
-	 * 
-	 * @throws TalismaneException
-	 */
-	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
-		this(config.getString("preannotated-pattern"), reader, config, session);
-	}
-
-	/**
 	 * In addition to the values read in
-	 * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(String, Reader, Config, TalismaneSession)}
+	 * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
 	 * , reads the following setting from the config:
 	 * <ul>
 	 * <li>predict-transitions</li>
@@ -91,8 +77,8 @@ public class ParserRegexBasedCorpusReader extends PosTagRegexBasedCorpusReader i
 	 * 
 	 * @throws TalismaneException
 	 */
-	public ParserRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
-		super(regex, reader, config, session);
+	public ParserRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+		super(reader, config, session);
 		this.predictTransitions = config.getBoolean("predict-transitions");
 	}
 

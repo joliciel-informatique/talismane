@@ -180,7 +180,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 	 * <li>CombinedLexicalAttributes: {@link CombinedLexicalAttributesFeature}
 	 * </li>
 	 * <li>Gender: {@link GrammaticalGenderFeature}</li>
-	 * <li>Index: {@link TokenIndexFeature}</li>
+	 * <li>Index: {@link PosTaggedTokenIndexFeature}</li>
 	 * <li>Lemma: {@link LemmaFeature}</li>
 	 * <li>LexicalAttribute: {@link LexicalAttributeFeature}</li>
 	 * <li>LexicalForm: {@link WordFormFeature}</li>
@@ -204,7 +204,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
 		container.addFeatureClass("ClosedClass", ClosedClassFeature.class);
 		container.addFeatureClass("CombinedLexicalAttributes", CombinedLexicalAttributesFeature.class);
 		container.addFeatureClass("Gender", GrammaticalGenderFeature.class);
-		container.addFeatureClass("Index", TokenIndexFeature.class);
+		container.addFeatureClass("Index", PosTaggedTokenIndexFeature.class);
 		container.addFeatureClass("Lemma", LemmaFeature.class);
 		container.addFeatureClass("LexicalAttribute", LexicalAttributeFeature.class);
 		container.addFeatureClass("LexicalForm", WordFormFeature.class);

@@ -76,23 +76,11 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	private boolean needsToReturnBlankLine = false;
 
 	/**
-	 * Similar to
-	 * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(String,Reader,Config,TalismaneSession)}
-	 * , but reads the regex from the setting:
-	 * <ul>
-	 * <li>preannotated-pattern</li>
-	 * </ul>
-	 * 
-	 * @throws TalismaneException
-	 */
-	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
-		this(config.getString("preannotated-pattern"), reader, config, session);
-	}
-
-	/**
 	 * Add attributes as specified in the config to the corpus reader.
 	 * Recognises the attributes:
 	 * <ul>
+	 * <li>input-pattern: the pattern to match corpus line elements, see class
+	 * description.</li>
 	 * <li>sentence-file: where to read the correctly formatted sentences</li>
 	 * <li>corpus-lexical-entry-regex: how to read the lexical entries, see
 	 * {@link RegexLexicalEntryReader}</li>
@@ -102,9 +90,9 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
 	 *            the local config for this corpus reader (local namespace)
 	 * @throws TalismaneException
 	 */
-	public TokenRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
+	public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
 		super(config, session);
-		this.regex = regex;
+		this.regex = config.getString("input-pattern");
 		this.scanner = new Scanner(reader);
 
 		String configPath = "sentence-file";

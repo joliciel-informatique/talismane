@@ -13,7 +13,6 @@
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
 				<include>com.joliciel.talismane:talismane-core</include>
-				<include>com.joliciel.talismane:talismane-en</include>
 				<include>com.joliciel.talismane:talismane-extensions</include>
 				<include>com.joliciel.talismane:talismane-fr</include>
 				<include>com.joliciel.talismane:talismane-machine-learning</include>

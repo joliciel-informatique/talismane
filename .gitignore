@@ -9,7 +9,7 @@ target/
 dist/
 build/
 distTerminology/
-talismane_core/languagePacks/englishLanguagePack/*.zip
-talismane_core/languagePacks/frenchLanguagePack/*.zip
+talismane_core/languagePacks/english/languagePack/*.zip
+talismane_core/languagePacks/french/languagePack/*.zip
 .settings
 .project

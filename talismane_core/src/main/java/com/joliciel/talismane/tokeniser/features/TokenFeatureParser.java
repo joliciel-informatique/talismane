@@ -22,8 +22,6 @@ import com.joliciel.talismane.NeedsTalismaneSession;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureClassContainer;
-import com.joliciel.talismane.posTagger.features.TokenIndexFeature;
-import com.joliciel.talismane.posTagger.features.WordFormFeature;
 
 /**
  * A helper class for adding generic token features to any parser requiring
@@ -64,7 +62,7 @@ public class TokenFeatureParser {
 	 * <li>TokenIndex: {@link TokenIndexFeature}</li>
 	 * <li>UnknownWord: {@link UnknownWordFeature}</li>
 	 * <li>Word: {@link WordFeature}</li>
-	 * <li>WordForm: {@link WordFormFeature}</li>
+	 * <li>WordForm: {@link TokenWordFormFeature}</li>
 	 * </ul>
 	 */
 	public static void addFeatureClasses(FeatureClassContainer container) {
@@ -95,7 +93,7 @@ public class TokenFeatureParser {
 		container.addFeatureClass("TokenIndex", TokenIndexFeature.class);
 		container.addFeatureClass("UnknownWord", UnknownWordFeature.class);
 		container.addFeatureClass("Word", WordFeature.class);
-		container.addFeatureClass("WordForm", WordFormFeature.class);
+		container.addFeatureClass("WordForm", TokenWordFormFeature.class);
 	}
 
 	public static void injectDependencies(@SuppressWarnings("rawtypes") Feature feature, TalismaneSession talismaneSession) {
