@@ -67,25 +67,11 @@ public class PosTagRegexBasedCorpusReader extends TokenRegexBasedCorpusReader im
 	protected Map<Integer, PosTaggedToken> idTokenMap = new HashMap<>();
 
 	/**
-	 * Similar to
-	 * {@link PosTagRegexBasedCorpusReader#PosTagRegexBasedCorpusReader(String,Reader,Config,TalismaneSession)}
-	 * , but reads the regex from the setting:
-	 * <ul>
-	 * <li>preannotated-pattern</li>
-	 * </ul>
-	 * 
-	 * @throws TalismaneException
+	 * Reads the values described in
+	 * {@link TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(Reader, Config, TalismaneSession)}
 	 */
 	public PosTagRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
-		this(config.getString("preannotated-pattern"), reader, config, session);
-	}
-
-	/**
-	 * @throws TalismaneException
-	 * @see TokenRegexBasedCorpusReader#TokenRegexBasedCorpusReader(String,Reader,Config,TalismaneSession)
-	 */
-	public PosTagRegexBasedCorpusReader(String regex, Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {
-		super(regex, reader, config, session);
+		super(reader, config, session);
 	}
 
 	@Override

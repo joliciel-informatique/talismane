@@ -31,13 +31,13 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class TokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T, Integer>implements IntegerFeature<T> {
-	public TokenIndexFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+public final class PosTaggedTokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T, Integer>implements IntegerFeature<T> {
+	public PosTaggedTokenIndexFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
 		super(addressFunction);
 		this.setAddressFunction(addressFunction);
 	}
 
-	public TokenIndexFeature() {
+	public PosTaggedTokenIndexFeature() {
 		super(new ItsMeAddressFunction<T>());
 	}
 

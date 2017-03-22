@@ -457,7 +457,7 @@ public class TalismaneMain {
 			}
 
 			for (String inputLocation : inputLocations)
-				values.put(inputLocation + ".preannotated-pattern", inputRegex);
+				values.put(inputLocation + ".input-pattern", inputRegex);
 		}
 
 		if (options.has(evalPatternFileOption) || options.has(evalPatternOption)) {
@@ -475,10 +475,10 @@ public class TalismaneMain {
 			} else {
 				evalRegex = options.valueOf(evalPatternOption);
 			}
-			values.put("talismane.core.sentence-detector.evaluate.preannotated-pattern", evalRegex);
-			values.put("talismane.core.tokeniser.evaluate.preannotated-pattern", evalRegex);
-			values.put("talismane.core.pos-tagger.evaluate.preannotated-pattern", evalRegex);
-			values.put("talismane.core.parser.evaluate.preannotated-pattern", evalRegex);
+			values.put("talismane.core.sentence-detector.evaluate.input-pattern", evalRegex);
+			values.put("talismane.core.tokeniser.evaluate.input-pattern", evalRegex);
+			values.put("talismane.core.pos-tagger.evaluate.input-pattern", evalRegex);
+			values.put("talismane.core.parser.evaluate.input-pattern", evalRegex);
 		}
 
 		if (options.has(csvSeparatorOption))

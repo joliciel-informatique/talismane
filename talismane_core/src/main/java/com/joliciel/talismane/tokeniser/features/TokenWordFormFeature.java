@@ -30,11 +30,11 @@ import com.joliciel.talismane.tokeniser.Token;
  * @author Assaf Urieli
  *
  */
-public final class WordFormFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
-	public WordFormFeature() {
+public final class TokenWordFormFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
+	public TokenWordFormFeature() {
 	}
 
-	public WordFormFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+	public TokenWordFormFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
 		this.setAddressFunction(addressFunction);
 	}
 
