@@ -301,7 +301,8 @@ public class LexiconReader {
 	 */
 	public void serializeLexicons(List<PosTaggerLexicon> lexicons, File outFile) throws IOException {
 		File outDir = outFile.getParentFile();
-		outDir.mkdirs();
+		if (outDir != null)
+			outDir.mkdirs();
 
 		try (FileOutputStream fos = new FileOutputStream(outFile); ZipOutputStream zos = new ZipOutputStream(fos);) {
 			zos.putNextEntry(new ZipEntry("lexicons.txt"));

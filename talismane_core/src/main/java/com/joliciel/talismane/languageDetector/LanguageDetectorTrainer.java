@@ -96,7 +96,8 @@ public class LanguageDetectorTrainer {
 		model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 
 		File modelDir = modelFile.getParentFile();
-		modelDir.mkdirs();
+		if (modelDir != null)
+			modelDir.mkdirs();
 		model.persist(modelFile);
 		return model;
 	}

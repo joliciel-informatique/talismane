@@ -106,7 +106,8 @@ public class Diacriticizer implements Serializable {
 			Diacriticizer diacriticizer = new Diacriticizer(talismaneSession.getMergedLexicon());
 
 			File outDir = diacriticizerFile.getParentFile();
-			outDir.mkdirs();
+			if (outDir != null)
+				outDir.mkdirs();
 
 			FileOutputStream fos = new FileOutputStream(diacriticizerFile);
 			ZipOutputStream zos = new ZipOutputStream(fos);

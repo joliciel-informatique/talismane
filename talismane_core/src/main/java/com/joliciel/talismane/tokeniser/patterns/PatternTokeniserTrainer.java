@@ -117,12 +117,13 @@ public class PatternTokeniserTrainer {
 		ModelTrainerFactory factory = new ModelTrainerFactory();
 		ClassificationModelTrainer trainer = factory.constructTrainer(tokeniserConfig.getConfig("train.machine-learning"));
 
-		ClassificationModel tokeniserModel = trainer.trainModel(eventStream, descriptors);
-		tokeniserModel.setExternalResources(session.getExternalResourceFinder().getExternalResources());
+		ClassificationModel model = trainer.trainModel(eventStream, descriptors);
+		model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 
 		File modelDir = modelFile.getParentFile();
-		modelDir.mkdirs();
-		tokeniserModel.persist(modelFile);
-		return tokeniserModel;
+		if (modelDir != null)
+			modelDir.mkdirs();
+		model.persist(modelFile);
+		return model;
 	}
 }
