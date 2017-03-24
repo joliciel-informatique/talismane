@@ -346,6 +346,11 @@ public class TokenPattern {
 				i++;
 			}
 		}
+
+		if (indexesToTest.size() == 0) {
+			throw new InvalidTokenPatternException("No indexes to test in pattern: " + this.getName());
+		}
+
 		return parsedPattern;
 	}
 
