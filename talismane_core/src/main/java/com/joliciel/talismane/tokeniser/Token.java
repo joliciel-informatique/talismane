@@ -519,8 +519,10 @@ public class Token implements TokenWrapper {
 		String rawOutput = null;
 		if (startIndex > prevStart)
 			rawOutput = sentence.getRawInput(prevStart, startIndex);
-		if (LOG.isTraceEnabled())
-			LOG.trace(rawOutput);
+		if (LOG.isTraceEnabled()) {
+			if (rawOutput != null)
+				LOG.trace("getPrecedingRawOutput: " + rawOutput);
+		}
 		return rawOutput;
 	}
 
@@ -535,8 +537,10 @@ public class Token implements TokenWrapper {
 		if (this.index == this.getTokenSequence().size() - 1) {
 			Sentence sentence = this.getTokenSequence().getSentence();
 			rawOutput = sentence.getRawInput(startIndex, Integer.MAX_VALUE - 1);
-			if (LOG.isTraceEnabled())
-				LOG.trace(rawOutput);
+			if (LOG.isTraceEnabled()) {
+				if (rawOutput != null)
+					LOG.trace("getTrailingRawOutput: " + rawOutput);
+			}
 		}
 		return rawOutput;
 	}
