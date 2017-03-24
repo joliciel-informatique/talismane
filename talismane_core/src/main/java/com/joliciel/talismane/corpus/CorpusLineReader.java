@@ -63,6 +63,7 @@ public class CorpusLineReader {
 	private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
 
 	private final Map<CorpusElement, Integer> placeholderIndexMap = new HashMap<>();
+	private final int maxGroup;
 	private final List<CorpusRule> corpusRules;
 
 	/**
@@ -112,6 +113,8 @@ public class CorpusLineReader {
 			i++;
 		}
 
+		maxGroup = i - 1;
+
 		String regexWithGroups = regex;
 		for (CorpusElement elementType : CorpusElement.values()) {
 			String placeholder = "%" + elementType + "%";
@@ -135,10 +138,12 @@ public class CorpusLineReader {
 	public CorpusLine read(String line, int lineNumber) throws TalismaneException {
 		Matcher matcher = this.pattern.matcher(line);
 		if (!matcher.matches())
-			throw new TalismaneException("Didn't match pattern \"" + regex + "\" on line " + lineNumber + ": " + line);
+			throw new TalismaneException(
+					"Didn't match pattern \"" + regex + "\". Compiled to: \"" + this.pattern.pattern() + "\". on line " + lineNumber + ": " + line);
 
-		if (matcher.groupCount() != placeholderIndexMap.size()) {
-			throw new TalismaneException("Expected " + placeholderIndexMap.size() + " matches (but found " + matcher.groupCount() + ") on line " + lineNumber);
+		if (matcher.groupCount() < maxGroup) {
+			throw new TalismaneException("Expected at least " + maxGroup + " matches (but found only " + matcher.groupCount() + ") on line " + lineNumber
+					+ ". Pattern: \"" + regex + "\". Compiled to: \"" + this.pattern.pattern() + "\". Text: " + line);
 		}
 
 		CorpusLine corpusLine = new CorpusLine(line, lineNumber);
