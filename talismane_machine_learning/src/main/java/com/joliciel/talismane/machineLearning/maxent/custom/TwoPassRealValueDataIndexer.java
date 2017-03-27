@@ -35,102 +35,99 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Extends TwoPassDataIndexer to take into account real values.
+ * 
  * @author Assaf Urieli
  *
  */
 public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
-	private static final Logger LOG = LoggerFactory.getLogger(TwoPassRealValueDataIndexer.class);
-	float[][] values;
+  private static final Logger LOG = LoggerFactory.getLogger(TwoPassRealValueDataIndexer.class);
+  float[][] values;
 
-	public TwoPassRealValueDataIndexer(EventStream eventStream, int cutoff)
-	throws IOException {
-		super(eventStream, cutoff);
-	}
+  public TwoPassRealValueDataIndexer(EventStream eventStream, int cutoff) throws IOException {
+    super(eventStream, cutoff);
+  }
 
-	public TwoPassRealValueDataIndexer(EventStream eventStream)
-	throws IOException {
-		super(eventStream);
-	}
+  public TwoPassRealValueDataIndexer(EventStream eventStream) throws IOException {
+    super(eventStream);
+  }
 
-	public TwoPassRealValueDataIndexer(EventStream eventStream, int cutoff, boolean sort) throws IOException {
-		super(eventStream, cutoff, sort);
-	}
+  public TwoPassRealValueDataIndexer(EventStream eventStream, int cutoff, boolean sort) throws IOException {
+    super(eventStream, cutoff, sort);
+  }
 
-	public float[][] getValues() {
-		return values;
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected int sortAndMerge(List eventsToCompare,boolean sort) {
-		int numUniqueEvents = super.sortAndMerge(eventsToCompare,sort);
-		values = new float[numUniqueEvents][];
-		int numEvents = eventsToCompare.size();
-		for (int i = 0, j = 0; i < numEvents; i++) {
-			ComparableEvent evt = (ComparableEvent) eventsToCompare.get(i);
-			if (null == evt) {
-				continue; // this was a dupe, skip over it.
-			}
-			values[j++] = evt.values;
-		}
-		return numUniqueEvents;
-	}
+  public float[][] getValues() {
+    return values;
+  }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	protected List index(int numEvents, EventStream es, Map<String,Integer> predicateIndex) throws IOException {
-		Map<String,Integer> omap = new HashMap<String,Integer>();
-		int outcomeCount = 0;
-		List eventsToCompare = new ArrayList(numEvents);
-		List<Integer> indexedContext = new ArrayList<Integer>();
-		while (es.hasNext()) {
-			Event ev = es.next();
-			String[] econtext = ev.getContext();
-			ComparableEvent ce;
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  protected int sortAndMerge(List eventsToCompare, boolean sort) {
+    int numUniqueEvents = super.sortAndMerge(eventsToCompare, sort);
+    values = new float[numUniqueEvents][];
+    int numEvents = eventsToCompare.size();
+    for (int i = 0, j = 0; i < numEvents; i++) {
+      ComparableEvent evt = (ComparableEvent) eventsToCompare.get(i);
+      if (null == evt) {
+        continue; // this was a dupe, skip over it.
+      }
+      values[j++] = evt.values;
+    }
+    return numUniqueEvents;
+  }
 
-			int ocID;
-			String oc = ev.getOutcome();
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Override
+  protected List index(int numEvents, EventStream es, Map<String, Integer> predicateIndex) throws IOException {
+    Map<String, Integer> omap = new HashMap<String, Integer>();
+    int outcomeCount = 0;
+    List eventsToCompare = new ArrayList(numEvents);
+    List<Integer> indexedContext = new ArrayList<Integer>();
+    while (es.hasNext()) {
+      Event ev = es.next();
+      String[] econtext = ev.getContext();
+      ComparableEvent ce;
 
-			if (omap.containsKey(oc)) {
-				ocID = omap.get(oc);
-			}
-			else {
-				ocID = outcomeCount++;
-				omap.put(oc, ocID);
-			}
+      int ocID;
+      String oc = ev.getOutcome();
 
-			for (int i = 0; i < econtext.length; i++) {
-				String pred = econtext[i];
-				if (predicateIndex.containsKey(pred)) {
-					indexedContext.add(predicateIndex.get(pred));
-				}
-			}
+      if (omap.containsKey(oc)) {
+        ocID = omap.get(oc);
+      } else {
+        ocID = outcomeCount++;
+        omap.put(oc, ocID);
+      }
 
-			// drop events with no active features
-			if (indexedContext.size() > 0) {
-				int[] cons = new int[indexedContext.size()];
-				for (int ci=0;ci<cons.length;ci++) {
-					cons[ci] = indexedContext.get(ci);
-				}
-				ce = new ComparableEvent(ocID, cons, ev.getValues());
-				eventsToCompare.add(ce);
-			}
-			else {
-				LOG.debug("Dropped event " + ev.getOutcome() + ":" + Arrays.asList(ev.getContext()));
-			}
-			// recycle the TIntArrayList
-			indexedContext.clear();
-		}
-		outcomeLabels = toIndexedStringArray(omap);
-		predLabels = toIndexedStringArray(predicateIndex);
-		return eventsToCompare;
-	}
-	
-	 @Override
-    protected EventStream getFileEventStream(File file) throws IOException {
-		  return new RealValueFileEventStream2(file);
-	 }
-	 
-	 protected String toLine(Event ev) {
-		  return RealValueFileEventStream2.toLine(ev);
-	 }
+      for (int i = 0; i < econtext.length; i++) {
+        String pred = econtext[i];
+        if (predicateIndex.containsKey(pred)) {
+          indexedContext.add(predicateIndex.get(pred));
+        }
+      }
+
+      // drop events with no active features
+      if (indexedContext.size() > 0) {
+        int[] cons = new int[indexedContext.size()];
+        for (int ci = 0; ci < cons.length; ci++) {
+          cons[ci] = indexedContext.get(ci);
+        }
+        ce = new ComparableEvent(ocID, cons, ev.getValues());
+        eventsToCompare.add(ce);
+      } else {
+        LOG.debug("Dropped event " + ev.getOutcome() + ":" + Arrays.asList(ev.getContext()));
+      }
+      // recycle the TIntArrayList
+      indexedContext.clear();
+    }
+    outcomeLabels = toIndexedStringArray(omap);
+    predLabels = toIndexedStringArray(predicateIndex);
+    return eventsToCompare;
+  }
+
+  @Override
+  protected EventStream getFileEventStream(File file) throws IOException {
+    return new RealValueFileEventStream2(file);
+  }
+
+  protected String toLine(Event ev) {
+    return RealValueFileEventStream2.toLine(ev);
+  }
 }

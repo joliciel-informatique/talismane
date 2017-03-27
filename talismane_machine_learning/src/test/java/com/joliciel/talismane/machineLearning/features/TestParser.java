@@ -28,39 +28,39 @@ import java.util.List;
  */
 final class TestParser extends AbstractFeatureParser<String> {
 
-	public TestParser() {
-	}
+  public TestParser() {
+  }
 
-	@Override
-	public void addFeatureClasses(FeatureClassContainer container) {
-		container.addFeatureClass("Length", StringLengthTestFeature.class);
-		container.addFeatureClass("Substring", SubstringTestFeature.class);
-		container.addFeatureClass("TestStringCollectionFeature", TestStringCollectionFeature.class);
-	}
+  @Override
+  public void addFeatureClasses(FeatureClassContainer container) {
+    container.addFeatureClass("Length", StringLengthTestFeature.class);
+    container.addFeatureClass("Substring", SubstringTestFeature.class);
+    container.addFeatureClass("TestStringCollectionFeature", TestStringCollectionFeature.class);
+  }
 
-	@Override
-	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
-		return null;
-	}
+  @Override
+  public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
+    return null;
+  }
 
-	@Override
-	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+  @Override
+  public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
 
-	}
+  }
 
-	@Override
-	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
-		return false;
-	}
+  @Override
+  protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
+    return false;
+  }
 
-	@Override
-	protected Feature<String, ?> convertArgument(Class<?> parameterType, Feature<String, ?> originalArgument) {
-		return null;
-	}
+  @Override
+  protected Feature<String, ?> convertArgument(Class<?> parameterType, Feature<String, ?> originalArgument) {
+    return null;
+  }
 
-	@Override
-	public Feature<String, ?> convertFeatureCustomType(Feature<String, ?> feature) {
-		return null;
-	}
+  @Override
+  public Feature<String, ?> convertFeatureCustomType(Feature<String, ?> feature) {
+    return null;
+  }
 
 }

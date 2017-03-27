@@ -23,22 +23,24 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Comparison based on number of elements remaining on the buffer.
+ * 
  * @author Assaf Urieli
  *
  */
 class BufferSizeComparisonStrategy implements ParseComparisonStrategy {
 
-	@Override
-	public int getComparisonIndex(ParseConfiguration configuration) {
-		int compIndex = (configuration.getPosTagSequence().getTokenSequence().getAtomicTokenCount() + 1);
-		// remove the atomic tokens of each element still to be processed in the buffer
-		for (PosTaggedToken posTaggedToken : configuration.getBuffer()) {
-			Token token = posTaggedToken.getToken();
-			if (token.getAtomicParts().size()==0)
-				compIndex -= 1;
-			else
-				compIndex -= token.getAtomicParts().size();
-		}
-		return compIndex;
-	}
+  @Override
+  public int getComparisonIndex(ParseConfiguration configuration) {
+    int compIndex = (configuration.getPosTagSequence().getTokenSequence().getAtomicTokenCount() + 1);
+    // remove the atomic tokens of each element still to be processed in the
+    // buffer
+    for (PosTaggedToken posTaggedToken : configuration.getBuffer()) {
+      Token token = posTaggedToken.getToken();
+      if (token.getAtomicParts().size() == 0)
+        compIndex -= 1;
+      else
+        compIndex -= token.getAtomicParts().size();
+    }
+    return compIndex;
+  }
 }

@@ -40,146 +40,157 @@ import ch.qos.logback.core.joran.spi.JoranException;
  *
  */
 public class LogUtils {
-	private static final Logger LOG = LoggerFactory.getLogger(LogUtils.class);
-	private static final int MEGABYTE = 1024 * 1024;
-	private static Marker fatal = MarkerFactory.getMarker("FATAL");
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(LogUtils.class);
+  private static final int MEGABYTE = 1024 * 1024;
+  private static Marker fatal = MarkerFactory.getMarker("FATAL");
 
-	public enum LogLevel {
-		TRACE, DEBUG, INFO, WARN, ERROR, FATAL
-	}
+  public enum LogLevel {
+    TRACE,
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR,
+    FATAL
+  }
 
-	/**
-	 * Return the current exception and stack trace as a String.
-	 */
-	public static String getErrorString(Throwable e) {
-		String s = null;
-		try {
-			StringWriter sw = new StringWriter();
-			PrintWriter ps = new PrintWriter(sw);
-			e.printStackTrace(ps);
-			sw.flush();
-			s = sw.toString();
-			sw.close();
-		} catch (IOException ioe) {
-			// do nothing!
-		}
-		return s;
-	}
+  /**
+   * Return the current exception and stack trace as a String.
+   */
+  public static String getErrorString(Throwable e) {
+    String s = null;
+    try {
+      StringWriter sw = new StringWriter();
+      PrintWriter ps = new PrintWriter(sw);
+      e.printStackTrace(ps);
+      sw.flush();
+      s = sw.toString();
+      sw.close();
+    } catch (IOException ioe) {
+      // do nothing!
+    }
+    return s;
+  }
 
-	/**
-	 * Logger the exception passed.
-	 */
-	public static void logError(Logger logger, Throwable e) {
-		logError(null, logger, e);
-	}
+  /**
+   * Logger the exception passed.
+   */
+  public static void logError(Logger logger, Throwable e) {
+    logError(null, logger, e);
+  }
 
-	/**
-	 * Logger the exception passed, including the prefix passed.
-	 */
-	public static void logError(String prefix, Logger logger, Throwable e) {
-		logError(prefix, logger, LogLevel.ERROR, e);
-	}
+  /**
+   * Logger the exception passed, including the prefix passed.
+   */
+  public static void logError(String prefix, Logger logger, Throwable e) {
+    logError(prefix, logger, LogLevel.ERROR, e);
+  }
 
-	/**
-	 * Logger the exception passed, including the prefix if not null, at the
-	 * requested level.
-	 */
-	public static void logError(String prefix, Logger logger, LogLevel logLevel, Throwable e) {
-		if (prefix != null)
-			Logger(logger, logLevel, prefix + " " + getErrorString(e));
-		else
-			Logger(logger, logLevel, getErrorString(e));
-	}
+  /**
+   * Logger the exception passed, including the prefix if not null, at the
+   * requested level.
+   */
+  public static void logError(String prefix, Logger logger, LogLevel logLevel, Throwable e) {
+    if (prefix != null)
+      Logger(logger, logLevel, prefix + " " + getErrorString(e));
+    else
+      Logger(logger, logLevel, getErrorString(e));
+  }
 
-	public static void Logger(Logger Logger, LogLevel logLevel, String message) {
-		switch (logLevel) {
-		case TRACE:
-			Logger.trace(message);
-			break;
-		case DEBUG:
-			Logger.debug(message);
-			break;
-		case INFO:
-			Logger.info(message);
-			break;
-		case WARN:
-			Logger.warn(message);
-			break;
-		case ERROR:
-			Logger.error(message);
-			break;
-		case FATAL:
-			Logger.error(fatal, message);
-			break;
-		}
-	}
+  public static void Logger(Logger Logger, LogLevel logLevel, String message) {
+    switch (logLevel) {
+    case TRACE:
+      Logger.trace(message);
+      break;
+    case DEBUG:
+      Logger.debug(message);
+      break;
+    case INFO:
+      Logger.info(message);
+      break;
+    case WARN:
+      Logger.warn(message);
+      break;
+    case ERROR:
+      Logger.error(message);
+      break;
+    case FATAL:
+      Logger.error(fatal, message);
+      break;
+    }
+  }
 
-	/**
-	 * Logger the exception passed.
-	 */
-	public static void logError(String customer, Logger logger, Throwable e, LogLevel logLevel) {
-		logger.error(customer + " " + e);
-		logger.error(LogUtils.getErrorString(e));
-	}
+  /**
+   * Logger the exception passed.
+   */
+  public static void logError(String customer, Logger logger, Throwable e, LogLevel logLevel) {
+    logger.error(customer + " " + e);
+    logger.error(LogUtils.getErrorString(e));
+  }
 
-	/**
-	 * Logger the available runtime memory.
-	 */
-	public static void logMemory(Logger logger) {
-		if (logger.isTraceEnabled()) {
-			// Getting the runtime reference from system
-			Runtime runtime = Runtime.getRuntime();
-			logger.trace("##### Heap utilization statistics [MB] #####");
+  /**
+   * Logger the available runtime memory.
+   */
+  public static void logMemory(Logger logger) {
+    if (logger.isTraceEnabled()) {
+      // Getting the runtime reference from system
+      Runtime runtime = Runtime.getRuntime();
+      logger.trace("##### Heap utilization statistics [MB] #####");
 
-			// Print used memory
-			logger.trace("Used Memory:" + (runtime.totalMemory() - runtime.freeMemory()) / MEGABYTE);
+      // Print used memory
+      logger.trace("Used Memory:" + (runtime.totalMemory() - runtime.freeMemory()) / MEGABYTE);
 
-			// Print free memory
-			logger.trace("Free Memory:" + runtime.freeMemory() / MEGABYTE);
+      // Print free memory
+      logger.trace("Free Memory:" + runtime.freeMemory() / MEGABYTE);
 
-			// Print total available memory
-			logger.trace("Total Memory:" + runtime.totalMemory() / MEGABYTE);
+      // Print total available memory
+      logger.trace("Total Memory:" + runtime.totalMemory() / MEGABYTE);
 
-			// Print Maximum available memory
-			logger.trace("Max Memory:" + runtime.maxMemory() / MEGABYTE);
-		}
-	}
+      // Print Maximum available memory
+      logger.trace("Max Memory:" + runtime.maxMemory() / MEGABYTE);
+    }
+  }
 
-	/**
-	 * If logConfigPath is not null, use it to configure logging. Otherwise, use
-	 * the default configuration file.
-	 */
-	public static void configureLogging(String logConfigPath) {
-		try {
-			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-			JoranConfigurator configurator = new JoranConfigurator();
-			configurator.setContext(loggerContext);
-			if (logConfigPath != null) {
-				File slf4jFile = new File(logConfigPath);
+  /**
+   * If logConfigPath is not null, use it to configure logging. Otherwise, use
+   * the default configuration file.
+   * 
+   * @throws JoranException
+   */
+  public static void configureLogging(String logConfigPath) throws JoranException {
+    File logConfigFile = null;
+    if (logConfigPath != null)
+      logConfigFile = new File(logConfigPath);
+    configureLogging(logConfigFile);
+  }
 
-				if (slf4jFile.exists()) {
-					// Call context.reset() to clear any previous configuration,
-					// e.g. default configuration
-					loggerContext.reset();
-					configurator.doConfigure(slf4jFile);
-				} else {
-					throw new JolicielException("missing logConfigFile: " + slf4jFile.getCanonicalPath());
-				}
-			} else {
-				InputStream stream = LogUtils.class.getResourceAsStream("/com/joliciel/talismane/utils/resources/default-logback.xml");
+  /**
+   * If logConfigFile is not null, use it to configure logging. Otherwise, use
+   * the default configuration file.
+   * 
+   * @throws JoranException
+   */
+  public static void configureLogging(File logConfigFile) throws JoranException {
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    JoranConfigurator configurator = new JoranConfigurator();
+    configurator.setContext(loggerContext);
+    if (logConfigFile != null) {
+      if (logConfigFile.exists()) {
+        // Call context.reset() to clear any previous configuration,
+        // e.g. default configuration
+        loggerContext.reset();
+        configurator.doConfigure(logConfigFile);
+      } else {
+        throw new JolicielException("missing logConfigFile: " + logConfigFile.getPath());
+      }
+    } else {
+      InputStream stream = LogUtils.class.getResourceAsStream("/com/joliciel/talismane/utils/resources/default-logback.xml");
 
-				configurator.setContext(loggerContext);
-				// Call context.reset() to clear any previous configuration,
-				// e.g. default configuration
-				loggerContext.reset();
-				configurator.doConfigure(stream);
-			}
-		} catch (JoranException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
+      configurator.setContext(loggerContext);
+      // Call context.reset() to clear any previous configuration,
+      // e.g. default configuration
+      loggerContext.reset();
+      configurator.doConfigure(stream);
+    }
+  }
 }

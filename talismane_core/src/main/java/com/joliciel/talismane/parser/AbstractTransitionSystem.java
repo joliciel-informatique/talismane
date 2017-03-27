@@ -18,17 +18,27 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 abstract class AbstractTransitionSystem implements TransitionSystem {
-	private Set<String> dependencyLabels = new HashSet<String>();
+  private DependencyLabelSet dependencyLabelSet;
+  private Set<String> dependencyLabels = Collections.emptySet();
 
-	public Set<String> getDependencyLabels() {
-		return dependencyLabels;
-	}
+  @Override
+  public Set<String> getDependencyLabels() {
+    return dependencyLabels;
+  }
 
-	public void setDependencyLabels(Set<String> dependencyLabels) {
-		this.dependencyLabels = dependencyLabels;
-	}
+  @Override
+  public DependencyLabelSet getDependencyLabelSet() {
+    return dependencyLabelSet;
+  }
+
+  @Override
+  public void setDependencyLabelSet(DependencyLabelSet dependencyLabelSet) {
+    this.dependencyLabelSet = dependencyLabelSet;
+    this.dependencyLabels = dependencyLabelSet.getDependencyLabels();
+  }
+
 }

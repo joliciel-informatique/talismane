@@ -19,18 +19,20 @@
 package com.joliciel.talismane.tokeniser;
 
 /**
- * A classification that can be assigned the tokeniser to an interval between two atomic tokens.
+ * A classification that can be assigned the tokeniser to an interval between
+ * two atomic tokens.
+ * 
  * @author Assaf Urieli
  *
  */
 public enum TokeniserOutcome implements TokenTag {
-	/**
-	 * The current interval does not separate the atomic tokens on either side.
-	 */
-	JOIN,
-	
-	/**
-	 * The current interval separates the atomic tokens on either side.
-	 */
-	SEPARATE;
+  /**
+   * The current interval does not separate the atomic tokens on either side.
+   */
+  JOIN,
+
+  /**
+   * The current interval separates the atomic tokens on either side.
+   */
+  SEPARATE;
 }

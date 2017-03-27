@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,28 +26,29 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns true if the token is unknown in the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class UnknownWordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	public UnknownWordFeature() {
-	}
-	
-	public UnknownWordFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
-	
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
+public final class UnknownWordFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+  public UnknownWordFeature() {
+  }
 
-		boolean unknownWord = token.getPossiblePosTags().size()==0;
-		result = this.generateResult(unknownWord);
+  public UnknownWordFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-		return result;
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
+
+    boolean unknownWord = token.getPossiblePosTags().size() == 0;
+    result = this.generateResult(unknownWord);
+
+    return result;
+  }
 }

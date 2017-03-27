@@ -1,0 +1,46 @@
+# Dependency labels for French.
+# From Marie Candito and Benoît Crabbé and Mathieu Falco
+# Dépendances syntaxiques de surface pour le français
+# May, 2011
+# http://alpage.inria.fr/statgram/frdep/Publications/FTB-GuideDepSurface.pdf
+
+# Relations pour gouverneurs verbaux
+suj	Sujet
+obj	objet
+de_obj	SP argumental en de, non locatif
+a_obj	SP argumental en à, non locatif
+p_obj	autre SP argumental
+ats	Attribut du sujet
+ato	Attribut de l’objet
+aux_tps	Auxiliaires de temps
+aux_pass	Auxiliaires du passif
+aux_caus	Verbe causatif (en cas de complexe causatif + inf)
+aff	Clitiques figés
+
+# Relations pour gouverneurs non verbaux
+mod	Modifieurs repérés structuralement (par exemple adjectifs épithètes), autres que les relatives
+mod_rel	Relatives adnominales
+coord	Relation portée par un coordonnant, avec comme gouverneur le coordonné  immédiatement précédent
+arg	Utilisé dans le cas de prépositions «liées» : dans de Charybde en Scylla
+dep_coord	Relation portée par un coordonné (sauf le premier), avec comme gouverneur le coordonnant immédiatement précédent
+det	Relation portée par les déterminants
+ponct	Relation portée par tout dépendant typographique,  sauf pour les virgules jouant le rôle de coordonnant (qui porte la relation coord)	Punctuation
+dep	Relation sous-spécifiée, pour les dépendants prépositionnels (pas de gestion de la distinction argument / ajout pour les gouverneurs non verbaux)
+
+#Relations plus spécifiques, réservées actuellement à l’annotation manuelle
+mod_loc	Modifieurs sémantiquement locatifs (au propre ou au figuré). Pour faire le pendant avec les p_obj_loc
+mod_cleft	La subordonnée dans le cas d’une clivée
+p_obj_agt	Pour les compléments d’agent (en cas de passif, ou de causatif)
+p_obj_loc	Pour les dépendants argumentaux locatifs (locatifs de source, destination, ou localisation)
+suj_impers	Pour le sujet explétif il
+aff_moyen	Pour le clitique se en cas de moyen
+arg_comp	Utilisé pour relier une comparative (dépendant) et son gouverneur
+arg_cons	Utilisé pour relier une consécutive et son gouverneur adverbial
+
+# Relations added by Urieli
+prep	Objet d'une préposition
+sub	Object d'une conjonction de subordination
+root	Racine de la phrase
+
+# Unknown additional relations found in the French SPMRL corpus
+comp

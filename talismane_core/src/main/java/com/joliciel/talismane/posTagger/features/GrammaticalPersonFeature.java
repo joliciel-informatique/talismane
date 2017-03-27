@@ -18,52 +18,31 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.joliciel.talismane.lexicon.LexicalAttribute;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 
 /**
  * The grammatical person of a given token as supplied by the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class GrammaticalPersonFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
-	public GrammaticalPersonFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-	}
+public final class GrammaticalPersonFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
+  private final List<String> attributes = new ArrayList<>(1);
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
-			return null;
-		
-		FeatureResult<String> featureResult = null;
+  public GrammaticalPersonFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+    attributes.add(LexicalAttribute.Person.toString());
+  }
 
-		String person = posTaggedToken.getPerson();
+  @Override
+  protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
+    return attributes;
+  }
 
-		if (person!=null)
-			featureResult = this.generateResult(person);
-		
-		return featureResult;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getPerson()!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getPerson();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
 }

@@ -18,52 +18,37 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.posTagger.PosTagOpenClassIndicator;
 import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Whether or not the pos-tag assigned to this token is a closed-class category.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T> {
-	public ClosedClassFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-	}
+public final class ClosedClassFeature<T> extends AbstractPosTaggedTokenFeature<T, Boolean>implements BooleanFeature<T> {
+  public ClosedClassFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
-			return null;
-		
-		FeatureResult<Boolean> featureResult = null;
-		boolean isClosedClass = posTaggedToken.getTag().getOpenClassIndicator().isClosed();
-		featureResult = this.generateResult(isClosedClass);
-		
-		return featureResult;
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
 
+    FeatureResult<Boolean> featureResult = null;
+    boolean isClosedClass = posTaggedToken.getTag().getOpenClassIndicator().isClosed();
+    featureResult = this.generateResult(isClosedClass);
 
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String addressFunctionName = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + addressFunctionName + "!=null) {" );
-		builder.indent();
-		builder.addImport(PosTagOpenClassIndicator.class);
-		builder.append(	variableName + " = " + addressFunctionName + ".getPosTaggedToken().getTag().getOpenClassIndicator().equals(PosTagOpenClassIndicator.CLOSED);");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
+    return featureResult;
+  }
 }

@@ -35,45 +35,45 @@ import java.util.Scanner;
  *
  */
 public class WordList {
-	private final String name;
-	private final List<String> wordList;
+  private final String name;
+  private final List<String> wordList;
 
-	public WordList(String name, List<String> wordList) {
-		this.name = name;
-		this.wordList = wordList;
-	}
+  public WordList(String name, List<String> wordList) {
+    this.name = name;
+    this.wordList = wordList;
+  }
 
-	public WordList(String fileName, Scanner scanner) {
-		String name = fileName;
-		this.wordList = new ArrayList<String>();
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.length() > 0 && !line.startsWith("#")) {
-				if (line.equals("Type: WordList"))
-					continue;
-				if (line.startsWith("Name: ")) {
-					name = line.substring("Name: ".length());
-					continue;
-				}
-				wordList.add(line);
-			}
-		}
+  public WordList(String fileName, Scanner scanner) {
+    String name = fileName;
+    this.wordList = new ArrayList<String>();
+    while (scanner.hasNextLine()) {
+      String line = scanner.nextLine();
+      if (line.length() > 0 && !line.startsWith("#")) {
+        if (line.equals("Type: WordList"))
+          continue;
+        if (line.startsWith("Name: ")) {
+          name = line.substring("Name: ".length());
+          continue;
+        }
+        wordList.add(line);
+      }
+    }
 
-		this.name = name;
-	}
+    this.name = name;
+  }
 
-	/**
-	 * A unique name for this resource.
-	 */
-	public String getName() {
-		return name;
-	}
+  /**
+   * A unique name for this resource.
+   */
+  public String getName() {
+    return name;
+  }
 
-	/**
-	 * The word list itself.
-	 */
-	public List<String> getWordList() {
-		return wordList;
-	}
+  /**
+   * The word list itself.
+   */
+  public List<String> getWordList() {
+    return wordList;
+  }
 
 }

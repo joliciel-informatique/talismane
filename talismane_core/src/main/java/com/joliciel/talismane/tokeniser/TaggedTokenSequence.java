@@ -29,50 +29,50 @@ import com.joliciel.talismane.machineLearning.Decision;
  *
  */
 public class TaggedTokenSequence<T extends TokenTag> extends ArrayList<TaggedToken<T>> {
-	private static final long serialVersionUID = 1L;
-	private String string = null;
+  private static final long serialVersionUID = 1L;
+  private String string = null;
 
-	public TaggedTokenSequence() {
-	}
+  public TaggedTokenSequence() {
+  }
 
-	public TaggedTokenSequence(int initialCapacity) {
-		super(initialCapacity);
-	}
+  public TaggedTokenSequence(int initialCapacity) {
+    super(initialCapacity);
+  }
 
-	/**
-	 * Create a tagged token sequence with space to one additional tagged token
-	 * at the end of an existing history.
-	 */
-	public TaggedTokenSequence(TaggedTokenSequence<T> history) {
-		super(history.size() + 1);
-		this.addAll(history);
-	}
+  /**
+   * Create a tagged token sequence with space to one additional tagged token at
+   * the end of an existing history.
+   */
+  public TaggedTokenSequence(TaggedTokenSequence<T> history) {
+    super(history.size() + 1);
+    this.addAll(history);
+  }
 
-	/**
-	 * Add a tagged token to the end of the current tagged token list.
-	 * 
-	 * @param token
-	 *            the token to be added
-	 * @param decision
-	 *            the decision attached to this token
-	 */
-	public TaggedToken<T> addTaggedToken(Token token, Decision decision, T tag) {
-		TaggedToken<T> taggedToken = new TaggedToken<T>(token, decision, tag);
-		this.add(taggedToken);
-		return taggedToken;
-	}
+  /**
+   * Add a tagged token to the end of the current tagged token list.
+   * 
+   * @param token
+   *          the token to be added
+   * @param decision
+   *          the decision attached to this token
+   */
+  public TaggedToken<T> addTaggedToken(Token token, Decision decision, T tag) {
+    TaggedToken<T> taggedToken = new TaggedToken<T>(token, decision, tag);
+    this.add(taggedToken);
+    return taggedToken;
+  }
 
-	@Override
-	public synchronized String toString() {
-		if (string == null) {
-			StringBuilder builder = new StringBuilder();
-			builder.append("Sequence: ");
-			for (TaggedToken<T> taggedToken : this) {
-				builder.append(taggedToken.toString());
-			}
-			string = builder.toString();
-		}
-		return string;
-	}
+  @Override
+  public synchronized String toString() {
+    if (string == null) {
+      StringBuilder builder = new StringBuilder();
+      builder.append("Sequence: ");
+      for (TaggedToken<T> taggedToken : this) {
+        builder.append(taggedToken.toString());
+      }
+      string = builder.toString();
+    }
+    return string;
+  }
 
 }

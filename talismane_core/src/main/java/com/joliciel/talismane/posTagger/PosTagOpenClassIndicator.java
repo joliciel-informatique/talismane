@@ -19,38 +19,39 @@
 package com.joliciel.talismane.posTagger;
 
 /**
- * An enum to indicate whether a PosTag is an open class, a closed class,
- * or an open class which only accepts entries outside of the lexicon.
+ * An enum to indicate whether a PosTag is an open class, a closed class, or an
+ * open class which only accepts entries outside of the lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
 public enum PosTagOpenClassIndicator {
-	OPEN(0),
-	CLOSED(1),
-	PUNCTUATION(2);
-	
-	int id;
-	
-	private PosTagOpenClassIndicator(int id) {
-		this.id = id;
-	}
-	
-	public static PosTagOpenClassIndicator forId(int id) throws IllegalArgumentException  {
-        for (PosTagOpenClassIndicator posTagClosedClassType : PosTagOpenClassIndicator.values()) {
-            if (posTagClosedClassType.getId()==id)
-                return posTagClosedClassType;
-        }
-        throw new IllegalArgumentException("No PosTagClosedClassType found for id " + id);
-    }
+  OPEN(0),
+  CLOSED(1),
+  PUNCTUATION(2);
 
-	public int getId() {
-		return id;
-	}
-	
-	public boolean isClosed() {
-		if (this==OPEN)
-			return false;
-		else
-			return true;
-	}
+  int id;
+
+  private PosTagOpenClassIndicator(int id) {
+    this.id = id;
+  }
+
+  public static PosTagOpenClassIndicator forId(int id) throws IllegalArgumentException {
+    for (PosTagOpenClassIndicator posTagClosedClassType : PosTagOpenClassIndicator.values()) {
+      if (posTagClosedClassType.getId() == id)
+        return posTagClosedClassType;
+    }
+    throw new IllegalArgumentException("No PosTagClosedClassType found for id " + id);
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public boolean isClosed() {
+    if (this == OPEN)
+      return false;
+    else
+      return true;
+  }
 }

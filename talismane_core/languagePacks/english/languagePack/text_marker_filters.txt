@@ -1,0 +1,18 @@
+#### bullets at start of line or input ####
+RegexMarkerFilter	SKIP	(?m)^( *[*•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•])	1
+RegexMarkerFilter	SKIP	(?m)^( *[-‒–—―])	1
+RegexMarkerFilter	SKIP	(?m)^( *\(?\d+(\.\d+)*\))	1
+RegexMarkerFilter	SKIP	(?m)^( *\d+(\.\d+)*\.)	1
+RegexMarkerFilter	REPLACE	[“”„‟″‴]	"
+RegexMarkerFilter	REPLACE	[‘’]	'
+RegexMarkerFilter	REPLACE	(« )|«	"
+RegexMarkerFilter	REPLACE	( »)|»	"
+RegexMarkerFilter	REPLACE	``	"
+RegexMarkerFilter	REPLACE	''	"
+RegexMarkerFilter	REPLACE	[‒–—―]	 - 
+
+RegexMarkerFilter	NO_SENTENCE_BREAK	\b(Mr|Mrs|Prof|Dr|MR|MRS|PROF|DR)\.
+RegexMarkerFilter	NO_SENTENCE_BREAK	\b(Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Mon|Tue|Wed|Thu|Fri|Sat)\.
+RegexMarkerFilter	NO_SENTENCE_BREAK	\b(JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC|MON|TUE|WED|THU|FRI|SAT)\.
+RegexMarkerFilter	NO_SENTENCE_BREAK	\bi\.e\.
+RegexMarkerFilter	NO_SENTENCE_BREAK	\be\.g\.

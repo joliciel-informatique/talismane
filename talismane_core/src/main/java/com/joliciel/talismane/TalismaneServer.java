@@ -25,8 +25,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.joliciel.talismane.utils.LogUtils;
-
 /**
  * A Talismane server, for loading all resources up front and processing
  * sentences received on the fly.
@@ -34,70 +32,56 @@ import com.joliciel.talismane.utils.LogUtils;
  * @author Assaf Urieli
  *
  */
-public class TalismaneServer extends Talismane {
-	private static final Logger LOG = LoggerFactory.getLogger(TalismaneServer.class);
-	private final int port;
-	private boolean listening = true;
-	private final TalismaneConfig config;
-	private final TalismaneSession talismaneSession;
+public class TalismaneServer {
+  private static final Logger LOG = LoggerFactory.getLogger(TalismaneServer.class);
+  private final int port;
+  private boolean listening = true;
+  private final TalismaneSession session;
 
-	public TalismaneServer(TalismaneConfig config, TalismaneSession talismaneSession) {
-		super(config, talismaneSession);
+  public TalismaneServer(TalismaneSession session) throws IOException, ReflectiveOperationException {
+    this.session = session;
+    this.port = session.getPort();
+  }
 
-		this.config = config;
-		this.talismaneSession = talismaneSession;
-		this.port = config.getPort();
-	}
+  public void analyse() throws IOException {
+    long startTime = new Date().getTime();
+    ServerSocket serverSocket = null;
 
-	@Override
-	public void process() {
-		long startTime = new Date().getTime();
-		ServerSocket serverSocket = null;
+    try {
+      LOG.info("Starting server...");
 
-		try {
-			LOG.info("Starting server...");
-			config.preloadResources();
+      serverSocket = new ServerSocket(port);
+      LOG.info("Server started. Waiting for clients...");
+      while (listening) {
+        TalismaneServerThread thread = new TalismaneServerThread(session, serverSocket.accept());
+        thread.start();
+      }
+    } finally {
+      if (serverSocket != null && !serverSocket.isClosed()) {
+        serverSocket.close();
+      }
+      LOG.info("Server shut down.");
+      long endTime = new Date().getTime();
+      long totalTime = endTime - startTime;
+      LOG.info("Total server run time (ms): " + totalTime);
+    }
+  }
 
-			serverSocket = new ServerSocket(port);
-			LOG.info("Server started. Waiting for clients...");
-			while (listening) {
-				TalismaneServerThread thread = new TalismaneServerThread(this, config, talismaneSession, serverSocket.accept());
-				thread.start();
-			}
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} finally {
-			if (serverSocket != null && !serverSocket.isClosed()) {
-				try {
-					serverSocket.close();
-				} catch (IOException e) {
-					LogUtils.logError(LOG, e);
-					throw new RuntimeException(e);
-				}
-			}
-			LOG.info("Server shut down.");
-			long endTime = new Date().getTime();
-			long totalTime = endTime - startTime;
-			LOG.info("Total server run time (ms): " + totalTime);
-		}
-	}
+  /**
+   * The port to listen on.
+   */
+  public int getPort() {
+    return port;
+  }
 
-	/**
-	 * The port to listen on.
-	 */
-	public int getPort() {
-		return port;
-	}
+  /**
+   * Whether or not any new connections will be accepted.
+   */
+  public boolean isListening() {
+    return listening;
+  }
 
-	/**
-	 * Whether or not any new connections will be accepted.
-	 */
-	public boolean isListening() {
-		return listening;
-	}
-
-	public void setListening(boolean listening) {
-		this.listening = listening;
-	}
+  public void setListening(boolean listening) {
+    this.listening = listening;
+  }
 }

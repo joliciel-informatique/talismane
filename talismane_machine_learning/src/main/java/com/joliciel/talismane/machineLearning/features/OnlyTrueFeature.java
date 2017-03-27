@@ -18,52 +18,42 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * If the wrapped boolean feature returns false, will convert it to a null.
  * Useful to keep the feature sparse, so that only true values return a result.
+ * 
  * @author Assaf Urieli
  *
  */
-public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	BooleanFeature<T> wrappedFeature;
-	
-	public OnlyTrueFeature(BooleanFeature<T> wrappedFeature) {
-		super();
-		this.wrappedFeature = wrappedFeature;
-		this.setName(wrappedFeature.getName() + "*");
-	}
+public class OnlyTrueFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  BooleanFeature<T> wrappedFeature;
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);
-		
-		if (result1!=null && result1.getOutcome().booleanValue()==true) {
-			featureResult = this.generateResult(true);
-		}
-		return featureResult;
-	}
+  public OnlyTrueFeature(BooleanFeature<T> wrappedFeature) {
+    super();
+    this.wrappedFeature = wrappedFeature;
+    this.setName(wrappedFeature.getName() + "*");
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String result = builder.addFeatureVariable(wrappedFeature, "result");
-		
-		builder.append("if (" + result + "!=null && " + result + ".booleanValue()) {");
-		builder.indent();
-		builder.append(		variableName + " = true;");
-		builder.outdent();
-		builder.append("}");
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		return true;
-	}
-	public BooleanFeature<T> getWrappedFeature() {
-		return wrappedFeature;
-	}
+    FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);
 
-	public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
-		this.wrappedFeature = wrappedFeature;
-	}
-	
-	
+    if (result1 != null && result1.getOutcome().booleanValue() == true) {
+      featureResult = this.generateResult(true);
+    }
+    return featureResult;
+  }
+
+  public BooleanFeature<T> getWrappedFeature() {
+    return wrappedFeature;
+  }
+
+  public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
+    this.wrappedFeature = wrappedFeature;
+  }
+
 }

@@ -18,98 +18,74 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Mimics an in-then-else structure - if condition is true return thenFeature result, else return elseFeature result.
+ * Mimics an in-then-else structure - if condition is true return thenFeature
+ * result, else return elseFeature result.
+ * 
  * @author Assaf Urieli
  *
  */
-public class IfThenElseDoubleFeature<T> extends AbstractCachableFeature<T,Double> implements
-		DoubleFeature<T> {
-	private BooleanFeature<T> condition;
-	private DoubleFeature<T> thenFeature;
-	private DoubleFeature<T> elseFeature;
-	
-	public IfThenElseDoubleFeature(BooleanFeature<T> condition, DoubleFeature<T> thenFeature, DoubleFeature<T> elseFeature) {
-		super();
-		this.condition = condition;
-		this.thenFeature = thenFeature;
-		this.elseFeature = elseFeature;
-		this.setName("IfThenElse(" + condition.getName() + "," + thenFeature.getName() + "," + elseFeature.getName() + ")");
-	}
+public class IfThenElseDoubleFeature<T> extends AbstractCachableFeature<T, Double>implements DoubleFeature<T> {
+  private BooleanFeature<T> condition;
+  private DoubleFeature<T> thenFeature;
+  private DoubleFeature<T> elseFeature;
 
-	@Override
-	protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Double> featureResult = null;
-		
-		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult!=null) {
-			boolean conditionOutcome = conditionResult.getOutcome();
-			if (conditionOutcome) {
-				FeatureResult<Double> thenFeatureResult = thenFeature.check(context, env);
-				if (thenFeatureResult!=null) {
-					double result = thenFeatureResult.getOutcome();
-					featureResult = this.generateResult(result);
-				}
-			} else {
-				FeatureResult<Double> elseFeatureResult = elseFeature.check(context, env);
-				if (elseFeatureResult!=null) {
-					double result = elseFeatureResult.getOutcome();
-					featureResult = this.generateResult(result);
-				}
-			}
-		}
-		
-		
-		return featureResult;
-		
-	}
+  public IfThenElseDoubleFeature(BooleanFeature<T> condition, DoubleFeature<T> thenFeature, DoubleFeature<T> elseFeature) {
+    super();
+    this.condition = condition;
+    this.thenFeature = thenFeature;
+    this.elseFeature = elseFeature;
+    this.setName("IfThenElse(" + condition.getName() + "," + thenFeature.getName() + "," + elseFeature.getName() + ")");
+  }
 
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String condition1 = builder.addFeatureVariable(condition, "condition");
-		
-		builder.append("if (" + condition1 + "!=null) {");
-		builder.indent();
-		builder.append(		"if (" + condition1 +") {");
-		builder.indent();
-		String thenResult = 	builder.addFeatureVariable(thenFeature, "then");
-		builder.append(			"if (" + thenResult + "!=null) " + variableName + " = " + thenResult + ";");
-		builder.outdent();
-		builder.append(		"} else {");
-		builder.indent();
-		String elseResult = 	builder.addFeatureVariable(elseFeature, "else");
-		builder.append(			"if (" + elseResult + "!=null) " + variableName + " = " + elseResult + ";");
-		builder.outdent();
-		builder.append(		"}");
-		builder.outdent();
-		builder.append("}");
-		
-		return true;
-	}
-	
-	public BooleanFeature<T> getCondition() {
-		return condition;
-	}
+  @Override
+  protected FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Double> featureResult = null;
 
-	public DoubleFeature<T> getThenFeature() {
-		return thenFeature;
-	}
+    FeatureResult<Boolean> conditionResult = condition.check(context, env);
+    if (conditionResult != null) {
+      boolean conditionOutcome = conditionResult.getOutcome();
+      if (conditionOutcome) {
+        FeatureResult<Double> thenFeatureResult = thenFeature.check(context, env);
+        if (thenFeatureResult != null) {
+          double result = thenFeatureResult.getOutcome();
+          featureResult = this.generateResult(result);
+        }
+      } else {
+        FeatureResult<Double> elseFeatureResult = elseFeature.check(context, env);
+        if (elseFeatureResult != null) {
+          double result = elseFeatureResult.getOutcome();
+          featureResult = this.generateResult(result);
+        }
+      }
+    }
+    return featureResult;
+  }
 
-	public DoubleFeature<T> getElseFeature() {
-		return elseFeature;
-	}
+  public BooleanFeature<T> getCondition() {
+    return condition;
+  }
 
-	public void setCondition(BooleanFeature<T> condition) {
-		this.condition = condition;
-	}
+  public DoubleFeature<T> getThenFeature() {
+    return thenFeature;
+  }
 
-	public void setThenFeature(DoubleFeature<T> thenFeature) {
-		this.thenFeature = thenFeature;
-	}
+  public DoubleFeature<T> getElseFeature() {
+    return elseFeature;
+  }
 
-	public void setElseFeature(DoubleFeature<T> elseFeature) {
-		this.elseFeature = elseFeature;
-	}
+  public void setCondition(BooleanFeature<T> condition) {
+    this.condition = condition;
+  }
+
+  public void setThenFeature(DoubleFeature<T> thenFeature) {
+    this.thenFeature = thenFeature;
+  }
+
+  public void setElseFeature(DoubleFeature<T> elseFeature) {
+    this.elseFeature = elseFeature;
+  }
 
 }

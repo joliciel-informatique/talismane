@@ -23,32 +23,34 @@ import java.util.List;
 
 /**
  * A List representing dependent objects stored in the database.
+ * 
  * @author Assaf Urieli
  */
 public interface PersistentList<E> extends List<E> {
-    /***
-     * To be used whenever populating the list initially from the database.
-     * Makes it possible to differentiate between previously persisted objects and new ones being added.
-     */
-    public boolean addFromDB(E element);
-    
-    /***
-     * Add a whole collection at a time.
-     */
-    public boolean addAllFromDB(Collection<? extends E> c);
-    
-    /**
-     * Which items have been added that need to be persisted.
-     */
-    public List<E> getItemsAdded();
-    
-    /**
-     * Which items have been removed that need to be persisted.
-     */
-    public List<E> getItemsRemoved();
-    
-    /**
-     * Have items been added or removed from this list?
-     */
-    public boolean isDirty();
+  /***
+   * To be used whenever populating the list initially from the database. Makes
+   * it possible to differentiate between previously persisted objects and new
+   * ones being added.
+   */
+  public boolean addFromDB(E element);
+
+  /***
+   * Add a whole collection at a time.
+   */
+  public boolean addAllFromDB(Collection<? extends E> c);
+
+  /**
+   * Which items have been added that need to be persisted.
+   */
+  public List<E> getItemsAdded();
+
+  /**
+   * Which items have been removed that need to be persisted.
+   */
+  public List<E> getItemsRemoved();
+
+  /**
+   * Have items been added or removed from this list?
+   */
+  public boolean isDirty();
 }

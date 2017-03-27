@@ -22,30 +22,31 @@ import com.joliciel.talismane.utils.JolicielException;
 
 /**
  * Occurs when the feature descriptor syntax cannot be parsed.
+ * 
  * @author Assaf Urieli
  *
  */
 public class FeatureSyntaxException extends JolicielException {
-	private static final long serialVersionUID = -3315622182688781983L;
-	private FunctionDescriptor descriptor;
-	private FunctionDescriptor topLevelDescriptor;
-	
-	public FeatureSyntaxException(String message, FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
-		super(message + ": " + descriptor.toString() + " in top-level descriptor: " + topLevelDescriptor.getDescriptorName());
-		this.descriptor = descriptor;
-		this.topLevelDescriptor = topLevelDescriptor;
-	}
+  private static final long serialVersionUID = -3315622182688781983L;
+  private FunctionDescriptor descriptor;
+  private FunctionDescriptor topLevelDescriptor;
 
-	public FunctionDescriptor getDescriptor() {
-		return descriptor;
-	}
+  public FeatureSyntaxException(String message, FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
+    super(message + ": " + descriptor.toString() + " in top-level descriptor: " + topLevelDescriptor.getDescriptorName());
+    this.descriptor = descriptor;
+    this.topLevelDescriptor = topLevelDescriptor;
+  }
 
-	public FunctionDescriptor getTopLevelDescriptor() {
-		return topLevelDescriptor;
-	}
+  public FunctionDescriptor getDescriptor() {
+    return descriptor;
+  }
 
-	public void setTopLevelDescriptor(FunctionDescriptor topLevelDescriptor) {
-		this.topLevelDescriptor = topLevelDescriptor;
-	}
+  public FunctionDescriptor getTopLevelDescriptor() {
+    return topLevelDescriptor;
+  }
+
+  public void setTopLevelDescriptor(FunctionDescriptor topLevelDescriptor) {
+    this.topLevelDescriptor = topLevelDescriptor;
+  }
 
 }

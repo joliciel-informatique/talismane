@@ -21,42 +21,39 @@ package com.joliciel.talismane.parser;
 import com.joliciel.talismane.TalismaneException;
 
 public class InvalidTransitionException extends TalismaneException {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -590792696834580845L;
-	private Transition transition;
-	private ParseConfiguration configuration;
-	
-	public InvalidTransitionException(Transition transition,
-			ParseConfiguration configuration) {
-		super(transition.getCode() + ": " + configuration.toString());
-		this.transition = transition;
-		this.configuration = configuration;
-	}
-	
-	public InvalidTransitionException(Transition transition,
-			ParseConfiguration configuration, String message) {
-		super(message);
-		this.transition = transition;
-		this.configuration = configuration;
-	}
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -590792696834580845L;
+  private Transition transition;
+  private ParseConfiguration configuration;
 
-	public Transition getTransition() {
-		return transition;
-	}
+  public InvalidTransitionException(Transition transition, ParseConfiguration configuration) {
+    super(transition.getCode() + ": " + configuration.toString());
+    this.transition = transition;
+    this.configuration = configuration;
+  }
 
-	public void setTransition(Transition transition) {
-		this.transition = transition;
-	}
+  public InvalidTransitionException(Transition transition, ParseConfiguration configuration, String message) {
+    super(message);
+    this.transition = transition;
+    this.configuration = configuration;
+  }
 
-	public ParseConfiguration getConfiguration() {
-		return configuration;
-	}
+  public Transition getTransition() {
+    return transition;
+  }
 
-	public void setConfiguration(ParseConfiguration configuration) {
-		this.configuration = configuration;
-	}
-	
-	
+  public void setTransition(Transition transition) {
+    this.transition = transition;
+  }
+
+  public ParseConfiguration getConfiguration() {
+    return configuration;
+  }
+
+  public void setConfiguration(ParseConfiguration configuration) {
+    this.configuration = configuration;
+  }
+
 }

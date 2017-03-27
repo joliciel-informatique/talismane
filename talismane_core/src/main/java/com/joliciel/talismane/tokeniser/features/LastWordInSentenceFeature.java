@@ -18,36 +18,38 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns true if this is the last word in the sentence (including punctuation).
+ * Returns true if this is the last word in the sentence (including
+ * punctuation).
+ * 
  * @author Assaf Urieli
  *
  */
-public final class LastWordInSentenceFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {	
-	public LastWordInSentenceFeature() {
-	}
-	
-	public LastWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
-	
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
-		
-		boolean lastWord = (token.getIndex()==token.getTokenSequence().size()-1);
-		result = this.generateResult(lastWord);
-		
-		return result;
-	}
+public final class LastWordInSentenceFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+  public LastWordInSentenceFeature() {
+  }
+
+  public LastWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
+
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
+
+    boolean lastWord = (token.getIndex() == token.getTokenSequence().size() - 1);
+    result = this.generateResult(lastWord);
+
+    return result;
+  }
 }

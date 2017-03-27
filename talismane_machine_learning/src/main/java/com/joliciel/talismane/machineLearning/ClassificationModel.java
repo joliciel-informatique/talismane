@@ -19,27 +19,32 @@
 package com.joliciel.talismane.machineLearning;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 /**
  * A machine learning model for classification.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface ClassificationModel extends MachineLearningModel {
 
-	/**
-	 * Get the decision maker for this model.
-	 */
-	public DecisionMaker getDecisionMaker();
-	
-	/**
-	 * An observer that will write low-level details of this model's analysis to a file.
-	 */
-	public ClassificationObserver getDetailedAnalysisObserver(File file);
+  /**
+   * Get the decision maker for this model.
+   */
+  public DecisionMaker getDecisionMaker();
 
-	/**
-	 * A set of possible outcomes for this model.
-	 */
-	public Set<String> getOutcomeNames();
+  /**
+   * An observer that will write low-level details of this model's analysis to a
+   * file.
+   * 
+   * @throws IOException
+   */
+  public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException;
+
+  /**
+   * A set of possible outcomes for this model.
+   */
+  public Set<String> getOutcomeNames();
 }

@@ -36,87 +36,84 @@ import javax.tools.JavaFileObject.Kind;
 /**
  * A file manager capable of handling in-memory classes - otherwise it delegates
  * to a parent file manager.
+ * 
  * @author Assaf Urieli
  *
  */
 final class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-	private final Map<URI, JavaFileObject> javaFileObjectMap = new HashMap<URI, JavaFileObject>();
-	private final InMemoryClassLoader classLoader;
+  private final Map<URI, JavaFileObject> javaFileObjectMap = new HashMap<URI, JavaFileObject>();
+  private final InMemoryClassLoader classLoader;
 
-	public InMemoryFileManager(JavaFileManager parent, InMemoryClassLoader classLoader) {
-		super(parent);
-		this.classLoader = classLoader;
-	}
+  public InMemoryFileManager(JavaFileManager parent, InMemoryClassLoader classLoader) {
+    super(parent);
+    this.classLoader = classLoader;
+  }
 
-	@Override
-	public FileObject getFileForInput(Location location, String packageName,
-			String relativeName) throws IOException {
-		JavaFileObject javaFileObject = javaFileObjectMap.get(this.getURI(location, packageName, relativeName));
-		if (javaFileObject != null)
-			return javaFileObject;
-		return super.getFileForInput(location, packageName, relativeName);
-	}
-	
-	@Override
-	public JavaFileObject getJavaFileForOutput(Location location, String qualifiedName,
-			Kind kind, FileObject outputFile) throws IOException {
-		JavaFileObject file = new InMemoryJavaFileObject(qualifiedName);
-		classLoader.putJavaFileObject(qualifiedName, file);
-		return file;
-	}
+  @Override
+  public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
+    JavaFileObject javaFileObject = javaFileObjectMap.get(this.getURI(location, packageName, relativeName));
+    if (javaFileObject != null)
+      return javaFileObject;
+    return super.getFileForInput(location, packageName, relativeName);
+  }
 
-	public void prepareJavaFileObject(StandardLocation location, String packageName,
-			String relativeName, JavaFileObject javaFileObject) {
-		if (javaFileObject.getKind()!=Kind.SOURCE)
-			throw new DynamicCompilerException("Can only add source files to InMemoryFileManager");
-		javaFileObjectMap.put(this.getURI(location, packageName, relativeName), javaFileObject);
-	}
-	
-	private URI getURI(Location location, String packageName, String relativeName) {
-		try {
-			String name = location.getName() + '/' + packageName + '/' + relativeName;
-			URI uri = new URI(name);
-			return uri;
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  @Override
+  public JavaFileObject getJavaFileForOutput(Location location, String qualifiedName, Kind kind, FileObject outputFile) throws IOException {
+    JavaFileObject file = new InMemoryJavaFileObject(qualifiedName);
+    classLoader.putJavaFileObject(qualifiedName, file);
+    return file;
+  }
 
-	@Override
-	public ClassLoader getClassLoader(JavaFileManager.Location location) {
-		return classLoader;
-	}
+  public void prepareJavaFileObject(StandardLocation location, String packageName, String relativeName, JavaFileObject javaFileObject) {
+    if (javaFileObject.getKind() != Kind.SOURCE)
+      throw new DynamicCompilerException("Can only add source files to InMemoryFileManager");
+    javaFileObjectMap.put(this.getURI(location, packageName, relativeName), javaFileObject);
+  }
 
-	@Override
-	public String inferBinaryName(Location loc, JavaFileObject file) {
-		String binaryName;
+  private URI getURI(Location location, String packageName, String relativeName) {
+    try {
+      String name = location.getName() + '/' + packageName + '/' + relativeName;
+      URI uri = new URI(name);
+      return uri;
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-		if (file instanceof InMemoryJavaFileObject)
-			binaryName = file.getName();
-		else
-			binaryName = super.inferBinaryName(loc, file);
-		return binaryName;
-	}
+  @Override
+  public ClassLoader getClassLoader(JavaFileManager.Location location) {
+    return classLoader;
+  }
 
-	@Override
-	public Iterable<JavaFileObject> list(Location location, String packageName,
-			Set<Kind> kinds, boolean recurse) throws IOException {
-		boolean wantClasses = kinds.contains(JavaFileObject.Kind.CLASS);
-		boolean wantSources = kinds.contains(JavaFileObject.Kind.SOURCE);
-		ArrayList<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
-		if (wantSources && location==StandardLocation.SOURCE_PATH) {
-			for (JavaFileObject file : javaFileObjectMap.values()) {
-				if (file.getName().startsWith(packageName))
-					fileObjects.add(file);
-			}
-		} else if (wantClasses && location==StandardLocation.CLASS_PATH) {
-			fileObjects.addAll(classLoader.list(packageName));
-		}
-		
-		Iterable<JavaFileObject> parentObjects = super.list(location, packageName, kinds, recurse);
-		for (JavaFileObject fileObject : parentObjects) {
-			fileObjects.add(fileObject);
-		}
-		return fileObjects;
-	}
+  @Override
+  public String inferBinaryName(Location loc, JavaFileObject file) {
+    String binaryName;
+
+    if (file instanceof InMemoryJavaFileObject)
+      binaryName = file.getName();
+    else
+      binaryName = super.inferBinaryName(loc, file);
+    return binaryName;
+  }
+
+  @Override
+  public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds, boolean recurse) throws IOException {
+    boolean wantClasses = kinds.contains(JavaFileObject.Kind.CLASS);
+    boolean wantSources = kinds.contains(JavaFileObject.Kind.SOURCE);
+    ArrayList<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
+    if (wantSources && location == StandardLocation.SOURCE_PATH) {
+      for (JavaFileObject file : javaFileObjectMap.values()) {
+        if (file.getName().startsWith(packageName))
+          fileObjects.add(file);
+      }
+    } else if (wantClasses && location == StandardLocation.CLASS_PATH) {
+      fileObjects.addAll(classLoader.list(packageName));
+    }
+
+    Iterable<JavaFileObject> parentObjects = super.list(location, packageName, kinds, recurse);
+    for (JavaFileObject fileObject : parentObjects) {
+      fileObjects.add(fileObject);
+    }
+    return fileObjects;
+  }
 }

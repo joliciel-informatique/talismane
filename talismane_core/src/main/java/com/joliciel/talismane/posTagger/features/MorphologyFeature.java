@@ -18,54 +18,32 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-import com.joliciel.talismane.lexicon.LexicalEntry;
-import com.joliciel.talismane.machineLearning.features.DynamicSourceCodeBuilder;
-import com.joliciel.talismane.machineLearning.features.FeatureResult;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.joliciel.talismane.lexicon.LexicalAttribute;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
-import com.joliciel.talismane.machineLearning.features.StringFeature;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 
 /**
- * The detailed morpho-syntaxic information of a given token as supplied by the lexicon.
+ * The detailed morpho-syntaxic information of a given token as supplied by the
+ * lexicon.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class MorphologyFeature<T> extends AbstractPosTaggedTokenFeature<T,String> implements StringFeature<T> {
-	
-	public MorphologyFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-	}
+public final class MorphologyFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
+  private final List<String> attributes = new ArrayList<>(1);
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
-			return null;
-		
-		FeatureResult<String> featureResult = null;
-		LexicalEntry lexicalEntry = posTaggedToken.getLexicalEntry();
-		if (lexicalEntry!=null) {
-				featureResult = this.generateResult(lexicalEntry.getMorphology());
-		}
-		return featureResult;
-	}
-	
+  public MorphologyFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+    attributes.add(LexicalAttribute.Morphology.toString());
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(
-			DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String address = builder.addFeatureVariable(addressFunction, "address");
-		builder.append("if (" + address + "!=null && " + address + ".getPosTaggedToken().getLexicalEntry()!=null) {" );
-		builder.indent();
-		builder.append(	variableName + " = " + address + ".getPosTaggedToken().getLexicalEntry().getMorphology();");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
+  @Override
+  protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
+    return attributes;
+  }
+
 }

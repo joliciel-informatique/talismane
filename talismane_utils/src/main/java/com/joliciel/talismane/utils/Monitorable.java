@@ -20,14 +20,15 @@ package com.joliciel.talismane.utils;
 
 /**
  * A class whose progress can be monitored using a ProgressMonitor.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface Monitorable {
-	/**
-	 * To be called just before a particular task is started.
-	 * Returns a ProgressMonitor for this particular task.
-	 */
-	public ProgressMonitor monitorTask();
-	
+  /**
+   * To be called just before a particular task is started. Returns a
+   * ProgressMonitor for this particular task.
+   */
+  public ProgressMonitor monitorTask();
+
 }

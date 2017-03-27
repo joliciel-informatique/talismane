@@ -21,24 +21,26 @@ package com.joliciel.talismane.utils;
 import java.util.Comparator;
 
 /**
- * Orders weighted outcomes from lowest to highest value,
- * if you happen, for some bizarre reason to be interested in the lower-weight values.
+ * Orders weighted outcomes from lowest to highest value, if you happen, for
+ * some bizarre reason to be interested in the lower-weight values.
+ * 
  * @author Assaf Urieli
  *
  */
 public class WeightedOutcomeAscendingComparator<T> implements Comparator<WeightedOutcome<T>> {
 
-	@Override
-	public int compare(WeightedOutcome<T> o1, WeightedOutcome<T> o2) {
-		if (o1.getWeight()<o2.getWeight()) {
-			return -1;
-		} else if (o1.getWeight()>o2.getWeight()) {
-			return 1;
-		} else {
-			int nameCompare = o1.getOutcome().toString().compareTo(o2.getOutcome().toString());
-			if (nameCompare!=0) return nameCompare;
-			return o1.hashCode()-o2.hashCode();
-		}
-	}
+  @Override
+  public int compare(WeightedOutcome<T> o1, WeightedOutcome<T> o2) {
+    if (o1.getWeight() < o2.getWeight()) {
+      return -1;
+    } else if (o1.getWeight() > o2.getWeight()) {
+      return 1;
+    } else {
+      int nameCompare = o1.getOutcome().toString().compareTo(o2.getOutcome().toString());
+      if (nameCompare != 0)
+        return nameCompare;
+      return o1.hashCode() - o2.hashCode();
+    }
+  }
 
 }

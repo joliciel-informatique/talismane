@@ -23,61 +23,61 @@ import java.util.Map;
 
 /**
  * A default implementation for ObjectCache.
+ * 
  * @author Assaf Urieli
  *
  */
 public class SimpleObjectCache implements ObjectCache {
-    private Map<Class<? extends Object>,Map<Object,Object>> cache = new HashMap<Class<? extends Object>,Map<Object,Object>>();
-    
-    public void clearCache() {
-        cache.clear();
-    }
+  private Map<Class<? extends Object>, Map<Object, Object>> cache = new HashMap<Class<? extends Object>, Map<Object, Object>>();
 
-    @Override
-	public void clearCache(Class<? extends Object> clazz) {
-    	cache.remove(clazz);
-	}
+  public void clearCache() {
+    cache.clear();
+  }
 
-	private Map<Class<? extends Object>,Map<Object,Object>> getCache() {
-        return cache;
-    }
-    
-    @SuppressWarnings("unchecked")
-	public<T> T getEntity(Class<T> clazz, Object id) {
-        T entity = null;
-        Map<Class<? extends Object>,Map<Object,Object>> cache = this.getCache();
-        Map<Object,Object> objectMap = cache.get(clazz);
-        if (objectMap!=null)
-            entity = (T) objectMap.get(id);
-        return entity;
-    }
+  @Override
+  public void clearCache(Class<? extends Object> clazz) {
+    cache.remove(clazz);
+  }
 
-    public<T> void removeEntity(Class<T> clazz, Object id) {
-        Map<Class<? extends Object>,Map<Object,Object>> cache = this.getCache();
-        Map<Object,Object> objectMap = cache.get(clazz);
-        if (objectMap!=null)
-            objectMap.remove(id);
-    }
+  private Map<Class<? extends Object>, Map<Object, Object>> getCache() {
+    return cache;
+  }
 
-    public<T> void putEntity(Class<T> clazz, Object id, T entity) {
-        Map<Class<? extends Object>,Map<Object,Object>> cache = this.getCache();
-        Map<Object,Object> objectMap = cache.get(clazz);
-        if (objectMap==null) {
-            objectMap = new HashMap<Object, Object>();
-            cache.put(clazz, objectMap);
-        }
-        objectMap.put(id, entity);
-    }
+  @SuppressWarnings("unchecked")
+  public <T> T getEntity(Class<T> clazz, Object id) {
+    T entity = null;
+    Map<Class<? extends Object>, Map<Object, Object>> cache = this.getCache();
+    Map<Object, Object> objectMap = cache.get(clazz);
+    if (objectMap != null)
+      entity = (T) objectMap.get(id);
+    return entity;
+  }
 
+  public <T> void removeEntity(Class<T> clazz, Object id) {
+    Map<Class<? extends Object>, Map<Object, Object>> cache = this.getCache();
+    Map<Object, Object> objectMap = cache.get(clazz);
+    if (objectMap != null)
+      objectMap.remove(id);
+  }
 
-    @SuppressWarnings("unchecked")
-	public<T> T getOrPutEntity(Class<T> clazz, Object id, T entity) {
-        Object localEntity = this.getEntity(clazz, id);
-        if (localEntity==null) {
-        	this.putEntity(clazz, id, entity);
-        } else {
-        	entity = (T) localEntity;
-        }
-        return entity;
+  public <T> void putEntity(Class<T> clazz, Object id, T entity) {
+    Map<Class<? extends Object>, Map<Object, Object>> cache = this.getCache();
+    Map<Object, Object> objectMap = cache.get(clazz);
+    if (objectMap == null) {
+      objectMap = new HashMap<Object, Object>();
+      cache.put(clazz, objectMap);
     }
+    objectMap.put(id, entity);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T getOrPutEntity(Class<T> clazz, Object id, T entity) {
+    Object localEntity = this.getEntity(clazz, id);
+    if (localEntity == null) {
+      this.putEntity(clazz, id, entity);
+    } else {
+      entity = (T) localEntity;
+    }
+    return entity;
+  }
 }

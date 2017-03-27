@@ -33,23 +33,22 @@ import opennlp.model.MaxentModel;
  * Model writer that saves models in binary format.
  */
 public class BinaryGISModelWriter extends GISModelWriter {
-    DataOutputStream output;
+  DataOutputStream output;
 
   /**
    * Constructor which takes a GISModel and a File and prepares itself to write
    * the model to that file. Detects whether the file is gzipped or not based on
    * whether the suffix contains ".gz".
    * 
-   *          The GISModel which is to be persisted.
-   *          The File in which the model is to be persisted.
+   * The GISModel which is to be persisted. The File in which the model is to be
+   * persisted.
    */
   public BinaryGISModelWriter(MaxentModel model, File f) throws IOException {
 
     super((AbstractModel) model);
 
     if (f.getName().endsWith(".gz")) {
-      output = new DataOutputStream(new GZIPOutputStream(
-          new FileOutputStream(f)));
+      output = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(f)));
     } else {
       output = new DataOutputStream(new FileOutputStream(f));
     }
@@ -59,8 +58,8 @@ public class BinaryGISModelWriter extends GISModelWriter {
    * Constructor which takes a GISModel and a DataOutputStream and prepares
    * itself to write the model to that stream.
    * 
-   *          The GISModel which is to be persisted.
-   *          The stream which will be used to persist the model.
+   * The GISModel which is to be persisted. The stream which will be used to
+   * persist the model.
    */
   public BinaryGISModelWriter(MaxentModel model, DataOutputStream dos) {
     super((AbstractModel) model);
@@ -68,22 +67,22 @@ public class BinaryGISModelWriter extends GISModelWriter {
   }
 
   @Override
-public void writeUTF(String s) throws java.io.IOException {
+  public void writeUTF(String s) throws java.io.IOException {
     output.writeUTF(s);
   }
 
   @Override
-public void writeInt(int i) throws java.io.IOException {
+  public void writeInt(int i) throws java.io.IOException {
     output.writeInt(i);
   }
 
   @Override
-public void writeDouble(double d) throws java.io.IOException {
+  public void writeDouble(double d) throws java.io.IOException {
     output.writeDouble(d);
   }
 
   @Override
-public void close() throws java.io.IOException {
+  public void close() throws java.io.IOException {
     output.flush();
     output.close();
   }

@@ -19,98 +19,98 @@
 package com.joliciel.talismane.sentenceDetector;
 
 import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.filters.Sentence;
+import com.joliciel.talismane.rawText.Sentence;
 import com.joliciel.talismane.tokeniser.Token;
 import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.joliciel.talismane.tokeniser.Tokeniser;
 import com.joliciel.talismane.utils.StringUtils;
 
 public class PossibleSentenceBoundary {
-	private static final int NUM_CHARS = 30;
-	private final String text;
-	private final int index;
-	private TokenSequence tokenSequence;
-	private String string;
-	private int tokenIndex = -1;
+  private static final int NUM_CHARS = 30;
+  private final CharSequence text;
+  private final int index;
+  private TokenSequence tokenSequence;
+  private String string;
+  private int tokenIndex = -1;
 
-	private final TalismaneSession talismaneSession;
+  private final TalismaneSession talismaneSession;
 
-	public PossibleSentenceBoundary(String text, int index, TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-		this.text = text;
-		this.index = index;
-	}
+  public PossibleSentenceBoundary(CharSequence text, int index, TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+    this.text = text;
+    this.index = index;
+  }
 
-	/**
-	 * The text englobing this possible boundary, where the end of the text is
-	 * either the real end of the input stream, or at least n characters beyond
-	 * the possible boundary.
-	 */
-	public String getText() {
-		return text;
-	}
+  /**
+   * The text englobing this possible boundary, where the end of the text is
+   * either the real end of the input stream, or at least n characters beyond
+   * the possible boundary.
+   */
+  public CharSequence getText() {
+    return text;
+  }
 
-	/**
-	 * The index of the possible boundary being tested.
-	 */
-	public int getIndex() {
-		return index;
-	}
+  /**
+   * The index of the possible boundary being tested.
+   */
+  public int getIndex() {
+    return index;
+  }
 
-	/**
-	 * A token sequence representing the text.
-	 */
-	public TokenSequence getTokenSequence() {
-		if (tokenSequence == null) {
-			Sentence sentence = new Sentence(text, talismaneSession);
-			tokenSequence = new TokenSequence(sentence, Tokeniser.SEPARATORS, talismaneSession);
-		}
-		return tokenSequence;
-	}
+  /**
+   * A token sequence representing the text.
+   */
+  public TokenSequence getTokenSequence() {
+    if (tokenSequence == null) {
+      Sentence sentence = new Sentence(text.toString(), talismaneSession);
+      tokenSequence = new TokenSequence(sentence, talismaneSession);
+      tokenSequence.findDefaultTokens();
+    }
+    return tokenSequence;
+  }
 
-	/**
-	 * The actual string being tested.
-	 */
-	public String getBoundaryString() {
-		return "" + this.text.charAt(index);
-	}
+  /**
+   * The actual string being tested.
+   */
+  public String getBoundaryString() {
+    return "" + this.text.charAt(index);
+  }
 
-	/**
-	 * Index of this boundary's token, including whitespace.
-	 */
-	public int getTokenIndexWithWhitespace() {
-		if (tokenIndex < 0) {
-			for (Token token : this.getTokenSequence().listWithWhiteSpace()) {
-				if (token.getStartIndex() >= index) {
-					tokenIndex = token.getIndexWithWhiteSpace();
-					break;
-				}
-			}
-		}
-		return tokenIndex;
-	}
+  /**
+   * Index of this boundary's token, including whitespace.
+   */
+  public int getTokenIndexWithWhitespace() {
+    if (tokenIndex < 0) {
+      for (Token token : this.getTokenSequence().listWithWhiteSpace()) {
+        if (token.getStartIndex() >= index) {
+          tokenIndex = token.getIndexWithWhiteSpace();
+          break;
+        }
+      }
+    }
+    return tokenIndex;
+  }
 
-	@Override
-	public String toString() {
-		if (string == null) {
-			int start1 = index - NUM_CHARS;
-			int end1 = index + NUM_CHARS;
+  @Override
+  public String toString() {
+    if (string == null) {
+      int start1 = index - NUM_CHARS;
+      int end1 = index + NUM_CHARS;
 
-			if (start1 < 0)
-				start1 = 0;
-			String startString = text.substring(start1, index);
-			startString = StringUtils.padLeft(startString, NUM_CHARS);
+      if (start1 < 0)
+        start1 = 0;
+      CharSequence startString = text.subSequence(start1, index);
+      startString = StringUtils.padLeft(startString, NUM_CHARS);
 
-			String middleString = "" + text.charAt(index);
-			if (end1 >= text.length())
-				end1 = text.length() - 1;
-			String endString = "";
-			if (end1 >= 0 && index + 1 < text.length())
-				endString = text.substring(index + 1, end1);
+      CharSequence middleString = "" + text.charAt(index);
+      if (end1 >= text.length())
+        end1 = text.length() - 1;
+      CharSequence endString = "";
+      if (end1 >= 0 && index + 1 < text.length())
+        endString = text.subSequence(index + 1, end1);
 
-			string = startString + "[" + middleString + "]" + endString;
-			string = string.replace('\n', '¶');
-		}
-		return string;
-	}
+      string = startString + "[" + middleString + "]" + endString;
+      string = string.replace('\n', '¶');
+    }
+    return string;
+  }
 }

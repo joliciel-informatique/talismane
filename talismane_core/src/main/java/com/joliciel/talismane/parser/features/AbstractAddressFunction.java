@@ -24,11 +24,11 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenAddressFunction;
 import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 
 abstract class AbstractAddressFunction extends AbstractFeature<ParseConfigurationWrapper, PosTaggedTokenWrapper>
-		implements PosTaggedTokenAddressFunction<ParseConfigurationWrapper> {
+    implements PosTaggedTokenAddressFunction<ParseConfigurationWrapper> {
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return PosTaggedTokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return PosTaggedTokenAddressFunction.class;
+  }
 }

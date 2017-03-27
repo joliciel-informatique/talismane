@@ -20,63 +20,66 @@ package com.joliciel.talismane.tokeniser.features;
 
 import java.util.Map;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 import com.joliciel.talismane.tokeniser.patterns.TokenPattern;
+import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
 
 /**
  * Returns the actual text of the tokens matching the current pattern.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class PatternWordFormFeature extends AbstractTokenFeature<String> implements StringFeature<TokenWrapper> {
-	StringFeature<TokenWrapper> tokenPatternFeature;
-	private Map<String,TokenPattern> patternMap;
+public final class PatternWordFormFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
+  StringFeature<TokenWrapper> tokenPatternFeature;
+  private Map<String, TokenPattern> patternMap;
 
-	public PatternWordFormFeature(StringFeature<TokenWrapper> tokenPatternFeature) {
-		this.tokenPatternFeature = tokenPatternFeature;
-		this.setName(super.getName() + "(" + this.tokenPatternFeature.getName() + ")");
-	}
-	
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		Token token = tokenWrapper.getToken();
-		FeatureResult<String> result = null;
-		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
-		if (tokenPatternResult!=null) {
-			// If we have a token pattern, then this is the first token to be tested in that pattern
-			TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
+  public PatternWordFormFeature(StringFeature<TokenWrapper> tokenPatternFeature) {
+    this.tokenPatternFeature = tokenPatternFeature;
+    this.setName(super.getName() + "(" + this.tokenPatternFeature.getName() + ")");
+  }
 
-			TokenPatternMatch theMatch = null;
-			for (TokenPatternMatch tokenMatch : token.getMatches(tokenPattern)) {
-				if (tokenMatch.getPattern().equals(tokenPattern)&&tokenMatch.getIndex()==tokenPattern.getIndexesToTest().get(0)) {
-					theMatch = tokenMatch;
-					break;
-				}
-			}
-			if (theMatch!=null) {
-				String unigram = "";
-				for (int i = 0; i<tokenPattern.getTokenCount();i++) {
-					int index = token.getIndexWithWhiteSpace() - theMatch.getIndex() + i;
-					Token aToken = token.getTokenSequence().listWithWhiteSpace().get(index);
-					unigram += aToken.getText();
-				}
-				result = this.generateResult(unigram);
-			} // the current token matches the tokeniserPattern at it's first test index
-		}
-		return result;
-	}
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    Token token = tokenWrapper.getToken();
+    FeatureResult<String> result = null;
+    FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
+    if (tokenPatternResult != null) {
+      // If we have a token pattern, then this is the first token to be
+      // tested in that pattern
+      TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
 
-	public Map<String, TokenPattern> getPatternMap() {
-		return patternMap;
-	}
+      TokenPatternMatch theMatch = null;
+      for (TokenPatternMatch tokenMatch : token.getMatches(tokenPattern)) {
+        if (tokenMatch.getPattern().equals(tokenPattern) && tokenMatch.getIndex() == tokenPattern.getIndexesToTest().get(0)) {
+          theMatch = tokenMatch;
+          break;
+        }
+      }
+      if (theMatch != null) {
+        String unigram = "";
+        for (int i = 0; i < tokenPattern.getTokenCount(); i++) {
+          int index = token.getIndexWithWhiteSpace() - theMatch.getIndex() + i;
+          Token aToken = token.getTokenSequence().listWithWhiteSpace().get(index);
+          unigram += aToken.getAnalyisText();
+        }
+        result = this.generateResult(unigram);
+      } // the current token matches the tokeniserPattern at it's first
+        // test index
+    }
+    return result;
+  }
 
-	public void setPatternMap(Map<String, TokenPattern> patternMap) {
-		this.patternMap = patternMap;
-	}
-	
-	
+  public Map<String, TokenPattern> getPatternMap() {
+    return patternMap;
+  }
+
+  public void setPatternMap(Map<String, TokenPattern> patternMap) {
+    this.patternMap = patternMap;
+  }
+
 }

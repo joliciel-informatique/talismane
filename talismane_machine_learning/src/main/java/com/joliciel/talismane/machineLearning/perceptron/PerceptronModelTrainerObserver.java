@@ -21,5 +21,5 @@ package com.joliciel.talismane.machineLearning.perceptron;
 import com.joliciel.talismane.machineLearning.ClassificationModel;
 
 public interface PerceptronModelTrainerObserver {
-	public void onNextModel(ClassificationModel model, int iterations);
+  public void onNextModel(ClassificationModel model, int iterations);
 }

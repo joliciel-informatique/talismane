@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.HasFeatureCache;
@@ -31,82 +32,83 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
 
 /**
  * A simple container for a ParseConfiguration + an address function.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class ParseConfigurationAddress implements ParseConfigurationWrapper, PosTaggedTokenWrapper, TokenWrapper, HasFeatureCache {
-	private ParseConfiguration parseConfiguration;
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
-	private PosTaggedToken posTaggedToken = null;
-	private boolean posTaggedTokenRetrieved = false;
-	private RuntimeEnvironment env;
-	
-	public ParseConfigurationAddress(RuntimeEnvironment env) {
-		this.env = env;
-	}
-	
-	public ParseConfigurationAddress(ParseConfiguration parseConfiguration,
-			PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction, RuntimeEnvironment env) {
-		super();
-		this.parseConfiguration = parseConfiguration;
-		this.addressFunction = addressFunction;
-		this.env = env;
-	}
-	public ParseConfiguration getParseConfiguration() {
-		return parseConfiguration;
-	}
-	public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
-		return addressFunction;
-	}
-	
-	public void setParseConfiguration(ParseConfiguration parseConfiguration) {
-		this.parseConfiguration = parseConfiguration;
-	}
+  private ParseConfiguration parseConfiguration;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
+  private PosTaggedToken posTaggedToken = null;
+  private boolean posTaggedTokenRetrieved = false;
+  private RuntimeEnvironment env;
 
-	public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		this.addressFunction = addressFunction;
-	}
+  public ParseConfigurationAddress(RuntimeEnvironment env) {
+    this.env = env;
+  }
 
-	@Override
-	public PosTaggedToken getPosTaggedToken() {
-		if (!posTaggedTokenRetrieved) {
-			FeatureResult<PosTaggedTokenWrapper> featureResult = this.addressFunction.check(this.parseConfiguration, this.env);
-			if (featureResult!=null)
-				posTaggedToken = featureResult.getOutcome().getPosTaggedToken();
-			posTaggedTokenRetrieved = true;
-		}
-		return posTaggedToken;
-	}
+  public ParseConfigurationAddress(ParseConfiguration parseConfiguration, PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
+      RuntimeEnvironment env) {
+    super();
+    this.parseConfiguration = parseConfiguration;
+    this.addressFunction = addressFunction;
+    this.env = env;
+  }
 
-	public void setPosTaggedToken(PosTaggedToken posTaggedToken) {
-		this.posTaggedToken = posTaggedToken;
-		this.posTaggedTokenRetrieved = true;
-	}
+  @Override
+  public ParseConfiguration getParseConfiguration() {
+    return parseConfiguration;
+  }
 
-	@Override
-	public <T,Y> FeatureResult<Y> getResultFromCache(
-			Feature<T, Y> feature, RuntimeEnvironment env) {
-		PosTaggedToken posTaggedToken = this.getPosTaggedToken();
-		if (posTaggedToken!=null)
-			return posTaggedToken.getResultFromCache(feature, env);
-		return null;
-	}
+  public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
+    return addressFunction;
+  }
 
-	@Override
-	public <T,Y> void putResultInCache(
-			Feature<T, Y> feature,
-			FeatureResult<Y> featureResult, RuntimeEnvironment env) {
-		PosTaggedToken posTaggedToken = this.getPosTaggedToken();
-		if (posTaggedToken!=null)
-			posTaggedToken.putResultInCache(feature, featureResult, env);
-	}
+  public void setParseConfiguration(ParseConfiguration parseConfiguration) {
+    this.parseConfiguration = parseConfiguration;
+  }
 
-	@Override
-	public Token getToken() {
-		PosTaggedToken posTaggedToken = this.getPosTaggedToken();
-		Token token = null;
-		if (posTaggedToken!=null)
-			token = posTaggedToken.getToken();
-		return token;
-	}
+  public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    this.addressFunction = addressFunction;
+  }
+
+  @Override
+  public PosTaggedToken getPosTaggedToken() throws TalismaneException {
+    if (!posTaggedTokenRetrieved) {
+      FeatureResult<PosTaggedTokenWrapper> featureResult = this.addressFunction.check(this.parseConfiguration, this.env);
+      if (featureResult != null)
+        posTaggedToken = featureResult.getOutcome().getPosTaggedToken();
+      posTaggedTokenRetrieved = true;
+    }
+    return posTaggedToken;
+  }
+
+  public void setPosTaggedToken(PosTaggedToken posTaggedToken) {
+    this.posTaggedToken = posTaggedToken;
+    this.posTaggedTokenRetrieved = true;
+  }
+
+  @Override
+  public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedToken posTaggedToken = this.getPosTaggedToken();
+    if (posTaggedToken != null)
+      return posTaggedToken.getResultFromCache(feature, env);
+    return null;
+  }
+
+  @Override
+  public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedToken posTaggedToken = this.getPosTaggedToken();
+    if (posTaggedToken != null)
+      posTaggedToken.putResultInCache(feature, featureResult, env);
+  }
+
+  @Override
+  public Token getToken() throws TalismaneException {
+    PosTaggedToken posTaggedToken = this.getPosTaggedToken();
+    Token token = null;
+    if (posTaggedToken != null)
+      token = posTaggedToken.getToken();
+    return token;
+  }
 }

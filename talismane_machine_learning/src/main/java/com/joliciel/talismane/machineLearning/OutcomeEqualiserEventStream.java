@@ -18,103 +18,106 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeSet;
 import java.util.Set;
+import java.util.TreeSet;
+
+import com.joliciel.talismane.TalismaneException;
 
 /**
- * An event stream that guarantees that no outcome will appear more than 
- * n times more than the minimum outcome.
+ * An event stream that guarantees that no outcome will appear more than n times
+ * more than the minimum outcome.
+ * 
  * @author Assaf Urieli
  *
  */
 public class OutcomeEqualiserEventStream implements ClassificationEventStream {
-	
-	ClassificationEventStream originalEventStream = null;
-	List<ClassificationEvent> eventList = null;
-	int eventIndex = 0;
-	double multiple = 1;
-	
-	public OutcomeEqualiserEventStream(ClassificationEventStream originalEventStream, double multiple) {
-		super();
-		this.originalEventStream = originalEventStream;
-		this.multiple = multiple;
-	}
 
-	@Override
-	public ClassificationEvent next() {
-		ClassificationEvent event = eventList.get(eventIndex);
-		eventIndex++;
-		return event;
-	}
+  ClassificationEventStream originalEventStream = null;
+  List<ClassificationEvent> eventList = null;
+  int eventIndex = 0;
+  double multiple = 1;
 
-	@Override
-	public boolean hasNext() {
-		this.initialiseStream();
-		return (eventIndex<eventList.size());
-	}
+  public OutcomeEqualiserEventStream(ClassificationEventStream originalEventStream, double multiple) {
+    super();
+    this.originalEventStream = originalEventStream;
+    this.multiple = multiple;
+  }
 
-	void initialiseStream() {
-		if (eventList==null) {
-			Map<String,List<ClassificationEvent>> eventOutcomeMap = new HashMap<String, List<ClassificationEvent>>();
-			while (originalEventStream.hasNext())
-			{
-				ClassificationEvent event = originalEventStream.next();
-				List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(event.getClassification());
-				if (eventsPerOutcome==null) {
-					eventsPerOutcome = new ArrayList<ClassificationEvent>();
-					eventOutcomeMap.put(event.getClassification(), eventsPerOutcome);
-				}
-				eventsPerOutcome.add(event);
-			}
-			
-			int minSize = Integer.MAX_VALUE;
-			String minOutcome = "";
-			for (String outcome : eventOutcomeMap.keySet()) {
-				int size = eventOutcomeMap.get(outcome).size();
-				if (size < minSize) {
-					minSize = size;
-					minOutcome = outcome;
-				}
-			}
-			
-			Random random = new Random(new Date().getTime());
+  @Override
+  public ClassificationEvent next() {
+    ClassificationEvent event = eventList.get(eventIndex);
+    eventIndex++;
+    return event;
+  }
 
-			eventList = new ArrayList<ClassificationEvent>();
-			eventList.addAll(eventOutcomeMap.get(minOutcome));
-			
-			int maxSize = (int) ((double)minSize * multiple);
-			for (String outcome : eventOutcomeMap.keySet()) {
-				if (outcome.equals(minOutcome))
-					continue;
-				List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(outcome);
-				if (eventsPerOutcome.size()<=maxSize)
-					eventList.addAll(eventsPerOutcome);
-				else {
-					Set<Integer> usedUp = new TreeSet<Integer>();
-					for (int i=0;i<maxSize;i++) {
-						if (i>=eventsPerOutcome.size())
-							break;
-						int index = random.nextInt(eventsPerOutcome.size());
-						while (usedUp.contains(index))
-							index = random.nextInt(eventsPerOutcome.size());
-						usedUp.add(index);
-						
-						ClassificationEvent event = eventsPerOutcome.get(index);
-						eventList.add(event);
-					} // next randomly selected event
-				}
-			}
-		}
-	}
+  @Override
+  public boolean hasNext() throws TalismaneException, IOException {
+    this.initialiseStream();
+    return (eventIndex < eventList.size());
+  }
 
-	@Override
-	public Map<String, String> getAttributes() {
-		return originalEventStream.getAttributes();
-	}
+  void initialiseStream() throws TalismaneException, IOException {
+    if (eventList == null) {
+      Map<String, List<ClassificationEvent>> eventOutcomeMap = new HashMap<String, List<ClassificationEvent>>();
+      while (originalEventStream.hasNext()) {
+        ClassificationEvent event = originalEventStream.next();
+        List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(event.getClassification());
+        if (eventsPerOutcome == null) {
+          eventsPerOutcome = new ArrayList<ClassificationEvent>();
+          eventOutcomeMap.put(event.getClassification(), eventsPerOutcome);
+        }
+        eventsPerOutcome.add(event);
+      }
+
+      int minSize = Integer.MAX_VALUE;
+      String minOutcome = "";
+      for (String outcome : eventOutcomeMap.keySet()) {
+        int size = eventOutcomeMap.get(outcome).size();
+        if (size < minSize) {
+          minSize = size;
+          minOutcome = outcome;
+        }
+      }
+
+      Random random = new Random(new Date().getTime());
+
+      eventList = new ArrayList<ClassificationEvent>();
+      eventList.addAll(eventOutcomeMap.get(minOutcome));
+
+      int maxSize = (int) (minSize * multiple);
+      for (String outcome : eventOutcomeMap.keySet()) {
+        if (outcome.equals(minOutcome))
+          continue;
+        List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(outcome);
+        if (eventsPerOutcome.size() <= maxSize)
+          eventList.addAll(eventsPerOutcome);
+        else {
+          Set<Integer> usedUp = new TreeSet<Integer>();
+          for (int i = 0; i < maxSize; i++) {
+            if (i >= eventsPerOutcome.size())
+              break;
+            int index = random.nextInt(eventsPerOutcome.size());
+            while (usedUp.contains(index))
+              index = random.nextInt(eventsPerOutcome.size());
+            usedUp.add(index);
+
+            ClassificationEvent event = eventsPerOutcome.get(index);
+            eventList.add(event);
+          } // next randomly selected event
+        }
+      }
+    }
+  }
+
+  @Override
+  public Map<String, String> getAttributes() {
+    return originalEventStream.getAttributes();
+  }
 }

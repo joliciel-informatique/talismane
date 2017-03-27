@@ -48,77 +48,77 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public class TextFileMultivaluedResource implements ExternalResource<List<WeightedOutcome<String>>> {
-	private static final long serialVersionUID = 1L;
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TextFileMultivaluedResource.class);
-	Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
+  private static final long serialVersionUID = 1L;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(TextFileMultivaluedResource.class);
+  Map<String, List<WeightedOutcome<String>>> resultsMap = new HashMap<String, List<WeightedOutcome<String>>>();
 
-	private String name;
+  private String name;
 
-	public TextFileMultivaluedResource(String fileName, Scanner scanner) {
-		this.name = fileName;
+  public TextFileMultivaluedResource(String fileName, Scanner scanner) {
+    this.name = fileName;
 
-		int numParts = -1;
-		int i = 1;
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.equals("Type: KeyMultiValue"))
-				continue;
-			if (line.length() > 0 && !line.startsWith("#")) {
-				StringBuilder sb = new StringBuilder();
-				String[] parts = line.split("\t");
-				if (parts.length == 1 && line.startsWith("Name: ")) {
-					this.name = line.substring("Name: ".length());
-					i++;
-					continue;
-				}
-				if (numParts < 0)
-					numParts = parts.length;
-				if (parts.length != numParts)
-					throw new JolicielException("Wrong number of elements on line " + i + " in file: " + fileName);
+    int numParts = -1;
+    int i = 1;
+    while (scanner.hasNextLine()) {
+      String line = scanner.nextLine();
+      if (line.equals("Type: KeyMultiValue"))
+        continue;
+      if (line.length() > 0 && !line.startsWith("#")) {
+        StringBuilder sb = new StringBuilder();
+        String[] parts = line.split("\t");
+        if (parts.length == 1 && line.startsWith("Name: ")) {
+          this.name = line.substring("Name: ".length());
+          i++;
+          continue;
+        }
+        if (numParts < 0)
+          numParts = parts.length;
+        if (parts.length != numParts)
+          throw new JolicielException("Wrong number of elements on line " + i + " in file: " + fileName);
 
-				for (int j = 0; j < numParts - 2; j++) {
-					sb.append(parts[j]);
-					sb.append("|");
-				}
-				String key = sb.toString();
-				List<WeightedOutcome<String>> resultList = resultsMap.get(key);
-				if (resultList == null) {
-					resultList = new ArrayList<WeightedOutcome<String>>(1);
-					resultsMap.put(key, resultList);
-				}
-				String outcome = parts[numParts - 2];
-				double weight = Double.parseDouble(parts[numParts - 1]);
-				resultList.add(new WeightedOutcome<String>(outcome, weight));
+        for (int j = 0; j < numParts - 2; j++) {
+          sb.append(parts[j]);
+          sb.append("|");
+        }
+        String key = sb.toString();
+        List<WeightedOutcome<String>> resultList = resultsMap.get(key);
+        if (resultList == null) {
+          resultList = new ArrayList<WeightedOutcome<String>>(1);
+          resultsMap.put(key, resultList);
+        }
+        String outcome = parts[numParts - 2];
+        double weight = Double.parseDouble(parts[numParts - 1]);
+        resultList.add(new WeightedOutcome<String>(outcome, weight));
 
-			}
-			i++;
-		}
+      }
+      i++;
+    }
 
-	}
+  }
 
-	@Override
-	public List<WeightedOutcome<String>> getResult(List<String> keyElements) {
-		StringBuilder sb = new StringBuilder();
-		for (String keyElement : keyElements) {
-			sb.append(keyElement);
-			sb.append("|");
-		}
-		String key = sb.toString();
-		List<WeightedOutcome<String>> resultList = null;
+  @Override
+  public List<WeightedOutcome<String>> getResult(List<String> keyElements) {
+    StringBuilder sb = new StringBuilder();
+    for (String keyElement : keyElements) {
+      sb.append(keyElement);
+      sb.append("|");
+    }
+    String key = sb.toString();
+    List<WeightedOutcome<String>> resultList = null;
 
-		resultList = resultsMap.get(key);
+    resultList = resultsMap.get(key);
 
-		return resultList;
-	}
+    return resultList;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
 }

@@ -18,17 +18,15 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-
 public enum SentenceDetectorOutcome {
-	/**
-	 * The current symbol represents the end of a sentence.
-	 */
-	IS_BOUNDARY,
-	
-	/**
-	 * The current symbol does not represent the end of a sentence.
-	 */
-	IS_NOT_BOUNDARY;
-	
-	
+  /**
+   * The current symbol represents the end of a sentence.
+   */
+  IS_BOUNDARY,
+
+  /**
+   * The current symbol does not represent the end of a sentence.
+   */
+  IS_NOT_BOUNDARY;
+
 }

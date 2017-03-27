@@ -20,6 +20,6 @@ package com.joliciel.talismane.languageDetector;
 
 import com.joliciel.talismane.machineLearning.features.Feature;
 
-public interface LanguageDetectorFeature<T> extends Feature<String,T> {
+public interface LanguageDetectorFeature<T> extends Feature<String, T> {
 
 }

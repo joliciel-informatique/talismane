@@ -22,54 +22,56 @@ package com.joliciel.talismane.tokeniser.features;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.AbstractCachableFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 /**
  * An Abstract base class for intrinsic features.
+ * 
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<TokenWrapper,Y> implements TokenFeature<Y> {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokenFeature.class);
-	private TokenAddressFunction<TokenWrapper> addressFunction;
-	
-	@Override
-	protected final FeatureResult<Y> checkInCache(TokenWrapper context, RuntimeEnvironment env) {
-		return context.getToken().getResultFromCache(this, env);
-	}
+public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<TokenWrapper, Y>implements TokenFeature<Y> {
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractTokenFeature.class);
+  private TokenAddressFunction<TokenWrapper> addressFunction;
 
-	@Override
-	protected final void putInCache(TokenWrapper context, FeatureResult<Y> result, RuntimeEnvironment env) {
-		context.getToken().putResultInCache(this, result, env);
-	}
+  @Override
+  protected final FeatureResult<Y> checkInCache(TokenWrapper context, RuntimeEnvironment env) throws TalismaneException {
+    return context.getToken().getResultFromCache(this, env);
+  }
 
-	protected TokenAddressFunction<TokenWrapper> getAddressFunction() {
-		return addressFunction;
-	}
+  @Override
+  protected final void putInCache(TokenWrapper context, FeatureResult<Y> result, RuntimeEnvironment env) throws TalismaneException {
+    context.getToken().putResultInCache(this, result, env);
+  }
 
-	protected void setAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.addressFunction = addressFunction;
-		String name = this.getName();
-		if (name.endsWith(")")) {
-			name = name.substring(0, name.length()-1) + "," + addressFunction.getName() + ")";
-		} else {
-			name = name + "(" + addressFunction.getName() + ")";
-		}
-		this.setName(name);
-	}
+  protected TokenAddressFunction<TokenWrapper> getAddressFunction() {
+    return addressFunction;
+  }
 
-	protected TokenWrapper getToken(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		if (this.addressFunction==null) {
-			return tokenWrapper;
-		} else {
-			FeatureResult<TokenWrapper> tokenResult = addressFunction.check(tokenWrapper, env);
-			if (tokenResult==null)
-				return null;
-			return tokenResult.getOutcome();
-		}
-	}
-	
+  protected void setAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.addressFunction = addressFunction;
+    String name = this.getName();
+    if (name.endsWith(")")) {
+      name = name.substring(0, name.length() - 1) + "," + addressFunction.getName() + ")";
+    } else {
+      name = name + "(" + addressFunction.getName() + ")";
+    }
+    this.setName(name);
+  }
+
+  protected TokenWrapper getToken(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    if (this.addressFunction == null) {
+      return tokenWrapper;
+    } else {
+      FeatureResult<TokenWrapper> tokenResult = addressFunction.check(tokenWrapper, env);
+      if (tokenResult == null)
+        return null;
+      return tokenResult.getOutcome();
+    }
+  }
+
 }

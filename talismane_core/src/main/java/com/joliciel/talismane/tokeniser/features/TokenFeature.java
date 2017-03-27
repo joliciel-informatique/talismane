@@ -21,9 +21,11 @@ package com.joliciel.talismane.tokeniser.features;
 import com.joliciel.talismane.machineLearning.features.Feature;
 
 /**
- * A feature which tests a Token, ignoring any context (e.g. the history of current tagging decisions by a learner).
+ * A feature which tests a Token, ignoring any context (e.g. the history of
+ * current tagging decisions by a learner).
+ * 
  * @author Assaf Urieli
  *
  */
-public interface TokenFeature<Y> extends Feature<TokenWrapper,Y> {
+public interface TokenFeature<Y> extends Feature<TokenWrapper, Y> {
 }

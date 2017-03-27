@@ -27,21 +27,21 @@ import opennlp.model.AbstractModelReader;
 import opennlp.model.BinaryFileDataReader;
 
 class MaxentModelReaderWrapper extends AbstractModelReader {
-	AbstractModelReader reader = null;
-	
-	public MaxentModelReaderWrapper(InputStream inputStream) {
-		super(new BinaryFileDataReader(inputStream));
-		reader = new GISModelReader(super.dataReader);
-	}
+  AbstractModelReader reader = null;
 
-	@Override
-	public void checkModelType() throws IOException {
-		reader.checkModelType();
-	}
+  public MaxentModelReaderWrapper(InputStream inputStream) {
+    super(new BinaryFileDataReader(inputStream));
+    reader = new GISModelReader(super.dataReader);
+  }
 
-	@Override
-	public AbstractModel constructModel() throws IOException {
-		return reader.constructModel();
-	}
+  @Override
+  public void checkModelType() throws IOException {
+    reader.checkModelType();
+  }
+
+  @Override
+  public AbstractModel constructModel() throws IOException {
+    return reader.constructModel();
+  }
 
 }

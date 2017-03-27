@@ -1,0 +1,90 @@
+# And http://www.surdeanu.info/mihai/teaching/ista555-fall13/readings/PennTreebankConstituents.html#Function
+# But final list is derived from the actual penn-to-dep files
+# Dependency labels for English.
+# Extended Constituent-to-dependency Conversion for English
+# From Richard Johansson and Pierre Nugues
+# May 25-26, 2007, Tartu, Estonia
+# Proceedings of NODALIDA 2007
+# http://nlp.cs.lth.se/software/treebank_converter/
+
+ADV	(adverbial) - marks a constituent other than ADVP or PP when it is used adverbially (e.g. NPs or free ("headless" relatives). . However, constituents that themselves are modifying an ADVP generally do not get -ADV. If a more specific tag is available (for example, -TMP) then it is used alone and -ADV is implied. 
+ADV-GAP
+AMOD
+AMOD-GAP
+APPO
+BNF	(benefactive) - marks the beneficiary of an action (attaches to NP or PP). This tag is used only when (1) the verb can undergo dative shift and (2) the prepositional variant (with the same meaning) uses for. The prepositional objects of dative-shifting verbs with other prepositions than for (such as to or of) are annotated -DTV.
+#CLF	(cleft) - marks it-clefts ("true clefts") and may be added to the labels S, SINV, or SQ.
+#CLR	(closely related) - marks constituents that occupy some middle ground between arguments and adjunct of the verb phrase. These roughly correspond to "predication adjuncts", prepositional ditransitives, and some "phrasel verbs". 
+CONJ
+COORD
+DEP
+DEP-GAP
+DIR	(direction) - marks adverbials that answer the questions "from where?" and "to where?" It implies motion, which can be metaphorical as in "...rose 5 pts. to 57-1/2" or "increased 70% to 5.8 billion yen" -DIR is most often used with verbs of motion/transit and financial verbs.
+DIR-GAP
+DIR-OPRD
+DIR-PRD
+DTV	(dative) - marks the dative object in the unshifted form of the double object construction. If the preposition introducing the "dative" object is for, it is considered benefactive (-BNF). -DTV (and -BNF) is only used after verbs that can undergo dative shift.
+DTV-GAP
+#EXP	expletive
+EXT	(extent) - marks adverbial phrases that describe the spatial extent of an activity. -EXT was incorporated primarily for cases of movement in financial space, but is also used in analogous situations elsewhere. Obligatory complements do not receive -EXT. Words such as fully and completely are absolutes and do not receive -EXT. 
+EXT-GAP
+EXTR
+EXTR-GAP
+#GAP	gapping
+GAP-LGS
+GAP-LOC
+GAP-LOC-PRD
+GAP-MNR
+GAP-NMOD
+GAP-OBJ
+GAP-OPRD
+GAP-PMOD
+GAP-PRD
+GAP-PRP
+GAP-PUT
+GAP-SBJ
+GAP-SUB
+GAP-TMP
+GAP-VC
+#HLN	(headline) - marks headlines and datelines. Note that headlines and datelines always constitute a unit of text that is structurally independent from the following sentence.
+IM
+#IOBJ
+LGS	(logical subject) - is used to mark the logical subject in passives. It attaches to the NP object of by and not to the PP node itself.
+LOC	(locative) - marks adverbials that indicate place/setting of the event. -LOC may also indicate metaphorical location. There is likely to be some varation in the use of -LOC due to differing annotator interpretations. In cases where the annotator is faced with a choice between -LOC or -TMP, the default is -LOC. In cases involving SBAR, SBAR should not receive -LOC. -LOC has some uses that are not adverbial, such as with place names that are adjoined to other NPs and NAC-LOC premodifiers of NPs. 
+LOC-MNR
+LOC-OPRD
+LOC-PRD
+LOC-TMP
+MNR	(manner) - marks adverbials that indicate manner, including instrument phrases.
+MNR-PRD
+MNR-TMP
+NAME
+NMOD
+#NOM	(nominal) - marks free ("headless") relatives and gerunds when they act nominally.
+OBJ
+OPRD
+P	punctuation	Punctuation
+PMOD
+POSTHON
+PRD	(predicate) - marks any predicate that is not VP. In the do so construction, the so is annotated as a predicate.
+PRD-PRP
+PRD-TMP
+PRN
+PRP	(purpose or reason) - marks purpose or reason clauses and PPs.
+PRT
+PUT	- marks the locative complement of put. 
+ROOT
+#ROOT-FRAG
+#ROOT-S
+#ROOT-SBARQ
+#ROOT-SQ
+SBJ	(surface subject) - marks the structural surface subject of both matrix and embedded clauses, including those with null subjects.
+SUB
+SUFFIX
+TITLE
+TMP	(temporal) - marks temporal or aspectual adverbials that answer the questions when, how often, or how long. It has some uses that are not strictly adverbial, auch as with dates that modify other NPs at S- or VP-level. In cases of apposition involving SBAR, the SBAR should not be labeled -TMP. Only in "financialspeak," and only when the dominating PP is a PP-DIR, may temporal modifiers be put at PP object level. Note that -TMP is not used in possessive phrases. 
+#TPC	("topicalized") - marks elements that appear before the subject in a declarative sentence, but in two cases only: 1. if the front element is associated with a *T* in the position of the gap. 2. if the fronted element is left-dislocated (i.e. it is associated with a resumptive pronoun in the position of the gap). 
+#TTL	(title) - is attached to the top node of a title when this title appears inside running text. -TTL implies -NOM. The internal structure of the title is bracketed as usual.
+VC
+#VMOD
+VOC	(vocative) - marks nouns of address, regardless of their position in the sentence. It is not coindexed to the subject and not get -TPC when it is sentence-initial.

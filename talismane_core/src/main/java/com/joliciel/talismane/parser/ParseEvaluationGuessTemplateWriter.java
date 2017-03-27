@@ -18,42 +18,37 @@
 //////////////////////////////////////////////////////////////////////////////package com.joliciel.talismane.parser;
 package com.joliciel.talismane.parser;
 
-import java.io.Reader;
-import java.io.Writer;
+import java.io.IOException;
 import java.util.List;
 
-import com.joliciel.talismane.output.FreemarkerTemplateWriter;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTagSequence;
 
 /**
- * Simply a wrapper for the FreemarkerTemplateWriter, writing the best guess
- * using a freemarker template.
+ * Simply a wrapper for the ParseConfigurationProcessor, writing the best guess
+ * using the processor.
+ * 
  * @author Assaf Urieli
  *
  */
-public class ParseEvaluationGuessTemplateWriter implements
-		ParseEvaluationObserver {
-	FreemarkerTemplateWriter freemarkerTemplateWriter;
-	Writer writer;
-	
-	public ParseEvaluationGuessTemplateWriter(Writer writer, Reader templateReader) {
-		freemarkerTemplateWriter = new FreemarkerTemplateWriter(templateReader);
-		this.writer = writer;
-	}
-	
-	@Override
-	public void onParseEnd(ParseConfiguration realConfiguration,
-			List<ParseConfiguration> guessedConfigurations) {
-		freemarkerTemplateWriter.onNextParseConfiguration(guessedConfigurations.get(0), writer);
-	}
+public class ParseEvaluationGuessTemplateWriter implements ParseEvaluationObserver {
+  private final ParseConfigurationProcessor processor;
 
-	@Override
-	public void onEvaluationComplete() {
-		freemarkerTemplateWriter.onCompleteParse();
-	}
+  public ParseEvaluationGuessTemplateWriter(ParseConfigurationProcessor processor) {
+    this.processor = processor;
+  }
 
-	@Override
-	public void onParseStart(ParseConfiguration realConfiguration,
-			List<PosTagSequence> posTagSequences) {
-	}
+  @Override
+  public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException {
+    processor.onNextParseConfiguration(guessedConfigurations.get(0));
+  }
+
+  @Override
+  public void onEvaluationComplete() throws IOException {
+    processor.onCompleteParse();
+  }
+
+  @Override
+  public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences) {
+  }
 }

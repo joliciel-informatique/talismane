@@ -21,50 +21,60 @@ package com.joliciel.talismane.lexicon;
 import java.util.List;
 import java.util.Set;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.posTagger.PosTagSet;
 
-
 /**
- * An interface for retrieving lexical information from a lexicon, including pos-tag specific information.
+ * An interface for retrieving lexical information from a lexicon, including
+ * pos-tag specific information.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface PosTaggerLexicon extends Lexicon {
-	/**
-	 * For a given word, an ordered set of all postags to be considered in tagging (using the natural ordering for postags).
-	 * @param word the word being considered
-	 * @return List&lt;PosTag&gt;
-	 */
-	public Set<PosTag> findPossiblePosTags(String word);
-	
-	/**
-	 * Find the lexical entries corresponding to a given postag for this word.
-	 * @return an ordered Set containing the lexical entries, or an empty set if none found
-	 */
-	public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag);
-	
+  /**
+   * For a given word, an ordered set of all postags to be considered in tagging
+   * (using the natural ordering for postags).
+   * 
+   * @param word
+   *          the word being considered
+   * @return List&lt;PosTag&gt;
+   * @throws TalismaneException
+   */
+  public Set<PosTag> findPossiblePosTags(String word) throws TalismaneException;
 
-	/**
-	 * Return all lexical entries for a given lemma and postag.
-	 */
-	public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag);
+  /**
+   * Find the lexical entries corresponding to a given postag for this word.
+   * 
+   * @return an ordered Set containing the lexical entries, or an empty set if
+   *         none found
+   */
+  public List<LexicalEntry> findLexicalEntries(String word, PosTag posTag);
 
-	/**
-	 * Return an entry for the same lemma as the lexical entry provided, matching the criteria provided (posTag, gender, number).
-	 */
-	public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number);
+  /**
+   * Return all lexical entries for a given lemma and postag.
+   */
+  public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag);
 
-	
-	/**
-	 * The PosTagSet to use when retrieving postags for a given word.
-	 */
-	public abstract PosTagSet getPosTagSet();
-	public abstract void setPosTagSet(PosTagSet posTagSet);
-	
-	/**
-	 * The PosTagMapper to use when selecting the possible pos-tags for a given lexical entry.
-	 */
-	public PosTagMapper getPosTagMapper();
-	public void setPosTagMapper(PosTagMapper posTagMapper);
+  /**
+   * Return an entry for the same lemma as the lexical entry provided, matching
+   * the criteria provided (posTag, gender, number).
+   */
+  public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number);
+
+  /**
+   * The PosTagSet to use when retrieving postags for a given word.
+   */
+  public abstract PosTagSet getPosTagSet();
+
+  public abstract void setPosTagSet(PosTagSet posTagSet);
+
+  /**
+   * The PosTagMapper to use when selecting the possible pos-tags for a given
+   * lexical entry.
+   */
+  public PosTagMapper getPosTagMapper();
+
+  public void setPosTagMapper(PosTagMapper posTagMapper);
 }

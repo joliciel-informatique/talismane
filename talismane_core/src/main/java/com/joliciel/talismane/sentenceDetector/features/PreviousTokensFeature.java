@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -25,35 +26,35 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
 
-public final class PreviousTokensFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
-	IntegerFeature<PossibleSentenceBoundary> nFeature;
-	
-	public PreviousTokensFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
-		this.nFeature = nFeature;
-		this.setName(super.getName() + "(" + nFeature.getName() + ")");
-	}
-	
-	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
-		FeatureResult<String> result = null;
-		
-		FeatureResult<Integer> nResult = nFeature.check(context, env);
-		if (nResult!=null) {
-			int n = nResult.getOutcome();
-			int tokenIndex = context.getTokenIndexWithWhitespace();
-			String tokenString = "";
-			for (int i=0;i<=n;i++) {
-				int relativeIndex = tokenIndex - i;
-				if (relativeIndex>=0) {
-					Token token = context.getTokenSequence().listWithWhiteSpace().get(relativeIndex);
-					tokenString = token.getOriginalText() + tokenString;
-				} else {
-					tokenString = "[[START]]" + tokenString;
-				}
-			}
-			result = this.generateResult(tokenString);
-		} // have n
+public final class PreviousTokensFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
+  IntegerFeature<PossibleSentenceBoundary> nFeature;
 
-		return result;
-	}
+  public PreviousTokensFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
+    this.nFeature = nFeature;
+    this.setName(super.getName() + "(" + nFeature.getName() + ")");
+  }
+
+  @Override
+  public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> result = null;
+
+    FeatureResult<Integer> nResult = nFeature.check(context, env);
+    if (nResult != null) {
+      int n = nResult.getOutcome();
+      int tokenIndex = context.getTokenIndexWithWhitespace();
+      String tokenString = "";
+      for (int i = 0; i <= n; i++) {
+        int relativeIndex = tokenIndex - i;
+        if (relativeIndex >= 0) {
+          Token token = context.getTokenSequence().listWithWhiteSpace().get(relativeIndex);
+          tokenString = token.getOriginalText() + tokenString;
+        } else {
+          tokenString = "[[START]]" + tokenString;
+        }
+      }
+      result = this.generateResult(tokenString);
+    } // have n
+
+    return result;
+  }
 }

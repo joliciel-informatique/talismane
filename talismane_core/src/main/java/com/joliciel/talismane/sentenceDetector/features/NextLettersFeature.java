@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -25,34 +26,36 @@ import com.joliciel.talismane.machineLearning.features.StringFeature;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
 /**
- * Returns the <i>n</i> exact characters immediately following the current boundary.
+ * Returns the <i>n</i> exact characters immediately following the current
+ * boundary.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class NextLettersFeature extends AbstractSentenceDetectorFeature<String> implements StringFeature<PossibleSentenceBoundary> {
-	IntegerFeature<PossibleSentenceBoundary> nFeature;
-	
-	public NextLettersFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
-		this.nFeature = nFeature;
-		this.setName(super.getName() + "(" + nFeature.getName() + ")");
-	}
-	
-	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
-		FeatureResult<String> result = null;
-		
-		FeatureResult<Integer> nResult = nFeature.check(context, env);
-		if (nResult!=null) {
-			int n = nResult.getOutcome();
-	
-			int endIndex = context.getIndex() + n;
-			if (endIndex<context.getText().length()) {
-				String nextLetters = context.getText().substring(context.getIndex()+1, endIndex+1);
-				result = this.generateResult(nextLetters);
-			}
-		} // have n
+public final class NextLettersFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
+  IntegerFeature<PossibleSentenceBoundary> nFeature;
 
-		return result;
-	}
+  public NextLettersFeature(IntegerFeature<PossibleSentenceBoundary> nFeature) {
+    this.nFeature = nFeature;
+    this.setName(super.getName() + "(" + nFeature.getName() + ")");
+  }
+
+  @Override
+  public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<String> result = null;
+
+    FeatureResult<Integer> nResult = nFeature.check(context, env);
+    if (nResult != null) {
+      int n = nResult.getOutcome();
+
+      int endIndex = context.getIndex() + n;
+      if (endIndex < context.getText().length()) {
+        String nextLetters = context.getText().subSequence(context.getIndex() + 1, endIndex + 1).toString();
+        result = this.generateResult(nextLetters);
+      }
+    } // have n
+
+    return result;
+  }
 
 }

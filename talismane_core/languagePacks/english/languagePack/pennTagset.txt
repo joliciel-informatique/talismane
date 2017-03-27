@@ -1,0 +1,41 @@
+# Penn Treebank tagset
+Penn Treebank
+en
+CC	Coordinating conjunction	CLOSED
+CD	Cardinal number	CLOSED
+DT	Determiner	CLOSED
+EX	Existential there	CLOSED
+FW	Foreign word	OPEN
+IN	Preposition or subordinating conjunction	CLOSED
+JJ	Adjective	OPEN
+JJR	Adjective, comparative	OPEN
+JJS	Adjective, superlative	OPEN
+LS	List item marker	OPEN
+MD	Modal	CLOSED
+NN	Noun, singular or mass	OPEN
+NNS	Noun, plural	OPEN
+NNP	Proper noun, singular	OPEN
+NNPS	Proper noun, plural	OPEN
+PDT	Predeterminer	CLOSED
+POS	Possessive ending	CLOSED
+PRP	Personal pronoun	CLOSED
+PRP$	Possessive pronoun	CLOSED
+RB	Adverb	OPEN
+RBR	Adverb, comparative	OPEN
+RBS	Adverb, superlative	OPEN
+RP	Particle	CLOSED
+SYM	Symbol	OPEN
+TO	to	CLOSED
+UH	Interjection	OPEN
+VB	Verb, base form	OPEN
+VBD	Verb, past tense	OPEN
+VBG	Verb, gerund or present participle	OPEN
+VBN	Verb, past participle	OPEN
+VBP	Verb, non-3rd person singular present	OPEN
+VBZ	Verb, 3rd person singular present	OPEN
+WDT	Wh-determiner	CLOSED
+WP	Wh-pronoun	CLOSED
+WP$	Possessive wh-pronoun	CLOSED
+WRB	Wh-adverb	CLOSED
+# Added this for punctuation
+P	Punctuation	PUNCTUATION

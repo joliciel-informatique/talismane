@@ -25,36 +25,37 @@ import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 import com.joliciel.talismane.tokeniser.Token;
 
 /**
- * Returns true if the current token is "." and the previous token is a capital letter,
- * false otherwise.
+ * Returns true if the current token is "." and the previous token is a capital
+ * letter, false otherwise.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class InitialsFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {	
-	@Override
-	public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> result = null;
-		
-		if (context.getBoundaryString().equals(".")) {
-			int tokenIndex = context.getTokenIndexWithWhitespace();
+public final class InitialsFeature extends AbstractSentenceDetectorFeature<Boolean>implements BooleanFeature<PossibleSentenceBoundary> {
+  @Override
+  public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+    FeatureResult<Boolean> result = null;
 
-			Token previousToken = null;
-			if (tokenIndex>0)
-				previousToken = context.getTokenSequence().listWithWhiteSpace().get(tokenIndex-1);
-			
-			String isInitial = null;
-			
-			if (previousToken!=null&&Character.isUpperCase(previousToken.getOriginalText().charAt(0))) {
-				if (previousToken.getOriginalText().length()==1)
-					isInitial = "true";
-			}
-			
-			if (isInitial!=null) {
-				result = this.generateResult(true);
-			}
-			
-		}
-		return result;
-	}
+    if (context.getBoundaryString().equals(".")) {
+      int tokenIndex = context.getTokenIndexWithWhitespace();
+
+      Token previousToken = null;
+      if (tokenIndex > 0)
+        previousToken = context.getTokenSequence().listWithWhiteSpace().get(tokenIndex - 1);
+
+      String isInitial = null;
+
+      if (previousToken != null && Character.isUpperCase(previousToken.getOriginalText().charAt(0))) {
+        if (previousToken.getOriginalText().length() == 1)
+          isInitial = "true";
+      }
+
+      if (isInitial != null) {
+        result = this.generateResult(true);
+      }
+
+    }
+    return result;
+  }
 
 }

@@ -1,0 +1,144 @@
+DefaultParameters	caseSensitive=false
+
+###################################
+#### URLs and e-mail addresses ####
+###################################
+RegexTokenAnnotator	\b((\w+[.-])*\w+@(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw)))\b	analysisText=$MAIL$	featureType=url	posTag=NPP	lemma=$MAIL$	caseSensitive=true
+RegexTokenAnnotator	\b((((http)|(https)|(ftp)|(irc)|(ircs)|(gopher)|(telnet)|(nntp)|(worldwind)|(mailto)|(news)|(svn)|(git)|(mms)):\/\/)?(\w+[.-])*\w+\.((aero)|(asia)|(biz)|(cat)|(com)|(coop)|(info)|(int)|(jobs)|(mobi)|(museum)|(name)|(net)|(org)|(pro)|(tel)|(travel)|(xxx)|(edu)|(gov)|(mil)|(ac)|(ad)|(ae)|(af)|(ag)|(ai)|(al)|(am)|(an)|(ao)|(aq)|(ar)|(as)|(at)|(au)|(aw)|(ax)|(az)|(ba)|(bb)|(bd)|(be)|(bf)|(bg)|(bh)|(bi)|(bj)|(bm)|(bn)|(bo)|(br)|(bs)|(bt)|(bv)|(bw)|(by)|(bz)|(ca)|(cc)|(cd)|(cf)|(cg)|(ch)|(ci)|(ck)|(cl)|(cm)|(cn)|(co)|(cr)|(cs)|(cu)|(cv)|(cx)|(cy)|(cz)|(dd)|(de)|(dj)|(dk)|(dm)|(do)|(dz)|(ec)|(ee)|(eg)|(eh)|(er)|(es)|(et)|(eu)|(fi)|(fj)|(fk)|(fm)|(fo)|(fr)|(ga)|(gb)|(gd)|(ge)|(gf)|(gg)|(gh)|(gi)|(gl)|(gm)|(gn)|(gp)|(gq)|(gr)|(gs)|(gt)|(gu)|(gw)|(gy)|(hk)|(hm)|(hn)|(hr)|(ht)|(hu)|(id)|(ie)|(il)|(im)|(in)|(io)|(iq)|(ir)|(is)|(it)|(je)|(jm)|(jo)|(jp)|(ke)|(kg)|(kh)|(ki)|(km)|(kn)|(kp)|(kr)|(kw)|(ky)|(kz)|(la)|(lb)|(lc)|(li)|(lk)|(lr)|(ls)|(lt)|(lu)|(lv)|(ly)|(ma)|(mc)|(md)|(me)|(mg)|(mh)|(mk)|(ml)|(mm)|(mn)|(mo)|(mp)|(mq)|(mr)|(ms)|(mt)|(mu)|(mv)|(mw)|(mx)|(my)|(mz)|(na)|(nc)|(ne)|(nf)|(ng)|(ni)|(nl)|(no)|(np)|(nr)|(nu)|(nz)|(om)|(pa)|(pe)|(pf)|(pg)|(ph)|(pk)|(pl)|(pm)|(pn)|(pr)|(ps)|(pt)|(pw)|(py)|(qa)|(re)|(ro)|(rs)|(ru)|(rw)|(sa)|(sb)|(sc)|(sd)|(se)|(sg)|(sh)|(si)|(sj)|(sk)|(sl)|(sm)|(sn)|(so)|(sr)|(ss)|(st)|(su)|(sv)|(sx)|(sy)|(sz)|(tc)|(td)|(tf)|(tg)|(th)|(tj)|(tk)|(tl)|(tm)|(tn)|(to)|(tp)|(tr)|(tt)|(tv)|(tw)|(tz)|(ua)|(ug)|(uk)|(us)|(uy)|(uz)|(va)|(vc)|(ve)|(vg)|(vi)|(vn)|(vu)|(wf)|(ws)|(ye)|(yt)|(yu)|(za)|(zm)|(zw))((\/)?\/[\w%.#-]+)*\/?)(\?[\w%.#-_]+(=[\w%.#-/:_]*\w(&[\w%.#-_]+=[\w%.#-/:_]*)?\w)*)?\b	analysisText=$URL$	featureType=url	posTag=NPP	lemma=$URL$	caseSensitive=true
+
+RegexTokenAnnotator	\bi\.e\.\B	posTag=P	lemmaType=originalLower
+RegexTokenAnnotator	\be\.g\.\B	posTag=P	lemmaType=originalLower
+
+########################
+#### Pronouns ##########
+########################
+RegexTokenAnnotator	\b(-t-elle)(?!\-)\b	replacement=elle	group=1
+RegexTokenAnnotator	\b(-t-elles)(?!\-)\b	replacement=elles	group=1
+RegexTokenAnnotator	\b(-t-il)(?!\-)\b	replacement=il	group=1
+RegexTokenAnnotator	\b(-t-ils)(?!\-)\b	replacement=ils	group=1
+RegexTokenAnnotator	\b(-t-on)(?!\-)\b	replacement=on	group=1
+RegexTokenAnnotator	\b(-ce)(?!\-)\b	replacement=ce	group=1
+RegexTokenAnnotator	\b(-je)(?!\-)\b	replacement=je	group=1
+RegexTokenAnnotator	\b(-en)(?!\-)\b	replacement=en	group=1
+RegexTokenAnnotator	\b(-la)(?!\-)\b	replacement=la	group=1
+RegexTokenAnnotator	\b(-le)(?!\-)\b	replacement=le	group=1
+RegexTokenAnnotator	\b(-les)(?!\-)\b	replacement=les	group=1
+RegexTokenAnnotator	\b(-leur)(?!\-)\b	replacement=leur	group=1
+RegexTokenAnnotator	\b(-lui)(?!\-)\b	replacement=lui	group=1
+RegexTokenAnnotator	\b(-moi)(?!\-)\b	replacement=moi	group=1
+RegexTokenAnnotator	\b(-nous)(?!\-)\b	replacement=nous	group=1
+RegexTokenAnnotator	\b(-toi)(?!\-)\b	replacement=toi	group=1
+RegexTokenAnnotator	\b(-tu)(?!\-)\b	replacement=tu	group=1	posTag=CLS
+RegexTokenAnnotator	\b(-y)(?!\-)\b	replacement=y	group=1
+RegexTokenAnnotator	\b(-elle)(?!\-)\b	replacement=elle	group=1
+RegexTokenAnnotator	\b(-elles)(?!\-)\b	replacement=elles	group=1
+RegexTokenAnnotator	\b(-il)(?!\-)\b	replacement=il	group=1
+RegexTokenAnnotator	\b(-ils)(?!\-)\b	replacement=ils	group=1
+RegexTokenAnnotator	\b(-on)(?!\-)\b	replacement=on	group=1
+RegexTokenAnnotator	\b(?!rendez)\w+(-vous)(?!\-)\b	replacement=vous	group=1
+RegexTokenAnnotator	\b(-m['’])(?!\-)\b	replacement=moi	group=1
+RegexTokenAnnotator	\b(-t['’])(?!\-)\b	replacement=toi	group=1
+
+###################
+### Apostrophes ###
+###################
+RegexTokenAnnotator	\b(chefs?|mains?|ma[iî]tres?|hors)[ -]d['’]((oe|œ)uvres?)\b	caseSensitive=false
+RegexTokenAnnotator	\bprud['’](homme|hommes|homal|homaux|homale|homales)\b	caseSensitive=false
+RegexTokenAnnotator	\b(trompes?)[ -]l['’](oe|œ)il\b	caseSensitive=false
+RegexTokenAnnotator	\baujourd['’]hui\b	lemma=aujourd'hui	caseSensitive=false
+RegexTokenAnnotator	\brendez-vous\b	lemma=rendez-vous	caseSensitive=false
+RegexTokenAnnotator	\bc['’]	replacement=ce	lemma=ce	caseSensitive=false
+RegexTokenAnnotator	\bd['’]	replacement=de	lemma=de	caseSensitive=false
+RegexTokenAnnotator	\bj['’]	replacement=je	lemma=je	caseSensitive=false
+RegexTokenAnnotator	\bl['’]	replacement=l'	lemma=le	caseSensitive=false
+RegexTokenAnnotator	\bm['’]	replacement=me	lemma=me	caseSensitive=false
+RegexTokenAnnotator	\bn['’]	replacement=ne	lemma=ne	caseSensitive=false
+RegexTokenAnnotator	\bs['’]	replacement=se	lemma=se	caseSensitive=false
+RegexTokenAnnotator	\bt['’]	replacement=te	lemma=te	caseSensitive=false
+RegexTokenAnnotator	\bqu['’]	replacement=que	lemma=que	caseSensitive=false
+RegexTokenAnnotator	\bjusqu['’]	replacement=jusque	lemma=jusque	caseSensitive=false
+RegexTokenAnnotator	\bpuisqu['’]	replacement=puisque	lemma=puisque	caseSensitive=false
+RegexTokenAnnotator	\blorsqu['’]	replacement=lorsque	lemma=lorsque	caseSensitive=false
+RegexTokenAnnotator	\bquelqu['’]	replacement=quelque	lemma=quelque	caseSensitive=false
+RegexTokenAnnotator	\bquoiqu['’]	replacement=quoique	lemma=quoique	caseSensitive=false
+
+#################
+#### Numbers ####
+#################
+RegexTokenAnnotator	\b(\d\d\-){3,4}\d\d\b	analysisText=$TEL$	posTag=NPP	lemma=$TEL$
+RegexTokenAnnotator	\b(\d\d ){3,4}\d\d\b	analysisText=$TEL$	posTag=NPP	lemma=$TEL$
+RegexTokenAnnotator	\b(\d\d.){3,4}\d\d\b	analysisText=$TEL$	posTag=NPP	lemma=$TEL$
+RegexTokenAnnotator	\b[1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b[1-9][0-9]*[,\.][0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b0[,\.][0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\s(,[0-9]+(e[-+]?[0-9]+)?)\b	analysisText=999	featureType=number	lemmaType=originalLower	group=1
+RegexTokenAnnotator	\b([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+][1-9][0-9]{0,2}([ \.][0-9]{3})+,[0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+][1-9][0-9]*[,\.][0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]0?[,\.][0-9]+(e[-+]?[0-9]+)?\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]([1-9][0-9]{0,2}([ \.][0-9]{3})+)\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+ \d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+ \d+/\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([12][0-9][0-9][0-9])\b	analysisText=1999-2000	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])-([0-9][0-9])\b	analysisText=1999-2000	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b([12][0-9][0-9][0-9])\b	analysisText=1999	featureType=date	lemmaType=originalLower
+RegexTokenAnnotator	\b\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	[-+]\d+\b	analysisText=999	featureType=number	lemmaType=originalLower
+RegexTokenAnnotator	\b(deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|trente|quarante|cinquante|soixante|septante|octante|huitante|nonante|cent|mille|un million|un milliard)([ \-](un|et[ \-]un|et[ \-]une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|vingts|trente|quarante|cinquante|soixante|septante|octante|huitante|nonante|cent|cents|mille|milles|million|millions|milliard|milliards))*\b	analysisText=deux	featureType=number	lemmaType=originalLower
+
+##########################
+#### Grouping time expressions ####
+##########################
+RegexTokenAnnotator	\blun\.	analysisText=lundi	replacement=lundi
+RegexTokenAnnotator	\bmar\.	analysisText=lundi	replacement=mardi
+RegexTokenAnnotator	\bmerc\.	analysisText=lundi	replacement=mercredi
+RegexTokenAnnotator	\bjeu\.	analysisText=lundi	replacement=jeudi
+RegexTokenAnnotator	\bven\.	analysisText=lundi	replacement=vendredi
+RegexTokenAnnotator	\bsam\.	analysisText=lundi	replacement=samedi
+RegexTokenAnnotator	\bdim\.	analysisText=lundi	replacement=dimanche
+RegexTokenAnnotator	\b(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b	analysisText=lundi
+RegexTokenAnnotator	\bjanv\.	analysisText=janvier	replacement=janvier
+RegexTokenAnnotator	\b(Jj]anvier|janv)\b	analysisText=janvier	replacement=janvier
+RegexTokenAnnotator	\bf[eé]v\.	analysisText=janvier	replacement=février
+RegexTokenAnnotator	\b(f[eé]vrier|f[eé]v)\b	analysisText=janvier	replacement=février
+RegexTokenAnnotator	\b(mars)\b	analysisText=janvier	replacement=mars
+RegexTokenAnnotator	\bavr\.	analysisText=janvier	replacement=avril
+RegexTokenAnnotator	\b(avril|avr)\b	analysisText=janvier	replacement=avril
+RegexTokenAnnotator	\b(mai)\b	analysisText=janvier	replacement=mai
+RegexTokenAnnotator	\b(juin)\b	analysisText=janvier	replacement=juin
+RegexTokenAnnotator	\bjuil\.	analysisText=janvier	replacement=juillet
+RegexTokenAnnotator	\b(juillet|juil)\b	analysisText=janvier	replacement=juillet
+RegexTokenAnnotator	\bao[uû]t\b	analysisText=janvier	replacement=août
+RegexTokenAnnotator	\bsept\.	analysisText=janvier	replacement=septembre
+RegexTokenAnnotator	\b(septembre|sept)\b	analysisText=janvier	replacement=septembre
+RegexTokenAnnotator	\boct\.	analysisText=janvier	replacement=octobre
+RegexTokenAnnotator	\b(octobre|oct)\b	analysisText=janvier	replacement=octobre
+RegexTokenAnnotator	\bnov\.	analysisText=janvier	replacement=novembre
+RegexTokenAnnotator	\b(novembre|nov)\b	analysisText=janvier	replacement=novembre
+RegexTokenAnnotator	\bd[eé]c\.	analysisText=janvier	replacement=décembre
+RegexTokenAnnotator	\b(d[eé]cembre|déc)\b	analysisText=janvier	replacement=décembre
+
+##############################
+# Punctuation
+
+#### various quotes ####
+RegexTokenAnnotator	[“”„‟″‴]	replacement="	posTag=PONCT	featureType=punctuation
+RegexTokenAnnotator	(« )|«	replacement="	posTag=PONCT	featureType=punctuation
+RegexTokenAnnotator	( »)|»	replacement="	posTag=PONCT	featureType=punctuation
+
+RegexTokenAnnotator	[•◦◘◙■□▢▣◆◇◈◉▪▫●○◎□▪▫◊○◌●◦•]	replacement=*	posTag=PONCT	featureType=punctuation
+
+# Long dashes are assumed to always tokenise separately
+RegexTokenAnnotator	[‒–—―]	replacement=-	posTag=PONCT	featureType=punctuation
+
+# General punctuation regex
+# Note that RegexAttributeAnnotators will only affect a token if the entire token is matched within the filter
+# In other words, if the token contains the match, the match has no effect
+# Thus, a token such as "j'" will not get the posTag for punctuation
+RegexTokenAnnotator	[.!?]+	posTag=PONCT	lemmaType=originalLower	featureType=punctuation
+RegexAttributeAnnotator	[\p{IsPunctuation}&&[^%$#@§¶‰‱]]+	posTag=PONCT	lemmaType=originalLower	featureType=punctuation
+
+#########################
+### Text normalisation ##
+#########################
+TextReplaceFilter	QuoteNormaliser	LowercaseKnownFirstWordFilter	UppercaseSeriesFilter

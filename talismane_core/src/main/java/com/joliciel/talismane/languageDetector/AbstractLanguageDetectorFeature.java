@@ -26,11 +26,12 @@ import com.joliciel.talismane.machineLearning.features.AbstractFeature;
 
 /**
  * An Abstract base class for language detector features.
+ * 
  * @author Assaf Urieli
  *
  */
-public abstract class AbstractLanguageDetectorFeature<Y> extends AbstractFeature<String,Y> implements LanguageDetectorFeature<Y> {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractLanguageDetectorFeature.class);
+public abstract class AbstractLanguageDetectorFeature<Y> extends AbstractFeature<String, Y>implements LanguageDetectorFeature<Y> {
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractLanguageDetectorFeature.class);
 
 }

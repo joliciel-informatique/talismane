@@ -30,33 +30,33 @@ import com.joliciel.talismane.parser.TransitionSystem;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * A StringCollectionFeature returning all of the dependency labels in the current transition system.
+ * A StringCollectionFeature returning all of the dependency labels in the
+ * current transition system.
+ * 
  * @author Assaf Urieli
  *
  */
-public final class DependencyLabelSetFeature extends AbstractStringCollectionFeature<ParseConfigurationWrapper> 
-	implements NeedsTalismaneSession
-{
-	private TalismaneSession talismaneSession;
-	
-	
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-			ParseConfigurationWrapper context, RuntimeEnvironment env) {
-		TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
-		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-		for (String label : transitionSystem.getDependencyLabels()) {
-			resultList.add(new WeightedOutcome<String>(label, 1.0));
-		}
-		return this.generateResult(resultList);
-	}
+public final class DependencyLabelSetFeature extends AbstractStringCollectionFeature<ParseConfigurationWrapper>implements NeedsTalismaneSession {
+  private TalismaneSession talismaneSession;
 
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(ParseConfigurationWrapper context, RuntimeEnvironment env) {
+    TransitionSystem transitionSystem = talismaneSession.getTransitionSystem();
+    List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+    for (String label : transitionSystem.getDependencyLabelSet().getDependencyLabels()) {
+      resultList.add(new WeightedOutcome<String>(label, 1.0));
+    }
+    return this.generateResult(resultList);
+  }
 
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return talismaneSession;
+  }
+
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+  }
 
 }

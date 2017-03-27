@@ -18,72 +18,60 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * If the condition returns true, return null, else return the result of the feature provided.
+ * If the condition returns true, return null, else return the result of the
+ * feature provided.
+ * 
  * @author Assaf Urieli
  *
  */
-public class NullIfIntegerFeature<T> extends AbstractCachableFeature<T,Integer> implements
-		IntegerFeature<T> {
-	private BooleanFeature<T> condition;
-	private IntegerFeature<T> resultFeature;
-	
-	public NullIfIntegerFeature(BooleanFeature<T> condition, IntegerFeature<T> resultFeature) {
-		super();
-		this.condition = condition;
-		this.resultFeature = resultFeature;
-		this.setName("NullIf(" + condition.getName() + "," + resultFeature.getName() + ")");
-	}
+public class NullIfIntegerFeature<T> extends AbstractCachableFeature<T, Integer>implements IntegerFeature<T> {
+  private BooleanFeature<T> condition;
+  private IntegerFeature<T> resultFeature;
 
-	@Override
-	protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Integer> featureResult = null;
-		
-		FeatureResult<Boolean> conditionResult = condition.check(context, env);
-		if (conditionResult!=null) {
-			boolean conditionOutcome = conditionResult.getOutcome();
-			if (!conditionOutcome) {
-				FeatureResult<Integer> thenFeatureResult = resultFeature.check(context, env);
-				if (thenFeatureResult!=null) {
-					int result = thenFeatureResult.getOutcome();
-					featureResult = this.generateResult(result);
-				}
-			}
-		}
-		
-		return featureResult;
-		
-	}
+  public NullIfIntegerFeature(BooleanFeature<T> condition, IntegerFeature<T> resultFeature) {
+    super();
+    this.condition = condition;
+    this.resultFeature = resultFeature;
+    this.setName("NullIf(" + condition.getName() + "," + resultFeature.getName() + ")");
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String cond = builder.addFeatureVariable(condition, "condition");
-		
-		builder.append("if (" + cond + "!=null && !" + cond + ") {");
-		builder.indent();
-		String result = 	builder.addFeatureVariable(resultFeature, "result");
-		
-		builder.append(		variableName + " = " + result + ";");
-		builder.outdent();
-		builder.append("}");
+  @Override
+  protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Integer> featureResult = null;
 
-		return true;
-	}
-	
-	public BooleanFeature<T> getCondition() {
-		return condition;
-	}
+    FeatureResult<Boolean> conditionResult = condition.check(context, env);
+    if (conditionResult != null) {
+      boolean conditionOutcome = conditionResult.getOutcome();
+      if (!conditionOutcome) {
+        FeatureResult<Integer> thenFeatureResult = resultFeature.check(context, env);
+        if (thenFeatureResult != null) {
+          int result = thenFeatureResult.getOutcome();
+          featureResult = this.generateResult(result);
+        }
+      }
+    }
 
-	public IntegerFeature<T> getResultFeature() {
-		return resultFeature;
-	}
+    return featureResult;
 
-	public void setCondition(BooleanFeature<T> condition) {
-		this.condition = condition;
-	}
+  }
 
-	public void setResultFeature(IntegerFeature<T> resultFeature) {
-		this.resultFeature = resultFeature;
-	}
-	
+  public BooleanFeature<T> getCondition() {
+    return condition;
+  }
+
+  public IntegerFeature<T> getResultFeature() {
+    return resultFeature;
+  }
+
+  public void setCondition(BooleanFeature<T> condition) {
+    this.condition = condition;
+  }
+
+  public void setResultFeature(IntegerFeature<T> resultFeature) {
+    this.resultFeature = resultFeature;
+  }
+
 }

@@ -39,95 +39,81 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 import com.joliciel.talismane.machineLearning.ClassificationObserver;
 import com.joliciel.talismane.machineLearning.DecisionMaker;
 import com.joliciel.talismane.machineLearning.MachineLearningAlgorithm;
-import com.joliciel.talismane.utils.LogUtils;
 import com.typesafe.config.Config;
 
 public class PerceptronClassificationModel extends AbstractMachineLearningModel implements ClassificationModel {
-	private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassificationModel.class);
-	PerceptronModelParameters params = null;
-	PerceptronDecisionMaker decisionMaker;
-	private transient Set<String> outcomeNames = null;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(PerceptronClassificationModel.class);
+  PerceptronModelParameters params = null;
+  PerceptronDecisionMaker decisionMaker;
+  private transient Set<String> outcomeNames = null;
 
-	public PerceptronClassificationModel() {
-	}
+  public PerceptronClassificationModel() {
+  }
 
-	public PerceptronClassificationModel(PerceptronModelParameters params, Config config, Map<String, List<String>> descriptors) {
-		super(config, descriptors);
-		this.params = params;
-	}
+  public PerceptronClassificationModel(PerceptronModelParameters params, Config config, Map<String, List<String>> descriptors) {
+    super(config, descriptors);
+    this.params = params;
+  }
 
-	@Override
-	public DecisionMaker getDecisionMaker() {
-		if (decisionMaker == null) {
-			decisionMaker = new PerceptronDecisionMaker(params, this.getPerceptronScoring());
-		}
-		return decisionMaker;
-	}
+  @Override
+  public DecisionMaker getDecisionMaker() {
+    if (decisionMaker == null) {
+      decisionMaker = new PerceptronDecisionMaker(params, this.getPerceptronScoring());
+    }
+    return decisionMaker;
+  }
 
-	@Override
-	public ClassificationObserver getDetailedAnalysisObserver(File file) {
-		return new PerceptronDetailedAnalysisWriter(decisionMaker, file);
-	}
+  @Override
+  public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException {
+    return new PerceptronDetailedAnalysisWriter(decisionMaker, file);
+  }
 
-	@Override
-	public MachineLearningAlgorithm getAlgorithm() {
-		return MachineLearningAlgorithm.Perceptron;
-	}
+  @Override
+  public MachineLearningAlgorithm getAlgorithm() {
+    return MachineLearningAlgorithm.Perceptron;
+  }
 
-	@Override
-	public void loadModelFromStream(InputStream inputStream) {
-		try {
-			ObjectInputStream in = new ObjectInputStream(inputStream);
-			params = (PerceptronModelParameters) in.readObject();
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
+  @Override
+  public void loadModelFromStream(InputStream inputStream) throws ClassNotFoundException, IOException {
+    ObjectInputStream in = new ObjectInputStream(inputStream);
+    params = (PerceptronModelParameters) in.readObject();
+  }
 
-	}
+  @Override
+  public void writeModelToStream(OutputStream outputStream) throws IOException {
+    ObjectOutputStream out = new ObjectOutputStream(outputStream);
 
-	@Override
-	public void writeModelToStream(OutputStream outputStream) {
-		try {
-			ObjectOutputStream out = new ObjectOutputStream(outputStream);
+    out.writeObject(params);
+  }
 
-			out.writeObject(params);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
+  @Override
+  public boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
+    return false;
+  }
 
-	@Override
-	public boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) {
-		return false;
-	}
+  @Override
+  public void writeDataToStream(ZipOutputStream zos) {
+    // nothing to do
+  }
 
-	@Override
-	public void writeDataToStream(ZipOutputStream zos) {
-		// nothing to do
-	}
+  @Override
+  public Set<String> getOutcomeNames() {
+    if (this.outcomeNames == null) {
+      this.outcomeNames = new TreeSet<String>(this.params.getOutcomes());
+    }
+    return this.outcomeNames;
+  }
 
-	@Override
-	public Set<String> getOutcomeNames() {
-		if (this.outcomeNames == null) {
-			this.outcomeNames = new TreeSet<String>(this.params.getOutcomes());
-		}
-		return this.outcomeNames;
-	}
+  @Override
+  protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
+  }
 
-	@Override
-	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
-	}
+  public PerceptronScoring getPerceptronScoring() {
+    return (PerceptronScoring) this.getModelAttributes().get("scoring");
+  }
 
-	public PerceptronScoring getPerceptronScoring() {
-		return (PerceptronScoring) this.getModelAttributes().get("scoring");
-	}
-
-	@Override
-	public void onLoadComplete() {
-	}
+  @Override
+  public void onLoadComplete() {
+  }
 }

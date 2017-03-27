@@ -21,71 +21,66 @@ package com.joliciel.talismane.utils;
 import java.io.Serializable;
 
 /**
- * An outcome/value pair that orders automatically in descending order (from highest to lowest weight).
+ * An outcome/value pair that orders automatically in descending order (from
+ * highest to lowest weight).
+ * 
  * @author Assaf Urieli
  *
  */
 public class WeightedOutcome<T> implements Comparable<WeightedOutcome<T>>, Serializable {
-	private static final long serialVersionUID = 6970237630148498476L;
-	private T outcome;
-	private double weight;
-	private transient double weightLog;
-	private transient boolean weightLogCalculated = false;
-	
-	public WeightedOutcome(T outcome, double weight) {
-		this.outcome = outcome;
-		this.weight = weight;
-	}
-	
-	
-	public void setOutcome(T outcome) {
-		this.outcome = outcome;
-	}
+  private static final long serialVersionUID = 6970237630148498476L;
+  private T outcome;
+  private double weight;
+  private transient double weightLog;
+  private transient boolean weightLogCalculated = false;
 
+  public WeightedOutcome(T outcome, double weight) {
+    this.outcome = outcome;
+    this.weight = weight;
+  }
 
-	public void setWeight(double value) {
-		this.weight = value;
-		this.weightLogCalculated = false;
-	}
+  public void setOutcome(T outcome) {
+    this.outcome = outcome;
+  }
 
+  public void setWeight(double value) {
+    this.weight = value;
+    this.weightLogCalculated = false;
+  }
 
-	public T getOutcome() {
-		return outcome;
-	}
+  public T getOutcome() {
+    return outcome;
+  }
 
+  public double getWeight() {
+    return weight;
+  }
 
-	public double getWeight() {
-		return weight;
-	}
-	
-	public double getWeightLog() {
-		if (!weightLogCalculated) {
-			weightLog = Math.log(weight);
-			weightLogCalculated = true;
-		}
-		return weightLog;
-	}
+  public double getWeightLog() {
+    if (!weightLogCalculated) {
+      weightLog = Math.log(weight);
+      weightLogCalculated = true;
+    }
+    return weightLog;
+  }
 
+  @Override
+  public int compareTo(WeightedOutcome<T> o) {
+    if (this.getWeight() < o.getWeight()) {
+      return 1;
+    } else if (this.getWeight() > o.getWeight()) {
+      return -1;
+    } else {
+      int nameCompare = this.getOutcome().toString().compareTo(o.getOutcome().toString());
+      if (nameCompare != 0)
+        return nameCompare;
+      return this.hashCode() - o.hashCode();
+    }
+  }
 
-	@Override
-	public int compareTo(WeightedOutcome<T> o) {
-		if (this.getWeight()<o.getWeight()) {
-			return 1;
-		} else if (this.getWeight()>o.getWeight()) {
-			return -1;
-		} else {
-			int nameCompare = this.getOutcome().toString().compareTo(o.getOutcome().toString());
-			if (nameCompare!=0) return nameCompare;
-			return this.hashCode()-o.hashCode();
-		}
-	}
+  @Override
+  public String toString() {
+    return "[" + outcome + "," + weight + "]";
+  }
 
-
-	@Override
-	public String toString() {
-		return "[" + outcome + "," + weight
-				+ "]";
-	}
-	
-	
 }

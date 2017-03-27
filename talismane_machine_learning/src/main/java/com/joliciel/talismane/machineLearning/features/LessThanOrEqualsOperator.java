@@ -18,67 +18,54 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns operand1 &lt;= operand2.
+ * 
  * @author Assaf Urieli
  *
  */
-public class LessThanOrEqualsOperator<T> extends AbstractCachableFeature<T,Boolean> implements
-		BooleanFeature<T> {
-	private DoubleFeature<T> operand1;
-	private DoubleFeature<T> operand2;
-	
-	public LessThanOrEqualsOperator(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
-		super();
-		this.operand1 = operand1;
-		this.operand2 = operand2;
-		this.setName("(" + operand1.getName() + "<=" + operand2.getName() + ")");
-	}
+public class LessThanOrEqualsOperator<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  private DoubleFeature<T> operand1;
+  private DoubleFeature<T> operand2;
 
-	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		FeatureResult<Double> operand1Result = operand1.check(context, env);
-		FeatureResult<Double> operand2Result = operand2.check(context, env);
-		
-		if (operand1Result!=null && operand2Result!=null) {
-			boolean result = operand1Result.getOutcome() <= operand2Result.getOutcome();
-			featureResult = this.generateResult(result);
-		}
-		
-		return featureResult;	
-	}
+  public LessThanOrEqualsOperator(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
+    super();
+    this.operand1 = operand1;
+    this.operand2 = operand2;
+    this.setName("(" + operand1.getName() + "<=" + operand2.getName() + ")");
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String operand1Name = builder.addFeatureVariable(operand1, "operand");
-		String operand2Name = builder.addFeatureVariable(operand2, "operand");
-		
-		builder.append("if (" + operand1Name + "!=null && " + operand2Name + "!=null) {");
-		builder.indent();
-		builder.append(variableName + "=" + operand1Name + "<=" + operand2Name + ";");
-		builder.outdent();
-		builder.append("}");
-		
-		return true;
-	}
-	
-	public DoubleFeature<T> getOperand1() {
-		return operand1;
-	}
+  @Override
+  protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-	public DoubleFeature<T> getOperand2() {
-		return operand2;
-	}
+    FeatureResult<Double> operand1Result = operand1.check(context, env);
+    FeatureResult<Double> operand2Result = operand2.check(context, env);
 
-	public void setOperand1(DoubleFeature<T> operand1) {
-		this.operand1 = operand1;
-	}
+    if (operand1Result != null && operand2Result != null) {
+      boolean result = operand1Result.getOutcome() <= operand2Result.getOutcome();
+      featureResult = this.generateResult(result);
+    }
 
-	public void setOperand2(DoubleFeature<T> operand2) {
-		this.operand2 = operand2;
-	}
+    return featureResult;
+  }
 
+  public DoubleFeature<T> getOperand1() {
+    return operand1;
+  }
+
+  public DoubleFeature<T> getOperand2() {
+    return operand2;
+  }
+
+  public void setOperand1(DoubleFeature<T> operand1) {
+    this.operand1 = operand1;
+  }
+
+  public void setOperand2(DoubleFeature<T> operand2) {
+    this.operand2 = operand2;
+  }
 
 }

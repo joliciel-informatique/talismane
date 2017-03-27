@@ -18,43 +18,38 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns true if a feature is null, false otherwise.
+ * 
  * @author Assaf Urieli
  *
  */
-public class IsNullFeature<T> extends AbstractCachableFeature<T, Boolean> implements BooleanFeature<T> {
-	Feature<T,?> testFeature;
-	
-	public IsNullFeature(Feature<T,?> testFeature) {
-		super();
-		this.testFeature = testFeature;
-		this.setName("IsNull(" + testFeature.getName() + ")");
-	}
+public class IsNullFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  Feature<T, ?> testFeature;
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		FeatureResult<?> result1 = testFeature.check(context, env);
-		featureResult = this.generateResult(result1==null);
-		return featureResult;
-	}
+  public IsNullFeature(Feature<T, ?> testFeature) {
+    super();
+    this.testFeature = testFeature;
+    this.setName("IsNull(" + testFeature.getName() + ")");
+  }
 
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		String test = builder.addFeatureVariable(testFeature, "test");
-		builder.append(variableName + " = (" + test + "==null);");
-		return true;
-	}
-	
-	public Feature<T, ?> getTestFeature() {
-		return testFeature;
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-	public void setTestFeature(Feature<T, ?> testFeature) {
-		this.testFeature = testFeature;
-	}
-	
-	
+    FeatureResult<?> result1 = testFeature.check(context, env);
+    featureResult = this.generateResult(result1 == null);
+    return featureResult;
+  }
+
+  public Feature<T, ?> getTestFeature() {
+    return testFeature;
+  }
+
+  public void setTestFeature(Feature<T, ?> testFeature) {
+    this.testFeature = testFeature;
+  }
+
 }

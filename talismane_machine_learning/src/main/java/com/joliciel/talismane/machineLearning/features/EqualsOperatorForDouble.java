@@ -18,72 +18,59 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
  * Returns operand1 == operand2, with an error margin of 0.0001 is allowed.
  * 
  * @author Assaf Urieli
  *
  */
-public class EqualsOperatorForDouble<T> extends AbstractCachableFeature<T,Boolean> implements
-		BooleanFeature<T> {
-	private DoubleFeature<T> operand1;
-	private DoubleFeature<T> operand2;
-	private double sigma = 0.0001;
-	
-	public EqualsOperatorForDouble(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
-		super();
-		this.operand1 = operand1;
-		this.operand2 = operand2;
-		this.setName(operand1.getName() + "==" + operand2.getName());
-	}
-	
-	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Boolean> featureResult = null;
-		
-		FeatureResult<Double> operand1Result = operand1.check(context, env);
-		if (operand1Result!=null) {
-			FeatureResult<Double> operand2Result = operand2.check(context, env);
-			
-			if (operand2Result!=null) {
-				double diff = Math.abs(operand1Result.getOutcome() - operand2Result.getOutcome());
-				boolean result = diff <= sigma;
-				featureResult = this.generateResult(result);
-			}
-		}
-		
-		return featureResult;
-		
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder,
-			String variableName) {
-		String op1 = builder.addFeatureVariable(operand1, "operand");
-		String op2 = builder.addFeatureVariable(operand2, "operand");
-		
-		builder.append("if (" + op1 + "!=null && " + op2 + "!=null) {");
-		builder.indent();
-		builder.append(		variableName + " = Math.abs(" + op1 + ".doubleValue()-" + op2 + ".doubleValue()) <= " + sigma + ";");
-		builder.outdent();
-		builder.append("}");
-		return true;
-	}
-	
-	public DoubleFeature<T> getOperand1() {
-		return operand1;
-	}
+public class EqualsOperatorForDouble<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
+  private DoubleFeature<T> operand1;
+  private DoubleFeature<T> operand2;
+  private double sigma = 0.0001;
 
-	public void setOperand1(DoubleFeature<T> operand1) {
-		this.operand1 = operand1;
-	}
+  public EqualsOperatorForDouble(DoubleFeature<T> operand1, DoubleFeature<T> operand2) {
+    super();
+    this.operand1 = operand1;
+    this.operand2 = operand2;
+    this.setName(operand1.getName() + "==" + operand2.getName());
+  }
 
-	public DoubleFeature<T> getOperand2() {
-		return operand2;
-	}
+  @Override
+  protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-	public void setOperand2(DoubleFeature<T> operand2) {
-		this.operand2 = operand2;
-	}
+    FeatureResult<Double> operand1Result = operand1.check(context, env);
+    if (operand1Result != null) {
+      FeatureResult<Double> operand2Result = operand2.check(context, env);
+
+      if (operand2Result != null) {
+        double diff = Math.abs(operand1Result.getOutcome() - operand2Result.getOutcome());
+        boolean result = diff <= sigma;
+        featureResult = this.generateResult(result);
+      }
+    }
+
+    return featureResult;
+
+  }
+
+  public DoubleFeature<T> getOperand1() {
+    return operand1;
+  }
+
+  public void setOperand1(DoubleFeature<T> operand1) {
+    this.operand1 = operand1;
+  }
+
+  public DoubleFeature<T> getOperand2() {
+    return operand2;
+  }
+
+  public void setOperand2(DoubleFeature<T> operand2) {
+    this.operand2 = operand2;
+  }
 
 }

@@ -18,14 +18,25 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.languageDetector;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
+import com.joliciel.talismane.utils.ConfigUtils;
+import com.typesafe.config.Config;
 
 /**
  * A default corpus reader which assumes one text per line.
@@ -33,160 +44,128 @@ import java.util.Scanner;
  * @author Assaf Urieli
  *
  */
-public class TextPerLineCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
-	private Scanner scanner;
-	private Locale currentLocale;
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
-	private int sentenceCount = 0;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
-	private int crossValidationSize = 0;
-	private String sentence = null;
-	private Map<Locale, Reader> readerMap;
-	private Iterator<Locale> localeIterator;
+public class TextPerLineCorpusReader extends AbstractAnnotatedCorpusReader implements LanguageDetectorAnnotatedCorpusReader {
+  private Scanner scanner;
+  private Locale currentLocale;
 
-	public TextPerLineCorpusReader(Map<Locale, Reader> readerMap) {
-		this.readerMap = readerMap;
-		this.localeIterator = readerMap.keySet().iterator();
-	}
+  private int sentenceCount = 0;
+  private String sentence = null;
+  private Map<Locale, Reader> readerMap;
+  private Iterator<Locale> localeIterator;
 
-	@Override
-	public boolean hasNextText() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
-			// we've reached the end, do nothing
-		} else {
-			while (sentence == null) {
-				if (scanner != null && !scanner.hasNextLine()) {
-					scanner.close();
-					scanner = null;
-				}
+  public TextPerLineCorpusReader(Config config, TalismaneSession session) throws IOException {
+    super(config, session);
+    String configPath = "language-corpus-map";
+    InputStream languageCorpusMapFile = ConfigUtils.getFileFromConfig(config, configPath);
+    try (Scanner languageCorpusMapScanner = new Scanner(new BufferedReader(new InputStreamReader(languageCorpusMapFile, "UTF-8")))) {
 
-				while (scanner == null) {
-					if (localeIterator.hasNext()) {
-						currentLocale = localeIterator.next();
-						Reader reader = readerMap.get(currentLocale);
-						scanner = new Scanner(reader);
-						if (scanner.hasNextLine()) {
-							break;
-						}
-						scanner.close();
-						scanner = null;
-					} else {
-						break;
-					}
-				}
-				if (scanner == null)
-					break;
+      this.readerMap = new HashMap<>();
+      while (languageCorpusMapScanner.hasNextLine()) {
+        String line = languageCorpusMapScanner.nextLine();
+        String[] parts = line.split("\t");
+        Locale locale = Locale.forLanguageTag(parts[0]);
+        String corpusPath = parts[1];
+        InputStream corpusFile = new FileInputStream(new File(corpusPath));
+        Reader corpusReader = new BufferedReader(new InputStreamReader(corpusFile, session.getInputCharset().name()));
+        readerMap.put(locale, corpusReader);
+      }
+    }
 
-				sentence = scanner.nextLine().trim();
-				sentence = sentence.toLowerCase(Locale.ENGLISH);
-				sentence = Normalizer.normalize(sentence, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    this.localeIterator = readerMap.keySet().iterator();
+  }
 
-				if (sentence.length() == 0) {
-					sentence = null;
-					continue;
-				}
+  public TextPerLineCorpusReader(Map<Locale, Reader> readerMap, TalismaneSession session) {
+    super(null, session);
+    this.readerMap = readerMap;
+    this.localeIterator = readerMap.keySet().iterator();
+  }
 
-				boolean includeMe = true;
+  @Override
+  public boolean hasNextText() {
+    if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
+      // we've reached the end, do nothing
+    } else {
+      while (sentence == null) {
+        if (scanner != null && !scanner.hasNextLine()) {
+          scanner.close();
+          scanner = null;
+        }
 
-				// check cross-validation
-				if (crossValidationSize > 0) {
-					if (includeIndex >= 0) {
-						if (sentenceCount % crossValidationSize != includeIndex) {
-							includeMe = false;
-						}
-					} else if (excludeIndex >= 0) {
-						if (sentenceCount % crossValidationSize == excludeIndex) {
-							includeMe = false;
-						}
-					}
-				}
+        while (scanner == null) {
+          if (localeIterator.hasNext()) {
+            currentLocale = localeIterator.next();
+            Reader reader = readerMap.get(currentLocale);
+            scanner = new Scanner(reader);
+            if (scanner.hasNextLine()) {
+              break;
+            }
+            scanner.close();
+            scanner = null;
+          } else {
+            break;
+          }
+        }
+        if (scanner == null)
+          break;
 
-				if (startSentence > sentenceCount) {
-					includeMe = false;
-				}
+        sentence = scanner.nextLine().trim();
+        sentence = sentence.toLowerCase(Locale.ENGLISH);
+        sentence = Normalizer.normalize(sentence, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
-				sentenceCount++;
+        if (sentence.length() == 0) {
+          sentence = null;
+          continue;
+        }
 
-				if (!includeMe) {
-					sentence = null;
-					continue;
-				}
+        boolean includeMe = true;
 
-			}
-		}
-		return sentence != null;
-	}
+        // check cross-validation
+        if (this.getCrossValidationSize() > 0) {
+          if (this.getIncludeIndex() >= 0) {
+            if (sentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
+              includeMe = false;
+            }
+          } else if (this.getExcludeIndex() >= 0) {
+            if (sentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
+              includeMe = false;
+            }
+          }
+        }
 
-	@Override
-	public LanguageTaggedText nextText() {
-		String currentSentence = sentence;
-		sentence = null;
-		LanguageTaggedText languageTaggedText = new LanguageTaggedText(currentSentence, currentLocale);
-		return languageTaggedText;
-	}
+        if (this.getStartSentence() > sentenceCount) {
+          includeMe = false;
+        }
 
-	@Override
-	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
+        sentenceCount++;
 
-		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
-		attributes.put("crossValidationSize", "" + this.crossValidationSize);
-		attributes.put("includeIndex", "" + this.includeIndex);
-		attributes.put("excludeIndex", "" + this.excludeIndex);
+        if (!includeMe) {
+          sentence = null;
+          continue;
+        }
 
-		return attributes;
-	}
+      }
+    }
+    return sentence != null;
+  }
 
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
+  @Override
+  public LanguageTaggedText nextText() {
+    String currentSentence = sentence;
+    sentence = null;
+    LanguageTaggedText languageTaggedText = new LanguageTaggedText(currentSentence, currentLocale);
+    return languageTaggedText;
+  }
 
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
+  @Override
+  public Map<String, String> getCharacteristics() {
+    Map<String, String> attributes = super.getCharacteristics();
 
-	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
+    return attributes;
+  }
 
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
-	}
+  @Override
+  public boolean hasNextSentence() {
+    return this.hasNextText();
+  }
 
 }

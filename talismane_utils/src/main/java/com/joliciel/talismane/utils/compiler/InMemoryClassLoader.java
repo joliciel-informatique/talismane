@@ -27,69 +27,67 @@ import java.util.Map;
 import javax.tools.JavaFileObject;
 
 /**
- * A class loader capable of handling in-memory classes -
- * otherwise it delegates to a parent class loader.
+ * A class loader capable of handling in-memory classes - otherwise it delegates
+ * to a parent class loader.
+ * 
  * @author Assaf Urieli
  *
  */
 final class InMemoryClassLoader extends ClassLoader {
-	private Map<String, JavaFileObject> classMap = new HashMap<String, JavaFileObject>();
+  private Map<String, JavaFileObject> classMap = new HashMap<String, JavaFileObject>();
 
-	InMemoryClassLoader(final ClassLoader parent) {
-		super(parent);
-	}
+  InMemoryClassLoader(final ClassLoader parent) {
+    super(parent);
+  }
 
-	@Override
-	protected Class<?> findClass(final String qualifiedName)
-	throws ClassNotFoundException {
-		JavaFileObject javaFileObject = classMap.get(qualifiedName);
-		if (javaFileObject != null) {
-			byte[] byteArray = ((InMemoryJavaFileObject) javaFileObject).getBytes();
-			return defineClass(qualifiedName, byteArray, 0, byteArray.length);
-		}
+  @Override
+  protected Class<?> findClass(final String qualifiedName) throws ClassNotFoundException {
+    JavaFileObject javaFileObject = classMap.get(qualifiedName);
+    if (javaFileObject != null) {
+      byte[] byteArray = ((InMemoryJavaFileObject) javaFileObject).getBytes();
+      return defineClass(qualifiedName, byteArray, 0, byteArray.length);
+    }
 
-		try {
-			Class<?> clazz = Class.forName(qualifiedName);
-			return clazz;
-		} catch (ClassNotFoundException nf) {
-			// do nothing
-		}
+    try {
+      Class<?> clazz = Class.forName(qualifiedName);
+      return clazz;
+    } catch (ClassNotFoundException nf) {
+      // do nothing
+    }
 
-		return super.findClass(qualifiedName);
-	}
+    return super.findClass(qualifiedName);
+  }
 
-	void putJavaFileObject(final String qualifiedClassName, final JavaFileObject javaFile) {
-		classMap.put(qualifiedClassName, javaFile);
-	}
+  void putJavaFileObject(final String qualifiedClassName, final JavaFileObject javaFile) {
+    classMap.put(qualifiedClassName, javaFile);
+  }
 
-	@Override
-	protected synchronized Class<?> loadClass(final String name, final boolean resolve)
-		throws ClassNotFoundException {
-		return super.loadClass(name, resolve);
-	}
+  @Override
+  protected synchronized Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+    return super.loadClass(name, resolve);
+  }
 
-	@Override
-	public InputStream getResourceAsStream(final String name) {
-		if (name.endsWith(".class")) {
-			String qualifiedClassName = name.substring(0, name.length() - ".class".length());
-			qualifiedClassName = qualifiedClassName.replace('/', '.');
-			InMemoryJavaFileObject javaFileObject = (InMemoryJavaFileObject) classMap.get(qualifiedClassName);
-			if (javaFileObject != null) {
-				return javaFileObject.openInputStream();
-			}
-		}
-		return super.getResourceAsStream(name);
-	}
-	
-	public Collection<JavaFileObject> list(String packageName) {
-		List<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
-		for (String qualifiedName : classMap.keySet()) {
-			if (qualifiedName.startsWith(packageName)) {
-				fileObjects.add(classMap.get(qualifiedName));
-			}
-		}
-		return fileObjects;
-	}
+  @Override
+  public InputStream getResourceAsStream(final String name) {
+    if (name.endsWith(".class")) {
+      String qualifiedClassName = name.substring(0, name.length() - ".class".length());
+      qualifiedClassName = qualifiedClassName.replace('/', '.');
+      InMemoryJavaFileObject javaFileObject = (InMemoryJavaFileObject) classMap.get(qualifiedClassName);
+      if (javaFileObject != null) {
+        return javaFileObject.openInputStream();
+      }
+    }
+    return super.getResourceAsStream(name);
+  }
 
+  public Collection<JavaFileObject> list(String packageName) {
+    List<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
+    for (String qualifiedName : classMap.keySet()) {
+      if (qualifiedName.startsWith(packageName)) {
+        fileObjects.add(classMap.get(qualifiedName));
+      }
+    }
+    return fileObjects;
+  }
 
 }

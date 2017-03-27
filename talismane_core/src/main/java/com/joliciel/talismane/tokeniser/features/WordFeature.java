@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,57 +27,59 @@ import com.joliciel.talismane.tokeniser.Token;
 
 /**
  * Returns true if token word is any one of the words provided.<br/>
+ * 
  * @author Assaf Urieli
  *
  */
-public final class WordFeature extends AbstractTokenFeature<Boolean> implements BooleanFeature<TokenWrapper> {
-	StringFeature<TokenWrapper>[] words = null;
+public final class WordFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
+  StringFeature<TokenWrapper>[] words = null;
 
-	@SafeVarargs
-	public WordFeature(StringFeature<TokenWrapper>... words) {
-		this.words = words;
-		String name = "Word(";
-		boolean firstWord = true;
-		for (StringFeature<TokenWrapper> word : words) {
-			if (!firstWord) name += ",";
-			name += word.getName();
-			firstWord = false;
-		}
-		name += ")";
-		this.setName(name);
-	}
-	
-	@SafeVarargs
-	public WordFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... words) {
-		this(words);
-		this.setAddressFunction(addressFunction);
-	}
-	
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
+  @SafeVarargs
+  public WordFeature(StringFeature<TokenWrapper>... words) {
+    this.words = words;
+    String name = "Word(";
+    boolean firstWord = true;
+    for (StringFeature<TokenWrapper> word : words) {
+      if (!firstWord)
+        name += ",";
+      name += word.getName();
+      firstWord = false;
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-		boolean matches = false;
-		for (StringFeature<TokenWrapper> word : words) {
-			FeatureResult<String> wordResult = word.check(innerWrapper, env);
-			if (wordResult!=null) {
-				String wordText = wordResult.getOutcome();
-				if (wordText.equals(token.getText())) {
-					matches = true;
-					break;
-				}
-			}
-		}
-		result = this.generateResult(matches);
-		
-		return result;
-	}
+  @SafeVarargs
+  public WordFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper>... words) {
+    this(words);
+    this.setAddressFunction(addressFunction);
+  }
 
-	public StringFeature<TokenWrapper>[] getWords() {
-		return words;
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
+
+    boolean matches = false;
+    for (StringFeature<TokenWrapper> word : words) {
+      FeatureResult<String> wordResult = word.check(innerWrapper, env);
+      if (wordResult != null) {
+        String wordText = wordResult.getOutcome();
+        if (wordText.equals(token.getAnalyisText())) {
+          matches = true;
+          break;
+        }
+      }
+    }
+    result = this.generateResult(matches);
+
+    return result;
+  }
+
+  public StringFeature<TokenWrapper>[] getWords() {
+    return words;
+  }
 }

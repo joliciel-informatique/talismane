@@ -12,15 +12,15 @@ import com.joliciel.talismane.tokeniser.features.TokenWrapper;
  */
 public interface PosTaggerContext extends TokenWrapper {
 
-	/**
-	 * The token being tested,.
-	 */
-	@Override
-	Token getToken();
+  /**
+   * The token being tested,.
+   */
+  @Override
+  Token getToken();
 
-	/**
-	 * The history of tags guessed up to now.
-	 */
-	PosTagSequence getHistory();
+  /**
+   * The history of tags guessed up to now.
+   */
+  PosTagSequence getHistory();
 
 }

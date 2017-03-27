@@ -1,10 +1,17 @@
 package com.joliciel.talismane.posTagger;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
+import com.typesafe.config.Config;
 
 /**
  * An interface for comparing two pos-tagged corpora, one of which is considered
@@ -14,61 +21,67 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class PosTagComparator {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(PosTagComparator.class);
-	private int sentenceCount = 0;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(PosTagComparator.class);
+  private final PosTagAnnotatedCorpusReader referenceCorpusReader;
+  private final PosTagAnnotatedCorpusReader evaluationCorpusReader;
 
-	private List<PosTagEvaluationObserver> observers = new ArrayList<PosTagEvaluationObserver>();
+  private final List<PosTagEvaluationObserver> observers;
 
-	/**
-	 * Evaluate the evaluation corpus against the reference corpus.
-	 * 
-	 * @param evaluationCorpusReader
-	 *            for reading manually tagged tokens from a corpus
-	 */
-	public void evaluate(PosTagAnnotatedCorpusReader referenceCorpusReader, PosTagAnnotatedCorpusReader evaluationCorpusReader) {
-		int sentenceIndex = 0;
-		while (referenceCorpusReader.hasNextPosTagSequence()) {
-			PosTagSequence realPosTagSequence = referenceCorpusReader.nextPosTagSequence();
-			PosTagSequence guessedPosTagSequence = evaluationCorpusReader.nextPosTagSequence();
+  public PosTagComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+      throws IOException, ClassNotFoundException, ReflectiveOperationException {
+    Config config = session.getConfig();
+    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 
-			List<PosTagSequence> guessedSequences = new ArrayList<PosTagSequence>();
-			guessedSequences.add(guessedPosTagSequence);
-			for (PosTagEvaluationObserver observer : this.observers) {
-				observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
-			}
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
-		}
+    this.referenceCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(referenceReader, posTaggerConfig.getConfig("input"), session);
 
-		for (PosTagEvaluationObserver observer : this.observers) {
-			observer.onEvaluationComplete();
-		}
-	}
+    this.evaluationCorpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(evalReader, posTaggerConfig.getConfig("evaluate"), session);
 
-	public List<PosTagEvaluationObserver> getObservers() {
-		return observers;
-	}
+    this.observers = PosTagEvaluationObserver.getObservers(outDir, session);
+  }
 
-	public void setObservers(List<PosTagEvaluationObserver> observers) {
-		this.observers = observers;
-	}
+  /**
+   * 
+   * @param referenceCorpusReader
+   *          for reading manually tagged tokens from a reference corpus
+   * 
+   * @param evaluationCorpusReader
+   *          for reading manually tagged tokens from another pos-tagged corpus
+   */
+  public PosTagComparator(PosTagAnnotatedCorpusReader referenceCorpusReader, PosTagAnnotatedCorpusReader evaluationCorpusReader) {
+    this.referenceCorpusReader = referenceCorpusReader;
+    this.evaluationCorpusReader = evaluationCorpusReader;
+    this.observers = new ArrayList<>();
+  }
 
-	public void addObserver(PosTagEvaluationObserver observer) {
-		this.observers.add(observer);
-	}
+  /**
+   * Evaluate the evaluation corpus against the reference corpus.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public void evaluate() throws TalismaneException, IOException {
+    while (referenceCorpusReader.hasNextSentence()) {
+      PosTagSequence realPosTagSequence = referenceCorpusReader.nextPosTagSequence();
+      PosTagSequence guessedPosTagSequence = evaluationCorpusReader.nextPosTagSequence();
 
-	/**
-	 * If set, will limit the maximum number of sentences that will be
-	 * evaluated. Default is 0 = all sentences.
-	 */
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
+      List<PosTagSequence> guessedSequences = new ArrayList<PosTagSequence>();
+      guessedSequences.add(guessedPosTagSequence);
+      for (PosTagEvaluationObserver observer : this.observers) {
+        observer.onNextPosTagSequence(realPosTagSequence, guessedSequences);
+      }
+    }
 
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
-	}
+    for (PosTagEvaluationObserver observer : this.observers) {
+      observer.onEvaluationComplete();
+    }
+  }
 
+  public List<PosTagEvaluationObserver> getObservers() {
+    return observers;
+  }
+
+  public void addObserver(PosTagEvaluationObserver observer) {
+    this.observers.add(observer);
+  }
 }

@@ -20,31 +20,25 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * Wrapper for an integer literal.
+ * 
  * @author Assaf Urieli
  *
  */
-public class IntegerLiteralFeature<T> extends AbstractFeature<T, Integer> implements
-		IntegerFeature<T> {
-	private int literal;
-	
-	public IntegerLiteralFeature(int literal) {
-		super();
-		this.literal = literal;
-		this.setName("" + literal);
-	}
+public class IntegerLiteralFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
+  private int literal;
 
-	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
-		return this.generateResult(literal);
-	}
+  public IntegerLiteralFeature(int literal) {
+    super();
+    this.literal = literal;
+    this.setName("" + literal);
+  }
 
-	public int getLiteral() {
-		return literal;
-	}
-	
-	@Override
-	public boolean addDynamicSourceCode(DynamicSourceCodeBuilder<T> builder, String variableName) {
-		builder.append(variableName + "=" + literal + ";");
-		return true;
-	}
+  @Override
+  public FeatureResult<Integer> check(T context, RuntimeEnvironment env) {
+    return this.generateResult(literal);
+  }
+
+  public int getLiteral() {
+    return literal;
+  }
 }

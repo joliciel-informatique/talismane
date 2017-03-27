@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
-
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
@@ -26,38 +26,38 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Checks whether a given pos-tagged token meets a certain criterion.<br/>
+ * 
  * @author Assaf Urieli
  *
  */
-public final class HistoryHasFeature<T> extends  AbstractPosTaggedTokenFeature<T,Boolean> implements BooleanFeature<T>   {
-	private BooleanFeature<PosTaggedTokenWrapper> criterion;
-		
-	public HistoryHasFeature(PosTaggedTokenAddressFunction<T> addressFunction, BooleanFeature<PosTaggedTokenWrapper> criterion) {
-		super(addressFunction);
-		this.criterion = criterion;
-		this.setName(super.getName() + "(" + this.criterion.getName() + ")");
+public final class HistoryHasFeature<T> extends AbstractPosTaggedTokenFeature<T, Boolean>implements BooleanFeature<T> {
+  private BooleanFeature<PosTaggedTokenWrapper> criterion;
 
-		this.setAddressFunction(addressFunction);
-	}
+  public HistoryHasFeature(PosTaggedTokenAddressFunction<T> addressFunction, BooleanFeature<PosTaggedTokenWrapper> criterion) {
+    super(addressFunction);
+    this.criterion = criterion;
+    this.setName(super.getName() + "(" + this.criterion.getName() + ")");
 
-	
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper==null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken==null)
-			return null;
-		
-		FeatureResult<Boolean> featureResult = null;
+    this.setAddressFunction(addressFunction);
+  }
 
-		FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
-		if (criterionResult!=null) {
-			featureResult = this.generateResult(criterionResult.getOutcome());
-		}
-		
-		return featureResult;
-	}
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
+
+    FeatureResult<Boolean> featureResult = null;
+
+    FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
+    if (criterionResult != null) {
+      featureResult = this.generateResult(criterionResult.getOutcome());
+    }
+
+    return featureResult;
+  }
 
 }

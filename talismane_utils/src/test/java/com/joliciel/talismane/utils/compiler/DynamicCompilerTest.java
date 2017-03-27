@@ -35,119 +35,103 @@ import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 public class DynamicCompilerTest {
-	private static final Logger LOG = LoggerFactory.getLogger(DynamicCompilerTest.class);
-	public static class DiagnositicsLogger implements DiagnosticListener<JavaFileObject>
-	{
-		private List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<Diagnostic<? extends JavaFileObject>>();
-		public void report(Diagnostic<? extends JavaFileObject> diagnostic)
-		{
-			LOG.info("Line Number: " + diagnostic.getLineNumber());
-			LOG.info("Code: " + diagnostic.getCode());
-			LOG.info("Message: " + diagnostic.getMessage(Locale.ENGLISH));
-			LOG.info("Source: " + diagnostic.getSource());
-			diagnostics.add(diagnostic);
-		}
-		public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
-			return diagnostics;
-		}		
-	}
+  private static final Logger LOG = LoggerFactory.getLogger(DynamicCompilerTest.class);
 
-	public static interface HelloInterface {
-		public String hello(String who);
-	}
+  public static class DiagnositicsLogger implements DiagnosticListener<JavaFileObject> {
+    private List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<Diagnostic<? extends JavaFileObject>>();
 
-	@Test
-	public void testCompileOneClass() throws Exception {
-		ClassLoader classLoader = this.getClass().getClassLoader();
-		DiagnositicsLogger diagnosticsLogger = new DiagnositicsLogger();
-		
-		DynamicCompiler compiler = new DynamicCompiler(classLoader, diagnosticsLogger);
+    public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+      LOG.info("Line Number: " + diagnostic.getLineNumber());
+      LOG.info("Code: " + diagnostic.getCode());
+      LOG.info("Message: " + diagnostic.getMessage(Locale.ENGLISH));
+      LOG.info("Source: " + diagnostic.getSource());
+      diagnostics.add(diagnostic);
+    }
 
-		String src =  "package com.joliciel.talismane.utils.compiler.foo;\n" +
-		"import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n" +
-		"public class Foo implements HelloInterface {\n" +
-		"        public String hello(String who) {\n" +
-		"            return \"Hello \" + who;\n" +
-		"        }\n" +
-		"    }";
+    public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
+      return diagnostics;
+    }
+  }
 
-		String fullName = "com.joliciel.talismane.utils.compiler.foo.Foo";
+  public static interface HelloInterface {
+    public String hello(String who);
+  }
 
-		@SuppressWarnings("unchecked")
-		Class<HelloInterface> helloClass = (Class<HelloInterface>) compiler.compile(fullName, src, null);
+  @Test
+  public void testCompileOneClass() throws Exception {
+    ClassLoader classLoader = this.getClass().getClassLoader();
+    DiagnositicsLogger diagnosticsLogger = new DiagnositicsLogger();
 
-		HelloInterface foo = helloClass.newInstance();
-		assertEquals("Hello world", foo.hello("world"));
-	}
-	
-	@Test
-	public void testCompileTwoClasses() throws Exception {
-		ClassLoader classLoader = this.getClass().getClassLoader();
-		DiagnositicsLogger diagnosticsLogger = new DiagnositicsLogger();
-		
-		DynamicCompiler compiler = new DynamicCompiler(classLoader, diagnosticsLogger);
+    DynamicCompiler compiler = new DynamicCompiler(classLoader, diagnosticsLogger);
 
-		String src1 =  "package com.joliciel.talismane.utils.compiler.foo;\n" +
-		"import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n" +
-		"public class Foo implements HelloInterface {\n" +
-		"        public String hello(String who) {\n" +
-		"            return \"Hello \" + who;\n" +
-		"        }\n" +
-		"    }";
+    String src = "package com.joliciel.talismane.utils.compiler.foo;\n" + "import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n"
+        + "public class Foo implements HelloInterface {\n" + "        public String hello(String who) {\n" + "            return \"Hello \" + who;\n"
+        + "        }\n" + "    }";
 
-		String name1 = "com.joliciel.talismane.utils.compiler.foo.Foo";
-		
-		String src2 =  "package com.joliciel.talismane.utils.compiler.foo;\n" +
-		"import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n" +
-		"public class Bar implements HelloInterface {\n" +
-		"        public String hello(String who) {\n" +
-		"			Foo foo = new Foo();\n" +
-		"           return foo.hello(who) + \"!\";\n" +
-		"        }\n" +
-		"    }";
-		
-		String name2 =  "com.joliciel.talismane.utils.compiler.foo.Bar";
+    String fullName = "com.joliciel.talismane.utils.compiler.foo.Foo";
 
-		Map<String,CharSequence> sources = new LinkedHashMap<String,CharSequence>();
-		sources.put(name1, src1);
-		sources.put(name2, src2);
-		
-		Map<String, Class<?>> classes = compiler.compileMany(sources, null);
-		@SuppressWarnings("unchecked")
-		Class<HelloInterface> helloClass = (Class<HelloInterface>) classes.get(name2);
+    @SuppressWarnings("unchecked")
+    Class<HelloInterface> helloClass = (Class<HelloInterface>) compiler.compile(fullName, src, null);
 
-		HelloInterface bar = helloClass.newInstance();
-		assertEquals("Hello world!", bar.hello("world"));
-	}
-	
-	@Test
-	public void testCompileError() throws Exception {
-		ClassLoader classLoader = this.getClass().getClassLoader();
-		DiagnositicsLogger diagnosticsLogger = new DiagnositicsLogger();
-		
-		DynamicCompiler compiler = new DynamicCompiler(classLoader, diagnosticsLogger);
+    HelloInterface foo = helloClass.newInstance();
+    assertEquals("Hello world", foo.hello("world"));
+  }
 
-		String src =  "package com.joliciel.talismane.utils.compiler.foo;\n" +
-		"import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n" +
-		"public class Foo implements HelloInterface {\n" +
-		"        public String hello(String who) {\n" +
-		"            return \"Hello \" + who\n" +
-		"        }\n" +
-		"    }";
+  @Test
+  public void testCompileTwoClasses() throws Exception {
+    ClassLoader classLoader = this.getClass().getClassLoader();
+    DiagnositicsLogger diagnosticsLogger = new DiagnositicsLogger();
 
-		String fullName = "com.joliciel.talismane.utils.compiler.foo.Foo";
+    DynamicCompiler compiler = new DynamicCompiler(classLoader, diagnosticsLogger);
 
-		try {
-			compiler.compile(fullName, src, null);
-			fail("Expected exception");
-		} catch (DynamicCompilerException e) {
-			LOG.debug(e.getMessage());
-		}
-		
-		Diagnostic<? extends JavaFileObject> diagnostic = diagnosticsLogger.getDiagnostics().get(0);
-		assertEquals(5, diagnostic.getLineNumber());
-		assertEquals("compiler.err.expected", diagnostic.getCode());
-		assertEquals("Foo.java", diagnostic.getSource().getName());
-	}
+    String src1 = "package com.joliciel.talismane.utils.compiler.foo;\n" + "import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n"
+        + "public class Foo implements HelloInterface {\n" + "        public String hello(String who) {\n" + "            return \"Hello \" + who;\n"
+        + "        }\n" + "    }";
+
+    String name1 = "com.joliciel.talismane.utils.compiler.foo.Foo";
+
+    String src2 = "package com.joliciel.talismane.utils.compiler.foo;\n" + "import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n"
+        + "public class Bar implements HelloInterface {\n" + "        public String hello(String who) {\n" + "     Foo foo = new Foo();\n"
+        + "           return foo.hello(who) + \"!\";\n" + "        }\n" + "    }";
+
+    String name2 = "com.joliciel.talismane.utils.compiler.foo.Bar";
+
+    Map<String, CharSequence> sources = new LinkedHashMap<String, CharSequence>();
+    sources.put(name1, src1);
+    sources.put(name2, src2);
+
+    Map<String, Class<?>> classes = compiler.compileMany(sources, null);
+    @SuppressWarnings("unchecked")
+    Class<HelloInterface> helloClass = (Class<HelloInterface>) classes.get(name2);
+
+    HelloInterface bar = helloClass.newInstance();
+    assertEquals("Hello world!", bar.hello("world"));
+  }
+
+  @Test
+  public void testCompileError() throws Exception {
+    ClassLoader classLoader = this.getClass().getClassLoader();
+    DiagnositicsLogger diagnosticsLogger = new DiagnositicsLogger();
+
+    DynamicCompiler compiler = new DynamicCompiler(classLoader, diagnosticsLogger);
+
+    String src = "package com.joliciel.talismane.utils.compiler.foo;\n" + "import com.joliciel.talismane.utils.compiler.DynamicCompilerTest.HelloInterface;\n"
+        + "public class Foo implements HelloInterface {\n" + "        public String hello(String who) {\n" + "            return \"Hello \" + who\n"
+        + "        }\n" + "    }";
+
+    String fullName = "com.joliciel.talismane.utils.compiler.foo.Foo";
+
+    try {
+      compiler.compile(fullName, src, null);
+      fail("Expected exception");
+    } catch (DynamicCompilerException e) {
+      LOG.debug(e.getMessage());
+    }
+
+    Diagnostic<? extends JavaFileObject> diagnostic = diagnosticsLogger.getDiagnostics().get(0);
+    assertEquals(5, diagnostic.getLineNumber());
+    assertEquals("compiler.err.expected", diagnostic.getCode());
+    assertEquals("Foo.java", diagnostic.getSource().getName());
+  }
 
 }

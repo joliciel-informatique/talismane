@@ -38,63 +38,63 @@ import com.joliciel.talismane.parser.Transition;
  *
  */
 public final class ParserRule {
-	private final BooleanFeature<ParseConfigurationWrapper> condition;
-	private final Transition transition;
-	private final Set<Transition> transitions;
-	private boolean negative;
+  private final BooleanFeature<ParseConfigurationWrapper> condition;
+  private final Transition transition;
+  private final Set<Transition> transitions;
+  private boolean negative;
 
-	public ParserRule(BooleanFeature<ParseConfigurationWrapper> condition, Transition transition, boolean negative) {
-		super();
-		this.condition = condition;
-		this.transition = transition;
-		this.transitions = new HashSet<>(Arrays.asList(new Transition[] { transition }));
-		this.negative = negative;
-	}
+  public ParserRule(BooleanFeature<ParseConfigurationWrapper> condition, Transition transition, boolean negative) {
+    super();
+    this.condition = condition;
+    this.transition = transition;
+    this.transitions = new HashSet<>(Arrays.asList(new Transition[] { transition }));
+    this.negative = negative;
+  }
 
-	public ParserRule(BooleanFeature<ParseConfigurationWrapper> condition, Set<Transition> transitions, boolean negative) {
-		super();
-		this.condition = condition;
-		this.transitions = transitions;
-		this.transition = transitions.iterator().next();
-		this.negative = negative;
-	}
+  public ParserRule(BooleanFeature<ParseConfigurationWrapper> condition, Set<Transition> transitions, boolean negative) {
+    super();
+    this.condition = condition;
+    this.transitions = transitions;
+    this.transition = transitions.iterator().next();
+    this.negative = negative;
+  }
 
-	/**
-	 * The condition to test.
-	 */
-	public BooleanFeature<ParseConfigurationWrapper> getCondition() {
-		return condition;
-	}
+  /**
+   * The condition to test.
+   */
+  public BooleanFeature<ParseConfigurationWrapper> getCondition() {
+    return condition;
+  }
 
-	/**
-	 * The transition to apply (or to eliminate, for negative rules) if the
-	 * condition evaluates to true.
-	 */
-	public Transition getTransition() {
-		return transition;
-	}
+  /**
+   * The transition to apply (or to eliminate, for negative rules) if the
+   * condition evaluates to true.
+   */
+  public Transition getTransition() {
+    return transition;
+  }
 
-	/**
-	 * Is this rule a negative rule or not.
-	 */
-	public boolean isNegative() {
-		return negative;
-	}
+  /**
+   * Is this rule a negative rule or not.
+   */
+  public boolean isNegative() {
+    return negative;
+  }
 
-	public void setNegative(boolean negative) {
-		this.negative = negative;
-	}
+  public void setNegative(boolean negative) {
+    this.negative = negative;
+  }
 
-	@Override
-	public String toString() {
-		return "ParserRule: " + (negative ? "!" : "") + this.transition.getCode() + ": " + this.condition.getName();
-	}
+  @Override
+  public String toString() {
+    return "ParserRule: " + (negative ? "!" : "") + this.transition.getCode() + ": " + this.condition.getName();
+  }
 
-	/**
-	 * The transitions to eliminate if the condition evaluates to true.
-	 */
-	public Set<Transition> getTransitions() {
-		return transitions;
-	}
+  /**
+   * The transitions to eliminate if the condition evaluates to true.
+   */
+  public Set<Transition> getTransitions() {
+    return transitions;
+  }
 
 }

@@ -20,6 +20,7 @@ package com.joliciel.talismane.parser.features;
 
 import java.util.Iterator;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.BooleanFeature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
@@ -37,62 +38,62 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class StackSearchFeature extends AbstractAddressFunction {
-	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
-	private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
+  private IntegerFeature<ParseConfigurationWrapper> indexFeature;
+  private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
 
-	public StackSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
-		super();
-		this.criterionFeature = criterionFeature;
+  public StackSearchFeature(BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
+    super();
+    this.criterionFeature = criterionFeature;
 
-		this.setName(super.getName() + "(" + criterionFeature.getName() + ")");
-	}
+    this.setName(super.getName() + "(" + criterionFeature.getName() + ")");
+  }
 
-	public StackSearchFeature(IntegerFeature<ParseConfigurationWrapper> indexFeature, BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
-		super();
-		this.indexFeature = indexFeature;
-		this.criterionFeature = criterionFeature;
+  public StackSearchFeature(IntegerFeature<ParseConfigurationWrapper> indexFeature, BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
+    super();
+    this.indexFeature = indexFeature;
+    this.criterionFeature = criterionFeature;
 
-		this.setName(super.getName() + "(" + indexFeature.getName() + "," + criterionFeature.getName() + ")");
-	}
+    this.setName(super.getName() + "(" + indexFeature.getName() + "," + criterionFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
 
-		int index = 1;
-		if (indexFeature != null) {
-			FeatureResult<Integer> indexResult = indexFeature.check(wrapper, env);
-			if (indexResult == null)
-				return null;
-			index = indexResult.getOutcome();
-		}
+    int index = 1;
+    if (indexFeature != null) {
+      FeatureResult<Integer> indexResult = indexFeature.check(wrapper, env);
+      if (indexResult == null)
+        return null;
+      index = indexResult.getOutcome();
+    }
 
-		Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
+    Iterator<PosTaggedToken> stackIterator = configuration.getStack().iterator();
 
-		ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
-		parseConfigurationAddress.setParseConfiguration(configuration);
+    ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
+    parseConfigurationAddress.setParseConfiguration(configuration);
 
-		int i = -1;
-		PosTaggedToken resultToken = null;
-		while (stackIterator.hasNext()) {
-			PosTaggedToken token = stackIterator.next();
-			i++;
-			if (i < index)
-				continue;
-			parseConfigurationAddress.setPosTaggedToken(token);
-			FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
-			if (criterionResult != null) {
-				boolean criterion = criterionResult.getOutcome();
-				if (criterion) {
-					resultToken = token;
-					break;
-				}
-			}
-		}
+    int i = -1;
+    PosTaggedToken resultToken = null;
+    while (stackIterator.hasNext()) {
+      PosTaggedToken token = stackIterator.next();
+      i++;
+      if (i < index)
+        continue;
+      parseConfigurationAddress.setPosTaggedToken(token);
+      FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
+      if (criterionResult != null) {
+        boolean criterion = criterionResult.getOutcome();
+        if (criterion) {
+          resultToken = token;
+          break;
+        }
+      }
+    }
 
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

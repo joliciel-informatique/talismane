@@ -19,8 +19,9 @@
 package com.joliciel.talismane.tokeniser;
 
 /**
- * A marker interface for various tags that can be added on to a token
- * by various learners (tokeniser, pos tagger, etc.)
+ * A marker interface for various tags that can be added on to a token by
+ * various learners (tokeniser, pos tagger, etc.)
+ * 
  * @author Assaf Urieli
  *
  */

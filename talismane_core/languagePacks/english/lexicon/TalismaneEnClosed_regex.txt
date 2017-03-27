@@ -1,0 +1,7 @@
+Word	^([^\t]+)\t[^\t]+\t[^\t]+\t[^\t]*$
+Lemma	^[^\t]+\t([^\t]+)\t[^\t]+\t[^\t]*$
+Category	^[^\t]+\t[^\t]+\t([^\t]+)\t[^\t]*$
+Gender	\bgender=([^\|]+)\b
+Number	\bnumber=([^\|]+)\b
+Tense	\btense=([^\|]+)\b
+Person	\bperson=([^\|]+)\b

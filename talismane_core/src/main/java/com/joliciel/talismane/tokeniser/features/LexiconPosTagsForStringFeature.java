@@ -22,7 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.joliciel.talismane.NeedsTalismaneSession;
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.TalismaneSession;
 import com.joliciel.talismane.lexicon.PosTaggerLexicon;
 import com.joliciel.talismane.machineLearning.features.Feature;
@@ -34,66 +38,68 @@ import com.joliciel.talismane.posTagger.PosTag;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
 /**
- * A StringCollectionFeature returning all of the postags in the lexicon for a word specified by the wordToCheckFeature.
+ * A StringCollectionFeature returning all of the postags in the lexicon for a
+ * word specified by the wordToCheckFeature.
+ * 
  * @author Assaf Urieli
  *
  */
 public final class LexiconPosTagsForStringFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>
-	implements StringCollectionFeature<TokenWrapper>, NeedsTalismaneSession {
-	private StringFeature<TokenWrapper> wordToCheckFeature;
-	
-	TalismaneSession talismaneSession;
+    implements StringCollectionFeature<TokenWrapper>, NeedsTalismaneSession {
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsForStringFeature.class);
+  private StringFeature<TokenWrapper> wordToCheckFeature;
 
-	public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {
-		this.wordToCheckFeature = wordToCheckFeature;
-		this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + ")");
-	}
-	
-	public LexiconPosTagsForStringFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> wordToCheckFeature) {
-		this(wordToCheckFeature);
-		this.setAddressFunction(addressFunction);
-	}
+  TalismaneSession talismaneSession;
 
+  public LexiconPosTagsForStringFeature(StringFeature<TokenWrapper> wordToCheckFeature) {
+    this.wordToCheckFeature = wordToCheckFeature;
+    this.setName(super.getName() + "(" + this.wordToCheckFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-			TokenWrapper tokenWrapper, RuntimeEnvironment env) {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper==null)
-			return null;
+  public LexiconPosTagsForStringFeature(TokenAddressFunction<TokenWrapper> addressFunction, StringFeature<TokenWrapper> wordToCheckFeature) {
+    this(wordToCheckFeature);
+    this.setAddressFunction(addressFunction);
+  }
 
-		FeatureResult<List<WeightedOutcome<String>>> result = null;
-		FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
-		if (wordToCheckResult!=null) {
-			String wordToCheck = wordToCheckResult.getOutcome();
-			List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-			PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
-			Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
-	
-			for (PosTag posTag : posTags) {
-				resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
-			}
-	
-			if (resultList.size()>0)
-				result = this.generateResult(resultList);
-		}
-		
-		return result;
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return StringCollectionFeature.class;
-	}
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
+    FeatureResult<List<WeightedOutcome<String>>> result = null;
+    FeatureResult<String> wordToCheckResult = wordToCheckFeature.check(innerWrapper, env);
+    if (wordToCheckResult != null) {
+      String wordToCheck = wordToCheckResult.getOutcome();
+      List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+      PosTaggerLexicon lexicon = talismaneSession.getMergedLexicon();
+      Set<PosTag> posTags = lexicon.findPossiblePosTags(wordToCheck);
 
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
+      for (PosTag posTag : posTags) {
+        resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
+      }
+
+      if (resultList.size() > 0)
+        result = this.generateResult(resultList);
+    }
+
+    return result;
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return StringCollectionFeature.class;
+  }
+
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return talismaneSession;
+  }
+
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+  }
 }

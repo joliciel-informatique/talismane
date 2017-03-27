@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.posTagger.features;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.features.Feature;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
 import com.joliciel.talismane.machineLearning.features.IntegerFeature;
@@ -31,38 +32,38 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  * 
  * @author Assaf Urieli
  */
-public class HistoryAbsoluteAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<PosTaggerContext> {
-	private IntegerFeature<PosTaggerContext> indexFeature = null;
+public class HistoryAbsoluteAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>implements PosTaggedTokenAddressFunction<PosTaggerContext> {
+  private IntegerFeature<PosTaggerContext> indexFeature = null;
 
-	public HistoryAbsoluteAddressFunction(IntegerFeature<PosTaggerContext> index) {
-		this.indexFeature = index;
-		this.setName("HistoryAbs(" + indexFeature.getName() + ")");
-	}
+  public HistoryAbsoluteAddressFunction(IntegerFeature<PosTaggerContext> index) {
+    this.indexFeature = index;
+    this.setName("HistoryAbs(" + indexFeature.getName() + ")");
+  }
 
-	@Override
-	protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
-		FeatureResult<PosTaggedTokenWrapper> result = null;
+  @Override
+  protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<PosTaggedTokenWrapper> result = null;
 
-		FeatureResult<Integer> indexResult = indexFeature.check(context, env);
-		if (indexResult != null) {
-			int n = indexResult.getOutcome();
-			if (n < 0) {
-				return null;
-			} else if (n >= context.getHistory().size()) {
-				return null;
-			}
+    FeatureResult<Integer> indexResult = indexFeature.check(context, env);
+    if (indexResult != null) {
+      int n = indexResult.getOutcome();
+      if (n < 0) {
+        return null;
+      } else if (n >= context.getHistory().size()) {
+        return null;
+      }
 
-			PosTaggedToken prevToken = context.getHistory().get(n);
-			result = this.generateResult(prevToken);
+      PosTaggedToken prevToken = context.getHistory().get(n);
+      result = this.generateResult(prevToken);
 
-		} // have n
-		return result;
-	}
+    } // have n
+    return result;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return PosTaggedTokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return PosTaggedTokenAddressFunction.class;
+  }
 
 }

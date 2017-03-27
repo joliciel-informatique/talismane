@@ -18,27 +18,63 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.sentenceDetector;
 
-import com.joliciel.talismane.AnnotatedCorpusReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.AnnotatedCorpusReader;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.utils.io.CurrentFileObserver;
+import com.joliciel.talismane.utils.io.CurrentFileProvider;
+import com.typesafe.config.Config;
 
 /**
  * An interface for reading sentence splits from a training corpus.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusReader {
-	/**
-	 * Is there another sentence to be read?
-	 */
-	public boolean hasNextSentence();
-	
-	/**
-	 * Reads the next sentence from the corpus.
-	 */
-	public String nextSentence();
-	
-	/**
-	 * Is the last sentence read the start of a new paragraph?
-	 */
-	public boolean isNewParagraph();
 
+  /**
+   * Reads the next sentence from the corpus.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public abstract Sentence nextSentence() throws TalismaneException, IOException;
+
+  /**
+   * Is the last sentence read the start of a new paragraph?
+   */
+  public abstract boolean isNewParagraph();
+
+  /**
+   * Builds an annotated corpus reader for a particular Reader and Config, where
+   * the config is the local namespace. For configuration example, see
+   * talismane.core.sentence-detector.input in reference.conf.
+   * 
+   * @param config
+   *          the local configuration section from which we're building a reader
+   * @throws IOException
+   *           problem reading the files referred in the configuration
+   * @throws ReflectiveOperationException
+   *           if the corpus-reader class could not be instantiated
+   */
+  public static SentenceDetectorAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+      throws IOException, ReflectiveOperationException {
+    String className = config.getString("corpus-reader");
+
+    @SuppressWarnings("unchecked")
+    Class<? extends SentenceDetectorAnnotatedCorpusReader> clazz = (Class<? extends SentenceDetectorAnnotatedCorpusReader>) Class.forName(className);
+    Constructor<? extends SentenceDetectorAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+
+    SentenceDetectorAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+    if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
+      ((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
+    }
+    return corpusReader;
+  }
 }

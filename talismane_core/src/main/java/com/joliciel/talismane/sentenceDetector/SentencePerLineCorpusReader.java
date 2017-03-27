@@ -19,9 +19,13 @@
 package com.joliciel.talismane.sentenceDetector;
 
 import java.io.Reader;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
+
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.corpus.AbstractAnnotatedCorpusReader;
+import com.joliciel.talismane.rawText.Sentence;
+import com.typesafe.config.Config;
 
 /**
  * A default corpus reader which assumes one sentence per line.
@@ -29,140 +33,81 @@ import java.util.Scanner;
  * @author Assaf Urieli
  *
  */
-public class SentencePerLineCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
-	private Scanner scanner;
-	private int maxSentenceCount = 0;
-	private int startSentence = 0;
-	private int sentenceCount = 0;
-	private int includeIndex = -1;
-	private int excludeIndex = -1;
-	private int crossValidationSize = 0;
-	String sentence = null;
+public class SentencePerLineCorpusReader extends AbstractAnnotatedCorpusReader implements SentenceDetectorAnnotatedCorpusReader {
+  private final Scanner scanner;
+  private int sentenceCount = 0;
+  String sentence = null;
+  private final TalismaneSession session;
 
-	public SentencePerLineCorpusReader(Reader reader) {
-		scanner = new Scanner(reader);
-	}
+  public SentencePerLineCorpusReader(Reader reader, Config config, TalismaneSession session) {
+    super(config, session);
+    this.session = session;
+    this.scanner = new Scanner(reader);
+  }
 
-	@Override
-	public boolean hasNextSentence() {
-		if (maxSentenceCount > 0 && sentenceCount >= maxSentenceCount) {
-			// we've reached the end, do nothing
-		} else {
+  @Override
+  public boolean hasNextSentence() {
+    if (this.getMaxSentenceCount() > 0 && sentenceCount >= this.getMaxSentenceCount()) {
+      // we've reached the end, do nothing
+    } else {
 
-			while (sentence == null) {
-				if (!scanner.hasNextLine()) {
-					break;
-				}
+      while (sentence == null) {
+        if (!scanner.hasNextLine()) {
+          break;
+        }
 
-				sentence = scanner.nextLine().trim();
-				if (sentence.length() == 0) {
-					sentence = null;
-					continue;
-				}
+        sentence = scanner.nextLine().trim();
+        if (sentence.length() == 0) {
+          sentence = null;
+          continue;
+        }
 
-				boolean includeMe = true;
+        boolean includeMe = true;
 
-				// check cross-validation
-				if (crossValidationSize > 0) {
-					if (includeIndex >= 0) {
-						if (sentenceCount % crossValidationSize != includeIndex) {
-							includeMe = false;
-						}
-					} else if (excludeIndex >= 0) {
-						if (sentenceCount % crossValidationSize == excludeIndex) {
-							includeMe = false;
-						}
-					}
-				}
+        // check cross-validation
+        if (this.getCrossValidationSize() > 0) {
+          if (this.getIncludeIndex() >= 0) {
+            if (sentenceCount % this.getCrossValidationSize() != this.getIncludeIndex()) {
+              includeMe = false;
+            }
+          } else if (this.getExcludeIndex() >= 0) {
+            if (sentenceCount % this.getCrossValidationSize() == this.getExcludeIndex()) {
+              includeMe = false;
+            }
+          }
+        }
 
-				if (startSentence > sentenceCount) {
-					includeMe = false;
-				}
+        if (this.getStartSentence() > sentenceCount) {
+          includeMe = false;
+        }
 
-				sentenceCount++;
+        sentenceCount++;
 
-				if (!includeMe) {
-					sentence = null;
-					continue;
-				}
+        if (!includeMe) {
+          sentence = null;
+          continue;
+        }
 
-			}
-		}
-		return sentence != null;
-	}
+      }
+    }
+    return sentence != null;
+  }
 
-	@Override
-	public String nextSentence() {
-		String currentSentence = sentence;
-		sentence = null;
-		return currentSentence;
-	}
+  @Override
+  public Sentence nextSentence() {
+    String currentSentence = sentence;
+    sentence = null;
+    return new Sentence(currentSentence, session);
+  }
 
-	@Override
-	public Map<String, String> getCharacteristics() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
+  @Override
+  public Map<String, String> getCharacteristics() {
+    Map<String, String> attributes = super.getCharacteristics();
+    return attributes;
+  }
 
-		attributes.put("maxSentenceCount", "" + this.maxSentenceCount);
-		attributes.put("crossValidationSize", "" + this.crossValidationSize);
-		attributes.put("includeIndex", "" + this.includeIndex);
-		attributes.put("excludeIndex", "" + this.excludeIndex);
-
-		return attributes;
-	}
-
-	@Override
-	public boolean isNewParagraph() {
-		return false;
-	}
-
-	@Override
-	public int getMaxSentenceCount() {
-		return maxSentenceCount;
-	}
-
-	@Override
-	public void setMaxSentenceCount(int maxSentenceCount) {
-		this.maxSentenceCount = maxSentenceCount;
-	}
-
-	@Override
-	public int getIncludeIndex() {
-		return includeIndex;
-	}
-
-	@Override
-	public void setIncludeIndex(int includeIndex) {
-		this.includeIndex = includeIndex;
-	}
-
-	@Override
-	public int getExcludeIndex() {
-		return excludeIndex;
-	}
-
-	@Override
-	public void setExcludeIndex(int excludeIndex) {
-		this.excludeIndex = excludeIndex;
-	}
-
-	@Override
-	public int getCrossValidationSize() {
-		return crossValidationSize;
-	}
-
-	@Override
-	public void setCrossValidationSize(int crossValidationSize) {
-		this.crossValidationSize = crossValidationSize;
-	}
-
-	@Override
-	public int getStartSentence() {
-		return startSentence;
-	}
-
-	@Override
-	public void setStartSentence(int startSentence) {
-		this.startSentence = startSentence;
-	}
-
+  @Override
+  public boolean isNewParagraph() {
+    return false;
+  }
 }

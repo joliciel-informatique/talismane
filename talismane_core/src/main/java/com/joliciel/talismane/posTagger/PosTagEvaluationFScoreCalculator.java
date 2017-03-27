@@ -25,161 +25,165 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.stats.FScoreCalculator;
 import com.joliciel.talismane.tokeniser.TaggedToken;
 
 /**
  * Calculates the f-score of a pos-tag evaluation.
+ * 
  * @author Assaf Urieli
  *
  */
-public class PosTagEvaluationFScoreCalculator implements
-		PosTagEvaluationObserver {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTagEvaluationFScoreCalculator.class);
-	private FScoreCalculator<String> fScoreCalculator = new FScoreCalculator<String>();
-	private FScoreCalculator<String> fscoreUnknownInCorpus = new FScoreCalculator<String>();
-	private FScoreCalculator<String> fscoreUnknownInLexicon = new FScoreCalculator<String>();
-	private FScoreCalculator<String> fscoreKnownInLexicon = new FScoreCalculator<String>();
-	
-	private Set<String> unknownWords;
-	private File fScoreFile;
-	private File fScoreUnknownInLexiconFile;
-	private File fScoreKnownInLexiconFile;
-	
-	public PosTagEvaluationFScoreCalculator() { }
-	
-	public PosTagEvaluationFScoreCalculator(File fScoreFile) {
-		super();
-		this.fScoreFile = fScoreFile;
-	}
+public class PosTagEvaluationFScoreCalculator implements PosTagEvaluationObserver {
+  private static final Logger LOG = LoggerFactory.getLogger(PosTagEvaluationFScoreCalculator.class);
+  private FScoreCalculator<String> fScoreCalculator = new FScoreCalculator<String>();
+  private FScoreCalculator<String> fscoreUnknownInCorpus = new FScoreCalculator<String>();
+  private FScoreCalculator<String> fscoreUnknownInLexicon = new FScoreCalculator<String>();
+  private FScoreCalculator<String> fscoreKnownInLexicon = new FScoreCalculator<String>();
 
-	@Override
-	public void onNextPosTagSequence(PosTagSequence realSequence,
-			List<PosTagSequence> guessedSequences) {
-		
-		PosTagSequence guessedSequence = guessedSequences.get(0);
-		
-		int j = 0;
-		for (int i = 0; i<realSequence.size(); i++) {
-			TaggedToken<PosTag> realToken = realSequence.get(i);
-			TaggedToken<PosTag> testToken = guessedSequence.get(j);
-			
-			// special handling for null tags & empty tokens
-			if (realToken.getTag().equals(PosTag.NULL_POS_TAG)) {
-				// If the real token is null (and presumably empty)
-				// we don't include it in our stats
-				// We assume the previous non-empty token took care of any required comparisons.
-				if (testToken.getToken().isEmpty()) {
-					j++;
-				}
-				continue;
-			} else if (testToken.getToken().isEmpty() && !realToken.getToken().isEmpty()) {
-				// If the test token is empty, but the real token isn't, we skip this as well
-				// Again, we assume the previous non-empty token took care of any required comparisons.
-				j++;
-				testToken = guessedSequence.get(j);
-			}
-			
-			boolean tokenError = false;
-			if (realToken.getToken().getStartIndex()==testToken.getToken().getStartIndex()
-					&& realToken.getToken().getEndIndex()==testToken.getToken().getEndIndex()) {
-				// no token error
-				j++;
-				if (j==guessedSequence.size()) {
-					j--;
-				}
-			} else {
-				tokenError = true;
-				while (realToken.getToken().getEndIndex()>=testToken.getToken().getEndIndex()) {
-					j++;
-					if (j==guessedSequence.size()) {
-						j--;
-						break;
-					}
-					testToken = guessedSequence.get(j);
-				}
-			}
+  private Set<String> unknownWords;
+  private File fScoreFile;
+  private File fScoreUnknownInLexiconFile;
+  private File fScoreKnownInLexiconFile;
 
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Token " + testToken.getToken().getText() + ", guessed: " + testToken.getTag().getCode() + " (" + testToken.getDecision().getProbability() + "), actual: " + realToken.getTag().getCode());
-			}
-			
-			String result = testToken.getTag().getCode();
-			if (tokenError)
-				result = "TOKEN_ERROR";
-			
-			fScoreCalculator.increment(realToken.getTag().getCode(), result);
-			if (testToken.getToken().getPossiblePosTags()==null||testToken.getToken().getPossiblePosTags().size()==0)
-				fscoreUnknownInLexicon.increment(realToken.getTag().getCode(), result);
-			else
-				fscoreKnownInLexicon.increment(realToken.getTag().getCode(), result);
-			
-			if (unknownWords!=null&&unknownWords.contains(testToken.getToken().getText()))
-				fscoreUnknownInCorpus.increment(realToken.getTag().getCode(), result);
-		}
-	}
-	
-	/**
-	 * An overall f-score calculator for all words.
-	 */
-	public FScoreCalculator<String> getFScoreCalculator() {
-		return fScoreCalculator;
-	}
+  public PosTagEvaluationFScoreCalculator() {
+  }
 
-	/**
-	 * An f-score calculator for unknown words in the corpus.
-	 */
-	public FScoreCalculator<String> getFscoreUnknownInCorpus() {
-		return fscoreUnknownInCorpus;
-	}
+  public PosTagEvaluationFScoreCalculator(File fScoreFile) {
+    super();
+    this.fScoreFile = fScoreFile;
+  }
 
-	/**
-	 * An f-score calculator for unknown words in the lexicon.
-	 */
-	public FScoreCalculator<String> getFscoreUnknownInLexicon() {
-		return fscoreUnknownInLexicon;
-	}
+  @Override
+  public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException {
 
-	/**
-	 * A list of unknown words, for evaluating f-scores for unknown words in the corpus.
-	 */
-	public Set<String> getUnknownWords() {
-		return unknownWords;
-	}
+    PosTagSequence guessedSequence = guessedSequences.get(0);
 
-	public void setUnknownWords(Set<String> unknownWords) {
-		this.unknownWords = unknownWords;
-	}
+    int j = 0;
+    for (int i = 0; i < realSequence.size(); i++) {
+      TaggedToken<PosTag> realToken = realSequence.get(i);
+      TaggedToken<PosTag> testToken = guessedSequence.get(j);
 
-	
-	public File getFScoreUnknownInLexiconFile() {
-		return fScoreUnknownInLexiconFile;
-	}
+      // special handling for null tags & empty tokens
+      if (realToken.getTag().equals(PosTag.NULL_POS_TAG)) {
+        // If the real token is null (and presumably empty)
+        // we don't include it in our stats
+        // We assume the previous non-empty token took care of any
+        // required comparisons.
+        if (testToken.getToken().isEmpty()) {
+          j++;
+        }
+        continue;
+      } else if (testToken.getToken().isEmpty() && !realToken.getToken().isEmpty()) {
+        // If the test token is empty, but the real token isn't, we skip
+        // this as well
+        // Again, we assume the previous non-empty token took care of
+        // any required comparisons.
+        j++;
+        testToken = guessedSequence.get(j);
+      }
 
-	public void setFScoreUnknownInLexiconFile(File fScoreUnknownInLexiconFile) {
-		this.fScoreUnknownInLexiconFile = fScoreUnknownInLexiconFile;
-	}
+      boolean tokenError = false;
+      if (realToken.getToken().getStartIndex() == testToken.getToken().getStartIndex()
+          && realToken.getToken().getEndIndex() == testToken.getToken().getEndIndex()) {
+        // no token error
+        j++;
+        if (j == guessedSequence.size()) {
+          j--;
+        }
+      } else {
+        tokenError = true;
+        while (realToken.getToken().getEndIndex() >= testToken.getToken().getEndIndex()) {
+          j++;
+          if (j == guessedSequence.size()) {
+            j--;
+            break;
+          }
+          testToken = guessedSequence.get(j);
+        }
+      }
 
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Token " + testToken.getToken().getAnalyisText() + ", guessed: " + testToken.getTag().getCode() + " ("
+            + testToken.getDecision().getProbability() + "), actual: " + realToken.getTag().getCode());
+      }
 
-	public File getFScoreKnownInLexiconFile() {
-		return fScoreKnownInLexiconFile;
-	}
+      String result = testToken.getTag().getCode();
+      if (tokenError)
+        result = "TOKEN_ERROR";
 
-	public void setFScoreKnownInLexiconFile(File fScoreKnownInLexiconFile) {
-		this.fScoreKnownInLexiconFile = fScoreKnownInLexiconFile;
-	}
+      fScoreCalculator.increment(realToken.getTag().getCode(), result);
+      if (testToken.getToken().getPossiblePosTags() == null || testToken.getToken().getPossiblePosTags().size() == 0)
+        fscoreUnknownInLexicon.increment(realToken.getTag().getCode(), result);
+      else
+        fscoreKnownInLexicon.increment(realToken.getTag().getCode(), result);
 
-	@Override
-	public void onEvaluationComplete() {
-		fScoreCalculator.getTotalFScore();
-		if (fScoreFile!=null) {
-			fScoreCalculator.writeScoresToCSVFile(fScoreFile);
-		}
-		if (fScoreUnknownInLexiconFile!=null) {
-			fscoreUnknownInLexicon.writeScoresToCSVFile(fScoreUnknownInLexiconFile);
-		}
-		if (fScoreKnownInLexiconFile!=null) {
-			fscoreKnownInLexicon.writeScoresToCSVFile(fScoreKnownInLexiconFile);
-		}
-	}
+      if (unknownWords != null && unknownWords.contains(testToken.getToken().getAnalyisText()))
+        fscoreUnknownInCorpus.increment(realToken.getTag().getCode(), result);
+    }
+  }
+
+  /**
+   * An overall f-score calculator for all words.
+   */
+  public FScoreCalculator<String> getFScoreCalculator() {
+    return fScoreCalculator;
+  }
+
+  /**
+   * An f-score calculator for unknown words in the corpus.
+   */
+  public FScoreCalculator<String> getFscoreUnknownInCorpus() {
+    return fscoreUnknownInCorpus;
+  }
+
+  /**
+   * An f-score calculator for unknown words in the lexicon.
+   */
+  public FScoreCalculator<String> getFscoreUnknownInLexicon() {
+    return fscoreUnknownInLexicon;
+  }
+
+  /**
+   * A list of unknown words, for evaluating f-scores for unknown words in the
+   * corpus.
+   */
+  public Set<String> getUnknownWords() {
+    return unknownWords;
+  }
+
+  public void setUnknownWords(Set<String> unknownWords) {
+    this.unknownWords = unknownWords;
+  }
+
+  public File getFScoreUnknownInLexiconFile() {
+    return fScoreUnknownInLexiconFile;
+  }
+
+  public void setFScoreUnknownInLexiconFile(File fScoreUnknownInLexiconFile) {
+    this.fScoreUnknownInLexiconFile = fScoreUnknownInLexiconFile;
+  }
+
+  public File getFScoreKnownInLexiconFile() {
+    return fScoreKnownInLexiconFile;
+  }
+
+  public void setFScoreKnownInLexiconFile(File fScoreKnownInLexiconFile) {
+    this.fScoreKnownInLexiconFile = fScoreKnownInLexiconFile;
+  }
+
+  @Override
+  public void onEvaluationComplete() {
+    fScoreCalculator.getTotalFScore();
+    if (fScoreFile != null) {
+      fScoreCalculator.writeScoresToCSVFile(fScoreFile);
+    }
+    if (fScoreUnknownInLexiconFile != null) {
+      fscoreUnknownInLexicon.writeScoresToCSVFile(fScoreUnknownInLexiconFile);
+    }
+    if (fScoreKnownInLexiconFile != null) {
+      fscoreKnownInLexicon.writeScoresToCSVFile(fScoreKnownInLexiconFile);
+    }
+  }
 }

@@ -19,31 +19,32 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Simply a marker class for storing something in the cache
- * to indicate a feature has already been checked.
+ * Simply a marker class for storing something in the cache to indicate a
+ * feature has already been checked.
+ * 
  * @author Assaf Urieli
  *
  */
 class NullFeatureResult<T> implements FeatureResult<T> {
 
-	@Override
-	public Feature<?, T> getFeature() {
-		return null;
-	}
+  @Override
+  public Feature<?, T> getFeature() {
+    return null;
+  }
 
-	@Override
-	public T getOutcome() {
-		return null;
-	}
+  @Override
+  public T getOutcome() {
+    return null;
+  }
 
-	@Override
-	public String getTrainingName() {
-		return null;
-	}
+  @Override
+  public String getTrainingName() {
+    return null;
+  }
 
-	@Override
-	public String getTrainingOutcome(String outcome) {
-		return null;
-	}
+  @Override
+  public String getTrainingOutcome(String outcome) {
+    return null;
+  }
 
 }

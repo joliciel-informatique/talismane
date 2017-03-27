@@ -22,35 +22,35 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class UnclosableOutputStream extends OutputStream {
-	OutputStream wrappedStream;
-	
-	public UnclosableOutputStream(OutputStream wrappedStream) {
-		super();
-		this.wrappedStream = wrappedStream;
-	}
-	
-	@Override
-	public void write(int b) throws IOException {
-		this.wrappedStream.write(b);
-	}
+  OutputStream wrappedStream;
 
-	@Override
-	public void write(byte[] b) throws IOException {
-		this.wrappedStream.write(b);
-	}
+  public UnclosableOutputStream(OutputStream wrappedStream) {
+    super();
+    this.wrappedStream = wrappedStream;
+  }
 
-	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
-		this.wrappedStream.write(b, off, len);
-	}
+  @Override
+  public void write(int b) throws IOException {
+    this.wrappedStream.write(b);
+  }
 
-	@Override
-	public void flush() throws IOException {
-		this.wrappedStream.flush();
-	}
+  @Override
+  public void write(byte[] b) throws IOException {
+    this.wrappedStream.write(b);
+  }
 
-	@Override
-	public void close() throws IOException {
-		// do nothing
-	}
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
+    this.wrappedStream.write(b, off, len);
+  }
+
+  @Override
+  public void flush() throws IOException {
+    this.wrappedStream.flush();
+  }
+
+  @Override
+  public void close() throws IOException {
+    // do nothing
+  }
 }

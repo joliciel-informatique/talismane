@@ -20,13 +20,14 @@ package com.joliciel.talismane.parser.features;
 
 import com.joliciel.talismane.parser.ParseConfiguration;
 
-
 /**
- * A simple wrapper for a parse configuration, useful to allow multiple feature contexts to act all as a ParseConfigurationWrapper
- * for ParseConfiguration features.
+ * A simple wrapper for a parse configuration, useful to allow multiple feature
+ * contexts to act all as a ParseConfigurationWrapper for ParseConfiguration
+ * features.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface ParseConfigurationWrapper {
-	public ParseConfiguration getParseConfiguration();
+  public ParseConfiguration getParseConfiguration();
 }

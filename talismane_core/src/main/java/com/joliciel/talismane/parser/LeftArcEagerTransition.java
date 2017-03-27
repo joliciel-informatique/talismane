@@ -26,72 +26,72 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Create a dependency where Stack[0] depends on Buffer[0], and pop Stack[0].
- * Example: in "the fish", create a "determinant" dependency det(fish,the), and pop "the".
+ * Example: in "the fish", create a "determinant" dependency det(fish,the), and
+ * pop "the".
+ * 
  * @author Assaf Urieli
  *
  */
 public class LeftArcEagerTransition extends AbstractTransition implements Transition {
-	private static final Logger LOG = LoggerFactory.getLogger(LeftArcEagerTransition.class);
-	private String label;
-	private String name;
-	
-	public LeftArcEagerTransition(String label) {
-		super();
-		this.label = label;
-	}
+  private static final Logger LOG = LoggerFactory.getLogger(LeftArcEagerTransition.class);
+  private String label;
+  private String name;
 
-	@Override
-	protected void applyInternal(ParseConfiguration configuration) {
-		PosTaggedToken head = configuration.getBuffer().getFirst();
-		PosTaggedToken dependent = configuration.getStack().pop();
-		configuration.addDependency(head, dependent, label, this);
-	}
+  public LeftArcEagerTransition(String label) {
+    super();
+    this.label = label;
+  }
 
+  @Override
+  protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
+    PosTaggedToken head = configuration.getBuffer().getFirst();
+    PosTaggedToken dependent = configuration.getStack().pop();
+    configuration.addDependency(head, dependent, label, this);
+  }
 
-	@Override
-	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
-			}
-			return false;
-		}
-		
-		// left arc cannot be applied to the root
-		PosTaggedToken topOfStack = configuration.getStack().peek();
-		if (topOfStack.getTag().equals(PosTag.ROOT_POS_TAG)) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": top-of-stack is ROOT");
-			}
-			return false;
-		}
+  @Override
+  public boolean checkPreconditions(ParseConfiguration configuration) {
+    if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
+      }
+      return false;
+    }
 
-		// the top-of-stack must not yet have a governor
-		PosTaggedToken governor = configuration.getHead(topOfStack);
-		if (governor!=null) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": top of stack " + topOfStack + " already has governor " + governor);
-			}
-			return false;
-		}
+    // left arc cannot be applied to the root
+    PosTaggedToken topOfStack = configuration.getStack().peek();
+    if (topOfStack.getTag().equals(PosTag.ROOT_POS_TAG)) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": top-of-stack is ROOT");
+      }
+      return false;
+    }
 
-		return true;
-	}
+    // the top-of-stack must not yet have a governor
+    PosTaggedToken governor = configuration.getHead(topOfStack);
+    if (governor != null) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": top of stack " + topOfStack + " already has governor " + governor);
+      }
+      return false;
+    }
 
+    return true;
+  }
 
-	@Override
-	public String getCode() {
-		if (this.name==null) {
-			this.name = "LeftArc";
-			if (this.label!=null && this.label.length()>0)
-				this.name += "[" + this.label + "]";
-		}
-		
-		return this.name;
-	}
+  @Override
+  public String getCode() {
+    if (this.name == null) {
+      this.name = "LeftArc";
+      if (this.label != null && this.label.length() > 0)
+        this.name += "[" + this.label + "]";
+    }
 
-	@Override
-	public boolean doesReduce() {
-		return true;
-	}
+    return this.name;
+  }
+
+  @Override
+  public boolean doesReduce() {
+    return true;
+  }
 }

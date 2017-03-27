@@ -18,11 +18,19 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.tokeniser;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.rawText.Sentence;
+import com.typesafe.config.Config;
 
 /**
  * An interface for evaluating a given tokeniser.
@@ -31,74 +39,65 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TokeniserEvaluator {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TokeniserEvaluator.class);
-	private final Tokeniser tokeniser;
-	private int sentenceCount = 0;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(TokeniserEvaluator.class);
+  private final Tokeniser tokeniser;
+  private final TokeniserAnnotatedCorpusReader corpusReader;
 
-	private final List<TokenEvaluationObserver> observers = new ArrayList<>();
+  private final List<TokenEvaluationObserver> observers;
 
-	public TokeniserEvaluator(Tokeniser tokeniser) {
-		this.tokeniser = tokeniser;
-	}
+  public TokeniserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
+    Config config = session.getConfig();
+    this.tokeniser = Tokeniser.getInstance(session);
+    this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
 
-	/**
-	 * Evaluate a given tokeniser.
-	 * 
-	 * @param corpusReader
-	 *            for reading manually separated tokens from a corpus
-	 */
-	public void evaluate(TokeniserAnnotatedCorpusReader corpusReader) {
-		int sentenceIndex = 0;
-		while (corpusReader.hasNextTokenSequence()) {
-			TokenSequence realSequence = corpusReader.nextTokenSequence();
-			String sentence = realSequence.getText();
+    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 
-			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = this.getGuessedAtomicSequences(sentence);
+    this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
+  }
 
-			for (TokenEvaluationObserver observer : observers) {
-				observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
-			}
-			sentenceIndex++;
-			if (sentenceCount > 0 && sentenceIndex == sentenceCount)
-				break;
-		} // next sentence
+  /**
+   * 
+   * @param tokeniser
+   *          the tokeniser to evaluate
+   * @param corpusReader
+   *          for reading manually separated tokens from a corpus
+   */
+  public TokeniserEvaluator(Tokeniser tokeniser, TokeniserAnnotatedCorpusReader corpusReader) {
+    this.tokeniser = tokeniser;
+    this.observers = new ArrayList<>();
+    this.corpusReader = corpusReader;
+  }
 
-		for (TokenEvaluationObserver observer : observers) {
-			observer.onEvaluationComplete();
-		}
-	}
+  /**
+   * Evaluate a given tokeniser.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public void evaluate() throws TalismaneException, IOException {
+    while (corpusReader.hasNextSentence()) {
+      TokenSequence realSequence = corpusReader.nextTokenSequence();
+      Sentence sentence = realSequence.getSentence();
 
-	private List<TokenisedAtomicTokenSequence> getGuessedAtomicSequences(String sentence) {
-		List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
+      List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
 
-		// TODO: we'd like to evaluate the effect of propagation on tokenising.
-		// To do this, we either need to copy the entire processing chain from
-		// TalismaneImpl here
-		// or refactor so we can call it from within here.
-		// A better method might be to implement the evaluator as a
-		// PosTagSequenceProcessor, ParseConfigurationProcessor, etc.
-		// and use:
-		// ParseConfiguration.getPosTagSequence().getTokenSequence().getUnderlyingAtomicTokenSequence();
-		// but in this case, we'd need to somehow retain the "realSequence" for
-		// comparison
+      for (TokenEvaluationObserver observer : observers) {
+        observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
+      }
+    } // next sentence
 
-		return guessedAtomicSequences;
-	}
+    for (TokenEvaluationObserver observer : observers) {
+      observer.onEvaluationComplete();
+    }
+  }
 
-	public Tokeniser getTokeniser() {
-		return tokeniser;
-	}
+  public Tokeniser getTokeniser() {
+    return tokeniser;
+  }
 
-	public int getSentenceCount() {
-		return sentenceCount;
-	}
-
-	public void setSentenceCount(int sentenceCount) {
-		this.sentenceCount = sentenceCount;
-	}
-
-	public void addObserver(TokenEvaluationObserver observer) {
-		this.observers.add(observer);
-	}
+  public void addObserver(TokenEvaluationObserver observer) {
+    this.observers.add(observer);
+  }
 }

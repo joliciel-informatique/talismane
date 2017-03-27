@@ -26,10 +26,12 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 
 /**
  * Used to retrieve a set of pos-tags for a given lexical entry.
+ * 
  * @author Assaf Urieli
  *
  */
 public interface PosTagMapper extends Serializable {
-	public PosTagSet getPosTagSet();
-	public Set<PosTag> getPosTags(LexicalEntry lexicalEntry);
+  public PosTagSet getPosTagSet();
+
+  public Set<PosTag> getPosTags(LexicalEntry lexicalEntry);
 }

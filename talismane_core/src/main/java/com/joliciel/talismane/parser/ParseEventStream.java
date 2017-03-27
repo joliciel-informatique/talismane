@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.parser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.joliciel.talismane.TalismaneException;
 import com.joliciel.talismane.machineLearning.ClassificationEvent;
 import com.joliciel.talismane.machineLearning.ClassificationEventStream;
 import com.joliciel.talismane.machineLearning.features.FeatureResult;
@@ -40,86 +42,96 @@ import com.joliciel.talismane.parser.features.ParseConfigurationFeature;
  *
  */
 public class ParseEventStream implements ClassificationEventStream {
-	private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ParseEventStream.class);
 
-	ParserAnnotatedCorpusReader corpusReader;
-	Set<ParseConfigurationFeature<?>> parseFeatures;
+  private final ParserAnnotatedCorpusReader corpusReader;
+  private final Set<ParseConfigurationFeature<?>> parseFeatures;
+  private final boolean skipImpossibleSentences;
 
-	ParseConfiguration targetConfiguration;
-	ParseConfiguration currentConfiguration;
+  ParseConfiguration targetConfiguration;
+  ParseConfiguration currentConfiguration;
 
-	int currentIndex;
-	int eventCount;
+  int currentIndex;
+  int eventCount;
 
-	public ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures) {
-		this.corpusReader = corpusReader;
-		this.parseFeatures = parseFeatures;
-	}
+  public ParseEventStream(ParserAnnotatedCorpusReader corpusReader, Set<ParseConfigurationFeature<?>> parseFeatures, boolean skipImpossibleSentences) {
+    this.corpusReader = corpusReader;
+    this.parseFeatures = parseFeatures;
+    this.skipImpossibleSentences = skipImpossibleSentences;
+  }
 
-	@Override
-	public boolean hasNext() {
-		while (targetConfiguration == null) {
-			if (this.corpusReader.hasNextConfiguration()) {
+  @Override
+  public boolean hasNext() throws TalismaneException, IOException {
+    while (targetConfiguration == null) {
+      try {
+        if (this.corpusReader.hasNextSentence()) {
 
-				targetConfiguration = this.corpusReader.nextConfiguration();
-				currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());
-				currentIndex = 0;
-				if (currentIndex == targetConfiguration.getTransitions().size()) {
-					targetConfiguration = null;
-				}
-			} else {
-				break;
-			}
-		}
+          targetConfiguration = this.corpusReader.nextConfiguration();
+          currentConfiguration = new ParseConfiguration(targetConfiguration.getPosTagSequence());
+          currentIndex = 0;
+          if (currentIndex == targetConfiguration.getTransitions().size()) {
+            targetConfiguration = null;
+          }
+        } else {
+          break;
+        }
+      } catch (NonPredictableParseTreeException e) {
+        if (skipImpossibleSentences) {
+          LOG.error("Impossible sentence, skipping", e);
+          continue;
+        }
+        throw e;
+      }
+    }
 
-		if (targetConfiguration == null) {
-			LOG.debug("Event stream reading complete");
-		}
-		return targetConfiguration != null;
-	}
+    if (targetConfiguration == null) {
+      LOG.debug("Event stream reading complete");
+    }
+    return targetConfiguration != null;
+  }
 
-	@Override
-	public ClassificationEvent next() {
-		ClassificationEvent event = null;
-		if (this.hasNext()) {
-			eventCount++;
-			LOG.debug("Event " + eventCount + ": " + currentConfiguration.toString());
+  @Override
+  public ClassificationEvent next() throws TalismaneException, IOException {
+    ClassificationEvent event = null;
+    if (this.hasNext()) {
+      eventCount++;
+      LOG.debug("Event " + eventCount + ": " + currentConfiguration.toString());
 
-			List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
-			for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
-				RuntimeEnvironment env = new RuntimeEnvironment();
-				FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
-				if (featureResult != null) {
-					parseFeatureResults.add(featureResult);
-					if (LOG.isTraceEnabled()) {
-						LOG.trace(featureResult.toString());
-					}
-				}
-			}
+      List<FeatureResult<?>> parseFeatureResults = new ArrayList<FeatureResult<?>>();
+      for (ParseConfigurationFeature<?> parseFeature : parseFeatures) {
+        RuntimeEnvironment env = new RuntimeEnvironment();
+        FeatureResult<?> featureResult = parseFeature.check(currentConfiguration, env);
+        if (featureResult != null) {
+          parseFeatureResults.add(featureResult);
+          if (LOG.isTraceEnabled()) {
+            LOG.trace(featureResult.toString());
+          }
+        }
+      }
 
-			Transition transition = targetConfiguration.getTransitions().get(currentIndex);
-			String classification = transition.getCode();
-			event = new ClassificationEvent(parseFeatureResults, classification);
+      Transition transition = targetConfiguration.getTransitions().get(currentIndex);
+      String classification = transition.getCode();
+      event = new ClassificationEvent(parseFeatureResults, classification);
 
-			// apply the transition and up the index
-			currentConfiguration = new ParseConfiguration(currentConfiguration);
-			transition.apply(currentConfiguration);
-			currentIndex++;
+      // apply the transition and up the index
+      currentConfiguration = new ParseConfiguration(currentConfiguration);
+      transition.apply(currentConfiguration);
+      currentIndex++;
 
-			if (currentIndex == targetConfiguration.getTransitions().size()) {
-				targetConfiguration = null;
-			}
-		}
-		return event;
-	}
+      if (currentIndex == targetConfiguration.getTransitions().size()) {
+        targetConfiguration = null;
+      }
+    }
+    return event;
+  }
 
-	@Override
-	public Map<String, String> getAttributes() {
-		Map<String, String> attributes = new LinkedHashMap<String, String>();
-		attributes.put("eventStream", this.getClass().getSimpleName());
-		attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
+  @Override
+  public Map<String, String> getAttributes() {
+    Map<String, String> attributes = new LinkedHashMap<String, String>();
+    attributes.put("eventStream", this.getClass().getSimpleName());
+    attributes.put("corpusReader", corpusReader.getClass().getSimpleName());
 
-		attributes.putAll(corpusReader.getCharacteristics());
-		return attributes;
-	}
+    attributes.putAll(corpusReader.getCharacteristics());
+    return attributes;
+  }
 }

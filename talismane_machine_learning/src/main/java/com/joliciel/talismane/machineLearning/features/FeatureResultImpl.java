@@ -21,65 +21,68 @@ package com.joliciel.talismane.machineLearning.features;
 import java.util.List;
 
 final class FeatureResultImpl<T> implements FeatureResult<T> {
-	private Feature<?,T> feature;
-	private T outcome;
-	private String trainingName = null;
-	
-	public FeatureResultImpl(Feature<?,T> feature, T outcome) {
-		this.feature = feature;
-		if (outcome==null)
-			throw new RuntimeException("Trying to set null outcome");
+  private Feature<?, T> feature;
+  private T outcome;
+  private String trainingName = null;
 
-		this.outcome = outcome;
-	}
+  public FeatureResultImpl(Feature<?, T> feature, T outcome) {
+    this.feature = feature;
+    if (outcome == null)
+      throw new RuntimeException("Trying to set null outcome");
 
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.posTagger.features.FeatureResult#getFeature()
-	 */
-	@Override
-	public Feature<?,T> getFeature() {
-		return feature;
-	}
+    this.outcome = outcome;
+  }
 
-	/* (non-Javadoc)
-	 * @see com.joliciel.talismane.posTagger.features.FeatureResult#getOutcome()
-	 */
-	@Override
-	public T getOutcome() {
-		return this.outcome;
-	}
-	
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.joliciel.talismane.posTagger.features.FeatureResult#getFeature()
+   */
+  @Override
+  public Feature<?, T> getFeature() {
+    return feature;
+  }
 
-	@Override
-	public String toString() {
-		String string = this.getTrainingName();
-		if (outcome instanceof Double || outcome instanceof Integer || outcome instanceof List)
-			string += "=" + outcome.toString();
-		return string;
-	}
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.joliciel.talismane.posTagger.features.FeatureResult#getOutcome()
+   */
+  @Override
+  public T getOutcome() {
+    return this.outcome;
+  }
 
-	@Override
-	public String getTrainingName() {
-		if (trainingName==null) {
-			trainingName = feature.getName();
-			if (!(outcome instanceof Double || outcome instanceof Integer || outcome instanceof List)) {
-				String string = null;
-				if (outcome instanceof String) {
-					string = this.getTrainingOutcome((String)outcome);
-				} else {
-					string = outcome.toString();
-				}
-				trainingName += ":" + string;
-			}
-		}
-		return trainingName;
-	}
-	
-	public String getTrainingOutcome(String outcome) {
-		String string = outcome;
-		string = string.replace(' ', '·');
-		string = string.replace('=', '≈');
-		string = string.replace('\n', '¬');
-		return string;
-	}
+  @Override
+  public String toString() {
+    String string = this.getTrainingName();
+    if (outcome instanceof Double || outcome instanceof Integer || outcome instanceof List)
+      string += "=" + outcome.toString();
+    return string;
+  }
+
+  @Override
+  public String getTrainingName() {
+    if (trainingName == null) {
+      trainingName = feature.getName();
+      if (!(outcome instanceof Double || outcome instanceof Integer || outcome instanceof List)) {
+        String string = null;
+        if (outcome instanceof String) {
+          string = this.getTrainingOutcome((String) outcome);
+        } else {
+          string = outcome.toString();
+        }
+        trainingName += ":" + string;
+      }
+    }
+    return trainingName;
+  }
+
+  public String getTrainingOutcome(String outcome) {
+    String string = outcome;
+    string = string.replace(' ', '·');
+    string = string.replace('=', '≈');
+    string = string.replace('\n', '¬');
+    return string;
+  }
 }

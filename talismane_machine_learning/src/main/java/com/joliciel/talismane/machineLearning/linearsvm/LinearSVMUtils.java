@@ -30,37 +30,37 @@ import de.bwaldvogel.liblinear.Feature;
 import de.bwaldvogel.liblinear.FeatureNode;
 
 class LinearSVMUtils {
-	public static List<Feature> prepareData(List<FeatureResult<?>> featureResults, TObjectIntMap<String> featureIndexMap) {
-		List<Feature> featureList = new ArrayList<Feature>(featureResults.size());
-		for (FeatureResult<?> featureResult : featureResults) {
-			if (featureResult.getOutcome() instanceof List) {
-				@SuppressWarnings("unchecked")
-				FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
-				for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
-					int index = featureIndexMap.get(featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
-					if (index>=0) {
-						double value = stringOutcome.getWeight();
-						FeatureNode featureNode = new FeatureNode(index, value);
-						featureList.add(featureNode);
-					}
-				}
-			} else {
-				double value = 1.0;
-			
-				if (featureResult.getOutcome() instanceof Double)
-				{
-					@SuppressWarnings("unchecked")
-					FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
-					value = doubleResult.getOutcome().doubleValue();
-				}
-				int index = featureIndexMap.get(featureResult.getTrainingName());
-				if (index>=0) {
-					// we only need to bother adding features which existed in the training set
-					FeatureNode featureNode = new FeatureNode(index, value);
-					featureList.add(featureNode);
-				}
-			}
-		}
-		return featureList;
-	}
+  public static List<Feature> prepareData(List<FeatureResult<?>> featureResults, TObjectIntMap<String> featureIndexMap) {
+    List<Feature> featureList = new ArrayList<Feature>(featureResults.size());
+    for (FeatureResult<?> featureResult : featureResults) {
+      if (featureResult.getOutcome() instanceof List) {
+        @SuppressWarnings("unchecked")
+        FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+        for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+          int index = featureIndexMap.get(featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
+          if (index >= 0) {
+            double value = stringOutcome.getWeight();
+            FeatureNode featureNode = new FeatureNode(index, value);
+            featureList.add(featureNode);
+          }
+        }
+      } else {
+        double value = 1.0;
+
+        if (featureResult.getOutcome() instanceof Double) {
+          @SuppressWarnings("unchecked")
+          FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+          value = doubleResult.getOutcome().doubleValue();
+        }
+        int index = featureIndexMap.get(featureResult.getTrainingName());
+        if (index >= 0) {
+          // we only need to bother adding features which existed in the
+          // training set
+          FeatureNode featureNode = new FeatureNode(index, value);
+          featureList.add(featureNode);
+        }
+      }
+    }
+    return featureList;
+  }
 }

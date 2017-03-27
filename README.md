@@ -34,7 +34,7 @@ Talismane is a natural language processing framework with sentence detector, tok
 **Command-line usage**: follow the [setup instructions](https://github.com/joliciel-informatique/talismane/wiki/Setup), and then run a command similar to the following:
 <pre>java -Xmx1G -Dconfig.file=talismane-fr-X.X.X.conf -jar talismane-core-X.X.X.jar encoding=UTF8 inFile=data/frTest.txt outFile=data/frTest.tal</pre>
 
-**Calling from Java**: For syntax analysis within Java code via the API, see this [Java code example](https://github.com/joliciel-informatique/talismane/blob/master/talismane_examples/src/main/java/com/joliciel/talismane/examples/TalismaneAPITest.java).
+**Calling from Java**: For syntax analysis within Java code via the API, see this [Java code example](https://github.com/joliciel-informatique/talismane/blob/master/talismane_examples/src/main/java/com/joliciel/talismane/examples/TalismaneAPIExamples.java).
 
 **JavaDoc API**: You may also consult the [full JavaDoc API](http://joliciel-informatique.github.io/talismane/api/) online.
 

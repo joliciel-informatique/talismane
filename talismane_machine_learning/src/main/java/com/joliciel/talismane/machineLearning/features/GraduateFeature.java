@@ -18,52 +18,54 @@
 //////////////////////////////////////////////////////////////////////////////
 package com.joliciel.talismane.machineLearning.features;
 
+import com.joliciel.talismane.TalismaneException;
+
 /**
- * Takes a feature with a value from 0 to 1, and converts it to a graduated value
- * of 0, 1/n, 2/n, 3/n, ..., 1
+ * Takes a feature with a value from 0 to 1, and converts it to a graduated
+ * value of 0, 1/n, 2/n, 3/n, ..., 1
+ * 
  * @author Assaf Urieli
  *
  */
-public class GraduateFeature<T> extends AbstractCachableFeature<T,Double> implements DoubleFeature<T> {
-	private DoubleFeature<T> valueFeature;
-	private IntegerFeature<T> nFeature;
-	
-	public GraduateFeature(DoubleFeature<T> valueFeature, IntegerFeature<T> nFeature) {
-		super();
-		this.valueFeature = valueFeature;
-		this.nFeature = nFeature;
-		this.setName(this.getName() + "(" + valueFeature.getName() + "," + nFeature.getName() + ")");
-	}
+public class GraduateFeature<T> extends AbstractCachableFeature<T, Double>implements DoubleFeature<T> {
+  private DoubleFeature<T> valueFeature;
+  private IntegerFeature<T> nFeature;
 
-	@Override
-	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) {
-		FeatureResult<Double> rawResult = valueFeature.check(context, env);
-		FeatureResult<Integer> nResult = nFeature.check(context, env);
-		FeatureResult<Double> result = null;
-		if (rawResult!=null && nResult!=null) {
-			double weight = rawResult.getOutcome();
-			int n = nResult.getOutcome();
-			double graduatedWeight = (1.0/(double)n) * Math.round(weight * (double) (n-1));
-			result = this.generateResult(graduatedWeight);
-		}
-		return result;
-	}
+  public GraduateFeature(DoubleFeature<T> valueFeature, IntegerFeature<T> nFeature) {
+    super();
+    this.valueFeature = valueFeature;
+    this.nFeature = nFeature;
+    this.setName(this.getName() + "(" + valueFeature.getName() + "," + nFeature.getName() + ")");
+  }
 
-	public DoubleFeature<T> getValueFeature() {
-		return valueFeature;
-	}
+  @Override
+  public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Double> rawResult = valueFeature.check(context, env);
+    FeatureResult<Integer> nResult = nFeature.check(context, env);
+    FeatureResult<Double> result = null;
+    if (rawResult != null && nResult != null) {
+      double weight = rawResult.getOutcome();
+      int n = nResult.getOutcome();
+      double graduatedWeight = (1.0 / n) * Math.round(weight * (n - 1));
+      result = this.generateResult(graduatedWeight);
+    }
+    return result;
+  }
 
-	public void setValueFeature(DoubleFeature<T> valueFeature) {
-		this.valueFeature = valueFeature;
-	}
+  public DoubleFeature<T> getValueFeature() {
+    return valueFeature;
+  }
 
-	public IntegerFeature<T> getnFeature() {
-		return nFeature;
-	}
+  public void setValueFeature(DoubleFeature<T> valueFeature) {
+    this.valueFeature = valueFeature;
+  }
 
-	public void setnFeature(IntegerFeature<T> nFeature) {
-		this.nFeature = nFeature;
-	}
+  public IntegerFeature<T> getnFeature() {
+    return nFeature;
+  }
 
+  public void setnFeature(IntegerFeature<T> nFeature) {
+    this.nFeature = nFeature;
+  }
 
 }
