@@ -28,36 +28,36 @@ import java.util.concurrent.LinkedBlockingDeque;
  *
  */
 public class BoundedHashSet<E> extends HashSet<E> {
-	private static final long serialVersionUID = 1L;
-	private LinkedBlockingDeque<E> deque;
-	private int capacity = 0;
-	
-	public BoundedHashSet(int capacity) {
-		super();
-		this.capacity = capacity;
-		deque = new LinkedBlockingDeque<E>(capacity);
-	}
+  private static final long serialVersionUID = 1L;
+  private LinkedBlockingDeque<E> deque;
+  private int capacity = 0;
+  
+  public BoundedHashSet(int capacity) {
+    super();
+    this.capacity = capacity;
+    deque = new LinkedBlockingDeque<E>(capacity);
+  }
 
-	@Override
+  @Override
     public boolean add(E e) {
-		if (this.capacity==0) {
-			// max size was initiated to zero => just return false
-			return false;
-		}
-		
-		boolean contains = super.contains(e);
-		if (contains) {
-			return false;
-		}
-		
-		if (deque.remainingCapacity()<=0) {
-			E removeElement = deque.pollLast();
-			super.remove(removeElement);
-		}
-		
-		boolean added = super.add(e);
-		if (added)
-			deque.add(e);
-		return added;
-	}
+    if (this.capacity==0) {
+      // max size was initiated to zero => just return false
+      return false;
+    }
+    
+    boolean contains = super.contains(e);
+    if (contains) {
+      return false;
+    }
+    
+    if (deque.remainingCapacity()<=0) {
+      E removeElement = deque.pollLast();
+      super.remove(removeElement);
+    }
+    
+    boolean added = super.add(e);
+    if (added)
+      deque.add(e);
+    return added;
+  }
 }

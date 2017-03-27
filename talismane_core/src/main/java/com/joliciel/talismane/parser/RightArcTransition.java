@@ -31,47 +31,47 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class RightArcTransition extends AbstractTransition implements Transition {
-	private static final Logger LOG = LoggerFactory.getLogger(RightArcTransition.class);
-	private String label;
-	private String name;
+  private static final Logger LOG = LoggerFactory.getLogger(RightArcTransition.class);
+  private String label;
+  private String name;
 
-	public RightArcTransition(String label) {
-		super();
-		this.label = label;
-	}
+  public RightArcTransition(String label) {
+    super();
+    this.label = label;
+  }
 
-	@Override
-	protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
-		PosTaggedToken head = configuration.getStack().pop();
-		PosTaggedToken dependent = configuration.getBuffer().pollFirst();
-		configuration.getBuffer().addFirst(head);
-		configuration.addDependency(head, dependent, label, this);
-	}
+  @Override
+  protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
+    PosTaggedToken head = configuration.getStack().pop();
+    PosTaggedToken dependent = configuration.getBuffer().pollFirst();
+    configuration.getBuffer().addFirst(head);
+    configuration.addDependency(head, dependent, label, this);
+  }
 
-	@Override
-	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
-			}
-			return false;
-		}
-		return true;
-	}
+  @Override
+  public boolean checkPreconditions(ParseConfiguration configuration) {
+    if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
+      }
+      return false;
+    }
+    return true;
+  }
 
-	@Override
-	public String getCode() {
-		if (this.name == null) {
-			this.name = "RightArc";
-			if (this.label != null && this.label.length() > 0)
-				this.name += "[" + this.label + "]";
-		}
+  @Override
+  public String getCode() {
+    if (this.name == null) {
+      this.name = "RightArc";
+      if (this.label != null && this.label.length() > 0)
+        this.name += "[" + this.label + "]";
+    }
 
-		return this.name;
-	}
+    return this.name;
+  }
 
-	@Override
-	public boolean doesReduce() {
-		return true;
-	}
+  @Override
+  public boolean doesReduce() {
+    return true;
+  }
 }

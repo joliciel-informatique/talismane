@@ -51,92 +51,92 @@ import freemarker.template.Version;
  *
  */
 public class FreemarkerTemplateWriter implements ParseConfigurationProcessor, PosTagSequenceProcessor, TokenSequenceProcessor, SentenceProcessor {
-	private static final Logger LOG = LoggerFactory.getLogger(FreemarkerTemplateWriter.class);
-	private final Template template;
-	private final Writer writer;
-	private int sentenceCount = 0;
-	private int tokenCount = 0;
-	private int relationCount = 0;
-	private int characterCount = 0;
+  private static final Logger LOG = LoggerFactory.getLogger(FreemarkerTemplateWriter.class);
+  private final Template template;
+  private final Writer writer;
+  private int sentenceCount = 0;
+  private int tokenCount = 0;
+  private int relationCount = 0;
+  private int characterCount = 0;
 
-	public FreemarkerTemplateWriter(Reader templateReader, Writer writer) throws IOException {
-		this.writer = writer;
-		Configuration cfg = new Configuration(new Version(2, 3, 23));
-		cfg.setCacheStorage(new NullCacheStorage());
-		cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
+  public FreemarkerTemplateWriter(Reader templateReader, Writer writer) throws IOException {
+    this.writer = writer;
+    Configuration cfg = new Configuration(new Version(2, 3, 23));
+    cfg.setCacheStorage(new NullCacheStorage());
+    cfg.setObjectWrapper(new DefaultObjectWrapper(new Version(2, 3, 23)));
 
-		this.template = new Template("freemarkerTemplate", templateReader, cfg);
-	}
+    this.template = new Template("freemarkerTemplate", templateReader, cfg);
+  }
 
-	void process(Map<String, Object> model) throws IOException {
-		try {
-			template.process(model, writer);
-			writer.flush();
-		} catch (TemplateException te) {
-			LogUtils.logError(LOG, te);
-			throw new RuntimeException(te);
-		}
-	}
+  void process(Map<String, Object> model) throws IOException {
+    try {
+      template.process(model, writer);
+      writer.flush();
+    } catch (TemplateException te) {
+      LogUtils.logError(LOG, te);
+      throw new RuntimeException(te);
+    }
+  }
 
-	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws IOException {
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("Outputting: " + parseConfiguration.toString());
-		}
-		Map<String, Object> model = new HashMap<String, Object>();
-		ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
-		model.put("sentence", output);
-		model.put("configuration", parseConfiguration);
-		model.put("tokenCount", tokenCount);
-		model.put("relationCount", relationCount);
-		model.put("sentenceCount", sentenceCount);
-		model.put("characterCount", characterCount);
-		model.put("LOG", LOG);
-		this.process(model);
-		tokenCount += parseConfiguration.getPosTagSequence().size();
-		relationCount += parseConfiguration.getRealDependencies().size();
-		characterCount += parseConfiguration.getSentence().getText().length();
-		sentenceCount += 1;
-	}
+  @Override
+  public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws IOException {
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Outputting: " + parseConfiguration.toString());
+    }
+    Map<String, Object> model = new HashMap<String, Object>();
+    ParseConfigurationOutput output = new ParseConfigurationOutput(parseConfiguration);
+    model.put("sentence", output);
+    model.put("configuration", parseConfiguration);
+    model.put("tokenCount", tokenCount);
+    model.put("relationCount", relationCount);
+    model.put("sentenceCount", sentenceCount);
+    model.put("characterCount", characterCount);
+    model.put("LOG", LOG);
+    this.process(model);
+    tokenCount += parseConfiguration.getPosTagSequence().size();
+    relationCount += parseConfiguration.getRealDependencies().size();
+    characterCount += parseConfiguration.getSentence().getText().length();
+    sentenceCount += 1;
+  }
 
-	@Override
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws IOException {
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("sentence", posTagSequence);
-		model.put("text", posTagSequence.getTokenSequence().getSentence().getText());
-		model.put("LOG", LOG);
-		this.process(model);
-	}
+  @Override
+  public void onNextPosTagSequence(PosTagSequence posTagSequence) throws IOException {
+    Map<String, Object> model = new HashMap<String, Object>();
+    model.put("sentence", posTagSequence);
+    model.put("text", posTagSequence.getTokenSequence().getSentence().getText());
+    model.put("LOG", LOG);
+    this.process(model);
+  }
 
-	@Override
-	public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException {
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("sentence", tokenSequence);
-		model.put("text", tokenSequence.getSentence().getText());
-		model.put("LOG", LOG);
-		this.process(model);
-	}
+  @Override
+  public void onNextTokenSequence(TokenSequence tokenSequence) throws IOException {
+    Map<String, Object> model = new HashMap<String, Object>();
+    model.put("sentence", tokenSequence);
+    model.put("text", tokenSequence.getSentence().getText());
+    model.put("LOG", LOG);
+    this.process(model);
+  }
 
-	@Override
-	public void onNextSentence(Sentence sentence) throws IOException {
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("sentence", sentence);
-		model.put("LOG", LOG);
-		this.process(model);
-	}
+  @Override
+  public void onNextSentence(Sentence sentence) throws IOException {
+    Map<String, Object> model = new HashMap<String, Object>();
+    model.put("sentence", sentence);
+    model.put("LOG", LOG);
+    this.process(model);
+  }
 
-	@Override
-	public void onCompleteParse() {
-		// nothing to do here
-	}
+  @Override
+  public void onCompleteParse() {
+    // nothing to do here
+  }
 
-	@Override
-	public void onCompleteAnalysis() {
-		// nothing to do here
-	}
+  @Override
+  public void onCompleteAnalysis() {
+    // nothing to do here
+  }
 
-	@Override
-	public void close() throws IOException {
-		this.writer.close();
-	}
+  @Override
+  public void close() throws IOException {
+    this.writer.close();
+  }
 }

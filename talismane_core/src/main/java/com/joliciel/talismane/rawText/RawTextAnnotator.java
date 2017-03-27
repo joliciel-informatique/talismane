@@ -38,27 +38,27 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
  *
  */
 public interface RawTextAnnotator extends Annotator<AnnotatedText> {
-	/**
-	 * If the annotator indicates text to be replaced, the replacement string.
-	 */
-	public String getReplacement();
+  /**
+   * If the annotator indicates text to be replaced, the replacement string.
+   */
+  public String getReplacement();
 
-	public void setReplacement(String replacement);
+  public void setReplacement(String replacement);
 
-	/**
-	 * The maximum size of text that this filter can match (without risking to
-	 * add only the beginning and not the end, or vice versa). Bigger matches
-	 * will throw an error.
-	 */
-	public int getBlockSize();
+  /**
+   * The maximum size of text that this filter can match (without risking to
+   * add only the beginning and not the end, or vice versa). Bigger matches
+   * will throw an error.
+   */
+  public int getBlockSize();
 
-	/**
-	 * If the filter adds a tag, the value to add.
-	 */
-	public TokenAttribute<?> getAttribute();
+  /**
+   * If the filter adds a tag, the value to add.
+   */
+  public TokenAttribute<?> getAttribute();
 
-	/**
-	 * Set the tag added by this filter.
-	 */
-	public void setAttribute(TokenAttribute<?> attribute);
+  /**
+   * Set the tag added by this filter.
+   */
+  public void setAttribute(TokenAttribute<?> attribute);
 }

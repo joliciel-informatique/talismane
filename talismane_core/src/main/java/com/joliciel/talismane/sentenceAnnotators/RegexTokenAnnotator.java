@@ -45,71 +45,71 @@ import com.joliciel.talismane.utils.RegexUtils;
  *
  */
 public class RegexTokenAnnotator extends AbstractRegexAnnotator {
-	private final String replacement;
-	private final String analysisText;
-	private static final Set<String> handledParameters = new HashSet<>(Arrays.asList("replacement", "analysisText"));
+  private final String replacement;
+  private final String analysisText;
+  private static final Set<String> handledParameters = new HashSet<>(Arrays.asList("replacement", "analysisText"));
 
-	/**
-	 * Assigns default groupIndex=0, caseSensitive=true,
-	 * diacricticSensitive=true, autoWordBoundaries=false.
-	 */
-	public RegexTokenAnnotator(String regex, String replacement, String analysisText, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-		this(regex, replacement, analysisText, 0, true, true, false, talismaneSession);
-	}
+  /**
+   * Assigns default groupIndex=0, caseSensitive=true,
+   * diacricticSensitive=true, autoWordBoundaries=false.
+   */
+  public RegexTokenAnnotator(String regex, String replacement, String analysisText, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
+    this(regex, replacement, analysisText, 0, true, true, false, talismaneSession);
+  }
 
-	public RegexTokenAnnotator(String regex, String replacement, String analysisText, int groupIndex, boolean caseSensitive, boolean diacricticSensitive,
-			boolean autoWordBoundaries, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-		super(regex, groupIndex, caseSensitive, diacricticSensitive, autoWordBoundaries, true, talismaneSession);
-		this.replacement = replacement;
-		this.analysisText = analysisText;
-	}
+  public RegexTokenAnnotator(String regex, String replacement, String analysisText, int groupIndex, boolean caseSensitive, boolean diacricticSensitive,
+      boolean autoWordBoundaries, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
+    super(regex, groupIndex, caseSensitive, diacricticSensitive, autoWordBoundaries, true, talismaneSession);
+    this.replacement = replacement;
+    this.analysisText = analysisText;
+  }
 
-	public RegexTokenAnnotator(String descriptor, Map<String, String> defaultParams, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
-		super(descriptor, defaultParams, handledParameters, true, talismaneSession);
-		Map<String, String> parameters = this.getParameters();
+  public RegexTokenAnnotator(String descriptor, Map<String, String> defaultParams, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
+    super(descriptor, defaultParams, handledParameters, true, talismaneSession);
+    Map<String, String> parameters = this.getParameters();
 
-		String replacement = null;
-		String analysisText = null;
+    String replacement = null;
+    String analysisText = null;
 
-		for (String paramName : parameters.keySet()) {
-			String paramValue = parameters.get(paramName);
+    for (String paramName : parameters.keySet()) {
+      String paramValue = parameters.get(paramName);
 
-			if (paramName.equals("replacement")) {
-				replacement = paramValue;
-			} else if (paramName.equals("analysisText")) {
-				analysisText = paramValue;
-			}
-		}
+      if (paramName.equals("replacement")) {
+        replacement = paramValue;
+      } else if (paramName.equals("analysisText")) {
+        analysisText = paramValue;
+      }
+    }
 
-		this.replacement = replacement;
-		this.analysisText = analysisText;
-	}
+    this.replacement = replacement;
+    this.analysisText = analysisText;
+  }
 
-	/**
-	 * The replacement string to use for this token. See
-	 * {@link RegexUtils#getReplacement(String, CharSequence, Matcher)} for
-	 * handling of the replacement string.
-	 * 
-	 * @return
-	 */
-	public String getReplacement() {
-		return replacement;
-	}
+  /**
+   * The replacement string to use for this token. See
+   * {@link RegexUtils#getReplacement(String, CharSequence, Matcher)} for
+   * handling of the replacement string.
+   * 
+   * @return
+   */
+  public String getReplacement() {
+    return replacement;
+  }
 
-	/**
-	 * The analysis text to use for this token. See
-	 * {@link Token#getAnalyisText()}.
-	 * 
-	 * @return
-	 */
-	public String getAnalysisText() {
-		return analysisText;
-	}
+  /**
+   * The analysis text to use for this token. See
+   * {@link Token#getAnalyisText()}.
+   * 
+   * @return
+   */
+  public String getAnalysisText() {
+    return analysisText;
+  }
 
-	@Override
-	protected String findReplacement(CharSequence text, Matcher matcher) {
-		String newText = RegexUtils.getReplacement(replacement, text, matcher);
-		return newText;
-	}
+  @Override
+  protected String findReplacement(CharSequence text, Matcher matcher) {
+    String newText = RegexUtils.getReplacement(replacement, text, matcher);
+    return newText;
+  }
 
 }

@@ -24,5 +24,5 @@ package com.joliciel.talismane.utils.io;
  *
  */
 public interface CurrentFileProvider {
-	public void addCurrentFileObserver(CurrentFileObserver observer);
+  public void addCurrentFileObserver(CurrentFileObserver observer);
 }

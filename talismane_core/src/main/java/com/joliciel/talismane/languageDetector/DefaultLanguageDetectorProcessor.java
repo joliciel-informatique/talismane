@@ -36,27 +36,27 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public class DefaultLanguageDetectorProcessor implements LanguageDetectorProcessor {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguageDetectorProcessor.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguageDetectorProcessor.class);
 
-	private Writer writer;
+  private Writer writer;
 
-	public DefaultLanguageDetectorProcessor(Writer writer) {
-		this.writer = writer;
-	}
+  public DefaultLanguageDetectorProcessor(Writer writer) {
+    this.writer = writer;
+  }
 
-	@Override
-	public void onNextText(String text, List<WeightedOutcome<Locale>> results) throws IOException {
-		writer.write(text + "\n");
-		for (WeightedOutcome<Locale> result : results) {
-			writer.write(result.getOutcome().toLanguageTag() + "\t" + result.getWeight() + "\n");
-		}
-		writer.flush();
-	}
+  @Override
+  public void onNextText(String text, List<WeightedOutcome<Locale>> results) throws IOException {
+    writer.write(text + "\n");
+    for (WeightedOutcome<Locale> result : results) {
+      writer.write(result.getOutcome().toLanguageTag() + "\t" + result.getWeight() + "\n");
+    }
+    writer.flush();
+  }
 
-	@Override
-	public void close() throws IOException {
-		writer.close();
-	}
+  @Override
+  public void close() throws IOException {
+    writer.close();
+  }
 
 }

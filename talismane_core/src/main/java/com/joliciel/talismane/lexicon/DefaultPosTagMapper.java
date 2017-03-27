@@ -44,7 +44,7 @@ import com.joliciel.talismane.posTagger.UnknownPosTagException;
  * </p>
  * 
  * <pre>
- * Category	Morphology
+ * Category Morphology
  * </pre>
  * <p>
  * The following rows each contain one tab per attribute, and a final tab for
@@ -52,65 +52,65 @@ import com.joliciel.talismane.posTagger.UnknownPosTagException;
  * </p>
  * 
  * <pre>
- * adj	Kms	ADJ
+ * adj  Kms ADJ
  * </pre>
  * 
  * @author Assaf Urieli
  *
  */
 public class DefaultPosTagMapper implements PosTagMapper {
-	private static final long serialVersionUID = 1L;
-	private PosTagSet posTagSet;
-	private Map<String, Set<PosTag>> posTagMap = new HashMap<String, Set<PosTag>>();
-	private List<String> attributes = new ArrayList<String>();
+  private static final long serialVersionUID = 1L;
+  private PosTagSet posTagSet;
+  private Map<String, Set<PosTag>> posTagMap = new HashMap<String, Set<PosTag>>();
+  private List<String> attributes = new ArrayList<String>();
 
-	public DefaultPosTagMapper(Scanner scanner, PosTagSet posTagSet) throws UnknownPosTagException {
-		super();
-		this.posTagSet = posTagSet;
+  public DefaultPosTagMapper(Scanner scanner, PosTagSet posTagSet) throws UnknownPosTagException {
+    super();
+    this.posTagSet = posTagSet;
 
-		boolean firstLine = true;
+    boolean firstLine = true;
 
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.startsWith("#"))
-				continue;
-			String[] parts = line.split("\t");
-			if (firstLine) {
-				for (String part : parts)
-					attributes.add(part);
-				firstLine = false;
-			} else {
-				String key = "";
-				for (int i = 0; i < attributes.size(); i++)
-					key += parts[i] + "|";
+    while (scanner.hasNextLine()) {
+      String line = scanner.nextLine();
+      if (line.startsWith("#"))
+        continue;
+      String[] parts = line.split("\t");
+      if (firstLine) {
+        for (String part : parts)
+          attributes.add(part);
+        firstLine = false;
+      } else {
+        String key = "";
+        for (int i = 0; i < attributes.size(); i++)
+          key += parts[i] + "|";
 
-				String value = parts[attributes.size()];
-				PosTag posTag = posTagSet.getPosTag(value);
-				Set<PosTag> posTags = posTagMap.get(key);
-				if (posTags == null) {
-					posTags = new HashSet<PosTag>();
-					posTagMap.put(key, posTags);
-				}
-				posTags.add(posTag);
-			}
-		}
-	}
+        String value = parts[attributes.size()];
+        PosTag posTag = posTagSet.getPosTag(value);
+        Set<PosTag> posTags = posTagMap.get(key);
+        if (posTags == null) {
+          posTags = new HashSet<PosTag>();
+          posTagMap.put(key, posTags);
+        }
+        posTags.add(posTag);
+      }
+    }
+  }
 
-	@Override
-	public PosTagSet getPosTagSet() {
-		return this.posTagSet;
-	}
+  @Override
+  public PosTagSet getPosTagSet() {
+    return this.posTagSet;
+  }
 
-	@Override
-	public Set<PosTag> getPosTags(LexicalEntry lexicalEntry) {
-		StringBuilder sb = new StringBuilder();
-		for (String attribute : attributes)
-			sb.append(lexicalEntry.getAttribute(attribute) + "|");
-		String key = sb.toString();
-		Set<PosTag> posTags = posTagMap.get(key);
-		if (posTags == null)
-			posTags = new HashSet<PosTag>();
-		return posTags;
-	}
+  @Override
+  public Set<PosTag> getPosTags(LexicalEntry lexicalEntry) {
+    StringBuilder sb = new StringBuilder();
+    for (String attribute : attributes)
+      sb.append(lexicalEntry.getAttribute(attribute) + "|");
+    String key = sb.toString();
+    Set<PosTag> posTags = posTagMap.get(key);
+    if (posTags == null)
+      posTags = new HashSet<PosTag>();
+    return posTags;
+  }
 
 }

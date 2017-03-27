@@ -27,32 +27,32 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 class RoundFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
-	private DoubleFeature<T> featureToRound;
+  private DoubleFeature<T> featureToRound;
 
-	public RoundFeature(DoubleFeature<T> featureToRound) {
-		super();
-		this.featureToRound = featureToRound;
-		this.setName(this.featureToRound.getName());
-	}
+  public RoundFeature(DoubleFeature<T> featureToRound) {
+    super();
+    this.featureToRound = featureToRound;
+    this.setName(this.featureToRound.getName());
+  }
 
-	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Integer> featureResult = null;
+  @Override
+  public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Integer> featureResult = null;
 
-		FeatureResult<Double> doubleResult = featureToRound.check(context, env);
-		if (doubleResult != null) {
-			int intResult = (int) Math.round(doubleResult.getOutcome());
-			featureResult = this.generateResult(intResult);
-		}
-		return featureResult;
-	}
+    FeatureResult<Double> doubleResult = featureToRound.check(context, env);
+    if (doubleResult != null) {
+      int intResult = (int) Math.round(doubleResult.getOutcome());
+      featureResult = this.generateResult(intResult);
+    }
+    return featureResult;
+  }
 
-	public DoubleFeature<T> getFeatureToRound() {
-		return featureToRound;
-	}
+  public DoubleFeature<T> getFeatureToRound() {
+    return featureToRound;
+  }
 
-	public void setFeatureToRound(DoubleFeature<T> featureToRound) {
-		this.featureToRound = featureToRound;
-	}
+  public void setFeatureToRound(DoubleFeature<T> featureToRound) {
+    this.featureToRound = featureToRound;
+  }
 
 }

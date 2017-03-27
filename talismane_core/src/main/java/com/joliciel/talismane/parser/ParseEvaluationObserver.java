@@ -42,108 +42,108 @@ import com.typesafe.config.Config;
  */
 public interface ParseEvaluationObserver {
 
-	/**
-	 * Called before parsing begins
-	 */
-	public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences);
+  /**
+   * Called before parsing begins
+   */
+  public void onParseStart(ParseConfiguration realConfiguration, List<PosTagSequence> posTagSequences);
 
-	/**
-	 * Called when the next parse configuration has been processed.
-	 * 
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException;
+  /**
+   * Called when the next parse configuration has been processed.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public void onParseEnd(ParseConfiguration realConfiguration, List<ParseConfiguration> guessedConfigurations) throws TalismaneException, IOException;
 
-	/**
-	 * Called when full evaluation has completed.
-	 * 
-	 * @throws IOException
-	 */
-	public void onEvaluationComplete() throws IOException;
+  /**
+   * Called when full evaluation has completed.
+   * 
+   * @throws IOException
+   */
+  public void onEvaluationComplete() throws IOException;
 
-	public static List<ParseEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
-		Config config = session.getConfig();
-		Config parserConfig = config.getConfig("talismane.core.parser");
-		Config evalConfig = parserConfig.getConfig("evaluate");
+  public static List<ParseEvaluationObserver> getObservers(File outDir, TalismaneSession session) throws IOException {
+    Config config = session.getConfig();
+    Config parserConfig = config.getConfig("talismane.core.parser");
+    Config evalConfig = parserConfig.getConfig("evaluate");
 
-		List<ParseEvaluationObserver> observers = new ArrayList<>();
+    List<ParseEvaluationObserver> observers = new ArrayList<>();
 
-		ParseTimeByLengthObserver parseTimeByLengthObserver = new ParseTimeByLengthObserver();
-		if (evalConfig.getBoolean("include-time-per-token")) {
-			File timePerTokenFile = new File(outDir, session.getBaseName() + ".timePerToken.csv");
-			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false), session.getCsvCharset()));
-			parseTimeByLengthObserver.setWriter(csvFileWriter);
-		}
-		observers.add(parseTimeByLengthObserver);
+    ParseTimeByLengthObserver parseTimeByLengthObserver = new ParseTimeByLengthObserver();
+    if (evalConfig.getBoolean("include-time-per-token")) {
+      File timePerTokenFile = new File(outDir, session.getBaseName() + ".timePerToken.csv");
+      Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(timePerTokenFile, false), session.getCsvCharset()));
+      parseTimeByLengthObserver.setWriter(csvFileWriter);
+    }
+    observers.add(parseTimeByLengthObserver);
 
-		boolean labeledEvaluation = evalConfig.getBoolean("labeled-evaluation");
+    boolean labeledEvaluation = evalConfig.getBoolean("labeled-evaluation");
 
-		File fscoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
+    File fscoreFile = new File(outDir, session.getBaseName() + ".fscores.csv");
 
-		ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
-		parseFScoreCalculator.setLabeledEvaluation(labeledEvaluation);
+    ParseEvaluationFScoreCalculator parseFScoreCalculator = new ParseEvaluationFScoreCalculator(fscoreFile);
+    parseFScoreCalculator.setLabeledEvaluation(labeledEvaluation);
 
-		Module startModule = Module.valueOf(evalConfig.getString("start-module"));
-		if (startModule == Module.tokeniser)
-			parseFScoreCalculator.setHasTokeniser(true);
-		if (startModule == Module.tokeniser || startModule == Module.posTagger)
-			parseFScoreCalculator.setHasPosTagger(true);
-		observers.add(parseFScoreCalculator);
+    Module startModule = Module.valueOf(evalConfig.getString("start-module"));
+    if (startModule == Module.tokeniser)
+      parseFScoreCalculator.setHasTokeniser(true);
+    if (startModule == Module.tokeniser || startModule == Module.posTagger)
+      parseFScoreCalculator.setHasPosTagger(true);
+    observers.add(parseFScoreCalculator);
 
-		if (evalConfig.getBoolean("output-guesses")) {
-			File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");
-			csvFile.delete();
-			csvFile.createNewFile();
-			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
-			int guessCount = 1;
-			int outputGuessCount = evalConfig.getInt("output-guess-count");
-			if (outputGuessCount > 0)
-				guessCount = outputGuessCount;
-			else
-				guessCount = parserConfig.getInt("beam-width");
+    if (evalConfig.getBoolean("output-guesses")) {
+      File csvFile = new File(outDir, session.getBaseName() + "_sentences.csv");
+      csvFile.delete();
+      csvFile.createNewFile();
+      Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
+      int guessCount = 1;
+      int outputGuessCount = evalConfig.getInt("output-guess-count");
+      if (outputGuessCount > 0)
+        guessCount = outputGuessCount;
+      else
+        guessCount = parserConfig.getInt("beam-width");
 
-			ParseEvaluationSentenceWriter sentenceWriter = new ParseEvaluationSentenceWriter(csvFileWriter, guessCount);
-			if (startModule == Module.tokeniser)
-				sentenceWriter.setHasTokeniser(true);
-			if (startModule == Module.tokeniser || startModule == Module.posTagger)
-				sentenceWriter.setHasPosTagger(true);
-			observers.add(sentenceWriter);
-		}
+      ParseEvaluationSentenceWriter sentenceWriter = new ParseEvaluationSentenceWriter(csvFileWriter, guessCount);
+      if (startModule == Module.tokeniser)
+        sentenceWriter.setHasTokeniser(true);
+      if (startModule == Module.tokeniser || startModule == Module.posTagger)
+        sentenceWriter.setHasPosTagger(true);
+      observers.add(sentenceWriter);
+    }
 
-		if (evalConfig.getBoolean("include-distance-fscores")) {
-			File csvFile = new File(outDir, session.getBaseName() + "_distances.csv");
-			csvFile.delete();
-			csvFile.createNewFile();
-			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
-			ParserFScoreCalculatorByDistance calculator = new ParserFScoreCalculatorByDistance(csvFileWriter);
-			calculator.setLabeledEvaluation(labeledEvaluation);
-			if (evalConfig.hasPath("skip-label")) {
-				String skipLabel = evalConfig.getString("skip-label");
-				calculator.setSkipLabel(skipLabel);
-			}
-			observers.add(calculator);
-		}
+    if (evalConfig.getBoolean("include-distance-fscores")) {
+      File csvFile = new File(outDir, session.getBaseName() + "_distances.csv");
+      csvFile.delete();
+      csvFile.createNewFile();
+      Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
+      ParserFScoreCalculatorByDistance calculator = new ParserFScoreCalculatorByDistance(csvFileWriter);
+      calculator.setLabeledEvaluation(labeledEvaluation);
+      if (evalConfig.hasPath("skip-label")) {
+        String skipLabel = evalConfig.getString("skip-label");
+        calculator.setSkipLabel(skipLabel);
+      }
+      observers.add(calculator);
+    }
 
-		if (evalConfig.getBoolean("include-transition-log")) {
-			File csvFile = new File(outDir, session.getBaseName() + "_transitions.csv");
-			csvFile.delete();
-			csvFile.createNewFile();
-			Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
-			ParseConfigurationProcessor transitionLogWriter = new TransitionLogWriter(csvFileWriter);
-			ParseEvaluationObserverImpl observer = new ParseEvaluationObserverImpl(transitionLogWriter);
-			observer.setWriter(csvFileWriter);
-			List<String> errorLabels = evalConfig.getStringList("error-labels");
-			observer.setErrorLabels(new HashSet<>(errorLabels));
-			observers.add(observer);
-		}
+    if (evalConfig.getBoolean("include-transition-log")) {
+      File csvFile = new File(outDir, session.getBaseName() + "_transitions.csv");
+      csvFile.delete();
+      csvFile.createNewFile();
+      Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false), session.getCsvCharset()));
+      ParseConfigurationProcessor transitionLogWriter = new TransitionLogWriter(csvFileWriter);
+      ParseEvaluationObserverImpl observer = new ParseEvaluationObserverImpl(transitionLogWriter);
+      observer.setWriter(csvFileWriter);
+      List<String> errorLabels = evalConfig.getStringList("error-labels");
+      observer.setErrorLabels(new HashSet<>(errorLabels));
+      observers.add(observer);
+    }
 
-		List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(null, outDir, session);
-		for (ParseConfigurationProcessor processor : processors) {
-			ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(processor);
-			observers.add(templateWriter);
-		}
+    List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(null, outDir, session);
+    for (ParseConfigurationProcessor processor : processors) {
+      ParseEvaluationGuessTemplateWriter templateWriter = new ParseEvaluationGuessTemplateWriter(processor);
+      observers.add(templateWriter);
+    }
 
-		return observers;
-	}
+    return observers;
+  }
 }

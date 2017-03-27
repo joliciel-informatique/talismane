@@ -28,35 +28,35 @@ import java.util.concurrent.LinkedBlockingDeque;
  *
  */
 public class BoundedHashMap<K, V> extends HashMap<K, V> {
-	private static final long serialVersionUID = 1L;
-	private LinkedBlockingDeque<K> deque;
-	private int capacity = 0;
-	
-	public BoundedHashMap(int capacity) {
-		super();
-		this.capacity = capacity;
-		deque = new LinkedBlockingDeque<K>(capacity);
-	}
+  private static final long serialVersionUID = 1L;
+  private LinkedBlockingDeque<K> deque;
+  private int capacity = 0;
+  
+  public BoundedHashMap(int capacity) {
+    super();
+    this.capacity = capacity;
+    deque = new LinkedBlockingDeque<K>(capacity);
+  }
 
-	@Override
-	public V put(K key, V value) {
-		if (this.capacity==0) {
-			// max size was initiated to zero => just return false
-			return null;
-		}
-		
-		boolean contains = super.containsKey(key);
-		if (contains) {
-			// simply replace the former value with a new one
-			return super.put(key, value);
-		}
-		
-		if (deque.remainingCapacity()<=0) {
-			K removeKey = deque.pollLast();
-			super.remove(removeKey);
-		}
-		
-		deque.add(key);
-		return super.put(key, value);
-	}
+  @Override
+  public V put(K key, V value) {
+    if (this.capacity==0) {
+      // max size was initiated to zero => just return false
+      return null;
+    }
+    
+    boolean contains = super.containsKey(key);
+    if (contains) {
+      // simply replace the former value with a new one
+      return super.put(key, value);
+    }
+    
+    if (deque.remainingCapacity()<=0) {
+      K removeKey = deque.pollLast();
+      super.remove(removeKey);
+    }
+    
+    deque.add(key);
+    return super.put(key, value);
+  }
 }

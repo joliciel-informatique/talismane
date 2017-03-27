@@ -30,19 +30,19 @@ import java.util.regex.Pattern;
  *
  */
 public class QuoteNormaliser implements TextReplacer {
-	Pattern doubleQuotes = Pattern.compile("[“”„‟″‴«»]");
-	Pattern singleQuotes = Pattern.compile("[‘’]");
-	Pattern dashes = Pattern.compile("[‒–—―]");
+  Pattern doubleQuotes = Pattern.compile("[“”„‟″‴«»]");
+  Pattern singleQuotes = Pattern.compile("[‘’]");
+  Pattern dashes = Pattern.compile("[‒–—―]");
 
-	@Override
-	public void replace(List<String> tokens) {
-		for (int i = 0; i < tokens.size(); i++) {
-			String token = tokens.get(i);
-			token = doubleQuotes.matcher(token).replaceAll("\"");
-			token = singleQuotes.matcher(token).replaceAll("'");
-			token = dashes.matcher(token).replaceAll("-");
-			tokens.set(i, token);
-		}
-	}
+  @Override
+  public void replace(List<String> tokens) {
+    for (int i = 0; i < tokens.size(); i++) {
+      String token = tokens.get(i);
+      token = doubleQuotes.matcher(token).replaceAll("\"");
+      token = singleQuotes.matcher(token).replaceAll("'");
+      token = dashes.matcher(token).replaceAll("-");
+      tokens.set(i, token);
+    }
+  }
 
 }

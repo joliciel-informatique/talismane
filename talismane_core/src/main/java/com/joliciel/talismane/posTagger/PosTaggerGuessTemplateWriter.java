@@ -32,20 +32,20 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class PosTaggerGuessTemplateWriter implements PosTagEvaluationObserver {
-	Writer writer;
-	PosTagSequenceProcessor processor;
+  Writer writer;
+  PosTagSequenceProcessor processor;
 
-	public PosTaggerGuessTemplateWriter(PosTagSequenceProcessor processor) {
-		this.processor = processor;
-	}
+  public PosTaggerGuessTemplateWriter(PosTagSequenceProcessor processor) {
+    this.processor = processor;
+  }
 
-	@Override
-	public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException, IOException {
-		processor.onNextPosTagSequence(guessedSequences.get(0));
-	}
+  @Override
+  public void onNextPosTagSequence(PosTagSequence realSequence, List<PosTagSequence> guessedSequences) throws TalismaneException, IOException {
+    processor.onNextPosTagSequence(guessedSequences.get(0));
+  }
 
-	@Override
-	public void onEvaluationComplete() {
-	}
+  @Override
+  public void onEvaluationComplete() {
+  }
 
 }

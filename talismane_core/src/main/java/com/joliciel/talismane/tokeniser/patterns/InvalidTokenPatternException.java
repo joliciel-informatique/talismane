@@ -21,9 +21,9 @@ package com.joliciel.talismane.tokeniser.patterns;
 import com.joliciel.talismane.TalismaneException;
 
 public class InvalidTokenPatternException extends TalismaneException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public InvalidTokenPatternException(String message) {
-		super(message);
-	}
+  public InvalidTokenPatternException(String message) {
+    super(message);
+  }
 }

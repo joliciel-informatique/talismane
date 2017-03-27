@@ -30,21 +30,21 @@ import java.util.Set;
  */
 public interface ClassificationModel extends MachineLearningModel {
 
-	/**
-	 * Get the decision maker for this model.
-	 */
-	public DecisionMaker getDecisionMaker();
+  /**
+   * Get the decision maker for this model.
+   */
+  public DecisionMaker getDecisionMaker();
 
-	/**
-	 * An observer that will write low-level details of this model's analysis to
-	 * a file.
-	 * 
-	 * @throws IOException
-	 */
-	public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException;
+  /**
+   * An observer that will write low-level details of this model's analysis to
+   * a file.
+   * 
+   * @throws IOException
+   */
+  public ClassificationObserver getDetailedAnalysisObserver(File file) throws IOException;
 
-	/**
-	 * A set of possible outcomes for this model.
-	 */
-	public Set<String> getOutcomeNames();
+  /**
+   * A set of possible outcomes for this model.
+   */
+  public Set<String> getOutcomeNames();
 }

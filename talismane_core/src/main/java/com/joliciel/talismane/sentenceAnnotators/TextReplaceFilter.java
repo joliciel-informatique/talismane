@@ -42,80 +42,80 @@ import com.joliciel.talismane.utils.LogUtils;
  * registered TextReplacer. For example:<br/>
  * 
  * <pre>
- * TextReplaceFilter	QuoteNormaliser	LowercaseKnownFirstWordFilter	UppercaseSeriesFilter
+ * TextReplaceFilter  QuoteNormaliser LowercaseKnownFirstWordFilter UppercaseSeriesFilter
  * </pre>
  * 
  * @author Assaf Urieli
  *
  */
 public class TextReplaceFilter implements SentenceAnnotator {
-	private static final Logger LOG = LoggerFactory.getLogger(TextReplaceFilter.class);
-	private final List<TextReplacer> textReplacers;
-	private final Map<String, Class<? extends TextReplacer>> registeredTextReplacers;
-	private final TalismaneSession session;
+  private static final Logger LOG = LoggerFactory.getLogger(TextReplaceFilter.class);
+  private final List<TextReplacer> textReplacers;
+  private final Map<String, Class<? extends TextReplacer>> registeredTextReplacers;
+  private final TalismaneSession session;
 
-	public TextReplaceFilter(Map<String, Class<? extends TextReplacer>> registeredTextReplacers, String descriptor, TalismaneSession session)
-			throws SentenceAnnotatorLoadException {
-		this.registeredTextReplacers = registeredTextReplacers;
-		this.session = session;
+  public TextReplaceFilter(Map<String, Class<? extends TextReplacer>> registeredTextReplacers, String descriptor, TalismaneSession session)
+      throws SentenceAnnotatorLoadException {
+    this.registeredTextReplacers = registeredTextReplacers;
+    this.session = session;
 
-		String[] tabs = descriptor.split("\t");
+    String[] tabs = descriptor.split("\t");
 
-		try {
-			textReplacers = new ArrayList<>();
+    try {
+      textReplacers = new ArrayList<>();
 
-			for (int i = 1; i < tabs.length; i++) {
-				String className = tabs[i];
-				Class<? extends TextReplacer> clazz = this.registeredTextReplacers.get(className);
-				if (clazz == null) {
-					throw new SentenceAnnotatorLoadException("Unknown TextReplacer: " + className);
-				}
+      for (int i = 1; i < tabs.length; i++) {
+        String className = tabs[i];
+        Class<? extends TextReplacer> clazz = this.registeredTextReplacers.get(className);
+        if (clazz == null) {
+          throw new SentenceAnnotatorLoadException("Unknown TextReplacer: " + className);
+        }
 
-				TextReplacer textReplacer = clazz.newInstance();
-				if (textReplacer instanceof NeedsTalismaneSession) {
-					((NeedsTalismaneSession) textReplacer).setTalismaneSession(session);
-				}
+        TextReplacer textReplacer = clazz.newInstance();
+        if (textReplacer instanceof NeedsTalismaneSession) {
+          ((NeedsTalismaneSession) textReplacer).setTalismaneSession(session);
+        }
 
-				textReplacers.add(textReplacer);
-			}
-		} catch (InstantiationException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
+        textReplacers.add(textReplacer);
+      }
+    } catch (InstantiationException e) {
+      LogUtils.logError(LOG, e);
+      throw new RuntimeException(e);
+    } catch (IllegalAccessException e) {
+      LogUtils.logError(LOG, e);
+      throw new RuntimeException(e);
+    } catch (IllegalArgumentException e) {
+      LogUtils.logError(LOG, e);
+      throw new RuntimeException(e);
+    }
+  }
 
-	@Override
-	public void annotate(Sentence annotatedText, String... labels) {
-		List<String> tokens = Tokeniser.bruteForceTokenise(annotatedText.getText(), session);
-		List<String> originalTokens = new ArrayList<>(tokens);
-		for (TextReplacer textReplacer : textReplacers) {
-			textReplacer.replace(tokens);
-		}
-		int currentPos = 0;
-		List<Annotation<TextReplacement>> replacements = new ArrayList<>();
+  @Override
+  public void annotate(Sentence annotatedText, String... labels) {
+    List<String> tokens = Tokeniser.bruteForceTokenise(annotatedText.getText(), session);
+    List<String> originalTokens = new ArrayList<>(tokens);
+    for (TextReplacer textReplacer : textReplacers) {
+      textReplacer.replace(tokens);
+    }
+    int currentPos = 0;
+    List<Annotation<TextReplacement>> replacements = new ArrayList<>();
 
-		for (int i = 0; i < originalTokens.size(); i++) {
-			String originalToken = originalTokens.get(i);
-			String token = tokens.get(i);
-			if (!originalToken.equals(token)) {
-				Annotation<TextReplacement> replacement = new Annotation<>(currentPos, currentPos + originalToken.length(), new TextReplacement(token), labels);
-				replacements.add(replacement);
-			}
-			currentPos += originalToken.length();
-		}
+    for (int i = 0; i < originalTokens.size(); i++) {
+      String originalToken = originalTokens.get(i);
+      String token = tokens.get(i);
+      if (!originalToken.equals(token)) {
+        Annotation<TextReplacement> replacement = new Annotation<>(currentPos, currentPos + originalToken.length(), new TextReplacement(token), labels);
+        replacements.add(replacement);
+      }
+      currentPos += originalToken.length();
+    }
 
-		annotatedText.addAnnotations(replacements);
-	}
+    annotatedText.addAnnotations(replacements);
+  }
 
-	@Override
-	public boolean isExcluded() {
-		return false;
-	}
+  @Override
+  public boolean isExcluded() {
+    return false;
+  }
 
 }

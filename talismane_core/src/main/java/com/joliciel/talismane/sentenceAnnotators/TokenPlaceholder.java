@@ -27,31 +27,31 @@ import java.io.Serializable;
  *
  */
 public class TokenPlaceholder implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private String replacement;
-	private String regex;
+  private static final long serialVersionUID = 1L;
+  private String replacement;
+  private String regex;
 
-	public TokenPlaceholder(String replacement, String regex) {
-		this.replacement = replacement;
-		this.regex = regex;
-	}
+  public TokenPlaceholder(String replacement, String regex) {
+    this.replacement = replacement;
+    this.regex = regex;
+  }
 
-	/**
-	 * The replacement text for this placeholder.
-	 */
-	public String getReplacement() {
-		return this.replacement;
-	}
+  /**
+   * The replacement text for this placeholder.
+   */
+  public String getReplacement() {
+    return this.replacement;
+  }
 
-	/**
-	 * The regex which matched this placeholder.
-	 */
-	public String getRegex() {
-		return this.regex;
-	}
+  /**
+   * The regex which matched this placeholder.
+   */
+  public String getRegex() {
+    return this.regex;
+  }
 
-	@Override
-	public String toString() {
-		return "TokenPlaceholder [replacement=" + replacement + ", regex=" + regex + "]";
-	}
+  @Override
+  public String toString() {
+    return "TokenPlaceholder [replacement=" + replacement + ", regex=" + regex + "]";
+  }
 }

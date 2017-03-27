@@ -27,36 +27,36 @@ import com.joliciel.talismane.machineLearning.Decision;
  *
  */
 public interface Transition extends Comparable<Transition> {
-	/**
-	 * Check whether this transition is valid for the configuration provided.
-	 */
-	public boolean checkPreconditions(ParseConfiguration configuration);
+  /**
+   * Check whether this transition is valid for the configuration provided.
+   */
+  public boolean checkPreconditions(ParseConfiguration configuration);
 
-	/**
-	 * Apply the transition to the configuration provided.
-	 * 
-	 * @throws InvalidTransitionException
-	 *             if transition cannot be applied in current conditions
-	 * @throws CircularDependencyException
-	 *             if this would generate a ciruclar dependency
-	 */
-	public void apply(ParseConfiguration configuration) throws InvalidTransitionException, CircularDependencyException;
+  /**
+   * Apply the transition to the configuration provided.
+   * 
+   * @throws InvalidTransitionException
+   *             if transition cannot be applied in current conditions
+   * @throws CircularDependencyException
+   *             if this would generate a ciruclar dependency
+   */
+  public void apply(ParseConfiguration configuration) throws InvalidTransitionException, CircularDependencyException;
 
-	/**
-	 * The unique code for this transition.
-	 */
-	public String getCode();
+  /**
+   * The unique code for this transition.
+   */
+  public String getCode();
 
-	/**
-	 * Returns true if this transition reduces the elements left to process, by
-	 * removing an element permanently from either the stack or the buffer.
-	 */
-	public boolean doesReduce();
+  /**
+   * Returns true if this transition reduces the elements left to process, by
+   * removing an element permanently from either the stack or the buffer.
+   */
+  public boolean doesReduce();
 
-	/**
-	 * The decision which generated this transition.
-	 */
-	public Decision getDecision();
+  /**
+   * The decision which generated this transition.
+   */
+  public Decision getDecision();
 
-	public void setDecision(Decision decision);
+  public void setDecision(Decision decision);
 }

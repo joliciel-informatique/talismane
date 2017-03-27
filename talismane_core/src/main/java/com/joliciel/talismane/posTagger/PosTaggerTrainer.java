@@ -55,59 +55,59 @@ import com.typesafe.config.Config;
  *
  */
 public class PosTaggerTrainer {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTaggerTrainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PosTaggerTrainer.class);
 
-	private final TalismaneSession session;
-	private final Config posTaggerConfig;
-	private final File modelFile;
-	private final ClassificationEventStream eventStream;
-	private final Map<String, List<String>> descriptors;
+  private final TalismaneSession session;
+  private final Config posTaggerConfig;
+  private final File modelFile;
+  private final ClassificationEventStream eventStream;
+  private final Map<String, List<String>> descriptors;
 
-	public PosTaggerTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
-		Config config = session.getConfig();
-		this.posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
-		this.session = session;
-		this.modelFile = new File(posTaggerConfig.getString("model"));
-		this.descriptors = new HashMap<>();
+  public PosTaggerTrainer(Reader reader, TalismaneSession session) throws IOException, ClassNotFoundException, ReflectiveOperationException {
+    Config config = session.getConfig();
+    this.posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+    this.session = session;
+    this.modelFile = new File(posTaggerConfig.getString("model"));
+    this.descriptors = new HashMap<>();
 
-		String configPath = "talismane.core.pos-tagger.train.features";
-		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
-		List<String> featureDescriptors = new ArrayList<>();
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
+    String configPath = "talismane.core.pos-tagger.train.features";
+    InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
+    List<String> featureDescriptors = new ArrayList<>();
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
 
-			while (scanner.hasNextLine()) {
-				String descriptor = scanner.nextLine();
-				featureDescriptors.add(descriptor);
-				LOG.debug(descriptor);
-			}
-		}
-		descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
-		PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, posTaggerConfig.getConfig("train"), session);
+      while (scanner.hasNextLine()) {
+        String descriptor = scanner.nextLine();
+        featureDescriptors.add(descriptor);
+        LOG.debug(descriptor);
+      }
+    }
+    descriptors.put(MachineLearningModel.FEATURE_DESCRIPTOR_KEY, featureDescriptors);
+    PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, posTaggerConfig.getConfig("train"), session);
 
-		// add descriptors for various filters
-		// these are for reference purpose only, as we no longer read filters
-		// out of the model
-		List<List<String>> sentenceAnnotatorDescriptors = session.getSentenceAnnotatorDescriptors();
-		for (int i = 0; i < sentenceAnnotatorDescriptors.size(); i++) {
-			descriptors.put(SentenceAnnotatorLoader.SENTENCE_ANNOTATOR_DESCRIPTOR_KEY + i, sentenceAnnotatorDescriptors.get(i));
-		}
+    // add descriptors for various filters
+    // these are for reference purpose only, as we no longer read filters
+    // out of the model
+    List<List<String>> sentenceAnnotatorDescriptors = session.getSentenceAnnotatorDescriptors();
+    for (int i = 0; i < sentenceAnnotatorDescriptors.size(); i++) {
+      descriptors.put(SentenceAnnotatorLoader.SENTENCE_ANNOTATOR_DESCRIPTOR_KEY + i, sentenceAnnotatorDescriptors.get(i));
+    }
 
-		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
-		Set<PosTaggerFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
-		eventStream = new PosTagEventStream(corpusReader, features);
-	}
+    PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+    Set<PosTaggerFeature<?>> features = featureParser.getFeatureSet(featureDescriptors);
+    eventStream = new PosTagEventStream(corpusReader, features);
+  }
 
-	public ClassificationModel train() throws TalismaneException, IOException {
-		ModelTrainerFactory factory = new ModelTrainerFactory();
-		ClassificationModelTrainer trainer = factory.constructTrainer(posTaggerConfig.getConfig("train.machine-learning"));
+  public ClassificationModel train() throws TalismaneException, IOException {
+    ModelTrainerFactory factory = new ModelTrainerFactory();
+    ClassificationModelTrainer trainer = factory.constructTrainer(posTaggerConfig.getConfig("train.machine-learning"));
 
-		ClassificationModel model = trainer.trainModel(eventStream, descriptors);
-		model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
+    ClassificationModel model = trainer.trainModel(eventStream, descriptors);
+    model.setExternalResources(session.getExternalResourceFinder().getExternalResources());
 
-		File modelDir = modelFile.getParentFile();
-		if (modelDir != null)
-			modelDir.mkdirs();
-		model.persist(modelFile);
-		return model;
-	}
+    File modelDir = modelFile.getParentFile();
+    if (modelDir != null)
+      modelDir.mkdirs();
+    model.persist(modelFile);
+    return model;
+  }
 }

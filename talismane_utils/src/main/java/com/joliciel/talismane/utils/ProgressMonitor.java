@@ -28,34 +28,34 @@ import java.util.List;
  */
 public interface ProgressMonitor {
 
-	/**
-	 * The percent of the task completed.
-	 */
-	public abstract double getPercentComplete();
+  /**
+   * The percent of the task completed.
+   */
+  public abstract double getPercentComplete();
 
-	/**
-	 * Get a List of current actions (resource strings)
-	 */
-	public abstract List<MessageResource> getCurrentActions();
-	
-	/**
-	 * The current action being performed.
-	 */
-	public abstract String getCurrentAction();
-	
-	/**
-	 * The arguments of the current action being performed.
-	 */
-	public abstract Object[] getCurrentArguments();
-	
-	/**
-	 * The unhandled exception that was thrown, if any, during the task being monitored.
-	 */
-	public abstract Exception getException();
-	
-	/**
-	 * Is the task finished?
-	 */
-	public boolean isFinished();
+  /**
+   * Get a List of current actions (resource strings)
+   */
+  public abstract List<MessageResource> getCurrentActions();
+  
+  /**
+   * The current action being performed.
+   */
+  public abstract String getCurrentAction();
+  
+  /**
+   * The arguments of the current action being performed.
+   */
+  public abstract Object[] getCurrentArguments();
+  
+  /**
+   * The unhandled exception that was thrown, if any, during the task being monitored.
+   */
+  public abstract Exception getException();
+  
+  /**
+   * Is the task finished?
+   */
+  public boolean isFinished();
 
 }

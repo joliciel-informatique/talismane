@@ -33,28 +33,28 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class AddressFunctionSequence extends AbstractAddressFunction {
-	private IntegerFeature<ParseConfigurationWrapper> indexFeature;
+  private IntegerFeature<ParseConfigurationWrapper> indexFeature;
 
-	public AddressFunctionSequence(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
-		super();
-		this.indexFeature = indexFeature;
-		this.setName("Seq(" + indexFeature.getName() + ")");
-	}
+  public AddressFunctionSequence(IntegerFeature<ParseConfigurationWrapper> indexFeature) {
+    super();
+    this.indexFeature = indexFeature;
+    this.setName("Seq(" + indexFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
-		if (indexResult != null) {
-			int index = indexResult.getOutcome();
-			if (index >= 0 && index < configuration.getPosTagSequence().size())
-				resultToken = configuration.getPosTagSequence().get(index);
-		}
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<Integer> indexResult = indexFeature.check(configuration, env);
+    if (indexResult != null) {
+      int index = indexResult.getOutcome();
+      if (index >= 0 && index < configuration.getPosTagSequence().size())
+        resultToken = configuration.getPosTagSequence().get(index);
+    }
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 
 }

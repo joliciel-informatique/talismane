@@ -34,16 +34,16 @@ public class SimpleObjectCache implements ObjectCache {
     }
 
     @Override
-	public void clearCache(Class<? extends Object> clazz) {
-    	cache.remove(clazz);
-	}
+  public void clearCache(Class<? extends Object> clazz) {
+      cache.remove(clazz);
+  }
 
-	private Map<Class<? extends Object>,Map<Object,Object>> getCache() {
+  private Map<Class<? extends Object>,Map<Object,Object>> getCache() {
         return cache;
     }
     
     @SuppressWarnings("unchecked")
-	public<T> T getEntity(Class<T> clazz, Object id) {
+  public<T> T getEntity(Class<T> clazz, Object id) {
         T entity = null;
         Map<Class<? extends Object>,Map<Object,Object>> cache = this.getCache();
         Map<Object,Object> objectMap = cache.get(clazz);
@@ -71,12 +71,12 @@ public class SimpleObjectCache implements ObjectCache {
 
 
     @SuppressWarnings("unchecked")
-	public<T> T getOrPutEntity(Class<T> clazz, Object id, T entity) {
+  public<T> T getOrPutEntity(Class<T> clazz, Object id, T entity) {
         Object localEntity = this.getEntity(clazz, id);
         if (localEntity==null) {
-        	this.putEntity(clazz, id, entity);
+          this.putEntity(clazz, id, entity);
         } else {
-        	entity = (T) localEntity;
+          entity = (T) localEntity;
         }
         return entity;
     }

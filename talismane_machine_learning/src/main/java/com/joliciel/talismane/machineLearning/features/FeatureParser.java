@@ -27,9 +27,9 @@ import java.util.List;
  *
  */
 public interface FeatureParser<T> {
-	/**
-	 * Parse a function descriptor and return one or more features corresponding
-	 * to it.
-	 */
-	public List<Feature<T, ?>> parse(FunctionDescriptor descriptor);
+  /**
+   * Parse a function descriptor and return one or more features corresponding
+   * to it.
+   */
+  public List<Feature<T, ?>> parse(FunctionDescriptor descriptor);
 }

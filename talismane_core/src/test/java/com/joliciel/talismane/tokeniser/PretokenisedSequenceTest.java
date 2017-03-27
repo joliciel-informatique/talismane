@@ -11,26 +11,26 @@ import com.typesafe.config.ConfigFactory;
 
 public class PretokenisedSequenceTest {
 
-	@Test
-	public void testAddTokenString() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+  @Test
+  public void testAddTokenString() throws Exception {
+    System.setProperty("config.file", "src/test/resources/test.conf");
+    ConfigFactory.invalidateCaches();
+    final Config config = ConfigFactory.load();
 
-		final TalismaneSession session = new TalismaneSession(config, "");
-		final Sentence sentence = new Sentence("« Il est là.  »", session);
+    final TalismaneSession session = new TalismaneSession(config, "");
+    final Sentence sentence = new Sentence("« Il est là.  »", session);
 
-		PretokenisedSequence sequence = new PretokenisedSequence(sentence, session);
-		sequence.addToken("« ");
-		sequence.addToken("Il");
-		sequence.addToken("est");
-		sequence.addToken("là");
-		sequence.addToken(".");
-		sequence.addToken(" »");
+    PretokenisedSequence sequence = new PretokenisedSequence(sentence, session);
+    sequence.addToken("« ");
+    sequence.addToken("Il");
+    sequence.addToken("est");
+    sequence.addToken("là");
+    sequence.addToken(".");
+    sequence.addToken(" »");
 
-		System.out.println(sequence.toString());
+    System.out.println(sequence.toString());
 
-		assertEquals(6, sequence.size());
-	}
+    assertEquals(6, sequence.size());
+  }
 
 }

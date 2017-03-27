@@ -41,37 +41,37 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public final class LexiconPosTagsFeature extends AbstractTokenFeature<List<WeightedOutcome<String>>>implements StringCollectionFeature<TokenWrapper> {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsFeature.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(LexiconPosTagsFeature.class);
 
-	public LexiconPosTagsFeature() {
-	}
+  public LexiconPosTagsFeature() {
+  }
 
-	public LexiconPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public LexiconPosTagsFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<List<WeightedOutcome<String>>> result = null;
-		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<List<WeightedOutcome<String>>> result = null;
+    List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
 
-		for (PosTag posTag : token.getPossiblePosTags()) {
-			resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
-		}
-		if (resultList.size() > 0)
-			result = this.generateResult(resultList);
+    for (PosTag posTag : token.getPossiblePosTags()) {
+      resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
+    }
+    if (resultList.size() > 0)
+      result = this.generateResult(resultList);
 
-		return result;
-	}
+    return result;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return StringCollectionFeature.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return StringCollectionFeature.class;
+  }
 }

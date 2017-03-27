@@ -33,77 +33,77 @@ import com.joliciel.talismane.utils.WeightedOutcome;
 import opennlp.model.MaxentModel;
 
 class OpenNLPDecisionMaker implements DecisionMaker {
-	private MaxentModel model;
-	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
+  private MaxentModel model;
+  private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
 
-	public OpenNLPDecisionMaker(MaxentModel model) {
-		super();
-		this.model = model;
-	}
+  public OpenNLPDecisionMaker(MaxentModel model) {
+    super();
+    this.model = model;
+  }
 
-	@Override
-	public List<Decision> decide(List<FeatureResult<?>> featureResults) {
-		List<String> contextList = new ArrayList<String>();
-		List<Float> weightList = new ArrayList<Float>();
-		OpenNLPDecisionMaker.prepareData(featureResults, contextList, weightList);
+  @Override
+  public List<Decision> decide(List<FeatureResult<?>> featureResults) {
+    List<String> contextList = new ArrayList<String>();
+    List<Float> weightList = new ArrayList<Float>();
+    OpenNLPDecisionMaker.prepareData(featureResults, contextList, weightList);
 
-		String[] contexts = new String[contextList.size()];
-		float[] weights = new float[weightList.size()];
+    String[] contexts = new String[contextList.size()];
+    float[] weights = new float[weightList.size()];
 
-		int i = 0;
-		for (String context : contextList) {
-			contexts[i++] = context;
-		}
-		i = 0;
-		for (Float weight : weightList) {
-			weights[i++] = weight;
-		}
+    int i = 0;
+    for (String context : contextList) {
+      contexts[i++] = context;
+    }
+    i = 0;
+    for (Float weight : weightList) {
+      weights[i++] = weight;
+    }
 
-		double[] probs = model.eval(contexts, weights);
+    double[] probs = model.eval(contexts, weights);
 
-		String[] outcomes = new String[probs.length];
-		for (i = 0; i < probs.length; i++)
-			outcomes[i] = model.getOutcome(i);
+    String[] outcomes = new String[probs.length];
+    for (i = 0; i < probs.length; i++)
+      outcomes[i] = model.getOutcome(i);
 
-		TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
-		for (i = 0; i < probs.length; i++) {
-			Decision decision = new Decision(outcomes[i], probs[i]);
-			outcomeSet.add(decision);
-		}
+    TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
+    for (i = 0; i < probs.length; i++) {
+      Decision decision = new Decision(outcomes[i], probs[i]);
+      outcomeSet.add(decision);
+    }
 
-		List<Decision> decisions = new ArrayList<Decision>(outcomeSet);
+    List<Decision> decisions = new ArrayList<Decision>(outcomeSet);
 
-		return decisions;
-	}
+    return decisions;
+  }
 
-	static void prepareData(List<FeatureResult<?>> featureResults, List<String> contextList, List<Float> weightList) {
-		for (FeatureResult<?> featureResult : featureResults) {
-			if (featureResult != null) {
-				if (featureResult.getOutcome() instanceof List) {
-					@SuppressWarnings("unchecked")
-					FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
-					for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
-						contextList.add(featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
-						weightList.add(((Double) stringOutcome.getWeight()).floatValue());
-					}
-				} else {
-					float weight = 1;
-					if (featureResult.getOutcome() instanceof Double) {
-						@SuppressWarnings("unchecked")
-						FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
-						weight = doubleResult.getOutcome().floatValue();
-					}
-					contextList.add(featureResult.getTrainingName());
-					weightList.add(weight);
-				}
-			}
-		}
-	}
+  static void prepareData(List<FeatureResult<?>> featureResults, List<String> contextList, List<Float> weightList) {
+    for (FeatureResult<?> featureResult : featureResults) {
+      if (featureResult != null) {
+        if (featureResult.getOutcome() instanceof List) {
+          @SuppressWarnings("unchecked")
+          FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
+          for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
+            contextList.add(featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
+            weightList.add(((Double) stringOutcome.getWeight()).floatValue());
+          }
+        } else {
+          float weight = 1;
+          if (featureResult.getOutcome() instanceof Double) {
+            @SuppressWarnings("unchecked")
+            FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
+            weight = doubleResult.getOutcome().floatValue();
+          }
+          contextList.add(featureResult.getTrainingName());
+          weightList.add(weight);
+        }
+      }
+    }
+  }
 
-	@Override
-	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
-		if (scoringStrategy == null)
-			scoringStrategy = new GeometricMeanScoringStrategy();
-		return scoringStrategy;
-	}
+  @Override
+  public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
+    if (scoringStrategy == null)
+      scoringStrategy = new GeometricMeanScoringStrategy();
+    return scoringStrategy;
+  }
 }

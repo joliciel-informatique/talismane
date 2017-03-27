@@ -34,40 +34,40 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  *
  */
 public final class PosTaggerRule {
-	private BooleanFeature<PosTaggerContext> condition;
-	private PosTag tag;
-	private boolean negative;
+  private BooleanFeature<PosTaggerContext> condition;
+  private PosTag tag;
+  private boolean negative;
 
-	public PosTaggerRule(BooleanFeature<PosTaggerContext> condition, PosTag tag) {
-		this.condition = condition;
-		this.tag = tag;
-	}
+  public PosTaggerRule(BooleanFeature<PosTaggerContext> condition, PosTag tag) {
+    this.condition = condition;
+    this.tag = tag;
+  }
 
-	/**
-	 * The condition to test.
-	 */
+  /**
+   * The condition to test.
+   */
 
-	public BooleanFeature<PosTaggerContext> getCondition() {
-		return condition;
-	}
+  public BooleanFeature<PosTaggerContext> getCondition() {
+    return condition;
+  }
 
-	/**
-	 * The tag to apply if the condition evaluates to true for a positive rule,
-	 * or to avoid if it is a negative rule.
-	 */
-	public PosTag getTag() {
-		return tag;
-	}
+  /**
+   * The tag to apply if the condition evaluates to true for a positive rule,
+   * or to avoid if it is a negative rule.
+   */
+  public PosTag getTag() {
+    return tag;
+  }
 
-	/**
-	 * Is this rule a negative rule or not.
-	 */
-	public boolean isNegative() {
-		return negative;
-	}
+  /**
+   * Is this rule a negative rule or not.
+   */
+  public boolean isNegative() {
+    return negative;
+  }
 
-	public void setNegative(boolean negative) {
-		this.negative = negative;
-	}
+  public void setNegative(boolean negative) {
+    this.negative = negative;
+  }
 
 }

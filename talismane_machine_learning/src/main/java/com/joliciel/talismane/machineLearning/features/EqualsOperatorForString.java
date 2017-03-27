@@ -27,47 +27,47 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class EqualsOperatorForString<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	private StringFeature<T> operand1;
-	private StringFeature<T> operand2;
+  private StringFeature<T> operand1;
+  private StringFeature<T> operand2;
 
-	public EqualsOperatorForString(StringFeature<T> operand1, StringFeature<T> operand2) {
-		super();
-		this.operand1 = operand1;
-		this.operand2 = operand2;
-		this.setName(operand1.getName() + "==" + operand2.getName());
-	}
+  public EqualsOperatorForString(StringFeature<T> operand1, StringFeature<T> operand2) {
+    super();
+    this.operand1 = operand1;
+    this.operand2 = operand2;
+    this.setName(operand1.getName() + "==" + operand2.getName());
+  }
 
-	@Override
-	protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  protected FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<String> operand1Result = operand1.check(context, env);
-		if (operand1Result != null) {
-			FeatureResult<String> operand2Result = operand2.check(context, env);
-			if (operand2Result != null) {
-				boolean result = operand1Result.getOutcome().equals(operand2Result.getOutcome());
-				featureResult = this.generateResult(result);
-			}
-		}
+    FeatureResult<String> operand1Result = operand1.check(context, env);
+    if (operand1Result != null) {
+      FeatureResult<String> operand2Result = operand2.check(context, env);
+      if (operand2Result != null) {
+        boolean result = operand1Result.getOutcome().equals(operand2Result.getOutcome());
+        featureResult = this.generateResult(result);
+      }
+    }
 
-		return featureResult;
+    return featureResult;
 
-	}
+  }
 
-	public StringFeature<T> getOperand1() {
-		return operand1;
-	}
+  public StringFeature<T> getOperand1() {
+    return operand1;
+  }
 
-	public void setOperand1(StringFeature<T> operand1) {
-		this.operand1 = operand1;
-	}
+  public void setOperand1(StringFeature<T> operand1) {
+    this.operand1 = operand1;
+  }
 
-	public StringFeature<T> getOperand2() {
-		return operand2;
-	}
+  public StringFeature<T> getOperand2() {
+    return operand2;
+  }
 
-	public void setOperand2(StringFeature<T> operand2) {
-		this.operand2 = operand2;
-	}
+  public void setOperand2(StringFeature<T> operand2) {
+    this.operand2 = operand2;
+  }
 
 }

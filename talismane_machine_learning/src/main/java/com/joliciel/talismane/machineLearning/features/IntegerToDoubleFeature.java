@@ -27,32 +27,32 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class IntegerToDoubleFeature<T> extends AbstractFeature<T, Double>implements DoubleFeature<T> {
-	private IntegerFeature<T> integerFeature;
+  private IntegerFeature<T> integerFeature;
 
-	public IntegerToDoubleFeature(IntegerFeature<T> integerFeature) {
-		super();
-		this.integerFeature = integerFeature;
-		this.setName("IntToDouble(" + this.integerFeature.getName() + ")");
-		this.addArgument(integerFeature);
-	}
+  public IntegerToDoubleFeature(IntegerFeature<T> integerFeature) {
+    super();
+    this.integerFeature = integerFeature;
+    this.setName("IntToDouble(" + this.integerFeature.getName() + ")");
+    this.addArgument(integerFeature);
+  }
 
-	@Override
-	public FeatureResult<Double> check(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Double> featureResult = null;
+  @Override
+  public FeatureResult<Double> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Double> featureResult = null;
 
-		FeatureResult<Integer> integerResult = integerFeature.check(context, env);
-		if (integerResult != null) {
-			featureResult = this.generateResult(integerResult.getOutcome().doubleValue());
-		}
-		return featureResult;
-	}
+    FeatureResult<Integer> integerResult = integerFeature.check(context, env);
+    if (integerResult != null) {
+      featureResult = this.generateResult(integerResult.getOutcome().doubleValue());
+    }
+    return featureResult;
+  }
 
-	public IntegerFeature<T> getIntegerFeature() {
-		return integerFeature;
-	}
+  public IntegerFeature<T> getIntegerFeature() {
+    return integerFeature;
+  }
 
-	public void setIntegerFeature(IntegerFeature<T> integerFeature) {
-		this.integerFeature = integerFeature;
-	}
+  public void setIntegerFeature(IntegerFeature<T> integerFeature) {
+    this.integerFeature = integerFeature;
+  }
 
 }

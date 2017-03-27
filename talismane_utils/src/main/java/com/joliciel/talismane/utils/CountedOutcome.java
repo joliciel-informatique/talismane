@@ -26,54 +26,54 @@ import java.io.Serializable;
  *
  */
 public class CountedOutcome<T> implements Comparable<CountedOutcome<T>>, Serializable {
-	private static final long serialVersionUID = 1L;
-	private T outcome;
-	private int count;
-	
-	public CountedOutcome(T outcome, int weight) {
-		this.outcome = outcome;
-		this.count = weight;
-	}
-	
-	
-	public void setOutcome(T outcome) {
-		this.outcome = outcome;
-	}
+  private static final long serialVersionUID = 1L;
+  private T outcome;
+  private int count;
+  
+  public CountedOutcome(T outcome, int weight) {
+    this.outcome = outcome;
+    this.count = weight;
+  }
+  
+  
+  public void setOutcome(T outcome) {
+    this.outcome = outcome;
+  }
 
 
-	public void setCount(int value) {
-		this.count = value;
-	}
+  public void setCount(int value) {
+    this.count = value;
+  }
 
 
-	public T getOutcome() {
-		return outcome;
-	}
+  public T getOutcome() {
+    return outcome;
+  }
 
 
-	public int getCount() {
-		return count;
-	}
+  public int getCount() {
+    return count;
+  }
 
-	@Override
-	public int compareTo(CountedOutcome<T> o) {
-		if (this.getCount()<o.getCount()) {
-			return 1;
-		} else if (this.getCount()>o.getCount()) {
-			return -1;
-		} else {
-			int nameCompare = this.getOutcome().toString().compareTo(o.getOutcome().toString());
-			if (nameCompare!=0) return nameCompare;
-			return this.hashCode()-o.hashCode();
-		}
-	}
+  @Override
+  public int compareTo(CountedOutcome<T> o) {
+    if (this.getCount()<o.getCount()) {
+      return 1;
+    } else if (this.getCount()>o.getCount()) {
+      return -1;
+    } else {
+      int nameCompare = this.getOutcome().toString().compareTo(o.getOutcome().toString());
+      if (nameCompare!=0) return nameCompare;
+      return this.hashCode()-o.hashCode();
+    }
+  }
 
 
-	@Override
-	public String toString() {
-		return "[" + outcome + "," + count
-				+ "]";
-	}
-	
-	
+  @Override
+  public String toString() {
+    return "[" + outcome + "," + count
+        + "]";
+  }
+  
+  
 }

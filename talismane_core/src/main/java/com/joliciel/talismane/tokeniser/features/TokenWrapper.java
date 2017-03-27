@@ -29,5 +29,5 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public interface TokenWrapper {
-	public Token getToken() throws TalismaneException;
+  public Token getToken() throws TalismaneException;
 }

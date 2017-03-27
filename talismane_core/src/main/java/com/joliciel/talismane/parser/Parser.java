@@ -37,93 +37,93 @@ import com.joliciel.talismane.posTagger.PosTagSequence;
  */
 public interface Parser {
 
-	public enum ParseComparisonStrategyType {
-		/**
-		 * Comparison based on number of transitions applied.
-		 */
-		transitionCount,
-		/**
-		 * Comparison based on number of elements remaining on the buffer.
-		 */
-		bufferSize,
-		/**
-		 * Comparison based on number of elements remaining on both the stack
-		 * and the buffer.
-		 */
-		stackAndBufferSize,
-		/**
-		 * Comparison based on number of dependencies created.
-		 */
-		dependencyCount
-	}
+  public enum ParseComparisonStrategyType {
+    /**
+     * Comparison based on number of transitions applied.
+     */
+    transitionCount,
+    /**
+     * Comparison based on number of elements remaining on the buffer.
+     */
+    bufferSize,
+    /**
+     * Comparison based on number of elements remaining on both the stack
+     * and the buffer.
+     */
+    stackAndBufferSize,
+    /**
+     * Comparison based on number of dependencies created.
+     */
+    dependencyCount
+  }
 
-	public enum PredictTransitions {
-		/**
-		 * Always predict transitions.
-		 */
-		yes,
-		/**
-		 * Never predict transitions.
-		 */
-		no,
-		/**
-		 * Predict transitions if training, no otherwise.
-		 */
-		depends
-	}
+  public enum PredictTransitions {
+    /**
+     * Always predict transitions.
+     */
+    yes,
+    /**
+     * Never predict transitions.
+     */
+    no,
+    /**
+     * Predict transitions if training, no otherwise.
+     */
+    depends
+  }
 
-	/**
-	 * Analyse a pos-tag sequence, and return the most likely parse
-	 * configuration for the sentence.
-	 * 
-	 * @param posTagSequence
-	 *            the likely pos-tag sequence for this sentence.
-	 * @return the most likely parse configuration for this sentence
-	 * @throws CircularDependencyException
-	 * @throws InvalidTransitionException
-	 * @throws UnknownTransitionException
-	 * @throws UnknownDependencyLabelException
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence) throws UnknownDependencyLabelException, UnknownTransitionException,
-			InvalidTransitionException, CircularDependencyException, TalismaneException, IOException;
+  /**
+   * Analyse a pos-tag sequence, and return the most likely parse
+   * configuration for the sentence.
+   * 
+   * @param posTagSequence
+   *            the likely pos-tag sequence for this sentence.
+   * @return the most likely parse configuration for this sentence
+   * @throws CircularDependencyException
+   * @throws InvalidTransitionException
+   * @throws UnknownTransitionException
+   * @throws UnknownDependencyLabelException
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public abstract ParseConfiguration parseSentence(PosTagSequence posTagSequence) throws UnknownDependencyLabelException, UnknownTransitionException,
+      InvalidTransitionException, CircularDependencyException, TalismaneException, IOException;
 
-	public void addObserver(ClassificationObserver observer);
+  public void addObserver(ClassificationObserver observer);
 
-	/**
-	 * The transition system used by this parser to make parse decisions.
-	 */
-	public TransitionSystem getTransitionSystem();
+  /**
+   * The transition system used by this parser to make parse decisions.
+   */
+  public TransitionSystem getTransitionSystem();
 
-	/**
-	 * The maximum time alloted per sentence for parse tree analysis, in
-	 * seconds. Will be ignored if set to 0. If analysis jumps out because of
-	 * time-out, there will be a parse-forest instead of a parse-tree, with
-	 * several nodes left unattached.
-	 */
-	public int getMaxAnalysisTimePerSentence();
+  /**
+   * The maximum time alloted per sentence for parse tree analysis, in
+   * seconds. Will be ignored if set to 0. If analysis jumps out because of
+   * time-out, there will be a parse-forest instead of a parse-tree, with
+   * several nodes left unattached.
+   */
+  public int getMaxAnalysisTimePerSentence();
 
-	/**
-	 * The minimum amount of remaining free memory to continue a parse, in
-	 * kilobytes. Will be ignored is set to 0. If analysis jumps out because of
-	 * free memory descends below this limit, there will be a parse-forest
-	 * instead of a parse-tree, with several nodes left unattached.
-	 */
-	public int getMinFreeMemory();
+  /**
+   * The minimum amount of remaining free memory to continue a parse, in
+   * kilobytes. Will be ignored is set to 0. If analysis jumps out because of
+   * free memory descends below this limit, there will be a parse-forest
+   * instead of a parse-tree, with several nodes left unattached.
+   */
+  public int getMinFreeMemory();
 
-	/**
-	 * Rules to apply while parsing (in place of the probablistic classifier).
-	 */
-	public List<ParserRule> getParserRules();
+  /**
+   * Rules to apply while parsing (in place of the probablistic classifier).
+   */
+  public List<ParserRule> getParserRules();
 
-	public void setParserRules(List<ParserRule> parserRules);
+  public void setParserRules(List<ParserRule> parserRules);
 
-	public ParseComparisonStrategy getParseComparisonStrategy();
+  public ParseComparisonStrategy getParseComparisonStrategy();
 
-	public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy);
+  public void setParseComparisonStrategy(ParseComparisonStrategy parseComparisonStrategy);
 
-	public Set<ParseConfigurationFeature<?>> getParseFeatures();
+  public Set<ParseConfigurationFeature<?>> getParseFeatures();
 
-	public Parser cloneParser();
+  public Parser cloneParser();
 }

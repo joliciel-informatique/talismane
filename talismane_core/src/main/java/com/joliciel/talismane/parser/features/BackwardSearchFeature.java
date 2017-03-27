@@ -36,45 +36,45 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class BackwardSearchFeature extends AbstractAddressFunction {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature;
-	private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature;
+  private BooleanFeature<PosTaggedTokenWrapper> criterionFeature;
 
-	public BackwardSearchFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature,
-			BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
-		super();
-		this.referenceTokenFeature = referenceTokenFeature;
-		this.criterionFeature = criterionFeature;
+  public BackwardSearchFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> referenceTokenFeature,
+      BooleanFeature<PosTaggedTokenWrapper> criterionFeature) {
+    super();
+    this.referenceTokenFeature = referenceTokenFeature;
+    this.criterionFeature = criterionFeature;
 
-		this.setName(super.getName() + "(" + referenceTokenFeature.getName() + "," + criterionFeature.getName() + ")");
-	}
+    this.setName(super.getName() + "(" + referenceTokenFeature.getName() + "," + criterionFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		PosTaggedToken resultToken = null;
-		FeatureResult<PosTaggedTokenWrapper> referenceTokenResult = referenceTokenFeature.check(wrapper, env);
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    PosTaggedToken resultToken = null;
+    FeatureResult<PosTaggedTokenWrapper> referenceTokenResult = referenceTokenFeature.check(wrapper, env);
 
-		if (referenceTokenResult != null) {
-			PosTaggedToken referenceToken = referenceTokenResult.getOutcome().getPosTaggedToken();
+    if (referenceTokenResult != null) {
+      PosTaggedToken referenceToken = referenceTokenResult.getOutcome().getPosTaggedToken();
 
-			ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
-			parseConfigurationAddress.setParseConfiguration(configuration);
-			for (int i = referenceToken.getToken().getIndex() - 1; i >= 0; i--) {
-				PosTaggedToken nextToken = configuration.getPosTagSequence().get(i);
-				parseConfigurationAddress.setPosTaggedToken(nextToken);
-				FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
-				if (criterionResult != null) {
-					boolean criterion = criterionResult.getOutcome();
-					if (criterion) {
-						resultToken = nextToken;
-						break;
-					}
-				}
-			}
-		}
-		FeatureResult<PosTaggedTokenWrapper> featureResult = null;
-		if (resultToken != null)
-			featureResult = this.generateResult(resultToken);
-		return featureResult;
-	}
+      ParseConfigurationAddress parseConfigurationAddress = new ParseConfigurationAddress(env);
+      parseConfigurationAddress.setParseConfiguration(configuration);
+      for (int i = referenceToken.getToken().getIndex() - 1; i >= 0; i--) {
+        PosTaggedToken nextToken = configuration.getPosTagSequence().get(i);
+        parseConfigurationAddress.setPosTaggedToken(nextToken);
+        FeatureResult<Boolean> criterionResult = criterionFeature.check(parseConfigurationAddress, env);
+        if (criterionResult != null) {
+          boolean criterion = criterionResult.getOutcome();
+          if (criterion) {
+            resultToken = nextToken;
+            break;
+          }
+        }
+      }
+    }
+    FeatureResult<PosTaggedTokenWrapper> featureResult = null;
+    if (resultToken != null)
+      featureResult = this.generateResult(resultToken);
+    return featureResult;
+  }
 }

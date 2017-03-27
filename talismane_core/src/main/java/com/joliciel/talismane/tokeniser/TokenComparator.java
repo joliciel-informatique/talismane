@@ -51,161 +51,161 @@ import com.typesafe.config.Config;
  *
  */
 public class TokenComparator {
-	private static final Logger LOG = LoggerFactory.getLogger(TokenComparator.class);
-	private final List<TokenEvaluationObserver> observers = new ArrayList<>();
+  private static final Logger LOG = LoggerFactory.getLogger(TokenComparator.class);
+  private final List<TokenEvaluationObserver> observers = new ArrayList<>();
 
-	private final TokeniserAnnotatedCorpusReader referenceCorpusReader;
-	private final TokeniserAnnotatedCorpusReader evaluationCorpusReader;
-	private final TokeniserPatternManager tokeniserPatternManager;
-	private final TalismaneSession session;
+  private final TokeniserAnnotatedCorpusReader referenceCorpusReader;
+  private final TokeniserAnnotatedCorpusReader evaluationCorpusReader;
+  private final TokeniserPatternManager tokeniserPatternManager;
+  private final TalismaneSession session;
 
-	public TokenComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-		this.session = session;
-		Config config = session.getConfig();
-		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
-		TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
+  public TokenComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
+    this.session = session;
+    Config config = session.getConfig();
+    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    TokeniserType tokeniserType = TokeniserType.valueOf(tokeniserConfig.getString("type"));
 
-		Tokeniser tokeniser = Tokeniser.getInstance(session);
+    Tokeniser tokeniser = Tokeniser.getInstance(session);
 
-		if (tokeniserType == TokeniserType.pattern) {
-			PatternTokeniser patternTokeniser = (PatternTokeniser) tokeniser;
-			this.tokeniserPatternManager = patternTokeniser.getTokeniserPatternManager();
-		} else {
-			this.tokeniserPatternManager = null;
-		}
-		this.referenceCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(referenceReader, tokeniserConfig.getConfig("input"), session);
+    if (tokeniserType == TokeniserType.pattern) {
+      PatternTokeniser patternTokeniser = (PatternTokeniser) tokeniser;
+      this.tokeniserPatternManager = patternTokeniser.getTokeniserPatternManager();
+    } else {
+      this.tokeniserPatternManager = null;
+    }
+    this.referenceCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(referenceReader, tokeniserConfig.getConfig("input"), session);
 
-		this.evaluationCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("evaluate"), session);
+    this.evaluationCorpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("evaluate"), session);
 
-		List<TokenEvaluationObserver> observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
-		for (TokenEvaluationObserver observer : observers)
-			this.addObserver(observer);
+    List<TokenEvaluationObserver> observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
+    for (TokenEvaluationObserver observer : observers)
+      this.addObserver(observer);
 
-	}
+  }
 
-	public TokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
-			TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
-		this.session = talismaneSession;
-		this.referenceCorpusReader = referenceCorpusReader;
-		this.evaluationCorpusReader = evaluationCorpusReader;
-		this.tokeniserPatternManager = tokeniserPatternManager;
-	}
+  public TokenComparator(TokeniserAnnotatedCorpusReader referenceCorpusReader, TokeniserAnnotatedCorpusReader evaluationCorpusReader,
+      TokeniserPatternManager tokeniserPatternManager, TalismaneSession talismaneSession) {
+    this.session = talismaneSession;
+    this.referenceCorpusReader = referenceCorpusReader;
+    this.evaluationCorpusReader = evaluationCorpusReader;
+    this.tokeniserPatternManager = tokeniserPatternManager;
+  }
 
-	/**
-	 * Evaluate the evaluation corpus against the reference corpus.
-	 * 
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public void compare() throws TalismaneException, IOException {
-		while (referenceCorpusReader.hasNextSentence()) {
-			TokenSequence realSequence = referenceCorpusReader.nextTokenSequence();
+  /**
+   * Evaluate the evaluation corpus against the reference corpus.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public void compare() throws TalismaneException, IOException {
+    while (referenceCorpusReader.hasNextSentence()) {
+      TokenSequence realSequence = referenceCorpusReader.nextTokenSequence();
 
-			TokenSequence guessedSequence = null;
-			if (evaluationCorpusReader.hasNextSentence())
-				guessedSequence = evaluationCorpusReader.nextTokenSequence();
-			else {
-				throw new TalismaneException("Wrong number of sentences in eval corpus: " + realSequence.getSentence().getText());
-			}
+      TokenSequence guessedSequence = null;
+      if (evaluationCorpusReader.hasNextSentence())
+        guessedSequence = evaluationCorpusReader.nextTokenSequence();
+      else {
+        throw new TalismaneException("Wrong number of sentences in eval corpus: " + realSequence.getSentence().getText());
+      }
 
-			Sentence sentence = realSequence.getSentence();
+      Sentence sentence = realSequence.getSentence();
 
-			// Initially, separate the sentence into tokens using the separators
-			// provided
-			TokenSequence realAtomicSequence = new TokenSequence(sentence, session);
-			realAtomicSequence.findDefaultTokens();
-			TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), session);
-			guessedAtomicSequence.findDefaultTokens();
+      // Initially, separate the sentence into tokens using the separators
+      // provided
+      TokenSequence realAtomicSequence = new TokenSequence(sentence, session);
+      realAtomicSequence.findDefaultTokens();
+      TokenSequence guessedAtomicSequence = new TokenSequence(guessedSequence.getSentence(), session);
+      guessedAtomicSequence.findDefaultTokens();
 
-			List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
-			Map<Token, Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();
-			Set<Token> matchedTokens = new HashSet<Token>();
+      List<TokenPatternMatchSequence> matchingSequences = new ArrayList<TokenPatternMatchSequence>();
+      Map<Token, Set<TokenPatternMatchSequence>> tokenMatchSequenceMap = new HashMap<Token, Set<TokenPatternMatchSequence>>();
+      Set<Token> matchedTokens = new HashSet<Token>();
 
-			for (TokenPattern parsedPattern : tokeniserPatternManager.getParsedTestPatterns()) {
-				List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(realAtomicSequence);
-				for (TokenPatternMatchSequence matchSequence : matchesForThisPattern) {
-					matchingSequences.add(matchSequence);
-					matchedTokens.addAll(matchSequence.getTokensToCheck());
+      for (TokenPattern parsedPattern : tokeniserPatternManager.getParsedTestPatterns()) {
+        List<TokenPatternMatchSequence> matchesForThisPattern = parsedPattern.match(realAtomicSequence);
+        for (TokenPatternMatchSequence matchSequence : matchesForThisPattern) {
+          matchingSequences.add(matchSequence);
+          matchedTokens.addAll(matchSequence.getTokensToCheck());
 
-					Token token = null;
-					for (Token aToken : matchSequence.getTokensToCheck()) {
-						token = aToken;
-						if (!aToken.isWhiteSpace()) {
-							break;
-						}
-					}
+          Token token = null;
+          for (Token aToken : matchSequence.getTokensToCheck()) {
+            token = aToken;
+            if (!aToken.isWhiteSpace()) {
+              break;
+            }
+          }
 
-					Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-					if (matchSequences == null) {
-						matchSequences = new TreeSet<TokenPatternMatchSequence>();
-						tokenMatchSequenceMap.put(token, matchSequences);
-					}
-					matchSequences.add(matchSequence);
-				}
-			}
+          Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
+          if (matchSequences == null) {
+            matchSequences = new TreeSet<TokenPatternMatchSequence>();
+            tokenMatchSequenceMap.put(token, matchSequences);
+          }
+          matchSequences.add(matchSequence);
+        }
+      }
 
-			TokenisedAtomicTokenSequence guess = new TokenisedAtomicTokenSequence(realSequence.getSentence(), 0, session);
+      TokenisedAtomicTokenSequence guess = new TokenisedAtomicTokenSequence(realSequence.getSentence(), 0, session);
 
-			int i = 0;
-			int mismatches = 0;
-			for (Token token : realAtomicSequence) {
-				if (!token.getText().equals(guessedAtomicSequence.get(i).getToken().getText())) {
-					// skipped stuff at start of sentence on guess, if it's been
-					// through the parser
-					TokeniserOutcome outcome = TokeniserOutcome.SEPARATE;
-					Decision decision = new Decision(outcome.name());
-					decision.addAuthority("_" + this.getClass().getSimpleName());
-					Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-					if (matchSequences != null) {
-						decision.addAuthority("_Patterns");
-						for (TokenPatternMatchSequence matchSequence : matchSequences) {
-							decision.addAuthority(matchSequence.getTokenPattern().getName());
-						}
-					}
-					guess.addTaggedToken(token, decision, outcome);
-					mismatches++;
-					LOG.debug("Mismatch: '" + token.getText() + "', '" + guessedAtomicSequence.get(i).getToken().getText() + "'");
-					if (mismatches > 6) {
-						LOG.info("Real sequence: " + realSequence.getSentence().getText());
-						LOG.info("Guessed sequence: " + guessedSequence.getSentence().getText());
-						throw new TalismaneException("Too many mismatches for sentence: " + realSequence.getSentence().getText());
-					}
-					continue;
-				}
-				TokeniserOutcome outcome = TokeniserOutcome.JOIN;
+      int i = 0;
+      int mismatches = 0;
+      for (Token token : realAtomicSequence) {
+        if (!token.getText().equals(guessedAtomicSequence.get(i).getToken().getText())) {
+          // skipped stuff at start of sentence on guess, if it's been
+          // through the parser
+          TokeniserOutcome outcome = TokeniserOutcome.SEPARATE;
+          Decision decision = new Decision(outcome.name());
+          decision.addAuthority("_" + this.getClass().getSimpleName());
+          Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
+          if (matchSequences != null) {
+            decision.addAuthority("_Patterns");
+            for (TokenPatternMatchSequence matchSequence : matchSequences) {
+              decision.addAuthority(matchSequence.getTokenPattern().getName());
+            }
+          }
+          guess.addTaggedToken(token, decision, outcome);
+          mismatches++;
+          LOG.debug("Mismatch: '" + token.getText() + "', '" + guessedAtomicSequence.get(i).getToken().getText() + "'");
+          if (mismatches > 6) {
+            LOG.info("Real sequence: " + realSequence.getSentence().getText());
+            LOG.info("Guessed sequence: " + guessedSequence.getSentence().getText());
+            throw new TalismaneException("Too many mismatches for sentence: " + realSequence.getSentence().getText());
+          }
+          continue;
+        }
+        TokeniserOutcome outcome = TokeniserOutcome.JOIN;
 
-				if (guessedSequence.getTokenSplits().contains(guessedAtomicSequence.get(i).getToken().getStartIndex())) {
-					outcome = TokeniserOutcome.SEPARATE;
-				}
-				Decision decision = new Decision(outcome.name());
-				decision.addAuthority("_" + this.getClass().getSimpleName());
+        if (guessedSequence.getTokenSplits().contains(guessedAtomicSequence.get(i).getToken().getStartIndex())) {
+          outcome = TokeniserOutcome.SEPARATE;
+        }
+        Decision decision = new Decision(outcome.name());
+        decision.addAuthority("_" + this.getClass().getSimpleName());
 
-				Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
-				if (matchSequences != null) {
-					decision.addAuthority("_Patterns");
-					for (TokenPatternMatchSequence matchSequence : matchSequences) {
-						decision.addAuthority(matchSequence.getTokenPattern().getName());
-					}
-				}
-				guess.addTaggedToken(token, decision, outcome);
-				i++;
-			}
+        Set<TokenPatternMatchSequence> matchSequences = tokenMatchSequenceMap.get(token);
+        if (matchSequences != null) {
+          decision.addAuthority("_Patterns");
+          for (TokenPatternMatchSequence matchSequence : matchSequences) {
+            decision.addAuthority(matchSequence.getTokenPattern().getName());
+          }
+        }
+        guess.addTaggedToken(token, decision, outcome);
+        i++;
+      }
 
-			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = new ArrayList<TokenisedAtomicTokenSequence>();
-			guessedAtomicSequences.add(guess);
+      List<TokenisedAtomicTokenSequence> guessedAtomicSequences = new ArrayList<TokenisedAtomicTokenSequence>();
+      guessedAtomicSequences.add(guess);
 
-			for (TokenEvaluationObserver observer : observers) {
-				observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
-			}
-		} // next sentence
+      for (TokenEvaluationObserver observer : observers) {
+        observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
+      }
+    } // next sentence
 
-		for (TokenEvaluationObserver observer : observers) {
-			observer.onEvaluationComplete();
-		}
-	}
+    for (TokenEvaluationObserver observer : observers) {
+      observer.onEvaluationComplete();
+    }
+  }
 
-	public void addObserver(TokenEvaluationObserver observer) {
-		this.observers.add(observer);
-	}
+  public void addObserver(TokenEvaluationObserver observer) {
+    this.observers.add(observer);
+  }
 }

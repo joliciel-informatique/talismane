@@ -29,54 +29,54 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class AdditiveScoringStrategy implements ScoringStrategy<ClassificationSolution> {
-	private static final Logger LOG = LoggerFactory.getLogger(AdditiveScoringStrategy.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AdditiveScoringStrategy.class);
 
-	@Override
-	public double calculateScore(ClassificationSolution solution) {
-		double score = 0;
-		if (solution!=null && solution.getDecisions().size()>0) {
-			for (Decision decision : solution.getDecisions())
-				score += decision.getScore();
-			score /= solution.getDecisions().size();
-		}
-		
-		if (LOG.isTraceEnabled()) {
-			if (solution!=null) {
-				LOG.trace("Score for solution: " + solution.getClass().getSimpleName());
-				LOG.trace(solution.toString());
-				StringBuilder sb = new StringBuilder();
-				for (Decision decision : solution.getDecisions()) {
-					sb.append(" + ");
-					sb.append(decision.getScore());
-				}
-				sb.append(" / ");
-				sb.append(solution.getDecisions().size());
-				sb.append(" = ");
-				sb.append(score);
-	
-				LOG.trace(sb.toString());
-			}
-		}
-		
-		for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
-			if (solution.getScoringStrategy().isAdditive())
-				score += underlyingSolution.getScore();
-		}
-		
-		if (LOG.isTraceEnabled()) {
-			for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
-				if (solution.getScoringStrategy().isAdditive())
-					LOG.trace(" + " + underlyingSolution.getScore() + " (" + underlyingSolution.getClass().getSimpleName() + ")");
-			}
-			LOG.trace(" = " + score);
-		}
+  @Override
+  public double calculateScore(ClassificationSolution solution) {
+    double score = 0;
+    if (solution!=null && solution.getDecisions().size()>0) {
+      for (Decision decision : solution.getDecisions())
+        score += decision.getScore();
+      score /= solution.getDecisions().size();
+    }
+    
+    if (LOG.isTraceEnabled()) {
+      if (solution!=null) {
+        LOG.trace("Score for solution: " + solution.getClass().getSimpleName());
+        LOG.trace(solution.toString());
+        StringBuilder sb = new StringBuilder();
+        for (Decision decision : solution.getDecisions()) {
+          sb.append(" + ");
+          sb.append(decision.getScore());
+        }
+        sb.append(" / ");
+        sb.append(solution.getDecisions().size());
+        sb.append(" = ");
+        sb.append(score);
+  
+        LOG.trace(sb.toString());
+      }
+    }
+    
+    for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
+      if (solution.getScoringStrategy().isAdditive())
+        score += underlyingSolution.getScore();
+    }
+    
+    if (LOG.isTraceEnabled()) {
+      for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
+        if (solution.getScoringStrategy().isAdditive())
+          LOG.trace(" + " + underlyingSolution.getScore() + " (" + underlyingSolution.getClass().getSimpleName() + ")");
+      }
+      LOG.trace(" = " + score);
+    }
 
-		return score;
-	}
+    return score;
+  }
 
-	@Override
-	public boolean isAdditive() {
-		return true;
-	}
+  @Override
+  public boolean isAdditive() {
+    return true;
+  }
 
 }

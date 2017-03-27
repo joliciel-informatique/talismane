@@ -26,146 +26,146 @@ import com.joliciel.talismane.utils.ConfigUtils;
 import com.typesafe.config.Config;
 
 public class PosTagFeatureTester implements PosTagSequenceProcessor {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTagFeatureTester.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PosTagFeatureTester.class);
 
-	private final Set<PosTaggerFeature<?>> posTaggerFeatures;
+  private final Set<PosTaggerFeature<?>> posTaggerFeatures;
 
-	private final Set<String> testWords;
+  private final Set<String> testWords;
 
-	private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
-	private final Writer writer;
+  private final Map<String, Map<String, List<String>>> featureResultMap = new TreeMap<>();
+  private final Writer writer;
 
-	public PosTagFeatureTester(TalismaneSession session, Writer writer) throws IOException {
-		Config config = session.getConfig();
-		Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+  public PosTagFeatureTester(TalismaneSession session, Writer writer) throws IOException {
+    Config config = session.getConfig();
+    Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
 
-		String configPath = "talismane.core.pos-tagger.train.features";
-		InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
-		List<String> featureDescriptors = new ArrayList<>();
-		try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
+    String configPath = "talismane.core.pos-tagger.train.features";
+    InputStream tokeniserFeatureFile = ConfigUtils.getFileFromConfig(config, configPath);
+    List<String> featureDescriptors = new ArrayList<>();
+    try (Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(tokeniserFeatureFile, "UTF-8")))) {
 
-			while (scanner.hasNextLine()) {
-				String descriptor = scanner.nextLine();
-				featureDescriptors.add(descriptor);
-				LOG.debug(descriptor);
-			}
-		}
+      while (scanner.hasNextLine()) {
+        String descriptor = scanner.nextLine();
+        featureDescriptors.add(descriptor);
+        LOG.debug(descriptor);
+      }
+    }
 
-		PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
-		this.posTaggerFeatures = featureParser.getFeatureSet(featureDescriptors);
-		this.testWords = new HashSet<>(posTaggerConfig.getStringList("output.test-words"));
+    PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+    this.posTaggerFeatures = featureParser.getFeatureSet(featureDescriptors);
+    this.testWords = new HashSet<>(posTaggerConfig.getStringList("output.test-words"));
 
-		this.writer = writer;
-	}
+    this.writer = writer;
+  }
 
-	/**
-	 * A feature tester, which outputs results of applying features to the items
-	 * encountered in a given corpus.
-	 * 
-	 * @param posTaggerFeatures
-	 *            the features to test
-	 * @param testWords
-	 *            limit the test to certain words only
-	 * @param writer
-	 *            where the test results should be written
-	 */
-	public PosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures, Set<String> testWords, Writer writer) {
-		this.posTaggerFeatures = posTaggerFeatures;
-		this.testWords = testWords;
-		this.writer = writer;
-	}
+  /**
+   * A feature tester, which outputs results of applying features to the items
+   * encountered in a given corpus.
+   * 
+   * @param posTaggerFeatures
+   *            the features to test
+   * @param testWords
+   *            limit the test to certain words only
+   * @param writer
+   *            where the test results should be written
+   */
+  public PosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures, Set<String> testWords, Writer writer) {
+    this.posTaggerFeatures = posTaggerFeatures;
+    this.testWords = testWords;
+    this.writer = writer;
+  }
 
-	@Override
-	public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException {
-		PosTagSequence currentHistory = new PosTagSequence(posTagSequence.getTokenSequence());
+  @Override
+  public void onNextPosTagSequence(PosTagSequence posTagSequence) throws TalismaneException {
+    PosTagSequence currentHistory = new PosTagSequence(posTagSequence.getTokenSequence());
 
-		for (PosTaggedToken posTaggedToken : posTagSequence) {
-			if (testWords.contains(posTaggedToken.getToken().getAnalyisText().toLowerCase())) {
-				StringBuilder sb = new StringBuilder();
-				boolean foundToken = false;
-				for (PosTaggedToken taggedToken : posTagSequence) {
-					if (taggedToken.equals(posTaggedToken)) {
-						sb.append(" [" + taggedToken.getToken().getOriginalText().replace(' ', '_') + "/" + taggedToken.getTag().toString() + "]");
-						foundToken = true;
-					} else if (foundToken) {
-						sb.append(" " + taggedToken.getToken().getOriginalText().replace(' ', '_'));
-					} else {
-						sb.append(" " + taggedToken.getToken().getOriginalText().replace(' ', '_') + "/" + taggedToken.getTag().toString());
-					}
-				}
-				LOG.debug(sb.toString());
+    for (PosTaggedToken posTaggedToken : posTagSequence) {
+      if (testWords.contains(posTaggedToken.getToken().getAnalyisText().toLowerCase())) {
+        StringBuilder sb = new StringBuilder();
+        boolean foundToken = false;
+        for (PosTaggedToken taggedToken : posTagSequence) {
+          if (taggedToken.equals(posTaggedToken)) {
+            sb.append(" [" + taggedToken.getToken().getOriginalText().replace(' ', '_') + "/" + taggedToken.getTag().toString() + "]");
+            foundToken = true;
+          } else if (foundToken) {
+            sb.append(" " + taggedToken.getToken().getOriginalText().replace(' ', '_'));
+          } else {
+            sb.append(" " + taggedToken.getToken().getOriginalText().replace(' ', '_') + "/" + taggedToken.getTag().toString());
+          }
+        }
+        LOG.debug(sb.toString());
 
-				String classification = posTaggedToken.getTag().getCode();
-				PosTaggerContext context = new PosTaggerContextImpl(posTaggedToken.getToken(), currentHistory);
-				List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
-				for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
-					RuntimeEnvironment env = new RuntimeEnvironment();
-					FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
-					if (featureResult != null)
-						posTagFeatureResults.add(featureResult);
-				}
+        String classification = posTaggedToken.getTag().getCode();
+        PosTaggerContext context = new PosTaggerContextImpl(posTaggedToken.getToken(), currentHistory);
+        List<FeatureResult<?>> posTagFeatureResults = new ArrayList<FeatureResult<?>>();
+        for (PosTaggerFeature<?> posTaggerFeature : posTaggerFeatures) {
+          RuntimeEnvironment env = new RuntimeEnvironment();
+          FeatureResult<?> featureResult = posTaggerFeature.check(context, env);
+          if (featureResult != null)
+            posTagFeatureResults.add(featureResult);
+        }
 
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Token: " + posTaggedToken.getToken().getAnalyisText());
-					for (FeatureResult<?> result : posTagFeatureResults) {
-						LOG.trace(result.toString());
-					}
-				}
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Token: " + posTaggedToken.getToken().getAnalyisText());
+          for (FeatureResult<?> result : posTagFeatureResults) {
+            LOG.trace(result.toString());
+          }
+        }
 
-				for (FeatureResult<?> featureResult : posTagFeatureResults) {
-					Map<String, List<String>> classificationMap = featureResultMap.get(featureResult.toString());
-					if (classificationMap == null) {
-						classificationMap = new TreeMap<String, List<String>>();
-						featureResultMap.put(featureResult.toString(), classificationMap);
-					}
-					List<String> sentences = classificationMap.get(classification);
-					if (sentences == null) {
-						sentences = new ArrayList<String>();
-						classificationMap.put(classification, sentences);
-					}
-					sentences.add(sb.toString());
-				}
-			}
+        for (FeatureResult<?> featureResult : posTagFeatureResults) {
+          Map<String, List<String>> classificationMap = featureResultMap.get(featureResult.toString());
+          if (classificationMap == null) {
+            classificationMap = new TreeMap<String, List<String>>();
+            featureResultMap.put(featureResult.toString(), classificationMap);
+          }
+          List<String> sentences = classificationMap.get(classification);
+          if (sentences == null) {
+            sentences = new ArrayList<String>();
+            classificationMap.put(classification, sentences);
+          }
+          sentences.add(sb.toString());
+        }
+      }
 
-			currentHistory.addPosTaggedToken(posTaggedToken);
-		}
-	}
+      currentHistory.addPosTaggedToken(posTaggedToken);
+    }
+  }
 
-	public Set<String> getTestWords() {
-		return testWords;
-	}
+  public Set<String> getTestWords() {
+    return testWords;
+  }
 
-	public Set<PosTaggerFeature<?>> getPosTaggerFeatures() {
-		return posTaggerFeatures;
-	}
+  public Set<PosTaggerFeature<?>> getPosTaggerFeatures() {
+    return posTaggerFeatures;
+  }
 
-	@Override
-	public void onCompleteAnalysis() throws IOException {
-		for (String featureResult : this.featureResultMap.keySet()) {
-			writer.write("###################\n");
-			writer.write(featureResult + "\n");
-			int totalCount = 0;
-			Map<String, List<String>> classificationMap = featureResultMap.get(featureResult);
-			for (String classification : classificationMap.keySet()) {
-				totalCount += classificationMap.get(classification).size();
-			}
-			writer.write("Total count: " + totalCount + "\n");
-			for (String classification : classificationMap.keySet()) {
-				writer.write(classification + " count:" + classificationMap.get(classification).size() + "\n");
-			}
-			for (String classification : classificationMap.keySet()) {
-				writer.write("PosTag: " + classification + "\t" + classificationMap.get(classification).size() + "\n");
-				for (String sentence : classificationMap.get(classification)) {
-					writer.write(sentence + "\n");
-				}
-			}
-			writer.flush();
-		}
-	}
+  @Override
+  public void onCompleteAnalysis() throws IOException {
+    for (String featureResult : this.featureResultMap.keySet()) {
+      writer.write("###################\n");
+      writer.write(featureResult + "\n");
+      int totalCount = 0;
+      Map<String, List<String>> classificationMap = featureResultMap.get(featureResult);
+      for (String classification : classificationMap.keySet()) {
+        totalCount += classificationMap.get(classification).size();
+      }
+      writer.write("Total count: " + totalCount + "\n");
+      for (String classification : classificationMap.keySet()) {
+        writer.write(classification + " count:" + classificationMap.get(classification).size() + "\n");
+      }
+      for (String classification : classificationMap.keySet()) {
+        writer.write("PosTag: " + classification + "\t" + classificationMap.get(classification).size() + "\n");
+        for (String sentence : classificationMap.get(classification)) {
+          writer.write(sentence + "\n");
+        }
+      }
+      writer.flush();
+    }
+  }
 
-	@Override
-	public void close() throws IOException {
-		writer.close();
-	}
+  @Override
+  public void close() throws IOException {
+    writer.close();
+  }
 
 }

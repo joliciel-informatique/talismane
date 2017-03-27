@@ -33,69 +33,69 @@ import com.joliciel.talismane.rawText.Sentence;
  *
  */
 public class PretokenisedSequence extends TokenSequence {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(PretokenisedSequence.class);
-	private static final long serialVersionUID = 1L;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(PretokenisedSequence.class);
+  private static final long serialVersionUID = 1L;
 
-	PretokenisedSequence(PretokenisedSequence sequenceToClone) {
-		super(sequenceToClone);
-	}
+  PretokenisedSequence(PretokenisedSequence sequenceToClone) {
+    super(sequenceToClone);
+  }
 
-	public PretokenisedSequence(Sentence sentence, TalismaneSession talismaneSession) {
-		super(sentence, talismaneSession);
-	}
+  public PretokenisedSequence(Sentence sentence, TalismaneSession talismaneSession) {
+    super(sentence, talismaneSession);
+  }
 
-	/**
-	 * Called when reconstructing a sentence from a previously annotated corpus,
-	 * adding the next string.
-	 * 
-	 * @throws TalismaneException
-	 *             if couldn't find the token at the next sentence position
-	 */
-	public Token addToken(String string) throws TalismaneException {
-		CharSequence text = this.getSentence().getText();
+  /**
+   * Called when reconstructing a sentence from a previously annotated corpus,
+   * adding the next string.
+   * 
+   * @throws TalismaneException
+   *             if couldn't find the token at the next sentence position
+   */
+  public Token addToken(String string) throws TalismaneException {
+    CharSequence text = this.getSentence().getText();
 
-		int start = 0;
-		if (this.size() > 0)
-			start = this.get(this.size() - 1).getEndIndex();
+    int start = 0;
+    if (this.size() > 0)
+      start = this.get(this.size() - 1).getEndIndex();
 
-		// jump forward to first non-whitespace character
-		for (; start < text.length(); start++) {
-			char c = text.charAt(start);
-			if (!Character.isWhitespace(c))
-				break;
-		}
+    // jump forward to first non-whitespace character
+    for (; start < text.length(); start++) {
+      char c = text.charAt(start);
+      if (!Character.isWhitespace(c))
+        break;
+    }
 
-		// if the string begins with whitespace
-		// go backwards along whitespace to match string
-		for (int i = 0; i < string.length(); i++) {
-			char s = string.charAt(i);
-			if (Character.isWhitespace(s)) {
-				start--;
-				char t = text.charAt(start);
-				if (!Character.isWhitespace(t))
-					break;
-			} else {
-				break;
-			}
-		}
+    // if the string begins with whitespace
+    // go backwards along whitespace to match string
+    for (int i = 0; i < string.length(); i++) {
+      char s = string.charAt(i);
+      if (Character.isWhitespace(s)) {
+        start--;
+        char t = text.charAt(start);
+        if (!Character.isWhitespace(t))
+          break;
+      } else {
+        break;
+      }
+    }
 
-		int end = start + string.length();
+    int end = start + string.length();
 
-		if (end > text.length())
-			throw new TalismaneException("Add token failed: Expected |" + string + "| at positions " + start + ", " + end + ", but only remaining text (length "
-					+ text.length() + ") is |" + text.subSequence(start, text.length()) + "| in sentence: |" + text + "|");
+    if (end > text.length())
+      throw new TalismaneException("Add token failed: Expected |" + string + "| at positions " + start + ", " + end + ", but only remaining text (length "
+          + text.length() + ") is |" + text.subSequence(start, text.length()) + "| in sentence: |" + text + "|");
 
-		if (!string.equals(text.subSequence(start, end).toString()))
-			throw new TalismaneException(
-					"Add token failed: Expected |" + string + "| but was |" + text.subSequence(start, end) + "| in sentence: |" + text + "|");
+    if (!string.equals(text.subSequence(start, end).toString()))
+      throw new TalismaneException(
+          "Add token failed: Expected |" + string + "| but was |" + text.subSequence(start, end) + "| in sentence: |" + text + "|");
 
-		return this.addToken(start, end);
-	}
+    return this.addToken(start, end);
+  }
 
-	@Override
-	public TokenSequence cloneTokenSequence() {
-		PretokenisedSequence tokenSequence = new PretokenisedSequence(this);
-		return tokenSequence;
-	}
+  @Override
+  public TokenSequence cloneTokenSequence() {
+    PretokenisedSequence tokenSequence = new PretokenisedSequence(this);
+    return tokenSequence;
+  }
 }

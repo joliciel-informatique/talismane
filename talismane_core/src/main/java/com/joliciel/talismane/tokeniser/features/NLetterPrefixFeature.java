@@ -33,40 +33,40 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class NLetterPrefixFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
-	private IntegerFeature<TokenWrapper> nFeature;
+  private IntegerFeature<TokenWrapper> nFeature;
 
-	public NLetterPrefixFeature(IntegerFeature<TokenWrapper> nFeature) {
-		this.nFeature = nFeature;
-		this.setName(super.getName() + "(" + this.nFeature.getName() + ")");
-	}
+  public NLetterPrefixFeature(IntegerFeature<TokenWrapper> nFeature) {
+    this.nFeature = nFeature;
+    this.setName(super.getName() + "(" + this.nFeature.getName() + ")");
+  }
 
-	public NLetterPrefixFeature(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> nFeature) {
-		this(nFeature);
-		this.setAddressFunction(addressFunction);
-	}
+  public NLetterPrefixFeature(TokenAddressFunction<TokenWrapper> addressFunction, IntegerFeature<TokenWrapper> nFeature) {
+    this(nFeature);
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<String> result = null;
 
-		FeatureResult<Integer> nResult = nFeature.check(innerWrapper, env);
-		if (nResult != null) {
-			int n = nResult.getOutcome();
+    FeatureResult<Integer> nResult = nFeature.check(innerWrapper, env);
+    if (nResult != null) {
+      int n = nResult.getOutcome();
 
-			String firstWord = token.getAnalyisText().trim();
-			if (firstWord.indexOf(' ') >= 0) {
-				firstWord = firstWord.substring(0, firstWord.indexOf(' '));
-			}
+      String firstWord = token.getAnalyisText().trim();
+      if (firstWord.indexOf(' ') >= 0) {
+        firstWord = firstWord.substring(0, firstWord.indexOf(' '));
+      }
 
-			if (firstWord.length() > n) {
-				String prefix = firstWord.substring(0, n);
-				result = this.generateResult(prefix);
-			}
-		}
-		return result;
-	}
+      if (firstWord.length() > n) {
+        String prefix = firstWord.substring(0, n);
+        result = this.generateResult(prefix);
+      }
+    }
+    return result;
+  }
 }

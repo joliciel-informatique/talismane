@@ -36,52 +36,52 @@ import com.joliciel.talismane.tokeniser.patterns.TokenPatternMatch;
  *
  */
 public final class PatternIndexInSentenceFeature extends AbstractTokenFeature<Integer>implements IntegerFeature<TokenWrapper> {
-	StringFeature<TokenWrapper> tokenPatternFeature;
-	private Map<String, TokenPattern> patternMap;
+  StringFeature<TokenWrapper> tokenPatternFeature;
+  private Map<String, TokenPattern> patternMap;
 
-	public PatternIndexInSentenceFeature(StringFeature<TokenWrapper> tokenPatternFeature) {
-		this.tokenPatternFeature = tokenPatternFeature;
-		this.setName(super.getName() + "(" + this.tokenPatternFeature.getName() + ")");
-	}
+  public PatternIndexInSentenceFeature(StringFeature<TokenWrapper> tokenPatternFeature) {
+    this.tokenPatternFeature = tokenPatternFeature;
+    this.setName(super.getName() + "(" + this.tokenPatternFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		Token token = tokenWrapper.getToken();
-		FeatureResult<Integer> result = null;
-		FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
-		if (tokenPatternResult != null) {
-			// If we have a token pattern, then this is the first token to be
-			// tested in that pattern
-			TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
+  @Override
+  public FeatureResult<Integer> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    Token token = tokenWrapper.getToken();
+    FeatureResult<Integer> result = null;
+    FeatureResult<String> tokenPatternResult = tokenPatternFeature.check(tokenWrapper, env);
+    if (tokenPatternResult != null) {
+      // If we have a token pattern, then this is the first token to be
+      // tested in that pattern
+      TokenPattern tokenPattern = this.patternMap.get(tokenPatternResult.getOutcome());
 
-			TokenPatternMatch theMatch = null;
-			for (TokenPatternMatch tokenMatch : token.getMatches(tokenPattern)) {
-				if (tokenMatch.getPattern().equals(tokenPattern) && tokenMatch.getIndex() == tokenPattern.getIndexesToTest().get(0)) {
-					theMatch = tokenMatch;
-					break;
-				}
-			}
-			if (theMatch != null) {
-				// note - if a match is found, this is actually the second token
-				// in the pattern
-				// therefore, we want the index of the first token in the
-				// pattern.
-				int indexWithWhiteSpace = token.getIndexWithWhiteSpace() - theMatch.getIndex();
-				Token firstToken = token.getTokenSequence().listWithWhiteSpace().get(indexWithWhiteSpace);
-				int patternIndex = firstToken.getIndex();
+      TokenPatternMatch theMatch = null;
+      for (TokenPatternMatch tokenMatch : token.getMatches(tokenPattern)) {
+        if (tokenMatch.getPattern().equals(tokenPattern) && tokenMatch.getIndex() == tokenPattern.getIndexesToTest().get(0)) {
+          theMatch = tokenMatch;
+          break;
+        }
+      }
+      if (theMatch != null) {
+        // note - if a match is found, this is actually the second token
+        // in the pattern
+        // therefore, we want the index of the first token in the
+        // pattern.
+        int indexWithWhiteSpace = token.getIndexWithWhiteSpace() - theMatch.getIndex();
+        Token firstToken = token.getTokenSequence().listWithWhiteSpace().get(indexWithWhiteSpace);
+        int patternIndex = firstToken.getIndex();
 
-				result = this.generateResult(patternIndex);
-			} // the current token matches the tokeniserPattern at it's first
-				// test index
-		}
-		return result;
-	}
+        result = this.generateResult(patternIndex);
+      } // the current token matches the tokeniserPattern at it's first
+        // test index
+    }
+    return result;
+  }
 
-	public Map<String, TokenPattern> getPatternMap() {
-		return patternMap;
-	}
+  public Map<String, TokenPattern> getPatternMap() {
+    return patternMap;
+  }
 
-	public void setPatternMap(Map<String, TokenPattern> patternMap) {
-		this.patternMap = patternMap;
-	}
+  public void setPatternMap(Map<String, TokenPattern> patternMap) {
+    this.patternMap = patternMap;
+  }
 }

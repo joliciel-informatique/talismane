@@ -35,48 +35,48 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
  *
  */
 public final class ValencyByLabelFeature extends AbstractParseConfigurationFeature<Integer>implements IntegerFeature<ParseConfigurationWrapper> {
-	private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
-	private StringFeature<ParseConfigurationWrapper> dependencyLabelFeature;
+  private PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction;
+  private StringFeature<ParseConfigurationWrapper> dependencyLabelFeature;
 
-	public ValencyByLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
-			StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
-		super();
-		this.addressFunction = addressFunction;
-		this.dependencyLabelFeature = dependencyLabelFeature;
-		this.setName(super.getName() + "(" + this.addressFunction.getName() + "," + this.dependencyLabelFeature.getName() + ")");
-	}
+  public ValencyByLabelFeature(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction,
+      StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
+    super();
+    this.addressFunction = addressFunction;
+    this.dependencyLabelFeature = dependencyLabelFeature;
+    this.setName(super.getName() + "(" + this.addressFunction.getName() + "," + this.dependencyLabelFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
-		ParseConfiguration configuration = wrapper.getParseConfiguration();
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
-		FeatureResult<Integer> featureResult = null;
-		if (tokenResult != null) {
-			FeatureResult<String> depLabelResult = dependencyLabelFeature.check(wrapper, env);
-			if (depLabelResult != null) {
-				PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
-				String label = depLabelResult.getOutcome();
-				int valency = configuration.getDependents(posTaggedToken, label).size();
-				featureResult = this.generateResult(valency);
-			}
-		}
-		return featureResult;
-	}
+  @Override
+  public FeatureResult<Integer> check(ParseConfigurationWrapper wrapper, RuntimeEnvironment env) throws TalismaneException {
+    ParseConfiguration configuration = wrapper.getParseConfiguration();
+    FeatureResult<PosTaggedTokenWrapper> tokenResult = addressFunction.check(wrapper, env);
+    FeatureResult<Integer> featureResult = null;
+    if (tokenResult != null) {
+      FeatureResult<String> depLabelResult = dependencyLabelFeature.check(wrapper, env);
+      if (depLabelResult != null) {
+        PosTaggedToken posTaggedToken = tokenResult.getOutcome().getPosTaggedToken();
+        String label = depLabelResult.getOutcome();
+        int valency = configuration.getDependents(posTaggedToken, label).size();
+        featureResult = this.generateResult(valency);
+      }
+    }
+    return featureResult;
+  }
 
-	public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
-		return addressFunction;
-	}
+  public PosTaggedTokenAddressFunction<ParseConfigurationWrapper> getAddressFunction() {
+    return addressFunction;
+  }
 
-	public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
-		this.addressFunction = addressFunction;
-	}
+  public void setAddressFunction(PosTaggedTokenAddressFunction<ParseConfigurationWrapper> addressFunction) {
+    this.addressFunction = addressFunction;
+  }
 
-	public StringFeature<ParseConfigurationWrapper> getDependencyLabelFeature() {
-		return dependencyLabelFeature;
-	}
+  public StringFeature<ParseConfigurationWrapper> getDependencyLabelFeature() {
+    return dependencyLabelFeature;
+  }
 
-	public void setDependencyLabelFeature(StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
-		this.dependencyLabelFeature = dependencyLabelFeature;
-	}
+  public void setDependencyLabelFeature(StringFeature<ParseConfigurationWrapper> dependencyLabelFeature) {
+    this.dependencyLabelFeature = dependencyLabelFeature;
+  }
 
 }

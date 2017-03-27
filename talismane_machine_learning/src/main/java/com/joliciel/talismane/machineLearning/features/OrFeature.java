@@ -28,49 +28,49 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class OrFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	BooleanFeature<T>[] booleanFeatures;
+  BooleanFeature<T>[] booleanFeatures;
 
-	@SafeVarargs
-	public OrFeature(BooleanFeature<T>... booleanFeatures) {
-		super();
-		this.booleanFeatures = booleanFeatures;
-		String name = "Or(";
-		boolean firstFeature = true;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			if (!firstFeature)
-				name += ",";
-			name += booleanFeature.getName();
-			firstFeature = false;
-		}
-		name += ")";
-		this.setName(name);
-	}
+  @SafeVarargs
+  public OrFeature(BooleanFeature<T>... booleanFeatures) {
+    super();
+    this.booleanFeatures = booleanFeatures;
+    String name = "Or(";
+    boolean firstFeature = true;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      if (!firstFeature)
+        name += ",";
+      name += booleanFeature.getName();
+      firstFeature = false;
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		boolean hasNull = false;
-		boolean booleanResult = false;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			FeatureResult<Boolean> result = booleanFeature.check(context, env);
-			if (result == null) {
-				hasNull = true;
-				break;
-			}
-			booleanResult = booleanResult || result.getOutcome();
-			// not breaking out as soon as we hit a true,
-			// since if any single feature returns a null, we want to return a
-			// null
-		}
+    boolean hasNull = false;
+    boolean booleanResult = false;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      FeatureResult<Boolean> result = booleanFeature.check(context, env);
+      if (result == null) {
+        hasNull = true;
+        break;
+      }
+      booleanResult = booleanResult || result.getOutcome();
+      // not breaking out as soon as we hit a true,
+      // since if any single feature returns a null, we want to return a
+      // null
+    }
 
-		if (!hasNull) {
-			featureResult = this.generateResult(booleanResult);
-		}
-		return featureResult;
-	}
+    if (!hasNull) {
+      featureResult = this.generateResult(booleanResult);
+    }
+    return featureResult;
+  }
 
-	public BooleanFeature<T>[] getBooleanFeatures() {
-		return booleanFeatures;
-	}
+  public BooleanFeature<T>[] getBooleanFeatures() {
+    return booleanFeatures;
+  }
 }

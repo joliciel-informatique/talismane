@@ -29,91 +29,91 @@ import com.joliciel.talismane.tokeniser.StringAttribute;
 import com.joliciel.talismane.utils.ArrayListNoNulls;
 
 public class RawTextFilterFactory {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(RawTextFilterFactory.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(RawTextFilterFactory.class);
 
-	/**
-	 * 
-	 * @param descriptor
-	 * @param blockSize
-	 * @return
-	 * @throws TalismaneException
-	 *             if a descriptor is incorrectly configured
-	 */
-	public RawTextAnnotator getTextMarkerFilter(String descriptor, int blockSize) throws TalismaneException {
-		RawTextAnnotator filter = null;
+  /**
+   * 
+   * @param descriptor
+   * @param blockSize
+   * @return
+   * @throws TalismaneException
+   *             if a descriptor is incorrectly configured
+   */
+  public RawTextAnnotator getTextMarkerFilter(String descriptor, int blockSize) throws TalismaneException {
+    RawTextAnnotator filter = null;
 
-		List<Class<? extends RawTextAnnotator>> classes = new ArrayListNoNulls<Class<? extends RawTextAnnotator>>();
-		classes.add(DuplicateWhiteSpaceFilter.class);
-		classes.add(NewlineEndOfSentenceMarker.class);
-		classes.add(NewlineSpaceMarker.class);
+    List<Class<? extends RawTextAnnotator>> classes = new ArrayListNoNulls<Class<? extends RawTextAnnotator>>();
+    classes.add(DuplicateWhiteSpaceFilter.class);
+    classes.add(NewlineEndOfSentenceMarker.class);
+    classes.add(NewlineSpaceMarker.class);
 
-		String[] parts = descriptor.split("\t");
-		String filterName = parts[0];
+    String[] parts = descriptor.split("\t");
+    String filterName = parts[0];
 
-		// add equality to RegexMarkerFilter for historical reasons
-		if (filterName.equals("RegexMarkerFilter") || filterName.equals(RawTextRegexAnnotator.class.getSimpleName())) {
-			String[] filterTypeStrings = parts[1].split(",");
-			List<RawTextMarkType> filterTypes = new ArrayListNoNulls<RawTextMarkType>();
-			for (String filterTypeString : filterTypeStrings) {
-				filterTypes.add(RawTextMarkType.valueOf(filterTypeString));
-			}
-			boolean needsReplacement = false;
-			boolean needsTag = false;
-			int minParams = 3;
-			if (filterTypes.contains(RawTextMarkType.REPLACE)) {
-				needsReplacement = true;
-				minParams = 4;
-			} else if (filterTypes.contains(RawTextMarkType.TAG)) {
-				needsTag = true;
-				minParams = 4;
-			}
-			if (parts.length == minParams + 1) {
-				filter = new RawTextRegexAnnotator(filterTypes, parts[2], Integer.parseInt(parts[3]), blockSize);
-				if (needsReplacement)
-					filter.setReplacement(parts[4]);
-				if (needsTag) {
-					if (parts[4].indexOf('=') >= 0) {
-						String attribute = parts[4].substring(0, parts[4].indexOf('='));
-						String value = parts[4].substring(parts[4].indexOf('=') + 1);
-						filter.setAttribute(new StringAttribute(attribute, value));
-					} else {
-						filter.setAttribute(new StringAttribute(parts[4], ""));
-					}
-				}
-			} else if (parts.length == minParams) {
-				filter = new RawTextRegexAnnotator(filterTypes, parts[2], 0, blockSize);
-				if (needsReplacement)
-					filter.setReplacement(parts[3]);
-				if (needsTag) {
-					if (parts[3].indexOf('=') >= 0) {
-						String attribute = parts[3].substring(0, parts[3].indexOf('='));
-						String value = parts[3].substring(parts[3].indexOf('=') + 1);
-						filter.setAttribute(new StringAttribute(attribute, value));
-					} else {
-						filter.setAttribute(new StringAttribute(parts[4], ""));
-					}
-				}
-			} else {
-				throw new TalismaneException("Wrong number of arguments for " + RawTextRegexAnnotator.class.getSimpleName() + ". Expected " + minParams + " or "
-						+ (minParams + 1) + ", but was " + parts.length);
-			}
-		} else {
-			for (Class<? extends RawTextAnnotator> clazz : classes) {
-				if (filterName.equals(clazz.getSimpleName())) {
-					try {
-						Constructor<? extends RawTextAnnotator> constructor = clazz.getConstructor(Integer.class);
-						filter = constructor.newInstance(blockSize);
-					} catch (ReflectiveOperationException e) {
-						throw new TalismaneException("Problem building class: " + filterName, e);
-					}
-				}
-			}
-			if (filter == null)
-				throw new TalismaneException("Unknown text filter class: " + filterName);
-		}
+    // add equality to RegexMarkerFilter for historical reasons
+    if (filterName.equals("RegexMarkerFilter") || filterName.equals(RawTextRegexAnnotator.class.getSimpleName())) {
+      String[] filterTypeStrings = parts[1].split(",");
+      List<RawTextMarkType> filterTypes = new ArrayListNoNulls<RawTextMarkType>();
+      for (String filterTypeString : filterTypeStrings) {
+        filterTypes.add(RawTextMarkType.valueOf(filterTypeString));
+      }
+      boolean needsReplacement = false;
+      boolean needsTag = false;
+      int minParams = 3;
+      if (filterTypes.contains(RawTextMarkType.REPLACE)) {
+        needsReplacement = true;
+        minParams = 4;
+      } else if (filterTypes.contains(RawTextMarkType.TAG)) {
+        needsTag = true;
+        minParams = 4;
+      }
+      if (parts.length == minParams + 1) {
+        filter = new RawTextRegexAnnotator(filterTypes, parts[2], Integer.parseInt(parts[3]), blockSize);
+        if (needsReplacement)
+          filter.setReplacement(parts[4]);
+        if (needsTag) {
+          if (parts[4].indexOf('=') >= 0) {
+            String attribute = parts[4].substring(0, parts[4].indexOf('='));
+            String value = parts[4].substring(parts[4].indexOf('=') + 1);
+            filter.setAttribute(new StringAttribute(attribute, value));
+          } else {
+            filter.setAttribute(new StringAttribute(parts[4], ""));
+          }
+        }
+      } else if (parts.length == minParams) {
+        filter = new RawTextRegexAnnotator(filterTypes, parts[2], 0, blockSize);
+        if (needsReplacement)
+          filter.setReplacement(parts[3]);
+        if (needsTag) {
+          if (parts[3].indexOf('=') >= 0) {
+            String attribute = parts[3].substring(0, parts[3].indexOf('='));
+            String value = parts[3].substring(parts[3].indexOf('=') + 1);
+            filter.setAttribute(new StringAttribute(attribute, value));
+          } else {
+            filter.setAttribute(new StringAttribute(parts[4], ""));
+          }
+        }
+      } else {
+        throw new TalismaneException("Wrong number of arguments for " + RawTextRegexAnnotator.class.getSimpleName() + ". Expected " + minParams + " or "
+            + (minParams + 1) + ", but was " + parts.length);
+      }
+    } else {
+      for (Class<? extends RawTextAnnotator> clazz : classes) {
+        if (filterName.equals(clazz.getSimpleName())) {
+          try {
+            Constructor<? extends RawTextAnnotator> constructor = clazz.getConstructor(Integer.class);
+            filter = constructor.newInstance(blockSize);
+          } catch (ReflectiveOperationException e) {
+            throw new TalismaneException("Problem building class: " + filterName, e);
+          }
+        }
+      }
+      if (filter == null)
+        throw new TalismaneException("Unknown text filter class: " + filterName);
+    }
 
-		return filter;
-	}
+    return filter;
+  }
 
 }

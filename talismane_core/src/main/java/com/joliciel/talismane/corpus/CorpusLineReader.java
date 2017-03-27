@@ -55,135 +55,135 @@ import com.joliciel.talismane.lexicon.WritableLexicalEntry;
  *
  */
 public class CorpusLineReader {
-	private static final Logger LOG = LoggerFactory.getLogger(CorpusLineReader.class);
-	private final String regex;
-	private final Pattern pattern;
-	private final TalismaneSession session;
-	private final LexicalEntryReader lexicalEntryReader;
-	private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
+  private static final Logger LOG = LoggerFactory.getLogger(CorpusLineReader.class);
+  private final String regex;
+  private final Pattern pattern;
+  private final TalismaneSession session;
+  private final LexicalEntryReader lexicalEntryReader;
+  private final CompactLexicalEntrySupport lexicalEntrySupport = new CompactLexicalEntrySupport("");
 
-	private final Map<CorpusElement, Integer> placeholderIndexMap = new HashMap<>();
-	private final int maxGroup;
-	private final List<CorpusRule> corpusRules;
+  private final Map<CorpusElement, Integer> placeholderIndexMap = new HashMap<>();
+  private final int maxGroup;
+  private final List<CorpusRule> corpusRules;
 
-	/**
-	 * 
-	 * @param regex
-	 *            the regex used to read lines, including placeholders as
-	 *            described in the class description
-	 * @param requiredElements
-	 *            any elements whose placeholders have to be found in the regex
-	 * @param lexicalEntryReader
-	 *            an optional lexical entry reader, for constructing a lexical
-	 *            entry out of each line
-	 * @param session
-	 *            the Talismane session
-	 * @throws TalismaneException
-	 *             if the regex is missing a required placeholder
-	 */
-	public CorpusLineReader(String regex, CorpusElement[] requiredElements, List<CorpusRule> corpusRules, LexicalEntryReader lexicalEntryReader,
-			TalismaneSession session) throws TalismaneException {
-		this.session = session;
-		this.regex = regex;
-		this.corpusRules = corpusRules;
-		this.lexicalEntryReader = lexicalEntryReader;
+  /**
+   * 
+   * @param regex
+   *            the regex used to read lines, including placeholders as
+   *            described in the class description
+   * @param requiredElements
+   *            any elements whose placeholders have to be found in the regex
+   * @param lexicalEntryReader
+   *            an optional lexical entry reader, for constructing a lexical
+   *            entry out of each line
+   * @param session
+   *            the Talismane session
+   * @throws TalismaneException
+   *             if the regex is missing a required placeholder
+   */
+  public CorpusLineReader(String regex, CorpusElement[] requiredElements, List<CorpusRule> corpusRules, LexicalEntryReader lexicalEntryReader,
+      TalismaneSession session) throws TalismaneException {
+    this.session = session;
+    this.regex = regex;
+    this.corpusRules = corpusRules;
+    this.lexicalEntryReader = lexicalEntryReader;
 
-		Set<CorpusElement> requiredElementSet = new HashSet<>(Arrays.asList(requiredElements));
+    Set<CorpusElement> requiredElementSet = new HashSet<>(Arrays.asList(requiredElements));
 
-		Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
-		for (CorpusElement elementType : CorpusElement.values()) {
-			String placeholder = "%" + elementType + "%";
-			int pos = regex.indexOf(placeholder);
-			if (requiredElementSet.contains(elementType) && pos < 0)
-				throw new TalismaneException("The regex must contain the string \"" + placeholder + "\": " + regex);
-			if (pos >= 0)
-				placeholderMap.put(pos, elementType.name());
-		}
+    Map<Integer, String> placeholderMap = new TreeMap<Integer, String>();
+    for (CorpusElement elementType : CorpusElement.values()) {
+      String placeholder = "%" + elementType + "%";
+      int pos = regex.indexOf(placeholder);
+      if (requiredElementSet.contains(elementType) && pos < 0)
+        throw new TalismaneException("The regex must contain the string \"" + placeholder + "\": " + regex);
+      if (pos >= 0)
+        placeholderMap.put(pos, elementType.name());
+    }
 
-		for (int j = 0; j < regex.length(); j++) {
-			if (regex.charAt(j) == '(') {
-				placeholderMap.put(j, "");
-			}
-		}
-		int i = 1;
-		for (int placeholderIndex : placeholderMap.keySet()) {
-			String placeholderName = placeholderMap.get(placeholderIndex);
-			if (placeholderName.length() > 0)
-				placeholderIndexMap.put(CorpusElement.valueOf(placeholderName), i);
-			i++;
-		}
+    for (int j = 0; j < regex.length(); j++) {
+      if (regex.charAt(j) == '(') {
+        placeholderMap.put(j, "");
+      }
+    }
+    int i = 1;
+    for (int placeholderIndex : placeholderMap.keySet()) {
+      String placeholderName = placeholderMap.get(placeholderIndex);
+      if (placeholderName.length() > 0)
+        placeholderIndexMap.put(CorpusElement.valueOf(placeholderName), i);
+      i++;
+    }
 
-		maxGroup = i - 1;
+    maxGroup = i - 1;
 
-		String regexWithGroups = regex;
-		for (CorpusElement elementType : CorpusElement.values()) {
-			String placeholder = "%" + elementType + "%";
-			regexWithGroups = regexWithGroups.replace(placeholder, elementType.getReplacement());
-		}
+    String regexWithGroups = regex;
+    for (CorpusElement elementType : CorpusElement.values()) {
+      String placeholder = "%" + elementType + "%";
+      regexWithGroups = regexWithGroups.replace(placeholder, elementType.getReplacement());
+    }
 
-		this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
-	}
+    this.pattern = Pattern.compile(regexWithGroups, Pattern.UNICODE_CHARACTER_CLASS);
+  }
 
-	/**
-	 * Read one line out of the corpus, and transform it into a
-	 * {@link CorpusLine}
-	 * 
-	 * @param line
-	 *            the line to read
-	 * @param lineNumber
-	 *            the line number we reached, starting at 1.
-	 * @throws TalismaneException
-	 *             if the regex wasn't matched on a given line
-	 */
-	public CorpusLine read(String line, int lineNumber) throws TalismaneException {
-		Matcher matcher = this.pattern.matcher(line);
-		if (!matcher.matches())
-			throw new TalismaneException(
-					"Didn't match pattern \"" + regex + "\". Compiled to: \"" + this.pattern.pattern() + "\". On line " + lineNumber + ": " + line);
+  /**
+   * Read one line out of the corpus, and transform it into a
+   * {@link CorpusLine}
+   * 
+   * @param line
+   *            the line to read
+   * @param lineNumber
+   *            the line number we reached, starting at 1.
+   * @throws TalismaneException
+   *             if the regex wasn't matched on a given line
+   */
+  public CorpusLine read(String line, int lineNumber) throws TalismaneException {
+    Matcher matcher = this.pattern.matcher(line);
+    if (!matcher.matches())
+      throw new TalismaneException(
+          "Didn't match pattern \"" + regex + "\". Compiled to: \"" + this.pattern.pattern() + "\". On line " + lineNumber + ": " + line);
 
-		CorpusLine corpusLine = new CorpusLine(line, lineNumber);
-		for (CorpusElement elementType : CorpusElement.values()) {
-			if (placeholderIndexMap.containsKey(elementType)) {
-				String value = matcher.group(placeholderIndexMap.get(elementType));
-				switch (elementType) {
-				case TOKEN:
-				case LEMMA:
-					value = session.getCoNLLFormatter().fromCoNLL(value);
-					break;
-				default:
-					if ("_".equals(value))
-						value = "";
-					break;
-				}
-				corpusLine.setElement(elementType, value);
-			}
-		}
+    CorpusLine corpusLine = new CorpusLine(line, lineNumber);
+    for (CorpusElement elementType : CorpusElement.values()) {
+      if (placeholderIndexMap.containsKey(elementType)) {
+        String value = matcher.group(placeholderIndexMap.get(elementType));
+        switch (elementType) {
+        case TOKEN:
+        case LEMMA:
+          value = session.getCoNLLFormatter().fromCoNLL(value);
+          break;
+        default:
+          if ("_".equals(value))
+            value = "";
+          break;
+        }
+        corpusLine.setElement(elementType, value);
+      }
+    }
 
-		if (this.lexicalEntryReader != null) {
-			WritableLexicalEntry lexicalEntry = new CompactLexicalEntry(lexicalEntrySupport);
-			this.lexicalEntryReader.readEntry(line, lexicalEntry);
-			corpusLine.setLexicalEntry(lexicalEntry);
-		}
+    if (this.lexicalEntryReader != null) {
+      WritableLexicalEntry lexicalEntry = new CompactLexicalEntry(lexicalEntrySupport);
+      this.lexicalEntryReader.readEntry(line, lexicalEntry);
+      corpusLine.setLexicalEntry(lexicalEntry);
+    }
 
-		Map<CorpusElement, String> updateValues = new HashMap<>();
-		for (CorpusRule corpusRule : corpusRules) {
-			corpusRule.apply(corpusLine, updateValues);
-		}
-		for (CorpusElement element : updateValues.keySet()) {
-			String value = updateValues.get(element);
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Updating " + element.name() + " from '" + corpusLine.getElement(element) + "' to '" + value + "'");
-			}
-			corpusLine.setElement(element, value);
-		}
+    Map<CorpusElement, String> updateValues = new HashMap<>();
+    for (CorpusRule corpusRule : corpusRules) {
+      corpusRule.apply(corpusLine, updateValues);
+    }
+    for (CorpusElement element : updateValues.keySet()) {
+      String value = updateValues.get(element);
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Updating " + element.name() + " from '" + corpusLine.getElement(element) + "' to '" + value + "'");
+      }
+      corpusLine.setElement(element, value);
+    }
 
-		return corpusLine;
-	}
+    return corpusLine;
+  }
 
-	/**
-	 * Does this reader know how to find a given element type.
-	 */
-	public boolean hasPlaceholder(CorpusElement type) {
-		return this.placeholderIndexMap.containsKey(type);
-	}
+  /**
+   * Does this reader know how to find a given element type.
+   */
+  public boolean hasPlaceholder(CorpusElement type) {
+    return this.placeholderIndexMap.containsKey(type);
+  }
 }

@@ -22,74 +22,74 @@ import com.typesafe.config.ConfigFactory;
 
 public class CombinedLexicalAttributesTest {
 
-	@Test
-	public void testCheckInternalMultipleEntries() throws Exception {
-		System.setProperty("config.file", "src/test/resources/testWithLex.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+  @Test
+  public void testCheckInternalMultipleEntries() throws Exception {
+    System.setProperty("config.file", "src/test/resources/testWithLex.conf");
+    ConfigFactory.invalidateCaches();
+    final Config config = ConfigFactory.load();
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "");
 
-		Sentence sentence = new Sentence("je demande", session);
-		TokenSequence tokenSequence = new TokenSequence(sentence, session);
-		Token token = new Token("demande", tokenSequence, 1, "je ".length(), "je demande".length(), session.getMergedLexicon(), session);
-		Decision decision = new Decision("V", 1.0);
-		final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, session);
+    Sentence sentence = new Sentence("je demande", session);
+    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+    Token token = new Token("demande", tokenSequence, 1, "je ".length(), "je demande".length(), session.getMergedLexicon(), session);
+    Decision decision = new Decision("V", 1.0);
+    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, session);
 
-		PosTaggedTokenAddressFunction<PosTaggerContext> addressFunction = new AbstractPosTaggedTokenAddressFunction() {
-			@Override
-			protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
-				return this.generateResult(posTaggedToken);
-			}
-		};
+    PosTaggedTokenAddressFunction<PosTaggerContext> addressFunction = new AbstractPosTaggedTokenAddressFunction() {
+      @Override
+      protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
+        return this.generateResult(posTaggedToken);
+      }
+    };
 
-		StringLiteralFeature<PosTaggedTokenWrapper> person = new StringLiteralFeature<>(LexicalAttribute.Person.name());
+    StringLiteralFeature<PosTaggedTokenWrapper> person = new StringLiteralFeature<>(LexicalAttribute.Person.name());
 
-		CombinedLexicalAttributesFeature<PosTaggerContext> feature = new CombinedLexicalAttributesFeature<>(addressFunction, person);
+    CombinedLexicalAttributesFeature<PosTaggerContext> feature = new CombinedLexicalAttributesFeature<>(addressFunction, person);
 
-		PosTagSequence history = new PosTagSequence(tokenSequence);
-		PosTaggerContext context = new PosTaggerContextImpl(token, history);
-		RuntimeEnvironment env = new RuntimeEnvironment();
+    PosTagSequence history = new PosTagSequence(tokenSequence);
+    PosTaggerContext context = new PosTaggerContextImpl(token, history);
+    RuntimeEnvironment env = new RuntimeEnvironment();
 
-		FeatureResult<String> featureResult = feature.checkInternal(context, env);
-		String outcome = featureResult.getOutcome();
-		System.out.println(outcome);
-		assertEquals("1;3", outcome);
-	}
+    FeatureResult<String> featureResult = feature.checkInternal(context, env);
+    String outcome = featureResult.getOutcome();
+    System.out.println(outcome);
+    assertEquals("1;3", outcome);
+  }
 
-	@Test
-	public void testCheckInternalMultipleAttributes() throws Exception {
-		System.setProperty("config.file", "src/test/resources/testWithLex.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+  @Test
+  public void testCheckInternalMultipleAttributes() throws Exception {
+    System.setProperty("config.file", "src/test/resources/testWithLex.conf");
+    ConfigFactory.invalidateCaches();
+    final Config config = ConfigFactory.load();
 
-		final TalismaneSession session = new TalismaneSession(config, "");
+    final TalismaneSession session = new TalismaneSession(config, "");
 
-		Sentence sentence = new Sentence("blah", session);
-		TokenSequence tokenSequence = new TokenSequence(sentence, session);
-		Token token = new Token("blah", tokenSequence, 1, "".length(), "blah".length(), session.getMergedLexicon(), session);
-		Decision decision = new Decision("V", 1.0);
-		final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, session);
+    Sentence sentence = new Sentence("blah", session);
+    TokenSequence tokenSequence = new TokenSequence(sentence, session);
+    Token token = new Token("blah", tokenSequence, 1, "".length(), "blah".length(), session.getMergedLexicon(), session);
+    Decision decision = new Decision("V", 1.0);
+    final PosTaggedToken posTaggedToken = new PosTaggedToken(token, decision, session);
 
-		PosTaggedTokenAddressFunction<PosTaggerContext> addressFunction = new AbstractPosTaggedTokenAddressFunction() {
-			@Override
-			protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
-				return this.generateResult(posTaggedToken);
-			}
-		};
+    PosTaggedTokenAddressFunction<PosTaggerContext> addressFunction = new AbstractPosTaggedTokenAddressFunction() {
+      @Override
+      protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) {
+        return this.generateResult(posTaggedToken);
+      }
+    };
 
-		StringLiteralFeature<PosTaggedTokenWrapper> person = new StringLiteralFeature<>(LexicalAttribute.Person.name());
-		StringLiteralFeature<PosTaggedTokenWrapper> number = new StringLiteralFeature<>(LexicalAttribute.Number.name());
+    StringLiteralFeature<PosTaggedTokenWrapper> person = new StringLiteralFeature<>(LexicalAttribute.Person.name());
+    StringLiteralFeature<PosTaggedTokenWrapper> number = new StringLiteralFeature<>(LexicalAttribute.Number.name());
 
-		CombinedLexicalAttributesFeature<PosTaggerContext> feature = new CombinedLexicalAttributesFeature<>(addressFunction, person, number);
+    CombinedLexicalAttributesFeature<PosTaggerContext> feature = new CombinedLexicalAttributesFeature<>(addressFunction, person, number);
 
-		PosTagSequence history = new PosTagSequence(tokenSequence);
-		PosTaggerContext context = new PosTaggerContextImpl(token, history);
-		RuntimeEnvironment env = new RuntimeEnvironment();
+    PosTagSequence history = new PosTagSequence(tokenSequence);
+    PosTaggerContext context = new PosTaggerContextImpl(token, history);
+    RuntimeEnvironment env = new RuntimeEnvironment();
 
-		FeatureResult<String> featureResult = feature.checkInternal(context, env);
-		String outcome = featureResult.getOutcome();
-		System.out.println(outcome);
-		assertEquals("1;3|p;s", outcome);
-	}
+    FeatureResult<String> featureResult = feature.checkInternal(context, env);
+    String outcome = featureResult.getOutcome();
+    System.out.println(outcome);
+    assertEquals("1;3|p;s", outcome);
+  }
 }

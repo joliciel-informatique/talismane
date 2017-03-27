@@ -49,68 +49,68 @@ import com.typesafe.config.Config;
  *
  */
 public class PosTaggers {
-	private static final Logger LOG = LoggerFactory.getLogger(PosTaggers.class);
-	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
-	private static final Map<String, PosTagger> posTaggerMap = new HashMap<>();
+  private static final Logger LOG = LoggerFactory.getLogger(PosTaggers.class);
+  private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
+  private static final Map<String, PosTagger> posTaggerMap = new HashMap<>();
 
-	public static PosTagger getPosTagger(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
-		PosTagger posTagger = null;
-		if (session.getSessionId() != null)
-			posTagger = posTaggerMap.get(session.getSessionId());
-		if (posTagger == null) {
-			Config config = session.getConfig();
-			Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
-			int beamWidth = posTaggerConfig.getInt("beam-width");
-			boolean propagateTokeniserBeam = posTaggerConfig.getBoolean("propagate-tokeniser-beam");
+  public static PosTagger getPosTagger(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
+    PosTagger posTagger = null;
+    if (session.getSessionId() != null)
+      posTagger = posTaggerMap.get(session.getSessionId());
+    if (posTagger == null) {
+      Config config = session.getConfig();
+      Config posTaggerConfig = config.getConfig("talismane.core.pos-tagger");
+      int beamWidth = posTaggerConfig.getInt("beam-width");
+      boolean propagateTokeniserBeam = posTaggerConfig.getBoolean("propagate-tokeniser-beam");
 
-			String configPath = "talismane.core.pos-tagger.model";
-			String modelFilePath = config.getString(configPath);
-			LOG.debug("Getting pos-tagger model from " + modelFilePath);
-			ClassificationModel model = modelMap.get(modelFilePath);
-			if (model == null) {
-				InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
-				MachineLearningModelFactory factory = new MachineLearningModelFactory();
-				model = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
-				modelMap.put(modelFilePath, model);
-			}
+      String configPath = "talismane.core.pos-tagger.model";
+      String modelFilePath = config.getString(configPath);
+      LOG.debug("Getting pos-tagger model from " + modelFilePath);
+      ClassificationModel model = modelMap.get(modelFilePath);
+      if (model == null) {
+        InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
+        MachineLearningModelFactory factory = new MachineLearningModelFactory();
+        model = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
+        modelMap.put(modelFilePath, model);
+      }
 
-			posTagger = new ForwardStatisticalPosTagger(model, beamWidth, propagateTokeniserBeam, session);
+      posTagger = new ForwardStatisticalPosTagger(model, beamWidth, propagateTokeniserBeam, session);
 
-			boolean includeDetails = posTaggerConfig.getBoolean("output.include-details");
-			if (includeDetails) {
-				String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
-				File detailsFile = new File(detailsFilePath);
-				detailsFile.delete();
-				ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
-				posTagger.addObserver(observer);
-			}
+      boolean includeDetails = posTaggerConfig.getBoolean("output.include-details");
+      if (includeDetails) {
+        String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
+        File detailsFile = new File(detailsFilePath);
+        detailsFile.delete();
+        ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
+        posTagger.addObserver(observer);
+      }
 
-			List<PosTaggerRule> posTaggerRules = new ArrayList<>();
-			PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
+      List<PosTaggerRule> posTaggerRules = new ArrayList<>();
+      PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);
 
-			configPath = "talismane.core.pos-tagger.rules";
-			List<String> textFilterPaths = config.getStringList(configPath);
-			for (String path : textFilterPaths) {
-				LOG.debug("From: " + path);
-				InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
-					List<String> ruleDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String ruleDescriptor = scanner.nextLine();
-						if (ruleDescriptor.length() > 0) {
-							ruleDescriptors.add(ruleDescriptor);
-							LOG.trace(ruleDescriptor);
-						}
-					}
-					List<PosTaggerRule> rules = featureParser.getRules(ruleDescriptors);
-					posTaggerRules.addAll(rules);
-				}
-			}
-			posTagger.setPosTaggerRules(posTaggerRules);
+      configPath = "talismane.core.pos-tagger.rules";
+      List<String> textFilterPaths = config.getStringList(configPath);
+      for (String path : textFilterPaths) {
+        LOG.debug("From: " + path);
+        InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
+        try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
+          List<String> ruleDescriptors = new ArrayListNoNulls<String>();
+          while (scanner.hasNextLine()) {
+            String ruleDescriptor = scanner.nextLine();
+            if (ruleDescriptor.length() > 0) {
+              ruleDescriptors.add(ruleDescriptor);
+              LOG.trace(ruleDescriptor);
+            }
+          }
+          List<PosTaggerRule> rules = featureParser.getRules(ruleDescriptors);
+          posTaggerRules.addAll(rules);
+        }
+      }
+      posTagger.setPosTaggerRules(posTaggerRules);
 
-			if (session.getSessionId() != null)
-				posTaggerMap.put(session.getSessionId(), posTagger);
-		}
-		return posTagger.clonePosTagger();
-	}
+      if (session.getSessionId() != null)
+        posTaggerMap.put(session.getSessionId(), posTagger);
+    }
+    return posTagger.clonePosTagger();
+  }
 }

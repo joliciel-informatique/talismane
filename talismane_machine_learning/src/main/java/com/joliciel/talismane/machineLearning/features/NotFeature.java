@@ -27,32 +27,32 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class NotFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	BooleanFeature<T> operand;
+  BooleanFeature<T> operand;
 
-	public NotFeature(BooleanFeature<T> operand) {
-		super();
-		this.operand = operand;
-		this.setName("Not(" + operand.getName() + ")");
-	}
+  public NotFeature(BooleanFeature<T> operand) {
+    super();
+    this.operand = operand;
+    this.setName("Not(" + operand.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<Boolean> result1 = operand.check(context, env);
+    FeatureResult<Boolean> result1 = operand.check(context, env);
 
-		if (result1 != null) {
-			featureResult = this.generateResult(!result1.getOutcome());
-		}
-		return featureResult;
-	}
+    if (result1 != null) {
+      featureResult = this.generateResult(!result1.getOutcome());
+    }
+    return featureResult;
+  }
 
-	public BooleanFeature<T> getOperand() {
-		return operand;
-	}
+  public BooleanFeature<T> getOperand() {
+    return operand;
+  }
 
-	public void setOperand(BooleanFeature<T> operand) {
-		this.operand = operand;
-	}
+  public void setOperand(BooleanFeature<T> operand) {
+    this.operand = operand;
+  }
 
 }

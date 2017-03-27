@@ -30,7 +30,7 @@ import com.joliciel.talismane.machineLearning.features.AbstractFeature;
  *
  */
 public abstract class AbstractLanguageDetectorFeature<Y> extends AbstractFeature<String,Y> implements LanguageDetectorFeature<Y> {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractLanguageDetectorFeature.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractLanguageDetectorFeature.class);
 
 }

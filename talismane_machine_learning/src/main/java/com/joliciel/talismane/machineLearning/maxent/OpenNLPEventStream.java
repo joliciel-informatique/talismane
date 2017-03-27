@@ -40,54 +40,54 @@ import opennlp.model.EventStream;
  *
  */
 class OpenNLPEventStream implements EventStream {
-	private static final Logger LOG = LoggerFactory.getLogger(OpenNLPEventStream.class);
-	private ClassificationEventStream corpusEventStream;
+  private static final Logger LOG = LoggerFactory.getLogger(OpenNLPEventStream.class);
+  private ClassificationEventStream corpusEventStream;
 
-	public OpenNLPEventStream(ClassificationEventStream corpusEventStream) {
-		super();
-		this.corpusEventStream = corpusEventStream;
-	}
+  public OpenNLPEventStream(ClassificationEventStream corpusEventStream) {
+    super();
+    this.corpusEventStream = corpusEventStream;
+  }
 
-	@Override
-	public Event next() throws IOException {
-		try {
-			Event event = null;
-			if (this.corpusEventStream.hasNext()) {
-				ClassificationEvent corpusEvent = this.corpusEventStream.next();
+  @Override
+  public Event next() throws IOException {
+    try {
+      Event event = null;
+      if (this.corpusEventStream.hasNext()) {
+        ClassificationEvent corpusEvent = this.corpusEventStream.next();
 
-				List<String> contextList = new ArrayList<String>();
-				List<Float> weightList = new ArrayList<Float>();
-				OpenNLPDecisionMaker.prepareData(corpusEvent.getFeatureResults(), contextList, weightList);
+        List<String> contextList = new ArrayList<String>();
+        List<Float> weightList = new ArrayList<Float>();
+        OpenNLPDecisionMaker.prepareData(corpusEvent.getFeatureResults(), contextList, weightList);
 
-				String[] contexts = new String[contextList.size()];
-				float[] weights = new float[weightList.size()];
+        String[] contexts = new String[contextList.size()];
+        float[] weights = new float[weightList.size()];
 
-				int i = 0;
-				for (String context : contextList) {
-					contexts[i++] = context;
-				}
-				i = 0;
-				for (Float weight : weightList) {
-					weights[i++] = weight;
-				}
+        int i = 0;
+        for (String context : contextList) {
+          contexts[i++] = context;
+        }
+        i = 0;
+        for (Float weight : weightList) {
+          weights[i++] = weight;
+        }
 
-				event = new Event(corpusEvent.getClassification(), contexts, weights);
-			}
-			return event;
-		} catch (TalismaneException e) {
-			LOG.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
-	}
+        event = new Event(corpusEvent.getClassification(), contexts, weights);
+      }
+      return event;
+    } catch (TalismaneException e) {
+      LOG.error(e.getMessage(), e);
+      throw new RuntimeException(e);
+    }
+  }
 
-	@Override
-	public boolean hasNext() throws IOException {
-		try {
-			return this.corpusEventStream.hasNext();
-		} catch (TalismaneException e) {
-			LOG.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
-	}
+  @Override
+  public boolean hasNext() throws IOException {
+    try {
+      return this.corpusEventStream.hasNext();
+    } catch (TalismaneException e) {
+      LOG.error(e.getMessage(), e);
+      throw new RuntimeException(e);
+    }
+  }
 
 }

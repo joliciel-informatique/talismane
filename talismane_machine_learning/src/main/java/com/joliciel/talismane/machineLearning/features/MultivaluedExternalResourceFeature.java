@@ -35,78 +35,78 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public class MultivaluedExternalResourceFeature<T> extends AbstractStringCollectionFeature<T>implements StringCollectionFeature<T> {
-	ExternalResourceFinder externalResourceFinder;
+  ExternalResourceFinder externalResourceFinder;
 
-	StringFeature<T> resourceNameFeature;
-	StringFeature<T>[] keyElementFeatures;
+  StringFeature<T> resourceNameFeature;
+  StringFeature<T>[] keyElementFeatures;
 
-	@SafeVarargs
-	public MultivaluedExternalResourceFeature(StringFeature<T> resourceNameFeature, StringFeature<T>... keyElementFeatures) {
-		this.resourceNameFeature = resourceNameFeature;
-		this.keyElementFeatures = keyElementFeatures;
+  @SafeVarargs
+  public MultivaluedExternalResourceFeature(StringFeature<T> resourceNameFeature, StringFeature<T>... keyElementFeatures) {
+    this.resourceNameFeature = resourceNameFeature;
+    this.keyElementFeatures = keyElementFeatures;
 
-		String name = super.getName() + "(" + resourceNameFeature.getName() + ",";
+    String name = super.getName() + "(" + resourceNameFeature.getName() + ",";
 
-		for (StringFeature<T> stringFeature : keyElementFeatures) {
-			name += stringFeature.getName();
-		}
-		name += ")";
-		this.setName(name);
-	}
+    for (StringFeature<T> stringFeature : keyElementFeatures) {
+      name += stringFeature.getName();
+    }
+    name += ")";
+    this.setName(name);
+  }
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<List<WeightedOutcome<String>>> result = null;
-		FeatureResult<String> resourceNameResult = resourceNameFeature.check(context, env);
-		if (resourceNameResult != null) {
-			String resourceName = resourceNameResult.getOutcome();
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<List<WeightedOutcome<String>>> result = null;
+    FeatureResult<String> resourceNameResult = resourceNameFeature.check(context, env);
+    if (resourceNameResult != null) {
+      String resourceName = resourceNameResult.getOutcome();
 
-			@SuppressWarnings("unchecked")
-			ExternalResource<List<WeightedOutcome<String>>> externalResource = (ExternalResource<List<WeightedOutcome<String>>>) externalResourceFinder
-					.getExternalResource(resourceName);
-			if (externalResource == null) {
-				throw new JolicielException("External resource not found: " + resourceName);
-			}
+      @SuppressWarnings("unchecked")
+      ExternalResource<List<WeightedOutcome<String>>> externalResource = (ExternalResource<List<WeightedOutcome<String>>>) externalResourceFinder
+          .getExternalResource(resourceName);
+      if (externalResource == null) {
+        throw new JolicielException("External resource not found: " + resourceName);
+      }
 
-			List<String> keyElements = new ArrayList<String>();
-			for (StringFeature<T> stringFeature : keyElementFeatures) {
-				FeatureResult<String> keyElementResult = stringFeature.check(context, env);
-				if (keyElementResult == null) {
-					return null;
-				}
-				String keyElement = keyElementResult.getOutcome();
-				keyElements.add(keyElement);
-			}
-			List<WeightedOutcome<String>> outcomes = externalResource.getResult(keyElements);
-			if (outcomes != null && outcomes.size() > 0)
-				result = this.generateResult(outcomes);
-		}
+      List<String> keyElements = new ArrayList<String>();
+      for (StringFeature<T> stringFeature : keyElementFeatures) {
+        FeatureResult<String> keyElementResult = stringFeature.check(context, env);
+        if (keyElementResult == null) {
+          return null;
+        }
+        String keyElement = keyElementResult.getOutcome();
+        keyElements.add(keyElement);
+      }
+      List<WeightedOutcome<String>> outcomes = externalResource.getResult(keyElements);
+      if (outcomes != null && outcomes.size() > 0)
+        result = this.generateResult(outcomes);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	public ExternalResourceFinder getExternalResourceFinder() {
-		return externalResourceFinder;
-	}
+  public ExternalResourceFinder getExternalResourceFinder() {
+    return externalResourceFinder;
+  }
 
-	public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
-		this.externalResourceFinder = externalResourceFinder;
-	}
+  public void setExternalResourceFinder(ExternalResourceFinder externalResourceFinder) {
+    this.externalResourceFinder = externalResourceFinder;
+  }
 
-	public StringFeature<T> getResourceNameFeature() {
-		return resourceNameFeature;
-	}
+  public StringFeature<T> getResourceNameFeature() {
+    return resourceNameFeature;
+  }
 
-	public void setResourceNameFeature(StringFeature<T> resourceNameFeature) {
-		this.resourceNameFeature = resourceNameFeature;
-	}
+  public void setResourceNameFeature(StringFeature<T> resourceNameFeature) {
+    this.resourceNameFeature = resourceNameFeature;
+  }
 
-	public StringFeature<T>[] getKeyElementFeatures() {
-		return keyElementFeatures;
-	}
+  public StringFeature<T>[] getKeyElementFeatures() {
+    return keyElementFeatures;
+  }
 
-	public void setKeyElementFeatures(StringFeature<T>[] keyElementFeatures) {
-		this.keyElementFeatures = keyElementFeatures;
-	}
+  public void setKeyElementFeatures(StringFeature<T>[] keyElementFeatures) {
+    this.keyElementFeatures = keyElementFeatures;
+  }
 
 }

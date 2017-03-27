@@ -78,25 +78,25 @@ import com.joliciel.talismane.TalismaneSession;
  * segments.add("");
  * segments.add("");
  * for (String segment : segments) {
- * 	// roll in a new block 4, and roll the other blocks leftwards
- * 	rollingTextBlock = rollingTextBlock.roll(segment);
+ *  // roll in a new block 4, and roll the other blocks leftwards
+ *  rollingTextBlock = rollingTextBlock.roll(segment);
  * 
- * 	// annotate block 3 with raw text filters
- * 	AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
+ *  // annotate block 3 with raw text filters
+ *  AnnotatedText rawTextBlock = rollingTextBlock.getRawTextBlock();
  * 
- * 	for (RawTextFilter textMarkerFilter : session.getTextFilters()) {
- * 		textMarkerFilter.annotate(rawTextBlock);
- * 	}
+ *  for (RawTextFilter textMarkerFilter : session.getTextFilters()) {
+ *    textMarkerFilter.annotate(rawTextBlock);
+ *  }
  * 
- * 	// detect sentences in block 2 using the sentence detector
- * 	AnnotatedText processedText = rollingTextBlock.getProcessedText();
- * 	sentenceDetector.detectSentences(processedText);
+ *  // detect sentences in block 2 using the sentence detector
+ *  AnnotatedText processedText = rollingTextBlock.getProcessedText();
+ *  sentenceDetector.detectSentences(processedText);
  * 
- * 	// get the sentences detected in block 2
- * 	List&lt;Sentence&gt; theSentences = rollingTextBlock.getDetectedSentences();
- * 	for (Sentence sentence : theSentences) {
- * 		sentences.add(sentence);
- * 	}
+ *  // get the sentences detected in block 2
+ *  List&lt;Sentence&gt; theSentences = rollingTextBlock.getDetectedSentences();
+ *  for (Sentence sentence : theSentences) {
+ *    sentences.add(sentence);
+ *  }
  * }
  * </pre>
  * 
@@ -104,196 +104,196 @@ import com.joliciel.talismane.TalismaneSession;
  *
  */
 public class RollingTextBlock extends RawTextProcessor {
-	private static final Logger LOG = LoggerFactory.getLogger(RollingTextBlock.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RollingTextBlock.class);
 
-	private final String block1;
-	private final String block2;
-	private final String block3;
-	private final String block4;
+  private final String block1;
+  private final String block2;
+  private final String block3;
+  private final String block4;
 
-	private String fileName = "";
-	private File file = null;
+  private String fileName = "";
+  private File file = null;
 
-	private final SentenceHolder sentenceHolder1;
-	private final SentenceHolder sentenceHolder2;
-	private SentenceHolder sentenceHolder3 = null;
+  private final SentenceHolder sentenceHolder1;
+  private final SentenceHolder sentenceHolder2;
+  private SentenceHolder sentenceHolder3 = null;
 
-	private final TalismaneSession session;
+  private final TalismaneSession session;
 
-	/**
-	 * Creates a new RollingTextBlock with prev, current and next all set to
-	 * empty strings.
-	 */
-	public RollingTextBlock(boolean processByDefault, TalismaneSession session) {
-		super("", processByDefault, session);
-		this.session = session;
-		this.block1 = "";
-		this.block2 = "";
-		this.block3 = "";
-		this.block4 = "";
+  /**
+   * Creates a new RollingTextBlock with prev, current and next all set to
+   * empty strings.
+   */
+  public RollingTextBlock(boolean processByDefault, TalismaneSession session) {
+    super("", processByDefault, session);
+    this.session = session;
+    this.block1 = "";
+    this.block2 = "";
+    this.block3 = "";
+    this.block4 = "";
 
-		this.sentenceHolder1 = new SentenceHolder(session, 0, true);
-		this.sentenceHolder1.setProcessedText("");
-		this.sentenceHolder2 = new SentenceHolder(session, 0, true);
-		this.sentenceHolder2.setProcessedText("");
-	}
+    this.sentenceHolder1 = new SentenceHolder(session, 0, true);
+    this.sentenceHolder1.setProcessedText("");
+    this.sentenceHolder2 = new SentenceHolder(session, 0, true);
+    this.sentenceHolder2.setProcessedText("");
+  }
 
-	private RollingTextBlock(RollingTextBlock predecessor, String nextText, List<Annotation<?>> annotations) {
-		super(predecessor, predecessor.block2 + predecessor.block3 + predecessor.block4 + nextText, predecessor.block2.length() + predecessor.block3.length(),
-				predecessor.block2.length() + predecessor.block3.length() + predecessor.block4.length(), annotations,
-				predecessor.getOriginalStartIndex() + predecessor.block1.length());
-		this.block1 = predecessor.block2;
-		this.block2 = predecessor.block3;
-		this.block3 = predecessor.block4;
-		this.block4 = nextText;
+  private RollingTextBlock(RollingTextBlock predecessor, String nextText, List<Annotation<?>> annotations) {
+    super(predecessor, predecessor.block2 + predecessor.block3 + predecessor.block4 + nextText, predecessor.block2.length() + predecessor.block3.length(),
+        predecessor.block2.length() + predecessor.block3.length() + predecessor.block4.length(), annotations,
+        predecessor.getOriginalStartIndex() + predecessor.block1.length());
+    this.block1 = predecessor.block2;
+    this.block2 = predecessor.block3;
+    this.block3 = predecessor.block4;
+    this.block4 = nextText;
 
-		this.session = predecessor.session;
+    this.session = predecessor.session;
 
-		this.fileName = predecessor.fileName;
-		this.file = predecessor.file;
+    this.fileName = predecessor.fileName;
+    this.file = predecessor.file;
 
-		this.sentenceHolder1 = predecessor.sentenceHolder2;
-		this.sentenceHolder2 = predecessor.sentenceHolder3;
+    this.sentenceHolder1 = predecessor.sentenceHolder2;
+    this.sentenceHolder2 = predecessor.sentenceHolder3;
 
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("After roll: ");
-			LOG.trace("block1: " + block1.replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("block2: " + block2.replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("block3: " + block3.replace('\n', '¶').replace('\r', '¶'));
-			LOG.trace("block4: " + block4.replace('\n', '¶').replace('\r', '¶'));
-		}
-	}
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("After roll: ");
+      LOG.trace("block1: " + block1.replace('\n', '¶').replace('\r', '¶'));
+      LOG.trace("block2: " + block2.replace('\n', '¶').replace('\r', '¶'));
+      LOG.trace("block3: " + block3.replace('\n', '¶').replace('\r', '¶'));
+      LOG.trace("block4: " + block4.replace('\n', '¶').replace('\r', '¶'));
+    }
+  }
 
-	/**
-	 * Creates a new RollingTextBlock.<br/>
-	 * Moves block2 → block1, block3 → block2, block4 → block3, and nextText →
-	 * block4.<br/>
-	 * <br/>
-	 * All existing annotations have their start and end decremented by
-	 * block1.length(). If the new start &lt; 0, start = 0, if new end &lt; 0,
-	 * annotation dropped.<br/>
-	 * <br/>
-	 * If the current block3 has not yet been processed, it is processed when
-	 * rolling, thus ensuring that we always have blocks 1, 2 and 3 processed.
-	 * <br/>
-	 * 
-	 * @param nextText
-	 *            the next text segment to add onto this rolling text block
-	 * @return a new text block as described above
-	 */
-	public RollingTextBlock roll(String nextText) {
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("roll");
-			LOG.trace("nextText: " + nextText.replace('\n', '¶').replace('\r', '¶'));
-		}
-		this.processText();
+  /**
+   * Creates a new RollingTextBlock.<br/>
+   * Moves block2 → block1, block3 → block2, block4 → block3, and nextText →
+   * block4.<br/>
+   * <br/>
+   * All existing annotations have their start and end decremented by
+   * block1.length(). If the new start &lt; 0, start = 0, if new end &lt; 0,
+   * annotation dropped.<br/>
+   * <br/>
+   * If the current block3 has not yet been processed, it is processed when
+   * rolling, thus ensuring that we always have blocks 1, 2 and 3 processed.
+   * <br/>
+   * 
+   * @param nextText
+   *            the next text segment to add onto this rolling text block
+   * @return a new text block as described above
+   */
+  public RollingTextBlock roll(String nextText) {
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("roll");
+      LOG.trace("nextText: " + nextText.replace('\n', '¶').replace('\r', '¶'));
+    }
+    this.processText();
 
-		int prevLength = this.block1.length();
-		List<Annotation<?>> annotations = new ArrayList<>();
-		for (Annotation<?> annotation : this.getAnnotations()) {
-			int newStart = annotation.getStart() - prevLength;
-			int newEnd = annotation.getEnd() - prevLength;
-			if (newEnd > 0 || (newStart == 0 && newEnd == 0)) {
-				if (newStart < 0)
-					newStart = 0;
-				Annotation<?> newAnnotation = annotation.getAnnotation(newStart, newEnd);
-				annotations.add(newAnnotation);
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Moved " + annotation + " to " + newStart + ", " + newEnd);
-				}
-			} else {
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Removed annotation " + annotation + ", newEnd = " + newEnd);
-				}
-			}
-		}
-		RollingTextBlock textBlock = new RollingTextBlock(this, nextText, annotations);
+    int prevLength = this.block1.length();
+    List<Annotation<?>> annotations = new ArrayList<>();
+    for (Annotation<?> annotation : this.getAnnotations()) {
+      int newStart = annotation.getStart() - prevLength;
+      int newEnd = annotation.getEnd() - prevLength;
+      if (newEnd > 0 || (newStart == 0 && newEnd == 0)) {
+        if (newStart < 0)
+          newStart = 0;
+        Annotation<?> newAnnotation = annotation.getAnnotation(newStart, newEnd);
+        annotations.add(newAnnotation);
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Moved " + annotation + " to " + newStart + ", " + newEnd);
+        }
+      } else {
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Removed annotation " + annotation + ", newEnd = " + newEnd);
+        }
+      }
+    }
+    RollingTextBlock textBlock = new RollingTextBlock(this, nextText, annotations);
 
-		return textBlock;
-	}
+    return textBlock;
+  }
 
-	/**
-	 * Get a raw text block for annotation by filters. This covers blocks 3 and
-	 * 4 only of the current RollingTextBlock, with analysis end at the end of
-	 * block3. It is assumed that annotations crossing block 2 and 3 were
-	 * already added by a predecessor.
-	 */
-	public AnnotatedText getRawTextBlock() {
-		AnnotatedText rawTextBlock = new AnnotatedText(this.block3 + this.block4, 0, this.block3.length());
-		rawTextBlock.addObserver(new AnnotationObserver() {
+  /**
+   * Get a raw text block for annotation by filters. This covers blocks 3 and
+   * 4 only of the current RollingTextBlock, with analysis end at the end of
+   * block3. It is assumed that annotations crossing block 2 and 3 were
+   * already added by a predecessor.
+   */
+  public AnnotatedText getRawTextBlock() {
+    AnnotatedText rawTextBlock = new AnnotatedText(this.block3 + this.block4, 0, this.block3.length());
+    rawTextBlock.addObserver(new AnnotationObserver() {
 
-			@Override
-			public <T extends Serializable> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations) {
-				if (annotations.size() > 0) {
-					int offset = RollingTextBlock.this.block1.length() + RollingTextBlock.this.block2.length();
-					List<Annotation<T>> newAnnotations = new ArrayList<>();
-					for (Annotation<T> annotation : annotations) {
-						Annotation<T> newAnnotation = annotation.getAnnotation(annotation.getStart() + offset, annotation.getEnd() + offset);
-						newAnnotations.add(newAnnotation);
-					}
-					RollingTextBlock.this.addAnnotations(newAnnotations);
+      @Override
+      public <T extends Serializable> void beforeAddAnnotations(AnnotatedText subject, List<Annotation<T>> annotations) {
+        if (annotations.size() > 0) {
+          int offset = RollingTextBlock.this.block1.length() + RollingTextBlock.this.block2.length();
+          List<Annotation<T>> newAnnotations = new ArrayList<>();
+          for (Annotation<T> annotation : annotations) {
+            Annotation<T> newAnnotation = annotation.getAnnotation(annotation.getStart() + offset, annotation.getEnd() + offset);
+            newAnnotations.add(newAnnotation);
+          }
+          RollingTextBlock.this.addAnnotations(newAnnotations);
 
-					if (LOG.isTraceEnabled()) {
-						LOG.trace("RawTextBlock Annotations received: " + annotations);
-						LOG.trace("RawTextBlock Annotations added: " + newAnnotations);
-					}
-				}
-			}
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("RawTextBlock Annotations received: " + annotations);
+            LOG.trace("RawTextBlock Annotations added: " + newAnnotations);
+          }
+        }
+      }
 
-			@Override
-			public <T extends Serializable> void afterAddAnnotations(AnnotatedText subject) {
-			}
-		});
-		return rawTextBlock;
-	}
+      @Override
+      public <T extends Serializable> void afterAddAnnotations(AnnotatedText subject) {
+      }
+    });
+    return rawTextBlock;
+  }
 
-	/**
-	 * Processes the current text based on annotations added to block 3, and
-	 * returns a SentenceHolder.
-	 * 
-	 * @return SentenceHolder to retrieve the sentences.
-	 */
-	private void processText() {
-		if (this.sentenceHolder3 != null)
-			return;
+  /**
+   * Processes the current text based on annotations added to block 3, and
+   * returns a SentenceHolder.
+   * 
+   * @return SentenceHolder to retrieve the sentences.
+   */
+  private void processText() {
+    if (this.sentenceHolder3 != null)
+      return;
 
-		int textStartPos = this.block1.length() + this.block2.length();
-		int textEndPos = this.block1.length() + this.block2.length() + this.block3.length();
+    int textStartPos = this.block1.length() + this.block2.length();
+    int textEndPos = this.block1.length() + this.block2.length() + this.block3.length();
 
-		this.sentenceHolder3 = super.processText(textStartPos, textEndPos, this.block3, this.block4.length() == 0);
-	}
+    this.sentenceHolder3 = super.processText(textStartPos, textEndPos, this.block3, this.block4.length() == 0);
+  }
 
-	@Override
-	protected int getTextProcessingStart() {
-		return this.block1.length();
-	}
+  @Override
+  protected int getTextProcessingStart() {
+    return this.block1.length();
+  }
 
-	@Override
-	protected int getTextProcessingEnd() {
-		return this.block1.length() + this.block2.length();
-	}
+  @Override
+  protected int getTextProcessingEnd() {
+    return this.block1.length() + this.block2.length();
+  }
 
-	@Override
-	protected SentenceHolder getPreviousSentenceHolder() {
-		return this.sentenceHolder1;
-	}
+  @Override
+  protected SentenceHolder getPreviousSentenceHolder() {
+    return this.sentenceHolder1;
+  }
 
-	@Override
-	protected SentenceHolder getCurrentSentenceHolder() {
-		return this.sentenceHolder2;
-	}
+  @Override
+  protected SentenceHolder getCurrentSentenceHolder() {
+    return this.sentenceHolder2;
+  }
 
-	@Override
-	protected SentenceHolder getNextSentenceHolder() {
-		this.processText();
-		return this.sentenceHolder3;
-	}
+  @Override
+  protected SentenceHolder getNextSentenceHolder() {
+    this.processText();
+    return this.sentenceHolder3;
+  }
 
-	@Override
-	public void onNextFile(File file) {
-		this.file = file;
-		this.fileName = file.getPath();
-		super.onNextFile(file);
-	}
+  @Override
+  public void onNextFile(File file) {
+    this.file = file;
+    this.fileName = file.getPath();
+    super.onNextFile(file);
+  }
 
 }

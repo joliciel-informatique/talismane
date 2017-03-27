@@ -28,14 +28,14 @@ import java.io.Serializable;
  *
  */
 public class TextReplacement implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private final String replacement;
+  private static final long serialVersionUID = 1L;
+  private final String replacement;
 
-	public TextReplacement(String replacement) {
-		this.replacement = replacement;
-	}
+  public TextReplacement(String replacement) {
+    this.replacement = replacement;
+  }
 
-	public String getReplacement() {
-		return replacement;
-	}
+  public String getReplacement() {
+    return replacement;
+  }
 }

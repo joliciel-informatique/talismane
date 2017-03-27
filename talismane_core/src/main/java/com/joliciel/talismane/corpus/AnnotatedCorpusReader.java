@@ -30,46 +30,46 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public interface AnnotatedCorpusReader {
-	/**
-	 * If 0, all sentences will be read - otherwise will only read a certain
-	 * number of sentences.
-	 */
-	public int getMaxSentenceCount();
+  /**
+   * If 0, all sentences will be read - otherwise will only read a certain
+   * number of sentences.
+   */
+  public int getMaxSentenceCount();
 
-	/**
-	 * The index of the first sentence to process.
-	 */
-	public int getStartSentence();
+  /**
+   * The index of the first sentence to process.
+   */
+  public int getStartSentence();
 
-	/**
-	 * The number of cross-validation segments for this corpus. -1 means no
-	 * cross-validation.
-	 */
-	public abstract int getCrossValidationSize();
+  /**
+   * The number of cross-validation segments for this corpus. -1 means no
+   * cross-validation.
+   */
+  public abstract int getCrossValidationSize();
 
-	/**
-	 * Which index to exclude when reading (for training), from 0 to
-	 * getCrossValidationSize-1.
-	 */
-	public abstract int getExcludeIndex();
+  /**
+   * Which index to exclude when reading (for training), from 0 to
+   * getCrossValidationSize-1.
+   */
+  public abstract int getExcludeIndex();
 
-	/**
-	 * Which index to include when reading (for evaluation), from 0 to
-	 * getCrossValidationSize-1.
-	 */
-	public abstract int getIncludeIndex();
+  /**
+   * Which index to include when reading (for evaluation), from 0 to
+   * getCrossValidationSize-1.
+   */
+  public abstract int getIncludeIndex();
 
-	/**
-	 * Characteristics describing this corpus reader.
-	 */
-	public Map<String, String> getCharacteristics();
+  /**
+   * Characteristics describing this corpus reader.
+   */
+  public Map<String, String> getCharacteristics();
 
-	/**
-	 * Is there another sentence to be read?
-	 * 
-	 * @throws TalismaneException
-	 *             if it's impossible to process the next sentence
-	 * @throws IOException
-	 */
-	public boolean hasNextSentence() throws TalismaneException, IOException;
+  /**
+   * Is there another sentence to be read?
+   * 
+   * @throws TalismaneException
+   *             if it's impossible to process the next sentence
+   * @throws IOException
+   */
+  public boolean hasNextSentence() throws TalismaneException, IOException;
 }

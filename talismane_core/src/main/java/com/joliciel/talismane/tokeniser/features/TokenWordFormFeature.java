@@ -31,24 +31,24 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class TokenWordFormFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
-	public TokenWordFormFeature() {
-	}
+  public TokenWordFormFeature() {
+  }
 
-	public TokenWordFormFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public TokenWordFormFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<String> result = null;
 
-		String string = token.getAnalyisText();
-		result = this.generateResult(string);
+    String string = token.getAnalyisText();
+    result = this.generateResult(string);
 
-		return result;
-	}
+    return result;
+  }
 }

@@ -37,29 +37,29 @@ import com.joliciel.talismane.utils.WeightedOutcome;
  *
  */
 public final class PosTagSetFeature extends AbstractStringCollectionFeature<TokenWrapper>
-	implements NeedsTalismaneSession {
-	
-	TalismaneSession talismaneSession;
+  implements NeedsTalismaneSession {
+  
+  TalismaneSession talismaneSession;
 
-	@Override
-	public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
-			TokenWrapper context, RuntimeEnvironment env) {
-		PosTagSet posTagSet = talismaneSession.getPosTagSet();
-		Set<PosTag> posTags = posTagSet.getTags();
-		List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
-		for (PosTag posTag : posTags) {
-			resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
-		}
-		return this.generateResult(resultList);
-	}
+  @Override
+  public FeatureResult<List<WeightedOutcome<String>>> checkInternal(
+      TokenWrapper context, RuntimeEnvironment env) {
+    PosTagSet posTagSet = talismaneSession.getPosTagSet();
+    Set<PosTag> posTags = posTagSet.getTags();
+    List<WeightedOutcome<String>> resultList = new ArrayList<WeightedOutcome<String>>();
+    for (PosTag posTag : posTags) {
+      resultList.add(new WeightedOutcome<String>(posTag.getCode(), 1.0));
+    }
+    return this.generateResult(resultList);
+  }
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return talismaneSession;
-	}
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return talismaneSession;
+  }
 
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-	}
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+  }
 }

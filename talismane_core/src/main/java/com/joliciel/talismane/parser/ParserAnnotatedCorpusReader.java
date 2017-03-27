@@ -36,41 +36,41 @@ import com.typesafe.config.Config;
  *
  */
 public interface ParserAnnotatedCorpusReader extends PosTagAnnotatedCorpusReader {
-	/**
-	 * Read the ParseConfiguration from the next sentence in the training
-	 * corpus.
-	 * 
-	 * @throws TalismaneException
-	 *             if it's impossible to read the next configuration
-	 * @throws IOException
-	 */
-	public abstract ParseConfiguration nextConfiguration() throws TalismaneException, IOException;
+  /**
+   * Read the ParseConfiguration from the next sentence in the training
+   * corpus.
+   * 
+   * @throws TalismaneException
+   *             if it's impossible to read the next configuration
+   * @throws IOException
+   */
+  public abstract ParseConfiguration nextConfiguration() throws TalismaneException, IOException;
 
-	/**
-	 * Builds an annotated corpus reader for a particular Reader and Config,
-	 * where the config is the local namespace. For configuration example, see
-	 * talismane.core.tokeniser.input in reference.conf.
-	 * 
-	 * @param config
-	 *            the local configuration section from which we're building a
-	 *            reader
-	 * @throws IOException
-	 *             problem reading the files referred in the configuration
-	 * @throws ReflectiveOperationException
-	 *             if the corpus-reader class could not be instantiated
-	 */
-	public static ParserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
-			throws IOException, ReflectiveOperationException {
-		String className = config.getString("corpus-reader");
+  /**
+   * Builds an annotated corpus reader for a particular Reader and Config,
+   * where the config is the local namespace. For configuration example, see
+   * talismane.core.tokeniser.input in reference.conf.
+   * 
+   * @param config
+   *            the local configuration section from which we're building a
+   *            reader
+   * @throws IOException
+   *             problem reading the files referred in the configuration
+   * @throws ReflectiveOperationException
+   *             if the corpus-reader class could not be instantiated
+   */
+  public static ParserAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
+      throws IOException, ReflectiveOperationException {
+    String className = config.getString("corpus-reader");
 
-		@SuppressWarnings("unchecked")
-		Class<? extends ParserAnnotatedCorpusReader> clazz = (Class<? extends ParserAnnotatedCorpusReader>) Class.forName(className);
-		Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
+    @SuppressWarnings("unchecked")
+    Class<? extends ParserAnnotatedCorpusReader> clazz = (Class<? extends ParserAnnotatedCorpusReader>) Class.forName(className);
+    Constructor<? extends ParserAnnotatedCorpusReader> cons = clazz.getConstructor(Reader.class, Config.class, TalismaneSession.class);
 
-		ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
-		if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
-			((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
-		}
-		return corpusReader;
-	}
+    ParserAnnotatedCorpusReader corpusReader = cons.newInstance(reader, config, session);
+    if (reader instanceof CurrentFileProvider && corpusReader instanceof CurrentFileObserver) {
+      ((CurrentFileProvider) reader).addCurrentFileObserver((CurrentFileObserver) corpusReader);
+    }
+    return corpusReader;
+  }
 }

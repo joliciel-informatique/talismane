@@ -29,19 +29,19 @@ import java.util.List;
  *
  */
 public class TokeniserGuessTemplateWriter implements TokenEvaluationObserver {
-	private final TokenSequenceProcessor processor;
+  private final TokenSequenceProcessor processor;
 
-	public TokeniserGuessTemplateWriter(TokenSequenceProcessor processor) {
-		this.processor = processor;
-	}
+  public TokeniserGuessTemplateWriter(TokenSequenceProcessor processor) {
+    this.processor = processor;
+  }
 
-	@Override
-	public void onEvaluationComplete() {
-	}
+  @Override
+  public void onEvaluationComplete() {
+  }
 
-	@Override
-	public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) throws IOException {
-		processor.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence());
-	}
+  @Override
+  public void onNextTokenSequence(TokenSequence realSequence, List<TokenisedAtomicTokenSequence> guessedAtomicSequences) throws IOException {
+    processor.onNextTokenSequence(guessedAtomicSequences.get(0).inferTokenSequence());
+  }
 
 }

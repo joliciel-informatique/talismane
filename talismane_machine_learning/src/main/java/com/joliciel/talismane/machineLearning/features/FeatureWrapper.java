@@ -24,5 +24,5 @@ package com.joliciel.talismane.machineLearning.features;
  *
  */
 public interface FeatureWrapper<T,Y> {
-	public Feature<T,Y> getWrappedFeature();
+  public Feature<T,Y> getWrappedFeature();
 }

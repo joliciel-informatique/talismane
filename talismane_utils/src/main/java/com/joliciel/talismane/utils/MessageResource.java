@@ -25,24 +25,24 @@ package com.joliciel.talismane.utils;
  *
  */
 public class MessageResource {
-	private String key;
-	private Object[] arguments;
-	
-	public MessageResource(String key, Object[] arguments) {
-		this.key = key;
-		this.arguments = arguments;
-	}
-	public String getKey() {
-		return key;
-	}
-	public void setKey(String key) {
-		this.key = key;
-	}
-	public Object[] getArguments() {
-		return arguments;
-	}
-	public void setArguments(Object[] arguments) {
-		this.arguments = arguments;
-	}
-	
+  private String key;
+  private Object[] arguments;
+  
+  public MessageResource(String key, Object[] arguments) {
+    this.key = key;
+    this.arguments = arguments;
+  }
+  public String getKey() {
+    return key;
+  }
+  public void setKey(String key) {
+    this.key = key;
+  }
+  public Object[] getArguments() {
+    return arguments;
+  }
+  public void setArguments(Object[] arguments) {
+    this.arguments = arguments;
+  }
+  
 }

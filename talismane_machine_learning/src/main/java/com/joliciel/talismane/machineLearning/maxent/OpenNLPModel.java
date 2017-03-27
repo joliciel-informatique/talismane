@@ -28,6 +28,6 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
  */
 public interface OpenNLPModel extends ClassificationModel {
 
-	public MaxentModel getModel();
+  public MaxentModel getModel();
 
 }

@@ -38,58 +38,58 @@ import de.bwaldvogel.liblinear.Model;
 import gnu.trove.map.TObjectIntMap;
 
 class LinearSVMDecisionMaker implements DecisionMaker {
-	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMDecisionMaker.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LinearSVMDecisionMaker.class);
 
-	private Model model;
-	TObjectIntMap<String> featureIndexMap = null;
-	List<String> outcomes = null;
-	private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
+  private Model model;
+  TObjectIntMap<String> featureIndexMap = null;
+  List<String> outcomes = null;
+  private transient ScoringStrategy<ClassificationSolution> scoringStrategy = null;
 
-	public LinearSVMDecisionMaker(Model model, TObjectIntMap<String> featureIndexMap, List<String> outcomes) {
-		super();
-		this.model = model;
-		this.featureIndexMap = featureIndexMap;
-		this.outcomes = outcomes;
-	}
+  public LinearSVMDecisionMaker(Model model, TObjectIntMap<String> featureIndexMap, List<String> outcomes) {
+    super();
+    this.model = model;
+    this.featureIndexMap = featureIndexMap;
+    this.outcomes = outcomes;
+  }
 
-	@Override
-	public List<Decision> decide(List<FeatureResult<?>> featureResults) {
-		List<Feature> featureList = LinearSVMUtils.prepareData(featureResults, featureIndexMap);
+  @Override
+  public List<Decision> decide(List<FeatureResult<?>> featureResults) {
+    List<Feature> featureList = LinearSVMUtils.prepareData(featureResults, featureIndexMap);
 
-		List<Decision> decisions = null;
+    List<Decision> decisions = null;
 
-		if (featureList.size() == 0) {
-			LOG.info("No features for current context.");
-			TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
-			double uniformProb = 1 / outcomes.size();
-			for (String outcome : outcomes) {
-				Decision decision = new Decision(outcome, uniformProb);
-				outcomeSet.add(decision);
-			}
-			decisions = new ArrayList<Decision>(outcomeSet);
-		} else {
-			Feature[] instance = new Feature[1];
-			instance = featureList.toArray(instance);
+    if (featureList.size() == 0) {
+      LOG.info("No features for current context.");
+      TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
+      double uniformProb = 1 / outcomes.size();
+      for (String outcome : outcomes) {
+        Decision decision = new Decision(outcome, uniformProb);
+        outcomeSet.add(decision);
+      }
+      decisions = new ArrayList<Decision>(outcomeSet);
+    } else {
+      Feature[] instance = new Feature[1];
+      instance = featureList.toArray(instance);
 
-			double[] probabilities = new double[model.getLabels().length];
-			Linear.predictProbability(model, instance, probabilities);
+      double[] probabilities = new double[model.getLabels().length];
+      Linear.predictProbability(model, instance, probabilities);
 
-			TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
-			for (int i = 0; i < model.getLabels().length; i++) {
-				Decision decision = new Decision(outcomes.get(i), probabilities[i]);
-				outcomeSet.add(decision);
-			}
-			decisions = new ArrayList<Decision>(outcomeSet);
-		}
+      TreeSet<Decision> outcomeSet = new TreeSet<Decision>();
+      for (int i = 0; i < model.getLabels().length; i++) {
+        Decision decision = new Decision(outcomes.get(i), probabilities[i]);
+        outcomeSet.add(decision);
+      }
+      decisions = new ArrayList<Decision>(outcomeSet);
+    }
 
-		return decisions;
+    return decisions;
 
-	}
+  }
 
-	@Override
-	public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
-		if (scoringStrategy == null)
-			scoringStrategy = new GeometricMeanScoringStrategy();
-		return scoringStrategy;
-	}
+  @Override
+  public ScoringStrategy<ClassificationSolution> getDefaultScoringStrategy() {
+    if (scoringStrategy == null)
+      scoringStrategy = new GeometricMeanScoringStrategy();
+    return scoringStrategy;
+  }
 }

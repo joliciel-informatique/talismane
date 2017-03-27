@@ -45,84 +45,84 @@ import com.joliciel.talismane.parser.ParseConfigurationProcessor;
  *
  */
 public class CorpusModifier implements ParseConfigurationProcessor {
-	private List<ModifyCommand> commands = new ArrayList<ModifyCommand>();
+  private List<ModifyCommand> commands = new ArrayList<ModifyCommand>();
 
-	private enum ModifyCommandType {
-		Remove,
-		Replace
-	}
+  private enum ModifyCommandType {
+    Remove,
+    Replace
+  }
 
-	private static final String WILDCARD = "*";
+  private static final String WILDCARD = "*";
 
-	public CorpusModifier(List<String> commandList) {
-		super();
-		for (String command : commandList) {
-			if (!command.startsWith("#")) {
-				ModifyCommand modifyCommand = new ModifyCommand();
-				String[] parts = command.split("\t");
-				modifyCommand.govPosTag = parts[0];
-				modifyCommand.governor = parts[1];
-				modifyCommand.depPosTag = parts[2];
-				modifyCommand.dependent = parts[3];
-				modifyCommand.label = parts[4];
-				modifyCommand.command = ModifyCommandType.valueOf(parts[5]);
-				if (modifyCommand.command == ModifyCommandType.Replace) {
-					modifyCommand.newLabel = parts[6];
-				}
-				commands.add(modifyCommand);
-			}
-		}
-	}
+  public CorpusModifier(List<String> commandList) {
+    super();
+    for (String command : commandList) {
+      if (!command.startsWith("#")) {
+        ModifyCommand modifyCommand = new ModifyCommand();
+        String[] parts = command.split("\t");
+        modifyCommand.govPosTag = parts[0];
+        modifyCommand.governor = parts[1];
+        modifyCommand.depPosTag = parts[2];
+        modifyCommand.dependent = parts[3];
+        modifyCommand.label = parts[4];
+        modifyCommand.command = ModifyCommandType.valueOf(parts[5]);
+        if (modifyCommand.command == ModifyCommandType.Replace) {
+          modifyCommand.newLabel = parts[6];
+        }
+        commands.add(modifyCommand);
+      }
+    }
+  }
 
-	@Override
-	public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws CircularDependencyException {
+  @Override
+  public void onNextParseConfiguration(ParseConfiguration parseConfiguration) throws CircularDependencyException {
 
-		List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
-		for (DependencyArc arc : arcs) {
-			for (ModifyCommand command : commands) {
-				boolean applyCommand = true;
-				if (!command.govPosTag.equals(WILDCARD) && !command.govPosTag.equals(arc.getHead().getTag().getCode())) {
-					applyCommand = false;
-				}
-				if (!command.governor.equals(WILDCARD) && !command.governor.equals(arc.getHead().getToken().getOriginalText().toLowerCase())) {
-					applyCommand = false;
-				}
-				if (!command.depPosTag.equals(WILDCARD) && !command.depPosTag.equals(arc.getDependent().getTag().getCode())) {
-					applyCommand = false;
-				}
-				if (!command.dependent.equals(WILDCARD) && !command.dependent.equals(arc.getDependent().getToken().getOriginalText().toLowerCase())) {
-					applyCommand = false;
-				}
-				if (!command.label.equals(WILDCARD) && !command.label.equals(arc.getLabel())) {
-					applyCommand = false;
-				}
+    List<DependencyArc> arcs = new ArrayList<DependencyArc>(parseConfiguration.getDependencies());
+    for (DependencyArc arc : arcs) {
+      for (ModifyCommand command : commands) {
+        boolean applyCommand = true;
+        if (!command.govPosTag.equals(WILDCARD) && !command.govPosTag.equals(arc.getHead().getTag().getCode())) {
+          applyCommand = false;
+        }
+        if (!command.governor.equals(WILDCARD) && !command.governor.equals(arc.getHead().getToken().getOriginalText().toLowerCase())) {
+          applyCommand = false;
+        }
+        if (!command.depPosTag.equals(WILDCARD) && !command.depPosTag.equals(arc.getDependent().getTag().getCode())) {
+          applyCommand = false;
+        }
+        if (!command.dependent.equals(WILDCARD) && !command.dependent.equals(arc.getDependent().getToken().getOriginalText().toLowerCase())) {
+          applyCommand = false;
+        }
+        if (!command.label.equals(WILDCARD) && !command.label.equals(arc.getLabel())) {
+          applyCommand = false;
+        }
 
-				if (applyCommand) {
-					parseConfiguration.getDependencies().remove(arc);
-					if (command.command == ModifyCommandType.Replace)
-						parseConfiguration.addDependency(arc.getHead(), arc.getDependent(), command.newLabel, null);
-				}
-			}
-		}
-		parseConfiguration.clearMemory();
-	}
+        if (applyCommand) {
+          parseConfiguration.getDependencies().remove(arc);
+          if (command.command == ModifyCommandType.Replace)
+            parseConfiguration.addDependency(arc.getHead(), arc.getDependent(), command.newLabel, null);
+        }
+      }
+    }
+    parseConfiguration.clearMemory();
+  }
 
-	@Override
-	public void onCompleteParse() {
-	}
+  @Override
+  public void onCompleteParse() {
+  }
 
-	private static final class ModifyCommand {
-		public String governor;
-		public String dependent;
-		public String govPosTag;
-		public String depPosTag;
-		public String label;
-		public ModifyCommandType command;
-		public String newLabel;
-	}
+  private static final class ModifyCommand {
+    public String governor;
+    public String dependent;
+    public String govPosTag;
+    public String depPosTag;
+    public String label;
+    public ModifyCommandType command;
+    public String newLabel;
+  }
 
-	@Override
-	public void close() throws IOException {
-	}
+  @Override
+  public void close() throws IOException {
+  }
 
 }

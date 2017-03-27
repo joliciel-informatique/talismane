@@ -50,80 +50,80 @@ import com.typesafe.config.Config;
  *
  */
 public class Parsers {
-	private static final Logger LOG = LoggerFactory.getLogger(Parsers.class);
-	private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
-	private static final Map<String, Parser> parserMap = new HashMap<>();
+  private static final Logger LOG = LoggerFactory.getLogger(Parsers.class);
+  private static final Map<String, ClassificationModel> modelMap = new HashMap<>();
+  private static final Map<String, Parser> parserMap = new HashMap<>();
 
-	public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
-		Parser parser = null;
-		if (session.getSessionId() != null)
-			parser = parserMap.get(session.getSessionId());
-		if (parser == null) {
-			Config config = session.getConfig();
-			Config parserConfig = config.getConfig("talismane.core.parser");
+  public static Parser getParser(TalismaneSession session) throws IOException, TalismaneException, ClassNotFoundException {
+    Parser parser = null;
+    if (session.getSessionId() != null)
+      parser = parserMap.get(session.getSessionId());
+    if (parser == null) {
+      Config config = session.getConfig();
+      Config parserConfig = config.getConfig("talismane.core.parser");
 
-			String configPath = "talismane.core.parser.model";
-			String modelFilePath = config.getString(configPath);
-			LOG.debug("Getting parser model from " + modelFilePath);
-			ClassificationModel model = modelMap.get(modelFilePath);
-			if (model == null) {
-				InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
-				MachineLearningModelFactory factory = new MachineLearningModelFactory();
-				model = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
-				modelMap.put(modelFilePath, model);
-			}
+      String configPath = "talismane.core.parser.model";
+      String modelFilePath = config.getString(configPath);
+      LOG.debug("Getting parser model from " + modelFilePath);
+      ClassificationModel model = modelMap.get(modelFilePath);
+      if (model == null) {
+        InputStream tokeniserModelFile = ConfigUtils.getFileFromConfig(config, configPath);
+        MachineLearningModelFactory factory = new MachineLearningModelFactory();
+        model = factory.getClassificationModel(new ZipInputStream(tokeniserModelFile));
+        modelMap.put(modelFilePath, model);
+      }
 
-			int beamWidth = parserConfig.getInt("beam-width");
-			boolean propagatePosTaggerBeam = parserConfig.getBoolean("propagate-pos-tagger-beam");
+      int beamWidth = parserConfig.getInt("beam-width");
+      boolean propagatePosTaggerBeam = parserConfig.getBoolean("propagate-pos-tagger-beam");
 
-			ParseComparisonStrategyType parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(parserConfig.getString("comparison-strategy"));
-			ParseComparisonStrategy parseComparisonStrategy = ParseComparisonStrategy.forType(parseComparisonStrategyType);
+      ParseComparisonStrategyType parseComparisonStrategyType = ParseComparisonStrategyType.valueOf(parserConfig.getString("comparison-strategy"));
+      ParseComparisonStrategy parseComparisonStrategy = ParseComparisonStrategy.forType(parseComparisonStrategyType);
 
-			int maxAnalysisTimePerSentence = parserConfig.getInt("max-analysis-time");
-			int minFreeMemory = parserConfig.getInt("min-free-memory");
+      int maxAnalysisTimePerSentence = parserConfig.getInt("max-analysis-time");
+      int minFreeMemory = parserConfig.getInt("min-free-memory");
 
-			TransitionBasedParser transitionBasedParser = new TransitionBasedParser(model, beamWidth, propagatePosTaggerBeam, parseComparisonStrategy,
-					maxAnalysisTimePerSentence, minFreeMemory, session);
-			parser = transitionBasedParser;
+      TransitionBasedParser transitionBasedParser = new TransitionBasedParser(model, beamWidth, propagatePosTaggerBeam, parseComparisonStrategy,
+          maxAnalysisTimePerSentence, minFreeMemory, session);
+      parser = transitionBasedParser;
 
-			transitionBasedParser.setEarlyStop(parserConfig.getBoolean("early-stop"));
-			parser.setParseComparisonStrategy(parseComparisonStrategy);
+      transitionBasedParser.setEarlyStop(parserConfig.getBoolean("early-stop"));
+      parser.setParseComparisonStrategy(parseComparisonStrategy);
 
-			boolean includeDetails = parserConfig.getBoolean("output.include-details");
-			if (includeDetails) {
-				String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
-				File detailsFile = new File(detailsFilePath);
-				detailsFile.delete();
-				ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
-				parser.addObserver(observer);
-			}
+      boolean includeDetails = parserConfig.getBoolean("output.include-details");
+      if (includeDetails) {
+        String detailsFilePath = session.getBaseName() + "_posTagger_details.txt";
+        File detailsFile = new File(detailsFilePath);
+        detailsFile.delete();
+        ClassificationObserver observer = model.getDetailedAnalysisObserver(detailsFile);
+        parser.addObserver(observer);
+      }
 
-			List<ParserRule> parserRules = new ArrayList<>();
-			ParserFeatureParser featureParser = new ParserFeatureParser(session);
+      List<ParserRule> parserRules = new ArrayList<>();
+      ParserFeatureParser featureParser = new ParserFeatureParser(session);
 
-			configPath = "talismane.core.parser.rules";
-			List<String> textFilterPaths = config.getStringList(configPath);
-			for (String path : textFilterPaths) {
-				LOG.debug("From: " + path);
-				InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
-				try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
-					List<String> ruleDescriptors = new ArrayListNoNulls<String>();
-					while (scanner.hasNextLine()) {
-						String ruleDescriptor = scanner.nextLine();
-						if (ruleDescriptor.length() > 0) {
-							ruleDescriptors.add(ruleDescriptor);
-							LOG.trace(ruleDescriptor);
-						}
-					}
-					List<ParserRule> rules = featureParser.getRules(ruleDescriptors);
-					parserRules.addAll(rules);
-				}
-			}
-			parser.setParserRules(parserRules);
+      configPath = "talismane.core.parser.rules";
+      List<String> textFilterPaths = config.getStringList(configPath);
+      for (String path : textFilterPaths) {
+        LOG.debug("From: " + path);
+        InputStream textFilterFile = ConfigUtils.getFile(config, configPath, path);
+        try (Scanner scanner = new Scanner(textFilterFile, session.getInputCharset().name())) {
+          List<String> ruleDescriptors = new ArrayListNoNulls<String>();
+          while (scanner.hasNextLine()) {
+            String ruleDescriptor = scanner.nextLine();
+            if (ruleDescriptor.length() > 0) {
+              ruleDescriptors.add(ruleDescriptor);
+              LOG.trace(ruleDescriptor);
+            }
+          }
+          List<ParserRule> rules = featureParser.getRules(ruleDescriptors);
+          parserRules.addAll(rules);
+        }
+      }
+      parser.setParserRules(parserRules);
 
-			if (session.getSessionId() != null)
-				parserMap.put(session.getSessionId(), parser);
-		}
-		return parser.cloneParser();
-	}
+      if (session.getSessionId() != null)
+        parserMap.put(session.getSessionId(), parser);
+    }
+    return parser.cloneParser();
+  }
 }

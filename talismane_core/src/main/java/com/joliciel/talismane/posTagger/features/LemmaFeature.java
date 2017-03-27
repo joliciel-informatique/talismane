@@ -32,17 +32,17 @@ import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
  *
  */
 public final class LemmaFeature<T> extends AbstractLexicalAttributeFeature<T>implements StringCollectionFeature<T> {
-	private final List<String> attributes = new ArrayList<>(1);
+  private final List<String> attributes = new ArrayList<>(1);
 
-	public LemmaFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-		attributes.add(LexicalAttribute.Lemma.toString());
-	}
+  public LemmaFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+    attributes.add(LexicalAttribute.Lemma.toString());
+  }
 
-	@Override
-	protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
-		return attributes;
-	}
+  @Override
+  protected List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) {
+    return attributes;
+  }
 
 }

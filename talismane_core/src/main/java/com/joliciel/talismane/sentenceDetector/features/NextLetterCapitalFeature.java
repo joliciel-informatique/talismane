@@ -40,64 +40,64 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class NextLetterCapitalFeature extends AbstractSentenceDetectorFeature<String>implements StringFeature<PossibleSentenceBoundary> {
-	@Override
-	public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
-		FeatureResult<String> result = null;
+  @Override
+  public FeatureResult<String> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
+    FeatureResult<String> result = null;
 
-		int tokenIndex = context.getTokenIndexWithWhitespace();
+    int tokenIndex = context.getTokenIndexWithWhitespace();
 
-		boolean isInitial = false;
-		if (context.getBoundaryString().equals(".")) {
-			Token previousToken = null;
-			if (tokenIndex > 0)
-				previousToken = context.getTokenSequence().listWithWhiteSpace().get(tokenIndex - 1);
+    boolean isInitial = false;
+    if (context.getBoundaryString().equals(".")) {
+      Token previousToken = null;
+      if (tokenIndex > 0)
+        previousToken = context.getTokenSequence().listWithWhiteSpace().get(tokenIndex - 1);
 
-			if (previousToken != null && Character.isUpperCase(previousToken.getOriginalText().charAt(0))) {
-				if (previousToken.getOriginalText().length() < 2)
-					isInitial = true;
-			}
-		}
+      if (previousToken != null && Character.isUpperCase(previousToken.getOriginalText().charAt(0))) {
+        if (previousToken.getOriginalText().length() < 2)
+          isInitial = true;
+      }
+    }
 
-		boolean hasWhiteSpace = false;
-		boolean hasQuote = false;
-		boolean hasDash = false;
-		boolean nextLetterCapital = false;
-		if (tokenIndex >= 0) {
-			for (int i = tokenIndex + 1; i < context.getTokenSequence().listWithWhiteSpace().size(); i++) {
-				Token token = context.getTokenSequence().listWithWhiteSpace().get(i);
-				if (token.isWhiteSpace()) {
-					hasWhiteSpace = true;
-				} else if (token.getText().equals("\"") || token.getText().equals("“") || token.getText().equals("„") || token.getText().equals("‟")
-						|| token.getText().equals("″")) {
-					hasQuote = true;
-					if (hasDash)
-						break;
-				} else if (token.getText().equals("-")) {
-					hasDash = true;
-					if (hasQuote)
-						break;
-				} else if (token.isSeparator()) {
-					nextLetterCapital = false;
-					break;
-				} else {
-					nextLetterCapital = (Character.isUpperCase(token.getOriginalText().charAt(0)));
-					break;
-				}
-			}
-		}
+    boolean hasWhiteSpace = false;
+    boolean hasQuote = false;
+    boolean hasDash = false;
+    boolean nextLetterCapital = false;
+    if (tokenIndex >= 0) {
+      for (int i = tokenIndex + 1; i < context.getTokenSequence().listWithWhiteSpace().size(); i++) {
+        Token token = context.getTokenSequence().listWithWhiteSpace().get(i);
+        if (token.isWhiteSpace()) {
+          hasWhiteSpace = true;
+        } else if (token.getText().equals("\"") || token.getText().equals("“") || token.getText().equals("„") || token.getText().equals("‟")
+            || token.getText().equals("″")) {
+          hasQuote = true;
+          if (hasDash)
+            break;
+        } else if (token.getText().equals("-")) {
+          hasDash = true;
+          if (hasQuote)
+            break;
+        } else if (token.isSeparator()) {
+          nextLetterCapital = false;
+          break;
+        } else {
+          nextLetterCapital = (Character.isUpperCase(token.getOriginalText().charAt(0)));
+          break;
+        }
+      }
+    }
 
-		nextLetterCapital = nextLetterCapital & hasWhiteSpace;
-		if (nextLetterCapital && isInitial)
-			result = this.generateResult("CapitalAfterInitial");
-		else if (nextLetterCapital && hasQuote)
-			result = this.generateResult("CapitalAfterQuote");
-		else if (nextLetterCapital && hasDash)
-			result = this.generateResult("CapitalAfterDash");
-		else if (nextLetterCapital)
-			result = this.generateResult("true");
-		else
-			result = this.generateResult("false");
-		return result;
-	}
+    nextLetterCapital = nextLetterCapital & hasWhiteSpace;
+    if (nextLetterCapital && isInitial)
+      result = this.generateResult("CapitalAfterInitial");
+    else if (nextLetterCapital && hasQuote)
+      result = this.generateResult("CapitalAfterQuote");
+    else if (nextLetterCapital && hasDash)
+      result = this.generateResult("CapitalAfterDash");
+    else if (nextLetterCapital)
+      result = this.generateResult("true");
+    else
+      result = this.generateResult("false");
+    return result;
+  }
 
 }

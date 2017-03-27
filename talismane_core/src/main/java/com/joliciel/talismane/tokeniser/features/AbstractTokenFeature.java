@@ -34,44 +34,44 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
  *
  */
 public abstract class AbstractTokenFeature<Y> extends AbstractCachableFeature<TokenWrapper, Y>implements TokenFeature<Y> {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractTokenFeature.class);
-	private TokenAddressFunction<TokenWrapper> addressFunction;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractTokenFeature.class);
+  private TokenAddressFunction<TokenWrapper> addressFunction;
 
-	@Override
-	protected final FeatureResult<Y> checkInCache(TokenWrapper context, RuntimeEnvironment env) throws TalismaneException {
-		return context.getToken().getResultFromCache(this, env);
-	}
+  @Override
+  protected final FeatureResult<Y> checkInCache(TokenWrapper context, RuntimeEnvironment env) throws TalismaneException {
+    return context.getToken().getResultFromCache(this, env);
+  }
 
-	@Override
-	protected final void putInCache(TokenWrapper context, FeatureResult<Y> result, RuntimeEnvironment env) throws TalismaneException {
-		context.getToken().putResultInCache(this, result, env);
-	}
+  @Override
+  protected final void putInCache(TokenWrapper context, FeatureResult<Y> result, RuntimeEnvironment env) throws TalismaneException {
+    context.getToken().putResultInCache(this, result, env);
+  }
 
-	protected TokenAddressFunction<TokenWrapper> getAddressFunction() {
-		return addressFunction;
-	}
+  protected TokenAddressFunction<TokenWrapper> getAddressFunction() {
+    return addressFunction;
+  }
 
-	protected void setAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.addressFunction = addressFunction;
-		String name = this.getName();
-		if (name.endsWith(")")) {
-			name = name.substring(0, name.length() - 1) + "," + addressFunction.getName() + ")";
-		} else {
-			name = name + "(" + addressFunction.getName() + ")";
-		}
-		this.setName(name);
-	}
+  protected void setAddressFunction(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.addressFunction = addressFunction;
+    String name = this.getName();
+    if (name.endsWith(")")) {
+      name = name.substring(0, name.length() - 1) + "," + addressFunction.getName() + ")";
+    } else {
+      name = name + "(" + addressFunction.getName() + ")";
+    }
+    this.setName(name);
+  }
 
-	protected TokenWrapper getToken(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		if (this.addressFunction == null) {
-			return tokenWrapper;
-		} else {
-			FeatureResult<TokenWrapper> tokenResult = addressFunction.check(tokenWrapper, env);
-			if (tokenResult == null)
-				return null;
-			return tokenResult.getOutcome();
-		}
-	}
+  protected TokenWrapper getToken(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    if (this.addressFunction == null) {
+      return tokenWrapper;
+    } else {
+      FeatureResult<TokenWrapper> tokenResult = addressFunction.check(tokenWrapper, env);
+      if (tokenResult == null)
+        return null;
+      return tokenResult.getOutcome();
+    }
+  }
 
 }

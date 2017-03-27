@@ -27,14 +27,14 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class SentenceAnnotatorLoadException extends TalismaneException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public SentenceAnnotatorLoadException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public SentenceAnnotatorLoadException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public SentenceAnnotatorLoadException(String message) {
-		super(message);
-	}
+  public SentenceAnnotatorLoadException(String message) {
+    super(message);
+  }
 
 }

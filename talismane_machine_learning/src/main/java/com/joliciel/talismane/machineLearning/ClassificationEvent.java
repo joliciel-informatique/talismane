@@ -30,31 +30,31 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
  *
  */
 public class ClassificationEvent {
-	private final String classification;
-	private final List<FeatureResult<?>> featureResults;
+  private final String classification;
+  private final List<FeatureResult<?>> featureResults;
 
-	/**
-	 * Get a ClassificationEvent corresponding to the featureResults and
-	 * classification provided.
-	 */
-	public ClassificationEvent(List<FeatureResult<?>> featureResults, String classification) {
-		this.classification = classification;
-		this.featureResults = featureResults;
-	}
+  /**
+   * Get a ClassificationEvent corresponding to the featureResults and
+   * classification provided.
+   */
+  public ClassificationEvent(List<FeatureResult<?>> featureResults, String classification) {
+    this.classification = classification;
+    this.featureResults = featureResults;
+  }
 
-	/**
-	 * The result of testing the various features on this event.
-	 */
+  /**
+   * The result of testing the various features on this event.
+   */
 
-	public List<FeatureResult<?>> getFeatureResults() {
-		return featureResults;
-	}
+  public List<FeatureResult<?>> getFeatureResults() {
+    return featureResults;
+  }
 
-	/**
-	 * The correct classification of this event.
-	 */
+  /**
+   * The correct classification of this event.
+   */
 
-	public String getClassification() {
-		return classification;
-	}
+  public String getClassification() {
+    return classification;
+  }
 }

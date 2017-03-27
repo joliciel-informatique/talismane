@@ -29,105 +29,105 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class DependencyArc implements Comparable<DependencyArc> {
-	private final PosTaggedToken head;
-	private final PosTaggedToken dependent;
-	private final String label;
-	private String comment = "";
-	private double probability;
+  private final PosTaggedToken head;
+  private final PosTaggedToken dependent;
+  private final String label;
+  private String comment = "";
+  private double probability;
 
-	public DependencyArc(PosTaggedToken head, PosTaggedToken dependent, String label) {
-		this.head = head;
-		this.dependent = dependent;
-		this.label = label;
-	}
+  public DependencyArc(PosTaggedToken head, PosTaggedToken dependent, String label) {
+    this.head = head;
+    this.dependent = dependent;
+    this.label = label;
+  }
 
-	/**
-	 * The head (or governor) of this dependency arc.
-	 */
-	public PosTaggedToken getHead() {
-		return this.head;
-	}
+  /**
+   * The head (or governor) of this dependency arc.
+   */
+  public PosTaggedToken getHead() {
+    return this.head;
+  }
 
-	/**
-	 * The dependent of this dependency arc.
-	 */
-	public PosTaggedToken getDependent() {
-		return this.dependent;
-	}
+  /**
+   * The dependent of this dependency arc.
+   */
+  public PosTaggedToken getDependent() {
+    return this.dependent;
+  }
 
-	/**
-	 * The functional label of this dependency arc.
-	 */
-	public String getLabel() {
-		return this.label;
-	}
+  /**
+   * The functional label of this dependency arc.
+   */
+  public String getLabel() {
+    return this.label;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 2;
-		int result = 1;
-		result = prime * result + ((dependent == null) ? 0 : dependent.hashCode());
-		result = prime * result + ((head == null) ? 0 : head.hashCode());
-		result = prime * result + ((label == null) ? 0 : label.hashCode());
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 2;
+    int result = 1;
+    result = prime * result + ((dependent == null) ? 0 : dependent.hashCode());
+    result = prime * result + ((head == null) ? 0 : head.hashCode());
+    result = prime * result + ((label == null) ? 0 : label.hashCode());
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DependencyArc other = (DependencyArc) obj;
-		if (dependent == null) {
-			if (other.dependent != null)
-				return false;
-		} else if (!dependent.equals(other.dependent))
-			return false;
-		if (head == null) {
-			if (other.head != null)
-				return false;
-		} else if (!head.equals(other.head))
-			return false;
-		if (label == null) {
-			if (other.label != null)
-				return false;
-		} else if (!label.equals(other.label))
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    DependencyArc other = (DependencyArc) obj;
+    if (dependent == null) {
+      if (other.dependent != null)
+        return false;
+    } else if (!dependent.equals(other.dependent))
+      return false;
+    if (head == null) {
+      if (other.head != null)
+        return false;
+    } else if (!head.equals(other.head))
+      return false;
+    if (label == null) {
+      if (other.label != null)
+        return false;
+    } else if (!label.equals(other.label))
+      return false;
+    return true;
+  }
 
-	@Override
-	public String toString() {
-		return "Dep[" + head + "," + label + "," + dependent + "]";
-	}
+  @Override
+  public String toString() {
+    return "Dep[" + head + "," + label + "," + dependent + "]";
+  }
 
-	@Override
-	public int compareTo(DependencyArc o) {
-		return this.getDependent().getToken().getIndex() - o.getDependent().getToken().getIndex();
-	}
+  @Override
+  public int compareTo(DependencyArc o) {
+    return this.getDependent().getToken().getIndex() - o.getDependent().getToken().getIndex();
+  }
 
-	/**
-	 * The probability associated with this dependency arc.
-	 */
-	public double getProbability() {
-		return probability;
-	}
+  /**
+   * The probability associated with this dependency arc.
+   */
+  public double getProbability() {
+    return probability;
+  }
 
-	public void setProbability(double probability) {
-		this.probability = probability;
-	}
+  public void setProbability(double probability) {
+    this.probability = probability;
+  }
 
-	/**
-	 * A comment regarding this depenency arc annotation.
-	 */
-	public String getComment() {
-		return comment;
-	}
+  /**
+   * A comment regarding this depenency arc annotation.
+   */
+  public String getComment() {
+    return comment;
+  }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
 }

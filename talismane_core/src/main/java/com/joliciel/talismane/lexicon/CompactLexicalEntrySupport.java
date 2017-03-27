@@ -31,87 +31,87 @@ import gnu.trove.map.hash.THashMap;
  *
  */
 public class CompactLexicalEntrySupport implements Serializable {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private static final int INITIAL_CAPACITY = 1000;
+  private static final int INITIAL_CAPACITY = 1000;
 
-	private Map<LexicalAttribute, Map<String, Byte>> attributeStringToByteMap = new THashMap<LexicalAttribute, Map<String, Byte>>(INITIAL_CAPACITY, 0.75f);
-	private Map<LexicalAttribute, Map<Byte, String>> attributeByteToStringMap = new THashMap<LexicalAttribute, Map<Byte, String>>(INITIAL_CAPACITY, 0.75f);
-	private Map<String, LexicalAttribute> nameToAttributeMap = new THashMap<String, LexicalAttribute>();
-	private int otherAttributeIndex = 0;
+  private Map<LexicalAttribute, Map<String, Byte>> attributeStringToByteMap = new THashMap<LexicalAttribute, Map<String, Byte>>(INITIAL_CAPACITY, 0.75f);
+  private Map<LexicalAttribute, Map<Byte, String>> attributeByteToStringMap = new THashMap<LexicalAttribute, Map<Byte, String>>(INITIAL_CAPACITY, 0.75f);
+  private Map<String, LexicalAttribute> nameToAttributeMap = new THashMap<String, LexicalAttribute>();
+  private int otherAttributeIndex = 0;
 
-	private String name;
+  private String name;
 
-	protected CompactLexicalEntrySupport() {
-	}
+  protected CompactLexicalEntrySupport() {
+  }
 
-	public CompactLexicalEntrySupport(String name) {
-		this.name = name;
-	}
+  public CompactLexicalEntrySupport(String name) {
+    this.name = name;
+  }
 
-	public byte getOrCreateAttributeCode(LexicalAttribute attribute, String value) {
-		Map<String, Byte> attributeCodes = attributeStringToByteMap.get(attribute);
-		Map<Byte, String> attributeValues = attributeByteToStringMap.get(attribute);
-		byte code = 0;
-		if (attributeCodes == null) {
-			attributeCodes = new THashMap<String, Byte>();
-			attributeStringToByteMap.put(attribute, attributeCodes);
-			attributeValues = new THashMap<Byte, String>();
-			attributeByteToStringMap.put(attribute, attributeValues);
+  public byte getOrCreateAttributeCode(LexicalAttribute attribute, String value) {
+    Map<String, Byte> attributeCodes = attributeStringToByteMap.get(attribute);
+    Map<Byte, String> attributeValues = attributeByteToStringMap.get(attribute);
+    byte code = 0;
+    if (attributeCodes == null) {
+      attributeCodes = new THashMap<String, Byte>();
+      attributeStringToByteMap.put(attribute, attributeCodes);
+      attributeValues = new THashMap<Byte, String>();
+      attributeByteToStringMap.put(attribute, attributeValues);
 
-		}
+    }
 
-		Byte codeObj = attributeCodes.get(value);
-		code = codeObj == null ? 0 : codeObj.byteValue();
+    Byte codeObj = attributeCodes.get(value);
+    code = codeObj == null ? 0 : codeObj.byteValue();
 
-		if (code == 0) {
-			code = (byte) (attributeCodes.size() + 1);
-			attributeCodes.put(value, code);
-			attributeValues.put(code, value);
-		}
+    if (code == 0) {
+      code = (byte) (attributeCodes.size() + 1);
+      attributeCodes.put(value, code);
+      attributeValues.put(code, value);
+    }
 
-		return code;
-	}
+    return code;
+  }
 
-	public byte getAttributeCode(LexicalAttribute attribute, String value) {
-		Map<String, Byte> attributeCodes = attributeStringToByteMap.get(attribute);
-		byte code = 0;
-		if (attributeCodes != null) {
-			Byte codeObj = attributeCodes.get(value);
-			code = codeObj == null ? 0 : codeObj.byteValue();
-		}
-		return code;
-	}
+  public byte getAttributeCode(LexicalAttribute attribute, String value) {
+    Map<String, Byte> attributeCodes = attributeStringToByteMap.get(attribute);
+    byte code = 0;
+    if (attributeCodes != null) {
+      Byte codeObj = attributeCodes.get(value);
+      code = codeObj == null ? 0 : codeObj.byteValue();
+    }
+    return code;
+  }
 
-	public String getAttributeValue(LexicalAttribute attribute, byte code) {
-		Map<Byte, String> attributeValues = attributeByteToStringMap.get(attribute);
-		String value = null;
-		if (attributeValues != null) {
-			value = attributeValues.get(code);
-		}
-		if (value == null)
-			value = "";
-		return value;
-	}
+  public String getAttributeValue(LexicalAttribute attribute, byte code) {
+    Map<Byte, String> attributeValues = attributeByteToStringMap.get(attribute);
+    String value = null;
+    if (attributeValues != null) {
+      value = attributeValues.get(code);
+    }
+    if (value == null)
+      value = "";
+    return value;
+  }
 
-	/**
-	 * @param name
-	 * @return
-	 */
-	public LexicalAttribute getAttributeForName(String name) {
-		LexicalAttribute attribute = this.nameToAttributeMap.get(name);
-		if (attribute == null) {
-			otherAttributeIndex++;
-			if (otherAttributeIndex > 8)
-				throw new RuntimeException(
-						"Only 8 OtherAttributes allowed. Already used: " + this.nameToAttributeMap.keySet().stream().collect(Collectors.joining(", ")));
-			attribute = LexicalAttribute.valueOf("OtherAttribute" + otherAttributeIndex);
-			nameToAttributeMap.put(name, attribute);
-		}
-		return attribute;
-	}
+  /**
+   * @param name
+   * @return
+   */
+  public LexicalAttribute getAttributeForName(String name) {
+    LexicalAttribute attribute = this.nameToAttributeMap.get(name);
+    if (attribute == null) {
+      otherAttributeIndex++;
+      if (otherAttributeIndex > 8)
+        throw new RuntimeException(
+            "Only 8 OtherAttributes allowed. Already used: " + this.nameToAttributeMap.keySet().stream().collect(Collectors.joining(", ")));
+      attribute = LexicalAttribute.valueOf("OtherAttribute" + otherAttributeIndex);
+      nameToAttributeMap.put(name, attribute);
+    }
+    return attribute;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 }

@@ -33,8 +33,8 @@ import com.joliciel.talismane.machineLearning.features.FeatureResult;
  */
 public interface ClassificationObserver {
 
-	public void onAnalyse(Object event, List<FeatureResult<?>> featureResults, Collection<Decision> outcomes) throws IOException;
+  public void onAnalyse(Object event, List<FeatureResult<?>> featureResults, Collection<Decision> outcomes) throws IOException;
 
-	public void onTerminate() throws IOException;
+  public void onTerminate() throws IOException;
 
 }

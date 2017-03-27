@@ -50,295 +50,295 @@ import com.joliciel.talismane.posTagger.features.PosTaggedTokenWrapper;
 import com.joliciel.talismane.posTagger.features.PosTaggerFeatureParser;
 
 public class ParserFeatureParser extends AbstractFeatureParser<ParseConfigurationWrapper> {
-	private static final Logger LOG = LoggerFactory.getLogger(ParserFeatureParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ParserFeatureParser.class);
 
-	private final TalismaneSession talismaneSession;
+  private final TalismaneSession talismaneSession;
 
-	public ParserFeatureParser(TalismaneSession talismaneSession) {
-		this.talismaneSession = talismaneSession;
-		this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
-	}
+  public ParserFeatureParser(TalismaneSession talismaneSession) {
+    this.talismaneSession = talismaneSession;
+    this.setExternalResourceFinder(talismaneSession.getExternalResourceFinder());
+  }
 
-	public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors) {
-		Set<ParseConfigurationFeature<?>> parseFeatures = new TreeSet<ParseConfigurationFeature<?>>();
-		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+  public Set<ParseConfigurationFeature<?>> getFeatures(List<String> featureDescriptors) {
+    Set<ParseConfigurationFeature<?>> parseFeatures = new TreeSet<ParseConfigurationFeature<?>>();
+    FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 
-		for (String featureDescriptor : featureDescriptors) {
-			if (featureDescriptor.trim().length() > 0 && !featureDescriptor.startsWith("#")) {
-				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
-				List<ParseConfigurationFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
-				parseFeatures.addAll(myFeatures);
-			}
-		}
-		return parseFeatures;
-	}
+    for (String featureDescriptor : featureDescriptors) {
+      if (featureDescriptor.trim().length() > 0 && !featureDescriptor.startsWith("#")) {
+        FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(featureDescriptor);
+        List<ParseConfigurationFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+        parseFeatures.addAll(myFeatures);
+      }
+    }
+    return parseFeatures;
+  }
 
-	public List<ParserRule> getRules(List<String> ruleDescriptors) throws TalismaneException {
-		List<ParserRule> rules = new ArrayList<ParserRule>();
+  public List<ParserRule> getRules(List<String> ruleDescriptors) throws TalismaneException {
+    List<ParserRule> rules = new ArrayList<ParserRule>();
 
-		FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
+    FunctionDescriptorParser descriptorParser = new FunctionDescriptorParser();
 
-		for (String ruleDescriptor : ruleDescriptors) {
-			LOG.debug(ruleDescriptor);
-			if (ruleDescriptor.trim().length() > 0 && !ruleDescriptor.startsWith("#")) {
-				String[] ruleParts = ruleDescriptor.split("\t");
-				String transitionCode = ruleParts[0];
-				Transition transition = null;
-				Set<Transition> transitions = null;
-				boolean negative = false;
-				String descriptor = null;
-				String descriptorName = null;
-				if (ruleParts.length > 2) {
-					descriptor = ruleParts[2];
-					descriptorName = ruleParts[1];
-				} else {
-					descriptor = ruleParts[1];
-				}
+    for (String ruleDescriptor : ruleDescriptors) {
+      LOG.debug(ruleDescriptor);
+      if (ruleDescriptor.trim().length() > 0 && !ruleDescriptor.startsWith("#")) {
+        String[] ruleParts = ruleDescriptor.split("\t");
+        String transitionCode = ruleParts[0];
+        Transition transition = null;
+        Set<Transition> transitions = null;
+        boolean negative = false;
+        String descriptor = null;
+        String descriptorName = null;
+        if (ruleParts.length > 2) {
+          descriptor = ruleParts[2];
+          descriptorName = ruleParts[1];
+        } else {
+          descriptor = ruleParts[1];
+        }
 
-				if (transitionCode.length() == 0) {
-					if (descriptorName == null) {
-						throw new TalismaneException("Rule without Transition must have a name.");
-					}
-				} else {
-					if (transitionCode.startsWith("!")) {
-						negative = true;
-						String[] transitionCodes = transitionCode.substring(1).split(";");
-						transitions = new HashSet<Transition>();
-						for (String code : transitionCodes) {
-							Transition oneTransition = talismaneSession.getTransitionSystem().getTransitionForCode(code);
-							transitions.add(oneTransition);
-						}
-						transition = transitions.iterator().next();
-					} else {
-						transition = talismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
-					}
+        if (transitionCode.length() == 0) {
+          if (descriptorName == null) {
+            throw new TalismaneException("Rule without Transition must have a name.");
+          }
+        } else {
+          if (transitionCode.startsWith("!")) {
+            negative = true;
+            String[] transitionCodes = transitionCode.substring(1).split(";");
+            transitions = new HashSet<Transition>();
+            for (String code : transitionCodes) {
+              Transition oneTransition = talismaneSession.getTransitionSystem().getTransitionForCode(code);
+              transitions.add(oneTransition);
+            }
+            transition = transitions.iterator().next();
+          } else {
+            transition = talismaneSession.getTransitionSystem().getTransitionForCode(transitionCode);
+          }
 
-				}
-				FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
-				if (descriptorName != null)
-					functionDescriptor.setDescriptorName(descriptorName);
-				List<ParseConfigurationFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
-				if (transition != null) {
-					for (ParseConfigurationFeature<?> feature : myFeatures) {
-						if (feature instanceof BooleanFeature) {
-							@SuppressWarnings("unchecked")
-							BooleanFeature<ParseConfigurationWrapper> condition = (BooleanFeature<ParseConfigurationWrapper>) feature;
+        }
+        FunctionDescriptor functionDescriptor = descriptorParser.parseDescriptor(descriptor);
+        if (descriptorName != null)
+          functionDescriptor.setDescriptorName(descriptorName);
+        List<ParseConfigurationFeature<?>> myFeatures = this.parseDescriptor(functionDescriptor);
+        if (transition != null) {
+          for (ParseConfigurationFeature<?> feature : myFeatures) {
+            if (feature instanceof BooleanFeature) {
+              @SuppressWarnings("unchecked")
+              BooleanFeature<ParseConfigurationWrapper> condition = (BooleanFeature<ParseConfigurationWrapper>) feature;
 
-							if (negative) {
-								ParserRule rule = new ParserRule(condition, transitions, true);
-								rules.add(rule);
-							} else {
-								ParserRule rule = new ParserRule(condition, transition, false);
-								rules.add(rule);
-							}
-						} else {
-							throw new TalismaneException("Rule must be based on a boolean feature.");
-						}
-					} // next feature
-				} // is it a rule, or just a descriptor
-			} // proper rule descriptor
-		} // next rule descriptor
-		return rules;
-	}
+              if (negative) {
+                ParserRule rule = new ParserRule(condition, transitions, true);
+                rules.add(rule);
+              } else {
+                ParserRule rule = new ParserRule(condition, transition, false);
+                rules.add(rule);
+              }
+            } else {
+              throw new TalismaneException("Rule must be based on a boolean feature.");
+            }
+          } // next feature
+        } // is it a rule, or just a descriptor
+      } // proper rule descriptor
+    } // next rule descriptor
+    return rules;
+  }
 
-	/**
-	 * Adds the following feature class mappings:
-	 * <ul>
-	 * <li>AncestorSearch: {@link AncestorSearchFeature}</li>
-	 * <li>BackwardSearch: {@link BackwardSearchFeature}</li>
-	 * <li>BetweenCountIf: {@link BetweenCountIf}</li>
-	 * <li>Buffer: {@link AddressFunctionBuffer}</li>
-	 * <li>Dep: {@link AddressFunctionDep}</li>
-	 * <li>DepCountIf: {@link DependencyCountIf}</li>
-	 * <li>DepLabel: {@link DependencyLabelFeature}</li>
-	 * <li>DependencyLabel: {@link DependencyLabelFeature}</li>
-	 * <li>DepLabelSet: {@link DependencyLabelSetFeature}</li>
-	 * <li>DepSearch: {@link DependencySearchFeature}</li>
-	 * <li>Distance: {@link DistanceFeature}</li>
-	 * <li>ForwardSearch: {@link ForwardSearchFeature}</li>
-	 * <li>Head: {@link AddressFunctionHead}</li>
-	 * <li>LDep: {@link AddressFunctionLDep}</li>
-	 * <li>Offset: {@link AddressFunctionOffset}</li>
-	 * <li>Placeholder: {@link ImplicitAddressFeature}</li>
-	 * <li>RDep: {@link AddressFunctionRDep}</li>
-	 * <li>Seq: {@link AddressFunctionSequence}</li>
-	 * <li>Stack: {@link AddressFunctionStack}</li>
-	 * <li>StackSearch: {@link StackSearchFeature}</li>
-	 * <li>TokenSearch: {@link TokenSearchFeature}</li>
-	 * <li>Valency: {@link ValencyFeature}</li>
-	 * <li>Valency: {@link ValencyByLabelFeature}</li>
-	 * <li>All definitions in
-	 * {@link PosTaggerFeatureParser#addPosTaggedTokenFeatureClasses(FeatureClassContainer)}
-	 * </li>
-	 * </ul>
-	 */
-	@Override
-	public void addFeatureClasses(FeatureClassContainer container) {
-		container.addFeatureClass("AncestorSearch", AncestorSearchFeature.class);
-		container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
-		container.addFeatureClass("BetweenCountIf", BetweenCountIf.class);
-		container.addFeatureClass("Buffer", AddressFunctionBuffer.class);
-		container.addFeatureClass("Dep", AddressFunctionDep.class);
-		container.addFeatureClass("DepCountIf", DependencyCountIf.class);
-		container.addFeatureClass("DepLabel", DependencyLabelFeature.class);
-		container.addFeatureClass("DependencyLabel", DependencyLabelFeature.class);
-		container.addFeatureClass("DepLabelSet", DependencyLabelSetFeature.class);
-		container.addFeatureClass("DepSearch", DependencySearchFeature.class);
-		container.addFeatureClass("Distance", DistanceFeature.class);
-		container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
-		container.addFeatureClass("Head", AddressFunctionHead.class);
-		container.addFeatureClass("LDep", AddressFunctionLDep.class);
-		container.addFeatureClass("Offset", AddressFunctionOffset.class);
-		container.addFeatureClass("Placeholder", ImplicitAddressFeature.class);
-		container.addFeatureClass("RDep", AddressFunctionRDep.class);
-		container.addFeatureClass("Seq", AddressFunctionSequence.class);
-		container.addFeatureClass("Stack", AddressFunctionStack.class);
-		container.addFeatureClass("StackSearch", StackSearchFeature.class);
-		container.addFeatureClass("TokenSearch", TokenSearchFeature.class);
-		container.addFeatureClass("Valency", ValencyFeature.class);
-		container.addFeatureClass("Valency", ValencyByLabelFeature.class);
+  /**
+   * Adds the following feature class mappings:
+   * <ul>
+   * <li>AncestorSearch: {@link AncestorSearchFeature}</li>
+   * <li>BackwardSearch: {@link BackwardSearchFeature}</li>
+   * <li>BetweenCountIf: {@link BetweenCountIf}</li>
+   * <li>Buffer: {@link AddressFunctionBuffer}</li>
+   * <li>Dep: {@link AddressFunctionDep}</li>
+   * <li>DepCountIf: {@link DependencyCountIf}</li>
+   * <li>DepLabel: {@link DependencyLabelFeature}</li>
+   * <li>DependencyLabel: {@link DependencyLabelFeature}</li>
+   * <li>DepLabelSet: {@link DependencyLabelSetFeature}</li>
+   * <li>DepSearch: {@link DependencySearchFeature}</li>
+   * <li>Distance: {@link DistanceFeature}</li>
+   * <li>ForwardSearch: {@link ForwardSearchFeature}</li>
+   * <li>Head: {@link AddressFunctionHead}</li>
+   * <li>LDep: {@link AddressFunctionLDep}</li>
+   * <li>Offset: {@link AddressFunctionOffset}</li>
+   * <li>Placeholder: {@link ImplicitAddressFeature}</li>
+   * <li>RDep: {@link AddressFunctionRDep}</li>
+   * <li>Seq: {@link AddressFunctionSequence}</li>
+   * <li>Stack: {@link AddressFunctionStack}</li>
+   * <li>StackSearch: {@link StackSearchFeature}</li>
+   * <li>TokenSearch: {@link TokenSearchFeature}</li>
+   * <li>Valency: {@link ValencyFeature}</li>
+   * <li>Valency: {@link ValencyByLabelFeature}</li>
+   * <li>All definitions in
+   * {@link PosTaggerFeatureParser#addPosTaggedTokenFeatureClasses(FeatureClassContainer)}
+   * </li>
+   * </ul>
+   */
+  @Override
+  public void addFeatureClasses(FeatureClassContainer container) {
+    container.addFeatureClass("AncestorSearch", AncestorSearchFeature.class);
+    container.addFeatureClass("BackwardSearch", BackwardSearchFeature.class);
+    container.addFeatureClass("BetweenCountIf", BetweenCountIf.class);
+    container.addFeatureClass("Buffer", AddressFunctionBuffer.class);
+    container.addFeatureClass("Dep", AddressFunctionDep.class);
+    container.addFeatureClass("DepCountIf", DependencyCountIf.class);
+    container.addFeatureClass("DepLabel", DependencyLabelFeature.class);
+    container.addFeatureClass("DependencyLabel", DependencyLabelFeature.class);
+    container.addFeatureClass("DepLabelSet", DependencyLabelSetFeature.class);
+    container.addFeatureClass("DepSearch", DependencySearchFeature.class);
+    container.addFeatureClass("Distance", DistanceFeature.class);
+    container.addFeatureClass("ForwardSearch", ForwardSearchFeature.class);
+    container.addFeatureClass("Head", AddressFunctionHead.class);
+    container.addFeatureClass("LDep", AddressFunctionLDep.class);
+    container.addFeatureClass("Offset", AddressFunctionOffset.class);
+    container.addFeatureClass("Placeholder", ImplicitAddressFeature.class);
+    container.addFeatureClass("RDep", AddressFunctionRDep.class);
+    container.addFeatureClass("Seq", AddressFunctionSequence.class);
+    container.addFeatureClass("Stack", AddressFunctionStack.class);
+    container.addFeatureClass("StackSearch", StackSearchFeature.class);
+    container.addFeatureClass("TokenSearch", TokenSearchFeature.class);
+    container.addFeatureClass("Valency", ValencyFeature.class);
+    container.addFeatureClass("Valency", ValencyByLabelFeature.class);
 
-		PosTaggerFeatureParser.addPosTaggedTokenFeatureClasses(container);
+    PosTaggerFeatureParser.addPosTaggedTokenFeatureClasses(container);
 
-	}
+  }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<ParseConfigurationFeature<?>> parseDescriptor(FunctionDescriptor functionDescriptor) {
-		List<Feature<ParseConfigurationWrapper, ?>> parseFeatures = this.parse(functionDescriptor);
-		List<ParseConfigurationFeature<?>> wrappedFeatures = new ArrayList<ParseConfigurationFeature<?>>();
-		for (Feature<ParseConfigurationWrapper, ?> parseFeature : parseFeatures) {
-			ParseConfigurationFeature<?> wrappedFeature = null;
-			if (parseFeature instanceof ParseConfigurationFeature) {
-				wrappedFeature = (ParseConfigurationFeature<?>) parseFeature;
-			} else if (parseFeature instanceof BooleanFeature) {
-				wrappedFeature = new ParseConfigurationBooleanFeatureWrapper((Feature<ParseConfigurationWrapper, Boolean>) parseFeature);
-			} else if (parseFeature instanceof StringFeature) {
-				wrappedFeature = new ParseConfigurationStringFeatureWrapper((Feature<ParseConfigurationWrapper, String>) parseFeature);
-			} else if (parseFeature instanceof IntegerFeature) {
-				wrappedFeature = new ParseConfigurationIntegerFeatureWrapper((Feature<ParseConfigurationWrapper, Integer>) parseFeature);
-			} else if (parseFeature instanceof DoubleFeature) {
-				wrappedFeature = new ParseConfigurationDoubleFeatureWrapper((Feature<ParseConfigurationWrapper, Double>) parseFeature);
-			} else {
-				wrappedFeature = new ParseConfigurationFeatureWrapper(parseFeature);
-			}
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public List<ParseConfigurationFeature<?>> parseDescriptor(FunctionDescriptor functionDescriptor) {
+    List<Feature<ParseConfigurationWrapper, ?>> parseFeatures = this.parse(functionDescriptor);
+    List<ParseConfigurationFeature<?>> wrappedFeatures = new ArrayList<ParseConfigurationFeature<?>>();
+    for (Feature<ParseConfigurationWrapper, ?> parseFeature : parseFeatures) {
+      ParseConfigurationFeature<?> wrappedFeature = null;
+      if (parseFeature instanceof ParseConfigurationFeature) {
+        wrappedFeature = (ParseConfigurationFeature<?>) parseFeature;
+      } else if (parseFeature instanceof BooleanFeature) {
+        wrappedFeature = new ParseConfigurationBooleanFeatureWrapper((Feature<ParseConfigurationWrapper, Boolean>) parseFeature);
+      } else if (parseFeature instanceof StringFeature) {
+        wrappedFeature = new ParseConfigurationStringFeatureWrapper((Feature<ParseConfigurationWrapper, String>) parseFeature);
+      } else if (parseFeature instanceof IntegerFeature) {
+        wrappedFeature = new ParseConfigurationIntegerFeatureWrapper((Feature<ParseConfigurationWrapper, Integer>) parseFeature);
+      } else if (parseFeature instanceof DoubleFeature) {
+        wrappedFeature = new ParseConfigurationDoubleFeatureWrapper((Feature<ParseConfigurationWrapper, Double>) parseFeature);
+      } else {
+        wrappedFeature = new ParseConfigurationFeatureWrapper(parseFeature);
+      }
 
-			wrappedFeatures.add(wrappedFeature);
-		}
-		return wrappedFeatures;
-	}
+      wrappedFeatures.add(wrappedFeature);
+    }
+    return wrappedFeatures;
+  }
 
-	@Override
-	public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
-		List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
-		String functionName = functionDescriptor.getFunctionName();
+  @Override
+  public List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor) {
+    List<FunctionDescriptor> descriptors = new ArrayList<FunctionDescriptor>();
+    String functionName = functionDescriptor.getFunctionName();
 
-		@SuppressWarnings("rawtypes")
-		List<Class<? extends Feature>> featureClasses = this.getFeatureClasses(functionName);
+    @SuppressWarnings("rawtypes")
+    List<Class<? extends Feature>> featureClasses = this.getFeatureClasses(functionName);
 
-		@SuppressWarnings("rawtypes")
-		Class<? extends Feature> featureClass = null;
-		if (featureClasses != null && featureClasses.size() > 0)
-			featureClass = featureClasses.get(0);
+    @SuppressWarnings("rawtypes")
+    Class<? extends Feature> featureClass = null;
+    if (featureClasses != null && featureClasses.size() > 0)
+      featureClass = featureClasses.get(0);
 
-		if (featureClass != null) {
-			if (featureClass.equals(DependencyCountIf.class)) {
-				if (functionDescriptor.getArguments().size() == 1) {
-					String descriptor = this.getFeatureClassDescriptors(ImplicitAddressFeature.class).get(0);
-					FunctionDescriptor implicitAddressDescriptor = new FunctionDescriptor(descriptor);
-					functionDescriptor.addArgument(0, implicitAddressDescriptor);
-				}
-			} else if (PosTaggedTokenFeature.class.isAssignableFrom(featureClass) || ParseConfigurationAddressFeature.class.isAssignableFrom(featureClass)) {
-				if (functionDescriptor.getArguments().size() == 0) {
-					String descriptor = this.getFeatureClassDescriptors(ImplicitAddressFeature.class).get(0);
-					FunctionDescriptor implicitAddressDescriptor = new FunctionDescriptor(descriptor);
-					functionDescriptor.addArgument(implicitAddressDescriptor);
+    if (featureClass != null) {
+      if (featureClass.equals(DependencyCountIf.class)) {
+        if (functionDescriptor.getArguments().size() == 1) {
+          String descriptor = this.getFeatureClassDescriptors(ImplicitAddressFeature.class).get(0);
+          FunctionDescriptor implicitAddressDescriptor = new FunctionDescriptor(descriptor);
+          functionDescriptor.addArgument(0, implicitAddressDescriptor);
+        }
+      } else if (PosTaggedTokenFeature.class.isAssignableFrom(featureClass) || ParseConfigurationAddressFeature.class.isAssignableFrom(featureClass)) {
+        if (functionDescriptor.getArguments().size() == 0) {
+          String descriptor = this.getFeatureClassDescriptors(ImplicitAddressFeature.class).get(0);
+          FunctionDescriptor implicitAddressDescriptor = new FunctionDescriptor(descriptor);
+          functionDescriptor.addArgument(implicitAddressDescriptor);
 
-				} // has arguments
-			}
-		}
+        } // has arguments
+      }
+    }
 
-		if (descriptors.size() == 0) {
-			descriptors.add(functionDescriptor);
-		}
-		return descriptors;
-	}
+    if (descriptors.size() == 0) {
+      descriptors.add(functionDescriptor);
+    }
+    return descriptors;
+  }
 
-	private static class ParseConfigurationFeatureWrapper<Y> extends AbstractFeature<ParseConfigurationWrapper, Y>implements ParseConfigurationFeature<Y> {
-		private Feature<ParseConfigurationWrapper, Y> wrappedFeature = null;
+  private static class ParseConfigurationFeatureWrapper<Y> extends AbstractFeature<ParseConfigurationWrapper, Y>implements ParseConfigurationFeature<Y> {
+    private Feature<ParseConfigurationWrapper, Y> wrappedFeature = null;
 
-		public ParseConfigurationFeatureWrapper(Feature<ParseConfigurationWrapper, Y> wrappedFeature) {
-			super();
-			this.wrappedFeature = wrappedFeature;
-			this.setName(wrappedFeature.getName());
-			this.setCollectionName(wrappedFeature.getCollectionName());
-		}
+    public ParseConfigurationFeatureWrapper(Feature<ParseConfigurationWrapper, Y> wrappedFeature) {
+      super();
+      this.wrappedFeature = wrappedFeature;
+      this.setName(wrappedFeature.getName());
+      this.setCollectionName(wrappedFeature.getCollectionName());
+    }
 
-		@Override
-		public FeatureResult<Y> check(ParseConfigurationWrapper context, RuntimeEnvironment env) throws TalismaneException {
-			return wrappedFeature.check(context, env);
-		}
+    @Override
+    public FeatureResult<Y> check(ParseConfigurationWrapper context, RuntimeEnvironment env) throws TalismaneException {
+      return wrappedFeature.check(context, env);
+    }
 
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Class<? extends Feature> getFeatureType() {
-			return wrappedFeature.getFeatureType();
-		}
-	}
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Class<? extends Feature> getFeatureType() {
+      return wrappedFeature.getFeatureType();
+    }
+  }
 
-	private final class ParseConfigurationBooleanFeatureWrapper extends ParseConfigurationFeatureWrapper<Boolean>
-			implements BooleanFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationBooleanFeatureWrapper(Feature<ParseConfigurationWrapper, Boolean> wrappedFeature) {
-			super(wrappedFeature);
-		}
-	}
+  private final class ParseConfigurationBooleanFeatureWrapper extends ParseConfigurationFeatureWrapper<Boolean>
+      implements BooleanFeature<ParseConfigurationWrapper> {
+    public ParseConfigurationBooleanFeatureWrapper(Feature<ParseConfigurationWrapper, Boolean> wrappedFeature) {
+      super(wrappedFeature);
+    }
+  }
 
-	private final class ParseConfigurationStringFeatureWrapper extends ParseConfigurationFeatureWrapper<String>
-			implements StringFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationStringFeatureWrapper(Feature<ParseConfigurationWrapper, String> wrappedFeature) {
-			super(wrappedFeature);
-		}
-	}
+  private final class ParseConfigurationStringFeatureWrapper extends ParseConfigurationFeatureWrapper<String>
+      implements StringFeature<ParseConfigurationWrapper> {
+    public ParseConfigurationStringFeatureWrapper(Feature<ParseConfigurationWrapper, String> wrappedFeature) {
+      super(wrappedFeature);
+    }
+  }
 
-	private final class ParseConfigurationDoubleFeatureWrapper extends ParseConfigurationFeatureWrapper<Double>
-			implements DoubleFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationDoubleFeatureWrapper(Feature<ParseConfigurationWrapper, Double> wrappedFeature) {
-			super(wrappedFeature);
-		}
-	}
+  private final class ParseConfigurationDoubleFeatureWrapper extends ParseConfigurationFeatureWrapper<Double>
+      implements DoubleFeature<ParseConfigurationWrapper> {
+    public ParseConfigurationDoubleFeatureWrapper(Feature<ParseConfigurationWrapper, Double> wrappedFeature) {
+      super(wrappedFeature);
+    }
+  }
 
-	private final class ParseConfigurationIntegerFeatureWrapper extends ParseConfigurationFeatureWrapper<Integer>
-			implements IntegerFeature<ParseConfigurationWrapper> {
-		public ParseConfigurationIntegerFeatureWrapper(Feature<ParseConfigurationWrapper, Integer> wrappedFeature) {
-			super(wrappedFeature);
-		}
-	}
+  private final class ParseConfigurationIntegerFeatureWrapper extends ParseConfigurationFeatureWrapper<Integer>
+      implements IntegerFeature<ParseConfigurationWrapper> {
+    public ParseConfigurationIntegerFeatureWrapper(Feature<ParseConfigurationWrapper, Integer> wrappedFeature) {
+      super(wrappedFeature);
+    }
+  }
 
-	@Override
-	public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
-		if (feature instanceof NeedsTalismaneSession) {
-			((NeedsTalismaneSession) feature).setTalismaneSession(talismaneSession);
-		}
-	}
+  @Override
+  public void injectDependencies(@SuppressWarnings("rawtypes") Feature feature) {
+    if (feature instanceof NeedsTalismaneSession) {
+      ((NeedsTalismaneSession) feature).setTalismaneSession(talismaneSession);
+    }
+  }
 
-	@Override
-	protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
-		return false;
-	}
+  @Override
+  protected boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType) {
+    return false;
+  }
 
-	@Override
-	protected Feature<ParseConfigurationWrapper, ?> convertArgument(Class<?> parameterType, Feature<ParseConfigurationWrapper, ?> originalArgument) {
-		return null;
-	}
+  @Override
+  protected Feature<ParseConfigurationWrapper, ?> convertArgument(Class<?> parameterType, Feature<ParseConfigurationWrapper, ?> originalArgument) {
+    return null;
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Feature<ParseConfigurationWrapper, ?> convertFeatureCustomType(Feature<ParseConfigurationWrapper, ?> feature) {
-		Feature<ParseConfigurationWrapper, ?> convertedFeature = feature;
-		if (PosTaggedTokenAddressFunction.class.isAssignableFrom(feature.getFeatureType()) && !(feature instanceof PosTaggedTokenAddressFunction)) {
-			convertedFeature = new PosTaggedTokenAddressFunctionWrapper<ParseConfigurationWrapper>(
-					(Feature<ParseConfigurationWrapper, PosTaggedTokenWrapper>) feature);
-		}
+  @SuppressWarnings("unchecked")
+  @Override
+  public Feature<ParseConfigurationWrapper, ?> convertFeatureCustomType(Feature<ParseConfigurationWrapper, ?> feature) {
+    Feature<ParseConfigurationWrapper, ?> convertedFeature = feature;
+    if (PosTaggedTokenAddressFunction.class.isAssignableFrom(feature.getFeatureType()) && !(feature instanceof PosTaggedTokenAddressFunction)) {
+      convertedFeature = new PosTaggedTokenAddressFunctionWrapper<ParseConfigurationWrapper>(
+          (Feature<ParseConfigurationWrapper, PosTaggedTokenWrapper>) feature);
+    }
 
-		return convertedFeature;
-	}
+    return convertedFeature;
+  }
 }

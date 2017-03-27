@@ -26,18 +26,18 @@ import com.joliciel.talismane.utils.JolicielException;
  *
  */
 public class DynamicCompilerException extends JolicielException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public DynamicCompilerException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public DynamicCompilerException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public DynamicCompilerException(String message) {
-		super(message);
-	}
+  public DynamicCompilerException(String message) {
+    super(message);
+  }
 
-	public DynamicCompilerException(Throwable cause) {
-		super(cause);
-	}
-	
+  public DynamicCompilerException(Throwable cause) {
+    super(cause);
+  }
+  
 }

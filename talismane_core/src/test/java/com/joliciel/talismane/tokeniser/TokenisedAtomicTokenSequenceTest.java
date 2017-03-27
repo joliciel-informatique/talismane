@@ -31,70 +31,70 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 public class TokenisedAtomicTokenSequenceTest {
-	private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TokenisedAtomicTokenSequenceTest.class);
 
-	@Test
-	public void testGetTokenSequence() throws Exception {
-		System.setProperty("config.file", "src/test/resources/test.conf");
-		ConfigFactory.invalidateCaches();
-		final Config config = ConfigFactory.load();
+  @Test
+  public void testGetTokenSequence() throws Exception {
+    System.setProperty("config.file", "src/test/resources/test.conf");
+    ConfigFactory.invalidateCaches();
+    final Config config = ConfigFactory.load();
 
-		final TalismaneSession talismaneSession = new TalismaneSession(config, "");
-		final Sentence sentence = new Sentence("Je n'ai pas encore l'ourang-outan.", talismaneSession);
+    final TalismaneSession talismaneSession = new TalismaneSession(config, "");
+    final Sentence sentence = new Sentence("Je n'ai pas encore l'ourang-outan.", talismaneSession);
 
-		TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] { TokeniserOutcome.SEPARATE, // Je
-				TokeniserOutcome.SEPARATE, // _
-				TokeniserOutcome.SEPARATE, // n
-				TokeniserOutcome.JOIN, // '
-				TokeniserOutcome.SEPARATE, // ai
-				TokeniserOutcome.SEPARATE, // _
-				TokeniserOutcome.SEPARATE, // pas
-				TokeniserOutcome.JOIN, // _
-				TokeniserOutcome.JOIN, // encore
-				TokeniserOutcome.SEPARATE, // _
-				TokeniserOutcome.SEPARATE, // l
-				TokeniserOutcome.JOIN, // '
-				TokeniserOutcome.SEPARATE, // ourang
-				TokeniserOutcome.JOIN, // -
-				TokeniserOutcome.JOIN, // outan
-				TokeniserOutcome.SEPARATE // .
-		};
+    TokeniserOutcome[] tokeniserOutcomeArray = new TokeniserOutcome[] { TokeniserOutcome.SEPARATE, // Je
+        TokeniserOutcome.SEPARATE, // _
+        TokeniserOutcome.SEPARATE, // n
+        TokeniserOutcome.JOIN, // '
+        TokeniserOutcome.SEPARATE, // ai
+        TokeniserOutcome.SEPARATE, // _
+        TokeniserOutcome.SEPARATE, // pas
+        TokeniserOutcome.JOIN, // _
+        TokeniserOutcome.JOIN, // encore
+        TokeniserOutcome.SEPARATE, // _
+        TokeniserOutcome.SEPARATE, // l
+        TokeniserOutcome.JOIN, // '
+        TokeniserOutcome.SEPARATE, // ourang
+        TokeniserOutcome.JOIN, // -
+        TokeniserOutcome.JOIN, // outan
+        TokeniserOutcome.SEPARATE // .
+    };
 
-		TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneSession);
+    TokenisedAtomicTokenSequence atomicTokenSequence = new TokenisedAtomicTokenSequence(sentence, talismaneSession);
 
-		TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
-		tokenSequence.findDefaultTokens();
+    TokenSequence tokenSequence = new TokenSequence(sentence, talismaneSession);
+    tokenSequence.findDefaultTokens();
 
-		int i = 0;
-		for (Token token : tokenSequence.listWithWhiteSpace()) {
-			Decision decision = new Decision(tokeniserOutcomeArray[i++].name());
-			TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
+    int i = 0;
+    for (Token token : tokenSequence.listWithWhiteSpace()) {
+      Decision decision = new Decision(tokeniserOutcomeArray[i++].name());
+      TaggedToken<TokeniserOutcome> taggedToken = new TaggedToken<>(token, decision, TokeniserOutcome.valueOf(decision.getOutcome()));
 
-			atomicTokenSequence.add(taggedToken);
-		}
+      atomicTokenSequence.add(taggedToken);
+    }
 
-		TokenSequence newTokenSequence = atomicTokenSequence.inferTokenSequence();
-		LOG.debug(newTokenSequence.toString());
+    TokenSequence newTokenSequence = atomicTokenSequence.inferTokenSequence();
+    LOG.debug(newTokenSequence.toString());
 
-		i = 0;
-		for (Token token : newTokenSequence) {
-			if (i == 0) {
-				assertEquals("Je", token.getAnalyisText());
-			} else if (i == 1) {
-				assertEquals("n'", token.getAnalyisText());
-			} else if (i == 2) {
-				assertEquals("ai", token.getAnalyisText());
-			} else if (i == 3) {
-				assertEquals("pas encore", token.getAnalyisText());
-			} else if (i == 4) {
-				assertEquals("l'", token.getAnalyisText());
-			} else if (i == 5) {
-				assertEquals("ourang-outan", token.getAnalyisText());
-			} else if (i == 6) {
-				assertEquals(".", token.getAnalyisText());
-			}
-			i++;
-		}
-		assertEquals(7, newTokenSequence.size());
-	}
+    i = 0;
+    for (Token token : newTokenSequence) {
+      if (i == 0) {
+        assertEquals("Je", token.getAnalyisText());
+      } else if (i == 1) {
+        assertEquals("n'", token.getAnalyisText());
+      } else if (i == 2) {
+        assertEquals("ai", token.getAnalyisText());
+      } else if (i == 3) {
+        assertEquals("pas encore", token.getAnalyisText());
+      } else if (i == 4) {
+        assertEquals("l'", token.getAnalyisText());
+      } else if (i == 5) {
+        assertEquals("ourang-outan", token.getAnalyisText());
+      } else if (i == 6) {
+        assertEquals(".", token.getAnalyisText());
+      }
+      i++;
+    }
+    assertEquals(7, newTokenSequence.size());
+  }
 }

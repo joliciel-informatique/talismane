@@ -33,46 +33,46 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DaoUtils {
-	public enum LogLevel {
-		TRACE, DEBUG, INFO
-	}
+  public enum LogLevel {
+    TRACE, DEBUG, INFO
+  }
     private static final Logger LOG = LoggerFactory.getLogger(DaoUtils.class);
 
     public static void LogParameters(Map<String,Object> paramMap) {
         if (LOG.isDebugEnabled()) {
             for (Object obj : paramMap.entrySet()) {
                 @SuppressWarnings("rawtypes")
-				Entry entry = (Entry) obj;
+        Entry entry = (Entry) obj;
                 LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
             }
         }
     }
     
     public static void LogParameters(Map<String,Object> paramMap, LogLevel logLevel) {
-    	if (logLevel.equals(LogLevel.TRACE)) {
+      if (logLevel.equals(LogLevel.TRACE)) {
             if (LOG.isTraceEnabled()) {
                 for (Object obj : paramMap.entrySet()) {
                     @SuppressWarnings("rawtypes")
-    				Entry entry = (Entry) obj;
+            Entry entry = (Entry) obj;
                     LOG.trace(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
                 }
             }
         } else if (logLevel.equals(LogLevel.DEBUG)) {
-	        if (LOG.isDebugEnabled()) {
-	            for (Object obj : paramMap.entrySet()) {
-	                @SuppressWarnings("rawtypes")
-					Entry entry = (Entry) obj;
-	                LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-	            }
-	        }
+          if (LOG.isDebugEnabled()) {
+              for (Object obj : paramMap.entrySet()) {
+                  @SuppressWarnings("rawtypes")
+          Entry entry = (Entry) obj;
+                  LOG.debug(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
+              }
+          }
         } else if (logLevel.equals(LogLevel.INFO)) {
-	        if (LOG.isInfoEnabled()) {
-	            for (Object obj : paramMap.entrySet()) {
-	                @SuppressWarnings("rawtypes")
-					Entry entry = (Entry) obj;
-	                LOG.info(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
-	            }
-	        }
+          if (LOG.isInfoEnabled()) {
+              for (Object obj : paramMap.entrySet()) {
+                  @SuppressWarnings("rawtypes")
+          Entry entry = (Entry) obj;
+                  LOG.info(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
+              }
+          }
         }
     }
     
@@ -80,7 +80,7 @@ public class DaoUtils {
         if (log.isTraceEnabled()) {
             for (Object obj : paramMap.entrySet()) {
                 @SuppressWarnings("rawtypes")
-				Entry entry = (Entry) obj;
+        Entry entry = (Entry) obj;
                 log.trace(entry.getKey() + ": " + (entry.getValue()==null? "null" : entry.getValue().toString()));
             }
         }

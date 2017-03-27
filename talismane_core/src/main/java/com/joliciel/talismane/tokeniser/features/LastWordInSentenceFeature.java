@@ -32,24 +32,24 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class LastWordInSentenceFeature extends AbstractTokenFeature<Boolean>implements BooleanFeature<TokenWrapper> {
-	public LastWordInSentenceFeature() {
-	}
+  public LastWordInSentenceFeature() {
+  }
 
-	public LastWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public LastWordInSentenceFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
-		FeatureResult<Boolean> result = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
+    FeatureResult<Boolean> result = null;
 
-		boolean lastWord = (token.getIndex() == token.getTokenSequence().size() - 1);
-		result = this.generateResult(lastWord);
+    boolean lastWord = (token.getIndex() == token.getTokenSequence().size() - 1);
+    result = this.generateResult(lastWord);
 
-		return result;
-	}
+    return result;
+  }
 }

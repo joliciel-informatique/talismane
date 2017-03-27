@@ -24,11 +24,11 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 
 class ItsMeAddressFunction<T> extends AbstractFeature<T, PosTaggedTokenWrapper> implements PosTaggedTokenAddressFunction<T> {
 
-	@Override
-	public FeatureResult<PosTaggedTokenWrapper> check(T context,
-			RuntimeEnvironment env) {
-		FeatureResult<PosTaggedTokenWrapper> tokenResult = this.generateResult((PosTaggedTokenWrapper) context);
-		return tokenResult;
-	}
+  @Override
+  public FeatureResult<PosTaggedTokenWrapper> check(T context,
+      RuntimeEnvironment env) {
+    FeatureResult<PosTaggedTokenWrapper> tokenResult = this.generateResult((PosTaggedTokenWrapper) context);
+    return tokenResult;
+  }
 
 }

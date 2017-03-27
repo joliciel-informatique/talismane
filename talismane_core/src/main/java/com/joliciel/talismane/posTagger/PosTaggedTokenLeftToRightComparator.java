@@ -27,8 +27,8 @@ import java.util.Comparator;
  */
 public class PosTaggedTokenLeftToRightComparator implements Comparator<PosTaggedToken> {
 
-	@Override
-	public int compare(PosTaggedToken token1, PosTaggedToken token2) {
-		return token1.getToken().getIndex() - token2.getToken().getIndex();
-	}
+  @Override
+  public int compare(PosTaggedToken token1, PosTaggedToken token2) {
+    return token1.getToken().getIndex() - token2.getToken().getIndex();
+  }
 }

@@ -24,20 +24,20 @@ package com.joliciel.talismane.machineLearning.features;
  * @author Assaf Urieli
  */
 public class StringLiteralFeature<T> extends AbstractFeature<T, String>implements StringFeature<T> {
-	private String literal = null;
+  private String literal = null;
 
-	public StringLiteralFeature(String literal) {
-		super();
-		this.literal = literal;
-		this.setName("\"" + literal + "\"");
-	}
+  public StringLiteralFeature(String literal) {
+    super();
+    this.literal = literal;
+    this.setName("\"" + literal + "\"");
+  }
 
-	@Override
-	public FeatureResult<String> check(T context, RuntimeEnvironment env) {
-		return this.generateResult(literal);
-	}
+  @Override
+  public FeatureResult<String> check(T context, RuntimeEnvironment env) {
+    return this.generateResult(literal);
+  }
 
-	public String getLiteral() {
-		return literal;
-	}
+  public String getLiteral() {
+    return literal;
+  }
 }

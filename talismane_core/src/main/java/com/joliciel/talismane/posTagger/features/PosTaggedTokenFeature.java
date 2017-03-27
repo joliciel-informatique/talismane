@@ -26,5 +26,5 @@ import com.joliciel.talismane.machineLearning.features.Feature;
  * after referring to an individual pos-tag.
  */
 public interface PosTaggedTokenFeature<T,Y> extends Feature<T, Y> {
-	public PosTaggedTokenAddressFunction<?> getAddressFunction();
+  public PosTaggedTokenAddressFunction<?> getAddressFunction();
 }

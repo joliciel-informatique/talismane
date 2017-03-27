@@ -28,31 +28,31 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class UnknownDependencyLabelException extends TalismaneException {
-	private static final long serialVersionUID = 1L;
-	private String dependencyLabel = "";
-	private int index;
+  private static final long serialVersionUID = 1L;
+  private String dependencyLabel = "";
+  private int index;
 
-	public UnknownDependencyLabelException(String fileName, int lineNumber, String dependencyLabel) {
-		super("Unknown dependency label: " + dependencyLabel + " in file " + fileName + ", line " + lineNumber);
-		this.dependencyLabel = dependencyLabel;
-	}
+  public UnknownDependencyLabelException(String fileName, int lineNumber, String dependencyLabel) {
+    super("Unknown dependency label: " + dependencyLabel + " in file " + fileName + ", line " + lineNumber);
+    this.dependencyLabel = dependencyLabel;
+  }
 
-	public UnknownDependencyLabelException(int index, String dependencyLabel) {
-		super("Unknown dependency label: " + dependencyLabel + " on index " + index);
-		this.dependencyLabel = dependencyLabel;
-		this.index = index;
-	}
+  public UnknownDependencyLabelException(int index, String dependencyLabel) {
+    super("Unknown dependency label: " + dependencyLabel + " on index " + index);
+    this.dependencyLabel = dependencyLabel;
+    this.index = index;
+  }
 
-	public UnknownDependencyLabelException(String dependencyLabel) {
-		super("Unknown dependency label: " + dependencyLabel);
-		this.dependencyLabel = dependencyLabel;
-	}
+  public UnknownDependencyLabelException(String dependencyLabel) {
+    super("Unknown dependency label: " + dependencyLabel);
+    this.dependencyLabel = dependencyLabel;
+  }
 
-	public String getDependencyLabel() {
-		return dependencyLabel;
-	}
+  public String getDependencyLabel() {
+    return dependencyLabel;
+  }
 
-	public int getIndex() {
-		return index;
-	}
+  public int getIndex() {
+    return index;
+  }
 }

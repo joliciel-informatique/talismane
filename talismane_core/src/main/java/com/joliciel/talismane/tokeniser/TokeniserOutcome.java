@@ -24,13 +24,13 @@ package com.joliciel.talismane.tokeniser;
  *
  */
 public enum TokeniserOutcome implements TokenTag {
-	/**
-	 * The current interval does not separate the atomic tokens on either side.
-	 */
-	JOIN,
-	
-	/**
-	 * The current interval separates the atomic tokens on either side.
-	 */
-	SEPARATE;
+  /**
+   * The current interval does not separate the atomic tokens on either side.
+   */
+  JOIN,
+  
+  /**
+   * The current interval separates the atomic tokens on either side.
+   */
+  SEPARATE;
 }

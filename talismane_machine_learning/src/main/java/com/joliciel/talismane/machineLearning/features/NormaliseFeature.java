@@ -29,77 +29,77 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class NormaliseFeature<T> extends AbstractCachableFeature<T, Double>implements DoubleFeature<T> {
-	DoubleFeature<T> featureToNormalise;
-	DoubleFeature<T> minValueFeature = new DoubleLiteralFeature<T>(0.0);
-	DoubleFeature<T> maxValueFeature = null;
+  DoubleFeature<T> featureToNormalise;
+  DoubleFeature<T> minValueFeature = new DoubleLiteralFeature<T>(0.0);
+  DoubleFeature<T> maxValueFeature = null;
 
-	/**
-	 * Constructor assuming the min value is 0.
-	 */
-	public NormaliseFeature(DoubleFeature<T> featureToNormalise, DoubleFeature<T> maxValueFeature) {
-		this.featureToNormalise = featureToNormalise;
-		this.maxValueFeature = maxValueFeature;
-		this.setName("Normalise(" + featureToNormalise.getName() + "," + maxValueFeature.getName() + ")");
-	}
+  /**
+   * Constructor assuming the min value is 0.
+   */
+  public NormaliseFeature(DoubleFeature<T> featureToNormalise, DoubleFeature<T> maxValueFeature) {
+    this.featureToNormalise = featureToNormalise;
+    this.maxValueFeature = maxValueFeature;
+    this.setName("Normalise(" + featureToNormalise.getName() + "," + maxValueFeature.getName() + ")");
+  }
 
-	/**
-	 * Constructor providing both min and max values.
-	 */
-	public NormaliseFeature(DoubleFeature<T> featureToNormalise, DoubleFeature<T> minValueFeature, DoubleFeature<T> maxValueFeature) {
-		super();
-		this.featureToNormalise = featureToNormalise;
-		this.minValueFeature = minValueFeature;
-		this.maxValueFeature = maxValueFeature;
-		this.setName("Normalise(" + featureToNormalise.getName() + "," + minValueFeature.getName() + "," + maxValueFeature.getName() + ")");
-	}
+  /**
+   * Constructor providing both min and max values.
+   */
+  public NormaliseFeature(DoubleFeature<T> featureToNormalise, DoubleFeature<T> minValueFeature, DoubleFeature<T> maxValueFeature) {
+    super();
+    this.featureToNormalise = featureToNormalise;
+    this.minValueFeature = minValueFeature;
+    this.maxValueFeature = maxValueFeature;
+    this.setName("Normalise(" + featureToNormalise.getName() + "," + minValueFeature.getName() + "," + maxValueFeature.getName() + ")");
+  }
 
-	@Override
-	public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Double> featureResult = null;
+  @Override
+  public FeatureResult<Double> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Double> featureResult = null;
 
-		FeatureResult<Double> resultToNormalise = featureToNormalise.check(context, env);
-		FeatureResult<Double> minValueResult = minValueFeature.check(context, env);
-		FeatureResult<Double> maxValueResult = maxValueFeature.check(context, env);
+    FeatureResult<Double> resultToNormalise = featureToNormalise.check(context, env);
+    FeatureResult<Double> minValueResult = minValueFeature.check(context, env);
+    FeatureResult<Double> maxValueResult = maxValueFeature.check(context, env);
 
-		if (resultToNormalise != null && minValueResult != null && maxValueResult != null) {
-			double minValue = minValueResult.getOutcome();
-			double maxValue = maxValueResult.getOutcome();
-			double normalisedValue = 0.0;
-			double initialValue = resultToNormalise.getOutcome();
-			if (initialValue < minValue)
-				normalisedValue = 0.0;
-			else if (initialValue > maxValue)
-				normalisedValue = 1.0;
-			else {
-				normalisedValue = (initialValue - minValue) / (maxValue - minValue);
-			}
-			featureResult = this.generateResult(normalisedValue);
-		}
-		return featureResult;
-	}
+    if (resultToNormalise != null && minValueResult != null && maxValueResult != null) {
+      double minValue = minValueResult.getOutcome();
+      double maxValue = maxValueResult.getOutcome();
+      double normalisedValue = 0.0;
+      double initialValue = resultToNormalise.getOutcome();
+      if (initialValue < minValue)
+        normalisedValue = 0.0;
+      else if (initialValue > maxValue)
+        normalisedValue = 1.0;
+      else {
+        normalisedValue = (initialValue - minValue) / (maxValue - minValue);
+      }
+      featureResult = this.generateResult(normalisedValue);
+    }
+    return featureResult;
+  }
 
-	public DoubleFeature<T> getFeatureToNormalise() {
-		return featureToNormalise;
-	}
+  public DoubleFeature<T> getFeatureToNormalise() {
+    return featureToNormalise;
+  }
 
-	public void setFeatureToNormalise(DoubleFeature<T> featureToNormalise) {
-		this.featureToNormalise = featureToNormalise;
-	}
+  public void setFeatureToNormalise(DoubleFeature<T> featureToNormalise) {
+    this.featureToNormalise = featureToNormalise;
+  }
 
-	public DoubleFeature<T> getMinValueFeature() {
-		return minValueFeature;
-	}
+  public DoubleFeature<T> getMinValueFeature() {
+    return minValueFeature;
+  }
 
-	public void setMinValueFeature(DoubleFeature<T> minValueFeature) {
-		this.minValueFeature = minValueFeature;
-	}
+  public void setMinValueFeature(DoubleFeature<T> minValueFeature) {
+    this.minValueFeature = minValueFeature;
+  }
 
-	public DoubleFeature<T> getMaxValueFeature() {
-		return maxValueFeature;
-	}
+  public DoubleFeature<T> getMaxValueFeature() {
+    return maxValueFeature;
+  }
 
-	public void setMaxValueFeature(DoubleFeature<T> maxValueFeature) {
-		this.maxValueFeature = maxValueFeature;
-	}
+  public void setMaxValueFeature(DoubleFeature<T> maxValueFeature) {
+    this.maxValueFeature = maxValueFeature;
+  }
 
 }

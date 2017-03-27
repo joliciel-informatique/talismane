@@ -29,38 +29,38 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class ShiftTransition extends AbstractTransition implements Transition {
-	private static final Logger LOG = LoggerFactory.getLogger(ShiftTransition.class);
-	private static String name = "Shift";
-	
-	public ShiftTransition() {
-		super();
-	}
+  private static final Logger LOG = LoggerFactory.getLogger(ShiftTransition.class);
+  private static String name = "Shift";
+  
+  public ShiftTransition() {
+    super();
+  }
 
-	@Override
-	protected void applyInternal(ParseConfiguration configuration) {
-		PosTaggedToken element = configuration.getBuffer().removeFirst();
-		configuration.getStack().push(element);
-	}
-
-
-	@Override
-	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getBuffer().isEmpty()) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": buffer is empty");
-			}
-			return false;
-		}
-		return true;
-	}
-
-	public String getCode() {
-		return name;
-	}
+  @Override
+  protected void applyInternal(ParseConfiguration configuration) {
+    PosTaggedToken element = configuration.getBuffer().removeFirst();
+    configuration.getStack().push(element);
+  }
 
 
-	@Override
-	public boolean doesReduce() {
-		return false;
-	}
+  @Override
+  public boolean checkPreconditions(ParseConfiguration configuration) {
+    if (configuration.getBuffer().isEmpty()) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": buffer is empty");
+      }
+      return false;
+    }
+    return true;
+  }
+
+  public String getCode() {
+    return name;
+  }
+
+
+  @Override
+  public boolean doesReduce() {
+    return false;
+  }
 }

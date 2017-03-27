@@ -32,59 +32,59 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public class RightArcEagerTransition extends AbstractTransition implements Transition {
-	private static final Logger LOG = LoggerFactory.getLogger(RightArcEagerTransition.class);
-	private String label;
-	private String name;
+  private static final Logger LOG = LoggerFactory.getLogger(RightArcEagerTransition.class);
+  private String label;
+  private String name;
 
-	public RightArcEagerTransition(String label) {
-		super();
-		this.label = label;
-	}
+  public RightArcEagerTransition(String label) {
+    super();
+    this.label = label;
+  }
 
-	@Override
-	protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
-		PosTaggedToken head = configuration.getStack().peek();
-		PosTaggedToken dependent = configuration.getBuffer().pollFirst();
-		configuration.getStack().push(dependent);
-		configuration.addDependency(head, dependent, label, this);
-	}
+  @Override
+  protected void applyInternal(ParseConfiguration configuration) throws CircularDependencyException {
+    PosTaggedToken head = configuration.getStack().peek();
+    PosTaggedToken dependent = configuration.getBuffer().pollFirst();
+    configuration.getStack().push(dependent);
+    configuration.addDependency(head, dependent, label, this);
+  }
 
-	@Override
-	public boolean checkPreconditions(ParseConfiguration configuration) {
-		if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
-			}
-			return false;
-		}
+  @Override
+  public boolean checkPreconditions(ParseConfiguration configuration) {
+    if (configuration.getBuffer().isEmpty() || configuration.getStack().isEmpty()) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": buffer or stack is empty");
+      }
+      return false;
+    }
 
-		PosTaggedToken topOfBuffer = configuration.getBuffer().peekFirst();
+    PosTaggedToken topOfBuffer = configuration.getBuffer().peekFirst();
 
-		// the top-of-buffer must not yet have a governor
-		PosTaggedToken governor = configuration.getHead(topOfBuffer);
-		if (governor != null) {
-			if (LOG.isTraceEnabled()) {
-				LOG.trace("Cannot apply " + this.toString() + ": top of buffer " + topOfBuffer + " already has governor " + governor);
-			}
-			return false;
-		}
+    // the top-of-buffer must not yet have a governor
+    PosTaggedToken governor = configuration.getHead(topOfBuffer);
+    if (governor != null) {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Cannot apply " + this.toString() + ": top of buffer " + topOfBuffer + " already has governor " + governor);
+      }
+      return false;
+    }
 
-		return true;
-	}
+    return true;
+  }
 
-	@Override
-	public String getCode() {
-		if (this.name == null) {
-			this.name = "RightArc";
-			if (this.label != null && this.label.length() > 0)
-				this.name += "[" + this.label + "]";
-		}
+  @Override
+  public String getCode() {
+    if (this.name == null) {
+      this.name = "RightArc";
+      if (this.label != null && this.label.length() > 0)
+        this.name += "[" + this.label + "]";
+    }
 
-		return this.name;
-	}
+    return this.name;
+  }
 
-	@Override
-	public boolean doesReduce() {
-		return false;
-	}
+  @Override
+  public boolean doesReduce() {
+    return false;
+  }
 }

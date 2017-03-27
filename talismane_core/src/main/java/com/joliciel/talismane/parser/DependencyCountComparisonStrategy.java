@@ -24,11 +24,11 @@ package com.joliciel.talismane.parser;
  *
  */
 class DependencyCountComparisonStrategy implements
-		ParseComparisonStrategy {
+    ParseComparisonStrategy {
 
-	@Override
-	public int getComparisonIndex(ParseConfiguration configuration) {
-		return configuration.getDependencies().size() + 1;
-	}
+  @Override
+  public int getComparisonIndex(ParseConfiguration configuration) {
+    return configuration.getDependencies().size() + 1;
+  }
 
 }

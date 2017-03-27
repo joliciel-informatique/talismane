@@ -29,5 +29,5 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public interface PosTaggedTokenWrapper {
-	public PosTaggedToken getPosTaggedToken() throws TalismaneException;
+  public PosTaggedToken getPosTaggedToken() throws TalismaneException;
 }

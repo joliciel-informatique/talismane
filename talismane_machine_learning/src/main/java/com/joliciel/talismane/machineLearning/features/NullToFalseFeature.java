@@ -27,34 +27,34 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class NullToFalseFeature<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	BooleanFeature<T> wrappedFeature;
+  BooleanFeature<T> wrappedFeature;
 
-	public NullToFalseFeature(BooleanFeature<T> feature1) {
-		super();
-		this.wrappedFeature = feature1;
-		this.setName(feature1.getName() + "°");
-	}
+  public NullToFalseFeature(BooleanFeature<T> feature1) {
+    super();
+    this.wrappedFeature = feature1;
+    this.setName(feature1.getName() + "°");
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);
+    FeatureResult<Boolean> result1 = wrappedFeature.check(context, env);
 
-		if (result1 != null) {
-			featureResult = this.generateResult(result1.getOutcome());
-		} else {
-			featureResult = this.generateResult(false);
-		}
-		return featureResult;
-	}
+    if (result1 != null) {
+      featureResult = this.generateResult(result1.getOutcome());
+    } else {
+      featureResult = this.generateResult(false);
+    }
+    return featureResult;
+  }
 
-	public BooleanFeature<T> getWrappedFeature() {
-		return wrappedFeature;
-	}
+  public BooleanFeature<T> getWrappedFeature() {
+    return wrappedFeature;
+  }
 
-	public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
-		this.wrappedFeature = wrappedFeature;
-	}
+  public void setWrappedFeature(BooleanFeature<T> wrappedFeature) {
+    this.wrappedFeature = wrappedFeature;
+  }
 
 }

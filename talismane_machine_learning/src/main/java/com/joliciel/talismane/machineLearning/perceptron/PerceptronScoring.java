@@ -25,22 +25,22 @@ package com.joliciel.talismane.machineLearning.perceptron;
  *
  */
 public enum PerceptronScoring {
-	/**
-	 * Use standard additive perceptron scoring, where each state's score is the
-	 * sum of scores of incremental states.
-	 */
-	additive,
-	/**
-	 * Use a geometric mean of state probabilities, where the probability is
-	 * calculated by first transforming all scores to positive (minimum = 1),
-	 * and then dividing by the total.
-	 */
-	normalisedLinear,
-	/**
-	 * Use a geometric mean of state probabilities, where the probability is
-	 * e^{score/absmax(scores)}, where absmax is the maximum absolute value of
-	 * scores. This gives us positive scores from 1/e to e. We then divide by
-	 * the total.
-	 */
-	normalisedExponential
+  /**
+   * Use standard additive perceptron scoring, where each state's score is the
+   * sum of scores of incremental states.
+   */
+  additive,
+  /**
+   * Use a geometric mean of state probabilities, where the probability is
+   * calculated by first transforming all scores to positive (minimum = 1),
+   * and then dividing by the total.
+   */
+  normalisedLinear,
+  /**
+   * Use a geometric mean of state probabilities, where the probability is
+   * e^{score/absmax(scores)}, where absmax is the maximum absolute value of
+   * scores. This gives us positive scores from 1/e to e. We then divide by
+   * the total.
+   */
+  normalisedExponential
 }

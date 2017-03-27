@@ -27,46 +27,46 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class MultiplyIntegerOperator<T> extends AbstractCachableFeature<T, Integer>implements IntegerFeature<T> {
-	private IntegerFeature<T> operand1;
-	private IntegerFeature<T> operand2;
+  private IntegerFeature<T> operand1;
+  private IntegerFeature<T> operand2;
 
-	public MultiplyIntegerOperator(IntegerFeature<T> operand1, IntegerFeature<T> operand2) {
-		super();
-		this.operand1 = operand1;
-		this.operand2 = operand2;
-		this.setName("(" + operand1.getName() + "*" + operand2.getName() + ")");
-	}
+  public MultiplyIntegerOperator(IntegerFeature<T> operand1, IntegerFeature<T> operand2) {
+    super();
+    this.operand1 = operand1;
+    this.operand2 = operand2;
+    this.setName("(" + operand1.getName() + "*" + operand2.getName() + ")");
+  }
 
-	@Override
-	protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Integer> featureResult = null;
+  @Override
+  protected FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Integer> featureResult = null;
 
-		FeatureResult<Integer> operand1Result = operand1.check(context, env);
-		FeatureResult<Integer> operand2Result = operand2.check(context, env);
+    FeatureResult<Integer> operand1Result = operand1.check(context, env);
+    FeatureResult<Integer> operand2Result = operand2.check(context, env);
 
-		if (operand1Result != null && operand2Result != null) {
-			int result = operand1Result.getOutcome() * operand2Result.getOutcome();
-			featureResult = this.generateResult(result);
-		}
+    if (operand1Result != null && operand2Result != null) {
+      int result = operand1Result.getOutcome() * operand2Result.getOutcome();
+      featureResult = this.generateResult(result);
+    }
 
-		return featureResult;
+    return featureResult;
 
-	}
+  }
 
-	public IntegerFeature<T> getOperand1() {
-		return operand1;
-	}
+  public IntegerFeature<T> getOperand1() {
+    return operand1;
+  }
 
-	public IntegerFeature<T> getOperand2() {
-		return operand2;
-	}
+  public IntegerFeature<T> getOperand2() {
+    return operand2;
+  }
 
-	public void setOperand1(IntegerFeature<T> operand1) {
-		this.operand1 = operand1;
-	}
+  public void setOperand1(IntegerFeature<T> operand1) {
+    this.operand1 = operand1;
+  }
 
-	public void setOperand2(IntegerFeature<T> operand2) {
-		this.operand2 = operand2;
-	}
+  public void setOperand2(IntegerFeature<T> operand2) {
+    this.operand2 = operand2;
+  }
 
 }

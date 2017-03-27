@@ -24,11 +24,11 @@ package com.joliciel.talismane.parser;
  *
  */
 class TransitionCountComparisonStrategy implements
-		ParseComparisonStrategy {
+    ParseComparisonStrategy {
 
-	@Override
-	public int getComparisonIndex(ParseConfiguration configuration) {
-		return configuration.getTransitions().size();
-	}
+  @Override
+  public int getComparisonIndex(ParseConfiguration configuration) {
+    return configuration.getTransitions().size();
+  }
 
 }

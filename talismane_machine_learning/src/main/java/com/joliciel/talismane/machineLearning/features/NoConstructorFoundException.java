@@ -25,11 +25,11 @@ package com.joliciel.talismane.machineLearning.features;
  */
 public class NoConstructorFoundException extends FeatureSyntaxException {
 
-	private static final long serialVersionUID = 8010492391503399151L;
+  private static final long serialVersionUID = 8010492391503399151L;
 
-	public NoConstructorFoundException(String message,
-			FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
-		super(message, descriptor, topLevelDescriptor);
-	}
+  public NoConstructorFoundException(String message,
+      FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
+    super(message, descriptor, topLevelDescriptor);
+  }
 
 }

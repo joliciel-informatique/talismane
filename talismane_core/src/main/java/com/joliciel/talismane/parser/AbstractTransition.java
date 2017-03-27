@@ -24,65 +24,65 @@ import org.slf4j.LoggerFactory;
 import com.joliciel.talismane.machineLearning.Decision;
 
 public abstract class AbstractTransition implements Transition {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractTransition.class);
-	private Decision decision;
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractTransition.class);
+  private Decision decision;
 
-	@Override
-	public void apply(ParseConfiguration configuration) throws InvalidTransitionException, CircularDependencyException {
-		if (this.checkPreconditions(configuration)) {
-			if (LOG.isTraceEnabled())
-				LOG.trace("Applying " + this.getCode());
-			this.applyInternal(configuration);
-			configuration.getTransitions().add(this);
-		} else
-			throw new InvalidTransitionException(this, configuration);
-	}
+  @Override
+  public void apply(ParseConfiguration configuration) throws InvalidTransitionException, CircularDependencyException {
+    if (this.checkPreconditions(configuration)) {
+      if (LOG.isTraceEnabled())
+        LOG.trace("Applying " + this.getCode());
+      this.applyInternal(configuration);
+      configuration.getTransitions().add(this);
+    } else
+      throw new InvalidTransitionException(this, configuration);
+  }
 
-	protected abstract void applyInternal(ParseConfiguration configuration) throws CircularDependencyException;
+  protected abstract void applyInternal(ParseConfiguration configuration) throws CircularDependencyException;
 
-	@Override
-	public Decision getDecision() {
-		return decision;
-	}
+  @Override
+  public Decision getDecision() {
+    return decision;
+  }
 
-	@Override
-	public void setDecision(Decision decision) {
-		this.decision = decision;
-	}
+  @Override
+  public void setDecision(Decision decision) {
+    this.decision = decision;
+  }
 
-	@Override
-	public String toString() {
-		return this.getCode();
-	}
+  @Override
+  public String toString() {
+    return this.getCode();
+  }
 
-	@Override
-	public int compareTo(Transition o) {
-		return this.getCode().compareTo(o.getCode());
-	}
+  @Override
+  public int compareTo(Transition o) {
+    return this.getCode().compareTo(o.getCode());
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((this.getCode() == null) ? 0 : this.getCode().hashCode());
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((this.getCode() == null) ? 0 : this.getCode().hashCode());
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AbstractTransition other = (AbstractTransition) obj;
-		if (this.getCode() == null) {
-			if (other.getCode() != null)
-				return false;
-		} else if (!this.getCode().equals(other.getCode()))
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    AbstractTransition other = (AbstractTransition) obj;
+    if (this.getCode() == null) {
+      if (other.getCode() != null)
+        return false;
+    } else if (!this.getCode().equals(other.getCode()))
+      return false;
+    return true;
+  }
 
 }

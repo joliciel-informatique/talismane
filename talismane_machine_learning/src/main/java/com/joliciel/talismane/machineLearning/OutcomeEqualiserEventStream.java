@@ -39,85 +39,85 @@ import com.joliciel.talismane.TalismaneException;
  */
 public class OutcomeEqualiserEventStream implements ClassificationEventStream {
 
-	ClassificationEventStream originalEventStream = null;
-	List<ClassificationEvent> eventList = null;
-	int eventIndex = 0;
-	double multiple = 1;
+  ClassificationEventStream originalEventStream = null;
+  List<ClassificationEvent> eventList = null;
+  int eventIndex = 0;
+  double multiple = 1;
 
-	public OutcomeEqualiserEventStream(ClassificationEventStream originalEventStream, double multiple) {
-		super();
-		this.originalEventStream = originalEventStream;
-		this.multiple = multiple;
-	}
+  public OutcomeEqualiserEventStream(ClassificationEventStream originalEventStream, double multiple) {
+    super();
+    this.originalEventStream = originalEventStream;
+    this.multiple = multiple;
+  }
 
-	@Override
-	public ClassificationEvent next() {
-		ClassificationEvent event = eventList.get(eventIndex);
-		eventIndex++;
-		return event;
-	}
+  @Override
+  public ClassificationEvent next() {
+    ClassificationEvent event = eventList.get(eventIndex);
+    eventIndex++;
+    return event;
+  }
 
-	@Override
-	public boolean hasNext() throws TalismaneException, IOException {
-		this.initialiseStream();
-		return (eventIndex < eventList.size());
-	}
+  @Override
+  public boolean hasNext() throws TalismaneException, IOException {
+    this.initialiseStream();
+    return (eventIndex < eventList.size());
+  }
 
-	void initialiseStream() throws TalismaneException, IOException {
-		if (eventList == null) {
-			Map<String, List<ClassificationEvent>> eventOutcomeMap = new HashMap<String, List<ClassificationEvent>>();
-			while (originalEventStream.hasNext()) {
-				ClassificationEvent event = originalEventStream.next();
-				List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(event.getClassification());
-				if (eventsPerOutcome == null) {
-					eventsPerOutcome = new ArrayList<ClassificationEvent>();
-					eventOutcomeMap.put(event.getClassification(), eventsPerOutcome);
-				}
-				eventsPerOutcome.add(event);
-			}
+  void initialiseStream() throws TalismaneException, IOException {
+    if (eventList == null) {
+      Map<String, List<ClassificationEvent>> eventOutcomeMap = new HashMap<String, List<ClassificationEvent>>();
+      while (originalEventStream.hasNext()) {
+        ClassificationEvent event = originalEventStream.next();
+        List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(event.getClassification());
+        if (eventsPerOutcome == null) {
+          eventsPerOutcome = new ArrayList<ClassificationEvent>();
+          eventOutcomeMap.put(event.getClassification(), eventsPerOutcome);
+        }
+        eventsPerOutcome.add(event);
+      }
 
-			int minSize = Integer.MAX_VALUE;
-			String minOutcome = "";
-			for (String outcome : eventOutcomeMap.keySet()) {
-				int size = eventOutcomeMap.get(outcome).size();
-				if (size < minSize) {
-					minSize = size;
-					minOutcome = outcome;
-				}
-			}
+      int minSize = Integer.MAX_VALUE;
+      String minOutcome = "";
+      for (String outcome : eventOutcomeMap.keySet()) {
+        int size = eventOutcomeMap.get(outcome).size();
+        if (size < minSize) {
+          minSize = size;
+          minOutcome = outcome;
+        }
+      }
 
-			Random random = new Random(new Date().getTime());
+      Random random = new Random(new Date().getTime());
 
-			eventList = new ArrayList<ClassificationEvent>();
-			eventList.addAll(eventOutcomeMap.get(minOutcome));
+      eventList = new ArrayList<ClassificationEvent>();
+      eventList.addAll(eventOutcomeMap.get(minOutcome));
 
-			int maxSize = (int) (minSize * multiple);
-			for (String outcome : eventOutcomeMap.keySet()) {
-				if (outcome.equals(minOutcome))
-					continue;
-				List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(outcome);
-				if (eventsPerOutcome.size() <= maxSize)
-					eventList.addAll(eventsPerOutcome);
-				else {
-					Set<Integer> usedUp = new TreeSet<Integer>();
-					for (int i = 0; i < maxSize; i++) {
-						if (i >= eventsPerOutcome.size())
-							break;
-						int index = random.nextInt(eventsPerOutcome.size());
-						while (usedUp.contains(index))
-							index = random.nextInt(eventsPerOutcome.size());
-						usedUp.add(index);
+      int maxSize = (int) (minSize * multiple);
+      for (String outcome : eventOutcomeMap.keySet()) {
+        if (outcome.equals(minOutcome))
+          continue;
+        List<ClassificationEvent> eventsPerOutcome = eventOutcomeMap.get(outcome);
+        if (eventsPerOutcome.size() <= maxSize)
+          eventList.addAll(eventsPerOutcome);
+        else {
+          Set<Integer> usedUp = new TreeSet<Integer>();
+          for (int i = 0; i < maxSize; i++) {
+            if (i >= eventsPerOutcome.size())
+              break;
+            int index = random.nextInt(eventsPerOutcome.size());
+            while (usedUp.contains(index))
+              index = random.nextInt(eventsPerOutcome.size());
+            usedUp.add(index);
 
-						ClassificationEvent event = eventsPerOutcome.get(index);
-						eventList.add(event);
-					} // next randomly selected event
-				}
-			}
-		}
-	}
+            ClassificationEvent event = eventsPerOutcome.get(index);
+            eventList.add(event);
+          } // next randomly selected event
+        }
+      }
+    }
+  }
 
-	@Override
-	public Map<String, String> getAttributes() {
-		return originalEventStream.getAttributes();
-	}
+  @Override
+  public Map<String, String> getAttributes() {
+    return originalEventStream.getAttributes();
+  }
 }

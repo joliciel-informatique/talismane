@@ -28,57 +28,57 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.tokeniser.Token;
 
 public final class PosTaggerContextImpl implements HasFeatureCache, PosTaggerContext {
-	private final Token token;
-	private final PosTagSequence history;
-	private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
+  private final Token token;
+  private final PosTagSequence history;
+  private Map<String, FeatureResult<?>> featureResults = new HashMap<String, FeatureResult<?>>();
 
-	public PosTaggerContextImpl(Token token, PosTagSequence history) {
-		this.token = token;
-		this.history = history;
-	}
+  public PosTaggerContextImpl(Token token, PosTagSequence history) {
+    this.token = token;
+    this.history = history;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.joliciel.talismane.posTagger.PosTaggerContext#getToken()
-	 */
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.joliciel.talismane.posTagger.PosTaggerContext#getToken()
+   */
 
-	@Override
-	public Token getToken() {
-		return token;
-	}
+  @Override
+  public Token getToken() {
+    return token;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.joliciel.talismane.posTagger.PosTaggerContext#getHistory()
-	 */
-	@Override
-	public PosTagSequence getHistory() {
-		return this.history;
-	}
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.joliciel.talismane.posTagger.PosTaggerContext#getHistory()
+   */
+  @Override
+  public PosTagSequence getHistory() {
+    return this.history;
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
-		FeatureResult<Y> result = null;
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T, Y> FeatureResult<Y> getResultFromCache(Feature<T, Y> feature, RuntimeEnvironment env) {
+    FeatureResult<Y> result = null;
 
-		String key = feature.getName() + env.getKey();
-		if (this.featureResults.containsKey(key)) {
-			result = (FeatureResult<Y>) this.featureResults.get(key);
-		}
-		return result;
-	}
+    String key = feature.getName() + env.getKey();
+    if (this.featureResults.containsKey(key)) {
+      result = (FeatureResult<Y>) this.featureResults.get(key);
+    }
+    return result;
+  }
 
-	@Override
-	public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
-		String key = feature.getName() + env.getKey();
-		this.featureResults.put(key, featureResult);
-	}
+  @Override
+  public <T, Y> void putResultInCache(Feature<T, Y> feature, FeatureResult<Y> featureResult, RuntimeEnvironment env) {
+    String key = feature.getName() + env.getKey();
+    this.featureResults.put(key, featureResult);
+  }
 
-	@Override
-	public String toString() {
-		return "PosTaggerContext [token=" + token + ", history=" + history + "]";
-	}
+  @Override
+  public String toString() {
+    return "PosTaggerContext [token=" + token + ", history=" + history + "]";
+  }
 
 }

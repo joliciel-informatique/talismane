@@ -27,35 +27,35 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class IntegerLiteralFeatureWrapper<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
-	private IntegerFeature<T> integerLiteralFeature;
+  private IntegerFeature<T> integerLiteralFeature;
 
-	public IntegerLiteralFeatureWrapper(IntegerFeature<T> integerLiteralFeature) {
-		super();
-		this.integerLiteralFeature = integerLiteralFeature;
-		this.setName(integerLiteralFeature.getName());
-	}
+  public IntegerLiteralFeatureWrapper(IntegerFeature<T> integerLiteralFeature) {
+    super();
+    this.integerLiteralFeature = integerLiteralFeature;
+    this.setName(integerLiteralFeature.getName());
+  }
 
-	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Integer> featureResult = null;
+  @Override
+  public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Integer> featureResult = null;
 
-		FeatureResult<Integer> literalResult = integerLiteralFeature.check(context, env);
+    FeatureResult<Integer> literalResult = integerLiteralFeature.check(context, env);
 
-		if (literalResult != null) {
-			int result = literalResult.getOutcome();
-			featureResult = this.generateResult(result);
-		}
+    if (literalResult != null) {
+      int result = literalResult.getOutcome();
+      featureResult = this.generateResult(result);
+    }
 
-		return featureResult;
+    return featureResult;
 
-	}
+  }
 
-	public IntegerFeature<T> getIntegerLiteralFeature() {
-		return integerLiteralFeature;
-	}
+  public IntegerFeature<T> getIntegerLiteralFeature() {
+    return integerLiteralFeature;
+  }
 
-	public void setIntegerLiteralFeature(IntegerFeature<T> integerLiteralFeature) {
-		this.integerLiteralFeature = integerLiteralFeature;
-	}
+  public void setIntegerLiteralFeature(IntegerFeature<T> integerLiteralFeature) {
+    this.integerLiteralFeature = integerLiteralFeature;
+  }
 
 }

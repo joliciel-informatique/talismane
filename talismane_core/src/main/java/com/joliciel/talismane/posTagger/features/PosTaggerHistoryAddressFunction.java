@@ -33,38 +33,38 @@ import com.joliciel.talismane.posTagger.PosTaggerContext;
  * @author Assaf Urieli
  */
 public class PosTaggerHistoryAddressFunction extends AbstractPosTaggerFeature<PosTaggedTokenWrapper>implements PosTaggedTokenAddressFunction<PosTaggerContext> {
-	private IntegerFeature<PosTaggerContext> offsetFeature = null;
+  private IntegerFeature<PosTaggerContext> offsetFeature = null;
 
-	public PosTaggerHistoryAddressFunction(IntegerFeature<PosTaggerContext> offset) {
-		this.offsetFeature = offset;
-		this.setName("History(" + offsetFeature.getName() + ")");
-	}
+  public PosTaggerHistoryAddressFunction(IntegerFeature<PosTaggerContext> offset) {
+    this.offsetFeature = offset;
+    this.setName("History(" + offsetFeature.getName() + ")");
+  }
 
-	@Override
-	protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<PosTaggedTokenWrapper> result = null;
+  @Override
+  protected FeatureResult<PosTaggedTokenWrapper> checkInternal(PosTaggerContext context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<PosTaggedTokenWrapper> result = null;
 
-		FeatureResult<Integer> offsetResult = offsetFeature.check(context, env);
-		if (offsetResult != null) {
-			int n = offsetResult.getOutcome();
-			if (n >= 0) {
-				throw new TalismaneException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
-			}
-			n = 0 - n;
-			int i = context.getToken().getIndex();
-			if (i >= n) {
-				PosTaggedToken prevToken = context.getHistory().get(i - n);
-				if (prevToken != null)
-					result = this.generateResult(prevToken);
-			}
-		} // have n
-		return result;
-	}
+    FeatureResult<Integer> offsetResult = offsetFeature.check(context, env);
+    if (offsetResult != null) {
+      int n = offsetResult.getOutcome();
+      if (n >= 0) {
+        throw new TalismaneException("Cannot call PosTaggerHistoryFeature with an offset >= 0");
+      }
+      n = 0 - n;
+      int i = context.getToken().getIndex();
+      if (i >= n) {
+        PosTaggedToken prevToken = context.getHistory().get(i - n);
+        if (prevToken != null)
+          result = this.generateResult(prevToken);
+      }
+    } // have n
+    return result;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends Feature> getFeatureType() {
-		return PosTaggedTokenAddressFunction.class;
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  public Class<? extends Feature> getFeatureType() {
+    return PosTaggedTokenAddressFunction.class;
+  }
 
 }

@@ -31,33 +31,33 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  *
  */
 public final class HistoryHasFeature<T> extends AbstractPosTaggedTokenFeature<T, Boolean>implements BooleanFeature<T> {
-	private BooleanFeature<PosTaggedTokenWrapper> criterion;
+  private BooleanFeature<PosTaggedTokenWrapper> criterion;
 
-	public HistoryHasFeature(PosTaggedTokenAddressFunction<T> addressFunction, BooleanFeature<PosTaggedTokenWrapper> criterion) {
-		super(addressFunction);
-		this.criterion = criterion;
-		this.setName(super.getName() + "(" + this.criterion.getName() + ")");
+  public HistoryHasFeature(PosTaggedTokenAddressFunction<T> addressFunction, BooleanFeature<PosTaggedTokenWrapper> criterion) {
+    super(addressFunction);
+    this.criterion = criterion;
+    this.setName(super.getName() + "(" + this.criterion.getName() + ")");
 
-		this.setAddressFunction(addressFunction);
-	}
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper == null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken == null)
-			return null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
 
-		FeatureResult<Boolean> featureResult = null;
+    FeatureResult<Boolean> featureResult = null;
 
-		FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
-		if (criterionResult != null) {
-			featureResult = this.generateResult(criterionResult.getOutcome());
-		}
+    FeatureResult<Boolean> criterionResult = criterion.check(innerWrapper, env);
+    if (criterionResult != null) {
+      featureResult = this.generateResult(criterionResult.getOutcome());
+    }
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 
 }

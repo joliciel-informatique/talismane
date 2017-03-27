@@ -27,36 +27,36 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 class TruncateFeature<T> extends AbstractFeature<T, Integer>implements IntegerFeature<T> {
-	private DoubleFeature<T> featureToTruncate;
+  private DoubleFeature<T> featureToTruncate;
 
-	public TruncateFeature(DoubleFeature<T> doubleFeature) {
-		super();
-		this.featureToTruncate = doubleFeature;
-		this.setName(this.featureToTruncate.getName());
-	}
+  public TruncateFeature(DoubleFeature<T> doubleFeature) {
+    super();
+    this.featureToTruncate = doubleFeature;
+    this.setName(this.featureToTruncate.getName());
+  }
 
-	@Override
-	public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Integer> featureResult = null;
+  @Override
+  public FeatureResult<Integer> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Integer> featureResult = null;
 
-		FeatureResult<Double> doubleResult = featureToTruncate.check(context, env);
-		if (doubleResult != null) {
-			int intResult = doubleResult.getOutcome().intValue();
-			featureResult = this.generateResult(intResult);
-		}
-		return featureResult;
-	}
+    FeatureResult<Double> doubleResult = featureToTruncate.check(context, env);
+    if (doubleResult != null) {
+      int intResult = doubleResult.getOutcome().intValue();
+      featureResult = this.generateResult(intResult);
+    }
+    return featureResult;
+  }
 
-	public DoubleFeature<T> getDoubleFeature() {
-		return featureToTruncate;
-	}
+  public DoubleFeature<T> getDoubleFeature() {
+    return featureToTruncate;
+  }
 
-	public DoubleFeature<T> getFeatureToTruncate() {
-		return featureToTruncate;
-	}
+  public DoubleFeature<T> getFeatureToTruncate() {
+    return featureToTruncate;
+  }
 
-	public void setFeatureToTruncate(DoubleFeature<T> featureToTruncate) {
-		this.featureToTruncate = featureToTruncate;
-	}
+  public void setFeatureToTruncate(DoubleFeature<T> featureToTruncate) {
+    this.featureToTruncate = featureToTruncate;
+  }
 
 }

@@ -32,28 +32,28 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class FirstWordInCompoundFeature extends AbstractTokenFeature<String>implements StringFeature<TokenWrapper> {
-	public FirstWordInCompoundFeature() {
-	}
+  public FirstWordInCompoundFeature() {
+  }
 
-	public FirstWordInCompoundFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
-		this.setAddressFunction(addressFunction);
-	}
+  public FirstWordInCompoundFeature(TokenAddressFunction<TokenWrapper> addressFunction) {
+    this.setAddressFunction(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
-		TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
-		if (innerWrapper == null)
-			return null;
-		Token token = innerWrapper.getToken();
+  @Override
+  public FeatureResult<String> checkInternal(TokenWrapper tokenWrapper, RuntimeEnvironment env) throws TalismaneException {
+    TokenWrapper innerWrapper = this.getToken(tokenWrapper, env);
+    if (innerWrapper == null)
+      return null;
+    Token token = innerWrapper.getToken();
 
-		FeatureResult<String> result = null;
-		String string = token.getAnalyisText().trim();
+    FeatureResult<String> result = null;
+    String string = token.getAnalyisText().trim();
 
-		if (string.indexOf(' ') >= 0) {
-			String firstWord = string.substring(0, string.indexOf(' '));
-			result = this.generateResult(firstWord);
-		}
+    if (string.indexOf(' ') >= 0) {
+      String firstWord = string.substring(0, string.indexOf(' '));
+      result = this.generateResult(firstWord);
+    }
 
-		return result;
-	}
+    return result;
+  }
 }

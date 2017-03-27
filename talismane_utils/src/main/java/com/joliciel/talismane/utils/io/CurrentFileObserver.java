@@ -26,5 +26,5 @@ import java.io.File;
  *
  */
 public interface CurrentFileObserver {
-	public void onNextFile(File file);
+  public void onNextFile(File file);
 }

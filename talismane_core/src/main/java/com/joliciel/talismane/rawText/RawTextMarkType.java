@@ -34,89 +34,89 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public enum RawTextMarkType {
-	/**
-	 * Skip any text matching this filter (stack-based).
-	 */
-	SKIP,
-	/**
-	 * Include any text matching this filter (stack-based).
-	 */
-	INCLUDE,
-	/**
-	 * Skip any text matching this filter, and output its raw content in any
-	 * output file produced by Talismane (stack-based).</br>
-	 * Actual raw output segments preceding each token can be retrieved by
-	 * {@link Token#getPrecedingRawOutput()}.
-	 */
-	OUTPUT,
-	/**
-	 * Insert a sentence break.
-	 */
-	SENTENCE_BREAK,
-	/**
-	 * Do not allow a sentence break in this area.
-	 */
-	NO_SENTENCE_BREAK,
-	/**
-	 * Replace the text with a space. Only applies if the current text is marked
-	 * for processing.
-	 */
-	SPACE,
-	/**
-	 * Replace the text with another text. Should only be used for encoding
-	 * replacements which don't change meaning - e.g. replace "&amp;eacute;" by
-	 * "é". Only applies if the current text is marked for processing.
-	 */
-	REPLACE,
-	/**
-	 * Mark the beginning of a section to be skipped (without an explicit end).
-	 * <br/>
-	 * Note that the processing will stop at the beginning of the match.<br/>
-	 * If this marker is placed inside an area marked by SKIP, INCLUDE or
-	 * OUTPUT, it will only take effect within this area. It can be reversed by
-	 * a START marker.
-	 */
-	STOP,
-	/**
-	 * Mark the beginning of a section to be processed (without an explicit
-	 * end).<br/>
-	 * Note that the processing will begin AFTER the end of the match.<br/>
-	 * If this marker is placed inside an area marked by SKIP, INCLUDE or
-	 * OUTPUT, it will only take effect within this area. It can be reversed by
-	 * a START marker.
-	 */
-	START,
-	/**
-	 * Mark the beginning of a section to be outputted (without an explicit
-	 * end).<br/>
-	 * Will only actually output if processing is stopped.<br/>
-	 * Stopping needs to be marked separately (via a STOP marker).<br/>
-	 * Note that the output will begin at the beginning of the match.<br/>
-	 * If this marker is placed inside an area marked by OUTPUT, it will only
-	 * take effect within this area. It can be reversed by a OUTPUT_STOP
-	 * marker.</br>
-	 * Actual raw output segments preceding each token can be retrieved by
-	 * {@link Token#getPrecedingRawOutput()}.
-	 */
-	OUTPUT_START,
-	/**
-	 * Mark the end of a section to be outputted (without an explicit
-	 * beginning).<br/>
-	 * Starting the processing needs to be marked separately.<br/>
-	 * Note that the output will stop at the end of the match.<br/>
-	 * If this marker is placed inside an area marked by OUTPUT, it will only
-	 * take effect within this area. It can be reversed by a OUTPUT_START
-	 * marker.
-	 */
-	OUTPUT_STOP,
-	/**
-	 * Used to tag all tokens inside the matching space with an arbitrary
-	 * attribute, which can then be retrieved using
-	 * {@link Token#getAttributes()}.
-	 */
-	TAG,
-	/**
-	 * Does absolutely nothing - only used in code, useless in a filter.
-	 */
-	NONE,
+  /**
+   * Skip any text matching this filter (stack-based).
+   */
+  SKIP,
+  /**
+   * Include any text matching this filter (stack-based).
+   */
+  INCLUDE,
+  /**
+   * Skip any text matching this filter, and output its raw content in any
+   * output file produced by Talismane (stack-based).</br>
+   * Actual raw output segments preceding each token can be retrieved by
+   * {@link Token#getPrecedingRawOutput()}.
+   */
+  OUTPUT,
+  /**
+   * Insert a sentence break.
+   */
+  SENTENCE_BREAK,
+  /**
+   * Do not allow a sentence break in this area.
+   */
+  NO_SENTENCE_BREAK,
+  /**
+   * Replace the text with a space. Only applies if the current text is marked
+   * for processing.
+   */
+  SPACE,
+  /**
+   * Replace the text with another text. Should only be used for encoding
+   * replacements which don't change meaning - e.g. replace "&amp;eacute;" by
+   * "é". Only applies if the current text is marked for processing.
+   */
+  REPLACE,
+  /**
+   * Mark the beginning of a section to be skipped (without an explicit end).
+   * <br/>
+   * Note that the processing will stop at the beginning of the match.<br/>
+   * If this marker is placed inside an area marked by SKIP, INCLUDE or
+   * OUTPUT, it will only take effect within this area. It can be reversed by
+   * a START marker.
+   */
+  STOP,
+  /**
+   * Mark the beginning of a section to be processed (without an explicit
+   * end).<br/>
+   * Note that the processing will begin AFTER the end of the match.<br/>
+   * If this marker is placed inside an area marked by SKIP, INCLUDE or
+   * OUTPUT, it will only take effect within this area. It can be reversed by
+   * a START marker.
+   */
+  START,
+  /**
+   * Mark the beginning of a section to be outputted (without an explicit
+   * end).<br/>
+   * Will only actually output if processing is stopped.<br/>
+   * Stopping needs to be marked separately (via a STOP marker).<br/>
+   * Note that the output will begin at the beginning of the match.<br/>
+   * If this marker is placed inside an area marked by OUTPUT, it will only
+   * take effect within this area. It can be reversed by a OUTPUT_STOP
+   * marker.</br>
+   * Actual raw output segments preceding each token can be retrieved by
+   * {@link Token#getPrecedingRawOutput()}.
+   */
+  OUTPUT_START,
+  /**
+   * Mark the end of a section to be outputted (without an explicit
+   * beginning).<br/>
+   * Starting the processing needs to be marked separately.<br/>
+   * Note that the output will stop at the end of the match.<br/>
+   * If this marker is placed inside an area marked by OUTPUT, it will only
+   * take effect within this area. It can be reversed by a OUTPUT_START
+   * marker.
+   */
+  OUTPUT_STOP,
+  /**
+   * Used to tag all tokens inside the matching space with an arbitrary
+   * attribute, which can then be retrieved using
+   * {@link Token#getAttributes()}.
+   */
+  TAG,
+  /**
+   * Does absolutely nothing - only used in code, useless in a filter.
+   */
+  NONE,
 }

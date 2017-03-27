@@ -32,46 +32,46 @@ import com.typesafe.config.Config;
  *
  */
 public interface ClassificationModelTrainer {
-	/**
-	 * Return the ClassificationModel trained using the CorpusEventStream
-	 * provided.
-	 * 
-	 * @param corpusEventStream
-	 *            the event stream containing the events to be used for training
-	 * @param featureDescriptors
-	 *            the feature descriptors required to apply this model to new
-	 *            data.
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) throws TalismaneException, IOException;
+  /**
+   * Return the ClassificationModel trained using the CorpusEventStream
+   * provided.
+   * 
+   * @param corpusEventStream
+   *            the event stream containing the events to be used for training
+   * @param featureDescriptors
+   *            the feature descriptors required to apply this model to new
+   *            data.
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, List<String> featureDescriptors) throws TalismaneException, IOException;
 
-	/**
-	 * Return the ClassificationModel trained using the CorpusEventStream
-	 * provided.
-	 * 
-	 * @param corpusEventStream
-	 *            the event stream containing the events to be used for training
-	 * @param descriptors
-	 *            all of the descriptors required to perform analysis using this
-	 *            model (e.g. feature descriptors, etc.)
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors)
-			throws TalismaneException, IOException;
+  /**
+   * Return the ClassificationModel trained using the CorpusEventStream
+   * provided.
+   * 
+   * @param corpusEventStream
+   *            the event stream containing the events to be used for training
+   * @param descriptors
+   *            all of the descriptors required to perform analysis using this
+   *            model (e.g. feature descriptors, etc.)
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public ClassificationModel trainModel(ClassificationEventStream corpusEventStream, Map<String, List<String>> descriptors)
+      throws TalismaneException, IOException;
 
-	/**
-	 * Statistical cutoff for feature inclusion: features must appear at least
-	 * this many times to be included in the model. Note that for numeric
-	 * features, any value &gt; 0 counts as 1 occurrence for cutoff purposes.
-	 */
-	public int getCutoff();
+  /**
+   * Statistical cutoff for feature inclusion: features must appear at least
+   * this many times to be included in the model. Note that for numeric
+   * features, any value &gt; 0 counts as 1 occurrence for cutoff purposes.
+   */
+  public int getCutoff();
 
-	public void setCutoff(int cutoff);
+  public void setCutoff(int cutoff);
 
-	/**
-	 * Set parameters for this trainer type.
-	 */
-	public void setParameters(Config config);
+  /**
+   * Set parameters for this trainer type.
+   */
+  public void setParameters(Config config);
 }

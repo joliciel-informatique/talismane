@@ -32,29 +32,29 @@ import com.joliciel.talismane.tokeniser.Token;
  *
  */
 public final class PosTaggedTokenIndexFeature<T> extends AbstractPosTaggedTokenFeature<T, Integer>implements IntegerFeature<T> {
-	public PosTaggedTokenIndexFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-		this.setAddressFunction(addressFunction);
-	}
+  public PosTaggedTokenIndexFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+    this.setAddressFunction(addressFunction);
+  }
 
-	public PosTaggedTokenIndexFeature() {
-		super(new ItsMeAddressFunction<T>());
-	}
+  public PosTaggedTokenIndexFeature() {
+    super(new ItsMeAddressFunction<T>());
+  }
 
-	@Override
-	public FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper == null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken == null)
-			return null;
+  @Override
+  public FeatureResult<Integer> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
 
-		FeatureResult<Integer> featureResult = null;
-		Token token = posTaggedToken.getToken();
-		int index = token.getIndex();
-		featureResult = this.generateResult(index);
+    FeatureResult<Integer> featureResult = null;
+    Token token = posTaggedToken.getToken();
+    int index = token.getIndex();
+    featureResult = this.generateResult(index);
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 }

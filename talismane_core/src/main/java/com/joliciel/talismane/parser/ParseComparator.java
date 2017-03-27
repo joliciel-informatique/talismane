@@ -40,73 +40,73 @@ import com.typesafe.config.Config;
  *
  */
 public class ParseComparator {
-	private static final Logger LOG = LoggerFactory.getLogger(ParseComparator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ParseComparator.class);
 
-	private final ParserAnnotatedCorpusReader referenceCorpusReader;
-	private final ParserAnnotatedCorpusReader evaluationCorpusReader;
+  private final ParserAnnotatedCorpusReader referenceCorpusReader;
+  private final ParserAnnotatedCorpusReader evaluationCorpusReader;
 
-	private final List<ParseEvaluationObserver> observers;
+  private final List<ParseEvaluationObserver> observers;
 
-	public ParseComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
-			throws ClassNotFoundException, IOException, ReflectiveOperationException {
-		Config config = session.getConfig();
-		Config parserConfig = config.getConfig("talismane.core.parser");
+  public ParseComparator(Reader referenceReader, Reader evalReader, File outDir, TalismaneSession session)
+      throws ClassNotFoundException, IOException, ReflectiveOperationException {
+    Config config = session.getConfig();
+    Config parserConfig = config.getConfig("talismane.core.parser");
 
-		this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(referenceReader, parserConfig.getConfig("input"), session);
+    this.referenceCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(referenceReader, parserConfig.getConfig("input"), session);
 
-		this.evaluationCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("evaluate"), session);
+    this.evaluationCorpusReader = ParserAnnotatedCorpusReader.getCorpusReader(evalReader, parserConfig.getConfig("evaluate"), session);
 
-		this.observers = ParseEvaluationObserver.getObservers(outDir, session);
-	}
+    this.observers = ParseEvaluationObserver.getObservers(outDir, session);
+  }
 
-	public ParseComparator(ParserAnnotatedCorpusReader referenceCorpusReader, ParserAnnotatedCorpusReader evaluationCorpusReader) {
-		this.referenceCorpusReader = referenceCorpusReader;
-		this.evaluationCorpusReader = evaluationCorpusReader;
-		this.observers = new ArrayList<>();
-	}
+  public ParseComparator(ParserAnnotatedCorpusReader referenceCorpusReader, ParserAnnotatedCorpusReader evaluationCorpusReader) {
+    this.referenceCorpusReader = referenceCorpusReader;
+    this.evaluationCorpusReader = evaluationCorpusReader;
+    this.observers = new ArrayList<>();
+  }
 
-	/**
-	 * 
-	 * @throws TalismaneException
-	 *             if sentences mismatched in the two corpora
-	 * @throws IOException
-	 */
-	public void evaluate() throws TalismaneException, IOException {
-		while (referenceCorpusReader.hasNextSentence()) {
-			ParseConfiguration realConfiguration = referenceCorpusReader.nextConfiguration();
-			ParseConfiguration guessConfiguaration = evaluationCorpusReader.nextConfiguration();
-			List<ParseConfiguration> guessConfigurations = new ArrayList<ParseConfiguration>();
-			guessConfigurations.add(guessConfiguaration);
+  /**
+   * 
+   * @throws TalismaneException
+   *             if sentences mismatched in the two corpora
+   * @throws IOException
+   */
+  public void evaluate() throws TalismaneException, IOException {
+    while (referenceCorpusReader.hasNextSentence()) {
+      ParseConfiguration realConfiguration = referenceCorpusReader.nextConfiguration();
+      ParseConfiguration guessConfiguaration = evaluationCorpusReader.nextConfiguration();
+      List<ParseConfiguration> guessConfigurations = new ArrayList<ParseConfiguration>();
+      guessConfigurations.add(guessConfiguaration);
 
-			double realLength = realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
-			double guessedLength = guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
+      double realLength = realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
+      double guessedLength = guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().length();
 
-			double ratio = realLength > guessedLength ? guessedLength / realLength : realLength / guessedLength;
-			if (ratio < 0.9) {
-				LOG.info("Mismatched sentences");
-				LOG.info(realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
-				LOG.info(guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
+      double ratio = realLength > guessedLength ? guessedLength / realLength : realLength / guessedLength;
+      if (ratio < 0.9) {
+        LOG.info("Mismatched sentences");
+        LOG.info(realConfiguration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
+        LOG.info(guessConfiguaration.getPosTagSequence().getTokenSequence().getSentence().getText().toString());
 
-				throw new TalismaneException("Mismatched sentences");
-			}
+        throw new TalismaneException("Mismatched sentences");
+      }
 
-			for (ParseEvaluationObserver observer : this.observers) {
-				observer.onParseEnd(realConfiguration, guessConfigurations);
-			}
-		} // next sentence
+      for (ParseEvaluationObserver observer : this.observers) {
+        observer.onParseEnd(realConfiguration, guessConfigurations);
+      }
+    } // next sentence
 
-		for (ParseEvaluationObserver observer : this.observers) {
-			observer.onEvaluationComplete();
-		}
+    for (ParseEvaluationObserver observer : this.observers) {
+      observer.onEvaluationComplete();
+    }
 
-	}
+  }
 
-	public List<ParseEvaluationObserver> getObservers() {
-		return observers;
-	}
+  public List<ParseEvaluationObserver> getObservers() {
+    return observers;
+  }
 
-	public void addObserver(ParseEvaluationObserver observer) {
-		this.observers.add(observer);
-	}
+  public void addObserver(ParseEvaluationObserver observer) {
+    this.observers.add(observer);
+  }
 
 }

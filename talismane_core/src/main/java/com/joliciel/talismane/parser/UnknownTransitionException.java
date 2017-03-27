@@ -27,27 +27,27 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class UnknownTransitionException extends TalismaneException {
-	private static final long serialVersionUID = 1L;
-	private String transition = "";
-	private int index;
+  private static final long serialVersionUID = 1L;
+  private String transition = "";
+  private int index;
 
-	public UnknownTransitionException(int index, String transition) {
-		super("Unknown transition: " + transition + " on index " + index);
-		this.transition = transition;
-		this.index = index;
-	}
+  public UnknownTransitionException(int index, String transition) {
+    super("Unknown transition: " + transition + " on index " + index);
+    this.transition = transition;
+    this.index = index;
+  }
 
-	public UnknownTransitionException(String transition) {
-		super("Unknown transition: " + transition);
-		this.transition = transition;
-	}
+  public UnknownTransitionException(String transition) {
+    super("Unknown transition: " + transition);
+    this.transition = transition;
+  }
 
-	public String getTransition() {
-		return transition;
-	}
+  public String getTransition() {
+    return transition;
+  }
 
-	public int getIndex() {
-		return index;
-	}
+  public int getIndex() {
+    return index;
+  }
 
 }

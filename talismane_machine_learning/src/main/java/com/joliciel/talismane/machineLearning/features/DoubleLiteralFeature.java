@@ -25,20 +25,20 @@ package com.joliciel.talismane.machineLearning.features;
  *
  */
 public class DoubleLiteralFeature<T> extends AbstractFeature<T, Double>implements DoubleFeature<T> {
-	private double literal;
+  private double literal;
 
-	public DoubleLiteralFeature(double literal) {
-		super();
-		this.literal = literal;
-		this.setName("" + literal);
-	}
+  public DoubleLiteralFeature(double literal) {
+    super();
+    this.literal = literal;
+    this.setName("" + literal);
+  }
 
-	@Override
-	public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
-		return this.generateResult(literal);
-	}
+  @Override
+  public FeatureResult<Double> check(T context, RuntimeEnvironment env) {
+    return this.generateResult(literal);
+  }
 
-	public double getLiteral() {
-		return literal;
-	}
+  public double getLiteral() {
+    return literal;
+  }
 }

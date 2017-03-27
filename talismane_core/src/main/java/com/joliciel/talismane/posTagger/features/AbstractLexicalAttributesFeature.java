@@ -43,53 +43,53 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
  */
 public abstract class AbstractLexicalAttributesFeature<T> extends AbstractPosTaggedTokenFeature<T, String>implements StringFeature<T> {
 
-	public AbstractLexicalAttributesFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
-		super(addressFunction);
-	}
+  public AbstractLexicalAttributesFeature(PosTaggedTokenAddressFunction<T> addressFunction) {
+    super(addressFunction);
+  }
 
-	@Override
-	public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
-		if (innerWrapper == null)
-			return null;
-		PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
-		if (posTaggedToken == null)
-			return null;
-		FeatureResult<String> featureResult = null;
+  @Override
+  public FeatureResult<String> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    PosTaggedTokenWrapper innerWrapper = this.getToken(context, env);
+    if (innerWrapper == null)
+      return null;
+    PosTaggedToken posTaggedToken = innerWrapper.getPosTaggedToken();
+    if (posTaggedToken == null)
+      return null;
+    FeatureResult<String> featureResult = null;
 
-		List<String> attributes = this.getAttributes(innerWrapper, env);
+    List<String> attributes = this.getAttributes(innerWrapper, env);
 
-		Map<String, Set<String>> results = new HashMap<>();
-		for (String attribute : attributes) {
-			Set<String> values = new TreeSet<>();
-			results.put(attribute, values);
-			for (LexicalEntry lexicalEntry : posTaggedToken.getLexicalEntries()) {
-				values.addAll(lexicalEntry.getAttributeAsList(attribute));
-			}
-		}
+    Map<String, Set<String>> results = new HashMap<>();
+    for (String attribute : attributes) {
+      Set<String> values = new TreeSet<>();
+      results.put(attribute, values);
+      for (LexicalEntry lexicalEntry : posTaggedToken.getLexicalEntries()) {
+        values.addAll(lexicalEntry.getAttributeAsList(attribute));
+      }
+    }
 
-		boolean firstAttribute = true;
-		boolean haveAtLeastOne = false;
-		StringBuilder sb = new StringBuilder();
-		for (String attribute : attributes) {
-			if (!firstAttribute)
-				sb.append("|");
-			Set<String> values = results.get(attribute);
-			if (values.size() > 0) {
-				haveAtLeastOne = true;
-				sb.append(values.stream().collect(Collectors.joining(";")));
-			}
-			firstAttribute = false;
-		}
+    boolean firstAttribute = true;
+    boolean haveAtLeastOne = false;
+    StringBuilder sb = new StringBuilder();
+    for (String attribute : attributes) {
+      if (!firstAttribute)
+        sb.append("|");
+      Set<String> values = results.get(attribute);
+      if (values.size() > 0) {
+        haveAtLeastOne = true;
+        sb.append(values.stream().collect(Collectors.joining(";")));
+      }
+      firstAttribute = false;
+    }
 
-		if (haveAtLeastOne) {
-			String result = sb.toString();
-			featureResult = this.generateResult(result);
-		}
+    if (haveAtLeastOne) {
+      String result = sb.toString();
+      featureResult = this.generateResult(result);
+    }
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 
-	protected abstract List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException;
+  protected abstract List<String> getAttributes(PosTaggedTokenWrapper innerWrapper, RuntimeEnvironment env) throws TalismaneException;
 
 }

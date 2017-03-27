@@ -28,45 +28,45 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class AndFeatureAllowNulls<T> extends AbstractCachableFeature<T, Boolean>implements BooleanFeature<T> {
-	BooleanFeature<T>[] booleanFeatures;
+  BooleanFeature<T>[] booleanFeatures;
 
-	@SafeVarargs
-	public AndFeatureAllowNulls(BooleanFeature<T>... booleanFeatures) {
-		super();
-		this.booleanFeatures = booleanFeatures;
-		String name = "";
-		boolean firstFeature = true;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			if (!firstFeature)
-				name += "&";
-			name += booleanFeature.getName();
-			firstFeature = false;
-		}
-		this.setName(name);
-	}
+  @SafeVarargs
+  public AndFeatureAllowNulls(BooleanFeature<T>... booleanFeatures) {
+    super();
+    this.booleanFeatures = booleanFeatures;
+    String name = "";
+    boolean firstFeature = true;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      if (!firstFeature)
+        name += "&";
+      name += booleanFeature.getName();
+      firstFeature = false;
+    }
+    this.setName(name);
+  }
 
-	@Override
-	public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Boolean> featureResult = null;
+  @Override
+  public FeatureResult<Boolean> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Boolean> featureResult = null;
 
-		boolean booleanResult = true;
-		for (BooleanFeature<T> booleanFeature : booleanFeatures) {
-			FeatureResult<Boolean> result = booleanFeature.check(context, env);
-			boolean value = false;
-			if (result != null) {
-				value = result.getOutcome();
-			}
-			booleanResult = booleanResult && value;
-			if (!booleanResult)
-				break;
-		}
+    boolean booleanResult = true;
+    for (BooleanFeature<T> booleanFeature : booleanFeatures) {
+      FeatureResult<Boolean> result = booleanFeature.check(context, env);
+      boolean value = false;
+      if (result != null) {
+        value = result.getOutcome();
+      }
+      booleanResult = booleanResult && value;
+      if (!booleanResult)
+        break;
+    }
 
-		featureResult = this.generateResult(booleanResult);
+    featureResult = this.generateResult(booleanResult);
 
-		return featureResult;
-	}
+    return featureResult;
+  }
 
-	public BooleanFeature<T>[] getBooleanFeatures() {
-		return booleanFeatures;
-	}
+  public BooleanFeature<T>[] getBooleanFeatures() {
+    return booleanFeatures;
+  }
 }

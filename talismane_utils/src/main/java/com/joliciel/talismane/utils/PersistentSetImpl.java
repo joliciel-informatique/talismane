@@ -35,7 +35,7 @@ public class PersistentSetImpl<E> implements PersistentSet<E> {
     private Set<E> items;
     
     public PersistentSetImpl(Set<E> items) {
-    	this.itemsAdded = new ArrayList<E>();
+      this.itemsAdded = new ArrayList<E>();
         this.itemsRemoved = new ArrayList<E>();
         this.items = items;
     }
@@ -146,10 +146,10 @@ public class PersistentSetImpl<E> implements PersistentSet<E> {
         return this.items.toArray(a);
     }
 
-	@Override
-	public void cleanSlate() {
-    	this.itemsAdded = new ArrayList<E>();
+  @Override
+  public void cleanSlate() {
+      this.itemsAdded = new ArrayList<E>();
         this.itemsRemoved = new ArrayList<E>();
-	}
+  }
 
 }

@@ -28,47 +28,47 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public abstract class AbstractCachableFeature<T, Y> extends AbstractFeature<T, Y> {
-	public AbstractCachableFeature() {
-		super();
-	}
+  public AbstractCachableFeature() {
+    super();
+  }
 
-	@Override
-	public final FeatureResult<Y> check(T context, RuntimeEnvironment env) throws TalismaneException {
-		FeatureResult<Y> featureResult = this.checkInCache(context, env);
-		if (featureResult == null) {
-			featureResult = this.checkInternal(context, env);
-			this.putInCache(context, featureResult, env);
-		} else if (featureResult.getOutcome() == null) {
-			// a NullFeatureResult was stored in the cache
-			featureResult = null;
-		}
-		return featureResult;
-	}
+  @Override
+  public final FeatureResult<Y> check(T context, RuntimeEnvironment env) throws TalismaneException {
+    FeatureResult<Y> featureResult = this.checkInCache(context, env);
+    if (featureResult == null) {
+      featureResult = this.checkInternal(context, env);
+      this.putInCache(context, featureResult, env);
+    } else if (featureResult.getOutcome() == null) {
+      // a NullFeatureResult was stored in the cache
+      featureResult = null;
+    }
+    return featureResult;
+  }
 
-	/**
-	 * Override if this feature result should be cached within the context to
-	 * avoid checking multiple times.
-	 */
-	protected FeatureResult<Y> checkInCache(T context, RuntimeEnvironment env) throws TalismaneException {
-		if (context instanceof HasFeatureCache) {
-			return ((HasFeatureCache) context).getResultFromCache(this, env);
-		}
-		return null;
-	}
+  /**
+   * Override if this feature result should be cached within the context to
+   * avoid checking multiple times.
+   */
+  protected FeatureResult<Y> checkInCache(T context, RuntimeEnvironment env) throws TalismaneException {
+    if (context instanceof HasFeatureCache) {
+      return ((HasFeatureCache) context).getResultFromCache(this, env);
+    }
+    return null;
+  }
 
-	/**
-	 * Override if this feature result should be cached within the context to
-	 * avoid checking multiple times.
-	 * 
-	 * @throws TalismaneException
-	 */
-	protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) throws TalismaneException {
-		if (context instanceof HasFeatureCache) {
-			if (featureResult == null)
-				featureResult = new NullFeatureResult<Y>();
-			((HasFeatureCache) context).putResultInCache(this, featureResult, env);
-		}
-	}
+  /**
+   * Override if this feature result should be cached within the context to
+   * avoid checking multiple times.
+   * 
+   * @throws TalismaneException
+   */
+  protected void putInCache(T context, FeatureResult<Y> featureResult, RuntimeEnvironment env) throws TalismaneException {
+    if (context instanceof HasFeatureCache) {
+      if (featureResult == null)
+        featureResult = new NullFeatureResult<Y>();
+      ((HasFeatureCache) context).putResultInCache(this, featureResult, env);
+    }
+  }
 
-	protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException;
+  protected abstract FeatureResult<Y> checkInternal(T context, RuntimeEnvironment env) throws TalismaneException;
 }

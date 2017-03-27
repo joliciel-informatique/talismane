@@ -53,143 +53,143 @@ import de.bwaldvogel.liblinear.Model;
 import gnu.trove.map.TObjectIntMap;
 
 public class LinearSVMModel extends AbstractMachineLearningModel implements ClassificationModel {
-	private static final Logger LOG = LoggerFactory.getLogger(LinearSVMModel.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LinearSVMModel.class);
 
-	private Model model;
-	private TObjectIntMap<String> featureIndexMap = null;
-	private List<String> outcomes = null;
-	private transient Set<String> outcomeNames = null;
+  private Model model;
+  private TObjectIntMap<String> featureIndexMap = null;
+  private List<String> outcomes = null;
+  private transient Set<String> outcomeNames = null;
 
-	/**
-	 * Default constructor for factory.
-	 */
-	public LinearSVMModel() {
-	}
+  /**
+   * Default constructor for factory.
+   */
+  public LinearSVMModel() {
+  }
 
-	/**
-	 * Construct from a newly trained model including the feature descriptors.
-	 */
-	LinearSVMModel(Model model, Config config, Map<String, List<String>> descriptors) {
-		super(config, descriptors);
-		this.model = model;
-	}
+  /**
+   * Construct from a newly trained model including the feature descriptors.
+   */
+  LinearSVMModel(Model model, Config config, Map<String, List<String>> descriptors) {
+    super(config, descriptors);
+    this.model = model;
+  }
 
-	@Override
-	public DecisionMaker getDecisionMaker() {
-		LinearSVMDecisionMaker decisionMaker = new LinearSVMDecisionMaker(model, this.featureIndexMap, this.outcomes);
-		return decisionMaker;
-	}
+  @Override
+  public DecisionMaker getDecisionMaker() {
+    LinearSVMDecisionMaker decisionMaker = new LinearSVMDecisionMaker(model, this.featureIndexMap, this.outcomes);
+    return decisionMaker;
+  }
 
-	@Override
-	public ClassificationObserver getDetailedAnalysisObserver(File file) {
-		throw new JolicielException("No detailed analysis observer currently available for linear SVM.");
-	}
+  @Override
+  public ClassificationObserver getDetailedAnalysisObserver(File file) {
+    throw new JolicielException("No detailed analysis observer currently available for linear SVM.");
+  }
 
-	@Override
-	public void writeModelToStream(OutputStream outputStream) {
-		try {
-			Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
-			Writer unclosableWriter = new UnclosableWriter(writer);
-			model.save(unclosableWriter);
-		} catch (UnsupportedEncodingException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			LogUtils.logError(LOG, e);
-			throw new RuntimeException(e);
-		}
-	}
+  @Override
+  public void writeModelToStream(OutputStream outputStream) {
+    try {
+      Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
+      Writer unclosableWriter = new UnclosableWriter(writer);
+      model.save(unclosableWriter);
+    } catch (UnsupportedEncodingException e) {
+      LogUtils.logError(LOG, e);
+      throw new RuntimeException(e);
+    } catch (IOException e) {
+      LogUtils.logError(LOG, e);
+      throw new RuntimeException(e);
+    }
+  }
 
-	@Override
-	public void loadModelFromStream(InputStream inputStream) throws IOException {
-		// load model or use it directly
-		Reader reader = new InputStreamReader(inputStream, "UTF-8");
-		model = Model.load(reader);
-	}
+  @Override
+  public void loadModelFromStream(InputStream inputStream) throws IOException {
+    // load model or use it directly
+    Reader reader = new InputStreamReader(inputStream, "UTF-8");
+    model = Model.load(reader);
+  }
 
-	@Override
-	public MachineLearningAlgorithm getAlgorithm() {
-		return MachineLearningAlgorithm.LinearSVM;
-	}
+  @Override
+  public MachineLearningAlgorithm getAlgorithm() {
+    return MachineLearningAlgorithm.LinearSVM;
+  }
 
-	/**
-	 * A map of feature names to unique indexes.
-	 */
-	public TObjectIntMap<String> getFeatureIndexMap() {
-		return featureIndexMap;
-	}
+  /**
+   * A map of feature names to unique indexes.
+   */
+  public TObjectIntMap<String> getFeatureIndexMap() {
+    return featureIndexMap;
+  }
 
-	public void setFeatureIndexMap(TObjectIntMap<String> featureIndexMap) {
-		this.featureIndexMap = featureIndexMap;
-	}
+  public void setFeatureIndexMap(TObjectIntMap<String> featureIndexMap) {
+    this.featureIndexMap = featureIndexMap;
+  }
 
-	/**
-	 * A list of outcomes, where the indexes are the ones used by the binary
-	 * model.
-	 */
-	public List<String> getOutcomes() {
-		return outcomes;
-	}
+  /**
+   * A list of outcomes, where the indexes are the ones used by the binary
+   * model.
+   */
+  public List<String> getOutcomes() {
+    return outcomes;
+  }
 
-	public void setOutcomes(List<String> outcomes) {
-		this.outcomes = outcomes;
-	}
+  public void setOutcomes(List<String> outcomes) {
+    this.outcomes = outcomes;
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) throws IOException, ClassNotFoundException {
-		boolean loaded = true;
-		if (zipEntry.getName().equals("featureIndexMap.obj")) {
-			ObjectInputStream in = new ObjectInputStream(inputStream);
-			featureIndexMap = (TObjectIntMap<String>) in.readObject();
-		} else if (zipEntry.getName().equals("outcomes.obj")) {
-			ObjectInputStream in = new ObjectInputStream(inputStream);
-			outcomes = (List<String>) in.readObject();
-		} else {
-			loaded = false;
-		}
-		return loaded;
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  protected boolean loadDataFromStream(InputStream inputStream, ZipEntry zipEntry) throws IOException, ClassNotFoundException {
+    boolean loaded = true;
+    if (zipEntry.getName().equals("featureIndexMap.obj")) {
+      ObjectInputStream in = new ObjectInputStream(inputStream);
+      featureIndexMap = (TObjectIntMap<String>) in.readObject();
+    } else if (zipEntry.getName().equals("outcomes.obj")) {
+      ObjectInputStream in = new ObjectInputStream(inputStream);
+      outcomes = (List<String>) in.readObject();
+    } else {
+      loaded = false;
+    }
+    return loaded;
+  }
 
-	@Override
-	public void writeDataToStream(ZipOutputStream zos) throws IOException {
-		zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
-		ObjectOutputStream out = new ObjectOutputStream(zos);
+  @Override
+  public void writeDataToStream(ZipOutputStream zos) throws IOException {
+    zos.putNextEntry(new ZipEntry("featureIndexMap.obj"));
+    ObjectOutputStream out = new ObjectOutputStream(zos);
 
-		try {
-			out.writeObject(featureIndexMap);
-		} finally {
-			out.flush();
-		}
+    try {
+      out.writeObject(featureIndexMap);
+    } finally {
+      out.flush();
+    }
 
-		zos.flush();
+    zos.flush();
 
-		zos.putNextEntry(new ZipEntry("outcomes.obj"));
-		out = new ObjectOutputStream(zos);
-		try {
-			out.writeObject(outcomes);
-		} finally {
-			out.flush();
-		}
+    zos.putNextEntry(new ZipEntry("outcomes.obj"));
+    out = new ObjectOutputStream(zos);
+    try {
+      out.writeObject(outcomes);
+    } finally {
+      out.flush();
+    }
 
-		zos.flush();
+    zos.flush();
 
-	}
+  }
 
-	@Override
-	public Set<String> getOutcomeNames() {
-		if (this.outcomeNames == null) {
-			this.outcomeNames = new TreeSet<String>(this.outcomes);
-		}
-		return this.outcomeNames;
-	}
+  @Override
+  public Set<String> getOutcomeNames() {
+    if (this.outcomeNames == null) {
+      this.outcomeNames = new TreeSet<String>(this.outcomes);
+    }
+    return this.outcomeNames;
+  }
 
-	@Override
-	protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
-	}
+  @Override
+  protected void persistOtherEntries(ZipOutputStream zos) throws IOException {
+  }
 
-	@Override
-	public void onLoadComplete() {
-	}
+  @Override
+  public void onLoadComplete() {
+  }
 
 }

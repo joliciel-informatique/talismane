@@ -29,7 +29,7 @@ import com.joliciel.talismane.TalismaneException;
  *
  */
 public class NewlineSpaceMarker extends RawTextRegexAnnotator {
-	public NewlineSpaceMarker(int blockSize) throws TalismaneException {
-		super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SPACE }), "\r\n|[\r\n]", 0, blockSize);
-	}
+  public NewlineSpaceMarker(int blockSize) throws TalismaneException {
+    super(Arrays.asList(new RawTextMarkType[] { RawTextMarkType.SKIP, RawTextMarkType.SPACE }), "\r\n|[\r\n]", 0, blockSize);
+  }
 }

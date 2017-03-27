@@ -29,8 +29,8 @@ import java.util.TreeSet;
  *
  */
 public class BoundedTreeSet<E> extends TreeSet<E> {
-	private static final long serialVersionUID = 234375156025262002L;
-	private int elementsLeft;
+  private static final long serialVersionUID = 234375156025262002L;
+  private int elementsLeft;
 
     public BoundedTreeSet(int maxSize) {
         super(new NaturalComparator<E>());
@@ -76,9 +76,9 @@ public class BoundedTreeSet<E> extends TreeSet<E> {
     private static class NaturalComparator<T> implements Comparator<T> {
         @Override
         public int compare(T o1, T o2) {
-        	@SuppressWarnings("unchecked")
-			Comparable<T> c1 = (Comparable<T>) o1;
-           	return c1.compareTo(o2);
+          @SuppressWarnings("unchecked")
+      Comparable<T> c1 = (Comparable<T>) o1;
+            return c1.compareTo(o2);
         }
     }
 }

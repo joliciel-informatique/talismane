@@ -24,81 +24,81 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 import com.joliciel.talismane.tokeniser.Token;
 
 public final class ParseConfigurationTokenOutput {
-	private PosTaggedToken posTaggedToken;
-	private Token token;
-	private PosTag tag;
-	private ParseConfigurationTokenOutput governor;
-	private DependencyArc arc;
-	private String label;
+  private PosTaggedToken posTaggedToken;
+  private Token token;
+  private PosTag tag;
+  private ParseConfigurationTokenOutput governor;
+  private DependencyArc arc;
+  private String label;
 
-	private ParseConfigurationTokenOutput nonProjectiveGovernor;
-	private DependencyArc nonProjectiveArc;
-	private String nonProjectiveLabel;
+  private ParseConfigurationTokenOutput nonProjectiveGovernor;
+  private DependencyArc nonProjectiveArc;
+  private String nonProjectiveLabel;
 
-	public ParseConfigurationTokenOutput(PosTaggedToken posTaggedToken) {
-		this.posTaggedToken = posTaggedToken;
-		this.token = posTaggedToken.getToken();
-		this.tag = posTaggedToken.getTag();
-	}
+  public ParseConfigurationTokenOutput(PosTaggedToken posTaggedToken) {
+    this.posTaggedToken = posTaggedToken;
+    this.token = posTaggedToken.getToken();
+    this.tag = posTaggedToken.getTag();
+  }
 
-	public PosTaggedToken getPosTaggedToken() {
-		return posTaggedToken;
-	}
+  public PosTaggedToken getPosTaggedToken() {
+    return posTaggedToken;
+  }
 
-	public Token getToken() {
-		return token;
-	}
+  public Token getToken() {
+    return token;
+  }
 
-	public PosTag getTag() {
-		return tag;
-	}
+  public PosTag getTag() {
+    return tag;
+  }
 
-	public ParseConfigurationTokenOutput getGovernor() {
-		return governor;
-	}
+  public ParseConfigurationTokenOutput getGovernor() {
+    return governor;
+  }
 
-	public void setGovernor(ParseConfigurationTokenOutput governor) {
-		this.governor = governor;
-	}
+  public void setGovernor(ParseConfigurationTokenOutput governor) {
+    this.governor = governor;
+  }
 
-	public DependencyArc getArc() {
-		return arc;
-	}
+  public DependencyArc getArc() {
+    return arc;
+  }
 
-	public void setArc(DependencyArc arc) {
-		this.arc = arc;
-	}
+  public void setArc(DependencyArc arc) {
+    this.arc = arc;
+  }
 
-	public String getLabel() {
-		return label;
-	}
+  public String getLabel() {
+    return label;
+  }
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-	public ParseConfigurationTokenOutput getNonProjectiveGovernor() {
-		return nonProjectiveGovernor;
-	}
+  public ParseConfigurationTokenOutput getNonProjectiveGovernor() {
+    return nonProjectiveGovernor;
+  }
 
-	public void setNonProjectiveGovernor(ParseConfigurationTokenOutput nonProjectiveGovernor) {
-		this.nonProjectiveGovernor = nonProjectiveGovernor;
-	}
+  public void setNonProjectiveGovernor(ParseConfigurationTokenOutput nonProjectiveGovernor) {
+    this.nonProjectiveGovernor = nonProjectiveGovernor;
+  }
 
-	public DependencyArc getNonProjectiveArc() {
-		return nonProjectiveArc;
-	}
+  public DependencyArc getNonProjectiveArc() {
+    return nonProjectiveArc;
+  }
 
-	public void setNonProjectiveArc(DependencyArc nonProjectiveArc) {
-		this.nonProjectiveArc = nonProjectiveArc;
-	}
+  public void setNonProjectiveArc(DependencyArc nonProjectiveArc) {
+    this.nonProjectiveArc = nonProjectiveArc;
+  }
 
-	public String getNonProjectiveLabel() {
-		return nonProjectiveLabel;
-	}
+  public String getNonProjectiveLabel() {
+    return nonProjectiveLabel;
+  }
 
-	public void setNonProjectiveLabel(String nonProjectiveLabel) {
-		this.nonProjectiveLabel = nonProjectiveLabel;
-	}
+  public void setNonProjectiveLabel(String nonProjectiveLabel) {
+    this.nonProjectiveLabel = nonProjectiveLabel;
+  }
 
 }

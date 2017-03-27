@@ -32,33 +32,33 @@ import com.joliciel.talismane.TalismaneSession;
  *
  */
 public class LowercaseKnownWordFilter implements TextReplacer, NeedsTalismaneSession {
-	private TalismaneSession session;
+  private TalismaneSession session;
 
-	public LowercaseKnownWordFilter() {
-		super();
-	}
+  public LowercaseKnownWordFilter() {
+    super();
+  }
 
-	@Override
-	public void replace(List<String> tokens) {
-		for (int i = 0; i < tokens.size(); i++) {
-			String token = tokens.get(i);
-			if (token.length() > 0 && Character.isUpperCase(token.charAt(0))) {
-				Set<String> possibleWords = session.getDiacriticizer().diacriticize(token);
-				if (possibleWords.size() > 0) {
-					tokens.set(i, possibleWords.iterator().next());
-				}
-			}
-		}
-	}
+  @Override
+  public void replace(List<String> tokens) {
+    for (int i = 0; i < tokens.size(); i++) {
+      String token = tokens.get(i);
+      if (token.length() > 0 && Character.isUpperCase(token.charAt(0))) {
+        Set<String> possibleWords = session.getDiacriticizer().diacriticize(token);
+        if (possibleWords.size() > 0) {
+          tokens.set(i, possibleWords.iterator().next());
+        }
+      }
+    }
+  }
 
-	@Override
-	public TalismaneSession getTalismaneSession() {
-		return session;
-	}
+  @Override
+  public TalismaneSession getTalismaneSession() {
+    return session;
+  }
 
-	@Override
-	public void setTalismaneSession(TalismaneSession talismaneSession) {
-		this.session = talismaneSession;
-	}
+  @Override
+  public void setTalismaneSession(TalismaneSession talismaneSession) {
+    this.session = talismaneSession;
+  }
 
 }

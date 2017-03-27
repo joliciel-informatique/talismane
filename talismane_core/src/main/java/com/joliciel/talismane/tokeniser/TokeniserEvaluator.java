@@ -39,65 +39,65 @@ import com.typesafe.config.Config;
  *
  */
 public class TokeniserEvaluator {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory.getLogger(TokeniserEvaluator.class);
-	private final Tokeniser tokeniser;
-	private final TokeniserAnnotatedCorpusReader corpusReader;
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(TokeniserEvaluator.class);
+  private final Tokeniser tokeniser;
+  private final TokeniserAnnotatedCorpusReader corpusReader;
 
-	private final List<TokenEvaluationObserver> observers;
+  private final List<TokenEvaluationObserver> observers;
 
-	public TokeniserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
-			throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
-		Config config = session.getConfig();
-		this.tokeniser = Tokeniser.getInstance(session);
-		this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
+  public TokeniserEvaluator(Reader evalReader, File outDir, TalismaneSession session)
+      throws IOException, ClassNotFoundException, ReflectiveOperationException, TalismaneException {
+    Config config = session.getConfig();
+    this.tokeniser = Tokeniser.getInstance(session);
+    this.observers = TokenEvaluationObserver.getTokenEvaluationObservers(outDir, session);
 
-		Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
+    Config tokeniserConfig = config.getConfig("talismane.core.tokeniser");
 
-		this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
-	}
+    this.corpusReader = TokeniserAnnotatedCorpusReader.getCorpusReader(evalReader, tokeniserConfig.getConfig("input"), session);
+  }
 
-	/**
-	 * 
-	 * @param tokeniser
-	 *            the tokeniser to evaluate
-	 * @param corpusReader
-	 *            for reading manually separated tokens from a corpus
-	 */
-	public TokeniserEvaluator(Tokeniser tokeniser, TokeniserAnnotatedCorpusReader corpusReader) {
-		this.tokeniser = tokeniser;
-		this.observers = new ArrayList<>();
-		this.corpusReader = corpusReader;
-	}
+  /**
+   * 
+   * @param tokeniser
+   *            the tokeniser to evaluate
+   * @param corpusReader
+   *            for reading manually separated tokens from a corpus
+   */
+  public TokeniserEvaluator(Tokeniser tokeniser, TokeniserAnnotatedCorpusReader corpusReader) {
+    this.tokeniser = tokeniser;
+    this.observers = new ArrayList<>();
+    this.corpusReader = corpusReader;
+  }
 
-	/**
-	 * Evaluate a given tokeniser.
-	 * 
-	 * @throws TalismaneException
-	 * @throws IOException
-	 */
-	public void evaluate() throws TalismaneException, IOException {
-		while (corpusReader.hasNextSentence()) {
-			TokenSequence realSequence = corpusReader.nextTokenSequence();
-			Sentence sentence = realSequence.getSentence();
+  /**
+   * Evaluate a given tokeniser.
+   * 
+   * @throws TalismaneException
+   * @throws IOException
+   */
+  public void evaluate() throws TalismaneException, IOException {
+    while (corpusReader.hasNextSentence()) {
+      TokenSequence realSequence = corpusReader.nextTokenSequence();
+      Sentence sentence = realSequence.getSentence();
 
-			List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
+      List<TokenisedAtomicTokenSequence> guessedAtomicSequences = tokeniser.tokeniseWithDecisions(sentence);
 
-			for (TokenEvaluationObserver observer : observers) {
-				observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
-			}
-		} // next sentence
+      for (TokenEvaluationObserver observer : observers) {
+        observer.onNextTokenSequence(realSequence, guessedAtomicSequences);
+      }
+    } // next sentence
 
-		for (TokenEvaluationObserver observer : observers) {
-			observer.onEvaluationComplete();
-		}
-	}
+    for (TokenEvaluationObserver observer : observers) {
+      observer.onEvaluationComplete();
+    }
+  }
 
-	public Tokeniser getTokeniser() {
-		return tokeniser;
-	}
+  public Tokeniser getTokeniser() {
+    return tokeniser;
+  }
 
-	public void addObserver(TokenEvaluationObserver observer) {
-		this.observers.add(observer);
-	}
+  public void addObserver(TokenEvaluationObserver observer) {
+    this.observers.add(observer);
+  }
 }

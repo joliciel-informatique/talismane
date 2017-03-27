@@ -17,107 +17,107 @@ import mockit.NonStrictExpectations;
 
 public class DiacriticizerTest {
 
-	@Test
-	public void testDiacriticize(@NonStrict final Lexicon lexicon) {
+  @Test
+  public void testDiacriticize(@NonStrict final Lexicon lexicon) {
 
-		new NonStrictExpectations() {
-			LexicalEntry l1, l2, l3, l4, l5, l6, l7, l8, l9;
-			{
-				List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
-				lexicalEntries.add(l1);
-				lexicalEntries.add(l2);
-				lexicalEntries.add(l3);
-				lexicalEntries.add(l4);
-				lexicalEntries.add(l5);
-				lexicalEntries.add(l6);
-				lexicalEntries.add(l7);
-				lexicalEntries.add(l8);
-				lexicalEntries.add(l9);
+    new NonStrictExpectations() {
+      LexicalEntry l1, l2, l3, l4, l5, l6, l7, l8, l9;
+      {
+        List<LexicalEntry> lexicalEntries = new ArrayList<LexicalEntry>();
+        lexicalEntries.add(l1);
+        lexicalEntries.add(l2);
+        lexicalEntries.add(l3);
+        lexicalEntries.add(l4);
+        lexicalEntries.add(l5);
+        lexicalEntries.add(l6);
+        lexicalEntries.add(l7);
+        lexicalEntries.add(l8);
+        lexicalEntries.add(l9);
 
-				l1.getWord();
-				returns("mangé");
-				l2.getWord();
-				returns("mange");
-				l3.getWord();
-				returns("mangée");
-				l4.getWord();
-				returns("SARL");
-				l5.getWord();
-				returns("bala");
-				l6.getWord();
-				returns("bàlà");
-				l7.getWord();
-				returns("bàla");
-				l8.getWord();
-				returns("a");
-				l9.getWord();
-				returns("à");
-				lexicon.getAllEntries();
-				returns(lexicalEntries.iterator());
-			}
-		};
+        l1.getWord();
+        returns("mangé");
+        l2.getWord();
+        returns("mange");
+        l3.getWord();
+        returns("mangée");
+        l4.getWord();
+        returns("SARL");
+        l5.getWord();
+        returns("bala");
+        l6.getWord();
+        returns("bàlà");
+        l7.getWord();
+        returns("bàla");
+        l8.getWord();
+        returns("a");
+        l9.getWord();
+        returns("à");
+        lexicon.getAllEntries();
+        returns(lexicalEntries.iterator());
+      }
+    };
 
-		Diacriticizer diacriticizer = new Diacriticizer();
-		diacriticizer.setLocale(Locale.FRENCH);
+    Diacriticizer diacriticizer = new Diacriticizer();
+    diacriticizer.setLocale(Locale.FRENCH);
 
-		Map<String, String> lowercasePreferences = new HashMap<>();
-		lowercasePreferences.put("A", "à");
+    Map<String, String> lowercasePreferences = new HashMap<>();
+    lowercasePreferences.put("A", "à");
 
-		diacriticizer.setLowercasePreferences(lowercasePreferences);
+    diacriticizer.setLowercasePreferences(lowercasePreferences);
 
-		diacriticizer.addLexicon(lexicon);
+    diacriticizer.addLexicon(lexicon);
 
-		Set<String> results = diacriticizer.diacriticize("MANGEE");
-		assertEquals(1, results.size());
-		assertEquals("mangée", results.iterator().next());
+    Set<String> results = diacriticizer.diacriticize("MANGEE");
+    assertEquals(1, results.size());
+    assertEquals("mangée", results.iterator().next());
 
-		// all lower-case letters are kept as is
-		results = diacriticizer.diacriticize("mange");
-		assertEquals(1, results.size());
-		assertEquals("mange", results.iterator().next());
+    // all lower-case letters are kept as is
+    results = diacriticizer.diacriticize("mange");
+    assertEquals(1, results.size());
+    assertEquals("mange", results.iterator().next());
 
-		// accented letters are kept as is
-		results = diacriticizer.diacriticize("Mangé");
-		assertEquals(1, results.size());
-		assertEquals("mangé", results.iterator().next());
+    // accented letters are kept as is
+    results = diacriticizer.diacriticize("Mangé");
+    assertEquals(1, results.size());
+    assertEquals("mangé", results.iterator().next());
 
-		results = diacriticizer.diacriticize("MANGE");
-		assertEquals(2, results.size());
-		List<String> resultList = new ArrayList<String>(results);
-		assertEquals("mange", resultList.get(0));
-		assertEquals("mangé", resultList.get(1));
+    results = diacriticizer.diacriticize("MANGE");
+    assertEquals(2, results.size());
+    List<String> resultList = new ArrayList<String>(results);
+    assertEquals("mange", resultList.get(0));
+    assertEquals("mangé", resultList.get(1));
 
-		// accented letters are kept as is even if the accent is uppercase
-		results = diacriticizer.diacriticize("MANGÉ");
-		assertEquals(1, results.size());
-		assertTrue(results.contains("mangé"));
+    // accented letters are kept as is even if the accent is uppercase
+    results = diacriticizer.diacriticize("MANGÉ");
+    assertEquals(1, results.size());
+    assertTrue(results.contains("mangé"));
 
-		results = diacriticizer.diacriticize("SARL");
-		assertEquals(1, results.size());
-		assertEquals("SARL", results.iterator().next());
+    results = diacriticizer.diacriticize("SARL");
+    assertEquals(1, results.size());
+    assertEquals("SARL", results.iterator().next());
 
-		results = diacriticizer.diacriticize("sarl");
-		assertEquals(0, results.size());
+    results = diacriticizer.diacriticize("sarl");
+    assertEquals(0, results.size());
 
-		// ordered by default from fewer accents to more accents
-		results = diacriticizer.diacriticize("BALA");
-		assertEquals(3, results.size());
-		resultList = new ArrayList<String>(results);
-		assertEquals("bala", resultList.get(0));
-		assertEquals("bàla", resultList.get(1));
-		assertEquals("bàlà", resultList.get(2));
+    // ordered by default from fewer accents to more accents
+    results = diacriticizer.diacriticize("BALA");
+    assertEquals(3, results.size());
+    resultList = new ArrayList<String>(results);
+    assertEquals("bala", resultList.get(0));
+    assertEquals("bàla", resultList.get(1));
+    assertEquals("bàlà", resultList.get(2));
 
-		// here "à" will come first because we added an exception
-		results = diacriticizer.diacriticize("A");
-		assertEquals(2, results.size());
-		resultList = new ArrayList<String>(results);
-		assertEquals("à", resultList.get(0));
-		assertEquals("a", resultList.get(1));
+    // here "à" will come first because we added an exception
+    results = diacriticizer.diacriticize("A");
+    assertEquals(2, results.size());
+    resultList = new ArrayList<String>(results);
+    assertEquals("à", resultList.get(0));
+    assertEquals("a", resultList.get(1));
 
-		// test with combining diacritics
-		results = diacriticizer.diacriticize("mange\u0301");
-		assertEquals(1, results.size());
-		assertTrue(results.contains("mangé"));
-	}
+    // test with combining diacritics
+    results = diacriticizer.diacriticize("mange\u0301");
+    assertEquals(1, results.size());
+    assertTrue(results.contains("mangé"));
+  }
 
 }
