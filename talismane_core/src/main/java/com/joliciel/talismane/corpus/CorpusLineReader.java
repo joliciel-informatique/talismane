@@ -139,12 +139,7 @@ public class CorpusLineReader {
 		Matcher matcher = this.pattern.matcher(line);
 		if (!matcher.matches())
 			throw new TalismaneException(
-					"Didn't match pattern \"" + regex + "\". Compiled to: \"" + this.pattern.pattern() + "\". on line " + lineNumber + ": " + line);
-
-		if (matcher.groupCount() < maxGroup) {
-			throw new TalismaneException("Expected at least " + maxGroup + " matches (but found only " + matcher.groupCount() + ") on line " + lineNumber
-					+ ". Pattern: \"" + regex + "\". Compiled to: \"" + this.pattern.pattern() + "\". Text: " + line);
-		}
+					"Didn't match pattern \"" + regex + "\". Compiled to: \"" + this.pattern.pattern() + "\". On line " + lineNumber + ": " + line);
 
 		CorpusLine corpusLine = new CorpusLine(line, lineNumber);
 		for (CorpusElement elementType : CorpusElement.values()) {
