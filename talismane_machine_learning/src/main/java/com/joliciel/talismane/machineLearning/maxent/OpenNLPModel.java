@@ -24,6 +24,7 @@ import com.joliciel.talismane.machineLearning.ClassificationModel;
 
 /**
  * An Apache OpenNLP model wrapper interface
+ * 
  * @author Assaf
  */
 public interface OpenNLPModel extends ClassificationModel {

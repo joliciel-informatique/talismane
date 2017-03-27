@@ -47,8 +47,8 @@ public interface Parser {
      */
     bufferSize,
     /**
-     * Comparison based on number of elements remaining on both the stack
-     * and the buffer.
+     * Comparison based on number of elements remaining on both the stack and
+     * the buffer.
      */
     stackAndBufferSize,
     /**
@@ -73,11 +73,11 @@ public interface Parser {
   }
 
   /**
-   * Analyse a pos-tag sequence, and return the most likely parse
-   * configuration for the sentence.
+   * Analyse a pos-tag sequence, and return the most likely parse configuration
+   * for the sentence.
    * 
    * @param posTagSequence
-   *            the likely pos-tag sequence for this sentence.
+   *          the likely pos-tag sequence for this sentence.
    * @return the most likely parse configuration for this sentence
    * @throws CircularDependencyException
    * @throws InvalidTransitionException
@@ -97,18 +97,18 @@ public interface Parser {
   public TransitionSystem getTransitionSystem();
 
   /**
-   * The maximum time alloted per sentence for parse tree analysis, in
-   * seconds. Will be ignored if set to 0. If analysis jumps out because of
-   * time-out, there will be a parse-forest instead of a parse-tree, with
-   * several nodes left unattached.
+   * The maximum time alloted per sentence for parse tree analysis, in seconds.
+   * Will be ignored if set to 0. If analysis jumps out because of time-out,
+   * there will be a parse-forest instead of a parse-tree, with several nodes
+   * left unattached.
    */
   public int getMaxAnalysisTimePerSentence();
 
   /**
    * The minimum amount of remaining free memory to continue a parse, in
    * kilobytes. Will be ignored is set to 0. If analysis jumps out because of
-   * free memory descends below this limit, there will be a parse-forest
-   * instead of a parse-tree, with several nodes left unattached.
+   * free memory descends below this limit, there will be a parse-forest instead
+   * of a parse-tree, with several nodes left unattached.
    */
   public int getMinFreeMemory();
 

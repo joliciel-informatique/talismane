@@ -29,6 +29,7 @@ import com.joliciel.talismane.posTagger.PosTagSet;
 
 /**
  * An Empty lexicon to use as a placeholder when no lexicon is available.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -63,9 +64,7 @@ public class EmptyLexicon implements PosTaggerLexicon {
   }
 
   @Override
-  public List<LexicalEntry> getEntriesMatchingCriteria(
-      LexicalEntry lexicalEntry, PosTag posTag, String gender,
-      String number) {
+  public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number) {
     return new ArrayList<LexicalEntry>();
   }
 
@@ -94,6 +93,5 @@ public class EmptyLexicon implements PosTaggerLexicon {
   public Iterator<LexicalEntry> getAllEntries() {
     return new ArrayList<LexicalEntry>().iterator();
   }
-
 
 }

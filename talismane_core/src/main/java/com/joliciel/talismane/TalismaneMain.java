@@ -145,16 +145,15 @@ public class TalismaneMain {
     OptionSpec<Integer> portOption = parser.accepts("port", "which port to listen on").availableIf("analyse").withRequiredArg().ofType(Integer.class);
 
     OptionSpec<File> inFileOption = parser.accepts("inFile", "input file or directory").withRequiredArg().ofType(File.class);
-    OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg()
-        .ofType(File.class);
+    OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg().ofType(File.class);
     OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory (for writing evaluation and analysis files other than the standard output)")
         .withRequiredArg().ofType(File.class);
 
     OptionSpec<String> inputPatternOption = parser.accepts("inputPattern", "input pattern").withRequiredArg().ofType(String.class);
     OptionSpec<File> inputPatternFileOption = parser.accepts("inputPatternFile", "input pattern file").availableUnless(inputPatternOption).withRequiredArg()
         .ofType(File.class);
-    OptionSpec<String> evalPatternOption = parser.accepts("evalPattern", "input pattern for evaluation").availableIf("evaluate", "compare")
-        .withRequiredArg().ofType(String.class);
+    OptionSpec<String> evalPatternOption = parser.accepts("evalPattern", "input pattern for evaluation").availableIf("evaluate", "compare").withRequiredArg()
+        .ofType(String.class);
     OptionSpec<File> evalPatternFileOption = parser.accepts("evalPatternFile", "input pattern file for evaluation").availableUnless(evalPatternOption)
         .withRequiredArg().ofType(File.class);
 
@@ -163,26 +162,23 @@ public class TalismaneMain {
     OptionSpec<String> inputEncodingOption = parser.accepts("inputEncoding", "encoding for input").withRequiredArg().ofType(String.class);
     OptionSpec<String> outputEncodingOption = parser.accepts("outputEncoding", "encoding for output").withRequiredArg().ofType(String.class);
 
-    OptionSpec<File> languageModelOption = parser.accepts("languageModel", "statistical model for language recognition").withRequiredArg()
-        .ofType(File.class);
+    OptionSpec<File> languageModelOption = parser.accepts("languageModel", "statistical model for language recognition").withRequiredArg().ofType(File.class);
     OptionSpec<File> sentenceModelOption = parser.accepts("sentenceModel", "statistical model for sentence detection").withRequiredArg().ofType(File.class);
     OptionSpec<File> tokeniserModelOption = parser.accepts("tokeniserModel", "statistical model for tokenisation").withRequiredArg().ofType(File.class);
     OptionSpec<File> posTaggerModelOption = parser.accepts("posTaggerModel", "statistical model for pos-tagging").withRequiredArg().ofType(File.class);
     OptionSpec<File> parserModelOption = parser.accepts("parserModel", "statistical model for dependency parsing").withRequiredArg().ofType(File.class);
-    OptionSpec<File> lexiconOption = parser.accepts("lexicon", "semi-colon delimited list of pre-compiled lexicon files").withRequiredArg()
-        .ofType(File.class).withValuesSeparatedBy(';');
+    OptionSpec<File> lexiconOption = parser.accepts("lexicon", "semi-colon delimited list of pre-compiled lexicon files").withRequiredArg().ofType(File.class)
+        .withValuesSeparatedBy(';');
 
     OptionSpec<File> textFiltersOption = parser.accepts("textFilters", "semi-colon delimited list of files containing text filters").withRequiredArg()
         .ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> tokenFiltersOption = parser.accepts("tokenFilters", "semi-colon delimited list of files containing token pre-annotators")
+    OptionSpec<File> tokenFiltersOption = parser.accepts("tokenFilters", "semi-colon delimited list of files containing token pre-annotators").withRequiredArg()
+        .ofType(File.class).withValuesSeparatedBy(';');
+    OptionSpec<File> tokenSequenceFiltersOption = parser.accepts("tokenSequenceFilters", "semi-colon delimited list of files containing token post-annotators")
         .withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> tokenSequenceFiltersOption = parser
-        .accepts("tokenSequenceFilters", "semi-colon delimited list of files containing token post-annotators").withRequiredArg().ofType(File.class)
-        .withValuesSeparatedBy(';');
 
     OptionSpec<String> newlineOption = parser
-        .accepts("newline",
-            "how to handle newlines: " + "options are SPACE (will be replaced by a space) " + "and SENTENCE_BREAK (will break sentences)")
+        .accepts("newline", "how to handle newlines: " + "options are SPACE (will be replaced by a space) " + "and SENTENCE_BREAK (will break sentences)")
         .availableIf("analyse").withRequiredArg().ofType(String.class);
 
     OptionSpec<Boolean> processByDefaultOption = parser
@@ -197,16 +193,16 @@ public class TalismaneMain {
 
     OptionSpec<Integer> sentenceCountOption = parser.accepts("sentenceCount", "max sentences to process").withRequiredArg().ofType(Integer.class);
     OptionSpec<Integer> startSentenceOption = parser.accepts("startSentence", "first sentence index to process").withRequiredArg().ofType(Integer.class);
-    OptionSpec<Integer> crossValidationSizeOption = parser.accepts("crossValidationSize", "number of cross-validation folds")
-        .availableIf("train", "evaluate").withRequiredArg().ofType(Integer.class);
+    OptionSpec<Integer> crossValidationSizeOption = parser.accepts("crossValidationSize", "number of cross-validation folds").availableIf("train", "evaluate")
+        .withRequiredArg().ofType(Integer.class);
     OptionSpec<Integer> includeIndexOption = parser.accepts("includeIndex", "cross-validation index to include for evaluation").availableIf("evaluate")
         .withRequiredArg().ofType(Integer.class);
     OptionSpec<Integer> excludeIndexOption = parser.accepts("excludeIndex", "cross-validation index to exclude for training").availableIf("train")
         .withRequiredArg().ofType(Integer.class);
 
     OptionSpec<BuiltInTemplate> builtInTemplateOption = parser
-        .accepts("builtInTemplate", "pre-defined output template: " + Arrays.toString(BuiltInTemplate.values())).availableUnless("train")
-        .withRequiredArg().ofType(BuiltInTemplate.class);
+        .accepts("builtInTemplate", "pre-defined output template: " + Arrays.toString(BuiltInTemplate.values())).availableUnless("train").withRequiredArg()
+        .ofType(BuiltInTemplate.class);
 
     OptionSpec<File> templateOption = parser.accepts("template", "user-defined template for output").availableUnless("train", "builtInTemplate")
         .withRequiredArg().ofType(File.class);
@@ -218,9 +214,8 @@ public class TalismaneMain {
 
     OptionSpec<String> suffixOption = parser.accepts("suffix", "suffix to all output files").withRequiredArg().ofType(String.class);
     OptionSpec<String> outputDividerOption = parser
-        .accepts("outputDivider",
-            "a string to insert between sections marked for output (e.g. XML tags to be kept in the analysed output)."
-                + " The String NEWLINE is interpreted as \"\n\". Otherwise, used literally.")
+        .accepts("outputDivider", "a string to insert between sections marked for output (e.g. XML tags to be kept in the analysed output)."
+            + " The String NEWLINE is interpreted as \"\n\". Otherwise, used literally.")
         .availableIf("analyse").withRequiredArg().ofType(String.class);
 
     OptionSpec<Integer> beamWidthOption = parser.accepts("beamWidth", "beam width in pos-tagger and parser beam search").availableIf("analyse", "evaluate")
@@ -267,11 +262,11 @@ public class TalismaneMain {
     OptionSpec<File> tokeniserPatternsOption = parser.accepts("tokeniserPatterns", "a file containing the patterns for tokeniser training")
         .availableIf("train", "process").withRequiredArg().ofType(File.class);
     OptionSpec<File> sentenceFileOption = parser
-        .accepts("sentenceFile", "the text of sentences represented by the tokenised input is provided by this file, one sentence per line")
-        .withRequiredArg().ofType(File.class);
+        .accepts("sentenceFile", "the text of sentences represented by the tokenised input is provided by this file, one sentence per line").withRequiredArg()
+        .ofType(File.class);
     OptionSpec<File> languageCorpusMapOption = parser
-        .accepts("languageCorpusMap", "a file giving a mapping of languages to corpora for langauge-detection training").availableIf("train")
-        .withRequiredArg().ofType(File.class);
+        .accepts("languageCorpusMap", "a file giving a mapping of languages to corpora for langauge-detection training").availableIf("train").withRequiredArg()
+        .ofType(File.class);
     OptionSpec<PredictTransitions> predictTransitionsOption = parser.accepts("predictTransitions",
         "should the transitions leading to the corpus dependencies be predicted - normally only required for training (leave at \"depends\"). Options are: "
             + Arrays.toString(PredictTransitions.values()))
@@ -280,18 +275,17 @@ public class TalismaneMain {
         .withRequiredArg().ofType(String.class).withValuesSeparatedBy(',');
 
     OptionSpec<MachineLearningAlgorithm> algorithmOption = parser
-        .accepts("algorithm", "machine learning algorithm: " + Arrays.toString(MachineLearningAlgorithm.values())).availableIf("train")
-        .withRequiredArg().ofType(MachineLearningAlgorithm.class);
-    OptionSpec<Integer> cutoffOption = parser
-        .accepts("cutoff", "in how many distinct events should a feature appear in order to get included in the model?").availableIf("train")
-        .withRequiredArg().ofType(Integer.class);
+        .accepts("algorithm", "machine learning algorithm: " + Arrays.toString(MachineLearningAlgorithm.values())).availableIf("train").withRequiredArg()
+        .ofType(MachineLearningAlgorithm.class);
+    OptionSpec<Integer> cutoffOption = parser.accepts("cutoff", "in how many distinct events should a feature appear in order to get included in the model?")
+        .availableIf("train").withRequiredArg().ofType(Integer.class);
     OptionSpec<Double> linearSVMEpsilonOption = parser.accepts("linearSVMEpsilon", "parameter epsilon, typical values are 0.01, 0.05, 0.1, 0.5")
         .availableIf("train").withRequiredArg().ofType(Double.class);
     OptionSpec<Double> linearSVMCostOption = parser.accepts("linearSVMCost", "parameter C, typical values are powers of 2, from 2^-5 to 2^5")
         .availableIf("train").withRequiredArg().ofType(Double.class);
     OptionSpec<Boolean> oneVsRestOption = parser
-        .accepts("oneVsRest", "should we treat each outcome explicity as one vs. rest, allowing for an event to have multiple outcomes?")
-        .availableIf("train").withRequiredArg().ofType(Boolean.class);
+        .accepts("oneVsRest", "should we treat each outcome explicity as one vs. rest, allowing for an event to have multiple outcomes?").availableIf("train")
+        .withRequiredArg().ofType(Boolean.class);
     OptionSpec<Integer> iterationsOption = parser.accepts("iterations", "the number of training iterations (MaxEnt, Perceptron)").availableIf("train")
         .withRequiredArg().ofType(Integer.class);
 
@@ -369,13 +363,12 @@ public class TalismaneMain {
 
     List<String> inputLocations = Arrays.asList("talismane.core.input", "talismane.core.language-detector.input", "talismane.core.language-detector.train",
         "talismane.core.language-detector.evaluate", "talismane.core.sentence-detector.input", "talismane.core.sentence-detector.train",
-        "talismane.core.sentence-detector.evaluate", "talismane.core.tokeniser.input", "talismane.core.tokeniser.train",
-        "talismane.core.tokeniser.evaluate", "talismane.core.pos-tagger.input", "talismane.core.pos-tagger.train", "talismane.core.pos-tagger.evaluate",
-        "talismane.core.parser.input", "talismane.core.parser.train", "talismane.core.parser.evaluate");
+        "talismane.core.sentence-detector.evaluate", "talismane.core.tokeniser.input", "talismane.core.tokeniser.train", "talismane.core.tokeniser.evaluate",
+        "talismane.core.pos-tagger.input", "talismane.core.pos-tagger.train", "talismane.core.pos-tagger.evaluate", "talismane.core.parser.input",
+        "talismane.core.parser.train", "talismane.core.parser.evaluate");
 
-    List<String> outputLocations = Arrays.asList("talismane.core.output", "talismane.core.language-detector.output",
-        "talismane.core.sentence-detector.output", "talismane.core.tokeniser.output", "talismane.core.pos-tagger.output",
-        "talismane.core.parser.output");
+    List<String> outputLocations = Arrays.asList("talismane.core.output", "talismane.core.language-detector.output", "talismane.core.sentence-detector.output",
+        "talismane.core.tokeniser.output", "talismane.core.pos-tagger.output", "talismane.core.parser.output");
 
     if (options.has(newlineOption))
       values.put("talismane.core.newline", options.valueOf(newlineOption));
@@ -603,18 +596,17 @@ public class TalismaneMain {
    * Execute Talismane based on the configuration provided.
    * 
    * @param inFile
-   *            The file or directory to analyse
+   *          The file or directory to analyse
    * @param outFile
-   *            The file or directory to write the analysis.
+   *          The file or directory to write the analysis.
    * @param outDir
-   *            The directory for writing additional output files (other than
-   *            the main analysis).
+   *          The directory for writing additional output files (other than the
+   *          main analysis).
    * @param evalFile
    * @throws IOException
    * @throws ReflectiveOperationException
    * @throws TalismaneException
-   *             if attempt is made to start and end on two unsuported
-   *             modules.
+   *           if attempt is made to start and end on two unsuported modules.
    * @throws SentenceAnnotatorLoadException
    */
   public void execute(File inFile, File outFile, File outDir, File evalFile)
@@ -795,8 +787,8 @@ public class TalismaneMain {
           List<PosTagSequenceProcessor> processors = PosTagSequenceProcessor.getProcessors(writer, outDir, session);
 
           try {
-            PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core.pos-tagger.input"), session);
+            PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.pos-tagger.input"),
+                session);
             while (corpusReader.hasNextSentence()) {
               PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
               for (PosTagSequenceProcessor processor : processors)
@@ -819,8 +811,8 @@ public class TalismaneMain {
           List<ParseConfigurationProcessor> processors = ParseConfigurationProcessor.getProcessors(writer, outDir, session);
 
           try {
-            ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader,
-                config.getConfig("talismane.core.parser.input"), session);
+            ParserAnnotatedCorpusReader corpusReader = ParserAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.parser.input"),
+                session);
             while (corpusReader.hasNextSentence()) {
               ParseConfiguration configuration = corpusReader.nextConfiguration();
               for (ParseConfigurationProcessor processor : processors)

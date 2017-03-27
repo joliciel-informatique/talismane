@@ -319,8 +319,8 @@ public class SpmrlProjectifier {
 
     @Override
     public String toString() {
-      String string = this.index + "\t" + this.word + "\t" + this.lemma + "\t" + this.posTag + "\t" + this.posTag2 + "\t" + this.morph + "\t"
-          + this.governor + "\t" + this.label + "\t" + this.projGov + "\t" + this.projLabel;
+      String string = this.index + "\t" + this.word + "\t" + this.lemma + "\t" + this.posTag + "\t" + this.posTag2 + "\t" + this.morph + "\t" + this.governor
+          + "\t" + this.label + "\t" + this.projGov + "\t" + this.projLabel;
       return string;
     }
   }

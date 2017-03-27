@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 /**
  * Used for monitoring progress of a thread.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -32,63 +33,71 @@ public class SimpleProgressMonitor implements ProgressMonitor {
   Object[] currentArguments = null;
   Exception exception;
   boolean finished = false;
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.joliciel.jochre.util.IProgressMonitor#getPercentComplete()
    */
   @Override
   public double getPercentComplete() {
     return percentComplete;
   }
+
   public void setPercentComplete(double percentComplete) {
     this.percentComplete = percentComplete;
   }
-  
-  
+
   @Override
   public List<MessageResource> getCurrentActions() {
     List<MessageResource> list = new ArrayList<MessageResource>();
-    if (this.currentAction.length()>0)
+    if (this.currentAction.length() > 0)
       list.add(new MessageResource(this.currentAction, this.currentArguments));
     return list;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.joliciel.jochre.util.IProgressMonitor#getCurrentAction()
    */
   @Override
   public String getCurrentAction() {
     return currentAction;
   }
+
   public void setCurrentAction(String currentAction) {
     this.currentAction = currentAction;
     this.currentArguments = null;
   }
-  
+
   public void setCurrentAction(String currentAction, Object[] arguments) {
     this.currentAction = currentAction;
     this.currentArguments = arguments;
   }
+
   public Exception getException() {
     return exception;
   }
+
   public void setException(Exception exception) {
     this.exception = exception;
   }
+
   @Override
   public boolean isFinished() {
-    if (this.finished||this.exception!=null)
+    if (this.finished || this.exception != null)
       return true;
-    return (this.percentComplete>=1);
+    return (this.percentComplete >= 1);
   }
+
   public void setFinished(boolean finished) {
     this.finished = finished;
-    this.percentComplete=1;
+    this.percentComplete = 1;
   }
+
   public Object[] getCurrentArguments() {
     return currentArguments;
   }
 
-  
-  
 }

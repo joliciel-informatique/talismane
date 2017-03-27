@@ -52,17 +52,16 @@ public interface SentenceDetectorAnnotatedCorpusReader extends AnnotatedCorpusRe
   public abstract boolean isNewParagraph();
 
   /**
-   * Builds an annotated corpus reader for a particular Reader and Config,
-   * where the config is the local namespace. For configuration example, see
+   * Builds an annotated corpus reader for a particular Reader and Config, where
+   * the config is the local namespace. For configuration example, see
    * talismane.core.sentence-detector.input in reference.conf.
    * 
    * @param config
-   *            the local configuration section from which we're building a
-   *            reader
+   *          the local configuration section from which we're building a reader
    * @throws IOException
-   *             problem reading the files referred in the configuration
+   *           problem reading the files referred in the configuration
    * @throws ReflectiveOperationException
-   *             if the corpus-reader class could not be instantiated
+   *           if the corpus-reader class could not be instantiated
    */
   public static SentenceDetectorAnnotatedCorpusReader getCorpusReader(Reader reader, Config config, TalismaneSession session)
       throws IOException, ReflectiveOperationException {

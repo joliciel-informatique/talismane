@@ -22,6 +22,7 @@ import java.io.File;
 
 /**
  * An observer which is notified whenever a new file is processed.
+ * 
  * @author Assaf Urieli
  *
  */

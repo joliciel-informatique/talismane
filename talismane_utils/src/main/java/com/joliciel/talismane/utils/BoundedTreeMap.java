@@ -22,9 +22,10 @@ import java.util.Comparator;
 import java.util.TreeMap;
 
 /**
- * A TreeMap with a bounded number of entries.
- * Automatically removes the last entry.
- * Thus assumes the most "important" entry is placed first ("least" in comparison).
+ * A TreeMap with a bounded number of entries. Automatically removes the last
+ * entry. Thus assumes the most "important" entry is placed first ("least" in
+ * comparison).
+ * 
  * @author Assaf Urieli
  *
  */
@@ -48,25 +49,26 @@ public class BoundedTreeMap<K, V> extends TreeMap<K, V> {
       // max size was initiated to zero => just return false
       return null;
     }
-    
+
     boolean contains = super.containsKey(key);
     if (contains) {
       // simply replace the former value with a new one
       V oldValue = super.put(key, value);
       return oldValue;
     }
-    
+
     if (elementsLeft > 0) {
       // queue isn't full => add element and decrement elementsLeft
       V oldValue = super.put(key, value);
       elementsLeft--;
-      
+
       return oldValue;
     } else {
       // there is already 1 or more elements => compare to the least
       int compared = super.comparator().compare(key, this.lastKey());
-      if (compared<0) {
-        // new element is larger than the least in queue => pull the least and add new one to queue
+      if (compared < 0) {
+        // new element is larger than the least in queue => pull the least and
+        // add new one to queue
         pollLastEntry();
         V oldValue = super.put(key, value);
         return oldValue;
@@ -76,14 +78,13 @@ public class BoundedTreeMap<K, V> extends TreeMap<K, V> {
       }
     }
   }
-  
 
-    private static class NaturalComparator<T> implements Comparator<T> {
-        @Override
-        public int compare(T o1, T o2) {
-          @SuppressWarnings("unchecked")
+  private static class NaturalComparator<T> implements Comparator<T> {
+    @Override
+    public int compare(T o1, T o2) {
+      @SuppressWarnings("unchecked")
       Comparable<T> c1 = (Comparable<T>) o1;
-            return c1.compareTo(o2);
-        }
+      return c1.compareTo(o2);
     }
+  }
 }

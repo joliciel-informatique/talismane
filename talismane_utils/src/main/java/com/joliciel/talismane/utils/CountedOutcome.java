@@ -21,7 +21,9 @@ package com.joliciel.talismane.utils;
 import java.io.Serializable;
 
 /**
- * An outcome/value pair that orders automatically in descending order (from highest to lowest count).
+ * An outcome/value pair that orders automatically in descending order (from
+ * highest to lowest count).
+ * 
  * @author Assaf Urieli
  *
  */
@@ -29,27 +31,23 @@ public class CountedOutcome<T> implements Comparable<CountedOutcome<T>>, Seriali
   private static final long serialVersionUID = 1L;
   private T outcome;
   private int count;
-  
+
   public CountedOutcome(T outcome, int weight) {
     this.outcome = outcome;
     this.count = weight;
   }
-  
-  
+
   public void setOutcome(T outcome) {
     this.outcome = outcome;
   }
-
 
   public void setCount(int value) {
     this.count = value;
   }
 
-
   public T getOutcome() {
     return outcome;
   }
-
 
   public int getCount() {
     return count;
@@ -57,23 +55,21 @@ public class CountedOutcome<T> implements Comparable<CountedOutcome<T>>, Seriali
 
   @Override
   public int compareTo(CountedOutcome<T> o) {
-    if (this.getCount()<o.getCount()) {
+    if (this.getCount() < o.getCount()) {
       return 1;
-    } else if (this.getCount()>o.getCount()) {
+    } else if (this.getCount() > o.getCount()) {
       return -1;
     } else {
       int nameCompare = this.getOutcome().toString().compareTo(o.getOutcome().toString());
-      if (nameCompare!=0) return nameCompare;
-      return this.hashCode()-o.hashCode();
+      if (nameCompare != 0)
+        return nameCompare;
+      return this.hashCode() - o.hashCode();
     }
   }
 
-
   @Override
   public String toString() {
-    return "[" + outcome + "," + count
-        + "]";
+    return "[" + outcome + "," + count + "]";
   }
-  
-  
+
 }

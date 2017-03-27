@@ -37,8 +37,8 @@ class LinearSVMUtils {
         @SuppressWarnings("unchecked")
         FeatureResult<List<WeightedOutcome<String>>> stringCollectionResult = (FeatureResult<List<WeightedOutcome<String>>>) featureResult;
         for (WeightedOutcome<String> stringOutcome : stringCollectionResult.getOutcome()) {
-          int index = featureIndexMap.get(featureResult.getTrainingName()+ "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
-          if (index>=0) {
+          int index = featureIndexMap.get(featureResult.getTrainingName() + "|" + featureResult.getTrainingOutcome(stringOutcome.getOutcome()));
+          if (index >= 0) {
             double value = stringOutcome.getWeight();
             FeatureNode featureNode = new FeatureNode(index, value);
             featureList.add(featureNode);
@@ -46,16 +46,16 @@ class LinearSVMUtils {
         }
       } else {
         double value = 1.0;
-      
-        if (featureResult.getOutcome() instanceof Double)
-        {
+
+        if (featureResult.getOutcome() instanceof Double) {
           @SuppressWarnings("unchecked")
           FeatureResult<Double> doubleResult = (FeatureResult<Double>) featureResult;
           value = doubleResult.getOutcome().doubleValue();
         }
         int index = featureIndexMap.get(featureResult.getTrainingName());
-        if (index>=0) {
-          // we only need to bother adding features which existed in the training set
+        if (index >= 0) {
+          // we only need to bother adding features which existed in the
+          // training set
           FeatureNode featureNode = new FeatureNode(index, value);
           featureList.add(featureNode);
         }

@@ -228,8 +228,7 @@ public class RollingTextBlockTest {
     // add a sentence boundary for "Sentence 3"
     System.out.println("add a sentence boundary for \"Sentence 3\", this time inside the analysis range");
     sentenceBoundaries = new ArrayList<>();
-    sentenceBoundaries
-        .add(new Annotation<>("Sentence 1 Sentence 2.".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new SentenceBoundary(), labels));
+    sentenceBoundaries.add(new Annotation<>("Sentence 1 Sentence 2.".length(), "Sentence 1 Sentence 2. Sentence 3.".length(), new SentenceBoundary(), labels));
     processedTextBlock.addAnnotations(sentenceBoundaries);
 
     sentences = textBlock.getDetectedSentences();

@@ -43,11 +43,10 @@ public class PosTagComparator {
   /**
    * 
    * @param referenceCorpusReader
-   *            for reading manually tagged tokens from a reference corpus
+   *          for reading manually tagged tokens from a reference corpus
    * 
    * @param evaluationCorpusReader
-   *            for reading manually tagged tokens from another pos-tagged
-   *            corpus
+   *          for reading manually tagged tokens from another pos-tagged corpus
    */
   public PosTagComparator(PosTagAnnotatedCorpusReader referenceCorpusReader, PosTagAnnotatedCorpusReader evaluationCorpusReader) {
     this.referenceCorpusReader = referenceCorpusReader;

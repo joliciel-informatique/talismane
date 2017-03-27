@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Extends TwoPassDataIndexer to take into account real values.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -42,13 +43,11 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
   private static final Logger LOG = LoggerFactory.getLogger(TwoPassRealValueDataIndexer.class);
   float[][] values;
 
-  public TwoPassRealValueDataIndexer(EventStream eventStream, int cutoff)
-  throws IOException {
+  public TwoPassRealValueDataIndexer(EventStream eventStream, int cutoff) throws IOException {
     super(eventStream, cutoff);
   }
 
-  public TwoPassRealValueDataIndexer(EventStream eventStream)
-  throws IOException {
+  public TwoPassRealValueDataIndexer(EventStream eventStream) throws IOException {
     super(eventStream);
   }
 
@@ -59,10 +58,10 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
   public float[][] getValues() {
     return values;
   }
-  
+
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  protected int sortAndMerge(List eventsToCompare,boolean sort) {
-    int numUniqueEvents = super.sortAndMerge(eventsToCompare,sort);
+  protected int sortAndMerge(List eventsToCompare, boolean sort) {
+    int numUniqueEvents = super.sortAndMerge(eventsToCompare, sort);
     values = new float[numUniqueEvents][];
     int numEvents = eventsToCompare.size();
     for (int i = 0, j = 0; i < numEvents; i++) {
@@ -77,8 +76,8 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
-  protected List index(int numEvents, EventStream es, Map<String,Integer> predicateIndex) throws IOException {
-    Map<String,Integer> omap = new HashMap<String,Integer>();
+  protected List index(int numEvents, EventStream es, Map<String, Integer> predicateIndex) throws IOException {
+    Map<String, Integer> omap = new HashMap<String, Integer>();
     int outcomeCount = 0;
     List eventsToCompare = new ArrayList(numEvents);
     List<Integer> indexedContext = new ArrayList<Integer>();
@@ -92,8 +91,7 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
 
       if (omap.containsKey(oc)) {
         ocID = omap.get(oc);
-      }
-      else {
+      } else {
         ocID = outcomeCount++;
         omap.put(oc, ocID);
       }
@@ -108,13 +106,12 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
       // drop events with no active features
       if (indexedContext.size() > 0) {
         int[] cons = new int[indexedContext.size()];
-        for (int ci=0;ci<cons.length;ci++) {
+        for (int ci = 0; ci < cons.length; ci++) {
           cons[ci] = indexedContext.get(ci);
         }
         ce = new ComparableEvent(ocID, cons, ev.getValues());
         eventsToCompare.add(ce);
-      }
-      else {
+      } else {
         LOG.debug("Dropped event " + ev.getOutcome() + ":" + Arrays.asList(ev.getContext()));
       }
       // recycle the TIntArrayList
@@ -124,13 +121,13 @@ public class TwoPassRealValueDataIndexer extends TwoPassDataIndexer {
     predLabels = toIndexedStringArray(predicateIndex);
     return eventsToCompare;
   }
-  
-   @Override
-    protected EventStream getFileEventStream(File file) throws IOException {
-      return new RealValueFileEventStream2(file);
-   }
-   
-   protected String toLine(Event ev) {
-      return RealValueFileEventStream2.toLine(ev);
-   }
+
+  @Override
+  protected EventStream getFileEventStream(File file) throws IOException {
+    return new RealValueFileEventStream2(file);
+  }
+
+  protected String toLine(Event ev) {
+    return RealValueFileEventStream2.toLine(ev);
+  }
 }

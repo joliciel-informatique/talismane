@@ -72,7 +72,7 @@ public class SentenceDetectorEvaluator {
    * 
    * @param sentenceDetector
    * @param corpusReader
-   *            for reading manually separated sentences from a corpus
+   *          for reading manually separated sentences from a corpus
    * @param errorWriter
    * @param session
    */
@@ -216,8 +216,8 @@ public class SentenceDetectorEvaluator {
         errorWriter.write("False- " + taggerFScoreCalculator.getTotalFalseNegativeCount() + "\n");
         errorWriter.write("False+ " + taggerFScoreCalculator.getTotalFalsePositiveCount() + "\n");
         for (SentenceDetectorOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
-          errorWriter.write(outcome + " total  "
-              + (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
+          errorWriter.write(
+              outcome + " total  " + (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
           errorWriter.write(outcome + " true + " + (taggerFScoreCalculator.getTruePositiveCount(outcome)) + "\n");
           errorWriter.write(outcome + " false- " + (taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
           errorWriter.write(outcome + " false+ " + (taggerFScoreCalculator.getFalsePositiveCount(outcome)) + "\n");

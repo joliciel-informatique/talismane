@@ -78,12 +78,12 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
   /**
    * 
    * @param posTaggerFeatures
-   *            the set of PosTaggerFeatures used by the model which provided
-   *            the decision maker
+   *          the set of PosTaggerFeatures used by the model which provided the
+   *          decision maker
    * @param decisionMaker
-   *            the decision maker used to make pos-tagging decisions
+   *          the decision maker used to make pos-tagging decisions
    * @param beamWidth
-   *            the maximum beamwidth to consider during the beam search
+   *          the maximum beamwidth to consider during the beam search
    */
   public ForwardStatisticalPosTagger(Set<PosTaggerFeature<?>> posTaggerFeatures, DecisionMaker decisionMaker, int beamWidth, boolean propagateTokeniserBeam,
       TalismaneSession talismaneSession) {
@@ -111,7 +111,7 @@ public class ForwardStatisticalPosTagger implements PosTagger, NonDeterministicP
    * Get a pos-tagger defined by a particular machine learning model.
    * 
    * @param beamWidth
-   *            the maximum beamwidth to consider during the beam search
+   *          the maximum beamwidth to consider during the beam search
    */
   public ForwardStatisticalPosTagger(ClassificationModel model, int beamWidth, boolean propagateTokeniserBeam, TalismaneSession session) {
     PosTaggerFeatureParser featureParser = new PosTaggerFeatureParser(session);

@@ -45,8 +45,7 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
             if (errorLabels.contains(refArc.getLabel())) {
               DependencyArc guessArc = guessConfiguration.getGoverningDependency(guessToken);
               if (guessArc == null || !refArc.getLabel().equals(guessArc.getLabel()) || (refArc.getHead() == null && guessArc.getHead() != null)
-                  || (refArc.getHead() != null && guessArc.getHead() == null)
-                  || refArc.getHead().getIndex() != guessArc.getHead().getIndex()) {
+                  || (refArc.getHead() != null && guessArc.getHead() == null) || refArc.getHead().getIndex() != guessArc.getHead().getIndex()) {
                 refTokensToExplain.add(refToken);
                 if (refArc.getHead() != null)
                   refTokensToHighlight.add(refArc.getHead());
@@ -66,17 +65,16 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
         if (refTokensToExplain.contains(refToken)) {
           DependencyArc refArc = refConfiguration.getGoverningDependency(refToken);
           if (refArc == null)
-            refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
-                + refToken.getIndex() + "|Gov0|null# ");
+            refBuilder.append(
+                "#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + "|Gov0|null# ");
           else
-            refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
-                + refToken.getIndex() + "|Gov" + (refArc.getHead() == null ? 0 : refArc.getHead().getIndex()) + "|" + refArc.getLabel() + "# ");
+            refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex()
+                + "|Gov" + (refArc.getHead() == null ? 0 : refArc.getHead().getIndex()) + "|" + refArc.getLabel() + "# ");
         } else if (refTokensToHighlight.contains(refToken)) {
-          refBuilder.append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|"
-              + refToken.getIndex() + "# ");
+          refBuilder
+              .append("#" + refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + "# ");
         } else {
-          refBuilder.append(
-              refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + " ");
+          refBuilder.append(refToken.getToken().getOriginalText().replace(' ', '_') + "|" + refToken.getTag().getCode() + "|" + refToken.getIndex() + " ");
         }
       }
       StringBuilder guessBuilder = new StringBuilder();
@@ -88,14 +86,13 @@ public class ParseEvaluationObserverImpl implements ParseEvaluationObserver {
                 + guessToken.getIndex() + "|Gov0|null# ");
           else
             guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
-                + guessToken.getIndex() + "|Gov" + (guessArc.getHead() == null ? 0 : guessArc.getHead().getIndex()) + "|" + guessArc.getLabel()
-                + "# ");
+                + guessToken.getIndex() + "|Gov" + (guessArc.getHead() == null ? 0 : guessArc.getHead().getIndex()) + "|" + guessArc.getLabel() + "# ");
         } else if (guessTokensToHighlight.contains(guessToken)) {
-          guessBuilder.append("#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
-              + guessToken.getIndex() + "# ");
+          guessBuilder.append(
+              "#" + guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|" + guessToken.getIndex() + "# ");
         } else {
-          guessBuilder.append(guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|"
-              + guessToken.getIndex() + " ");
+          guessBuilder
+              .append(guessToken.getToken().getOriginalText().replace(' ', '_') + "|" + guessToken.getTag().getCode() + "|" + guessToken.getIndex() + " ");
         }
       }
       if (includeMe) {

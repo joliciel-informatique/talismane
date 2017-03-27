@@ -36,8 +36,8 @@ public interface ClassificationModel extends MachineLearningModel {
   public DecisionMaker getDecisionMaker();
 
   /**
-   * An observer that will write low-level details of this model's analysis to
-   * a file.
+   * An observer that will write low-level details of this model's analysis to a
+   * file.
    * 
    * @throws IOException
    */

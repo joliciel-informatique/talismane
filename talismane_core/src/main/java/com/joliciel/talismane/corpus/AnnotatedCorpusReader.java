@@ -68,7 +68,7 @@ public interface AnnotatedCorpusReader {
    * Is there another sentence to be read?
    * 
    * @throws TalismaneException
-   *             if it's impossible to process the next sentence
+   *           if it's impossible to process the next sentence
    * @throws IOException
    */
   public boolean hasNextSentence() throws TalismaneException, IOException;

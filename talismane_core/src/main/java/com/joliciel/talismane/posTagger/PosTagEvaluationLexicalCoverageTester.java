@@ -99,8 +99,8 @@ public class PosTagEvaluationLexicalCoverageTester implements PosTagEvaluationOb
     fscoreUnknownInLexicon.writeScoresToCSV(writer);
 
     writer.write("\n");
-    writer.write(CSV.format("Known") + CSV.format(knownWordCount)
-        + CSV.format((double) knownWordCount / (double) (knownWordCount + unknownWordCount) * 100.0) + "\n");
+    writer.write(
+        CSV.format("Known") + CSV.format(knownWordCount) + CSV.format((double) knownWordCount / (double) (knownWordCount + unknownWordCount) * 100.0) + "\n");
     writer.write(CSV.format("Unknown") + CSV.format(unknownWordCount)
         + CSV.format((double) unknownWordCount / (double) (knownWordCount + unknownWordCount) * 100.0) + "\n");
     writer.write(CSV.format("Unique known") + CSV.format(knownWords.size())

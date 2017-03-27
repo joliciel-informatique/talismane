@@ -24,15 +24,17 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.sentenceDetector.PossibleSentenceBoundary;
 
 /**
- * Returns true if the current boundar is ".", "?" or "!". Returns false otherwise.
+ * Returns true if the current boundar is ".", "?" or "!". Returns false
+ * otherwise.
+ * 
  * @author Assaf
  *
  */
-public final class IsStrongPunctuationFeature extends AbstractSentenceDetectorFeature<Boolean> implements BooleanFeature<PossibleSentenceBoundary> {
+public final class IsStrongPunctuationFeature extends AbstractSentenceDetectorFeature<Boolean>implements BooleanFeature<PossibleSentenceBoundary> {
   @Override
   public FeatureResult<Boolean> checkInternal(PossibleSentenceBoundary context, RuntimeEnvironment env) {
     char boundary = context.getText().charAt(context.getIndex());
-    boolean isStrong = (boundary=='.'||boundary=='!'||boundary=='?');
+    boolean isStrong = (boundary == '.' || boundary == '!' || boundary == '?');
     return this.generateResult(isStrong);
   }
 

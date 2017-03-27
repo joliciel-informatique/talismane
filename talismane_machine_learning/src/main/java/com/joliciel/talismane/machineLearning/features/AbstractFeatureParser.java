@@ -281,9 +281,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
                   oneArgument = proxy;
                 }
                 if (!clazz.isAssignableFrom(oneArgument.getClass())) {
-                  throw new FeatureSyntaxException(
-                      "Mismatched array types: " + clazz.getSimpleName() + ", " + oneArgument.getClass().getSimpleName(), descriptor,
-                      topLevelDescriptor);
+                  throw new FeatureSyntaxException("Mismatched array types: " + clazz.getSimpleName() + ", " + oneArgument.getClass().getSimpleName(),
+                      descriptor, topLevelDescriptor);
                 }
                 argumentArray[j++] = oneArgument;
               } // next argument
@@ -377,8 +376,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
 
       if (constructor == null)
         throw new NoConstructorFoundException(
-            "No constructor found for " + descriptor.getFunctionName() + " (" + featureClass.getName() + ") matching the arguments provided",
-            descriptor, topLevelDescriptor);
+            "No constructor found for " + descriptor.getFunctionName() + " (" + featureClass.getName() + ") matching the arguments provided", descriptor,
+            topLevelDescriptor);
 
       for (Object[] myArguments : argumentsList) {
         @SuppressWarnings("rawtypes")
@@ -471,20 +470,20 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
   }
 
   /**
-   * Is it possible to convert a given argument type to the requested
-   * parameter type?
+   * Is it possible to convert a given argument type to the requested parameter
+   * type?
    */
   protected abstract boolean canConvert(Class<?> parameterType, Class<?> originalArgumentType);
 
   /**
-   * If canConvert returned true, convert the original argument to the
-   * requested parameter type.
+   * If canConvert returned true, convert the original argument to the requested
+   * parameter type.
    */
   protected abstract Feature<T, ?> convertArgument(Class<?> parameterType, Feature<T, ?> originalArgument);
 
   /**
-   * Add the feature return-type interface if required, so that the feature
-   * can be used as an argument for features requiring this return type.
+   * Add the feature return-type interface if required, so that the feature can
+   * be used as an argument for features requiring this return type.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   Feature<T, ?> convertFeature(Feature<T, ?> feature) {
@@ -506,8 +505,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
   }
 
   /**
-   * Add the feature return-type interface if required, so that the feature
-   * can be used as an argument for features requiring this return type.
+   * Add the feature return-type interface if required, so that the feature can
+   * be used as an argument for features requiring this return type.
    */
   public abstract Feature<T, ?> convertFeatureCustomType(Feature<T, ?> feature);
 
@@ -768,9 +767,9 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
    * addFeatureClass. Note: for a given classname which is mapped to two
    * different classes, one with IntegerFeature and one with DoubleFeature
    * arguments, the version with the IntegerFeature arguments should always be
-   * added first. This is only required if the class returns a different type
-   * of feature result (e.g. int or double) depending on the arguments
-   * provided.<br/>
+   * added first. This is only required if the class returns a different type of
+   * feature result (e.g. int or double) depending on the arguments provided.
+   * <br/>
    * 
    * Adds the following mappings before sub-class mappings:
    * <ul>
@@ -816,8 +815,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
    * <li>Integer: {@link IntegerLiteralFeatureWrapper}</li>
    * <li>Inverse: {@link InverseFeature}</li>
    * <li>IsNull: {@link IsNullFeature}</li>
-   * <li>MultivaluedExternalResource:
-   * {@link MultivaluedExternalResourceFeature}</li>
+   * <li>MultivaluedExternalResource: {@link MultivaluedExternalResourceFeature}
+   * </li>
    * <li>Normalise: {@link NormaliseFeature}</li>
    * <li>Not: {@link NotFeature}</li>
    * <li>NullIf: {@link NullIfStringFeature}</li>
@@ -882,9 +881,8 @@ public abstract class AbstractFeatureParser<T> implements FeatureParserInternal<
   /**
    * Given a feature descriptor, converts it into multiple feature descriptors
    * if required, for example when generating a separate feature for each
-   * pos-tag, or for an whole range of indexes. Should return a List
-   * containing the initial function descriptor if no modification is
-   * required.
+   * pos-tag, or for an whole range of indexes. Should return a List containing
+   * the initial function descriptor if no modification is required.
    */
   public abstract List<FunctionDescriptor> getModifiedDescriptors(FunctionDescriptor functionDescriptor);
 

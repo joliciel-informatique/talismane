@@ -50,8 +50,8 @@ public class RegexTokenAnnotator extends AbstractRegexAnnotator {
   private static final Set<String> handledParameters = new HashSet<>(Arrays.asList("replacement", "analysisText"));
 
   /**
-   * Assigns default groupIndex=0, caseSensitive=true,
-   * diacricticSensitive=true, autoWordBoundaries=false.
+   * Assigns default groupIndex=0, caseSensitive=true, diacricticSensitive=true,
+   * autoWordBoundaries=false.
    */
   public RegexTokenAnnotator(String regex, String replacement, String analysisText, TalismaneSession talismaneSession) throws SentenceAnnotatorLoadException {
     this(regex, replacement, analysisText, 0, true, true, false, talismaneSession);
@@ -97,8 +97,8 @@ public class RegexTokenAnnotator extends AbstractRegexAnnotator {
   }
 
   /**
-   * The analysis text to use for this token. See
-   * {@link Token#getAnalyisText()}.
+   * The analysis text to use for this token. See {@link Token#getAnalyisText()}
+   * .
    * 
    * @return
    */

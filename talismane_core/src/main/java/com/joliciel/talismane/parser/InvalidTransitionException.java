@@ -27,16 +27,14 @@ public class InvalidTransitionException extends TalismaneException {
   private static final long serialVersionUID = -590792696834580845L;
   private Transition transition;
   private ParseConfiguration configuration;
-  
-  public InvalidTransitionException(Transition transition,
-      ParseConfiguration configuration) {
+
+  public InvalidTransitionException(Transition transition, ParseConfiguration configuration) {
     super(transition.getCode() + ": " + configuration.toString());
     this.transition = transition;
     this.configuration = configuration;
   }
-  
-  public InvalidTransitionException(Transition transition,
-      ParseConfiguration configuration, String message) {
+
+  public InvalidTransitionException(Transition transition, ParseConfiguration configuration, String message) {
     super(message);
     this.transition = transition;
     this.configuration = configuration;
@@ -57,6 +55,5 @@ public class InvalidTransitionException extends TalismaneException {
   public void setConfiguration(ParseConfiguration configuration) {
     this.configuration = configuration;
   }
-  
-  
+
 }

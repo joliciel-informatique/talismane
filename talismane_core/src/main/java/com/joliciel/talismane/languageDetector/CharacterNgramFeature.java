@@ -29,26 +29,24 @@ import com.joliciel.talismane.machineLearning.features.RuntimeEnvironment;
 import com.joliciel.talismane.machineLearning.features.StringCollectionFeature;
 import com.joliciel.talismane.utils.WeightedOutcome;
 
-public class CharacterNgramFeature extends AbstractLanguageDetectorFeature<List<WeightedOutcome<String>>> implements StringCollectionFeature<String> {
+public class CharacterNgramFeature extends AbstractLanguageDetectorFeature<List<WeightedOutcome<String>>>implements StringCollectionFeature<String> {
   int n;
-  
-  
+
   public CharacterNgramFeature(int n) {
     super();
     this.n = n;
-    
+
     String name = super.getName() + "(" + n + ")";
     this.setName(name);
   }
 
   @Override
-  public FeatureResult<List<WeightedOutcome<String>>> check(String context,
-      RuntimeEnvironment env) {
+  public FeatureResult<List<WeightedOutcome<String>>> check(String context, RuntimeEnvironment env) {
     Map<String, Integer> ngrams = new HashMap<String, Integer>();
-    for (int i=0; i<=context.length()-n; i++) {
-      String ngram = context.substring(i, i+n);
+    for (int i = 0; i <= context.length() - n; i++) {
+      String ngram = context.substring(i, i + n);
       Integer countObj = ngrams.get(ngram);
-      int count = countObj==null ? 0 : countObj.intValue();
+      int count = countObj == null ? 0 : countObj.intValue();
       count += 1;
       ngrams.put(ngram, count);
     }
@@ -57,7 +55,7 @@ public class CharacterNgramFeature extends AbstractLanguageDetectorFeature<List<
       WeightedOutcome<String> weightedNgram = new WeightedOutcome<String>(ngram, ngrams.get(ngram));
       ngramList.add(weightedNgram);
     }
-    
+
     return this.generateResult(ngramList);
   }
 

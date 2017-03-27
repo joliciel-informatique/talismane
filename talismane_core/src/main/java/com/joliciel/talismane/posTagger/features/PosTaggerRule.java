@@ -52,8 +52,8 @@ public final class PosTaggerRule {
   }
 
   /**
-   * The tag to apply if the condition evaluates to true for a positive rule,
-   * or to avoid if it is a negative rule.
+   * The tag to apply if the condition evaluates to true for a positive rule, or
+   * to avoid if it is a negative rule.
    */
   public PosTag getTag() {
     return tag;

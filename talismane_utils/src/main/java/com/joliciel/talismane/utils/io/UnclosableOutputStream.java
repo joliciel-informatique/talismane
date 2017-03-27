@@ -23,12 +23,12 @@ import java.io.OutputStream;
 
 public class UnclosableOutputStream extends OutputStream {
   OutputStream wrappedStream;
-  
+
   public UnclosableOutputStream(OutputStream wrappedStream) {
     super();
     this.wrappedStream = wrappedStream;
   }
-  
+
   @Override
   public void write(int b) throws IOException {
     this.wrappedStream.write(b);

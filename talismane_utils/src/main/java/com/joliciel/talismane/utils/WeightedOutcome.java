@@ -21,7 +21,9 @@ package com.joliciel.talismane.utils;
 import java.io.Serializable;
 
 /**
- * An outcome/value pair that orders automatically in descending order (from highest to lowest weight).
+ * An outcome/value pair that orders automatically in descending order (from
+ * highest to lowest weight).
+ * 
  * @author Assaf Urieli
  *
  */
@@ -31,33 +33,29 @@ public class WeightedOutcome<T> implements Comparable<WeightedOutcome<T>>, Seria
   private double weight;
   private transient double weightLog;
   private transient boolean weightLogCalculated = false;
-  
+
   public WeightedOutcome(T outcome, double weight) {
     this.outcome = outcome;
     this.weight = weight;
   }
-  
-  
+
   public void setOutcome(T outcome) {
     this.outcome = outcome;
   }
-
 
   public void setWeight(double value) {
     this.weight = value;
     this.weightLogCalculated = false;
   }
 
-
   public T getOutcome() {
     return outcome;
   }
 
-
   public double getWeight() {
     return weight;
   }
-  
+
   public double getWeightLog() {
     if (!weightLogCalculated) {
       weightLog = Math.log(weight);
@@ -66,26 +64,23 @@ public class WeightedOutcome<T> implements Comparable<WeightedOutcome<T>>, Seria
     return weightLog;
   }
 
-
   @Override
   public int compareTo(WeightedOutcome<T> o) {
-    if (this.getWeight()<o.getWeight()) {
+    if (this.getWeight() < o.getWeight()) {
       return 1;
-    } else if (this.getWeight()>o.getWeight()) {
+    } else if (this.getWeight() > o.getWeight()) {
       return -1;
     } else {
       int nameCompare = this.getOutcome().toString().compareTo(o.getOutcome().toString());
-      if (nameCompare!=0) return nameCompare;
-      return this.hashCode()-o.hashCode();
+      if (nameCompare != 0)
+        return nameCompare;
+      return this.hashCode() - o.hashCode();
     }
   }
 
-
   @Override
   public String toString() {
-    return "[" + outcome + "," + weight
-        + "]";
+    return "[" + outcome + "," + weight + "]";
   }
-  
-  
+
 }

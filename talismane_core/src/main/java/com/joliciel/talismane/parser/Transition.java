@@ -36,9 +36,9 @@ public interface Transition extends Comparable<Transition> {
    * Apply the transition to the configuration provided.
    * 
    * @throws InvalidTransitionException
-   *             if transition cannot be applied in current conditions
+   *           if transition cannot be applied in current conditions
    * @throws CircularDependencyException
-   *             if this would generate a ciruclar dependency
+   *           if this would generate a ciruclar dependency
    */
   public void apply(ParseConfiguration configuration) throws InvalidTransitionException, CircularDependencyException;
 

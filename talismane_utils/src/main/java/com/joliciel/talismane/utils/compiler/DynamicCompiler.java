@@ -35,7 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A compiler for compiling classes whose source code has been constructed dynamically in memory.
+ * A compiler for compiling classes whose source code has been constructed
+ * dynamically in memory.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -55,7 +57,7 @@ public class DynamicCompiler {
   }
 
   public Class<?> compile(String name, CharSequence source, List<String> optionList) {
-    Map<String,CharSequence> sources = new HashMap<String, CharSequence>();
+    Map<String, CharSequence> sources = new HashMap<String, CharSequence>();
     sources.put(name, source);
     Map<String, Class<?>> compiledClasses = this.compileMany(sources, optionList);
     Class<?> clazz = compiledClasses.get(name);
@@ -68,36 +70,30 @@ public class DynamicCompiler {
     // prepare the JavaFileObjects to be compiled
     for (String qualifiedName : sources.keySet()) {
       CharSequence sourceCode = sources.get(qualifiedName);
-      
+
       String className = qualifiedName;
       String packageName = "";
       int lastDot = qualifiedName.lastIndexOf('.');
-      if (lastDot>=0) {
+      if (lastDot >= 0) {
         packageName = qualifiedName.substring(0, lastDot);
         className = qualifiedName.substring(lastDot + 1);
       }
-      
+
       InMemoryJavaFileObject sourceObject = new InMemoryJavaFileObject(className, sourceCode);
 
-      this.inMemoryFileManager.prepareJavaFileObject(StandardLocation.SOURCE_PATH,
-          packageName,
-          className + ".java",
-          sourceObject);
-      
+      this.inMemoryFileManager.prepareJavaFileObject(StandardLocation.SOURCE_PATH, packageName, className + ".java", sourceObject);
+
       sourceObjects.add(sourceObject);
     }
 
     // Perform the compilation
-    CompilationTask task = this.javaCompiler.getTask(null,
-        this.inMemoryFileManager,
-        diagonosticListener,
-        optionList, null, sourceObjects);
+    CompilationTask task = this.javaCompiler.getTask(null, this.inMemoryFileManager, diagonosticListener, optionList, null, sourceObjects);
 
     Boolean result = task.call();
-    if (result==null || !result) {
+    if (result == null || !result) {
       LOG.info("Compilation failed.");
       for (JavaFileObject sourceObject : sourceObjects)
-        System.out.println(((InMemoryJavaFileObject)sourceObject).getCharContent(true));
+        System.out.println(((InMemoryJavaFileObject) sourceObject).getCharContent(true));
       throw new DynamicCompilerException("Compilation failed.");
     }
 

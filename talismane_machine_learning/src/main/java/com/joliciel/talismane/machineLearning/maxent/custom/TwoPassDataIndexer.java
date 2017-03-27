@@ -61,8 +61,8 @@ public class TwoPassDataIndexer extends AbstractDataIndexer {
    * constructor assuming no cutoff.
    *
    * @param eventStream
-   *            An Event[] which contains the a list of all the Events seen in
-   *            the training data.
+   *          An Event[] which contains the a list of all the Events seen in the
+   *          training data.
    */
   public TwoPassDataIndexer(EventStream eventStream) throws IOException {
     this(eventStream, 0);
@@ -76,11 +76,11 @@ public class TwoPassDataIndexer extends AbstractDataIndexer {
    * Two argument constructor for DataIndexer.
    *
    * @param eventStream
-   *            An Event[] which contains the a list of all the Events seen in
-   *            the training data.
+   *          An Event[] which contains the a list of all the Events seen in the
+   *          training data.
    * @param cutoff
-   *            The minimum number of times a predicate must have been
-   *            observed in order to be included in the model.
+   *          The minimum number of times a predicate must have been observed in
+   *          order to be included in the model.
    */
   @SuppressWarnings("unchecked")
   public TwoPassDataIndexer(EventStream eventStream, int cutoff, boolean sort) throws IOException {
@@ -125,14 +125,13 @@ public class TwoPassDataIndexer extends AbstractDataIndexer {
    * with a unique integer index.
    *
    * @param eventStream
-   *            an <code>EventStream</code> value
+   *          an <code>EventStream</code> value
    * @param eventStore
-   *            a writer to which the events are written to for later
-   *            processing.
+   *          a writer to which the events are written to for later processing.
    * @param predicatesInOut
-   *            a <code>TObjectIntHashMap</code> value
+   *          a <code>TObjectIntHashMap</code> value
    * @param cutoff
-   *            an <code>int</code> value
+   *          an <code>int</code> value
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private int computeEventCounts(EventStream eventStream, Writer eventStore, Map<String, Integer> predicatesInOut, int cutoff) throws IOException {

@@ -98,8 +98,7 @@ class MaxentDetailedAnalysisWriter implements ClassificationObserver {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.joliciel.talismane.maxent.MaxentObserver#onAnalyse(java.util.List,
+   * @see com.joliciel.talismane.maxent.MaxentObserver#onAnalyse(java.util.List,
    * java.util.Collection)
    */
   @Override
@@ -148,8 +147,8 @@ class MaxentDetailedAnalysisWriter implements ClassificationObserver {
     for (String outcome : outcomeList) {
       double total = outcomeTotals.get(outcome);
       double expTotal = Math.exp(total);
-      writer.append(String.format("%1$-30s", outcome) + String.format("%1$#15s", decFormat.format(total))
-          + String.format("%1$#15s", decFormat.format(expTotal)) + String.format("%1$#15s", decFormat.format(expTotal / grandTotal)) + "\n");
+      writer.append(String.format("%1$-30s", outcome) + String.format("%1$#15s", decFormat.format(total)) + String.format("%1$#15s", decFormat.format(expTotal))
+          + String.format("%1$#15s", decFormat.format(expTotal / grandTotal)) + "\n");
     }
     writer.append("\n");
 
@@ -167,8 +166,7 @@ class MaxentDetailedAnalysisWriter implements ClassificationObserver {
       weightedOutcomes.add(weightedOutcome);
     }
     for (WeightedOutcome<String> weightedOutcome : weightedOutcomes) {
-      writer.append(
-          String.format("%1$-30s", weightedOutcome.getOutcome()) + String.format("%1$#15s", decFormat.format(weightedOutcome.getWeight())) + "\n");
+      writer.append(String.format("%1$-30s", weightedOutcome.getOutcome()) + String.format("%1$#15s", decFormat.format(weightedOutcome.getWeight())) + "\n");
     }
     writer.append("\n");
     writer.flush();
@@ -179,8 +177,8 @@ class MaxentDetailedAnalysisWriter implements ClassificationObserver {
     writer.append("outcome=" + featureOutcome + "\n");
     writer.append("value=" + String.format("%1$-30s", value) + "\n");
 
-    writer.append(String.format("%1$-30s", "outcome") + String.format("%1$#15s", "weight") + String.format("%1$#15s", "total")
-        + String.format("%1$#15s", "exp") + "\n");
+    writer.append(
+        String.format("%1$-30s", "outcome") + String.format("%1$#15s", "weight") + String.format("%1$#15s", "total") + String.format("%1$#15s", "exp") + "\n");
     int predicateIndex = predicateTable.get(featureName);
     if (predicateIndex >= 0) {
       Context context = modelParameters[predicateIndex];
@@ -207,8 +205,8 @@ class MaxentDetailedAnalysisWriter implements ClassificationObserver {
 
         double total = value * weight;
         double exp = Math.exp(total);
-        writer.append(String.format("%1$-30s", outcome) + String.format("%1$#15s", decFormat.format(weight))
-            + String.format("%1$#15s", decFormat.format(total)) + String.format("%1$#15s", decFormat.format(exp)) + "\n");
+        writer.append(String.format("%1$-30s", outcome) + String.format("%1$#15s", decFormat.format(weight)) + String.format("%1$#15s", decFormat.format(total))
+            + String.format("%1$#15s", decFormat.format(exp)) + "\n");
 
         double runningTotal = outcomeTotals.get(outcome);
         runningTotal += total;

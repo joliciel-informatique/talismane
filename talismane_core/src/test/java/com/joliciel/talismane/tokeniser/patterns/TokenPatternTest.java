@@ -386,8 +386,7 @@ public class TokenPatternTest {
     TokenSequence tokenSequence = new TokenSequence(sentence, session);
     tokenSequence.findDefaultTokens();
 
-    TokenPattern tokenPattern = new TokenPattern(
-        "{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+",
+    TokenPattern tokenPattern = new TokenPattern("{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+",
         Tokeniser.getTokenSeparators(session));
 
     List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);
@@ -407,8 +406,7 @@ public class TokenPatternTest {
     TokenSequence tokenSequence = new TokenSequence(sentence, session);
     tokenSequence.findDefaultTokens();
 
-    TokenPattern tokenPattern = new TokenPattern(
-        "{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+",
+    TokenPattern tokenPattern = new TokenPattern("{(?![cdjlmnstCDJLMNST]\\z|qu\\z|jusqu\\z|puisqu\\z|lorsqu\\z|aujourd\\z|prud\\z|quelqu\\z|quoiqu\\z).+'}.+",
         Tokeniser.getTokenSeparators(session));
 
     List<TokenPatternMatchSequence> patternMatches = tokenPattern.match(tokenSequence);

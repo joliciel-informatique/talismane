@@ -19,8 +19,9 @@
 package com.joliciel.talismane.machineLearning.features;
 
 /**
- * Simply a marker class for storing something in the cache
- * to indicate a feature has already been checked.
+ * Simply a marker class for storing something in the cache to indicate a
+ * feature has already been checked.
+ * 
  * @author Assaf Urieli
  *
  */

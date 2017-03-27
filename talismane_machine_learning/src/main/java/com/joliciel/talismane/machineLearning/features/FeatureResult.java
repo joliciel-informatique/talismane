@@ -20,6 +20,7 @@ package com.joliciel.talismane.machineLearning.features;
 
 /**
  * An outcome for a given feature.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -28,20 +29,21 @@ public interface FeatureResult<T> {
   /**
    * The feature that was tested.
    */
-  public abstract Feature<?,T> getFeature();
+  public abstract Feature<?, T> getFeature();
 
   /**
    * The outcome.
    */
   public abstract T getOutcome();
-  
+
   /**
    * The name of this feature result to be used when training and analysing.
    */
   public String getTrainingName();
-  
+
   /**
-   * Convert a String outcome to a format that can safely be included in a training file.
+   * Convert a String outcome to a format that can safely be included in a
+   * training file.
    */
   public String getTrainingOutcome(String outcome);
 

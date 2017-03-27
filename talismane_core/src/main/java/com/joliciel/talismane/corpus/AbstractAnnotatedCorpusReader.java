@@ -41,8 +41,8 @@ public abstract class AbstractAnnotatedCorpusReader implements AnnotatedCorpusRe
   protected final TalismaneSession session;
 
   /**
-   * Add attributes as specified in the config to the corpus reader.
-   * Recognises the attributes:
+   * Add attributes as specified in the config to the corpus reader. Recognises
+   * the attributes:
    * <ul>
    * <li>sentence-count</li>
    * <li>start-sentence</li>
@@ -52,7 +52,7 @@ public abstract class AbstractAnnotatedCorpusReader implements AnnotatedCorpusRe
    * </ul>
    * 
    * @param config
-   *            the local config for this corpus reader (local namespace)
+   *          the local config for this corpus reader (local namespace)
    */
   public AbstractAnnotatedCorpusReader(Config config, TalismaneSession session) {
     this.session = session;

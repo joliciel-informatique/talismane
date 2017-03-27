@@ -25,13 +25,14 @@ import com.joliciel.talismane.posTagger.PosTaggedToken;
 
 /**
  * Shift Buffer[0] over to Stack[0], without creating a new dependency.
+ * 
  * @author Assaf Urieli.
  *
  */
 public class ShiftTransition extends AbstractTransition implements Transition {
   private static final Logger LOG = LoggerFactory.getLogger(ShiftTransition.class);
   private static String name = "Shift";
-  
+
   public ShiftTransition() {
     super();
   }
@@ -41,7 +42,6 @@ public class ShiftTransition extends AbstractTransition implements Transition {
     PosTaggedToken element = configuration.getBuffer().removeFirst();
     configuration.getStack().push(element);
   }
-
 
   @Override
   public boolean checkPreconditions(ParseConfiguration configuration) {
@@ -57,7 +57,6 @@ public class ShiftTransition extends AbstractTransition implements Transition {
   public String getCode() {
     return name;
   }
-
 
   @Override
   public boolean doesReduce() {

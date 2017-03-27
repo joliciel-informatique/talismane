@@ -109,8 +109,8 @@ public class TokeniserPatternManager {
   }
 
   /**
-   * For each type of separator decision, a list of separators (e.g.
-   * punctuation marks) which will receive this decision by default.
+   * For each type of separator decision, a list of separators (e.g. punctuation
+   * marks) which will receive this decision by default.
    */
   public Map<SeparatorDecision, String> getSeparatorDefaults() {
     return separatorDefaults;

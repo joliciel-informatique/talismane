@@ -546,8 +546,7 @@ public class FScoreCalculator<E> {
     File directory = new File(args[0]);
     String prefix = args[1];
     String suffix = args[2];
-    Writer csvFileWriter = new BufferedWriter(
-        new OutputStreamWriter(new FileOutputStream(new File(directory, prefix + "A" + suffix + ".csv"), false), "UTF8"));
+    Writer csvFileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(directory, prefix + "A" + suffix + ".csv"), false), "UTF8"));
     combineCrossValidationResults(directory, prefix, suffix, csvFileWriter);
   }
 

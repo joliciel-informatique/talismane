@@ -75,10 +75,10 @@ public class PosTaggerEvaluator {
    * 
    * @param posTagger
    * @param corpusReader
-   *            for reading manually tagged tokens from a corpus
+   *          for reading manually tagged tokens from a corpus
    * 
    * @param tokeniser
-   *            if not null, evaluate tokenisation as well.
+   *          if not null, evaluate tokenisation as well.
    * @param session
    */
   public PosTaggerEvaluator(PosTagger posTagger, PosTagAnnotatedCorpusReader corpusReader, Tokeniser tokeniser, TalismaneSession session) {

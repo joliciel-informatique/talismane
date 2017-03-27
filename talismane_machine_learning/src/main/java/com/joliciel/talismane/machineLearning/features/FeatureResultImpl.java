@@ -21,34 +21,37 @@ package com.joliciel.talismane.machineLearning.features;
 import java.util.List;
 
 final class FeatureResultImpl<T> implements FeatureResult<T> {
-  private Feature<?,T> feature;
+  private Feature<?, T> feature;
   private T outcome;
   private String trainingName = null;
-  
-  public FeatureResultImpl(Feature<?,T> feature, T outcome) {
+
+  public FeatureResultImpl(Feature<?, T> feature, T outcome) {
     this.feature = feature;
-    if (outcome==null)
+    if (outcome == null)
       throw new RuntimeException("Trying to set null outcome");
 
     this.outcome = outcome;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.joliciel.talismane.posTagger.features.FeatureResult#getFeature()
    */
   @Override
-  public Feature<?,T> getFeature() {
+  public Feature<?, T> getFeature() {
     return feature;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.joliciel.talismane.posTagger.features.FeatureResult#getOutcome()
    */
   @Override
   public T getOutcome() {
     return this.outcome;
   }
-  
 
   @Override
   public String toString() {
@@ -60,12 +63,12 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
 
   @Override
   public String getTrainingName() {
-    if (trainingName==null) {
+    if (trainingName == null) {
       trainingName = feature.getName();
       if (!(outcome instanceof Double || outcome instanceof Integer || outcome instanceof List)) {
         String string = null;
         if (outcome instanceof String) {
-          string = this.getTrainingOutcome((String)outcome);
+          string = this.getTrainingOutcome((String) outcome);
         } else {
           string = outcome.toString();
         }
@@ -74,7 +77,7 @@ final class FeatureResultImpl<T> implements FeatureResult<T> {
     }
     return trainingName;
   }
-  
+
   public String getTrainingOutcome(String outcome) {
     String string = outcome;
     string = string.replace(' ', '·');

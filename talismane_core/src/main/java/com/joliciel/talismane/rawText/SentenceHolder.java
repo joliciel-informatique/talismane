@@ -58,10 +58,10 @@ class SentenceHolder {
    * 
    * @param session
    * @param originalStartIndex
-   *            where does this sentence holder start in the original text
+   *          where does this sentence holder start in the original text
    * @param endOfBlock
-   *            if this is an end-of-block, then any leftover text will be
-   *            added to a final complete sentence
+   *          if this is an end-of-block, then any leftover text will be added
+   *          to a final complete sentence
    */
   public SentenceHolder(TalismaneSession session, int originalStartIndex, boolean endOfBlock) {
     this.session = session;
@@ -83,15 +83,13 @@ class SentenceHolder {
 
   /**
    * Based on the sentence boundaries added, return all the sentences produced
-   * by this sentence holder. If there is any text left over, the last
-   * sentence will be marked as not complete. After this is called,
-   * {@link #getOriginalTextSegments()} will only return leftover original
-   * text segments that have not yet been assigned to sentences in the current
-   * list.
+   * by this sentence holder. If there is any text left over, the last sentence
+   * will be marked as not complete. After this is called,
+   * {@link #getOriginalTextSegments()} will only return leftover original text
+   * segments that have not yet been assigned to sentences in the current list.
    * 
    * @param leftover
-   *            an incomplete sentence returned by the previous sentence
-   *            holder.
+   *          an incomplete sentence returned by the previous sentence holder.
    */
   public List<Sentence> getDetectedSentences(Sentence leftover) {
     if (LOG.isTraceEnabled()) {
@@ -327,8 +325,8 @@ class SentenceHolder {
   }
 
   /**
-   * Returns the line number corresponding to a particular original index
-   * inside this sentence, starting at 1.
+   * Returns the line number corresponding to a particular original index inside
+   * this sentence, starting at 1.
    */
 
   public int getLineNumber(int originalIndex) {

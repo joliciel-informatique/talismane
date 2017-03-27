@@ -20,6 +20,7 @@ package com.joliciel.talismane.tokeniser;
 
 /**
  * A set of decisions regarding each separator.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -28,24 +29,27 @@ public enum SeparatorDecision {
    * The current symbol has a token separation before and after it.
    */
   IS_SEPARATOR,
-  
+
   /**
-   * The current symbol is separated from the symbol preceding it, but attached to the following one.
+   * The current symbol is separated from the symbol preceding it, but attached
+   * to the following one.
    */
   IS_SEPARATOR_BEFORE,
-  
+
   /**
-   * The current symbol is separated from the symbol following it, but attached to the preceding one.
+   * The current symbol is separated from the symbol following it, but attached
+   * to the preceding one.
    */
   IS_SEPARATOR_AFTER,
-  
+
   /**
    * The current symbol is not a separator.
    */
   IS_NOT_SEPARATOR,
-  
+
   /**
-   * The current symbol doesn't require a tokeniser decision (it's not a separator).
+   * The current symbol doesn't require a tokeniser decision (it's not a
+   * separator).
    */
   NOT_APPLICABLE
 }

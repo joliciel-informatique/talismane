@@ -44,9 +44,9 @@ public interface PosTagger {
   /**
    * If this attribute is added to a {@link Token} via
    * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
-   * {@link RegexAnnotator}), the token in question will get the pos-tag in
-   * the attribute value assigned to it without consulting the statistical
-   * model. This is an alternative to using pos-tagger rules.
+   * {@link RegexAnnotator}), the token in question will get the pos-tag in the
+   * attribute value assigned to it without consulting the statistical model.
+   * This is an alternative to using pos-tagger rules.
    */
   public static final String POS_TAG_ATTRIBUTE = "posTag";
 
@@ -54,8 +54,8 @@ public interface PosTagger {
    * If this attribute is added to a {@link Token} via
    * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
    * {@link RegexAnnotator}), and the value of this attribute is
-   * "originalLower", then the token's lemma will be set to the original
-   * value, forced into lowercase.
+   * "originalLower", then the token's lemma will be set to the original value,
+   * forced into lowercase.
    */
   public static final String LEMMA_TYPE_ATTRIBUTE = "lemmaType";
 
@@ -63,8 +63,7 @@ public interface PosTagger {
    * If this attribute is added to a {@link Token} via
    * {@link Token#addAttribute(String, TokenAttribute)} (typically using a
    * {@link RegexAnnotator}), and the value of this attribute is
-   * "originalLower", then the token's lemma will be set to the value
-   * provided.
+   * "originalLower", then the token's lemma will be set to the value provided.
    */
   public static final String LEMMA_ATTRIBUTE = "lemma";
 
@@ -72,9 +71,8 @@ public interface PosTagger {
    * Apply PosTags to the tokens in a given sentence.
    * 
    * @param tokenSequence
-   *            the List of tokens comprising the sentence.
-   * @return a List of TaggedToken reflecting the PosTags applied to the
-   *         tokens.
+   *          the List of tokens comprising the sentence.
+   * @return a List of TaggedToken reflecting the PosTags applied to the tokens.
    * @throws UnknownPosTagException
    * @throws TalismaneException
    * @throws IOException

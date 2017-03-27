@@ -84,7 +84,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
    * @param ruleDescriptors
    * @return
    * @throws TalismaneException
-   *             if a rule is incorrectly configured
+   *           if a rule is incorrectly configured
    */
   public List<PosTaggerRule> getRules(List<String> ruleDescriptors) throws TalismaneException {
     List<PosTaggerRule> rules = new ArrayList<PosTaggerRule>();
@@ -170,8 +170,7 @@ public class PosTaggerFeatureParser extends AbstractFeatureParser<PosTaggerConte
   }
 
   /**
-   * Add pos-tagged token feature classes to the container provided,
-   * including:
+   * Add pos-tagged token feature classes to the container provided, including:
    * <ul>
    * <li>Aspect: {@link VerbAspectFeature}</li>
    * <li>Case: {@link GrammaticalCaseFeature}</li>

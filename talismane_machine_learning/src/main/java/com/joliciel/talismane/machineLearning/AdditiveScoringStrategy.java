@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * For perceptrons and other additive score methods.
- * Simply adds all of the scores for individual decisions,
- * and divides by the number of decisions.
+ * For perceptrons and other additive score methods. Simply adds all of the
+ * scores for individual decisions, and divides by the number of decisions.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -34,14 +34,14 @@ public class AdditiveScoringStrategy implements ScoringStrategy<ClassificationSo
   @Override
   public double calculateScore(ClassificationSolution solution) {
     double score = 0;
-    if (solution!=null && solution.getDecisions().size()>0) {
+    if (solution != null && solution.getDecisions().size() > 0) {
       for (Decision decision : solution.getDecisions())
         score += decision.getScore();
       score /= solution.getDecisions().size();
     }
-    
+
     if (LOG.isTraceEnabled()) {
-      if (solution!=null) {
+      if (solution != null) {
         LOG.trace("Score for solution: " + solution.getClass().getSimpleName());
         LOG.trace(solution.toString());
         StringBuilder sb = new StringBuilder();
@@ -53,16 +53,16 @@ public class AdditiveScoringStrategy implements ScoringStrategy<ClassificationSo
         sb.append(solution.getDecisions().size());
         sb.append(" = ");
         sb.append(score);
-  
+
         LOG.trace(sb.toString());
       }
     }
-    
+
     for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
       if (solution.getScoringStrategy().isAdditive())
         score += underlyingSolution.getScore();
     }
-    
+
     if (LOG.isTraceEnabled()) {
       for (Solution underlyingSolution : solution.getUnderlyingSolutions()) {
         if (solution.getScoringStrategy().isAdditive())

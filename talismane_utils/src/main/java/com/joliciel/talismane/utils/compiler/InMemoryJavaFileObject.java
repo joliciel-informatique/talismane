@@ -36,8 +36,7 @@ final class InMemoryJavaFileObject extends SimpleJavaFileObject {
   private ByteArrayOutputStream compiledClass;
 
   InMemoryJavaFileObject(final String baseName, final CharSequence source) {
-    super(getURI(baseName + ".java"),
-        Kind.SOURCE);
+    super(getURI(baseName + ".java"), Kind.SOURCE);
     this.sourceCode = source;
   }
 
@@ -50,9 +49,8 @@ final class InMemoryJavaFileObject extends SimpleJavaFileObject {
    * Return the source code.
    */
   @Override
-  public CharSequence getCharContent(final boolean ignoreEncodingErrors)
-  throws UnsupportedOperationException {
-    if (sourceCode==null)
+  public CharSequence getCharContent(final boolean ignoreEncodingErrors) throws UnsupportedOperationException {
+    if (sourceCode == null)
       throw new UnsupportedOperationException("getCharContent()");
     return sourceCode;
   }

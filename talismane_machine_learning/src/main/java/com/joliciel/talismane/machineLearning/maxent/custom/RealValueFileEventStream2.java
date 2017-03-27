@@ -59,9 +59,9 @@ public class RealValueFileEventStream2 extends AbstractEventStream {
    * Creates a new file event stream from the specified file name.
    * 
    * @param fileName
-   *            the name fo the file containing the events.
+   *          the name fo the file containing the events.
    * @throws IOException
-   *             When the specified file can not be read.
+   *           When the specified file can not be read.
    */
   public RealValueFileEventStream2(String fileName, String encoding) throws IOException {
     if (encoding == null) {
@@ -79,9 +79,9 @@ public class RealValueFileEventStream2 extends AbstractEventStream {
    * Creates a new file event stream from the specified file.
    * 
    * @param file
-   *            the file containing the events.
+   *          the file containing the events.
    * @throws IOException
-   *             When the specified file can not be read.
+   *           When the specified file can not be read.
    */
   public RealValueFileEventStream2(File file) throws IOException {
     reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
@@ -141,7 +141,7 @@ public class RealValueFileEventStream2 extends AbstractEventStream {
    * Generates a string representing the specified event.
    * 
    * @param event
-   *            The event for which a string representation is needed.
+   *          The event for which a string representation is needed.
    * @return A string representing the specified event.
    */
   public static String toLine(Event event) {
@@ -165,14 +165,14 @@ public class RealValueFileEventStream2 extends AbstractEventStream {
   }
 
   /**
-   * Trains and writes a model based on the events in the specified event
-   * file. the name of the model created is based on the event file name.
+   * Trains and writes a model based on the events in the specified event file.
+   * the name of the model created is based on the event file name.
    * 
    * @param args
-   *            eventfile [iterations cuttoff]
+   *          eventfile [iterations cuttoff]
    * @throws IOException
-   *             when the eventfile can not be read or the model file can not
-   *             be written.
+   *           when the eventfile can not be read or the model file can not be
+   *           written.
    */
   public static void main(String[] args) throws IOException {
     if (args.length == 0) {

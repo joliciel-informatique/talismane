@@ -30,17 +30,17 @@ import com.joliciel.talismane.machineLearning.maxent.custom.BinaryGISModelWriter
 
 /**
  * A Maxent model writer that can write directly to an OutputStream.
+ * 
  * @author Assaf Urieli
  *
  */
 class MaxentModelWriterWrapper extends GISModelWriter {
   private final GISModelWriter writer;
   private OutputStream outputStream;
-  
+
   public MaxentModelWriterWrapper(MaxentModel model, OutputStream outputStream) {
     super((AbstractModel) model);
-    writer = new BinaryGISModelWriter(model,
-              new DataOutputStream(outputStream));
+    writer = new BinaryGISModelWriter(model, new DataOutputStream(outputStream));
     this.outputStream = outputStream;
   }
 

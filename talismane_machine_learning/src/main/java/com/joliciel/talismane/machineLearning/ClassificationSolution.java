@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * A solution to a particular classification problem.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -30,7 +31,7 @@ public interface ClassificationSolution extends Solution {
    * The decisions which were used to arrive at this solution.
    */
   public List<Decision> getDecisions();
-  
+
   /**
    * Add a decision to this particular solution.
    */

@@ -71,8 +71,8 @@ import gnu.trove.set.hash.TIntHashSet;
  */
 public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
   /**
-   * The Linear SVM solver algorithms. Since we want a probabilistic
-   * classifier, our options here are limited to logistic regression.
+   * The Linear SVM solver algorithms. Since we want a probabilistic classifier,
+   * our options here are limited to logistic regression.
    * 
    * @author Assaf Urieli
    *
@@ -299,11 +299,11 @@ public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
         // problem.y = ... // target values
 
         problem.l = countingInfo.numEvents; // number of training
-                          // examples
+        // examples
         problem.n = countingInfo.currentFeatureIndex; // number of
-                                // features
+        // features
         problem.x = myFeatureMatrix; // feature nodes - note: must
-                        // be ordered by index
+        // be ordered by index
         problem.y = myOutcomeArray; // target values
 
         Parameter parameter = new Parameter(solver, this.constraintViolationCost, this.epsilon);
@@ -329,11 +329,11 @@ public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
       // problem.y = ... // target values
 
       problem.l = countingInfo.numEvents; // number of training
-                        // examples
+      // examples
       problem.n = countingInfo.currentFeatureIndex; // number of
-                              // features
+      // features
       problem.x = featureMatrix; // feature nodes - note: must be
-                    // ordered by index
+      // ordered by index
       problem.y = outcomeArray; // target values
 
       Parameter parameter = new Parameter(solver, this.constraintViolationCost, this.epsilon);
@@ -429,8 +429,8 @@ public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
     }
   }
 
-  void addFeatureResult(String featureName, double value, Map<Integer, Feature> featureList, TObjectIntMap<String> featureIndexMap,
-      TIntIntMap featureCountMap, CountingInfo countingInfo) {
+  void addFeatureResult(String featureName, double value, Map<Integer, Feature> featureList, TObjectIntMap<String> featureIndexMap, TIntIntMap featureCountMap,
+      CountingInfo countingInfo) {
 
     int featureIndex = featureIndexMap.get(featureName);
     if (featureIndex < 0) {
@@ -520,8 +520,8 @@ public class LinearSVMModelTrainer implements ClassificationMultiModelTrainer {
 
   /**
    * If one vs. rest is used, should we balance the event counts so that the
-   * current outcome events are approximately proportional to the other
-   * outcome events?
+   * current outcome events are approximately proportional to the other outcome
+   * events?
    */
   public boolean isBalanceEventCounts() {
     return balanceEventCounts;

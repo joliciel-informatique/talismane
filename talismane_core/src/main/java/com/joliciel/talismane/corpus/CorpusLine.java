@@ -69,8 +69,8 @@ public class CorpusLine {
      */
     NON_PROJ_LABEL("(.*?)"),
     /**
-     * The index of the token governing this token. A value of 0 indicates
-     * an invisible "root" token as a governor
+     * The index of the token governing this token. A value of 0 indicates an
+     * invisible "root" token as a governor
      */
     NON_PROJ_GOVERNOR("(\\d+)"),
     /**
@@ -79,9 +79,9 @@ public class CorpusLine {
      */
     LABEL("(.*?)"),
     /**
-     * This index of the token governing this token when the full tree has
-     * been made projective. A value of 0 indicates an invisible "root"
-     * token as a governor.
+     * This index of the token governing this token when the full tree has been
+     * made projective. A value of 0 indicates an invisible "root" token as a
+     * governor.
      */
     GOVERNOR("(\\d+)"),
     /**

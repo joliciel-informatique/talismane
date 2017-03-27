@@ -313,9 +313,9 @@ public class LexiconFile extends CompactLexicalEntrySupport implements PosTagger
   }
 
   /**
-   * A list of specific items to exclude when loading the lexicon. Each
-   * internal list is a list of attributes, all of which must match for the
-   * provided {@link #getExclusionAttributes()} for the entry to get excluded.
+   * A list of specific items to exclude when loading the lexicon. Each internal
+   * list is a list of attributes, all of which must match for the provided
+   * {@link #getExclusionAttributes()} for the entry to get excluded.
    */
   public void setExclusions(List<List<String>> exclusions) {
     this.exclusions = exclusions;

@@ -39,8 +39,8 @@ public class Decision implements Comparable<Decision> {
   private final boolean statistical;
 
   /**
-   * Create the decision corresponding to a particular name. This decision
-   * will be considered statistical.
+   * Create the decision corresponding to a particular name. This decision will
+   * be considered statistical.
    */
   public Decision(String outcome, double probability) {
     this.outcome = outcome;
@@ -62,8 +62,8 @@ public class Decision implements Comparable<Decision> {
 
   /**
    * Create the decision corresponding to a particular name, with a score and
-   * probability, for additive scoring systems (e.g. perceptrons). This
-   * decision will be considered statistical.
+   * probability, for additive scoring systems (e.g. perceptrons). This decision
+   * will be considered statistical.
    */
   public Decision(String outcome, double score, double probability) {
     this.outcome = outcome;
@@ -80,8 +80,7 @@ public class Decision implements Comparable<Decision> {
   }
 
   /**
-   * The decision's raw score, for additive scoring systems (e.g.
-   * perceptrons).
+   * The decision's raw score, for additive scoring systems (e.g. perceptrons).
    */
   public double getScore() {
     return score;
@@ -95,8 +94,8 @@ public class Decision implements Comparable<Decision> {
   }
 
   /**
-   * The log of this decision's probability. Avoids calculating the log
-   * multiple times.
+   * The log of this decision's probability. Avoids calculating the log multiple
+   * times.
    */
   public double getProbabilityLog() {
     if (!probabilityLogCalculated) {
@@ -122,9 +121,9 @@ public class Decision implements Comparable<Decision> {
 
   /**
    * A list of decision authorities which helped to make this decision. Useful
-   * when decisions are made by different authorities based on certain
-   * criteria - allows us to establish an f-score by authority, as well as
-   * analysing errors by authority.
+   * when decisions are made by different authorities based on certain criteria
+   * - allows us to establish an f-score by authority, as well as analysing
+   * errors by authority.
    */
   public List<String> getAuthorities() {
     return this.authorities;

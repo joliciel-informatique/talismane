@@ -20,20 +20,21 @@ package com.joliciel.talismane.stats;
 
 /**
  * Stores a probability and gives access to its log.
+ * 
  * @author Assaf Urieli
  *
  */
 public class LogProbability implements Probability {
   private double value = 0.0;
   private Double log = null;
-  
+
   public LogProbability(double value) {
     this.value = value;
   }
-  
+
   @Override
   public double getLog() {
-    if (this.log==null) {
+    if (this.log == null) {
       this.log = Math.log(this.value);
     }
     return this.log.doubleValue();

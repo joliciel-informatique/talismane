@@ -27,12 +27,11 @@ public interface SentenceAnnotatorFactory<T extends SentenceAnnotator> {
    * Construct a sentence annotator using the descriptor provided.
    * 
    * @param descriptor
-   *            the descriptor for this particular annotator
+   *          the descriptor for this particular annotator
    * @param defaultParams
-   *            any default parameters providing default values for this
-   *            annotator
+   *          any default parameters providing default values for this annotator
    * @param session
-   *            the current Talismane session
+   *          the current Talismane session
    */
   public T construct(String descriptor, Map<String, String> defaultParams, TalismaneSession session);
 }

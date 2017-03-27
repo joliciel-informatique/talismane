@@ -150,14 +150,13 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
         for (String tagger : taggerFScoreCalculators.keySet()) {
           FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
           errorWriter.write("###### Tagger " + tagger + ": f-score = " + taggerFScoreCalculator.getTotalFScore() + "\n");
-          errorWriter.write(
-              "Total " + (taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()) + "\n");
+          errorWriter.write("Total " + (taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()) + "\n");
           errorWriter.write("True + " + taggerFScoreCalculator.getTotalTruePositiveCount() + "\n");
           errorWriter.write("False- " + taggerFScoreCalculator.getTotalFalseNegativeCount() + "\n");
           errorWriter.write("False+ " + taggerFScoreCalculator.getTotalFalsePositiveCount() + "\n");
           for (TokeniserOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
-            errorWriter.write(outcome + " total  "
-                + (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
+            errorWriter.write(
+                outcome + " total  " + (taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
             errorWriter.write(outcome + " true + " + (taggerFScoreCalculator.getTruePositiveCount(outcome)) + "\n");
             errorWriter.write(outcome + " false- " + (taggerFScoreCalculator.getFalseNegativeCount(outcome)) + "\n");
             errorWriter.write(outcome + " false+ " + (taggerFScoreCalculator.getFalsePositiveCount(outcome)) + "\n");
@@ -169,8 +168,7 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
           List<TokeniserErrorRecord> errors = errorMap.get(tagger);
           if (errors != null) {
             for (TokeniserErrorRecord errorRecord : errors) {
-              errorWriter.write(
-                  "guess " + errorRecord.guessDecision + ", real " + errorRecord.realDecision + ", context: " + errorRecord.context + "\n");
+              errorWriter.write("guess " + errorRecord.guessDecision + ", real " + errorRecord.realDecision + ", context: " + errorRecord.context + "\n");
             }
           }
           errorWriter.flush();
@@ -186,17 +184,16 @@ public class TokenEvaluationFScoreCalculator implements TokenEvaluationObserver 
           FScoreCalculator<TokeniserOutcome> taggerFScoreCalculator = taggerFScoreCalculators.get(tagger);
           csvErrorWriter.write(CSV.format("Authority") + CSV.format("total") + CSV.format("true+") + CSV.format("false-") + CSV.format("false+")
               + CSV.format("precis") + CSV.format("recall") + CSV.format("fscore") + "\n");
-          csvErrorWriter.write(CSV.format(tagger)
-              + CSV.format((taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()))
-              + CSV.format(taggerFScoreCalculator.getTotalTruePositiveCount()) + CSV.format(taggerFScoreCalculator.getTotalFalseNegativeCount())
-              + CSV.format(taggerFScoreCalculator.getTotalFalsePositiveCount()) + CSV.format(taggerFScoreCalculator.getTotalPrecision())
-              + CSV.format(taggerFScoreCalculator.getTotalRecall()) + CSV.format(taggerFScoreCalculator.getTotalFScore()) + "\n");
+          csvErrorWriter
+              .write(CSV.format(tagger) + CSV.format((taggerFScoreCalculator.getTotalTruePositiveCount() + taggerFScoreCalculator.getTotalFalseNegativeCount()))
+                  + CSV.format(taggerFScoreCalculator.getTotalTruePositiveCount()) + CSV.format(taggerFScoreCalculator.getTotalFalseNegativeCount())
+                  + CSV.format(taggerFScoreCalculator.getTotalFalsePositiveCount()) + CSV.format(taggerFScoreCalculator.getTotalPrecision())
+                  + CSV.format(taggerFScoreCalculator.getTotalRecall()) + CSV.format(taggerFScoreCalculator.getTotalFScore()) + "\n");
 
           for (TokeniserOutcome outcome : taggerFScoreCalculator.getOutcomeSet()) {
             csvErrorWriter.write(CSV.format(outcome.name())
                 + CSV.format((taggerFScoreCalculator.getTruePositiveCount(outcome) + taggerFScoreCalculator.getFalseNegativeCount(outcome)))
-                + CSV.format(taggerFScoreCalculator.getTruePositiveCount(outcome))
-                + CSV.format(taggerFScoreCalculator.getFalseNegativeCount(outcome))
+                + CSV.format(taggerFScoreCalculator.getTruePositiveCount(outcome)) + CSV.format(taggerFScoreCalculator.getFalseNegativeCount(outcome))
                 + CSV.format(taggerFScoreCalculator.getFalsePositiveCount(outcome)) + CSV.format(taggerFScoreCalculator.getPrecision(outcome))
                 + CSV.format(taggerFScoreCalculator.getRecall(outcome)) + CSV.format(taggerFScoreCalculator.getFScore(outcome)) + "\n");
           }

@@ -27,115 +27,118 @@ import java.util.regex.Pattern;
 
 /**
  * Various utilities for formatting text to CSV and reading out of a CSV file.
+ * 
  * @author Assaf Urieli
  *
  */
 public class CSVFormatter {
-    private DecimalFormat decFormat;
-    private DecimalFormat intFormat;
-    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private boolean addQuotesAlways = false;
-    private String csvSeparator = null;
-    private static String globalCsvSeparator = ",";
-    private int decimalPlaces = 2;
-    private static Locale globalLocale = Locale.US;
-    private Locale locale = null;
-    private boolean initialized = false;
-    
+  private DecimalFormat decFormat;
+  private DecimalFormat intFormat;
+  private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private boolean addQuotesAlways = false;
+  private String csvSeparator = null;
+  private static String globalCsvSeparator = ",";
+  private int decimalPlaces = 2;
+  private static Locale globalLocale = Locale.US;
+  private Locale locale = null;
+  private boolean initialized = false;
+
   private Pattern csvSeparators = null;
+
   private enum TokenType {
-    COMMA, QUOTE, OTHER
+    COMMA,
+    QUOTE,
+    OTHER
   };
-    
-    public CSVFormatter(int decimalPlaces) {
+
+  public CSVFormatter(int decimalPlaces) {
     this();
     this.setDecimalPlaces(decimalPlaces);
   }
 
   public CSVFormatter() {
-    }
-    
+  }
+
   private void initialize() {
     if (!this.initialized) {
-        this.updateDecimalFormat();
+      this.updateDecimalFormat();
       this.initialized = true;
     }
   }
-  
 
   private void updateDecimalFormat() {
     String dfFormat = "0.";
-    for (int i = 0; i<decimalPlaces;i++) {
+    for (int i = 0; i < decimalPlaces; i++) {
       dfFormat += "0";
     }
-      decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(this.getLocale());
-      decFormat.applyPattern(dfFormat);
-      intFormat = (DecimalFormat) DecimalFormat.getNumberInstance(this.getLocale());
-      intFormat.applyPattern("##0");
+    decFormat = (DecimalFormat) DecimalFormat.getNumberInstance(this.getLocale());
+    decFormat.applyPattern(dfFormat);
+    intFormat = (DecimalFormat) DecimalFormat.getNumberInstance(this.getLocale());
+    intFormat.applyPattern("##0");
   }
-  
-    /**
-     * Format a double for inclusion in a CSV.
-     */
-    public String format(double number) {
-      this.initialize();
-      if (addQuotesAlways)
-        return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
+
+  /**
+   * Format a double for inclusion in a CSV.
+   */
+  public String format(double number) {
+    this.initialize();
+    if (addQuotesAlways)
+      return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
     return decFormat.format(number) + this.getCsvSeparator();
   }
-    
-    /**
-     * Format a float for inclusion in a CSV.
-     */
-    public String format(float number) {
-      this.initialize();
-      if (addQuotesAlways)
-        return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
+
+  /**
+   * Format a float for inclusion in a CSV.
+   */
+  public String format(float number) {
+    this.initialize();
+    if (addQuotesAlways)
+      return "\"" + decFormat.format(number) + "\"" + this.getCsvSeparator();
     return decFormat.format(number) + this.getCsvSeparator();
   }
-    
-    /**
-     * Format an int for inclusion in a CSV.
-     */
-    public String format(int number) {
-      this.initialize();
-      if (addQuotesAlways)
-        return "\"" + intFormat.format(number) + "\"" + this.getCsvSeparator();
+
+  /**
+   * Format an int for inclusion in a CSV.
+   */
+  public String format(int number) {
+    this.initialize();
+    if (addQuotesAlways)
+      return "\"" + intFormat.format(number) + "\"" + this.getCsvSeparator();
     return intFormat.format(number) + this.getCsvSeparator();
   }
-    
-    /**
-     * Format a boolean for inclusion in a CSV.
-     */
-    public String format(boolean bool) {
-      if (addQuotesAlways)
-        return "\"" + bool + "\"" + this.getCsvSeparator();
+
+  /**
+   * Format a boolean for inclusion in a CSV.
+   */
+  public String format(boolean bool) {
+    if (addQuotesAlways)
+      return "\"" + bool + "\"" + this.getCsvSeparator();
     return bool + this.getCsvSeparator();
-  }  
-    
-    /**
-     * Format a String for inclusion in a CSV.
-     */
-    public String format(String string) {
-      int quotePos = string.indexOf('"');
-      int commaPos = string.indexOf(this.getCsvSeparator());
-        int apostrophePos = string.indexOf('\'');
-    if (quotePos>=0) {
+  }
+
+  /**
+   * Format a String for inclusion in a CSV.
+   */
+  public String format(String string) {
+    int quotePos = string.indexOf('"');
+    int commaPos = string.indexOf(this.getCsvSeparator());
+    int apostrophePos = string.indexOf('\'');
+    if (quotePos >= 0) {
       string = string.replace("\"", "\"\"");
     }
-    if (quotePos>=0||commaPos>=0||apostrophePos>=0||addQuotesAlways)
+    if (quotePos >= 0 || commaPos >= 0 || apostrophePos >= 0 || addQuotesAlways)
       return "\"" + string + "\"" + this.getCsvSeparator();
     else
       return string + this.getCsvSeparator();
-    
-    }
-    
+
+  }
+
   /**
    * Extract a list of cell contents from a given CSV line.
    * 
    */
   public List<String> getCSVCells(String csvLine) {
-    if (csvSeparators==null) {
+    if (csvSeparators == null) {
       csvSeparators = Pattern.compile("((" + this.getCsvSeparator() + ")|\")");
     }
     List<String> cells = new ArrayList<String>();
@@ -180,7 +183,7 @@ public class CSVFormatter {
       cells.add(currentCell.toString().trim());
     return cells;
   }
-  
+
   /**
    * Return the spreadsheet column label corresponding to a certain index.
    */
@@ -188,23 +191,24 @@ public class CSVFormatter {
     String columnLabel = "";
     int result = index / 26;
     int remainder = index % 26;
-    if (result==0) {
+    if (result == 0) {
       columnLabel = "" + ALPHABET.charAt(remainder);
     } else {
       columnLabel = "" + ALPHABET.charAt(result - 1) + ALPHABET.charAt(remainder);
     }
     return columnLabel;
   }
-  
+
   /**
-   * Get the zero-based column index corresponding to a particular label, e.g. BB=(26*2)+2-1=54-1=53.
+   * Get the zero-based column index corresponding to a particular label, e.g.
+   * BB=(26*2)+2-1=54-1=53.
    */
   public int getColumnIndex(String label) {
-    int result=0;
+    int result = 0;
     int multiplier = 1;
-    for (int i=label.length()-1; i>=0; i--) {
+    for (int i = label.length() - 1; i >= 0; i--) {
       char c = label.charAt(i);
-      if (c>='A' && c<='Z') {
+      if (c >= 'A' && c <= 'Z') {
         int pos = ALPHABET.indexOf(c) + 1;
         result += pos * multiplier;
         multiplier *= 26;
@@ -213,16 +217,17 @@ public class CSVFormatter {
     result -= 1;
     return result;
   }
-  
+
   /**
-   * Get the zero-based row index corresponding to a particular label, e.g. BB19 = 18
+   * Get the zero-based row index corresponding to a particular label, e.g. BB19
+   * = 18
    */
-  public int getRowIndex(String label){
+  public int getRowIndex(String label) {
     int result = 0;
     int multiplier = 1;
-    for (int i=label.length()-1; i>=0; i--) {
+    for (int i = label.length() - 1; i >= 0; i--) {
       char c = label.charAt(i);
-      if (c>='0' && c<='9') {
+      if (c >= '0' && c <= '9') {
         int digit = c - '0';
         result += digit * multiplier;
         multiplier *= 10;
@@ -230,10 +235,10 @@ public class CSVFormatter {
         break;
       }
     }
-    result -=1;
+    result -= 1;
     return result;
   }
-  
+
   /**
    * Whether or not to systematically add quotes around all cell contents.
    */
@@ -245,7 +250,7 @@ public class CSVFormatter {
    * The CSV separator to be used (default is a comma).
    */
   public String getCsvSeparator() {
-    if (csvSeparator!=null) {
+    if (csvSeparator != null) {
       return csvSeparator;
     }
     return globalCsvSeparator;
@@ -254,26 +259,24 @@ public class CSVFormatter {
   public void setCsvSeparator(String separator) {
     csvSeparator = separator;
   }
-  
+
   public static String getGlobalCsvSeparator() {
     return globalCsvSeparator;
   }
-  
+
   public static void setGlobalCsvSeparator(String separator) {
     globalCsvSeparator = separator;
   }
-  
+
   public void setDecimalPlaces(int decimalPlaces) {
-    if (this.decimalPlaces!=decimalPlaces) {
+    if (this.decimalPlaces != decimalPlaces) {
       this.decimalPlaces = decimalPlaces;
       this.updateDecimalFormat();
     }
   }
-  
-  
-  
+
   public Locale getLocale() {
-    if (this.locale!=null)
+    if (this.locale != null)
       return locale;
     return globalLocale;
   }
@@ -300,5 +303,5 @@ public class CSVFormatter {
   public boolean isAddQuotesAlways() {
     return addQuotesAlways;
   }
-  
+
 }

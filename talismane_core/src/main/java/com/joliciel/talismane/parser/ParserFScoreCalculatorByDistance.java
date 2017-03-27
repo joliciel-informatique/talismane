@@ -162,8 +162,8 @@ public class ParserFScoreCalculatorByDistance implements ParseEvaluationObserver
         }
       }
       try {
-        writer.write(CSV.format("distance") + CSV.format("true+") + CSV.format("false-") + CSV.format("accuracy") + CSV.format("above")
-            + CSV.format("below") + "\n");
+        writer.write(
+            CSV.format("distance") + CSV.format("true+") + CSV.format("false-") + CSV.format("accuracy") + CSV.format("above") + CSV.format("below") + "\n");
         for (int distance : this.fscoreByDistanceMap.keySet()) {
           writer.write(distance + ",");
           FScoreCalculator<String> fScoreCalculator = this.fscoreByDistanceMap.get(distance);

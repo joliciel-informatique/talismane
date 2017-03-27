@@ -20,6 +20,7 @@ package com.joliciel.talismane.lexicon;
 
 /**
  * The currently supported lexical attributes.
+ * 
  * @author Assaf Urieli
  *
  */

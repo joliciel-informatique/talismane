@@ -8,23 +8,24 @@ public class CircularDependencyException extends TalismaneException {
   private ParseConfiguration configuration;
   private PosTaggedToken head;
   private PosTaggedToken dependent;
-  
-  public CircularDependencyException(ParseConfiguration configuration,
-      PosTaggedToken head, PosTaggedToken dependent) {
+
+  public CircularDependencyException(ParseConfiguration configuration, PosTaggedToken head, PosTaggedToken dependent) {
     super("Cannot add circular dependency, head = " + head + ", dependent = " + dependent);
     this.configuration = configuration;
     this.head = head;
     this.dependent = dependent;
   }
+
   public ParseConfiguration getConfiguration() {
     return configuration;
   }
+
   public PosTaggedToken getHead() {
     return head;
   }
+
   public PosTaggedToken getDependent() {
     return dependent;
   }
-  
-  
+
 }

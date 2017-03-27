@@ -60,20 +60,19 @@ public interface RegexAnnotator extends SentenceAnnotator {
   public void addAttribute(String key, TokenAttribute<?> value);
 
   /**
-   * If true, will automatically add a word boundary at the beginning and end
-   * of the regex, as long as the regex begins/ends with a letter (inside
-   * round or square brackets or not), or one of the character classes \d, \w,
-   * or \p{WordList|Lower|Upper|Alpha|Digit|ASCII}. Note that a + at the end
-   * of the regex is ignored, but a * or ? is not (as it doesn't guarantee
-   * that the class will be matched). Default is false.
+   * If true, will automatically add a word boundary at the beginning and end of
+   * the regex, as long as the regex begins/ends with a letter (inside round or
+   * square brackets or not), or one of the character classes \d, \w, or
+   * \p{WordList|Lower|Upper|Alpha|Digit|ASCII}. Note that a + at the end of the
+   * regex is ignored, but a * or ? is not (as it doesn't guarantee that the
+   * class will be matched). Default is false.
    */
   public boolean isAutoWordBoundaries();
 
   /**
    * If false, will replace any letter by a class containing the uppercase and
    * lowercase versions of the letter. If the letter has a diacritic, both the
-   * unadorned and adorned uppercase versions will be included. Default is
-   * true.
+   * unadorned and adorned uppercase versions will be included. Default is true.
    */
   public boolean isCaseSensitive();
 

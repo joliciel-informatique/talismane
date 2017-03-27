@@ -109,8 +109,7 @@ public class Extensions {
     parser.acceptsAll(Arrays.asList("?", "help"), "show help").forHelp();
 
     OptionSpec<File> inFileOption = parser.accepts("inFile", "input file or directory").withRequiredArg().ofType(File.class);
-    OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg()
-        .ofType(File.class);
+    OptionSpec<File> outFileOption = parser.accepts("outFile", "output file or directory (when inFile is a directory)").withRequiredArg().ofType(File.class);
     OptionSpec<File> outDirOption = parser.accepts("outDir", "output directory (for writing evaluation and analysis files other than the standard output)")
         .withRequiredArg().ofType(File.class);
 
@@ -123,27 +122,22 @@ public class Extensions {
     OptionSpec<String> inputEncodingOption = parser.accepts("inputEncoding", "encoding for input").withRequiredArg().ofType(String.class);
     OptionSpec<String> outputEncodingOption = parser.accepts("outputEncoding", "encoding for output").withRequiredArg().ofType(String.class);
 
-    OptionSpec<File> lexiconOption = parser.accepts("lexicon", "semi-colon delimited list of pre-compiled lexicon files").withRequiredArg()
-        .ofType(File.class).withValuesSeparatedBy(';');
+    OptionSpec<File> lexiconOption = parser.accepts("lexicon", "semi-colon delimited list of pre-compiled lexicon files").withRequiredArg().ofType(File.class)
+        .withValuesSeparatedBy(';');
 
     OptionSpec<File> textFiltersOption = parser.accepts("textFilters", "semi-colon delimited list of files containing text filters").withRequiredArg()
         .ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> tokenFiltersOption = parser.accepts("tokenFilters", "semi-colon delimited list of files containing token pre-annotators")
+    OptionSpec<File> tokenFiltersOption = parser.accepts("tokenFilters", "semi-colon delimited list of files containing token pre-annotators").withRequiredArg()
+        .ofType(File.class).withValuesSeparatedBy(';');
+    OptionSpec<File> tokenSequenceFiltersOption = parser.accepts("tokenSequenceFilters", "semi-colon delimited list of files containing token post-annotators")
         .withRequiredArg().ofType(File.class).withValuesSeparatedBy(';');
-    OptionSpec<File> tokenSequenceFiltersOption = parser
-        .accepts("tokenSequenceFilters", "semi-colon delimited list of files containing token post-annotators").withRequiredArg().ofType(File.class)
-        .withValuesSeparatedBy(';');
 
     OptionSpec<String> newlineOption = parser
-        .accepts("newline",
-            "how to handle newlines: " + "options are SPACE (will be replaced by a space) " + "and SENTENCE_BREAK (will break sentences)")
+        .accepts("newline", "how to handle newlines: " + "options are SPACE (will be replaced by a space) " + "and SENTENCE_BREAK (will break sentences)")
         .withRequiredArg().ofType(String.class);
 
-    OptionSpec<Boolean> processByDefaultOption = parser
-        .accepts("processByDefault",
-            "If true, the input file is processed from the very start (e.g. TXT files)."
-                + "If false, we wait until a text filter tells us to start processing (e.g. XML files).")
-        .withRequiredArg().ofType(Boolean.class);
+    OptionSpec<Boolean> processByDefaultOption = parser.accepts("processByDefault", "If true, the input file is processed from the very start (e.g. TXT files)."
+        + "If false, we wait until a text filter tells us to start processing (e.g. XML files).").withRequiredArg().ofType(Boolean.class);
 
     OptionSpec<Integer> blockSizeOption = parser
         .accepts("blockSize", "The block size to use when applying filters - if a text filter regex goes beyond the blocksize, Talismane will fail.")
@@ -255,13 +249,12 @@ public class Extensions {
 
     List<String> inputLocations = Arrays.asList("talismane.core.input", "talismane.core.language-detector.input", "talismane.core.language-detector.train",
         "talismane.core.language-detector.evaluate", "talismane.core.sentence-detector.input", "talismane.core.sentence-detector.train",
-        "talismane.core.sentence-detector.evaluate", "talismane.core.tokeniser.input", "talismane.core.tokeniser.train",
-        "talismane.core.tokeniser.evaluate", "talismane.core.pos-tagger.input", "talismane.core.pos-tagger.train", "talismane.core.pos-tagger.evaluate",
-        "talismane.core.parser.input", "talismane.core.parser.train", "talismane.core.parser.evaluate");
+        "talismane.core.sentence-detector.evaluate", "talismane.core.tokeniser.input", "talismane.core.tokeniser.train", "talismane.core.tokeniser.evaluate",
+        "talismane.core.pos-tagger.input", "talismane.core.pos-tagger.train", "talismane.core.pos-tagger.evaluate", "talismane.core.parser.input",
+        "talismane.core.parser.train", "talismane.core.parser.evaluate");
 
-    List<String> outputLocations = Arrays.asList("talismane.core.output", "talismane.core.language-detector.output",
-        "talismane.core.sentence-detector.output", "talismane.core.tokeniser.output", "talismane.core.pos-tagger.output",
-        "talismane.core.parser.output");
+    List<String> outputLocations = Arrays.asList("talismane.core.output", "talismane.core.language-detector.output", "talismane.core.sentence-detector.output",
+        "talismane.core.tokeniser.output", "talismane.core.pos-tagger.output", "talismane.core.parser.output");
 
     if (options.has(newlineOption))
       values.put("talismane.core.newline", options.valueOf(newlineOption));
@@ -459,8 +452,8 @@ public class Extensions {
       switch (session.getModule()) {
       case posTagger: {
         try {
-          PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader,
-              config.getConfig("talismane.core.pos-tagger.input"), session);
+          PosTagAnnotatedCorpusReader corpusReader = PosTagAnnotatedCorpusReader.getCorpusReader(reader, config.getConfig("talismane.core.pos-tagger.input"),
+              session);
           while (corpusReader.hasNextSentence()) {
             PosTagSequence posTagSequence = corpusReader.nextPosTagSequence();
             for (PosTagSequenceProcessor processor : posTagSequenceProcessors)

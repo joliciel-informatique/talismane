@@ -133,8 +133,8 @@ public class Sentence extends AnnotatedText {
   }
 
   /**
-   * Returns the line number corresponding to a particular original index
-   * inside this sentence, starting at 1.
+   * Returns the line number corresponding to a particular original index inside
+   * this sentence, starting at 1.
    */
 
   public int getLineNumber(int originalIndex) {

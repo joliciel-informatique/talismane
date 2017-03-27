@@ -22,8 +22,9 @@ import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
- * A HashMap with a bounded number of entries.
- * Automatically removes the oldest entry.
+ * A HashMap with a bounded number of entries. Automatically removes the oldest
+ * entry.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -31,7 +32,7 @@ public class BoundedHashMap<K, V> extends HashMap<K, V> {
   private static final long serialVersionUID = 1L;
   private LinkedBlockingDeque<K> deque;
   private int capacity = 0;
-  
+
   public BoundedHashMap(int capacity) {
     super();
     this.capacity = capacity;
@@ -40,22 +41,22 @@ public class BoundedHashMap<K, V> extends HashMap<K, V> {
 
   @Override
   public V put(K key, V value) {
-    if (this.capacity==0) {
+    if (this.capacity == 0) {
       // max size was initiated to zero => just return false
       return null;
     }
-    
+
     boolean contains = super.containsKey(key);
     if (contains) {
       // simply replace the former value with a new one
       return super.put(key, value);
     }
-    
-    if (deque.remainingCapacity()<=0) {
+
+    if (deque.remainingCapacity() <= 0) {
       K removeKey = deque.pollLast();
       super.remove(removeKey);
     }
-    
+
     deque.add(key);
     return super.put(key, value);
   }

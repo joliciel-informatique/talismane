@@ -22,6 +22,7 @@ import com.joliciel.talismane.utils.JolicielException;
 
 /**
  * Represents an exception thrown by the dynamic compiler.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -39,5 +40,5 @@ public class DynamicCompilerException extends JolicielException {
   public DynamicCompilerException(Throwable cause) {
     super(cause);
   }
-  
+
 }

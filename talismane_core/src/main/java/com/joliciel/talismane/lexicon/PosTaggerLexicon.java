@@ -34,11 +34,11 @@ import com.joliciel.talismane.posTagger.PosTagSet;
  */
 public interface PosTaggerLexicon extends Lexicon {
   /**
-   * For a given word, an ordered set of all postags to be considered in
-   * tagging (using the natural ordering for postags).
+   * For a given word, an ordered set of all postags to be considered in tagging
+   * (using the natural ordering for postags).
    * 
    * @param word
-   *            the word being considered
+   *          the word being considered
    * @return List&lt;PosTag&gt;
    * @throws TalismaneException
    */
@@ -58,8 +58,8 @@ public interface PosTaggerLexicon extends Lexicon {
   public List<LexicalEntry> getEntriesForLemma(String lemma, PosTag posTag);
 
   /**
-   * Return an entry for the same lemma as the lexical entry provided,
-   * matching the criteria provided (posTag, gender, number).
+   * Return an entry for the same lemma as the lexical entry provided, matching
+   * the criteria provided (posTag, gender, number).
    */
   public List<LexicalEntry> getEntriesMatchingCriteria(LexicalEntry lexicalEntry, PosTag posTag, String gender, String number);
 

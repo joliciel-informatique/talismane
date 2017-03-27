@@ -96,8 +96,8 @@ public class Talismane {
    */
   public enum Command {
     /**
-     * Train a model using a corpus, a feature set, a classifier +
-     * parameters, etc.
+     * Train a model using a corpus, a feature set, a classifier + parameters,
+     * etc.
      */
     train,
     /**
@@ -105,14 +105,14 @@ public class Talismane {
      */
     analyse,
     /**
-     * Evaluate an annotated corpus, by re-analysing the corpus and
-     * comparing the new annotations to the existing ones.
+     * Evaluate an annotated corpus, by re-analysing the corpus and comparing
+     * the new annotations to the existing ones.
      */
     evaluate,
     /**
-     * Process an annotated corpus - Talismane simply reads the corpus using
-     * the appropriate corpus reader and passes the results to the
-     * appropriate processors.
+     * Process an annotated corpus - Talismane simply reads the corpus using the
+     * appropriate corpus reader and passes the results to the appropriate
+     * processors.
      */
     process,
     /**
@@ -165,8 +165,7 @@ public class Talismane {
      */
     with_prob,
     /**
-     * Include extra columns for user-supplied comments in the training
-     * corpus.
+     * Include extra columns for user-supplied comments in the training corpus.
      */
     with_comments
   }
@@ -193,16 +192,16 @@ public class Talismane {
   /**
    * 
    * @param writer
-   *            a writer for writing the main output - if null, all output is
-   *            written to the outDir with predefined filenames
+   *          a writer for writing the main output - if null, all output is
+   *          written to the outDir with predefined filenames
    * @param outDir
-   *            a directory for writing any additional output files specified
-   *            in the configuration
+   *          a directory for writing any additional output files specified in
+   *          the configuration
    * @param session
    * @throws IOException
    * @throws ReflectiveOperationException
    * @throws TalismaneException
-   *             if start module comes after end module in the configuration.
+   *           if start module comes after end module in the configuration.
    */
   public Talismane(Writer writer, File outDir, TalismaneSession session) throws IOException, ReflectiveOperationException, TalismaneException {
     this.session = session;
@@ -223,8 +222,8 @@ public class Talismane {
 
     if (this.endModule == Module.sentenceDetector) {
       this.sentenceProcessors = SentenceProcessor.getProcessors(writer, outDir, session);
-    } else if (outputIntermediateModules && this.startModule.compareTo(Module.sentenceDetector) <= 0
-        && this.endModule.compareTo(Module.sentenceDetector) >= 0) {
+    } else
+      if (outputIntermediateModules && this.startModule.compareTo(Module.sentenceDetector) <= 0 && this.endModule.compareTo(Module.sentenceDetector) >= 0) {
       this.sentenceProcessors = SentenceProcessor.getProcessors(null, outDir, session);
     } else {
       this.sentenceProcessors = new ArrayList<>();
@@ -263,8 +262,7 @@ public class Talismane {
    * @throws IOException
    * @throws ReflectiveOperationException
    * @throws TalismaneException
-   *             if it's impossible to read a sentence from an annotated
-   *             corpus
+   *           if it's impossible to read a sentence from an annotated corpus
    */
   public void analyse(Reader reader) throws IOException, ReflectiveOperationException, TalismaneException {
     long startTime = System.currentTimeMillis();
@@ -607,8 +605,8 @@ public class Talismane {
   }
 
   /**
-   * Does this instance of Talismane need a pos tagger to perform the
-   * requested processing.
+   * Does this instance of Talismane need a pos tagger to perform the requested
+   * processing.
    */
   private boolean needsPosTagger() {
     return startModule.compareTo(Module.posTagger) <= 0 && endModule.compareTo(Module.posTagger) >= 0;

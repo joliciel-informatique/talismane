@@ -37,9 +37,9 @@ import com.joliciel.talismane.tokeniser.TokenAttribute;
 public interface SentenceAnnotator extends Annotator<Sentence> {
 
   /**
-   * Returns true if this SentenceAnnotator should be excluded from the list
-   * of annotators for the current configuration. This will typically be set
-   * during the load method, based on context specific considerations.
+   * Returns true if this SentenceAnnotator should be excluded from the list of
+   * annotators for the current configuration. This will typically be set during
+   * the load method, based on context specific considerations.
    */
   public abstract boolean isExcluded();
 }

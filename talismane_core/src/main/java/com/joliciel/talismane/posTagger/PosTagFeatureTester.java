@@ -63,11 +63,11 @@ public class PosTagFeatureTester implements PosTagSequenceProcessor {
    * encountered in a given corpus.
    * 
    * @param posTaggerFeatures
-   *            the features to test
+   *          the features to test
    * @param testWords
-   *            limit the test to certain words only
+   *          limit the test to certain words only
    * @param writer
-   *            where the test results should be written
+   *          where the test results should be written
    */
   public PosTagFeatureTester(Set<PosTaggerFeature<?>> posTaggerFeatures, Set<String> testWords, Writer writer) {
     this.posTaggerFeatures = posTaggerFeatures;

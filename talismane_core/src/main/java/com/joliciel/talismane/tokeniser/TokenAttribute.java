@@ -26,8 +26,8 @@ import java.io.Serializable;
  * @author Assaf Urieli
  *
  * @param <T>
- *            the content type of this attribute, must implement hashcode and
- *            equals
+ *          the content type of this attribute, must implement hashcode and
+ *          equals
  */
 public class TokenAttribute<T extends Serializable> implements Serializable {
   private static final long serialVersionUID = 1L;

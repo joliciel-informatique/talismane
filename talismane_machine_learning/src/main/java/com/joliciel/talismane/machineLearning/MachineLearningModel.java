@@ -91,8 +91,8 @@ public interface MachineLearningModel {
   public MachineLearningAlgorithm getAlgorithm();
 
   /**
-   * The configuration used to construct this model, useful for retraining a
-   * new model using the identical config.
+   * The configuration used to construct this model, useful for retraining a new
+   * model using the identical config.
    */
   public Config getConfig();
 

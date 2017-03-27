@@ -22,6 +22,7 @@ import com.joliciel.talismane.utils.JolicielException;
 
 /**
  * Occurs when the feature descriptor syntax cannot be parsed.
+ * 
  * @author Assaf Urieli
  *
  */
@@ -29,7 +30,7 @@ public class FeatureSyntaxException extends JolicielException {
   private static final long serialVersionUID = -3315622182688781983L;
   private FunctionDescriptor descriptor;
   private FunctionDescriptor topLevelDescriptor;
-  
+
   public FeatureSyntaxException(String message, FunctionDescriptor descriptor, FunctionDescriptor topLevelDescriptor) {
     super(message + ": " + descriptor.toString() + " in top-level descriptor: " + topLevelDescriptor.getDescriptorName());
     this.descriptor = descriptor;

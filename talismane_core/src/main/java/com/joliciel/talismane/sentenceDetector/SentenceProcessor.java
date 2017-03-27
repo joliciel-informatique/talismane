@@ -56,8 +56,8 @@ public interface SentenceProcessor extends Closeable {
   /**
    * 
    * @param writer
-   *            if provided, the main processor will write to this writer, if
-   *            null, the outDir will be used instead
+   *          if provided, the main processor will write to this writer, if
+   *          null, the outDir will be used instead
    * @param outDir
    * @param session
    * @return

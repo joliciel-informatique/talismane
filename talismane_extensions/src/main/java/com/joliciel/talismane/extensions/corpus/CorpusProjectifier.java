@@ -59,15 +59,14 @@ public class CorpusProjectifier implements ParseConfigurationProcessor {
    */
   public enum ProjectivationStrategy {
     /**
-     * Select the projective head which is closest to its dependent in terms
-     * of linear distance. If both are at an equal distance, change to next
+     * Select the projective head which is closest to its dependent in terms of
+     * linear distance. If both are at an equal distance, change to next
      * strategy.
      */
     LeastLinearDistance,
     /**
-     * Select the projective head which is closest to its dependent, in
-     * terms of depth. If both are at an equal distance, change to next
-     * strategy.
+     * Select the projective head which is closest to its dependent, in terms of
+     * depth. If both are at an equal distance, change to next strategy.
      */
     LeastDepthDifference,
     /**

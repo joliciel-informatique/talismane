@@ -76,8 +76,8 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
   private boolean needsToReturnBlankLine = false;
 
   /**
-   * Add attributes as specified in the config to the corpus reader.
-   * Recognises the attributes:
+   * Add attributes as specified in the config to the corpus reader. Recognises
+   * the attributes:
    * <ul>
    * <li>input-pattern: the pattern to match corpus line elements, see class
    * description.</li>
@@ -87,7 +87,7 @@ public class TokenRegexBasedCorpusReader extends AbstractAnnotatedCorpusReader i
    * </ul>
    * 
    * @param config
-   *            the local config for this corpus reader (local namespace)
+   *          the local config for this corpus reader (local namespace)
    * @throws TalismaneException
    */
   public TokenRegexBasedCorpusReader(Reader reader, Config config, TalismaneSession session) throws IOException, TalismaneException {

@@ -35,7 +35,8 @@ import com.joliciel.talismane.utils.JolicielException;
  */
 public class FunctionDescriptor {
   enum FunctionDescriptorType {
-    Function, Argument
+    Function,
+    Argument
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(FunctionDescriptor.class);
@@ -50,8 +51,7 @@ public class FunctionDescriptor {
   String groupName = null;
 
   /**
-   * Get a function descriptor that wraps an actual function of the given
-   * name.
+   * Get a function descriptor that wraps an actual function of the given name.
    */
   public FunctionDescriptor(String functionName) {
     this(functionName, FunctionDescriptorType.Function);
@@ -61,10 +61,9 @@ public class FunctionDescriptor {
    * If type=Argument, construct a function descriptor that simply wraps an
    * object, however, this argument is described by the argument provided as a
    * string. If it can be parsed as an int, and doesn't contain a ".", the
-   * wrapped object will be an int. If it can be parsed as a double, the
-   * wrapped object will be a double. If it can be parsed as a boolean, the
-   * wrapped object will be a boolean. Otherwise, assumes it's a function
-   * name.
+   * wrapped object will be an int. If it can be parsed as a double, the wrapped
+   * object will be a double. If it can be parsed as a boolean, the wrapped
+   * object will be a boolean. Otherwise, assumes it's a function name.
    */
   FunctionDescriptor(String name, FunctionDescriptorType type) {
     if (type == FunctionDescriptorType.Function)
@@ -148,8 +147,8 @@ public class FunctionDescriptor {
 
   /**
    * Add an argument to this descriptor (at the end of the argument list). If
-   * the argument is a FunctionDescriptor, will get added as is. Otherwise,
-   * will get added as FunctionDescriptor wrapper to the argument provided.
+   * the argument is a FunctionDescriptor, will get added as is. Otherwise, will
+   * get added as FunctionDescriptor wrapper to the argument provided.
    */
   public void addArgument(Object argument) {
     this.addArgument(-1, argument);
@@ -183,8 +182,8 @@ public class FunctionDescriptor {
   }
 
   /**
-   * When this function descriptor describes an object, rather than a
-   * function, the object it describes. Otherwise null.
+   * When this function descriptor describes an object, rather than a function,
+   * the object it describes. Otherwise null.
    */
   public Object getObject() {
     return object;
@@ -316,9 +315,9 @@ public class FunctionDescriptor {
   }
 
   /**
-   * The name of the group to which this descriptor belongs, or null
-   * otherwise. Several descriptors can be grouped together in a group, for
-   * mutual handling downstream by other descriptors.
+   * The name of the group to which this descriptor belongs, or null otherwise.
+   * Several descriptors can be grouped together in a group, for mutual handling
+   * downstream by other descriptors.
    */
   public String getGroupName() {
     return groupName;
@@ -329,8 +328,8 @@ public class FunctionDescriptor {
   }
 
   /**
-   * Was this descriptor defined at the top level (a line of its own), or is
-   * it inside another descriptor.
+   * Was this descriptor defined at the top level (a line of its own), or is it
+   * inside another descriptor.
    */
   public boolean isTopLevelDescriptor() {
     return this.getParent() == null;

@@ -40,8 +40,8 @@ public class TaggedTokenSequence<T extends TokenTag> extends ArrayList<TaggedTok
   }
 
   /**
-   * Create a tagged token sequence with space to one additional tagged token
-   * at the end of an existing history.
+   * Create a tagged token sequence with space to one additional tagged token at
+   * the end of an existing history.
    */
   public TaggedTokenSequence(TaggedTokenSequence<T> history) {
     super(history.size() + 1);
@@ -52,9 +52,9 @@ public class TaggedTokenSequence<T extends TokenTag> extends ArrayList<TaggedTok
    * Add a tagged token to the end of the current tagged token list.
    * 
    * @param token
-   *            the token to be added
+   *          the token to be added
    * @param decision
-   *            the decision attached to this token
+   *          the decision attached to this token
    */
   public TaggedToken<T> addTaggedToken(Token token, Decision decision, T tag) {
     TaggedToken<T> taggedToken = new TaggedToken<T>(token, decision, tag);

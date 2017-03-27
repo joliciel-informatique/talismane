@@ -112,8 +112,7 @@ class StringCollectionFeatureWrapper<T> extends AbstractFeature<T, List<Weighted
             Integer outcome = (Integer) featureResult.getOutcome();
             finalList.add(new WeightedOutcome<String>(collectionResult, weight * outcome.doubleValue()));
           } else {
-            throw new JolicielException(
-                "Cannot include collections in a top-level feature of type: " + wrappedFeature.getFeatureType().getSimpleName());
+            throw new JolicielException("Cannot include collections in a top-level feature of type: " + wrappedFeature.getFeatureType().getSimpleName());
           }
         }
       }

@@ -37,10 +37,9 @@ public interface ClassificationModelTrainer {
    * provided.
    * 
    * @param corpusEventStream
-   *            the event stream containing the events to be used for training
+   *          the event stream containing the events to be used for training
    * @param featureDescriptors
-   *            the feature descriptors required to apply this model to new
-   *            data.
+   *          the feature descriptors required to apply this model to new data.
    * @throws TalismaneException
    * @throws IOException
    */
@@ -51,10 +50,10 @@ public interface ClassificationModelTrainer {
    * provided.
    * 
    * @param corpusEventStream
-   *            the event stream containing the events to be used for training
+   *          the event stream containing the events to be used for training
    * @param descriptors
-   *            all of the descriptors required to perform analysis using this
-   *            model (e.g. feature descriptors, etc.)
+   *          all of the descriptors required to perform analysis using this
+   *          model (e.g. feature descriptors, etc.)
    * @throws TalismaneException
    * @throws IOException
    */

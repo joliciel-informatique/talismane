@@ -30,9 +30,9 @@ package com.joliciel.talismane.rawText;
  */
 enum RawTextInstruction {
   /**
-   * Remove the effect of the last skip marker. If two skip markers are
-   * nested, this has no effect. If a skip is nested in an include, this will
-   * start processing. Always matched to a PUSH_SKIP.
+   * Remove the effect of the last skip marker. If two skip markers are nested,
+   * this has no effect. If a skip is nested in an include, this will start
+   * processing. Always matched to a PUSH_SKIP.
    */
   POP_SKIP,
   /**
@@ -84,8 +84,8 @@ enum RawTextInstruction {
    */
   STOP_OUTPUT,
   /**
-   * Output the raw contents in any output files produced by Talismane,
-   * assuming we're not processing.
+   * Output the raw contents in any output files produced by Talismane, assuming
+   * we're not processing.
    */
   PUSH_OUTPUT,
   /**

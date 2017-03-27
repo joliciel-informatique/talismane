@@ -106,7 +106,7 @@ public class RegexLexicalEntryReader implements LexicalEntryReader {
    * 
    * @param regexScanner
    * @throws TalismaneException
-   *             if a lexical entry has no Word attribute.
+   *           if a lexical entry has no Word attribute.
    */
   public RegexLexicalEntryReader(Scanner regexScanner) throws TalismaneException {
     while (regexScanner.hasNextLine()) {

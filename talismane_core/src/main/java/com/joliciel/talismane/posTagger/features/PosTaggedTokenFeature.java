@@ -21,10 +21,10 @@ package com.joliciel.talismane.posTagger.features;
 import com.joliciel.talismane.machineLearning.features.Feature;
 
 /**
- * A feature defined on a pos-tagged token, which can either be used 
- * when pos-tagging on the history of the current task, or when parsing,
- * after referring to an individual pos-tag.
+ * A feature defined on a pos-tagged token, which can either be used when
+ * pos-tagging on the history of the current task, or when parsing, after
+ * referring to an individual pos-tag.
  */
-public interface PosTaggedTokenFeature<T,Y> extends Feature<T, Y> {
+public interface PosTaggedTokenFeature<T, Y> extends Feature<T, Y> {
   public PosTaggedTokenAddressFunction<?> getAddressFunction();
 }

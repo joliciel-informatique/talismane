@@ -23,7 +23,7 @@ import java.io.Writer;
 
 public class UnclosableWriter extends Writer {
   private Writer wrappedWriter;
-  
+
   public UnclosableWriter(Writer wrappedWriter) {
     super();
     this.wrappedWriter = wrappedWriter;

@@ -56,9 +56,9 @@ public class PosTagEventStream implements ClassificationEventStream {
    * features.
    * 
    * @param corpusReader
-   *            the corpus reader used to read the training corpus
+   *          the corpus reader used to read the training corpus
    * @param posTaggerFeatures
-   *            the features used to describe events in the training corpus
+   *          the features used to describe events in the training corpus
    */
   public PosTagEventStream(PosTagAnnotatedCorpusReader corpusReader, Set<PosTaggerFeature<?>> posTaggerFeatures) {
     this.corpusReader = corpusReader;
